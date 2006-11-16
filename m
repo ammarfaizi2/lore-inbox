@@ -1,604 +1,551 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030938AbWKPDEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031066AbWKPDQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030938AbWKPDEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 22:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030940AbWKPDEP
+	id S1031066AbWKPDQW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 22:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031068AbWKPDQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 22:04:15 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:43139 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030938AbWKPDEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 22:04:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kPHq9ynGjrcFeG1nV0cSZ1FyeOpw1dEnQ8yQdjKtA4e/01G3Zd9RhBIbdJF29O0dy0v47eQOL6ntpkNGsx/CKSTClJmbWmnyLXzyNwMzUKd7Uupcey2IVJjJ0PoIedh3tB0z6kIO+7q1aLXMCn9g2++jh52FtxMtVB2FZYJpaXs=
-Message-ID: <a44ae5cd0611151904k7f8cc856kca3526b62c997a38@mail.gmail.com>
-Date: Wed, 15 Nov 2006 19:04:11 -0800
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.19-rc5-mm2 -- bcm43xx busted (backing out the bcm43xx patches fixes it)
-Cc: Bcm43xx-dev@lists.berlios.de, "Michael Buesch" <mb@bu3sch.de>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Larry.Finger@lwfinger.net
-In-Reply-To: <200611152116.30734.rjw@sisk.pl>
+	Wed, 15 Nov 2006 22:16:22 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:34474 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1031066AbWKPDQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 22:16:20 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:content-type;
+	b=LVNZAt+rdvagC91EIA0wKYhIfBvHATK5v0KLFRNWRwoObsoG0rcN3uYtEqGTmslNp
+	iN6AMGfy9fhTLRsAz6qXw==
+Message-ID: <455BD7E8.9020303@google.com>
+Date: Wed, 15 Nov 2006 19:15:52 -0800
+From: Edward Falk <efalk@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0611141521pd342109jaae9e27aca3d2200@mail.gmail.com>
-	 <200611152116.30734.rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org, jens.axboe@oracle.com
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Introduce block I/O performance histograms
+Content-Type: multipart/mixed;
+ boundary="------------020205050504040708020802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, I am not sure whether you want it inline or attached.
+This is a multi-part message in MIME format.
+--------------020205050504040708020802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
---- linux-2.6.19-rc5/drivers/net/wireless/bcm43xx/bcm43xx.h
-2006-11-07 21:14:05.000000000 -0800
-+++ devel/drivers/net/wireless/bcm43xx/bcm43xx.h        2006-11-14
-01:10:12.000000000 -0800
-@@ -159,6 +159,7 @@
+This patch introduces performance histogram record keeping for block 
+I/O, used for performance tuning.  It is turned off by default.
 
- /* Chipcommon registers. */
- #define BCM43xx_CHIPCOMMON_CAPABILITIES        0x04
-+#define BCM43xx_CHIPCOMMON_CTL                 0x28
- #define BCM43xx_CHIPCOMMON_PLLONDELAY          0xB0
- #define BCM43xx_CHIPCOMMON_FREFSELDELAY                0xB4
- #define BCM43xx_CHIPCOMMON_SLOWCLKCTL          0xB8
-@@ -172,6 +173,33 @@
- /* SBTOPCI2 values. */
- #define BCM43xx_SBTOPCI2_PREFETCH      0x4
- #define BCM43xx_SBTOPCI2_BURST         0x8
-+#define BCM43xx_SBTOPCI2_MEMREAD_MULTI 0x20
-+
-+/* PCI-E core registers. */
-+#define BCM43xx_PCIECORE_REG_ADDR      0x0130
-+#define BCM43xx_PCIECORE_REG_DATA      0x0134
-+#define BCM43xx_PCIECORE_MDIO_CTL      0x0128
-+#define BCM43xx_PCIECORE_MDIO_DATA     0x012C
-+
-+/* PCI-E registers. */
-+#define BCM43xx_PCIE_TLP_WORKAROUND    0x0004
-+#define BCM43xx_PCIE_DLLP_LINKCTL      0x0100
-+
-+/* PCI-E MDIO bits. */
-+#define BCM43xx_PCIE_MDIO_ST   0x40000000
-+#define BCM43xx_PCIE_MDIO_WT   0x10000000
-+#define BCM43xx_PCIE_MDIO_DEV  22
-+#define BCM43xx_PCIE_MDIO_REG  18
-+#define BCM43xx_PCIE_MDIO_TA   0x00020000
-+#define BCM43xx_PCIE_MDIO_TC   0x0100
-+
-+/* MDIO devices. */
-+#define BCM43xx_MDIO_SERDES_RX 0x1F
-+
-+/* SERDES RX registers. */
-+#define BCM43xx_SERDES_RXTIMER 0x2
-+#define BCM43xx_SERDES_CDR     0x6
-+#define BCM43xx_SERDES_CDR_BW  0x7
+When turned on, you simply do something like:
 
- /* Chipcommon capabilities. */
- #define BCM43xx_CAPABILITIES_PCTL              0x00040000
-@@ -221,6 +249,7 @@
- #define BCM43xx_COREID_USB20_HOST       0x819
- #define BCM43xx_COREID_USB20_DEV        0x81a
- #define BCM43xx_COREID_SDIO_HOST        0x81b
-+#define BCM43xx_COREID_PCIE            0x820
+# cat /sys/block/sda/read_request_histo
+rows = bytes columns = ms
+         10      20      50      100     200     500     1000    2000
+    2048 5       0       0       0       0       0       0       0
+    4096 0       0       0       0       0       0       0       0
+    8192 17231   135     41      10      0       0       0       0
+   16384 4400    24      6       2       0       0       0       0
+   32768 2897    34      4       4       0       0       0       0
+   65536 7089    87      5       1       2       0       0       0
+#
 
- /* Core Information Registers */
- #define BCM43xx_CIR_BASE               0xf00
-@@ -365,6 +394,9 @@
- #define BCM43xx_DEFAULT_SHORT_RETRY_LIMIT      7
- #define BCM43xx_DEFAULT_LONG_RETRY_LIMIT       4
+Signed-off-by:	Edward A. Falk <efalk@google.com>
 
-+/* FIXME: the next line is a guess as to what the maximum RSSI value
-might be */
-+#define RX_RSSI_MAX                            60
+--------------020205050504040708020802
+Content-Type: text/plain;
+ name="block_histogram.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="block_histogram.patch"
+
+diff -uprN linux-2.6.18.1/block/Kconfig block_histogram/block/Kconfig
+--- linux-2.6.18.1/block/Kconfig	2006-10-13 20:34:03.000000000 -0700
++++ block_histogram/block/Kconfig	2006-11-15 18:08:07.000000000 -0800
+@@ -24,6 +24,31 @@ config BLK_DEV_IO_TRACE
+ 
+ 	  git://brick.kernel.dk/data/git/blktrace.git
+ 
++config BLOCK_HISTOGRAM
++	bool "Performance histogram data"
++	help
++	  This option causes block devices to collect statistics on transfer
++	  sizes and times.  Useful for performance-tuning a system.  Creates
++	  entries in /sys/block/.  Increases kernel size about 21k.
 +
- /* Max size of a security key */
- #define BCM43xx_SEC_KEYSIZE                    16
- /* Security algorithms. */
---- linux-2.6.19-rc5/drivers/net/wireless/bcm43xx/bcm43xx_main.c
- 2006-11-07 21:14:05.000000000 -0800
-+++ devel/drivers/net/wireless/bcm43xx/bcm43xx_main.c   2006-11-14
-01:10:21.000000000 -0800
-@@ -130,6 +130,10 @@ MODULE_PARM_DESC(fwpostfix, "Postfix for
-        { PCI_VENDOR_ID_BROADCOM, 0x4301, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-        /* Broadcom 4307 802.11b */
-        { PCI_VENDOR_ID_BROADCOM, 0x4307, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+       /* Broadcom 4311 802.11(a)/b/g */
-+       { PCI_VENDOR_ID_BROADCOM, 0x4311, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+       /* Broadcom 4312 802.11a/b/g */
-+       { PCI_VENDOR_ID_BROADCOM, 0x4312, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-        /* Broadcom 4318 802.11b/g */
-        { PCI_VENDOR_ID_BROADCOM, 0x4318, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-        /* Broadcom 4319 802.11a/b/g */
-@@ -746,7 +750,7 @@ int bcm43xx_sprom_write(struct bcm43xx_p
-        if (err)
-                goto err_ctlreg;
-        spromctl |= 0x10; /* SPROM WRITE enable. */
--       bcm43xx_pci_write_config32(bcm, BCM43xx_PCICFG_SPROMCTL, spromctl);
-+       err = bcm43xx_pci_write_config32(bcm, BCM43xx_PCICFG_SPROMCTL,
-spromctl);
-        if (err)
-                goto err_ctlreg;
-        /* We must burn lots of CPU cycles here, but that does not
-@@ -768,7 +772,7 @@ int bcm43xx_sprom_write(struct bcm43xx_p
-                mdelay(20);
-        }
-        spromctl &= ~0x10; /* SPROM WRITE enable. */
--       bcm43xx_pci_write_config32(bcm, BCM43xx_PCICFG_SPROMCTL, spromctl);
-+       err = bcm43xx_pci_write_config32(bcm, BCM43xx_PCICFG_SPROMCTL,
-spromctl);
-        if (err)
-                goto err_ctlreg;
-        mdelay(500);
-@@ -1463,6 +1467,23 @@ static void handle_irq_transmit_status(s
-        }
++	  If you are unsure, say N here.
++
++config HISTO_SIZE_BUCKETS
++	int "Number of size buckets in histogram"
++	depends on BLOCK_HISTOGRAM
++	default "6"
++	help
++	  This option controls how many buckets are used to collect
++	  transfer size statistics.
++
++config HISTO_TIME_BUCKETS
++	int "Number of time buckets in histogram"
++	depends on BLOCK_HISTOGRAM
++	default "8"
++	help
++	  This option controls how many buckets are used to collect
++	  transfer time statistics.
++
+ config LSF
+ 	bool "Support for Large Single Files"
+ 	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
+diff -uprN linux-2.6.18.1/block/genhd.c block_histogram/block/genhd.c
+--- linux-2.6.18.1/block/genhd.c	2006-10-13 20:34:03.000000000 -0700
++++ block_histogram/block/genhd.c	2006-11-15 18:08:07.000000000 -0800
+@@ -16,6 +16,13 @@
+ #include <linux/buffer_head.h>
+ #include <linux/mutex.h>
+ 
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++static ssize_t disk_read_request_histo_read(struct gendisk *, char *page);
++static ssize_t disk_read_dma_histo_read(struct gendisk *, char *page);
++static ssize_t disk_write_request_histo_read(struct gendisk *, char *page);
++static ssize_t disk_write_dma_histo_read(struct gendisk *, char *page);
++#endif
++
+ struct subsystem block_subsys;
+ static DEFINE_MUTEX(block_subsys_lock);
+ 
+@@ -412,6 +419,25 @@ static struct disk_attribute disk_attr_s
+ 	.show	= disk_stats_read
+ };
+ 
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++static struct disk_attribute disk_attr_read_request_histo = {
++	.attr = {.name = "read_request_histo", .mode = S_IRUGO },
++	.show	= disk_read_request_histo_read,
++};
++static struct disk_attribute disk_attr_read_dma_histo = {
++	.attr = {.name = "read_dma_histo", .mode = S_IRUGO },
++	.show	= disk_read_dma_histo_read,
++};
++static struct disk_attribute disk_attr_write_request_histo = {
++	.attr = {.name = "write_request_histo", .mode = S_IRUGO },
++	.show	= disk_write_request_histo_read,
++};
++static struct disk_attribute disk_attr_write_dma_histo = {
++	.attr = {.name = "write_dma_histo", .mode = S_IRUGO },
++	.show	= disk_write_dma_histo_read,
++};
++#endif
++
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_uevent.attr,
+ 	&disk_attr_dev.attr,
+@@ -419,6 +445,12 @@ static struct attribute * default_attrs[
+ 	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++	&disk_attr_read_request_histo.attr,
++	&disk_attr_read_dma_histo.attr,
++	&disk_attr_write_request_histo.attr,
++	&disk_attr_write_dma_histo.attr,
++#endif
+ 	NULL,
+ };
+ 
+@@ -708,3 +740,288 @@ int invalidate_partition(struct gendisk 
  }
-
-+static void drain_txstatus_queue(struct bcm43xx_private *bcm)
-+{
-+       u32 dummy;
+ 
+ EXPORT_SYMBOL(invalidate_partition);
 +
-+       if (bcm->current_core->rev < 5)
-+               return;
-+       /* Read all entries from the microcode TXstatus FIFO
-+        * and throw them away.
-+        */
-+       while (1) {
-+               dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_0);
-+               if (!dummy)
-+                       break;
-+               dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_1);
-+       }
++
++
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++
++/*
++ *  Explanation of histogram code:
++ *
++ *  The block_histogram code implements a 2-variable histogram, with transfers
++ *  tracked by transfer size and completion time.  The /sysfs files are
++ *  /sysfs/block/DEV/read_request_histo, /sysfs/block/DEV/write_request_histo,
++ *  /sysfs/block/DEV/read_dma_histo, and /sysfs/block/DEV/write_dma_histo
++ *
++ *  The *request_histo files measure time from when the request is first
++ *  submitted into the drive's queue.  The *dma_histo files measure time
++ *  from when the request is transfered from the queue to the device.
++ *
++ *  block_histogram_start_time() is used to note the time that the
++ *  request was transfered to the device.  block_histogram_completion()
++ *  is used to note the time the transfer was completed.
++ */
++
++
++#define	HISTO_REQUEST	0
++#define	HISTO_DMA	1
++
++/**
++ * Clear one per-cpu instance of one channel of I/O histogram
++ */
++static inline void block_histogram_init2(struct disk_stats *stats,
++			int cmd, int type)
++{
++	if (type == HISTO_REQUEST) {
++		if (cmd == READ)
++			memset(&stats->read_req_histo, 0,
++			  sizeof(stats->read_req_histo));
++		else
++			memset(&stats->write_req_histo, 0,
++			  sizeof(stats->write_req_histo));
++	}
++	else {
++		if (cmd == READ)
++			memset(&stats->read_dma_histo, 0,
++			  sizeof(stats->read_dma_histo));
++		else
++			memset(&stats->write_dma_histo, 0,
++			  sizeof(stats->write_dma_histo));
++	}
 +}
 +
- static void bcm43xx_generate_noise_sample(struct bcm43xx_private *bcm)
- {
-        bcm43xx_shm_write16(bcm, BCM43xx_SHM_SHARED, 0x408, 0x7F7F);
-@@ -2583,8 +2604,9 @@ static int bcm43xx_probe_cores(struct bc
-        /* fetch sb_id_hi from core information registers */
-        sb_id_hi = bcm43xx_read32(bcm, BCM43xx_CIR_SB_ID_HI);
-
--       core_id = (sb_id_hi & 0xFFF0) >> 4;
--       core_rev = (sb_id_hi & 0xF);
-+       core_id = (sb_id_hi & 0x8FF0) >> 4;
-+       core_rev = (sb_id_hi & 0x7000) >> 8;
-+       core_rev |= (sb_id_hi & 0xF);
-        core_vendor = (sb_id_hi & 0xFFFF0000) >> 16;
-
-        /* if present, chipcommon is always core 0; read the chipid from it */
-@@ -2662,14 +2684,10 @@ static int bcm43xx_probe_cores(struct bc
-                bcm->chip_id, bcm->chip_rev);
-        dprintk(KERN_INFO PFX "Number of cores: %d\n", core_count);
-        if (bcm->core_chipcommon.available) {
--               dprintk(KERN_INFO PFX "Core 0: ID 0x%x, rev 0x%x,
-vendor 0x%x, %s\n",
--                       core_id, core_rev, core_vendor,
--                       bcm43xx_core_enabled(bcm) ? "enabled" : "disabled");
--       }
--
--       if (bcm->core_chipcommon.available)
-+               dprintk(KERN_INFO PFX "Core 0: ID 0x%x, rev 0x%x,
-vendor 0x%x\n",
-+                       core_id, core_rev, core_vendor);
-                current_core = 1;
--       else
-+       } else
-                current_core = 0;
-        for ( ; current_core < core_count; current_core++) {
-                struct bcm43xx_coreinfo *core;
-@@ -2687,13 +2705,13 @@ static int bcm43xx_probe_cores(struct bc
-                core_rev = (sb_id_hi & 0xF);
-                core_vendor = (sb_id_hi & 0xFFFF0000) >> 16;
-
--               dprintk(KERN_INFO PFX "Core %d: ID 0x%x, rev 0x%x,
-vendor 0x%x, %s\n",
--                       current_core, core_id, core_rev, core_vendor,
--                       bcm43xx_core_enabled(bcm) ? "enabled" : "disabled" );
-+               dprintk(KERN_INFO PFX "Core %d: ID 0x%x, rev 0x%x,
-vendor 0x%x\n",
-+                       current_core, core_id, core_rev, core_vendor);
-
-                core = NULL;
-                switch (core_id) {
-                case BCM43xx_COREID_PCI:
-+               case BCM43xx_COREID_PCIE:
-                        core = &bcm->core_pci;
-                        if (core->available) {
-                                printk(KERN_WARNING PFX "Multiple PCI
-cores found.\n");
-@@ -2732,12 +2750,12 @@ static int bcm43xx_probe_cores(struct bc
-                        case 6:
-                        case 7:
-                        case 9:
-+                       case 10:
-                                break;
-                        default:
--                               printk(KERN_ERR PFX "Error:
-Unsupported 80211 core revision %u\n",
-+                               printk(KERN_WARNING PFX
-+                                      "Unsupported 80211 core revision %u\n",
-                                       core_rev);
--                               err = -ENODEV;
--                               goto out;
-                        }
-                        bcm->nr_80211_available++;
-                        core->priv = ext_80211;
-@@ -2851,16 +2869,11 @@ static int bcm43xx_wireless_core_init(st
-        u32 sbimconfiglow;
-        u8 limit;
-
--       if (bcm->chip_rev < 5) {
-+       if (bcm->core_pci.rev <= 5 && bcm->core_pci.id != BCM43xx_COREID_PCIE) {
-                sbimconfiglow = bcm43xx_read32(bcm, BCM43xx_CIR_SBIMCONFIGLOW);
-                sbimconfiglow &= ~ BCM43xx_SBIMCONFIGLOW_REQUEST_TOUT_MASK;
-                sbimconfiglow &= ~ BCM43xx_SBIMCONFIGLOW_SERVICE_TOUT_MASK;
--               if (bcm->bustype == BCM43xx_BUSTYPE_PCI)
--                       sbimconfiglow |= 0x32;
--               else if (bcm->bustype == BCM43xx_BUSTYPE_SB)
--                       sbimconfiglow |= 0x53;
--               else
--                       assert(0);
-+               sbimconfiglow |= 0x32;
-                bcm43xx_write32(bcm, BCM43xx_CIR_SBIMCONFIGLOW, sbimconfiglow);
-        }
-
-@@ -2987,22 +3000,64 @@ static void bcm43xx_pcicore_broadcast_va
-
- static int bcm43xx_pcicore_commit_settings(struct bcm43xx_private *bcm)
- {
--       int err;
--       struct bcm43xx_coreinfo *old_core;
-+       int err = 0;
-
--       old_core = bcm->current_core;
--       err = bcm43xx_switch_core(bcm, &bcm->core_pci);
--       if (err)
--               goto out;
-+       bcm->irq_savedstate = bcm43xx_interrupt_disable(bcm, BCM43xx_IRQ_ALL);
-
--       bcm43xx_pcicore_broadcast_value(bcm, 0xfd8, 0x00000000);
-+       if (bcm->core_chipcommon.available) {
-+               err = bcm43xx_switch_core(bcm, &bcm->core_chipcommon);
-+               if (err)
-+                       goto out;
 +
-+               bcm43xx_pcicore_broadcast_value(bcm, 0xfd8, 0x00000000);
-+
-+               /* this function is always called when a PCI core is mapped */
-+               err = bcm43xx_switch_core(bcm, &bcm->core_pci);
-+               if (err)
-+                       goto out;
-+       } else
-+               bcm43xx_pcicore_broadcast_value(bcm, 0xfd8, 0x00000000);
-+
-+       bcm43xx_interrupt_enable(bcm, bcm->irq_savedstate);
-
--       bcm43xx_switch_core(bcm, old_core);
--       assert(err == 0);
- out:
-        return err;
- }
-
-+static u32 bcm43xx_pcie_reg_read(struct bcm43xx_private *bcm, u32 address)
++/**
++ * Clear one channel of I/O histogram
++ */
++static void block_histogram_init1(struct gendisk *disk, int cmd, int type)
 +{
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_REG_ADDR, address);
-+       return bcm43xx_read32(bcm, BCM43xx_PCIECORE_REG_DATA);
++#ifdef	CONFIG_SMP
++	int i;
++
++	for (i=0; i < NR_CPUS; ++i)
++		if (cpu_possible(i))
++			block_histogram_init2(per_cpu_ptr(disk->dkstats, i),
++			  cmd, type);
++#else
++	block_histogram_init2(&disk->dkstats, cmd, type);
++#endif
 +}
 +
-+static void bcm43xx_pcie_reg_write(struct bcm43xx_private *bcm, u32 address,
-+                                   u32 data)
++
++/**
++ * Clear all channels of I/O histogram.
++ */
++void block_histogram_init(struct gendisk *disk)
 +{
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_REG_ADDR, address);
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_REG_DATA, data);
++	block_histogram_init1(disk, HISTO_REQUEST, READ);
++	block_histogram_init1(disk, HISTO_REQUEST, WRITE);
++	block_histogram_init1(disk, HISTO_DMA, READ);
++	block_histogram_init1(disk, HISTO_DMA, WRITE);
++}
++EXPORT_SYMBOL(block_histogram_init);
++
++
++
++/*
++ * Map transfer size to histogram bucket.  Transfer sizes use an
++ * exponential backoff:  4, 8, 16, ... sectors.
++ */
++static inline int stats_size_bucket(int sectors)
++{
++	int	i;
++	sectors /= BASE_HISTO_SIZE;
++	if (sectors >= (1<<(CONFIG_HISTO_SIZE_BUCKETS-2)))
++		return CONFIG_HISTO_SIZE_BUCKETS - 1;
++
++	for (i = 0; sectors > 0; ++i, sectors /= 2);
++	return i;
 +}
 +
-+static void bcm43xx_pcie_mdio_write(struct bcm43xx_private *bcm, u8
-dev, u8 reg,
-+                                   u16 data)
++
++/*
++ * Map transfer time to histogram bucket.  This also uses an exponential
++ * backoff, but we like the 1,2,5,10,20,50 progression.  Start at 10 ms.
++ */
++static inline int stats_time_bucket(int jiffies)
 +{
-+       int i;
++	int	i;
++	int	ms = jiffies * ( 1000 / HZ);
++	int	t = BASE_HISTO_TIME;
 +
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_MDIO_CTL, 0x0082);
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_MDIO_DATA, BCM43xx_PCIE_MDIO_ST |
-+                       BCM43xx_PCIE_MDIO_WT | (dev << BCM43xx_PCIE_MDIO_DEV) |
-+                       (reg << BCM43xx_PCIE_MDIO_REG) | BCM43xx_PCIE_MDIO_TA |
-+                       data);
-+       udelay(10);
-+
-+       for (i = 0; i < 10; i++) {
-+               if (bcm43xx_read32(bcm, BCM43xx_PCIECORE_MDIO_CTL) &
-+                   BCM43xx_PCIE_MDIO_TC)
-+                       break;
-+               msleep(1);
-+       }
-+       bcm43xx_write32(bcm, BCM43xx_PCIECORE_MDIO_CTL, 0);
++	for (i = 0;; t *= 10) {
++	  if (++i >= CONFIG_HISTO_TIME_BUCKETS || ms <= t) return i - 1;
++	  if (++i >= CONFIG_HISTO_TIME_BUCKETS || ms <= t*2) return i - 1;
++	  if (++i >= CONFIG_HISTO_TIME_BUCKETS || ms <= t*5) return i - 1;
++	}
 +}
 +
- /* Make an I/O Core usable. "core_mask" is the bitmask of the cores to enable.
-  * To enable core 0, pass a core_mask of 1<<0
-  */
-@@ -3022,7 +3077,8 @@ static int bcm43xx_setup_backplane_pci_c
-        if (err)
-                goto out;
-
--       if (bcm->core_pci.rev < 6) {
-+       if (bcm->current_core->rev < 6 ||
-+               bcm->current_core->id == BCM43xx_COREID_PCI) {
-                value = bcm43xx_read32(bcm, BCM43xx_CIR_SBINTVEC);
-                value |= (1 << backplane_flag_nr);
-                bcm43xx_write32(bcm, BCM43xx_CIR_SBINTVEC, value);
-@@ -3040,21 +3096,46 @@ static int bcm43xx_setup_backplane_pci_c
-                }
-        }
-
--       value = bcm43xx_read32(bcm, BCM43xx_PCICORE_SBTOPCI2);
--       value |= BCM43xx_SBTOPCI2_PREFETCH | BCM43xx_SBTOPCI2_BURST;
--       bcm43xx_write32(bcm, BCM43xx_PCICORE_SBTOPCI2, value);
--
--       if (bcm->core_pci.rev < 5) {
--               value = bcm43xx_read32(bcm, BCM43xx_CIR_SBIMCONFIGLOW);
--               value |= (2 << BCM43xx_SBIMCONFIGLOW_SERVICE_TOUT_SHIFT)
--                        & BCM43xx_SBIMCONFIGLOW_SERVICE_TOUT_MASK;
--               value |= (3 << BCM43xx_SBIMCONFIGLOW_REQUEST_TOUT_SHIFT)
--                        & BCM43xx_SBIMCONFIGLOW_REQUEST_TOUT_MASK;
--               bcm43xx_write32(bcm, BCM43xx_CIR_SBIMCONFIGLOW, value);
--               err = bcm43xx_pcicore_commit_settings(bcm);
--               assert(err == 0);
-+       if (bcm->current_core->id == BCM43xx_COREID_PCI) {
-+               value = bcm43xx_read32(bcm, BCM43xx_PCICORE_SBTOPCI2);
-+               value |= BCM43xx_SBTOPCI2_PREFETCH | BCM43xx_SBTOPCI2_BURST;
-+               bcm43xx_write32(bcm, BCM43xx_PCICORE_SBTOPCI2, value);
 +
-+               if (bcm->current_core->rev < 5) {
-+                       value = bcm43xx_read32(bcm, BCM43xx_CIR_SBIMCONFIGLOW);
-+                       value |= (2 << BCM43xx_SBIMCONFIGLOW_SERVICE_TOUT_SHIFT)
-+                                & BCM43xx_SBIMCONFIGLOW_SERVICE_TOUT_MASK;
-+                       value |= (3 << BCM43xx_SBIMCONFIGLOW_REQUEST_TOUT_SHIFT)
-+                                & BCM43xx_SBIMCONFIGLOW_REQUEST_TOUT_MASK;
-+                       bcm43xx_write32(bcm, BCM43xx_CIR_SBIMCONFIGLOW, value);
-+                       err = bcm43xx_pcicore_commit_settings(bcm);
-+                       assert(err == 0);
-+               } else if (bcm->current_core->rev >= 11) {
-+                       value = bcm43xx_read32(bcm, BCM43xx_PCICORE_SBTOPCI2);
-+                       value |= BCM43xx_SBTOPCI2_MEMREAD_MULTI;
-+                       bcm43xx_write32(bcm, BCM43xx_PCICORE_SBTOPCI2, value);
-+               }
-+       } else {
-+               if (bcm->current_core->rev == 0 ||
-bcm->current_core->rev == 1) {
-+                       value = bcm43xx_pcie_reg_read(bcm,
-BCM43xx_PCIE_TLP_WORKAROUND);
-+                       value |= 0x8;
-+                       bcm43xx_pcie_reg_write(bcm, BCM43xx_PCIE_TLP_WORKAROUND,
-+                                              value);
-+               }
-+               if (bcm->current_core->rev == 0) {
-+                       bcm43xx_pcie_mdio_write(bcm, BCM43xx_MDIO_SERDES_RX,
-+                                               BCM43xx_SERDES_RXTIMER, 0x8128);
-+                       bcm43xx_pcie_mdio_write(bcm, BCM43xx_MDIO_SERDES_RX,
-+                                               BCM43xx_SERDES_CDR, 0x0100);
-+                       bcm43xx_pcie_mdio_write(bcm, BCM43xx_MDIO_SERDES_RX,
-+                                               BCM43xx_SERDES_CDR_BW, 0x1466);
-+               } else if (bcm->current_core->rev == 1) {
-+                       value = bcm43xx_pcie_reg_read(bcm,
-BCM43xx_PCIE_DLLP_LINKCTL);
-+                       value |= 0x40;
-+                       bcm43xx_pcie_reg_write(bcm, BCM43xx_PCIE_DLLP_LINKCTL,
-+                                              value);
-+               }
-        }
--
- out_switch_back:
-        err = bcm43xx_switch_core(bcm, old_core);
- out:
-@@ -3123,55 +3204,27 @@ static void bcm43xx_periodic_every15sec(
-
- static void do_periodic_work(struct bcm43xx_private *bcm)
- {
--       unsigned int state;
--
--       state = bcm->periodic_state;
--       if (state % 8 == 0)
-+       if (bcm->periodic_state % 8 == 0)
-                bcm43xx_periodic_every120sec(bcm);
--       if (state % 4 == 0)
-+       if (bcm->periodic_state % 4 == 0)
-                bcm43xx_periodic_every60sec(bcm);
--       if (state % 2 == 0)
-+       if (bcm->periodic_state % 2 == 0)
-                bcm43xx_periodic_every30sec(bcm);
--       if (state % 1 == 0)
--               bcm43xx_periodic_every15sec(bcm);
--       bcm->periodic_state = state + 1;
-+       bcm43xx_periodic_every15sec(bcm);
-
-        schedule_delayed_work(&bcm->periodic_work, HZ * 15);
- }
-
--/* Estimate a "Badness" value based on the periodic work
-- * state-machine state. "Badness" is worse (bigger), if the
-- * periodic work will take longer.
-- */
--static int estimate_periodic_work_badness(unsigned int state)
--{
--       int badness = 0;
--
--       if (state % 8 == 0) /* every 120 sec */
--               badness += 10;
--       if (state % 4 == 0) /* every 60 sec */
--               badness += 5;
--       if (state % 2 == 0) /* every 30 sec */
--               badness += 1;
--       if (state % 1 == 0) /* every 15 sec */
--               badness += 1;
--
--#define BADNESS_LIMIT  4
--       return badness;
--}
--
- static void bcm43xx_periodic_work_handler(void *d)
- {
-        struct bcm43xx_private *bcm = d;
-        struct net_device *net_dev = bcm->net_dev;
-        unsigned long flags;
-        u32 savedirqs = 0;
--       int badness;
-        unsigned long orig_trans_start = 0;
-
-        mutex_lock(&bcm->mutex);
--       badness = estimate_periodic_work_badness(bcm->periodic_state);
--       if (badness > BADNESS_LIMIT) {
-+       if (unlikely(bcm->periodic_state % 4 == 0)) {
-                /* Periodic work will take a long time, so we want it to
-                 * be preemtible.
-                 */
-@@ -3203,7 +3256,7 @@ static void bcm43xx_periodic_work_handle
-
-        do_periodic_work(bcm);
-
--       if (badness > BADNESS_LIMIT) {
-+       if (unlikely(bcm->periodic_state % 4 == 0)) {
-                spin_lock_irqsave(&bcm->irq_lock, flags);
-                tasklet_enable(&bcm->isr_tasklet);
-                bcm43xx_interrupt_enable(bcm, savedirqs);
-@@ -3214,6 +3267,7 @@ static void bcm43xx_periodic_work_handle
-                net_dev->trans_start = orig_trans_start;
-        }
-        mmiowb();
-+       bcm->periodic_state++;
-        spin_unlock_irqrestore(&bcm->irq_lock, flags);
-        mutex_unlock(&bcm->mutex);
- }
-@@ -3532,6 +3586,7 @@ int bcm43xx_select_wireless_core(struct
-        bcm43xx_macfilter_clear(bcm, BCM43xx_MACFILTER_ASSOC);
-        bcm43xx_macfilter_set(bcm, BCM43xx_MACFILTER_SELF, (u8
-*)(bcm->net_dev->dev_addr));
-        bcm43xx_security_init(bcm);
-+       drain_txstatus_queue(bcm);
-        ieee80211softmac_start(bcm->net_dev);
-
-        /* Let's go! Be careful after enabling the IRQs.
-@@ -3658,7 +3713,7 @@ static int bcm43xx_read_phyinfo(struct b
-                bcm->ieee->freq_band = IEEE80211_24GHZ_BAND;
-                break;
-        case BCM43xx_PHYTYPE_G:
--               if (phy_rev > 7)
-+               if (phy_rev > 8)
-                        phy_rev_ok = 0;
-                bcm->ieee->modulation = IEEE80211_OFDM_MODULATION |
-                                        IEEE80211_CCK_MODULATION;
-@@ -3670,6 +3725,8 @@ static int bcm43xx_read_phyinfo(struct b
-                       phy_type);
-                return -ENODEV;
-        };
-+       bcm->ieee->perfect_rssi = RX_RSSI_MAX;
-+       bcm->ieee->worst_rssi = 0;
-        if (!phy_rev_ok) {
-                printk(KERN_WARNING PFX "Invalid PHY Revision %x\n",
-                       phy_rev);
---- linux-2.6.19-rc5/drivers/net/wireless/bcm43xx/bcm43xx_power.c
- 2006-06-17 23:01:22.000000000 -0700
-+++ devel/drivers/net/wireless/bcm43xx/bcm43xx_power.c  2006-11-14
-01:10:12.000000000 -0800
-@@ -153,8 +153,6 @@ int bcm43xx_pctl_init(struct bcm43xx_pri
-        int err, maxfreq;
-        struct bcm43xx_coreinfo *old_core;
-
--       if (!(bcm->chipcommon_capabilities & BCM43xx_CAPABILITIES_PCTL))
--               return 0;
-        old_core = bcm->current_core;
-        err = bcm43xx_switch_core(bcm, &bcm->core_chipcommon);
-        if (err == -ENODEV)
-@@ -162,11 +160,27 @@ int bcm43xx_pctl_init(struct bcm43xx_pri
-        if (err)
-                goto out;
-
--       maxfreq = bcm43xx_pctl_clockfreqlimit(bcm, 1);
--       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_PLLONDELAY,
--                       (maxfreq * 150 + 999999) / 1000000);
--       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_FREFSELDELAY,
--                       (maxfreq * 15 + 999999) / 1000000);
-+       if (bcm->chip_id == 0x4321) {
-+               if (bcm->chip_rev == 0)
-+                       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_CTL, 0x03A4);
-+               if (bcm->chip_rev == 1)
-+                       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_CTL, 0x00A4);
-+       }
++/**
++ * Log I/O completion, update histogram.
++ *
++ * @disk:         disk device
++ * @flags:        r/w command
++ * @sectors:      # sectors transferred
++ * @jiffies:      time transfer required
++ * @jiffies_dma:  time dma required, or -1 if n/a
++ */
++void block_histogram_completion(struct gendisk *disk,
++				unsigned long flags,
++				int sectors,
++				int jiffies,
++				int jiffies_dma)
++{
++	int size_idx = stats_size_bucket(sectors);
++	int req_time_idx = stats_time_bucket(jiffies);
 +
-+       if (bcm->chipcommon_capabilities & BCM43xx_CAPABILITIES_PCTL) {
-+               if (bcm->current_core->rev >= 10) {
-+                       /* Set Idle Power clock rate to 1Mhz */
-+                       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_SYSCLKCTL,
-+                                      (bcm43xx_read32(bcm,
-BCM43xx_CHIPCOMMON_SYSCLKCTL)
-+                                      & 0x0000FFFF) | 0x40000);
-+               } else {
-+                       maxfreq = bcm43xx_pctl_clockfreqlimit(bcm, 1);
-+                       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_PLLONDELAY,
-+                                      (maxfreq * 150 + 999999) / 1000000);
-+                       bcm43xx_write32(bcm, BCM43xx_CHIPCOMMON_FREFSELDELAY,
-+                                      (maxfreq * 15 + 999999) / 1000000);
-+               }
-+       }
++	if (!(flags & REQ_CMD))
++		return;
++
++	if (!(flags & REQ_RW)) {
++		__disk_stat_add(disk,
++			read_req_histo[size_idx][req_time_idx], 1);
++	} else {
++		__disk_stat_add(disk,
++			write_req_histo[size_idx][req_time_idx], 1);
++	}
++  
++	if (jiffies_dma >= 0) {
++		int dma_time_idx = stats_time_bucket(jiffies_dma);
++		if (!(flags & REQ_RW)) {
++			__disk_stat_add(disk,
++				read_dma_histo[size_idx][dma_time_idx], 1);
++		} else {
++			__disk_stat_add(disk,
++				write_dma_histo[size_idx][dma_time_idx], 1);
++		}
++	}
++}
++EXPORT_SYMBOL(block_histogram_completion);
++
++
++/**
++ * Helper function:  calls block_histogram_completion after a dma
++ * interrupt.
++ */
++void block_histogram_req_cmplt(struct gendisk *disk, struct request *req)
++{
++	static int count = 20;
++
++	if (req) {
++		int rq_elapsed = jiffies - req->start_time;
++		int io_elapsed;
++
++		if (req->io_start_time == 0) {
++			if( count > 0 ) {
++			    printk( KERN_NOTICE
++				    "%s: unexpected transfer w/out start time\n",
++				    disk->disk_name);
++			    dump_stack();
++			    --count;
++			}
++			io_elapsed = -1;
++		} else {
++			io_elapsed = jiffies - req->io_start_time;
++		}
++		block_histogram_completion(disk,
++					   req->flags,
++					   req->nr_sectors,
++					   rq_elapsed,
++					   io_elapsed);
++	}
++}
++
++
++/**
++ * Tiny helper utility, append sprintf() output to a buffer, update pointers,
++ * and guard against overflow.
++ */
++static inline void sysfs_out(char **ptr, ssize_t *rem, const char *fmt, ...)
++{
++	va_list	ap;
++	int	i;
++	va_start(ap, fmt);
++	i = vsnprintf(*ptr, *rem, fmt, ap);
++	*ptr += i;
++	*rem -= i;
++	va_end(ap);
++}
++
++
++/**
++ * Dumps the specified 'type' of histogram for disk to out.
++ * The result must be less than PAGE_SIZE
++ */
++static int dump_histo (int cmd, int type, struct gendisk *disk, char* page)
++{
++	ssize_t	rem = PAGE_SIZE;
++	char	*optr = page;
++	int	len, j, k;
++	int	v;
++	int	ms;
++	int	size = BASE_HISTO_SIZE * 512;
++	static const int mults[3] = {1,2,5};
++
++	/* Key */
++	len = snprintf(page, rem, "rows = bytes columns = ms\n");
++	page += len; rem -= len;
++
++	/* Row header */
++	len = snprintf(page, rem, "       "); page += len; rem -= len;
++
++	for (j = 0, ms = BASE_HISTO_TIME; j < CONFIG_HISTO_TIME_BUCKETS; ms *= 10)
++	{
++		for(k=0; k < 3 && j < CONFIG_HISTO_TIME_BUCKETS; ++k, ++j) {
++			len = snprintf(page, rem, "\t%d", ms * mults[k]);
++			page += len; rem -= len;
++		}
++	}
++	*page++ = '\n'; --rem;
++  
++	/* Payload */
++	for (j = 0; j < CONFIG_HISTO_SIZE_BUCKETS; j++, size *= 2) {
++		len = snprintf(page, rem, "%7d", size);
++		page += len; rem -= len;
++		for (k = 0; k < CONFIG_HISTO_TIME_BUCKETS; k++) {
++			v = (type == HISTO_REQUEST) ?
++			      ((cmd == READ) ?
++				  disk_stat_read(disk, read_req_histo[j][k]) :
++				  disk_stat_read(disk, write_req_histo[j][k])) :
++			      ((cmd == READ) ?
++				  disk_stat_read(disk, read_dma_histo[j][k]) :
++				  disk_stat_read(disk, write_dma_histo[j][k]));
++			len = snprintf(page, rem, "\t%d", v);
++			page += len; rem -= len;
++		}
++		len = snprintf(page, rem, "\n");
++		page += len; rem -= len;
++	}
++	return page - optr;
++}
++
++
++/**
++ * sysfs show() methods for the four histogram channels.
++ */
++static ssize_t disk_read_request_histo_read(struct gendisk * disk, char *page)
++{
++	return dump_histo(READ, HISTO_REQUEST, disk, page);
++}
++
++static ssize_t disk_read_dma_histo_read(struct gendisk * disk, char *page)
++{
++	return dump_histo(READ, HISTO_DMA, disk, page);
++}
++
++static ssize_t disk_write_request_histo_read(struct gendisk * disk, char *page)
++{
++	return dump_histo(WRITE, HISTO_REQUEST, disk, page);
++}
++
++static ssize_t disk_write_dma_histo_read(struct gendisk * disk, char *page)
++{
++	return dump_histo(WRITE, HISTO_DMA, disk, page);
++}
++
++#endif
+diff -uprN linux-2.6.18.1/block/ll_rw_blk.c block_histogram/block/ll_rw_blk.c
+--- linux-2.6.18.1/block/ll_rw_blk.c	2006-11-15 15:12:00.000000000 -0800
++++ block_histogram/block/ll_rw_blk.c	2006-11-15 18:08:07.000000000 -0800
+@@ -3469,6 +3469,7 @@ void end_that_request_last(struct reques
+ 		__disk_stat_add(disk, ticks[rw], duration);
+ 		disk_round_stats(disk);
+ 		disk->in_flight--;
++		block_histogram_req_cmplt(disk, req);
+ 	}
+ 	if (req->end_io)
+ 		req->end_io(req, error);
+diff -uprN linux-2.6.18.1/drivers/scsi/scsi_lib.c block_histogram/drivers/scsi/scsi_lib.c
+--- linux-2.6.18.1/drivers/scsi/scsi_lib.c	2006-11-15 16:37:34.000000000 -0800
++++ block_histogram/drivers/scsi/scsi_lib.c	2006-11-15 18:08:07.000000000 -0800
+@@ -1477,6 +1477,7 @@ static void scsi_request_fn(struct reque
+ 		/*
+ 		 * Dispatch the command to the low-level driver.
+ 		 */
++		block_histogram_start_time(req);
+ 		rtn = scsi_dispatch_cmd(cmd);
+ 		spin_lock_irq(q->queue_lock);
+ 		if(rtn) {
+diff -uprN linux-2.6.18.1/include/linux/blkdev.h block_histogram/include/linux/blkdev.h
+--- linux-2.6.18.1/include/linux/blkdev.h	2006-10-13 20:34:03.000000000 -0700
++++ block_histogram/include/linux/blkdev.h	2006-11-15 18:08:07.000000000 -0800
+@@ -154,7 +154,10 @@ struct request {
+ 	int rq_status;	/* should split this into a few status bits */
+ 	int errors;
+ 	struct gendisk *rq_disk;
+-	unsigned long start_time;
++	unsigned long start_time;	/* when request submitted */
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++	unsigned long io_start_time;	/* when passed to hardware */
++#endif
+ 
+ 	/* Number of scatter-gather DMA addr+len pairs after
+ 	 * physical address coalescing is performed.
+@@ -840,5 +843,13 @@ void kblockd_flush(void);
+ #define MODULE_ALIAS_BLOCKDEV_MAJOR(major) \
+ 	MODULE_ALIAS("block-major-" __stringify(major) "-*")
+ 
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++inline static void block_histogram_start_time(struct request *req)
++{
++	req->io_start_time = jiffies;
++}
++#else
++#define block_histogram_start_time(req)
++#endif
+ 
+ #endif
+diff -uprN linux-2.6.18.1/include/linux/genhd.h block_histogram/include/linux/genhd.h
+--- linux-2.6.18.1/include/linux/genhd.h	2006-10-13 20:34:03.000000000 -0700
++++ block_histogram/include/linux/genhd.h	2006-11-15 18:08:07.000000000 -0800
+@@ -11,6 +11,8 @@
+ 
+ #include <linux/types.h>
+ 
++struct request;
++
+ enum {
+ /* These three have identical behaviour; use the second one if DOS FDISK gets
+    confused about extended/logical partitions starting past cylinder 1023. */
+@@ -89,6 +91,10 @@ struct hd_struct {
+ #define GENHD_FL_UP				16
+ #define GENHD_FL_SUPPRESS_PARTITION_INFO	32
+ 
++#define	BASE_HISTO_SIZE	4	/* smallest transfer size, sectors */
++#define	BASE_HISTO_TIME	10	/* shortest transfer time, ms */
++
++
+ struct disk_stats {
+ 	unsigned long sectors[2];	/* READs and WRITEs */
+ 	unsigned long ios[2];
+@@ -96,6 +102,12 @@ struct disk_stats {
+ 	unsigned long ticks[2];
+ 	unsigned long io_ticks;
+ 	unsigned long time_in_queue;
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++	int	read_req_histo[CONFIG_HISTO_SIZE_BUCKETS][CONFIG_HISTO_TIME_BUCKETS];
++	int	read_dma_histo[CONFIG_HISTO_SIZE_BUCKETS][CONFIG_HISTO_TIME_BUCKETS];
++	int	write_req_histo[CONFIG_HISTO_SIZE_BUCKETS][CONFIG_HISTO_TIME_BUCKETS];
++	int	write_dma_histo[CONFIG_HISTO_SIZE_BUCKETS][CONFIG_HISTO_TIME_BUCKETS];
++#endif
+ };
+ 	
+ struct gendisk {
+@@ -230,6 +242,21 @@ extern struct gendisk *get_gendisk(dev_t
+ extern void set_device_ro(struct block_device *bdev, int flag);
+ extern void set_disk_ro(struct gendisk *disk, int flag);
+ 
++#ifdef	CONFIG_BLOCK_HISTOGRAM
++extern void block_histogram_init(struct gendisk *disk);
++extern void block_histogram_completion(struct gendisk *disk,
++					unsigned long flags,
++					int sectors,
++					int jiffies,
++					int jiffies_dma);
++extern void block_histogram_req_cmplt(struct gendisk *disk, struct request *);
++#else
++#define block_histogram_init(disk)
++#define block_histogram_completion(disk, flags, sectors, jiffies, jiffies_dma)
++#define block_histogram_req_cmplt(disk, req)
++#endif
++
++
+ /* drivers/char/random.c */
+ extern void add_disk_randomness(struct gendisk *disk);
+ extern void rand_initialize_disk(struct gendisk *disk);
 
-        err = bcm43xx_switch_core(bcm, old_core);
-        assert(err == 0);
---- linux-2.6.19-rc5/drivers/net/wireless/bcm43xx/bcm43xx_wx.c
-2006-11-07 21:14:05.000000000 -0800
-+++ devel/drivers/net/wireless/bcm43xx/bcm43xx_wx.c     2006-11-14
-01:10:12.000000000 -0800
-@@ -47,9 +47,6 @@
- #define BCM43xx_WX_VERSION     18
-
- #define MAX_WX_STRING          80
--/* FIXME: the next line is a guess as to what the maximum RSSI value
-might be */
--#define RX_RSSI_MAX            60
--
-
- static int bcm43xx_wx_get_name(struct net_device *net_dev,
-                                struct iw_request_info *info,
-@@ -693,6 +690,7 @@ static int bcm43xx_wx_set_swencryption(s
-        bcm->ieee->host_encrypt = !!on;
-        bcm->ieee->host_decrypt = !!on;
-        bcm->ieee->host_build_iv = !on;
-+       bcm->ieee->host_strip_iv_icv = !on;
-        spin_unlock_irqrestore(&bcm->irq_lock, flags);
-        mutex_unlock(&bcm->mutex);
-
---- linux-2.6.19-rc5/drivers/net/wireless/bcm43xx/bcm43xx_xmit.c
- 2006-11-07 21:14:05.000000000 -0800
-+++ devel/drivers/net/wireless/bcm43xx/bcm43xx_xmit.c   2006-11-14
-01:10:12.000000000 -0800
-@@ -543,25 +543,6 @@ int bcm43xx_rx(struct bcm43xx_private *b
-                break;
-        }
-
--       frame_ctl = le16_to_cpu(wlhdr->frame_ctl);
--       if ((frame_ctl & IEEE80211_FCTL_PROTECTED) &&
-!bcm->ieee->host_decrypt) {
--               frame_ctl &= ~IEEE80211_FCTL_PROTECTED;
--               wlhdr->frame_ctl = cpu_to_le16(frame_ctl);
--               /* trim IV and ICV */
--               /* FIXME: this must be done only for WEP encrypted packets */
--               if (skb->len < 32) {
--                       dprintkl(KERN_ERR PFX "RX packet dropped
-(PROTECTED flag "
--                                             "set and length < 32)\n");
--                       return -EINVAL;
--               } else {
--                       memmove(skb->data + 4, skb->data, 24);
--                       skb_pull(skb, 4);
--                       skb_trim(skb, skb->len - 4);
--                       stats.len -= 8;
--               }
--               wlhdr = (struct ieee80211_hdr_4addr *)(skb->data);
--       }
--
-        switch (WLAN_FC_GET_TYPE(frame_ctl)) {
-        case IEEE80211_FTYPE_MGMT:
-                ieee80211_rx_mgt(bcm->ieee, wlhdr, &stats);
+--------------020205050504040708020802--

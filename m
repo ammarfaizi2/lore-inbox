@@ -1,108 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424053AbWKPNxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424059AbWKPN47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424053AbWKPNxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 08:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933502AbWKPNxP
+	id S1424059AbWKPN47 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 08:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424060AbWKPN47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 08:53:15 -0500
-Received: from rtr.ca ([64.26.128.89]:4100 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S933501AbWKPNxO (ORCPT
+	Thu, 16 Nov 2006 08:56:59 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:30608 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1424059AbWKPN46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 08:53:14 -0500
-Message-ID: <455C6D48.8040501@rtr.ca>
-Date: Thu, 16 Nov 2006 08:53:12 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Thu, 16 Nov 2006 08:56:58 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jody Belka <lists-lkml@pimb.org>
+Subject: Re: [Suspend-devel] problem after s2ram restore with password-protected hdd
+Date: Thu, 16 Nov 2006 14:53:56 +0100
+User-Agent: KMail/1.9.1
+Cc: suspend-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <20061116135210.GR2808@pimb.org>
+In-Reply-To: <20061116135210.GR2808@pimb.org>
 MIME-Version: 1.0
-To: Alberto Alonso <alberto@ggsys.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qstor driver -> irq 193: nobody cared
-References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca>	 <1163363479.3423.8.camel@w100>  <45588132.9090200@rtr.ca>	 <1163479852.3340.9.camel@w100>  <4559F2EE.7080309@rtr.ca>	 <1163528258.3340.23.camel@w100>  <455A09A5.2020200@rtr.ca> <1163658952.3416.13.camel@w100>
-In-Reply-To: <1163658952.3416.13.camel@w100>
-Content-Type: multipart/mixed;
- boundary="------------060201070804060309050006"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611161453.56789.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060201070804060309050006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Alberto Alonso wrote:
-> Sorry for the long delay, I've been called on too
-> many issues at work this week.
+On Thursday, 16 November 2006 14:52, Jody Belka wrote:
+> [Please cc me on any reply, as i'm not subscribed]
 > 
-> Anyway, the patch basically made the drives not usable.
+> I tried to use s2ram today on my Dell Inspiron 6000, but i'm having problems
+> after wake-up when I have the hard drives internal password enabled (the
+> normal state for this machine). If i turn the password off, everything works
+> fine. I note that the password screen doesn't appear during wake-up, although
+> the bios help text implies that it should do.
 
-Mmm.. Okay, thanks for helping track this down.
+Well, this is a long-standing issue that hasn't been resolved yet.  There is
+a patch available from http://bugzilla.kernel.org/show_bug.cgi?id=6840
+but it is known to have problems.
 
-It appears that this got broken when the ATA_TFLAG_POLLING
-got introduced into libata, replacing previous checks of ATA_NIEN.
-Or maybe even before that.  Not many of us have qstor cards!
+> Well, works fine as long as I follow the advice at en.opensuse.org/S2ram
+> and don't include vga=795 on the command-line, as I have an ATI Radeon
+> graphics chipset. annoying, although I am in X usually anyway. Any news on
+> that front?
 
-Speaking of which, I'll dig my own qstor card out of mothballs soon,
-and work out a proper fix for it soon-ish.
+I don't know, sorry.
 
-In the meanwhile, could you take a clean kernel, and apply the first
-attached patch (qstor_spurious_1.patch), and see if it fixes things.
+Greetings,
+Rafael
 
-If not, then you can instead apply the second patch (qstor_spurious_kludge.patch)
-and your problems should disappear.  But I cannot actually push that rubbish
-upstream, so a "proper" fix will have to come later.
 
-Cheers
-
---------------060201070804060309050006
-Content-Type: text/x-patch;
- name="qstor_spurious_1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="qstor_spurious_1.patch"
-
---- linux/drivers/scsi/sata_qstor.c.orig	2006-09-19 23:42:06.000000000 -0400
-+++ linux/drivers/scsi/sata_qstor.c	2006-11-16 08:46:43.000000000 -0500
-@@ -399,6 +399,7 @@
- 			if (ap && !(ap->flags & ATA_FLAG_DISABLED)) {
- 				struct ata_queued_cmd *qc;
- 				struct qs_port_priv *pp = ap->private_data;
-+				ata_check_status(ap); /* kill spurious ints */
- 				if (!pp || pp->state != qs_state_pkt)
- 					continue;
- 				qc = ata_qc_from_tag(ap, ap->active_tag);
-
---------------060201070804060309050006
-Content-Type: text/x-patch;
- name="qstor_spurious_kludge.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="qstor_spurious_kludge.patch"
-
---- linux/drivers/scsi/sata_qstor.c.orig	2006-09-19 23:42:06.000000000 -0400
-+++ linux/drivers/scsi/sata_qstor.c	2006-11-16 08:49:57.000000000 -0500
-@@ -423,7 +423,7 @@
- 
- static inline unsigned int qs_intr_mmio(struct ata_host_set *host_set)
- {
--	unsigned int handled = 0, port_no;
-+	unsigned int handled = 1, port_no;
- 
- 	for (port_no = 0; port_no < host_set->n_ports; ++port_no) {
- 		struct ata_port *ap;
-@@ -432,13 +432,13 @@
- 		    !(ap->flags & ATA_FLAG_DISABLED)) {
- 			struct ata_queued_cmd *qc;
- 			struct qs_port_priv *pp = ap->private_data;
-+			u8 status = ata_check_status(ap);
- 			if (!pp || pp->state != qs_state_mmio)
- 				continue;
- 			qc = ata_qc_from_tag(ap, ap->active_tag);
- 			if (qc && (!(qc->tf.flags & ATA_TFLAG_POLLING))) {
- 
- 				/* check main status, clearing INTRQ */
--				u8 status = ata_check_status(ap);
- 				if ((status & ATA_BUSY))
- 					continue;
- 				DPRINTK("ata%u: protocol %d (dev_stat 0x%X)\n",
-
---------------060201070804060309050006--
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

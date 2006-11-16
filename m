@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424200AbWKPPrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424194AbWKPPsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424200AbWKPPrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424194AbWKPPrJ
+	id S1424194AbWKPPsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424205AbWKPPsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:47:09 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:49852 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1424200AbWKPPrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:47:07 -0500
-Message-ID: <455C984C.7080308@wolfmountaingroup.com>
-Date: Thu, 16 Nov 2006 09:56:44 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Thu, 16 Nov 2006 10:48:16 -0500
+Received: from mx1.suse.de ([195.135.220.2]:33769 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1424194AbWKPPsO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 10:48:14 -0500
+From: Andi Kleen <ak@suse.de>
+To: William Cohen <wcohen@redhat.com>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+Date: Thu, 16 Nov 2006 16:47:38 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       discuss@x86-64.org, Eric Dumazet <dada1@cosmosbay.com>,
+       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
+       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
+       Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <200611160804.31806.ak@suse.de> <455C8520.8060109@redhat.com>
+In-Reply-To: <455C8520.8060109@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: When is the kernel moving to GPLv3?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611161647.39456.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/"Red Hat has slammed the door shut 
-<http://www.eweek.com/article2/0,1895,2059675,00.asp> on any possibility 
-of entering into a patent protection deal similar to the one Microsoft 
-recently announced with Novell, eWeek is reporting. While Microsoft has 
-repeatedly said it wants to work with Red Hat and would like to 
-structure a relationship where its customers can be assured of the same 
-thing as Novell's customers 
-<http://linux.slashdot.org/linux/06/11/02/1957252.shtml?tid=109> now 
-are, Mark Webbink, Red Hat's deputy general counsel, says 'we do not 
-believe there is a need for or basis for the type of relationship 
-defined in the Microsoft-Novell announcement.' Interestingly enough, 
-Microsoft also says that it has not ruled out going it alone and 
-providing some sort of indemnification for its customers who also use 
-Red Hat Linux."/
 
-"Meanwhile, Eben Moglen, the FSF general counsel, promises that GPLv3 
-will explicitly outlaw 
-<http://money.cnn.com/blogs/legalpad/2006/11/is-microsoft-novell-deal-dead-on.html> 
-deals like this. (Of course everyone's on v2, so calling the Novell deal 
-"DOA" would be premature.)"
+> What other purposes do you see the performance counters useful for? 
 
-So when is the kernel moving to GPLv3?   I have seen some discussions 
-about moving off v2, is there concensus about moving to v3 to remove
-threats of patent claims against v2 code by M$ and others who may use 
-Linux in hardware based projects.
+Export one to user space as a cycle counter for benchmarking. RDTSC doesn't 
+do this job anymore.
 
-Jeff
+> To collect information on process characteristics so they can be scheduled more efficiently?
 
+That might happen at some point in the future, but i would expect
+us to wait for CPUs with more performance counters first.
+
+> Is this going to require sharing the nmi interrupt and knowing which perfcounter 
+> register triggered the interrupt to get the correct action?  Currently the 
+> oprofile interrupt handler assumes any performance monitoring counter it sees 
+> overflowing is something it should count.
+
+Yes. That needs to be fixed.
+
+-Andi
 

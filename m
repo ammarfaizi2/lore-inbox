@@ -1,28 +1,58 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030679AbWKOQmn (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 15 Nov 2006 11:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030676AbWKOQmn
+	id S1423819AbWKPLAr (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 16 Nov 2006 06:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423822AbWKPLAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 11:42:43 -0500
-Received: from d83-177-9-247.cust.tele2.se ([83.177.9.247]:37818 "HELO
-	d83-177-9-247.cust.tele2.se") by vger.kernel.org with SMTP
-	id S1030679AbWKOQmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 11:42:42 -0500
-Reply-To: "Corinne Newman" <grahamgwlv@brass.dircon.co.uk>
-From: "Corinne" <grahamgwlv@brass.dircon.co.uk>
-Message-ID: <6653488654.20061115103906@yhstxrykdtua>
-Date: Wed, 15 Nov 2006 10:39:06 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: sexuallyy expliicit:outflank  Girl and cordial Cutie   !
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 06:00:47 -0500
+Received: from ryze.com ([24.244.141.155]:60307 "EHLO nuke.ryze.com")
+	by vger.kernel.org with ESMTP id S1423819AbWKPLAq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 06:00:46 -0500
+Date: Thu, 16 Nov 2006 06:00:45 -0500
+Message-Id: <200611161100.kAGB0jBd020295@ryze.com>
+To: linux-kernel@vger.kernel.org
+Subject: Indian Divine Books, Cds, Cassettes & Pooja Articles
+From: EGC Traders <info@egctraders.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030679AbWKOQmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1423819AbWKPLAr@vger.kernel.org>
 
 
-better-looking Bitches in haard fuucking.
+Dear Sir,
+ 
+For Hindu Divine Books, Cds, Cassettes & Pooja Articles, Please visit 
 
-http://zahnrattep.com
+our website at www.egctraders.com
+ 
+For any specific requirements, please write to us at 
+info@egctraders.com, webmaster@egctraders.com
+ 
+Looking forward to hearing from you.
+ 
+With Warm Regards,
+ 
+Mrs. Vanitha S.
 
+EGC has invited you to join EGC's professional
+and private network on Ryze.
+
+To view the invite, click on:
+
+    http://www.ryze.com/in/i7OQctVkDhsk9S2DIRn
+
+  
+Ryze is a business networking service that has been 
+featured in the Wall St. Journal, the New York Times,
+Forbes and other publications. Ryze helps you make 
+the contacts that can lead to:
+
+ * your next job
+
+ * a new customer
+
+ * a valuable business partnership
+
+ * great business advice
+
+ 
+http://www.ryze.com/in/i7OQctVkDhsk9S2DIRn

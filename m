@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161970AbWKPIBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWKPIR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161970AbWKPIBW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 03:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161971AbWKPIBW
+	id S1422660AbWKPIR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 03:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161976AbWKPIR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 03:01:22 -0500
-Received: from s131.mittwaldmedien.de ([62.216.178.31]:52536 "EHLO
+	Thu, 16 Nov 2006 03:17:27 -0500
+Received: from s131.mittwaldmedien.de ([62.216.178.31]:41532 "EHLO
 	s131.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S1161970AbWKPIBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 03:01:21 -0500
+	id S1161975AbWKPIR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 03:17:26 -0500
 From: Holger Schurig <hs4233@mail.mn-solutions.de>
 To: daniel.ritz@gmx.ch
-Subject: [PATCH] usb: Support for DMC TSC-10
-Date: Thu, 16 Nov 2006 09:01:24 +0100
+Subject: [PATCH] usb: Support for DMC TSC-10 (take 2)
+Date: Thu, 16 Nov 2006 09:17:35 +0100
 User-Agent: KMail/1.9.5
 Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611160917.35828.hs4233@mail.mn-solutions.de>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611160901.24756.hs4233@mail.mn-solutions.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -32,6 +32,9 @@ controller.
 Signed-off-by: Holger Schrig <hs4233@mail.mn-solutions.de>
 
 ---
+
+The previous patch was word-wrapped, sorry.
+
 
 Please review this patch and schedule it for inclusion once 
 2.6.19 comes out.
@@ -48,6 +51,10 @@ then vender technical documentation for this device can be
 accessed at
 
    http://www.dmccoltd.com/files/controler/tsc10usb_pi_e.pdf.
+
+This patch adds support for the USB based DMC TSC-10 touchscreen controller.
+
+Signed-off-by: Holger Schrig <hs4233@mail.mn-solutions.de>
 
 --- linux.orig/drivers/usb/input/Kconfig
 +++ linux/drivers/usb/input/Kconfig
@@ -70,8 +77,7 @@ accessed at
 +
  config USB_TOUCHSCREEN_EGALAX
  	default y
- 	bool "eGalax, eTurboTouch CT-410/510/700 device support" if 
-EMBEDDED
+ 	bool "eGalax, eTurboTouch CT-410/510/700 device support" if EMBEDDED
 --- linux.orig/drivers/usb/input/usbtouchscreen.c
 +++ linux/drivers/usb/input/usbtouchscreen.c
 @@ -8,6 +8,7 @@
@@ -116,14 +122,12 @@ EMBEDDED
  /*****************************************************************************
 + * DMC TSC-10 Part
 + *
-+ * Documentation about the controller and it's protocol can be 
-found
++ * Documentation about the controller and it's protocol can be found
 + * at http://www.dmccoltd.com/files/controler/tsc10usb_pi_e.pdf
 + */
 +#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
 +
-+/* At which rate should coordinates transferred? This list goes 
-from
++/* At which rate should coordinates transferred? This list goes from
 + * slowest rate to fastest rate. */
 +#define TSC10_RATE_POINT 0x50
 +#define TSC10_RATE_30    0x40
@@ -139,22 +143,18 @@ from
 +#define TSC10_CMD_DATA1  0x01
 +
 +static void dmc_tsc10_control(struct usbtouch_usb *usbtouch,
-+                          __u8 requesttype, __u8 request, __u16 
-value,
++                          __u8 requesttype, __u8 request, __u16 value,
 +                          __u16 retlen)
 +{
 +	struct usb_device *dev = usbtouch->udev;
 +	int ret;
 +	unsigned char buf[2];
 +
-+	/* Note: retlen > is NOT supported. However, dmc_tsc10_init() 
-is
-+	 * only caller and makes sure by itself that this won't ever 
-happen. */
++	/* Note: retlen > is NOT supported. However, dmc_tsc10_init() is
++	 * only caller and makes sure by itself that this won't ever happen. */
 +
 +	buf[0] = buf[1] = 0xFF;
-+	//dbg("bmRequest %02x bRequest %02x wValue %04x wLength %04x", 
-requesttype, request, value, retlen);
++	//dbg("bmRequest %02x bRequest %02x wValue %04x wLength %04x", requesttype, request, value, retlen);
 +	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
 +	                      request, requesttype, value, 0,
 +	                      buf, retlen, 2*HZ);
@@ -166,26 +166,22 @@ requesttype, request, value, retlen);
 +static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
 +{
 +	// Reset 0xC0
-+	dmc_tsc10_control(usbtouch, USB_DIR_IN | USB_TYPE_VENDOR | 
-USB_RECIP_DEVICE,
++	dmc_tsc10_control(usbtouch, USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 +	                  TSC10_CMD_RESET, 0, 2);
 +
 +	// Set Coordinate output rate setting
-+	dmc_tsc10_control(usbtouch, USB_DIR_IN | USB_TYPE_VENDOR | 
-USB_RECIP_DEVICE,
++	dmc_tsc10_control(usbtouch, USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 +	                  TSC10_CMD_RATE, TSC10_RATE_130, 2);
 +
 +	// Coordinate data send start
-+	dmc_tsc10_control(usbtouch, USB_DIR_OUT | USB_TYPE_VENDOR | 
-USB_RECIP_DEVICE,
++	dmc_tsc10_control(usbtouch, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
 +	                  TSC10_CMD_DATA1, 0, 0);
 +
 +	return 0;
 +}
 +
 +
-+static int dmc_tsc10_read_data(unsigned char *pkt, int *x, int 
-*y, int *touch, int *press)
++static int dmc_tsc10_read_data(unsigned char *pkt, int *x, int *y, int *touch, int *press)
 +{
 +	*x = ((pkt[2] & 0x03) << 8) | pkt[1];
 +	*y = ((pkt[4] & 0x03) << 8) | pkt[3];
@@ -219,6 +215,7 @@ USB_RECIP_DEVICE,
 +	},
 +#endif
  };
+ 
  
  
 

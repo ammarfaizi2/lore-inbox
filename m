@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424093AbWKPOVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424100AbWKPOXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424093AbWKPOVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 09:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424079AbWKPOVv
+	id S1424100AbWKPOXi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 09:23:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424102AbWKPOXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 09:21:51 -0500
-Received: from zakalwe.fi ([80.83.5.154]:5843 "EHLO zakalwe.fi")
-	by vger.kernel.org with ESMTP id S1424093AbWKPOVv (ORCPT
+	Thu, 16 Nov 2006 09:23:38 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:43205 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1424100AbWKPOXg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 09:21:51 -0500
-Date: Thu, 16 Nov 2006 16:21:43 +0200
-From: Heikki Orsila <shd@zakalwe.fi>
-To: ranjith kumar <ranjit_kumar_b4u@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: diabling interrupts on pentium 4 processor
-Message-ID: <20061116142143.GB12227@zakalwe.fi>
-References: <20061116112312.43293.qmail@web27402.mail.ukl.yahoo.com>
+	Thu, 16 Nov 2006 09:23:36 -0500
+From: Andi Kleen <ak@suse.de>
+To: eranian@hpl.hp.com
+Subject: Re: [PATCH] x86-64 add Intel BTS cpufeature bit and detection (take 2)
+Date: Thu, 16 Nov 2006 15:23:30 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20061115213241.GC17238@frankl.hpl.hp.com> <20061116142049.GE18162@frankl.hpl.hp.com>
+In-Reply-To: <20061116142049.GE18162@frankl.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061116112312.43293.qmail@web27402.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611161523.30922.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2006 at 11:23:12AM +0000, ranjith kumar wrote:
-> Hi,
->     How to disable interrupts on pentium 4 (or any
-> i386)
->     machine?
+On Thursday 16 November 2006 15:20, Stephane Eranian wrote:
+> Andi,
 > 
->      I tried to include "cli" instruction in a kernel
-> module. But got runtime error.
+> Here is a small patch for x86-64 which adds a cpufeature flag and
+> detection code for Intel's Branch Trace Store (BTS) feature. This
+> feature can be found on Intel P4 and Core 2 processors among others.
+> It can also be used by perfmon.
 
-Read Documentation/cli-sti-removal.txt.
+Added thanks
 
- - Heikki
+-Andi

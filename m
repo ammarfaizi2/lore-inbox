@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162247AbWKPCog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162238AbWKPCn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162247AbWKPCog (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162241AbWKPCoG
+	id S1162238AbWKPCn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162240AbWKPCn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:44:06 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10895 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162234AbWKPCnj
+	Wed, 15 Nov 2006 21:43:59 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:14223 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162238AbWKPCnn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:43:39 -0500
-Message-Id: <20061116024403.692995000@sous-sol.org>
+	Wed, 15 Nov 2006 21:43:43 -0500
+Message-Id: <20061116024414.118486000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:33 -0800
+Date: Wed, 15 Nov 2006 18:43:34 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,62 +21,103 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       greg@kroah.com
-Subject: [patch 01/30] S390: user readable uninitialised kernel memory, take 2.
-Content-Disposition: inline; filename=s390-user-readable-uninitialised-kernel-memory-take-2.patch
+       alan@lxorguk.ukuu.org.uk,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: [patch 02/30] POWERPC: Make alignment exception always check exception table
+Content-Disposition: inline; filename=make-alignment-exception-always-check-exception-table.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-The previous patch to correct the copy_from_user padding is quite
-broken. The execute instruction needs to be done via the register %r4,
-not via %r2 and 31 bit doesn't know the instructions lgr and ahji.
+The alignment exception used to only check the exception table for
+-EFAULT, not for other errors. That opens an oops window if we can
+coerce the kernel into getting an alignment exception for other reasons
+in what would normally be a user-protected accessor, which can be done
+via some of the futex ops. This fixes it by always checking the
+exception tables.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/s390/lib/uaccess.S   |   10 +++++-----
- arch/s390/lib/uaccess64.S |    2 +-
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/traps.c |   18 ++++++++++--------
+ arch/ppc/kernel/traps.c     |   18 ++++++++++--------
+ 2 files changed, 20 insertions(+), 16 deletions(-)
 
---- linux-2.6.18.2.orig/arch/s390/lib/uaccess64.S
-+++ linux-2.6.18.2/arch/s390/lib/uaccess64.S
-@@ -49,7 +49,7 @@ __copy_from_user_asm:
- 	la	%r2,256(%r2)
- 8:	aghi	%r5,-256
- 	jnm	7b
--	ex	%r5,0(%r2)
-+	ex	%r5,0(%r4)
- 9:	lgr	%r2,%r3
- 	br	%r14
-         .section __ex_table,"a"
---- linux-2.6.18.2.orig/arch/s390/lib/uaccess.S
-+++ linux-2.6.18.2/arch/s390/lib/uaccess.S
-@@ -41,15 +41,15 @@ __copy_from_user_asm:
- 5:	mvcp	0(%r5,%r2),0(%r4),%r0
- 	slr	%r3,%r5
- 	alr	%r2,%r5
--6:	lgr	%r5,%r3		# copy remaining size
-+6:	lr	%r5,%r3		# copy remaining size
- 	ahi	%r5,-1		# subtract 1 for xc loop
- 	bras	%r4,8f
--	xc	0(1,%2),0(%2)
--7:	xc	0(256,%2),0(%2)
-+	xc	0(1,%r2),0(%r2)
-+7:	xc	0(256,%r2),0(%r2)
- 	la	%r2,256(%r2)
--8:	ahji	%r5,-256
-+8:	ahi	%r5,-256
- 	jnm	7b
--	ex	%r5,0(%r2)
-+	ex	%r5,0(%r4)
- 9:	lr	%r2,%r3
- 	br	%r14
-         .section __ex_table,"a"
+--- linux-2.6.18.2.orig/arch/powerpc/kernel/traps.c
++++ linux-2.6.18.2/arch/powerpc/kernel/traps.c
+@@ -818,7 +818,7 @@ void __kprobes program_check_exception(s
+ 
+ void alignment_exception(struct pt_regs *regs)
+ {
+-	int fixed = 0;
++	int sig, code, fixed = 0;
+ 
+ 	/* we don't implement logging of alignment exceptions */
+ 	if (!(current->thread.align_ctl & PR_UNALIGN_SIGBUS))
+@@ -832,14 +832,16 @@ void alignment_exception(struct pt_regs 
+ 
+ 	/* Operand address was bad */
+ 	if (fixed == -EFAULT) {
+-		if (user_mode(regs))
+-			_exception(SIGSEGV, regs, SEGV_ACCERR, regs->dar);
+-		else
+-			/* Search exception table */
+-			bad_page_fault(regs, regs->dar, SIGSEGV);
+-		return;
++		sig = SIGSEGV;
++		code = SEGV_ACCERR;
++	} else {
++		sig = SIGBUS;
++		code = BUS_ADRALN;
+ 	}
+-	_exception(SIGBUS, regs, BUS_ADRALN, regs->dar);
++	if (user_mode(regs))
++		_exception(sig, regs, code, regs->dar);
++	else
++		bad_page_fault(regs, regs->dar, sig);
+ }
+ 
+ void StackOverflow(struct pt_regs *regs)
+--- linux-2.6.18.2.orig/arch/ppc/kernel/traps.c
++++ linux-2.6.18.2/arch/ppc/kernel/traps.c
+@@ -708,7 +708,7 @@ void single_step_exception(struct pt_reg
+ 
+ void alignment_exception(struct pt_regs *regs)
+ {
+-	int fixed;
++	int sig, code, fixed = 0;
+ 
+ 	fixed = fix_alignment(regs);
+ 	if (fixed == 1) {
+@@ -717,14 +717,16 @@ void alignment_exception(struct pt_regs 
+ 		return;
+ 	}
+ 	if (fixed == -EFAULT) {
+-		/* fixed == -EFAULT means the operand address was bad */
+-		if (user_mode(regs))
+-			_exception(SIGSEGV, regs, SEGV_ACCERR, regs->dar);
+-		else
+-			bad_page_fault(regs, regs->dar, SIGSEGV);
+-		return;
++		sig = SIGSEGV;
++		code = SEGV_ACCERR;
++	} else {
++		sig = SIGBUS;
++		code = BUS_ADRALN;
+ 	}
+-	_exception(SIGBUS, regs, BUS_ADRALN, regs->dar);
++	if (user_mode(regs))
++		_exception(sig, regs, code, regs->dar);
++	else
++		bad_page_fault(regs, regs->dar, sig);
+ }
+ 
+ void StackOverflow(struct pt_regs *regs)
 
 --

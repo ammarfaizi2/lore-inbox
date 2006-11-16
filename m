@@ -1,205 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424654AbWKPVah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424655AbWKPVaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424654AbWKPVah (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424656AbWKPVah
+	id S1424655AbWKPVaf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:30:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424656AbWKPVaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:30:37 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:24018 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1424654AbWKPVae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:30:35 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:28610 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1424655AbWKPVae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 16 Nov 2006 16:30:34 -0500
-Date: Thu, 16 Nov 2006 13:30:33 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
-Cc: davej@codemonkey.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
-       shai.satt@intel.com
-Subject: Re: [PATCH 2.6.19-rc5-git7] EFI: mapping memory region of runtime
- services when using memmap kernel parameter
-Message-Id: <20061116133033.c4f60cc2.randy.dunlap@oracle.com>
-In-Reply-To: <C1467C8B168BCF40ACEC2324C1A2B074A6A69F@hasmsx411.ger.corp.intel.com>
-References: <C1467C8B168BCF40ACEC2324C1A2B074A6A69F@hasmsx411.ger.corp.intel.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Date: Thu, 16 Nov 2006 16:29:50 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       rjw@sisk.pl, ebiederm@xmission.com, hpa@zytor.com,
+       magnus.damm@gmail.com, Reloc Kernel List <fastboot@lists.osdl.org>,
+       ak@suse.de
+Subject: Re: [Fastboot] [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Message-ID: <20061116212950.GF13069@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061115212411.GF9039@in.ibm.com> <20061116002836.GG9039@in.ibm.com> <20061116200933.GE13069@in.ibm.com> <20061116205313.GB5596@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061116205313.GB5596@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 22:50:03 +0200 Myaskouvskey, Artiom wrote:
+On Thu, Nov 16, 2006 at 09:53:13PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > Ok. In the new code NX bit protection feature is not being enabled and that
+> > > seems to be causing the problem. I checked and enabled the NX bit feature
+> > > in EFER in wakeup.S and it starts working.
+> > > 
+> > > I think my new machine supports NX bit protection feature and if while
+> > > resuming if I don't enable that feature back probably it must have caused
+> > > a GPF while loading the page tables which have got NX bit set. (A guess).
+> > > 
+> > > I know that previous machine I was testing on does not support NX bit
+> > > feature and that could be the reason that previous machine did not run into
+> > > the problems.
+> > 
+> > Fixed the resume problem happening on my second box which supported NX
+> > protection bit. Please find attached the regenerated patch.
+> > 
+> > - Killed lots of dead code
+> 
+> Cleanup. (a)
+> 
+> > - Improve the cpu sanity checks to verify long mode
+> >   is enabled when we wake up.
+> 
+> Change. (b). I'm not sure if we really need this one. I do not think
+> replacing cpu while suspended is supported operation.
+> 
 
-> From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+That's fine but it does not harm. Now all the entry path share the
+same sanity check (verify_cpu.S) and I believe it makes code more
+maintanable and more robust. It just makes our checks stronger in
+case somebody really replaces the cpus.
+ 
+> > - Removed the need for modifying any existing kernel page table.
 > 
->  
+> Unrelated change, probably good one. (c).
 > 
-> When using memmap kernel parameter in EFI boot we should also add to memory map 
+> > - Moved wakeup_level4_pgt into the wakeup routine so we can
+> >   run the kernel above 4G.
 > 
-> memory regions of runtime services to enable their mapping later.
+> The change you really wanted to do in the first place. (d).
 > 
->  
+> > - Increased the size of the wakeup routine to 8K.
 > 
-> Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
+> You want bigger stack or what? (e)
 > 
-> ---
 
-The patch does not apply cleanly due to extra blank lines
-between each real/expected line.
+I think this is because of wakeup_level4_pgt page tables which are now
+part of trampoline. And these page tables got to be at 4K byte boundary.
+Hence now we need two pages for trampoline instead of one.
 
-More comments below.
+> > - Renamed the variables to use the 64bit register names.
+> 
+> Cleanup. (a)
+> 
+> > - Lots of misc cleanups to match trampoline.S
+> 
+> More cleanups. (a).
+> 
+> Can we at least get (a) (b) (c) (d) and (e) separated?
+> 
 
+Ok. I will separate the patches.
 
-> diff -uprN linux-2.6.19-rc5-git7.orig/include/linux/efi.h linux-2.6.19-rc5-git7/include/linux/efi.h
+> Oh and please drop the whitespace changes.
 > 
-> --- linux-2.6.19-rc5-git7.orig/include/linux/efi.h    2006-11-16 20:45:58.000000000 +0200
-> 
-> +++ linux-2.6.19-rc5-git7/include/linux/efi.h   2006-11-16 22:10:54.000000000 +0200
-> 
-> @@ -302,6 +302,7 @@ extern void efi_initialize_iomem_resourc
-> 
->                               struct resource *data_resource);
-> 
->  extern unsigned long __init efi_get_time(void);
-> 
->  extern int __init efi_set_rtc_mmss(unsigned long nowtime);
-> 
-> +extern int is_available_memory(efi_memory_desc_t * md);
-> 
->  extern struct efi_memory_map memmap;
-> 
->  
-> 
->  /**
-> 
-> diff -uprN linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c
-> 
-> --- linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c     2006-11-16 20:45:19.000000000 +0200
-> 
-> +++ linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c    2006-11-16 22:05:01.000000000 +0200
-> 
-> @@ -349,25 +349,42 @@ static void __init probe_roms(void)
-> 
->  static void __init limit_regions(unsigned long long size)
-> 
->  {
-> 
->       unsigned long long current_addr = 0;
-> 
-> -     int i;
-> 
-> +     int i , j;
 
-	int i, j;
+Sure. Will drop the whitespace too.
 
+> > I don't have a configuration I can test this but it compiles cleanly
+> > and it should work, the code is very similar to the SMP trampoline,
 > 
->       if (efi_enabled) {
+> I assume you have configuration for test now?
 > 
-> -           efi_memory_desc_t *md;
-> 
-> -           void *p;
-> 
-> +           efi_memory_desc_t *md, *next_md = 0;
-> 
-> +           void *p, *p1;
-> 
->  
-> 
-> -           for (p = memmap.map, i = 0; p < memmap.map_end;
-> 
-> -                 p += memmap.desc_size, i++) {
-> 
-> +           for (p = memmap.map, i = 0,j = 0, p1 = memmap.map;
 
-	space after comma, please.
+Eric did not have but now I have tested it already on two configurations.
+I think that's good enough. Isn't it?
 
-> +                       p < memmap.map_end; p += memmap.desc_size, i++) {
+> > @@ -60,17 +60,6 @@ extern char wakeup_start, wakeup_end;
+> >  
+> >  extern unsigned long FASTCALL(acpi_copy_wakeup_routine(unsigned long));
+> >  
+> > -static pgd_t low_ptr;
+> > -
+> > -static void init_low_mapping(void)
+> > -{
+> > -	pgd_t *slot0 = pgd_offset(current->mm, 0UL);
+> > -	low_ptr = *slot0;
+> > -	set_pgd(slot0, *pgd_offset(current->mm, PAGE_OFFSET));
+> > -	WARN_ON(num_online_cpus() != 1);
+> > -	local_flush_tlb();
+> > -}
+> > -
 > 
->                   md = p;
+> So you no longer need identity mapping? Is not it specified that when
+> you transition between modes, you should do that while in identity
+> mapping?
 > 
-> -                 current_addr = md->phys_addr + (md->num_pages << 12);
-> 
-> -                 if (md->type == EFI_CONVENTIONAL_MEMORY) {
-> 
-> +                 next_md = p1;
-> 
-> +                 current_addr = md->phys_addr + PFN_PHYS(md->num_pages);
-> 
-> +                 if (is_available_memory(md)) {
-> 
-> +                       if (md->phys_addr >= size) continue;
 
-	Split to 2 lines:
-			if (condition)
-				continue;
+I am not sure where these mappings are required at all in first place?
+While going to sleep state? While resuming we are using wake page tables
+and they already got identity mappings so it should not be an issue.
 
-> +                       memcpy(next_md, md, memmap.desc_size);
+[..]
+> More whitespace changes.
 > 
->                         if (current_addr >= size) {
 > 
-> -                             md->num_pages -=
+> >  	movl	real_magic - wakeup_code, %eax
+> >  	cmpl	$0x12345678, %eax
+> >  	jne	bogus_real_magic
+> >  
+> > +	call	verify_cpu			# Verify the cpu supports long mode
+> > +
 > 
-> -                                   (((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
+> Check if cpu supports long mode... but we suspended when running long
+> mode, why checking again?
 > 
-> -                             memmap.nr_map = i + 1;
-> 
-> -                             return;
-> 
-> +                             next_md->num_pages -=
-> 
-> +                                   PFN_UP(current_addr-size);
 
-					...(current_addr - size);
-> 
->                         }
-> 
-> +                       p1 += memmap.desc_size;
-> 
-> +                       next_md = p1;
-> 
-> +                       j++;
-> 
-> +                 }
-> 
-> +                 else if ((md->attribute & EFI_MEMORY_RUNTIME) ==
-> 
-> +                             EFI_MEMORY_RUNTIME) {
-> 
-> +                       /* In order to make runtime services available
-> 
-> +                       * we have to include runtime
-> 
-> +                       * memory regions in memory map */
-> 
-> +                       memcpy(next_md, md, memmap.desc_size);
-> 
-> +                       p1 += memmap.desc_size;
-> 
-> +                       next_md = p1;
-> 
-> +                       j++;
-> 
->                   }
-> 
->             }
-> 
-> +           memmap.nr_map = j;
-> 
-> +           memmap.map_end = memmap.map + (memmap.nr_map * memmap.desc_size);
-> 
-> +           return;
-> 
->       }
-> 
->       for (i = 0; i < e820.nr_map; i++) {
-> 
->             current_addr = e820.map[i].addr + e820.map[i].size;
-> 
->  
-> -
+Please see above.
 
----
-~Randy
+> >  	testl	$1, video_flags - wakeup_code
+> >  	jz	1f
+> >  	lcall   $0xc000,$3
+> >  	movw	%cs, %ax
+> > -	movw	%ax, %ds					# Bios might have played with that
+> > +	movw	%ax, %ds			# Bios might have played with that
+> >  	movw	%ax, %ss
+> >  1:
+> 
+> More whitespace changes.
+> 
+> > @@ -228,25 +206,10 @@ wakeup_long64:
+> >  	.align	64	
+> >  gdta:
+> >  	.word	0, 0, 0, 0			# dummy
+> > -
+> > -	.word	0, 0, 0, 0			# unused
+> > -
+> > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
+> > -	.word	0				# base address = 0
+> > -	.word	0x9B00				# code read/exec. ??? Why I need 0x9B00 (as opposed to 0x9A00 in order for this to work?)
+> > -	.word	0x00CF				# granularity = 4096, 386
+> > -						#  (+5th nibble of limit)
+> > -
+> > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
+> > -	.word	0				# base address = 0
+> > -	.word	0x9200				# data read/write
+> > -	.word	0x00CF				# granularity = 4096, 386
+> > -						#  (+5th nibble of limit)
+> > -# this is 64bit descriptor for code
+> > -	.word	0xFFFF
+> > -	.word	0
+> > -	.word	0x9A00				# code read/exec
+> > -	.word	0x00AF				# as above, but it is long mode and with D=0
+> > +	/* ??? Why I need the accessed bit set in order for this to work? */
+> > +	.quad	0x00cf9b000000ffff		# __KERNEL32_CS
+> > +	.quad	0x00af9b000000ffff		# __KERNEL_CS
+> > +	.quad	0x00cf93000000ffff		# __KERNEL_DS
+> 
+> Why this change, why did you change the values in here, and why you
+> did not tell me about it in the changelog?
+> 
+
+I think mainly it has been modified to be consistent gdt table across
+the kernel (cpu_gdt_table, trampoline.S and wakeup.S). Now __KERNEL_32_CS
+entry has been moved up to keep the size of gdt small on trampoline. This
+change was done in patch number 7 (cleanup segments).
+
+Seondly, I think it is just change of form from using .word to .quad. More
+compact form.
+
+Thirdly I think it does not harm marking that gdt entry has been accessed.
+Eric can elaborate more on it. Patch 7 also has got details.
+
+Thanks
+Vivek

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424433AbWKPURt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424439AbWKPUW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424433AbWKPURt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 15:17:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424434AbWKPURt
+	id S1424439AbWKPUW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 15:22:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424441AbWKPUW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 15:17:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51109 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1424433AbWKPURt (ORCPT
+	Thu, 16 Nov 2006 15:22:28 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:58891 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1424439AbWKPUW2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 15:17:49 -0500
-Date: Thu, 16 Nov 2006 21:16:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061116201657.GA32043@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain>
+	Thu, 16 Nov 2006 15:22:28 -0500
+Date: Thu, 16 Nov 2006 21:21:57 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Edward Falk <efalk@google.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Introduce block I/O performance histograms
+Message-ID: <20061116202156.GG7164@kernel.dk>
+References: <455BD7E8.9020303@google.com> <20061116065846.GE32394@kernel.dk> <455CC38A.20104@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1163694712.26026.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.0893]
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <455CC38A.20104@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> > -rt0 is a rebase of -rt to 2.6.19-rc6, with lots of updates and 
-> > fixes included. It includes the latest -hrt-dynticks tree and more.
+On Thu, Nov 16 2006, Edward Falk wrote:
+> Jens Axboe wrote:
 > 
-> Does the zero carry and meaning or did you just decide start using 
-> zero instead of one?
+> >I don't see the point at all for including this piece of code in the
+> >kernel. You can do the same from user space. Your help entry said it
+> >even grows the kernel size about 21k, that's pretty nasty.
+> 
+> How would you do this from user space?  Also, the 21k increase is only 
+> in effect if the feature is turned on in the config, and it's off by 
+> default.
 
-no real meaning other than zero better signals the first -rc port's 
-relative freshness.
+You can use blktrace to do it. I realize that the 21k is only if it's
+turned out, it's still quite a huge big (why does it turn out so big?).
+The source is always there to maintain, though. The main point is that
+you don't have to do this in the kernel, though.
 
-	Ingo
+-- 
+Jens Axboe
+

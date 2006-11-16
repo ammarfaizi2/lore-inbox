@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162236AbWKPSqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424315AbWKPSvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162236AbWKPSqw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 13:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162240AbWKPSqw
+	id S1424315AbWKPSvn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 13:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424313AbWKPSvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 13:46:52 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41659 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1162236AbWKPSqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 13:46:51 -0500
-Date: Thu, 16 Nov 2006 10:46:16 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Christian Krafft <krafft@de.ibm.com>
-cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, mbligh@mbligh.org,
-       steiner@sgi.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
- no memory
-In-Reply-To: <20061116164037.58b3aaeb@localhost>
-Message-ID: <Pine.LNX.4.64.0611161043510.28498@schroedinger.engr.sgi.com>
-References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost>
- <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
- <20061115215845.GB20526@sgi.com> <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>
- <455B9825.3030403@mbligh.org> <Pine.LNX.4.64.0611151451450.23477@schroedinger.engr.sgi.com>
- <20061116095429.0e6109a7.kamezawa.hiroyu@jp.fujitsu.com>
- <Pine.LNX.4.64.0611151653560.24565@schroedinger.engr.sgi.com>
- <20061116164037.58b3aaeb@localhost>
+	Thu, 16 Nov 2006 13:51:43 -0500
+Received: from dev.mellanox.co.il ([194.90.237.44]:49283 "EHLO
+	dev.mellanox.co.il") by vger.kernel.org with ESMTP id S1162299AbWKPSvj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 13:51:39 -0500
+Message-ID: <18154.194.90.237.34.1163703097.squirrel@dev.mellanox.co.il>
+In-Reply-To: <60157.89.139.64.58.1163542548.squirrel@dev.mellanox.co.il>
+References: <60157.89.139.64.58.1163542548.squirrel@dev.mellanox.co.il>
+Date: Thu, 16 Nov 2006 20:51:37 +0200 (IST)
+Subject: Re: UDP packets loss
+From: eli@dev.mellanox.co.il
+To: eli@dev.mellanox.co.il
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+User-Agent: SquirrelMail/1.4.8-1.fc5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006, Christian Krafft wrote:
+> Hi,
+> I am running a client/server test app over IPOIB in which the client sends
+> a certain amount of data to the server. When the transmittion ends, the
+> server prints the bandwidth and how much data it received. I can see that
+> the server reports it received about 60% that the client sent. However,
+> when I look at the server's interface counters before and after the
+> transmittion, I see that it actually received all the data that the client
+> sent. This leads me to suspect that the networking layer somehow dropped
+> some of the data. One thing to not - the CPU is 100% busy at the receiver.
+> Could this be the reason (the machine I am using is 2 dual cores - 4
+> CPUs).
 
-> Okay, I slowly understand what you are talking about.
-> I just tried a "numactl --cpunodebind 1 --membind 1 true" which hit an uninitialized zone in slab_node:
-> 
-> return zone_to_nid(policy->v.zonelist->zones[0]);
+I still have the following argumet: the network and the network driver are
+capable of transffering data at a high rate and the networking stack is
+unable to keep the pace. If I used TCP probably TCP's flow control would
+eventually slow the whole thing to a rate such all parts can handle. But
+is there a way to overcome this situation and to avoid packets drop? If
+this would happen then TCP would work at higher rates as well?? Perhaps
+increase buffers sizes? Maybe the kernel is not designed to handle packets
+rate like IPOIB can generate?
 
-I think the above should work fine and give the expected OOM since the
-node has no memory.
-
-The zone struct should redirect via the zonelist to nodes that have 
-memory for allocations that are not bound to a single node.
-
-> I also still don't know if it makes sense to have memoryless nodes, but supporting it does.
-> So wath would be reasonable, to have empty zonelists for those node, or to check if zonelists are uninitialized ?
-
-zonelists of those nodes should contain a list of fallback zones with 
-available memory.

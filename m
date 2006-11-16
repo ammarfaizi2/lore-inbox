@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031191AbWKPQs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424276AbWKPQtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031191AbWKPQs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031192AbWKPQs1
+	id S1424276AbWKPQtB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:49:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031193AbWKPQtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:48:27 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:27891 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1031191AbWKPQs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:48:26 -0500
-Subject: Re: [Patch -mm 2/2] driver core: Introduce device_move(): move a
-	device to a new parent.
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Greg K-H <greg@kroah.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
-In-Reply-To: <20061116154210.217f2e04@gondolin.boeblingen.de.ibm.com>
-References: <20061116154210.217f2e04@gondolin.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Thu, 16 Nov 2006 17:47:37 +0100
-Message-Id: <1163695657.7900.9.camel@min.off.vrfy.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 16 Nov 2006 11:49:01 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:4460 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S1031192AbWKPQtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:49:00 -0500
+Message-ID: <455C96DC.4060907@jeffreymahoney.com>
+Date: Thu, 16 Nov 2006 11:50:36 -0500
+From: Jeff Mahoney <jeffm@jeffreymahoney.com>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: linux-fsdevel@vger.kernel.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ext3: htree entry integrity checking
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4ddcc9dd12ba6cf3155e4d81b383efda
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-16 at 15:42 +0100, Cornelia Huck wrote:
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
-> 
-> Provide a function device_move() to move a device to a new parent device. Add
-> auxilliary functions kobject_move() and sysfs_move_dir().
-> kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
-> previous path (OLD_DEVPATH) in addition to the usual values.
+ This patch adds integrity checking to two htree paths that are missing it.
 
-> +	sprintf(devpath_string, "OLD_DEVPATH=%s", devpath);
+ Currently, if a corrupted directory entry with rec_len=0 is encountered,
+ we still trust that the data is valid. This can cause an infinite loop
+ in htree_dirblock_to_tree() since the iteration loop will never make any
+ progress.
 
-I think it's easier to understand, if the variable starts with the same
-string as original name. I prefer DEVPATH_OLD.
+ I initially had written a ext3_check_htree_entry(), but saw that
+ ext3_dir_entry_2 is used for both htree and regular directory entries. Since
+ ext3_check_dir_entry() is used for checking ext3_dir_entry_2, I used that.
+ Can someone confirm that this is correct? There are other places where
+ de->rec_len == 0 is used by itself and I'd be fine doing that too, but I
+ figure more integrity checking isn't a bad thing.
 
-> +void kobject_uevent_extended(struct kobject *kobj, enum kobject_action action,
-> +			     const char *string)
+ This fixes the problem described at:
+ http://projects.info-pull.com/mokb/MOKB-10-11-2006.html
 
-I think we should pass an array of env vars here instead of a single
-string - you never know ... :) The function could probably be named
-kobject_uevent_env() then.
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 
-Thanks,
-Kay
+diff -ruNpX ../dontdiff linux-2.6.18.orig/fs/ext3/namei.c linux-2.6.18.orig.devel/fs/ext3/namei.c
+--- linux-2.6.18.orig/fs/ext3/namei.c	2006-11-09 00:06:37.000000000 -0500
++++ linux-2.6.18.orig.devel/fs/ext3/namei.c	2006-11-12 20:15:19.000000000 -0500
+@@ -551,6 +551,11 @@ static int htree_dirblock_to_tree(struct
+ 					   dir->i_sb->s_blocksize -
+ 					   EXT3_DIR_REC_LEN(0));
+ 	for (; de < top; de = ext3_next_entry(de)) {
++		if (!ext3_check_dir_entry(__FUNCTION__, dir, de, bh,
++		                            (char *)de - bh->b_data)) {
++			brelse(bh);
++			return ERR_BAD_DX_DIR;
++		}
+ 		ext3fs_dirhash(de->name, de->name_len, hinfo);
+ 		if ((hinfo->hash < start_hash) ||
+ 		    ((hinfo->hash == start_hash) &&
+@@ -617,6 +622,11 @@ int ext3_htree_fill_tree(struct file *di
+ 	if (start_hash < 2 || (start_hash ==2 && start_minor_hash==0)) {
+ 		de = (struct ext3_dir_entry_2 *) frames[0].bh->b_data;
+ 		de = ext3_next_entry(de);
++		if (!ext3_check_dir_entry(__FUNCTION__, dir, de, frames[0].bh,
++		                          (char *)de - frames[0].bh->b_data)) {
++			err = ERR_BAD_DX_DIR;
++			goto errout;
++		}
+ 		if ((err = ext3_htree_store_dirent(dir_file, 2, 0, de)) != 0)
+ 			goto errout;
+ 		count++;
 
+-- 
+Jeff Mahoney

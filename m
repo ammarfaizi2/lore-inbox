@@ -1,69 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162229AbWKPCnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162239AbWKPCn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162229AbWKPCnf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162234AbWKPCne
+	id S1162239AbWKPCn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162242AbWKPCn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:43:34 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:7823 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162229AbWKPCnd
+	Wed, 15 Nov 2006 21:43:57 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16783 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162239AbWKPCnt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:43:33 -0500
-Message-Id: <20061116024438.604985000@sous-sol.org>
+	Wed, 15 Nov 2006 21:43:49 -0500
+Message-Id: <20061116024500.986926000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:36 -0800
+Date: Wed, 15 Nov 2006 18:43:38 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-mm@kvack.org
-Subject: [patch 04/30] Fix sys_move_pages when a NULL node list is passed.
-Content-Disposition: inline; filename=fix-sys_move_pages-when-a-null-node-list-is-passed.patch
+       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>
+Subject: [patch 06/30] SPARC: Fix missed bump of NR_SYSCALLS.
+Content-Disposition: inline; filename=sparc-fix-missed-bump-of-nr_syscalls.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+From: David Miller <davem@davemloft.net>
 
-sys_move_pages() uses vmalloc() to allocate an array of structures
-that is fills with information passed from user mode and then passes to
-do_stat_pages() (in the case the node list is NULL).  do_stat_pages()
-depends on a marker in the node field of the structure to decide how large
-the array is and this marker is correctly inserted into the last element
-of the array.  However, vmalloc() doesn't zero the memory it allocates
-and if the user passes NULL for the node list, then the node fields are
-not filled in (except for the end marker).  If the memory the vmalloc()
-returned happend to have a word with the marker value in it in just the
-right place, do_pages_stat will fail to fill the status field of part
-of the array and we will return (random) kernel data to user mode.
+When I added the robust futex syscall entries I forgot to bump
+NR_SYSCALLS.  This is an easy mistake to make because NR_SYSCALLS
+lived in entry.S which is nowhere near unistd.h or syscalls.S, so
+while we're here move it's definition into unistd.h so this is
+unlikely to ever happen again.
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Acked-by: Christoph Lameter <clameter@sgi.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- mm/migrate.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/sparc/kernel/entry.S    |    3 +--
+ arch/sparc64/kernel/entry.S  |    3 +--
+ include/asm-sparc/unistd.h   |    2 ++
+ include/asm-sparc64/unistd.h |    2 ++
+ 4 files changed, 6 insertions(+), 4 deletions(-)
 
---- linux-2.6.18.2.orig/mm/migrate.c
-+++ linux-2.6.18.2/mm/migrate.c
-@@ -950,7 +950,8 @@ asmlinkage long sys_move_pages(pid_t pid
- 				goto out;
+--- linux-2.6.18.2.orig/arch/sparc/kernel/entry.S
++++ linux-2.6.18.2/arch/sparc/kernel/entry.S
+@@ -32,13 +32,12 @@
+ #include <asm/mxcc.h>
+ #include <asm/thread_info.h>
+ #include <asm/param.h>
++#include <asm/unistd.h>
  
- 			pm[i].node = node;
--		}
-+		} else
-+			pm[i].node = 0;	/* anything to not match MAX_NUMNODES */
- 	}
- 	/* End marker */
- 	pm[nr_pages].node = MAX_NUMNODES;
+ #include <asm/asmmacro.h>
+ 
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
+-
+ /* These are just handy. */
+ #define _SV	save	%sp, -STACKFRAME_SZ, %sp
+ #define _RS     restore 
+--- linux-2.6.18.2.orig/arch/sparc64/kernel/entry.S
++++ linux-2.6.18.2/arch/sparc64/kernel/entry.S
+@@ -22,11 +22,10 @@
+ #include <asm/auxio.h>
+ #include <asm/sfafsr.h>
+ #include <asm/pil.h>
++#include <asm/unistd.h>
+ 
+ #define curptr      g6
+ 
+-#define NR_SYSCALLS 300      /* Each OS is different... */
+-
+ 	.text
+ 	.align		32
+ 
+--- linux-2.6.18.2.orig/include/asm-sparc/unistd.h
++++ linux-2.6.18.2/include/asm-sparc/unistd.h
+@@ -319,6 +319,8 @@
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
+ 
++#define NR_SYSCALLS		302
++
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+  *          all of the syscall tables in the Sparc kernel are
+--- linux-2.6.18.2.orig/include/asm-sparc64/unistd.h
++++ linux-2.6.18.2/include/asm-sparc64/unistd.h
+@@ -321,6 +321,8 @@
+ #define __NR_set_robust_list	300
+ #define __NR_get_robust_list	301
+ 
++#define NR_SYSCALLS		302
++
+ #ifdef __KERNEL__
+ /* WARNING: You MAY NOT add syscall numbers larger than 301, since
+  *          all of the syscall tables in the Sparc kernel are
 
 --

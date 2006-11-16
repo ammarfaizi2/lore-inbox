@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423778AbWKPKr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423787AbWKPKum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423778AbWKPKr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423782AbWKPKr4
+	id S1423787AbWKPKum (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:50:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423794AbWKPKum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:47:56 -0500
-Received: from ulysses.noc.ntua.gr ([147.102.222.230]:15580 "EHLO
-	ulysses.noc.ntua.gr") by vger.kernel.org with ESMTP
-	id S1423750AbWKPKrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:47:55 -0500
-Date: Thu, 16 Nov 2006 12:47:10 +0200
-From: Faidon Liambotis <paravoid@debian.org>
-To: coreteam@netfilter.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: [PATCH 2.6.19-rc6] netfilter: fix panic on ip_conntrack_h323 with CONFIG_IP_NF_CT_ACCT
-Message-ID: <20061116104419.GA8807@mail.cube.gr>
+	Thu, 16 Nov 2006 05:50:42 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6827 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1423787AbWKPKul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 05:50:41 -0500
+Date: Thu, 16 Nov 2006 11:49:16 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [patch] x86_64: fix CONFIG_CC_STACKPROTECTOR build bug
+Message-ID: <20061116104916.GA12863@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0030]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H.323 connection tracking code calls ip_ct_refresh_acct() when
-processing RCFs and URQs but passes NULL as the skb.
-When CONFIG_IP_NF_CT_ACCT is enabled, the connection tracking core tries
-to derefence the skb, which results in an obvious panic.
-A similar fix was applied on the SIP connection tracking code some time
-ago.
+Subject: [patch] x86_64: fix CONFIG_CC_STACKPROTECTOR build bug
+From: Ingo Molnar <mingo@elte.hu>
 
-Signed-off-by: Faidon Liambotis <paravoid@debian.org>
+on x86_64, the CONFIG_CC_STACKPROTECTOR build fails if used in a
+distcc setup that has "CC" defined to "distcc gcc":
 
---- a/net/ipv4/netfilter/ip_conntrack_helper_h323.c	2006-11-15 19:07:50.000000000 +0200
-+++ b/net/ipv4/netfilter/ip_conntrack_helper_h323.c	2006-11-16 11:09:46.000000000 +0200
-@@ -1417,7 +1417,7 @@ static int process_rcf(struct sk_buff **
- 		DEBUGP
- 		    ("ip_ct_ras: set RAS connection timeout to %u seconds\n",
- 		     info->timeout);
--		ip_ct_refresh_acct(ct, ctinfo, NULL, info->timeout * HZ);
-+		ip_ct_refresh_acct(ct, ctinfo, *pskb, info->timeout * HZ);
+ gcc: gcc: linker input file unused because linking not done
+ gcc: gcc: linker input file unused because linking not done
+ gcc: gcc: linker input file unused because linking not done
+
+this is because the gcc-x86_64-has-stack-protector.sh script
+has a 2-parameters assumption. Fix this by passing $(CC) as
+a single parameter.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Please-Use-Me-More: make randconfig
+---
+ arch/x86_64/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/arch/x86_64/Makefile
+===================================================================
+--- linux.orig/arch/x86_64/Makefile
++++ linux/arch/x86_64/Makefile
+@@ -66,8 +66,8 @@ AFLAGS += $(call as-instr,.cfi_startproc
+ cflags-y += $(call as-instr,.cfi_startproc\n.cfi_signal_frame\n.cfi_endproc,-DCONFIG_AS_CFI_SIGNAL_FRAME=1,)
+ AFLAGS += $(call as-instr,.cfi_startproc\n.cfi_signal_frame\n.cfi_endproc,-DCONFIG_AS_CFI_SIGNAL_FRAME=1,)
  
- 		/* Set expect timeout */
- 		read_lock_bh(&ip_conntrack_lock);
-@@ -1465,7 +1465,7 @@ static int process_urq(struct sk_buff **
- 	info->sig_port[!dir] = 0;
+-cflags-$(CONFIG_CC_STACKPROTECTOR) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) -fstack-protector )
+-cflags-$(CONFIG_CC_STACKPROTECTOR_ALL) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh $(CC) -fstack-protector-all )
++cflags-$(CONFIG_CC_STACKPROTECTOR) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh "$(CC)" -fstack-protector )
++cflags-$(CONFIG_CC_STACKPROTECTOR_ALL) += $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-x86_64-has-stack-protector.sh "$(CC)" -fstack-protector-all )
  
- 	/* Give it 30 seconds for UCF or URJ */
--	ip_ct_refresh_acct(ct, ctinfo, NULL, 30 * HZ);
-+	ip_ct_refresh_acct(ct, ctinfo, *pskb, 30 * HZ);
- 
- 	return 0;
- }
+ CFLAGS += $(cflags-y)
+ CFLAGS_KERNEL += $(cflags-kernel-y)

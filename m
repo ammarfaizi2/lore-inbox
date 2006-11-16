@@ -1,207 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424655AbWKPVaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424653AbWKPVaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424655AbWKPVaf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424656AbWKPVaf
+	id S1424653AbWKPVaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424638AbWKPVaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:30:35 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:28610 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1424655AbWKPVae (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:30:34 -0500
-Date: Thu, 16 Nov 2006 16:29:50 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       rjw@sisk.pl, ebiederm@xmission.com, hpa@zytor.com,
-       magnus.damm@gmail.com, Reloc Kernel List <fastboot@lists.osdl.org>,
-       ak@suse.de
-Subject: Re: [Fastboot] [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
-Message-ID: <20061116212950.GF13069@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061115212411.GF9039@in.ibm.com> <20061116002836.GG9039@in.ibm.com> <20061116200933.GE13069@in.ibm.com> <20061116205313.GB5596@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Nov 2006 16:30:06 -0500
+Received: from nz-out-0102.google.com ([64.233.162.207]:3019 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1424654AbWKPVaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:30:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qZW/Ho/1X/qoBbnGbYRkKTn1ysiQiSTbWK4RKUeFFEDLpdybxfDo+iyR5Ez0N/uY1dfSK2fcKzPWXjRveweb2/f2iBPB6hwEKvAJGbOlOaqVbOhEKwX0ee6SJZ9+iA4gF1xp4+91PVb0T+ZxW3hNvYzmf47MhEsbdlW5uNaXuVQ=
+Message-ID: <9a8748490611161330k124e34a5s8ede7df810d7bbc4@mail.gmail.com>
+Date: Thu, 16 Nov 2006 22:30:03 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
+Subject: Re: How to go about debuging a system lockup?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061116212140.GP8236@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061116205313.GB5596@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+References: <20061116153444.GC8238@csclub.uwaterloo.ca>
+	 <9a8748490611161249t406768beqeaff0fc31f96e8df@mail.gmail.com>
+	 <20061116212140.GP8236@csclub.uwaterloo.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2006 at 09:53:13PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > Ok. In the new code NX bit protection feature is not being enabled and that
-> > > seems to be causing the problem. I checked and enabled the NX bit feature
-> > > in EFER in wakeup.S and it starts working.
-> > > 
-> > > I think my new machine supports NX bit protection feature and if while
-> > > resuming if I don't enable that feature back probably it must have caused
-> > > a GPF while loading the page tables which have got NX bit set. (A guess).
-> > > 
-> > > I know that previous machine I was testing on does not support NX bit
-> > > feature and that could be the reason that previous machine did not run into
-> > > the problems.
-> > 
-> > Fixed the resume problem happening on my second box which supported NX
-> > protection bit. Please find attached the regenerated patch.
-> > 
-> > - Killed lots of dead code
-> 
-> Cleanup. (a)
-> 
-> > - Improve the cpu sanity checks to verify long mode
-> >   is enabled when we wake up.
-> 
-> Change. (b). I'm not sure if we really need this one. I do not think
-> replacing cpu while suspended is supported operation.
-> 
+On 16/11/06, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+> On Thu, Nov 16, 2006 at 09:49:06PM +0100, Jesper Juhl wrote:
+...
+> > - You could also try kdb (http://oss.sgi.com/projects/kdb/) or kgdb
+> > (http://kgdb.linsyssoft.com/). That might help you pinpoint the
+> > failure.
+>
+> Can I run that remotely somehow?  I never really looked at kdb or kgdb
+> before.
+>
+Yes you can. kgdb is run on a separate machine from the one you are debugging.
 
-That's fine but it does not harm. Now all the entry path share the
-same sanity check (verify_cpu.S) and I believe it makes code more
-maintanable and more robust. It just makes our checks stronger in
-case somebody really replaces the cpus.
- 
-> > - Removed the need for modifying any existing kernel page table.
-> 
-> Unrelated change, probably good one. (c).
-> 
-> > - Moved wakeup_level4_pgt into the wakeup routine so we can
-> >   run the kernel above 4G.
-> 
-> The change you really wanted to do in the first place. (d).
-> 
-> > - Increased the size of the wakeup routine to 8K.
-> 
-> You want bigger stack or what? (e)
-> 
+> > - If you have (or can identify) an older, working, kernel version and
+> > you are confident that you can reproduce the problem reliably, then
+> > doing a git bisection search starting with your newest "known good"
+> > and oldest "known bad" kernel versions, should help you pinpoint the
+> > commit causing the breakage.
+>
+> I don't know of a good version yet.  I so far don't know if there ever
+> was one.  This could even be a bug in the PCI hardware, or the way the
+> BIOS on this system on a board configured the PCI controller.  Maybe I
+> should go back and try a 2.4 kernel.
+>
+Or just try a few random older 2.6 kernels like 2.6.14, 2.6.9,
+2.6.whatever (of course it needs to be a version that git knows
+about).
 
-I think this is because of wakeup_level4_pgt page tables which are now
-part of trampoline. And these page tables got to be at 4K byte boundary.
-Hence now we need two pages for trampoline instead of one.
 
-> > - Renamed the variables to use the 64bit register names.
-> 
-> Cleanup. (a)
-> 
-> > - Lots of misc cleanups to match trampoline.S
-> 
-> More cleanups. (a).
-> 
-> Can we at least get (a) (b) (c) (d) and (e) separated?
-> 
-
-Ok. I will separate the patches.
-
-> Oh and please drop the whitespace changes.
-> 
-
-Sure. Will drop the whitespace too.
-
-> > I don't have a configuration I can test this but it compiles cleanly
-> > and it should work, the code is very similar to the SMP trampoline,
-> 
-> I assume you have configuration for test now?
-> 
-
-Eric did not have but now I have tested it already on two configurations.
-I think that's good enough. Isn't it?
-
-> > @@ -60,17 +60,6 @@ extern char wakeup_start, wakeup_end;
-> >  
-> >  extern unsigned long FASTCALL(acpi_copy_wakeup_routine(unsigned long));
-> >  
-> > -static pgd_t low_ptr;
-> > -
-> > -static void init_low_mapping(void)
-> > -{
-> > -	pgd_t *slot0 = pgd_offset(current->mm, 0UL);
-> > -	low_ptr = *slot0;
-> > -	set_pgd(slot0, *pgd_offset(current->mm, PAGE_OFFSET));
-> > -	WARN_ON(num_online_cpus() != 1);
-> > -	local_flush_tlb();
-> > -}
-> > -
-> 
-> So you no longer need identity mapping? Is not it specified that when
-> you transition between modes, you should do that while in identity
-> mapping?
-> 
-
-I am not sure where these mappings are required at all in first place?
-While going to sleep state? While resuming we are using wake page tables
-and they already got identity mappings so it should not be an issue.
-
-[..]
-> More whitespace changes.
-> 
-> 
-> >  	movl	real_magic - wakeup_code, %eax
-> >  	cmpl	$0x12345678, %eax
-> >  	jne	bogus_real_magic
-> >  
-> > +	call	verify_cpu			# Verify the cpu supports long mode
-> > +
-> 
-> Check if cpu supports long mode... but we suspended when running long
-> mode, why checking again?
-> 
-
-Please see above.
-
-> >  	testl	$1, video_flags - wakeup_code
-> >  	jz	1f
-> >  	lcall   $0xc000,$3
-> >  	movw	%cs, %ax
-> > -	movw	%ax, %ds					# Bios might have played with that
-> > +	movw	%ax, %ds			# Bios might have played with that
-> >  	movw	%ax, %ss
-> >  1:
-> 
-> More whitespace changes.
-> 
-> > @@ -228,25 +206,10 @@ wakeup_long64:
-> >  	.align	64	
-> >  gdta:
-> >  	.word	0, 0, 0, 0			# dummy
-> > -
-> > -	.word	0, 0, 0, 0			# unused
-> > -
-> > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-> > -	.word	0				# base address = 0
-> > -	.word	0x9B00				# code read/exec. ??? Why I need 0x9B00 (as opposed to 0x9A00 in order for this to work?)
-> > -	.word	0x00CF				# granularity = 4096, 386
-> > -						#  (+5th nibble of limit)
-> > -
-> > -	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
-> > -	.word	0				# base address = 0
-> > -	.word	0x9200				# data read/write
-> > -	.word	0x00CF				# granularity = 4096, 386
-> > -						#  (+5th nibble of limit)
-> > -# this is 64bit descriptor for code
-> > -	.word	0xFFFF
-> > -	.word	0
-> > -	.word	0x9A00				# code read/exec
-> > -	.word	0x00AF				# as above, but it is long mode and with D=0
-> > +	/* ??? Why I need the accessed bit set in order for this to work? */
-> > +	.quad	0x00cf9b000000ffff		# __KERNEL32_CS
-> > +	.quad	0x00af9b000000ffff		# __KERNEL_CS
-> > +	.quad	0x00cf93000000ffff		# __KERNEL_DS
-> 
-> Why this change, why did you change the values in here, and why you
-> did not tell me about it in the changelog?
-> 
-
-I think mainly it has been modified to be consistent gdt table across
-the kernel (cpu_gdt_table, trampoline.S and wakeup.S). Now __KERNEL_32_CS
-entry has been moved up to keep the size of gdt small on trampoline. This
-change was done in patch number 7 (cleanup segments).
-
-Seondly, I think it is just change of form from using .word to .quad. More
-compact form.
-
-Thirdly I think it does not harm marking that gdt entry has been accessed.
-Eric can elaborate more on it. Patch 7 also has got details.
-
-Thanks
-Vivek
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

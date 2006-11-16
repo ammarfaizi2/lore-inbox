@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422850AbWKPJut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWKPJve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422850AbWKPJut (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 04:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422848AbWKPJut
+	id S1422863AbWKPJve (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 04:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422853AbWKPJve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 04:50:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43683 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422805AbWKPJus (ORCPT
+	Thu, 16 Nov 2006 04:51:34 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60579 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422848AbWKPJvc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 04:50:48 -0500
-Date: Thu, 16 Nov 2006 01:49:20 -0800
+	Thu, 16 Nov 2006 04:51:32 -0500
+Date: Thu, 16 Nov 2006 01:48:09 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Alex Tomas <alex@clusterfs.com>, cmm@us.ibm.com,
-       Hugh Dickins <hugh@veritas.com>, Mel Gorman <mel@skynet.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+To: Alex Tomas <alex@clusterfs.com>
+Cc: cmm@us.ibm.com, Hugh Dickins <hugh@veritas.com>,
+       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org,
        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
 Subject: Re: Boot failure with ext2 and initrds
-Message-Id: <20061116014920.2a0f4d46.akpm@osdl.org>
-In-Reply-To: <20061116014809.914a5425.akpm@osdl.org>
+Message-Id: <20061116014809.914a5425.akpm@osdl.org>
+In-Reply-To: <m3hcwzhgvm.fsf@bzzz.home.net>
 References: <20061114014125.dd315fff.akpm@osdl.org>
 	<20061114184919.GA16020@skynet.ie>
 	<Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
@@ -30,7 +31,6 @@ References: <20061114014125.dd315fff.akpm@osdl.org>
 	<1163666960.4310.40.camel@localhost.localdomain>
 	<20061116011351.1401a00f.akpm@osdl.org>
 	<m3hcwzhgvm.fsf@bzzz.home.net>
-	<20061116014809.914a5425.akpm@osdl.org>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -38,23 +38,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 01:48:09 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, 16 Nov 2006 12:37:17 +0300
+Alex Tomas <alex@clusterfs.com> wrote:
 
-> On Thu, 16 Nov 2006 12:37:17 +0300
-> Alex Tomas <alex@clusterfs.com> wrote:
+> >>>>> Andrew Morton (AM) writes:
 > 
-> > >>>>> Andrew Morton (AM) writes:
-> > 
-> >  AM> What lock protects the fields in struct ext[234]_reserve_window from being
-> >  AM> concurrently modified by two CPUs?  None, it seems.  Ditto
-> >  AM> ext[234]_reserve_window_node.  i_mutex will cover it for write(), but not
-> >  AM> for pageout over a file hole.  If we end up with a zero- or negative-sized
-> >  AM> window then odd things might happen.
-> > 
-> > truncate_mutex?
-> > 
+>  AM> What lock protects the fields in struct ext[234]_reserve_window from being
+>  AM> concurrently modified by two CPUs?  None, it seems.  Ditto
+>  AM> ext[234]_reserve_window_node.  i_mutex will cover it for write(), but not
+>  AM> for pageout over a file hole.  If we end up with a zero- or negative-sized
+>  AM> window then odd things might happen.
 > 
-> yes.  hmm.
+> truncate_mutex?
+> 
 
-by which I mean "ext2 doesn't have a truncate_mutex".
+yes.  hmm.

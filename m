@@ -1,91 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424471AbWKPUtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424462AbWKPUuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424471AbWKPUtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 15:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424476AbWKPUtK
+	id S1424462AbWKPUuN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 15:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424475AbWKPUuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 15:49:10 -0500
-Received: from nz-out-0102.google.com ([64.233.162.207]:13066 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1424471AbWKPUtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 15:49:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qICGOsijiQBIyj5aKzqpEuYqLV6L40ZmlWKwsU/qJ0wD1VNdKEPpVrVit5/5GqKh49ItUPob7V5vseQnScTEMwMZPCKatsk4P270z5Wv2W/9O5lz9XmftikhgvCJuyymfXaDFYXUMPYC/9k//n1Bb0N2pNeGHm94i1GFCbi/OAo=
-Message-ID: <9a8748490611161249t406768beqeaff0fc31f96e8df@mail.gmail.com>
-Date: Thu, 16 Nov 2006 21:49:06 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>
-Subject: Re: How to go about debuging a system lockup?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061116153444.GC8238@csclub.uwaterloo.ca>
+	Thu, 16 Nov 2006 15:50:13 -0500
+Received: from mga03.intel.com ([143.182.124.21]:46471 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1424462AbWKPUuK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 15:50:10 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,430,1157353200"; 
+   d="scan'208"; a="147547740:sNHT29548274"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061116153444.GC8238@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [PATCH 2.6.19-rc5-git7] EFI: mapping memory region of runtime services when using memmap kernel parameter
+Date: Thu, 16 Nov 2006 22:50:03 +0200
+Message-ID: <C1467C8B168BCF40ACEC2324C1A2B074A6A69F@hasmsx411.ger.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.19-rc5-git7] EFI: mapping memory region of runtime services when using memmap kernel parameter
+thread-index: AccJwMoJT2LaKDGPRcmgWIy/k+5vqQ==
+From: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
+To: "davej@codemonkey.org.uk" <'davej@codemonkey.org.uk'>,
+       "hpa@zytor.com" <'hpa@zytor.com'>
+Cc: "linux-kernel@vger.kernel.org" <'linux-kernel@vger.kernel.org'>,
+       "Satt, Shai" <shai.satt@intel.com>
+X-OriginalArrivalTime: 16 Nov 2006 20:50:03.0387 (UTC) FILETIME=[CA301CB0:01C709C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16/11/06, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> We have a router with a Geode SC1200 cpu, with 4 AMD 972 ethernet ports
-> (pcnet32) behind a PLX 6152 PCI-PCI bridge, which quite regularly locks
-> up completely if we try to do simultanius traffic on all 4 ports (our
-> test case sends data from port 1 to port 2, and back and from port 3 to
-> port 4 and back at a rate of 8000 packets per second using 1500byte
-> packets).  We usually manage to run the test for about 1 minute before
-> the system hangs.  This happens on every one of the systems we have
-> tried so far.  If we only run 2 ports, it seems to never die, and with 3
-> ports we haven't seen any failures yet, although maybe we just haven't
-> tested long enough.  If we just receive the packets but don't forward
-> them out again, then we never crash, so it seems to be related to
-> simultanious transmit on the pcnet32s.
->
-> So far I have tried printing a message everytime the pcnet32 driver
-> enables and disables interrupts to find out if it hangs somewhere with
-> interrupts disabled, but that didn't seem to indicate anything
-> meaningful.
->
-> So far I have tried this with 2.6.8, 2.6.16.22, and 2.6.18.2 and no
-> difference so far.  I can't think of what kind of even could cause the
-> system to just hang with no further console output or a kernel panic or
-> oops or anything.  Usually most errors produce some kind of message.
->
-> Does anyone have any suggestions for where I go from here to find out
-> what is happening and where to look?  I don't even know if I should
-> suspect the hardware or the software at this point.  I want to know if
-> the program counter is still changing, or if the cpu is simply hung or
-> something, but I have no idea how to get at that.
->
-Well, I have a few ideas that are hopefully useul.
+From: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
 
-- If you have not done so already, then go in to the "Kernel Hacking"
-section of the kernel configuration and enable some (all?) of the
-debug options and see if that produces anything that will help you
-track down the problem.
+ 
 
-- You could enable 'magic sysrq' and see if you can manage to get a
-backtrace with it when it hangs (see Documentation/sysrq.txt) (ohh and
-raise the console log level so you get all messages, including debug
-ones).
+When using memmap kernel parameter in EFI boot we should also add to memory map 
 
-- You could also try kdb (http://oss.sgi.com/projects/kdb/) or kgdb
-(http://kgdb.linsyssoft.com/). That might help you pinpoint the
-failure.
-See also : http://kerneltrap.org/node/112
+memory regions of runtime services to enable their mapping later.
 
-- If you have (or can identify) an older, working, kernel version and
-you are confident that you can reproduce the problem reliably, then
-doing a git bisection search starting with your newest "known good"
-and oldest "known bad" kernel versions, should help you pinpoint the
-commit causing the breakage.
+ 
 
+Signed-off-by: Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>
 
-Hope some of that helps :)
+---
 
+ 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+diff -uprN linux-2.6.19-rc5-git7.orig/include/linux/efi.h linux-2.6.19-rc5-git7/include/linux/efi.h
+
+--- linux-2.6.19-rc5-git7.orig/include/linux/efi.h    2006-11-16 20:45:58.000000000 +0200
+
++++ linux-2.6.19-rc5-git7/include/linux/efi.h   2006-11-16 22:10:54.000000000 +0200
+
+@@ -302,6 +302,7 @@ extern void efi_initialize_iomem_resourc
+
+                              struct resource *data_resource);
+
+ extern unsigned long __init efi_get_time(void);
+
+ extern int __init efi_set_rtc_mmss(unsigned long nowtime);
+
++extern int is_available_memory(efi_memory_desc_t * md);
+
+ extern struct efi_memory_map memmap;
+
+ 
+
+ /**
+
+diff -uprN linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c
+
+--- linux-2.6.19-rc5-git7.orig/arch/i386/kernel/setup.c     2006-11-16 20:45:19.000000000 +0200
+
++++ linux-2.6.19-rc5-git7/arch/i386/kernel/setup.c    2006-11-16 22:05:01.000000000 +0200
+
+@@ -349,25 +349,42 @@ static void __init probe_roms(void)
+
+ static void __init limit_regions(unsigned long long size)
+
+ {
+
+      unsigned long long current_addr = 0;
+
+-     int i;
+
++     int i , j;
+
+ 
+
+      if (efi_enabled) {
+
+-           efi_memory_desc_t *md;
+
+-           void *p;
+
++           efi_memory_desc_t *md, *next_md = 0;
+
++           void *p, *p1;
+
+ 
+
+-           for (p = memmap.map, i = 0; p < memmap.map_end;
+
+-                 p += memmap.desc_size, i++) {
+
++           for (p = memmap.map, i = 0,j = 0, p1 = memmap.map;
+
++                       p < memmap.map_end; p += memmap.desc_size, i++) {
+
+                  md = p;
+
+-                 current_addr = md->phys_addr + (md->num_pages << 12);
+
+-                 if (md->type == EFI_CONVENTIONAL_MEMORY) {
+
++                 next_md = p1;
+
++                 current_addr = md->phys_addr + PFN_PHYS(md->num_pages);
+
++                 if (is_available_memory(md)) {
+
++                       if (md->phys_addr >= size) continue;
+
++                       memcpy(next_md, md, memmap.desc_size);
+
+                        if (current_addr >= size) {
+
+-                             md->num_pages -=
+
+-                                   (((current_addr-size) + PAGE_SIZE-1) >> PAGE_SHIFT);
+
+-                             memmap.nr_map = i + 1;
+
+-                             return;
+
++                             next_md->num_pages -=
+
++                                   PFN_UP(current_addr-size);
+
+                        }
+
++                       p1 += memmap.desc_size;
+
++                       next_md = p1;
+
++                       j++;
+
++                 }
+
++                 else if ((md->attribute & EFI_MEMORY_RUNTIME) ==
+
++                             EFI_MEMORY_RUNTIME) {
+
++                       /* In order to make runtime services available
+
++                       * we have to include runtime
+
++                       * memory regions in memory map */
+
++                       memcpy(next_md, md, memmap.desc_size);
+
++                       p1 += memmap.desc_size;
+
++                       next_md = p1;
+
++                       j++;
+
+                  }
+
+            }
+
++           memmap.nr_map = j;
+
++           memmap.map_end = memmap.map + (memmap.nr_map * memmap.desc_size);
+
++           return;
+
+      }
+
+      for (i = 0; i < e820.nr_map; i++) {
+
+            current_addr = e820.map[i].addr + e820.map[i].size;
+
+ 

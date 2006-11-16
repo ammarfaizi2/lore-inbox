@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424183AbWKPPin@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424181AbWKPPjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424183AbWKPPin (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424182AbWKPPin
+	id S1424181AbWKPPjB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424184AbWKPPjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:38:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39831 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1424178AbWKPPim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:38:42 -0500
-Date: Thu, 16 Nov 2006 15:38:39 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Miguel Ojeda <maxextreme@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Luming Yu <Luming.yu@intel.com>, Andrew Zabolotny <zap@homelink.ru>,
-       linux-acpi@vger.kernel.org
-Subject: Re: ACPI output/lcd/auxdisplay mess
-In-Reply-To: <653402b90611160045s6ddf1305jdb262ee55b0f16bf@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0611161450180.31960@pentafluge.infradead.org>
-References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org> 
- <653402b90611141426y6db15a3bh8ea59f89c8f1bb39@mail.gmail.com> 
- <Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org>
- <653402b90611160045s6ddf1305jdb262ee55b0f16bf@mail.gmail.com>
+	Thu, 16 Nov 2006 10:39:00 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:11795 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1424181AbWKPPi7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 10:38:59 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: Luc Saillard <luc@saillard.org>, Greg KH <greg@kroah.com>
+Subject: [PATCH] usb: pwc-if loop fix
+Date: Thu, 16 Nov 2006 16:38:57 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611161639.05830.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-> > Is it a framebuffer device ? The framebuffer layer is abstracted to work
-> > with such devices.
-> > 
-> 
-> cfag12864bcfb is a "fbdev" (actually, it is a "fb wrapper" for
-> cfag12864b, so it behaves like a framebuffer, although it is not an
-> usual framebuffer. f.e. it has asynchronous refresh rate, a mmaped
-> page to appear to be a fb...).
+	We should free urbs starting at [i-1] not [i].
 
-BTW to use it as a fb you need to set the FILLRECT etc. See Kconfig in the 
-drivers/video directory and look at one of the graphic card examples.
- 
-> Still, it is not the front panel lcd of any specific device like PDA,
-> so people that expects only their primary video/ displays may be
-> confused if it appears at such section. So we decided to go away from
-> video/. Maybe we can change the description, as right now it only
-> refers to front panel lcds.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-  Neither is a monitor for a PC desktop. That is why we have ddc. If I 
-take a desktop with more than one video card and swap the lcd monitors 
-the lcd monitor data remains the same. As soon as the display device is 
-attached to the graphics card the graphics card will then communicate 
-with the monitor to retrieve data. For example if the mode of the 
-graphics card is set to 1900x1080 which is supported by the current 
-monitor. Then we swap it for a CRT that supports only 1280x1024 then in 
-that case when the graphics card probes the CRT it will change the 
-resolution to the maximum that is supported by the CRT. 
-  Currently the fbdev layer handles all this with struct fb_monspecs. Now
-I know that structure doesn't cover everything. Nor does it handle 
-multiple displays attached to one piece of hardware. These where things I 
-was hoping to fix. Now that there are display devices that can handle 
-there own power management I have no problem having another sysfs device
-to handle it. A representation that is more generic than lcd in the 
-backlight directory. Like the output device suggested by Yu. Of course I'm 
-not fond of that name. Display would be better. 
+drivers/media/video/pwc/pwc-if.c |    3 +--
+1 file changed, 1 insertion(+), 2 deletions(-)
 
+diff -upr linux-2.6.19-rc5-mm2-a/drivers/media/video/pwc/pwc-if.c linux-2.6.19-rc5-mm2-b/drivers/media/video/pwc/pwc-if.c
+--- linux-2.6.19-rc5-mm2-a/drivers/media/video/pwc/pwc-if.c	2006-11-15 11:24:20.000000000 +0100
++++ linux-2.6.19-rc5-mm2-b/drivers/media/video/pwc/pwc-if.c	2006-11-15 21:08:07.000000000 +0100
+@@ -866,10 +866,9 @@ int pwc_isoc_init(struct pwc_device *pde
+ 	}
+ 	if (ret) {
+ 		/* De-allocate in reverse order */
+-		while (i >= 0) {
++		while (i--) {
+ 			usb_free_urb(pdev->sbuf[i].urb);
+ 			pdev->sbuf[i].urb = NULL;
+-			i--;
+ 		}
+ 		return ret;
+ 	}
+
+-- 
+Regards,
+
+	Mariusz Kozlowski

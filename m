@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424003AbWKPNEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422795AbWKPNIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424003AbWKPNEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 08:04:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424001AbWKPNEJ
+	id S1422795AbWKPNIh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 08:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423922AbWKPNIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 08:04:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3243 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423995AbWKPNEI (ORCPT
+	Thu, 16 Nov 2006 08:08:37 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:18368 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1422795AbWKPNIg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 08:04:08 -0500
-Date: Thu, 16 Nov 2006 13:29:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, -rc6] x86_64: UP build fixes
-Message-ID: <20061116122936.GA425@elte.hu>
-References: <20061116084855.GA8848@elte.hu> <200611161022.04022.ak@suse.de> <20061116094852.GA19305@elte.hu> <200611161109.37172.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Nov 2006 08:08:36 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have no memory
+Date: Thu, 16 Nov 2006 14:08:25 +0100
+User-Agent: KMail/1.9.5
+Cc: Martin Bligh <mbligh@mbligh.org>, Christian Krafft <krafft@de.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20061115193049.3457b44c@localhost> <200611160126.02016.arnd@arndb.de> <Pine.LNX.4.64.0611151643420.24457@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611151643420.24457@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200611161109.37172.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611161408.26328.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> > my hotplug-CPU cleanup patch solves this in a cleaner way: by 
-> > removing all those #ifdefs as well.
+On Thursday 16 November 2006 01:45, Christoph Lameter wrote:
+> On Thu, 16 Nov 2006, Arnd Bergmann wrote:
 > 
-> Fine, but I suspect that late in the release it's better to go for 
-> minimal "obvious" fixes. Later it can then be cleaned up properly.
+> > - we want to be able to boot with the 'mem=512M' option, which effectively
+> >   disables the memory on the second node (each node has 512MiB).
+> > - Each node has 8 SPUs, all of which we want to use. In order to use an
+> >   SPU, we call __add_pages to register the local memory on it, so we have
+> >   struct page pointers we can hand out to user mappings with ->nopage().
+> 
+> This is more like the bringup of a processor right? You need
+> to have the memory online before the processor is brought up otherwise
+> the slab cannot properly allocate its structures on the node when the
+> per node portion is brought up. The page allocator has similar issues.
 
-we are not /that/ late to not apply trivial cleanups. If my patch breaks 
-anything then it's easy enough to fix it. But 'lets clean this up later' 
-is bound to be forgotten and puts the onus on the person doing the 
-cleanups. You yourself have sent more complex partly-cleanup patches 
-upstream just 2 days ago:
+No, that's not really the issue here. The memory we're trying to add to the
+mem_map can not be used for kernel allocations at all and is never entered
+into the buddy allocator. It can only be used for applications running on
+an SPU itself.
 
-[PATCH for 2.6.19] [8/9] x86_64: Fix vgetcpu when CONFIG_HOTPLUG_CPU is disabled
+So the problem is not the order in which we do things, but the fact that
+node data structure has not been initialized, and never will be, when
+we add the SPU to the node.
 
-	Ingo
+	Arnd <><

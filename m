@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031010AbWKPQwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030857AbWKPQvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031010AbWKPQwk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031192AbWKPQwk
+	id S1030857AbWKPQvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031186AbWKPQvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:52:40 -0500
-Received: from dsl092-009-081.sfo1.dsl.speakeasy.net ([66.92.9.81]:55176 "EHLO
-	tumblerings.org") by vger.kernel.org with ESMTP id S1031010AbWKPQwj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:52:39 -0500
-Date: Thu, 16 Nov 2006 08:52:35 -0800
-From: Zack Brown <zbrown@tumblerings.org>
+	Thu, 16 Nov 2006 11:51:54 -0500
+Received: from styx.suse.cz ([82.119.242.94]:4569 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1030857AbWKPQvx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:51:53 -0500
+Date: Thu, 16 Nov 2006 17:52:01 +0100
+From: Jiri Bohac <jbohac@suse.cz>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Looking for recent lkml email
-Message-ID: <20061116165235.GA28447@tumblerings.org>
-References: <20061116162151.GA23930@tumblerings.org>
-MIME-Version: 1.0
+Cc: ak@suse.de, vojtech@suse.cz
+Subject: [PATCH for 2.6.19] Fix xtime losing ticks
+Message-ID: <20061116165201.GA18128@dwarf.suse.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061116162151.GA23930@tumblerings.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I got it. :-)
+xtime is not properly incremented when main timer ticks are lost.
+Whatever the number of ticks elapsed is, only one tick worth of time
+is added to xtime. This patch fixes that.
 
-Thanks folks,
-Zack
+Signed-off-by: Jiri Bohac <jbohac@suse.cz>
 
-On Thu, Nov 16, 2006 at 08:21:51AM -0800, Zack Brown wrote:
-> Hi folks,
-> 
-> I was recently booted from the list when my MX started bouncing email. I've
-> since resolved the situation with davem and resubscribed, but I'm missing
-> about a day or so worth of traffic. If someone would be willing to make an
-> mbox file covering November 14, 15, and whatever has come so far from today,
-> I'd very much appreciate it.
-> 
-> Many thanks!
-> Zack
-> 
-> -- 
-> Zack Brown
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Index: linux-2.6.19-rc5/kernel/timer.c
+===================================================================
+--- linux-2.6.19-rc5.orig/kernel/timer.c
++++ linux-2.6.19-rc5/kernel/timer.c
+@@ -904,7 +904,7 @@ static void clocksource_adjust(struct cl
+  *
+  * Called from the timer interrupt, must hold a write on xtime_lock.
+  */
+-static void update_wall_time(void)
++static void update_wall_time(unsigned long ticks)
+ {
+ 	cycle_t offset;
+ 
+@@ -915,7 +915,7 @@ static void update_wall_time(void)
+ #ifdef CONFIG_GENERIC_TIME
+ 	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
+ #else
+-	offset = clock->cycle_interval;
++	offset = ticks * clock->cycle_interval;
+ #endif
+ 	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
+ 
+@@ -1053,7 +1053,7 @@ void run_local_timers(void)
+  */
+ static inline void update_times(unsigned long ticks)
+ {
+-	update_wall_time();
++	update_wall_time(ticks);
+ 	calc_load(ticks);
+ }
+   
 -- 
-Zack Brown
+Jiri Bohac <jbohac@suse.cz>
+SUSE Labs, SUSE CR
+

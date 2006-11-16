@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162139AbWKPBEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162134AbWKPBFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162139AbWKPBEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 20:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162140AbWKPBEg
+	id S1162134AbWKPBFS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 20:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162140AbWKPBFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 20:04:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23509 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1162139AbWKPBEf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 20:04:35 -0500
-Date: Wed, 15 Nov 2006 17:03:20 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Chris Stromsoe <cbs@cts.ucla.edu>
-Cc: Jeff Garzik <jeff@garzik.org>, "Felix Marti" <felix@chelsio.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: driver support for Chelsio T210 10Gb ethernet in 2.6.x
-Message-ID: <20061115170320.5078073a@freekitty>
-In-Reply-To: <Pine.LNX.4.64.0611141540110.3416@potato.cts.ucla.edu>
-References: <Pine.LNX.4.64.0611131408010.32659@potato.cts.ucla.edu>
-	<455A49D7.4050106@garzik.org>
-	<20061114153725.730fcd6d@freekitty>
-	<Pine.LNX.4.64.0611141540110.3416@potato.cts.ucla.edu>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 20:05:18 -0500
+Received: from hierophant.serpentine.com ([64.81.58.173]:24721 "EHLO
+	demesne.serpentine.com") by vger.kernel.org with ESMTP
+	id S1162134AbWKPBFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 20:05:16 -0500
+Message-ID: <455BB95E.8090600@serpentine.com>
+Date: Wed, 15 Nov 2006 17:05:34 -0800
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: William D Waddington <william.waddington@beezmo.com>
+CC: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFCLUE3] flagging kernel interface changes
+References: <455B9133.9030704@beezmo.com> <1163629533.31358.168.camel@laptopd505.fenrus.org> <455B96C7.8010202@beezmo.com>
+In-Reply-To: <455B96C7.8010202@beezmo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I took the latest Chelsio driver and gave it a TOE lobotomy so here
-is a version to test, it is large so see git repository at:
+William D Waddington wrote:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/chelsio-2.6.git
+> The other part of the question is why this irq_handler prototype change
+> in 2.6.19 isn't flagged to make things a little easier.
 
-This is a clone of jeff's netdev-2.6 tree, and the chelsio stuff is on
-the chelsio branch.
+For in-tree drivers, it broke the compilation of any drivers that relied 
+upon it, and they were then fixed, and most of the fixing occurred 
+before the changes made it into any widely used tree.  That 
+break-it-and-fix-it approach is typically seen as flagging enough.  If 
+your driver isn't in-tree, it's invisible to kernel maintainers.
 
-This took me an afternoon, so I don't see why Chelsio didn't do it.
+For out-of-tree drivers, your best bet is to follow Jonathan Corbet's 
+notes on LWN.  He's pretty good about describing impending widespread 
+breakage before it hits the main tree.
 
-    Port of Chelsio's 2.2.0 version driver from:
-        http://service.chelsio.com/drivers/linux/t210/cxgb2toe-2.2.0.tar.gz
-    
-    De-vendorized:
-        - removed all TCP Offload Engine support because those changes
-          will not be accepted in mainline kernel.
-        - new files run through Lindent
-        - removed code that was '#ifdef' for older kernel versions
-        - fix for 2.6.19 irq
-        - replace usage of TSC with ktime
-        - remove /proc trace debug stuff
-        - remove dead code
-        - incorporate GSO, etc.
-        - get rid of FILE_IDENT() macro
-        - fix sparse warnings by adding __iomem and __user
+	<b

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161340AbWKPD7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWKPEAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161340AbWKPD7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 22:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161237AbWKPD7q
+	id S1161346AbWKPEAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 23:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031109AbWKPD7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 22:59:46 -0500
-Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:49849 "EHLO
+	Wed, 15 Nov 2006 22:59:11 -0500
+Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:42937 "EHLO
 	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
-	id S1031123AbWKPD7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 22:59:23 -0500
+	id S1031113AbWKPD66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 22:58:58 -0500
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  11/13] Core Resource Allocation
-Date: Wed, 15 Nov 2006 21:59:23 -0600
+Subject: [PATCH  06/13] Completion Queues
+Date: Wed, 15 Nov 2006 21:58:57 -0600
 To: rdreier@cisco.com
 Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
-Message-Id: <20061116035923.22635.5397.stgit@dell3.ogc.int>
+Message-Id: <20061116035857.22635.96296.stgit@dell3.ogc.int>
 In-Reply-To: <20061116035826.22635.61230.stgit@dell3.ogc.int>
 References: <20061116035826.22635.61230.stgit@dell3.ogc.int>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,21 +25,20 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Core functions to carve up adapter memory, stag, qp, and cq IDs.
+Functions to manipulate CQs.
 
 Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 ---
 
- drivers/infiniband/hw/cxgb3/core/cxio_resource.c |  357 ++++++++++++++++++++++
- drivers/infiniband/hw/cxgb3/core/cxio_resource.h |   70 ++++
- 2 files changed, 427 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/cxgb3/iwch_cq.c |  231 +++++++++++++++++++++++++++++++++
+ 1 files changed, 231 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_resource.c b/drivers/infiniband/hw/cxgb3/core/cxio_resource.c
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_cq.c b/drivers/infiniband/hw/cxgb3/iwch_cq.c
 new file mode 100644
-index 0000000..ada44b9
+index 0000000..aa5c0f6
 --- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_resource.c
-@@ -0,0 +1,357 @@
++++ b/drivers/infiniband/hw/cxgb3/iwch_cq.c
+@@ -0,0 +1,231 @@
 +/*
 + * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
 + * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
@@ -72,404 +71,202 @@ index 0000000..ada44b9
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + */
-+/* Crude resource management */
-+#include <linux/kernel.h>
-+#include <linux/random.h>
-+#include <linux/slab.h>
-+#include <linux/kfifo.h>
-+#include <linux/spinlock.h>
-+#include <linux/errno.h>
-+#include "cxio_resource.h"
-+#include "cxio_hal.h"
++#include "iwch_provider.h"
++#include "iwch.h"
 +
-+static struct kfifo *rhdl_fifo;
-+static spinlock_t rhdl_fifo_lock;
-+
-+#define RANDOM_SIZE 16
-+
-+
-+/* Loosely based on the Mersenne twister algorithm */
-+static u32 next_random(u32 rand)
++/*
++ * Get one cq entry from cxio and map it to openib.
++ *
++ * Returns:
++ * 	0 			EMPTY;
++ *	1			cqe returned
++ *	-EAGAIN 		caller must try again
++ * 	any other -errno	fatal error
++ */
++int iwch_poll_cq_one(struct iwch_dev *rhp, struct iwch_cq *chp,
++		     struct ib_wc *wc)
 +{
-+	u32 y, ylast;
++	struct iwch_qp *qhp = NULL;
++	struct t3_cqe cqe, *rd_cqe;
++	struct t3_wq *wq;
++	u32 credit = 0;
++	u8 cqe_flushed;
++	u64 cookie;
++	int ret = 1;
 +
-+	y = rand;	
-+	ylast = y;
-+	y = (y * 69069) & 0xffffffff;
-+	y = (y & 0x80000000) + (ylast & 0x7fffffff);
-+	if ((y & 1))
-+		y = ylast ^ (y > 1) ^ (2567483615UL);
-+	else
-+		y = ylast ^ (y > 1);
-+	y = y ^ (y >> 11);
-+	y = y ^ ((y >> 7) & 2636928640UL);
-+	y = y ^ ((y >> 15) & 4022730752UL);
-+	y = y ^ (y << 18);
-+	return y;
-+}
-+static int __cxio_init_resource_fifo(struct kfifo **fifo,
-+				   spinlock_t *fifo_lock,
-+				   u32 nr, u32 skip_low,
-+				   u32 skip_high,
-+				   int random)
-+{
-+	u32 i, j, entry = 0, idx;
-+	u32 random_bytes;
-+	u32 rarray[16];
-+	spin_lock_init(fifo_lock);
++	rd_cqe = cxio_next_cqe(&chp->cq);
 +
-+	*fifo = kfifo_alloc(nr * sizeof(u32), GFP_KERNEL, fifo_lock);
-+	if (IS_ERR(*fifo))
-+		return -ENOMEM;
++	if (!rd_cqe)
++		return 0;
 +
-+	for (i = 0; i < skip_low + skip_high; i++)
-+		__kfifo_put(*fifo, (unsigned char *) &entry, sizeof(u32));
-+	if (random) {
-+		j = 0;
-+		get_random_bytes(&random_bytes,sizeof(random_bytes));
-+		for (i = 0; i < RANDOM_SIZE; i++)
-+			rarray[i] = i + skip_low;
-+		for (i = skip_low + RANDOM_SIZE; i < nr - skip_high; i++) {
-+			if (j >= RANDOM_SIZE) {
-+				j = 0;
-+				random_bytes = next_random(random_bytes);
-+			}
-+			idx = (random_bytes >> (j * 2)) & 0xF;
-+			__kfifo_put(*fifo, 
-+				(unsigned char *) &rarray[idx],
-+				sizeof(u32));
-+			rarray[idx] = i;
-+			j++;	
-+		}
-+		for (i = 0; i < RANDOM_SIZE; i++)
-+			__kfifo_put(*fifo, 
-+				(unsigned char *) &rarray[i],
-+				sizeof(u32));
-+	} else
-+		for (i = skip_low; i < nr - skip_high; i++)
-+			__kfifo_put(*fifo, (unsigned char *) &i, sizeof(u32));
-+
-+	for (i = 0; i < skip_low + skip_high; i++)
-+		kfifo_get(*fifo, (unsigned char *) &entry, sizeof(u32));
-+	return 0;
-+}
-+
-+static int cxio_init_resource_fifo(struct kfifo **fifo, spinlock_t * fifo_lock,
-+				   u32 nr, u32 skip_low, u32 skip_high)
-+{
-+	return (__cxio_init_resource_fifo(fifo, fifo_lock, nr, skip_low, 
-+					  skip_high, 0));
-+}
-+
-+static int cxio_init_resource_fifo_random(struct kfifo **fifo,
-+				   spinlock_t * fifo_lock,
-+				   u32 nr, u32 skip_low, u32 skip_high)
-+{
-+
-+	return (__cxio_init_resource_fifo(fifo, fifo_lock, nr, skip_low, 
-+					  skip_high, 1));
-+}
-+
-+static int cxio_init_qpid_fifo(struct cxio_rdev *rdev_p)
-+{
-+	u32 i;
-+
-+	spin_lock_init(&rdev_p->rscp->qpid_fifo_lock);
-+
-+	rdev_p->rscp->qpid_fifo = kfifo_alloc(T3_MAX_NUM_QP * sizeof(u32), 
-+					      GFP_KERNEL, 
-+					      &rdev_p->rscp->qpid_fifo_lock);
-+	if (IS_ERR(rdev_p->rscp->qpid_fifo))
-+		return -ENOMEM;
-+
-+	for (i = 16; i < T3_MAX_NUM_QP; i++) {
-+		if (!(i & rdev_p->qpmask))
-+			__kfifo_put(rdev_p->rscp->qpid_fifo, 
-+				    (unsigned char *) &i, sizeof(u32));
++	qhp = get_qhp(rhp, CQE_QPID(*rd_cqe));
++	if (!qhp)
++		wq = NULL;
++	else {
++		spin_lock(&qhp->lock);
++		wq = &(qhp->wq);
 +	}
-+	return 0;
++	ret = cxio_poll_cq(wq, &(chp->cq), &cqe, &cqe_flushed, &cookie,
++				   &credit);
++	if (t3a_device(chp->rhp) && credit) {
++		PDBG("%s updating %d cq credits on id %d\n", __FUNCTION__, 
++		     credit, chp->cq.cqid);
++		cxio_hal_cq_op(&rhp->rdev, &chp->cq, CQ_CREDIT_UPDATE, credit);
++	}
++
++	if (ret) {
++		ret = -EAGAIN;
++		goto out;
++	}
++	ret = 1;
++
++	wc->wr_id = cookie;
++	wc->qp_num = qhp->wq.qpid;
++	wc->vendor_err = CQE_STATUS(cqe);
++
++	PDBG("%s qpid 0x%x type %d opcode %d status 0x%x wrid hi 0x%x "
++	     "lo 0x%x cookie 0x%llx\n", __FUNCTION__, 
++	     CQE_QPID(cqe), CQE_TYPE(cqe),
++	     CQE_OPCODE(cqe), CQE_STATUS(cqe), CQE_WRID_HI(cqe),
++	     CQE_WRID_LOW(cqe), cookie);
++
++	if (CQE_TYPE(cqe) == 0) {
++		if (!CQE_STATUS(cqe))
++			wc->byte_len = CQE_LEN(cqe);
++		else
++			wc->byte_len = 0;
++		wc->opcode = IB_WC_RECV;
++	} else {
++		switch (CQE_OPCODE(cqe)) {
++		case T3_RDMA_WRITE:
++			wc->opcode = IB_WC_RDMA_WRITE;
++			break;
++		case T3_READ_REQ:
++			wc->opcode = IB_WC_RDMA_READ;
++			wc->byte_len = CQE_LEN(cqe);
++			break;
++		case T3_SEND:
++		case T3_SEND_WITH_SE:
++			wc->opcode = IB_WC_SEND;
++			break;
++		case T3_BIND_MW:
++			wc->opcode = IB_WC_BIND_MW;
++			break;
++
++		/* these aren't supported yet */
++		case T3_SEND_WITH_INV:
++		case T3_SEND_WITH_SE_INV:
++		case T3_LOCAL_INV:
++		case T3_FAST_REGISTER:
++		default:
++			printk(KERN_ERR MOD "Unexpected opcode %d "
++			       "in the CQE received for QPID=0x%0x\n", 
++			       CQE_OPCODE(cqe), CQE_QPID(cqe));
++			ret = -EINVAL;
++			goto out;
++		}
++	}
++
++	if (cqe_flushed) {
++		wc->status = IB_WC_WR_FLUSH_ERR;
++	} else {
++		
++		switch (CQE_STATUS(cqe)) {
++		case TPT_ERR_SUCCESS:
++			wc->status = IB_WC_SUCCESS;
++			break;
++		case TPT_ERR_STAG:
++			wc->status = IB_WC_LOC_ACCESS_ERR;
++			break;
++		case TPT_ERR_PDID:
++			wc->status = IB_WC_LOC_PROT_ERR;
++			break;
++		case TPT_ERR_QPID:
++		case TPT_ERR_ACCESS:
++			wc->status = IB_WC_LOC_ACCESS_ERR;
++			break;
++		case TPT_ERR_WRAP:
++			wc->status = IB_WC_GENERAL_ERR;
++			break;
++		case TPT_ERR_BOUND:
++			wc->status = IB_WC_LOC_LEN_ERR;
++			break;
++		case TPT_ERR_INVALIDATE_SHARED_MR:
++		case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
++			wc->status = IB_WC_MW_BIND_ERR;
++			break;
++		case TPT_ERR_CRC:
++		case TPT_ERR_MARKER:
++		case TPT_ERR_PDU_LEN_ERR:
++		case TPT_ERR_OUT_OF_RQE:
++		case TPT_ERR_DDP_VERSION:
++		case TPT_ERR_RDMA_VERSION:
++		case TPT_ERR_DDP_QUEUE_NUM:
++		case TPT_ERR_MSN:
++		case TPT_ERR_TBIT:
++		case TPT_ERR_MO:
++		case TPT_ERR_MSN_RANGE:
++		case TPT_ERR_IRD_OVERFLOW:
++		case TPT_ERR_OPCODE:
++			wc->status = IB_WC_FATAL_ERR;
++			break;
++		case TPT_ERR_SWFLUSH:
++			wc->status = IB_WC_WR_FLUSH_ERR;
++			break;
++		default:
++			printk(KERN_ERR MOD "Unexpected cqe_status 0x%x for "
++			       "QPID=0x%0x\n", CQE_STATUS(cqe), CQE_QPID(cqe));
++			ret = -EINVAL;
++		}
++	}
++out:
++	if (wq)
++		spin_unlock(&qhp->lock);
++	return ret;
 +}
 +
-+int cxio_hal_init_rhdl_resource(u32 nr_rhdl)
++int iwch_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
 +{
-+	return cxio_init_resource_fifo(&rhdl_fifo, &rhdl_fifo_lock, nr_rhdl, 1,
-+				       0);
-+}
-+
-+void cxio_hal_destroy_rhdl_resource(void)
-+{
-+	kfifo_free(rhdl_fifo);
-+}
-+
-+/* nr_* must be power of 2 */
-+int cxio_hal_init_resource(struct cxio_rdev *rdev_p,
-+			   u32 nr_tpt, u32 nr_pbl,
-+			   u32 nr_rqt, u32 nr_qpid, u32 nr_cqid, u32 nr_pdid)
-+{
++	struct iwch_dev *rhp;
++	struct iwch_cq *chp;
++	unsigned long flags;
++	int npolled;
 +	int err = 0;
-+	struct cxio_hal_resource *rscp;
 +
-+	rscp = kmalloc(sizeof(*rscp), GFP_KERNEL);
-+	if (!rscp) {
-+		return -ENOMEM;
-+	}
-+	rdev_p->rscp = rscp;
-+	err = cxio_init_resource_fifo_random(&rscp->tpt_fifo,
-+				      &rscp->tpt_fifo_lock, 
-+				      nr_tpt, 1, 0);
-+	if (err)
-+		goto tpt_err;
-+	err = cxio_init_qpid_fifo(rdev_p);
-+	if (err)
-+		goto qpid_err;
-+	err = cxio_init_resource_fifo(&rscp->cqid_fifo, &rscp->cqid_fifo_lock, 
-+				      nr_cqid, 1, 0);
-+	if (err)
-+		goto cqid_err;
-+	err = cxio_init_resource_fifo(&rscp->pdid_fifo, &rscp->pdid_fifo_lock, 
-+				      nr_pdid, 1, 0);
-+	if (err)
-+		goto pdid_err;
-+	return 0;
-+pdid_err:
-+	kfifo_free(rscp->cqid_fifo);
-+cqid_err:
-+	kfifo_free(rscp->qpid_fifo);
-+qpid_err:
-+	kfifo_free(rscp->tpt_fifo);
-+tpt_err:
-+	return -ENOMEM;
-+}
++	chp = to_iwch_cq(ibcq);
++	rhp = chp->rhp;
 +
-+/*
-+ * returns 0 if no resource available
-+ */
-+static inline u32 cxio_hal_get_resource(struct kfifo *fifo)
-+{
-+	u32 entry;
-+	if (kfifo_get(fifo, (unsigned char *) &entry, sizeof(u32)))
-+		return entry;
-+	else
-+		return 0;	/* fifo emptry */
-+}
-+
-+static inline void cxio_hal_put_resource(struct kfifo *fifo, u32 entry)
-+{
-+	BUG_ON(kfifo_put(fifo, (unsigned char *) &entry, sizeof(u32)) == 0);
-+}
-+
-+u32 cxio_hal_get_rhdl(void)
-+{
-+	return cxio_hal_get_resource(rhdl_fifo);
-+}
-+
-+void cxio_hal_put_rhdl(u32 rhdl)
-+{
-+	cxio_hal_put_resource(rhdl_fifo, rhdl);
-+}
-+
-+u32 cxio_hal_get_stag(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->tpt_fifo);
-+}
-+
-+void cxio_hal_put_stag(struct cxio_hal_resource *rscp, u32 stag)
-+{
-+	cxio_hal_put_resource(rscp->tpt_fifo, stag);
-+}
-+
-+u32 cxio_hal_get_qpid(struct cxio_hal_resource *rscp)
-+{
-+	u32 qpid = cxio_hal_get_resource(rscp->qpid_fifo);
-+	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
-+	return qpid;
-+}
-+
-+void cxio_hal_put_qpid(struct cxio_hal_resource *rscp, u32 qpid)
-+{
-+	PDBG("%s qpid 0x%x\n", __FUNCTION__, qpid);
-+	cxio_hal_put_resource(rscp->qpid_fifo, qpid);
-+}
-+
-+u32 cxio_hal_get_cqid(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->cqid_fifo);
-+}
-+
-+void cxio_hal_put_cqid(struct cxio_hal_resource *rscp, u32 cqid)
-+{
-+	cxio_hal_put_resource(rscp->cqid_fifo, cqid);
-+}
-+
-+u32 cxio_hal_get_pdid(struct cxio_hal_resource *rscp)
-+{
-+	return cxio_hal_get_resource(rscp->pdid_fifo);
-+}
-+
-+void cxio_hal_put_pdid(struct cxio_hal_resource *rscp, u32 pdid)
-+{
-+	cxio_hal_put_resource(rscp->pdid_fifo, pdid);
-+}
-+
-+void cxio_hal_destroy_resource(struct cxio_hal_resource *rscp)
-+{
-+	kfifo_free(rscp->tpt_fifo);
-+	kfifo_free(rscp->cqid_fifo);
-+	kfifo_free(rscp->qpid_fifo);
-+	kfifo_free(rscp->pdid_fifo);
-+	kfree(rscp);
-+}
-+
-+/*
-+ * PBL Memory Manager.  Uses Linux generic allocator.
-+ */
-+
-+#define MIN_PBL_SHIFT 8			/* 256B == min PBL size (32 entries) */
-+#define PBL_CHUNK 2*1024*1024 		
-+
-+u32 cxio_hal_pblpool_alloc(struct cxio_rdev *rdev_p, int size)
-+{
-+	unsigned long addr = gen_pool_alloc(rdev_p->pbl_pool, size);
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, (u32)addr, size);
-+	return (u32)addr;
-+}
-+
-+void cxio_hal_pblpool_free(struct cxio_rdev *rdev_p, u32 addr, int size)
-+{
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, addr, size);
-+	gen_pool_free(rdev_p->pbl_pool, (unsigned long)addr, size);
-+}
-+
-+int cxio_hal_pblpool_create(struct cxio_rdev *rdev_p)
-+{
-+	unsigned long i;
-+	rdev_p->pbl_pool = gen_pool_create(MIN_PBL_SHIFT, -1);
-+	if (rdev_p->pbl_pool) {
-+		for (i = rdev_p->rnic_info.pbl_base; 
-+		     i <= rdev_p->rnic_info.pbl_top - PBL_CHUNK + 1; 
-+		     i += PBL_CHUNK) {
-+			gen_pool_add(rdev_p->pbl_pool, i, PBL_CHUNK, -1);
-+		}
-+	}
-+	return rdev_p->pbl_pool ? 0 : -ENOMEM;
-+}
-+
-+void cxio_hal_pblpool_destroy(struct cxio_rdev *rdev_p)
-+{
-+	gen_pool_destroy(rdev_p->pbl_pool);
-+}
-+
-+/*
-+ * RQT Memory Manager.  Uses Linux generic allocator.
-+ */
-+
-+#define MIN_RQT_SHIFT 10	/* 1KB == mini RQT size (16 entries) */
-+#define RQT_CHUNK 2*1024*1024 		
-+
-+u32 cxio_hal_rqtpool_alloc(struct cxio_rdev *rdev_p, int size)
-+{
-+	unsigned long addr = gen_pool_alloc(rdev_p->rqt_pool, size << 6);
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, (u32)addr, size << 6);
-+	return (u32)addr;
-+}
-+
-+void cxio_hal_rqtpool_free(struct cxio_rdev *rdev_p, u32 addr, int size)
-+{
-+	PDBG("%s addr 0x%x size %d\n", __FUNCTION__, addr, size << 6);
-+	gen_pool_free(rdev_p->rqt_pool, (unsigned long)addr, size << 6);
-+}
-+
-+int cxio_hal_rqtpool_create(struct cxio_rdev *rdev_p)
-+{
-+	unsigned long i;
-+	rdev_p->rqt_pool = gen_pool_create(MIN_RQT_SHIFT, -1);
-+	if (rdev_p->rqt_pool) {
-+		for (i = rdev_p->rnic_info.rqt_base; 
-+		     i <= rdev_p->rnic_info.rqt_top - RQT_CHUNK + 1; 
-+		     i += RQT_CHUNK) {
-+			gen_pool_add(rdev_p->rqt_pool, i, RQT_CHUNK, -1);
-+		}
-+	}
-+	return rdev_p->rqt_pool ? 0 : -ENOMEM;
-+}
-+
-+void cxio_hal_rqtpool_destroy(struct cxio_rdev *rdev_p)
-+{
-+	gen_pool_destroy(rdev_p->rqt_pool);
-+}
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_resource.h b/drivers/infiniband/hw/cxgb3/core/cxio_resource.h
-new file mode 100644
-index 0000000..a6bbe83
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_resource.h
-@@ -0,0 +1,70 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#ifndef __CXIO_RESOURCE_H__
-+#define __CXIO_RESOURCE_H__
-+
-+#include <linux/kernel.h>
-+#include <linux/random.h>
-+#include <linux/slab.h>
-+#include <linux/kfifo.h>
-+#include <linux/spinlock.h>
-+#include <linux/errno.h>
-+#include <linux/genalloc.h>
-+#include "cxio_hal.h"
-+
-+extern int cxio_hal_init_rhdl_resource(u32 nr_rhdl);
-+extern void cxio_hal_destroy_rhdl_resource(void);
-+extern int cxio_hal_init_resource(struct cxio_rdev *rdev_p,
-+				  u32 nr_tpt, u32 nr_pbl,
-+				  u32 nr_rqt, u32 nr_qpid, u32 nr_cqid,
-+				  u32 nr_pdid);
-+extern u32 cxio_hal_get_stag(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_stag(struct cxio_hal_resource *rscp, u32 stag);
-+extern u32 cxio_hal_get_qpid(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_qpid(struct cxio_hal_resource *rscp, u32 qpid);
-+extern u32 cxio_hal_get_cqid(struct cxio_hal_resource *rscp);
-+extern void cxio_hal_put_cqid(struct cxio_hal_resource *rscp, u32 cqid);
-+extern void cxio_hal_destroy_resource(struct cxio_hal_resource *rscp);
-+
-+#define PBL_OFF(rdev_p, a) ( (a) - (rdev_p)->rnic_info.pbl_base )
-+extern int cxio_hal_pblpool_create(struct cxio_rdev *rdev_p);
-+extern void cxio_hal_pblpool_destroy(struct cxio_rdev *rdev_p);
-+extern u32 cxio_hal_pblpool_alloc(struct cxio_rdev *rdev_p, int size);
-+extern void cxio_hal_pblpool_free(struct cxio_rdev *rdev_p, u32 addr, int size);
-+
-+#define RQT_OFF(rdev_p, a) ( (a) - (rdev_p)->rnic_info.rqt_base )
-+extern int cxio_hal_rqtpool_create(struct cxio_rdev *rdev_p);
-+extern void cxio_hal_rqtpool_destroy(struct cxio_rdev *rdev_p);
-+extern u32 cxio_hal_rqtpool_alloc(struct cxio_rdev *rdev_p, int size);
-+extern void cxio_hal_rqtpool_free(struct cxio_rdev *rdev_p, u32 addr, int size);
++	spin_lock_irqsave(&chp->lock, flags);
++	for (npolled = 0; npolled < num_entries; ++npolled) {
++#ifdef DEBUG
++		int i=0;
 +#endif
++
++		/*
++	 	 * Because T3 can post CQEs that are _not_ associated
++	 	 * with a WR, we might have to poll again after removing
++	 	 * one of these.  
++		 */
++		do {
++			err = iwch_poll_cq_one(rhp, chp, wc + npolled);
++#ifdef DEBUG
++			BUG_ON(++i > 1000);
++#endif
++		} while (err == -EAGAIN);
++		if (err <= 0)
++			break;
++	}
++	spin_unlock_irqrestore(&chp->lock, flags);
++
++	if (err < 0)
++		return err;
++	else {
++		return npolled;
++	}
++}
++
++int iwch_modify_cq(struct ib_cq *cq, int cqe)
++{
++	PDBG("iwch_modify_cq: TBD\n");
++	return 0;
++}

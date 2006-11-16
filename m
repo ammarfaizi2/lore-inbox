@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424241AbWKPQF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424237AbWKPQFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424241AbWKPQF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424236AbWKPQF6
+	id S1424237AbWKPQFs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424236AbWKPQFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:05:58 -0500
-Received: from main.gmane.org ([80.91.229.2]:29841 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1424241AbWKPQF5 (ORCPT
+	Thu, 16 Nov 2006 11:05:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16819 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1424237AbWKPQFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:05:57 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: [ot] (was When is the kernel moving to GPLv3?)
-Date: Thu, 16 Nov 2006 16:03:36 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnelp3c6.7lr.olecom@flower.upol.cz>
-References: <455C984C.7080308@wolfmountaingroup.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Thu, 16 Nov 2006 11:05:47 -0500
+Date: Thu, 16 Nov 2006 08:05:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux@horizon.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+In-Reply-To: <20061116042432.26300.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0611160757490.3349@woody.osdl.org>
+References: <20061116042432.26300.qmail@science.horizon.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-16, Jeffrey V. Merkey wrote:
-[]
-> So when is the kernel moving to GPLv3?   I have seen some discussions 
-> about moving off v2, is there concensus about moving to v3 to remove
-> threats of patent claims against v2 code by M$ and others who may use 
-> Linux in hardware based projects.
 
-Archives, man, search archives, and get off OT, please.
-<http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=1&s=GPLv3&q=b>
-I guess, you know who is the Author, thus select messages.
-____
 
+On Wed, 15 Nov 2006, linux@horizon.com wrote:
+>
+> Er... why can't you test it?
+
+Because if it is level-triggered kind of thing and comes in on the wrong 
+IRQ, and that IRQ is already used by something else, you're basically 
+dead.
+
+IRQ probing is essentially unworkable. We support it for ISA cards (and 
+"ISA" here tends to mean PCMCIA - there are almost no other ISA forms 
+left), but it just doesn't work very well.
+
+> Well, before giving up entirely, assume that *some* device owns that
+> interrupt, it's just mis-routed.
+> 
+> So start calling the IRQ handlers for *every* PCI device until the
+> damn interrupt goes away, or you've really proved that it can't
+> be shut up.
+
+Sure, you can add crap upon crap upon crap for these things. I pretty much 
+guarantee you that it's not going to work, though. Why? Because developers 
+won't even be working on those machines that have irq routing problems, so 
+they won't be testing things that way, and because if you have irq routing 
+problems, your problems are so fundamental that it really isn't worth it 
+any more.
+
+We've added basic _debugging_ facilities (the whole "nobody cared" thing 
+is really a debugging thing, not a "make it work" thing). That was big, 
+because it used to be that a screaming interrupt just locked up the whole 
+machine - notably you inserted a PCMCIA card, and the machine would just 
+lock up (sometimes it would come back when you removed the card again).
+
+Trying to work around it is basically not worthwhile. You need to fix the 
+problem. Interrupts are very fundamental, you don't want to be guessing 
+about them. If they are wrong, you're screwed.
+
+		Linus

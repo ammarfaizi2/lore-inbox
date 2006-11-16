@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423918AbWKPMuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423943AbWKPMxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423918AbWKPMuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 07:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423930AbWKPMun
+	id S1423943AbWKPMxC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 07:53:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423941AbWKPMxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 07:50:43 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:57888 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1423918AbWKPMun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 07:50:43 -0500
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=cU2Re4i52NRoqfwgnE+QixxqIuuOhxGk9VC3QCLBDNPp3pb4TJbdxvY+w4Ko98/0oiqOmYBTiR700k9qHCkxrByX0mwVYOYMbs9L9o8i4HSZvclP3gqGFeHUvBGtsRwr;
-X-IronPort-AV: i="4.09,428,1157346000"; 
-   d="scan'208"; a="136590668:sNHT119522844"
-Date: Thu, 16 Nov 2006 06:50:39 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] make arch/i386/pci/common.c:pci_bf_sort static
-Message-ID: <20061116125038.GB7715@humbolt.us.dell.com>
-Reply-To: Matt Domsch <Matt_Domsch@dell.com>
-References: <20061116121623.GE31879@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061116121623.GE31879@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Thu, 16 Nov 2006 07:53:02 -0500
+Received: from raven.upol.cz ([158.194.120.4]:43474 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1423943AbWKPMxA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 07:53:00 -0500
+To: Heiko Gerstung <heiko.gerstung@meinberg.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: Initial ramdisk support does not work (for me) on 2.6.17.13
+In-Reply-To: <455AF068.5020700@meinberg.de>
+References: <455AF068.5020700@meinberg.de>
+Date: Thu, 16 Nov 2006 13:00:06 +0000
+Message-Id: <E1Gkgqc-0003F3-6u@flower>
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2006 at 01:16:23PM +0100, Adrian Bunk wrote:
-> This patch makes the needlessly global pci_bf_sort static.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+In gmane.linux.kernel, you wrote:
+> Hi!
 
-Acked-by: Matt Domsch <Matt_Domsch@dell.com>
+Hallo.
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+> We are building embedded devices based on Linux and we use a ramdisk as
+> our root device in order to avoid problems with people switching off the
+> unit without a proper shutdown and to save write-cycles on our flash disc.
+>
+> Using a 2.6.12 kernel it was no problem to boot the system by using this
+> kernel parameters:
+> load_ramdisk=1 console=tty0 initrd=initrd.gz rw  vga=769
+> ramdisk_size=32768 root=/dev/ram0
+>
+> Today I tried to test run a 2.6.17.12 kernel using the same parameters
+> but I get this error message:
+> VFS: Cannot open root device "ram0" or unknown-block(1,0)
+> Please append a correct "root=" boot option
+
+In subject you've wrote "2.6.17.13", but anyway in such cases one must
+include full dmesg (boot output) and (sometimes) ".config".
+
+Also, if you are using some kind of embedded hardware, f.e. ARM,
+please, use arm-user mailing list for such questions.
+____

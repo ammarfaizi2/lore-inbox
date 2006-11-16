@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424081AbWKPOJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424094AbWKPOS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424081AbWKPOJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 09:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424089AbWKPOJL
+	id S1424094AbWKPOS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 09:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424093AbWKPOS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 09:09:11 -0500
-Received: from zeus.pimb.org ([80.68.88.21]:56847 "EHLO zeus.pimb.org")
-	by vger.kernel.org with ESMTP id S1424081AbWKPOJK (ORCPT
+	Thu, 16 Nov 2006 09:18:59 -0500
+Received: from mail0.scram.de ([195.226.127.110]:27408 "EHLO mail0.scram.de")
+	by vger.kernel.org with ESMTP id S1424064AbWKPOS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 09:09:10 -0500
-Date: Thu, 16 Nov 2006 14:31:48 +0000
-From: Jody Belka <lists-lkml@pimb.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: suspend-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Suspend-devel] problem after s2ram restore with password-protected hdd
-Message-ID: <20061116143148.GS2808@pimb.org>
-References: <20061116135210.GR2808@pimb.org> <200611161453.56789.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611161453.56789.rjw@sisk.pl>
-User-Agent: Mutt/1.5.6+20040523i
+	Thu, 16 Nov 2006 09:18:58 -0500
+Message-ID: <455C731A.4010503@scram.de>
+Date: Thu, 16 Nov 2006 15:18:02 +0100
+From: Jochen Friedrich <jochen@scram.de>
+User-Agent: IceDove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Michael Buesch <mb@bu3sch.de>
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       madwifi-devel@lists.sourceforge.net, lwn@lwn.net, mcgrof@gmail.com,
+       david.kimdon@devicescape.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: ANNOUNCE: SFLC helps developers assess ar5k (enabling free Atheros
+ HAL)
+References: <20061115031025.GH3451@tuxdriver.com> <200611151942.14596.mb@bu3sch.de> <20061115192054.GA10009@tuxdriver.com> <200611152026.26095.mb@bu3sch.de>
+In-Reply-To: <200611152026.26095.mb@bu3sch.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: Content analysis details: (0.0 points, 5.0 required)
+	pts rule name description
+	---- ---------------------- --------------------------------------------------
+	0.0 AWL AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please cc me on any reply, as i'm not subscribed]
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, Nov 16, 2006 at 02:53:56PM +0100, Rafael J. Wysocki wrote:
-> On Thursday, 16 November 2006 14:52, Jody Belka wrote:
-> > I tried to use s2ram today on my Dell Inspiron 6000, but i'm having problems
-> > after wake-up when I have the hard drives internal password enabled (the
-> > normal state for this machine). If i turn the password off, everything works
-> > fine. I note that the password screen doesn't appear during wake-up, although
-> > the bios help text implies that it should do.
+Hi Michael,
+
+>> I don't think anyone likes the HAL-based architecture.  I don't think
+>> we will accept a HAL-based driver into the upstream kernel.
 > 
-> Well, this is a long-standing issue that hasn't been resolved yet.  There is
-> a patch available from http://bugzilla.kernel.org/show_bug.cgi?id=6840
-> but it is known to have problems.
+> Yeah, wanted to hear that. ;)
 
-Ah, thanks. And unfortunately i can't try out that patch anyway i believe, as
-it looks to me to be for the old ide subsystem, not libata. Oh well, i'll just
-have to live without s2ram for a while longer then i guess.
++1
 
+At least, this way we have a chance to get USB working as well (See http://madwifi.org/ticket/33).
+OpenBSD seems to have a working driver (if_uath.c) for these USB WLAN sticks.
 
-J
--- 
-Jody Belka
-<knew (at) pimb (dot) org>
+Jochen
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQEVAwUBRVxzGsP9a9GOLSE6AQIeRgf/ZyvmzdhP1+wjVshy2kK0BX+I+lx7y6RO
+mMmaVXPnXnHhHE4OLcf9Yrnn6d6i6rS+0CUbw60KgQouuvTFSXEFtSpIYRlXGAyj
+krMCj8bEfHhDEN8iYjbjdhP9Nx1wQ//JGyoBVpZZ5+sro6ik7wv70igFeDZ2IWg6
+38ycxDzINaV13ZscpwoHzO3NhvcSs9k99Syrh/nR6/pp+3g2vXmrsYR+hy7DMrE/
+bSI9y50h8rz6ZCire1ppDwADyBW5B1OondoRkjFYd3L8zNUu8s8xUHZ0Znz6B/cc
+yc7jyfQMsBRTUU7VsX3cWuMfA0UGlPn/0MR0+RHRJYHW5bRlStc5Kw==
+=Ajsn
+-----END PGP SIGNATURE-----

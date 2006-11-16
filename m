@@ -1,58 +1,48 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423819AbWKPLAr (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 16 Nov 2006 06:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423822AbWKPLAr
+	id S1424055AbWKPNyL (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 16 Nov 2006 08:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933503AbWKPNyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 06:00:47 -0500
-Received: from ryze.com ([24.244.141.155]:60307 "EHLO nuke.ryze.com")
-	by vger.kernel.org with ESMTP id S1423819AbWKPLAq (ORCPT
+	Thu, 16 Nov 2006 08:54:11 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:12709 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S933506AbWKPNyK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 06:00:46 -0500
-Date: Thu, 16 Nov 2006 06:00:45 -0500
-Message-Id: <200611161100.kAGB0jBd020295@ryze.com>
+	Thu, 16 Nov 2006 08:54:10 -0500
+Message-ID: <D32F32E6.8269160@njei.com>
+Date: Thu, 16 Nov 2006 16:54:25 +0300
+From: Rodger <Cory@njei.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Indian Divine Books, Cds, Cassettes & Pooja Articles
-From: EGC Traders <info@egctraders.com>
+Subject: reply to your resume
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1423819AbWKPLAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1424055AbWKPNyL@vger.kernel.org>
+
+Good afternoon.
+I got your resume from SEEK Australia job-site and it
+suites our company requirements.
+My name is Roger Longbotham, I represent George Metway
+Inc company located in Europe. 
+Our company is seekeing for a representatives in
+Australia for full and part-time jobs. 
+No relocation is needed, job duties include mail and
+payments processing, standart office duties and
+everyday reporting. 
+All candidates have to be 18+ years old, authorized to
+work in Australia, with minimal computer knowlege.
+Both part-time (2-3 days a week) and full time (5 days
+a week) positions available.
+Your minimal income will be $4000 a month in average
+and you will be paid DAILY. 
+Please, e-mail me to support@georgemetwayinc.com if
+you are interested and I will send you company
+requirements.
+Roger Longbotham
+George Metway Inc
 
 
-Dear Sir,
- 
-For Hindu Divine Books, Cds, Cassettes & Pooja Articles, Please visit 
-
-our website at www.egctraders.com
- 
-For any specific requirements, please write to us at 
-info@egctraders.com, webmaster@egctraders.com
- 
-Looking forward to hearing from you.
- 
-With Warm Regards,
- 
-Mrs. Vanitha S.
-
-EGC has invited you to join EGC's professional
-and private network on Ryze.
-
-To view the invite, click on:
-
-    http://www.ryze.com/in/i7OQctVkDhsk9S2DIRn
-
-  
-Ryze is a business networking service that has been 
-featured in the Wall St. Journal, the New York Times,
-Forbes and other publications. Ryze helps you make 
-the contacts that can lead to:
-
- * your next job
-
- * a new customer
-
- * a valuable business partnership
-
- * great business advice
-
- 
-http://www.ryze.com/in/i7OQctVkDhsk9S2DIRn

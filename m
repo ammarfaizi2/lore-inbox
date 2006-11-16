@@ -1,107 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755495AbWKPXBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755499AbWKPXIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755495AbWKPXBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 18:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755496AbWKPXBP
+	id S1755499AbWKPXIm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 18:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755493AbWKPXIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 18:01:15 -0500
-Received: from outmx007.isp.belgacom.be ([195.238.5.234]:16573 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1755495AbWKPXBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 18:01:14 -0500
-Message-ID: <455CEDC5.40200@trollprod.org>
-Date: Fri, 17 Nov 2006 00:01:25 +0100
-From: Olivier Nicolas <olivn@trollprod.org>
-User-Agent: Thunderbird 2.0b1pre (X11/20061115)
+	Thu, 16 Nov 2006 18:08:42 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:45026 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1755499AbWKPXIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 18:08:41 -0500
+Message-ID: <455CEF78.8070607@vmware.com>
+Date: Thu, 16 Nov 2006 15:08:40 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, "Lu, Yinghai" <yinghai.lu@amd.com>,
-       David Miller <davem@davemloft.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>	<20061114.190036.30187059.davem@davemloft.net>	<Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>	<20061114.192117.112621278.davem@davemloft.net>	<s5hbqn99f2v.wl%tiwai@suse.de>	<455B5D22.10408@garzik.org>	<s5hslgktu4a.wl%tiwai@suse.de>	<455B6761.3050700@garzik.org> <s5hodr7u0ve.wl%tiwai@suse.de>
-In-Reply-To: <s5hodr7u0ve.wl%tiwai@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@muc.de>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/5] Skip timer works.patch
+References: <200610200009.k9K09MrS027558@zach-dev.vmware.com> <20061116145313.d7b2240b.akpm@osdl.org>
+In-Reply-To: <20061116145313.d7b2240b.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> At Wed, 15 Nov 2006 14:15:45 -0500,
-> Jeff Garzik wrote:
->> ACK the pci_intx() calls, NAK the obviously overweight spinlock changes. 
->>   The spinlock changes are completely unnecessary.  Just look at any 
->> other (non-ALSA) PCI driver.  Existing "spin_lock()" is fine for both 
->> PCI shared irq handlers and MSI irq handlers.
+Andrew Morton wrote:
+> On Thu, 19 Oct 2006 17:09:22 -0700
+> Zachary Amsden <zach@vmware.com> wrote:
+>
+>   
+>> Add a way to disable the timer IRQ routing check via a boot option.  The
+>> VMI timer code uses this to avoid triggering the pester Mingo code, which
+>> probes for some very unusual and broken motherboard routings.  It fires
+>> 100% of the time when using a paravirtual delay mechanism instead of
+>> using a realtime delay, since there is no elapsed real time, and the 4 timer
+>> IRQs have not yet been delivered.
 >>
->> It sounds like you are trying to work around a reentrancy problem that 
->> does not exist.
+>> In addition, it is entirely possible, though improbable, that this bug
+>> could surface on real hardware which picks a particularly bad time to enter
+>> SMM mode, causing a long latency during one of the timer IRQs.
 >>
->> Only weird drivers like ps2kbd/mouse or IDE need spin_lock_irqsave(), 
->> where separate interrupt sources call the same function.
-> 
-> OK, I revised it, also referring to a similar patch by Yinghai.
-> I think we can simplify the change like below.
-> Olivier, could you test this patch, too?
+>> While here, make check_timer be __init.
+>>
+>>     
+>
+> Andi seems to have merged this patch but from somewhere I picked up a
+> different version, below.
+>
+> I think the version I have is better.  Because the patch Andi has merged is
+> cast in terms of "irq testing", which is broad.  But that's not what the
+> patch does - the patch handles only timers.
+>
+> IOW, this:
+>
+>   
+>> +
+>> +	noirqtest	[IA-32,APIC] Disables the code which tests for broken
+>> +			timer IRQ sources.
+>>     
+>
+> is misleadingly named.  This:
+>
+> +       no_timer_check  [IA-32,X86_64,APIC] Disables the code which tests for
+> +                       broken timer IRQ sources.
+> +
+>
+> is better, no?
+>
+> But right now, I'll settle for anything which usually compiles.
+>
+>   
 
-Applied to 2.6.19-rc6, the module tries MSI but this time no IRQ get 
-disabled. The result is equivalent to 2.6.19-rc6
+Yes, the name sucks.  There is no real reason to actually have a boot 
+parameter at all once the paravirt / VMI patches are in, but I wanted 
+something to be able to set timer_irq_really_works until then to avoid 
+someone accidentally removing it.
 
-
-ALSA sound/pci/hda/hda_intel.c:543: hda_intel: No response from codec, 
-disabling MSI...
-hda_codec: Unknown model for AD1988, trying auto-probe from BIOS...
-
-
-Full details:
-http://olivn.trollprod.com/19-rc6/19-rc6-takashi-routeirq1.dmesg
-http://olivn.trollprod.com/19-rc6/19-rc6-takashi-routeirq1.irq
-
-Olivier
-
-
-
-> 
-> (Here the first chunk (enable_msi=1) is just for testing.
->  The patch isn't for merge yet.)
-> 
-> 
-> Takashi
-> 
-> ---
-> diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-> index e35cfd3..130ee12 100644
-> --- a/sound/pci/hda/hda_intel.c
-> +++ b/sound/pci/hda/hda_intel.c
-> @@ -55,7 +55,7 @@ static char *model;
->  static int position_fix;
->  static int probe_mask = -1;
->  static int single_cmd;
-> -static int enable_msi;
-> +static int enable_msi = 1;
->  
->  module_param(index, int, 0444);
->  MODULE_PARM_DESC(index, "Index value for Intel HD audio interface.");
-> @@ -1380,7 +1380,8 @@ static int __devinit azx_init_stream(str
->  
->  static int azx_acquire_irq(struct azx *chip, int do_disconnect)
->  {
-> -	if (request_irq(chip->pci->irq, azx_interrupt, IRQF_DISABLED|IRQF_SHARED,
-> +	if (request_irq(chip->pci->irq, azx_interrupt,
-> +			chip->msi ? 0 : IRQF_SHARED,
->  			"HDA Intel", chip)) {
->  		printk(KERN_ERR "hda-intel: unable to grab IRQ %d, "
->  		       "disabling device\n", chip->pci->irq);
-> @@ -1389,6 +1390,7 @@ static int azx_acquire_irq(struct azx *c
->  		return -1;
->  	}
->  	chip->irq = chip->pci->irq;
-> +	pci_intx(chi->pci, !chip->msi);
->  	return 0;
->  }
->  
-
-
--- 
-Laudator temporis acti (Horace, 173)
-Donner c'est donner, repeindre ses volets
+Zach

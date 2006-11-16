@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424642AbWKPVXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424634AbWKPVYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424642AbWKPVXW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424634AbWKPVXW
+	id S1424634AbWKPVYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424639AbWKPVYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:23:22 -0500
-Received: from localhost.localdomain ([127.0.0.1]:37603 "EHLO localhost")
-	by vger.kernel.org with ESMTP id S1424639AbWKPVXU (ORCPT
+	Thu, 16 Nov 2006 16:24:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1424634AbWKPVYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:23:20 -0500
-Date: Thu, 16 Nov 2006 16:23:20 -0500 (EST)
-Message-Id: <20061116.162320.28787779.davem@davemloft.net>
-To: eli@dev.mellanox.co.il
-Cc: jheffner@psc.edu, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: UDP packets loss
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <62092.85.250.37.175.1163711408.squirrel@dev.mellanox.co.il>
-References: <18154.194.90.237.34.1163703097.squirrel@dev.mellanox.co.il>
-	<455CB59F.4030908@psc.edu>
-	<62092.85.250.37.175.1163711408.squirrel@dev.mellanox.co.il>
-X-Mailer: Mew version 5.1 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Thu, 16 Nov 2006 16:24:40 -0500
+Date: Thu, 16 Nov 2006 13:20:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@timesys.com>, Alan Stern <stern@rowland.harvard.edu>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-Id: <20061116132058.4c541bde.akpm@osdl.org>
+In-Reply-To: <20061116201531.GA31469@elte.hu>
+References: <1163707250.10333.24.camel@localhost.localdomain>
+	<20061116201531.GA31469@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: eli@dev.mellanox.co.il
-Date: Thu, 16 Nov 2006 23:10:08 +0200 (IST)
+On Thu, 16 Nov 2006 21:15:32 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-> >
-> > BTW, TCP will be significantly faster than UDP because with UDP you
-> > incur an extra full context switch on every packet.
-> >
 > 
-> Could you elaborate on this a bit more? What kind of context switch?
+> * Thomas Gleixner <tglx@timesys.com> wrote:
+> 
+> > [PATCH] cpufreq: make the transition_notifier chain use SRCU
+> > (b4dfdbb3c707474a2254c5b4d7e62be31a4b7da9)
+> > 
+> > breaks cpu frequency notification users, which register the callback 
+> > on core_init level. Interestingly enough the registration survives the 
+> > uninitialized head, but the registered user is lost by:
+> 
+> i have hit this bug in -rt (it caused a lockup) and have fixed it - 
+> forgot to send it upstream. Find the patch below.
+> 
+> 	Ingo
+> 
+> ---------------->
+> From: Ingo Molnar <mingo@elte.hu>
+> Subject: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+> 
+> init_cpufreq_transition_notifier_list() should execute first, which is a 
+> core_initcall, so mark cpufreq_tsc() core_initcall_sync.
 
-TCP queues and takes care of all the sending, packetization,
-etc. handling asynchronously.  Whereas with UDP every write()
-results in a packet on the wire, packets are always emitted
-synchronously in process context.
+That's not a terribly useful changelog.  What bug is being fixed.  What
+does "first" mean?
+
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> --- linux.orig/arch/x86_64/kernel/tsc.c
+> +++ linux/arch/x86_64/kernel/tsc.c
+> @@ -138,7 +138,11 @@ static int __init cpufreq_tsc(void)
+>  	return 0;
+>  }
+>  
+> -core_initcall(cpufreq_tsc);
+> +/*
+> + * init_cpufreq_transition_notifier_list() should execute first,
+> + * which is a core_initcall, so mark this one core_initcall_sync:
+> + */
+> +core_initcall_sync(cpufreq_tsc);
+
+Would prefer that we not use the _sync levels.  They're there as a
+synchronisation for MULTITHREAD_PROBE and might disappear at any time.
 

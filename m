@@ -1,142 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423682AbWKPKZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423697AbWKPK06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423682AbWKPKZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423688AbWKPKZd
+	id S1423697AbWKPK06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423712AbWKPK05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:25:33 -0500
-Received: from s131.mittwaldmedien.de ([62.216.178.31]:19811 "EHLO
-	s131.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S1423682AbWKPKZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:25:32 -0500
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
-To: daniel.ritz@gmx.ch
-Subject: [PATCH] usb: generic calibration support
-Date: Thu, 16 Nov 2006 11:25:38 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-MIME-Version: 1.0
+	Thu, 16 Nov 2006 05:26:57 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15513 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1423697AbWKPK05 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 05:26:57 -0500
+Date: Thu, 16 Nov 2006 11:21:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [patch, -rc6] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
+Message-ID: <20061116102115.GA8379@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200611161125.38901.hs4233@mail.mn-solutions.de>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -3.3
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.3 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_05 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
+	[score: 0.0213]
+	0.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
+Subject: [patch] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
+From: Ingo Molnar <mingo@elte.hu>
 
-Generic calibration support for usbtouchscreen.
+fix x86_64/kernel/mce_amd.c build bug:
 
-Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
+ arch/x86_64/kernel/mce_amd.c: In function ‘threshold_remove_bank’:
+ arch/x86_64/kernel/mce_amd.c:597: error: ‘shared_bank’ undeclared (first use in this function)
+ arch/x86_64/kernel/mce_amd.c:597: error: (Each undeclared identifier is reported only once
+ arch/x86_64/kernel/mce_amd.c:597: error: for each function it appears in.)
+ make[1]: *** [arch/x86_64/kernel/mce_amd.o] Error 1
+ make: *** [arch/x86_64/kernel/mce_amd.o] Error 2
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
+ arch/x86_64/kernel/mce_amd.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-With build-in calibration support, the "swap_xy" kernel parameter
-vanishes and usbtouchscreen instead gains a new kernel-parameter
-which holds 7 integers.
-
-This is used to calibrate the resulting output of the driver. Let
-x_o and y_o be the original x,y coordinate, as reported from the
-device. Then x_r,y_r (the x,y coordinate reported to the input event
-subsystem) are:
-
-    x_r = ( a*x_o + b*y_o + c ) / s
-    y_r = ( c*x_o + d*y_o + e ) / s
-
-The default values for (a,b,c,d,e,s) are (1,0,0,0,1,0,1). To
-simulate swap_xy, one would set them to (0,1,0,1,0,0,1). Once can
-also use swap_x or swap_y alone, or define other, linear
-transpositions. The algorithm used is the same as in Qt/Embedded
-3.x for the QWSCalibratedMouseHandler.
-
-This interface allows re-calibration at runtime, without
-restarting the X-Server or any other event consumer.
-
-
-Please review this patch and schedule it for inclusion once 
-2.6.19 comes out.
-
-
---- linux.orig/drivers/usb/input/Kconfig
-+++ linux/drivers/usb/input/Kconfig
-@@ -219,6 +219,32 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called usbtouchscreen.
+Index: linux/arch/x86_64/kernel/mce_amd.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/mce_amd.c
++++ linux/arch/x86_64/kernel/mce_amd.c
+@@ -593,12 +593,14 @@ static void threshold_remove_bank(unsign
  
-+config USB_TOUCHSCREEN_CALIBRATE
-+	default n
-+	bool "Calibration support"
-+	depends on USB_TOUCHSCREEN
-+	---help---
-+	  With build-in calibration support, the "swap_xy" kernel parameter
-+	  vanishes and usbtouchscreen instead gains a new kernel-parameter
-+	  which hold 7 integers. You can also access this with cat/echo
-+	  via /sys/module/usbtouchscreen/parameters/calibration
-+
-+	  This is used to calibrate the resulting output of the driver. Let
-+	  x_o and y_o be the original x,y coordinate, as reported from the
-+	  device. Then x_r,y_r (the x,y coordinate reported to the input event
-+	  subsystem) are:
-+
-+	      x_r = ( a*x_o + b*y_o + c ) / s
-+	      y_r = ( c*x_o + d*y_o + e ) / s
-+
-+	  The default values for (a,b,c,d,e,s) are (1,0,0,0,1,0,1). To
-+	  simulate swap_xy, one would set them to (0,1,0,1,0,0,1).
-+
-+	  This interface allows re-calibration at runtime, without
-+	  restarting the X-Server or any other event consumer.
-+
-+	  If unsure, say N.
-+
- config USB_TOUCHSCREEN_DMC_TSC10
- 	default y
- 	bool "DMC TSC-10 device support" if EMBEDDED
---- linux.orig/drivers/usb/input/usbtouchscreen.c
-+++ linux/drivers/usb/input/usbtouchscreen.c
-@@ -49,9 +49,16 @@
- #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
- #define DRIVER_DESC		"USB Touchscreen Driver"
+ 	sprintf(name, "threshold_bank%i", bank);
  
-+#ifdef CONFIG_USB_TOUCHSCREEN_CALIBRATE
-+static int cal[7] = {1, 0, 0,   0, 1, 0,  1 };
-+module_param_array_named(calibration, cal, int, NULL, 0644);
-+MODULE_PARM_DESC(calibrate, "calibration data");
-+
-+#else
- static int swap_xy;
- module_param(swap_xy, bool, 0644);
- MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-+#endif
- 
- /* device specifc data/functions */
- struct usbtouch_usb;
-@@ -499,6 +506,12 @@
- 
- 	input_report_key(usbtouch->input, BTN_TOUCH, touch);
- 
-+#ifdef CONFIG_USB_TOUCHSCREEN_CALIBRATE
-+	if (cal[6]==0)
-+		cal[6] = 1;
-+	input_report_abs(usbtouch->input, ABS_X, (cal[0]*x + cal[1]*y + cal[2])/cal[6] );
-+	input_report_abs(usbtouch->input, ABS_Y, (cal[3]*x + cal[4]*y + cal[5])/cal[6] );
-+#else
- 	if (swap_xy) {
- 		input_report_abs(usbtouch->input, ABS_X, y);
- 		input_report_abs(usbtouch->input, ABS_Y, x);
-@@ -506,6 +519,7 @@
- 		input_report_abs(usbtouch->input, ABS_X, x);
- 		input_report_abs(usbtouch->input, ABS_Y, y);
++#ifdef CONFIG_SMP
+ 	/* sibling symlink */
+ 	if (shared_bank[bank] && b->blocks->cpu != cpu) {
+ 		sysfs_remove_link(&per_cpu(device_mce, cpu).kobj, name);
+ 		per_cpu(threshold_banks, cpu)[bank] = NULL;
+ 		return;
  	}
 +#endif
- 	if (type->max_press)
- 		input_report_abs(usbtouch->input, ABS_PRESSURE, press);
- 	input_sync(usbtouch->input);
-
--- 
-M&N Solutions GmbH
-Holger Schurig
-Dieselstr. 18
-61191 Rosbach
-06003/9141-15
+ 
+ 	/* remove all sibling symlinks before unregistering */
+ 	for_each_cpu_mask(i, b->cpus) {

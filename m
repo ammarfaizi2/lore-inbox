@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162248AbWKPCwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162262AbWKPCrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162248AbWKPCwR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162256AbWKPCwN
+	id S1162262AbWKPCrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162248AbWKPCqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:52:13 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:8375 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162271AbWKPCwK
+	Wed, 15 Nov 2006 21:46:49 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:15504 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162243AbWKPCqk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:52:10 -0500
-Message-Id: <20061116024631.028282000@sous-sol.org>
+	Wed, 15 Nov 2006 21:46:40 -0500
+Message-Id: <20061116024742.602522000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:45 -0800
+Date: Wed, 15 Nov 2006 18:43:52 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, jeff@garzik.org,
-       torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Auke Kok <auke-jan.h.kok@intel.com>,
-       nhorman@redhat.com, cluebot@fedorafaq.org, laurent.riffard@free.fr,
-       toralf.foerster@gmx.de, bruce.w.allan@intel.com,
-       jesse.brandeburg@intel.com, rajesh.shah@intel.com, rjw@sisk.pl,
-       e1000-list <e1000-devel@lists.sourceforge.net>, john.ronciak@intel.com,
-       pavel@ucw.cz, notting@redhat.com, bunk@stusta.de,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: [patch 13/30] e1000: Fix regression: garbled stats and irq allocation during swsusp
-Content-Disposition: inline; filename=e1000-fix-regression-garbled-stats-and-irq-allocation-during-swsusp.patch
+       alan@lxorguk.ukuu.org.uk, monkey20181@gmx.net,
+       daniel.ritz-ml@swissonline.ch, daniel.ritz@gmx.ch, bunk@susta.de
+Subject: [patch 20/30] fix via586 irq routing for pirq 5
+Content-Disposition: inline; filename=fix-via586-irq-routing-for-pirq-5.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Auke Kok <auke-jan.h.kok@intel.com>
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
 
-e1000: Fix suspend/resume powerup and irq allocation
+Fix interrupt routing for via 586 bridges.  pirq can be 5 which needs to be
+mapped to INTD.  But currently the access functions can handle only pirq
+1-4.  this is similar to the other via chipsets where pirq 4 and 5 are both
+mapped to INTD.  Fixes bugzilla #7490
 
-From: Auke Kok <auke-jan.h.kok@intel.com>
-
-After 7.0.33/2.6.16, e1000 suspend/resume left the user with an enabled
-device showing garbled statistics and undetermined irq allocation state,
-where `ifconfig eth0 down` would display `trying to free already freed irq`.
-
-Explicitly free and allocate irq as well as powerup the PHY during resume
-fixes when needed.
-
-Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
-[chrisw: trivial 2.6.18 backport s/err/ret_val/]
+Cc: Daniel Paschka <monkey20181@gmx.net>
+Cc: Adrian Bunk <bunk@susta.de>
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: <stable@kernel.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- drivers/net/e1000/e1000_main.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/i386/pci/irq.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.18.2.orig/drivers/net/e1000/e1000_main.c
-+++ linux-2.6.18.2/drivers/net/e1000/e1000_main.c
-@@ -4683,6 +4683,9 @@ e1000_suspend(struct pci_dev *pdev, pm_m
- 	if (adapter->hw.phy_type == e1000_phy_igp_3)
- 		e1000_phy_powerdown_workaround(&adapter->hw);
+--- linux-2.6.18.2.orig/arch/i386/pci/irq.c
++++ linux-2.6.18.2/arch/i386/pci/irq.c
+@@ -255,13 +255,13 @@ static int pirq_via_set(struct pci_dev *
+  */
+ static int pirq_via586_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
+ {
+-	static const unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	static const unsigned int pirqmap[5] = { 3, 2, 5, 1, 1 };
+ 	return read_config_nybble(router, 0x55, pirqmap[pirq-1]);
+ }
  
-+	if (netif_running(netdev))
-+		e1000_free_irq(adapter);
-+
- 	/* Release control of h/w to f/w.  If f/w is AMT enabled, this
- 	 * would have already happened in close and is redundant. */
- 	e1000_release_hw_control(adapter);
-@@ -4710,6 +4713,10 @@ e1000_resume(struct pci_dev *pdev)
- 	pci_enable_wake(pdev, PCI_D3hot, 0);
- 	pci_enable_wake(pdev, PCI_D3cold, 0);
- 
-+	if (netif_running(netdev) && (ret_val = e1000_request_irq(adapter)))
-+		return ret_val;
-+
-+	e1000_power_up_phy(adapter);
- 	e1000_reset(adapter);
- 	E1000_WRITE_REG(&adapter->hw, WUS, ~0);
- 
+ static int pirq_via586_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
+ {
+-	static const unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	static const unsigned int pirqmap[5] = { 3, 2, 5, 1, 1 };
+ 	write_config_nybble(router, 0x55, pirqmap[pirq-1], irq);
+ 	return 1;
+ }
 
 --

@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422934AbWKPKJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423351AbWKPKKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422934AbWKPKJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423223AbWKPKJm
+	id S1423351AbWKPKKK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423303AbWKPKKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:09:42 -0500
-Received: from cantor.suse.de ([195.135.220.2]:59034 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422934AbWKPKJl (ORCPT
+	Thu, 16 Nov 2006 05:10:10 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:63636 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1423223AbWKPKKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:09:41 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch, -rc6] x86_64: UP build fixes
-Date: Thu, 16 Nov 2006 11:09:37 +0100
-User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20061116084855.GA8848@elte.hu> <200611161022.04022.ak@suse.de> <20061116094852.GA19305@elte.hu>
-In-Reply-To: <20061116094852.GA19305@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 05:10:07 -0500
+Date: Thu, 16 Nov 2006 11:08:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] lockdep: show held locks when showing a stackdump
+Message-ID: <20061116100852.GA5864@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611161109.37172.ak@suse.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.0952]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 November 2006 10:48, Ingo Molnar wrote:
-> 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > On Thursday 16 November 2006 10:17, Andrew Morton wrote:
-> > > On Thu, 16 Nov 2006 10:01:01 +0100
-> > > Andi Kleen <ak@suse.de> wrote:
-> > > 
-> > > > +#ifdef CONFIG_HOTPLUG_CPU
-> > > >  	hotcpu_notifier(cpu_vsyscall_notifier, 0);
-> > > > +#endif
-> > > 
-> > > this part isn't needed - the definition handles that.
-> > 
-> > Thanks. Updated patch appended.
-> 
-> my hotplug-CPU cleanup patch solves this in a cleaner way: by removing 
-> all those #ifdefs as well.
+Subject: [patch] lockdep: show held locks when showing a stackdump
+From: Ingo Molnar <mingo@elte.hu>
 
-Fine, but I suspect that late in the release it's better to go 
-for minimal "obvious" fixes. Later it can then be cleaned up properly.
+lockdep can be used to print held locks when printing a
+backtrace. This can be useful when debugging things like
+'scheduling while atomic' asserts.
 
--Andi
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+---
+ arch/i386/kernel/traps.c   |    1 +
+ arch/x86_64/kernel/traps.c |    1 +
+ 2 files changed, 2 insertions(+)
+
+Index: linux/arch/i386/kernel/traps.c
+===================================================================
+--- linux.orig/arch/i386/kernel/traps.c
++++ linux/arch/i386/kernel/traps.c
+@@ -318,6 +318,7 @@ static void show_stack_log_lvl(struct ta
+ 	}
+ 	printk("\n%sCall Trace:\n", log_lvl);
+ 	show_trace_log_lvl(task, regs, esp, log_lvl);
++	debug_show_held_locks(task);
+ }
+ 
+ void show_stack(struct task_struct *task, unsigned long *esp)
+Index: linux/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/traps.c
++++ linux/arch/x86_64/kernel/traps.c
+@@ -405,6 +405,7 @@ show_trace(struct task_struct *tsk, stru
+ 	printk("\nCall Trace:\n");
+ 	dump_trace(tsk, regs, stack, &print_trace_ops, NULL);
+ 	printk("\n");
++	debug_show_held_locks(tsk);
+ }
+ 
+ static void

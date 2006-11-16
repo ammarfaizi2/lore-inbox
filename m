@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162122AbWKPAew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162124AbWKPAmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162122AbWKPAew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 19:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162120AbWKPAew
+	id S1162124AbWKPAmX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 19:42:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162120AbWKPAmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 19:34:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5069 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1162117AbWKPAev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 19:34:51 -0500
-Date: Wed, 15 Nov 2006 16:33:24 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: divy <divy@chelsio.com>
-Cc: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cxgb3: Chelsio T3 1G/10G ethernet device driver
-Message-ID: <20061115163324.16263201@freekitty>
-In-Reply-To: <455BACB8.4010902@chelsio.com>
-References: <455BACB8.4010902@chelsio.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Nov 2006 19:42:23 -0500
+Received: from linux-server1.op5.se ([193.201.96.2]:28618 "EHLO
+	smtp-gw1.op5.se") by vger.kernel.org with ESMTP id S1162119AbWKPAmW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 19:42:22 -0500
+Message-ID: <455BB3E9.4000809@op5.se>
+Date: Thu, 16 Nov 2006 01:42:17 +0100
+From: Andreas Ericsson <ae@op5.se>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Marco Costalba <mcostalba@gmail.com>
+Cc: Git Mailing List <git@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] qgit-1.5.3
+References: <e5bfff550611110006p44494ed4h2979232bfc8e957c@mail.gmail.com>	 <45585749.5030200@op5.se> <e5bfff550611150723p691fc480m874cce9ad4d64476@mail.gmail.com>
+In-Reply-To: <e5bfff550611150723p691fc480m874cce9ad4d64476@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 16:11:36 -0800
-divy <divy@chelsio.com> wrote:
-
-> Hi,
+Marco Costalba wrote:
+> On 11/13/06, Andreas Ericsson <ae@op5.se> wrote:
+>> Marco Costalba wrote:
+>> >
+>> > Download tarball from http://www.sourceforge.net/projects/qgit
+>> > or directly from git public repository
+>> > git://git.kernel.org/pub/scm/qgit/qgit.git
+>> >
+>>
+>> Love the tool, but can't fetch the tag. Did you forget to
+>>
+>>         $ git push origin 1.5.3
+>>
 > 
-> This patch adds support for the latest Chelsio adapter, T3.
+> I think I have pushed the new tag, indeed the gitweb interface on
+> kernel.org/git shows correctly the 1.5.3 tag (and also two new commits
+> after that).
 > 
-> Since some files are bigger than the 40kB advertized in the submit
-> guidelines, a monolithic patch against 2.6.19-rc5 is posted at the
-> following URL: http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+> I've also pulled from kernel.org/git/qgit in a test repository and got
+> the tag succesfully.
 > 
-> Please advise on any other form you would like to see the code.
+> I'm not able to reproduce this, in any case I will push again the tags.
 > 
-> We wish this patch to be considered for inclusion in 2.6.20. This driver
-> will be required by the Chelsio T3 RDMA driver which will be posted for
-> review asap.
-> 
-> Cheers,
-> Divy
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
+That's odd. Here's my .git/remotes/origin
+---8<---8<---8<---
+URL: git://git.kernel.org/pub/scm/qgit/qgit.git
+Pull: master:origin
+---8<---8<---8<---
 
-This took me an afternoon, so I don't see why Chelsio didn't do it.
+I got the tag now, by doing
 
-    Port of Chelsio's 2.2.0 version driver from:
-        http://service.chelsio.com/drivers/linux/t210/cxgb2toe-2.2.0.tar.gz
-    
-    De-vendorized:
-        - removed all TCP Offload Engine support because those changes
-          will not be accepted in mainline kernel.
-        - new files run through Lindent
-        - removed code that was '#ifdef' for older kernel versions
-        - fix for 2.6.19 irq
-        - replace usage of TSC with ktime
-        - remove /proc trace debug stuff
-        - remove dead code
-        - incorporate GSO, etc.
-        - get rid of FILE_IDENT() macro
-        - fix sparse warnings by adding __iomem and __user
+$ git fetch --tags
 
-Also, I kept as many of the filenames and device names the same since
-it is really just an extension of existing driver.
-
-I'm testing it now.
+although that didn't work last time I fetched the objects (which was 
+after you had posted the announcement). Strange. This was with git 
+version 1.4.3.rc3.gb32db.
 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
+Andreas Ericsson                   andreas.ericsson@op5.se
+OP5 AB                             www.op5.se
+Tel: +46 8-230225                  Fax: +46 8-230231

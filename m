@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423351AbWKPKKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423223AbWKPKQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423351AbWKPKKK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423303AbWKPKKK
+	id S1423223AbWKPKQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423303AbWKPKP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:10:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:63636 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423223AbWKPKKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:10:07 -0500
-Date: Thu, 16 Nov 2006 11:08:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] lockdep: show held locks when showing a stackdump
-Message-ID: <20061116100852.GA5864@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Nov 2006 05:15:59 -0500
+Received: from wx-out-0506.google.com ([66.249.82.227]:64532 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1423223AbWKPKP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 05:15:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jh9/LpmKLGr7UeLffob4Vz1sikWgyuNAKPVzhbS9IVnp2pSfb8M5/fTEYG48+S9eUEcM/mUbJrouT3+NQBsghARWSrnZ9LrsNNeq6DiaPbaLxVYsUj7FMr4odM37vz/QsokJY/E7xpflTIMn+CQl+D5YilYj2d4rQ0vWQ4d5Y0o=
+Message-ID: <f36b08ee0611160215i7dcbd27p76963cb12d0bc12f@mail.gmail.com>
+Date: Thu, 16 Nov 2006 12:15:58 +0200
+From: "Yakov Lerner" <iler.ml@gmail.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: locking sectors of raw disk (raw read-write test of mounted disk)
+Cc: Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <455B8979.6090101@cfl.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.0952]
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <f36b08ee0611151206k50284ef9n43d7edf744ae2f19@mail.gmail.com>
+	 <455B8979.6090101@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] lockdep: show held locks when showing a stackdump
-From: Ingo Molnar <mingo@elte.hu>
+On 11/15/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> No, you can not tamper with the underlying data while the kernel has it
+> mounted.
+I don't want to tamper wuith data. I want to raw write back exacty
+same raw data that I read in. I only want to make sure that kernel
+doesn't write modified data between in between my read-write pair.
 
-lockdep can be used to print held locks when printing a
-backtrace. This can be useful when debugging things like
-'scheduling while atomic' asserts.
+Yakov
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
----
- arch/i386/kernel/traps.c   |    1 +
- arch/x86_64/kernel/traps.c |    1 +
- 2 files changed, 2 insertions(+)
-
-Index: linux/arch/i386/kernel/traps.c
-===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -318,6 +318,7 @@ static void show_stack_log_lvl(struct ta
- 	}
- 	printk("\n%sCall Trace:\n", log_lvl);
- 	show_trace_log_lvl(task, regs, esp, log_lvl);
-+	debug_show_held_locks(task);
- }
- 
- void show_stack(struct task_struct *task, unsigned long *esp)
-Index: linux/arch/x86_64/kernel/traps.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/traps.c
-+++ linux/arch/x86_64/kernel/traps.c
-@@ -405,6 +405,7 @@ show_trace(struct task_struct *tsk, stru
- 	printk("\nCall Trace:\n");
- 	dump_trace(tsk, regs, stack, &print_trace_ops, NULL);
- 	printk("\n");
-+	debug_show_held_locks(tsk);
- }
- 
- static void
+> Yakov Lerner wrote:
+> > I'd like to make read-write test of the raw disk, and disk has
+> > mounted partitions. Is it possible to lock  range of sectors
+> > of the raw device so that any kernel code that wants to write
+> > to this range will sleep ? (so that test
+> >    { lock range; read /dev/hda->buf; write buf->/dev/hda; unlock }
+> > won't corrupt the filesysyem ?)
+> >
+> > Thanks
+> > Yakov
+>
+>

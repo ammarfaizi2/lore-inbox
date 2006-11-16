@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162259AbWKPCsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162260AbWKPCrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162259AbWKPCsk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162256AbWKPCsg
+	id S1162260AbWKPCrN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162253AbWKPCrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:48:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22664 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162254AbWKPCsW
+	Wed, 15 Nov 2006 21:47:12 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:23952 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162243AbWKPCq6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:48:22 -0500
-Message-Id: <20061116024930.261429000@sous-sol.org>
+	Wed, 15 Nov 2006 21:46:58 -0500
+Message-Id: <20061116024809.629931000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:44:02 -0800
+Date: Wed, 15 Nov 2006 18:43:54 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,46 +21,44 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Steve French <sfrench@us.ibm.com>
-Subject: [patch 30/30] CIFS: New POSIX locking code not setting rc properly to zero on successful
-Content-Disposition: inline; filename=new-posix-locking-code-not-setting-rc-properly-to-zero-on-successful.patch
+       alan@lxorguk.ukuu.org.uk
+Subject: [patch 22/30] CPUFREQ: Make acpi-cpufreq unsticky again.
+Content-Disposition: inline; filename=cpufreq-make-acpi-cpufreq-unsticky-again.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Steve French <sfrench@us.ibm.com>
+From: Dave Jones <davej@redhat.com>
 
-unlock in case where server does not support POSIX locks and nobrl is
-not specified.
+This caused suspend/resume regressions.
 
-Signed-off-by: Steve French <sfrench@us.ibm.com>
+Signed-off-by: Dave Jones <davej@redhat.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- fs/cifs/file.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index e9c5ba9..ddb012a 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -752,6 +752,7 @@ int cifs_lock(struct file *file, int cmd
- 			int stored_rc = 0;
- 			struct cifsLockInfo *li, *tmp;
+ arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- linux-2.6.18.2.orig/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
++++ linux-2.6.18.2/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+@@ -560,7 +560,6 @@ static struct cpufreq_driver acpi_cpufre
+ 	.name	= "acpi-cpufreq",
+ 	.owner	= THIS_MODULE,
+ 	.attr	= acpi_cpufreq_attr,
+-	.flags	= CPUFREQ_STICKY,
+ };
  
-+			rc = 0;
- 			down(&fid->lock_sem);
- 			list_for_each_entry_safe(li, tmp, &fid->llist, llist) {
- 				if (pfLock->fl_start <= li->offset &&
-@@ -766,7 +767,7 @@ int cifs_lock(struct file *file, int cmd
- 					kfree(li);
- 				}
- 			}
--		up(&fid->lock_sem);
-+			up(&fid->lock_sem);
- 		}
- 	}
+ 
+@@ -571,7 +570,7 @@ acpi_cpufreq_init (void)
+ 
+ 	acpi_cpufreq_early_init_acpi();
+ 
+- 	return cpufreq_register_driver(&acpi_cpufreq_driver);
++	return cpufreq_register_driver(&acpi_cpufreq_driver);
+ }
+ 
  
 
 --

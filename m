@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162315AbWKPXf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424563AbWKPXjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162315AbWKPXf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 18:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162320AbWKPXf7
+	id S1424563AbWKPXjM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 18:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162322AbWKPXjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 18:35:59 -0500
-Received: from outmx023.isp.belgacom.be ([195.238.4.204]:45022 "EHLO
-	outmx023.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1162315AbWKPXf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 18:35:58 -0500
-Message-ID: <455CF5EA.8030303@trollprod.org>
-Date: Fri, 17 Nov 2006 00:36:10 +0100
-From: Olivier Nicolas <olivn@trollprod.org>
-User-Agent: Thunderbird 2.0b1pre (X11/20061115)
+	Thu, 16 Nov 2006 18:39:12 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49043 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1162321AbWKPXjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 18:39:11 -0500
+Date: Fri, 17 Nov 2006 00:38:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: David Chinner <dgc@sgi.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Srinivasa DS <srinivasa@in.ibm.com>,
+       Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061116233853.GB6757@elf.ucw.cz>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <200611152100.35054.rjw@sisk.pl> <20061115202348.GB3875@elf.ucw.cz> <200611152258.52160.rjw@sisk.pl> <20061116232057.GH11034@melbourne.sgi.com>
 MIME-Version: 1.0
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Mws <mws@twisted-brains.org>,
-       Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       tiwai@suse.de
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-References: <5986589C150B2F49A46483AC44C7BCA4907208@ssvlexmb2.amd.com>
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907208@ssvlexmb2.amd.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061116232057.GH11034@melbourne.sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lu, Yinghai wrote:
-> Add pci_intx to diable intx could make MSI work with pci.
+Hi!
+
+> > > > I think I'll prepare a patch for freezing the work queues and we'll see what
+> > > > to do next.
+> > > 
+> > > Thanks!
+> > 
+> > Okay, the patch follows.
+> > 
+> > I've been running it for some time on my boxes and it doesn't seem to break
+> > anything.  However, I don't use XFS, so well ...
 > 
-> Olivier, Please test it attached patch with latest git ... I hardcode to
-> make enable_msi=1.
-> 
-> YH
-> 
+> So you haven't actually tested whether it fixes anything or whether
+> it introduces any regressions?
 
-The kernel boots only with pci=routeirq, no IRQ get disabled but the 
-sound driver does not work.
-
-
-http://olivn.trollprod.org/19-rc6/19-rc6-yinghai1-routeirq.dmesg
-http://olivn.trollprod.org/19-rc6/19-rc6-yinghai1-routeirq.irq
-
-
-
-In order to get reproductible result, I halt the system and remove the 
-power cord for 30 seconds.But once, I just reboot and get that strange 
-result
-
-IRQ 22 is disabled but snd_hda_intel seems to get a MSI interrupt! (It 
-cannot be reproduced)
-
-http://olivn.trollprod.org/19-rc5-git7-patch1.dmesg
-
-           CPU0       CPU1
-   0:        614    1107801   IO-APIC-edge      timer
-   1:          2        361   IO-APIC-edge      i8042
-   6:          0          5   IO-APIC-edge      floppy
-   8:          0          0   IO-APIC-edge      rtc
-   9:          0          0   IO-APIC-fasteoi   acpi
-  12:          0        163   IO-APIC-edge      i8042
-  14:         10      11446   IO-APIC-edge      ide0
-  16:          0          3   IO-APIC-fasteoi   libata, ohci1394
-  17:          4          8   IO-APIC-fasteoi   bttv0
-  20:          2         22   IO-APIC-fasteoi   ehci_hcd:usb2
-  21:          0          4   IO-APIC-fasteoi   libata, ohci_hcd:usb1
-  22:         15      99985   IO-APIC-fasteoi   libata
-  23:         30       7639   IO-APIC-fasteoi   libata
-307:        156     443303   PCI-MSI-edge      eth1
-308:          0        311   PCI-MSI-edge      eth1
-309:          0        401   PCI-MSI-edge      eth1
-310:        156     443333   PCI-MSI-edge      eth0
-311:          0          0   PCI-MSI-edge      eth0
-312:          0          0   PCI-MSI-edge      eth0
-313:          0          1   PCI-MSI-edge      HDA Intel
-NMI:         65         47
-LOC:    1108404    1108429
-ERR:          0
-
-
-
-
-Olivier
-
+Noone has a testcase for a problem; swsusp just does not eat
+filesystems in practice. Fill free to test the patch, but I'm pretty
+sure it will not break anything.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

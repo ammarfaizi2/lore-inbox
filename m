@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424735AbWKPWDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424726AbWKPWDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424735AbWKPWDM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 17:03:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424736AbWKPWDM
+	id S1424726AbWKPWDw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 17:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424693AbWKPWDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 17:03:12 -0500
-Received: from 64.221.212.177.ptr.us.xo.net ([64.221.212.177]:50774 "EHLO
-	ext.agami.com") by vger.kernel.org with ESMTP id S1424735AbWKPWDL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 17:03:11 -0500
-Message-ID: <455CDBA5.5070809@agami.com>
-Date: Thu, 16 Nov 2006 13:44:05 -0800
-From: Shailendra Tripathi <stripathi@agami.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Thu, 16 Nov 2006 17:03:52 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:1699 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1424726AbWKPWDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 17:03:51 -0500
+Date: Thu, 16 Nov 2006 17:03:50 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
+       David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <Pine.LNX.4.64.0611161342320.3349@woody.osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0611161658170.2929-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       nathans@sgi.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][RFC][resend] potential NULL pointer deref in XFS on failed
- mount
-References: <200611162218.26945.jesper.juhl@gmail.com>	 <455CD6C8.5030907@agami.com> <9a8748490611161343x44e759acs9b70247c84452ba5@mail.gmail.com>
-In-Reply-To: <9a8748490611161343x44e759acs9b70247c84452ba5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+On Thu, 16 Nov 2006, Linus Torvalds wrote:
 
-> The reason I want to fix it in the freeing function is that many other
-> functions in the kernel that free resources are safe to call with NULL
-> pointers and this would make xfs_free_buftarg() follow that
-> convention.  This would perhaps also allow for some cleanups in other
-> places that call the function since then there's no longer a need for
-> explicit NULL checks any more (haven't checked if there's anything to
-> gain there though).
-> I don't think the function call overhead matters much since this is in
-> a case of a failed mount, so it should happen very rarely.
->
-I agree with you.  However, cleanup functions should(/must?) check for  
-NULL etc and
-in this case it is already doing so for other cases. So, perhaps not 
-required. Just a different viewpoint.
-Your choice.
+>  - it makes it clear that this should be fixed, preferably by just having 
+>    some way to initialize SRCU structs staticalyl. If we get that, the fix 
+>    is to just replace the horrible "initialize by hand" with a static 
+>    initializer once and for all.
+> 
+> Hmm?
+> 
+> Totally untested, but it compiles and it _looks_ sane. The overhead of the 
+> function call should be minimal, once things are initialized.
+> 
+> Paul, it would be _really_ nice to have some way to just initialize that 
+> SRCU thing statically. This kind of crud is just crazy.
 
->> void
->> xfs_unmountfs_close(xfs_mount_t *mp, struct cred *cr)
->> {
->>        if (mp->m_logdev_targp && (mp->m_logdev_targp != 
->> mp->m_ddev_targp))
->>                 xfs_free_buftarg(mp->m_logdev_targp, 1);
->>         if (mp->m_rtdev_targp)
->>                 xfs_free_buftarg(mp->m_rtdev_targp, 1);
->>         xfs_free_buftarg(mp->m_ddev_targp, 0);
->> }
->>
->
->
+I looked into this back when SRCU was first added.  It's essentially
+impossible to do it, because the per-cpu memory allocation & usage APIs
+are completely different for the static and the dynamic cases.  They are a
+real mess.  I couldn't think up a way to construct any sort of uniform
+interface to per-cpu memory, not without completely changing the guts of 
+the per-cpu stuff.
+
+If you or someone else can fix that problem, I will be happy to change the 
+SRCU-based notifiers to work both ways.
+
+Alan Stern
 

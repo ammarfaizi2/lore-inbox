@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424452AbWKPU1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423801AbWKPU3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424452AbWKPU1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 15:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423801AbWKPU1Z
+	id S1423801AbWKPU3l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 15:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424467AbWKPU3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 15:27:25 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:40645 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1424452AbWKPU1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 15:27:25 -0500
-Date: Thu, 16 Nov 2006 15:27:23 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Thomas Gleixner <tglx@timesys.com>
-cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: BUG: cpufreq notification broken
-In-Reply-To: <1163707250.10333.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0611161515430.2399-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Nov 2006 15:29:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60077 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423801AbWKPU3j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 15:29:39 -0500
+Date: Thu, 16 Nov 2006 12:23:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: ebiederm@xmission.com (Eric W. Biederman), Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
+       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
+       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+Message-Id: <20061116122358.996fdbb3.akpm@osdl.org>
+In-Reply-To: <17756.17330.974883.486535@alkaid.it.uu.se>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611151945.31535.ak@suse.de>
+	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
+	<200611152023.53960.ak@suse.de>
+	<20061115122118.14fa2177.akpm@osdl.org>
+	<m18xic4den.fsf@ebiederm.dsl.xmission.com>
+	<20061115133121.8d9d621f.akpm@osdl.org>
+	<17756.17330.974883.486535@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006, Thomas Gleixner wrote:
+On Thu, 16 Nov 2006 11:55:46 +0100
+Mikael Pettersson <mikpe@it.uu.se> wrote:
 
-> [PATCH] cpufreq: make the transition_notifier chain use SRCU
-> (b4dfdbb3c707474a2254c5b4d7e62be31a4b7da9)
+> Andrew Morton writes:
+>  > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
+>  > to then put the NMI back to doing the watchdog thing after oprofile has
+>  > finished with it.
 > 
-> breaks cpu frequency notification users, which register the callback on
-> core_init level. Interestingly enough the registration survives the
-> uninitialized head, but the registered user is lost by:
-> 
-> static int __init init_cpufreq_transition_notifier_list(void)
-> {
-> 	srcu_init_notifier_head(&cpufreq_transition_notifier_list);
-> 	return 0;
-> }
-> core_initcall(init_cpufreq_transition_notifier_list);
-> 
-> This affects i386, x86_64 and sparc64 AFAICT, which call
-> register_notifier early in the arch code.
-> 
-> > The head of the notifier chain needs to be initialized before use;
-> > this is done by an __init routine at core_initcall time. If this turns
-> > out not to be a good choice, it can easily be changed.
-> 
-> Hmm, there are no static initializers for srcu and the only way to fix
-> this up is to move the arch calls to postcore_init.
+> Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
+> the in-kernel API allowing real performance counter drivers like
+> oprofile (and perfctr) to claim the HW from the NMI watchdog,
+> do their work, and then release it which resumed the watchdog.
 
-If you can find a way to invoke init_cpufreq_transition_notifier_list 
-earlier than core_initcall time, that would be okay.  I did it this way 
-because it was easiest, but earlier should be just as good.
+OK.  But from Andi's comments it seems that the NMI watchdog was failing to
+resume its operation.
 
-The only requirement is that alloc_percpu() has to be working, so that the 
-SRCU per-cpu data values can be set up.  I don't know how early in the 
-boot process you can do per-cpu memory allocation.
-
-As an alternative approach, initialization of srcu_notifiers could be 
-broken up into two pieces, one of which could be done statically.  The 
-part that has to be done dynamically (the SRCU initialization) wouldn't 
-mess up the notifier chain.  Provided the dynamic part is carried out 
-while the system is still single-threaded, it would be safe.
-
-Alan Stern
-
+> Note that oprofile (and perfctr) didn't do anything behind the
+> NMI watchdog's back. They went via the API. Nothing dodgy going on.

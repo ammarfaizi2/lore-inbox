@@ -1,82 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424554AbWKPX0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162315AbWKPXf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424554AbWKPX0G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 18:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424267AbWKPX0F
+	id S1162315AbWKPXf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 18:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162320AbWKPXf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 18:26:05 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:8584 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S1424554AbWKPX0C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 18:26:02 -0500
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: Holger Schurig <hs4233@mail.mn-solutions.de>
-Subject: Re: [PATCH] usb: generic calibration support
-Date: Fri, 17 Nov 2006 00:24:32 +0100
-User-Agent: KMail/1.7.2
-Cc: daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>
-References: <200611161125.38901.hs4233@mail.mn-solutions.de>
-In-Reply-To: <200611161125.38901.hs4233@mail.mn-solutions.de>
+	Thu, 16 Nov 2006 18:35:59 -0500
+Received: from outmx023.isp.belgacom.be ([195.238.4.204]:45022 "EHLO
+	outmx023.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1162315AbWKPXf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 18:35:58 -0500
+Message-ID: <455CF5EA.8030303@trollprod.org>
+Date: Fri, 17 Nov 2006 00:36:10 +0100
+From: Olivier Nicolas <olivn@trollprod.org>
+User-Agent: Thunderbird 2.0b1pre (X11/20061115)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Mws <mws@twisted-brains.org>,
+       Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+References: <5986589C150B2F49A46483AC44C7BCA4907208@ssvlexmb2.amd.com>
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907208@ssvlexmb2.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611170024.33248.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-07.tornado.cablecom.ch 1378;
-	Body=5 Fuz1=5 Fuz2=5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Lu, Yinghai wrote:
+> Add pci_intx to diable intx could make MSI work with pci.
+> 
+> Olivier, Please test it attached patch with latest git ... I hardcode to
+> make enable_msi=1.
+> 
+> YH
+> 
 
-On Thursday 16 November 2006 11.25, Holger Schurig wrote:
-> From: Holger Schurig <hs4233@mail.mn-solutions.de>
-> 
-> Generic calibration support for usbtouchscreen.
-> 
-> Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
-> 
-> ---
-> 
-> With build-in calibration support, the "swap_xy" kernel parameter
-> vanishes and usbtouchscreen instead gains a new kernel-parameter
-> which holds 7 integers.
-> 
-> This is used to calibrate the resulting output of the driver. Let
-> x_o and y_o be the original x,y coordinate, as reported from the
-> device. Then x_r,y_r (the x,y coordinate reported to the input event
-> subsystem) are:
-> 
->     x_r = ( a*x_o + b*y_o + c ) / s
->     y_r = ( c*x_o + d*y_o + e ) / s
-> 
-> The default values for (a,b,c,d,e,s) are (1,0,0,0,1,0,1). To
-> simulate swap_xy, one would set them to (0,1,0,1,0,0,1). Once can
-> also use swap_x or swap_y alone, or define other, linear
-> transpositions. The algorithm used is the same as in Qt/Embedded
-> 3.x for the QWSCalibratedMouseHandler.
-> 
-> This interface allows re-calibration at runtime, without
-> restarting the X-Server or any other event consumer.
-> 
-> 
-> Please review this patch and schedule it for inclusion once 
-> 2.6.19 comes out.
+The kernel boots only with pci=routeirq, no IRQ get disabled but the 
+sound driver does not work.
 
-sorry, but i have to give you a big NACK on that one:
-- no more modparam: it should be per-device sysfs attributes
-  (swap_xy is basically only for touchkitusb compatibility and shoud be
-   converted to per-device sysfs attribute as well. i just never got to
-   do it)
-- calibration can be handled in userspace just fine
-- even for in-kernel it's in the wrong place. there are other devices
-  that report raw absolute data...so it would belong to the input layer
 
-Cc'ing Dmitry Torokhov as he might have some comments about calibration
-support in the input layer.
+http://olivn.trollprod.org/19-rc6/19-rc6-yinghai1-routeirq.dmesg
+http://olivn.trollprod.org/19-rc6/19-rc6-yinghai1-routeirq.irq
 
-thanks, rgds
--daniel
+
+
+In order to get reproductible result, I halt the system and remove the 
+power cord for 30 seconds.But once, I just reboot and get that strange 
+result
+
+IRQ 22 is disabled but snd_hda_intel seems to get a MSI interrupt! (It 
+cannot be reproduced)
+
+http://olivn.trollprod.org/19-rc5-git7-patch1.dmesg
+
+           CPU0       CPU1
+   0:        614    1107801   IO-APIC-edge      timer
+   1:          2        361   IO-APIC-edge      i8042
+   6:          0          5   IO-APIC-edge      floppy
+   8:          0          0   IO-APIC-edge      rtc
+   9:          0          0   IO-APIC-fasteoi   acpi
+  12:          0        163   IO-APIC-edge      i8042
+  14:         10      11446   IO-APIC-edge      ide0
+  16:          0          3   IO-APIC-fasteoi   libata, ohci1394
+  17:          4          8   IO-APIC-fasteoi   bttv0
+  20:          2         22   IO-APIC-fasteoi   ehci_hcd:usb2
+  21:          0          4   IO-APIC-fasteoi   libata, ohci_hcd:usb1
+  22:         15      99985   IO-APIC-fasteoi   libata
+  23:         30       7639   IO-APIC-fasteoi   libata
+307:        156     443303   PCI-MSI-edge      eth1
+308:          0        311   PCI-MSI-edge      eth1
+309:          0        401   PCI-MSI-edge      eth1
+310:        156     443333   PCI-MSI-edge      eth0
+311:          0          0   PCI-MSI-edge      eth0
+312:          0          0   PCI-MSI-edge      eth0
+313:          0          1   PCI-MSI-edge      HDA Intel
+NMI:         65         47
+LOC:    1108404    1108429
+ERR:          0
+
+
+
+
+Olivier
+

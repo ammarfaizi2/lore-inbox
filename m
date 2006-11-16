@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424177AbWKPPhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424012AbWKPPgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424177AbWKPPhM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424178AbWKPPhM
+	id S1424012AbWKPPgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424177AbWKPPgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:37:12 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51148 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1424177AbWKPPhK (ORCPT
+	Thu, 16 Nov 2006 10:36:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37325 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1424012AbWKPPgf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:37:10 -0500
-Date: Thu, 16 Nov 2006 16:35:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061116153553.GA12583@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 16 Nov 2006 10:36:35 -0500
+Message-ID: <455C8520.8060109@redhat.com>
+Date: Thu, 16 Nov 2006 10:34:56 -0500
+From: William Cohen <wcohen@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       discuss@x86-64.org, Eric Dumazet <dada1@cosmosbay.com>,
+       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
+       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
+       Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061116032109.GG9579@bingen.suse.de> <20061115210501.feaf230c.akpm@osdl.org> <200611160804.31806.ak@suse.de>
+In-Reply-To: <200611160804.31806.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've released the 2.6.18-rc6-rt0 tree, which can be downloaded from the 
-usual place:
+Andi Kleen wrote:
+> On Thursday 16 November 2006 06:05, Andrew Morton wrote:
+> 
+>>On Thu, 16 Nov 2006 04:21:09 +0100
+>>Andi Kleen <ak@suse.de> wrote:
+>>
+>>
+>>>>If it's really true that oprofile is simply busted then that's a serious
+>>>>problem and we should find some way of unbusting it.  If that means just
+>>>>adding a dummy "0" entry which always returns zero or something like that,
+>>>>then fine.
+>>>
+>>>That could be probably done.
+>>
+>>I'm told that this is exactly what it was doing before it got changed.
+> 
+> 
+> Hmm, ok perhaps that can be arranged again.
+> 
+> The trouble is that I want to use this performance counter for
+> other purposes too, so we would run into trouble again 
+> if oprofile keeps stealing it.
 
-  http://redhat.com/~mingo/realtime-preempt/
+What other purposes do you see the performance counters useful for? To collect 
+information on process characteristics so they can be scheduled more efficiently?
 
-i also started an -rt YUM repository for Fedora Core 6, which can be 
-activated via:
+Is this going to require sharing the nmi interrupt and knowing which perfcounter 
+register triggered the interrupt to get the correct action?  Currently the 
+oprofile interrupt handler assumes any performance monitoring counter it sees 
+overflowing is something it should count.
 
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
-   yum update kernel
-
--rt0 is a rebase of -rt to 2.6.19-rc6, with lots of updates and fixes 
-included. It includes the latest -hrt-dynticks tree and more.
-
-to build a 2.6.19-rc6-rt0 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.18.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.19-rc6.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rc6-rt0
-
-as usual, bugreports, fixes and suggestions are welcome,
-
-	Ingo
+-Will

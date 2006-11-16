@@ -1,165 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424690AbWKPVsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424692AbWKPVsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424690AbWKPVsT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424691AbWKPVsT
+	id S1424692AbWKPVsX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424694AbWKPVsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:48:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32971 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1424690AbWKPVsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:48:18 -0500
-Date: Thu, 16 Nov 2006 13:47:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Thomas Gleixner <tglx@timesys.com>
-cc: Ingo Molnar <mingo@elte.hu>, Alan Stern <stern@rowland.harvard.edu>,
-       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <1163709936.10333.32.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611161342320.3349@woody.osdl.org>
-References: <1163707250.10333.24.camel@localhost.localdomain> 
- <20061116201531.GA31469@elte.hu> <1163709936.10333.32.camel@localhost.localdomain>
+	Thu, 16 Nov 2006 16:48:23 -0500
+Received: from wx-out-0506.google.com ([66.249.82.235]:45870 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1424692AbWKPVsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:48:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MDPLGybUqC7JyQTd/g+FL66rqY+tFXdYFxXFhrsGcYJzqI0obXIOVLfXXE1xTLqtw4MfkLZcYxxi6UodJuq+SfeTqw0+eBX4UFAYeESStLEzf1RetnTE7Nc7cO6Qq/5iWuJDcsAeNmM3IS/+mwNkJabiAnG0PkDJUA9UQ2NhQm8=
+Message-ID: <653402b90611161348k163a004ax483f1c2bc6928fd9@mail.gmail.com>
+Date: Thu, 16 Nov 2006 22:48:20 +0100
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Subject: Re: ACPI output/lcd/auxdisplay mess
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       "Luming Yu" <Luming.yu@intel.com>, "Andrew Zabolotny" <zap@homelink.ru>,
+       linux-acpi@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0611161450180.31960@pentafluge.infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org>
+	 <653402b90611141426y6db15a3bh8ea59f89c8f1bb39@mail.gmail.com>
+	 <Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org>
+	 <653402b90611160045s6ddf1305jdb262ee55b0f16bf@mail.gmail.com>
+	 <Pine.LNX.4.64.0611161450180.31960@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/16/06, James Simmons <jsimmons@infradead.org> wrote:
+>
+> >
+> > cfag12864bcfb is a "fbdev" (actually, it is a "fb wrapper" for
+> > cfag12864b, so it behaves like a framebuffer, although it is not an
+> > usual framebuffer. f.e. it has asynchronous refresh rate, a mmaped
+> > page to appear to be a fb...).
+>
+> BTW to use it as a fb you need to set the FILLRECT etc. See Kconfig in the
+> drivers/video directory and look at one of the graphic card examples.
 
+I see, thanks you. I will take care of that.
 
-On Thu, 16 Nov 2006, Thomas Gleixner wrote:
-> 
-> Here is the i386/sparc fixup
+>
+> > Still, it is not the front panel lcd of any specific device like PDA,
+> > so people that expects only their primary video/ displays may be
+> > confused if it appears at such section. So we decided to go away from
+> > video/. Maybe we can change the description, as right now it only
+> > refers to front panel lcds.
+>
+>   Neither is a monitor for a PC desktop. That is why we have ddc. If I
+> take a desktop with more than one video card and swap the lcd monitors
+> the lcd monitor data remains the same. As soon as the display device is
+> attached to the graphics card the graphics card will then communicate
+> with the monitor to retrieve data. For example if the mode of the
+> graphics card is set to 1900x1080 which is supported by the current
+> monitor. Then we swap it for a CRT that supports only 1280x1024 then in
+> that case when the graphics card probes the CRT it will change the
+> resolution to the maximum that is supported by the CRT.
+>   Currently the fbdev layer handles all this with struct fb_monspecs. Now
+> I know that structure doesn't cover everything. Nor does it handle
+> multiple displays attached to one piece of hardware. These where things I
+> was hoping to fix. Now that there are display devices that can handle
+> there own power management I have no problem having another sysfs device
+> to handle it. A representation that is more generic than lcd in the
+> backlight directory. Like the output device suggested by Yu. Of course I'm
+> not fond of that name. Display would be better.
+>
 
-Gag me with a volvo.
+Yep, indeed it would be better to have both generic place and sysfs
+device to put all these generic displays, however, I think they
+shouldn't be at video/* (maybe video/something/* or outside). I mean,
+we can do something like:
 
-This is disgusting, but I would actually prefer the following version over 
-the patches I've seen, because
+1. First, we move auxiliary-special displays (including cfag12864b,
+[*]"Arc Monochrome LCD board" and stuff like that: they aren't really
+primary video displays) to another folder outside video/, maybe
+"drivers/display/" ("drivers/auxdisplay/"...).
+2. Then we create a sysfs device, called "display" ("auxdisplay"...)
+for all of them, which must be generic as you suggested, not just lcds
+or "front panels".
 
- - it doesn't end up having any architecture-specific parts
+So finally we will have usual-primary fbdevs and video drivers at
+"drivers/video/*", and all the other stuff at "drivers/display/*" or
+some similar place.
 
- - it doesn't use the new "xxx_sync()" thing that I'm not even sure we 
-   should be using.
+Is that a good suggestion?
 
- - it makes it clear that this should be fixed, preferably by just having 
-   some way to initialize SRCU structs staticalyl. If we get that, the fix 
-   is to just replace the horrible "initialize by hand" with a static 
-   initializer once and for all.
+[*] I saw fbdevs like "Arc Monochorme LCD board support" that can be
+put there the same way like auxdisplay/cfag12864b, as they look pretty
+similar.
 
-Hmm?
-
-Totally untested, but it compiles and it _looks_ sane. The overhead of the 
-function call should be minimal, once things are initialized.
-
-Paul, it would be _really_ nice to have some way to just initialize that 
-SRCU thing statically. This kind of crud is just crazy.
-
-Comments?
-
-		Linus
-
-----
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 86e69b7..02326b2 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -52,14 +52,39 @@ static void handle_update(void *data);
-  * The mutex locks both lists.
-  */
- static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
--static struct srcu_notifier_head cpufreq_transition_notifier_list;
- 
--static int __init init_cpufreq_transition_notifier_list(void)
-+/*
-+ * This is horribly horribly ugly.
-+ *
-+ * We really want to initialize the transition notifier list
-+ * statically and just once, but there is no static way to
-+ * initialize a srcu lock, so we instead make up all this nasty
-+ * infrastructure to make sure it's initialized when we use it.
-+ *
-+ * Bleaargh.
-+ */
-+static struct srcu_notifier_head *cpufreq_transition_notifier_list(void)
- {
--	srcu_init_notifier_head(&cpufreq_transition_notifier_list);
--	return 0;
-+	static struct srcu_notifier_head *initialized;
-+	struct srcu_notifier_head *ret;
-+
-+	ret = initialized;
-+	if (!ret) {
-+		static DEFINE_MUTEX(init_lock);
-+
-+		mutex_lock(&init_lock);
-+		ret = initialized;
-+		if (!ret) {
-+			static struct srcu_notifier_head list_head;
-+			ret = &list_head;
-+			srcu_init_notifier_head(ret);
-+			smp_wmb();
-+			initialized = ret;
-+		}
-+		mutex_unlock(&init_lock);
-+	}
-+	return ret;
- }
--core_initcall(init_cpufreq_transition_notifier_list);
- 
- static LIST_HEAD(cpufreq_governor_list);
- static DEFINE_MUTEX (cpufreq_governor_mutex);
-@@ -268,14 +293,14 @@ void cpufreq_notify_transition(struct cp
- 				freqs->old = policy->cur;
- 			}
- 		}
--		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(cpufreq_transition_notifier_list(),
- 				CPUFREQ_PRECHANGE, freqs);
- 		adjust_jiffies(CPUFREQ_PRECHANGE, freqs);
- 		break;
- 
- 	case CPUFREQ_POSTCHANGE:
- 		adjust_jiffies(CPUFREQ_POSTCHANGE, freqs);
--		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(cpufreq_transition_notifier_list(),
- 				CPUFREQ_POSTCHANGE, freqs);
- 		if (likely(policy) && likely(policy->cpu == freqs->cpu))
- 			policy->cur = freqs->new;
-@@ -1055,7 +1080,7 @@ static int cpufreq_suspend(struct sys_de
- 		freqs.old = cpu_policy->cur;
- 		freqs.new = cur_freq;
- 
--		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(cpufreq_transition_notifier_list(),
- 				    CPUFREQ_SUSPENDCHANGE, &freqs);
- 		adjust_jiffies(CPUFREQ_SUSPENDCHANGE, &freqs);
- 
-@@ -1137,7 +1162,7 @@ static int cpufreq_resume(struct sys_dev
- 			freqs.new = cur_freq;
- 
- 			srcu_notifier_call_chain(
--					&cpufreq_transition_notifier_list,
-+					cpufreq_transition_notifier_list(),
- 					CPUFREQ_RESUMECHANGE, &freqs);
- 			adjust_jiffies(CPUFREQ_RESUMECHANGE, &freqs);
- 
-@@ -1183,7 +1208,7 @@ int cpufreq_register_notifier(struct not
- 	switch (list) {
- 	case CPUFREQ_TRANSITION_NOTIFIER:
- 		ret = srcu_notifier_chain_register(
--				&cpufreq_transition_notifier_list, nb);
-+				cpufreq_transition_notifier_list(), nb);
- 		break;
- 	case CPUFREQ_POLICY_NOTIFIER:
- 		ret = blocking_notifier_chain_register(
-@@ -1215,7 +1240,7 @@ int cpufreq_unregister_notifier(struct n
- 	switch (list) {
- 	case CPUFREQ_TRANSITION_NOTIFIER:
- 		ret = srcu_notifier_chain_unregister(
--				&cpufreq_transition_notifier_list, nb);
-+				cpufreq_transition_notifier_list(), nb);
- 		break;
- 	case CPUFREQ_POLICY_NOTIFIER:
- 		ret = blocking_notifier_chain_unregister(
+-- 
+Miguel Ojeda
+http://maxextreme.googlepages.com/index.htm

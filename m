@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424012AbWKPPgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424183AbWKPPin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424012AbWKPPgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424177AbWKPPgg
+	id S1424183AbWKPPin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 10:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424182AbWKPPin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:36:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37325 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1424012AbWKPPgf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:36:35 -0500
-Message-ID: <455C8520.8060109@redhat.com>
-Date: Thu, 16 Nov 2006 10:34:56 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Thu, 16 Nov 2006 10:38:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39831 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1424178AbWKPPim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 10:38:42 -0500
+Date: Thu, 16 Nov 2006 15:38:39 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Miguel Ojeda <maxextreme@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Luming Yu <Luming.yu@intel.com>, Andrew Zabolotny <zap@homelink.ru>,
+       linux-acpi@vger.kernel.org
+Subject: Re: ACPI output/lcd/auxdisplay mess
+In-Reply-To: <653402b90611160045s6ddf1305jdb262ee55b0f16bf@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611161450180.31960@pentafluge.infradead.org>
+References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org> 
+ <653402b90611141426y6db15a3bh8ea59f89c8f1bb39@mail.gmail.com> 
+ <Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org>
+ <653402b90611160045s6ddf1305jdb262ee55b0f16bf@mail.gmail.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, Eric Dumazet <dada1@cosmosbay.com>,
-       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
-       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
-       Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061116032109.GG9579@bingen.suse.de> <20061115210501.feaf230c.akpm@osdl.org> <200611160804.31806.ak@suse.de>
-In-Reply-To: <200611160804.31806.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 16 November 2006 06:05, Andrew Morton wrote:
-> 
->>On Thu, 16 Nov 2006 04:21:09 +0100
->>Andi Kleen <ak@suse.de> wrote:
->>
->>
->>>>If it's really true that oprofile is simply busted then that's a serious
->>>>problem and we should find some way of unbusting it.  If that means just
->>>>adding a dummy "0" entry which always returns zero or something like that,
->>>>then fine.
->>>
->>>That could be probably done.
->>
->>I'm told that this is exactly what it was doing before it got changed.
-> 
-> 
-> Hmm, ok perhaps that can be arranged again.
-> 
-> The trouble is that I want to use this performance counter for
-> other purposes too, so we would run into trouble again 
-> if oprofile keeps stealing it.
 
-What other purposes do you see the performance counters useful for? To collect 
-information on process characteristics so they can be scheduled more efficiently?
+> > Is it a framebuffer device ? The framebuffer layer is abstracted to work
+> > with such devices.
+> > 
+> 
+> cfag12864bcfb is a "fbdev" (actually, it is a "fb wrapper" for
+> cfag12864b, so it behaves like a framebuffer, although it is not an
+> usual framebuffer. f.e. it has asynchronous refresh rate, a mmaped
+> page to appear to be a fb...).
 
-Is this going to require sharing the nmi interrupt and knowing which perfcounter 
-register triggered the interrupt to get the correct action?  Currently the 
-oprofile interrupt handler assumes any performance monitoring counter it sees 
-overflowing is something it should count.
+BTW to use it as a fb you need to set the FILLRECT etc. See Kconfig in the 
+drivers/video directory and look at one of the graphic card examples.
+ 
+> Still, it is not the front panel lcd of any specific device like PDA,
+> so people that expects only their primary video/ displays may be
+> confused if it appears at such section. So we decided to go away from
+> video/. Maybe we can change the description, as right now it only
+> refers to front panel lcds.
 
--Will
+  Neither is a monitor for a PC desktop. That is why we have ddc. If I 
+take a desktop with more than one video card and swap the lcd monitors 
+the lcd monitor data remains the same. As soon as the display device is 
+attached to the graphics card the graphics card will then communicate 
+with the monitor to retrieve data. For example if the mode of the 
+graphics card is set to 1900x1080 which is supported by the current 
+monitor. Then we swap it for a CRT that supports only 1280x1024 then in 
+that case when the graphics card probes the CRT it will change the 
+resolution to the maximum that is supported by the CRT. 
+  Currently the fbdev layer handles all this with struct fb_monspecs. Now
+I know that structure doesn't cover everything. Nor does it handle 
+multiple displays attached to one piece of hardware. These where things I 
+was hoping to fix. Now that there are display devices that can handle 
+there own power management I have no problem having another sysfs device
+to handle it. A representation that is more generic than lcd in the 
+backlight directory. Like the output device suggested by Yu. Of course I'm 
+not fond of that name. Display would be better. 
+

@@ -1,68 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933494AbWKPNj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424053AbWKPNxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933494AbWKPNj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 08:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933490AbWKPNj0
+	id S1424053AbWKPNxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 08:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933502AbWKPNxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 08:39:26 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:2945 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S933494AbWKPNjZ (ORCPT
+	Thu, 16 Nov 2006 08:53:15 -0500
+Received: from rtr.ca ([64.26.128.89]:4100 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S933501AbWKPNxO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 08:39:25 -0500
-Message-ID: <363684361.17920@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 16 Nov 2006 21:39:19 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/28] readahead: state based method - aging accounting
-Message-ID: <20061116133919.GA6645@mail.ustc.edu.cn>
-Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061115075007.832957580@localhost.localdomain> <363577024.21908@ustc.edu.cn> <Pine.LNX.4.64.0611150853510.19227@schroedinger.engr.sgi.com>
+	Thu, 16 Nov 2006 08:53:14 -0500
+Message-ID: <455C6D48.8040501@rtr.ca>
+Date: Thu, 16 Nov 2006 08:53:12 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611150853510.19227@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Alberto Alonso <alberto@ggsys.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: qstor driver -> irq 193: nobody cared
+References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca>	 <1163363479.3423.8.camel@w100>  <45588132.9090200@rtr.ca>	 <1163479852.3340.9.camel@w100>  <4559F2EE.7080309@rtr.ca>	 <1163528258.3340.23.camel@w100>  <455A09A5.2020200@rtr.ca> <1163658952.3416.13.camel@w100>
+In-Reply-To: <1163658952.3416.13.camel@w100>
+Content-Type: multipart/mixed;
+ boundary="------------060201070804060309050006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 08:54:44AM -0800, Christoph Lameter wrote:
-> On Wed, 15 Nov 2006, Wu Fengguang wrote:
+This is a multi-part message in MIME format.
+--------------060201070804060309050006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Alberto Alonso wrote:
+> Sorry for the long delay, I've been called on too
+> many issues at work this week.
 > 
-> > Collect info about the global available memory and its consumption speed.
-> > The data are used by the stateful method to estimate the thrashing threshold.
-> 
-> Looks like you should use a ZVC counter for total scanned. See 
-> include/linux/mmzone.h.
+> Anyway, the patch basically made the drives not usable.
 
-OK.
+Mmm.. Okay, thanks for helping track this down.
 
-By using zone.total_scanned, I have chose an easy way :)
+It appears that this got broken when the ATA_TFLAG_POLLING
+got introduced into libata, replacing previous checks of ATA_NIEN.
+Or maybe even before that.  Not many of us have qstor cards!
 
-To do the general vm timing in something like zone.vm_stat[NR_SCAN_INACTIVE],
-a set of new functions will be required:
+Speaking of which, I'll dig my own qstor card out of mothballs soon,
+and work out a proper fix for it soon-ish.
 
-        global_page_state_raw()
-        zone_page_state_raw()
-        node_page_state_raw()
+In the meanwhile, could you take a clean kernel, and apply the first
+attached patch (qstor_spurious_1.patch), and see if it fixes things.
 
-They do not check overflows, so that we can do
+If not, then you can instead apply the second patch (qstor_spurious_kludge.patch)
+and your problems should disappear.  But I cannot actually push that rubbish
+upstream, so a "proper" fix will have to come later.
 
-        time_elapsed = new_raw_value - old_raw_value;
+Cheers
 
-However, before introducing the ugly *_raw() functions, I'd like to know if
+--------------060201070804060309050006
+Content-Type: text/x-patch;
+ name="qstor_spurious_1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="qstor_spurious_1.patch"
 
-        #ifdef CONFIG_SMP
-                if (x < 0)
-                        x = 0;
-        #endif  
+--- linux/drivers/scsi/sata_qstor.c.orig	2006-09-19 23:42:06.000000000 -0400
++++ linux/drivers/scsi/sata_qstor.c	2006-11-16 08:46:43.000000000 -0500
+@@ -399,6 +399,7 @@
+ 			if (ap && !(ap->flags & ATA_FLAG_DISABLED)) {
+ 				struct ata_queued_cmd *qc;
+ 				struct qs_port_priv *pp = ap->private_data;
++				ata_check_status(ap); /* kill spurious ints */
+ 				if (!pp || pp->state != qs_state_pkt)
+ 					continue;
+ 				qc = ata_qc_from_tag(ap, ap->active_tag);
 
-really helps some big NUMA system. I suspect object counters like
-NR_FILE_PAGES will _never_ overflow, and an accumulated counter like
-NR_VMSCAN_WRITE is expected to overflow. In either case, it is ok to
-return an unsigned long raw counter.
+--------------060201070804060309050006
+Content-Type: text/x-patch;
+ name="qstor_spurious_kludge.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="qstor_spurious_kludge.patch"
 
-Regards,
-Wu
+--- linux/drivers/scsi/sata_qstor.c.orig	2006-09-19 23:42:06.000000000 -0400
++++ linux/drivers/scsi/sata_qstor.c	2006-11-16 08:49:57.000000000 -0500
+@@ -423,7 +423,7 @@
+ 
+ static inline unsigned int qs_intr_mmio(struct ata_host_set *host_set)
+ {
+-	unsigned int handled = 0, port_no;
++	unsigned int handled = 1, port_no;
+ 
+ 	for (port_no = 0; port_no < host_set->n_ports; ++port_no) {
+ 		struct ata_port *ap;
+@@ -432,13 +432,13 @@
+ 		    !(ap->flags & ATA_FLAG_DISABLED)) {
+ 			struct ata_queued_cmd *qc;
+ 			struct qs_port_priv *pp = ap->private_data;
++			u8 status = ata_check_status(ap);
+ 			if (!pp || pp->state != qs_state_mmio)
+ 				continue;
+ 			qc = ata_qc_from_tag(ap, ap->active_tag);
+ 			if (qc && (!(qc->tf.flags & ATA_TFLAG_POLLING))) {
+ 
+ 				/* check main status, clearing INTRQ */
+-				u8 status = ata_check_status(ap);
+ 				if ((status & ATA_BUSY))
+ 					continue;
+ 				DPRINTK("ata%u: protocol %d (dev_stat 0x%X)\n",
+
+--------------060201070804060309050006--

@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423801AbWKPU3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424437AbWKPUjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423801AbWKPU3l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 15:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424467AbWKPU3l
+	id S1424437AbWKPUjq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 15:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424454AbWKPUjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 15:29:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:60077 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423801AbWKPU3j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 15:29:39 -0500
-Date: Thu, 16 Nov 2006 12:23:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: ebiederm@xmission.com (Eric W. Biederman), Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
-       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
-       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-Message-Id: <20061116122358.996fdbb3.akpm@osdl.org>
-In-Reply-To: <17756.17330.974883.486535@alkaid.it.uu.se>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	<200611151945.31535.ak@suse.de>
-	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
-	<200611152023.53960.ak@suse.de>
-	<20061115122118.14fa2177.akpm@osdl.org>
-	<m18xic4den.fsf@ebiederm.dsl.xmission.com>
-	<20061115133121.8d9d621f.akpm@osdl.org>
-	<17756.17330.974883.486535@alkaid.it.uu.se>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 15:39:46 -0500
+Received: from aa013msr.fastwebnet.it ([85.18.95.73]:24228 "EHLO
+	aa013msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1424437AbWKPUjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 15:39:45 -0500
+Date: Thu, 16 Nov 2006 21:39:27 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, bcollins@debian.org
+Subject: Re: 2.6.19-rc5-mm2
+Message-ID: <20061116203926.GA3314@inferi.kami.home>
+Mail-Followup-To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux1394-devel@lists.sourceforge.net, bcollins@debian.org
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061116171715.GA3645@inferi.kami.home> <455CAE0F.1080502@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455CAE0F.1080502@s5r6.in-berlin.de>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.19-rc5-mm2-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 11:55:46 +0100
-Mikael Pettersson <mikpe@it.uu.se> wrote:
-
-> Andrew Morton writes:
->  > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
->  > to then put the NMI back to doing the watchdog thing after oprofile has
->  > finished with it.
+On Thu, Nov 16, 2006 at 07:29:35PM +0100, Stefan Richter wrote:
+> Mattia Dongili wrote:
+> > got the following when removing ohci1394 (also happens in -mm1),
+> ...
+> > ieee1394: Node removed: ID:BUS[0-00:1023]  GUID[080046030227e7bb]
+> > ieee1394: Node removed: ID:BUS[20754571-38:0391]  GUID[00000000f8eb5067]
 > 
-> Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
-> the in-kernel API allowing real performance counter drivers like
-> oprofile (and perfctr) to claim the HW from the NMI watchdog,
-> do their work, and then release it which resumed the watchdog.
+> Hm, there is garbage in this node data. Moreover, your full logs show
+> that there was never another node added besides the host node. IOW the
+> second "Node removed" line shouldn't be there. Very strange.
+> 
+> > BUG: unable to handle kernel NULL pointer dereference at virtual address 000000a4
+> ...
+> > EIP is at class_device_remove_attrs+0xd/0x34
+> ...
+> 
+> Could you also test one or even better both of:
+>  - 2.6.19-rc5 plus
+> http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.19-rc5/2.6.19-rc5_ieee1394_v204_experimental.patch.bz2
+> (these are the same FireWire drivers as in -rc5-mm2)
 
-OK.  But from Andi's comments it seems that the NMI watchdog was failing to
-resume its operation.
+the oops disappear
 
-> Note that oprofile (and perfctr) didn't do anything behind the
-> NMI watchdog's back. They went via the API. Nothing dodgy going on.
+> and/ or
+>  - 2.6.19-rc5-mm2 minus
+> http://www.it.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/git-ieee1394.patch
+
+the oops is there again.
+I suppose git-ieee1394 is the one then...
+
+dmesg:
+http://oioio.altervista.org/linux/2.6.19-rc5-test1-ok
+http://oioio.altervista.org/linux/2.6.19-rc5-mm2-1-ko
+
+next step (smells like bisection) if for tomorrow :)
+-- 
+mattia
+:wq!

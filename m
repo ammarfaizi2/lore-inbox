@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423697AbWKPK06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423694AbWKPKaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423697AbWKPK06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423712AbWKPK05
+	id S1423694AbWKPKaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423742AbWKPKaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:26:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15513 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1423697AbWKPK05 (ORCPT
+	Thu, 16 Nov 2006 05:30:06 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:41372 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423694AbWKPKaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:26:57 -0500
-Date: Thu, 16 Nov 2006 11:21:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+	Thu, 16 Nov 2006 05:30:02 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch, -rc6] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
+Date: Thu, 16 Nov 2006 11:29:56 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: [patch, -rc6] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
-Message-ID: <20061116102115.GA8379@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <20061116102115.GA8379@elte.hu>
+In-Reply-To: <20061116102115.GA8379@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -3.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.3 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_05 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
-	[score: 0.0213]
-	0.4 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Disposition: inline
+Message-Id: <200611161129.56502.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
-From: Ingo Molnar <mingo@elte.hu>
+On Thursday 16 November 2006 11:21, Ingo Molnar wrote:
+> Subject: [patch] x86_64: UP build fix, arch/x86_64/kernel/mce_amd.c
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> fix x86_64/kernel/mce_amd.c build bug:
+> 
+>  arch/x86_64/kernel/mce_amd.c: In function ‘threshold_remove_bank’:
+>  arch/x86_64/kernel/mce_amd.c:597: error: ‘shared_bank’ undeclared (first use in this function)
+>  arch/x86_64/kernel/mce_amd.c:597: error: (Each undeclared identifier is reported only once
+>  arch/x86_64/kernel/mce_amd.c:597: error: for each function it appears in.)
+>  make[1]: *** [arch/x86_64/kernel/mce_amd.o] Error 1
+>  make: *** [arch/x86_64/kernel/mce_amd.o] Error 2
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-fix x86_64/kernel/mce_amd.c build bug:
 
- arch/x86_64/kernel/mce_amd.c: In function ‘threshold_remove_bank’:
- arch/x86_64/kernel/mce_amd.c:597: error: ‘shared_bank’ undeclared (first use in this function)
- arch/x86_64/kernel/mce_amd.c:597: error: (Each undeclared identifier is reported only once
- arch/x86_64/kernel/mce_amd.c:597: error: for each function it appears in.)
- make[1]: *** [arch/x86_64/kernel/mce_amd.o] Error 1
- make: *** [arch/x86_64/kernel/mce_amd.o] Error 2
+Hmm, it builds for me.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- arch/x86_64/kernel/mce_amd.c |    2 ++
- 1 file changed, 2 insertions(+)
+% grep SMP .config
+CONFIG_BROKEN_ON_SMP=y
+# CONFIG_X86_VSMP is not set
+# CONFIG_SMP is not set
+% grep MCE_AMD .config
+CONFIG_X86_MCE_AMD=y
+% ls -l vmlinux 
+-rwxr-xr-x  1 andi users 9174494 2006-11-16 10:20 vmlinux
 
-Index: linux/arch/x86_64/kernel/mce_amd.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/mce_amd.c
-+++ linux/arch/x86_64/kernel/mce_amd.c
-@@ -593,12 +593,14 @@ static void threshold_remove_bank(unsign
- 
- 	sprintf(name, "threshold_bank%i", bank);
- 
-+#ifdef CONFIG_SMP
- 	/* sibling symlink */
- 	if (shared_bank[bank] && b->blocks->cpu != cpu) {
- 		sysfs_remove_link(&per_cpu(device_mce, cpu).kobj, name);
- 		per_cpu(threshold_banks, cpu)[bank] = NULL;
- 		return;
- 	}
-+#endif
- 
- 	/* remove all sibling symlinks before unregistering */
- 	for_each_cpu_mask(i, b->cpus) {
+(basically just defconfig with CONFIG_SMP disabled) 
+
+Perhaps a include ordering problem?  Can you send your .config?
+
+-Andi
+

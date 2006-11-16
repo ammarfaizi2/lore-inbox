@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162108AbWKPA0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162113AbWKPAaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162108AbWKPA0V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 19:26:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162112AbWKPA0V
+	id S1162113AbWKPAaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 19:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162115AbWKPAaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 19:26:21 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:30160 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1162108AbWKPA0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 19:26:20 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have no memory
-Date: Thu, 16 Nov 2006 01:26:01 +0100
-User-Agent: KMail/1.9.5
-Cc: Martin Bligh <mbligh@mbligh.org>, Christian Krafft <krafft@de.ibm.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20061115193049.3457b44c@localhost> <455B8F3A.6030503@mbligh.org> <Pine.LNX.4.64.0611151440400.23201@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0611151440400.23201@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Nov 2006 19:30:08 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:22409 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1162113AbWKPAaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 19:30:06 -0500
+Date: Wed, 15 Nov 2006 19:28:36 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, rjw@sisk.pl, pavel@suse.cz, ebiederm@xmission.com,
+       hpa@zytor.com, Reloc Kernel List <fastboot@lists.osdl.org>,
+       magnus.damm@gmail.com, ak@suse.de, Don Zickus <dzickus@redhat.com>,
+       Linda Wang <lwang@redhat.com>
+Subject: Re: [Fastboot] [RFC] [PATCH 10/16] x86_64: 64bit PIC ACPI wakeup
+Message-ID: <20061116002836.GG9039@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061113162135.GA17429@in.ibm.com> <20061113164314.GK17429@in.ibm.com> <20061115212411.GF9039@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611160126.02016.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <20061115212411.GF9039@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 23:41, Christoph Lameter wrote:
-> On Wed, 15 Nov 2006, Martin Bligh wrote:
-> > A node is an arbitrary container object containing one or more of:
-> >
-> > CPUs
-> > Memory
-> > IO bus
+On Wed, Nov 15, 2006 at 04:24:11PM -0500, Vivek Goyal wrote:
+> On Mon, Nov 13, 2006 at 11:43:14AM -0500, Vivek Goyal wrote:
+> > 
+> > 
+> > - Killed lots of dead code
+> > - Improve the cpu sanity checks to verify long mode
+> >   is enabled when we wake up.
+> > - Removed the need for modifying any existing kernel page table.
+> > - Moved wakeup_level4_pgt into the wakeup routine so we can
+> >   run the kernel above 4G.
+> > - Increased the size of the wakeup routine to 8K.
+> > - Renamed the variables to use the 64bit register names.
+> > - Lots of misc cleanups to match trampoline.S
+> > 
+> > I don't have a configuration I can test this but it compiles cleanly
+> > and it should work, the code is very similar to the SMP trampoline,
+> > which I have tested.  At least now the comments about still running in
+> > low memory are actually correct.
+> > 
+> > Vivek has tested this patch for suspend to memory and it works fine.
+> > 
+> 
+> More update. Got hold of another machine and suspend/resume seems to be
+> facing problems.
+> 
+> With 2.6.19-rc5-git2
+> --------------------
+> - echo 3 > /proc/acpi/sleep (Suspend to memory takes place)
+> - Press power button (System tries to come back but fails in MPT adapter
+> 			initialization)
+> 
+> With 2.6.19-rc5-git2 + Reloc patches
+> ------------------------------------
+> - echo 3 > /proc/acpi/sleep (Suspend to memory takes place)
+> - Press power button (Fan powers on but nothing additional is displayed on
+> 			serial console.)
+> 
+> Will do a bisect and try to isolate the problem.
+> 
 
-+ SPUs on a Cell processor
+Ok. In the new code NX bit protection feature is not being enabled and that
+seems to be causing the problem. I checked and enabled the NX bit feature
+in EFER in wakeup.S and it starts working.
 
-> > It does not have to contain memory.
->
-> I have never seen a node on Linux without memory. I have seen nodes
-> without processors and without I/O but not without memory.This seems to be
-> something new?
+I think my new machine supports NX bit protection feature and if while
+resuming if I don't enable that feature back probably it must have caused
+a GPF while loading the page tables which have got NX bit set. (A guess).
 
-In this particular case, we have a dual-socket Cell/B.E. blade server,
-where each of the two CPU-socket/south-bridge/memory combinations is
-treated as a separate node. The two points that make this tricky
-are:
+I know that previous machine I was testing on does not support NX bit
+feature and that could be the reason that previous machine did not run into
+the problems.
 
-- we want to be able to boot with the 'mem=512M' option, which effectively
-  disables the memory on the second node (each node has 512MiB).
-- Each node has 8 SPUs, all of which we want to use. In order to use an
-  SPU, we call __add_pages to register the local memory on it, so we have
-  struct page pointers we can hand out to user mappings with ->nopage().
-
-The __add_pages call needs to do node local allocations (there are
-probably more allocations that have the same problem, but this is the
-first one that crashes), which oops when there is no memory registered
-at all for that node, instead of returning an error or falling back
-on a non-local allocation.
-
-	Arnd <><
+Thanks
+Vivek

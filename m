@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424727AbWKPV7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424734AbWKPWBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424727AbWKPV7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424728AbWKPV7L
+	id S1424734AbWKPWBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 17:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424735AbWKPWBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:59:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:1445 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1424727AbWKPV7J (ORCPT
+	Thu, 16 Nov 2006 17:01:44 -0500
+Received: from usea-naimss2.unisys.com ([192.61.61.104]:15374 "EHLO
+	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S1424734AbWKPWBn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:59:09 -0500
-Date: Thu, 16 Nov 2006 16:57:36 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 00/30] -stable review
-Message-ID: <20061116215735.GH3983@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>,
-	Chris Wedgwood <reviews@ml.cw.f00f.org>,
-	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-References: <20061116024332.124753000@sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061116024332.124753000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 16 Nov 2006 17:01:43 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: How to go about debuging a system lockup?
+Date: Thu, 16 Nov 2006 16:01:03 -0600
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D87@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: How to go about debuging a system lockup?
+Thread-Index: AccJyrVgcshUufYbSgSl4HvsedN+pQ==
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 16 Nov 2006 22:01:03.0532 (UTC) FILETIME=[B56EA6C0:01C709CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2006 at 06:43:32PM -0800, Chris Wright wrote:
- > This is the start of the stable review cycle for the 2.6.18.3 release.
- > There are 30 patches in this series, all will be posted as a response to
- > this one.  If anyone has any issues with these being applied, please let
- > us know.  If anyone is a maintainer of the proper subsystem, and wants
- > to add a Signed-off-by: line to the patch, please respond with it.
- > 
- > These patches are sent out with a number of different people on the
- > Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
- > to add your name to the list.  If you want to be off the reviewer list,
- > also email us.
- > 
- > Responses should be made by Sat Nov 18 02:35 UTC.  Anything received
- > after that time might be too late.
+> I don't know of a good version yet.  I so far don't know if there ever
+> was one.  This could even be a bug in the PCI hardware, or the way the
+> BIOS on this system on a board configured the PCI controller.  Maybe I
+> should go back and try a 2.4 kernel.
+> 
+> > Hope some of that helps :)
+> 
+> Well hopefully.
+> 
 
-No handy -pre rollup this time ?
+If you can't drop in kdb, or no sysreq, then your interrupts are
+disabled. I used to be (with older systems anyway) that NMI button was
+on the system, so one could send an NMI and make the handler to print a
+trace. Newer systems might not have that, so you can built your own PCI
+card to send an NMI :)
+Another possibility is to use port 80 and make suspicious code print
+something to it. Once we used a small self-built thing with LEDs to
+catch the output to the parallel port while debugging silent boot
+failure. There are some port 80 cards that you can buy:
+http://auctions.yahoo.com/i:Port%2080%20Card%20and%20power%20supply%20te
+ster:102201489
+http://www.amazon.com/gp/product/B000234U3I/ref=pd_cp_e_title/103-887558
+8-5330221
 
-		Dave
+If your system has a jtag then in target probe would be useful if you
+have one (or can borrow one, those are expensive).
 
--- 
-http://www.codemonkey.org.uk
+--Natalie
+

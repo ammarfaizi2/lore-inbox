@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162144AbWKPSi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424311AbWKPSjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162144AbWKPSi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 13:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162151AbWKPSi2
+	id S1424311AbWKPSjy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 13:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424309AbWKPSjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 13:38:28 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:17671 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1162144AbWKPSi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 13:38:27 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Chris Leadbeater <chris@webteks.co.uk>
-Subject: Re: Kernel.org server problems?
-Date: Thu, 16 Nov 2006 18:38:26 +0000
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <455C79CE.2010800@webteks.co.uk> <200611161740.35628.s0348365@sms.ed.ac.uk> <455CA665.4020701@webteks.co.uk>
-In-Reply-To: <455CA665.4020701@webteks.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 13:39:54 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57550 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1424304AbWKPSjx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 13:39:53 -0500
+Date: Thu, 16 Nov 2006 10:38:47 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org, mb@bu3sch.de,
+       greg@kroah.com, "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: [patch 07/30] bcm43xx: Drain TX status before starting IRQs
+Message-ID: <20061116183847.GE1397@sequoia.sous-sol.org>
+References: <20061116024332.124753000@sous-sol.org> <20061116024511.458086000@sous-sol.org> <455C8D39.3080001@lwfinger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611161838.26952.s0348365@sms.ed.ac.uk>
+In-Reply-To: <455C8D39.3080001@lwfinger.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 November 2006 17:56, Chris Leadbeater wrote:
-> Alistair John Strachan wrote:
-> > On Thursday 16 November 2006 14:46, Chris wrote:
-> >> Hi,
-> >>
-> >> Don't know if this is the correct place to bring this up but
-> >> /pub/linux/kernel/* seems to be unavailable on kernel.org via FTP. Both
-> >> my linux box and my work Windows box can connect to kernel.org, but
-> >> cding to the directory (I'm on the Windoze machine at the moment) gives:
-> >>
-> >> 230 Login successful.
-> >> ftp> cd pub
-> >> 250 Directory successfully changed.
-> >> ftp> cd linux
-> >> 250 Directory successfully changed.
-> >> ftp> cd kernel
-> >> 250 Directory successfully changed.
-> >> ftp> cd v2.6
-> >> (after about 30 seconds)
-> >> Connection closed by remote host.
-> >>
-> >> www.kernel.org via http seems to be REALLY slow as well.
-> >
-> > Git's also broken. This has become a major problem in recent months..
->
-> Thanks for letting us know, the regional mirrors (for ftp.kernel.org, at
-> least) seem to work perfectly though.
+* Larry Finger (Larry.Finger@lwfinger.net) wrote:
+> We have a report of a regression between 2.6.19-rc3 and -rc5. As this patch 
+> seems to be the only one that could cause the problem, please pull it from 
+> -stable while we sort out the difficulty.
 
-Git doesn't seem to be mirrored regionally.
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Thanks a lot for the heads up Larry, dropping this one.
+-chris

@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161947AbWKPHEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161948AbWKPHH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161947AbWKPHEv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 02:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161948AbWKPHEv
+	id S1161948AbWKPHH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 02:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161958AbWKPHH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 02:04:51 -0500
-Received: from ns2.suse.de ([195.135.220.15]:34277 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161947AbWKPHEu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 02:04:50 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-Date: Thu, 16 Nov 2006 08:04:31 +0100
-User-Agent: KMail/1.9.5
-Cc: Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       William Cohen <wcohen@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>,
-       Komuro <komurojun-mbn@nifty.com>, Ernst Herzberg <earny@net4u.de>,
-       Andre Noll <maan@systemlinux.org>, oprofile-list@lists.sourceforge.net,
-       Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061116032109.GG9579@bingen.suse.de> <20061115210501.feaf230c.akpm@osdl.org>
-In-Reply-To: <20061115210501.feaf230c.akpm@osdl.org>
+	Thu, 16 Nov 2006 02:07:26 -0500
+Received: from wx-out-0506.google.com ([66.249.82.229]:27370 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1161950AbWKPHHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 02:07:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=jucx0M9jzGlGzTpZGbEgaGT6OmOeFkhvozp0+HPz08z10+q0mtYtzuAOM/gBvJV4R190V5LMn4Z/S5PLjhOsuUiyDeENXL+6WsR759tRvKNA7Cc+UZOjLN/R+LRpPA2vhfFj8GY/uCs2+KTcTML637wrCEorT7cOxKJAPyXP+ik=
+Message-ID: <9b33a9230611152307x6580a290n652ee50d9a5bda0c@mail.gmail.com>
+Date: Thu, 16 Nov 2006 12:37:24 +0530
+From: "sudhnesh adapawar" <sudhnesh@gmail.com>
+To: kernelnewbies@nl.linux.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: How does the ski simulator resolves the dependency on shared libraries?
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611160804.31806.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 November 2006 06:05, Andrew Morton wrote:
-> On Thu, 16 Nov 2006 04:21:09 +0100
-> Andi Kleen <ak@suse.de> wrote:
-> 
-> > > 
-> > > If it's really true that oprofile is simply busted then that's a serious
-> > > problem and we should find some way of unbusting it.  If that means just
-> > > adding a dummy "0" entry which always returns zero or something like that,
-> > > then fine.
-> > 
-> > That could be probably done.
-> 
-> I'm told that this is exactly what it was doing before it got changed.
+Hey all,
+          How does the ski simulator resolves the dependency on shared
+libraries?
+              For e.g: I tried 'ls' command on xski but i failed to run it :
+[root@basemant /]# xski ls vmlinux simscsi=/var/ski-disks/sd
+ls - No such file or directory
+ls - No such file or directory
+xski: Could not open ls for reading
+[root@basemant /]# which ls
+alias ls='ls --color=tty'
+       /bin/ls
+[root@basemant /]# xski /bin/ls vmlinux simscsi=/var/ski-disks/sd
+/bin/ls - wrong architecture (3)
+xski: Could not open /bin/ls for reading
+[root@basemant /]#
 
-Hmm, ok perhaps that can be arranged again.
+Please kindly reply !
 
-The trouble is that I want to use this performance counter for
-other purposes too, so we would run into trouble again 
-if oprofile keeps stealing it.
-
-> > > But we can't just go and bust it.
-> > 
-> > It just did something unbelievable broken before.
-> 
-> What did it do?
-
-Silently kill the nmi watchdog.
-
-> 
-> > I would say it busted
-> > itself.
-> 
-> It gave profiles, which was fairly handy.
-
-I'm sure it can be fixed there. Ok ok I keep sounding like a sysfs maintainer
-now @)
-
--Andi
+- Sudhnesh

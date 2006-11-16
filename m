@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162270AbWKPE2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162277AbWKPE3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162270AbWKPE2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 23:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162272AbWKPE2Z
+	id S1162277AbWKPE3w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 23:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162278AbWKPE3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 23:28:25 -0500
-Received: from outbound-ash.frontbridge.com ([206.16.192.249]:45538 "EHLO
-	outbound2-ash-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1162270AbWKPE2Y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 23:28:24 -0500
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Date: Wed, 15 Nov 2006 20:25:01 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA4907209@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Thread-Index: AccI+G+74GXGy7WIQ3ad7MeRPzzpxAAG1HgwAAeB11AAAR5gUA==
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Lu, Yinghai" <yinghai.lu@amd.com>,
-       "Olivier Nicolas" <olivn@trollprod.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
-cc: "Mws" <mws@twisted-brains.org>, "Jeff Garzik" <jeff@garzik.org>,
-       "Krzysztof Halasa" <khc@pm.waw.pl>,
-       "David Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       tiwai@suse.de
-X-OriginalArrivalTime: 16 Nov 2006 04:25:02.0825 (UTC)
- FILETIME=[2F820590:01C70937]
-X-WSS-ID: 694537941WC498782-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Wed, 15 Nov 2006 23:29:52 -0500
+Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:54205 "EHLO
+	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
+	id S1162277AbWKPE3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 23:29:50 -0500
+Subject: Re: [PATCH] cxgb3: Chelsio T3 1G/10G ethernet device driver
+From: Steve WIse <swise@opengridcomputing.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: divy <divy@chelsio.com>, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061115163324.16263201@freekitty>
+References: <455BACB8.4010902@chelsio.com>
+	 <20061115163324.16263201@freekitty>
+Content-Type: text/plain
+Date: Wed, 15 Nov 2006 22:29:48 -0600
+Message-Id: <1163651388.4963.12.camel@linux-q667.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the root cause in hda_intel driver's self.
+On Wed, 2006-11-15 at 16:33 -0800, Stephen Hemminger wrote:
+> On Wed, 15 Nov 2006 16:11:36 -0800
+> divy <divy@chelsio.com> wrote:
+> 
+> > Hi,
+> > 
+> > This patch adds support for the latest Chelsio adapter, T3.
+> > 
+> > Since some files are bigger than the 40kB advertized in the submit
+> > guidelines, a monolithic patch against 2.6.19-rc5 is posted at the
+> > following URL: http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
+> > 
+> > Please advise on any other form you would like to see the code.
+> > 
+> > We wish this patch to be considered for inclusion in 2.6.20. This driver
+> > will be required by the Chelsio T3 RDMA driver which will be posted for
+> > review asap.
+> > 
+> > Cheers,
+> > Divy
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe netdev" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> 
+> This took me an afternoon, so I don't see why Chelsio didn't do it.
+> 
+>     Port of Chelsio's 2.2.0 version driver from:
+>         http://service.chelsio.com/drivers/linux/t210/cxgb2toe-2.2.0.tar.gz
+>     
+>     De-vendorized:
+>         - removed all TCP Offload Engine support because those changes
+>           will not be accepted in mainline kernel.
+>         - new files run through Lindent
+>         - removed code that was '#ifdef' for older kernel versions
+>         - fix for 2.6.19 irq
+>         - replace usage of TSC with ktime
+>         - remove /proc trace debug stuff
+>         - remove dead code
+>         - incorporate GSO, etc.
+>         - get rid of FILE_IDENT() macro
+>         - fix sparse warnings by adding __iomem and __user
+> 
+> Also, I kept as many of the filenames and device names the same since
+> it is really just an extension of existing driver.
+> 
+> I'm testing it now.
+> 
 
-It gets io-apic irq initialized at first, and it will use
-azx_acquire_irq to install handler after check if MSI can be enabled.
-And when it try to enable the MSI, that will start the int in the chip.
-Even handler for MSI is not installed.
+Stephen,
 
-YH
+Divy posted a new driver to support the new Chelsio T3 hardware, not the
+210 hardware.
 
+Steve.
 
 
 

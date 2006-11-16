@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424728AbWKPV7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424727AbWKPV7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424728AbWKPV7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424730AbWKPV7V
+	id S1424727AbWKPV7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424728AbWKPV7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:59:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:12495 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1424728AbWKPV7U (ORCPT
+	Thu, 16 Nov 2006 16:59:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1445 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1424727AbWKPV7J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:59:20 -0500
-Date: Thu, 16 Nov 2006 13:59:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] hotplug CPU: clean up hotcpu_notifier() use
-In-Reply-To: <20061116093228.GA15603@elte.hu>
-Message-ID: <Pine.LNX.4.64.0611161357380.3349@woody.osdl.org>
-References: <20061116084855.GA8848@elte.hu> <20061116090330.GA11312@elte.hu>
- <20061116093228.GA15603@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Nov 2006 16:59:09 -0500
+Date: Thu, 16 Nov 2006 16:57:36 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 00/30] -stable review
+Message-ID: <20061116215735.GH3983@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>,
+	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+References: <20061116024332.124753000@sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061116024332.124753000@sous-sol.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 15, 2006 at 06:43:32PM -0800, Chris Wright wrote:
+ > This is the start of the stable review cycle for the 2.6.18.3 release.
+ > There are 30 patches in this series, all will be posted as a response to
+ > this one.  If anyone has any issues with these being applied, please let
+ > us know.  If anyone is a maintainer of the proper subsystem, and wants
+ > to add a Signed-off-by: line to the patch, please respond with it.
+ > 
+ > These patches are sent out with a number of different people on the
+ > Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+ > to add your name to the list.  If you want to be off the reviewer list,
+ > also email us.
+ > 
+ > Responses should be made by Sat Nov 18 02:35 UTC.  Anything received
+ > after that time might be too late.
 
+No handy -pre rollup this time ?
 
-On Thu, 16 Nov 2006, Ingo Molnar wrote:
->
-> the cpu-hotplug related warning is solved by the cleanup below.
+		Dave
 
-I do not believe this is a cleanup, at least not in this kind of form:
-
-> @@ -1777,8 +1775,8 @@ xfs_icsb_init_counters(
->  #ifdef CONFIG_HOTPLUG_CPU
->  	mp->m_icsb_notifier.notifier_call = xfs_icsb_cpu_notify;
->  	mp->m_icsb_notifier.priority = 0;
-> -	register_hotcpu_notifier(&mp->m_icsb_notifier);
->  #endif /* CONFIG_HOTPLUG_CPU */
-> +	register_hotcpu_notifier(&mp->m_icsb_notifier);
-
-That's just horrible. Now you "register" that notifier that you've never 
-actually even initialized.
-
-The new code is a lot worse than the old code at least in this case.
-
-		Linus
+-- 
+http://www.codemonkey.org.uk

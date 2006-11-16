@@ -1,57 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWKPECw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWKPD7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161363AbWKPECw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 23:02:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161354AbWKPECb
+	id S1161254AbWKPD7n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 22:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031127AbWKPD7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 23:02:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2783 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1162234AbWKPEC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 23:02:26 -0500
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: KDB blindly reads keyboard port 
-In-reply-to: Your message of "Wed, 27 Sep 2006 16:11:00 CST."
-             <200609271611.00701.bjorn.helgaas@hp.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 16 Nov 2006 15:02:19 +1100
-Message-ID: <23616.1163649739@kao2.melbourne.sgi.com>
+	Wed, 15 Nov 2006 22:59:41 -0500
+Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:52409 "EHLO
+	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
+	id S1031113AbWKPD7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 22:59:33 -0500
+From: Steve Wise <swise@opengridcomputing.com>
+Subject: [PATCH  13/13] Kconfig/Makefile
+Date: Wed, 15 Nov 2006 21:59:33 -0600
+To: rdreier@cisco.com
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Message-Id: <20061116035933.22635.7293.stgit@dell3.ogc.int>
+In-Reply-To: <20061116035826.22635.61230.stgit@dell3.ogc.int>
+References: <20061116035826.22635.61230.stgit@dell3.ogc.int>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas (on Wed, 27 Sep 2006 16:11:00 -0600) wrote:
->On Tuesday 26 September 2006 20:45, Keith Owens wrote:
->> No support for legacy I/O ports could be a bigger problem than just
->> KDB.
->
->On Itanium (and I suppose on x86), ACPI theoretically tells us enough
->that we don't need to assume any legacy resources.  Of course, Linux
->doesn't listen to everything ACPI is trying to tell it.  But that's
->a Linux deficiency we should remedy.
->
->> To fix just KDB, apply this patch over kdb-v4.4-2.6.18-common-1 and
->> add 'kdb_skip_keyboard' to the boot command line on the offending
->> hardware. 
->
->This doesn't feel like the right solution.  Since firmware tells us
->whether the device is present, I think we should rely on that.  If
->you want to use the device before ACPI is initialized, *then* you
->should pass a "kdb_use_keyboard" sort of flag.
 
-I implemented this in my kdb tree, but it has a very nasty side effect,
-it stops you from debugging that part of the boot process between kdb
-startup and when the i8042 is probed.  KDB starts up very early so we
-can debug the boot process.  Not being able to use the PC keyboard
-until later in boot is not acceptable.  People using USB keyboards
-already suffer from this problem and it is very frustrating.
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+---
 
-Adding a "kdb_use_keyboard" flag means all existing systems have to
-change if they want a debugger during boot, just to workaround a few
-systems that get an error when reading from non-existent legacy I/O
-ports.  So I am going back to my original idea, add 'kdb_skip_keyboard'
-which is only required on the problem machines.
+ drivers/infiniband/Kconfig              |    1 +
+ drivers/infiniband/Makefile             |    1 +
+ drivers/infiniband/hw/cxgb3/Kconfig     |   27 +++++++++++++++++++++++++++
+ drivers/infiniband/hw/cxgb3/Makefile    |   12 ++++++++++++
+ drivers/infiniband/hw/cxgb3/locking.txt |   25 +++++++++++++++++++++++++
+ 5 files changed, 66 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
+index 59b3932..06453ab 100644
+--- a/drivers/infiniband/Kconfig
++++ b/drivers/infiniband/Kconfig
+@@ -38,6 +38,7 @@ source "drivers/infiniband/hw/mthca/Kcon
+ source "drivers/infiniband/hw/ipath/Kconfig"
+ source "drivers/infiniband/hw/ehca/Kconfig"
+ source "drivers/infiniband/hw/amso1100/Kconfig"
++source "drivers/infiniband/hw/cxgb3/Kconfig"
+ 
+ source "drivers/infiniband/ulp/ipoib/Kconfig"
+ 
+diff --git a/drivers/infiniband/Makefile b/drivers/infiniband/Makefile
+index 570b30a..69bdd55 100644
+--- a/drivers/infiniband/Makefile
++++ b/drivers/infiniband/Makefile
+@@ -3,6 +3,7 @@ obj-$(CONFIG_INFINIBAND_MTHCA)		+= hw/mt
+ obj-$(CONFIG_INFINIBAND_IPATH)		+= hw/ipath/
+ obj-$(CONFIG_INFINIBAND_EHCA)		+= hw/ehca/
+ obj-$(CONFIG_INFINIBAND_AMSO1100)	+= hw/amso1100/
++obj-$(CONFIG_INFINIBAND_CXGB3)		+= hw/cxgb3/
+ obj-$(CONFIG_INFINIBAND_IPOIB)		+= ulp/ipoib/
+ obj-$(CONFIG_INFINIBAND_SRP)		+= ulp/srp/
+ obj-$(CONFIG_INFINIBAND_ISER)		+= ulp/iser/
+diff --git a/drivers/infiniband/hw/cxgb3/Kconfig b/drivers/infiniband/hw/cxgb3/Kconfig
+new file mode 100644
+index 0000000..84f0f6e
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/Kconfig
+@@ -0,0 +1,27 @@
++config INFINIBAND_CXGB3
++	tristate "Chelsio RDMA Driver"
++	depends on CHELSIO_T3 && INFINIBAND
++	select GENERIC_ALLOCATOR
++	---help---
++	  This is an iWARP/RDMA driver for the Chelsio T3 1GbE and
++	  10GbE adapters.
++
++          For general information about Chelsio and our products, visit
++          our website at <http://www.chelsio.com>.
++
++          For customer support, please visit our customer support page at
++          <http://www.chelsio.com/support.htm>.
++
++          Please send feedback to <linux-bugs@chelsio.com>.
++
++          To compile this driver as a module, choose M here: the module
++          will be called iw_cxgb3.
++
++config INFINIBAND_CXGB3_DEBUG
++	bool "Verbose debugging output"
++	depends on INFINIBAND_CXGB3
++	default n
++	---help---
++	  This option causes the Chelsio RDMA driver to produce copious
++	  amounts of debug messages.  Select this if you are developing
++	  the driver or trying to diagnose a problem.
+diff --git a/drivers/infiniband/hw/cxgb3/Makefile b/drivers/infiniband/hw/cxgb3/Makefile
+new file mode 100644
+index 0000000..0df2b3d
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/Makefile
+@@ -0,0 +1,12 @@
++EXTRA_CFLAGS += -I$(TOPDIR)/drivers/net/cxgb3 \
++		-I$(TOPDIR)/drivers/infiniband/hw/cxgb3/core 
++
++obj-$(CONFIG_INFINIBAND_CXGB3) += iw_cxgb3.o
++
++iw_cxgb3-y :=  iwch_cm.o iwch_ev.o iwch_cq.o iwch_qp.o iwch_mem.o \
++	       iwch_provider.o iwch.o core/cxio_hal.o core/cxio_resource.o
++
++ifdef CONFIG_INFINIBAND_CXGB3_DEBUG
++EXTRA_CFLAGS += -DDEBUG -O1 -g 
++iw_cxgb3-y += core/cxio_dbg.o
++endif
+diff --git a/drivers/infiniband/hw/cxgb3/locking.txt b/drivers/infiniband/hw/cxgb3/locking.txt
+new file mode 100644
+index 0000000..e5e9991
+--- /dev/null
++++ b/drivers/infiniband/hw/cxgb3/locking.txt
+@@ -0,0 +1,25 @@
++cq lock:
++	- spin lock
++	- used to synchronize the t3_cq
++
++qp lock:
++	- spin lock
++	- used to synchronize updates to the qp state, attrs, and the t3_wq.
++	- touched on interrupt and process context
++	
++rnicp lock:
++	- spin lock
++	- touched on interrupt and process context
++	- used around lookup tables mapping CQID and QPID to a structure.
++	- used also to bump the refcnt atomically with the lookup.
++
++poll:
++	lock+disable on cq lock
++		lock qp lock for each cqe that is polled around the call
++		to cxio_poll_cq().
++	
++post: 
++	lock+disable qp lock
++
++global mutex iwch_mutex:
++	used to maintain global device list.

@@ -1,272 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWKPEAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWKPECw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161346AbWKPEAr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 23:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031109AbWKPD7L
+	id S1161363AbWKPECw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 23:02:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161354AbWKPECb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 22:59:11 -0500
-Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:42937 "EHLO
-	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
-	id S1031113AbWKPD66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 22:58:58 -0500
-From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  06/13] Completion Queues
-Date: Wed, 15 Nov 2006 21:58:57 -0600
-To: rdreier@cisco.com
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Message-Id: <20061116035857.22635.96296.stgit@dell3.ogc.int>
-In-Reply-To: <20061116035826.22635.61230.stgit@dell3.ogc.int>
-References: <20061116035826.22635.61230.stgit@dell3.ogc.int>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 15 Nov 2006 23:02:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2783 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1162234AbWKPEC0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Nov 2006 23:02:26 -0500
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: KDB blindly reads keyboard port 
+In-reply-to: Your message of "Wed, 27 Sep 2006 16:11:00 CST."
+             <200609271611.00701.bjorn.helgaas@hp.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 16 Nov 2006 15:02:19 +1100
+Message-ID: <23616.1163649739@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bjorn Helgaas (on Wed, 27 Sep 2006 16:11:00 -0600) wrote:
+>On Tuesday 26 September 2006 20:45, Keith Owens wrote:
+>> No support for legacy I/O ports could be a bigger problem than just
+>> KDB.
+>
+>On Itanium (and I suppose on x86), ACPI theoretically tells us enough
+>that we don't need to assume any legacy resources.  Of course, Linux
+>doesn't listen to everything ACPI is trying to tell it.  But that's
+>a Linux deficiency we should remedy.
+>
+>> To fix just KDB, apply this patch over kdb-v4.4-2.6.18-common-1 and
+>> add 'kdb_skip_keyboard' to the boot command line on the offending
+>> hardware. 
+>
+>This doesn't feel like the right solution.  Since firmware tells us
+>whether the device is present, I think we should rely on that.  If
+>you want to use the device before ACPI is initialized, *then* you
+>should pass a "kdb_use_keyboard" sort of flag.
 
-Functions to manipulate CQs.
+I implemented this in my kdb tree, but it has a very nasty side effect,
+it stops you from debugging that part of the boot process between kdb
+startup and when the i8042 is probed.  KDB starts up very early so we
+can debug the boot process.  Not being able to use the PC keyboard
+until later in boot is not acceptable.  People using USB keyboards
+already suffer from this problem and it is very frustrating.
 
-Signed-off-by: Steve Wise <swise@opengridcomputing.com>
----
+Adding a "kdb_use_keyboard" flag means all existing systems have to
+change if they want a debugger during boot, just to workaround a few
+systems that get an error when reading from non-existent legacy I/O
+ports.  So I am going back to my original idea, add 'kdb_skip_keyboard'
+which is only required on the problem machines.
 
- drivers/infiniband/hw/cxgb3/iwch_cq.c |  231 +++++++++++++++++++++++++++++++++
- 1 files changed, 231 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/infiniband/hw/cxgb3/iwch_cq.c b/drivers/infiniband/hw/cxgb3/iwch_cq.c
-new file mode 100644
-index 0000000..aa5c0f6
---- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/iwch_cq.c
-@@ -0,0 +1,231 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+#include "iwch_provider.h"
-+#include "iwch.h"
-+
-+/*
-+ * Get one cq entry from cxio and map it to openib.
-+ *
-+ * Returns:
-+ * 	0 			EMPTY;
-+ *	1			cqe returned
-+ *	-EAGAIN 		caller must try again
-+ * 	any other -errno	fatal error
-+ */
-+int iwch_poll_cq_one(struct iwch_dev *rhp, struct iwch_cq *chp,
-+		     struct ib_wc *wc)
-+{
-+	struct iwch_qp *qhp = NULL;
-+	struct t3_cqe cqe, *rd_cqe;
-+	struct t3_wq *wq;
-+	u32 credit = 0;
-+	u8 cqe_flushed;
-+	u64 cookie;
-+	int ret = 1;
-+
-+	rd_cqe = cxio_next_cqe(&chp->cq);
-+
-+	if (!rd_cqe)
-+		return 0;
-+
-+	qhp = get_qhp(rhp, CQE_QPID(*rd_cqe));
-+	if (!qhp)
-+		wq = NULL;
-+	else {
-+		spin_lock(&qhp->lock);
-+		wq = &(qhp->wq);
-+	}
-+	ret = cxio_poll_cq(wq, &(chp->cq), &cqe, &cqe_flushed, &cookie,
-+				   &credit);
-+	if (t3a_device(chp->rhp) && credit) {
-+		PDBG("%s updating %d cq credits on id %d\n", __FUNCTION__, 
-+		     credit, chp->cq.cqid);
-+		cxio_hal_cq_op(&rhp->rdev, &chp->cq, CQ_CREDIT_UPDATE, credit);
-+	}
-+
-+	if (ret) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+	ret = 1;
-+
-+	wc->wr_id = cookie;
-+	wc->qp_num = qhp->wq.qpid;
-+	wc->vendor_err = CQE_STATUS(cqe);
-+
-+	PDBG("%s qpid 0x%x type %d opcode %d status 0x%x wrid hi 0x%x "
-+	     "lo 0x%x cookie 0x%llx\n", __FUNCTION__, 
-+	     CQE_QPID(cqe), CQE_TYPE(cqe),
-+	     CQE_OPCODE(cqe), CQE_STATUS(cqe), CQE_WRID_HI(cqe),
-+	     CQE_WRID_LOW(cqe), cookie);
-+
-+	if (CQE_TYPE(cqe) == 0) {
-+		if (!CQE_STATUS(cqe))
-+			wc->byte_len = CQE_LEN(cqe);
-+		else
-+			wc->byte_len = 0;
-+		wc->opcode = IB_WC_RECV;
-+	} else {
-+		switch (CQE_OPCODE(cqe)) {
-+		case T3_RDMA_WRITE:
-+			wc->opcode = IB_WC_RDMA_WRITE;
-+			break;
-+		case T3_READ_REQ:
-+			wc->opcode = IB_WC_RDMA_READ;
-+			wc->byte_len = CQE_LEN(cqe);
-+			break;
-+		case T3_SEND:
-+		case T3_SEND_WITH_SE:
-+			wc->opcode = IB_WC_SEND;
-+			break;
-+		case T3_BIND_MW:
-+			wc->opcode = IB_WC_BIND_MW;
-+			break;
-+
-+		/* these aren't supported yet */
-+		case T3_SEND_WITH_INV:
-+		case T3_SEND_WITH_SE_INV:
-+		case T3_LOCAL_INV:
-+		case T3_FAST_REGISTER:
-+		default:
-+			printk(KERN_ERR MOD "Unexpected opcode %d "
-+			       "in the CQE received for QPID=0x%0x\n", 
-+			       CQE_OPCODE(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+	}
-+
-+	if (cqe_flushed) {
-+		wc->status = IB_WC_WR_FLUSH_ERR;
-+	} else {
-+		
-+		switch (CQE_STATUS(cqe)) {
-+		case TPT_ERR_SUCCESS:
-+			wc->status = IB_WC_SUCCESS;
-+			break;
-+		case TPT_ERR_STAG:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_PDID:
-+			wc->status = IB_WC_LOC_PROT_ERR;
-+			break;
-+		case TPT_ERR_QPID:
-+		case TPT_ERR_ACCESS:
-+			wc->status = IB_WC_LOC_ACCESS_ERR;
-+			break;
-+		case TPT_ERR_WRAP:
-+			wc->status = IB_WC_GENERAL_ERR;
-+			break;
-+		case TPT_ERR_BOUND:
-+			wc->status = IB_WC_LOC_LEN_ERR;
-+			break;
-+		case TPT_ERR_INVALIDATE_SHARED_MR:
-+		case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
-+			wc->status = IB_WC_MW_BIND_ERR;
-+			break;
-+		case TPT_ERR_CRC:
-+		case TPT_ERR_MARKER:
-+		case TPT_ERR_PDU_LEN_ERR:
-+		case TPT_ERR_OUT_OF_RQE:
-+		case TPT_ERR_DDP_VERSION:
-+		case TPT_ERR_RDMA_VERSION:
-+		case TPT_ERR_DDP_QUEUE_NUM:
-+		case TPT_ERR_MSN:
-+		case TPT_ERR_TBIT:
-+		case TPT_ERR_MO:
-+		case TPT_ERR_MSN_RANGE:
-+		case TPT_ERR_IRD_OVERFLOW:
-+		case TPT_ERR_OPCODE:
-+			wc->status = IB_WC_FATAL_ERR;
-+			break;
-+		case TPT_ERR_SWFLUSH:
-+			wc->status = IB_WC_WR_FLUSH_ERR;
-+			break;
-+		default:
-+			printk(KERN_ERR MOD "Unexpected cqe_status 0x%x for "
-+			       "QPID=0x%0x\n", CQE_STATUS(cqe), CQE_QPID(cqe));
-+			ret = -EINVAL;
-+		}
-+	}
-+out:
-+	if (wq)
-+		spin_unlock(&qhp->lock);
-+	return ret;
-+}
-+
-+int iwch_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
-+{
-+	struct iwch_dev *rhp;
-+	struct iwch_cq *chp;
-+	unsigned long flags;
-+	int npolled;
-+	int err = 0;
-+
-+	chp = to_iwch_cq(ibcq);
-+	rhp = chp->rhp;
-+
-+	spin_lock_irqsave(&chp->lock, flags);
-+	for (npolled = 0; npolled < num_entries; ++npolled) {
-+#ifdef DEBUG
-+		int i=0;
-+#endif
-+
-+		/*
-+	 	 * Because T3 can post CQEs that are _not_ associated
-+	 	 * with a WR, we might have to poll again after removing
-+	 	 * one of these.  
-+		 */
-+		do {
-+			err = iwch_poll_cq_one(rhp, chp, wc + npolled);
-+#ifdef DEBUG
-+			BUG_ON(++i > 1000);
-+#endif
-+		} while (err == -EAGAIN);
-+		if (err <= 0)
-+			break;
-+	}
-+	spin_unlock_irqrestore(&chp->lock, flags);
-+
-+	if (err < 0)
-+		return err;
-+	else {
-+		return npolled;
-+	}
-+}
-+
-+int iwch_modify_cq(struct ib_cq *cq, int cqe)
-+{
-+	PDBG("iwch_modify_cq: TBD\n");
-+	return 0;
-+}

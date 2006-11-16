@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424262AbWKPQTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424263AbWKPQUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424262AbWKPQTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424263AbWKPQTI
+	id S1424263AbWKPQUj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424264AbWKPQUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:19:08 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34954 "EHLO omx1.sgi.com")
-	by vger.kernel.org with ESMTP id S1424262AbWKPQTG (ORCPT
+	Thu, 16 Nov 2006 11:20:39 -0500
+Received: from toxygen.net ([213.146.59.4]:60178 "EHLO toxygen.net")
+	by vger.kernel.org with ESMTP id S1424263AbWKPQUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:19:06 -0500
-Date: Thu, 16 Nov 2006 08:18:56 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: David Rientjes <rientjes@cs.washington.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mempolicy: use vma_policy and vma_set_policy macros
-In-Reply-To: <200611161211.09445.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0611160818450.27796@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64N.0611160253510.3429@attu4.cs.washington.edu>
- <200611161211.09445.ak@suse.de>
+	Thu, 16 Nov 2006 11:20:38 -0500
+Message-ID: <455C8FB4.8000200@toxygen.net>
+Date: Thu, 16 Nov 2006 17:20:04 +0100
+From: Wojtek Kaniewski <wojtekka@toxygen.net>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH take 2] Atmel MACB ethernet driver
+References: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
+In-Reply-To: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006, Andi Kleen wrote:
-
-> On Thursday 16 November 2006 12:00, David Rientjes wrote:
-> > Use vma_policy() and vma_set_policy() macros provided in 
-> > include/linux/mempolicy.h.
+Haavard Skinnemoen wrote:
+> Driver for the Atmel MACB on-chip ethernet module.
 > 
-> Why? I don't think it makes the code any more readable
+> Tested on AVR32/AT32AP7000/ATSTK1000. I've heard rumours that it works
+> with AT91SAM9260 as well, and it may be possible to share some code with
+> the at91_ether driver for AT91RM9200.
 
-I agree. Lets leave it as it is.
+It seems to work with AT91SAM9260, but unfortunately not without
+problems. I occasionally get TX underrun errors, mostly while
+transferring some large files. The same thing happens with driver
+provided by TimeSys in their AT91SAM9260-enabled Linux distribution
+recommended by Atmel (both drivers share the codebase). Is there
+anything I can check by myself (without an ICE) to see what's wrong?
+Some printk() in macb_tx() maybe?
 
+Regards,
+Wojtek

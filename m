@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424209AbWKPPvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424080AbWKPQAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424209AbWKPPvW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 10:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424210AbWKPPvW
+	id S1424080AbWKPQAM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424226AbWKPQAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 10:51:22 -0500
-Received: from dvhart.com ([64.146.134.43]:1700 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1424209AbWKPPvW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 10:51:22 -0500
-Message-ID: <455C8875.3070109@mbligh.org>
-Date: Thu, 16 Nov 2006 07:49:09 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
-MIME-Version: 1.0
-To: Christian Krafft <krafft@de.ibm.com>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, steiner@sgi.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
- no memory
-References: <20061115193049.3457b44c@localhost>	<20061115193437.25cdc371@localhost>	<Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>	<20061115215845.GB20526@sgi.com>	<Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>	<455B9825.3030403@mbligh.org>	<Pine.LNX.4.64.0611151451450.23477@schroedinger.engr.sgi.com>	<20061116095429.0e6109a7.kamezawa.hiroyu@jp.fujitsu.com>	<Pine.LNX.4.64.0611151653560.24565@schroedinger.engr.sgi.com> <20061116164037.58b3aaeb@localhost>
-In-Reply-To: <20061116164037.58b3aaeb@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 11:00:12 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:54458 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1424080AbWKPQAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:00:10 -0500
+Date: Thu, 16 Nov 2006 10:59:27 -0500
+To: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: When is the kernel moving to GPLv3? (probably feeding a troll :)
+Message-ID: <20061116155927.GD8238@csclub.uwaterloo.ca>
+References: <455C984C.7080308@wolfmountaingroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455C984C.7080308@wolfmountaingroup.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Krafft wrote:
-> On Wed, 15 Nov 2006 16:57:56 -0800 (PST)
-> Christoph Lameter <clameter@sgi.com> wrote:
+On Thu, Nov 16, 2006 at 09:56:44AM -0700, Jeffrey V. Merkey wrote:
+> /"Red Hat has slammed the door shut 
+> <http://www.eweek.com/article2/0,1895,2059675,00.asp> on any possibility 
+> of entering into a patent protection deal similar to the one Microsoft 
+> recently announced with Novell, eWeek is reporting. While Microsoft has 
+> repeatedly said it wants to work with Red Hat and would like to 
+> structure a relationship where its customers can be assured of the same 
+> thing as Novell's customers 
+> <http://linux.slashdot.org/linux/06/11/02/1957252.shtml?tid=109> now 
+> are, Mark Webbink, Red Hat's deputy general counsel, says 'we do not 
+> believe there is a need for or basis for the type of relationship 
+> defined in the Microsoft-Novell announcement.' Interestingly enough, 
+> Microsoft also says that it has not ruled out going it alone and 
+> providing some sort of indemnification for its customers who also use 
+> Red Hat Linux."/
 > 
->> On Thu, 16 Nov 2006, KAMEZAWA Hiroyuki wrote:
->>
->>>> But there is no memory on the node. Does the zonelist contain the zones of 
->>>> the node without memory or not? We simply fall back each allocation to the 
->>>> next node as if the node was overflowing?
->>> yes. just fallback.
->> Ok, so we got a useless pglist_data struct and the struct zone contains a 
->> zonelist that does not include the zone.
+> "Meanwhile, Eben Moglen, the FSF general counsel, promises that GPLv3 
+> will explicitly outlaw 
+> <http://money.cnn.com/blogs/legalpad/2006/11/is-microsoft-novell-deal-dead-on.html> 
+> deals like this. (Of course everyone's on v2, so calling the Novell deal 
+> "DOA" would be premature.)"
 > 
-> Okay, I slowly understand what you are talking about.
-> I just tried a "numactl --cpunodebind 1 --membind 1 true" which hit an uninitialized zone in slab_node:
-> 
-> return zone_to_nid(policy->v.zonelist->zones[0]);
-> 
-> I also still don't know if it makes sense to have memoryless nodes, but supporting it does.
-> So wath would be reasonable, to have empty zonelists for those node, or to check if zonelists are uninitialized ?
+> So when is the kernel moving to GPLv3?   I have seen some discussions 
+> about moving off v2, is there concensus about moving to v3 to remove
+> threats of patent claims against v2 code by M$ and others who may use 
+> Linux in hardware based projects.
 
-You don't want empty zonelists on a node containing CPUs, else it won't
-know where to allocate from. You just want to make sure that the zones
-in that node (if existant) are not contained in *anyone's* zonelist.
+The "consensus" seems to be: The kernel is currently GPLv2 (and nothing
+else) and changing that is almost an imposible task, and the majority of
+the major active contributers also don't seem interested in considering
+the GPLv3 in its current form.  It really seems to be that simple.
 
-M.
+Some people claim Novell's "Deal" isn't even permitted under the GPLv2,
+or that the "Deal" has no meaning or purpose at all.
 
+--
+Len Sorensen

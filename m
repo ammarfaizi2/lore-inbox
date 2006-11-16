@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423789AbWKPLFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031155AbWKPLKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423789AbWKPLFU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 06:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423846AbWKPLFT
+	id S1031155AbWKPLKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 06:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031156AbWKPLKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 06:05:19 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:44203 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1423844AbWKPLFS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 06:05:18 -0500
+	Thu, 16 Nov 2006 06:10:20 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:29873 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S1031155AbWKPLKT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 06:10:19 -0500
+From: Mws <mws@twisted-brains.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
+Date: Thu, 16 Nov 2006 12:10:15 +0100
+User-Agent: KMail/1.9.5
+Cc: Jeff Garzik <jeff@garzik.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       tiwai@suse.de, Olivier Nicolas <olivn@trollprod.org>
+References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org> <Pine.LNX.4.64.0611151210380.3349@woody.osdl.org> <200611152210.47238.mws@twisted-brains.org>
+In-Reply-To: <200611152210.47238.mws@twisted-brains.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200611161210.15684.mws@twisted-brains.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17756.17330.974883.486535@alkaid.it.uu.se>
-Date: Thu, 16 Nov 2006 11:55:46 +0100
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ebiederm@xmission.com (Eric W. Biederman), Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
-       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
-       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-In-Reply-To: <20061115133121.8d9d621f.akpm@osdl.org>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	<200611151945.31535.ak@suse.de>
-	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
-	<200611152023.53960.ak@suse.de>
-	<20061115122118.14fa2177.akpm@osdl.org>
-	<m18xic4den.fsf@ebiederm.dsl.xmission.com>
-	<20061115133121.8d9d621f.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
- > to then put the NMI back to doing the watchdog thing after oprofile has
- > finished with it.
+On Wednesday 15 November 2006 22:10, Mws wrote:
+> On Wednesday 15 November 2006 21:14, Linus Torvalds wrote:
+> > 
+> > On Wed, 15 Nov 2006, Mws wrote:
+> > > 
+> > > after some small discussions on alsa-user ml i recognised this
+> > > thread today. 
+> > > i thought my problem could also exist on this msi stuff.
+> > > i disabled msi in kernel config, reboot, and, after starting x & kde
+> > > i got immediately a freeze.
+> > > last and maybe important last try has been to
+> > > enable msi support _but_ boot kernel with cmdline pci=nomsi
+> > > this finally did work out. i got a working sound environment again.
+> > 
+> > I expect that you have the exact same issue as Olivier: the "hang" is 
+> > probably because you started using the sound device (beeping on the 
+> > console is handled by the old built-in speaker, but in X a single beep 
+> > tends to be due to sound device drivers), and because of sound irq 
+> > misrouting you had some other device (like your harddisk) that got their 
+> > irq disabled due to the "nobody cared" issue.
+> > 
+> > > i find it a bit abnormal that the disabling msi in kernel config behaviour
+> > > is different from kernel cmdline pci=nomsi option.
+> > 
+> > Now, that does actually worry me. It _should_ have worked with CONFIG_MSI 
+> > disabled. I wonder if some of the MSI workarounds actually broke the HDA 
+> > driver subtly.
+> > 
+> > Anyway, it would be a good idea to test the current -git tree if you can, 
+> > both with CONFIG_MSI and without (and _without_ any "pci=nomsi" kernel 
+> > command line). It should hopefully work, exactly because the HDA driver 
+> > now shouldn't even try to do any MSI stuff by default.
+> > 
+> > Knock wood.
+> > 
+> > 		Linus
+> hi,
+> 
+> linus, just cloned current git, but will test it tomorrow morning.
+> 
+> will inform you on the results.
+> 
+> thanks 
+> marcel
 
-Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
-the in-kernel API allowing real performance counter drivers like
-oprofile (and perfctr) to claim the HW from the NMI watchdog,
-do their work, and then release it which resumed the watchdog.
+hi, 
 
-Note that oprofile (and perfctr) didn't do anything behind the
-NMI watchdog's back. They went via the API. Nothing dodgy going on.
+i just tried the git that i cloned yesterday, when you asked me to, linus.
+
+i don't get any freezes and sound is fine.
+no cmdline option pci=nomsi and msi enabled in .config
+
+thanks for your help.
+
+best regards
+marcel

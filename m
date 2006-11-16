@@ -1,122 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424272AbWKPQXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424270AbWKPQXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424272AbWKPQXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424276AbWKPQXb
+	id S1424270AbWKPQXX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424271AbWKPQXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:23:31 -0500
-Received: from mga07.intel.com ([143.182.124.22]:15989 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1424271AbWKPQXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:23:30 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,430,1157353200"; 
-   d="scan'208"; a="147431581:sNHT84642166"
-Message-ID: <455C907A.8080600@linux.intel.com>
-Date: Thu, 16 Nov 2006 19:23:22 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Len Brown <lenb@kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
-References: <200611142303.47325.david-b@pacbell.net> <200611151710.26570.david-b@pacbell.net> <455C8696.80508@linux.intel.com> <200611160803.04152.david-b@pacbell.net>
-In-Reply-To: <200611160803.04152.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 16 Nov 2006 11:23:23 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:34709 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1424270AbWKPQXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:23:22 -0500
+Subject: [GIT PATCH] final SCSI fixes for 2.6.19-rc6
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 16 Nov 2006 10:23:14 -0600
+Message-Id: <1163694194.3464.4.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> On Thursday 16 November 2006 7:41 am, Alexey Starikovskiy wrote:
->   
->> Looks like either EC GPE or whole ACPI irq got disabled... Could you 
->> check that ACPI interrupts still arrive after
->> you notice AE_TIME?
->>     
->
-> If I unplug AC, /proc/interrrupts reports 2 IRQs going to ACPI.
-> Then on replug, it reports 10-12 IRQs going to ACPI.
->   
-What is the state of kacpid and kacpid_notify ?
->
->   
->> Also, may be attached patch will help?
->>     
->
-> I'l give it a try next time I can reboot (presumably by this PM).
->
-> - Dave
->
->
->   
->> Regards,
->>     Alex.
->>
->> David Brownell wrote:
->>     
->>> On Wednesday 15 November 2006 1:56 pm, David Brownell wrote:
->>>   
->>>       
->>>> On Wednesday 15 November 2006 6:48 am, Alexey Starikovskiy wrote:
->>>>     
->>>>         
->>>>> ec1.patch
->>>>>
->>>>>
->>>>> Always enable GPE after return from notify handler.
->>>>>
->>>>> From:  Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
->>>>>
->>>>>
->>>>> ---
->>>>>       
->>>>>           
->>>> Yes, this seems to resolve the regression as well as Len's ec_intr=0 boot param.
->>>>     
->>>>         
->>> Whoops, I spoke too soon.  It does get rid of SOME of the AE_TIME errors.  But
->>> the system is still confused about whether or not the AC is connected, and
->>> whether the battery is charging or not; and the CPU is still relatively hot.
->>> Even with this patch I later got:
->>>
->>> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
->>> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [2006070
->>> 7]
->>> ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE
->>> _TIME
->>>
->>> In short, better but evidently not yet good enough...
->>>
->>> - Dave
->>>
->>>
->>>
->>>   
->>>       
->>>> IMO this should get merged into 2.6.19 ASAP ...
->>>>
->>>>
->>>>     
->>>>         
->>>>>  drivers/acpi/ec.c |    2 --
->>>>>  1 files changed, 0 insertions(+), 2 deletions(-)
->>>>>
->>>>> diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
->>>>> index e6d4b08..937eafc 100644
->>>>> --- a/drivers/acpi/ec.c
->>>>> +++ b/drivers/acpi/ec.c
->>>>> @@ -465,8 +465,6 @@ static u32 acpi_ec_gpe_handler(void *dat
->>>>>  
->>>>>         if (value & ACPI_EC_FLAG_SCI) {
->>>>>                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
->>>>> -               return status == AE_OK ?
->>>>> -                   ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
->>>>>         }
->>>>>         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
->>>>>         return status == AE_OK ?
->>>>>       
->>>>>           
->>     
+These are the dump of the final -rc fixes I've been collecting. The
+patch is available here:
+
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+
+The Short Changelog is:
+
+<malahal:us.ibm.com>:
+  o aic94xx SCSI timeout fix: SMP retry fix
+  o aic94xx SCSI timeout fix
+
+adam radford:
+  o 3ware 9000 add support for 9650SE
+
+Adrian Bunk:
+  o psi240i.c: fix an array overrun
+
+Douglas Gilbert:
+  o sg: fix incorrect last scatg length
+
+Jean Delvare:
+  o gdth: Fix && typos
+
+Mike Christie:
+  o iscsi class: update version
+  o iscsi_tcp: fix xmittask oops
+
+Pete Wyckoff:
+  o iscsi: add newlines to debug messages
+  o iscsi: always release crypto
+
+and the diffstat:
+
+ 3w-9xxx.c              |  141 +++++++++++++++++++++++++++++--------------------
+ 3w-9xxx.h              |   14 +++-
+ aic94xx/aic94xx_hwi.c  |   18 ++++++
+ aic94xx/aic94xx_hwi.h  |   12 ++++
+ aic94xx/aic94xx_init.c |    2 
+ aic94xx/aic94xx_sas.h  |    1 
+ aic94xx/aic94xx_scb.c  |   72 +++++++++++++++++++++++++
+ aic94xx/aic94xx_seq.c  |    5 -
+ aic94xx/aic94xx_seq.h  |    2 
+ gdth.c                 |    4 -
+ iscsi_tcp.c            |   22 +++----
+ libiscsi.c             |    9 +--
+ libsas/sas_expander.c  |   90 +++++++++++++++++--------------
+ psi240i.c              |    2 
+ scsi_transport_iscsi.c |    2 
+ sg.c                   |   25 ++++----
+ 16 files changed, 281 insertions(+), 140 deletions(-)
+
+James
+
+

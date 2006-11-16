@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754857AbWKPWdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162296AbWKPWeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754857AbWKPWdv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 17:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754876AbWKPWdv
+	id S1162296AbWKPWeR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 17:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162295AbWKPWeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 17:33:51 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38853 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1754857AbWKPWdu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 17:33:50 -0500
-Message-ID: <455CE74A.9010206@redhat.com>
-Date: Thu, 16 Nov 2006 16:33:46 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Thu, 16 Nov 2006 17:34:17 -0500
+Received: from nz-out-0102.google.com ([64.233.162.193]:14927 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1162159AbWKPWeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 17:34:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PpSCqnAWLHkSduCtq/GYExvd3Rvp8M/1UdhXkVKJmXJ3imYC6NOuiRy2fLVXR/vwrvwTGgTsOdhE/db9Zd8rNwNetW1Thlnqkttt2d13olXyGOZJX3AwZTn6T0gHI69V2PGUCOBtT/Hp1mUKiU7iAZEd7pZPuotmdFFfpUpL/lA=
+Message-ID: <9a8748490611161434oc393db0o1e1c23ba99b1c796@mail.gmail.com>
+Date: Thu, 16 Nov 2006 23:34:14 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: netdev@vger.kernel.org
+Subject: IPv4: ip_options_compile() how can we avoid blowing up on a NULL skb???
+Cc: "David Miller" <davem@davemloft.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Jeff Mahoney <jeffm@jeffreymahoney.com>, linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ext4@vger.kernel.org, Eric Sandeen <esandeen@redhat.com>
-Subject: Re: [PATCH] ext3: htree entry integrity checking
-References: <455C96DC.4060907@jeffreymahoney.com> <20061116222747.GT6012@schatzie.adilger.int>
-In-Reply-To: <20061116222747.GT6012@schatzie.adilger.int>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> On Nov 16, 2006  11:50 -0500, Jeff Mahoney wrote:
->>  Currently, if a corrupted directory entry with rec_len=0 is encountered,
->>  we still trust that the data is valid. This can cause an infinite loop
->>  in htree_dirblock_to_tree() since the iteration loop will never make any
->>  progress.
-> 
-> Actually, I think Eric Sandeen was working on similar fixes already, and
-> instead of doing a per-item check each time we look at the entry it does
-> a full-block check the first time it is read (as ext2 does).
-> 
->>  This fixes the problem described at:
->>  http://projects.info-pull.com/mokb/MOKB-10-11-2006.html
-> 
-> Would also be good to CC linux-ext4, where the ext3 maintainers live.
-> Hmm, maybe we need to update MAINTAINERS with the new list address?
+Hi,
 
-This should already be fixed, in some fashion, in -mm:
+In net/ipv4/ip_options.c::ip_options_compile() we have the following
+code at the start of the function :
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/handle-ext3-directory-corruption-better.patch
 
-I have been looking at doing a check only when the block is first read,
-but other things have come up & taken some time, and that is a bit on
-the back burner now...
+int ip_options_compile(struct ip_options * opt, struct sk_buff * skb)
+{
+        int l;
+        unsigned char * iph;
+        unsigned char * optptr;
+        int optlen;
+        unsigned char * pp_ptr = NULL;
+        struct rtable *rt = skb ? (struct rtable*)skb->dst : NULL;
 
--Eric
+        if (!opt) {
+                opt = &(IPCB(skb)->opt);
+                iph = skb->nh.raw;
+                opt->optlen = ((struct iphdr *)iph)->ihl*4 -
+sizeof(struct iphdr);
+                optptr = iph + sizeof(struct iphdr);
+                opt->is_data = 0;
+        } else {
+                optptr = opt->is_data ? opt->__data : (unsigned
+char*)&(skb->nh.iph[1]);
+                iph = optptr - sizeof(struct iphdr);
+        }
+
+...
+
+I don't see how that avoids blowing up if we get passed a NULL skb.
+
+>From the line
+    struct rtable *rt = skb ? (struct rtable*)skb->dst : NULL;
+it is clear that we /may/ get passed a null skb.
+
+Then a bit further down in the  if (!opt)  bit we dereference 'skb' :
+    opt = &(IPCB(skb)->opt);
+and we also may dereference it in the  else  part :
+    optptr = opt->is_data ? opt->__data : (unsigned char*)&(skb->nh.iph[1]);
+
+So if 'skb' is NULL, the only route I see that doesn't cause a NULL
+pointer deref is if  (opt != NULL)  and at the same time
+(opt->is_data != NULL)  .   Is that guaranteed in any way?  If now,
+how come we don't blow up regularly?
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

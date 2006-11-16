@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424043AbWKPNd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933494AbWKPNj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424043AbWKPNd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 08:33:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933221AbWKPNd5
+	id S933494AbWKPNj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 08:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933490AbWKPNj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 08:33:57 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:6162 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932861AbWKPNd5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 08:33:57 -0500
+	Thu, 16 Nov 2006 08:39:26 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:2945 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S933494AbWKPNjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 08:39:25 -0500
+Message-ID: <363684361.17920@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Thu, 16 Nov 2006 21:39:19 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 12/28] readahead: state based method - aging accounting
+Message-ID: <20061116133919.GA6645@mail.ustc.edu.cn>
+Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20061115075007.832957580@localhost.localdomain> <363577024.21908@ustc.edu.cn> <Pine.LNX.4.64.0611150853510.19227@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 16 Nov 2006 13:33:55.0819 (UTC) FILETIME=[DD1A1BB0:01C70983]
-Content-class: urn:content-classes:message
-Subject: Re: Initial ramdisk support does not work (for me) on 2.6.17.13
-Date: Thu, 16 Nov 2006 08:33:55 -0500
-Message-ID: <Pine.LNX.4.61.0611160830210.20332@chaos.analogic.com>
-In-Reply-To: <E1Gkgqc-0003F3-6u@flower>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Initial ramdisk support does not work (for me) on 2.6.17.13
-thread-index: AccJg9050fLUIqetTk+mM5yUrY+cLQ==
-References: <455AF068.5020700@meinberg.de> <E1Gkgqc-0003F3-6u@flower>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Heiko Gerstung" <heiko.gerstung@meinberg.de>
-Cc: "Oleg Verych" <olecom@flower.upol.cz>,
-       "LKML" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611150853510.19227@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 15, 2006 at 08:54:44AM -0800, Christoph Lameter wrote:
+> On Wed, 15 Nov 2006, Wu Fengguang wrote:
+> 
+> > Collect info about the global available memory and its consumption speed.
+> > The data are used by the stateful method to estimate the thrashing threshold.
+> 
+> Looks like you should use a ZVC counter for total scanned. See 
+> include/linux/mmzone.h.
 
+OK.
 
-> Hi!
->
-> Hallo.
->
-> We are building embedded devices based on Linux and we use a ramdisk as
-> our root device in order to avoid problems with people switching off the
-> unit without a proper shutdown and to save write-cycles on our flash disc.
->
-> Using a 2.6.12 kernel it was no problem to boot the system by using this
-> kernel parameters:
-> load_ramdisk=1 console=tty0 initrd=initrd.gz rw  vga=769
-> ramdisk_size=32768 root=/dev/ram0
->
-> Today I tried to test run a 2.6.17.12 kernel using the same parameters
-> but I get this error message:
-> VFS: Cannot open root device "ram0" or unknown-block(1,0)
-> Please append a correct "root=" boot option
->
-This is the message you get if you accidentally build the kernel without
-ramdisk support. Check your configuration.
+By using zone.total_scanned, I have chose an easy way :)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+To do the general vm timing in something like zone.vm_stat[NR_SCAN_INACTIVE],
+a set of new functions will be required:
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+        global_page_state_raw()
+        zone_page_state_raw()
+        node_page_state_raw()
 
-Thank you.
+They do not check overflows, so that we can do
+
+        time_elapsed = new_raw_value - old_raw_value;
+
+However, before introducing the ugly *_raw() functions, I'd like to know if
+
+        #ifdef CONFIG_SMP
+                if (x < 0)
+                        x = 0;
+        #endif  
+
+really helps some big NUMA system. I suspect object counters like
+NR_FILE_PAGES will _never_ overflow, and an accumulated counter like
+NR_VMSCAN_WRITE is expected to overflow. In either case, it is ok to
+return an unsigned long raw counter.
+
+Regards,
+Wu

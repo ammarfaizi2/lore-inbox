@@ -1,30 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162262AbWKPCrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162279AbWKPCxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162262AbWKPCrR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 21:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162248AbWKPCqt
+	id S1162279AbWKPCxT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162272AbWKPCw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 21:46:49 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:15504 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162243AbWKPCqk
+	Wed, 15 Nov 2006 21:52:57 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:53647 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162234AbWKPCp1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 21:46:40 -0500
-Message-Id: <20061116024742.602522000@sous-sol.org>
+	Wed, 15 Nov 2006 21:45:27 -0500
+Message-Id: <20061116024613.613119000@sous-sol.org>
 References: <20061116024332.124753000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 15 Nov 2006 18:43:52 -0800
+Date: Wed, 15 Nov 2006 18:43:44 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, maks@sternwelten.at
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, monkey20181@gmx.net,
-       daniel.ritz-ml@swissonline.ch, daniel.ritz@gmx.ch, bunk@susta.de
-Subject: [patch 20/30] fix via586 irq routing for pirq 5
-Content-Disposition: inline; filename=fix-via586-irq-routing-for-pirq-5.patch
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, Ralf Lehmann <ralf@lehmann.cc>,
+       "J.P. Delport" <jpdelport@csir.co.za>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 12/30] usbtouchscreen: use endpoint address from endpoint descriptor
+Content-Disposition: inline; filename=usbtouchscreen-use-endpoint-address-from-endpoint-descriptor.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,39 +35,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
 
-Fix interrupt routing for via 586 bridges.  pirq can be 5 which needs to be
-mapped to INTD.  But currently the access functions can handle only pirq
-1-4.  this is similar to the other via chipsets where pirq 4 and 5 are both
-mapped to INTD.  Fixes bugzilla #7490
+use the endpoint address from the endpoint descriptor instead of the hardcoding
+it to 0x81. at least some ITM based screen use a different address and don't work
+without this.
 
-Cc: Daniel Paschka <monkey20181@gmx.net>
-Cc: Adrian Bunk <bunk@susta.de>
 Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Cc: Ralf Lehmann <ralf@lehmann.cc>
+Cc: J.P. Delport <jpdelport@csir.co.za>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- arch/i386/pci/irq.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/input/usbtouchscreen.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.18.2.orig/arch/i386/pci/irq.c
-+++ linux-2.6.18.2/arch/i386/pci/irq.c
-@@ -255,13 +255,13 @@ static int pirq_via_set(struct pci_dev *
-  */
- static int pirq_via586_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
- {
--	static const unsigned int pirqmap[4] = { 3, 2, 5, 1 };
-+	static const unsigned int pirqmap[5] = { 3, 2, 5, 1, 1 };
- 	return read_config_nybble(router, 0x55, pirqmap[pirq-1]);
- }
+--- linux-2.6.18.2.orig/drivers/usb/input/usbtouchscreen.c
++++ linux-2.6.18.2/drivers/usb/input/usbtouchscreen.c
+@@ -522,7 +522,7 @@ static int usbtouch_probe(struct usb_int
+ 		                     type->max_press, 0, 0);
  
- static int pirq_via586_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
- {
--	static const unsigned int pirqmap[4] = { 3, 2, 5, 1 };
-+	static const unsigned int pirqmap[5] = { 3, 2, 5, 1, 1 };
- 	write_config_nybble(router, 0x55, pirqmap[pirq-1], irq);
- 	return 1;
- }
+ 	usb_fill_int_urb(usbtouch->irq, usbtouch->udev,
+-			 usb_rcvintpipe(usbtouch->udev, 0x81),
++			 usb_rcvintpipe(usbtouch->udev, endpoint->bEndpointAddress),
+ 			 usbtouch->data, type->rept_size,
+ 			 usbtouch_irq, usbtouch, endpoint->bInterval);
+ 
 
 --

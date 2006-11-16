@@ -1,41 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031183AbWKPMQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423853AbWKPMfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031183AbWKPMQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 07:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031185AbWKPMQZ
+	id S1423853AbWKPMfL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 07:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030926AbWKPMfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 07:16:25 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57357 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031183AbWKPMQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 07:16:24 -0500
-Date: Thu, 16 Nov 2006 13:16:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [2.6 patch] make arch/i386/pci/common.c:pci_bf_sort static
-Message-ID: <20061116121623.GE31879@stusta.de>
-MIME-Version: 1.0
+	Thu, 16 Nov 2006 07:35:10 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:30477 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030921AbWKPMfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 07:35:09 -0500
+Date: Thu, 16 Nov 2006 12:34:48 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+Message-ID: <20061116123448.GA28311@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+	Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+	linux-kernel@vger.kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061114184919.GA16020@skynet.ie> <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com> <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> <20061115232228.afaf42f2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061115232228.afaf42f2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global pci_bf_sort static.
+On Wed, Nov 15, 2006 at 11:22:28PM -0800, Andrew Morton wrote:
+> On Wed, 15 Nov 2006 22:55:43 -0800
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> 
+> > Hmm, maxblocks, in bitmap_search_next_usable_block(),  is the end block 
+> > number of the range  to search, not the lengh of the range. maxblocks 
+> > get passed to ext2_find_next_zero_bit(), where it expecting to take the 
+> > _size_ of the range to search instead...
+> > 
+> > Something like this: (this is not a patch)
+> >   @@ -524,7 +524,7 @@ bitmap_search_next_usable_block(ext2_grp
+> >    	ext2_grpblk_t next;
+> > 
+> >    -  	next = ext2_find_next_zero_bit(bh->b_data, maxblocks, start);
+> >    +  	next = ext2_find_next_zero_bit(bh->b_data, maxblocks-start + 1, start);
+> > 	if (next >= maxblocks)
+> >    		return -1;
+> >    	return next;
+> >    }
+> 
+> yes, the `size' arg to find_next_zero_bit() represents the number of bits
+> to scan at `offset'.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Are you sure?  That's not the way it's implemented in many architectures.
+find_next_*_bit() has always taken "address, maximum offset, starting offset"
+and always has returned "next offset".
 
---- linux-2.6.19-rc5-mm2/arch/i386/pci/common.c.old	2006-11-16 00:20:15.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/arch/i386/pci/common.c	2006-11-16 00:20:32.000000000 +0100
-@@ -20,7 +20,7 @@
- unsigned int pci_probe = PCI_PROBE_BIOS | PCI_PROBE_CONF1 | PCI_PROBE_CONF2 |
- 				PCI_PROBE_MMCONF;
- 
--int pci_bf_sort;
-+static int pci_bf_sort;
- int pci_routeirq;
- int pcibios_last_bus = -1;
- unsigned long pirq_table_addr;
+Just look at arch/i386/lib/bitops.c:
 
+int find_next_zero_bit(const unsigned long *addr, int size, int offset)
+{
+        unsigned long * p = ((unsigned long *) addr) + (offset >> 5);
+        int set = 0, bit = offset & 31, res;
+...
+        /*
+         * No zero yet, search remaining full bytes for a zero
+         */
+        res = find_first_zero_bit (p, size - 32 * (p - (unsigned long *) addr));
+        return (offset + set + res);
+}
+
+So for the case that "offset" is aligned to a "long" boundary, that gives us:
+
+	res = find_first_zero_bit(addr + (offset>>5),
+			size - 32 * (addr + (offset>>5) - addr));
+
+or:
+
+	res = find_first_zero_bit(addr + (offset>>5), size - (offset & ~31));
+
+So, size _excludes_ offset.
+
+Now, considering the return value, "res" above will be relative to
+"addr + (offset>>5)".  However, we add "offset" on to that, so it's
+relative to addr + (offset bits).
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

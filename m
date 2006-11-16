@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423816AbWKPLAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423789AbWKPLFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423816AbWKPLAx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 06:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423822AbWKPLAx
+	id S1423789AbWKPLFU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 06:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423846AbWKPLFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 06:00:53 -0500
-Received: from mx2.cs.washington.edu ([128.208.2.105]:63445 "EHLO
-	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1423816AbWKPLAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 06:00:52 -0500
-Date: Thu, 16 Nov 2006 03:00:43 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: ak@suse.de
-cc: clameter@sgi.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] mempolicy: use vma_policy and vma_set_policy macros
-Message-ID: <Pine.LNX.4.64N.0611160253510.3429@attu4.cs.washington.edu>
+	Thu, 16 Nov 2006 06:05:19 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:44203 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1423844AbWKPLFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 06:05:18 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17756.17330.974883.486535@alkaid.it.uu.se>
+Date: Thu, 16 Nov 2006 11:55:46 +0100
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ebiederm@xmission.com (Eric W. Biederman), Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
+       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
+       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+In-Reply-To: <20061115133121.8d9d621f.akpm@osdl.org>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611151945.31535.ak@suse.de>
+	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
+	<200611152023.53960.ak@suse.de>
+	<20061115122118.14fa2177.akpm@osdl.org>
+	<m18xic4den.fsf@ebiederm.dsl.xmission.com>
+	<20061115133121.8d9d621f.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use vma_policy() and vma_set_policy() macros provided in 
-include/linux/mempolicy.h.
+Andrew Morton writes:
+ > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
+ > to then put the NMI back to doing the watchdog thing after oprofile has
+ > finished with it.
 
-Cc: Andi Kleen <ak@suse.de>
-Cc: Christoph Lameter <clameter@sgi.com>
-Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
----
- mm/mempolicy.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
+the in-kernel API allowing real performance counter drivers like
+oprofile (and perfctr) to claim the HW from the NMI watchdog,
+do their work, and then release it which resumed the watchdog.
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 617fb31..99e6560 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -379,7 +379,7 @@ check_range(struct mm_struct *mm, unsign
- static int policy_vma(struct vm_area_struct *vma, struct mempolicy *new)
- {
- 	int err = 0;
--	struct mempolicy *old = vma->vm_policy;
-+	struct mempolicy *old = vma_policy(vma);
- 
- 	PDprintk("vma %lx-%lx/%lx vm_ops %p vm_file %p set_policy %p\n",
- 		 vma->vm_start, vma->vm_end, vma->vm_pgoff,
-@@ -390,7 +390,7 @@ static int policy_vma(struct vm_area_str
- 		err = vma->vm_ops->set_policy(vma, new);
- 	if (!err) {
- 		mpol_get(new);
--		vma->vm_policy = new;
-+		vma_set_policy(vma, new);
- 		mpol_free(old);
- 	}
- 	return err;
-@@ -542,7 +542,7 @@ long do_get_mempolicy(int *policy, nodem
- 		if (vma->vm_ops && vma->vm_ops->get_policy)
- 			pol = vma->vm_ops->get_policy(vma, addr);
- 		else
--			pol = vma->vm_policy;
-+			pol = vma_policy(vma);
- 	} else if (addr)
- 		return -EINVAL;
- 
-@@ -1078,9 +1078,9 @@ static struct mempolicy * get_vma_policy
- 	if (vma) {
- 		if (vma->vm_ops && vma->vm_ops->get_policy)
- 			pol = vma->vm_ops->get_policy(vma, addr);
--		else if (vma->vm_policy &&
--				vma->vm_policy->policy != MPOL_DEFAULT)
--			pol = vma->vm_policy;
-+		else if (vma_policy(vma) &&
-+				vma_policy(vma)->policy != MPOL_DEFAULT)
-+			pol = vma_policy(vma);
- 	}
- 	if (!pol)
- 		pol = &default_policy;
-@@ -1697,7 +1697,7 @@ void mpol_rebind_mm(struct mm_struct *mm
- 
- 	down_write(&mm->mmap_sem);
- 	for (vma = mm->mmap; vma; vma = vma->vm_next)
--		mpol_rebind_policy(vma->vm_policy, new);
-+		mpol_rebind_policy(vma_policy(vma), new);
- 	up_write(&mm->mmap_sem);
- }
- 
+Note that oprofile (and perfctr) didn't do anything behind the
+NMI watchdog's back. They went via the API. Nothing dodgy going on.

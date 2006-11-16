@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424270AbWKPQXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424279AbWKPQYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424270AbWKPQXX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 11:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424271AbWKPQXX
+	id S1424279AbWKPQYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 11:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424276AbWKPQYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 11:23:23 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:34709 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1424270AbWKPQXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 11:23:22 -0500
-Subject: [GIT PATCH] final SCSI fixes for 2.6.19-rc6
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 16 Nov 2006 10:23:14 -0600
-Message-Id: <1163694194.3464.4.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Nov 2006 11:24:41 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:28995 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1424278AbWKPQYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 11:24:40 -0500
+Date: Thu, 16 Nov 2006 11:15:56 -0500
+From: "Ed L. Cashin" <ecashin@coraid.com>
+To: Dennis Stosberg <dennis@stosberg.net>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aoe: Add forgotten NULL at end of attribute list in aoeblk.c
+Message-ID: <20061116161556.GA7222@coraid.com>
+References: <20061113081520.G77d5ed8a@leonov.stosberg.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061113081520.G77d5ed8a@leonov.stosberg.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the dump of the final -rc fixes I've been collecting. The
-patch is available here:
+On Mon, Nov 13, 2006 at 09:15:20AM +0100, Dennis Stosberg wrote:
+> This caused the system to stall when the aoe module was loaded.  The
+> error was introduced in commit 4ca5224f3ea4779054d96e885ca9b3980801ce13
 
-master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+Boy, I've been totally spoiled by the gitweb at kernel.org.  It's been
+unavailable lately.
 
-The Short Changelog is:
+Anyway, thanks for the fix.  It looks good to me if it looks good to
+Greg---after a google search it appears that your patch is a followup
+to his consolidation of the attributes.
+ 
+> Signed-off-by: Dennis Stosberg <dennis@stosberg.net>
+> ---
+> 
+> The log of the caused error can be found at
+> http://stosberg.net/tmp/aoe_trace.txt
+> 
+>  drivers/block/aoe/aoeblk.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+> index d433f27..aa25f8b 100644
+> --- a/drivers/block/aoe/aoeblk.c
+> +++ b/drivers/block/aoe/aoeblk.c
+> @@ -68,6 +68,7 @@ static struct attribute *aoe_attrs[] = {
+>  	&disk_attr_mac.attr,
+>  	&disk_attr_netif.attr,
+>  	&disk_attr_fwver.attr,
+> +	NULL
+>  };
+>  
+>  static const struct attribute_group attr_group = {
+> -- 
+> 1.4.3.3
 
-<malahal:us.ibm.com>:
-  o aic94xx SCSI timeout fix: SMP retry fix
-  o aic94xx SCSI timeout fix
-
-adam radford:
-  o 3ware 9000 add support for 9650SE
-
-Adrian Bunk:
-  o psi240i.c: fix an array overrun
-
-Douglas Gilbert:
-  o sg: fix incorrect last scatg length
-
-Jean Delvare:
-  o gdth: Fix && typos
-
-Mike Christie:
-  o iscsi class: update version
-  o iscsi_tcp: fix xmittask oops
-
-Pete Wyckoff:
-  o iscsi: add newlines to debug messages
-  o iscsi: always release crypto
-
-and the diffstat:
-
- 3w-9xxx.c              |  141 +++++++++++++++++++++++++++++--------------------
- 3w-9xxx.h              |   14 +++-
- aic94xx/aic94xx_hwi.c  |   18 ++++++
- aic94xx/aic94xx_hwi.h  |   12 ++++
- aic94xx/aic94xx_init.c |    2 
- aic94xx/aic94xx_sas.h  |    1 
- aic94xx/aic94xx_scb.c  |   72 +++++++++++++++++++++++++
- aic94xx/aic94xx_seq.c  |    5 -
- aic94xx/aic94xx_seq.h  |    2 
- gdth.c                 |    4 -
- iscsi_tcp.c            |   22 +++----
- libiscsi.c             |    9 +--
- libsas/sas_expander.c  |   90 +++++++++++++++++--------------
- psi240i.c              |    2 
- scsi_transport_iscsi.c |    2 
- sg.c                   |   25 ++++----
- 16 files changed, 281 insertions(+), 140 deletions(-)
-
-James
-
-
+-- 
+  Ed L Cashin <ecashin@coraid.com>

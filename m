@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162156AbWKPB5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162157AbWKPCBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162156AbWKPB5h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Nov 2006 20:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162158AbWKPB5h
+	id S1162157AbWKPCBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Nov 2006 21:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162160AbWKPCBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Nov 2006 20:57:37 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:50830 "EHLO omx1.sgi.com")
-	by vger.kernel.org with ESMTP id S1162156AbWKPB5h (ORCPT
+	Wed, 15 Nov 2006 21:01:37 -0500
+Received: from dvhart.com ([64.146.134.43]:23964 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1162157AbWKPCBg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Nov 2006 20:57:37 -0500
-Date: Wed, 15 Nov 2006 17:57:27 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Jack Steiner <steiner@sgi.com>
-cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
-       Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org
+	Wed, 15 Nov 2006 21:01:36 -0500
+Message-ID: <455BC67F.6040708@mbligh.org>
+Date: Wed, 15 Nov 2006 18:01:35 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Jack Steiner <steiner@sgi.com>, Christian Krafft <krafft@de.ibm.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: [patch 2/2] enables booting a NUMA system where some nodes have
  no memory
-In-Reply-To: <20061116013534.GB1066@sgi.com>
-Message-ID: <Pine.LNX.4.64.0611151754480.24793@schroedinger.engr.sgi.com>
-References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost>
- <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com>
- <20061115215845.GB20526@sgi.com> <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com>
- <20061116013534.GB1066@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20061115193049.3457b44c@localhost> <20061115193437.25cdc371@localhost> <Pine.LNX.4.64.0611151323330.22074@schroedinger.engr.sgi.com> <20061115215845.GB20526@sgi.com> <Pine.LNX.4.64.0611151432050.23201@schroedinger.engr.sgi.com> <455B9825.3030403@mbligh.org> <Pine.LNX.4.64.0611151451450.23477@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0611151451450.23477@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006, Jack Steiner wrote:
+Christoph Lameter wrote:
+> On Wed, 15 Nov 2006, Martin Bligh wrote:
+> 
+>> All we need is an appropriate zonelist for each node, pointing to
+>> the memory it should be accessing.
+> 
+> But there is no memory on the node. Does the zonelist contain the zones of 
+> the node without memory or not? We simply fall back each allocation to the 
+> next node as if the node was overflowing?
 
-> I doubt that there is a demand for systems with memoryless nodes. However, if the
-> DIMM(s) on a node fails, I think the system may perform better
-> with the cpus on the node enabled than it will if they have to be
-> disabled.
+Sure. there's no point in putting an empty zone in the zonelist.
+We should just skip anything where present_pages is zero.
 
-Right now we do not have the capability to remove memory from a node while 
-the system is running.
+M.
 
-If the DIMMs have failed and we boot up and the systems finds out that 
-there is no memory on that node then the cpus can be remapped to 
-the next memory node. That is better than having lots of useless 
-structures allocated.
+

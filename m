@@ -1,53 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423223AbWKPKQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423682AbWKPKZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423223AbWKPKQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 05:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423303AbWKPKP7
+	id S1423682AbWKPKZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 05:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423688AbWKPKZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 05:15:59 -0500
-Received: from wx-out-0506.google.com ([66.249.82.227]:64532 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1423223AbWKPKP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 05:15:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Jh9/LpmKLGr7UeLffob4Vz1sikWgyuNAKPVzhbS9IVnp2pSfb8M5/fTEYG48+S9eUEcM/mUbJrouT3+NQBsghARWSrnZ9LrsNNeq6DiaPbaLxVYsUj7FMr4odM37vz/QsokJY/E7xpflTIMn+CQl+D5YilYj2d4rQ0vWQ4d5Y0o=
-Message-ID: <f36b08ee0611160215i7dcbd27p76963cb12d0bc12f@mail.gmail.com>
-Date: Thu, 16 Nov 2006 12:15:58 +0200
-From: "Yakov Lerner" <iler.ml@gmail.com>
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Subject: Re: locking sectors of raw disk (raw read-write test of mounted disk)
-Cc: Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <455B8979.6090101@cfl.rr.com>
+	Thu, 16 Nov 2006 05:25:33 -0500
+Received: from s131.mittwaldmedien.de ([62.216.178.31]:19811 "EHLO
+	s131.mittwaldmedien.de") by vger.kernel.org with ESMTP
+	id S1423682AbWKPKZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 05:25:32 -0500
+From: Holger Schurig <hs4233@mail.mn-solutions.de>
+To: daniel.ritz@gmx.ch
+Subject: [PATCH] usb: generic calibration support
+Date: Thu, 16 Nov 2006 11:25:38 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <f36b08ee0611151206k50284ef9n43d7edf744ae2f19@mail.gmail.com>
-	 <455B8979.6090101@cfl.rr.com>
+Message-Id: <200611161125.38901.hs4233@mail.mn-solutions.de>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/15/06, Phillip Susi <psusi@cfl.rr.com> wrote:
-> No, you can not tamper with the underlying data while the kernel has it
-> mounted.
-I don't want to tamper wuith data. I want to raw write back exacty
-same raw data that I read in. I only want to make sure that kernel
-doesn't write modified data between in between my read-write pair.
+From: Holger Schurig <hs4233@mail.mn-solutions.de>
 
-Yakov
+Generic calibration support for usbtouchscreen.
+
+Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
+
+---
+
+With build-in calibration support, the "swap_xy" kernel parameter
+vanishes and usbtouchscreen instead gains a new kernel-parameter
+which holds 7 integers.
+
+This is used to calibrate the resulting output of the driver. Let
+x_o and y_o be the original x,y coordinate, as reported from the
+device. Then x_r,y_r (the x,y coordinate reported to the input event
+subsystem) are:
+
+    x_r = ( a*x_o + b*y_o + c ) / s
+    y_r = ( c*x_o + d*y_o + e ) / s
+
+The default values for (a,b,c,d,e,s) are (1,0,0,0,1,0,1). To
+simulate swap_xy, one would set them to (0,1,0,1,0,0,1). Once can
+also use swap_x or swap_y alone, or define other, linear
+transpositions. The algorithm used is the same as in Qt/Embedded
+3.x for the QWSCalibratedMouseHandler.
+
+This interface allows re-calibration at runtime, without
+restarting the X-Server or any other event consumer.
 
 
-> Yakov Lerner wrote:
-> > I'd like to make read-write test of the raw disk, and disk has
-> > mounted partitions. Is it possible to lock  range of sectors
-> > of the raw device so that any kernel code that wants to write
-> > to this range will sleep ? (so that test
-> >    { lock range; read /dev/hda->buf; write buf->/dev/hda; unlock }
-> > won't corrupt the filesysyem ?)
-> >
-> > Thanks
-> > Yakov
->
->
+Please review this patch and schedule it for inclusion once 
+2.6.19 comes out.
+
+
+--- linux.orig/drivers/usb/input/Kconfig
++++ linux/drivers/usb/input/Kconfig
+@@ -219,6 +219,32 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called usbtouchscreen.
+ 
++config USB_TOUCHSCREEN_CALIBRATE
++	default n
++	bool "Calibration support"
++	depends on USB_TOUCHSCREEN
++	---help---
++	  With build-in calibration support, the "swap_xy" kernel parameter
++	  vanishes and usbtouchscreen instead gains a new kernel-parameter
++	  which hold 7 integers. You can also access this with cat/echo
++	  via /sys/module/usbtouchscreen/parameters/calibration
++
++	  This is used to calibrate the resulting output of the driver. Let
++	  x_o and y_o be the original x,y coordinate, as reported from the
++	  device. Then x_r,y_r (the x,y coordinate reported to the input event
++	  subsystem) are:
++
++	      x_r = ( a*x_o + b*y_o + c ) / s
++	      y_r = ( c*x_o + d*y_o + e ) / s
++
++	  The default values for (a,b,c,d,e,s) are (1,0,0,0,1,0,1). To
++	  simulate swap_xy, one would set them to (0,1,0,1,0,0,1).
++
++	  This interface allows re-calibration at runtime, without
++	  restarting the X-Server or any other event consumer.
++
++	  If unsure, say N.
++
+ config USB_TOUCHSCREEN_DMC_TSC10
+ 	default y
+ 	bool "DMC TSC-10 device support" if EMBEDDED
+--- linux.orig/drivers/usb/input/usbtouchscreen.c
++++ linux/drivers/usb/input/usbtouchscreen.c
+@@ -49,9 +49,16 @@
+ #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
+ #define DRIVER_DESC		"USB Touchscreen Driver"
+ 
++#ifdef CONFIG_USB_TOUCHSCREEN_CALIBRATE
++static int cal[7] = {1, 0, 0,   0, 1, 0,  1 };
++module_param_array_named(calibration, cal, int, NULL, 0644);
++MODULE_PARM_DESC(calibrate, "calibration data");
++
++#else
+ static int swap_xy;
+ module_param(swap_xy, bool, 0644);
+ MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
++#endif
+ 
+ /* device specifc data/functions */
+ struct usbtouch_usb;
+@@ -499,6 +506,12 @@
+ 
+ 	input_report_key(usbtouch->input, BTN_TOUCH, touch);
+ 
++#ifdef CONFIG_USB_TOUCHSCREEN_CALIBRATE
++	if (cal[6]==0)
++		cal[6] = 1;
++	input_report_abs(usbtouch->input, ABS_X, (cal[0]*x + cal[1]*y + cal[2])/cal[6] );
++	input_report_abs(usbtouch->input, ABS_Y, (cal[3]*x + cal[4]*y + cal[5])/cal[6] );
++#else
+ 	if (swap_xy) {
+ 		input_report_abs(usbtouch->input, ABS_X, y);
+ 		input_report_abs(usbtouch->input, ABS_Y, x);
+@@ -506,6 +519,7 @@
+ 		input_report_abs(usbtouch->input, ABS_X, x);
+ 		input_report_abs(usbtouch->input, ABS_Y, y);
+ 	}
++#endif
+ 	if (type->max_press)
+ 		input_report_abs(usbtouch->input, ABS_PRESSURE, press);
+ 	input_sync(usbtouch->input);
+
+-- 
+M&N Solutions GmbH
+Holger Schurig
+Dieselstr. 18
+61191 Rosbach
+06003/9141-15

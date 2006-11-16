@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424624AbWKPVOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424631AbWKPVOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424624AbWKPVOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 16:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424625AbWKPVO3
+	id S1424631AbWKPVOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 16:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424625AbWKPVOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 16:14:29 -0500
-Received: from mx02.stofanet.dk ([212.10.10.12]:23948 "EHLO mx02.stofanet.dk")
-	by vger.kernel.org with ESMTP id S1424624AbWKPVO3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 16:14:29 -0500
-Date: Thu, 16 Nov 2006 22:12:31 +0100 (CET)
-From: Esben Nielsen <nielsen.esben@googlemail.com>
-X-X-Sender: simlo@frodo.shire
-To: Daniel Walker <dwalker@mvista.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-In-Reply-To: <1163694712.26026.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611162212110.21141@frodo.shire>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain>
+	Thu, 16 Nov 2006 16:14:54 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:54543 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1424631AbWKPVOx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 16:14:53 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: Oliver Neukum <oliver@neukum.name>
+Subject: Re: [linux-usb-devel] [PATCH] usb: microtek possible memleak fix
+Date: Thu, 16 Nov 2006 22:14:58 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+References: <200611161857.31030.m.kozlowski@tuxland.pl> <200611162141.14003.oliver@neukum.name>
+In-Reply-To: <200611162141.14003.oliver@neukum.name>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611162215.00934.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006, Daniel Walker wrote:
+Hello, 
 
-> On Thu, 2006-11-16 at 16:35 +0100, Ingo Molnar wrote:
->
->> -rt0 is a rebase of -rt to 2.6.19-rc6, with lots of updates and fixes
->> included. It includes the latest -hrt-dynticks tree and more.
->
->
-> Does the zero carry and meaning or did you just decide start using zero
-> instead of one?
->
-> Daniel
+> Ist there a reason you are replacing at least somewhat descriptive labels
+> with numbers?
 
-0 bugs?
+Yes.
 
-Esben
+To me these numbers speak more than not really descriptive labels like
+out_kfree out_kfree2 etc. I look at the code and see the flow. The most
+important thing here is the order in which the resources are allocated and
+if something goes wrong deallocated. Hence the numbers.
+
+Anyway if that's a problem I can rewrite it.
+
+-- 
+Regards,
+
+	Mariusz Kozlowski

@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423859AbWKPMip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423860AbWKPMjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423859AbWKPMip (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 07:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423857AbWKPMip
+	id S1423860AbWKPMjE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 07:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423863AbWKPMjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 07:38:45 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:9159 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1423859AbWKPMio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 07:38:44 -0500
-Date: Thu, 16 Nov 2006 13:38:36 +0100 (MET)
-Message-Id: <200611161238.kAGCcaKD017608@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: jbeulich@novell.com, linux-acpi@intel.com
-Subject: Re: [PATCH] avoid compiler warnings
-Cc: linux-kernel@vger.kernel.org
+	Thu, 16 Nov 2006 07:39:03 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:33293 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1423860AbWKPMi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 07:38:56 -0500
+Date: Thu, 16 Nov 2006 12:38:49 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] floppy: suspend/resume fix
+Message-ID: <20061116123849.GB28311@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <200611122047.kACKl8KP004895@harpo.it.uu.se> <20061112212941.GA31624@flint.arm.linux.org.uk> <20061112220318.GA3387@elte.hu> <20061112235410.GB31624@flint.arm.linux.org.uk> <20061114110958.GB2242@elf.ucw.cz> <1163522062.14674.3.camel@mindpipe> <20061115202418.GC3875@elf.ucw.cz> <20061115204915.1d0717db@localhost.localdomain> <20061115204933.GD3875@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061115204933.GD3875@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 16:47:59 +0000, Jan Beulich wrote:
-> >>Pointers should not be casted to u32 as this results in compiler warnings
-> >>on 64-bit platforms.
-> >
-> >NAK. Use "%p" for formatting pointers. No casts needed.
+On Wed, Nov 15, 2006 at 09:49:33PM +0100, Pavel Machek wrote:
+> > > > > Suspending with mounted floppy is a user error.
+> > > > 
+> > > > Huh?  How so?
+> > > 
+> > > Floppy is removable, and you are expected to umount removable devices
+> > > before suspend.
+> > 
+> > That seems pretty crude. There are lots of cases where an apparently
+> > removable device is/should be preserved properly and left mounted (eg
+> > builtin CF).
+> > 
+> > We really want to be smarter than that - which means the drivers ought to
+> > be doing stuff in their suspend/resume paths to figure out if the media
+> > changed when really possible (eg IDE removable)
+> > 
+> > Floppy is probably not too fixable, but calling it a "user error" is
+> > insulting - user expectation is reasonable that suspend/resume should
+> > just work. The implementation is just rather trickier/nonsensical in this
+> > case.
 > 
-> Indeed, how did I not see this... While at this, I saw that there were a few
-> more instances that needed fixing (they weren't actively generating warnings
-> because of the build settings).
+> Yep, it would be nice to do something about that; but I'm not sure how
+> this "was media changed" should be implemented, and if it should be
+> done in kernel or in userland.
 
-Tested on x86-64 and i386, and it did kill the warnings w/o noticeable regressions.
+With a floppy the only way to do that is to read data off the disk and
+compare it with what we know was on the disk prior to suspend/resume.
 
-However, for some reason (config settings?) you didn't fix the two cast warnings
-in utdebug.c; the appended patch fixes them too.
+Since we don't have a "standard floppy format" (since we're flexible)
+you can't rely on MSDOS boot sectors and the like to uniquely identify
+floppy disks.
 
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
-
---- linux-2.6.19-rc5/drivers/acpi/utilities/utdebug.c.~1~	2006-09-20 19:28:46.000000000 +0200
-+++ linux-2.6.19-rc5/drivers/acpi/utilities/utdebug.c	2006-11-15 21:22:27.000000000 +0100
-@@ -180,8 +180,8 @@ acpi_ut_debug_print(u32 requested_debug_
- 	if (thread_id != acpi_gbl_prev_thread_id) {
- 		if (ACPI_LV_THREADS & acpi_dbg_level) {
- 			acpi_os_printf
--			    ("\n**** Context Switch from TID %X to TID %X ****\n\n",
--			     (u32) acpi_gbl_prev_thread_id, (u32) thread_id);
-+			    ("\n**** Context Switch from TID %p to TID %p ****\n\n",
-+			     acpi_gbl_prev_thread_id, thread_id);
- 		}
- 
- 		acpi_gbl_prev_thread_id = thread_id;
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

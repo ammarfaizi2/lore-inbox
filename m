@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424094AbWKPOS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423837AbWKPOVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424094AbWKPOS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 09:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424093AbWKPOS7
+	id S1423837AbWKPOVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 09:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424079AbWKPOVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 09:18:59 -0500
-Received: from mail0.scram.de ([195.226.127.110]:27408 "EHLO mail0.scram.de")
-	by vger.kernel.org with ESMTP id S1424064AbWKPOS6 (ORCPT
+	Thu, 16 Nov 2006 09:21:14 -0500
+Received: from madara.hpl.hp.com ([192.6.19.124]:11007 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S1423837AbWKPOVN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 09:18:58 -0500
-Message-ID: <455C731A.4010503@scram.de>
-Date: Thu, 16 Nov 2006 15:18:02 +0100
-From: Jochen Friedrich <jochen@scram.de>
-User-Agent: IceDove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       madwifi-devel@lists.sourceforge.net, lwn@lwn.net, mcgrof@gmail.com,
-       david.kimdon@devicescape.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: ANNOUNCE: SFLC helps developers assess ar5k (enabling free Atheros
- HAL)
-References: <20061115031025.GH3451@tuxdriver.com> <200611151942.14596.mb@bu3sch.de> <20061115192054.GA10009@tuxdriver.com> <200611152026.26095.mb@bu3sch.de>
-In-Reply-To: <200611152026.26095.mb@bu3sch.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: Content analysis details: (0.0 points, 5.0 required)
-	pts rule name description
-	---- ---------------------- --------------------------------------------------
-	0.0 AWL AWL: From: address is in the auto white-list
+	Thu, 16 Nov 2006 09:21:13 -0500
+Date: Thu, 16 Nov 2006 06:20:49 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, ak@suse.de, Stephane Eranian <eranian@hpl.hp.com>
+Subject: [PATCH] x86-64 add Intel BTS cpufeature bit and detection (take 2)
+Message-ID: <20061116142049.GE18162@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061115213241.GC17238@frankl.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061115213241.GC17238@frankl.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andi,
 
-Hi Michael,
+Here is a small patch for x86-64 which adds a cpufeature flag and
+detection code for Intel's Branch Trace Store (BTS) feature. This
+feature can be found on Intel P4 and Core 2 processors among others.
+It can also be used by perfmon.
 
->> I don't think anyone likes the HAL-based architecture.  I don't think
->> we will accept a HAL-based driver into the upstream kernel.
-> 
-> Yeah, wanted to hear that. ;)
+The patch is relative to 2.6.19-rc5-git7 + x86_64-2.6.19-rc5-git7-061116-2
 
-+1
+changelog:
+	- add CPU_FEATURE_BTS
+	- add Branch Trace Store detection
 
-At least, this way we have a chance to get USB working as well (See http://madwifi.org/ticket/33).
-OpenBSD seems to have a working driver (if_uath.c) for these USB WLAN sticks.
+signed-off-by: stephane eranian <eranian@hpl.hp.com>
 
-Jochen
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQEVAwUBRVxzGsP9a9GOLSE6AQIeRgf/ZyvmzdhP1+wjVshy2kK0BX+I+lx7y6RO
-mMmaVXPnXnHhHE4OLcf9Yrnn6d6i6rS+0CUbw60KgQouuvTFSXEFtSpIYRlXGAyj
-krMCj8bEfHhDEN8iYjbjdhP9Nx1wQ//JGyoBVpZZ5+sro6ik7wv70igFeDZ2IWg6
-38ycxDzINaV13ZscpwoHzO3NhvcSs9k99Syrh/nR6/pp+3g2vXmrsYR+hy7DMrE/
-bSI9y50h8rz6ZCire1ppDwADyBW5B1OondoRkjFYd3L8zNUu8s8xUHZ0Znz6B/cc
-yc7jyfQMsBRTUU7VsX3cWuMfA0UGlPn/0MR0+RHRJYHW5bRlStc5Kw==
-=Ajsn
------END PGP SIGNATURE-----
+diff --exclude=.git -urNp linux-2.6.19-rc5-git7-ak.orig/arch/x86_64/kernel/setup.c linux-2.6.19-rc5-git7-ak/arch/x86_64/kernel/setup.c
+--- linux-2.6.19-rc5-git7-ak.orig/arch/x86_64/kernel/setup.c	2006-11-16 05:15:39.000000000 -0800
++++ linux-2.6.19-rc5-git7-ak/arch/x86_64/kernel/setup.c	2006-11-16 05:46:51.000000000 -0800
+@@ -838,6 +838,8 @@ static void __cpuinit init_intel(struct 
+ 	if (cpu_has_ds) {
+ 		unsigned int l1, l2;
+ 		rdmsr(MSR_IA32_MISC_ENABLE, l1, l2);
++		if (!(l1 & (1<<11)))
++			set_bit(X86_FEATURE_BTS, c->x86_capability);
+ 		if (!(l1 & (1<<12)))
+ 			set_bit(X86_FEATURE_PEBS, c->x86_capability);
+ 	}
+diff --exclude=.git -urNp linux-2.6.19-rc5-git7-ak.orig/include/asm-x86_64/cpufeature.h linux-2.6.19-rc5-git7-ak/include/asm-x86_64/cpufeature.h
+--- linux-2.6.19-rc5-git7-ak.orig/include/asm-x86_64/cpufeature.h	2006-11-16 05:15:39.000000000 -0800
++++ linux-2.6.19-rc5-git7-ak/include/asm-x86_64/cpufeature.h	2006-11-16 05:47:52.000000000 -0800
+@@ -69,6 +69,7 @@
+ #define X86_FEATURE_UP		(3*32+8) /* SMP kernel running on UP */
+ #define X86_FEATURE_ARCH_PERFMON (3*32+9) /* Intel Architectural PerfMon */
+ #define X86_FEATURE_PEBS	(3*32+10) /* Precise-Event Based Sampling */
++#define X86_FEATURE_BTS		(3*32+11) /* Branch Trace Store */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+ #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+@@ -115,5 +116,6 @@
+ #define cpu_has_clflush	       boot_cpu_has(X86_FEATURE_CLFLSH)
+ #define cpu_has_ds 	       boot_cpu_has(X86_FEATURE_DS)
+ #define cpu_has_pebs 	       boot_cpu_has(X86_FEATURE_PEBS)
++#define cpu_has_bts 	       boot_cpu_has(X86_FEATURE_BTS)
+ 
+ #endif /* __ASM_X8664_CPUFEATURE_H */

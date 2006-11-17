@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424607AbWKQEpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162354AbWKQErt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424607AbWKQEpj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 23:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162353AbWKQEpj
+	id S1162354AbWKQErt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 23:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162352AbWKQErt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 23:45:39 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:6767 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1162350AbWKQEph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 23:45:37 -0500
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH  09/13] Core WQE/CQE Types
-X-Message-Flag: Warning: May contain useful information
-References: <20061116035826.22635.61230.stgit@dell3.ogc.int>
-	<20061116035912.22635.21736.stgit@dell3.ogc.int>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 16 Nov 2006 20:45:36 -0800
-In-Reply-To: <20061116035912.22635.21736.stgit@dell3.ogc.int> (Steve Wise's message of "Wed, 15 Nov 2006 21:59:12 -0600")
-Message-ID: <adaveleof4f.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Thu, 16 Nov 2006 23:47:49 -0500
+Received: from gateway.insightbb.com ([74.128.0.19]:15701 "EHLO
+	asav01.insightbb.com") by vger.kernel.org with ESMTP
+	id S1162354AbWKQErs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 23:47:48 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AnoUAFnNXEVKhRUUVWdsb2JhbACBSYRAhjgBKw
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: IPv4: ip_options_compile() how can we avoid blowing up on a NULL skb???
+Date: Thu, 16 Nov 2006 22:46:18 -0500
+User-Agent: KMail/1.9.3
+Cc: David Miller <davem@davemloft.net>, jesper.juhl@gmail.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <E1GkrjY-0004Dt-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1GkrjY-0004Dt-00@gondolin.me.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 Nov 2006 04:45:36.0910 (UTC) FILETIME=[397E32E0:01C70A03]
-Authentication-Results: sj-dkim-4; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim4002 verified; ); 
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611162246.21018.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +struct t3_send_wr {
- > +	struct fw_riwrh wrh;	/* 0 */
- > +	union t3_wrid wrid;	/* 1 */
- > +
- > +	enum t3_rdma_opcode rdmaop:8;
- > +	u32 reserved:24;	/* 2 */
+On Thursday 16 November 2006 19:37, Herbert Xu wrote:
+> David Miller <davem@davemloft.net> wrote:
+> >
+> > I'm very happy to accept a patch which assert's this using BUG()
+> > checks :-)
+> 
+> A BUG() won't be necessary because the NULL pointer dereferences will
+> OOPS anyway.
+>
 
-Does this do the right thing wrt endianness?  I'd be more comfortable
-with something like
+BUG()s there would be a mechanism to document invariants so next time
+someone is looking at the code there are no questions.
 
-	u8 rdmaop;
-        u8 reserved[3];
-
-(although the __attribute__((packed)) on enum t3_rdma_opcode does make
-it OK to use here, I guess)
-
- > +	u32 rem_stag;		/* 2 */
- > +	u32 plen;		/* 3 */
- > +	u32 num_sgle;
- > +	struct t3_sge sgl[T3_MAX_SGE];	/* 4+ */
- > +};
+-- 
+Dmitry

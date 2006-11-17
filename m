@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755668AbWKQK2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755681AbWKQKaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755668AbWKQK2R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 05:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755670AbWKQK2R
+	id S1755681AbWKQKaF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 05:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933515AbWKQKaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 05:28:17 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2478 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1755668AbWKQK2Q (ORCPT
+	Fri, 17 Nov 2006 05:30:05 -0500
+Received: from mx2.suse.de ([195.135.220.15]:61617 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1755680AbWKQKaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 05:28:16 -0500
-Date: Fri, 17 Nov 2006 10:22:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061117092249.GA11102@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163721972.3109.6.camel@monteirov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Nov 2006 05:30:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+Date: Fri, 17 Nov 2006 11:29:25 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
+       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
+       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
+       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
+       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
+       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
+       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrey Borzenkov <arvidjaar@mail.ru>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <20061116122358.996fdbb3.akpm@osdl.org> <17757.34795.689658.106603@alkaid.it.uu.se>
+In-Reply-To: <17757.34795.689658.106603@alkaid.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1163721972.3109.6.camel@monteirov>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0018]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611171129.26014.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 17 November 2006 10:59, Mikael Pettersson wrote:
 
-* Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> wrote:
+> It certainly worked when I originally implemented it. 
 
-> On Thu, 2006-11-16 at 16:35 +0100, Ingo Molnar wrote:
-> >    cd /etc/yum.repos.d
-> >    wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
-> >    yum update kernel 
-> 
-> I follow the instructions on my x86_64 with FC6, that you already know
-> (http://bugzilla.kernel.org/show_bug.cgi?id=6419#c47),
-> hangs on boot with or without notsc.
+I don't think so. NMI watchdog never recovered no matter if oprofile
+used the counter or not.
 
-hm - could you try the -rt1 package i just uploaded? It fixes a boot 
-crash, amongst other bugfixes.
-
-	Ingo
+-Andi

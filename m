@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWKQMus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933562AbWKQMzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWKQMus (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 07:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932887AbWKQMus
+	id S933562AbWKQMzi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 07:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933567AbWKQMzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 07:50:48 -0500
-Received: from web23102.mail.ird.yahoo.com ([217.146.189.42]:11930 "HELO
-	web23102.mail.ird.yahoo.com") by vger.kernel.org with SMTP
-	id S932107AbWKQMus convert rfc822-to-8bit (ORCPT
+	Fri, 17 Nov 2006 07:55:38 -0500
+Received: from main.gmane.org ([80.91.229.2]:8678 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S933562AbWKQMzh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 07:50:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=ot67+DjIwApHrB9cDlWyomAJfohAP/228MZK0o728WM/UrSsTg2QW9TqImKYqlz2u36Jdb4hjIy6Pgne4zblYAgnMHcZKfhv+Enfr9Cin9iQ50MgPtHb9dLkwQyCM9Gjp5mZbqTYVa8zoj+Z2b1BUIZ2SRX9JV/lT4XWZqi9qwo=  ;
-Message-ID: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
-Date: Fri, 17 Nov 2006 12:50:46 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : vm: weird behaviour when munmapping
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 17 Nov 2006 07:55:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: emacs visiting of [patch 2.6.19-rc6] Documentation/rtc.txt updates (for rtc class)
+Date: Fri, 17 Nov 2006 12:55:25 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnelrcnc.7lr.olecom@flower.upol.cz>
+References: <200611162309.31879.david-b@pacbell.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> 
-> http://lwn.net/Kernel/LDD3/
-> 
-> Chapter 15. Section 'Virtual Memory Areas'.
-> 
-> Basically; vm_ops->open() is not called on the first vma. With this
-> munmap() you split the area in two, and it so happens the new vma is the
-> lower one.
-> 
+On 2006-11-17, David Brownell wrote:
+> Index: g26/Documentation/rtc.txt
 
-since I did "munmap(0x2aaae000, 1024)" I would say that the the new vma
-is the _upper_ one.
+Just another emacs visiting...
+Will try to build and reboot to test stuff tomorrow.
 
-lower vma: 0x2aaae000 -> 0x2aaaf000
-upper vma: 0x2aaaf000 -> 0x2aab2000
+Index: 2.6_current/Documentation/rtc.txt
+===================================================================
+--- 2.6_current.orig/Documentation/rtc.txt	2006-11-17 13:33:10.979411250 +0100
++++ 2.6_current/Documentation/rtc.txt	2006-11-17 13:33:40.981286250 +0100
+@@ -18,7 +18,7 @@
+ 
+     *	/dev/rtc ... is the RTC provided by PC compatible systems,
+ 	so it's not very portable to non-x86 systems.
+-    
++
+     *	/dev/rtc0, /dev/rtc1 ... are part of a framework that's
+ 	supported by a wide variety of RTC chips on all systems.
+ 
+@@ -86,9 +86,9 @@
+ interrupt handler is only a few lines of code to minimize any possibility
+ of this effect.
+ 
+-Also, if the kernel time is synchronized with an external source, the 
+-kernel will write the time back to the CMOS clock every 11 minutes. In 
+-the process of doing this, the kernel briefly turns off RTC periodic 
++Also, if the kernel time is synchronized with an external source, the
++kernel will write the time back to the CMOS clock every 11 minutes. In
++the process of doing this, the kernel briefly turns off RTC periodic
+ interrupts, so be aware of this if you are doing serious work. If you
+ don't synchronize the kernel time with an external source (via ntp or
+ whatever) then the kernel will keep its hands off the RTC, allowing you
 
-Francis
-
-
-
-
-
-
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Découvrez une nouvelle façon d'obtenir des réponses à toutes vos questions ! 
-Profitez des connaissances, des opinions et des expériences des internautes sur Yahoo! Questions/Réponses 
-http://fr.answers.yahoo.com

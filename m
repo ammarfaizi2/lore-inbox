@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424918AbWKQV3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933767AbWKQV27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424918AbWKQV3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424924AbWKQV3E
+	id S933767AbWKQV27 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933772AbWKQV27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:29:04 -0500
-Received: from smtp009.mail.ukl.yahoo.com ([217.12.11.63]:18519 "HELO
-	smtp009.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1424918AbWKQV3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:29:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=y/HKq4aN0r45QGzYk/jQxPbZU6MjTMjreybmcRkLzdaLszUJF52vO0+MDUqGQL+SpuliAtnVX2YzSD6dYejPrYRno6tZ7jXBQ65q2680p92W1l32r3aHKdavP8+uUjeVt+g6JZCh3W0x84oo/oKfnaXVxyeT1uc7toLr8LK0LLw=  ;
-X-YMail-OSG: acmQCpcVM1lBIIirjuLhxSDmojsVLkzw07gbnldUdLvWuuaUJqxvZwXE3vZH6KrUeiV6NVYY6l7QyYqcYvEQj7WrMK2A.fuu.qDM_GqBYEEYZOIwaQI-
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: We're still coping with GCC < 3.0
-Date: Fri, 17 Nov 2006 23:28:58 +0200
-User-Agent: KMail/1.8.3
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 17 Nov 2006 16:28:59 -0500
+Received: from mail.gmx.net ([213.165.64.20]:1199 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S933767AbWKQV26 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 16:28:58 -0500
+X-Authenticated: #14349625
+Subject: Re: [rfc patch] Re: sched: incorrect argument used in task_hot()
+From: Mike Galbraith <efault@gmx.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, nickpiggin@yahoo.com.au,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061117192052.GA23272@elte.hu>
+References: <000201c70840$a4902df0$d834030a@amr.corp.intel.com>
+	 <1163782610.22574.59.camel@Homer.simpson.net>
+	 <20061117192052.GA23272@elte.hu>
+Content-Type: text/plain
+Date: Fri, 17 Nov 2006 22:30:34 +0100
+Message-Id: <1163799034.23357.2.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611172228.58658.blaisorblade@yahoo.it>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(CC me on replies as I'm not subscribed)
-In arch/i386/kernel/irq.c (current git head) I found this comment:
+On Fri, 2006-11-17 at 20:20 +0100, Ingo Molnar wrote:
+> * Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > One way to improve granularity, and eliminate the possibility of 
+> > p->last_run being > rq->timestamp_tast_tick, and thereby short 
+> > circuiting the evaluation of cache_hot_time, is to cache the last 
+> > return of sched_clock() at both tick and sched times, and use that 
+> > value as our reference instead of the absolute time of the tick.  It 
+> > won't totally eliminate skew, but it moves the reference point closer 
+> > to the current time on the remote cpu.
+> > 
+> > Looking for a good place to do this, I chose update_cpu_clock().
+> 
+> looks good to me - thus we will update the timestamp not only in the 
+> timer tick, but also upon every context-switch (when we acquire 
+> sched_clock() value anyway). Lets try this in -mm?
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-/*
- * These should really be __section__(".bss.page_aligned") as well, but
- * gcc's 3.0 and earlier don't handle that correctly.
- */
-static char softirq_stack[NR_CPUS * THREAD_SIZE]
-                __attribute__((__aligned__(THREAD_SIZE)));
+Then it needs a blame line.
 
-static char hardirq_stack[NR_CPUS * THREAD_SIZE]
-                __attribute__((__aligned__(THREAD_SIZE)));
+Signed-off-by: Mike Galbraith <efault@gmx.de>
 
-That should be fixed now that we require GCC 3.0, not?
+	-Mike
 
-Btw, there are other such comments, like in include/asm-i386/semaphore.h: 
-sema_init (for GCC 2.7!). That one might not be the case to fix because of the 
-increased stack usage
-
-I've seen other similar tests around, so I thought that it'd be useful to 
-centralize all tests for GCC versions to headers like include/compiler.h so 
-they're promptly removed when deprecating old compilers.
-
-What about this?
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

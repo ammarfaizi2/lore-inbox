@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755956AbWKQV7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753140AbWKQWBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755956AbWKQV7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755960AbWKQV7y
+	id S1753140AbWKQWBt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 17:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755961AbWKQWBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:59:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:38878 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1755956AbWKQV7x (ORCPT
+	Fri, 17 Nov 2006 17:01:49 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:33751 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1753140AbWKQWBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:59:53 -0500
-Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on
-	acer ferrari 4005 with radeonfb enabled
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Christian Hoffmann <chrmhoffmann@gmail.com>
-Cc: Stuffed Crust <pizza@shaftnet.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+	Fri, 17 Nov 2006 17:01:48 -0500
+Date: Fri, 17 Nov 2006 14:00:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
        Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200611172133.50049.chrmhoffmann@gmail.com>
-References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com>
-	 <20061117060758.GB25413@shaftnet.org> <20061117154119.GC5158@shaftnet.org>
-	 <200611172133.50049.chrmhoffmann@gmail.com>
-Content-Type: text/plain
-Date: Sat, 18 Nov 2006 08:59:28 +1100
-Message-Id: <1163800768.5826.21.camel@localhost.localdomain>
+Subject: Re: [PATCH 1/2] Make x86_64 udelay() round up instead of down -
+ try2
+Message-Id: <20061117140050.7f19acf8.akpm@osdl.org>
+In-Reply-To: <20061117193047.13096.60874.stgit@americanbeauty.home.lan>
+References: <20061101163043.GA2602@elf.ucw.cz>
+	<20061117193047.13096.60874.stgit@americanbeauty.home.lan>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 17 Nov 2006 20:30:47 +0100
+"Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
 
-> When I comment out the rinfo->asleep = 0; line, the machine comes back. So it 
-> seems that rinfo struct is still corrupted somehow.
+> Port two patches from i386 to x86_64 delay.c to make sure all rounding is done
+> upward instead of downward.
 
-No, I don't think the rinfo is corrupted, I think the chip is in a state
-the driver can't cope with. Possibly related to some PCI-Express
-specific bits or to the memory map.
+Andi already has a patch in his, tree, only it's different.
 
-At this point, we'll need to do register dumps.
-
-Ben.
-
-
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/make-x86_64-udelay-round-up-instead-of-down.

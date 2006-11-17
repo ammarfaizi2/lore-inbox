@@ -1,445 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755563AbWKQItb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162377AbWKQJMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755563AbWKQItb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 03:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755564AbWKQItb
+	id S1162377AbWKQJMA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 04:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162415AbWKQJMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 03:49:31 -0500
-Received: from hqemgate02.nvidia.com ([216.228.112.143]:38725 "EHLO
-	HQEMGATE02.nvidia.com") by vger.kernel.org with ESMTP
-	id S1755563AbWKQIt3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 03:49:29 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 17 Nov 2006 04:12:00 -0500
+Received: from SMT02002.global-sp.net ([193.168.50.254]:25010 "EHLO
+	SMT02002.global-sp.net") by vger.kernel.org with ESMTP
+	id S1162377AbWKQJL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 04:11:58 -0500
+Message-ID: <455D7CDD.9000202@privacy.net>
+Date: Fri, 17 Nov 2006 10:11:57 +0100
+From: John <me@privacy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050905
+X-Accept-Language: en, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] SCSI: Add the SGPIO support for sata_nv.c
-Date: Fri, 17 Nov 2006 16:36:37 +0800
-Message-ID: <15F501D1A78BD343BE8F4D8DB854566B0CEB90E0@hkemmail01.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] SCSI: Add the SGPIO support for sata_nv.c
-Thread-Index: Acb82Qts6eVTNSWaR+ieCZ0wx7dLyAFeDCAQAfRMoDA=
-From: "Peer Chen" <pchen@nvidia.com>
-To: "Christoph Hellwig" <hch@infradead.org>,
-       "Prakash Punnoor" <prakash@punnoor.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: <jeff@garzik.org>, <linux-kernel@vger.kernel.org>,
-       <linux-ide@vger.kernel.org>, "Kuan Luo" <kluo@nvidia.com>
-X-OriginalArrivalTime: 17 Nov 2006 08:36:46.0057 (UTC) FILETIME=[84261590:01C70A23]
+To: linux-kernel@vger.kernel.org
+CC: tglx@timesys.com, mingo@elte.hu, johnstul@us.ibm.com
+Subject: Incorrect behavior of timer_settime() for absolute dates in the past
+Content-Type: multipart/mixed;
+ boundary="------------040406010608060402020801"
+X-OriginalArrivalTime: 17 Nov 2006 09:14:20.0195 (UTC) FILETIME=[C3B83F30:01C70A28]
+X-global-asp-net-MailScanner: Found to be clean
+X-global-asp-net-MailScanner-SpamCheck: 
+X-MailScanner-From: me@privacy.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't get any comment from you guys for new patch, does someone take
-care this patch, do we still need some modification upon it? Or do we
-need re-submit it in other thread?
+This is a multi-part message in MIME format.
+--------------040406010608060402020801
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 
-BRs
-Peer Chen
+Hello everyone,
 
------Original Message-----
-From: Peer Chen 
-Sent: Tuesday, November 07, 2006 5:55 PM
-To: 'Christoph Hellwig'
-Cc: jeff@garzik.org; linux-kernel@vger.kernel.org;
-linux-ide@vger.kernel.org; Kuan Luo
-Subject: RE: [PATCH] SCSI: Add the SGPIO support for sata_nv.c
+[ NOTE: Email is a bit-bucket. I *do* monitor the mailing list. ]
 
-Modified and resent out the patch as attachment.
-Description about the patch:
-Add SGPIO support in sata_nv.c.
-SGPIO (Serial General Purpose Input Output) is a sideband serial 4-wire
-interface that a storage controller uses to communicate with a storage
-enclosure management controller, primarily to control activity and
-status LEDs that are located within drive bays or on a storage
-backplane. SGPIO is defined by [SFF8485].
-In this patch,we drive the LEDs to blink when read/write operation
-happen on SATA drives connect the corresponding ports on MCP55 board.
-==========
-The patch will be applied to kernel 2.6.19-rc4-git9.
+I'm playing with the POSIX timers API. My platform is x86 running Linux 
+2.6.18.1 patched with the high-resolution timer subsystem.
 
-Singed-off-by: Kuan Luo <kluo@nvidia.com>
-Singed-off-by: Peer Chen <pchen@nvidia.com>
+http://www.tglx.de/hrtimers.html
 
+I'm seeing unexpected behavior from timer_settime().
 
-BRs
-Peer Chen
+int timer_settime(timer_t timerid, int flags,
+   const struct itimerspec *value, struct itimerspec *ovalue);
 
------Original Message-----
-From: Christoph Hellwig [mailto:hch@infradead.org] 
-Sent: Tuesday, October 31, 2006 6:41 PM
-To: Peer Chen
-Cc: jeff@garzik.org; linux-kernel@vger.kernel.org;
-linux-ide@vger.kernel.org; Kuan Luo
-Subject: Re: [PATCH] SCSI: Add the SGPIO support for sata_nv.c
+timer_settime() is used to arm a timer. If the TIMER_ABSTIME flag is 
+set, then the timer should fire when the appropriate clock reaches the 
+date specified by value. If that date is in the past, the timer should 
+fire immediately.
 
-On Tue, Oct 31, 2006 at 04:43:19PM +0800, Peer Chen wrote:
-> The following SGPIO patch for sata_nv.c is based on 2.6.18 kernel.
-> Signed-off by: Kuan Luo <kluo@nvidia.com>
+The Open Group Base Specifications Issue 6 states:
+http://www.opengroup.org/onlinepubs/009695399/functions/timer_getoverrun.html
 
-First I'd like to say the patch subject isn't very informative.  For
-a sata_nv patch it should read:
+"If the flag TIMER_ABSTIME is set in the argument flags, timer_settime() 
+shall behave as if the time until next expiration is set to be equal to 
+the difference between the absolute time specified by the it_value 
+member of value and the current value of the clock associated with 
+timerid. That is, the timer shall expire when the clock reaches the 
+value specified by the it_value member of value. If the specified time 
+has already passed, the function shall succeed and the expiration 
+notification shall be made."
 
-[PATCH] sata_nv: foooblah
+In my tests, when timer_settime() is called with an expiration date in 
+the past, the timer still takes some time to fire.
 
-and then the SGPIO in both the subject and description doesn't say
-anything
-at all, what functionality or improvement does this patch actually add.
+Here's a run-down of the code provided as an attachment:
 
-And in general send patches against latest git or -mm tree.  I don't
-know
-how much the sata_nv driver changed since 2.6.18 but in general sending
-patches against old kernel means they often can't be applied anymore.
+I switch to a SCHED_RR scheduling policy. In other words, whenever my 
+process wants the CPU, it gets it. (No other SCHED_RR or SCHED_FIFO 
+processes on the system.) I mask the signal that will be delivered on 
+timer expiration. I then arm a timer with an expiration date in the 
+past, check whether the signal is pending, and block waiting for the 
+signal. I then print how long I've had to wait.
 
-> +//sgpio
-> +// Sgpio defines
-> +// SGPIO state defines
+# ./a.out
+RESOLUTION=1 ns
+NOW=969.735545919
+SLEEPING 1 SECOND...
+NOW=970.735581398
+NOW=970.735613525
+NOW=970.735749017
+nsdiff=135492 ns i.e. 135.5 µs
 
-please use /* */ style comments.  Also these aren't exactly useful
+Any ideas?
 
-> +#define NV_ON 1
-> +#define NV_OFF 0
-> +#ifndef bool
-> +#define bool u8
-> +#endif
+Regards,
 
-please don't use your own bool types.
+John
 
-> +#define BF_EXTRACT(v, off, bc)	\
-> +	((((u8)(v)) >> (off)) & ((1 << (bc)) - 1))
-> +
-> +#define BF_INS(v, ins, off, bc)				\
-> +	(((v) & ~((((1 << (bc)) - 1)) << (off))) |	\
-> +	(((u8)(ins)) << (off)))
-> +
-> +#define BF_EXTRACT_U32(v, off, bc)	\
-> +	((((u32)(v)) >> (off)) & ((1 << (bc)) - 1))
-> +
-> +#define BF_INS_U32(v, ins, off, bc)			\
-> +	(((v) & ~((((1 << (bc)) - 1)) << (off))) |	\
-> +	(((u32)(ins)) << (off)))
+--------------040406010608060402020801
+Content-Type: text/plain;
+ name="abstimerTEST.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="abstimerTEST.c"
 
-please make such things inline functions.  Also they could have
-more descriptive names.
+#include <stdio.h>      // printf, puts, perror
+#include <string.h>     // memset
+#include <unistd.h>     // sleep
+#include <signal.h>     // sig*
+#include <sched.h>      // sched_setscheduler
+#include <time.h>       // clock_gettime, timer_*
 
-> +union nv_sgpio_nvcr 
-> +{
-> +	struct {
-> +		u8	init_cnt;
-> +		u8	cb_size;
-> +		u8	cbver;
-> +		u8	rsvd;
-> +	} bit;
-> +	u32	all;
-> +};
-> +
-> +union nv_sgpio_tx 
-> +{
-> +	u8	tx_port[4];
-> +	u32 	all;
-> +};
-> +
-> +struct nv_sgpio_cb 
-> +{
-> +	u64			scratch_space;
-> +	union nv_sgpio_nvcr	nvcr;
-> +	u32			cr0;
-> +	u32                     rsvd[4];
-> +	union nv_sgpio_tx       tx[2];
-> +};
-> +
-> +struct nv_sgpio_host_share
-> +{
-> +	spinlock_t	*plock;
-> +	unsigned long   *ptstamp;
-> +};
-> +
-> +struct nv_sgpio_host_flags
-> +{
-> +	u8	sgpio_enabled:1;
-> +	u8	need_update:1;
-> +	u8	rsvd:6;
-> +};
-> +	
-> +struct nv_host_sgpio
-> +{
-> +	struct nv_sgpio_host_flags	flags;
-> +	u8				*pcsr;
-> +	struct nv_sgpio_cb		*pcb;	
-> +	struct nv_sgpio_host_share	share;
-> +	struct timer_list		sgpio_timer;
-> +};
-> +
-> +struct nv_sgpio_port_flags
-> +{
-> +	u8	last_state:1;
-> +	u8	recent_activity:1;
-> +	u8	rsvd:6;
-> +};
-> +
-> +struct nv_sgpio_led 
-> +{
-> +	struct nv_sgpio_port_flags	flags;
-> +	u8				force_off;
-> +	u8      			last_cons_active;
-> +};
-> +
-> +struct nv_port_sgpio
-> +{
-> +	struct nv_sgpio_led	activity;
-> +};
-> +
-> +static spinlock_t	nv_sgpio_lock;
+#define ZERO(type, name) type name; memset(&name, 0, sizeof name)
+#define SIG_TIMER_EXPIRATION SIGRTMIN
+#define CLOCK_TYPE CLOCK_MONOTONIC
 
-please use DEFINE_SPINLOCK to initialize the lock statically.
+void set_SCHED_RR(void)
+{
+  ZERO(struct sched_param, param);
+  param.sched_priority = 66;
+  if (sched_setscheduler(0, SCHED_RR, &param) != 0) perror("sched_setscheduler");
+}
 
-> +static unsigned long	nv_sgpio_tstamp;
+struct timespec get_time_stamp(void)
+{
+  ZERO(struct timespec, now);
+  if (clock_gettime(CLOCK_TYPE, &now) != 0) perror("clock_gettime");
+  printf("NOW=%ld.%09ld\n", now.tv_sec, now.tv_nsec);
+  return now;
+}
 
-> +static inline void nv_sgpio_set_csr(u8 csr, unsigned long pcsr)
-> +{
-> +	outb(csr, pcsr);
-> +}
-> +
-> +static inline u8 nv_sgpio_get_csr(unsigned long pcsr)
-> +{
-> +	return inb(pcsr);
-> +}
+int main(void)
+{
+  set_SCHED_RR();
 
-these helpers aren't useful at all, please remove them.
+  sigset_t set;
+  sigemptyset(&set);
+  sigaddset(&set, SIG_TIMER_EXPIRATION);
+  sigprocmask(SIG_BLOCK, &set, NULL);
 
-> +static inline u8 nv_sgpio_get_func(struct ata_host_set *host_set)
-> +{
-> +	u8 devfn = (to_pci_dev(host_set->dev))->devfn;
-> +	return (PCI_FUNC(devfn));
-> +}
-> +
-> +static inline u8 nv_sgpio_tx_host_offset(struct ata_host_set
-*host_set)
-> +{
-> +	return (nv_sgpio_get_func(host_set)/NV_CNTRLR_SHARE_INIT);
-> +}
-> +
-> +static inline u8 nv_sgpio_calc_tx_offset(u8 cntrlr, u8 channel)
-> +{
-> +	return (sizeof(union nv_sgpio_tx) - (NV_CNTRLR_SHARE_INIT *
-> +		(cntrlr % NV_CNTRLR_SHARE_INIT)) - channel - 1);
-> +}
-> +
-> +static inline u8 nv_sgpio_tx_port_offset(struct ata_port *ap)
-> +{
-> +	u8 cntrlr = nv_sgpio_get_func(ap->host_set);
-> +	return (nv_sgpio_calc_tx_offset(cntrlr, ap->port_no));
-> +}
-> +
-> +static inline bool nv_sgpio_capable(const struct pci_device_id *ent)
-> +{
-> +	if (ent->device == PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2)
-> +		return 1;
-> +	else
-> +		return 0;
-> +}
->  static int nv_init_one (struct pci_dev *pdev, const struct
-> pci_device_id *ent);
->  static void nv_ck804_host_stop(struct ata_host_set *host_set);
->  static irqreturn_t nv_generic_interrupt(int irq, void *dev_instance,
-> @@ -90,7 +259,10 @@
->  				      struct pt_regs *regs);
->  static u32 nv_scr_read (struct ata_port *ap, unsigned int sc_reg);
->  static void nv_scr_write (struct ata_port *ap, unsigned int sc_reg,
-u32
-> val);
-> -
-> +static void nv_host_stop (struct ata_host_set *host_set);
-> +static int nv_port_start(struct ata_port *ap);
-> +static void nv_port_stop(struct ata_port *ap);
-> +static int nv_qc_issue(struct ata_queued_cmd *qc);
->  static void nv_nf2_freeze(struct ata_port *ap);
->  static void nv_nf2_thaw(struct ata_port *ap);
->  static void nv_ck804_freeze(struct ata_port *ap);
-> @@ -147,6 +319,27 @@
->  	{ 0, } /* terminate list */
->  };
->  
-> +struct nv_host
-> +{
-> +	unsigned long		host_flags;
-> +	struct nv_host_sgpio	host_sgpio;
-> +};
-> +
-> +struct nv_port
-> +{
-> +	struct nv_port_sgpio	port_sgpio;
-> +};
-> +
-> +// SGPIO function prototypes
-> +static void nv_sgpio_init(struct pci_dev *pdev, struct nv_host
-*phost);
-> +static void nv_sgpio_reset(u8 *pcsr);
-> +static void nv_sgpio_set_timer(struct timer_list *ptimer, 
-> +				unsigned int timeout_msec);
-> +static void nv_sgpio_timer_handler(unsigned long ptr);
-> +static void nv_sgpio_host_cleanup(struct nv_host *host);
-> +static bool nv_sgpio_update_led(struct nv_sgpio_led *led, bool
-> *on_off);
-> +static void nv_sgpio_clear_all_leds(struct ata_port *ap);
-> +static bool nv_sgpio_send_cmd(struct nv_host *host, u8 cmd);
->  static struct pci_driver nv_pci_driver = {
->  	.name			= DRV_NAME,
->  	.id_table		= nv_pci_tbl,
-> @@ -184,7 +377,7 @@
->  	.bmdma_stop		= ata_bmdma_stop,
->  	.bmdma_status		= ata_bmdma_status,
->  	.qc_prep		= ata_qc_prep,
-> -	.qc_issue		= ata_qc_issue_prot,
-> +	.qc_issue		= nv_qc_issue,
->  	.freeze			= ata_bmdma_freeze,
->  	.thaw			= ata_bmdma_thaw,
->  	.error_handler		= nv_error_handler,
-> @@ -194,9 +387,9 @@
->  	.irq_clear		= ata_bmdma_irq_clear,
->  	.scr_read		= nv_scr_read,
->  	.scr_write		= nv_scr_write,
-> -	.port_start		= ata_port_start,
-> -	.port_stop		= ata_port_stop,
-> -	.host_stop		= ata_pci_host_stop,
-> +	.port_start		= nv_port_start,
-> +	.port_stop		= nv_port_stop,
-> +	.host_stop		= nv_host_stop,
->  };
->  
->  static const struct ata_port_operations nv_nf2_ops = {
-> @@ -211,7 +404,7 @@
->  	.bmdma_stop		= ata_bmdma_stop,
->  	.bmdma_status		= ata_bmdma_status,
->  	.qc_prep		= ata_qc_prep,
-> -	.qc_issue		= ata_qc_issue_prot,
-> +	.qc_issue		= nv_qc_issue,
->  	.freeze			= nv_nf2_freeze,
->  	.thaw			= nv_nf2_thaw,
->  	.error_handler		= nv_error_handler,
-> @@ -221,9 +414,9 @@
->  	.irq_clear		= ata_bmdma_irq_clear,
->  	.scr_read		= nv_scr_read,
->  	.scr_write		= nv_scr_write,
-> -	.port_start		= ata_port_start,
-> -	.port_stop		= ata_port_stop,
-> -	.host_stop		= ata_pci_host_stop,
-> +	.port_start		= nv_port_start,
-> +	.port_stop		= nv_port_stop,
-> +	.host_stop		= nv_host_stop,
->  };
->  
->  static const struct ata_port_operations nv_ck804_ops = {
-> @@ -238,7 +431,7 @@
->  	.bmdma_stop		= ata_bmdma_stop,
->  	.bmdma_status		= ata_bmdma_status,
->  	.qc_prep		= ata_qc_prep,
-> -	.qc_issue		= ata_qc_issue_prot,
-> +	.qc_issue		= nv_qc_issue,
->  	.freeze			= nv_ck804_freeze,
->  	.thaw			= nv_ck804_thaw,
->  	.error_handler		= nv_error_handler,
-> @@ -248,8 +441,8 @@
->  	.irq_clear		= ata_bmdma_irq_clear,
->  	.scr_read		= nv_scr_read,
->  	.scr_write		= nv_scr_write,
-> -	.port_start		= ata_port_start,
-> -	.port_stop		= ata_port_stop,
-> +	.port_start		= nv_port_start,
-> +	.port_stop		= nv_port_stop,
->  	.host_stop		= nv_ck804_host_stop,
->  };
->  
-> @@ -480,10 +673,10 @@
->  	ata_bmdma_drive_eh(ap, ata_std_prereset, ata_std_softreset,
->  			   nv_hardreset, ata_std_postreset);
->  }
-> -
->  static int nv_init_one (struct pci_dev *pdev, const struct
-> pci_device_id *ent)
->  {
->  	static int printed_version = 0;
-> +	struct nv_host *host;
->  	struct ata_port_info *ppi;
->  	struct ata_probe_ent *probe_ent;
->  	int pci_dev_busy = 0;
-> @@ -525,6 +718,13 @@
->  	if (!probe_ent)
->  		goto err_out_regions;
->  
-> +	host = kmalloc(sizeof(struct nv_host), GFP_KERNEL);
-> +	if (!host)
-> +		goto err_out_free_ent;
-> +
-> +	memset(host, 0, sizeof(struct nv_host));
+  ZERO(struct timespec, reso);
+  if (clock_getres(CLOCK_TYPE, &reso) != 0) perror("clock_getres");
+  printf("RESOLUTION=%ld ns\n", reso.tv_sec*1000000000+reso.tv_nsec);
 
-Please use kzalloc().
+  timer_t timer;
+  ZERO(struct sigevent, event);
+  event.sigev_notify = SIGEV_SIGNAL;
+  event.sigev_signo = SIG_TIMER_EXPIRATION;
+  if (timer_create(CLOCK_TYPE, &event, &timer) != 0) perror("timer_create");
 
-> +static int nv_port_start(struct ata_port *ap)
-> +{
-> +	int stat;
-> +	struct nv_port *port;
-> +
-> +	stat = ata_port_start(ap);
-> +	if (stat) {
-> +		return stat;
-> +	}
+  sigset_t pending;
 
-useless braces.
+  struct timespec H = get_time_stamp();
+  puts("SLEEPING 1 SECOND..."); sleep(1);
+  /* H is now 1 second in the past. */
+  get_time_stamp();
+  ZERO(struct itimerspec, spec);
+  spec.it_value = H;
+  if (timer_settime(timer, TIMER_ABSTIME, &spec, NULL) != 0) perror("timer_settime");
+  if (sigpending(&pending) != 0) perror("sigpending");
+  int res=sigismember(&pending, SIG_TIMER_EXPIRATION);
+  if (res < 0) perror("sigismember");
+  else if (res) puts("TIMER HAS ALREADY FIRED.");
+  
+  struct timespec H1 = get_time_stamp();
+  sigwaitinfo(&set, NULL);
+  struct timespec H2 = get_time_stamp();
 
-> +
-> +	port = kmalloc(sizeof(struct nv_port), GFP_KERNEL);
-> +	if (!port) 
-> +		goto err_out_no_free;
-> +
-> +	memset(port, 0, sizeof(struct nv_port));
+  int nsdiff = (H2.tv_sec-H1.tv_sec)*1000000000 + (H2.tv_nsec-H1.tv_nsec);
+  printf("nsdiff=%d ns i.e. %d ms\n", nsdiff, nsdiff/1000000);
 
-Please use kzalloc again.
+  return 0;
+}
 
-> +	return (ata_qc_issue_prot(qc));
+--------------040406010608060402020801--
 
-no need for braces around the return value.
-
-> +static void nv_sgpio_init(struct pci_dev *pdev, struct nv_host
-*phost)
-> +{
-> +	u16 csr_add; 
-> +	u32 cb_add, temp32;
-> +	struct device *dev = pci_dev_to_dev(pdev);
-> +	struct ata_host_set *host_set = dev_get_drvdata(dev);
-> +	u8 pro=0;
-
-missing spacezs around the =.
-
-> +	if (!(pro&0x40))
-
-Again missing spaces.  Please take another look at
-Documentation/CodingStyle
-for the preferred linux style.
-
-> +		return;	
-> +		
-> +	temp32 = csr_add;
-> +	phost->host_sgpio.pcsr = (void *)temp32;
-> +	phost->host_sgpio.pcb = phys_to_virt(cb_add);
-
-Use of phys_to_virt is generally a bug.  What are you trying to do here?
-
-> +
-> +	if (phost->host_sgpio.pcb->nvcr.bit.init_cnt!=0x2 ||
-> phost->host_sgpio.pcb->nvcr.bit.cbver!=0x0)
-
-in addition to the whitespace damage this line is far too long,
-please break it up.
-
-
-<skipping the rest of the file for now until it's made a little more
- readable>
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------

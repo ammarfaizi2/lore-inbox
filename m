@@ -1,91 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424610AbWKQAHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424635AbWKQAMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424610AbWKQAHw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 19:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424620AbWKQAHw
+	id S1424635AbWKQAMf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 19:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424795AbWKQAMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 19:07:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:65179 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1424610AbWKQAHv (ORCPT
+	Thu, 16 Nov 2006 19:12:35 -0500
+Received: from gw.goop.org ([64.81.55.164]:45743 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1424635AbWKQAMf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 19:07:51 -0500
-Date: Thu, 16 Nov 2006 16:07:23 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB fixes for 2.6.19-rc6
-Message-ID: <20061117000723.GA687@kroah.com>
+	Thu, 16 Nov 2006 19:12:35 -0500
+Message-ID: <455D0155.9000305@goop.org>
+Date: Thu, 16 Nov 2006 16:24:53 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Ingo Molnar <mingo@elte.hu>
+CC: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Eric Dumazet <dada1@cosmosbay.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <1158047806.2992.7.camel@laptopd505.fenrus.org> <200611151227.04777.dada1@cosmosbay.com> <200611151232.31937.ak@suse.de> <20061115172003.GA20403@elte.hu> <455B4E2F.7040408@goop.org> <1163613702.31358.145.camel@laptopd505.fenrus.org> <455B5B55.20803@goop.org> <20061115190606.GB9303@elte.hu>
+In-Reply-To: <20061115190606.GB9303@elte.hu>
+Content-Type: multipart/mixed;
+ boundary="------------080303010202030309000704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some USB bugfixes for 2.6.19-rc6.
+This is a multi-part message in MIME format.
+--------------080303010202030309000704
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-They include a fix on the Adrian's list-o-regressions, and a number of
-other minor things and new device ids.
+Ingo Molnar wrote:
+> what point would there be in using it? It's not like the kernel could 
+> make use of the thread keyword anytime soon (it would need /all/ 
+> architectures to support it) ...
 
-All of these changes have been in the last few -mm releases.
+The plan was to implement the x86 arch-specific percpu stuff to use it,
+since it allows gcc better optimisation opportunities.
 
-Please pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+>  and the kernel doesnt mind how the 
+> current per_cpu() primitives are implemented, via assembly or via C. In 
+> any case, it very much matters to see the precise cost of having the pda 
+> selector value in %gs versus %fs.
+>   
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+Hm, well, unfortunately for me, there is a small but distinct advantage
+to using %fs rather than %gs (around 0-5ns per iteration).  The notable
+exception being the "AMD-K6(tm) 3D+ Processor", where %gs is about 25%
+(15ns) faster.
 
-thanks,
+I'll revise the patches to use %fs and resubmit.
 
-greg k-h
+    J
+
+--------------080303010202030309000704
+Content-Type: text/plain;
+ name="results-mixed.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="results-mixed.txt"
+
+"Genuine Intel(R) CPU           T2400  @ 1.83GHz" @1000Mhz (6,14,8):
+ds=7b fs=0 gs=33 ldt=f gdt=3b CPUTIME 
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 26ns/iteration
+   gs with data selector: 30ns/iteration
+
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 26ns/iteration
+   gs with LDT selector: 26ns/iteration
+
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 26ns/iteration
+   gs with GDT selector: 30ns/iteration
+
+"Intel(R) Pentium(R) 4 CPU 1.80GHz" @1817.9Mhz (15,2,4):
+ds=7b fs=0 gs=33 ldt=f gdt=3b CPUTIME 
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 33ns/iteration
+   gs with data selector: 34ns/iteration
+
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 43ns/iteration
+   gs with LDT selector: 52ns/iteration
+
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 33ns/iteration
+   gs with GDT selector: 34ns/iteration
+
+"Intel(R) Celeron(R) CPU 2.40GHz" @2394.47Mhz (15,2,9):
+ds=7b fs=0 gs=33 ldt=f gdt=3b CPUTIME 
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 20ns/iteration
+   gs with data selector: 24ns/iteration
+
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 21ns/iteration
+   gs with LDT selector: 26ns/iteration
+
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 21ns/iteration
+   gs with GDT selector: 26ns/iteration
+
+"Pentium 75 - 200" @166.206Mhz (5,2,12):
+ds=7b fs=0 gs=33 ldt=f gdt=3b GTOD
+   <none> with data selector: 1ns/iteration
+   fs with data selector: 74ns/iteration
+   gs with data selector: 75ns/iteration
+
+   <none> with LDT selector: 1ns/iteration
+   fs with LDT selector: 74ns/iteration
+   gs with LDT selector: 75ns/iteration
+
+   <none> with GDT selector: 1ns/iteration
+   fs with GDT selector: 74ns/iteration
+   gs with GDT selector: 74ns/iteration
+
+"AMD-K6(tm) 3D+ Processor" @451.105Mhz (5,9,1):
+ds=7b fs=0 gs=33 ldt=f gdt=3b GTOD
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 59ns/iteration
+   gs with data selector: 44ns/iteration
+
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 59ns/iteration
+   gs with LDT selector: 44ns/iteration
+
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 59ns/iteration
+   gs with GDT selector: 44ns/iteration
+
+"AMD Athlon(tm) XP 3000+" @2162.74Mhz (6,10,0):
+ds=7b fs=0 gs=33 ldt=f gdt=3b CPUTIME
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 10ns/iteration
+   gs with data selector: 11ns/iteration
+
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 11ns/iteration
+   gs with LDT selector: 11ns/iteration
+
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 11ns/iteration
+   gs with GDT selector: 11ns/iteration
 
 
- drivers/usb/core/message.c         |    5 +----
- drivers/usb/host/ohci-hcd.c        |   25 +++++++++++++++----------
- drivers/usb/host/ohci-hub.c        |    6 ++++--
- drivers/usb/input/hid-core.c       |    5 +++--
- drivers/usb/input/hid-input.c      |   17 +++++++++++++++++
- drivers/usb/input/hid.h            |    1 +
- drivers/usb/misc/auerswald.c       |    2 +-
- drivers/usb/serial/ftdi_sio.c      |    2 ++
- drivers/usb/serial/ftdi_sio.h      |   11 ++++++++++-
- drivers/usb/serial/ipaq.c          |    1 +
- drivers/usb/storage/unusual_devs.h |   18 +++---------------
- 11 files changed, 58 insertions(+), 35 deletions(-)
+"AMD Athlon(tm) 64 Processor 3500+" @2210.23Mhz (15,31,0):
+ds=2b fs=0 gs=63 ldt=f gdt=6b GTOD
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 11ns/iteration
+   gs with data selector: 11ns/iteration
 
----------------
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 10ns/iteration
+   gs with LDT selector: 11ns/iteration
 
-Alan Stern (2):
-      OHCI: disallow autostop when wakeup is not available
-      USB: OHCI: fix root-hub resume bug
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 10ns/iteration
+   gs with GDT selector: 11ns/iteration
 
-Alex Sanks (1):
-      USB: ipaq: Add HTC Modem Support
+"Pentium III (Coppermine)" @700Mhz (6,8,6):
+ds=7b fs=0 gs=33 ldt=f gdt=3b CPUTIME
+   <none> with data selector: 0ns/iteration
+   fs with data selector: 38ns/iteration
+   gs with data selector: 45ns/iteration
 
-Frank Sievertsen (1):
-      USB: ftdi driver pid for dmx-interfaces
+   <none> with LDT selector: 0ns/iteration
+   fs with LDT selector: 39ns/iteration
+   gs with LDT selector: 41ns/iteration
 
-Jan Mate (1):
-      USB Storage: unusual_devs.h entry for Sony Ericsson P990i
+   <none> with GDT selector: 0ns/iteration
+   fs with GDT selector: 39ns/iteration
+   gs with GDT selector: 44ns/iteration
 
-Julien BLACHE (1):
-      USB: hid-core: Add quirk for new Apple keyboard/trackpad
-
-Kjell Myksvoll (1):
-      USB: ftdi_sio: adds vendor/product id for a RFID construction kit
-
-Laurent Pinchart (1):
-      USB: Fixed outdated usb_get_device_descriptor() documentation
-
-Mariusz Kozlowski (1):
-      USB: auerswald possible memleak fix
-
-Olaf Hering (1):
-      USB: correct keymapping on Powerbook built-in USB ISO keyboards
-
-Phil Dibowitz (1):
-      USB: Fix UCR-61S2B unusual_dev entry
-
-Sergey Vlasov (1):
-      usb-storage: Remove duplicated unusual_devs.h entries for Sony Ericsson P990i
-
+--------------080303010202030309000704--

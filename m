@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933580AbWKQNAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933584AbWKQNIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933580AbWKQNAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 08:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933582AbWKQNAK
+	id S933584AbWKQNIS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 08:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933585AbWKQNIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 08:00:10 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:48020 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S933580AbWKQNAI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 08:00:08 -0500
-Subject: Re: Patch to fixe Data Acess error in dup_fd
-From: Sharyathi Nagesh <sharyath@in.ibm.com>
-Reply-To: sharyath@in.ibm.com
-To: Sergey Vlasov <vsu@altlinux.ru>, Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: Zhao Yu Wang <wangzyu@cn.ibm.com>, Pavel Emelianov <xemul@sw.ru>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1163578540.4987.7.camel@localhost.localdomain>
-References: <1163151121.3539.15.camel@legolas.in.ibm.com>
-	 <20061114181656.6328e51a.vsu@altlinux.ru>
-	 <1163530154.4871.14.camel@impinj-lt-0046>
-	 <20061114204236.GA10840@procyon.home>
-	 <1163540156.5412.9.camel@impinj-lt-0046>
-	 <1163576300.8208.14.camel@legolas.in.ibm.com>
-	 <1163578540.4987.7.camel@localhost.localdomain>
+	Fri, 17 Nov 2006 08:08:18 -0500
+Received: from amsfep19-int.chello.nl ([213.46.243.16]:17740 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S933584AbWKQNIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 08:08:17 -0500
+Subject: Re: Re : vm: weird behaviour when munmapping
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
+References: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
 Content-Type: text/plain
-Organization: IBM
-Date: Fri, 17 Nov 2006 18:38:30 +0530
-Message-Id: <1163768910.12593.19.camel@legolas.in.ibm.com>
+Date: Fri, 17 Nov 2006 14:05:42 +0100
+Message-Id: <1163768742.5968.108.camel@twins>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I looked into a few memtests that were run in similar machine. There
-are a few slab corruption issues but not while running memtest and no
-other issues.
-  Seems difficult to replicate.
+On Fri, 2006-11-17 at 12:50 +0000, moreau francis wrote:
+> Peter Zijlstra wrote:
+> > 
+> > http://lwn.net/Kernel/LDD3/
+> > 
+> > Chapter 15. Section 'Virtual Memory Areas'.
+> > 
+> > Basically; vm_ops->open() is not called on the first vma. With this
+> > munmap() you split the area in two, and it so happens the new vma is the
+> > lower one.
+> > 
+> 
+> since I did "munmap(0x2aaae000, 1024)" I would say that the the new vma
+> is the _upper_ one.
+> 
+> lower vma: 0x2aaae000 -> 0x2aaaf000
+> upper vma: 0x2aaaf000 -> 0x2aab2000
 
-On Wed, 2006-11-15 at 00:15 -0800, Vadim Lobanov wrote:
-> On Wed, 2006-11-15 at 13:08 +0530, Sharyathi Nagesh wrote:
-> >    This is very interesting: after reading through I am feeling there is high chance this 
-> > could as well be a memory corruption issue. But if the issue is memory getting corrupted 
-> > what could be the possible reasons.
-> >    I had observed random slab corruption issues in the machine, could
-> > that may have resulted in corruption, we may be opening up larger issues
-> > here about which I am not much aware of, 
-> 
-> I'm guessing that you've already tried this, but it never hurts to be
-> sure: does this machine pass memtest? :)
-> 
-> >    The kernel version on which it is tested is: 2.6.18-1 (Distro   
-> >    variant)
-> 
-> Unless someone recognizes special magic values from the register dumps
-> to point at any particular part of the kernel, the corruption could be
-> coming from almost anywhere. If noone has any better guesses, then
-> narrowing down the problem might be worthwhile: grab a vanilla
-> non-distro 2.6.18-1 kernel (from kernel.org) and see if you can
-> reproduce the problem with that, and then try to find the previous
-> release where the problem disappears. Or use git instead, which folks
-> say can do this bisection process rather well. :)
-> 
-> Thanks,
-> -- Vadim Lobanov
-> 
+that is the remaining VMA, not the new one; we trigger this code:
+
+	/* Does it split the last one? */
+	last = find_vma(mm, end);
+	if (last && end > last->vm_start) {
+		int error = split_vma(mm, last, end, 1);
+		if (error)
+			return error;
+	}
+
+So, since its the last VMA that needs to be split (there is only one),
+the new VMA is constructed before the old one. Like so:
+
+  AAAAAAAAAAAAAAAAAAAAA
+  BBBBAAAAAAAAAAAAAAAAA
+
+Then you proceed closing, in this case the new one: B.
+
 

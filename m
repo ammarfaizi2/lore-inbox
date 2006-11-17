@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933562AbWKQMzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933570AbWKQM5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933562AbWKQMzi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 07:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933567AbWKQMzi
+	id S933570AbWKQM5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 07:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933574AbWKQM5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 07:55:38 -0500
-Received: from main.gmane.org ([80.91.229.2]:8678 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S933562AbWKQMzh (ORCPT
+	Fri, 17 Nov 2006 07:57:34 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:54612 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S933570AbWKQM5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 07:55:37 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: emacs visiting of [patch 2.6.19-rc6] Documentation/rtc.txt updates (for rtc class)
-Date: Fri, 17 Nov 2006 12:55:25 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnelrcnc.7lr.olecom@flower.upol.cz>
-References: <200611162309.31879.david-b@pacbell.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Fri, 17 Nov 2006 07:57:33 -0500
+Message-ID: <455DB113.4000309@sw.ru>
+Date: Fri, 17 Nov 2006 15:54:43 +0300
+From: Vasily Averin <vvs@sw.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: devel@openvz.org
+CC: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+       linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Q] workaround for ide (native) leads to irq storm?
+References: <453DC2A9.8000507@sw.ru> <453DC65C.8000408@sw.ru>		<454206EE.9080206@sw.ru>	<1161958862.16839.26.camel@localhost.localdomain>	<4559879D.8090105@sw.ru> <455AF01C.5090307@gmail.com> <455C2510.5000002@sw.ru>
+In-Reply-To: <455C2510.5000002@sw.ru>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-17, David Brownell wrote:
-> Index: g26/Documentation/rtc.txt
+Vasily Averin wrote:
+> Tejun Heo wrote:
+>> Vasily Averin wrote:
+>>> I've reproduced this issue on linux 2.6.19-rc5 kernel.
+>>>
+>>> Please see http://bugzilla.kernel.org/show_bug.cgi?id=7518 for details
+>>
+>> Fortunately, libata is immune to the problem because it does 
+>> ap->ops->irq_clear(ap) in ata_host_intr() regardless of command type in 
+>> flight.  So, not loading IDE piix and using libata to drive all piix 
+>> ports solves the problem.
+> 
+> I've disabled IDE support in the config and recompiled the kernel.
+> It seems you are right, problem go away, new kernel was booted without any
+> problems and works well.
+> 
+> As a linux support engeneer I've seen this issue several times on the user-nodes
+> and it was very hard to understand what's happened and how to prevent this issue
+> in the future. First question is resolved now but from support point of view it
+> is very important to find some workaround against this issue on existing
+> distributions. Right now I see only one way: if this issue is detected on the
+> user node, we can add something like "ide=disable" into kernel commandline.
 
-Just another emacs visiting...
-Will try to build and reboot to test stuff tomorrow.
+I've tried to find the some work around for this issue. "hda=noprobe" helps, CD
+is not detected on the node and all other devices on the node works well...
 
-Index: 2.6_current/Documentation/rtc.txt
-===================================================================
---- 2.6_current.orig/Documentation/rtc.txt	2006-11-17 13:33:10.979411250 +0100
-+++ 2.6_current/Documentation/rtc.txt	2006-11-17 13:33:40.981286250 +0100
-@@ -18,7 +18,7 @@
- 
-     *	/dev/rtc ... is the RTC provided by PC compatible systems,
- 	so it's not very portable to non-x86 systems.
--    
-+
-     *	/dev/rtc0, /dev/rtc1 ... are part of a framework that's
- 	supported by a wide variety of RTC chips on all systems.
- 
-@@ -86,9 +86,9 @@
- interrupt handler is only a few lines of code to minimize any possibility
- of this effect.
- 
--Also, if the kernel time is synchronized with an external source, the 
--kernel will write the time back to the CMOS clock every 11 minutes. In 
--the process of doing this, the kernel briefly turns off RTC periodic 
-+Also, if the kernel time is synchronized with an external source, the
-+kernel will write the time back to the CMOS clock every 11 minutes. In
-+the process of doing this, the kernel briefly turns off RTC periodic
- interrupts, so be aware of this if you are doing serious work. If you
- don't synchronize the kernel time with an external source (via ntp or
- whatever) then the kernel will keep its hands off the RTC, allowing you
+However if I have additional device who uses the same irq the issue returns
+back. When I enable USB support on my testnode, one of USB controllers requests
+the same IRQ line. And IRQ storm occurs again when I load uhci_hcd driver on the
+node. It is very strange for me: we do not have any IDE devices in this case.
 
+I would note, that I've seen the same behaviour when I detach the CDROM manually.
+
+I've updated the bug.
+
+Thank you,
+	Vasily Averin

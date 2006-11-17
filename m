@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424859AbWKQBST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424866AbWKQBTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424859AbWKQBST (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 20:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424860AbWKQBST
+	id S1424866AbWKQBTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 20:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424872AbWKQBTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 20:18:19 -0500
-Received: from main.gmane.org ([80.91.229.2]:11981 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1424859AbWKQBSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 20:18:18 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: Looking for recent lkml email
-Date: Fri, 17 Nov 2006 01:18:10 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnelq3s1.7lr.olecom@flower.upol.cz>
-References: <20061116162151.GA23930@tumblerings.org> <20061116165235.GA28447@tumblerings.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Thu, 16 Nov 2006 20:19:50 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58888 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1424868AbWKQBTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 20:19:45 -0500
+Date: Fri, 17 Nov 2006 02:19:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] make drivers/base/core.c:setup_parent() static
+Message-ID: <20061117011944.GS31879@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061114014125.dd315fff.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-16, Zack Brown wrote:
-> OK, I got it. :-)
->
-> Thanks folks,
-> Zack
+This patch makes the needlessly global setup_parent() static.
 
-To do not produce megabytes of additional traffic in case of any
-kind of backlog and have anything you lkml like, i would suggest to have
-good news reader and point it to news.gmane.org service (well, i'm
-sure, there are many who have lkml->news scheme privately).
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-In your case, to download mbox with messages you've requested, i
-would request 1500-2000 headers, sort them by date, selected to download
-messages from your lkml last "Message-Id" to first received one.
-
-In slrn, (not optimal) selecting by date took me less than 5 minutes.
-
-Just my 0.07 ;oE
-____
+--- linux-2.6.19-rc5-mm2/drivers/base/core.c.old	2006-11-16 23:14:44.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/base/core.c	2006-11-16 23:14:56.000000000 +0100
+@@ -389,7 +389,7 @@
+ }
+ 
+ #ifdef CONFIG_SYSFS_DEPRECATED
+-int setup_parent(struct device *dev, struct device *parent)
++static int setup_parent(struct device *dev, struct device *parent)
+ {
+ 	/* Set the parent to the class, not the parent device */
+ 	/* this keeps sysfs from having a symlink to make old udevs happy */
+@@ -418,7 +418,7 @@
+ 	return 0;
+ }
+ 
+-int setup_parent(struct device *dev, struct device *parent)
++static int setup_parent(struct device *dev, struct device *parent)
+ {
+ 	int error;
+ 
 

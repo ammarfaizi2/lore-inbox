@@ -1,113 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424818AbWKQPjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933601AbWKQPop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424818AbWKQPjx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424832AbWKQPjx
+	id S933601AbWKQPop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933670AbWKQPop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:39:53 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:26912 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1424818AbWKQPjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:39:52 -0500
+	Fri, 17 Nov 2006 10:44:45 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:26244 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933601AbWKQPoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 10:44:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:x-enigmail-version:content-type:content-transfer-encoding;
-        b=GCfQyFSZXIPxuRTc4mJYlLOwys63otVdo46w1F6DsOKiI+IIC3sulUeZuhZEaSDRfUOGgJB82hu7HFnTZ64nX79LD4Z/Py4k2OtmNr7guz6K5EyRaO9kOnWmL/opF5biz5yl8M0PXxuSzuk0KaS5PQYo8EQFQpjhqJzqPbsa4aY=
-Message-ID: <455DD7E1.2030702@gmail.com>
-Date: Fri, 17 Nov 2006 16:39:54 +0059
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qKqf7Xb6DcWQ23kxvrvDS3OM7PlURgqeEX8hBugd0yoXyIGBdc2MjVGzO4f83zEE0inuE0lcYXdMSm54opVhDJzEfXZjLknSvHYUZfjEWTdizPkZTHr351jme5+R/RRPOmrN9e1tGACU1Q9mUJwWtDzSAWGnqhOY3ScN5tROrBo=
+Message-ID: <df47b87a0611170744i2d35c7f2k7449c64bc38d735d@mail.gmail.com>
+Date: Fri, 17 Nov 2006 10:44:42 -0500
+From: "Ioan Ionita" <opslynx@gmail.com>
+To: "Alan Cox" <alan@redhat.com>
+Subject: Re: 2.6.19-rc5 libata PATA ATAPI CDROM SiS 5513 NOT WORKING
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, htejun@gmail.com
+In-Reply-To: <20061117100559.GA10275@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: kobject_add failed with -EEXIST
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <df47b87a0611161522o3ad007f5i8804c876c50e591c@mail.gmail.com>
+	 <20061116235048.3cd91beb@localhost.localdomain>
+	 <df47b87a0611161730p70e1dd41iad7d27a0bf9283ff@mail.gmail.com>
+	 <df47b87a0611161734h818fc4dneaad5eeaa7e3c392@mail.gmail.com>
+	 <20061117100559.GA10275@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 11/17/06, Alan Cox <alan@redhat.com> wrote:
+> On Thu, Nov 16, 2006 at 08:34:03PM -0500, Ioan Ionita wrote:
+> > >ata2.00: limiting speed to UDMA/25
+> > >ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+> > >ata2.00: (BMDMA stat 0x20)
+> > >ata2.00: tag 0 cmd 0xa0 Emask 0x5 stat 0x51 err 0x51 (timeout)
+>
+> etc.. - yes known. Something in the core code but not yet fixed (and I've
+> not had time to look at this).
+>
+OK. I'm glad it's been reported. In case you need any kind of testing
+performed, don't hesitate to contact me.
 
-Does anybody have some clue, what could be wrong with the attached module?
-Kernel complains when the module is insmoded second time (DRIVER_DEBUG enabled):
-cls_init  				FIRST TIME
-device class 'cls_class': registering
-DEV: registering device: ID = 'cls_device'
-PM: Adding info for No Bus:cls_device
-DEV: Unregistering device. ID = 'cls_device'
-PM: Removing info for No Bus:cls_device
-device_create_release called for cls_device
-device class 'cls_class': unregistering
-class 'cls_class': release.
-class_create_release called for cls_class
-cls_exit
-cls_init				SECOND TIME
-device class 'cls_class': registering
-DEV: registering device: ID = 'cls_device'
-kobject_add failed for cls_class with -EEXIST, don't try to register things with
-the same name in the same directory.
- [<c0103edd>] show_trace_log_lvl+0x26/0x3c
- [<c0104000>] show_trace+0x1b/0x1d
- [<c010480a>] dump_stack+0x24/0x26
- [<c01e39e7>] kobject_add+0x131/0x1b6
- [<c01e3bd7>] kobject_register+0x24/0x4c
- [<c01e3c55>] kobject_add_dir+0x56/0x76
- [<c0256955>] setup_parent+0x6f/0x9e
- [<c0256dff>] device_add+0x7f/0x4ee
- [<c0257288>] device_register+0x1a/0x20
- [<c025731c>] device_create+0x8e/0xb2
- [<f89b0052>] cls_init+0x52/0x9f [cls]
- [<c0140f00>] sys_init_module+0x15a/0x1ace
- [<c01030f8>] syscall_call+0x7/0xb
- =======================
-kobject_add_dir: kobject_register error: -17
-PM: Adding info for No Bus:cls_device
+Regards,
 
--8<-----------8<-----------8<-----------8<-
-
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/device.h>
-#include <linux/err.h>
-
-static struct class *cls;
-static struct device *dev;
-
-static int __init cls_init(void)
-{
-        printk(KERN_INFO "cls_init\n");
-        cls = class_create(THIS_MODULE, "cls_class");
-        if (IS_ERR(cls)) {
-                printk(KERN_ERR "class_create: %ld", PTR_ERR(cls));
-                return -ENODEV;
-        }
-        dev = device_create(cls, NULL, 0, "cls_device");
-        if (IS_ERR(dev)) {
-                printk(KERN_ERR "device_create: %ld", PTR_ERR(dev));
-                class_destroy(cls);
-                return -ENODEV;
-        }
-
-        return 0;
-}
-
-static void __exit cls_exit(void)
-{
-        device_unregister(dev);
-        class_destroy(cls);
-        printk(KERN_INFO "cls_exit\n");
-}
-
-module_init(cls_init);
-module_exit(cls_exit);
-
-MODULE_LICENSE("GPL");
-
--8<-----------8<-----------8<-----------8<-
-
-thanks,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Ioan

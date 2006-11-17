@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933539AbWKQMAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933542AbWKQM3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933539AbWKQMAA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 07:00:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933540AbWKQMAA
+	id S933542AbWKQM3s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 07:29:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933553AbWKQM3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 07:00:00 -0500
-Received: from mx.laposte.net ([81.255.54.11]:31095 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S933539AbWKQL77 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 06:59:59 -0500
-Message-ID: <33615.81.64.156.37.1163764738.squirrel@rousalka.dyndns.org>
-Date: Fri, 17 Nov 2006 12:58:58 +0100 (CET)
-Subject: Microsoft Natural Ergonomic Keyboard 4000 status?
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: "Liyu" <raise.sail@gmail.com>
-User-Agent: SquirrelMail/1.4.8-2.fc6
-MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+	Fri, 17 Nov 2006 07:29:48 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:35520 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S933542AbWKQM3r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 07:29:47 -0500
+Date: Fri, 17 Nov 2006 04:29:22 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] i386 add Intel PEBS and BTS cpufeature bits and detection
+Message-ID: <20061117122922.GE19907@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20061115213241.GC17238@frankl.hpl.hp.com> <200611170529.02460.ak@suse.de> <20061117075750.GA19907@frankl.hpl.hp.com> <200611171022.20708.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611171022.20708.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 17, 2006 at 10:22:20AM +0100, Andi Kleen wrote:
+> > The former
+> > stores from/to information into MSRs and is very small (4 branches). 
+> 
+> P4 since Prescott has 16
+> 
+Yes. I was talking about Core 2 
 
-Hi,
-
-What's the status on Microsoft Natural Ergonomic Keyboard 4000 support ? I
-see Liyu last posted a patch more than a month ago¹, but no one answered
-him.
-
-¹ http://marc.theaimsgroup.com/?l=linux-kernel&m=116063231432178&w=2
-
-Regards,
+> > On recent processors LBR and BTS can be constrained by priv level.
+> 
+> Doesn't help for kernel debugging.
+> 
+Well, if you set if for kernel level only, you do not capture user level
+branches. This may happen if you crash soon after you've entered the kernel
+and you have a small buffer.
 
 -- 
-Nicolas Mailhot
-
+-Stephane

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162401AbWKQGWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162403AbWKQGWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162401AbWKQGWE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 01:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162402AbWKQGWE
+	id S1162403AbWKQGWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 01:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162402AbWKQGWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 01:22:04 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9450 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1162401AbWKQGWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 01:22:01 -0500
-Date: Fri, 17 Nov 2006 06:55:21 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061117055521.GA30189@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163716638.26026.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Nov 2006 01:22:49 -0500
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:53086 "HELO
+	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1162403AbWKQGWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 01:22:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=ehfjlrZQkWeN/CFQ4tYAfTa2tVx0nDcuP0VKr4hgy65vpTSIOdBQXvf/M1iKvoLs9Qt/b4T0gh9Dcceust7fs6A3uf1vx5/MlcfZsTRCKeGtoc7t70RJxLkb2liL3BdmEUGUql5qa6tWWYaWSO88Y6MCI/bURkzRiTN4Vuu0Fgk=  ;
+X-YMail-OSG: 9jlG4XUVM1l7trQq_fg6CD70eDpVPKlbFqU7GlbOp1.VJUkh9XVk2ufa9yoxoIVuLQiJ.GRgpQdi4AObzqLqYA4D0T5eNO3QTE_ptiRZ54WRBkrmmJr9
+From: David Brownell <david-b@pacbell.net>
+To: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
+Date: Thu, 16 Nov 2006 22:22:43 -0800
+User-Agent: KMail/1.7.1
+Cc: Len Brown <lenb@kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+References: <200611142303.47325.david-b@pacbell.net> <200611151710.26570.david-b@pacbell.net> <455C8696.80508@linux.intel.com>
+In-Reply-To: <455C8696.80508@linux.intel.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1163716638.26026.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.1735]
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200611162222.44836.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 16 November 2006 7:41 am, Alexey Starikovskiy wrote:
+> --- a/drivers/acpi/ec.c
+> +++ b/drivers/acpi/ec.c
+> @@ -467,8 +467,8 @@ static u32 acpi_ec_gpe_handler(void *dat
+>                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
+>         }
+>         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
+> -       return status == AE_OK ?
+> -           ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
+> +       WARN_ON(ACPI_FAILURE(status));
+> +       return ACPI_INTERRUPT_HANDLED;
+>  }
+>  
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+Strange ... applying this on top of the previous patch seems to work
+much better, but that WARN_ON hasn't triggered.  At least, not yet.
+Updating to RC6, with your two patches installed...
 
-> On Thu, 2006-11-16 at 23:07 +0100, Ingo Molnar wrote:
-> > * Daniel Walker <dwalker@mvista.com> wrote:
-> > 
-> > > [...] Should we start a known regression list?
-> > 
-> > please resend the bugs that still trigger for you with 2.6.19-rt0.
-> 
-> Did you look at the BKL reacquire issue I sent? Just looking over the 
-> code briefly, it looks like it's still there.
-
-yeah, will do that. It's quite low-prio, evidently no-one in the past 
-couple of months even attempted to build a !PREEMPT_RT && !PREEMPT_BKL 
-(!) kernel.
-
-	Ingo
+- Dave

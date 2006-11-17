@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933597AbWKQRrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933752AbWKQRxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933597AbWKQRrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 12:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933745AbWKQRrq
+	id S933752AbWKQRxA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 12:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933750AbWKQRw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 12:47:46 -0500
-Received: from homer.mvista.com ([63.81.120.158]:1759 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S933597AbWKQRrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 12:47:45 -0500
-Subject: Re: [PATCH] Allow NULL pointers in percpu_free
-From: Daniel Walker <dwalker@mvista.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Jens Axboe <axboe@kernel.dk>, Christoph Lameter <clameter@sgi.com>,
-       Pedro Roque <roque@di.fc.ul.pt>,
-       "David S. Miller" <davem@davemloft.net>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0611171224150.2261-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0611171224150.2261-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 09:47:33 -0800
-Message-Id: <1163785653.3097.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Fri, 17 Nov 2006 12:52:59 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:9688 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S933753AbWKQRw6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 12:52:58 -0500
+Message-ID: <455DF70C.7090400@pathscale.com>
+Date: Fri, 17 Nov 2006 09:53:16 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: rdreier@cisco.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] [PATCH 02/13] Device Discovery and ULLD Linkage
+References: <20061116035826.22635.61230.stgit@dell3.ogc.int> <20061116035837.22635.13571.stgit@dell3.ogc.int>
+In-Reply-To: <20061116035837.22635.13571.stgit@dell3.ogc.int>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-17 at 12:36 -0500, Alan Stern wrote:
+Steve Wise wrote:
 
->  void percpu_free(void *__pdata)
->  {
-> +	if (!__pdata)
-> +		return;
+> +static inline void *vzmalloc(int size)
+> +{
+> +	void *p = vmalloc(size);
+> +	memset(p, 0, size);
+> +	return p;
+> +}
 
-Should be unlikely() right?
+This isn't checking the return value from vmalloc.
 
-Daniel
+Also, we could do with a generic vzalloc and vcalloc, just as we now 
+have kzalloc and kcalloc.  There are lots of routines like this sitting 
+around.
 
+	<b

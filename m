@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933689AbWKQQJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933690AbWKQQJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933689AbWKQQJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933692AbWKQQJE
+	id S933690AbWKQQJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933692AbWKQQJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:09:04 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:61968 "EHLO
+	Fri, 17 Nov 2006 11:09:59 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:64272 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S933689AbWKQQJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:09:02 -0500
-Date: Fri, 17 Nov 2006 16:08:55 +0000
+	id S933690AbWKQQJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 11:09:58 -0500
+Date: Fri, 17 Nov 2006 16:09:51 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Anderson Briglia <anderson.briglia@indt.org.br>
 Cc: "Linux-omap-open-source@linux.omap.com" 
@@ -19,8 +19,8 @@ Cc: "Linux-omap-open-source@linux.omap.com"
        Tony Lindgren <tony@atomide.com>,
        "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
        "Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
-Subject: Re: [patch 3/6] [RFC] Add MMC Password Protection (lock/unlock) support V6
-Message-ID: <20061117160855.GC28514@flint.arm.linux.org.uk>
+Subject: Re: [patch 1/6] [RFC] Add MMC Password Protection (lock/unlock) support V6
+Message-ID: <20061117160951.GD28514@flint.arm.linux.org.uk>
 Mail-Followup-To: Anderson Briglia <anderson.briglia@indt.org.br>,
 	"Linux-omap-open-source@linux.omap.com" <linux-omap-open-source@linux.omap.com>,
 	linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
@@ -28,50 +28,23 @@ Mail-Followup-To: Anderson Briglia <anderson.briglia@indt.org.br>,
 	Tony Lindgren <tony@atomide.com>,
 	"Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
 	"Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
-References: <455DB31C.40907@indt.org.br>
+References: <455DB297.1040009@indt.org.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <455DB31C.40907@indt.org.br>
+In-Reply-To: <455DB297.1040009@indt.org.br>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 09:03:24AM -0400, Anderson Briglia wrote:
-> @@ -101,7 +104,7 @@ mmc_start_request(struct mmc_host *host,
->  	pr_debug("%s: starting CMD%u arg %08x flags %08x\n",
->  		 mmc_hostname(host), mrq->cmd->opcode,
->  		 mrq->cmd->arg, mrq->cmd->flags);
-> -
-> +	
+On Fri, Nov 17, 2006 at 09:01:11AM -0400, Anderson Briglia wrote:
+>  #define MMC_CAP_BYTEBLOCK	(1 << 2)	/* Can do non-log2 block 
+>  sizes */
+> +#define MMC_CAP_LOCK_UNLOCK	(1 << 3)	/* Host password support 
+> capability */
 
-Random whitespace damage; please remove.
-
-> +	do {
-> +		/* we cannot use "retries" here because the
-> +		 * R1_LOCK_UNLOCK_FAILED bit is cleared by subsequent reads 
-> to
-
-#include <std-mail-wrapping-complaint.h>
-
-> +error:
-> +	mmc_deselect_cards(card->host);
-
-You don't need to deselect the card prior to releasing the host; in
-fact in single card systems, it's better that you don't.  That way
-you avoid generating lots of select card messages.
-
-> +	mmc_card_release_host(card);
-> +out:
-> +	kfree(data_buf);
-> +
-> +	return err;
-> +}
-> +
-> +//EXPORT_SYMBOL(mmc_lock_unlock);
-
-Either export it or don't.  There's no point in having a commented out
-export.
+What's the point of this capability.  If the host can do BYTEBLOCK transfers
+it can send the password commands.
 
 -- 
 Russell King

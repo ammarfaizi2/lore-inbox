@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755988AbWKQWoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756000AbWKQWpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755988AbWKQWoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 17:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755991AbWKQWoU
+	id S1756000AbWKQWpb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 17:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756003AbWKQWpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 17:44:20 -0500
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:21135 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1755988AbWKQWoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 17:44:19 -0500
-Date: Fri, 17 Nov 2006 17:44:03 -0500
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to go about debuging a system lockup?
-Message-ID: <20061117224403.GE8238@csclub.uwaterloo.ca>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D87@USRV-EXCH4.na.uis.unisys.com> <20061116223721.GS8236@csclub.uwaterloo.ca> <455DBC88.6040701@s5r6.in-berlin.de> <20061117142928.GT8236@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061117142928.GT8236@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+	Fri, 17 Nov 2006 17:45:31 -0500
+Received: from gw.goop.org ([64.81.55.164]:49028 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1756000AbWKQWpa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 17:45:30 -0500
+Message-ID: <455E3E6A.9090600@goop.org>
+Date: Fri, 17 Nov 2006 14:57:46 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: eranian@hpl.hp.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] i386 add Intel PEBS and BTS cpufeature bits and detection
+References: <20061115213241.GC17238@frankl.hpl.hp.com> <455D11B9.4080302@goop.org> <200611170529.02460.ak@suse.de>
+In-Reply-To: <200611170529.02460.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 09:29:28AM -0500, Lennart Sorensen wrote:
-> Wow, that looks really neat.  I will have to go read up on that tool.
+Andi Kleen wrote:
+> I have had private patches for that myself, using the MSRs on AMD
+> and Intel.
+>   
 
-OK, I have now tried connecting with firescope to just follow the dmesg
-buffer across firewire.  Works great, until the system hangs, then
-firescope reports that it couldn't perform the read.  I wonder what part
-of the system has to lock up for the firewire card to no longer be able
-to read memory on the system.
+Would they be something that could be cleaned up into something
+mergeable?  It would be nice to have something that could be left
+enabled all the time, but an option would at least make the
+functionality available.
 
---
-Len Sorensen
+    J

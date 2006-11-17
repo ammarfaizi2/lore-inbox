@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424809AbWKQPhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424805AbWKQPif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424809AbWKQPhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424805AbWKQPhY
+	id S1424805AbWKQPif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424796AbWKQPif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:37:24 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:1750 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1424793AbWKQPhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:37:23 -0500
-Date: Fri, 17 Nov 2006 16:37:17 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117153717.GU14886@vasa.acc.umu.se>
-Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
-	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	ACPI mailing list <linux-acpi@vger.kernel.org>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org>
+	Fri, 17 Nov 2006 10:38:35 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:24784 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1424805AbWKQPie
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 10:38:34 -0500
+Date: Fri, 17 Nov 2006 10:41:19 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Christian Hoffmann <chrmhoffmann@gmail.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-fbdev-devel@lists.sourceforge.net,
+       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Message-ID: <20061117154119.GC5158@shaftnet.org>
+Mail-Followup-To: Christian Hoffmann <chrmhoffmann@gmail.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-fbdev-devel@lists.sourceforge.net,
+	Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@ucw.cz>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <1163555308.5940.177.camel@localhost.localdomain> <200611151109.06956.rjw@sisk.pl> <200611162317.30880.chrmhoffmann@gmail.com> <20061117060758.GB25413@shaftnet.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ALfTUftag+2gvp1h"
 Content-Disposition: inline
-In-Reply-To: <20061117151341.GA1162@srcf.ucam.org>
+In-Reply-To: <20061117060758.GB25413@shaftnet.org>
 User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Fri, 17 Nov 2006 10:41:21 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 03:13:41PM +0000, Matthew Garrett wrote:
-> On Fri, Nov 17, 2006 at 11:22:38AM +0100, David Weinehall wrote:
-> 
-> > That was with 2.6.17; with 2.7.19-pre? (don't remember right now),
-> > docking seems to work without acpiphp.  It still would be nice to be
-> > able to undock when the laptop is sleeping though; how do I achieve
-> > that?
-> 
-> My experience of most laptops is that they'll fire off a bus check 
-> notification when you resume, so as long as nothing actually tries to 
-> access the hardware before that's handled, everything should be fine. 
-> What currently breaks when you undock while asleep?
 
-The fact that the dock starts to beep annoyingly. It has a button that
-you should press before undocking, and wait for a green light to light
-up before removing the laptop.  If you remove the computer without
-doing so, the dock starts beeping, and it doesn't stop (AFAIK, haven't
-managed to stand the beeping for more than 30 seconds or so) until you
-replug the laptop.
+--ALfTUftag+2gvp1h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My guess is that there is some wait to trigger an undock event from
-software as well, and that it would be nice to send that signal to the
-dock before suspending...
+On Fri, Nov 17, 2006 at 01:07:58AM -0500, Stuffed Crust wrote:
+>   http://www.shaftnet.org/users/pizza/radeonfb-atom-2.6.19-v7-WIP1.diff
+
+ http://www.shaftnet.org/users/pizza/radeonfb-atom-2.6.19-v7-WIP2.diff
+
+This incorporates the latest round of BenH's fixes and changes, but=20
+backs out the PCI suspend changes, which need independent review and testin=
+g. =20
+
+(BenH has promised a little more work before he's ready to sign off,=20
+ hence the -WIP2 designation)
+
+The following patch contains a rewrite of radeonfb's suspend/resume code=20
+to use standard PCI subsystem calls.  It applies to 2.6.19-rc6 and also=20
+on top of the v7-WIP2 patch.
+
+ http://www.shaftnet.org/users/pizza/radeonfb-atom-2.6.19-suspend.diff
+
+Christian, if you could see if the latter patch (on top of the -v6b or=20
+-WIP2 patches) makes a difference for your suspend/resume problems..
+
+And with these patches, I'm going to drop offline for a camping trip=20
+over the weekend.  I'll pick this stuff back up on Monday.
+
+ - Solomon
+--=20
+Solomon Peachy        		       pizza at shaftnet dot org	=20
+Melbourne, FL                          ^^ (mail/jabber/gtalk) ^^
+Quidquid latine dictum sit, altum viditur.          ICQ: 1318344
 
 
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+--ALfTUftag+2gvp1h
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFFXdgfPuLgii2759ARAtSnAKDLVuyrsoNUwJGrqXJypsG3QUQqvwCfc+z1
+Bhp57NngZh0EmG9N/RPmf2U=
+=VpPC
+-----END PGP SIGNATURE-----
+
+--ALfTUftag+2gvp1h--

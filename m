@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424581AbWKQPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755735AbWKQP1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424581AbWKQPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755728AbWKQPX5
+	id S1755735AbWKQP1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755736AbWKQP1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:23:57 -0500
-Received: from tigris.renesys.com ([69.84.130.136]:13208 "HELO
-	tigris.renesys.com") by vger.kernel.org with SMTP id S1755726AbWKQPXz
+	Fri, 17 Nov 2006 10:27:24 -0500
+Received: from tigris.renesys.com ([69.84.130.136]:42648 "HELO
+	tigris.renesys.com") by vger.kernel.org with SMTP id S1755734AbWKQP1X
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:23:55 -0500
-Date: Fri, 17 Nov 2006 10:23:54 -0500
+	Fri, 17 Nov 2006 10:27:23 -0500
+Date: Fri, 17 Nov 2006 10:27:22 -0500
 From: John Rouillard <rouilj@renesys.com>
 To: linux-kernel@vger.kernel.org
 Subject: kernel oops: assertion failure at journal:576 (ext3 issue?)
-Message-ID: <20061117152354.GO28000@renesys.com>
+Message-ID: <20061117152722.GP28000@renesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
+Content-Type: multipart/mixed; boundary="uZ3hkaAS1mZxFaxD"
 Content-Disposition: inline
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -115,18 +115,17 @@ with 30 min-2 hours between them) so we can try applying patches/new
 kernels if needed and see how the system does.
 
 I have attached selected lines from dmesg to give some additional info
-about the hardware and config of the system. I initaly submitted this
-with the /proc/kallsyms from the system as requested by the mailing
-list FAQ at: http://www.tux.org/lkml/#s4-3, but it's been two days and
-the email hasn't shown up on the mailing list archives. So I have
-removed it from this post. It is available on request. The dmesg files
-is from a post crash boot that should be identical to the pre-crash
-boot.
+about the hardware and config of the system. I tried to attach
+/proc/kallsyms from the system as requested by the mailing list FAQ
+at: http://www.tux.org/lkml/#s4-3. However it has been two days since
+I originally sent that email and I haven't see it arrive in the
+archives, so that info is available on request.  The dmesg info is
+from a post crash boot that should be identical to the pre-crash boot.
 
 If you require more/different information just let me know and I will
 try to obtain it.
 
-Thank you for your help and please cc me on any replies.
+Thank you for your help.
 
 --
 				-- rouilj
@@ -136,7 +135,7 @@ System Administrator
 Renesys Corporation
 603-643-9300 x 111
 
---45Z9DzgjV8m4Oswq
+--uZ3hkaAS1mZxFaxD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename="cook05.dmesg_selected.txt"
 
@@ -280,4 +279,4 @@ EXT3-fs: mounted filesystem with ordered data mode.
 SELinux: initialized (dev dm-6, type ext3), uses xattr
 Adding 4095992k swap on /dev/VolGroup00/LogVol05.  Priority:-1 extents:1
 
---45Z9DzgjV8m4Oswq--
+--uZ3hkaAS1mZxFaxD--

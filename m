@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755953AbWKQVs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753177AbWKQVuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755953AbWKQVs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755952AbWKQVs0
+	id S1753177AbWKQVuy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753242AbWKQVuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:48:26 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:62276 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1755953AbWKQVsY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:48:24 -0500
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "Divy Le Ray <divy@chelsio.com>" <divy@chelsio.com>, jeff@garzik.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/10] cxgb3 - main header files
-X-Message-Flag: Warning: May contain useful information
-References: <20061117202320.25878.26769.stgit@colfax2.asicdesigners.com>
-	<20061117124902.7e69af2e@freekitty>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 17 Nov 2006 13:48:14 -0800
-In-Reply-To: <20061117124902.7e69af2e@freekitty> (Stephen Hemminger's message of "Fri, 17 Nov 2006 12:49:02 -0800")
-Message-ID: <adaejs1lp7l.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Fri, 17 Nov 2006 16:50:54 -0500
+Received: from hu-out-0506.google.com ([72.14.214.229]:58096 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1753177AbWKQVux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 16:50:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uOaW1hHENongeBabSfCNmknbLl4zpX+pCMg2gmAcJrCo3cvKh78smIXTRlwN5KWdEerD0pJAVDYXK54rnYr/BlAie6qvNaAsB7m+xzxX3YOPUWz9WSC0BHGp9ep1lIxUkmSrmvuX9Weg9RtTnVN98twz90mKRxdCe2WnpDsFL9Y=
+Message-ID: <d120d5000611171350g16d6205ke1445bbffa26f2b8@mail.gmail.com>
+Date: Fri, 17 Nov 2006 16:50:51 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "David Brownell" <david-b@pacbell.net>
+Subject: Re: [patch 2.6.19-rc6] platform_driver_probe(), can save codespace
+Cc: "Greg KH" <greg@kroah.com>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200611171226.57794.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 Nov 2006 21:48:14.0957 (UTC) FILETIME=[15BD29D0:01C70A92]
-Authentication-Results: sj-dkim-6; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim6002 verified; ); 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200611162328.47987.david-b@pacbell.net>
+	 <200611171048.33086.david-b@pacbell.net>
+	 <d120d5000611171111g51f624a6mb9ad694005f690a8@mail.gmail.com>
+	 <200611171226.57794.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > +#define MDIO_LOCK(adapter) down(&(adapter)->mdio_lock)
- > > +#define MDIO_UNLOCK(adapter) up(&(adapter)->mdio_lock)
- > 
- > Please don't wrap locks
+On 11/17/06, David Brownell <david-b@pacbell.net> wrote:
+> On Friday 17 November 2006 11:11 am, Dmitry Torokhov wrote:
+>
+> > Do we discard __init sections in modules nowadays? I thought we did
+> > that only for the kernel image itself.
+>
+> When did we _not_ discard them for modules?
+>
 
-Plus these should probably be mutexes, not semaphores.
+It looks like the first attempts for that appeared in 2.4.19-rc1...
 
- > > +int t3_offload_tx(struct t3cdev *tdev, struct sk_buff *skb);
- > 
- > What kind of offload?  You remember TOE was rejected.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0207.0/0477.html
 
-But we're OK with RDMA over TCP (iWARP) I think...
-
- - R.
+-- 
+Dmitry

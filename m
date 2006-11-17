@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755627AbWKQJig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755642AbWKQKD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755627AbWKQJig (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 04:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755624AbWKQJig
+	id S1755642AbWKQKD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 05:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755643AbWKQKD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 04:38:36 -0500
-Received: from test.estpak.ee ([194.126.115.47]:7388 "EHLO devy.estpak.ee")
-	by vger.kernel.org with ESMTP id S1755626AbWKQJif (ORCPT
+	Fri, 17 Nov 2006 05:03:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49088 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755642AbWKQKDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 04:38:35 -0500
-From: Hasso Tepper <hasso@estpak.ee>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Sysctl syscall
-Date: Fri, 17 Nov 2006 11:38:33 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <200611160003.02681.hasso@estpak.ee> <200611171007.57596.hasso@estpak.ee> <200611171023.45595.ak@suse.de>
-In-Reply-To: <200611171023.45595.ak@suse.de>
-Organization: Elion Enterprises Ltd.
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611171138.33469.hasso@estpak.ee>
+	Fri, 17 Nov 2006 05:03:55 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+       trond.myklebust@fys.uio.no
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+       aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 26/19] CacheFiles: Don't include linux/proc_fs.h
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 17 Nov 2006 10:01:30 +0000
+Message-ID: <4709.1163757690@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Friday 17 November 2006 09:07, Hasso Tepper wrote:
-> > I have process which drops root privileges after startup and retains
-> > only some privileges using CAP_NET_ADMIN and CAP_SYS_ADMIN
-> > capabilities. I can change values in /proc/sys/net/ipv[46]/* (like
-> > turning forwarding on/off) from this process using sysctl syscall,
-> > but I can't write directly into /proc/sys/net/ipv[46]/* from it.
->
-> That sounds more like a security bug than a feature to be preserved.
 
-Why? IMHO it's normal that process with CAP_NET_ADMIN capabilities can 
-modify settings in /proc/sys/net/. From /usr/include/sys/capability.h:
+Don't include linux/proc_fs.h anymore as we no longer use procfs.
 
-/* Allow interface configuration */
-/* Allow administration of IP firewall, masquerading and accounting */
-/* Allow setting debug option on sockets */
-/* Allow modification of routing tables */
-/* Allow setting arbitrary process / process group ownership on
-   sockets */
-/* Allow binding to any address for transparent proxying */
-/* Allow setting TOS (type of service) */
-/* Allow setting promiscuous mode */
-/* Allow clearing driver statistics */
-/* Allow multicasting */
-/* Allow read/write of device-specific registers */
-/* Allow activation of ATM control sockets */
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-#define CAP_NET_ADMIN        12
+ fs/cachefiles/cf-bind.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-
-regards,
-
--- 
-Hasso Tepper
-Elion Enterprises Ltd. [AS3249]
-Data Communication Network Administrator
+diff --git a/fs/cachefiles/cf-bind.c b/fs/cachefiles/cf-bind.c
+index 0c055a9..2c22d35 100644
+--- a/fs/cachefiles/cf-bind.c
++++ b/fs/cachefiles/cf-bind.c
+@@ -20,7 +20,6 @@ #include <linux/namei.h>
+ #include <linux/mount.h>
+ #include <linux/namespace.h>
+ #include <linux/statfs.h>
+-#include <linux/proc_fs.h>
+ #include <linux/ctype.h>
+ #include "internal.h"
+ 

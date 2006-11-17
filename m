@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756066AbWKRAHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755838AbWKRAKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756066AbWKRAHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756065AbWKRAGn
+	id S1755838AbWKRAKk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756077AbWKRAGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:06:43 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:13993 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1753557AbWKRAGA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:06:00 -0500
-Date: Fri, 17 Nov 2006 17:49:40 -0500
+	Fri, 17 Nov 2006 19:06:35 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:60584 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1756069AbWKRAGZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:06:25 -0500
+Date: Fri, 17 Nov 2006 17:37:21 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-Subject: [PATCH 12/20] x86_64: wakeup.S Misc cleanup
-Message-ID: <20061117224940.GM15449@in.ibm.com>
+Subject: [PATCH 2/20] x86_64: Assembly safe page.h and pgtable.h
+Message-ID: <20061117223721.GC15449@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061117223432.GA15449@in.ibm.com>
 Mime-Version: 1.0
@@ -29,254 +29,234 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-o Various cleanups. One of the main purpose of cleanups is that make
-  wakeup.S as close as possible to trampoline.S.
+This patch makes pgtable.h and page.h safe to include
+in assembly files like head.S.  Allowing us to use
+symbolic constants instead of hard coded numbers when
+refering to the page tables.
 
-o Following are the changes
-	- Indentations for comments.
-	- Changed the gdt table to compact form and to resemble the
-	  one in trampoline.S
-	- Take the jump to 32bit from real mode using ljmpl. Makes code
-	  more readable.
-	- After enabling long mode, directly take a long jump for 64bit
-	  mode. No need to take an extra jump to "reach_comaptibility_mode"
-	- Stack is not used after real mode. So don't load stack in
- 	  32 bit mode.
-	- No need to enable PGE here.
-	- No need to do extra EFER read, anyway we trash the read contents.
-	- No need to enable system call (EFER_SCE). Anyway it will be 
-	  enabled when original EFER is restored.
-	- No need to set MP, ET, NE, WP, AM bits in cr0. Very soon we will
-  	  reload the original cr0 while restroing the processor state.
+This patch copies asm-sparc64/const.h to asm-x86_64 to
+get a definition of _AC() a very convinient macro that
+allows us to force the type when we are compiling the
+code in C and to drop all of the type information when
+we are using the constant in assembly.  Previously this
+was done with multiple definition of the same constant.
+const.h was modified slightly so that it works when given
+CONFIG options as arguments.
+
+This patch adds #ifndef __ASSEMBLY__ ... #endif
+and _AC(1,UL) where appropriate so the assembler won't
+choke on the header files.  Otherwise nothing
+should have changed.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/x86_64/kernel/acpi/wakeup.S |  111 +++++++++++++--------------------------
- 1 file changed, 39 insertions(+), 72 deletions(-)
+ include/asm-x86_64/const.h   |   20 ++++++++++++++++++++
+ include/asm-x86_64/page.h    |   34 +++++++++++++---------------------
+ include/asm-x86_64/pgtable.h |   33 +++++++++++++++++++++------------
+ 3 files changed, 54 insertions(+), 33 deletions(-)
 
-diff -puN arch/x86_64/kernel/acpi/wakeup.S~x86_64-wakeup.S-misc-cleanups arch/x86_64/kernel/acpi/wakeup.S
---- linux-2.6.19-rc6-reloc/arch/x86_64/kernel/acpi/wakeup.S~x86_64-wakeup.S-misc-cleanups	2006-11-17 00:09:56.000000000 -0500
-+++ linux-2.6.19-rc6-reloc-root/arch/x86_64/kernel/acpi/wakeup.S	2006-11-17 00:09:56.000000000 -0500
-@@ -30,11 +30,12 @@ wakeup_code:
- 	cld
- 	# setup data segment
- 	movw	%cs, %ax
--	movw	%ax, %ds					# Make ds:0 point to wakeup_start
-+	movw	%ax, %ds		# Make ds:0 point to wakeup_start
- 	movw	%ax, %ss
--	mov	$(wakeup_stack - wakeup_code), %sp		# Private stack is needed for ASUS board
-+					# Private stack is needed for ASUS board
-+	mov	$(wakeup_stack - wakeup_code), %sp
- 
--	pushl	$0						# Kill any dangerous flags
-+	pushl	$0			# Kill any dangerous flags
- 	popfl
- 
- 	movl	real_magic - wakeup_code, %eax
-@@ -45,7 +46,7 @@ wakeup_code:
- 	jz	1f
- 	lcall   $0xc000,$3
- 	movw	%cs, %ax
--	movw	%ax, %ds					# Bios might have played with that
-+	movw	%ax, %ds		# Bios might have played with that
- 	movw	%ax, %ss
- 1:
- 
-@@ -75,9 +76,12 @@ wakeup_code:
- 	jmp	1f
- 1:
- 
--	.byte 0x66, 0xea			# prefix + jmpi-opcode
--	.long	wakeup_32 - __START_KERNEL_map
--	.word	__KERNEL_CS
-+	ljmpl   *(wakeup_32_vector - wakeup_code)
+diff -puN /dev/null include/asm-x86_64/const.h
+--- /dev/null	2006-11-17 00:03:10.168280803 -0500
++++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/const.h	2006-11-17 00:05:30.000000000 -0500
+@@ -0,0 +1,20 @@
++/* const.h: Macros for dealing with constants.  */
 +
-+	.balign 4
-+wakeup_32_vector:
-+	.long   wakeup_32 - __START_KERNEL_map
-+	.word   __KERNEL32_CS, 0
- 
- 	.code32
- wakeup_32:
-@@ -96,65 +100,50 @@ wakeup_32:
- 	jnc	bogus_cpu
- 	movl	%edx,%edi
- 	
--	movw	$__KERNEL_DS, %ax
--	movw	%ax, %ds
--	movw	%ax, %es
--	movw	%ax, %fs
--	movw	%ax, %gs
-+	movl	$__KERNEL_DS, %eax
-+	movl	%eax, %ds
- 
--	movw	$__KERNEL_DS, %ax	
--	movw	%ax, %ss
--
--	mov	$(wakeup_stack - __START_KERNEL_map), %esp
- 	movl	saved_magic - __START_KERNEL_map, %eax
- 	cmpl	$0x9abcdef0, %eax
- 	jne	bogus_32_magic
- 
-+	movw	$0x0e00 + 'i', %ds:(0xb8012)
-+	movb	$0xa8, %al	;  outb %al, $0x80;
++#ifndef _X86_64_CONST_H
++#define _X86_64_CONST_H
 +
- 	/*
- 	 * Prepare for entering 64bits mode
- 	 */
- 
--	/* Enable PAE mode and PGE */
-+	/* Enable PAE */
- 	xorl	%eax, %eax
- 	btsl	$5, %eax
--	btsl	$7, %eax
- 	movl	%eax, %cr4
- 
- 	/* Setup early boot stage 4 level pagetables */
- 	movl	$(wakeup_level4_pgt - __START_KERNEL_map), %eax
- 	movl	%eax, %cr3
- 
--	/* Setup EFER (Extended Feature Enable Register) */
--	movl	$MSR_EFER, %ecx
--	rdmsr
--	/* Fool rdmsr and reset %eax to avoid dependences */
--	xorl	%eax, %eax
- 	/* Enable Long Mode */
-+	xorl    %eax, %eax
- 	btsl	$_EFER_LME, %eax
--	/* Enable System Call */
--	btsl	$_EFER_SCE, %eax
- 
--	/* No Execute supported? */	
-+	/* No Execute supported? */
- 	btl	$20,%edi
- 	jnc     1f
- 	btsl	$_EFER_NX, %eax
--1:	
- 				
- 	/* Make changes effective */
-+1:	movl    $MSR_EFER, %ecx
-+	xorl    %edx, %edx
- 	wrmsr
--	wbinvd
- 
- 	xorl	%eax, %eax
- 	btsl	$31, %eax			/* Enable paging and in turn activate Long Mode */
- 	btsl	$0, %eax			/* Enable protected mode */
--	btsl	$1, %eax			/* Enable MP */
--	btsl	$4, %eax			/* Enable ET */
--	btsl	$5, %eax			/* Enable NE */
--	btsl	$16, %eax			/* Enable WP */
--	btsl	$18, %eax			/* Enable AM */
- 
- 	/* Make changes effective */
- 	movl	%eax, %cr0
++/* Some constant macros are used in both assembler and
++ * C code.  Therefore we cannot annotate them always with
++ * 'UL' and other type specificers unilaterally.  We
++ * use the following macros to deal with this.
++ */
 +
- 	/* At this point:
- 		CR4.PAE must be 1
- 		CS.L must be 0
-@@ -162,11 +151,6 @@ wakeup_32:
- 		Next instruction must be a branch
- 		This must be on identity-mapped page
- 	*/
--	jmp	reach_compatibility_mode
--reach_compatibility_mode:
--	movw	$0x0e00 + 'i', %ds:(0xb8012)
--	movb	$0xa8, %al	;  outb %al, $0x80; 	
--		
- 	/*
- 	 * At this point we're in long mode but in 32bit compatibility mode
- 	 * with EFER.LME = 1, CS.L = 0, CS.D = 1 (and in turn
-@@ -174,24 +158,19 @@ reach_compatibility_mode:
- 	 * the new gdt/idt that has __KERNEL_CS with CS.L = 1.
- 	 */
- 
--	movw	$0x0e00 + 'n', %ds:(0xb8014)
--	movb	$0xa9, %al	;  outb %al, $0x80
--	
--	/* Load new GDT with the 64bit segment using 32bit descriptor */
--	movl	$(pGDT32 - __START_KERNEL_map), %eax
--	lgdt	(%eax)
--
--	movl    $(wakeup_jumpvector - __START_KERNEL_map), %eax
- 	/* Finally jump in 64bit mode */
--	ljmp	*(%eax)
-+	ljmp	*(wakeup_long64_vector - __START_KERNEL_map)
- 
--wakeup_jumpvector:
--	.long	wakeup_long64 - __START_KERNEL_map
--	.word	__KERNEL_CS
-+	.balign 4
-+wakeup_long64_vector:
-+	.long   wakeup_long64 - __START_KERNEL_map
-+	.word   __KERNEL_CS, 0
- 
- .code64
- 
--	/*	Hooray, we are in Long 64-bit mode (but still running in low memory) */
-+	/* Hooray, we are in Long 64-bit mode (but still running in
-+	 * low memory)
-+	 */
- wakeup_long64:
- 	/*
- 	 * We must switch to a new descriptor in kernel space for the GDT
-@@ -201,6 +180,9 @@ wakeup_long64:
- 	 */
- 	lgdt	cpu_gdt_descr - __START_KERNEL_map
- 
-+	movw	$0x0e00 + 'n', %ds:(0xb8014)
-+	movb	$0xa9, %al	;  outb %al, $0x80
++#ifdef __ASSEMBLY__
++#define _AC(X,Y)	X
++#else
++#define __AC(X,Y)	(X##Y)
++#define _AC(X,Y)	__AC(X,Y)
++#endif
 +
- 	movw	$0x0e00 + 'u', %ds:(0xb8016)
- 	
- 	nop
-@@ -228,32 +210,17 @@ wakeup_long64:
- 	.align	64	
- gdta:
- 	.word	0, 0, 0, 0			# dummy
++
++#endif /* !(_X86_64_CONST_H) */
+diff -puN include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/page.h
+--- linux-2.6.19-rc6-reloc/include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-17 00:05:30.000000000 -0500
++++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/page.h	2006-11-17 00:05:30.000000000 -0500
+@@ -1,14 +1,11 @@
+ #ifndef _X86_64_PAGE_H
+ #define _X86_64_PAGE_H
+ 
++#include <asm/const.h>
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	12
+-#ifdef __ASSEMBLY__
+-#define PAGE_SIZE	(0x1 << PAGE_SHIFT)
+-#else
+-#define PAGE_SIZE	(1UL << PAGE_SHIFT)
+-#endif
++#define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
+ #define PAGE_MASK	(~(PAGE_SIZE-1))
+ #define PHYSICAL_PAGE_MASK	(~(PAGE_SIZE-1) & __PHYSICAL_MASK)
+ 
+@@ -33,10 +30,10 @@
+ #define N_EXCEPTION_STACKS 5  /* hw limit: 7 */
+ 
+ #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
+-#define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
++#define LARGE_PAGE_SIZE (_AC(1,UL) << PMD_SHIFT)
+ 
+ #define HPAGE_SHIFT PMD_SHIFT
+-#define HPAGE_SIZE	((1UL) << HPAGE_SHIFT)
++#define HPAGE_SIZE	(_AC(1,UL) << HPAGE_SHIFT)
+ #define HPAGE_MASK	(~(HPAGE_SIZE - 1))
+ #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+ 
+@@ -76,29 +73,24 @@ typedef struct { unsigned long pgprot; }
+ #define __pgd(x) ((pgd_t) { (x) } )
+ #define __pgprot(x)	((pgprot_t) { (x) } )
+ 
+-#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
+-#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
+-#define __START_KERNEL_map	0xffffffff80000000UL
+-#define __PAGE_OFFSET           0xffff810000000000UL
++#endif /* !__ASSEMBLY__ */
+ 
+-#else
+-#define __PHYSICAL_START	CONFIG_PHYSICAL_START
++#define __PHYSICAL_START	_AC(CONFIG_PHYSICAL_START,UL)
+ #define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
+-#define __START_KERNEL_map	0xffffffff80000000
+-#define __PAGE_OFFSET           0xffff810000000000
+-#endif /* !__ASSEMBLY__ */
++#define __START_KERNEL_map	_AC(0xffffffff80000000,UL)
++#define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
+ 
+ /* to align the pointer to the (next) page boundary */
+ #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+ 
+ /* See Documentation/x86_64/mm.txt for a description of the memory map. */
+ #define __PHYSICAL_MASK_SHIFT	46
+-#define __PHYSICAL_MASK		((1UL << __PHYSICAL_MASK_SHIFT) - 1)
++#define __PHYSICAL_MASK		((_AC(1,UL) << __PHYSICAL_MASK_SHIFT) - 1)
+ #define __VIRTUAL_MASK_SHIFT	48
+-#define __VIRTUAL_MASK		((1UL << __VIRTUAL_MASK_SHIFT) - 1)
++#define __VIRTUAL_MASK		((_AC(1,UL) << __VIRTUAL_MASK_SHIFT) - 1)
+ 
+-#define KERNEL_TEXT_SIZE  (40UL*1024*1024)
+-#define KERNEL_TEXT_START 0xffffffff80000000UL 
++#define KERNEL_TEXT_SIZE  (_AC(40,UL)*1024*1024)
++#define KERNEL_TEXT_START _AC(0xffffffff80000000,UL)
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -106,7 +98,7 @@ typedef struct { unsigned long pgprot; }
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+-#define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
++#define PAGE_OFFSET		__PAGE_OFFSET
+ 
+ /* Note: __pa(&symbol_visible_to_c) should be always replaced with __pa_symbol.
+    Otherwise you risk miscompilation. */ 
+diff -puN include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/pgtable.h
+--- linux-2.6.19-rc6-reloc/include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-17 00:05:30.000000000 -0500
++++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/pgtable.h	2006-11-17 00:05:30.000000000 -0500
+@@ -1,6 +1,9 @@
+ #ifndef _X86_64_PGTABLE_H
+ #define _X86_64_PGTABLE_H
+ 
++#include <asm/const.h>
++#ifndef __ASSEMBLY__
++
+ /*
+  * This file contains the functions and defines necessary to modify and use
+  * the x86-64 page table tree.
+@@ -31,6 +34,8 @@ extern void clear_kernel_mapping(unsigne
+ extern unsigned long empty_zero_page[PAGE_SIZE/sizeof(unsigned long)];
+ #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
+ 
++#endif /* !__ASSEMBLY__ */
++
+ /*
+  * PGDIR_SHIFT determines what a top-level page table entry can map
+  */
+@@ -55,6 +60,8 @@ extern unsigned long empty_zero_page[PAG
+  */
+ #define PTRS_PER_PTE	512
+ 
++#ifndef __ASSEMBLY__
++
+ #define pte_ERROR(e) \
+ 	printk("%s:%d: bad pte %p(%016lx).\n", __FILE__, __LINE__, &(e), pte_val(e))
+ #define pmd_ERROR(e) \
+@@ -118,22 +125,23 @@ static inline pte_t ptep_get_and_clear_f
+ 
+ #define pte_pgprot(a)	(__pgprot((a).pte & ~PHYSICAL_PAGE_MASK))
+ 
+-#define PMD_SIZE	(1UL << PMD_SHIFT)
++#endif /* !__ASSEMBLY__ */
++
++#define PMD_SIZE	(_AC(1,UL) << PMD_SHIFT)
+ #define PMD_MASK	(~(PMD_SIZE-1))
+-#define PUD_SIZE	(1UL << PUD_SHIFT)
++#define PUD_SIZE	(_AC(1,UL) << PUD_SHIFT)
+ #define PUD_MASK	(~(PUD_SIZE-1))
+-#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
++#define PGDIR_SIZE	(_AC(1,UL) << PGDIR_SHIFT)
+ #define PGDIR_MASK	(~(PGDIR_SIZE-1))
+ 
+ #define USER_PTRS_PER_PGD	((TASK_SIZE-1)/PGDIR_SIZE+1)
+ #define FIRST_USER_ADDRESS	0
+ 
+-#ifndef __ASSEMBLY__
+-#define MAXMEM		 0x3fffffffffffUL
+-#define VMALLOC_START    0xffffc20000000000UL
+-#define VMALLOC_END      0xffffe1ffffffffffUL
+-#define MODULES_VADDR    0xffffffff88000000UL
+-#define MODULES_END      0xfffffffffff00000UL
++#define MAXMEM		 _AC(0x3fffffffffff,UL)
++#define VMALLOC_START    _AC(0xffffc20000000000,UL)
++#define VMALLOC_END      _AC(0xffffe1ffffffffff,UL)
++#define MODULES_VADDR    _AC(0xffffffff88000000,UL)
++#define MODULES_END      _AC(0xfffffffffff00000,UL)
+ #define MODULES_LEN   (MODULES_END - MODULES_VADDR)
+ 
+ #define _PAGE_BIT_PRESENT	0
+@@ -159,7 +167,7 @@ static inline pte_t ptep_get_and_clear_f
+ #define _PAGE_GLOBAL	0x100	/* Global TLB entry */
+ 
+ #define _PAGE_PROTNONE	0x080	/* If not present */
+-#define _PAGE_NX        (1UL<<_PAGE_BIT_NX)
++#define _PAGE_NX        (_AC(1,UL)<<_PAGE_BIT_NX)
+ 
+ #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER | _PAGE_ACCESSED | _PAGE_DIRTY)
+ #define _KERNPG_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_ACCESSED | _PAGE_DIRTY)
+@@ -221,6 +229,8 @@ static inline pte_t ptep_get_and_clear_f
+ #define __S110	PAGE_SHARED_EXEC
+ #define __S111	PAGE_SHARED_EXEC
+ 
++#ifndef __ASSEMBLY__
++
+ static inline unsigned long pgd_bad(pgd_t pgd) 
+ { 
+        unsigned long val = pgd_val(pgd);
+@@ -417,8 +427,6 @@ extern spinlock_t pgd_lock;
+ extern struct page *pgd_list;
+ void vmalloc_sync_all(void);
+ 
+-#endif /* !__ASSEMBLY__ */
 -
--	.word	0, 0, 0, 0			# unused
--
--	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
--	.word	0				# base address = 0
--	.word	0x9B00				# code read/exec. ??? Why I need 0x9B00 (as opposed to 0x9A00 in order for this to work?)
--	.word	0x00CF				# granularity = 4096, 386
--						#  (+5th nibble of limit)
--
--	.word	0xFFFF				# 4Gb - (0x100000*0x1000 = 4Gb)
--	.word	0				# base address = 0
--	.word	0x9200				# data read/write
--	.word	0x00CF				# granularity = 4096, 386
--						#  (+5th nibble of limit)
--# this is 64bit descriptor for code
--	.word	0xFFFF
--	.word	0
--	.word	0x9A00				# code read/exec
--	.word	0x00AF				# as above, but it is long mode and with D=0
-+	/* ??? Why I need the accessed bit set in order for this to work? */
-+	.quad   0x00cf9b000000ffff              # __KERNEL32_CS
-+	.quad   0x00af9b000000ffff              # __KERNEL_CS
-+	.quad   0x00cf93000000ffff              # __KERNEL_DS
+ extern int kern_addr_valid(unsigned long addr); 
  
- idt_48a:
- 	.word	0				# idt limit = 0
- 	.word	0, 0				# idt base = 0L
+ #define io_remap_pfn_range(vma, vaddr, pfn, size, prot)		\
+@@ -448,5 +456,6 @@ extern int kern_addr_valid(unsigned long
+ #define __HAVE_ARCH_PTEP_SET_WRPROTECT
+ #define __HAVE_ARCH_PTE_SAME
+ #include <asm-generic/pgtable.h>
++#endif /* !__ASSEMBLY__ */
  
- gdt_48a:
--	.word	0x8000				# gdt limit=2048,
-+	.word	0x800				# gdt limit=2048,
- 						#  256 GDT entries
- 	.word	0, 0				# gdt base (filled in later)
- 	
-@@ -263,7 +230,7 @@ video_mode:	.quad 0
- video_flags:	.quad 0
- 
- bogus_real_magic:
--	movb	$0xba,%al	;  outb %al,$0x80		
-+	movb	$0xba,%al	;  outb %al,$0x80
- 	jmp bogus_real_magic
- 
- bogus_32_magic:
+ #endif /* _X86_64_PGTABLE_H */
 _

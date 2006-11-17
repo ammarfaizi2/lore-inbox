@@ -1,76 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755661AbWKQKSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755664AbWKQKWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755661AbWKQKSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 05:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755662AbWKQKSQ
+	id S1755664AbWKQKWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 05:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755667AbWKQKWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 05:18:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34766 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1755660AbWKQKSP (ORCPT
+	Fri, 17 Nov 2006 05:22:44 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:49303 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1755664AbWKQKWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 05:18:15 -0500
-Date: Fri, 17 Nov 2006 02:13:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: ebiederm@xmission.com (Eric W. Biederman), Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       William Cohen <wcohen@redhat.com>, Komuro <komurojun-mbn@nifty.com>,
-       Ernst Herzberg <earny@net4u.de>, Andre Noll <maan@systemlinux.org>,
-       oprofile-list@lists.sourceforge.net, Jens Axboe <jens.axboe@oracle.com>,
-       linux-usb-devel@lists.sourceforge.net, phil.el@wanadoo.fr,
-       Adrian Bunk <bunk@stusta.de>, Ingo Molnar <mingo@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Prakash Punnoor <prakash@punnoor.de>, Len Brown <len.brown@intel.com>,
-       Alex Romosan <romosan@sycorax.lbl.gov>, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
-Message-Id: <20061117021357.bcdbe52c.akpm@osdl.org>
-In-Reply-To: <17757.34795.689658.106603@alkaid.it.uu.se>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
-	<200611151945.31535.ak@suse.de>
-	<Pine.LNX.4.64.0611151105560.3349@woody.osdl.org>
-	<200611152023.53960.ak@suse.de>
-	<20061115122118.14fa2177.akpm@osdl.org>
-	<m18xic4den.fsf@ebiederm.dsl.xmission.com>
-	<20061115133121.8d9d621f.akpm@osdl.org>
-	<17756.17330.974883.486535@alkaid.it.uu.se>
-	<20061116122358.996fdbb3.akpm@osdl.org>
-	<17757.34795.689658.106603@alkaid.it.uu.se>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 17 Nov 2006 05:22:43 -0500
+Date: Fri, 17 Nov 2006 11:22:38 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <linux-acpi@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061117102237.GS14886@vasa.acc.umu.se>
+Mail-Followup-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <linux-acpi@vger.kernel.org>
+References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061107134439.1d54dc66.kristen.c.accardi@intel.com>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 10:59:07 +0100
-Mikael Pettersson <mikpe@it.uu.se> wrote:
-
-> Andrew Morton writes:
->  > On Thu, 16 Nov 2006 11:55:46 +0100
->  > Mikael Pettersson <mikpe@it.uu.se> wrote:
->  > 
->  > > Andrew Morton writes:
->  > >  > Surely the appropriate behaviour is to allow oprofile to steal the NMI and
->  > >  > to then put the NMI back to doing the watchdog thing after oprofile has
->  > >  > finished with it.
->  > > 
->  > > Which is _exactly_ what pre-2.6.19-rc1 kernels did. I implemented
->  > > the in-kernel API allowing real performance counter drivers like
->  > > oprofile (and perfctr) to claim the HW from the NMI watchdog,
->  > > do their work, and then release it which resumed the watchdog.
->  > 
->  > OK.  But from Andi's comments it seems that the NMI watchdog was failing to
->  > resume its operation.
+On Tue, Nov 07, 2006 at 01:44:39PM -0800, Kristen Carlson Accardi wrote:
+> On Tue, 7 Nov 2006 21:44:09 +0100
+> David Weinehall <tao@acc.umu.se> wrote:
 > 
-> It certainly worked when I originally implemented it. If it didn't work
-> that way before 2.6.19-rc1 butchered it then that would have been a bug
-> that should have been fixed.
+> > On Mon, Nov 06, 2006 at 10:21:17AM +0100, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > > > With 2.6.19-rc4, acpi complains about "acpiphp_glue: cannot get bridge
+> > > > > > info" each time I close/reopen the lid... On thinkpad x60. Any ideas?
+> > > > > > (-mm1 behaves the same).
+> > > > > 
+> > > > > Looks like acpi is sending a BUS_CHECK notification to acpiphp on the 
+> > > > > PCI Root Bridge whenever the lid opens up.
+> > > > > 
+> > > > > There is a bug here in that acpiphp shouldn't even be used on the X60 -
+> > > > > it has no hotpluggable slots.
+> > > > 
+> > > > How about the docking station?
+> > > 
+> > > "Dock" for x60 only contains cdrom slot and aditional slots, no PCI or
+> > > PCMCIA slots.
+> > 
+> > Well, when I press the undock button on the dock without the acpiphp
+> > module loaded, I never get the green light that confirms that removing
+> > the laptop is safe.  If acpiphp is loaded, things work just fine.
+> > 
+> > 
+> > Regards: David
+> > -- 
+> >  /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+> > //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+> > \)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+> 
+> David,
+> What kernel version are you using?  You should not need acpiphp to do
+> docking on the X60.  If you are using a recent kernel, do you mind sending
+> the dmesg output so we can figure out why this doesn't work for you?
 
-Oh.  OK.
+That was with 2.6.17; with 2.7.19-pre? (don't remember right now),
+docking seems to work without acpiphp.  It still would be nice to be
+able to undock when the laptop is sleeping though; how do I achieve
+that?
 
-Meanwhile, 2.6.19-rc6 remains unfixed.
 
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

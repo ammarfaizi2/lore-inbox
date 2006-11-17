@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933685AbWKQQRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933696AbWKQQSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933685AbWKQQRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933694AbWKQQRJ
+	id S933696AbWKQQSk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933695AbWKQQSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:17:09 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:44806 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S933685AbWKQQRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:17:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=dnPJVZt5dYkxFY9PPApwZn/XltSfQElK30QqaG+Lk6z3+oay8AB+whN8rUt2vK3ZqgV+81P/Pfx+6nqiEj43xR38bNTQd8A5iDbI/4OGOLbzaHz4rTbHJ43iPU+fWCWFxhIKrtiR5lMNgUhdS/Y2uNO6ZVEYbx+kRl2z/W5a/hY=
-Message-ID: <86802c440611170817i4452ae9ctb6d57f0879e877af@mail.gmail.com>
-Date: Fri, 17 Nov 2006 08:17:04 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Takashi Iwai" <tiwai@suse.de>
-Subject: Re: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Cc: "Olivier Nicolas" <olivn@trollprod.org>, "Jeff Garzik" <jeff@garzik.org>,
-       "David Miller" <davem@davemloft.net>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <s5hwt5us5q2.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Nov 2006 11:18:40 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10442 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933696AbWKQQSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 11:18:40 -0500
+Date: Fri, 17 Nov 2006 17:17:42 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Daniel Walker <dwalker@mvista.com>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
+Message-ID: <20061117161742.GA10182@elte.hu>
+References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163779116.6953.38.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0611141846190.3349@woody.osdl.org>
-	 <Pine.LNX.4.64.0611141909370.3349@woody.osdl.org>
-	 <20061114.192117.112621278.davem@davemloft.net>
-	 <s5hbqn99f2v.wl%tiwai@suse.de> <455B5D22.10408@garzik.org>
-	 <s5hslgktu4a.wl%tiwai@suse.de> <455B6761.3050700@garzik.org>
-	 <s5hodr7u0ve.wl%tiwai@suse.de> <455CEDC5.40200@trollprod.org>
-	 <s5hwt5us5q2.wl%tiwai@suse.de>
-X-Google-Sender-Auth: 885dcb0e967d243c
+In-Reply-To: <1163779116.6953.38.camel@mindpipe>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0001]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the fallback path from MSI test to ioapic still not look good.
 
-I think you could seperate azx_interrupt_test later.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-It seems on C51+MCP55 has problem to use MSI for hda.
-and I have tried two MCP55 only systems, the MSI for hda works well.
+> On Thu, 2006-11-16 at 23:07 +0100, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > [...] Should we start a known regression list?
+> > 
+> > please resend the bugs that still trigger for you with 2.6.19-rt0.
+> 
+> I'm working with the developers of the 64Studio distro who are 
+> attempting to ship a stable -rt kernel so I have access to lots of 
+> good bug reports.  Oops on boot is by far the most common.  I'll post 
+> details once we've retested with 2.6.19-rt0.
 
-YH
+thanks, please do that. Right now i have no open boot-crash regression 
+left that i can reproduce.
+
+	Ingo

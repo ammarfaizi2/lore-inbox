@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754937AbWKQGrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755468AbWKQGtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754937AbWKQGrg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 01:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754947AbWKQGrg
+	id S1755468AbWKQGtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 01:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755489AbWKQGtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 01:47:36 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:56544 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1754937AbWKQGrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 01:47:35 -0500
-Date: Fri, 17 Nov 2006 08:47:32 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Yitzchak Eidus <ieidus@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: changing internal kernel system mechanism in runtime by a module patch
-Message-ID: <20061117064732.GC3735@rhun.zurich.ibm.com>
-References: <e7aeb7c60611161119h3e198e96va07d36d5b2dd6390@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Nov 2006 01:49:09 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:60304 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1755468AbWKQGtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 01:49:08 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: sleeping functions called in invalid context during resume
+Date: Fri, 17 Nov 2006 07:49:01 +0100
+User-Agent: KMail/1.9.5
+Cc: Stephen Hemminger <shemminger@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+References: <20061114223002.10c231bd@localhost.localdomain> <20061116212158.0ef99842@localhost.localdomain> <20061116221800.bfbd80c4.akpm@osdl.org>
+In-Reply-To: <20061116221800.bfbd80c4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <e7aeb7c60611161119h3e198e96va07d36d5b2dd6390@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611170749.02129.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 16, 2006 at 09:19:50PM +0200, Yitzchak Eidus wrote:
 
-> is it possible to replace linux kernel internal functions such as
-> schdule () to lets say my_schdule () in a run time with a module
-> patch???  (so that every call in the kernel to schdule() will go to
-> my_schdule()... ) ???
+> > I have no idea what causes:
+> > 
+> > APIC error on CPU0: 00(00)
+> > 
+> > Is it an ACPI problem?
 
-Not in Linux.
+What CPU/chipset?
 
-> i am talking about a clean/standard way to do such thing
-> (without overwrite the mem address of the function and replace it in a
-> dirty way...)
+> 
+> Strange.  x86_64 has that stray exit_idle() in smp_error_interrupt() but
+> afaict it won't cause this to happen.
+> 
+> What's that idle_notifier doing in x86_64 anyway?  
 
-k42 supports "dynamic hot-swap" and there's been some work done to
-bring it into Linux, see e.g.,
-http://ozlabs.org/pipermail/k42-discussion/2006-October/001615.html.
+I originally added it for my (now abandoned in favour of dyntick) noidletick 
+implementation. I would have removed it again, but perfmon plans to use it
+too and I suspect dyntick will too (?)
 
-Cheers,
-Muli
+> It appears to have no 
+> users.  If there _is_ a user, and if its IDLE_END handler is altering the
+> preempt-count then perhaps there's your explanation.
 
+There shouldn't be a user currently in tree.
+ 
+> But it all appears to be dead code to me.
 
+Right now it is yes.
+
+-Andi
+ 

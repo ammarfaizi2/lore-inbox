@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753329AbWKQWLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755967AbWKQWR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753329AbWKQWLl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 17:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753331AbWKQWLk
+	id S1755967AbWKQWR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 17:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755968AbWKQWR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 17:11:40 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:42137 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1753329AbWKQWLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 17:11:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=HsDVZPFbXybuPKhoP4qPvuPDosM59yELx433eNOuMzi6edFjeCrCaJkTeD/IB7IzaSYzbPI5xbphZ93oal4Ecp070K6M4Wwban9CXEJF1AnBZ3xcniCngoSJlA0bUPlJyDKozAELG08IQn/eDL084wEnDhS/rdcBY9nK1P4LqXU=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Alan Cox <alan@redhat.com>
-Subject: TTY layer locking design
-Date: Sat, 18 Nov 2006 00:11:38 +0200
-User-Agent: KMail/1.9.1
-Cc: "LKML" <linux-kernel@vger.kernel.org>,
-       James Simmons <jsimmons@infradead.org>, Jeff Dike <jdike@addtoit.com>
-MIME-Version: 1.0
+	Fri, 17 Nov 2006 17:17:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41170 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755967AbWKQWR2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 17:17:28 -0500
+Date: Fri, 17 Nov 2006 17:16:14 -0500
+From: Alan Cox <alan@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@redhat.com>
+Subject: Re: [-mm patch] remove drivers/pci/search.c:pci_find_device_reverse()
+Message-ID: <20061117221614.GD20362@devserv.devel.redhat.com>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061117142145.GX31879@stusta.de> <20061117115404.4bc87cf9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200611172311.38744.blaisorblade@yahoo.it>
+In-Reply-To: <20061117115404.4bc87cf9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've started cleaning up locking in UML TTY drivers, and I've found some 
-difficulties in making it work cleanly.
+On Fri, Nov 17, 2006 at 11:54:04AM -0800, Andrew Morton wrote:
+> On Fri, 17 Nov 2006 15:21:45 +0100
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > This patch removes the no longer used pci_find_device_reverse().
+> 
+> But it is exported to modules.
+> 
+> This is what we created EXPORT_UNUSED_SYMBOL() for.
 
-I was starting looking well into the TTY layer locking and its design, and at 
-a first (and carent) look I found it difficult to follow; recent changes to 
-tty refcounting seem to point out that much work needs to be done, as one can 
-guess after looking at the code (I wasn't sure whether the problem was on the 
-code or on the reader ;-), however).
+Normally - but for the fact pci_find_device{_reverse} is unsafe on
+any box with any kind of pci hotplug events.
 
-So I have some questions before starting really to delve here:
+It really needs to die. It is not hotplug safe. The alternative would be
+to export it only with !CONFIG_HOTPLUG (which is what my test kernel
+does for both this and pci_find_device()). If we do that then to all
+intents and purposes it vanishes from most standard builds
 
-*) who is maintaining this aspect of code ? The only name found in MAINTAINERS 
-and CREDITS is the one of James Simmons.
-*) would the locking need to be redesigned?
-*) is the current design reputed solid? I'm not only talking about the big 
-kernel lock, but also about whether drivers need to reinvent (incorrectly) 
-the wheel for their locking. UML drivers are very bad on this, but I've found 
-difficulty both at reading the code and at finding documentation.
-*) Documentation/tty.txt is quite carent.
+The conversion is also trivial
 
-*) there is no generic way to handle tty's which are also consoles, except 
-drivers/char/vt.c - that code is written as if it were the only case where 
-that applies. Instead, UML drivers are an exception to this - UML cannot use 
-virtual terminals.
-Having a generic console driver using tty methods appears to be a cleaner 
-design (think, in filesystem writing, of page cache methods based 
-on ->readpage and ->writepage).
-
-I'm trying to establish whether it is possible, for instance, for ->close to 
-be called in parallel to ->write and such; in other driver layer this is 
-impossible because refcounts are used (normal files, char & block devices) 
-or, in the network layer, where refcount usage is impossible, because of 
-state machines (in the network layer).
-
-It seems not to happen for the console layer - is this true?
-Also, since write must use a spinlock because it must protect from interrupt 
-races, and open cannot, must we use both a mutex and a spinlock in ->write 
-and similar methods? This can be avoided in other drivers.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade
-http://www.user-mode-linux.org/~blaisorblade
-
- 
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+Alan

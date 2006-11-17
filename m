@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932918AbWKQOop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933629AbWKQOpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932918AbWKQOop (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933629AbWKQOop
+	id S933629AbWKQOpy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933631AbWKQOpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:44:45 -0500
-Received: from nz-out-0102.google.com ([64.233.162.194]:50933 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932918AbWKQOoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:44:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NsYS6nK+BUCcRroZFWAIA7SlbZZyKB9Cf4dBIJWKWDoqvHNrQwGLszuMBXHvVr2b7IUK9ynTg1vK40swvkpfG662pQkanVKdZElWN6gWLIsYsouSpqqh6cN+N7LuZ3X7vjcBhqiscFLM7i9p9JTOawThxB3a8sr2Hae7EJNIouc=
-Message-ID: <6844644e0611170644n32aeb454p72e8b1ec9733f30a@mail.gmail.com>
-Date: Fri, 17 Nov 2006 09:44:43 -0500
-From: "Doug Reiland" <dreiland@gmail.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic in 2.6.19-rc1
+	Fri, 17 Nov 2006 09:45:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:55424 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933629AbWKQOpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:45:53 -0500
+Date: Fri, 17 Nov 2006 14:45:49 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: lkml <linux-kernel@vger.kernel.org>, pazke@donpac.ru, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] visws: sgivwfb is module needs exports
+In-Reply-To: <20061116213038.84cc25b5.randy.dunlap@oracle.com>
+Message-ID: <Pine.LNX.4.64.0611171444150.10830@pentafluge.infradead.org>
+References: <20061116213038.84cc25b5.randy.dunlap@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton sorry I missed your reply:
 
-To recap, I said:
-     FYI, I had to get CONFIG_SYSCTL_SYSCALL set to solve my
-2.6.19-rc1 boot panic.
-     Actually, I couldn't get CONFIG_SYSCTL_SYSCALL=y to stick so I
-modified kernel/sysctl.c's ifdefs.
+Acked-by: James Simmons <jsimmons@infradead.org>
 
-You said:
-    What boot panic was that?
-    It depends on CONFIG_EMBEDDED.
+On Thu, 16 Nov 2006, Randy Dunlap wrote:
 
-The panic was because init died. I get an error message about unknown
-library version (exact message I can't recall) and then the panic.
-
-Again, I am running a new 2.6.x kernel on an old distribution so my
-init binary or run-time loader might still be depending on SYSCTL.
-
-I am now playing with a x86_64 kernel and saw this same problem. Your
-CONFIG_EMBEDDED hint helped. I set that and CONFIG_SYSCTL_SYSCALL
-stays on.
-
-Thanks again and sorry for not attaching this to the original email thread.
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> With CONFIG_FB_SGIVW=m:
+> WARNING: "sgivwfb_mem_size" [drivers/video/sgivwfb.ko] undefined!
+> WARNING: "sgivwfb_mem_phys" [drivers/video/sgivwfb.ko] undefined!
+> 
+> (or don't allow FB_SGIVW=m in Kconfig)
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  arch/i386/mach-visws/setup.c |    3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> --- linux-2619-rc6.orig/arch/i386/mach-visws/setup.c
+> +++ linux-2619-rc6/arch/i386/mach-visws/setup.c
+> @@ -6,6 +6,7 @@
+>  #include <linux/smp.h>
+>  #include <linux/init.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/module.h>
+>  
+>  #include <asm/fixmap.h>
+>  #include <asm/arch_hooks.h>
+> @@ -142,6 +143,8 @@ void __init time_init_hook(void)
+>  
+>  unsigned long sgivwfb_mem_phys;
+>  unsigned long sgivwfb_mem_size;
+> +EXPORT_SYMBOL(sgivwfb_mem_phys);
+> +EXPORT_SYMBOL(sgivwfb_mem_size);
+>  
+>  long long mem_size __initdata = 0;
+>  
+> 
+> 
+> ---
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

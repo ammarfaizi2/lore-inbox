@@ -1,78 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933691AbWKQQIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933689AbWKQQJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933691AbWKQQIV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933690AbWKQQIV
+	id S933689AbWKQQJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933692AbWKQQJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:08:21 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:5340 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S933688AbWKQQIU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:08:20 -0500
-Date: Fri, 17 Nov 2006 17:08:10 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117160810.GW14886@vasa.acc.umu.se>
-Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
-	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	ACPI mailing list <linux-acpi@vger.kernel.org>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org> <20061117153717.GU14886@vasa.acc.umu.se> <20061117154627.GA1544@srcf.ucam.org>
+	Fri, 17 Nov 2006 11:09:04 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:61968 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S933689AbWKQQJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 11:09:02 -0500
+Date: Fri, 17 Nov 2006 16:08:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Cc: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+       ext David Brownell <david-b@pacbell.net>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
+Subject: Re: [patch 3/6] [RFC] Add MMC Password Protection (lock/unlock) support V6
+Message-ID: <20061117160855.GC28514@flint.arm.linux.org.uk>
+Mail-Followup-To: Anderson Briglia <anderson.briglia@indt.org.br>,
+	"Linux-omap-open-source@linux.omap.com" <linux-omap-open-source@linux.omap.com>,
+	linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+	ext David Brownell <david-b@pacbell.net>,
+	Tony Lindgren <tony@atomide.com>,
+	"Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+	"Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
+References: <455DB31C.40907@indt.org.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117154627.GA1544@srcf.ucam.org>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+In-Reply-To: <455DB31C.40907@indt.org.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 03:46:27PM +0000, Matthew Garrett wrote:
-> On Fri, Nov 17, 2006 at 04:37:17PM +0100, David Weinehall wrote:
-> 
-> > The fact that the dock starts to beep annoyingly. It has a button that
-> > you should press before undocking, and wait for a green light to light
-> > up before removing the laptop.  If you remove the computer without
-> > doing so, the dock starts beeping, and it doesn't stop (AFAIK, haven't
-> > managed to stand the beeping for more than 30 seconds or so) until you
-> > replug the laptop.
-> 
-> Ah, hm. Interesting. Maybe it does want OS support, then. Have you tried 
-> it in the Leading Brand OS?
+On Fri, Nov 17, 2006 at 09:03:24AM -0400, Anderson Briglia wrote:
+> @@ -101,7 +104,7 @@ mmc_start_request(struct mmc_host *host,
+>  	pr_debug("%s: starting CMD%u arg %08x flags %08x\n",
+>  		 mmc_hostname(host), mrq->cmd->opcode,
+>  		 mrq->cmd->arg, mrq->cmd->flags);
+> -
+> +	
 
-Nope.
+Random whitespace damage; please remove.
 
-> > My guess is that there is some wait to trigger an undock event from
-> > software as well, and that it would be nice to send that signal to the
-> > dock before suspending...
-> 
-> You possibly don't want to do that if there's a mounted bay device in 
-> the dock.
+> +	do {
+> +		/* we cannot use "retries" here because the
+> +		 * R1_LOCK_UNLOCK_FAILED bit is cleared by subsequent reads 
+> to
 
-Well, right now I don't have a bay device in the dock, but refusing to
-suspend in that case would be reasonable.  I need to add some hotplug
-script for the bay device anyway if I add one.
+#include <std-mail-wrapping-complaint.h>
 
-> We really need to determine some sort of policy when it comes to mounted 
-> devices that will potentially be removed by the user over 
-> suspend/resume. Do we support this configuration (by not killing the 
-> mount point), or do we prevent users from shooting themselves in the 
-> foot?
+> +error:
+> +	mmc_deselect_cards(card->host);
 
-Good question.  Personally I'd say we refuse to suspend when we have
-devices we *know* to be dock-devices etc mounted.
+You don't need to deselect the card prior to releasing the host; in
+fact in single card systems, it's better that you don't.  That way
+you avoid generating lots of select card messages.
 
+> +	mmc_card_release_host(card);
+> +out:
+> +	kfree(data_buf);
+> +
+> +	return err;
+> +}
+> +
+> +//EXPORT_SYMBOL(mmc_lock_unlock);
 
-Regards: David
+Either export it or don't.  There's no point in having a commented out
+export.
+
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

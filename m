@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755779AbWKQSSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752268AbWKQSWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755779AbWKQSSw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 13:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755514AbWKQSSw
+	id S1752268AbWKQSWd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 13:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752249AbWKQSWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 13:18:52 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:13812 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1754078AbWKQSSv (ORCPT
+	Fri, 17 Nov 2006 13:22:33 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:29117 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1752129AbWKQSWd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 13:18:51 -0500
-Date: Fri, 17 Nov 2006 19:18:42 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117181842.GX14886@vasa.acc.umu.se>
-Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
-	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	ACPI mailing list <linux-acpi@vger.kernel.org>
-References: <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org> <20061117153717.GU14886@vasa.acc.umu.se> <20061117154627.GA1544@srcf.ucam.org> <20061117160810.GW14886@vasa.acc.umu.se> <20061117163128.GA2068@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061117163128.GA2068@srcf.ucam.org>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+	Fri, 17 Nov 2006 13:22:33 -0500
+Date: Fri, 17 Nov 2006 19:05:28 +0100 (MET)
+Message-Id: <200611171805.kAHI5S3C025845@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: ak@suse.de, mikpe@it.uu.se
+Subject: Re: [discuss] Re: 2.6.19-rc5: known regressions (v3)
+Cc: akpm@osdl.org, arvidjaar@mail.ru, bunk@stusta.de, discuss@x86-64.org,
+       earny@net4u.de, ebiederm@xmission.com, gregkh@suse.de,
+       jens.axboe@oracle.com, komurojun-mbn@nifty.com, len.brown@intel.com,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-usb-devel@lists.sourceforge.net, maan@systemlinux.org,
+       mingo@redhat.com, oprofile-list@lists.sourceforge.net,
+       phil.el@wanadoo.fr, prakash@punnoor.de, romosan@sycorax.lbl.gov,
+       shemminger@osdl.org, stern@rowland.harvard.edu, torvalds@osdl.org,
+       wcohen@redhat.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 04:31:28PM +0000, Matthew Garrett wrote:
-> On Fri, Nov 17, 2006 at 05:08:10PM +0100, David Weinehall wrote:
-> 
-> > Good question.  Personally I'd say we refuse to suspend when we have
-> > devices we *know* to be dock-devices etc mounted.
-> 
-> Kernel-level or userspace? IBM certainly used to sell bay-mounted hard 
-> drives, and while it's possible for a user to pull one out while the 
-> machine is suspended, I suspect that the general use case is probably 
-> for it to carry on being used.
+On Fri, 17 Nov 2006 11:29:25 +0100, Andi Kleen wrote:
+>On Friday 17 November 2006 10:59, Mikael Pettersson wrote:
+>
+>> It certainly worked when I originally implemented it. 
+>
+>I don't think so. NMI watchdog never recovered no matter if oprofile
+>used the counter or not.
 
-I'd say that kind of policies should be left to userspace, since it's up
-to userspace to decide if we suspend at all or not.  If the user tells
-the kernel to shoot him in the foot, the kernel should take aim
-carefully and turn him into a cripple.
+If so then that's a bug in oprofile or the x86-64 kernel.
+I just checked the 2.6.18 i386 kernel + the perfctr kernel
+extension, and the NMI watchdog did start ticking again when
+perfctr called release_lapic_nmi().
 
-> Possibly what's needed is something like Apple's nullfs - force unmount 
-> the drive on suspend, and put a nullfs there instead. On resume, if the 
-> drive is still there, remount it. If not, userspace applications get 
-> upset about the missing drive but no data is lost. The downside to this 
-> approach would be trying to figure out how to get the drive remounted 
-> before the rest of userspace starts trying to scribble over it again...
+Before the {reserve,release}_lapic_nmi() API went into the
+kernel the NMI watchdog might not have resumed, but that was
+ages ago (the 2.6.6 kernel).
 
-Mmmm.
-
-
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+/Mikael

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932912AbWKQOWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933615AbWKQOXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932912AbWKQOWD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933614AbWKQOWB
+	id S933615AbWKQOXo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933616AbWKQOXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:22:01 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:63503 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932912AbWKQOWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:22:00 -0500
-Date: Fri, 17 Nov 2006 15:21:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Pavel Mironchik <pmironchik@optifacio.net>
-Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/rtc/rtc-rs5c372.c: fix a NULL dereference
-Message-ID: <20061117142159.GY31879@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 17 Nov 2006 09:23:44 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:29717 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S933615AbWKQOXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:23:43 -0500
+Subject: Re: Re : vm: weird behaviour when munmapping
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061117141230.70698.qmail@web23105.mail.ird.yahoo.com>
+References: <20061117141230.70698.qmail@web23105.mail.ird.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 17 Nov 2006 15:21:08 +0100
+Message-Id: <1163773268.5968.122.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The correct order is: NULL check before dereference
+On Fri, 2006-11-17 at 14:12 +0000, moreau francis wrote:
+> Peter Zijlstra wrote:
+> > No indeed. You seem confused with remaining and new. 
+> > 
+> > It has one VMA (A) it needs to split that into two pieces, it happens to
+> > do it like (B,A') where A' is the old VMA object with new a start
+> > address, and B is a new VMA object.
+> 
+> Is there any rules to decide which VMA is the new one ? 
 
-This was a guaranteed NULL dereference with debugging enabled since 
-rs5c372_sysfs_show_osc() does actually pass NULL...
+The new object is the one allocated using:
+	new = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
 
-Spotted by the Coverity checker.
+> From what you wrote it seems that we call B the new object because
+> it has a new end address...
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+No, because its newly allocated.
 
---- linux-2.6.19-rc5-mm2/drivers/rtc/rtc-rs5c372.c.old	2006-11-17 14:15:53.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/rtc/rtc-rs5c372.c	2006-11-17 14:16:53.000000000 +0100
-@@ -126,13 +126,13 @@ static int rs5c372_get_trim(struct i2c_c
- 		return -EIO;
- 	}
- 
--	dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, *trim);
--
- 	if (osc)
- 		*osc = (buf & RS5C372_TRIM_XSL) ? 32000 : 32768;
- 
--	if (trim)
-+	if (trim) {
- 		*trim = buf & RS5C372_TRIM_MASK;
-+		dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, *trim);
-+	}
- 
- 	return 0;
- }
+> From my point of view, I called B the old VMA simply because it's
+> going to be destroyed...
+
+Please read Mel Gorman's book on memory management to gain a better
+understanding.
+
+http://www.phptr.com/bookstore/product.asp?isbn=0131453483&rl=1
+
 

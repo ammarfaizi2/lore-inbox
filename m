@@ -1,64 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756025AbWKQXTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756032AbWKQX1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756025AbWKQXTV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 18:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756026AbWKQXTV
+	id S1756032AbWKQX1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 18:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756035AbWKQX1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 18:19:21 -0500
-Received: from mga09.intel.com ([134.134.136.24]:20344 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1756025AbWKQXTU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 18:19:20 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,436,1157353200"; 
-   d="scan'208"; a="163310563:sNHT85103270"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 17 Nov 2006 18:27:53 -0500
+Received: from twinlark.arctic.org ([207.7.145.18]:29891 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1756032AbWKQX1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 18:27:52 -0500
+Date: Fri, 17 Nov 2006 15:27:51 -0800 (PST)
+From: dean gaudet <dean@arctic.org>
+To: martin f krafft <madduck@madduck.net>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: How to interpret MCE messages?
+In-Reply-To: <20061115092726.GA22720@piper.oerlikon.madduck.net>
+Message-ID: <Pine.LNX.4.64.0611171524400.12661@twinlark.arctic.org>
+References: <20061108162022.GA4258@piper.madduck.net>
+ <1163003354.23956.43.camel@localhost.localdomain>
+ <20061115092726.GA22720@piper.oerlikon.madduck.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG][acpi-cpufreq/userspace-governor]Frequency does not change
-Date: Fri, 17 Nov 2006 15:19:17 -0800
-Message-ID: <EB12A50964762B4D8111D55B764A8454E76579@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG][acpi-cpufreq/userspace-governor]Frequency does not change
-Thread-Index: AccKjn7NT/8ZGfpRSvOTubU9x1nJDQAD++3w
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Dhaval Giani" <dhaval.giani@gmail.com>, <davej@codemonkey.org.uk>,
-       "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>, <linux@brodo.de>,
-       "Sadykov, Denis M" <denis.m.sadykov@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Nov 2006 23:19:18.0808 (UTC) FILETIME=[CE72A980:01C70A9E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Nov 2006, martin f krafft wrote:
 
- 
+> Thus I guess the CPU is asking for retirement. I am just
+> double-checking with you guys whether I can be sure that it's only
+> the CPU, or whether it could also be the fault of the motherboard...
 
->-----Original Message-----
->From: Dhaval Giani [mailto:dhaval.giani@gmail.com] 
->Sent: Friday, November 17, 2006 1:22 PM
->To: Pallipadi, Venkatesh; davej@codemonkey.org.uk; 
->Diefenbaugh, Paul S; linux@brodo.de; Sadykov, Denis M
->Cc: linux-kernel@vger.kernel.org
->Subject: [BUG][acpi-cpufreq/userspace-governor]Frequency does 
->not change
->
->Hey there,
->
->Looks like I spoke too soon. I tried changing the frequency in cpu1
->and then it all fell apart. I got a ridiculously high value. To test
->it, I rebooted my system, and this is what happened.
->
+could be VRMs and/or PSU delivering unclean power... but you'd probably 
+see other errors in that case too.
 
-You will also need another patch here.
-http://lists.linux.org.uk/mailman/private/cpufreq/2006-November/006591.h
-tml
-
-Please apply that patch along with the other one that you already
-applied and let me know if you still see the issue.
-
-Thanks,
-Venki
+-dean

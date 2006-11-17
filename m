@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933676AbWKQPqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933683AbWKQPtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933676AbWKQPqd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933679AbWKQPqd
+	id S933683AbWKQPtc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933684AbWKQPtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:46:33 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:21127 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S933676AbWKQPqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:46:32 -0500
-Date: Fri, 17 Nov 2006 15:46:27 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117154627.GA1544@srcf.ucam.org>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org> <20061117153717.GU14886@vasa.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Nov 2006 10:49:31 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:24737 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S933683AbWKQPta (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 10:49:30 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: sleeping functions called in invalid context during resume
+Date: Fri, 17 Nov 2006 16:46:05 +0100
+User-Agent: KMail/1.9.1
+Cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20061114223002.10c231bd@localhost.localdomain> <20061116212158.0ef99842@localhost.localdomain> <20061117065202.GA11877@elte.hu>
+In-Reply-To: <20061117065202.GA11877@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061117153717.GU14886@vasa.acc.umu.se>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Message-Id: <200611171646.05860.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 04:37:17PM +0100, David Weinehall wrote:
+On Friday, 17 November 2006 07:52, Ingo Molnar wrote:
+> 
+> * Stephen Hemminger <shemminger@osdl.org> wrote:
+> 
+> > > > BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
+> > > > in_atomic():1, irqs_disabled():0
+> > > > 
+> > > > Call Trace:  
+> > > >  [<ffffffff80266117>] show_trace+0x34/0x47
+> > > >  [<ffffffff8026613c>] dump_stack+0x12/0x17
+> > > >  [<ffffffff803734e5>] device_resume+0x19/0x51
+> > > >  [<ffffffff80292157>] enter_state+0x19b/0x1b5
+> > > >  [<ffffffff802921cf>] state_store+0x5e/0x79
+> > > >  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
+> > > >  [<ffffffff80215059>] vfs_write+0xce/0x174
+> > > >  [<ffffffff802159a5>] sys_write+0x45/0x6e
+> > > >  [<ffffffff802593de>] system_call+0x7e/0x83  
+> > > > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > > > 
+> > 
+> > Ingo, the later version of your lockdep patch (with the x86_64 fix), 
+> > worked. There is nothing locked during these errors.
+> > 
+> > The problem was the APIC error is leaving preempt-disabled.
+> 
+> ah, that could be the case - do you have a fix-patch for that?
+> 
+> preempt-disabled leaks are only caught via CONFIG_PREEMPT_TRACE (not via 
+> lockdep), which debug feature you can find in the -rt tree:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> (there's no easy standalone patch for now.)
+> 
+> it will be enabled if you select CONFIG_DEBUG_PREEMPT.
+> 
+> > I have no idea what causes:
+> > 
+> > APIC error on CPU0: 00(00)
+> > 
+> > Is it an ACPI problem?
+> 
+> a 00 error code? Never seen that ... How frequently does it happen?
 
-> The fact that the dock starts to beep annoyingly. It has a button that
-> you should press before undocking, and wait for a green light to light
-> up before removing the laptop.  If you remove the computer without
-> doing so, the dock starts beeping, and it doesn't stop (AFAIK, haven't
-> managed to stand the beeping for more than 30 seconds or so) until you
-> replug the laptop.
+On my x86-64 boxes the "APIC error on CPU0" message appears on every resume,
+but it doesn't seem to be related to any visible problems.
 
-Ah, hm. Interesting. Maybe it does want OS support, then. Have you tried 
-it in the Leading Brand OS?
+It's been there forever, AFAICT.
 
-> My guess is that there is some wait to trigger an undock event from
-> software as well, and that it would be nice to send that signal to the
-> dock before suspending...
+Greetings,
+Rafael
 
-You possibly don't want to do that if there's a mounted bay device in 
-the dock.
-
-We really need to determine some sort of policy when it comes to mounted 
-devices that will potentially be removed by the user over 
-suspend/resume. Do we support this configuration (by not killing the 
-mount point), or do we prevent users from shooting themselves in the 
-foot?
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

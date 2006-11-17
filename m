@@ -1,63 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933584AbWKQNIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933585AbWKQNK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933584AbWKQNIS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 08:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933585AbWKQNIS
+	id S933585AbWKQNK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 08:10:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933586AbWKQNK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 08:08:18 -0500
-Received: from amsfep19-int.chello.nl ([213.46.243.16]:17740 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S933584AbWKQNIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 08:08:17 -0500
-Subject: Re: Re : vm: weird behaviour when munmapping
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
-References: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 14:05:42 +0100
-Message-Id: <1163768742.5968.108.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Nov 2006 08:10:27 -0500
+Received: from mgw-ext13.nokia.com ([131.228.20.172]:47968 "EHLO
+	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP id S933585AbWKQNK0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 08:10:26 -0500
+Message-ID: <455DB50C.3020209@indt.org.br>
+Date: Fri, 17 Nov 2006 09:11:40 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>
+CC: linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+       ext David Brownell <david-b@pacbell.net>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
+Subject: [patch 4/6] [RFC] Add MMC Password Protection (lock/unlock) support
+ V6
+Content-Type: multipart/mixed;
+ boundary="------------060409040509020606070903"
+X-OriginalArrivalTime: 17 Nov 2006 13:07:52.0611 (UTC) FILETIME=[63C53F30:01C70A49]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-17 at 12:50 +0000, moreau francis wrote:
-> Peter Zijlstra wrote:
-> > 
-> > http://lwn.net/Kernel/LDD3/
-> > 
-> > Chapter 15. Section 'Virtual Memory Areas'.
-> > 
-> > Basically; vm_ops->open() is not called on the first vma. With this
-> > munmap() you split the area in two, and it so happens the new vma is the
-> > lower one.
-> > 
-> 
-> since I did "munmap(0x2aaae000, 1024)" I would say that the the new vma
-> is the _upper_ one.
-> 
-> lower vma: 0x2aaae000 -> 0x2aaaf000
-> upper vma: 0x2aaaf000 -> 0x2aab2000
+This is a multi-part message in MIME format.
+--------------060409040509020606070903
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-that is the remaining VMA, not the new one; we trigger this code:
+OMAP platform specific patch.
+- Add the host MMC lock/unlock capability support.
 
-	/* Does it split the last one? */
-	last = find_vma(mm, end);
-	if (last && end > last->vm_start) {
-		int error = split_vma(mm, last, end, 1);
-		if (error)
-			return error;
-	}
+Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
+Signed-off-by: Anderson Lizardo <anderson.lizardo <at> indt.org.br>
+Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
 
-So, since its the last VMA that needs to be split (there is only one),
-the new VMA is constructed before the old one. Like so:
+Index: linux-omap-2.6.git/drivers/mmc/omap.c
+===================================================================
+--- linux-omap-2.6.git.orig/drivers/mmc/omap.c	2006-11-16 15:35:19.000000000 -0400
++++ linux-omap-2.6.git/drivers/mmc/omap.c	2006-11-17 09:05:47.000000000 -0400
+@@ -1094,6 +1094,9 @@ static int __init mmc_omap_probe(struct
+  	if (minfo->wire4)
+  		 mmc->caps |= MMC_CAP_4_BIT_DATA;
 
-  AAAAAAAAAAAAAAAAAAAAA
-  BBBBAAAAAAAAAAAAAAAAA
-
-Then you proceed closing, in this case the new one: B.
++	/* Sets the lock/unlock capability */
++	host->mmc->caps |= MMC_CAP_LOCK_UNLOCK;
++
+  	/* Use scatterlist DMA to reduce per-transfer costs.
+  	 * NOTE max_seg_size assumption that small blocks aren't
+  	 * normally used (except e.g. for reading SD registers).
 
 
+--------------060409040509020606070903
+Content-Type: text/x-patch;
+ name="mmc_omap_cap.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc_omap_cap.diff"
+
+OMAP platform specific patch.
+- Add the host MMC lock/unlock capability support.
+
+Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
+Signed-off-by: Anderson Lizardo <anderson.lizardo <at> indt.org.br>
+Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
+
+Index: linux-omap-2.6.git/drivers/mmc/omap.c
+===================================================================
+--- linux-omap-2.6.git.orig/drivers/mmc/omap.c	2006-11-16 15:35:19.000000000 -0400
++++ linux-omap-2.6.git/drivers/mmc/omap.c	2006-11-17 09:05:47.000000000 -0400
+@@ -1094,6 +1094,9 @@ static int __init mmc_omap_probe(struct 
+ 	if (minfo->wire4)
+ 		 mmc->caps |= MMC_CAP_4_BIT_DATA;
+ 
++	/* Sets the lock/unlock capability */
++	host->mmc->caps |= MMC_CAP_LOCK_UNLOCK;
++
+ 	/* Use scatterlist DMA to reduce per-transfer costs.
+ 	 * NOTE max_seg_size assumption that small blocks aren't
+ 	 * normally used (except e.g. for reading SD registers).
+
+--------------060409040509020606070903--

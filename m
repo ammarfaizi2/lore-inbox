@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933627AbWKQOmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932918AbWKQOop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933627AbWKQOmO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933629AbWKQOmO
+	id S932918AbWKQOop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933629AbWKQOop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:42:14 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:9365 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S933627AbWKQOmN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:42:13 -0500
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: [ckrm-tech] [RFC][PATCH 5/8] RSS controller task migration support
-Cc: balbir@in.ibm.com, ckrm-tech@lists.sourceforge.net, dev@openvz.org,
-       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       rohitseth@google.com
-Message-Id: <20061117144206.3013D1B6A2@openx4.frec.bull.fr>
-Date: Fri, 17 Nov 2006 15:42:06 +0100 (CET)
-From: Patrick.Le-Dot@bull.net (Patrick.Le-Dot)
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/11/2006 15:49:07,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/11/2006 15:49:08,
-	Serialize complete at 17/11/2006 15:49:08
+	Fri, 17 Nov 2006 09:44:45 -0500
+Received: from nz-out-0102.google.com ([64.233.162.194]:50933 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932918AbWKQOoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:44:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NsYS6nK+BUCcRroZFWAIA7SlbZZyKB9Cf4dBIJWKWDoqvHNrQwGLszuMBXHvVr2b7IUK9ynTg1vK40swvkpfG662pQkanVKdZElWN6gWLIsYsouSpqqh6cN+N7LuZ3X7vjcBhqiscFLM7i9p9JTOawThxB3a8sr2Hae7EJNIouc=
+Message-ID: <6844644e0611170644n32aeb454p72e8b1ec9733f30a@mail.gmail.com>
+Date: Fri, 17 Nov 2006 09:44:43 -0500
+From: "Doug Reiland" <dreiland@gmail.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic in 2.6.19-rc1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 14:05:13 +0000
-> ...
-> There are two reasons for wanting memory guarantees
-> 
-> #1      To be sure a user can't toast the entire box but just their own
->         compartment (eg web hosting)
+Andrew Morton sorry I missed your reply:
 
-Well, this seems not a situation to add a guarantee to this user
-but a limit...
+To recap, I said:
+     FYI, I had to get CONFIG_SYSCTL_SYSCALL set to solve my
+2.6.19-rc1 boot panic.
+     Actually, I couldn't get CONFIG_SYSCTL_SYSCALL=y to stick so I
+modified kernel/sysctl.c's ifdefs.
 
-> ...
-> #2      To ensure all apps continue to make progress
+You said:
+    What boot panic was that?
+    It depends on CONFIG_EMBEDDED.
 
-or to ensure that a job is ready to work without to have to pay the
-cost of a lot of pagination in...
+The panic was because init died. I get an error message about unknown
+library version (exact message I can't recall) and then the panic.
 
+Again, I am running a new 2.6.x kernel on an old distribution so my
+init binary or run-time loader might still be depending on SYSCTL.
 
->> If the limit is a "hard limit" then we have implemented reservation and
->> this is too strict.
->
-> Thats fundamentally a judgement based on your particular workload and
-> constraints.
-Nop.
-You can read this on the wiki page...
+I am now playing with a x86_64 kernel and saw this same problem. Your
+CONFIG_EMBEDDED hint helped. I set that and CONFIG_SYSCTL_SYSCALL
+stays on.
 
-I'm just saying that the implementation of guarantee with limits seems to
-be not enough for #2.
-
-> If I am web hosting then I don't generally care if my end
-> users compartment blows up under excess load, I care that the other 200
-> customers using the box don't suffer and all phone me to complain.
-
-I agree : limit is necessary and should be a "hard limit" (even if the
-controler needs an internal threeshold like a "soft limit" to decide to
-wakeup the kswapd).
-But this is not the topic (not yet:-)
-
-Patrick
+Thanks again and sorry for not attaching this to the original email thread.

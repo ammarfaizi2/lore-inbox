@@ -1,249 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755817AbWKQTOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932953AbWKQTPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755817AbWKQTOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 14:14:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755818AbWKQTOM
+	id S932953AbWKQTPS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 14:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933573AbWKQTPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 14:14:12 -0500
-Received: from smtp-out.google.com ([216.239.33.17]:43649 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1755817AbWKQTOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 14:14:11 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:references:user-agent:date:from:to:cc:
-	subject:content-disposition;
-	b=cCoxr3g91F+xHWG9Egi2HMUOGg9bEMsKfT7xNqpidLANeWMOWHw81zifiudUPNydy
-	miQn6bHhSzSQgjRcj/dWA==
-Message-Id: <20061117191339.494907000@menage.corp.google.com>
-References: <20061117191159.151894000@menage.corp.google.com>
-User-Agent: quilt/0.45-1
-Date: Fri, 17 Nov 2006 11:12:03 -0800
-From: menage@google.com
-To: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com
-Cc: ckrm-tech@lists.sourceforge.net, jlan@sgi.com, simon.derr@bull.net,
-       linux-kernel@vger.kernel.org, mbligh@google.com, winget@google.com,
-       rohitseth@google.com
-Subject: [PATCH 4/6] Simple CPU accounting container subsystem
-Content-Disposition: inline; filename=cpu_acct.patch
+	Fri, 17 Nov 2006 14:15:17 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:35522 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933577AbWKQTOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 14:14:52 -0500
+Date: Fri, 17 Nov 2006 20:13:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Daniel Walker <dwalker@mvista.com>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
+Message-ID: <20061117191350.GA19101@elte.hu>
+References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163779116.6953.38.camel@mindpipe> <20061117161742.GA10182@elte.hu> <1163789144.6953.57.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1163789144.6953.57.camel@mindpipe>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This demonstrates how to use the generic container subsystem for a
-simple resource tracker that counts the total CPU time used by all
-processes in a container, during the time that they're members of the
-container.
 
-Signed-off-by: Paul Menage <menage@google.com>
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
----
- include/linux/cpu_acct.h |   14 +++++
- init/Kconfig             |    7 ++
- kernel/Makefile          |    1 
- kernel/cpu_acct.c        |  117 +++++++++++++++++++++++++++++++++++++++++++++++
- kernel/sched.c           |    6 ++
- 5 files changed, 145 insertions(+)
+> On Fri, 2006-11-17 at 17:17 +0100, Ingo Molnar wrote:
+> > thanks, please do that. Right now i have no open boot-crash regression 
+> > left that i can reproduce.
+> 
+> Possibly old news, but with 2.6.18-rt7 this user gets an Oops in
+> read_hpet() if high res timers are enabled.
+> 
+> http://ubuntuforums.org/showthread.php?t=292071
 
-Index: container-2.6.19-rc5/include/linux/cpu_acct.h
-===================================================================
---- /dev/null
-+++ container-2.6.19-rc5/include/linux/cpu_acct.h
-@@ -0,0 +1,14 @@
-+
-+#ifndef _LINUX_CPU_ACCT_H
-+#define _LINUX_CPU_ACCT_H
-+
-+#include <linux/container.h>
-+#include <asm/cputime.h>
-+
-+#ifdef CONFIG_CONTAINER_CPUACCT
-+extern void cpuacct_charge(struct task_struct *, cputime_t cputime);
-+#else
-+static void inline cpuacct_charge(struct task_struct *p, cputime_t cputime) {}
-+#endif
-+
-+#endif
-Index: container-2.6.19-rc5/init/Kconfig
-===================================================================
---- container-2.6.19-rc5.orig/init/Kconfig
-+++ container-2.6.19-rc5/init/Kconfig
-@@ -263,6 +263,13 @@ config CPUSETS
- 
- 	  Say N if unsure.
- 
-+config CONTAINER_CPUACCT
-+	bool "Simple CPU accounting container subsystem"
-+	select CONTAINERS
-+	help
-+	  Provides a simple Resource Controller for monitoring the
-+	  total CPU consumed by the tasks in a container
-+
- config RELAY
- 	bool "Kernel->user space relay support (formerly relayfs)"
- 	help
-Index: container-2.6.19-rc5/kernel/cpu_acct.c
-===================================================================
---- /dev/null
-+++ container-2.6.19-rc5/kernel/cpu_acct.c
-@@ -0,0 +1,117 @@
-+/*
-+ * kernel/cpu_acct.c - CPU accounting container subsystem
-+ *
-+ * Copyright (C) Google Inc, 2006
-+ *
-+ */
-+
-+/*
-+ * Container subsystem for reporting total CPU usage of tasks in a
-+ * container.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/container.h>
-+#include <linux/fs.h>
-+#include <asm/div64.h>
-+
-+struct cpuacct {
-+	struct container_subsys_state css;
-+	spinlock_t lock;
-+	cputime64_t time; // total time used by this class
-+};
-+
-+static struct container_subsys cpuacct_subsys;
-+
-+static inline struct cpuacct *container_ca(struct container *cont)
-+{
-+	return container_of(container_subsys_state(cont, &cpuacct_subsys),
-+			    struct cpuacct, css);
-+}
-+
-+static inline struct cpuacct *task_ca(struct task_struct *task)
-+{
-+	return container_ca(task_container(task, &cpuacct_subsys));
-+}
-+
-+static int cpuacct_create(struct container_subsys *ss, struct container *cont)
-+{
-+	struct cpuacct *ca = kzalloc(sizeof(*ca), GFP_KERNEL);
-+	if (!ca) return -ENOMEM;
-+	spin_lock_init(&ca->lock);
-+	cont->subsys[cpuacct_subsys.subsys_id] = &ca->css;
-+	return 0;
-+}
-+
-+static void cpuacct_destroy(struct container_subsys *ss,
-+			    struct container *cont)
-+{
-+	kfree(container_ca(cont));
-+}
-+
-+static ssize_t cpuusage_read(struct container *cont,
-+			     struct cftype *cft,
-+			     struct file *file,
-+			     char __user *buf,
-+			     size_t nbytes, loff_t *ppos)
-+{
-+	struct cpuacct *ca = container_ca(cont);
-+	cputime64_t time;
-+	char usagebuf[64];
-+	char *s = usagebuf;
-+
-+	spin_lock_irq(&ca->lock);
-+	time = ca->time;
-+	spin_unlock_irq(&ca->lock);
-+
-+	time *= 1000;
-+	do_div(time, HZ);
-+	s += sprintf(s, "%llu", (unsigned long long) time);
-+
-+	return simple_read_from_buffer(buf, nbytes, ppos, usagebuf, s - usagebuf);
-+}
-+
-+static struct cftype cft_usage = {
-+	.name = "cpu_usage",
-+	.read = cpuusage_read,
-+};
-+
-+static int cpuacct_populate(struct container_subsys *ss,
-+			    struct container *cont)
-+{
-+	return container_add_file(cont, &cft_usage);
-+}
-+
-+
-+void cpuacct_charge(struct task_struct *task, cputime_t cputime) {
-+
-+	struct cpuacct *ca;
-+	unsigned long flags;
-+
-+	if (cpuacct_subsys.subsys_id < 0) return;
-+	rcu_read_lock();
-+	ca = task_ca(task);
-+	if (ca) {
-+		spin_lock_irqsave(&ca->lock, flags);
-+		ca->time = cputime64_add(ca->time, cputime);
-+		spin_unlock_irqrestore(&ca->lock, flags);
-+	}
-+	rcu_read_unlock();
-+}
-+
-+static struct container_subsys cpuacct_subsys = {
-+	.name = "cpuacct",
-+	.create = cpuacct_create,
-+	.destroy = cpuacct_destroy,
-+	.populate = cpuacct_populate,
-+	.subsys_id = -1,
-+};
-+
-+
-+int __init init_cpuacct(void)
-+{
-+	int id = container_register_subsys(&cpuacct_subsys);
-+	return id < 0 ? id : 0;
-+}
-+
-+module_init(init_cpuacct)
-Index: container-2.6.19-rc5/kernel/Makefile
-===================================================================
---- container-2.6.19-rc5.orig/kernel/Makefile
-+++ container-2.6.19-rc5/kernel/Makefile
-@@ -38,6 +38,7 @@ obj-$(CONFIG_KEXEC) += kexec.o
- obj-$(CONFIG_COMPAT) += compat.o
- obj-$(CONFIG_CONTAINERS) += container.o
- obj-$(CONFIG_CPUSETS) += cpuset.o
-+obj-$(CONFIG_CONTAINER_CPUACCT) += cpu_acct.o
- obj-$(CONFIG_IKCONFIG) += configs.o
- obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
- obj-$(CONFIG_AUDIT) += audit.o auditfilter.o
-Index: container-2.6.19-rc5/kernel/sched.c
-===================================================================
---- container-2.6.19-rc5.orig/kernel/sched.c
-+++ container-2.6.19-rc5/kernel/sched.c
-@@ -52,6 +52,7 @@
- #include <linux/tsacct_kern.h>
- #include <linux/kprobes.h>
- #include <linux/delayacct.h>
-+#include <linux/cpu_acct.h>
- #include <asm/tlb.h>
- 
- #include <asm/unistd.h>
-@@ -2977,6 +2978,8 @@ void account_user_time(struct task_struc
- 
- 	p->utime = cputime_add(p->utime, cputime);
- 
-+	cpuacct_charge(p, cputime);
-+
- 	/* Add user time to cpustat. */
- 	tmp = cputime_to_cputime64(cputime);
- 	if (TASK_NICE(p) > 0)
-@@ -3000,6 +3003,9 @@ void account_system_time(struct task_str
- 
- 	p->stime = cputime_add(p->stime, cputime);
- 
-+	if (p != rq->idle)
-+		cpuacct_charge(p, cputime);
-+
- 	/* Add system time to cpustat. */
- 	tmp = cputime_to_cputime64(cputime);
- 	if (hardirq_count() - hardirq_offset)
+hm, that bug could still be around - does the patch below fix it? I've 
+uploaded -rt3 and soon there will be -rt3 rpms in the YUM repository 
+too.
 
---
+	Ingo
+
+Index: linux/drivers/char/hpet.c
+===================================================================
+--- linux.orig/drivers/char/hpet.c
++++ linux/drivers/char/hpet.c
+@@ -909,9 +909,7 @@ int hpet_alloc(struct hpet_data *hdp)
+ 	hpetp->hp_delta = hpet_calibrate(hpetp);
+ 
+ 	if (!hpet_clocksource_p) {
+-#ifdef CONFIG_IA64
+-        	clocksource_hpet.fsys_mmio_ptr = hpet_mc_ptr = &hpetp->hp_hpet->hpet_mc;
+-#endif
++        	hpet_mc_ptr = &hpetp->hp_hpet->hpet_mc;
+         	clocksource_hpet.mult = clocksource_hz2mult(hpetp->hp_tick_freq,
+                                                    clocksource_hpet.shift);
+         	clocksource_register(&clocksource_hpet);

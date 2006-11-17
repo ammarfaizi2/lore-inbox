@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755908AbWKQVBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755916AbWKQVBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755908AbWKQVBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755901AbWKQVBQ
+	id S1755916AbWKQVBr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755913AbWKQVBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:01:16 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2476 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755902AbWKQVBM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:01:12 -0500
+	Fri, 17 Nov 2006 16:01:39 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:23482 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755901AbWKQVBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 16:01:25 -0500
 From: "Darrick J. Wong" <djwong@us.ibm.com>
-Subject: [PATCH 01/15] aic94xx: Handle REQ_DEVICE_RESET
-Date: Fri, 17 Nov 2006 13:07:40 -0800
+Subject: [PATCH 04/15] libsas: Don't give scsi_cmnds to the EH if they never made it to the SAS LLDD or have already returned
+Date: Fri, 17 Nov 2006 13:07:49 -0800
 To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: alexisb@us.ibm.com
-Message-Id: <20061117210740.17052.34278.stgit@localhost.localdomain>
+Message-Id: <20061117210749.17052.56317.stgit@localhost.localdomain>
 In-Reply-To: <20061117210737.17052.67041.stgit@localhost.localdomain>
 References: <20061117210737.17052.67041.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,151 +24,124 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch implements a REQ_DEVICE_RESET handler for the aic94xx
-driver.  Like the earlier REQ_TASK_ABORT patch, this patch defers
-the device reset to the Scsi_Host's workqueue, which has the added
-benefit of ensuring that the device reset does not happen at the
-same time that the ABORT TASK TMFs that are issued in anticipation
-of it are being processed.  After the phy reset, the busted drive
-should go away and be re-detected later, which is indeed what
-I've seen on both a x260 and a x206m.
+On a system with many SAS targets, it appears possible that a scsi_cmnd
+can time out without ever making it to the SAS LLDD or at the same time
+that a completion is occurring.  In both of these cases, telling the
+LLDD to abort the sas_task makes no sense because the LLDD won't know
+about the sas_task; what we really want to do is to increase the timer.
+Note that this involves creating another sas_task bit to indicate
+whether or not the task has been sent to the LLDD; I could have
+implemented this by slightly redefining SAS_TASK_STATE_PENDING, but
+this way seems cleaner.
 
 Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 ---
 
- drivers/scsi/aic94xx/aic94xx_scb.c  |   52 ++++++++++++++++++++++++++++++-----
- drivers/scsi/libsas/sas_init.c      |    2 +
- drivers/scsi/libsas/sas_scsi_host.c |    1 +
+ drivers/scsi/aic94xx/aic94xx_task.c |    9 +++++++++
+ drivers/scsi/aic94xx/aic94xx_tmf.c  |    4 +++-
+ drivers/scsi/libsas/sas_ata.c       |    1 -
+ drivers/scsi/libsas/sas_scsi_host.c |    7 +++++++
  include/scsi/libsas.h               |    1 +
- include/scsi/scsi_transport_sas.h   |    2 +
- 5 files changed, 50 insertions(+), 8 deletions(-)
+ 5 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_scb.c b/drivers/scsi/aic94xx/aic94xx_scb.c
-index 1911c5d..7145531 100644
---- a/drivers/scsi/aic94xx/aic94xx_scb.c
-+++ b/drivers/scsi/aic94xx/aic94xx_scb.c
-@@ -342,6 +342,28 @@ void asd_invalidate_edb(struct asd_ascb 
- 			asd_printk("couldn't post escb, err:%d\n", i);
+diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
+index 9840708..466b492 100644
+--- a/drivers/scsi/aic94xx/aic94xx_task.c
++++ b/drivers/scsi/aic94xx/aic94xx_task.c
+@@ -349,6 +349,7 @@ Again:
+ 
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+ 	task->task_state_flags &= ~SAS_TASK_STATE_PENDING;
++	task->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
+ 	task->task_state_flags |= SAS_TASK_STATE_DONE;
+ 	if (unlikely((task->task_state_flags & SAS_TASK_STATE_ABORTED))) {
+ 		spin_unlock_irqrestore(&task->task_state_lock, flags);
+@@ -556,6 +557,7 @@ int asd_execute_task(struct sas_task *ta
+ 	struct sas_task *t = task;
+ 	struct asd_ascb *ascb = NULL, *a;
+ 	struct asd_ha_struct *asd_ha = task->dev->port->ha->lldd_ha;
++	unsigned long flags;
+ 
+ 	res = asd_can_queue(asd_ha, num);
+ 	if (res)
+@@ -601,9 +603,16 @@ int asd_execute_task(struct sas_task *ta
  	}
- }
-+ 
-+/* hard reset a phy later */
-+static void do_phy_reset_later(void *data)
-+{
-+	struct sas_phy *sas_phy = data;
-+	int error;
-+
-+	ASD_DPRINTK("%s: About to hard reset phy %d\n", __FUNCTION__,
-+		    sas_phy->identify.phy_identifier);
-+	/* Reset device port */
-+	error = sas_phy_reset(sas_phy, 1);
-+	if (error)
-+		ASD_DPRINTK("%s: Hard reset of phy %d failed (%d).\n",
-+			    __FUNCTION__, sas_phy->identify.phy_identifier,
-+			    error);
-+}
-+
-+static void phy_reset_later(struct sas_phy *sas_phy, struct Scsi_Host *shost)
-+{
-+	INIT_WORK(&sas_phy->reset_work, do_phy_reset_later, sas_phy);
-+	queue_work(shost->work_q, &sas_phy->reset_work);
-+}
+ 	list_del_init(&alist);
  
- /* start up the ABORT TASK tmf... */
- static void task_kill_later(struct asd_ascb *ascb)
-@@ -402,7 +424,9 @@ static void escb_tasklet_complete(struct
- 		goto out;
++	spin_lock_irqsave(&task->task_state_lock, flags);
++	task->task_state_flags |= SAS_TASK_AT_INITIATOR;
++	spin_unlock_irqrestore(&task->task_state_lock, flags);
++
+ 	res = asd_post_ascb_list(asd_ha, ascb, num);
+ 	if (unlikely(res)) {
+ 		a = NULL;
++		spin_lock_irqsave(&task->task_state_lock, flags);
++		task->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
++		spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 		__list_add(&alist, ascb->list.prev, &ascb->list);
+ 		goto out_err_unmap;
  	}
- 	case REQ_DEVICE_RESET: {
--		struct asd_ascb *a, *b;
-+		struct Scsi_Host *shost = sas_ha->core.shost;
-+		struct sas_phy *dev_phy;
-+		struct asd_ascb *a;
- 		u16 conn_handle;
- 
- 		conn_handle = *((u16*)(&dl->status_block[1]));
-@@ -412,17 +436,31 @@ static void escb_tasklet_complete(struct
- 			    dl->status_block[3]);
- 
- 		/* Kill all pending tasks and reset the device */
--		list_for_each_entry_safe(a, b, &asd_ha->seq.pend_q, list) {
--			struct sas_task *task = a->uldd_task;
--			struct domain_device *dev = task->dev;
-+		dev_phy = NULL;
-+		list_for_each_entry(a, &asd_ha->seq.pend_q, list) {
-+			struct sas_task *task;
-+			struct domain_device *dev;
- 			u16 x;
- 
--			x = *((u16*)(&dev->lldd_dev));
--			if (x == conn_handle)
-+			task = a->uldd_task;
-+			if (!task)
-+				continue;
-+			dev = task->dev;
-+
-+			x = (u16)dev->lldd_dev;
-+			if (x == conn_handle) {
-+				dev_phy = dev->port->phy;
- 				task_kill_later(a);
-+			}
- 		}
- 
--		/* FIXME: Reset device port (huh?) */
-+		/* Reset device port */
-+		if (!dev_phy) {
-+			ASD_DPRINTK("%s: No pending commands; can't reset.\n",
-+				    __FUNCTION__);
-+			goto out;
-+		}
-+		phy_reset_later(dev_phy, shost);
- 		goto out;
- 	}
- 	case SIGNAL_NCQ_ERROR:
-diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
-index a2b479a..0fb347b 100644
---- a/drivers/scsi/libsas/sas_init.c
-+++ b/drivers/scsi/libsas/sas_init.c
-@@ -144,7 +144,7 @@ static int sas_get_linkerrors(struct sas
- 	return sas_smp_get_phy_events(phy);
- }
- 
--static int sas_phy_reset(struct sas_phy *phy, int hard_reset)
-+int sas_phy_reset(struct sas_phy *phy, int hard_reset)
+diff --git a/drivers/scsi/aic94xx/aic94xx_tmf.c b/drivers/scsi/aic94xx/aic94xx_tmf.c
+index 6123438..686cea1 100644
+--- a/drivers/scsi/aic94xx/aic94xx_tmf.c
++++ b/drivers/scsi/aic94xx/aic94xx_tmf.c
+@@ -345,7 +345,7 @@ static inline int asd_clear_nexus(struct
+ int asd_abort_task(struct sas_task *task)
  {
- 	int ret;
- 	enum phy_func reset_type;
+ 	struct asd_ascb *tascb = task->lldd_task;
+-	struct asd_ha_struct *asd_ha = tascb->ha;
++	struct asd_ha_struct *asd_ha;
+ 	int res = 1;
+ 	unsigned long flags;
+ 	struct asd_ascb *ascb = NULL;
+@@ -360,6 +360,8 @@ int asd_abort_task(struct sas_task *task
+ 	}
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 
++	asd_ha = tascb->ha;
++
+ 	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
+ 	if (!ascb)
+ 		return -ENOMEM;
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index de42b5b..f92f035 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -161,7 +161,6 @@ static unsigned int sas_ata_qc_issue(str
+ 	task->data_dir = qc->dma_dir;
+ 	task->scatter = qc->__sg;
+ 	task->ata_task.retry_count = 1;
+-	task->task_state_flags = SAS_TASK_STATE_PENDING;
+ 
+ 	switch (qc->tf.protocol) {
+ 	case ATA_PROT_NCQ:
 diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 6ccbb62..5c6e6f2 100644
+index 5c6e6f2..7cc7a1e 100644
 --- a/drivers/scsi/libsas/sas_scsi_host.c
 +++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -925,3 +925,4 @@ EXPORT_SYMBOL_GPL(sas_slave_alloc);
- EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
- EXPORT_SYMBOL_GPL(sas_task_abort);
-+EXPORT_SYMBOL_GPL(sas_phy_reset);
+@@ -550,6 +550,13 @@ enum scsi_eh_timer_return sas_scsi_timed
+ 			    cmd, task);
+ 		return EH_HANDLED;
+ 	}
++	if (!(task->task_state_flags & SAS_TASK_AT_INITIATOR)) {
++		spin_unlock_irqrestore(&task->task_state_lock, flags);
++		SAS_DPRINTK("command 0x%p, task 0x%p, not at initiator: "
++			    "EH_RESET_TIMER\n",
++			    cmd, task);
++		return EH_RESET_TIMER;
++	}
+ 	task->task_state_flags |= SAS_TASK_STATE_ABORTED;
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 
 diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
-index 7da678d..921db78 100644
+index 921db78..d2ec1be 100644
 --- a/include/scsi/libsas.h
 +++ b/include/scsi/libsas.h
-@@ -605,6 +605,7 @@ struct sas_domain_function_template {
- extern int sas_register_ha(struct sas_ha_struct *);
- extern int sas_unregister_ha(struct sas_ha_struct *);
+@@ -546,6 +546,7 @@ #define SAS_TASK_STATE_PENDING      1
+ #define SAS_TASK_STATE_DONE         2
+ #define SAS_TASK_STATE_ABORTED      4
+ #define SAS_TASK_INITIATOR_ABORTED  8
++#define SAS_TASK_AT_INITIATOR       16
  
-+int sas_phy_reset(struct sas_phy *phy, int hard_reset);
- int sas_queue_up(struct sas_task *task);
- extern int sas_queuecommand(struct scsi_cmnd *,
- 		     void (*scsi_done)(struct scsi_cmnd *));
-diff --git a/include/scsi/scsi_transport_sas.h b/include/scsi/scsi_transport_sas.h
-index 5302437..59633a8 100644
---- a/include/scsi/scsi_transport_sas.h
-+++ b/include/scsi/scsi_transport_sas.h
-@@ -73,6 +73,8 @@ struct sas_phy {
- 
- 	/* for the list of phys belonging to a port */
- 	struct list_head	port_siblings;
-+
-+	struct work_struct      reset_work;
- };
- 
- #define dev_to_phy(d) \
+ static inline struct sas_task *sas_alloc_task(gfp_t flags)
+ {

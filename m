@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755522AbWKQHQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755523AbWKQHQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755522AbWKQHQr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 02:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755523AbWKQHQr
+	id S1755523AbWKQHQw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 02:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755525AbWKQHQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 02:16:47 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:64716 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1755522AbWKQHQq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 02:16:46 -0500
-Date: Fri, 17 Nov 2006 07:50:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061117065043.GA12664@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163716638.26026.8.camel@localhost.localdomain> <20061117055521.GA30189@elte.hu>
-Mime-Version: 1.0
+	Fri, 17 Nov 2006 02:16:52 -0500
+Received: from MTA068A.interbusiness.it ([85.37.17.68]:13891 "EHLO
+	MTA068A.interbusiness.it") by vger.kernel.org with ESMTP
+	id S1755523AbWKQHQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 02:16:51 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: Aj0KABTwXEVVLxTBUGdsb2JhbACBSYp2AQEp
+Date: Fri, 17 Nov 2006 08:16:50 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net, bcollins@debian.org
+Subject: Re: 2.6.19-rc5-mm2
+Message-ID: <20061117071650.GA4974@inferi.kami.home>
+Mail-Followup-To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux1394-devel@lists.sourceforge.net, bcollins@debian.org
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061116171715.GA3645@inferi.kami.home> <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117055521.GA30189@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -3.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.7 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_40 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-1.1 BAYES_40               BODY: Bayesian spam probability is 20 to 40%
-	[score: 0.3000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <455CEB48.5000906@s5r6.in-berlin.de>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.19-rc5-mm2-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Did you look at the BKL reacquire issue I sent? Just looking over 
-> > the code briefly, it looks like it's still there.
+On Thu, Nov 16, 2006 at 11:50:48PM +0100, Stefan Richter wrote:
+> Mattia Dongili wrote:
+> > On Thu, Nov 16, 2006 at 07:29:35PM +0100, Stefan Richter wrote:
+> >> Could you also test one or even better both of:
+> >>  - 2.6.19-rc5 plus
+> >> http://me.in-berlin.de/~s5r6/linux1394/updates/2.6.19-rc5/2.6.19-rc5_ieee1394_v204_experimental.patch.bz2
+> >> (these are the same FireWire drivers as in -rc5-mm2)
+> > 
+> > the oops disappear
+> > 
+> >> and/ or
+> >>  - 2.6.19-rc5-mm2 minus
+> >> http://www.it.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/git-ieee1394.patch
+> > 
+> > the oops is there again.
+> > I suppose git-ieee1394 is the one then...
 > 
-> yeah, will do that. It's quite low-prio, evidently no-one in the past 
-> couple of months even attempted to build a !PREEMPT_RT && !PREEMPT_BKL 
-> (!) kernel.
+> On the contrary, it's very likely _not_ git-ieee1394.
 
-doh - i have re-read your report and the problem should hit PREEMPT_RT 
-too. I'm looking at it.
+yup, sorry. That's exactly what I ordered my fingers to type... (damn
+fingers).
 
-	Ingo
+> > dmesg:
+> > http://oioio.altervista.org/linux/2.6.19-rc5-test1-ok
+> > http://oioio.altervista.org/linux/2.6.19-rc5-mm2-1-ko
+> 
+> I will look at it tomorrow.
+> 
+> > next step (smells like bisection) if for tomorrow :)
+> 
+> Unless you are eager to get results faster, let me think about where
+> this superfluous node_entry could come from. Perhaps a run-time test of
+> -mm by myself is in order; I am currently on 2.6.19-rc4 plus that patch
+> at me.in-berlin.de. Could spare you a lot of time if I find out more. :-)
+
+No problems, I can wait :) After all I don't have any ieee1394 device
+(that's why I was rmmod-ing modules :))
+If needed feel free to ask me for a bisection.
+
+-- 
+mattia
+:wq!

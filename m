@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755110AbWKQOBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755693AbWKQOEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755110AbWKQOBs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755102AbWKQOBs
+	id S1755693AbWKQOEL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755122AbWKQOEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:01:48 -0500
-Received: from mga01.intel.com ([192.55.52.88]:58499 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1755103AbWKQOBr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:01:47 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,435,1157353200"; 
-   d="scan'208"; a="165398647:sNHT21094836"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.19-rc5-mm2] cpufreq: set policy->curfreq on initialization
-Date: Fri, 17 Nov 2006 06:01:45 -0800
-Message-ID: <EB12A50964762B4D8111D55B764A8454E7610F@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.19-rc5-mm2] cpufreq: set policy->curfreq on initialization
-Thread-Index: AccI6ZdBq3amunLFSuq5VrO+3iDd0wBZy+6Q
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Mattia Dongili" <malattia@linux.it>, <ego@in.ibm.com>,
-       "Reuben Farrelly" <reuben-linuxkernel@reub.net>,
-       "Andrew Morton" <akpm@osdl.org>, <davej@redhat.com>,
-       <linux-kernel@vger.kernel.org>,
-       "CPUFreq Mailing List" <cpufreq@lists.linux.org.uk>,
-       "Sadykov, Denis M" <denis.m.sadykov@intel.com>
-X-OriginalArrivalTime: 17 Nov 2006 14:01:47.0038 (UTC) FILETIME=[EBA3A3E0:01C70A50]
+	Fri, 17 Nov 2006 09:04:11 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15540 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1755665AbWKQOEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:04:09 -0500
+Date: Fri, 17 Nov 2006 14:09:31 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: regarding VIA quirk fix
+Message-ID: <20061117140931.2657fe0e@localhost.localdomain>
+In-Reply-To: <455D8B44.2060600@gmail.com>
+References: <455D8B44.2060600@gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 17 Nov 2006 19:13:24 +0900
+Tejun Heo <htejun@gmail.com> wrote:
 
-Acked.
-Andrew: Please include this patch in mm.
-
-Thanks,
-Venki 
-
->-----Original Message-----
->From: Mattia Dongili [mailto:malattia@linux.it] 
->Sent: Wednesday, November 15, 2006 11:05 AM
->To: Pallipadi, Venkatesh; ego@in.ibm.com; Reuben Farrelly; 
->Andrew Morton; davej@redhat.com; linux-kernel@vger.kernel.org; 
->CPUFreq Mailing List; Sadykov, Denis M
->Subject: [PATCH 2.6.19-rc5-mm2] cpufreq: set policy->curfreq 
->on initialization
->
->
->Check the correct variable and set policy->cur upon acpi-cpufreq
->initialization to allow the userspace governor to be used as default.
->
->Signed-off-by: Mattia Dongili <malattia@linux.it>
->
->---
->
->Reuben, could you also try if this patch fixes the BUG()?
->Thanks
->
->diff --git a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c 
->b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->index 18f4715..a630f94 100644
->--- a/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->+++ b/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
->@@ -699,14 +699,14 @@ static int acpi_cpufreq_cpu_init(struct
-> 	if (result)
-> 		goto err_freqfree;
+> http://bugzilla.kernel.org/show_bug.cgi?id=7415
 > 
->-	switch (data->cpu_feature) {
->+	switch (perf->control_register.space_id) {
-> 	case ACPI_ADR_SPACE_SYSTEM_IO:
-> 		/* Current speed is unknown and not detectable 
->by IO port */
-> 		policy->cur = acpi_cpufreq_guess_freq(data, 
->policy->cpu);
-> 		break;
-> 	case ACPI_ADR_SPACE_FIXED_HARDWARE:
-> 		acpi_cpufreq_driver.get = get_cur_freq_on_cpu;
->-		get_cur_freq_on_cpu(cpu);
->+		policy->cur = get_cur_freq_on_cpu(cpu);
-> 		break;
-> 	default:
-> 		break;
->
+> Any ideas how to proceed on this bug?
+
+The report appears to be about the earlier patch not the one I did from
+reading it. That said I don't see it matters which. 
+
+The only way to track down any remaining ones is to go line by line
+through the PCI configuration and understand what we or the bios mixed up
+so its pretty tedious but doable assuming the bug isn't in the SATA
+driver in the first place. The IRQ routing on the later chips is pretty
+rigid so its not too hard to spot a misconfiguration.
+
+Alan

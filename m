@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933767AbWKQV27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424925AbWKQVcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933767AbWKQV27 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933772AbWKQV27
+	id S1424925AbWKQVcg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424924AbWKQVcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:28:59 -0500
-Received: from mail.gmx.net ([213.165.64.20]:1199 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933767AbWKQV26 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:28:58 -0500
-X-Authenticated: #14349625
-Subject: Re: [rfc patch] Re: sched: incorrect argument used in task_hot()
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, nickpiggin@yahoo.com.au,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20061117192052.GA23272@elte.hu>
-References: <000201c70840$a4902df0$d834030a@amr.corp.intel.com>
-	 <1163782610.22574.59.camel@Homer.simpson.net>
-	 <20061117192052.GA23272@elte.hu>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 22:30:34 +0100
-Message-Id: <1163799034.23357.2.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 17 Nov 2006 16:32:36 -0500
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:29117 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1755928AbWKQVce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 16:32:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=Sqxria32bwcZecqVNmzP72ybv6NB66d2m88cg+DzOBSosHefmjw9PLUixtkRHu13ghFoelahiS+Oy7sbp6HzqgpnuqZCcEx6Jxmz5x9cSHPnWPQVoCJXTQnidnZ4o9Z5AR+sL5zt8c/qzX+kAnDn3iMzRmsn9zIc6OahJZBopYU=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
+Date: Fri, 17 Nov 2006 13:04:00 -0800
+User-Agent: KMail/1.7.1
+Cc: Len Brown <lenb@kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+References: <200611142303.47325.david-b@pacbell.net> <455C8696.80508@linux.intel.com> <200611162222.44836.david-b@pacbell.net>
+In-Reply-To: <200611162222.44836.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200611171304.00889.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-17 at 20:20 +0100, Ingo Molnar wrote:
-> * Mike Galbraith <efault@gmx.de> wrote:
+On Thursday 16 November 2006 10:22 pm, David Brownell wrote:
+> On Thursday 16 November 2006 7:41 am, Alexey Starikovskiy wrote:
+> > --- a/drivers/acpi/ec.c
+> > +++ b/drivers/acpi/ec.c
+> > @@ -467,8 +467,8 @@ static u32 acpi_ec_gpe_handler(void *dat
+> >                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
+> >         }
+> >         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
+> > -       return status == AE_OK ?
+> > -           ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
+> > +       WARN_ON(ACPI_FAILURE(status));
+> > +       return ACPI_INTERRUPT_HANDLED;
+> >  }
+> >  
 > 
-> > One way to improve granularity, and eliminate the possibility of 
-> > p->last_run being > rq->timestamp_tast_tick, and thereby short 
-> > circuiting the evaluation of cache_hot_time, is to cache the last 
-> > return of sched_clock() at both tick and sched times, and use that 
-> > value as our reference instead of the absolute time of the tick.  It 
-> > won't totally eliminate skew, but it moves the reference point closer 
-> > to the current time on the remote cpu.
-> > 
-> > Looking for a good place to do this, I chose update_cpu_clock().
-> 
-> looks good to me - thus we will update the timestamp not only in the 
-> timer tick, but also upon every context-switch (when we acquire 
-> sched_clock() value anyway). Lets try this in -mm?
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+> Strange ... applying this on top of the previous patch seems to work
+> much better, but that WARN_ON hasn't triggered.  At least, not yet.
+> Updating to RC6, with your two patches installed...
 
-Then it needs a blame line.
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [2006070
+7]
+ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE
+_TIME
 
-Signed-off-by: Mike Galbraith <efault@gmx.de>
+OK, I don't get the WARN_ON when these happen, so it's got to be one of the
+other EC updates.
 
-	-Mike
+It'd be nice if this were easily reproducible ...
+
+- Dave
 

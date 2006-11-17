@@ -1,86 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933590AbWKQOOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933606AbWKQOQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933590AbWKQOOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933599AbWKQOOg
+	id S933606AbWKQOQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933612AbWKQOQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:14:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41706 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S933590AbWKQOOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:14:35 -0500
-Subject: Re: [v4l-dvb-maintainer] -mm: cx88-blackbird.c: unused code
-	re-added
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061117124238.GV31879@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	 <20061117124238.GV31879@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 17 Nov 2006 12:13:42 -0200
-Message-Id: <1163772822.20349.37.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 17 Nov 2006 09:16:08 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:23310 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933606AbWKQOQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:16:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dDRcP6rVU8iT7VFG7/veu4Om89OGeU9Ax4TicgKFaDYP5cr19+3bsQwljT4Fef8fScJKz+Tsy/vQdze9qq+zWBM0b4uIYqwU+E6u9p3Cp+QXMqBLOoxLetx/tEWU3ZjSE2aqFSU6aQ+QSOIlp2a3EL4qaOsuMI/7RjwwnUuMy2g=
+Message-ID: <d120d5000611170616m73268428me0840444bca73dff@mail.gmail.com>
+Date: Fri, 17 Nov 2006 09:16:05 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Holger Schurig" <hs4233@mail.mn-solutions.de>
+Subject: Re: [PATCH] usb: generic calibration support
+Cc: "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>, daniel.ritz@gmx.ch,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <200611170912.29317.hs4233@mail.mn-solutions.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200611161125.38901.hs4233@mail.mn-solutions.de>
+	 <200611170024.33248.daniel.ritz-ml@swissonline.ch>
+	 <200611170912.29317.hs4233@mail.mn-solutions.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Hi,
 
-Em Sex, 2006-11-17 às 13:42 +0100, Adrian Bunk escreveu:
-> On Tue, Nov 14, 2006 at 01:41:25AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-rc5-mm2:
-> >...
-> >  git-dvb.patch
-> >...
-> >  git trees
-> >...
-> 
-> Why does this patch re-add the still unused cx88_ioctl_hook and 
-> cx88_ioctl_translator in drivers/media/video/cx88/cx88-blackbird.c 
-> I removed a few months ago?
-Hmm... I think I sent to my -git the patch that reenables it.
+On 11/17/06, Holger Schurig <hs4233@mail.mn-solutions.de> wrote:
+> > sorry, but i have to give you a big NACK on that one:
+>
+> Hehe, I actually anticipated this NACK :-)
+>
+> > - no more modparam: it should be per-device sysfs attributes
+> > (swap_xy is basically only for touchkitusb compatibility and
+> >    shoud be converted to per-device sysfs attribute as well. i
+> > just never got to do it)
+>
+> That would be okay for me.
+>
 
-Let me explain a little bit about those hooks.
+Actually I think having module parameter is OK as long as we have
+comlementing device attribute. Then user has an option to either
+specify default value for the parameter at load/boot time or fiddle
+with an individual device.
 
-As you know, ivtv is being re-worked to be inserted at kernel. This
-includes a complete API review of several ivtv calls. Some of they were
-providing stuff already at V4L2 API, but implemented on a different way.
-This turned into a huge project, being delayed with the first scheduling
-time. First, we've migrated all i2c drivers. Then mpeg decoding. Now, we
-are working at mpeg encoding part.
+> > - calibration can be handled in userspace just fine
+>
+> Yes it can, and that is the most convinging argument against my
+> patch.
+>
+> However, user-space calibration often sucks. For example, in X11
+> the calibration values are stored in /etc/X11/xorg.conf, so a
+> calibration program has to parse & write that file. And I've
+> seen binary-only-calibration programs from vendors
+> use /etc/X11/XF86Config, which doesn't exist here. Anyway, once
+> you've calibrated you have to restart X-Windows, so you need to
+> terminate all running X applications just because of a silly
+> re-calibration. Not nice.
+>
 
-cx88-blackbird provides mpeg outputs for analog tv, in a similar way as
-ivtv devices. However, some userspace apps were not implementing the
-experimental mpeg support added at V4L2 api for mpeg streams, but
-instead, were using an API developed for ivtv.
+I believe tslib handles this.
 
-We received a patch for a cx88-ivtv module that allows using
-ivtv-enabled programs to work with cx88-blackbird. 
+> A calibration at kernel level (may it be input level or driver
+> level) doesn't have this problem. I can make the level
+> persistent via udev, modules.conf or other means. Even when I
+> have a frame-buffer based calibration utility, the calibration
+> would be OK for X11 or GTK/DirectFB as well.
+>
+> For me, this speaks against "Calibration is purely a user-space
+> problem".
+>
+> > - even for in-kernel it's in the wrong place. there are other
+> >   devices that report raw absolute data...so it would belong to
+> >   the input layer
+>
+> Suppose I have a graphics tabled and a touchscreen connected at
+> the same time. Can I distinguish this easily at the input layer
+> level?
+>
+> I can very easily distinguish this at the device driver level.
+> After all, the individual calibration parameters are a property
+> of this individual device.
+>
 
-To avoid causing later regressions of removing IVTV API calls from
-kernel, we decided to create the hooks at kernel, and having cx88-ivtv
-only at v4l-dvb tree. The proper API calls will be added as soon as ivtv
-driver will be finished and the proper api is available to be
-incorporated at cx88-blackbird.
+Yes, but evdev is the interface between input layer and userspace. If
+we ever implement in-kernel calibration I think we'll add
+recalibrate() method to input device structure and have EVIOCSABS
+ioctl handler call it. But I'd look at tslib first. I believe Qt,
+Xserver, etc support it.
 
-Anyway, I've redesigned cx88 to use video_ioctl2 interface, who is
-incompatible with the hooks. The newer approach is at:
-http://www.linuxtv.org/hg/~mchehab/cx88_ioctls
-
-After merging this branch into the v4l-dvb tree, the patches will be
-removed. I intend to apply those changes to 2.6.20, so, there's no need
-to worry about this stuff.
-
->  
-> cu
-> Adrian
-> 
-Cheers, 
-Mauro.
-
+-- 
+Dmitry

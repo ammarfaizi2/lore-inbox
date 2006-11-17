@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755906AbWKQVGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755914AbWKQVEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755906AbWKQVGN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424847AbWKQVGL
+	id S1755914AbWKQVEO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:04:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755901AbWKQVEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:06:11 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:25516 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755911AbWKQVBg
+	Fri, 17 Nov 2006 16:04:13 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:43488 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755909AbWKQVBq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:01:36 -0500
+	Fri, 17 Nov 2006 16:01:46 -0500
 From: "Darrick J. Wong" <djwong@us.ibm.com>
-Subject: [PATCH 05/15] libsas: Add a sysfs knob to enable/disable a phy
-Date: Fri, 17 Nov 2006 13:07:52 -0800
+Subject: [PATCH 09/15] sas_ata: ata_post_internal should abort the sas_task
+Date: Fri, 17 Nov 2006 13:08:12 -0800
 To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: alexisb@us.ibm.com
-Message-Id: <20061117210752.17052.38827.stgit@localhost.localdomain>
+Message-Id: <20061117210812.17052.94955.stgit@localhost.localdomain>
 In-Reply-To: <20061117210737.17052.67041.stgit@localhost.localdomain>
 References: <20061117210737.17052.67041.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,167 +24,105 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch lets a user arbitrarily enable or disable a phy via sysfs.
-Potential applications include shutting down a phy to replace one
-lane of wide port, and (more importantly) providing a method for the
-libata SATL to control the phy.
+This patch adds a new field, lldd_task, to ata_queued_cmd so that libata
+users such as libsas can associate some data with a qc.  The particular
+ambition with this patch is to associate a sas_task with a qc; that way,
+if libata decides to timeout a command, we can come back (in
+sas_ata_post_internal) and abort the sas task.
+
+One question remains: Is it necessary to reset the phy on error, or will
+the libata error handler take care of it?  (Assuming that one is written,
+of course.)  This patch, as it is today, works well enough to clean
+things up when an ATA device probe attempt fails halfway through the probe,
+though I'm not sure this is always the right thing to do.
 
 Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 ---
 
- drivers/scsi/libsas/sas_init.c      |   35 ++++++++++++++++++++++++++++++++--
- drivers/scsi/libsas/sas_scsi_host.c |    1 +
- drivers/scsi/scsi_transport_sas.c   |   36 +++++++++++++++++++++++++++++++++++
- include/scsi/libsas.h               |    3 +++
- include/scsi/scsi_transport_sas.h   |    1 +
- 5 files changed, 74 insertions(+), 2 deletions(-)
+ drivers/scsi/libsas/sas_ata.c |   30 +++++++++++++++++++++++++++---
+ include/linux/libata.h        |    1 +
+ 2 files changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/libsas/sas_init.c b/drivers/scsi/libsas/sas_init.c
-index 0fb347b..89814f9 100644
---- a/drivers/scsi/libsas/sas_init.c
-+++ b/drivers/scsi/libsas/sas_init.c
-@@ -144,6 +144,36 @@ static int sas_get_linkerrors(struct sas
- 	return sas_smp_get_phy_events(phy);
- }
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index a33ef6d..209f402 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -88,12 +88,17 @@ static enum ata_completion_errors sas_to
+ static void sas_ata_task_done(struct sas_task *task)
+ {
+ 	struct ata_queued_cmd *qc = task->uldd_task;
+-	struct domain_device *dev = qc->ap->private_data;
++	struct domain_device *dev;
+ 	struct task_status_struct *stat = &task->task_status;
+ 	struct ata_task_resp *resp = (struct ata_task_resp *)stat->buf;
+ 	enum ata_completion_errors ac;
+ 	unsigned long flags;
  
-+int sas_phy_enable(struct sas_phy *phy, int enable)
-+{
-+	int ret;
-+	enum phy_func command;
++	if (!qc)
++		goto qc_already_gone;
 +
-+	if (enable)
-+		command = PHY_FUNC_LINK_RESET;
-+	else
-+		command = PHY_FUNC_DISABLE;
++	dev = qc->ap->private_data;
 +
-+	if (scsi_is_sas_phy_local(phy)) {
-+		struct Scsi_Host *shost = dev_to_shost(phy->dev.parent);
-+		struct sas_ha_struct *sas_ha = SHOST_TO_SAS_HA(shost);
-+		struct asd_sas_phy *asd_phy = sas_ha->sas_phy[phy->number];
-+		struct sas_internal *i =
-+			to_sas_internal(sas_ha->core.shost->transportt);
+ 	if (stat->stat == SAS_PROTO_RESPONSE) {
+ 		ata_tf_from_fis(resp->ending_fis, &dev->sata_dev.tf);
+ 		qc->err_mask |= ac_err_mask(dev->sata_dev.tf.command);
+@@ -113,10 +118,12 @@ static void sas_ata_task_done(struct sas
+ 		}
+ 	}
+ 
++	qc->lldd_task = NULL;
+ 	spin_lock_irqsave(dev->sata_dev.ap->lock, flags);
+ 	ata_qc_complete(qc);
+ 	spin_unlock_irqrestore(dev->sata_dev.ap->lock, flags);
+ 
++qc_already_gone:
+ 	list_del_init(&task->list);
+ 	sas_free_task(task);
+ }
+@@ -165,6 +172,7 @@ static unsigned int sas_ata_qc_issue(str
+ 	task->data_dir = qc->dma_dir;
+ 	task->scatter = qc->__sg;
+ 	task->ata_task.retry_count = 1;
++	qc->lldd_task = task;
+ 
+ 	switch (qc->tf.protocol) {
+ 	case ATA_PROT_NCQ:
+@@ -236,8 +244,24 @@ static void sas_ata_post_internal(struct
+ 	if (qc->flags & ATA_QCFLAG_FAILED)
+ 		qc->err_mask |= AC_ERR_OTHER;
+ 
+-	if (qc->err_mask)
+-		SAS_DPRINTK("%s: Failure; reset phy!\n", __FUNCTION__);
++	if (qc->err_mask) {
++		/*
++		 * Find the sas_task and kill it.  By this point,
++		 * libata has decided to kill the qc, so we needn't
++		 * bother with sas_ata_task_done.  But we still
++		 * ought to abort the task.
++		 */
++		struct sas_task *task = qc->lldd_task;
++		struct domain_device *dev = qc->ap->private_data;
 +
-+		if (!enable) {
-+			sas_phy_disconnected(asd_phy);
-+			sas_ha->notify_phy_event(asd_phy, PHYE_LOSS_OF_SIGNAL);
++		qc->lldd_task = NULL;
++		if (task) {
++			task->uldd_task = NULL;
++			sas_task_abort(task);
 +		}
-+		ret = i->dft->lldd_control_phy(asd_phy, command, NULL);
-+	} else {
-+		struct sas_rphy *rphy = dev_to_rphy(phy->dev.parent);
-+		struct domain_device *ddev = sas_find_dev_by_rphy(rphy);
-+		ret = sas_smp_phy_control(ddev, phy->number, command, NULL);
++
++		sas_phy_reset(dev->port->phy, 1);
 +	}
-+	return ret;
-+}
-+
- int sas_phy_reset(struct sas_phy *phy, int hard_reset)
- {
- 	int ret;
-@@ -170,8 +200,8 @@ int sas_phy_reset(struct sas_phy *phy, i
- 	return ret;
  }
  
--static int sas_set_phy_speed(struct sas_phy *phy,
--			     struct sas_phy_linkrates *rates)
-+int sas_set_phy_speed(struct sas_phy *phy,
-+		      struct sas_phy_linkrates *rates)
- {
- 	int ret;
+ static void sas_ata_tf_read(struct ata_port *ap, struct ata_taskfile *tf)
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index abd2deb..e2df9d0 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -444,6 +444,7 @@ struct ata_queued_cmd {
+ 	ata_qc_cb_t		complete_fn;
  
-@@ -210,6 +240,7 @@ static int sas_set_phy_speed(struct sas_
- }
- 
- static struct sas_function_template sft = {
-+	.phy_enable = sas_phy_enable,
- 	.phy_reset = sas_phy_reset,
- 	.set_phy_speed = sas_set_phy_speed,
- 	.get_linkerrors = sas_get_linkerrors,
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 7cc7a1e..a88d3a4 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -933,3 +933,4 @@ EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
- EXPORT_SYMBOL_GPL(sas_task_abort);
- EXPORT_SYMBOL_GPL(sas_phy_reset);
-+EXPORT_SYMBOL_GPL(sas_phy_enable);
-diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
-index b5b0c2c..04df212 100644
---- a/drivers/scsi/scsi_transport_sas.c
-+++ b/drivers/scsi/scsi_transport_sas.c
-@@ -335,6 +335,41 @@ show_sas_device_type(struct class_device
- }
- static CLASS_DEVICE_ATTR(device_type, S_IRUGO, show_sas_device_type, NULL);
- 
-+static ssize_t do_sas_phy_enable(struct class_device *cdev,
-+		size_t count, int enable)
-+{
-+	struct sas_phy *phy = transport_class_to_phy(cdev);
-+	struct Scsi_Host *shost = dev_to_shost(phy->dev.parent);
-+	struct sas_internal *i = to_sas_internal(shost->transportt);
-+	int error;
-+
-+	error = i->f->phy_enable(phy, enable);
-+	if (error)
-+		return error;
-+	return count;
-+};
-+
-+static ssize_t store_sas_phy_enable(struct class_device *cdev,
-+		const char *buf, size_t count)
-+{
-+	if (count < 1)
-+		return -EINVAL;
-+
-+	switch (buf[0]) {
-+	case '0':
-+		do_sas_phy_enable(cdev, count, 0);
-+		break;
-+	case '1':
-+		do_sas_phy_enable(cdev, count, 1);
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return count;
-+}
-+static CLASS_DEVICE_ATTR(enable, S_IWUSR, NULL, store_sas_phy_enable);
-+
- static ssize_t do_sas_phy_reset(struct class_device *cdev,
- 		size_t count, int hard_reset)
- {
-@@ -1478,6 +1513,7 @@ sas_attach_transport(struct sas_function
- 	SETUP_PHY_ATTRIBUTE(phy_reset_problem_count);
- 	SETUP_OPTIONAL_PHY_ATTRIBUTE_WRONLY(link_reset, phy_reset);
- 	SETUP_OPTIONAL_PHY_ATTRIBUTE_WRONLY(hard_reset, phy_reset);
-+	SETUP_PHY_ATTRIBUTE_WRONLY(enable);
- 	i->phy_attrs[count] = NULL;
- 
- 	count = 0;
-diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
-index d2ec1be..a06cbde 100644
---- a/include/scsi/libsas.h
-+++ b/include/scsi/libsas.h
-@@ -606,6 +606,9 @@ struct sas_domain_function_template {
- extern int sas_register_ha(struct sas_ha_struct *);
- extern int sas_unregister_ha(struct sas_ha_struct *);
- 
-+int sas_set_phy_speed(struct sas_phy *phy,
-+		      struct sas_phy_linkrates *rates);
-+int sas_phy_enable(struct sas_phy *phy, int enabled);
- int sas_phy_reset(struct sas_phy *phy, int hard_reset);
- int sas_queue_up(struct sas_task *task);
- extern int sas_queuecommand(struct scsi_cmnd *,
-diff --git a/include/scsi/scsi_transport_sas.h b/include/scsi/scsi_transport_sas.h
-index 59633a8..dea9127 100644
---- a/include/scsi/scsi_transport_sas.h
-+++ b/include/scsi/scsi_transport_sas.h
-@@ -163,6 +163,7 @@ struct sas_function_template {
- 	int (*get_enclosure_identifier)(struct sas_rphy *, u64 *);
- 	int (*get_bay_identifier)(struct sas_rphy *);
- 	int (*phy_reset)(struct sas_phy *, int);
-+	int (*phy_enable)(struct sas_phy *, int);
- 	int (*set_phy_speed)(struct sas_phy *, struct sas_phy_linkrates *);
+ 	void			*private_data;
++	void			*lldd_task;
  };
  
+ struct ata_port_stats {

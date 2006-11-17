@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424865AbWKQBUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424064AbWKQBWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424865AbWKQBUw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 20:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424868AbWKQBTv
+	id S1424064AbWKQBWd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 20:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424873AbWKQBWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 20:19:51 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58120 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424867AbWKQBTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 20:19:40 -0500
-Date: Fri, 17 Nov 2006 02:19:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: len.brown@intel.com
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] make drivers/acpi/ec.c:ec_ecdt
-Message-ID: <20061117011939.GR31879@stusta.de>
+	Thu, 16 Nov 2006 20:22:32 -0500
+Received: from gw.goop.org ([64.81.55.164]:26820 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1424064AbWKQBWb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 20:22:31 -0500
+Message-ID: <455D11B9.4080302@goop.org>
+Date: Thu, 16 Nov 2006 17:34:49 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: eranian@hpl.hp.com
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386 add Intel PEBS and BTS cpufeature bits and detection
+References: <20061115213241.GC17238@frankl.hpl.hp.com>
+In-Reply-To: <20061115213241.GC17238@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global "ec_ecdt" static.
+Stephane Eranian wrote:
+> Here is a small patch that adds two cpufeature bits to represent
+> Intel's Precise-Event-Based Sampling (PEBS) and Branch Trace Store
+> (BTS) features. Those features can be found on Intel P4 and Core 2 
+> processors among others and can be used by perfmon.
+>   
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I've been thinking it would be useful for kernel debugging if kernel
+oops messages could use the branch history to show the last few jumps on
+processors which support it.  It would help a lot with the "oh, an oops
+with eip==esp==0" type crashes, which are otherwise pretty unhelpful.
 
---- linux-2.6.19-rc5-mm2/drivers/acpi/ec.c.old	2006-11-16 23:07:31.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/acpi/ec.c	2006-11-16 23:08:45.000000000 +0100
-@@ -84,25 +84,25 @@
- 	.name = ACPI_EC_DRIVER_NAME,
- 	.class = ACPI_EC_CLASS,
- 	.ids = ACPI_EC_HID,
- 	.ops = {
- 		.add = acpi_ec_add,
- 		.remove = acpi_ec_remove,
- 		.start = acpi_ec_start,
- 		.stop = acpi_ec_stop,
- 		},
- };
- 
- /* If we find an EC via the ECDT, we need to keep a ptr to its context */
--struct acpi_ec {
-+static struct acpi_ec {
- 	acpi_handle handle;
- 	unsigned long uid;
- 	unsigned long gpe_bit;
- 	unsigned long command_addr;
- 	unsigned long data_addr;
- 	unsigned long global_lock;
- 	struct semaphore sem;
- 	unsigned int expect_event;
- 	atomic_t leaving_burst;	/* 0 : No, 1 : Yes, 2: abort */
- 	wait_queue_head_t wait;
- } *ec_ecdt;
- 
+Do you think that would be easy/possible to support?  Would it interfere
+with other uses of these features?
 
+    J

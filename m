@@ -1,84 +1,213 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755814AbWKQTMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755821AbWKQTOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755814AbWKQTMc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 14:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755816AbWKQTMc
+	id S1755821AbWKQTOf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 14:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755819AbWKQTOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 14:12:32 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:25030 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1755806AbWKQTMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 14:12:30 -0500
-Date: Fri, 17 Nov 2006 20:12:21 +0100
-From: Chris Friedhoff <chris@friedhoff.org>
-To: "Bill O'Donnell" <billodo@sgi.com>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-       Chris Wright <chrisw@sous-sol.org>, Andrew Morton <akpm@osdl.org>,
-       KaiGai Kohei <kaigai@kaigai.gr.jp>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: [PATCH 1/1] security: introduce fs caps
-Message-Id: <20061117201221.667b84d7.chris@friedhoff.org>
-In-Reply-To: <20061116144743.GA21497@sgi.com>
-References: <20061108222453.GA6408@sergelap.austin.ibm.com>
-	<20061109061021.GA32696@sergelap.austin.ibm.com>
-	<20061109103349.e58e8f51.chris@friedhoff.org>
-	<20061113215706.GA9658@sgi.com>
-	<20061114052531.GA20915@sergelap.austin.ibm.com>
-	<20061114135546.GA9953@sgi.com>
-	<20061114152307.GA7534@sergelap.austin.ibm.com>
-	<455B0357.2050400@ak.jp.nec.com>
-	<20061115170633.GA21345@sgi.com>
-	<20061115224923.539fe60a.chris@friedhoff.org>
-	<20061116144743.GA21497@sgi.com>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__17_Nov_2006_20_12_21_+0100_k9XVuDbfunwOXmaC"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9d7f00276fac4b25ba506f26988c1e36
+	Fri, 17 Nov 2006 14:14:35 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:46721 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1755818AbWKQTOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 14:14:18 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:references:user-agent:date:from:to:cc:
+	subject:content-disposition;
+	b=Lv4l8hAVgUw/aHXFIyN0QXUZt9swG3g9NudlwheglrXejFGcGp+TOG07/+3qLVijO
+	nzm6Lh5K7asAv6u+jWWhw==
+Message-Id: <20061117191339.665462000@menage.corp.google.com>
+References: <20061117191159.151894000@menage.corp.google.com>
+User-Agent: quilt/0.45-1
+Date: Fri, 17 Nov 2006 11:12:04 -0800
+From: menage@google.com
+To: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com
+Cc: ckrm-tech@lists.sourceforge.net, jlan@sgi.com, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com
+Subject: [PATCH 5/6] Extension to container system to allow fork/exit callbacks
+Content-Disposition: inline; filename=container_forkexit_callback.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+This patch adds fork/exit callbacks to container subsystems, and
+ensures that every registered container has received one fork callback
+for each task running int the system, and one exit callback for each
+task that exited since it was registered.
 
---Multipart=_Fri__17_Nov_2006_20_12_21_+0100_k9XVuDbfunwOXmaC
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Since the fork/exit path is performance sensitive, an RCU-protected
+flag indicates to the fork/exit hooks whether they need to take the
+callback mutex and scan the list of registered subsystems to look for
+fork/exit handlers.
 
-compiling fscaps-1.0-kg.src.rpm just gives the same result
-/bin/ping: Invalid argument (errno=22)
-trace output attached
+ Documentation/containers.txt |   11 +++++
+ include/linux/container.h    |    2 
+ kernel/container.c           |   89 +++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 98 insertions(+), 4 deletions(-)
 
-Chris
+Index: container-2.6.19-rc5/include/linux/container.h
+===================================================================
+--- container-2.6.19-rc5.orig/include/linux/container.h
++++ container-2.6.19-rc5/include/linux/container.h
+@@ -108,6 +108,8 @@ struct container_subsys {
+ 			    struct container *cont,
+ 			    struct container *old_cont,
+ 			    struct task_struct *tsk);
++	void (*fork)(struct container_subsys *ss, struct task_struct *task);
++	void (*exit)(struct container_subsys *ss, struct task_struct *task);
+ 	int (*populate)(struct container_subsys *ss,
+ 			struct container *cont);
+ 
+Index: container-2.6.19-rc5/kernel/container.c
+===================================================================
+--- container-2.6.19-rc5.orig/kernel/container.c
++++ container-2.6.19-rc5/kernel/container.c
+@@ -84,6 +84,21 @@ struct containerfs_root {
+ 
+ static struct containerfs_root rootnode[CONFIG_MAX_CONTAINER_HIERARCHIES];
+ 
++/* This flag indicates whether tasks in the fork and exit paths should
++ * take callback_mutex and check for fork/exit handlers to call. This
++ * avoids us having to take locks in the fork/exit path if none of the
++ * subsystems need to be called.
++ *
++ * It is protected via RCU, with the invariant that a process in an
++ * rcu_read_lock() section will never see this as 0 if there are
++ * actually registered subsystems with a fork or exit
++ * handler. (Sometimes it may be 1 without there being any registered
++ * subsystems with such a handler, but such periods are safe and of
++ * short duration).
++ */
++
++static int need_forkexit_callback = 0;
++
+ /* bits in struct container flags field */
+ typedef enum {
+ 	CONT_REMOVED,
+@@ -1505,11 +1520,40 @@ int container_register_subsys(struct con
+ 		goto out;
+ 	}
+ 	dummytop->subsys[subsys_count]->container = dummytop;
+-	subsys[subsys_count++] = new_subsys;
++ 	mutex_lock(&callback_mutex);
++ 	/* If this is the first subsystem that requested a fork or
++ 	 * exit callback, tell our fork/exit hooks that they need to
++ 	 * grab callback_mutex on every invocation. If they are
++ 	 * running concurrently with this code, they will either not
++ 	 * see the change now and go straight on, or they will see it
++ 	 * and grab callback_mutex, which will deschedule them. Either
++ 	 * way once synchronize_rcu() returns we know that all current
++ 	 * and future forks will make the callbacks. */
++ 	if (!need_forkexit_callback &&
++ 	    (new_subsys->fork || new_subsys->exit)) {
++ 		need_forkexit_callback = 1;
++ 		synchronize_rcu();
++ 	}
++
++ 	/* If this subsystem requested that it be notified with fork
++ 	 * events, we should send it one now for every process in the
++ 	 * system */
++ 	if (new_subsys->fork) {
++ 		struct task_struct *g, *p;
++
++ 		read_lock(&tasklist_lock);
++ 		do_each_thread(g, p) {
++ 			new_subsys->fork(new_subsys, p);
++ 		} while_each_thread(g, p);
++ 		read_unlock(&tasklist_lock);
++ 	}
+ 
++	subsys[subsys_count++] = new_subsys;
++ 	mutex_unlock(&callback_mutex);
+  out:
+-	mutex_unlock(&manage_mutex);
+-	return retval;
++ 	mutex_unlock(&manage_mutex);
++ 	return retval;
++
+ }
+ 
+ /**
+@@ -1532,7 +1576,16 @@ int container_register_subsys(struct con
+ 
+ void container_fork(struct task_struct *child)
+ {
+-	int i;
++	int i, need_callback;
++
++	rcu_read_lock();
++	/* need_forkexit_callback will be true if we might need to do
++ 	 * a callback */
++	need_callback = rcu_dereference(need_forkexit_callback);
++	if (need_callback) {
++		rcu_read_unlock();
++		mutex_lock(&callback_mutex);
++	}
+ 	task_lock(current);
+ 	for (i = 0; i < CONFIG_MAX_CONTAINER_HIERARCHIES; i++) {
+ 		struct container *cont = current->container[i];
+@@ -1540,7 +1593,20 @@ void container_fork(struct task_struct *
+ 		child->container[i] = cont;
+ 		atomic_inc(&cont->count);
+ 	}
++	if (need_callback) {
++		for (i = 0; i < subsys_count; i++) {
++			struct container_subsys *ss = subsys[i];
++			if (ss->fork) {
++				ss->fork(ss, child);
++			}
++		}
++	}
+ 	task_unlock(current);
++	if (need_callback) {
++		mutex_unlock(&callback_mutex);
++	} else {
++		rcu_read_unlock();
++	}
+ }
+ 
+ /**
+@@ -1606,6 +1672,21 @@ void container_exit(struct task_struct *
+ {
+ 	struct container *cont;
+ 	int i;
++	rcu_read_lock();
++	if (rcu_dereference(need_forkexit_callback)) {
++		rcu_read_unlock();
++		mutex_lock(&callback_mutex);
++		for (i = 0; i < subsys_count; i++) {
++			struct container_subsys *ss = subsys[i];
++			if (ss->exit) {
++				ss->exit(ss, tsk);
++			}
++		}
++		mutex_unlock(&callback_mutex);
++	} else {
++		rcu_read_unlock();
++	}
++
+ 	for (i = 0; i < CONFIG_MAX_CONTAINER_HIERARCHIES; i++) {
+ 		cont = tsk->container[i];
+ 		if (!cont) continue;
+Index: container-2.6.19-rc5/Documentation/containers.txt
+===================================================================
+--- container-2.6.19-rc5.orig/Documentation/containers.txt
++++ container-2.6.19-rc5/Documentation/containers.txt
+@@ -375,6 +375,17 @@ LL=manage_mutex
+ Called after the task has been attached to the container, to allow any
+ post-attachment activity that requires memory allocations or blocking.
+ 
++void fork(struct container_subsy *ss, struct task_struct *task)
++LL=callback_mutex, maybe read_lock(tasklist_lock)
++
++Called when a task is forked into a container. Also called during
++registration for all existing tasks.
++
++void exit(struct container_subsys *ss, struct task_struct *task)
++LL=callback_mutex
++
++Called during task exit
++
+ int populate(struct container_subsys *ss, struct container *cont)
+ LL=none
+ 
 
---------------------
-Chris Friedhoff
-chris@friedhoff.org
-
---Multipart=_Fri__17_Nov_2006_20_12_21_+0100_k9XVuDbfunwOXmaC
-Content-Type: application/octet-stream;
- name="strace-ping-sles10-b.gz"
-Content-Disposition: attachment;
- filename="strace-ping-sles10-b.gz"
-Content-Transfer-Encoding: base64
-
-H4sICHZ6XUUAA3N0cmFjZS1waW5nLXNsZXMxMC1iAK1WbXPaOBD+3l+h4ZPpOFh+wWBmuBsKTo85
-MKkhaTOXjka2BfHE2B7JUHJJ//utDK0h5OXaBOOXkXZXq2cfP2vTdByE2IaFa6bUtJXgmuChltPw
-hi6Y0KaTc7/vTjXBinlIc1FT0T8vmtUajYaKamBPUlYQTr91WQ6eNS2IUy2P00XtK8TR3qOmjdaU
-C/Re+1pHXYTfmWU+Ab9RcB098wPbTRtbFOMfPsslzQ3FOx+NVGRhx1bRmT+ZEd/tDe7Lp8/+cOaq
-aNw7I2f+8KI3c+/lc8+beJfjyflURSe6inCZxyZozU1WBadhyIQAgFgRaknUEFkj5yzJaATb8snk
-b+l1oiPXm7jeDClehsQqvEbzOGEo4yiKOQuLjN/WdwGznKUH4UIaXjMINiH+YOKNLmVAc2c8FwUt
-bEsxVXQnCrLMItadkuGp7368x7ZlqQhGRfwv6zZtxwQrwP/7Pp772OxMfoJzgIiKzAMIcAVBmGSC
-KeYzVanW2+0uiQN5Ag/kDvUndscZjeTWald6q+WOTq/08sBHh7k7q7m5vGK85VtTN2RYuP0f2FrN
-ZgWbjq2m/TxsusTiiFPuF7d/TKmB613u2HYApxHu0ZVG6xgArSZ+rjHuDS7I1P10DlQa9kb3eKMf
-Z7X1m5cOv0L30+EXd/BYlhujynP+JmWXRbcPiv4WVQeMLq/015fcwpZhGS8UXW/ZTrv9urIz/ETZ
-txN7q/xC4ZtbT9tsW6+vvK63q9o3H0rqdtgpF3Rs4xiNF9d7UmLLqL9BtLfWeoaDKhHoYaS4lvwk
-FK7KHUsLfkvS1TJgvAMif/IHghUDKhihUcQ7uwh2AAAl8TIuOqAn7WZLso0tiGkEckhFYZYWEEt0
-wK4ML9suydLktvPDk8QpyWVHlfbSOc0KAp1GgJ80WglGg4R19EPK5jwroL8ccKOtO8YeLgf2qxQA
-VCqJ33WF+iNQ/04rLn1gzJaoPuq79bH3UIcmsWByB7rjtLFpQk7wv9ve8PdSO2SDHXoXvRFShuma
-JnGEKF+slgBO/YEA6A8EoP+XD63SwKUA8Iitu0t6w+CuwPuj149lIM7CIpFhpt6gPxuR2dgns+HY
-/dCburKjz/of3Rnw6O4DvIIYg/ZlokCxiBcoDmmapYiF19mz6vI2XylRheE3HhdM5lx9aHXQQ6SQ
-wjjfyqfplH3Y2bmzDRBwwbNV/lTFu+jPd/8BeENG+jIKAAA=
-
---Multipart=_Fri__17_Nov_2006_20_12_21_+0100_k9XVuDbfunwOXmaC--
+--

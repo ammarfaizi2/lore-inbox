@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933563AbWKQMsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWKQMus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933563AbWKQMsF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 07:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933574AbWKQMsF
+	id S932107AbWKQMus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 07:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932887AbWKQMus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 07:48:05 -0500
-Received: from smtp-out-46.synserver.de ([217.119.50.46]:45530 "HELO
-	smtp-out-46.synserver.de") by vger.kernel.org with SMTP
-	id S933563AbWKQMsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 07:48:01 -0500
-X-SynServer-RBL-Internally-Whitelisted: 1
-X-SynServer-ViaOpenRelay-IP: 84.161.132.201
-X-SynServer-RBL-IP: 84.161.132.201
-X-SynServer-RBL-ReportedBy: dynablock.njabl.org
-X-SynServer-RBL-ReportedByCount: *
-X-SynServer-RBL-Weights: 100
-X-SynServer-RBL-WeightSum: 100
-X-SynServer-RBL-WeightStr: **********
-X-SPAM-FLAG: Yes
-X-SynServer-AuthUser: chris@schlagmichtod.de
-X-SynServer-RemoteDnsName: p54A184C9.dip0.t-ipconnect.de
-Message-ID: <455DAF74.1050203@schlagmichtod.de>
-Date: Fri, 17 Nov 2006 13:47:48 +0100
-From: Christoph Schmid <chris@schlagmichtod.de>
-User-Agent: IceDove 1.5.0.7 (X11/20061013)
+	Fri, 17 Nov 2006 07:50:48 -0500
+Received: from web23102.mail.ird.yahoo.com ([217.146.189.42]:11930 "HELO
+	web23102.mail.ird.yahoo.com") by vger.kernel.org with SMTP
+	id S932107AbWKQMus convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 07:50:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=ot67+DjIwApHrB9cDlWyomAJfohAP/228MZK0o728WM/UrSsTg2QW9TqImKYqlz2u36Jdb4hjIy6Pgne4zblYAgnMHcZKfhv+Enfr9Cin9iQ50MgPtHb9dLkwQyCM9Gjp5mZbqTYVa8zoj+Z2b1BUIZ2SRX9JV/lT4XWZqi9qwo=  ;
+Message-ID: <20061117125046.22496.qmail@web23102.mail.ird.yahoo.com>
+Date: Fri, 17 Nov 2006 12:50:46 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re : vm: weird behaviour when munmapping
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: is there any Hard-disk shock-protection for 2.6.18 and above?
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello dear kernel-people,
+Peter Zijlstra wrote:
+> 
+> http://lwn.net/Kernel/LDD3/
+> 
+> Chapter 15. Section 'Virtual Memory Areas'.
+> 
+> Basically; vm_ops->open() is not called on the first vma. With this
+> munmap() you split the area in two, and it so happens the new vma is the
+> lower one.
+> 
 
-I have a little question, which i hope is right to post here and does
-not cause inconveniences.
+since I did "munmap(0x2aaae000, 1024)" I would say that the the new vma
+is the _upper_ one.
 
-Well, since about 6 weeks i own a Lenovo Thinkpad X60s which i bought
-primarily because thinkpads are rumored to be very well supported by
-linux. Sencondly because as a student i got some rebate on thinkpads ;)
+lower vma: 0x2aaae000 -> 0x2aaaf000
+upper vma: 0x2aaaf000 -> 0x2aab2000
 
-Well, the actual question is the following,
-I read about HDAPS on thinkWiki. But there is no known-to-work patch for
-2.6.18 and above to enable queue-freezing/harddisk parking.
-After some googeling and digging in gamne i read that someone said that
-there are plans for some generic support for HD-parking in the kernel
-and thus making such patches obsolete.
-My quesiotn just is if this is true and if there are any chances that
-the kernel will support that soonly.
+Francis
 
-The point is i have to trave quite some distance to my University (about
-one and half an hour)
-And thus doing some of my work in the train or bus. But well... they
-often shake and wobble, hit the brakes suddenly and some of that stuff
-which makes me nearly drop my notebook often.
-Thats the most point why i would be very pleased to know that my hd
-doesn't suffer a headcrash in such a circumstance.
-As there are quite some notebooks out there which support this nowadays
-(i know of some IBM/lenovo and HP ones), a generic support for that
-would be nice and make users of linux on notebooks feel much more
-comfortable.
 
-So i hope this issue can be adressed soon. but i also know that most of
-you are very busy and i can not evaluate how difficult such a change
-would be. However if anyone wants to test some things or more
-information, i am ready. Just CC me :)
 
-thanks,
-Christoph
 
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Découvrez une nouvelle façon d'obtenir des réponses à toutes vos questions ! 
+Profitez des connaissances, des opinions et des expériences des internautes sur Yahoo! Questions/Réponses 
+http://fr.answers.yahoo.com

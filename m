@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933696AbWKQQSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWKQQUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933696AbWKQQSk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933695AbWKQQSk
+	id S932688AbWKQQUs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932943AbWKQQUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:18:40 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10442 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933696AbWKQQSk (ORCPT
+	Fri, 17 Nov 2006 11:20:48 -0500
+Received: from pat.uio.no ([129.240.10.15]:24973 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932688AbWKQQUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:18:40 -0500
-Date: Fri, 17 Nov 2006 17:17:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Daniel Walker <dwalker@mvista.com>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061117161742.GA10182@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163779116.6953.38.camel@mindpipe>
+	Fri, 17 Nov 2006 11:20:47 -0500
+Subject: Re: NFSROOT with NFS Version 3
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061117164021.03b2cc24.Christoph.Pleger@uni-dortmund.de>
+References: <20061117164021.03b2cc24.Christoph.Pleger@uni-dortmund.de>
+Content-Type: text/plain
+Date: Fri, 17 Nov 2006 11:20:17 -0500
+Message-Id: <1163780417.5709.34.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163779116.6953.38.camel@mindpipe>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0001]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.305, required 12,
+	autolearn=disabled, AWL 1.56, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Thu, 2006-11-16 at 23:07 +0100, Ingo Molnar wrote:
-> > * Daniel Walker <dwalker@mvista.com> wrote:
-> > 
-> > > [...] Should we start a known regression list?
-> > 
-> > please resend the bugs that still trigger for you with 2.6.19-rt0.
+On Fri, 2006-11-17 at 16:40 +0100, Christoph Pleger wrote:
+> Hello,
 > 
-> I'm working with the developers of the 64Studio distro who are 
-> attempting to ship a stable -rt kernel so I have access to lots of 
-> good bug reports.  Oops on boot is by far the most common.  I'll post 
-> details once we've retested with 2.6.19-rt0.
+> I tried to switch an NFSROOT-Environment from NFS version 2 to NFS
+> version 3, but unfortunately my test client machine now hangs every time
+> after booting as soon as some bigger file system activity should occur.
+> I tried Kernel 2.6.14.7 and Kernel 2.6.16.32.
+> 
+> The problem did not occur with NFS version 2.
+> 
+> Does anybody know the problem and/or a solution?
 
-thanks, please do that. Right now i have no open boot-crash regression 
-left that i can reproduce.
+That is almost always due to the difference in r/wsize that the Linux
+NFS server advertises for v2 and v3 combined with using UDP. If you have
+poor networking, then don't use UDP, and certainly not with 32k r/wsize.
 
-	Ingo
+IOW: try either setting the mount options "rsize=8192,wsize=8192", or
+the option "proto=tcp"
+
+Cheers
+  Trond
+

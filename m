@@ -1,121 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755888AbWKQUkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755890AbWKQUk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755888AbWKQUkc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 15:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755886AbWKQUkc
+	id S1755890AbWKQUk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 15:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755893AbWKQUk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 15:40:32 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:44221 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1755888AbWKQUkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 15:40:31 -0500
-Date: Fri, 17 Nov 2006 12:40:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, Tero Roponen <teanropo@jyu.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] fb: modedb uses wrong default_mode
-Message-Id: <20061117124013.b6e4183d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
-References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
-	<20061115152952.0e92c50d.akpm@osdl.org>
-	<20061115234456.GB3674@cosmic.amd.com>
-	<Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Nov 2006 15:40:58 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1541 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1755886AbWKQUki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 15:40:38 -0500
+Date: Fri, 17 Nov 2006 21:40:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@timesys.com>,
+       Alan Stern <stern@rowland.harvard.edu>, Ingo Molnar <mingo@elte.hu>,
+       davej@codemonkey.org.uk, cpufreq@lists.linux.org.uk,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       Mattia Dongili <malattia@linux.it>, Andre Noll <maan@systemlinux.org>,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       Prakash Punnoor <prakash@punnoor.de>, phil.el@wanadoo.fr,
+       oprofile-list@lists.sourceforge.net, Ray Lee <ray-lk@madrabbit.org>,
+       Michael Buesch <mb@bu3sch.de>, Larry Finger <Larry.Finger@lwfinger.net>,
+       st3@riseup.net, linville@tuxdriver.com, netdev@vger.kernel.org,
+       David Brownell <david-b@pacbell.net>, Len Brown <len.brown@intel.com>,
+       linux-acpi@vger.kernel.org, Ernst Herzberg <earny@net4u.de>
+Subject: 2.6.19-rc6: known regressions (v2)
+Message-ID: <20061117204036.GK31879@stusta.de>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 20:08:47 +0000 (GMT)
-James Simmons <jsimmons@infradead.org> wrote:
+This email lists some known regressions in 2.6.19-rc6 compared to 2.6.18
+that are not yet fixed in Linus' tree.
 
-> Who knows how many drivers get this wrong. BTW Jordan is right. 
-> DEFAULT_MODEDB_INDEX is unless. Also we don't need dbsize anymore. 
-> Jordan did point out a error in fb_find_mode. It should be
-> 
-> 	if (!db)
-> 	    db = modedb;
-> 	dbsize = ARRAY_SIZE(modedb);
-> 
-> 	if (!default_mode)
-> 	    default_mode = &db[DEFAULT_MODEDB_INDEX];
-> 	if (!default_bpp)
-> 	    default_bpp = 8;
-> 
-> db will always be set.
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-I think we do need dbsize, and that the code which I have now:
-
-int fb_find_mode(struct fb_var_screeninfo *var,
-		 struct fb_info *info, const char *mode_option,
-		 const struct fb_videomode *db, unsigned int dbsize,
-		 const struct fb_videomode *default_mode,
-		 unsigned int default_bpp)
-{
-    int i;
-
-    /* Set up defaults */
-    if (!db) {
-	db = modedb;
-	dbsize = ARRAY_SIZE(modedb);
-    }
-
-    if (!default_mode)
-	default_mode = &db[0];
-
-    if (!default_bpp)
-	default_bpp = 8;
+Due to the huge amount of recipients, please trim the Cc when answering.
 
 
-is appropriate?
+Subject    : cpufreq notification broken
+References : http://lkml.org/lkml/2006/11/16/177
+Submitter  : Thomas Gleixner <tglx@timesys.com>
+Caused-By  : Alan Stern <stern@rowland.harvard.edu>
+             commit b4dfdbb3c707474a2254c5b4d7e62be31a4b7da9
+Handled-By : Ingo Molnar <mingo@elte.hu>
+             Linus Torvalds <torvalds@osdl.org>
+Status     : patches are being discussed
 
 
-Here's the current version of this monster patch:
+Subject    : CPU_FREQ_GOV_ONDEMAND=y compile error
+References : http://lkml.org/lkml/2006/11/17/198
+Submitter  : alex1000@comcast.net
+Caused-By  : Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+             commit 05ca0350e8caa91a5ec9961c585c98005b6934ea
+Handled-By : Mattia Dongili <malattia@linux.it>
+Patch      : http://lkml.org/lkml/2006/11/17/236
+Status     : patch available
 
-From: Jordan Crouse <jordan.crouse@amd.com>
 
-If no default mode is specified, it should be grabbed from the supplied
-database, not the default one.
+Subject    : x86_64: Bad page state in process 'swapper'
+References : http://lkml.org/lkml/2006/11/10/135
+             http://lkml.org/lkml/2006/11/10/208
+Submitter  : Andre Noll <maan@systemlinux.org>
+Handled-By : Andi Kleen <ak@suse.de>
+Status     : Andi is investigating
 
-[teanropo@jyu.fi: fix it]
-[akpm@osdl.org: simplify it]
-[akpm@osdl.org: remove pointless DEFAULT_MODEDB_INDEX]
-Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "Antonino A. Daplas" <adaplas@pol.net>
-Signed-off-by: Tero Roponen <teanropo@jyu.fi>
-Cc: James Simmons <jsimmons@infradead.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- drivers/video/modedb.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+Subject    : x86_64: oprofile doesn't work
+References : http://lkml.org/lkml/2006/10/27/3
+             http://lkml.org/lkml/2006/11/15/92
+Submitter  : Prakash Punnoor <prakash@punnoor.de>
+Status     : problem is being discussed
 
-diff -puN drivers/video/modedb.c~video-get-the-default-mode-from-the-right-database drivers/video/modedb.c
---- a/drivers/video/modedb.c~video-get-the-default-mode-from-the-right-database
-+++ a/drivers/video/modedb.c
-@@ -34,8 +34,6 @@ const char *global_mode_option;
-      *  Standard video mode definitions (taken from XFree86)
-      */
- 
--#define DEFAULT_MODEDB_INDEX	0
--
- static const struct fb_videomode modedb[] = {
-     {
- 	/* 640x400 @ 70 Hz, 31.5 kHz hsync */
-@@ -505,8 +503,10 @@ int fb_find_mode(struct fb_var_screeninf
- 	db = modedb;
- 	dbsize = ARRAY_SIZE(modedb);
-     }
-+
-     if (!default_mode)
--	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
-+	default_mode = &db[0];
-+
-     if (!default_bpp)
- 	default_bpp = 8;
- 
-_
+
+Subject    : bcm43xx: serious problems
+References : http://lkml.org/lkml/2006/11/15/296
+Submitter  : Ray Lee <ray-lk@madrabbit.org>
+Handled-By : Michael Buesch <mb@bu3sch.de>
+             Larry Finger <Larry.Finger@lwfinger.net>
+Status     : problem is being debugged
+
+
+Subject    : nasty ACPI regression, AE_TIME errors
+References : http://lkml.org/lkml/2006/11/15/12
+Submitter  : David Brownell <david-b@pacbell.net>
+Handled-By : Len Brown <len.brown@intel.com>
+             Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Status     : problem is being debugged
+
+
+Subject    : ThinkPad R50p: boot fail with (lapic && on_battery)
+References : http://lkml.org/lkml/2006/10/31/333
+Submitter  : Ernst Herzberg <earny@net4u.de>
+Handled-By : Len Brown <len.brown@intel.com>
+Status     : problem is being debugged
 

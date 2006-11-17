@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933751AbWKQRzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933758AbWKQR7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933751AbWKQRzG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 12:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933754AbWKQRzG
+	id S933758AbWKQR7n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 12:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933755AbWKQR7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 12:55:06 -0500
-Received: from nlpi012.sbcis.sbc.com ([207.115.36.41]:57066 "EHLO
-	nlpi012.sbcis.sbc.com") by vger.kernel.org with ESMTP
-	id S933751AbWKQRzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 12:55:04 -0500
-X-ORBL: [67.117.73.34]
-Date: Fri, 17 Nov 2006 19:54:32 +0200
-From: Tony Lindgren <tony@atomide.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Vladimir Ananiev <vovan888@gmail.com>
-Subject: Re: Basic support for siemens sx1
-Message-ID: <20061117175431.GD6072@atomide.com>
-References: <20061116170209.GA5544@elf.ucw.cz>
+	Fri, 17 Nov 2006 12:59:43 -0500
+Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:28085 "EHLO
+	smtp151.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S933758AbWKQR7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 12:59:42 -0500
+Message-ID: <455DF7CF.7020203@gentoo.org>
+Date: Fri, 17 Nov 2006 12:56:31 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061116170209.GA5544@elf.ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Tejun Heo <htejun@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: regarding VIA quirk fix
+References: <455D8B44.2060600@gmail.com>
+In-Reply-To: <455D8B44.2060600@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-* Pavel Machek <pavel@ucw.cz> [061116 19:04]:
-> From: Vladimir Ananiev <vovan888@gmail.com>
+Tejun Heo wrote:
+> Hello, Alan.
 > 
-> This adds basic support for Siemens SX1. More patches are available,
-> with video driver, mixer, and serial ports working. That is enough to
-> do gsm calls with right userland.
+> We've been getting bug reports from sata_via users for quite sometime 
+> now.  The first IRQ driven command (IDENTIFY) times out and thus device 
+> detection fails.  The following patch seems to fix it for many users.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=116300291505638
+> 
+> But, not for all.
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=7415
+> 
+> Any ideas how to proceed on this bug?
 
-Cool.
- 
-> It would be nice to get basic patches merged to the -omap tree... do
-> they look ok?
+I'm not certain, but I think that this is an unrelated issue. Both the 
+working kernel and the failing kernels quirk the device in the same way:
 
-Yeah, looks good, except for the i2c part. Is Sofia really a TI PCF8574
-i2c chip? In that case it could use the gpioexpander code.  
+PCI: VIA IRQ fixup for 0000:00:0f.0, from 11 to 2
 
-Anyways, let's plan on pushing this to linux-omap tree, then do the
-changes for gpioexpander, and send that upstream too.
+Both the working kernel (2.6.17-gentoo-r8) and the first failing kernel 
+(2.6.18-gentoo) have the same patch for 'fixing' the quirk issues: 
+Chris's changes were reverted, the VIA IRQ quirk was back in the 2.6.16 
+state. Since then the same issues have been observed with unpatched 
+2.6.19-rc.
 
-Regards,
+This is not definitive but suggests the issue is elsewhere.
 
-Tony
+Daniel

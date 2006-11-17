@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755702AbWKQPbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424809AbWKQPhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755702AbWKQPbH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755713AbWKQPbH
+	id S1424809AbWKQPhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424805AbWKQPhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:31:07 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:114 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1755702AbWKQPbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:31:05 -0500
-Date: Fri, 17 Nov 2006 16:30:03 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Alasdair G Kergon <agk@redhat.com>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: 2.6.19-rc6 -- dm: possible recursive locking detected
-Message-ID: <20061117153003.GB7131@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
+	Fri, 17 Nov 2006 10:37:24 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:1750 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1424793AbWKQPhX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 10:37:23 -0500
+Date: Fri, 17 Nov 2006 16:37:17 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <linux-acpi@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061117153717.GU14886@vasa.acc.umu.se>
+Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
+	Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ACPI mailing list <linux-acpi@vger.kernel.org>
+References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <20061117151341.GA1162@srcf.ucam.org>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sent this a few days ago, but got no response. Probably because I addressed
-this to the wrong persons. So, next try.
+On Fri, Nov 17, 2006 at 03:13:41PM +0000, Matthew Garrett wrote:
+> On Fri, Nov 17, 2006 at 11:22:38AM +0100, David Weinehall wrote:
+> 
+> > That was with 2.6.17; with 2.7.19-pre? (don't remember right now),
+> > docking seems to work without acpiphp.  It still would be nice to be
+> > able to undock when the laptop is sleeping though; how do I achieve
+> > that?
+> 
+> My experience of most laptops is that they'll fire off a bus check 
+> notification when you resume, so as long as nothing actually tries to 
+> access the hardware before that's handled, everything should be fine. 
+> What currently breaks when you undock while asleep?
 
-With current git tree as of today I get this:
+The fact that the dock starts to beep annoyingly. It has a button that
+you should press before undocking, and wait for a green light to light
+up before removing the laptop.  If you remove the computer without
+doing so, the dock starts beeping, and it doesn't stop (AFAIK, haven't
+managed to stand the beeping for more than 30 seconds or so) until you
+replug the laptop.
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.19-rc6-g1b9bb3c1 #28
----------------------------------------------
-kpartx/945 is trying to acquire lock:
- (&md->io_lock){----}, at: [<00000000001f8faa>] dm_request+0x42/0x24c
+My guess is that there is some wait to trigger an undock event from
+software as well, and that it would be nice to send that signal to the
+dock before suspending...
 
-but task is already holding lock:
- (&md->io_lock){----}, at: [<00000000001f8faa>] dm_request+0x42/0x24c
 
-other info that might help us debug this:
-1 lock held by kpartx/945:
- #0:  (&md->io_lock){----}, at: [<00000000001f8faa>] dm_request+0x42/0x24c
-
-stack backtrace:
-0000000000000000 0000000000000000 0000000000000000 0000000000000000 
-       0000000000000000 00000000003a4d68 00000000003a4d68 0000000000016272 
-       040000000d983280 00000000006d93e8 0000000000000000 0000000000477620 
-       0000000000000000 000000000000000d 000000000d983380 000000000d9833f8 
-       0000000000372450 0000000000016272 000000000d983380 000000000d9833d0 
-Call Trace:
-([<00000000000161d8>] show_trace+0xc0/0xdc)
- [<0000000000016294>] show_stack+0xa0/0xd0
- [<00000000000162f2>] dump_stack+0x2e/0x3c
- [<0000000000063244>] __lock_acquire+0xa80/0xeac
- [<0000000000063c10>] lock_acquire+0x90/0xc0
- [<000000000005d540>] down_read+0x54/0x9c
- [<00000000001f8faa>] dm_request+0x42/0x24c
- [<000000000017e528>] generic_make_request+0x174/0x1fc
- [<00000000001f88ee>] __map_bio+0x7e/0xec
- [<00000000001f8f44>] __split_bio+0x510/0x534
- [<00000000001f915c>] dm_request+0x1f4/0x24c
- [<000000000017e528>] generic_make_request+0x174/0x1fc
- [<000000000017e672>] submit_bio+0xc2/0x18c
- [<00000000000d7a00>] submit_bh+0x13c/0x1d8
- [<00000000000da95c>] block_read_full_page+0x3f0/0x470
- [<00000000000dd2e0>] blkdev_readpage+0x30/0x40
- [<0000000000084638>] __do_page_cache_readahead+0x190/0x300
- [<0000000000084976>] blockable_page_cache_readahead+0x7a/0x104
- [<0000000000084db4>] page_cache_readahead+0x29c/0x328
- [<000000000007c14c>] do_generic_mapping_read+0x428/0x51c
- [<000000000007e8fc>] generic_file_aio_read+0x160/0x244
- [<00000000000a9cac>] do_sync_read+0xd8/0x130
- [<00000000000a9dac>] vfs_read+0xa8/0x188
- [<00000000000aa19a>] sys_read+0x56/0x88
- [<0000000000020d40>] sysc_noemu+0x10/0x16
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

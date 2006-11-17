@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162346AbWKQFRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424321AbWKQFWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162346AbWKQFRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 00:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162081AbWKQFRT
+	id S1424321AbWKQFWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 00:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162362AbWKQFWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 00:17:19 -0500
-Received: from vervifontaine.sonytel.be ([80.88.33.193]:54916 "EHLO
-	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
-	id S1162036AbWKQFRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 00:17:18 -0500
-Date: Fri, 17 Nov 2006 06:17:11 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg Ungerer <gerg@snapgear.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-m68k@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       uClinux list <uclinux-dev@uclinux.org>
-Subject: Re: m68knommu doesn't build upstream
-In-Reply-To: <1163739105.5940.431.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0611170615420.16998@pademelon.sonytel.be>
-References: <1163739105.5940.431.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Nov 2006 00:22:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:49385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1162361AbWKQFWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 00:22:12 -0500
+Date: Thu, 16 Nov 2006 21:21:58 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sleeping functions called in invalid context during resume
+Message-ID: <20061116212158.0ef99842@localhost.localdomain>
+In-Reply-To: <20061115180436.GB29795@elte.hu>
+References: <20061114223002.10c231bd@localhost.localdomain>
+	<20061115012025.13c72fc1.akpm@osdl.org>
+	<20061115093354.GA30813@elte.hu>
+	<20061115100119.460b7a4e@localhost.localdomain>
+	<20061115180436.GB29795@elte.hu>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006, Benjamin Herrenschmidt wrote:
-> While looking into getting rid of the old compat dma-mapping stuff,
-> which is only used by a handful of archs, I've built some cross
-> toolchains for those archs in order to at least test build my changes.
+
+> Stephen Hemminger <shemminger@osdl.org> wrote:
 > 
-> It looks however that one of them, m68knommu, doesn't build with
-> upstream git and a defconfig
-> 
->  In file included from arch/m68knommu/kernel/asm-offsets.c:18:
-> include/asm/irqnode.h:26: error: conflicting types for 'irq_handler_t'
-> include/linux/interrupt.h:67: error: previous declaration of 'irq_handler_t' was here
-> 
-> Is this arch bitrotting ?
+> > Lots of sleeping while atomic warnings on 2.6.19-rc5
+> > During resume I see the following:
+> > 
+> > 
+> > platform floppy.0: EARLY resume
+> > APIC error on CPU0: 00(00)
+> > PM: Finishing wakeup.
+> > BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
+> > in_atomic():1, irqs_disabled():0
+> > 
+> > Call Trace:  
+> >  [<ffffffff80266117>] show_trace+0x34/0x47
+> >  [<ffffffff8026613c>] dump_stack+0x12/0x17
+> >  [<ffffffff803734e5>] device_resume+0x19/0x51
+> >  [<ffffffff80292157>] enter_state+0x19b/0x1b5
+> >  [<ffffffff802921cf>] state_store+0x5e/0x79
+> >  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
+> >  [<ffffffff80215059>] vfs_write+0xce/0x174
+> >  [<ffffffff802159a5>] sys_write+0x45/0x6e
+> >  [<ffffffff802593de>] system_call+0x7e/0x83  
+> > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > 
 
-Maybe, although Greg announces updated versions on a regular basis.
+Ingo, the later version of your lockdep patch (with the x86_64 fix), worked.
+There is nothing locked during these errors.
 
-BTW, m68knommu is not really handled by linux-m68k. Please use uclinux-dev
-instead.
+The problem was the APIC error is leaving preempt-disabled.
 
-Gr{oetje,eeting}s,
+I have no idea what causes:
 
-						Geert
+APIC error on CPU0: 00(00)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Is it an ACPI problem?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

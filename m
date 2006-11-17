@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424819AbWKQAld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424822AbWKQAly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424819AbWKQAld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 19:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424821AbWKQAld
+	id S1424822AbWKQAly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 19:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424823AbWKQAli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 19:41:33 -0500
-Received: from mx1.suse.de ([195.135.220.2]:55680 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1424819AbWKQAlc (ORCPT
+	Thu, 16 Nov 2006 19:41:38 -0500
+Received: from mx1.suse.de ([195.135.220.2]:56960 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1424822AbWKQAlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 19:41:32 -0500
+	Thu, 16 Nov 2006 19:41:36 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 2/3] debugfs: check return value correctly
-Date: Thu, 16 Nov 2006 16:41:37 -0800
-Message-Id: <11637241024111-git-send-email-greg@kroah.com>
+Cc: Amol Lad <amol@verismonetworks.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 1/3] W1: ioremap balanced with iounmap
+Date: Thu, 16 Nov 2006 16:41:36 -0800
+Message-Id: <11637240981960-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.3.5
-In-Reply-To: <11637240981960-git-send-email-greg@kroah.com>
-References: <20061117000740.GB687@kroah.com> <11637240981960-git-send-email-greg@kroah.com>
+In-Reply-To: <20061117000740.GB687@kroah.com>
+References: <20061117000740.GB687@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Akinobu Mita <akinobu.mita@gmail.com>
+From: Amol Lad <amol@verismonetworks.com>
 
-The return value is stored in "*dentry", not in "dentry".
+ioremap must be balanced with iounmap in error path.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Please consider for 2.6.19.
+
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- fs/debugfs/inode.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/w1/masters/matrox_w1.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-index e77676d..a736d44 100644
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -147,13 +147,13 @@ static int debugfs_create_by_name(const
- 	*dentry = NULL;
- 	mutex_lock(&parent->d_inode->i_mutex);
- 	*dentry = lookup_one_len(name, parent, strlen(name));
--	if (!IS_ERR(dentry)) {
-+	if (!IS_ERR(*dentry)) {
- 		if ((mode & S_IFMT) == S_IFDIR)
- 			error = debugfs_mkdir(parent->d_inode, *dentry, mode);
- 		else 
- 			error = debugfs_create(parent->d_inode, *dentry, mode);
- 	} else
--		error = PTR_ERR(dentry);
-+		error = PTR_ERR(*dentry);
- 	mutex_unlock(&parent->d_inode->i_mutex);
+diff --git a/drivers/w1/masters/matrox_w1.c b/drivers/w1/masters/matrox_w1.c
+index 2788b8c..6f9d880 100644
+--- a/drivers/w1/masters/matrox_w1.c
++++ b/drivers/w1/masters/matrox_w1.c
+@@ -215,6 +215,8 @@ static int __devinit matrox_w1_probe(str
+ 	return 0;
  
- 	return error;
+ err_out_free_device:
++	if (dev->virt_addr)
++		iounmap(dev->virt_addr);
+ 	kfree(dev);
+ 
+ 	return err;
 -- 
 1.4.3.5
 

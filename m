@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424898AbWKQBmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424750AbWKQBuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424898AbWKQBmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 20:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424897AbWKQBmp
+	id S1424750AbWKQBuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 20:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424903AbWKQBuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 20:42:45 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41698 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1424898AbWKQBmo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 20:42:44 -0500
-Date: Fri, 17 Nov 2006 12:40:51 +1100
-From: David Chinner <dgc@sgi.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Chinner <dgc@sgi.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Alasdair G Kergon <agk@redhat.com>, Eric Sandeen <sandeen@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       dm-devel@redhat.com, Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061117014051.GM11034@melbourne.sgi.com>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061110103942.GG3196@elf.ucw.cz> <20061112223012.GH11034@melbourne.sgi.com> <200611122343.06625.rjw@sisk.pl> <20061116232349.GI11034@melbourne.sgi.com> <20061116234053.GC6757@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Nov 2006 20:50:08 -0500
+Received: from 82-71-49-12.dsl.in-addr.zen.co.uk ([82.71.49.12]:36032 "EHLO
+	mail.lidskialf.net") by vger.kernel.org with ESMTP id S1424750AbWKQBuH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Nov 2006 20:50:07 -0500
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [PATCH/RFC] kthread API conversion for dvb_frontend and av7110
+Date: Fri, 17 Nov 2006 01:50:01 +0000
+User-Agent: KMail/1.9.4
+Cc: Cedric Le Goater <clg@fr.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       v4l-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>
+References: <45019CC3.2030709@fr.ibm.com> <4509C4A5.5030600@fr.ibm.com> <20060914221024.GB26916@MAIL.13thfloor.at>
+In-Reply-To: <20060914221024.GB26916@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061116234053.GC6757@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200611170150.02207.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 12:40:53AM +0100, Pavel Machek wrote:
-> On Fri 2006-11-17 10:23:49, David Chinner wrote:
-> > On Sun, Nov 12, 2006 at 11:43:05PM +0100, Rafael J. Wysocki wrote:
-> > > On Sunday, 12 November 2006 23:30, David Chinner wrote:
-> > > > And how does freezing them at that point in time guarantee consistent
-> > > > filesystem state?
-> > > 
-> > > If the work queues are frozen, there won't be any fs-related activity _after_
-> > > we create the suspend image. 
-> > 
-> > fs-related activity before or after the suspend image is captured is
-> > not a problem - it's fs-related activity _during_ the suspend that
-> > is an issue here. If we have async I/O completing during the suspend
-> > image capture, we've got problems....
-> 
-> fs-related activity _after_ image is captured definitely is a problem
-> -- it breaks swsusp invariants.
-> 
-> During image capture, any fs-related activity is not possible, as we
-> are running interrupts disabled, DMA disabled.
+[snip]
 
-Ok, so the I/o that finishes during the image capture won't be reported
-until after the capture completes. that means we lose the capability
-to even run the I/O completion on those buffers once we get to
-resume.
+> correct, will fix that up in the next round
+>
+> thanks for the feedback,
+> Herbert
 
-They've already been issued, so will be locked and never issued
-again because the suspend image says they've been issued, but they'll
-never complete on resume because their completion status was
-updated after the capture was taken and will never be recreated
-after resume. IOWs, the fileystem will start to hang on the next
-reference to any of these locked buffers that the filesystem
-thinks is still under I/O....
+Hi - the conversion looks good to me.. I can't really offer any more 
+constructive suggestions beyond what Cedric has already said. 
 
-Freezing the workqueues doesn't fix this.....
+Theres another thread in dvb_ca_en50221.c that could be converted as well 
+though, hint hint ;)
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Apologies for the delay in this reply - I've been hibernating for a bit.

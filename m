@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424321AbWKQFWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424761AbWKQFZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424321AbWKQFWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 00:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162362AbWKQFWN
+	id S1424761AbWKQFZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 00:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162363AbWKQFZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 00:22:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1162361AbWKQFWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 00:22:12 -0500
-Date: Thu, 16 Nov 2006 21:21:58 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: sleeping functions called in invalid context during resume
-Message-ID: <20061116212158.0ef99842@localhost.localdomain>
-In-Reply-To: <20061115180436.GB29795@elte.hu>
-References: <20061114223002.10c231bd@localhost.localdomain>
-	<20061115012025.13c72fc1.akpm@osdl.org>
-	<20061115093354.GA30813@elte.hu>
-	<20061115100119.460b7a4e@localhost.localdomain>
-	<20061115180436.GB29795@elte.hu>
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
+	Fri, 17 Nov 2006 00:25:09 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:38540 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S1162362AbWKQFZH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 00:25:07 -0500
+Date: Fri, 17 Nov 2006 00:27:55 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Christian Hoffmann <chrmhoffmann@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Linux-fbdev-devel] Fwd: [Suspend-devel] resume not working on acer ferrari 4005 with radeonfb enabled
+Message-ID: <20061117052755.GA23831@shaftnet.org>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	Christian Hoffmann <chrmhoffmann@gmail.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Christian Hoffmann <Christian.Hoffmann@wallstreetsystems.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <D0233BCDB5857443B48E64A79E24B8CE6B544C@labex2.corp.trema.com> <200611151109.06956.rjw@sisk.pl> <200611162317.30880.chrmhoffmann@gmail.com> <200611162344.41622.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+In-Reply-To: <200611162344.41622.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Fri, 17 Nov 2006 00:27:57 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> 
-> > Lots of sleeping while atomic warnings on 2.6.19-rc5
-> > During resume I see the following:
-> > 
-> > 
-> > platform floppy.0: EARLY resume
-> > APIC error on CPU0: 00(00)
-> > PM: Finishing wakeup.
-> > BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
-> > in_atomic():1, irqs_disabled():0
-> > 
-> > Call Trace:  
-> >  [<ffffffff80266117>] show_trace+0x34/0x47
-> >  [<ffffffff8026613c>] dump_stack+0x12/0x17
-> >  [<ffffffff803734e5>] device_resume+0x19/0x51
-> >  [<ffffffff80292157>] enter_state+0x19b/0x1b5
-> >  [<ffffffff802921cf>] state_store+0x5e/0x79
-> >  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
-> >  [<ffffffff80215059>] vfs_write+0xce/0x174
-> >  [<ffffffff802159a5>] sys_write+0x45/0x6e
-> >  [<ffffffff802593de>] system_call+0x7e/0x83  
-> > DWARF2 unwinder stuck at system_call+0x7e/0x83
-> > 
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ingo, the later version of your lockdep patch (with the x86_64 fix), worked.
-There is nothing locked during these errors.
+On Thu, Nov 16, 2006 at 11:44:40PM +0100, Rafael J. Wysocki wrote:
+> I think the call to radeon_restore_pci_cfg(rinfo) causes the problem to h=
+appen.
 
-The problem was the APIC error is leaving preempt-disabled.
+radeonfb is still using its own code for saving and restoring PCI=20
+registers; I'm in the process of fixing it up to use proper PCI
+subsystem calls.  That will hopefully work better.  =20
 
-I have no idea what causes:
+It's possible there's a good reason (other than "nobody's ported it over=20
+yet") that the radeonfb driver is doing it manually, but I don't know=20
+why that would be the case. =20
 
-APIC error on CPU0: 00(00)
+ - Solomon
+--=20
+Solomon Peachy        		       pizza at shaftnet dot org	=20
+Melbourne, FL                          ^^ (mail/jabber/gtalk) ^^
+Quidquid latine dictum sit, altum viditur.          ICQ: 1318344
 
-Is it an ACPI problem?
 
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQFFXUhbPuLgii2759ARAoM7AJ92AH2t3kpROkjO2Pwtx7sWt5U1xQCgvUx1
+T00pEpjZeRpDE3iOB7ZgqWQ=
+=a402
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

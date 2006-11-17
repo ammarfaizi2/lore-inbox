@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755922AbWKQVCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755921AbWKQVDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755922AbWKQVCL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755926AbWKQVCK
+	id S1755921AbWKQVDa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755918AbWKQVD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:02:10 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:40097 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755923AbWKQVCF
+	Fri, 17 Nov 2006 16:03:29 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:50144 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1755906AbWKQVBv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:02:05 -0500
+	Fri, 17 Nov 2006 16:01:51 -0500
 From: "Darrick J. Wong" <djwong@us.ibm.com>
-Subject: [PATCH 15/15] sas_ata: Make this a module separate from libsas
-Date: Fri, 17 Nov 2006 13:08:33 -0800
+Subject: [PATCH 10/15] aic94xx: Don't call pci_map_sg for already-mapped scatterlists
+Date: Fri, 17 Nov 2006 13:08:17 -0800
 To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: alexisb@us.ibm.com
-Message-Id: <20061117210833.17052.41537.stgit@localhost.localdomain>
+Message-Id: <20061117210817.17052.27478.stgit@localhost.localdomain>
 In-Reply-To: <20061117210737.17052.67041.stgit@localhost.localdomain>
 References: <20061117210737.17052.67041.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,77 +24,90 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Break out sas_ata as a free-standing module that provides a SATA
-Translation Layer (SATL) for libsas.  This patch requires the libsas
-SATL registration patch; the changes to sas_ata itself are rather
-minor.
+It turns out that libata has already dma_map_sg'd the scatterlist
+entries that go with an ata_queued_cmd by the time it calls
+sas_ata_qc_issue.  sas_ata_qc_issue passes this scatterlist to aic94xx. 
+Unfortunately, aic94xx assumes that any scatterlist passed to it needs
+to be pci_map_sg'd... which blows away the mapping that libata created! 
+This causes (on a x260) Calgary IOMMU table leaks and duplicate frees
+when aic94xx and libata try to {pci,dma}_unmap_sg the scatterlist. 
+
+Since dma_map_sg and pci_map_sg are fed the same struct device, I think
+it's safe to add a flag to sas_task that tells aic94xx that it need
+not map the scatterlist.  It didn't break anything on the x260, though
+I don't have any SATAPI devices handy for testing.
 
 Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 ---
 
- drivers/scsi/libsas/Makefile  |    5 +++--
- drivers/scsi/libsas/sas_ata.c |   34 ++++++++++++++++++++++++++++++++--
- 2 files changed, 35 insertions(+), 4 deletions(-)
+ drivers/scsi/aic94xx/aic94xx_task.c |   17 +++++++++++------
+ drivers/scsi/libsas/sas_ata.c       |    1 +
+ include/scsi/libsas.h               |    1 +
+ 3 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/libsas/Makefile b/drivers/scsi/libsas/Makefile
-index 6383eb5..5e95902 100644
---- a/drivers/scsi/libsas/Makefile
-+++ b/drivers/scsi/libsas/Makefile
-@@ -33,5 +33,6 @@ libsas-y +=  sas_init.o     \
- 		sas_dump.o     \
- 		sas_discover.o \
- 		sas_expander.o \
--		sas_scsi_host.o \
--		sas_ata.o
-+		sas_scsi_host.o
-+
-+obj-$(CONFIG_SCSI_SAS_SATL) += sas_ata.o
-diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
-index 7338775..bfaee88 100644
---- a/drivers/scsi/libsas/sas_ata.c
-+++ b/drivers/scsi/libsas/sas_ata.c
-@@ -398,8 +398,8 @@ static struct ata_port_info sata_port_in
- 	.port_ops = &sas_sata_ops
- };
+diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
+index 466b492..f801c64 100644
+--- a/drivers/scsi/aic94xx/aic94xx_task.c
++++ b/drivers/scsi/aic94xx/aic94xx_task.c
+@@ -74,8 +74,11 @@ static inline int asd_map_scatterlist(st
+ 		return 0;
+ 	}
  
--int sas_ata_init_host_and_port(struct domain_device *found_dev,
--			       struct scsi_target *starget)
-+static int sas_ata_init_host_and_port(struct domain_device *found_dev,
-+				      struct scsi_target *starget)
- {
- 	struct Scsi_Host *shost = dev_to_shost(&starget->dev);
- 	struct sas_ha_struct *ha = SHOST_TO_SAS_HA(shost);
-@@ -424,3 +424,33 @@ int sas_ata_init_host_and_port(struct do
+-	num_sg = pci_map_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
+-			    task->data_dir);
++	if (task->external_sg)
++		num_sg = task->num_scatter;
++	else
++		num_sg = pci_map_sg(asd_ha->pcidev, task->scatter,
++				    task->num_scatter, task->data_dir);
+ 	if (num_sg == 0)
+ 		return -ENOMEM;
+ 
+@@ -120,8 +123,9 @@ static inline int asd_map_scatterlist(st
  
  	return 0;
+ err_unmap:
+-	pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
+-		     task->data_dir);
++	if (!task->external_sg)
++		pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
++			     task->data_dir);
+ 	return res;
  }
-+
-+/* Module initialization */
-+static struct satl_operations sas_ata_ops = {
-+	.owner			= THIS_MODULE,
-+	.init_target		= sas_ata_init_host_and_port,
-+	.queuecommand		= ata_sas_queuecmd,
-+	.ioctl			= ata_scsi_ioctl,
-+	.configure_port		= ata_sas_slave_configure,
-+	.deactivate_port	= ata_port_disable,
-+	.destroy_port		= ata_sas_port_destroy,
-+	.init_port		= ata_sas_port_init
-+};
-+
-+static int __init sas_ata_init(void)
-+{
-+	return sas_register_satl(&sas_ata_ops);
-+}
-+
-+static void __exit sas_ata_exit(void)
-+{
-+	sas_unregister_satl(&sas_ata_ops);
-+}
-+
-+module_init(sas_ata_init);
-+module_exit(sas_ata_exit);
-+
-+MODULE_AUTHOR("Darrick Wong <djwong@us.ibm.com>");
-+MODULE_DESCRIPTION("libata SATL for SAS");
-+MODULE_LICENSE("GPL v2");
-+MODULE_VERSION("1.0");
+ 
+@@ -142,8 +146,9 @@ static inline void asd_unmap_scatterlist
+ 	}
+ 
+ 	asd_free_coherent(asd_ha, ascb->sg_arr);
+-	pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
+-		     task->data_dir);
++	if (!task->external_sg)
++		pci_unmap_sg(asd_ha->pcidev, task->scatter, task->num_scatter,
++			     task->data_dir);
+ }
+ 
+ /* ---------- Task complete tasklet ---------- */
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index 209f402..77860ab 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -169,6 +169,7 @@ static unsigned int sas_ata_qc_issue(str
+ 		task->num_scatter = num;
+ 	}
+ 
++	task->external_sg = 1;
+ 	task->data_dir = qc->dma_dir;
+ 	task->scatter = qc->__sg;
+ 	task->ata_task.retry_count = 1;
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index a06cbde..7dcf593 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -538,6 +538,7 @@ struct sas_task {
+ 	void   *uldd_task;
+ 
+ 	struct work_struct abort_work;
++	int    external_sg;
+ };
+ 
+ 

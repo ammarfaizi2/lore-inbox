@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424564AbWKQPQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755706AbWKQPSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424564AbWKQPQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162420AbWKQPQQ
+	id S1755706AbWKQPSh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755707AbWKQPSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:16:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45292 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S933662AbWKQPQP (ORCPT
+	Fri, 17 Nov 2006 10:18:37 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46316 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1755704AbWKQPSg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:16:15 -0500
-Date: Fri, 17 Nov 2006 16:15:59 +0100
+	Fri, 17 Nov 2006 10:18:36 -0500
+Date: Fri, 17 Nov 2006 16:18:21 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117151559.GC8859@elf.ucw.cz>
-References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH -mm] freeze/thaw fs when BLOCK=n
+Message-ID: <20061117151820.GA8867@elf.ucw.cz>
+References: <20061116213600.9983f4f9.randy.dunlap@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117151341.GA1162@srcf.ucam.org>
+In-Reply-To: <20061116213600.9983f4f9.randy.dunlap@oracle.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2006-11-17 15:13:41, Matthew Garrett wrote:
-> On Fri, Nov 17, 2006 at 11:22:38AM +0100, David Weinehall wrote:
-> 
-> > That was with 2.6.17; with 2.7.19-pre? (don't remember right now),
-> > docking seems to work without acpiphp.  It still would be nice to be
-> > able to undock when the laptop is sleeping though; how do I achieve
-> > that?
-> 
-> My experience of most laptops is that they'll fire off a bus check 
-> notification when you resume, so as long as nothing actually tries to 
-> access the hardware before that's handled, everything should be fine. 
-> What currently breaks when you undock while asleep?
+Hi!
 
-(At least some versions of dock can't undock -- physically -- when not
-powered. Something is locked inside, and won't unlock without electricity).
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> 
+> Fix freeze/thaw filesystems with CONFIG_BLOCK disabled:
+> kernel/power/process.c:124: warning: implicit declaration of function 'freeze_fil
+> esystems'
+> kernel/power/process.c:189: warning: implicit declaration of function 'thaw_files
+> ystems'
+> 
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+
+I believe we'll simply want to remove {thaw,freeze}_filesystems. XFS
+problem is solved with freezeable workqueues, and
+{thaw,freeze}_filesystems has problems if someone is creating dm
+snapshots in the meantime.
 								Pavel
+
+> ---
+>  include/linux/buffer_head.h |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> --- linux-2619-rc5mm2.orig/include/linux/buffer_head.h
+> +++ linux-2619-rc5mm2/include/linux/buffer_head.h
+> @@ -314,7 +314,8 @@ static inline void invalidate_inode_buff
+>  static inline int remove_inode_buffers(struct inode *inode) { return 1; }
+>  static inline int sync_mapping_buffers(struct address_space *mapping) { return 0; }
+>  static inline void invalidate_bdev(struct block_device *bdev, int destroy_dirty_buffers) {}
+> -
+> +static inline void freeze_filesystems(void) {}
+> +static inline void thaw_filesystems(void) {}
+>  
+>  #endif /* CONFIG_BLOCK */
+>  #endif /* _LINUX_BUFFER_HEAD_H */
+> 
+> 
+> ---
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

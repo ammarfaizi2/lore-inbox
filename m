@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755945AbWKQVma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755949AbWKQVqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755945AbWKQVma (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 16:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755947AbWKQVma
+	id S1755949AbWKQVqO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 16:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755950AbWKQVqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 16:42:30 -0500
-Received: from mail.ggsys.net ([69.26.161.131]:20145 "EHLO mail.ggsys.net")
-	by vger.kernel.org with ESMTP id S1755945AbWKQVma (ORCPT
+	Fri, 17 Nov 2006 16:46:14 -0500
+Received: from hera.kernel.org ([140.211.167.34]:52382 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1755949AbWKQVqN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 16:42:30 -0500
-Subject: Re: qstor driver -> irq 193: nobody cared
-From: Alberto Alonso <alberto@ggsys.net>
-To: Mark Lord <lkml@rtr.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <455C6D48.8040501@rtr.ca>
-References: <1162576973.3967.10.camel@w100>  <454CDE6E.5000507@rtr.ca>
-	 <1163180185.28843.13.camel@w100>  <4556AC74.3010000@rtr.ca>
-	 <1163363479.3423.8.camel@w100>  <45588132.9090200@rtr.ca>
-	 <1163479852.3340.9.camel@w100>  <4559F2EE.7080309@rtr.ca>
-	 <1163528258.3340.23.camel@w100>  <455A09A5.2020200@rtr.ca>
-	 <1163658952.3416.13.camel@w100>  <455C6D48.8040501@rtr.ca>
-Content-Type: text/plain
-Organization: Global Gate Systems LLC.
-Date: Fri, 17 Nov 2006 15:42:22 -0600
-Message-Id: <1163799742.3484.12.camel@w100>
+	Fri, 17 Nov 2006 16:46:13 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Read/Write multiple network FDs in a single syscall context
+ switch?
+Date: Fri, 17 Nov 2006 13:45:29 -0800
+Organization: OSDL
+Message-ID: <20061117134529.544d67b9@freekitty>
+References: <5A09CDB9FC09B1478DF679F4C698D1DB5CA2D5@johnleehooker.bluenote.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+X-Trace: build.pdx.osdl.net 1163799929 30565 10.8.0.54 (17 Nov 2006 21:45:29 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 17 Nov 2006 21:45:29 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by hera.kernel.org id kAHLjcHt013720
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI: trying with just the first patch didn't work. I got
-the usual:
+On Fri, 17 Nov 2006 16:40:30 -0500
+"Marc Snider" <msnider@bluenotenetworks.com> wrote:
 
-irq 185: nobody cared (try booting with the "irqpoll" option)
- <c013e19a> __report_bad_irq+0x2a/0xa0  <c013d970> handle_IRQ_event
-+0x30/0x70
- <c013e2b0> note_interrupt+0x80/0xf0  <c013da8c> __do_IRQ+0xdc/0xf0
- <c0105799> do_IRQ+0x19/0x30  <c010391a> common_interrupt+0x1a/0x20
- <c0100d91> default_idle+0x41/0x70  <c0100e60> cpu_idle+0x80/0x90
-handlers:
-[<c0301300>] (qs_intr+0x0/0x230)
-Disabling IRQ #185
+> I've searched long and hard prior to posting here, but have been unable to locate a kernel mechanism providing the ability to read or write multiple FDs in a single userspace to kernel context switch.
+> 
+> We've got a userspace network application that uses epoll to wait for packet arrival and then reads a single frame off of dozens of separate FDs (sockets), operates on the payload and then forwards along by writing to dozens of other separate FDs (sockets).   At high loads we invariably have many dozens of socket FDs to read and write.
+> 
+> If 50 separate frames are received on 50 separate sockets then we are at present doing 50 separate reads and then 50 separate writes, thus resulting in over a hundred distinct (and seemingly unnecessary) user to kernel space and kernel to user space context switches.   Is there a mechanism I've missed which allows many network FDs to be read or written in a single syscall?   For example, something analogous to the recv() and send() calls but instead providing a vector for the parameters and return value?
+> 
+> I picture something like:
+> 
+>      ssize_t *recvMultiple(int *s, void **buf, size_t *len, int *flags)         and
+>      ssize_t *sendMultiple(int *s, void **buf, size_t *len, int *flags)
+> 
+> 
+> The user would have to be careful about not using blocking sockets with these types of multiple FD operations, but it seems to me that such a kernel mechanism would allow a user space process to eliminate dozens or even hundreds of unnecessary context switches when servicing multiple network FDs...    The cycle savings for an application like ours would be huge.   I am confused about why I've been unable to locate such a mechanism considering the perceived performance advantages and ubiquitous nature of user applications that service many network FDs...
+> 
+> If it's not too much trouble then I'd appreciate if those answering could CC: me on any responses.
+> 
+> 
+> Regards,
+> 
+> Marc Snider
+> msnider@bluenotenetworks.com
 
-Interestingly enough this is the first time I see it outside
-of irq 193, not that it matter though.
 
-I am going to try now with the second patch instead.
-
-Alberto
+No there is no API like this. You will have all sorts of problems to consider like
+what if there is no data on some of the sockets, or you are flow blocked or lots of
+other issues. If the data is all the same then why not use multicast?
 
 
-On Thu, 2006-11-16 at 08:53 -0500, Mark Lord wrote:
-> Alberto Alonso wrote:
-> > Sorry for the long delay, I've been called on too
-> > many issues at work this week.
-> > 
-> > Anyway, the patch basically made the drives not usable.
-> 
-> Mmm.. Okay, thanks for helping track this down.
-> 
-> It appears that this got broken when the ATA_TFLAG_POLLING
-> got introduced into libata, replacing previous checks of ATA_NIEN.
-> Or maybe even before that.  Not many of us have qstor cards!
-> 
-> Speaking of which, I'll dig my own qstor card out of mothballs soon,
-> and work out a proper fix for it soon-ish.
-> 
-> In the meanwhile, could you take a clean kernel, and apply the first
-> attached patch (qstor_spurious_1.patch), and see if it fixes things.
-> 
-> If not, then you can instead apply the second patch (qstor_spurious_kludge.patch)
-> and your problems should disappear.  But I cannot actually push that rubbish
-> upstream, so a "proper" fix will have to come later.
-> 
-> Cheers
 -- 
-Alberto Alonso                        Global Gate Systems LLC.
-(512) 351-7233                        http://www.ggsys.net
-Hardware, consulting, sysadmin, monitoring and remote backups
+Stephen Hemminger <shemminger@osdl.org>
 

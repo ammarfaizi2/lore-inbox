@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755706AbWKQPSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755723AbWKQPWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755706AbWKQPSh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755707AbWKQPSh
+	id S1755723AbWKQPWc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:22:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755724AbWKQPWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:18:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46316 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1755704AbWKQPSg (ORCPT
+	Fri, 17 Nov 2006 10:22:32 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:53175 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1755722AbWKQPWb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:18:36 -0500
-Date: Fri, 17 Nov 2006 16:18:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH -mm] freeze/thaw fs when BLOCK=n
-Message-ID: <20061117151820.GA8867@elf.ucw.cz>
-References: <20061116213600.9983f4f9.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061116213600.9983f4f9.randy.dunlap@oracle.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 17 Nov 2006 10:22:31 -0500
+Subject: Re: [PATCH] usb: generic calibration support
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Holger Schurig <hs4233@mail.mn-solutions.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Daniel Ritz <daniel.ritz-ml@swissonline.ch>, daniel.ritz@gmx.ch,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <200611171553.38164.hs4233@mail.mn-solutions.de>
+References: <200611161125.38901.hs4233@mail.mn-solutions.de>
+	 <200611170912.29317.hs4233@mail.mn-solutions.de>
+	 <d120d5000611170616m73268428me0840444bca73dff@mail.gmail.com>
+	 <200611171553.38164.hs4233@mail.mn-solutions.de>
+Content-Type: text/plain
+Date: Fri, 17 Nov 2006 15:22:06 +0000
+Message-Id: <1163776926.5551.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2006-11-17 at 15:53 +0100, Holger Schurig wrote:
+> > I believe tslib handles this.
+> 
+> The special X server "KDrive" supports tslib, this is used in 
+> many embedded projects, e.g. by images created via 
+> http://www.openembedded.org. But mainline X.org server, e.g. 
+> what is in Debian unstable (7.1.0), doesn't support tslib.
 
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> 
-> Fix freeze/thaw filesystems with CONFIG_BLOCK disabled:
-> kernel/power/process.c:124: warning: implicit declaration of function 'freeze_fil
-> esystems'
-> kernel/power/process.c:189: warning: implicit declaration of function 'thaw_files
-> ystems'
-> 
-> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+Someone should add tslib support to the main xorg server then ;-). All
+tslib supported devices will then just work...
 
-I believe we'll simply want to remove {thaw,freeze}_filesystems. XFS
-problem is solved with freezeable workqueues, and
-{thaw,freeze}_filesystems has problems if someone is creating dm
-snapshots in the meantime.
-								Pavel
+> Also I don't know if X/tslib allows re-calibration on-the-fly, 
+> but I guess it does. 
 
-> ---
->  include/linux/buffer_head.h |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> --- linux-2619-rc5mm2.orig/include/linux/buffer_head.h
-> +++ linux-2619-rc5mm2/include/linux/buffer_head.h
-> @@ -314,7 +314,8 @@ static inline void invalidate_inode_buff
->  static inline int remove_inode_buffers(struct inode *inode) { return 1; }
->  static inline int sync_mapping_buffers(struct address_space *mapping) { return 0; }
->  static inline void invalidate_bdev(struct block_device *bdev, int destroy_dirty_buffers) {}
-> -
-> +static inline void freeze_filesystems(void) {}
-> +static inline void thaw_filesystems(void) {}
->  
->  #endif /* CONFIG_BLOCK */
->  #endif /* _LINUX_BUFFER_HEAD_H */
-> 
-> 
-> ---
+It does.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> However, tslib usually does not work via 
+> the input subsystem (/dev/input/eventX is just one of them), 
+> most devices use proprietary kernel interfaces.
+
+tslib does work via the input subsystem for almost every 2.6 kernel
+based device I can think of in OpenEmbedded and we made an active effort
+to get into that position. The only proprietary interfaces are old 2.4
+kernels.
+
+> Qt/Embedded for Qt 2 and Qt 3 doesn't handle tslib 
+> out-of-the-box, (heck, the don't even know 
+> about /dev/input/eventX), but patches exist.
+
+Qt/E 2/3 have a ton of other input issues beside this (e.e keymap
+problems) so the lack of merged tslib support is only a minor one and as
+you say, patches exist.
+
+IMO, calibration in the kernel would be a backwards step (especially
+when tslib can do more besides like filtering and hopefully in the
+future rescaling).
+
+Regards,
+
+Richard
+

@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933639AbWKQPOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424564AbWKQPQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933639AbWKQPOK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933655AbWKQPOK
+	id S1424564AbWKQPQR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162420AbWKQPQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:14:10 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59342 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S933639AbWKQPOH (ORCPT
+	Fri, 17 Nov 2006 10:16:16 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45292 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S933662AbWKQPQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:14:07 -0500
-Date: Fri, 17 Nov 2006 16:13:48 +0100
+	Fri, 17 Nov 2006 10:16:15 -0500
+Date: Fri, 17 Nov 2006 16:15:59 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
-       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Srinivasa DS <srinivasa@in.ibm.com>,
-       Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
-Message-ID: <20061117151348.GA8859@elf.ucw.cz>
-References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061110103942.GG3196@elf.ucw.cz> <20061112223012.GH11034@melbourne.sgi.com> <200611122343.06625.rjw@sisk.pl> <20061116232349.GI11034@melbourne.sgi.com> <20061116234053.GC6757@elf.ucw.cz> <20061117014051.GM11034@melbourne.sgi.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <linux-acpi@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061117151559.GC8859@elf.ucw.cz>
+References: <20061101115618.GA1683@elf.ucw.cz> <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117014051.GM11034@melbourne.sgi.com>
+In-Reply-To: <20061117151341.GA1162@srcf.ucam.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2006-11-17 12:40:51, David Chinner wrote:
-> On Fri, Nov 17, 2006 at 12:40:53AM +0100, Pavel Machek wrote:
-> > On Fri 2006-11-17 10:23:49, David Chinner wrote:
-> > > On Sun, Nov 12, 2006 at 11:43:05PM +0100, Rafael J. Wysocki wrote:
-> > > > On Sunday, 12 November 2006 23:30, David Chinner wrote:
-> > > > > And how does freezing them at that point in time guarantee consistent
-> > > > > filesystem state?
-> > > > 
-> > > > If the work queues are frozen, there won't be any fs-related activity _after_
-> > > > we create the suspend image. 
-> > > 
-> > > fs-related activity before or after the suspend image is captured is
-> > > not a problem - it's fs-related activity _during_ the suspend that
-> > > is an issue here. If we have async I/O completing during the suspend
-> > > image capture, we've got problems....
-> > 
-> > fs-related activity _after_ image is captured definitely is a problem
-> > -- it breaks swsusp invariants.
-> > 
-> > During image capture, any fs-related activity is not possible, as we
-> > are running interrupts disabled, DMA disabled.
+On Fri 2006-11-17 15:13:41, Matthew Garrett wrote:
+> On Fri, Nov 17, 2006 at 11:22:38AM +0100, David Weinehall wrote:
 > 
-> Ok, so the I/o that finishes during the image capture won't be reported
-> until after the capture completes. that means we lose the capability
+> > That was with 2.6.17; with 2.7.19-pre? (don't remember right now),
+> > docking seems to work without acpiphp.  It still would be nice to be
+> > able to undock when the laptop is sleeping though; how do I achieve
+> > that?
+> 
+> My experience of most laptops is that they'll fire off a bus check 
+> notification when you resume, so as long as nothing actually tries to 
+> access the hardware before that's handled, everything should be fine. 
+> What currently breaks when you undock while asleep?
 
-There's no I/O in flight during image capture. Interrupts are
-disabled, DMAs are stopped, and drivers were told to shut down (that
-includes finishing any outstanding work, and drivers do that
-currently; but perhaps docs should be more explicit about it).
+(At least some versions of dock can't undock -- physically -- when not
+powered. Something is locked inside, and won't unlock without electricity).
 								Pavel
-
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

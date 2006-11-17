@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424771AbWKQFlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424768AbWKQFlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424771AbWKQFlr (ORCPT <rfc822;willy@w.ods.org>);
+	id S1424768AbWKQFlr (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 17 Nov 2006 00:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424769AbWKQFlp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424770AbWKQFlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 00:41:45 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:65150 "EHLO
+	Fri, 17 Nov 2006 00:41:46 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:895 "EHLO
 	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1162375AbWKQFlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 00:41:40 -0500
-Date: Thu, 16 Nov 2006 21:36:48 -0800
+	id S1162376AbWKQFll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 00:41:41 -0500
+Date: Thu, 16 Nov 2006 21:36:00 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] ftape: fix printk format warnings
-Message-Id: <20061116213648.16b35f50.randy.dunlap@oracle.com>
+Cc: pavel@suse.cz, akpm <akpm@osdl.org>
+Subject: [PATCH -mm] freeze/thaw fs when BLOCK=n
+Message-Id: <20061116213600.9983f4f9.randy.dunlap@oracle.com>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,37 +29,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Fix printk format warnings:
-drivers/char/ftape/zftape/zftape-buffers.c:87: warning: format '%d' expects type 
-'int', but argument 3 has type 'size_t'
-drivers/char/ftape/zftape/zftape-buffers.c:104: warning: format '%d' expects type
- 'int', but argument 3 has type 'size_t'
+Fix freeze/thaw filesystems with CONFIG_BLOCK disabled:
+kernel/power/process.c:124: warning: implicit declaration of function 'freeze_fil
+esystems'
+kernel/power/process.c:189: warning: implicit declaration of function 'thaw_files
+ystems'
 
 Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 ---
- drivers/char/ftape/zftape/zftape-buffers.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/buffer_head.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- linux-2619-rc5mm2.orig/drivers/char/ftape/zftape/zftape-buffers.c
-+++ linux-2619-rc5mm2/drivers/char/ftape/zftape/zftape-buffers.c
-@@ -85,7 +85,7 @@ int zft_vmalloc_once(void *new, size_t s
- 		peak_memory = used_memory;
- 	}
- 	TRACE_ABORT(0, ft_t_noise,
--		    "allocated buffer @ %p, %d bytes", *(void **)new, size);
-+		    "allocated buffer @ %p, %zd bytes", *(void **)new, size);
- }
- int zft_vmalloc_always(void *new, size_t size)
- {
-@@ -101,7 +101,7 @@ void zft_vfree(void *old, size_t size)
- 	if (*(void **)old) {
- 		vfree(*(void **)old);
- 		used_memory -= size;
--		TRACE(ft_t_noise, "released buffer @ %p, %d bytes",
-+		TRACE(ft_t_noise, "released buffer @ %p, %zd bytes",
- 		      *(void **)old, size);
- 		*(void **)old = NULL;
- 	}
+--- linux-2619-rc5mm2.orig/include/linux/buffer_head.h
++++ linux-2619-rc5mm2/include/linux/buffer_head.h
+@@ -314,7 +314,8 @@ static inline void invalidate_inode_buff
+ static inline int remove_inode_buffers(struct inode *inode) { return 1; }
+ static inline int sync_mapping_buffers(struct address_space *mapping) { return 0; }
+ static inline void invalidate_bdev(struct block_device *bdev, int destroy_dirty_buffers) {}
+-
++static inline void freeze_filesystems(void) {}
++static inline void thaw_filesystems(void) {}
+ 
+ #endif /* CONFIG_BLOCK */
+ #endif /* _LINUX_BUFFER_HEAD_H */
 
 
 ---

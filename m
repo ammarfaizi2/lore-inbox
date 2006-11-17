@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933700AbWKQQXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933711AbWKQQaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933700AbWKQQXT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933698AbWKQQXS
+	id S933711AbWKQQaj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933713AbWKQQaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:23:18 -0500
-Received: from nat-132.atmel.no ([80.232.32.132]:21187 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S933699AbWKQQXR (ORCPT
+	Fri, 17 Nov 2006 11:30:39 -0500
+Received: from [65.172.181.25] ([65.172.181.25]:6109 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933711AbWKQQai (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:23:17 -0500
-Date: Fri, 17 Nov 2006 17:22:58 +0100
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Wojtek Kaniewski <wojtekka@toxygen.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH take 2] Atmel MACB ethernet driver
-Message-ID: <20061117172258.51bec4a3@cad-250-152.norway.atmel.com>
-In-Reply-To: <455C8FB4.8000200@toxygen.net>
-References: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
-	<455C8FB4.8000200@toxygen.net>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Fri, 17 Nov 2006 11:30:38 -0500
+Date: Fri, 17 Nov 2006 08:30:08 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: sleeping functions called in invalid context during resume
+Message-ID: <20061117083008.7758149a@localhost.localdomain>
+In-Reply-To: <200611171646.05860.rjw@sisk.pl>
+References: <20061114223002.10c231bd@localhost.localdomain>
+	<20061116212158.0ef99842@localhost.localdomain>
+	<20061117065202.GA11877@elte.hu>
+	<200611171646.05860.rjw@sisk.pl>
+X-Mailer: Sylpheed-Claws 2.5.6 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2006 17:20:04 +0100
-Wojtek Kaniewski <wojtekka@toxygen.net> wrote:
+On Fri, 17 Nov 2006 16:46:05 +0100
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> Haavard Skinnemoen wrote:
-> > Driver for the Atmel MACB on-chip ethernet module.
+> On Friday, 17 November 2006 07:52, Ingo Molnar wrote:
 > > 
-> > Tested on AVR32/AT32AP7000/ATSTK1000. I've heard rumours that it
-> > works with AT91SAM9260 as well, and it may be possible to share
-> > some code with the at91_ether driver for AT91RM9200.
+> > * Stephen Hemminger <shemminger@osdl.org> wrote:
+> > 
+> > > > > BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
+> > > > > in_atomic():1, irqs_disabled():0
+> > > > > 
+> > > > > Call Trace:  
+> > > > >  [<ffffffff80266117>] show_trace+0x34/0x47
+> > > > >  [<ffffffff8026613c>] dump_stack+0x12/0x17
+> > > > >  [<ffffffff803734e5>] device_resume+0x19/0x51
+> > > > >  [<ffffffff80292157>] enter_state+0x19b/0x1b5
+> > > > >  [<ffffffff802921cf>] state_store+0x5e/0x79
+> > > > >  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
+> > > > >  [<ffffffff80215059>] vfs_write+0xce/0x174
+> > > > >  [<ffffffff802159a5>] sys_write+0x45/0x6e
+> > > > >  [<ffffffff802593de>] system_call+0x7e/0x83  
+> > > > > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > > > > 
+> > > 
+> > > Ingo, the later version of your lockdep patch (with the x86_64 fix), 
+> > > worked. There is nothing locked during these errors.
+> > > 
+> > > The problem was the APIC error is leaving preempt-disabled.
+> > 
+> > ah, that could be the case - do you have a fix-patch for that?
+> > 
+> > preempt-disabled leaks are only caught via CONFIG_PREEMPT_TRACE (not via 
+> > lockdep), which debug feature you can find in the -rt tree:
+> > 
+> >   http://redhat.com/~mingo/realtime-preempt/
+> > 
+> > (there's no easy standalone patch for now.)
+> > 
+> > it will be enabled if you select CONFIG_DEBUG_PREEMPT.
+> > 
+> > > I have no idea what causes:
+> > > 
+> > > APIC error on CPU0: 00(00)
+> > > 
+> > > Is it an ACPI problem?
+> > 
+> > a 00 error code? Never seen that ... How frequently does it happen?
 > 
-> It seems to work with AT91SAM9260, but unfortunately not without
-> problems. I occasionally get TX underrun errors, mostly while
-> transferring some large files. The same thing happens with driver
-> provided by TimeSys in their AT91SAM9260-enabled Linux distribution
-> recommended by Atmel (both drivers share the codebase). Is there
-> anything I can check by myself (without an ICE) to see what's wrong?
-> Some printk() in macb_tx() maybe?
+> On my x86-64 boxes the "APIC error on CPU0" message appears on every resume,
+> but it doesn't seem to be related to any visible problems.
+> 
+> It's been there forever, AFAICT.
 
-Hmm...underruns as in "eth0: TX underrun, resetting buffers"?
-
-If so, this happens when the UND bit is set in the Transmit Status
-Register. This bit has the following meaning (from the at32ap7000
-data sheet):
-
-"Set when transmit DMA was not able to read data from memory, either
-because the bus was not granted in time, because a not OK hresp(bus
-error) was returned or because a used bit was read midway through frame
-transmission. If this occurs, the transmitter forces bad CRC. Cleared
-by writing a one to this bit."
-
-So it's caused either by a corrupted descriptor or by excessive bus
-latency.
-
-If it's a problem with the descriptor, it would probably help to dump
-out some information about the ring state, i.e. the value of
-bp->tx_head and bp->tx_tail, and maybe dump all outstanding descriptors
-in the ring to see if any of them look suspicious.
-
-Of course, if it's a cache flushing issue, we might not see
-anything wrong in the descriptors. The descriptor rings are allocated
-with dma_alloc_coherent(), so I don't think this is very likely.
-
-If it's a bus latency issue, things start to get a bit
-platform-specific, so we should probably involve some more experienced
-ARM people. Might be possible to improve things by configuring the
-main system bus differently, or put the DMA buffers in internal SRAM if
-possible.
-
-Thanks for the report,
-
-Haavard
+Yes, it is there on every resume.

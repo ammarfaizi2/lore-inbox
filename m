@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755838AbWKRAKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756085AbWKRAMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755838AbWKRAKk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756077AbWKRAGf
+	id S1756085AbWKRAMA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756070AbWKRALo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:06:35 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:60584 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1756069AbWKRAGZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:06:25 -0500
-Date: Fri, 17 Nov 2006 17:37:21 -0500
+	Fri, 17 Nov 2006 19:11:44 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31372 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1756075AbWKRAG2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:06:28 -0500
+Date: Fri, 17 Nov 2006 17:48:22 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
        lwang@redhat.com, dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-Subject: [PATCH 2/20] x86_64: Assembly safe page.h and pgtable.h
-Message-ID: <20061117223721.GC15449@in.ibm.com>
+Subject: [PATCH 11/20] x86_64: wakeup.S Rename labels to reflect right register names
+Message-ID: <20061117224822.GL15449@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061117223432.GA15449@in.ibm.com>
 Mime-Version: 1.0
@@ -29,234 +29,101 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-This patch makes pgtable.h and page.h safe to include
-in assembly files like head.S.  Allowing us to use
-symbolic constants instead of hard coded numbers when
-refering to the page tables.
-
-This patch copies asm-sparc64/const.h to asm-x86_64 to
-get a definition of _AC() a very convinient macro that
-allows us to force the type when we are compiling the
-code in C and to drop all of the type information when
-we are using the constant in assembly.  Previously this
-was done with multiple definition of the same constant.
-const.h was modified slightly so that it works when given
-CONFIG options as arguments.
-
-This patch adds #ifndef __ASSEMBLY__ ... #endif
-and _AC(1,UL) where appropriate so the assembler won't
-choke on the header files.  Otherwise nothing
-should have changed.
+o Use appropriate names for 64bit regsiters.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- include/asm-x86_64/const.h   |   20 ++++++++++++++++++++
- include/asm-x86_64/page.h    |   34 +++++++++++++---------------------
- include/asm-x86_64/pgtable.h |   33 +++++++++++++++++++++------------
- 3 files changed, 54 insertions(+), 33 deletions(-)
+ arch/x86_64/kernel/acpi/wakeup.S |   36 ++++++++++++++++++------------------
+ include/asm-x86_64/suspend.h     |   12 ++++++------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
-diff -puN /dev/null include/asm-x86_64/const.h
---- /dev/null	2006-11-17 00:03:10.168280803 -0500
-+++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/const.h	2006-11-17 00:05:30.000000000 -0500
-@@ -0,0 +1,20 @@
-+/* const.h: Macros for dealing with constants.  */
-+
-+#ifndef _X86_64_CONST_H
-+#define _X86_64_CONST_H
-+
-+/* Some constant macros are used in both assembler and
-+ * C code.  Therefore we cannot annotate them always with
-+ * 'UL' and other type specificers unilaterally.  We
-+ * use the following macros to deal with this.
-+ */
-+
-+#ifdef __ASSEMBLY__
-+#define _AC(X,Y)	X
-+#else
-+#define __AC(X,Y)	(X##Y)
-+#define _AC(X,Y)	__AC(X,Y)
-+#endif
-+
-+
-+#endif /* !(_X86_64_CONST_H) */
-diff -puN include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/page.h
---- linux-2.6.19-rc6-reloc/include/asm-x86_64/page.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-17 00:05:30.000000000 -0500
-+++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/page.h	2006-11-17 00:05:30.000000000 -0500
-@@ -1,14 +1,11 @@
- #ifndef _X86_64_PAGE_H
- #define _X86_64_PAGE_H
+diff -puN arch/x86_64/kernel/acpi/wakeup.S~x86_64-wakeup.S-rename-registers-to-reflect-right-names arch/x86_64/kernel/acpi/wakeup.S
+--- linux-2.6.19-rc6-reloc/arch/x86_64/kernel/acpi/wakeup.S~x86_64-wakeup.S-rename-registers-to-reflect-right-names	2006-11-17 00:09:29.000000000 -0500
++++ linux-2.6.19-rc6-reloc-root/arch/x86_64/kernel/acpi/wakeup.S	2006-11-17 00:09:29.000000000 -0500
+@@ -211,16 +211,16 @@ wakeup_long64:
+ 	movw	%ax, %es
+ 	movw	%ax, %fs
+ 	movw	%ax, %gs
+-	movq	saved_esp, %rsp
++	movq	saved_rsp, %rsp
  
-+#include <asm/const.h>
+ 	movw	$0x0e00 + 'x', %ds:(0xb8018)
+-	movq	saved_ebx, %rbx
+-	movq	saved_edi, %rdi
+-	movq	saved_esi, %rsi
+-	movq	saved_ebp, %rbp
++	movq	saved_rbx, %rbx
++	movq	saved_rdi, %rdi
++	movq	saved_rsi, %rsi
++	movq	saved_rbp, %rbp
  
- /* PAGE_SHIFT determines the page size */
- #define PAGE_SHIFT	12
--#ifdef __ASSEMBLY__
--#define PAGE_SIZE	(0x1 << PAGE_SHIFT)
--#else
--#define PAGE_SIZE	(1UL << PAGE_SHIFT)
--#endif
-+#define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
- #define PAGE_MASK	(~(PAGE_SIZE-1))
- #define PHYSICAL_PAGE_MASK	(~(PAGE_SIZE-1) & __PHYSICAL_MASK)
+ 	movw	$0x0e00 + '!', %ds:(0xb801a)
+-	movq	saved_eip, %rax
++	movq	saved_rip, %rax
+ 	jmp	*%rax
  
-@@ -33,10 +30,10 @@
- #define N_EXCEPTION_STACKS 5  /* hw limit: 7 */
+ .code32
+@@ -408,13 +408,13 @@ do_suspend_lowlevel:
+ 	movq %r15, saved_context_r15(%rip)
+ 	pushfq ; popq saved_context_eflags(%rip)
  
- #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
--#define LARGE_PAGE_SIZE (1UL << PMD_SHIFT)
-+#define LARGE_PAGE_SIZE (_AC(1,UL) << PMD_SHIFT)
+-	movq	$.L97, saved_eip(%rip)
++	movq	$.L97, saved_rip(%rip)
  
- #define HPAGE_SHIFT PMD_SHIFT
--#define HPAGE_SIZE	((1UL) << HPAGE_SHIFT)
-+#define HPAGE_SIZE	(_AC(1,UL) << HPAGE_SHIFT)
- #define HPAGE_MASK	(~(HPAGE_SIZE - 1))
- #define HUGETLB_PAGE_ORDER	(HPAGE_SHIFT - PAGE_SHIFT)
+-	movq %rsp,saved_esp
+-	movq %rbp,saved_ebp
+-	movq %rbx,saved_ebx
+-	movq %rdi,saved_edi
+-	movq %rsi,saved_esi
++	movq %rsp,saved_rsp
++	movq %rbp,saved_rbp
++	movq %rbx,saved_rbx
++	movq %rdi,saved_rdi
++	movq %rsi,saved_rsi
  
-@@ -76,29 +73,24 @@ typedef struct { unsigned long pgprot; }
- #define __pgd(x) ((pgd_t) { (x) } )
- #define __pgprot(x)	((pgprot_t) { (x) } )
+ 	addq	$8, %rsp
+ 	movl	$3, %edi
+@@ -461,12 +461,12 @@ do_suspend_lowlevel:
+ 	
+ .data
+ ALIGN
+-ENTRY(saved_ebp)	.quad	0
+-ENTRY(saved_esi)	.quad	0
+-ENTRY(saved_edi)	.quad	0
+-ENTRY(saved_ebx)	.quad	0
++ENTRY(saved_rbp)	.quad	0
++ENTRY(saved_rsi)	.quad	0
++ENTRY(saved_rdi)	.quad	0
++ENTRY(saved_rbx)	.quad	0
  
--#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
--#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
--#define __START_KERNEL_map	0xffffffff80000000UL
--#define __PAGE_OFFSET           0xffff810000000000UL
-+#endif /* !__ASSEMBLY__ */
+-ENTRY(saved_eip)	.quad	0
+-ENTRY(saved_esp)	.quad	0
++ENTRY(saved_rip)	.quad	0
++ENTRY(saved_rsp)	.quad	0
  
--#else
--#define __PHYSICAL_START	CONFIG_PHYSICAL_START
-+#define __PHYSICAL_START	_AC(CONFIG_PHYSICAL_START,UL)
- #define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
--#define __START_KERNEL_map	0xffffffff80000000
--#define __PAGE_OFFSET           0xffff810000000000
--#endif /* !__ASSEMBLY__ */
-+#define __START_KERNEL_map	_AC(0xffffffff80000000,UL)
-+#define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
+ ENTRY(saved_magic)	.quad	0
+diff -puN include/asm-x86_64/suspend.h~x86_64-wakeup.S-rename-registers-to-reflect-right-names include/asm-x86_64/suspend.h
+--- linux-2.6.19-rc6-reloc/include/asm-x86_64/suspend.h~x86_64-wakeup.S-rename-registers-to-reflect-right-names	2006-11-17 00:09:29.000000000 -0500
++++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/suspend.h	2006-11-17 00:09:29.000000000 -0500
+@@ -45,12 +45,12 @@ extern unsigned long saved_context_eflag
+ extern void fix_processor_context(void);
  
- /* to align the pointer to the (next) page boundary */
- #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
+ #ifdef CONFIG_ACPI_SLEEP
+-extern unsigned long saved_eip;
+-extern unsigned long saved_esp;
+-extern unsigned long saved_ebp;
+-extern unsigned long saved_ebx;
+-extern unsigned long saved_esi;
+-extern unsigned long saved_edi;
++extern unsigned long saved_rip;
++extern unsigned long saved_rsp;
++extern unsigned long saved_rbp;
++extern unsigned long saved_rbx;
++extern unsigned long saved_rsi;
++extern unsigned long saved_rdi;
  
- /* See Documentation/x86_64/mm.txt for a description of the memory map. */
- #define __PHYSICAL_MASK_SHIFT	46
--#define __PHYSICAL_MASK		((1UL << __PHYSICAL_MASK_SHIFT) - 1)
-+#define __PHYSICAL_MASK		((_AC(1,UL) << __PHYSICAL_MASK_SHIFT) - 1)
- #define __VIRTUAL_MASK_SHIFT	48
--#define __VIRTUAL_MASK		((1UL << __VIRTUAL_MASK_SHIFT) - 1)
-+#define __VIRTUAL_MASK		((_AC(1,UL) << __VIRTUAL_MASK_SHIFT) - 1)
- 
--#define KERNEL_TEXT_SIZE  (40UL*1024*1024)
--#define KERNEL_TEXT_START 0xffffffff80000000UL 
-+#define KERNEL_TEXT_SIZE  (_AC(40,UL)*1024*1024)
-+#define KERNEL_TEXT_START _AC(0xffffffff80000000,UL)
- 
- #ifndef __ASSEMBLY__
- 
-@@ -106,7 +98,7 @@ typedef struct { unsigned long pgprot; }
- 
- #endif /* __ASSEMBLY__ */
- 
--#define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
-+#define PAGE_OFFSET		__PAGE_OFFSET
- 
- /* Note: __pa(&symbol_visible_to_c) should be always replaced with __pa_symbol.
-    Otherwise you risk miscompilation. */ 
-diff -puN include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h include/asm-x86_64/pgtable.h
---- linux-2.6.19-rc6-reloc/include/asm-x86_64/pgtable.h~x86_64-Assembly-safe-page.h-and-pgtable.h	2006-11-17 00:05:30.000000000 -0500
-+++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/pgtable.h	2006-11-17 00:05:30.000000000 -0500
-@@ -1,6 +1,9 @@
- #ifndef _X86_64_PGTABLE_H
- #define _X86_64_PGTABLE_H
- 
-+#include <asm/const.h>
-+#ifndef __ASSEMBLY__
-+
- /*
-  * This file contains the functions and defines necessary to modify and use
-  * the x86-64 page table tree.
-@@ -31,6 +34,8 @@ extern void clear_kernel_mapping(unsigne
- extern unsigned long empty_zero_page[PAGE_SIZE/sizeof(unsigned long)];
- #define ZERO_PAGE(vaddr) (virt_to_page(empty_zero_page))
- 
-+#endif /* !__ASSEMBLY__ */
-+
- /*
-  * PGDIR_SHIFT determines what a top-level page table entry can map
-  */
-@@ -55,6 +60,8 @@ extern unsigned long empty_zero_page[PAG
-  */
- #define PTRS_PER_PTE	512
- 
-+#ifndef __ASSEMBLY__
-+
- #define pte_ERROR(e) \
- 	printk("%s:%d: bad pte %p(%016lx).\n", __FILE__, __LINE__, &(e), pte_val(e))
- #define pmd_ERROR(e) \
-@@ -118,22 +125,23 @@ static inline pte_t ptep_get_and_clear_f
- 
- #define pte_pgprot(a)	(__pgprot((a).pte & ~PHYSICAL_PAGE_MASK))
- 
--#define PMD_SIZE	(1UL << PMD_SHIFT)
-+#endif /* !__ASSEMBLY__ */
-+
-+#define PMD_SIZE	(_AC(1,UL) << PMD_SHIFT)
- #define PMD_MASK	(~(PMD_SIZE-1))
--#define PUD_SIZE	(1UL << PUD_SHIFT)
-+#define PUD_SIZE	(_AC(1,UL) << PUD_SHIFT)
- #define PUD_MASK	(~(PUD_SIZE-1))
--#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
-+#define PGDIR_SIZE	(_AC(1,UL) << PGDIR_SHIFT)
- #define PGDIR_MASK	(~(PGDIR_SIZE-1))
- 
- #define USER_PTRS_PER_PGD	((TASK_SIZE-1)/PGDIR_SIZE+1)
- #define FIRST_USER_ADDRESS	0
- 
--#ifndef __ASSEMBLY__
--#define MAXMEM		 0x3fffffffffffUL
--#define VMALLOC_START    0xffffc20000000000UL
--#define VMALLOC_END      0xffffe1ffffffffffUL
--#define MODULES_VADDR    0xffffffff88000000UL
--#define MODULES_END      0xfffffffffff00000UL
-+#define MAXMEM		 _AC(0x3fffffffffff,UL)
-+#define VMALLOC_START    _AC(0xffffc20000000000,UL)
-+#define VMALLOC_END      _AC(0xffffe1ffffffffff,UL)
-+#define MODULES_VADDR    _AC(0xffffffff88000000,UL)
-+#define MODULES_END      _AC(0xfffffffffff00000,UL)
- #define MODULES_LEN   (MODULES_END - MODULES_VADDR)
- 
- #define _PAGE_BIT_PRESENT	0
-@@ -159,7 +167,7 @@ static inline pte_t ptep_get_and_clear_f
- #define _PAGE_GLOBAL	0x100	/* Global TLB entry */
- 
- #define _PAGE_PROTNONE	0x080	/* If not present */
--#define _PAGE_NX        (1UL<<_PAGE_BIT_NX)
-+#define _PAGE_NX        (_AC(1,UL)<<_PAGE_BIT_NX)
- 
- #define _PAGE_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_USER | _PAGE_ACCESSED | _PAGE_DIRTY)
- #define _KERNPG_TABLE	(_PAGE_PRESENT | _PAGE_RW | _PAGE_ACCESSED | _PAGE_DIRTY)
-@@ -221,6 +229,8 @@ static inline pte_t ptep_get_and_clear_f
- #define __S110	PAGE_SHARED_EXEC
- #define __S111	PAGE_SHARED_EXEC
- 
-+#ifndef __ASSEMBLY__
-+
- static inline unsigned long pgd_bad(pgd_t pgd) 
- { 
-        unsigned long val = pgd_val(pgd);
-@@ -417,8 +427,6 @@ extern spinlock_t pgd_lock;
- extern struct page *pgd_list;
- void vmalloc_sync_all(void);
- 
--#endif /* !__ASSEMBLY__ */
--
- extern int kern_addr_valid(unsigned long addr); 
- 
- #define io_remap_pfn_range(vma, vaddr, pfn, size, prot)		\
-@@ -448,5 +456,6 @@ extern int kern_addr_valid(unsigned long
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTE_SAME
- #include <asm-generic/pgtable.h>
-+#endif /* !__ASSEMBLY__ */
- 
- #endif /* _X86_64_PGTABLE_H */
+ /* routines for saving/restoring kernel state */
+ extern int acpi_save_state_mem(void);
 _

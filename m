@@ -1,263 +1,584 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755031AbWKQJgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755032AbWKQJgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755031AbWKQJgs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 04:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755622AbWKQJgr
+	id S1755032AbWKQJgW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 04:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755617AbWKQJgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 04:36:47 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:57728 "HELO
+	Fri, 17 Nov 2006 04:36:22 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:54400 "HELO
 	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1755615AbWKQJgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 04:36:23 -0500
+	id S1755031AbWKQJgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 04:36:20 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=wFFvBPvqZmmMsKOTF6veWyqzsErZrCkQccuDPUAUO2IXueCMDyLgSIa6ZbZTckeDOOzjgJUE3gPtThbZOH4b8J4Rpg826duhdxe3kqI+IeAH/LAkINITR7OnDIGE0G5TSFt7TNDqUvpVdAIOKFUZJqGt7AZabrhscVpWPLWhpAA=  ;
-X-YMail-OSG: WZGXoM4VM1nXPFSFNp74ILgd3tiVXbjN8.r_zdLGH6wcHImEibsdHqJ3MFw7drE_5gJlJiGWoh8KcJdp_TfJ8dusnsT5zCoQMv6QSjRTnDlUignCKJV3jekpJf41ykGpBEUJFQmgQo080DE7zQ4NtnOvQqafv18IeXE-
+  b=ioxHJjLbAy7WP38vVpyOZwLEYp0l35y0X8sk5yOqO7JQPVHVPDUZ+YKjN+9j+tpwXV4KmLbihd7s2N4f31DuuqD3sIHmsxsE7OYgzK34iXhHfQkO1MpDZXlrCUbxE5vK0v3hqo3R/vZ2xD0YzIoMzBVIY6jPg42hw/iy7lRqdy0=  ;
+X-YMail-OSG: aBAZ7XkVM1nKI1sgz1qWa0LRAsqhNtSWdtAm8Rv4HMAZB84zOpkiaKAUS3aGum30zwC6yJTenTPgZ5QwJ33nZMukMulOAQnbfr4FJo_NzWyWD9xjrTVFZk4TqBbwgzifQAojXtc1oFUcqdAdWYcfzyKZk3XnEOOXPrQ-
 From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.19-rc6] Documentation/driver-model/platform.txt update/rewrite
-Date: Thu, 16 Nov 2006 23:30:14 -0800
+To: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.19-rc6] Documentation/rtc.txt updates (for rtc class)
+Date: Thu, 16 Nov 2006 23:09:31 -0800
 User-Agent: KMail/1.7.1
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611162330.14379.david-b@pacbell.net>
+Message-Id: <200611162309.31879.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is almost a rewrite of the driver-model/platform.txt documentation;
-the previous text was obsolete (for several years), evidently it never
-got updated to match the change from being a PC "legacy_bus" to the more
-widely used core bus for most embedded systems.
+This updates the RTC documentation to summarize the two APIs now available:
+the old PC/AT one, and the new RTC class drivers.  It also updates the
+included "rtctest.c" file to better meet Linux style guidelines, and to
+work with the new RTC drivers.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
----
-This presumes the previous patch, adding platform_driver_probe().
-
-Index: g26/Documentation/driver-model/platform.txt
+Index: g26/Documentation/rtc.txt
 ===================================================================
---- g26.orig/Documentation/driver-model/platform.txt	2006-11-12 12:22:31.000000000 -0800
-+++ g26/Documentation/driver-model/platform.txt	2006-11-16 18:18:16.000000000 -0800
-@@ -1,99 +1,131 @@
- Platform Devices and Drivers
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+See <linux/platform_device.h> for the driver model interface to the
-+platform bus:  platform_device, and platform_driver.  This pseudo-bus
-+is used to connect devices on busses with minimal infrastructure,
-+like those used to integrate peripherals on many system-on-chip
-+processors, or some "legacy" PC interconnects; as opposed to large
-+formally specified ones like PCI or USB.
-+
+--- g26.orig/Documentation/rtc.txt	2006-11-16 18:16:17.000000000 -0800
++++ g26/Documentation/rtc.txt	2006-11-16 23:07:35.000000000 -0800
+@@ -1,12 +1,49 @@
  
- Platform devices
- ~~~~~~~~~~~~~~~~
- Platform devices are devices that typically appear as autonomous
- entities in the system. This includes legacy port-based devices and
--host bridges to peripheral buses. 
-+host bridges to peripheral buses, and most controllers integrated
-+into system-on-chip platforms.  What they usually have in common
-+is direct addressing from a CPU bus.  Rarely, a platform_device will
-+be connected through a segment of some other kind of bus; but its
-+registers will still be directly addressible.
+-	Real Time Clock Driver for Linux
+-	================================
++	Real Time Clock (RTC) Drivers for Linux
++	=======================================
 +
-+Platform devices are given a name, used in driver binding, and a
-+list of resources such as addresses and IRQs.
++When Linux developers talk about a "Real Time Clock", they usually mean
++something that tracks wall clock time and is battery backed so that it
++works even with system power off.  Such clocks will normally not track
++the local time zone or daylight savings time -- unless they dual boot
++with MS-Windows -- but will instead be set to Coordinated Universal Time
++(UTC, formerly "Greenwich Mean Time").
 +
-+struct platform_device {
-+	const char	*name;
-+	u32		id;
-+	struct device	dev;
-+	u32		num_resources;
-+	struct resource	*resource;
-+};
++The newest non-PC hardware tends to just count seconds, like the time(2)
++system call reports, but RTCs also very commonly represent time using
++the Gregorian calendar and 24 hour time, as reported by gmtime(3).
++
++Linux has two largely-compatible userspace RTC API families you may
++need to know about:
++
++    *	/dev/rtc ... is the RTC provided by PC compatible systems,
++	so it's not very portable to non-x86 systems.
++    
++    *	/dev/rtc0, /dev/rtc1 ... are part of a framework that's
++	supported by a wide variety of RTC chips on all systems.
++
++Programmers need to understand that the PC/AT functionality is not
++always available, and some systems can do much more.  That is, the
++RTCs use the same API to make requests in both RTC frameworks (using
++different filenames of course), but the hardware may not offer the
++same functionality.  For example, not every RTC is hooked up to an
++IRQ, so they can't all issue alarms; and where standard PC RTCs can
++only issue an alarm up to 24 hours in the future, other hardware may
++be able to schedule one any time in the upcoming century.
++
++
++	Old PC/AT-Compatible driver:  /dev/rtc
++	--------------------------------------
  
+ All PCs (even Alpha machines) have a Real Time Clock built into them.
+ Usually they are built into the chipset of the computer, but some may
+ actually have a Motorola MC146818 (or clone) on the board. This is the
+ clock that keeps the date and time while your computer is turned off.
  
- Platform drivers
- ~~~~~~~~~~~~~~~~
--Drivers for platform devices are typically very simple and
--unstructured. Either the device was present at a particular I/O port
--and the driver was loaded, or it was not. There was no possibility
--of hotplugging or alternative discovery besides probing at a specific
--I/O address and expecting a specific response.
--
--
--Other Architectures, Modern Firmware, and new Platforms
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--These devices are not always at the legacy I/O ports. This is true on
--other architectures and on some modern architectures. In most cases,
--the drivers are modified to discover the devices at other well-known
--ports for the given platform. However, the firmware in these systems
--does usually know where exactly these devices reside, and in some
--cases, it's the only way of discovering them. 
--
--
--The Platform Bus
--~~~~~~~~~~~~~~~~
--A platform bus has been created to deal with these issues. First and
--foremost, it groups all the legacy devices under a common bus, and
--gives them a common parent if they don't already have one. 
--
--But, besides the organizational benefits, the platform bus can also
--accommodate firmware-based enumeration. 
--
--
--Device Discovery
--~~~~~~~~~~~~~~~~
--The platform bus has no concept of probing for devices. Devices
--discovery is left up to either the legacy drivers or the
--firmware. These entities are expected to notify the platform of
--devices that it discovers via the bus's add() callback:
--
--	platform_bus.add(parent,bus_id).
--
--
--Bus IDs
--~~~~~~~
--Bus IDs are the canonical names for the devices. There is no globally
--standard addressing mechanism for legacy devices. In the IA-32 world,
--we have Pnp IDs to use, as well as the legacy I/O ports. However,
--neither tell what the device really is or have any meaning on other
--platforms. 
--
--Since both PnP IDs and the legacy I/O ports (and other standard I/O
--ports for specific devices) have a 1:1 mapping, we map the
--platform-specific name or identifier to a generic name (at least
--within the scope of the kernel).
--
--For example, a serial driver might find a device at I/O 0x3f8. The
--ACPI firmware might also discover a device with PnP ID (_HID)
--PNP0501. Both correspond to the same device and should be mapped to the
--canonical name 'serial'. 
--
--The bus_id field should be a concatenation of the canonical name and
--the instance of that type of device. For example, the device at I/O
--port 0x3f8 should have a bus_id of "serial0". This places the
--responsibility of enumerating devices of a particular type up to the
--discovery mechanism. But, they are the entity that should know best
--(as opposed to the platform bus driver).
--
--
--Drivers 
--~~~~~~~
--Drivers for platform devices should have a name that is the same as
--the canonical name of the devices they support. This allows the
--platform bus driver to do simple matching with the basic data
--structures to determine if a driver supports a certain device. 
--
--For example, a legacy serial driver should have a name of 'serial' and
--register itself with the platform bus. 
--
--
--Driver Binding
--~~~~~~~~~~~~~~
--Legacy drivers assume they are bound to the device once they start up
--and probe an I/O port. Divorcing them from this will be a difficult
--process. However, that shouldn't prevent us from implementing
--firmware-based enumeration. 
--
--The firmware should notify the platform bus about devices before the
--legacy drivers have had a chance to load. Once the drivers are loaded,
--they driver model core will attempt to bind the driver to any
--previously-discovered devices. Once that has happened, it will be free
--to discover any other devices it pleases.
-+Platform drivers follow the standard driver model convention, where
-+discovery/enumeration is handled outside the drivers, and drivers
-+provide probe() and remove() methods.  They support power management
-+and shutdown notifications using the standard conventions.
++ACPI has standardized that MC146818 functionality, and extended it in
++a few ways (enabling longer alarm periods, and wake-from-hibernate).
++That functionality is NOT exposed in the old driver.
 +
-+struct platform_driver {
-+	int (*probe)(struct platform_device *);
-+	int (*remove)(struct platform_device *);
-+	void (*shutdown)(struct platform_device *);
-+	int (*suspend)(struct platform_device *, pm_message_t state);
-+	int (*suspend_late)(struct platform_device *, pm_message_t state);
-+	int (*resume_early)(struct platform_device *);
-+	int (*resume)(struct platform_device *);
-+	struct device_driver driver;
-+};
+ However it can also be used to generate signals from a slow 2Hz to a
+ relatively fast 8192Hz, in increments of powers of two. These signals
+ are reported by interrupt number 8. (Oh! So *that* is what IRQ 8 is
+@@ -63,223 +100,331 @@ Rather than write 50 pages describing th
+ perhaps more useful to include a small test program that demonstrates
+ how to use them, and demonstrates the features of the driver. This is
+ probably a lot more useful to people interested in writing applications
+-that will be using this driver.
++that will be using this driver.  See the code at the end of this document.
 +
-+Note that probe() should general verify that the specified device hardware
-+actually exists; sometimes platform setup code can't be sure.  The probing
-+can use device resources, including clocks, and device platform_data.
-+
-+Platform drivers register themselves the normal way:
-+
-+	int platform_driver_register(struct platform_driver *drv);
-+
-+Or, in common situations where the device is known not to be hot-pluggable,
-+the probe() routine can live in an init section to reduce the driver's
-+runtime memory footprint:
-+
-+	int platform_driver_probe(struct platform_driver *drv,
-+			  int (*probe)(struct platform_device *))
++(The original /dev/rtc driver was written by Paul Gortmaker.)
 +
 +
-+Device Enumeration
-+~~~~~~~~~~~~~~~~~~
-+As a rule, platform specific (and often board-specific) setup code wil
-+register platform devices:
++	New portable "RTC Class" drivers:  /dev/rtcN
++	--------------------------------------------
 +
-+	int platform_device_register(struct platform_device *pdev);
++Because Linux supports many non-ACPI and non-PC platforms, some of which
++have more than one RTC style clock, it needed a more portable solution
++than expecting a single battery-backed MC146818 clone on every system.
++Accordingly, a new "RTC Class" framework has been defined.  It offers
++three different userspace interfaces:
 +
-+	int platform_add_devices(struct platform_device **pdevs, int ndev);
++    *	/dev/rtcN ... much the same as the older /dev/rtc interface
 +
-+The general rule is to register only those devices that actually exist,
-+but in some cases extra devices might be registered.  For example, a kernel
-+might be configured to work with an external network adapter that might not
-+be populated on all boards, or likewise to work with an integrated controller
-+that some boards might not hook up to any peripherals.
++    *	/sys/class/rtc/rtcN ... sysfs attributes support readonly
++	access to some RTC attributes.
 +
-+In some cases, boot firmware will export tables describing the devices
-+that are populated on a given board.   Without such tables, often the
-+only way for system setup code to set up the correct devices is to build
-+a kernel for a specific target board.  Such board-specific kernels are
-+common with embedded and custom systems development.
++    *	/proc/driver/rtc ... the first RTC (rtc0) may expose itself
++	using a procfs interface.  More information is (currently) shown
++	here than through sysfs.
 +
-+In many cases, the memory and IRQ resources associated with the platform
-+device are not enough to let the device's driver work.  Board setup code
-+will often provide additional information using the device's platform_data
-+field to hold additional information.
++The RTC Class framework supports a wide variety of RTCs, ranging from those
++integrated into embeddable system-on-chip (SOC) processors to discrete chips
++using I2C, SPI, or some other bus to communicate with the host CPU.  There's
++even support for PC-style RTCs ... including the features exposed on newer PCs
++through ACPI.
 +
-+Embedded systems frequently need one or more clocks for platform devices,
-+which are normally kept off until they're actively needed (to save power).
-+System setup also associates those clocks with the device, so that that
-+calls to clk_get(&pdev->dev, clock_name) return them as needed.
++The new framework also removes the "one RTC per system" restriction.  For
++example, maybe the low-power battery-backed RTC is a discrete I2C chip, but
++a high functionality RTC is integrated into the SOC.  That system might read
++the system clock from the discrete RTC, but use the integrated one for all
++other tasks, because of its greater functionality.
 +
++The ioctl() calls supported by /dev/rtc are also supported by the RTC class
++framework.  However, because the chips and systems are not standardized,
++some PC/AT functionality might not be provided.  And in the same way, some
++newer features -- including those enabled by ACPI -- are exposed by the
++RTC class framework, but can't be supported by the older driver.
 +
-+Device Naming and Driver Binding
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The platform_device.dev.bus_id is the canonical name for the devices.
-+It's built from two components:
++    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at least reading
++	time, returning the result as a Gregorian calendar date and 24 hour
++	wall clock time.  To be most useful, this time may also be updated.
 +
-+    * platform_device.name ... which is also used to for driver matching.
++    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ... when the RTC
++	is connected to an IRQ line, it can often issue an alarm IRQ up to
++	24 hours in the future.
 +
-+    * platform_device.id ... the device instance number, or else "-1"
-+      to indicate there's only one.
++    *	RTC_WKALM_SET, RTC_WKALM_READ ... RTCs that can issue alarms beyond
++	the next 24 hours use a slightly more powerful API, which supports
++	setting the longer alarm time and enabling its IRQ using a single
++	request (using the same model as EFI firmware).
 +
-+These are catenated, so name/id "serial"/0 indicates bus_id "serial.0", and
-+"serial/3" indicates bus_id "serial.3"; both would use the platform_driver
-+named "serial".  While "my_rtc"/-1 would be bus_id "my_rtc" (no instance id)
-+and use the platform_driver called "my_rtc".
++    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, it probably
++	also offers update IRQs whenever the "seconds" counter changes.
++	If needed, the RTC framework can emulate this mechanism.
 +
-+Driver binding is performed automatically by the driver core, invoking
-+driver probe() after finding a match between device and driver.  If the
-+probe() succeeds, the driver and device are bound as usual.  There are
-+three different ways to find such a match:
++    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ... another
++	feature often accessible with an IRQ line is a periodic IRQ, issued
++	at settable frequencies (usually 2^N Hz).
 +
-+    - Whenever a device is registered, the drivers for that bus are
-+      checked for matches.  Platform devices should be registered very
-+      early during system boot.
-+
-+    - When a driver is registered using platform_driver_register(), all
-+      unbound devices on that bus are checked for matches.  Drivers
-+      usually register later during booting, or by module loading.
-+
-+    - Registering a driver using platform_driver_probe() works just like
-+      using platform_driver_register(), except that the the driver won't
-+      be probed later if another device registers.  (Which is OK, since
-+      this interface is only for use with non-hotpluggable devices.)
++In many cases, the RTC alarm can be a system wake event, used to force
++Linux out of a low power sleep state (or hibernation) back to a fully
++operational state.  For example, a system could enter a deep power saving
++state until it's time to execute some scheduled tasks.
  
+-						Paul Gortmaker
+ 
+ -------------------- 8< ---------------- 8< -----------------------------
+ 
+ /*
+- *	Real Time Clock Driver Test/Example Program
++ *      Real Time Clock Driver Test/Example Program
+  *
+- *	Compile with:
+- *		gcc -s -Wall -Wstrict-prototypes rtctest.c -o rtctest
++ *      Compile with:
++ *		     gcc -s -Wall -Wstrict-prototypes rtctest.c -o rtctest
+  *
+- *	Copyright (C) 1996, Paul Gortmaker.
++ *      Copyright (C) 1996, Paul Gortmaker.
+  *
+- *	Released under the GNU General Public License, version 2,
+- *	included herein by reference.
++ *      Released under the GNU General Public License, version 2,
++ *      included herein by reference.
+  *
+  */
+ 
+ #include <stdio.h>
+-#include <stdlib.h>
+ #include <linux/rtc.h>
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
+ #include <sys/types.h>
+ #include <fcntl.h>
+ #include <unistd.h>
++#include <stdlib.h>
+ #include <errno.h>
+ 
+-int main(void) {
+ 
+-int i, fd, retval, irqcount = 0;
+-unsigned long tmp, data;
+-struct rtc_time rtc_tm;
++/*
++ * This expects the new RTC class driver framework, working with
++ * clocks that will often not be clones of what the PC-AT had.
++ * Use the command line to specify another RTC if you need one.
++ */
++static const char default_rtc[] = "/dev/rtc0";
+ 
+-fd = open ("/dev/rtc", O_RDONLY);
+ 
+-if (fd ==  -1) {
+-	perror("/dev/rtc");
+-	exit(errno);
+-}
++int main(int argc, char **argv)
++{
++	int i, fd, retval, irqcount = 0;
++	unsigned long tmp, data;
++	struct rtc_time rtc_tm;
++	const char *rtc = default_rtc;
++
++	switch (argc) {
++	case 2:
++		rtc = argv[1];
++		/* FALLTHROUGH */
++	case 1:
++		break;
++	default:
++		fprintf(stderr, "usage:  rtctest [rtcdev]\n");
++		return 1;
++	}
+ 
+-fprintf(stderr, "\n\t\t\tRTC Driver Test Example.\n\n");
++	fd = open(rtc, O_RDONLY);
+ 
+-/* Turn on update interrupts (one per second) */
+-retval = ioctl(fd, RTC_UIE_ON, 0);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
++	if (fd ==  -1) {
++		perror(rtc);
++		exit(errno);
++	}
+ 
+-fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading /dev/rtc:");
+-fflush(stderr);
+-for (i=1; i<6; i++) {
+-	/* This read will block */
+-	retval = read(fd, &data, sizeof(unsigned long));
++	fprintf(stderr, "\n\t\t\tRTC Driver Test Example.\n\n");
++
++	/* Turn on update interrupts (one per second) */
++	retval = ioctl(fd, RTC_UIE_ON, 0);
+ 	if (retval == -1) {
+-		perror("read");
++		if (errno == ENOTTY) {
++			fprintf(stderr,
++				"\n...Update IRQs not supported.\n");
++			goto test_READ;
++		}
++		perror("ioctl");
+ 		exit(errno);
+ 	}
+-	fprintf(stderr, " %d",i);
++
++	fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading %s:",
++			rtc);
+ 	fflush(stderr);
+-	irqcount++;
+-}
++	for (i=1; i<6; i++) {
++		/* This read will block */
++		retval = read(fd, &data, sizeof(unsigned long));
++		if (retval == -1) {
++		        perror("read");
++		        exit(errno);
++		}
++		fprintf(stderr, " %d",i);
++		fflush(stderr);
++		irqcount++;
++	}
++
++	fprintf(stderr, "\nAgain, from using select(2) on /dev/rtc:");
++	fflush(stderr);
++	for (i=1; i<6; i++) {
++		struct timeval tv = {5, 0};     /* 5 second timeout on select */
++		fd_set readfds;
++
++		FD_ZERO(&readfds);
++		FD_SET(fd, &readfds);
++		/* The select will wait until an RTC interrupt happens. */
++		retval = select(fd+1, &readfds, NULL, NULL, &tv);
++		if (retval == -1) {
++		        perror("select");
++		        exit(errno);
++		}
++		/* This read won't block unlike the select-less case above. */
++		retval = read(fd, &data, sizeof(unsigned long));
++		if (retval == -1) {
++		        perror("read");
++		        exit(errno);
++		}
++		fprintf(stderr, " %d",i);
++		fflush(stderr);
++		irqcount++;
++	}
+ 
+-fprintf(stderr, "\nAgain, from using select(2) on /dev/rtc:");
+-fflush(stderr);
+-for (i=1; i<6; i++) {
+-	struct timeval tv = {5, 0};	/* 5 second timeout on select */
+-	fd_set readfds;
+-
+-	FD_ZERO(&readfds);
+-	FD_SET(fd, &readfds);
+-	/* The select will wait until an RTC interrupt happens. */
+-	retval = select(fd+1, &readfds, NULL, NULL, &tv);
++	/* Turn off update interrupts */
++	retval = ioctl(fd, RTC_UIE_OFF, 0);
+ 	if (retval == -1) {
+-		perror("select");
++		perror("ioctl");
+ 		exit(errno);
+ 	}
+-	/* This read won't block unlike the select-less case above. */
+-	retval = read(fd, &data, sizeof(unsigned long));
++
++test_READ:
++	/* Read the RTC time/date */
++	retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
+ 	if (retval == -1) {
+-		perror("read");
++		perror("ioctl");
+ 		exit(errno);
+ 	}
+-	fprintf(stderr, " %d",i);
+-	fflush(stderr);
+-	irqcount++;
+-}
+-
+-/* Turn off update interrupts */
+-retval = ioctl(fd, RTC_UIE_OFF, 0);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-
+-/* Read the RTC time/date */
+-retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-
+-fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
+-	rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
+-	rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+-
+-/* Set the alarm to 5 sec in the future, and check for rollover */
+-rtc_tm.tm_sec += 5;
+-if (rtc_tm.tm_sec >= 60) {
+-	rtc_tm.tm_sec %= 60;
+-	rtc_tm.tm_min++;
+-}
+-if  (rtc_tm.tm_min == 60) {
+-	rtc_tm.tm_min = 0;
+-	rtc_tm.tm_hour++;
+-}
+-if  (rtc_tm.tm_hour == 24)
+-	rtc_tm.tm_hour = 0;
+-
+-retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-
+-/* Read the current alarm settings */
+-retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-
+-fprintf(stderr, "Alarm time now set to %02d:%02d:%02d.\n",
+-	rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+ 
+-/* Enable alarm interrupts */
+-retval = ioctl(fd, RTC_AIE_ON, 0);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-
+-fprintf(stderr, "Waiting 5 seconds for alarm...");
+-fflush(stderr);
+-/* This blocks until the alarm ring causes an interrupt */
+-retval = read(fd, &data, sizeof(unsigned long));
+-if (retval == -1) {
+-	perror("read");
+-	exit(errno);
+-}
+-irqcount++;
+-fprintf(stderr, " okay. Alarm rang.\n");
+-
+-/* Disable alarm interrupts */
+-retval = ioctl(fd, RTC_AIE_OFF, 0);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
++	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
++		rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
++		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
++
++	/* Set the alarm to 5 sec in the future, and check for rollover */
++	rtc_tm.tm_sec += 5;
++	if (rtc_tm.tm_sec >= 60) {
++		rtc_tm.tm_sec %= 60;
++		rtc_tm.tm_min++;
++	}
++	if  (rtc_tm.tm_min == 60) {
++		rtc_tm.tm_min = 0;
++		rtc_tm.tm_hour++;
++	}
++	if  (rtc_tm.tm_hour == 24)
++		rtc_tm.tm_hour = 0;
+ 
+-/* Read periodic IRQ rate */
+-retval = ioctl(fd, RTC_IRQP_READ, &tmp);
+-if (retval == -1) {
+-	perror("ioctl");
+-	exit(errno);
+-}
+-fprintf(stderr, "\nPeriodic IRQ rate was %ldHz.\n", tmp);
++	retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
++	if (retval == -1) {
++		if (errno == ENOTTY) {
++			fprintf(stderr,
++				"\n...Alarm IRQs not supported.\n");
++			goto test_PIE;
++		}
++		perror("ioctl");
++		exit(errno);
++	}
+ 
+-fprintf(stderr, "Counting 20 interrupts at:");
+-fflush(stderr);
++	/* Read the current alarm settings */
++	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
++	if (retval == -1) {
++		perror("ioctl");
++		exit(errno);
++	}
+ 
+-/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
+-for (tmp=2; tmp<=64; tmp*=2) {
++	fprintf(stderr, "Alarm time now set to %02d:%02d:%02d.\n",
++		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+ 
+-	retval = ioctl(fd, RTC_IRQP_SET, tmp);
++	/* Enable alarm interrupts */
++	retval = ioctl(fd, RTC_AIE_ON, 0);
+ 	if (retval == -1) {
+ 		perror("ioctl");
+ 		exit(errno);
+ 	}
+ 
+-	fprintf(stderr, "\n%ldHz:\t", tmp);
++	fprintf(stderr, "Waiting 5 seconds for alarm...");
+ 	fflush(stderr);
++	/* This blocks until the alarm ring causes an interrupt */
++	retval = read(fd, &data, sizeof(unsigned long));
++	if (retval == -1) {
++		perror("read");
++		exit(errno);
++	}
++	irqcount++;
++	fprintf(stderr, " okay. Alarm rang.\n");
+ 
+-	/* Enable periodic interrupts */
+-	retval = ioctl(fd, RTC_PIE_ON, 0);
++	/* Disable alarm interrupts */
++	retval = ioctl(fd, RTC_AIE_OFF, 0);
+ 	if (retval == -1) {
+ 		perror("ioctl");
+ 		exit(errno);
+ 	}
+ 
+-	for (i=1; i<21; i++) {
+-		/* This blocks */
+-		retval = read(fd, &data, sizeof(unsigned long));
++test_PIE:
++	/* Read periodic IRQ rate */
++	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
++	if (retval == -1) {
++		/* not all RTCs support periodic IRQs */
++		if (errno == ENOTTY) {
++			fprintf(stderr, "\nNo periodic IRQ support\n");
++			return 0;
++		}
++		perror("ioctl");
++		exit(errno);
++	}
++	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
++
++	fprintf(stderr, "Counting 20 interrupts at:");
++	fflush(stderr);
++
++	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
++	for (tmp=2; tmp<=64; tmp*=2) {
++
++		retval = ioctl(fd, RTC_IRQP_SET, tmp);
+ 		if (retval == -1) {
+-			perror("read");
+-			exit(errno);
++			/* not all RTCs can change their periodic IRQ rate */
++			if (errno == ENOTTY) {
++				fprintf(stderr,
++					"\n...Periodic IRQ rate is fixed\n");
++				goto done;
++			}
++		        perror("ioctl");
++		        exit(errno);
+ 		}
+-		fprintf(stderr, " %d",i);
++
++		fprintf(stderr, "\n%ldHz:\t", tmp);
+ 		fflush(stderr);
+-		irqcount++;
+-	}
+ 
+-	/* Disable periodic interrupts */
+-	retval = ioctl(fd, RTC_PIE_OFF, 0);
+-	if (retval == -1) {
+-		perror("ioctl");
+-		exit(errno);
++		/* Enable periodic interrupts */
++		retval = ioctl(fd, RTC_PIE_ON, 0);
++		if (retval == -1) {
++		        perror("ioctl");
++		        exit(errno);
++		}
++
++		for (i=1; i<21; i++) {
++		        /* This blocks */
++		        retval = read(fd, &data, sizeof(unsigned long));
++		        if (retval == -1) {
++				       perror("read");
++				       exit(errno);
++		        }
++		        fprintf(stderr, " %d",i);
++		        fflush(stderr);
++		        irqcount++;
++		}
++
++		/* Disable periodic interrupts */
++		retval = ioctl(fd, RTC_PIE_OFF, 0);
++		if (retval == -1) {
++		        perror("ioctl");
++		        exit(errno);
++		}
+ 	}
+-}
+ 
+-fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+-fprintf(stderr, "\nTyping \"cat /proc/interrupts\" will show %d more events on IRQ 8.\n\n",
+-								 irqcount);
++done:
++	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
+ 
+-close(fd);
+-return 0;
++	close(fd);
+ 
+-} /* end main */
++	return 0;
++}

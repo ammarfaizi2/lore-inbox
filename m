@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933615AbWKQOXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWKQO3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933615AbWKQOXo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933616AbWKQOXo
+	id S932889AbWKQO3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933617AbWKQO3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:23:44 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:29717 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S933615AbWKQOXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:23:43 -0500
-Subject: Re: Re : vm: weird behaviour when munmapping
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061117141230.70698.qmail@web23105.mail.ird.yahoo.com>
-References: <20061117141230.70698.qmail@web23105.mail.ird.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 15:21:08 +0100
-Message-Id: <1163773268.5968.122.camel@twins>
+	Fri, 17 Nov 2006 09:29:40 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:63943 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932889AbWKQO3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:29:39 -0500
+Date: Fri, 17 Nov 2006 09:29:28 -0500
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to go about debuging a system lockup?
+Message-ID: <20061117142928.GT8236@csclub.uwaterloo.ca>
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D87@USRV-EXCH4.na.uis.unisys.com> <20061116223721.GS8236@csclub.uwaterloo.ca> <455DBC88.6040701@s5r6.in-berlin.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455DBC88.6040701@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-17 at 14:12 +0000, moreau francis wrote:
-> Peter Zijlstra wrote:
-> > No indeed. You seem confused with remaining and new. 
-> > 
-> > It has one VMA (A) it needs to split that into two pieces, it happens to
-> > do it like (B,A') where A' is the old VMA object with new a start
-> > address, and B is a new VMA object.
-> 
-> Is there any rules to decide which VMA is the new one ? 
+On Fri, Nov 17, 2006 at 02:43:36PM +0100, Stefan Richter wrote:
+> If the PCI bus itself isn't brought down, you could debug from remote
+> using Benjamin Herrenschmidt's Firescope on the remote node and a
+> FireWire card in the test machine. Once the ohci1394 driver was loaded,
+> the FireWire controller is able to read and write to the 32bit PCI
+> address range (and thus to system memory) without assistance of
+> interrupt handlers.
 
-The new object is the one allocated using:
-	new = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+Wow, that looks really neat.  I will have to go read up on that tool.
 
-> From what you wrote it seems that we call B the new object because
-> it has a new end address...
-
-No, because its newly allocated.
-
-> From my point of view, I called B the old VMA simply because it's
-> going to be destroyed...
-
-Please read Mel Gorman's book on memory management to gain a better
-understanding.
-
-http://www.phptr.com/bookstore/product.asp?isbn=0131453483&rl=1
-
-
+--
+Len Sorensen

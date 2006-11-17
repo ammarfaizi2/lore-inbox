@@ -1,142 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932909AbWKQTPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755816AbWKQTOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932909AbWKQTPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 14:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932953AbWKQTOp
+	id S1755816AbWKQTOL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 14:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755818AbWKQTOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 14:14:45 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:22712 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1755822AbWKQTOj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 14:14:39 -0500
-Date: Fri, 17 Nov 2006 11:15:38 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com, oleg@tv-sign.ru
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061117191538.GA2632@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061117092925.GT7164@kernel.dk>
-User-Agent: Mutt/1.4.1i
+	Fri, 17 Nov 2006 14:14:10 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:26918 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1755816AbWKQTOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 14:14:09 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:user-agent:date:from:to:cc:subject;
+	b=MKTHHiiiaddJ8sOWo/U6QlkhCRvXR+jGoewf1fjj/DuoII5cjWhRsVKELRUSo74pU
+	MTeU+aig/GlS20VY092/Q==
+Message-Id: <20061117191159.151894000@menage.corp.google.com>
+User-Agent: quilt/0.45-1
+Date: Fri, 17 Nov 2006 11:11:59 -0800
+From: menage@google.com
+To: akpm@osdl.org, pj@sgi.com, sekharan@us.ibm.com
+Cc: ckrm-tech@lists.sourceforge.net, jlan@sgi.com, simon.derr@bull.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com
+Subject: [PATCH 0/6]  Multi-hierarchy Process Containers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 10:29:25AM +0100, Jens Axboe wrote:
-> On Thu, Nov 16 2006, Paul E. McKenney wrote:
-> > On Thu, Nov 16, 2006 at 10:06:25PM -0500, Alan Stern wrote:
-> > > On Thu, 16 Nov 2006, Linus Torvalds wrote:
-> > > 
-> > > > 
-> > > > 
-> > > > On Thu, 16 Nov 2006, Alan Stern wrote:
-> > > > > On Thu, 16 Nov 2006, Linus Torvalds wrote:
-> > > > > >
-> > > > > > Paul, it would be _really_ nice to have some way to just initialize 
-> > > > > > that SRCU thing statically. This kind of crud is just crazy.
-> > > > > 
-> > > > > I looked into this back when SRCU was first added.  It's essentially 
-> > > > > impossible to do it, because the per-cpu memory allocation & usage APIs 
-> > > > > are completely different for the static and the dynamic cases.
-> > > > 
-> > > > I don't think that's how you'd want to do it.
-> > > > 
-> > > > There's no way to do an initialization of a percpu allocation statically. 
-> > > > That's pretty obvious.
-> > > 
-> > > Hmmm...  What about DEFINE_PER_CPU in include/asm-generic/percpu.h 
-> > > combined with setup_per_cpu_areas() in init/main.c?  So long as you want 
-> > > all the CPUs to start with the same initial values, it should work.
-> > > 
-> > > > What I'd suggest instead, is to make the allocation dynamic, and make it 
-> > > > inside the srcu functions (kind of like I did now, but I did it at a 
-> > > > higher level).
-> > > > 
-> > > > Doing it at the high level was trivial right now, but we may well end up 
-> > > > hitting this problem again if people start using SRCU more. Right now I 
-> > > > suspect the cpufreq notifier is the only thing that uses SRCU, and it 
-> > > > already showed this problem with SRCU initializers.
-> > > > 
-> > > > So I was more thinking about moving my "one special case high level hack" 
-> > > > down lower, down to the SRCU level, so that we'll never see _more_ of 
-> > > > those horrible hacks. We'll still have the hacky thing, but at least it 
-> > > > will be limited to a single place - the SRCU code itself.
-> > > 
-> > > Another possible approach (but equally disgusting) is to use this static 
-> > > allocation approach, and have the SRCU structure include both a static and 
-> > > a dynamic percpu pointer together with a flag indicating which should be 
-> > > used.
-> > 
-> > I am actually taking some suggestions you made some months ago.  At the
-> > time, I rejected them because they injected extra branches into the
-> > fastpath.  However, recent experience indicates that you (Alan Stern)
-> > were right and I was wrong -- turns out that the update-side overhead
-> > cannot be so lightly disregarded, which forces memory barriers (but
-> > neither atomics nor cache misses) into the fastpath.  If some application
-> > ends up being provably inconvenienced by the read-side overhead, they old
-> > implementation can be re-introduced under a different name or some such.
-> > 
-> > So, here is my current plan:
-> > 
-> > o	Add NULL checks on srcu_struct_array to srcu_read_lock(),
-> > 	srcu_read_unlock(), and synchronize_srcu.  These will
-> > 	acquire the mutex and attempt to initialize.  If out
-> > 	of memory, they will use the new hardluckref field.
-> > 
-> > o	Add memory barriers to srcu_read_lock() and srcu_read_unlock().
-> > 
-> > o	Also add a memory barrier or two to synchronize_srcu(), which,
-> > 	in combination with those in srcu_read_lock() and srcu_read_unlock(),
-> > 	permit removing two of the three synchronize_sched() calls
-> > 	in synchronize_srcu(), decreasing its latency by roughly
-> > 	a factor of three.
-> > 
-> > 	This change should have the added benefit of making
-> > 	synchronize_srcu() much easier to understand.
-> > 
-> > o	I left out the super-fastpath synchronize_srcu() because
-> > 	after sleeping on it, it scared me silly.  Might be OK,
-> > 	but needs careful thought.  The fastpath is of the form:
-> > 
-> > 	if (srcu_readers_active(sp) == 0) {
-> > 		smp_mb();
-> > 		return;
-> > 	}
-> > 
-> > 	prior to the mutex_lock() in synchronize_srcu().
-> 
-> It works for me, but the overhead is still large. Before it would take
-> 8-12 jiffies for a synchronize_srcu() to complete without there actually
-> being any reader locks active, now it takes 2-3 jiffies. So it's
-> definitely faster, and as suspected the loss of two of three
-> synchronize_sched() cut down the overhead to a third.
 
-Good to hear, thank you for trying it out!
+This is an update to my generic containers patch. The major change is
+support for multiple hierarchies of containers (up to a limit
+specified at build time).
 
-> It's still too heavy for me, by far the most calls I do to
-> synchronize_srcu() doesn't have any reader locks pending. I'm still a
-> big advocate of the fastpath srcu_readers_active() check. I can
-> understand the reluctance to make it the default, but for my case it's
-> "safe enough", so if we could either export srcu_readers_active() or
-> export a synchronize_srcu_fast() (or something like that), then SRCU
-> would be a good fit for barrier vs plug rework.
+- The mount options passed when mounting a container filesystem
+  indicate the set of controllers/subsystems that are wanted in the
+  hierarchy - e.g. "mount -t container -o cpuset,numtasks container /foo"
 
-OK, will export the interface.  Do your queues have associated locking?
+- Default is to try to mount all subsystems
 
-> > Attached is a patch that compiles, but probably goes down in flames
-> > otherwise.
-> 
-> Works here :-)
+- if a hierarchy with the requested set of subsystems already exists
+  then its superblock is reused
 
-I have at least a couple bugs that would show up under low-memory
-situations, will fix and post an update.
+- otherwise (as long as all the requested subsystems are currently not
+  in use in any hierarchy) a new hierarchy is created.
 
-							Thanx, Paul
+- hierarchies with more than one container (i.e. with any children of
+  the root container) persist even when unmounted;
+
+- /proc/containers shows current hierarchy/subsystem details
+
+- /proc/<pid>/container shows one line for each active hierarchy
+
+Other changes include:
+
+- ported to 2.6.19-rc5 
+
+- per-subsystem/per-container state is no longer just a void * - it
+  has some state maintained by the container framework (to handle
+  moving subsystems in and out of hierarchies when they are created/released)
+
+Note that this hasn't yet undergone intensive testing following the
+multi-hierarchy introduction, but I wanted to get the basic idea out
+for comments.
+
+TODOs include:
+
+- figuring out a nice way to handle release notifications now that
+  there are multiple hierarchies
+
+-------------------------------------
+
+There have recently been various proposals floating around for
+resource management/accounting subsystems in the kernel, including
+Res Groups, User BeanCounters and others.  These all need the basic
+abstraction of being able to group together multiple processes in an
+aggregate, in order to track/limit the resources permitted to those
+processes, and all implement this grouping in different ways.
+
+Already existing in the kernel is the cpuset subsystem; this has a
+process grouping mechanism that is mature, tested, and well documented
+(particularly with regards to synchronization rules).
+
+This patchset extracts the process grouping code from cpusets into a
+generic container system, and makes the cpusets code a client of
+the container system.
+
+It also provides a very simple additional container subsystem to do
+per-container CPU usage accounting; this is primarily to demonstrate
+use of the container subsystem API, but is useful in its own right.
+
+The change is implemented in five stages plus an additional example patch:
+
+1) extract the process grouping code from cpusets into a standalone system
+
+2) remove the process grouping code from cpusets and hook into the
+   container system
+
+3) convert the container system to present a generic multi-hierarchy
+   API, and make cpusets a client of that API
+
+4) add a simple CPU accounting container subsystem as an example
+
+5) add support for fork/exit callbacks iff some subsystem is interested in them
+
+6) example of implementing ResGroups and its numtasks controller over
+   generic containers - not intended to be applied with this patch set
+
+The intention is that the various resource management efforts can also
+become container clients, with the result that:
+
+- the userspace APIs are (somewhat) normalised
+
+- it's easier to test out e.g. the ResGroups CPU controller in
+ conjunction with the UBC memory controller
+
+- the additional kernel footprint of any of the competing resource
+ management systems is substantially reduced, since it doesn't need
+ to provide process grouping/containment, hence improving their
+ chances of getting into the kernel
+
+
+Signed-off-by: Paul Menage <menage@google.com>
+--

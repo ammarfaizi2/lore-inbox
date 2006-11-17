@@ -1,584 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755032AbWKQJgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755614AbWKQJgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755032AbWKQJgW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 04:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755617AbWKQJgW
+	id S1755614AbWKQJgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 04:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755031AbWKQJgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 04:36:22 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:54400 "HELO
+	Fri, 17 Nov 2006 04:36:23 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:56192 "HELO
 	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1755031AbWKQJgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 04:36:20 -0500
+	id S1755616AbWKQJgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 04:36:21 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ioxHJjLbAy7WP38vVpyOZwLEYp0l35y0X8sk5yOqO7JQPVHVPDUZ+YKjN+9j+tpwXV4KmLbihd7s2N4f31DuuqD3sIHmsxsE7OYgzK34iXhHfQkO1MpDZXlrCUbxE5vK0v3hqo3R/vZ2xD0YzIoMzBVIY6jPg42hw/iy7lRqdy0=  ;
-X-YMail-OSG: aBAZ7XkVM1nKI1sgz1qWa0LRAsqhNtSWdtAm8Rv4HMAZB84zOpkiaKAUS3aGum30zwC6yJTenTPgZ5QwJ33nZMukMulOAQnbfr4FJo_NzWyWD9xjrTVFZk4TqBbwgzifQAojXtc1oFUcqdAdWYcfzyKZk3XnEOOXPrQ-
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=6OpObVToXBtoczBSrqinLgobUlqsuOxV7RVBwO9yzSGQTM1qTfEKWeooGgOYCUayB9PERzR8GvXwzfGHVLyUUdXcny3UvRIQrQRhIFi5alQOQISROzf5L2XlJ3QhpCFag+OBmxDRmX6Qg3mHaLDjRp9PGR3XGOT8H+1uZNz212s=  ;
+X-YMail-OSG: coRJPZIVM1n11.rbMaUXwLYdomLu7PrSXCpoUeRiaW4vPKfaWgGswsHv27FJ13kFXZ283hN6sKMjEXFEf5UWtXWG9hFW4E4c06wpqRmW6pExpaxhyOpi4A--
 From: David Brownell <david-b@pacbell.net>
 To: Alessandro Zummo <alessandro.zummo@towertech.it>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.19-rc6] Documentation/rtc.txt updates (for rtc class)
-Date: Thu, 16 Nov 2006 23:09:31 -0800
+Subject: [patch 2.6.19-rc6] rtc class locking bugfixes
+Date: Thu, 16 Nov 2006 23:27:37 -0800
 User-Agent: KMail/1.7.1
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611162327.37306.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611162309.31879.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updates the RTC documentation to summarize the two APIs now available:
-the old PC/AT one, and the new RTC class drivers.  It also updates the
-included "rtctest.c" file to better meet Linux style guidelines, and to
-work with the new RTC drivers.
+I got a lockdep warning when running "rtctest" so I though it'd be good
+to see what was up.
+
+ - The warning was for rtc->irq_task_lock, gotten from rtc_update_irq()
+   by irq handlerss ... but in a handful of other cases, grabbed without
+   blocking IRQs.
+
+ - Some callers to rtc_update_irq() were not ensuring IRQs were blocked,
+   yet the routine expects that; make sure all callers block IRQs.
+
+It would appear that RTC API tests haven't been part of anyone's kernel
+regression test suite recently, at least not with lockdep running.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Index: g26/Documentation/rtc.txt
+Index: g26/drivers/rtc/interface.c
 ===================================================================
---- g26.orig/Documentation/rtc.txt	2006-11-16 18:16:17.000000000 -0800
-+++ g26/Documentation/rtc.txt	2006-11-16 23:07:35.000000000 -0800
-@@ -1,12 +1,49 @@
+--- g26.orig/drivers/rtc/interface.c	2006-06-28 22:02:19.000000000 -0700
++++ g26/drivers/rtc/interface.c	2006-11-16 21:54:35.000000000 -0800
+@@ -145,6 +145,13 @@ int rtc_set_alarm(struct class_device *c
+ }
+ EXPORT_SYMBOL_GPL(rtc_set_alarm);
  
--	Real Time Clock Driver for Linux
--	================================
-+	Real Time Clock (RTC) Drivers for Linux
-+	=======================================
-+
-+When Linux developers talk about a "Real Time Clock", they usually mean
-+something that tracks wall clock time and is battery backed so that it
-+works even with system power off.  Such clocks will normally not track
-+the local time zone or daylight savings time -- unless they dual boot
-+with MS-Windows -- but will instead be set to Coordinated Universal Time
-+(UTC, formerly "Greenwich Mean Time").
-+
-+The newest non-PC hardware tends to just count seconds, like the time(2)
-+system call reports, but RTCs also very commonly represent time using
-+the Gregorian calendar and 24 hour time, as reported by gmtime(3).
-+
-+Linux has two largely-compatible userspace RTC API families you may
-+need to know about:
-+
-+    *	/dev/rtc ... is the RTC provided by PC compatible systems,
-+	so it's not very portable to non-x86 systems.
-+    
-+    *	/dev/rtc0, /dev/rtc1 ... are part of a framework that's
-+	supported by a wide variety of RTC chips on all systems.
-+
-+Programmers need to understand that the PC/AT functionality is not
-+always available, and some systems can do much more.  That is, the
-+RTCs use the same API to make requests in both RTC frameworks (using
-+different filenames of course), but the hardware may not offer the
-+same functionality.  For example, not every RTC is hooked up to an
-+IRQ, so they can't all issue alarms; and where standard PC RTCs can
-+only issue an alarm up to 24 hours in the future, other hardware may
-+be able to schedule one any time in the upcoming century.
-+
-+
-+	Old PC/AT-Compatible driver:  /dev/rtc
-+	--------------------------------------
- 
- All PCs (even Alpha machines) have a Real Time Clock built into them.
- Usually they are built into the chipset of the computer, but some may
- actually have a Motorola MC146818 (or clone) on the board. This is the
- clock that keeps the date and time while your computer is turned off.
- 
-+ACPI has standardized that MC146818 functionality, and extended it in
-+a few ways (enabling longer alarm periods, and wake-from-hibernate).
-+That functionality is NOT exposed in the old driver.
-+
- However it can also be used to generate signals from a slow 2Hz to a
- relatively fast 8192Hz, in increments of powers of two. These signals
- are reported by interrupt number 8. (Oh! So *that* is what IRQ 8 is
-@@ -63,223 +100,331 @@ Rather than write 50 pages describing th
- perhaps more useful to include a small test program that demonstrates
- how to use them, and demonstrates the features of the driver. This is
- probably a lot more useful to people interested in writing applications
--that will be using this driver.
-+that will be using this driver.  See the code at the end of this document.
-+
-+(The original /dev/rtc driver was written by Paul Gortmaker.)
-+
-+
-+	New portable "RTC Class" drivers:  /dev/rtcN
-+	--------------------------------------------
-+
-+Because Linux supports many non-ACPI and non-PC platforms, some of which
-+have more than one RTC style clock, it needed a more portable solution
-+than expecting a single battery-backed MC146818 clone on every system.
-+Accordingly, a new "RTC Class" framework has been defined.  It offers
-+three different userspace interfaces:
-+
-+    *	/dev/rtcN ... much the same as the older /dev/rtc interface
-+
-+    *	/sys/class/rtc/rtcN ... sysfs attributes support readonly
-+	access to some RTC attributes.
-+
-+    *	/proc/driver/rtc ... the first RTC (rtc0) may expose itself
-+	using a procfs interface.  More information is (currently) shown
-+	here than through sysfs.
-+
-+The RTC Class framework supports a wide variety of RTCs, ranging from those
-+integrated into embeddable system-on-chip (SOC) processors to discrete chips
-+using I2C, SPI, or some other bus to communicate with the host CPU.  There's
-+even support for PC-style RTCs ... including the features exposed on newer PCs
-+through ACPI.
-+
-+The new framework also removes the "one RTC per system" restriction.  For
-+example, maybe the low-power battery-backed RTC is a discrete I2C chip, but
-+a high functionality RTC is integrated into the SOC.  That system might read
-+the system clock from the discrete RTC, but use the integrated one for all
-+other tasks, because of its greater functionality.
-+
-+The ioctl() calls supported by /dev/rtc are also supported by the RTC class
-+framework.  However, because the chips and systems are not standardized,
-+some PC/AT functionality might not be provided.  And in the same way, some
-+newer features -- including those enabled by ACPI -- are exposed by the
-+RTC class framework, but can't be supported by the older driver.
-+
-+    *	RTC_RD_TIME, RTC_SET_TIME ... every RTC supports at least reading
-+	time, returning the result as a Gregorian calendar date and 24 hour
-+	wall clock time.  To be most useful, this time may also be updated.
-+
-+    *	RTC_AIE_ON, RTC_AIE_OFF, RTC_ALM_SET, RTC_ALM_READ ... when the RTC
-+	is connected to an IRQ line, it can often issue an alarm IRQ up to
-+	24 hours in the future.
-+
-+    *	RTC_WKALM_SET, RTC_WKALM_READ ... RTCs that can issue alarms beyond
-+	the next 24 hours use a slightly more powerful API, which supports
-+	setting the longer alarm time and enabling its IRQ using a single
-+	request (using the same model as EFI firmware).
-+
-+    *	RTC_UIE_ON, RTC_UIE_OFF ... if the RTC offers IRQs, it probably
-+	also offers update IRQs whenever the "seconds" counter changes.
-+	If needed, the RTC framework can emulate this mechanism.
-+
-+    *	RTC_PIE_ON, RTC_PIE_OFF, RTC_IRQP_SET, RTC_IRQP_READ ... another
-+	feature often accessible with an IRQ line is a periodic IRQ, issued
-+	at settable frequencies (usually 2^N Hz).
-+
-+In many cases, the RTC alarm can be a system wake event, used to force
-+Linux out of a low power sleep state (or hibernation) back to a fully
-+operational state.  For example, a system could enter a deep power saving
-+state until it's time to execute some scheduled tasks.
- 
--						Paul Gortmaker
- 
- -------------------- 8< ---------------- 8< -----------------------------
- 
- /*
-- *	Real Time Clock Driver Test/Example Program
-+ *      Real Time Clock Driver Test/Example Program
-  *
-- *	Compile with:
-- *		gcc -s -Wall -Wstrict-prototypes rtctest.c -o rtctest
-+ *      Compile with:
-+ *		     gcc -s -Wall -Wstrict-prototypes rtctest.c -o rtctest
-  *
-- *	Copyright (C) 1996, Paul Gortmaker.
-+ *      Copyright (C) 1996, Paul Gortmaker.
-  *
-- *	Released under the GNU General Public License, version 2,
-- *	included herein by reference.
-+ *      Released under the GNU General Public License, version 2,
-+ *      included herein by reference.
-  *
-  */
- 
- #include <stdio.h>
--#include <stdlib.h>
- #include <linux/rtc.h>
- #include <sys/ioctl.h>
- #include <sys/time.h>
- #include <sys/types.h>
- #include <fcntl.h>
- #include <unistd.h>
-+#include <stdlib.h>
- #include <errno.h>
- 
--int main(void) {
- 
--int i, fd, retval, irqcount = 0;
--unsigned long tmp, data;
--struct rtc_time rtc_tm;
-+/*
-+ * This expects the new RTC class driver framework, working with
-+ * clocks that will often not be clones of what the PC-AT had.
-+ * Use the command line to specify another RTC if you need one.
++/**
++ * rtc_update_irq - report RTC periodic, alarm, and/or update irqs
++ * @class_dev: the rtc's class device
++ * @num: how many irqs are being reported (usually one)
++ * @events: mask of RTC_IRQF with one or more of RTC_PF, RTC_AF, RTC_UF
++ * Context: in_interrupt(), irqs blocked
 + */
-+static const char default_rtc[] = "/dev/rtc0";
+ void rtc_update_irq(struct class_device *class_dev,
+ 		unsigned long num, unsigned long events)
+ {
+@@ -201,12 +208,12 @@ int rtc_irq_register(struct class_device
+ 	if (task == NULL || task->func == NULL)
+ 		return -EINVAL;
  
--fd = open ("/dev/rtc", O_RDONLY);
- 
--if (fd ==  -1) {
--	perror("/dev/rtc");
--	exit(errno);
--}
-+int main(int argc, char **argv)
-+{
-+	int i, fd, retval, irqcount = 0;
-+	unsigned long tmp, data;
-+	struct rtc_time rtc_tm;
-+	const char *rtc = default_rtc;
-+
-+	switch (argc) {
-+	case 2:
-+		rtc = argv[1];
-+		/* FALLTHROUGH */
-+	case 1:
-+		break;
-+	default:
-+		fprintf(stderr, "usage:  rtctest [rtcdev]\n");
-+		return 1;
-+	}
- 
--fprintf(stderr, "\n\t\t\tRTC Driver Test Example.\n\n");
-+	fd = open(rtc, O_RDONLY);
- 
--/* Turn on update interrupts (one per second) */
--retval = ioctl(fd, RTC_UIE_ON, 0);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
-+	if (fd ==  -1) {
-+		perror(rtc);
-+		exit(errno);
-+	}
- 
--fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading /dev/rtc:");
--fflush(stderr);
--for (i=1; i<6; i++) {
--	/* This read will block */
--	retval = read(fd, &data, sizeof(unsigned long));
-+	fprintf(stderr, "\n\t\t\tRTC Driver Test Example.\n\n");
-+
-+	/* Turn on update interrupts (one per second) */
-+	retval = ioctl(fd, RTC_UIE_ON, 0);
- 	if (retval == -1) {
--		perror("read");
-+		if (errno == ENOTTY) {
-+			fprintf(stderr,
-+				"\n...Update IRQs not supported.\n");
-+			goto test_READ;
-+		}
-+		perror("ioctl");
- 		exit(errno);
+-	spin_lock(&rtc->irq_task_lock);
++	spin_lock_irq(&rtc->irq_task_lock);
+ 	if (rtc->irq_task == NULL) {
+ 		rtc->irq_task = task;
+ 		retval = 0;
  	}
--	fprintf(stderr, " %d",i);
-+
-+	fprintf(stderr, "Counting 5 update (1/sec) interrupts from reading %s:",
-+			rtc);
- 	fflush(stderr);
--	irqcount++;
--}
-+	for (i=1; i<6; i++) {
-+		/* This read will block */
-+		retval = read(fd, &data, sizeof(unsigned long));
-+		if (retval == -1) {
-+		        perror("read");
-+		        exit(errno);
-+		}
-+		fprintf(stderr, " %d",i);
-+		fflush(stderr);
-+		irqcount++;
-+	}
-+
-+	fprintf(stderr, "\nAgain, from using select(2) on /dev/rtc:");
-+	fflush(stderr);
-+	for (i=1; i<6; i++) {
-+		struct timeval tv = {5, 0};     /* 5 second timeout on select */
-+		fd_set readfds;
-+
-+		FD_ZERO(&readfds);
-+		FD_SET(fd, &readfds);
-+		/* The select will wait until an RTC interrupt happens. */
-+		retval = select(fd+1, &readfds, NULL, NULL, &tv);
-+		if (retval == -1) {
-+		        perror("select");
-+		        exit(errno);
-+		}
-+		/* This read won't block unlike the select-less case above. */
-+		retval = read(fd, &data, sizeof(unsigned long));
-+		if (retval == -1) {
-+		        perror("read");
-+		        exit(errno);
-+		}
-+		fprintf(stderr, " %d",i);
-+		fflush(stderr);
-+		irqcount++;
-+	}
+-	spin_unlock(&rtc->irq_task_lock);
++	spin_unlock_irq(&rtc->irq_task_lock);
  
--fprintf(stderr, "\nAgain, from using select(2) on /dev/rtc:");
--fflush(stderr);
--for (i=1; i<6; i++) {
--	struct timeval tv = {5, 0};	/* 5 second timeout on select */
--	fd_set readfds;
--
--	FD_ZERO(&readfds);
--	FD_SET(fd, &readfds);
--	/* The select will wait until an RTC interrupt happens. */
--	retval = select(fd+1, &readfds, NULL, NULL, &tv);
-+	/* Turn off update interrupts */
-+	retval = ioctl(fd, RTC_UIE_OFF, 0);
- 	if (retval == -1) {
--		perror("select");
-+		perror("ioctl");
- 		exit(errno);
+ 	return retval;
+ }
+@@ -216,10 +223,10 @@ void rtc_irq_unregister(struct class_dev
+ {
+ 	struct rtc_device *rtc = to_rtc_device(class_dev);
+ 
+-	spin_lock(&rtc->irq_task_lock);
++	spin_lock_irq(&rtc->irq_task_lock);
+ 	if (rtc->irq_task == task)
+ 		rtc->irq_task = NULL;
+-	spin_unlock(&rtc->irq_task_lock);
++	spin_unlock_irq(&rtc->irq_task_lock);
+ }
+ EXPORT_SYMBOL_GPL(rtc_irq_unregister);
+ 
+Index: g26/drivers/rtc/rtc-dev.c
+===================================================================
+--- g26.orig/drivers/rtc/rtc-dev.c	2006-11-16 19:44:52.000000000 -0800
++++ g26/drivers/rtc/rtc-dev.c	2006-11-16 21:37:45.000000000 -0800
+@@ -61,7 +61,9 @@ static void rtc_uie_task(void *data)
+ 	int err;
+ 
+ 	err = rtc_read_time(&rtc->class_dev, &tm);
+-	spin_lock_irq(&rtc->irq_lock);
++
++	local_irq_disable();
++	spin_lock(&rtc->irq_lock);
+ 	if (rtc->stop_uie_polling || err) {
+ 		rtc->uie_task_active = 0;
+ 	} else if (rtc->oldsecs != tm.tm_sec) {
+@@ -74,11 +76,11 @@ static void rtc_uie_task(void *data)
+ 	} else if (schedule_work(&rtc->uie_task) == 0) {
+ 		rtc->uie_task_active = 0;
  	}
--	/* This read won't block unlike the select-less case above. */
--	retval = read(fd, &data, sizeof(unsigned long));
-+
-+test_READ:
-+	/* Read the RTC time/date */
-+	retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
- 	if (retval == -1) {
--		perror("read");
-+		perror("ioctl");
- 		exit(errno);
- 	}
--	fprintf(stderr, " %d",i);
--	fflush(stderr);
--	irqcount++;
--}
+-	spin_unlock_irq(&rtc->irq_lock);
++	spin_unlock(&rtc->irq_lock);
+ 	if (num)
+ 		rtc_update_irq(&rtc->class_dev, num, RTC_UF | RTC_IRQF);
++	local_irq_enable();
+ }
 -
--/* Turn off update interrupts */
--retval = ioctl(fd, RTC_UIE_OFF, 0);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--
--/* Read the RTC time/date */
--retval = ioctl(fd, RTC_RD_TIME, &rtc_tm);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--
--fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
--	rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
--	rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
--
--/* Set the alarm to 5 sec in the future, and check for rollover */
--rtc_tm.tm_sec += 5;
--if (rtc_tm.tm_sec >= 60) {
--	rtc_tm.tm_sec %= 60;
--	rtc_tm.tm_min++;
--}
--if  (rtc_tm.tm_min == 60) {
--	rtc_tm.tm_min = 0;
--	rtc_tm.tm_hour++;
--}
--if  (rtc_tm.tm_hour == 24)
--	rtc_tm.tm_hour = 0;
--
--retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--
--/* Read the current alarm settings */
--retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--
--fprintf(stderr, "Alarm time now set to %02d:%02d:%02d.\n",
--	rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+ static void rtc_uie_timer(unsigned long data)
+ {
+ 	struct rtc_device *rtc = (struct rtc_device *)data;
+@@ -238,10 +240,10 @@ static int rtc_dev_ioctl(struct inode *i
  
--/* Enable alarm interrupts */
--retval = ioctl(fd, RTC_AIE_ON, 0);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--
--fprintf(stderr, "Waiting 5 seconds for alarm...");
--fflush(stderr);
--/* This blocks until the alarm ring causes an interrupt */
--retval = read(fd, &data, sizeof(unsigned long));
--if (retval == -1) {
--	perror("read");
--	exit(errno);
--}
--irqcount++;
--fprintf(stderr, " okay. Alarm rang.\n");
--
--/* Disable alarm interrupts */
--retval = ioctl(fd, RTC_AIE_OFF, 0);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
-+	fprintf(stderr, "\n\nCurrent RTC date/time is %d-%d-%d, %02d:%02d:%02d.\n",
-+		rtc_tm.tm_mday, rtc_tm.tm_mon + 1, rtc_tm.tm_year + 1900,
-+		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
-+
-+	/* Set the alarm to 5 sec in the future, and check for rollover */
-+	rtc_tm.tm_sec += 5;
-+	if (rtc_tm.tm_sec >= 60) {
-+		rtc_tm.tm_sec %= 60;
-+		rtc_tm.tm_min++;
-+	}
-+	if  (rtc_tm.tm_min == 60) {
-+		rtc_tm.tm_min = 0;
-+		rtc_tm.tm_hour++;
-+	}
-+	if  (rtc_tm.tm_hour == 24)
-+		rtc_tm.tm_hour = 0;
+ 	/* avoid conflicting IRQ users */
+ 	if (cmd == RTC_PIE_ON || cmd == RTC_PIE_OFF || cmd == RTC_IRQP_SET) {
+-		spin_lock(&rtc->irq_task_lock);
++		spin_lock_irq(&rtc->irq_task_lock);
+ 		if (rtc->irq_task)
+ 			err = -EBUSY;
+-		spin_unlock(&rtc->irq_task_lock);
++		spin_unlock_irq(&rtc->irq_task_lock);
  
--/* Read periodic IRQ rate */
--retval = ioctl(fd, RTC_IRQP_READ, &tmp);
--if (retval == -1) {
--	perror("ioctl");
--	exit(errno);
--}
--fprintf(stderr, "\nPeriodic IRQ rate was %ldHz.\n", tmp);
-+	retval = ioctl(fd, RTC_ALM_SET, &rtc_tm);
-+	if (retval == -1) {
-+		if (errno == ENOTTY) {
-+			fprintf(stderr,
-+				"\n...Alarm IRQs not supported.\n");
-+			goto test_PIE;
-+		}
-+		perror("ioctl");
-+		exit(errno);
-+	}
+ 		if (err < 0)
+ 			return err;
+Index: g26/drivers/rtc/rtc-at91.c
+===================================================================
+--- g26.orig/drivers/rtc/rtc-at91.c	2006-11-16 18:47:20.000000000 -0800
++++ g26/drivers/rtc/rtc-at91.c	2006-11-16 19:46:11.000000000 -0800
+@@ -292,7 +292,8 @@ static int __init at91_rtc_probe(struct 
+ 					AT91_RTC_CALEV);
  
--fprintf(stderr, "Counting 20 interrupts at:");
--fflush(stderr);
-+	/* Read the current alarm settings */
-+	retval = ioctl(fd, RTC_ALM_READ, &rtc_tm);
-+	if (retval == -1) {
-+		perror("ioctl");
-+		exit(errno);
-+	}
+ 	ret = request_irq(AT91_ID_SYS, at91_rtc_interrupt,
+-				IRQF_SHARED, "at91_rtc", pdev);
++				IRQF_DISABLED | IRQF_SHARED,
++				"at91_rtc", pdev);
+ 	if (ret) {
+ 		printk(KERN_ERR "at91_rtc: IRQ %d already in use.\n",
+ 				AT91_ID_SYS);
+Index: g26/drivers/rtc/rtc-ds1553.c
+===================================================================
+--- g26.orig/drivers/rtc/rtc-ds1553.c	2006-10-13 15:41:11.000000000 -0700
++++ g26/drivers/rtc/rtc-ds1553.c	2006-11-16 19:47:08.000000000 -0800
+@@ -340,7 +340,8 @@ static int __init ds1553_rtc_probe(struc
  
--/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
--for (tmp=2; tmp<=64; tmp*=2) {
-+	fprintf(stderr, "Alarm time now set to %02d:%02d:%02d.\n",
-+		rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+ 	if (pdata->irq >= 0) {
+ 		writeb(0, ioaddr + RTC_INTERRUPTS);
+-		if (request_irq(pdata->irq, ds1553_rtc_interrupt, IRQF_SHARED,
++		if (request_irq(pdata->irq, ds1553_rtc_interrupt,
++				IRQF_DISABLED | IRQF_SHARED,
+ 				pdev->name, pdev) < 0) {
+ 			dev_warn(&pdev->dev, "interrupt not available.\n");
+ 			pdata->irq = -1;
+Index: g26/drivers/rtc/rtc-test.c
+===================================================================
+--- g26.orig/drivers/rtc/rtc-test.c	2006-10-05 19:43:53.000000000 -0700
++++ g26/drivers/rtc/rtc-test.c	2006-11-16 19:50:33.000000000 -0800
+@@ -99,6 +99,7 @@ static ssize_t test_irq_store(struct dev
+ 	struct rtc_device *rtc = platform_get_drvdata(plat_dev);
  
--	retval = ioctl(fd, RTC_IRQP_SET, tmp);
-+	/* Enable alarm interrupts */
-+	retval = ioctl(fd, RTC_AIE_ON, 0);
- 	if (retval == -1) {
- 		perror("ioctl");
- 		exit(errno);
- 	}
+ 	retval = count;
++	local_irq_disable();
+ 	if (strncmp(buf, "tick", 4) == 0)
+ 		rtc_update_irq(&rtc->class_dev, 1, RTC_PF | RTC_IRQF);
+ 	else if (strncmp(buf, "alarm", 5) == 0)
+@@ -107,6 +108,7 @@ static ssize_t test_irq_store(struct dev
+ 		rtc_update_irq(&rtc->class_dev, 1, RTC_UF | RTC_IRQF);
+ 	else
+ 		retval = -EINVAL;
++	local_irq_enable();
  
--	fprintf(stderr, "\n%ldHz:\t", tmp);
-+	fprintf(stderr, "Waiting 5 seconds for alarm...");
- 	fflush(stderr);
-+	/* This blocks until the alarm ring causes an interrupt */
-+	retval = read(fd, &data, sizeof(unsigned long));
-+	if (retval == -1) {
-+		perror("read");
-+		exit(errno);
-+	}
-+	irqcount++;
-+	fprintf(stderr, " okay. Alarm rang.\n");
- 
--	/* Enable periodic interrupts */
--	retval = ioctl(fd, RTC_PIE_ON, 0);
-+	/* Disable alarm interrupts */
-+	retval = ioctl(fd, RTC_AIE_OFF, 0);
- 	if (retval == -1) {
- 		perror("ioctl");
- 		exit(errno);
- 	}
- 
--	for (i=1; i<21; i++) {
--		/* This blocks */
--		retval = read(fd, &data, sizeof(unsigned long));
-+test_PIE:
-+	/* Read periodic IRQ rate */
-+	retval = ioctl(fd, RTC_IRQP_READ, &tmp);
-+	if (retval == -1) {
-+		/* not all RTCs support periodic IRQs */
-+		if (errno == ENOTTY) {
-+			fprintf(stderr, "\nNo periodic IRQ support\n");
-+			return 0;
-+		}
-+		perror("ioctl");
-+		exit(errno);
-+	}
-+	fprintf(stderr, "\nPeriodic IRQ rate is %ldHz.\n", tmp);
-+
-+	fprintf(stderr, "Counting 20 interrupts at:");
-+	fflush(stderr);
-+
-+	/* The frequencies 128Hz, 256Hz, ... 8192Hz are only allowed for root. */
-+	for (tmp=2; tmp<=64; tmp*=2) {
-+
-+		retval = ioctl(fd, RTC_IRQP_SET, tmp);
- 		if (retval == -1) {
--			perror("read");
--			exit(errno);
-+			/* not all RTCs can change their periodic IRQ rate */
-+			if (errno == ENOTTY) {
-+				fprintf(stderr,
-+					"\n...Periodic IRQ rate is fixed\n");
-+				goto done;
-+			}
-+		        perror("ioctl");
-+		        exit(errno);
- 		}
--		fprintf(stderr, " %d",i);
-+
-+		fprintf(stderr, "\n%ldHz:\t", tmp);
- 		fflush(stderr);
--		irqcount++;
--	}
- 
--	/* Disable periodic interrupts */
--	retval = ioctl(fd, RTC_PIE_OFF, 0);
--	if (retval == -1) {
--		perror("ioctl");
--		exit(errno);
-+		/* Enable periodic interrupts */
-+		retval = ioctl(fd, RTC_PIE_ON, 0);
-+		if (retval == -1) {
-+		        perror("ioctl");
-+		        exit(errno);
-+		}
-+
-+		for (i=1; i<21; i++) {
-+		        /* This blocks */
-+		        retval = read(fd, &data, sizeof(unsigned long));
-+		        if (retval == -1) {
-+				       perror("read");
-+				       exit(errno);
-+		        }
-+		        fprintf(stderr, " %d",i);
-+		        fflush(stderr);
-+		        irqcount++;
-+		}
-+
-+		/* Disable periodic interrupts */
-+		retval = ioctl(fd, RTC_PIE_OFF, 0);
-+		if (retval == -1) {
-+		        perror("ioctl");
-+		        exit(errno);
-+		}
- 	}
--}
- 
--fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
--fprintf(stderr, "\nTyping \"cat /proc/interrupts\" will show %d more events on IRQ 8.\n\n",
--								 irqcount);
-+done:
-+	fprintf(stderr, "\n\n\t\t\t *** Test complete ***\n");
- 
--close(fd);
--return 0;
-+	close(fd);
- 
--} /* end main */
-+	return 0;
-+}
+ 	return retval;
+ }

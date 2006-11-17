@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754889AbWKQIMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755511AbWKQIPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754889AbWKQIMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 03:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754891AbWKQIMT
+	id S1755511AbWKQIPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 03:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755539AbWKQIPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 03:12:19 -0500
-Received: from s131.mittwaldmedien.de ([62.216.178.31]:58199 "EHLO
-	s131.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S1754889AbWKQIMT convert rfc822-to-8bit (ORCPT
+	Fri, 17 Nov 2006 03:15:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2989 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1755511AbWKQIPY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 03:12:19 -0500
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
-To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Subject: Re: [PATCH] usb: generic calibration support
-Date: Fri, 17 Nov 2006 09:12:29 +0100
-User-Agent: KMail/1.9.5
-Cc: daniel.ritz@gmx.ch, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>
-References: <200611161125.38901.hs4233@mail.mn-solutions.de> <200611170024.33248.daniel.ritz-ml@swissonline.ch>
-In-Reply-To: <200611170024.33248.daniel.ritz-ml@swissonline.ch>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200611170912.29317.hs4233@mail.mn-solutions.de>
+	Fri, 17 Nov 2006 03:15:24 -0500
+Date: Fri, 17 Nov 2006 00:15:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       uril@qumranet.com
+Subject: Re: [PATCH 3/3] KVM: Expose MSRs to userspace
+Message-Id: <20061117001510.58f01b3c.akpm@osdl.org>
+In-Reply-To: <455D62D1.6040203@qumranet.com>
+References: <455CA70C.9060307@qumranet.com>
+	<20061116180422.0CC9325015E@cleopatra.q>
+	<20061116170214.b7785bd0.akpm@osdl.org>
+	<455D62D1.6040203@qumranet.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sorry, but i have to give you a big NACK on that one:
+On Fri, 17 Nov 2006 09:20:49 +0200
+Avi Kivity <avi@qumranet.com> wrote:
 
-Hehe, I actually anticipated this NACK :-)
+> >> +out_vcpu:
+> >> +	vcpu_put(vcpu);
+> >> +
+> >> +	return rc;
+> >> +}
+> >>     
+> >
+> > This function returns no indication of how many msrs it actually did set. 
+> > Should it?
+> >   
+> 
+> It can't hurt.  Is returning the number of msrs set in the return code 
+> (ala short write) acceptable, or do I need to make this a read/write ioctl?
+> 
 
-> - no more modparam: it should be per-device sysfs attributes
->   (swap_xy is basically only for touchkitusb compatibility and 
->    shoud be converted to per-device sysfs attribute as well. i
->   just never got to do it)
+I'd have thought that you'd just copy the number written into msrs->nmsrs via
 
-That would be okay for me.
+	msrs->nmsrs = num_entries;
 
-> - calibration can be handled in userspace just fine
-
-Yes it can, and that is the most convinging argument against my 
-patch.
-
-However, user-space calibration often sucks. For example, in X11 
-the calibration values are stored in /etc/X11/xorg.conf, so a 
-calibration program has to parse & write that file. And I've 
-seen binary-only-calibration programs from vendors 
-use /etc/X11/XF86Config, which doesn't exist here. Anyway, once 
-you've calibrated you have to restart X-Windows, so you need to 
-terminate all running X applications just because of a silly 
-re-calibration. Not nice.
-
-A calibration at kernel level (may it be input level or driver 
-level) doesn't have this problem. I can make the level 
-persistent via udev, modules.conf or other means. Even when I 
-have a frame-buffer based calibration utility, the calibration 
-would be OK for X11 or GTK/DirectFB as well.
-
-For me, this speaks against "Calibration is purely a user-space 
-problem".
-
-> - even for in-kernel it's in the wrong place. there are other
->   devices that report raw absolute data...so it would belong to
->   the input layer 
-
-Suppose I have a graphics tabled and a touchscreen connected at 
-the same time. Can I distinguish this easily at the input layer 
-level?
-
-I can very easily distinguish this at the device driver level. 
-After all, the individual calibration parameters are a property 
-of this individual device.
+like kvm_dev_ioctl_set_msrs() does.  Dunno...

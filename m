@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933749AbWKQRwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933751AbWKQRzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933749AbWKQRwo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 12:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933750AbWKQRwo
+	id S933751AbWKQRzG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 12:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933754AbWKQRzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 12:52:44 -0500
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:21144 "EHLO
-	outbound1-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S933749AbWKQRwn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 12:52:43 -0500
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 17 Nov 2006 12:55:06 -0500
+Received: from nlpi012.sbcis.sbc.com ([207.115.36.41]:57066 "EHLO
+	nlpi012.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S933751AbWKQRzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 12:55:04 -0500
+X-ORBL: [67.117.73.34]
+Date: Fri, 17 Nov 2006 19:54:32 +0200
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Vladimir Ananiev <vovan888@gmail.com>
+Subject: Re: Basic support for siemens sx1
+Message-ID: <20061117175431.GD6072@atomide.com>
+References: <20061116170209.GA5544@elf.ucw.cz>
 MIME-Version: 1.0
-Subject: RE: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Date: Fri, 17 Nov 2006 09:42:06 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA4907218@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] ALSA: hda-intel - Disable MSI support by default
-Thread-Index: AccKZo9fjm91zKORQRiSwimRZF+gNgACMIGA
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-cc: "Takashi Iwai" <tiwai@suse.de>, "Olivier Nicolas" <olivn@trollprod.org>,
-       "Jeff Garzik" <jeff@garzik.org>, "David Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 17 Nov 2006 17:42:07.0363 (UTC)
- FILETIME=[B3912530:01C70A6F]
-X-WSS-ID: 69432BE40T0676213-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061116170209.GA5544@elf.ucw.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Linus Torvalds [mailto:torvalds@osdl.org] 
+Hi,
 
->Eventually, MSI will hopefully be the more robust of the two methods. 
->Maybe it will take a year. And maybe we'll end up not using MSI on a
-lot 
->of the _current_ crop of motherboards. We don't want to carry the "fall
+* Pavel Machek <pavel@ucw.cz> [061116 19:04]:
+> From: Vladimir Ananiev <vovan888@gmail.com>
+> 
+> This adds basic support for Siemens SX1. More patches are available,
+> with video driver, mixer, and serial ports working. That is enough to
+> do gsm calls with right userland.
 
->back from MSI to INTx" code around. We just want a flag saying "use
-MSI" 
->or "use INTx".
+Cool.
+ 
+> It would be nice to get basic patches merged to the -omap tree... do
+> they look ok?
 
-Good, that will be simple and clear.
+Yeah, looks good, except for the i2c part. Is Sofia really a TI PCF8574
+i2c chip? In that case it could use the gpioexpander code.  
 
-YH
+Anyways, let's plan on pushing this to linux-omap tree, then do the
+changes for gpioexpander, and send that upstream too.
 
+Regards,
 
+Tony

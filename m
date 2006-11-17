@@ -1,111 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755530AbWKQHU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755011AbWKQHVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755530AbWKQHU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 02:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755011AbWKQHU4
+	id S1755011AbWKQHVU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 02:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753182AbWKQHVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 02:20:56 -0500
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:16337 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1753182AbWKQHU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 02:20:56 -0500
-Message-ID: <455D62D1.6040203@qumranet.com>
-Date: Fri, 17 Nov 2006 09:20:49 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       uril@qumranet.com
-Subject: Re: [PATCH 3/3] KVM: Expose MSRs to userspace
-References: <455CA70C.9060307@qumranet.com>	<20061116180422.0CC9325015E@cleopatra.q> <20061116170214.b7785bd0.akpm@osdl.org>
-In-Reply-To: <20061116170214.b7785bd0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Nov 2006 07:20:55.0400 (UTC) FILETIME=[EBBEEE80:01C70A18]
+	Fri, 17 Nov 2006 02:21:20 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:12229 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1755011AbWKQHVT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 02:21:19 -0500
+Date: Fri, 17 Nov 2006 07:59:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
+Message-ID: <20061117065957.GA14242@elte.hu>
+References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163716638.26026.8.camel@localhost.localdomain> <20061117055521.GA30189@elte.hu> <20061117065043.GA12664@elte.hu> <20061117065440.GA13246@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061117065440.GA13246@elte.hu>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.0868]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Thu, 16 Nov 2006 18:04:22 -0000
-> Avi Kivity <avi@qumranet.com> wrote:
->
->   
->> +static int kvm_dev_ioctl_set_msrs(struct kvm *kvm, struct kvm_msrs *msrs)
->> +{
->> +	struct kvm_vcpu *vcpu;
->> +	struct kvm_msr_entry *entry, *entries;
->> +	int rc;
->> +	u32 size, num_entries, i;
->> +
->> +	if (msrs->vcpu < 0 || msrs->vcpu >= KVM_MAX_VCPUS)
->> +		return -EINVAL;
->> +
->> +	num_entries = ARRAY_SIZE(msrs_to_save);
->> +	if (msrs->nmsrs < num_entries) {
->> +		msrs->nmsrs = num_entries; /* inform actual size */
->> +		return -EINVAL;
->> +	}
->> +
->> +	vcpu = vcpu_load(kvm, msrs->vcpu);
->> +	if (!vcpu)
->> +		return -ENOENT;
->> +
->> +	size = msrs->nmsrs * sizeof(struct kvm_msr_entry);
->> +	rc = -E2BIG;
->> +	if (size > 4096)
->> +		goto out_vcpu;
->>     
->
-> Classic mutiplicative overflow bug.  
 
-Right, will fix.  The 4096 limit is arbitrary anyway, and can be 
-replaced by an arbitrary limit on nmsrs.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
+> actually, it should only hit CONFIG_SPINLOCK_BKL, which is an option 
+> no-one should be using these days. I'll disable that option for now.
 
-> Only msrs->nmsrs doesn't get used
-> again, so there is no bug here.  Yet.
->
->   
+i fixed it instead - fix should show up in 2.6.19-rt1.
 
-But why isn't it used again?  Looks like the kernel is forcing the user 
-to send at least num_entries for no good reason, and ignoring any 
-entries beyond num_entries.
-
->> +	rc = -ENOMEM;
->> +	entries = vmalloc(size);
->> +	if (entries == NULL)
->> +		goto out_vcpu;
->> +
->> +	rc = -EFAULT;
->> +	if (copy_from_user(entries, msrs->entries, size))
->> +		goto out_free;
->> +
->> +	rc = -EINVAL;
->> +	for (i=0; i<num_entries; i++) {
->> +		entry = &entries[i];
->> +		if (set_msr(vcpu, entry->index,  entry->data))
->> +			goto out_free;
->> +	}
->> +
->> +	rc = 0;
->> +out_free:
->> +	vfree(entries);
->> +
->> +out_vcpu:
->> +	vcpu_put(vcpu);
->> +
->> +	return rc;
->> +}
->>     
->
-> This function returns no indication of how many msrs it actually did set. 
-> Should it?
->   
-
-It can't hurt.  Is returning the number of msrs set in the return code 
-(ala short write) acceptable, or do I need to make this a read/write ioctl?
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+	Ingo

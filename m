@@ -1,90 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755791AbWKQScV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWKQSf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755791AbWKQScV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 13:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755792AbWKQScV
+	id S1751893AbWKQSf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 13:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWKQSf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 13:32:21 -0500
-Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:24494 "EHLO
-	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
-	id S1755787AbWKQScU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 13:32:20 -0500
-Subject: Re: [openib-general] [PATCH  09/13] Core WQE/CQE Types
-From: Steve Wise <swise@opengridcomputing.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rdreier@cisco.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <455DFD23.8050504@pathscale.com>
-References: <20061116035826.22635.61230.stgit@dell3.ogc.int>
-	 <20061116035912.22635.21736.stgit@dell3.ogc.int>
-	 <455DFD23.8050504@pathscale.com>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 12:32:19 -0600
-Message-Id: <1163788339.8457.95.camel@stevo-desktop>
+	Fri, 17 Nov 2006 13:35:58 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:35821 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1750961AbWKQSf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 13:35:57 -0500
+Date: Fri, 17 Nov 2006 18:35:52 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <linux-acpi@vger.kernel.org>
+Subject: Re: acpiphp makes noise on every lid close/open
+Message-ID: <20061117183552.GA3621@srcf.ucam.org>
+References: <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org> <20061117153717.GU14886@vasa.acc.umu.se> <20061117154627.GA1544@srcf.ucam.org> <20061117160810.GW14886@vasa.acc.umu.se> <20061117163128.GA2068@srcf.ucam.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061117163128.GA2068@srcf.ucam.org>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-17 at 10:19 -0800, Bryan O'Sullivan wrote:
-> Steve Wise wrote:
-> > T3 WQE and CQE structures, defines, etc...
-> 
-> I notice that none of the fields in these structs seem to be 
-> endianness-annotated, but that there's a lot of cpu_to_be64 and so on 
-> being used to frob values into them.  Please make sure that the driver 
-> passes a sparse check, which it looks like it almost certainly cannot 
-> right now.
+On Fri, Nov 17, 2006 at 04:31:28PM +0000, Matthew Garrett wrote:
 
-It passes sparse with only a few warnings about calling memset() with a
-size > 100000.  I don't know how to get around this warning, however,
-because I indeed want to initialize large chunks of memory to zero using
-memset...
+> Possibly what's needed is something like Apple's nullfs 
 
-The HW is BE.  So building WR's that get DMA'd to the adapter need
-values in BE.  Also, pulling values out of the CQE require mapping back
-to cpu byte order. 
+deadfs, rather.
 
-> 
-> > +#define RING_DOORBELL(doorbell, QPID) { \
-> > +	(writel(((1<<31) | (QPID)), doorbell)); \
-> > +}
-> 
-> Should probably be an inline function instead of a macro.
-> 
-
-Ok.
-
-
-BTW: here is the sparse output:
-
-vic13:/home/swise/git/linux-2.6.git # make C=1
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CHK     include/linux/compile.h
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_cm.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_cm.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_ev.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_ev.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_cq.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_cq.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_qp.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_qp.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_mem.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_mem.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch_provider.c
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch_provider.o
-  CHECK   drivers/infiniband/hw/cxgb3/iwch.c
-drivers/infiniband/hw/cxgb3/iwch.c:70:8: warning: memset with byte count of 262144
-drivers/infiniband/hw/cxgb3/iwch.c:70:8: warning: memset with byte count of 262144
-drivers/infiniband/hw/cxgb3/iwch.c:70:8: warning: memset with byte count of 262144
-  CC [M]  drivers/infiniband/hw/cxgb3/iwch.o
-  CHECK   drivers/infiniband/hw/cxgb3/core/cxio_hal.c
-drivers/infiniband/hw/cxgb3/core/cxio_hal.c:550:8: warning: memset with byte count of 131072
-  CC [M]  drivers/infiniband/hw/cxgb3/core/cxio_hal.o
-  CHECK   drivers/infiniband/hw/cxgb3/core/cxio_resource.c
-  CC [M]  drivers/infiniband/hw/cxgb3/core/cxio_resource.o
-  LD [M]  drivers/infiniband/hw/cxgb3/iw_cxgb3.o
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

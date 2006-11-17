@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162379AbWKQGQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162401AbWKQGWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162379AbWKQGQU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 01:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162380AbWKQGQU
+	id S1162401AbWKQGWE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 01:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162402AbWKQGWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 01:16:20 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:42683 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162379AbWKQGQT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 01:16:19 -0500
-Date: Thu, 16 Nov 2006 22:16:32 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Jens Axboe <jens.axboe@oracle.com>
-Subject: Re: [stable] [patch 05/30] splice: fix problem introduced with inode diet
-Message-ID: <20061117061632.GK1397@sequoia.sous-sol.org>
-References: <20061116024332.124753000@sous-sol.org> <20061116024450.158521000@sous-sol.org> <20061117025253.GT3983@redhat.com>
+	Fri, 17 Nov 2006 01:22:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9450 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1162401AbWKQGWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 01:22:01 -0500
+Date: Fri, 17 Nov 2006 06:55:21 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
+Message-ID: <20061117055521.GA30189@elte.hu>
+References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163716638.26026.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117025253.GT3983@redhat.com>
+In-Reply-To: <1163716638.26026.8.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.1735]
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones (davej@redhat.com) wrote:
-> On Wed, Nov 15, 2006 at 06:43:37PM -0800, Chris Wright wrote:
->  > -stable review patch.  If anyone has any objections, please let us know.
->  > ------------------
->  > 
->  > From: Jens Axboe <jens.axboe@oracle.com>
->  > 
->  > After the inode slimming patch that unionised i_pipe/i_bdev/i_cdev, it's
->  > no longer enough to check for existance of ->i_pipe to verify that this
->  > is a pipe.
->  > 
->  > Original patch from Eric Dumazet <dada1@cosmosbay.com>
->  > Final solution suggested by Linus.
-> 
-> 2.6.18 didn't have the inode-diet patches.
 
-Thanks, you're right, this is needless churn.  Dropping.
--chris
+* Daniel Walker <dwalker@mvista.com> wrote:
+
+> On Thu, 2006-11-16 at 23:07 +0100, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
+> > 
+> > > [...] Should we start a known regression list?
+> > 
+> > please resend the bugs that still trigger for you with 2.6.19-rt0.
+> 
+> Did you look at the BKL reacquire issue I sent? Just looking over the 
+> code briefly, it looks like it's still there.
+
+yeah, will do that. It's quite low-prio, evidently no-one in the past 
+couple of months even attempted to build a !PREEMPT_RT && !PREEMPT_BKL 
+(!) kernel.
+
+	Ingo

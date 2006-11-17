@@ -1,89 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755806AbWKQTcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752894AbWKQTfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755806AbWKQTcF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 14:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755825AbWKQTcE
+	id S1752894AbWKQTfs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 14:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752893AbWKQTfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 14:32:04 -0500
-Received: from [151.97.230.35] ([151.97.230.35]:4836 "EHLO memento.home.lan")
-	by vger.kernel.org with ESMTP id S1755806AbWKQTcA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 14:32:00 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 1/2] Make x86_64 udelay() round up instead of down - try2
-Date: Fri, 17 Nov 2006 20:30:47 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Message-Id: <20061117193047.13096.60874.stgit@americanbeauty.home.lan>
-In-Reply-To: <20061101163043.GA2602@elf.ucw.cz>
-References: <20061101163043.GA2602@elf.ucw.cz>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
+	Fri, 17 Nov 2006 14:35:48 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:40326 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1752894AbWKQTfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 14:35:47 -0500
+Date: Fri, 17 Nov 2006 14:35:46 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>
+cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Jens Axboe <axboe@kernel.dk>, Christoph Lameter <clameter@sgi.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow NULL pointers in percpu_free
+In-Reply-To: <1163787247.3097.14.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44L0.0611171428590.2627-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+The patch (as824b) makes percpu_free() ignore NULL arguments, as one
+would expect for a deallocation routine.  (Note that free_percpu is
+#defined as percpu_free in include/linux/percpu.h.)  A few callers are
+updated to remove now-unneeded tests for NULL.  A few other callers
+already seem to assume that passing a NULL pointer to percpu_free() is
+okay!
 
-Port two patches from i386 to x86_64 delay.c to make sure all rounding is done
-upward instead of downward.
+The patch also removes an unnecessary NULL check in percpu_depopulate().
 
-There is no sign in commit messages that the mismatch was done on purpose, and
-"delay() guarantees sleeping at least for the specified time" is still a valid
-rule IMHO.
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-The original x86 patches are both from pre-GIT era, i.e.:
-
-"[PATCH] round up  in __udelay()" in commit
-54c7e1f5cc6771ff644d7bc21a2b829308bd126f
-
-"[PATCH] add 1 in __const_udelay()" in commit
-42c77a9801b8877d8b90f65f75db758822a0bccc
-
-(both commits are from the BK repository converted to git).
-
-Changes from try1:
-* fixed the code, compile tested against warnings;
-* now it is a real round up rather than "round down and add 1"
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/x86_64/lib/delay.c    |    4 ++--
- include/asm-x86_64/delay.h |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+On Fri, 17 Nov 2006, Daniel Walker wrote:
 
-diff --git a/arch/x86_64/lib/delay.c b/arch/x86_64/lib/delay.c
-index 50be909..b488743 100644
---- a/arch/x86_64/lib/delay.c
-+++ b/arch/x86_64/lib/delay.c
-@@ -40,13 +40,13 @@ EXPORT_SYMBOL(__delay);
+> > > Should be unlikely() right?
+> > 
+> > It certainly could be.  I tend not to put such annotations in my code, but
+> > it wouldn't hurt.
+> 
+> It's actually a really good idea to add them .. I've noticed they tend
+> to make my kernels smaller, although I wouldn't expect that to always be
+> the case..
+
+Smaller???!!!  How on earth do you think that could happen?  When you
+don't use unlikely() there are fewer restrictions on the compiler; hence
+it should be free to generate smaller code without the annotation than
+with it.  Unless maybe you don't set CONFIG_CC_OPTIMIZE_FOR_SIZE, which 
+ought to be a much better way of getting small kernels...
+
+> Another reason is that in -mm we can track how often this
+> condition is triggered with likely profiling. With kfree, for instance,
+> there were a number of callers that frequently called kfree(NULL), which
+> IMO isn't good.
+
+Okay, here's the revised patch.
+
+Alan Stern
+
+
+
+Index: usb-2.6/arch/i386/kernel/acpi/cstate.c
+===================================================================
+--- usb-2.6.orig/arch/i386/kernel/acpi/cstate.c
++++ usb-2.6/arch/i386/kernel/acpi/cstate.c
+@@ -155,10 +155,8 @@ static int __init ffh_cstate_init(void)
  
- inline void __const_udelay(unsigned long xloops)
+ static void __exit ffh_cstate_exit(void)
  {
--	__delay((xloops * HZ * cpu_data[raw_smp_processor_id()].loops_per_jiffy) >> 32);
-+	__delay((xloops * HZ * cpu_data[raw_smp_processor_id()].loops_per_jiffy + (1UL << 32) - 1) >> 32);
+-	if (cpu_cstate_entry) {
+-		free_percpu(cpu_cstate_entry);
+-		cpu_cstate_entry = NULL;
+-	}
++	free_percpu(cpu_cstate_entry);
++	cpu_cstate_entry = NULL;
  }
- EXPORT_SYMBOL(__const_udelay);
  
- void __udelay(unsigned long usecs)
+ arch_initcall(ffh_cstate_init);
+Index: usb-2.6/block/blktrace.c
+===================================================================
+--- usb-2.6.orig/block/blktrace.c
++++ usb-2.6/block/blktrace.c
+@@ -366,8 +366,7 @@ err:
+ 	if (bt) {
+ 		if (bt->dropped_file)
+ 			debugfs_remove(bt->dropped_file);
+-		if (bt->sequence)
+-			free_percpu(bt->sequence);
++		free_percpu(bt->sequence);
+ 		if (bt->rchan)
+ 			relay_close(bt->rchan);
+ 		kfree(bt);
+Index: usb-2.6/mm/allocpercpu.c
+===================================================================
+--- usb-2.6.orig/mm/allocpercpu.c
++++ usb-2.6/mm/allocpercpu.c
+@@ -17,10 +17,9 @@
+ void percpu_depopulate(void *__pdata, int cpu)
  {
--	__const_udelay(usecs * 0x000010c6);  /* 2**32 / 1000000 */
-+	__const_udelay(usecs * 0x000010c7);  /* 2**32 / 1000000 (rounded up) */
+ 	struct percpu_data *pdata = __percpu_disguise(__pdata);
+-	if (pdata->ptrs[cpu]) {
+-		kfree(pdata->ptrs[cpu]);
+-		pdata->ptrs[cpu] = NULL;
+-	}
++
++	kfree(pdata->ptrs[cpu]);
++	pdata->ptrs[cpu] = NULL;
  }
- EXPORT_SYMBOL(__udelay);
+ EXPORT_SYMBOL_GPL(percpu_depopulate);
  
-diff --git a/include/asm-x86_64/delay.h b/include/asm-x86_64/delay.h
-index 65f64ac..40146f6 100644
---- a/include/asm-x86_64/delay.h
-+++ b/include/asm-x86_64/delay.h
-@@ -16,7 +16,7 @@ extern void __const_udelay(unsigned long
- extern void __delay(unsigned long loops);
+@@ -123,6 +122,8 @@ EXPORT_SYMBOL_GPL(__percpu_alloc_mask);
+  */
+ void percpu_free(void *__pdata)
+ {
++	if (unlikely(!__pdata))
++		return;
+ 	__percpu_depopulate_mask(__pdata, &cpu_possible_map);
+ 	kfree(__percpu_disguise(__pdata));
+ }
+Index: usb-2.6/net/ipv6/af_inet6.c
+===================================================================
+--- usb-2.6.orig/net/ipv6/af_inet6.c
++++ usb-2.6/net/ipv6/af_inet6.c
+@@ -719,10 +719,8 @@ snmp6_mib_free(void *ptr[2])
+ {
+ 	if (ptr == NULL)
+ 		return;
+-	if (ptr[0])
+-		free_percpu(ptr[0]);
+-	if (ptr[1])
+-		free_percpu(ptr[1]);
++	free_percpu(ptr[0]);
++	free_percpu(ptr[1]);
+ 	ptr[0] = ptr[1] = NULL;
+ }
  
- #define udelay(n) (__builtin_constant_p(n) ? \
--	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 0x10c6ul)) : \
-+	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 0x10c7ul)) : \
- 	__udelay(n))
- 
- #define ndelay(n) (__builtin_constant_p(n) ? \
+

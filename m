@@ -1,42 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932889AbWKQO3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933617AbWKQO3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932889AbWKQO3k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 09:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933617AbWKQO3k
+	id S933617AbWKQO3t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 09:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933619AbWKQO3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 09:29:40 -0500
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:63943 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S932889AbWKQO3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 09:29:39 -0500
-Date: Fri, 17 Nov 2006 09:29:28 -0500
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to go about debuging a system lockup?
-Message-ID: <20061117142928.GT8236@csclub.uwaterloo.ca>
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0D87@USRV-EXCH4.na.uis.unisys.com> <20061116223721.GS8236@csclub.uwaterloo.ca> <455DBC88.6040701@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <455DBC88.6040701@s5r6.in-berlin.de>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+	Fri, 17 Nov 2006 09:29:49 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:43199 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S933617AbWKQO3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 09:29:48 -0500
+Date: Fri, 17 Nov 2006 23:28:44 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: memory hotplug function redefinition/confusion
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       kamezawa.hiroyu@jp.fujitsu.com, kmannth@us.ibm.com
+In-Reply-To: <20061116202520.afcb9224.randy.dunlap@oracle.com>
+References: <20061116202520.afcb9224.randy.dunlap@oracle.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.068
+Message-Id: <20061117231515.ADBF.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.27 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 02:43:36PM +0100, Stefan Richter wrote:
-> If the PCI bus itself isn't brought down, you could debug from remote
-> using Benjamin Herrenschmidt's Firescope on the remote node and a
-> FireWire card in the test machine. Once the ohci1394 driver was loaded,
-> the FireWire controller is able to read and write to the 32bit PCI
-> address range (and thus to system memory) without assistance of
-> interrupt handlers.
+Hello.
 
-Wow, that looks really neat.  I will have to go read up on that tool.
+> include/linux/memory_hotplug.h uses CONFIG_NUMA to decide:
+(snip)
+> but mm/init.c uses CONFIG_ACPI_NUMA to decide:
+(snip)
+> (sic: duplicate function above)
 
---
-Len Sorensen
+Indeed. It is strange. This is a patch for it.
+
+Thanks for your report!
+
+Bye.
+
+--------
+
+This is to fix compile error of x86-64 memory hotplug without
+any NUMA option.
+
+  CC      arch/x86_64/mm/init.o
+arch/x86_64/mm/init.c:501: error: redefinition of 'memory_add_physaddr_to_nid'
+include/linux/memory_hotplug.h:71: error: previous definition of 'memory_add_phys
+addr_to_nid' was here
+arch/x86_64/mm/init.c:509: error: redefinition of 'memory_add_physaddr_to_nid'
+arch/x86_64/mm/init.c:501: error: previous definition of 'memory_add_physaddr_to_
+nid' was here
+make[1]: *** [arch/x86_64/mm/init.o] Error 1
+
+I confirmed compile completion with !NUMA, (NUMA & !ACPI_NUMA),
+or (NUMA & ACPI_NUMA).
+
+This patch is for 2.6.19-rc5-mm2.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+----
+
+ arch/x86_64/mm/init.c |    9 +--------
+ 1 files changed, 1 insertion(+), 8 deletions(-)
+
+Index: 19-rc5-mm2/arch/x86_64/mm/init.c
+===================================================================
+--- 19-rc5-mm2.orig/arch/x86_64/mm/init.c	2006-11-17 22:31:30.000000000 +0900
++++ 19-rc5-mm2/arch/x86_64/mm/init.c	2006-11-17 22:31:40.000000000 +0900
+@@ -496,7 +496,7 @@ int remove_memory(u64 start, u64 size)
+ }
+ EXPORT_SYMBOL_GPL(remove_memory);
+ 
+-#ifndef CONFIG_ACPI_NUMA
++#if !defined(CONFIG_ACPI_NUMA) && defined(CONFIG_NUMA)
+ int memory_add_physaddr_to_nid(u64 start)
+ {
+ 	return 0;
+@@ -504,13 +504,6 @@ int memory_add_physaddr_to_nid(u64 start
+ EXPORT_SYMBOL_GPL(memory_add_physaddr_to_nid);
+ #endif
+ 
+-#ifndef CONFIG_ACPI_NUMA
+-int memory_add_physaddr_to_nid(u64 start)
+-{
+-	return 0;
+-}
+-#endif
+-
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+ 
+ #ifdef CONFIG_MEMORY_HOTPLUG_RESERVE
+
+-- 
+Yasunori Goto 
+
+

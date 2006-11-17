@@ -1,1809 +1,1441 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755876AbWKQU00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755877AbWKQU0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755876AbWKQU00 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 15:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755875AbWKQU00
+	id S1755877AbWKQU0j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 15:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755874AbWKQU0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 15:26:26 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:43273 "EHLO
+	Fri, 17 Nov 2006 15:26:36 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:1855 "EHLO
 	stargate.chelsio.com") by vger.kernel.org with ESMTP
-	id S1755866AbWKQU0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 15:26:19 -0500
-Subject: [PATCH 8/10] cxgb3 - offload capabilities
-From: "Divy Le Ray <divy@chelsio.com>" <divy@chelsio.com>
-Date: Fri, 17 Nov 2006 12:25:39 -0800
+	id S1755877AbWKQU01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 15:26:27 -0500
+Date: Fri, 17 Nov 2006 12:25:06 -0800
+From: divy@chelsio.com
+Message-Id: <200611172025.kAHKP63O025913@colfax2.asicdesigners.com>
 To: jeff@garzik.org
+Subject: [PATCH 4/10] cxgb3 - HW access routines - part 2
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <20061117202539.25951.95325.stgit@colfax2.asicdesigners.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Divy Le Ray <divy@chelsio.com>
 
-This patch implements the offload capabilities of the
-Chelsio network adapter's driver.
+This patch implements the HW access routines for the
+Chelsio T3 network adapter's driver.
+This patch is split. This is the second part.
 
 Signed-off-by: Divy Le Ray <divy@chelsio.com>
 ---
 
- drivers/net/cxgb3/cxgb3_offload.c | 1204 +++++++++++++++++++++++++++++++++++++
- drivers/net/cxgb3/l2t.c           |  558 +++++++++++++++++
- 2 files changed, 1762 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/net/cxgb3/cxgb3_offload.c b/drivers/net/cxgb3/cxgb3_offload.c
-new file mode 100644
-index 0000000..1b963d8
---- /dev/null
-+++ b/drivers/net/cxgb3/cxgb3_offload.c
-@@ -0,0 +1,1204 @@
++	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
++			       0, 5, 1);
++}
++
++/**
++ *	t3_sge_disable_fl - disable an SGE free-buffer list
++ *	@adapter: the adapter
++ *	@id: the free list context id
++ *
++ *	Disable an SGE free-buffer list.  The caller is responsible for
++ *	ensuring only one context operation occurs at a time.
++ */
++int t3_sge_disable_fl(adapter_t *adapter, unsigned int id)
++{
++	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
++		return -EBUSY;
++
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, V_FL_SIZE(M_FL_SIZE));
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_DATA2, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
++		     V_CONTEXT_CMD_OPCODE(1) | F_FREELIST | V_CONTEXT(id));
++	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
++			       0, 5, 1);
++}
++
++/**
++ *	t3_sge_disable_rspcntxt - disable an SGE response queue
++ *	@adapter: the adapter
++ *	@id: the response queue context id
++ *
++ *	Disable an SGE response queue.  The caller is responsible for
++ *	ensuring only one context operation occurs at a time.
++ */
++int t3_sge_disable_rspcntxt(adapter_t *adapter, unsigned int id)
++{
++	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
++		return -EBUSY;
++
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, V_CQ_SIZE(M_CQ_SIZE));
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
++		     V_CONTEXT_CMD_OPCODE(1) | F_RESPONSEQ | V_CONTEXT(id));
++	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
++			       0, 5, 1);
++}
++
++/**
++ *	t3_sge_disable_cqcntxt - disable an SGE completion queue
++ *	@adapter: the adapter
++ *	@id: the completion queue context id
++ *
++ *	Disable an SGE completion queue.  The caller is responsible for
++ *	ensuring only one context operation occurs at a time.
++ */
++int t3_sge_disable_cqcntxt(adapter_t *adapter, unsigned int id)
++{
++	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
++		return -EBUSY;
++
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK0, V_CQ_SIZE(M_CQ_SIZE));
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK1, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK2, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_MASK3, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, 0);
++	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
++		     V_CONTEXT_CMD_OPCODE(1) | F_CQ | V_CONTEXT(id));
++	return t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY,
++			       0, 5, 1);
++}
++
++/**
++ *	t3_sge_cqcntxt_op - perform an operation on a completion queue context
++ *	@adapter: the adapter
++ *	@id: the context id
++ *	@op: the operation to perform
++ *
++ *	Perform the selected operation on an SGE completion queue context.
++ *	The caller is responsible for ensuring only one context operation
++ *	occurs at a time.
++ */
++int t3_sge_cqcntxt_op(adapter_t *adapter, unsigned int id, unsigned int op,
++		      unsigned int credits)
++{
++	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
++		return -EBUSY;
++
++	t3_write_reg(adapter, A_SG_CONTEXT_DATA0, credits << 16);
++	t3_write_reg(adapter, A_SG_CONTEXT_CMD, V_CONTEXT_CMD_OPCODE(op) |
++		     V_CONTEXT(id) | F_CQ);
++	if (t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY, 0,
++			    5, 1))
++		return -EIO;
++
++	if (op >= 2 && op < 7) {
++		t3_write_reg(adapter, A_SG_CONTEXT_CMD,
++			     V_CONTEXT_CMD_OPCODE(0) | F_CQ | V_CONTEXT(id));
++		if (t3_wait_op_done(adapter, A_SG_CONTEXT_CMD,
++				    F_CONTEXT_CMD_BUSY, 0, 5, 1))
++			return -EIO;
++		return G_CQ_INDEX(t3_read_reg(adapter, A_SG_CONTEXT_DATA0));
++	}
++	return 0;
++}
++
++/**
++ * 	t3_sge_read_context - read an SGE context
++ * 	@type: the context type
++ * 	@adapter: the adapter
++ * 	@id: the context id
++ * 	@data: holds the retrieved context
++ *
++ * 	Read an SGE egress context.  The caller is responsible for ensuring
++ * 	only one context operation occurs at a time.
++ */
++static int t3_sge_read_context(unsigned int type, adapter_t *adapter,
++			       unsigned int id, u32 data[4])
++{
++	if (t3_read_reg(adapter, A_SG_CONTEXT_CMD) & F_CONTEXT_CMD_BUSY)
++		return -EBUSY;
++
++	t3_write_reg(adapter, A_SG_CONTEXT_CMD,
++		     V_CONTEXT_CMD_OPCODE(0) | type | V_CONTEXT(id));
++	if (t3_wait_op_done(adapter, A_SG_CONTEXT_CMD, F_CONTEXT_CMD_BUSY, 0,
++			    5, 1))
++		return -EIO;
++	data[0] = t3_read_reg(adapter, A_SG_CONTEXT_DATA0);
++	data[1] = t3_read_reg(adapter, A_SG_CONTEXT_DATA1);
++	data[2] = t3_read_reg(adapter, A_SG_CONTEXT_DATA2);
++	data[3] = t3_read_reg(adapter, A_SG_CONTEXT_DATA3);
++	return 0;
++}
++
++/**
++ * 	t3_sge_read_ecntxt - read an SGE egress context
++ * 	@adapter: the adapter
++ * 	@id: the context id
++ * 	@data: holds the retrieved context
++ *
++ * 	Read an SGE egress context.  The caller is responsible for ensuring
++ * 	only one context operation occurs at a time.
++ */
++int t3_sge_read_ecntxt(adapter_t *adapter, unsigned int id, u32 data[4])
++{
++	if (id >= 65536)
++		return -EINVAL;
++	return t3_sge_read_context(F_EGRESS, adapter, id, data);
++}
++
++/**
++ * 	t3_sge_read_cq - read an SGE CQ context
++ * 	@adapter: the adapter
++ * 	@id: the context id
++ * 	@data: holds the retrieved context
++ *
++ * 	Read an SGE CQ context.  The caller is responsible for ensuring
++ * 	only one context operation occurs at a time.
++ */
++int t3_sge_read_cq(adapter_t *adapter, unsigned int id, u32 data[4])
++{
++	if (id >= 65536)
++		return -EINVAL;
++	return t3_sge_read_context(F_CQ, adapter, id, data);
++}
++
++/**
++ * 	t3_sge_read_fl - read an SGE free-list context
++ * 	@adapter: the adapter
++ * 	@id: the context id
++ * 	@data: holds the retrieved context
++ *
++ * 	Read an SGE free-list context.  The caller is responsible for ensuring
++ * 	only one context operation occurs at a time.
++ */
++int t3_sge_read_fl(adapter_t *adapter, unsigned int id, u32 data[4])
++{
++	if (id >= SGE_QSETS * 2)
++		return -EINVAL;
++	return t3_sge_read_context(F_FREELIST, adapter, id, data);
++}
++
++/**
++ * 	t3_sge_read_rspq - read an SGE response queue context
++ * 	@adapter: the adapter
++ * 	@id: the context id
++ * 	@data: holds the retrieved context
++ *
++ * 	Read an SGE response queue context.  The caller is responsible for
++ * 	ensuring only one context operation occurs at a time.
++ */
++int t3_sge_read_rspq(adapter_t *adapter, unsigned int id, u32 data[4])
++{
++	if (id >= SGE_QSETS)
++		return -EINVAL;
++	return t3_sge_read_context(F_RESPONSEQ, adapter, id, data);
++}
++
++/**
++ *	t3_config_rss - configure Rx packet steering
++ *	@adapter: the adapter
++ *	@rss_config: RSS settings (written to TP_RSS_CONFIG)
++ *	@cpus: values for the CPU lookup table (0xff terminated)
++ *	@rspq: values for the response queue lookup table (0xffff terminated)
++ *
++ *	Programs the receive packet steering logic.  @cpus and @rspq provide
++ *	the values for the CPU and response queue lookup tables.  If they
++ *	provide fewer values than the size of the tables the supplied values
++ *	are used repeatedly until the tables are fully populated.
++ */
++void t3_config_rss(adapter_t *adapter, unsigned int rss_config, const u8 *cpus,
++		   const u16 *rspq)
++{
++	int i, j, cpu_idx = 0, q_idx = 0;
++
++	if (cpus)
++		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
++			u32 val = i << 16;
++
++			for (j = 0; j < 2; ++j) {
++				val |= (cpus[cpu_idx++] & 0x3f) << (8 * j);
++				if (cpus[cpu_idx] == 0xff)
++					cpu_idx = 0;
++			}
++			t3_write_reg(adapter, A_TP_RSS_LKP_TABLE, val);
++		}
++
++	if (rspq)
++		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
++			t3_write_reg(adapter, A_TP_RSS_MAP_TABLE,
++				     (i << 16) | rspq[q_idx++]);
++			if (rspq[q_idx] == 0xffff)
++				q_idx = 0;
++		}
++
++	t3_write_reg(adapter, A_TP_RSS_CONFIG, rss_config);
++}
++
++/**
++ *	t3_read_rss - read the contents of the RSS tables
++ *	@adapter: the adapter
++ *	@lkup: holds the contents of the RSS lookup table
++ *	@map: holds the contents of the RSS map table
++ *
++ *	Reads the contents of the receive packet steering tables.
++ */
++int t3_read_rss(adapter_t *adapter, u8 *lkup, u16 *map)
++{
++	int i;
++	u32 val;
++
++	if (lkup)
++		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
++			t3_write_reg(adapter, A_TP_RSS_LKP_TABLE,
++				     0xffff0000 | i);
++			val = t3_read_reg(adapter, A_TP_RSS_LKP_TABLE);
++			if (!(val & 0x80000000))
++				return -EAGAIN;
++			*lkup++ = (u8)val;
++			*lkup++ = (u8)(val >> 8);
++		}
++
++	if (map)
++		for (i = 0; i < RSS_TABLE_SIZE; ++i) {
++			t3_write_reg(adapter, A_TP_RSS_MAP_TABLE,
++				     0xffff0000 | i);
++			val = t3_read_reg(adapter, A_TP_RSS_MAP_TABLE);
++			if (!(val & 0x80000000))
++				return -EAGAIN;
++			*map++ = (u16)val;
++		}
++	return 0;
++}
++
++/**
++ *	t3_tp_set_offload_mode - put TP in NIC/offload mode
++ *	@adap: the adapter
++ *	@enable: 1 to select offload mode, 0 for regular NIC
++ *
++ *	Switches TP to NIC/offload mode.
++ */
++void t3_tp_set_offload_mode(adapter_t *adap, int enable)
++{
++	if (is_offload(adap) || !enable)
++		t3_set_reg_field(adap, A_TP_IN_CONFIG, F_NICMODE,
++				 V_NICMODE(!enable));
++}
++
++/**
++ *	pm_num_pages - calculate the number of pages of the payload memory
++ *	@mem_size: the size of the payload memory
++ *	@pg_size: the size of each payload memory page
++ *
++ *	Calculate the number of pages, each of the given size, that fit in a
++ *	memory of the specified size, respecting the HW requirement that the
++ *	number of pages must be a multiple of 24.
++ */
++static inline unsigned int pm_num_pages(unsigned int mem_size,
++					unsigned int pg_size)
++{
++	unsigned int n = mem_size / pg_size;
++
++	return n - n % 24;
++}
++
++#define mem_region(adap, start, size, reg) \
++	t3_write_reg((adap), A_ ## reg, (start)); \
++	start += size
++
 +/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
++ *	partition_mem - partition memory and configure TP memory settings
++ *	@adap: the adapter
++ *	@p: the TP parameters
 + *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
++ *	Partitions context and payload memory and configures TP's memory
++ *	registers.
 + */
-+
-+#include <linux/list.h>
-+#include <net/neighbour.h>
-+#include <linux/notifier.h>
-+#include <asm/atomic.h>
-+#include <linux/proc_fs.h>
-+#include <linux/if_vlan.h>
-+#include <net/netevent.h>
-+
-+#include "common.h"
-+#include "regs.h"
-+#include "cxgb3_ioctl.h"
-+#include "cxgb3_ctl_defs.h"
-+#include "cxgb3_defs.h"
-+#include "l2t.h"
-+#include "firmware_exports.h"
-+#include "cxgb3_offload.h"
-+
-+static LIST_HEAD(client_list);
-+static LIST_HEAD(ofld_dev_list);
-+static DEFINE_MUTEX(cxgb3_db_lock);
-+
-+static DEFINE_RWLOCK(adapter_list_lock);
-+static LIST_HEAD(adapter_list);
-+
-+static const unsigned int MAX_ATIDS = 64 * 1024;
-+static const unsigned int ATID_BASE = 0x100000;
-+
-+static inline int offload_activated(struct t3cdev *tdev)
++static void partition_mem(adapter_t *adap, const struct tp_params *p)
 +{
-+	struct adapter *adapter = tdev2adap(tdev);
++	unsigned int m, pstructs, tids = t3_mc5_size(&adap->mc5);
++	unsigned int timers = 0, timers_shift = 22;
 +
-+	return (test_bit(OFFLOAD_DEVMAP_BIT, &adapter->open_device_map));
-+}
-+
-+/**
-+ *	cxgb3_register_client - register an offload client
-+ *	@client: the client
-+ *
-+ *	Add the client to the client list,
-+ *	and call backs the client for each activated offload device
-+ */
-+void cxgb3_register_client(struct cxgb3_client *client)
-+{
-+	struct t3cdev *tdev;
-+
-+	mutex_lock(&cxgb3_db_lock);
-+	list_add_tail(&client->client_list, &client_list);
-+
-+	if (client->add) {
-+		list_for_each_entry(tdev, &ofld_dev_list, ofld_dev_list) {
-+			if (offload_activated(tdev))
-+				client->add(tdev);
++	if (adap->params.rev > 0) {
++		if (tids <= 16 * 1024) {
++			timers = 1;
++			timers_shift = 16;
++		} else if (tids <= 64 * 1024) {
++			timers = 2;
++			timers_shift = 18;
++		} else if (tids <= 256 * 1024) {
++			timers = 3;
++			timers_shift = 20;
 +		}
 +	}
-+	mutex_unlock(&cxgb3_db_lock);
++
++	t3_write_reg(adap, A_TP_PMM_SIZE,
++		     p->chan_rx_size | (p->chan_tx_size >> 16));
++
++	t3_write_reg(adap, A_TP_PMM_TX_BASE, 0);
++	t3_write_reg(adap, A_TP_PMM_TX_PAGE_SIZE, p->tx_pg_size);
++	t3_write_reg(adap, A_TP_PMM_TX_MAX_PAGE, p->tx_num_pgs);
++	t3_set_reg_field(adap, A_TP_PARA_REG3, V_TXDATAACKIDX(M_TXDATAACKIDX),
++			 V_TXDATAACKIDX(fls(p->tx_pg_size) - 12));
++
++	t3_write_reg(adap, A_TP_PMM_RX_BASE, 0);
++	t3_write_reg(adap, A_TP_PMM_RX_PAGE_SIZE, p->rx_pg_size);
++	t3_write_reg(adap, A_TP_PMM_RX_MAX_PAGE, p->rx_num_pgs);
++
++	pstructs = p->rx_num_pgs + p->tx_num_pgs;
++	/* Add a bit of headroom and make multiple of 24 */
++	pstructs += 48;
++	pstructs -= pstructs % 24;
++	t3_write_reg(adap, A_TP_CMM_MM_MAX_PSTRUCT, pstructs);
++
++	m = tids * TCB_SIZE;
++	mem_region(adap, m, (64 << 10) * 64, SG_EGR_CNTX_BADDR);
++	mem_region(adap, m, (64 << 10) * 64, SG_CQ_CONTEXT_BADDR);
++	t3_write_reg(adap, A_TP_CMM_TIMER_BASE, V_CMTIMERMAXNUM(timers) | m);
++	m += ((p->ntimer_qs - 1) << timers_shift) + (1 << 22);
++	mem_region(adap, m, pstructs * 64, TP_CMM_MM_BASE);
++	mem_region(adap, m, 64 * (pstructs / 24), TP_CMM_MM_PS_FLST_BASE);
++	mem_region(adap, m, 64 * (p->rx_num_pgs / 24), TP_CMM_MM_RX_FLST_BASE);
++	mem_region(adap, m, 64 * (p->tx_num_pgs / 24), TP_CMM_MM_TX_FLST_BASE);
++
++	m = (m + 4095) & ~0xfff;
++	t3_write_reg(adap, A_CIM_SDRAM_BASE_ADDR, m);
++	t3_write_reg(adap, A_CIM_SDRAM_ADDR_SIZE, p->cm_size - m);
++
++	tids = (p->cm_size - m - (3 << 20)) / 3072 - 32;
++	m = t3_mc5_size(&adap->mc5) - adap->params.mc5.nservers -
++	    adap->params.mc5.nfilters - adap->params.mc5.nroutes;
++	if (tids < m)
++		adap->params.mc5.nservers += m - tids;
 +}
-+EXPORT_SYMBOL(cxgb3_register_client);
++
++static inline void tp_wr_indirect(adapter_t *adap, unsigned int addr, u32 val)
++{
++	t3_write_reg(adap, A_TP_PIO_ADDR, addr);
++	t3_write_reg(adap, A_TP_PIO_DATA, val);
++}
++
++static void tp_config(adapter_t *adap, const struct tp_params *p)
++{
++	unsigned int v;
++
++	t3_write_reg(adap, A_TP_GLOBAL_CONFIG, F_TXPACINGENABLE | F_PATHMTU |
++		     F_IPCHECKSUMOFFLOAD | F_UDPCHECKSUMOFFLOAD |
++		     F_TCPCHECKSUMOFFLOAD | V_IPTTL(64));
++	t3_write_reg(adap, A_TP_TCP_OPTIONS, V_MTUDEFAULT(576) |
++		     F_MTUENABLE | V_WINDOWSCALEMODE(1) |
++		     V_TIMESTAMPSMODE(1) | V_SACKMODE(1) | V_SACKRX(1));
++	t3_write_reg(adap, A_TP_DACK_CONFIG, V_AUTOSTATE3(1) |
++		     V_AUTOSTATE2(1) | V_AUTOSTATE1(0) |
++		     V_BYTETHRESHOLD(16384) | V_MSSTHRESHOLD(2) |
++		     F_AUTOCAREFUL | F_AUTOENABLE | V_DACK_MODE(1));
++	t3_set_reg_field(adap, A_TP_IN_CONFIG, F_IPV6ENABLE | F_NICMODE,
++			 F_IPV6ENABLE | F_NICMODE);
++	t3_write_reg(adap, A_TP_TX_RESOURCE_LIMIT, 0x18141814);
++	t3_write_reg(adap, A_TP_PARA_REG4, 0x5050105);
++	t3_set_reg_field(adap, A_TP_PARA_REG6,
++			 adap->params.rev > 0 ? F_ENABLEESND : F_T3A_ENABLEESND,
++			 0);
++
++	v = t3_read_reg(adap, A_TP_PC_CONFIG);
++	t3_write_reg(adap, A_TP_PC_CONFIG, v | F_TXDEFERENABLE |
++		     F_HEARBEATDACK | F_TXCONGESTIONMODE | F_RXCONGESTIONMODE);
++
++	if (adap->params.rev > 0) {
++		tp_wr_indirect(adap, A_TP_EGRESS_CONFIG, F_REWRITEFORCETOSIZE);
++		t3_set_reg_field(adap, A_TP_PARA_REG3, F_TXPACEAUTO,
++				 F_TXPACEAUTO);
++		t3_set_reg_field(adap, A_TP_PC_CONFIG, F_LOCKTID, F_LOCKTID);
++		t3_set_reg_field(adap, A_TP_PARA_REG3, 0, F_TXPACEAUTOSTRICT);
++	} else
++		t3_set_reg_field(adap, A_TP_PARA_REG3, 0, F_TXPACEFIXED);
++
++	t3_write_reg(adap, A_TP_TX_MOD_QUEUE_WEIGHT1, 0x12121212);
++	t3_write_reg(adap, A_TP_TX_MOD_QUEUE_WEIGHT0, 0x12121212);
++	t3_write_reg(adap, A_TP_MOD_CHANNEL_WEIGHT, 0x1212);
++}
++
++/* Desired TP timer resolution in usec */
++#define TP_TMR_RES 50
++
++/* TCP timer values in ms */
++#define TP_DACK_TIMER 50
++#define TP_RTO_MIN    250
 +
 +/**
-+ *	cxgb3_unregister_client - unregister an offload client
-+ *	@client: the client
++ *	tp_set_timers - set TP timing parameters
++ *	@adap: the adapter to set
++ *	@core_clk: the core clock frequency in Hz
 + *
-+ *	Remove the client to the client list,
-+ *	and call backs the client for each activated offload device.
++ *	Set TP's timing parameters, such as the various timer resolutions and
++ *	the TCP timer values.
 + */
-+void cxgb3_unregister_client(struct cxgb3_client *client)
++static void tp_set_timers(adapter_t *adap, unsigned int core_clk)
 +{
-+	struct t3cdev *tdev;
++	unsigned int tre = fls(core_clk / (1000000 / TP_TMR_RES)) - 1;
++	unsigned int dack_re = fls(core_clk / 5000) - 1;   /* 200us */
++	unsigned int tstamp_re = fls(core_clk / 1000);     /* 1ms, at least */
++	unsigned int tps = core_clk >> tre;
 +
-+	mutex_lock(&cxgb3_db_lock);
-+	list_del(&client->client_list);
++	t3_write_reg(adap, A_TP_TIMER_RESOLUTION, V_TIMERRESOLUTION(tre) |
++		     V_DELAYEDACKRESOLUTION(dack_re) |
++		     V_TIMESTAMPRESOLUTION(tstamp_re));
++	t3_write_reg(adap, A_TP_DACK_TIMER,
++		     (core_clk >> dack_re) / (1000 / TP_DACK_TIMER));
++	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG0, 0x3020100);
++	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG1, 0x7060504);
++	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG2, 0xb0a0908);
++	t3_write_reg(adap, A_TP_TCP_BACKOFF_REG3, 0xf0e0d0c);
++	t3_write_reg(adap, A_TP_SHIFT_CNT, V_SYNSHIFTMAX(6) |
++		     V_RXTSHIFTMAXR1(4) | V_RXTSHIFTMAXR2(15) |
++		     V_PERSHIFTBACKOFFMAX(8) | V_PERSHIFTMAX(8) |
++		     V_KEEPALIVEMAX(9));
 +
-+	if (client->remove) {
-+		list_for_each_entry(tdev, &ofld_dev_list, ofld_dev_list) {
-+			if (offload_activated(tdev))
-+				client->remove(tdev);
++#define SECONDS * tps
++
++	t3_write_reg(adap, A_TP_MSL,
++		     adap->params.rev > 0 ? 0 : 2 SECONDS);
++	t3_write_reg(adap, A_TP_RXT_MIN, tps / (1000 / TP_RTO_MIN));
++	t3_write_reg(adap, A_TP_RXT_MAX, 64 SECONDS);
++	t3_write_reg(adap, A_TP_PERS_MIN, 5 SECONDS);
++	t3_write_reg(adap, A_TP_PERS_MAX, 64 SECONDS);
++	t3_write_reg(adap, A_TP_KEEP_IDLE, 7200 SECONDS);
++	t3_write_reg(adap, A_TP_KEEP_INTVL, 75 SECONDS);
++	t3_write_reg(adap, A_TP_INIT_SRTT, 3 SECONDS);
++	t3_write_reg(adap, A_TP_FINWAIT2_TIMER, 600 SECONDS);
++
++#undef SECONDS
++}
++
++/**
++ *	t3_tp_set_coalescing_size - set receive coalescing size
++ *	@adap: the adapter
++ *	@size: the receive coalescing size
++ *	@psh: whether a set PSH bit should deliver coalesced data
++ *
++ *	Set the receive coalescing size and PSH bit handling.
++ */
++int t3_tp_set_coalescing_size(adapter_t *adap, unsigned int size, int psh)
++{
++	u32 val;
++
++	if (size > MAX_RX_COALESCING_LEN)
++		return -EINVAL;
++
++	val = t3_read_reg(adap, A_TP_PARA_REG3);
++	val &= ~(F_RXCOALESCEENABLE | F_RXCOALESCEPSHEN);
++
++	if (size) {
++		val |= F_RXCOALESCEENABLE;
++		if (psh)
++			val |= F_RXCOALESCEPSHEN;
++		t3_write_reg(adap, A_TP_PARA_REG2, V_RXCOALESCESIZE(size) |
++			     V_MAXRXDATA(MAX_RX_COALESCING_LEN));
++	}
++	t3_write_reg(adap, A_TP_PARA_REG3, val);
++	return 0;
++}
++
++/**
++ *	t3_tp_set_max_rxsize - set the max receive size
++ *	@adap: the adapter
++ *	@size: the max receive size
++ *
++ *	Set TP's max receive size.  This is the limit that applies when
++ *	receive coalescing is disabled.
++ */
++void t3_tp_set_max_rxsize(adapter_t *adap, unsigned int size)
++{
++	t3_write_reg(adap, A_TP_PARA_REG7,
++		     V_PMMAXXFERLEN0(size) | V_PMMAXXFERLEN1(size));
++}
++
++static void __devinit init_mtus(unsigned short mtus[])
++{
++	/*
++	 * See draft-mathis-plpmtud-00.txt for the values.  The min is 88 so
++	 * it can accomodate max size TCP/IP headers when SACK and timestamps
++	 * are enabled and still have at least 8 bytes of payload.
++	 */
++	mtus[0] = 88;
++	mtus[1] = 256;
++	mtus[2] = 512;
++	mtus[3] = 576;
++	mtus[4] = 808;
++	mtus[5] = 1024;
++	mtus[6] = 1280;
++	mtus[7] = 1492;
++	mtus[8] = 1500;
++	mtus[9] = 2002;
++	mtus[10] = 2048;
++	mtus[11] = 4096;
++	mtus[12] = 4352;
++	mtus[13] = 8192;
++	mtus[14] = 9000;
++	mtus[15] = 9600;
++}
++
++/*
++ * Initial congestion control parameters.
++ */
++static void __devinit init_cong_ctrl(unsigned short *a, unsigned short *b)
++{
++	a[0] = a[1] = a[2] = a[3] = a[4] = a[5] = a[6] = a[7] = a[8] = 1;
++	a[9] = 2;
++	a[10] = 3;
++	a[11] = 4;
++	a[12] = 5;
++	a[13] = 6;
++	a[14] = 7;
++	a[15] = 8;
++	a[16] = 9;
++	a[17] = 10;
++	a[18] = 14;
++	a[19] = 17;
++	a[20] = 21;
++	a[21] = 25;
++	a[22] = 30;
++	a[23] = 35;
++	a[24] = 45;
++	a[25] = 60;
++	a[26] = 80;
++	a[27] = 100;
++	a[28] = 200;
++	a[29] = 300;
++	a[30] = 400;
++	a[31] = 500;
++
++	b[0] = b[1] = b[2] = b[3] = b[4] = b[5] = b[6] = b[7] = b[8] = 0;
++	b[9] = b[10] = 1;
++	b[11] = b[12] = 2;
++	b[13] = b[14] = b[15] = b[16] = 3;
++	b[17] = b[18] = b[19] = b[20] = b[21] = 4;
++	b[22] = b[23] = b[24] = b[25] = b[26] = b[27] = 5;
++	b[28] = b[29] = 6;
++	b[30] = b[31] = 7;
++}
++
++/* The minimum additive increment value for the congestion control table */
++#define CC_MIN_INCR 2U
++
++/**
++ *	t3_load_mtus - write the MTU and congestion control HW tables
++ *	@adap: the adapter
++ *	@mtus: the unrestricted values for the MTU table
++ *	@alphs: the values for the congestion control alpha parameter
++ *	@beta: the values for the congestion control beta parameter
++ *	@mtu_cap: the maximum permitted effective MTU
++ *
++ *	Write the MTU table with the supplied MTUs capping each at &mtu_cap.
++ *	Update the high-speed congestion control table with the supplied alpha,
++ * 	beta, and MTUs.
++ */
++void t3_load_mtus(adapter_t *adap, unsigned short mtus[NMTUS],
++		  unsigned short alpha[NCCTRL_WIN],
++		  unsigned short beta[NCCTRL_WIN], unsigned short mtu_cap)
++{
++	static unsigned int avg_pkts[NCCTRL_WIN] = {
++		2, 6, 10, 14, 20, 28, 40, 56, 80, 112, 160, 224, 320, 448, 640,
++		896, 1281, 1792, 2560, 3584, 5120, 7168, 10240, 14336, 20480,
++		28672, 40960, 57344, 81920, 114688, 163840, 229376 };
++
++	unsigned int i, w;
++
++	for (i = 0; i < NMTUS; ++i) {
++		unsigned int mtu = min(mtus[i], mtu_cap);
++		unsigned int log2 = fls(mtu);
++
++		if (!(mtu & ((1 << log2) >> 2)))     /* round */
++			log2--;
++		t3_write_reg(adap, A_TP_MTU_TABLE,
++			     (i << 24) | (log2 << 16) | mtu);
++
++		for (w = 0; w < NCCTRL_WIN; ++w) {
++			unsigned int inc;
++
++			inc = max(((mtu - 40) * alpha[w]) / avg_pkts[w],
++				  CC_MIN_INCR);
++
++			t3_write_reg(adap, A_TP_CCTRL_TABLE, (i << 21) |
++				     (w << 16) | (beta[w] << 13) | inc);
 +		}
 +	}
-+	mutex_unlock(&cxgb3_db_lock);
-+}
-+EXPORT_SYMBOL(cxgb3_unregister_client);
-+
-+/**
-+ *	cxgb3_add_clients - activate register clients for an offload device
-+ *	@tdev: the offload device
-+ *
-+ *	Call backs all registered clients once a offload device is activated
-+ */
-+void cxgb3_add_clients(struct t3cdev *tdev)
-+{
-+	struct cxgb3_client *client;
-+
-+	mutex_lock(&cxgb3_db_lock);
-+	list_for_each_entry(client, &client_list, client_list) {
-+		if (client->add)
-+			client->add(tdev);
-+	}
-+	mutex_unlock(&cxgb3_db_lock);
 +}
 +
 +/**
-+ *	cxgb3_remove_clients - activate register clients for an offload device
-+ *	@tdev: the offload device
++ *	t3_read_hw_mtus - returns the values in the HW MTU table
++ *	@adap: the adapter
++ *	@mtus: where to store the HW MTU values
 + *
-+ *	Call backs all registered clients once a offload device is deactivated
++ *	Reads the HW MTU table.
 + */
-+void cxgb3_remove_clients(struct t3cdev *tdev)
-+{
-+	struct cxgb3_client *client;
-+
-+	mutex_lock(&cxgb3_db_lock);
-+	list_for_each_entry(client, &client_list, client_list) {
-+		if (client->remove)
-+			client->remove(tdev);
-+	}
-+	mutex_unlock(&cxgb3_db_lock);
-+}
-+
-+static struct net_device *get_iff_from_mac(adapter_t *adapter,
-+					   const unsigned char *mac,
-+					   unsigned int vlan)
++void t3_read_hw_mtus(adapter_t *adap, unsigned short mtus[NMTUS])
 +{
 +	int i;
 +
-+	for_each_port(adapter, i) {
-+		const struct vlan_group *grp;
-+		const struct port_info *p = &adapter->port[i];
-+		struct net_device *dev = p->dev;
++	for (i = 0; i < NMTUS; ++i) {
++		unsigned int val;
 +
-+		if (!memcmp(dev->dev_addr, mac, ETH_ALEN)) {
-+			if (vlan && vlan != VLAN_VID_MASK) {
-+				grp = p->vlan_grp;
-+				dev = grp ? grp->vlan_devices[vlan] : NULL;
-+			} else
-+				while (dev->master)
-+					dev = dev->master;
-+			return dev;
++		t3_write_reg(adap, A_TP_MTU_TABLE, 0xff000000 | i);
++		val = t3_read_reg(adap, A_TP_MTU_TABLE);
++		mtus[i] = val & 0x3fff;
++	}
++}
++
++/**
++ *	t3_get_cong_cntl_tab - reads the congestion control table
++ *	@adap: the adapter
++ *	@incr: where to store the alpha values
++ *
++ *	Reads the additive increments programmed into the HW congestion
++ *	control table.
++ */
++void t3_get_cong_cntl_tab(adapter_t *adap,
++			  unsigned short incr[NMTUS][NCCTRL_WIN])
++{
++	unsigned int mtu, w;
++
++	for (mtu = 0; mtu < NMTUS; ++mtu)
++		for (w = 0; w < NCCTRL_WIN; ++w) {
++			t3_write_reg(adap, A_TP_CCTRL_TABLE,
++				     0xffff0000 | (mtu << 5) | w);
++			incr[mtu][w] = (unsigned short)t3_read_reg(adap,
++				        A_TP_CCTRL_TABLE) & 0x1fff;
 +		}
-+	}
-+	return NULL;
 +}
 +
-+static int cxgb_ulp_iscsi_ctl(adapter_t *adapter, unsigned int req, void *data)
++/**
++ *	t3_tp_get_mib_stats - read TP's MIB counters
++ *	@adap: the adapter
++ *	@tps: holds the returned counter values
++ *
++ *	Returns the values of TP's MIB counters.
++ */
++void t3_tp_get_mib_stats(adapter_t *adap, struct tp_mib_stats *tps)
 +{
-+	int ret = 0;
-+	struct ulp_iscsi_info *uiip = data;
-+
-+	switch (req) {
-+	case ULP_ISCSI_GET_PARAMS:
-+		uiip->pdev = adapter->pdev;
-+		uiip->llimit = t3_read_reg(adapter, A_ULPRX_ISCSI_LLIMIT);
-+		uiip->ulimit = t3_read_reg(adapter, A_ULPRX_ISCSI_ULIMIT);
-+		uiip->tagmask = t3_read_reg(adapter, A_ULPRX_ISCSI_TAGMASK);
-+		/*
-+		 * On tx, the iscsi pdu has to be <= tx page size and has to
-+		 * fit into the Tx PM FIFO.
-+		 */
-+		uiip->max_txsz = min(adapter->params.tp.tx_pg_size,
-+				     t3_read_reg(adapter, A_PM1_TX_CFG) >> 17);
-+		/* on rx, the iscsi pdu has to be < rx page size and the
-+		   whole pdu + cpl headers has to fit into one sge buffer */
-+		uiip->max_rxsz = min_t(unsigned int,
-+				       adapter->params.tp.rx_pg_size,
-+				       (adapter->sge.qs[0].fl[1].buf_size -
-+				        sizeof(struct cpl_rx_data) * 2 -
-+				        sizeof(struct cpl_rx_data_ddp)) );
-+		break;
-+	case ULP_ISCSI_SET_PARAMS:
-+		t3_write_reg(adapter, A_ULPRX_ISCSI_TAGMASK, uiip->tagmask);
-+		break;
-+	default:
-+		ret = -EOPNOTSUPP;
-+	}
-+	return ret;
++	t3_read_indirect(adap, A_TP_MIB_INDEX, A_TP_MIB_RDATA, (u32 *)tps,
++			 sizeof(*tps) / sizeof(u32), 0);
 +}
 +
-+/* Response queue used for RDMA events. */
-+#define ASYNC_NOTIF_RSPQ 0
++#define ulp_region(adap, name, start, len) \
++	t3_write_reg((adap), A_ULPRX_ ## name ## _LLIMIT, (start)); \
++	t3_write_reg((adap), A_ULPRX_ ## name ## _ULIMIT, \
++		     (start) + (len) - 1); \
++	start += len
 +
-+static int cxgb_rdma_ctl(adapter_t *adapter, unsigned int req, void *data)
++#define ulptx_region(adap, name, start, len) \
++	t3_write_reg((adap), A_ULPTX_ ## name ## _LLIMIT, (start)); \
++	t3_write_reg((adap), A_ULPTX_ ## name ## _ULIMIT, \
++		     (start) + (len) - 1)
++
++static void ulp_config(adapter_t *adap, const struct tp_params *p)
 +{
-+	int ret = 0;
++	unsigned int m = p->chan_rx_size;
 +
-+	switch (req) {
-+	case RDMA_GET_PARAMS: {
-+		struct rdma_info *req = data;
-+		struct pci_dev *pdev = adapter->pdev;
++	ulp_region(adap, ISCSI, m, p->chan_rx_size / 8);
++	ulp_region(adap, TDDP, m, p->chan_rx_size / 8);
++	ulptx_region(adap, TPT, m, p->chan_rx_size / 4);
++	ulp_region(adap, STAG, m, p->chan_rx_size / 4);
++	ulp_region(adap, RQ, m, p->chan_rx_size / 4);
++	ulptx_region(adap, PBL, m, p->chan_rx_size / 4);
++	ulp_region(adap, PBL, m, p->chan_rx_size / 4);
++	t3_write_reg(adap, A_ULPRX_TDDP_TAGMASK, 0xffffffff);
++}
 +
-+		req->udbell_physbase = pci_resource_start(pdev, 2);
-+		req->udbell_len = pci_resource_len(pdev, 2);
-+		req->tpt_base = t3_read_reg(adapter, A_ULPTX_TPT_LLIMIT);
-+		req->tpt_top  = t3_read_reg(adapter, A_ULPTX_TPT_ULIMIT);
-+		req->pbl_base = t3_read_reg(adapter, A_ULPTX_PBL_LLIMIT);
-+		req->pbl_top  = t3_read_reg(adapter, A_ULPTX_PBL_ULIMIT);
-+		req->rqt_base = t3_read_reg(adapter, A_ULPRX_RQ_LLIMIT);
-+		req->rqt_top  = t3_read_reg(adapter, A_ULPRX_RQ_ULIMIT);
-+		req->kdb_addr = adapter->regs + A_SG_KDOORBELL;
-+		req->pdev     = pdev;
-+		break;
-+	}
-+	case RDMA_CQ_OP: {
-+		unsigned long flags;
-+		struct rdma_cq_op *req = data;
++void t3_config_trace_filter(adapter_t *adapter, const struct trace_params *tp,
++			    int filter_index, int invert, int enable)
++{
++	u32 addr, key[4], mask[4];
 +
-+		/* may be called in any context */
-+		spin_lock_irqsave(&adapter->sge.reg_lock, flags);
-+		ret = t3_sge_cqcntxt_op(adapter, req->id, req->op,
-+					req->credits);
-+		spin_unlock_irqrestore(&adapter->sge.reg_lock, flags);
-+		break;
-+	}
-+	case RDMA_GET_MEM: {
-+		struct ch_mem_range *t = data;
-+		struct mc7 *mem;
++	key[0] = tp->sport | (tp->sip << 16);
++	key[1] = (tp->sip >> 16) | (tp->dport << 16);
++	key[2] = tp->dip;
++	key[3] = tp->proto | (tp->vlan << 8) | (tp->intf << 20);
 +
-+		if ((t->addr & 7) || (t->len & 7))
++	mask[0] = tp->sport_mask | (tp->sip_mask << 16);
++	mask[1] = (tp->sip_mask >> 16) | (tp->dport_mask << 16);
++	mask[2] = tp->dip_mask;
++	mask[3] = tp->proto_mask | (tp->vlan_mask << 8) | (tp->intf_mask << 20);
++
++	if (invert)
++		key[3] |= (1 << 29);
++	if (enable)
++		key[3] |= (1 << 28);
++
++	addr = filter_index ? A_TP_RX_TRC_KEY0 : A_TP_TX_TRC_KEY0;
++	tp_wr_indirect(adapter, addr++, key[0]);
++	tp_wr_indirect(adapter, addr++, mask[0]);
++	tp_wr_indirect(adapter, addr++, key[1]);
++	tp_wr_indirect(adapter, addr++, mask[1]);
++	tp_wr_indirect(adapter, addr++, key[2]);
++	tp_wr_indirect(adapter, addr++, mask[2]);
++	tp_wr_indirect(adapter, addr++, key[3]);
++	tp_wr_indirect(adapter, addr,   mask[3]);
++	(void) t3_read_reg(adapter, A_TP_PIO_DATA);
++}
++
++/**
++ *	t3_config_sched - configure a HW traffic scheduler
++ *	@adap: the adapter
++ *	@kbps: target rate in Kbps
++ *	@sched: the scheduler index
++ *
++ *	Configure a HW scheduler for the target rate
++ */
++int t3_config_sched(adapter_t *adap, unsigned int kbps, int sched)
++{
++	unsigned int v, tps, cpt, bpt, delta, mindelta = ~0;
++	unsigned int clk = adap->params.vpd.cclk * 1000;
++	unsigned int selected_cpt = 0, selected_bpt = 0;
++
++	if (kbps > 0) {
++		kbps *= 125;     /* -> bytes */
++		for (cpt = 1; cpt <= 255; cpt++) {
++			tps = clk / cpt;
++			bpt = (kbps + tps / 2) / tps;
++			if (bpt > 0 && bpt <= 255) {
++				v = bpt * tps;
++				delta = v >= kbps ? v - kbps : kbps - v;
++				if (delta <= mindelta) {
++					mindelta = delta;
++					selected_cpt = cpt;
++					selected_bpt = bpt;
++				}
++			} else if (selected_cpt)
++				break;
++		}
++		if (!selected_cpt)
 +			return -EINVAL;
-+		if (t->mem_id == MEM_CM)
-+			mem = &adapter->cm;
-+		else if (t->mem_id == MEM_PMRX)
-+			mem = &adapter->pmrx;
-+		else if (t->mem_id == MEM_PMTX)
-+			mem = &adapter->pmtx;
-+		else
-+			return -EINVAL;
-+
-+		ret = t3_mc7_bd_read(mem, t->addr/8, t->len/8, (u64 *)t->buf);
-+		if (ret)
-+			return ret;
-+		break;
 +	}
-+	case RDMA_CQ_SETUP: {
-+		struct rdma_cq_setup *req = data;
-+
-+		spin_lock_irq(&adapter->sge.reg_lock);
-+		ret = t3_sge_init_cqcntxt(adapter, req->id, req->base_addr,
-+					  req->size, ASYNC_NOTIF_RSPQ,
-+					  req->ovfl_mode, req->credits,
-+					  req->credit_thres);
-+		spin_unlock_irq(&adapter->sge.reg_lock);
-+		break;
-+	}
-+	case RDMA_CQ_DISABLE:
-+		spin_lock_irq(&adapter->sge.reg_lock);
-+		ret = t3_sge_disable_cqcntxt(adapter, *(unsigned int *)data);
-+		spin_unlock_irq(&adapter->sge.reg_lock);
-+		break;
-+	case RDMA_CTRL_QP_SETUP: {
-+		struct rdma_ctrlqp_setup *req = data;
-+
-+		spin_lock_irq(&adapter->sge.reg_lock);
-+		ret = t3_sge_init_ecntxt(adapter, FW_RI_SGEEC_START, 0,
-+					 SGE_CNTXT_RDMA, ASYNC_NOTIF_RSPQ,
-+					 req->base_addr, req->size,
-+					 FW_RI_TID_START, 1, 0);
-+		spin_unlock_irq(&adapter->sge.reg_lock);
-+		break;
-+	}
-+	default:
-+		ret = -EOPNOTSUPP;
-+	}
-+	return ret;
++	t3_write_reg(adap, A_TP_TM_PIO_ADDR,
++		     A_TP_TX_MOD_Q1_Q0_RATE_LIMIT - sched / 2);
++	v = t3_read_reg(adap, A_TP_TM_PIO_DATA);
++	if (sched & 1)
++		v = (v & 0xffff) | (selected_cpt << 16) | (selected_bpt << 24);
++	else
++		v = (v & 0xffff0000) | selected_cpt | (selected_bpt << 8);
++	t3_write_reg(adap, A_TP_TM_PIO_DATA, v);
++	return 0;
 +}
 +
-+static int cxgb_offload_ctl(struct t3cdev *tdev, unsigned int req, void *data)
++static int tp_init(adapter_t *adap, const struct tp_params *p)
 +{
-+	struct adapter *adapter = tdev2adap(tdev);
-+	struct tid_range *tid;
-+	struct mtutab *mtup;
-+	struct iff_mac *iffmacp;
-+	struct ddp_params *ddpp;
-+	struct adap_ports *ports;
-+	int port;
++	int busy = 0;
 +
-+	switch (req) {
-+	case GET_MAX_OUTSTANDING_WR:
-+		*(unsigned int *)data = FW_WR_NUM;
-+		break;
-+	case GET_WR_LEN:
-+		*(unsigned int *)data = WR_FLITS;
-+		break;
-+	case GET_TX_MAX_CHUNK:
-+		*(unsigned int *)data = 1 << 20;  /* 1MB */
-+		break;
-+	case GET_TID_RANGE:
-+		tid = data;
-+		tid->num = t3_mc5_size(&adapter->mc5) -
-+			adapter->params.mc5.nroutes -
-+			adapter->params.mc5.nfilters -
-+			adapter->params.mc5.nservers;
-+		tid->base = 0;
-+		break;
-+	case GET_STID_RANGE:
-+		tid = data;
-+		tid->num = adapter->params.mc5.nservers;
-+		tid->base = t3_mc5_size(&adapter->mc5) - tid->num -
-+			adapter->params.mc5.nfilters -
-+			adapter->params.mc5.nroutes;
-+		break;
-+	case GET_L2T_CAPACITY:
-+		*(unsigned int *)data = 2048;
-+		break;
-+	case GET_MTUS:
-+		mtup = data;
-+		mtup->size = NMTUS;
-+		mtup->mtus = adapter->params.mtus;
-+		break;
-+	case GET_IFF_FROM_MAC:
-+		iffmacp = data;
-+		iffmacp->dev = get_iff_from_mac(adapter, iffmacp->mac_addr,
-+					  iffmacp->vlan_tag & VLAN_VID_MASK);
-+		break;
-+	case GET_DDP_PARAMS:
-+		ddpp = data;
-+		ddpp->llimit = t3_read_reg(adapter, A_ULPRX_TDDP_LLIMIT);
-+		ddpp->ulimit = t3_read_reg(adapter, A_ULPRX_TDDP_ULIMIT);
-+		ddpp->tag_mask = t3_read_reg(adapter, A_ULPRX_TDDP_TAGMASK);
-+		break;
-+	case GET_PORTS:
-+		ports = data;
-+		ports->nports   = adapter->params.nports;
-+		for_each_port(adapter, port)
-+			ports->lldevs[port] = adapter->port[port].dev;
-+		break;
-+	case ULP_ISCSI_GET_PARAMS:
-+	case ULP_ISCSI_SET_PARAMS:
-+		if (!offload_running(adapter))
-+			return -EAGAIN;
-+		return cxgb_ulp_iscsi_ctl(adapter, req, data);
-+	case RDMA_GET_PARAMS:
-+	case RDMA_CQ_OP:
-+	case RDMA_CQ_SETUP:
-+	case RDMA_CQ_DISABLE:
-+	case RDMA_CTRL_QP_SETUP:
-+	case RDMA_GET_MEM:
-+		if (!offload_running(adapter))
-+			return -EAGAIN;
-+		return cxgb_rdma_ctl(adapter, req, data);
-+	default:
-+		return -EOPNOTSUPP;
++	tp_config(adap, p);
++	t3_set_vlan_accel(adap, 3, 0);
++
++	if (is_offload(adap)) {
++		tp_set_timers(adap, adap->params.vpd.cclk * 1000);
++		t3_write_reg(adap, A_TP_RESET, F_FLSTINITENABLE);
++		busy = t3_wait_op_done(adap, A_TP_RESET, F_FLSTINITENABLE,
++				       0, 1000, 5);
++		if (busy)
++			CH_ERR("%s: TP initialization timed out\n",
++			       adapter_name(adap));
 +	}
++
++	if (!busy)
++		t3_write_reg(adap, A_TP_RESET, F_TPRESET);
++	return busy;
++}
++
++int t3_mps_set_active_ports(adapter_t *adap, unsigned int port_mask)
++{
++	if (port_mask & ~((1 << adap->params.nports) - 1))
++		return -EINVAL;
++	t3_set_reg_field(adap, A_MPS_CFG, F_PORT1ACTIVE | F_PORT0ACTIVE,
++			 port_mask << S_PORT0ACTIVE);
 +	return 0;
 +}
 +
 +/*
-+ * Dummy handler for Rx offload packets in case we get an offload packet before
-+ * proper processing is setup.  This complains and drops the packet as it isn't
-+ * normal to get offload packets at this stage.
++ * Perform the bits of HW initialization that are dependent on the number
++ * of available ports.
 + */
-+static int rx_offload_blackhole(struct t3cdev *dev, struct sk_buff **skbs,
-+				int n)
++static void init_hw_for_avail_ports(adapter_t *adap, int nports)
 +{
-+	CH_ERR("%s: %d unexpected offload packets, first data %u\n",
-+	       adapter_name(tdev2adap(dev)), n, ntohl(*(u32 *)skbs[0]->data));
-+	while (n--)
-+		dev_kfree_skb_any(skbs[n]);
-+	return 0;
-+}
++	int i;
 +
-+static void dummy_neigh_update(struct t3cdev *dev, struct neighbour *neigh)
-+{
-+}
-+
-+void cxgb3_set_dummy_ops(struct t3cdev *dev)
-+{
-+	dev->recv         = rx_offload_blackhole;
-+	dev->neigh_update = dummy_neigh_update;
-+}
-+
-+/*
-+ * Free an active-open TID.
-+ */
-+void *cxgb3_free_atid(struct t3cdev *tdev, int atid)
-+{
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+	union active_open_entry *p = atid2entry(t, atid);
-+	void *ctx = p->t3c_tid.ctx;
-+
-+	spin_lock_bh(&t->atid_lock);
-+	p->next = t->afree;
-+	t->afree = p;
-+	t->atids_in_use--;
-+	spin_unlock_bh(&t->atid_lock);
-+
-+	return ctx;
-+}
-+EXPORT_SYMBOL(cxgb3_free_atid);
-+
-+/*
-+ * Free a server TID and return it to the free pool.
-+ */
-+void cxgb3_free_stid(struct t3cdev *tdev, int stid)
-+{
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+	union listen_entry *p = stid2entry(t, stid);
-+
-+	spin_lock_bh(&t->stid_lock);
-+	p->next = t->sfree;
-+	t->sfree = p;
-+	t->stids_in_use--;
-+	spin_unlock_bh(&t->stid_lock);
-+}
-+EXPORT_SYMBOL(cxgb3_free_stid);
-+
-+void cxgb3_insert_tid(struct t3cdev *tdev, struct cxgb3_client *client,
-+	void *ctx, unsigned int tid)
-+{
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+
-+	t->tid_tab[tid].client = client;
-+	t->tid_tab[tid].ctx = ctx;
-+	atomic_inc(&t->tids_in_use);
-+}
-+EXPORT_SYMBOL(cxgb3_insert_tid);
-+
-+/*
-+ * Populate a TID_RELEASE WR.  The skb must be already propely sized.
-+ */
-+static inline void mk_tid_release(struct sk_buff *skb, unsigned int tid)
-+{
-+	struct cpl_tid_release *req;
-+
-+	skb->priority = CPL_PRIORITY_SETUP;
-+	req = (struct cpl_tid_release *)__skb_put(skb, sizeof(*req));
-+	req->wr.wr_hi = htonl(V_WR_OP(FW_WROPCODE_FORWARD));
-+	OPCODE_TID(req) = htonl(MK_OPCODE_TID(CPL_TID_RELEASE, tid));
-+}
-+
-+static void t3_process_tid_release_list(void *data)
-+{
-+	struct sk_buff *skb;
-+	struct t3cdev *tdev = data;
-+	struct t3c_data *td = T3C_DATA(tdev);
-+
-+	spin_lock_bh(&td->tid_release_lock);
-+	while (td->tid_release_list) {
-+		struct t3c_tid_entry *p = td->tid_release_list;
-+
-+		td->tid_release_list = (struct t3c_tid_entry *)p->ctx;
-+		spin_unlock_bh(&td->tid_release_lock);
-+
-+		skb = alloc_skb(sizeof(struct cpl_tid_release),
-+				GFP_KERNEL | __GFP_NOFAIL);
-+		mk_tid_release(skb, p - td->tid_maps.tid_tab);
-+		cxgb3_ofld_send(tdev, skb);
-+		p->ctx = NULL;
-+		spin_lock_bh(&td->tid_release_lock);
-+	}
-+	spin_unlock_bh(&td->tid_release_lock);
-+}
-+
-+/* use ctx as a next pointer in the tid release list */
-+void cxgb3_queue_tid_release(struct t3cdev *tdev, unsigned int tid)
-+{
-+	struct t3c_data *td = T3C_DATA(tdev);
-+	struct t3c_tid_entry *p = &td->tid_maps.tid_tab[tid];
-+
-+	spin_lock_bh(&td->tid_release_lock);
-+	p->ctx = (void *)td->tid_release_list;
-+	td->tid_release_list = p;
-+	if (!p->ctx)
-+		schedule_work(&td->tid_release_task);
-+	spin_unlock_bh(&td->tid_release_lock);
-+}
-+EXPORT_SYMBOL(cxgb3_queue_tid_release);
-+
-+/*
-+ * Remove a tid from the TID table.  A client may defer processing its last
-+ * CPL message if it is locked at the time it arrives, and while the message
-+ * sits in the client's backlog the TID may be reused for another connection.
-+ * To handle this we atomically switch the TID association if it still points
-+ * to the original client context.
-+ */
-+void cxgb3_remove_tid(struct t3cdev *tdev, void *ctx, unsigned int tid)
-+{
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+
-+	BUG_ON(tid >= t->ntids);
-+	if (tdev->type == T3A)
-+		(void)cmpxchg(&t->tid_tab[tid].ctx, ctx, NULL);
-+	else {
-+		struct sk_buff *skb;
-+
-+		skb = alloc_skb(sizeof(struct cpl_tid_release), GFP_ATOMIC);
-+		if (likely(skb)) {
-+			mk_tid_release(skb, tid);
-+			cxgb3_ofld_send(tdev, skb);
-+			t->tid_tab[tid].ctx = NULL;
-+		} else
-+			cxgb3_queue_tid_release(tdev, tid);
-+	}
-+	atomic_dec(&t->tids_in_use);
-+}
-+EXPORT_SYMBOL(cxgb3_remove_tid);
-+
-+int cxgb3_alloc_atid(struct t3cdev *tdev, struct cxgb3_client *client,
-+		     void *ctx)
-+{
-+	int atid = -1;
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+
-+	spin_lock_bh(&t->atid_lock);
-+	if (t->afree) {
-+		union active_open_entry *p = t->afree;
-+
-+		atid = (p - t->atid_tab) + t->atid_base;
-+		t->afree = p->next;
-+		p->t3c_tid.ctx = ctx;
-+		p->t3c_tid.client = client;
-+		t->atids_in_use++;
-+	}
-+	spin_unlock_bh(&t->atid_lock);
-+	return atid;
-+}
-+EXPORT_SYMBOL(cxgb3_alloc_atid);
-+
-+int cxgb3_alloc_stid(struct t3cdev *tdev, struct cxgb3_client *client,
-+		     void *ctx)
-+{
-+	int stid = -1;
-+	struct tid_info *t = &(T3C_DATA(tdev))->tid_maps;
-+
-+	spin_lock_bh(&t->stid_lock);
-+	if (t->sfree) {
-+		union listen_entry *p = t->sfree;
-+
-+		stid = (p - t->stid_tab) + t->stid_base;
-+		t->sfree = p->next;
-+		p->t3c_tid.ctx = ctx;
-+		p->t3c_tid.client = client;
-+		t->stids_in_use++;
-+	}
-+	spin_unlock_bh(&t->stid_lock);
-+	return stid;
-+}
-+EXPORT_SYMBOL(cxgb3_alloc_stid);
-+
-+static int do_smt_write_rpl(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_smt_write_rpl *rpl = cplhdr(skb);
-+
-+	if (rpl->status != CPL_ERR_NONE)
-+		printk(KERN_ERR
-+		       "Unexpected SMT_WRITE_RPL status %u for entry %u\n",
-+		       rpl->status, GET_TID(rpl));
-+
-+	return CPL_RET_BUF_DONE;
-+}
-+
-+static int do_l2t_write_rpl(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_l2t_write_rpl *rpl = cplhdr(skb);
-+
-+	if (rpl->status != CPL_ERR_NONE)
-+		printk(KERN_ERR
-+		       "Unexpected L2T_WRITE_RPL status %u for entry %u\n",
-+		       rpl->status, GET_TID(rpl));
-+
-+	return CPL_RET_BUF_DONE;
-+}
-+
-+static int do_act_open_rpl(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_act_open_rpl *rpl = cplhdr(skb);
-+	unsigned int atid = G_TID(ntohl(rpl->atid));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_atid(&(T3C_DATA(dev))->tid_maps, atid);
-+	if (t3c_tid->ctx && t3c_tid->client && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[CPL_ACT_OPEN_RPL]) {
-+		return t3c_tid->client->handlers[CPL_ACT_OPEN_RPL] (dev, skb,
-+			t3c_tid->ctx);
++	if (nports == 1) {
++		t3_set_reg_field(adap, A_ULPRX_CTL, F_ROUND_ROBIN, 0);
++		t3_set_reg_field(adap, A_ULPTX_CONFIG, F_CFG_RR_ARB, 0);
++		t3_write_reg(adap, A_MPS_CFG, F_TPRXPORTEN | F_TPTXPORT0EN |
++			     F_PORT0ACTIVE | F_ENFORCEPKT);
++		t3_write_reg(adap, A_PM1_TX_CFG, 0xc000c000);
 +	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, CPL_ACT_OPEN_RPL);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
++		t3_set_reg_field(adap, A_ULPRX_CTL, 0, F_ROUND_ROBIN);
++		t3_set_reg_field(adap, A_ULPTX_CONFIG, 0, F_CFG_RR_ARB);
++		t3_write_reg(adap, A_ULPTX_DMA_WEIGHT,
++			     V_D1_WEIGHT(16) | V_D0_WEIGHT(16));
++		t3_write_reg(adap, A_MPS_CFG, F_TPTXPORT0EN | F_TPTXPORT1EN |
++			     F_TPRXPORTEN | F_PORT0ACTIVE | F_PORT1ACTIVE |
++			     F_ENFORCEPKT);
++		t3_write_reg(adap, A_PM1_TX_CFG, 0x80008000);
++		t3_set_reg_field(adap, A_TP_PC_CONFIG, 0, F_TXTOSQUEUEMAPMODE);
++		t3_write_reg(adap, A_TP_TX_MOD_QUEUE_REQ_MAP,
++			     V_TX_MOD_QUEUE_REQ_MAP(0xaa));
++		for (i = 0; i < 16; i++)
++			t3_write_reg(adap, A_TP_TX_MOD_QUE_TABLE,
++				     (i << 16) | 0x1010);
 +	}
 +}
 +
-+static int do_stid_rpl(struct t3cdev *dev, struct sk_buff *skb)
++static int calibrate_xgm(adapter_t *adapter)
 +{
-+	union opcode_tid *p = cplhdr(skb);
-+	unsigned int stid = G_TID(ntohl(p->opcode_tid));
-+	struct t3c_tid_entry *t3c_tid;
++	if (uses_xaui(adapter)) {
++		unsigned int v, i;
 +
-+	t3c_tid = lookup_stid(&(T3C_DATA(dev))->tid_maps, stid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[p->opcode]) {
-+		return t3c_tid->client->handlers[p->opcode] (dev, skb, t3c_tid->ctx);
-+	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, p->opcode);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
-+	}
-+}
-+
-+static int do_hwtid_rpl(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	union opcode_tid *p = cplhdr(skb);
-+	unsigned int hwtid = G_TID(ntohl(p->opcode_tid));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_tid(&(T3C_DATA(dev))->tid_maps, hwtid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[p->opcode]) {
-+		return t3c_tid->client->handlers[p->opcode]
-+						(dev, skb, t3c_tid->ctx);
-+	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, p->opcode);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
-+	}
-+}
-+
-+static int do_cr(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_pass_accept_req *req = cplhdr(skb);
-+	unsigned int stid = G_PASS_OPEN_TID(ntohl(req->tos_tid));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_stid(&(T3C_DATA(dev))->tid_maps, stid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[CPL_PASS_ACCEPT_REQ]) {
-+		return t3c_tid->client->handlers[CPL_PASS_ACCEPT_REQ]
-+						(dev, skb, t3c_tid->ctx);
-+	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, CPL_PASS_ACCEPT_REQ);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
-+	}
-+}
-+
-+static int do_abort_req_rss(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	union opcode_tid *p = cplhdr(skb);
-+	unsigned int hwtid = G_TID(ntohl(p->opcode_tid));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_tid(&(T3C_DATA(dev))->tid_maps, hwtid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[p->opcode]) {
-+		return t3c_tid->client->handlers[p->opcode]
-+						(dev, skb, t3c_tid->ctx);
-+	} else {
-+		struct cpl_abort_req_rss *req = cplhdr(skb);
-+		struct cpl_abort_rpl *rpl;
-+
-+		struct sk_buff *skb =
-+		    alloc_skb(sizeof(struct cpl_abort_rpl), GFP_ATOMIC);
-+		if (!skb) {
-+			printk("do_abort_req_rss: couldn't get skb!\n");
-+			goto out;
++		for (i = 0; i < 5; ++i) {
++			t3_write_reg(adapter, A_XGM_XAUI_IMP, 0);
++			(void) t3_read_reg(adapter, A_XGM_XAUI_IMP);
++			msleep(1);
++			v = t3_read_reg(adapter, A_XGM_XAUI_IMP);
++			if (!(v & (F_XGM_CALFAULT | F_CALBUSY))) {
++				t3_write_reg(adapter, A_XGM_XAUI_IMP,
++					     V_XAUIIMP(G_CALIMP(v) >> 2));
++				return 0;
++			}
 +		}
-+		skb->priority = CPL_PRIORITY_DATA;
-+		__skb_put(skb, sizeof(struct cpl_abort_rpl));
-+		rpl = cplhdr(skb);
-+		rpl->wr.wr_hi =
-+			htonl(V_WR_OP(FW_WROPCODE_OFLD_HOST_ABORT_CON_RPL));
-+		rpl->wr.wr_lo = htonl(V_WR_TID(GET_TID(req)));
-+		OPCODE_TID(rpl) =
-+			htonl(MK_OPCODE_TID(CPL_ABORT_RPL, GET_TID(req)));
-+		rpl->cmd = req->status;
-+		cxgb3_ofld_send(dev, skb);
-+ out:
-+		return CPL_RET_BUF_DONE;
-+	}
-+}
-+
-+static int do_act_establish(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_act_establish *req = cplhdr(skb);
-+	unsigned int atid = G_PASS_OPEN_TID(ntohl(req->tos_tid));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_atid(&(T3C_DATA(dev))->tid_maps, atid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[CPL_ACT_ESTABLISH]) {
-+		return t3c_tid->client->handlers[CPL_ACT_ESTABLISH]
-+						(dev, skb, t3c_tid->ctx);
++		CH_ERR("%s: MAC calibration failed\n", adapter_name(adapter));
++		return -1;
 +	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, CPL_PASS_ACCEPT_REQ);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
-+	}
-+}
-+
-+static int do_set_tcb_rpl(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_set_tcb_rpl *rpl = cplhdr(skb);
-+
-+	if (rpl->status != CPL_ERR_NONE)
-+		printk(KERN_ERR
-+			"Unexpected SET_TCB_RPL status %u for tid %u\n",
-+			rpl->status, GET_TID(rpl));
-+	return CPL_RET_BUF_DONE;
-+}
-+
-+static int do_trace(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	struct cpl_trace_pkt *p = cplhdr(skb);
-+
-+	skb->protocol = 0xffff;
-+	skb->dev = dev->lldev;
-+	skb_pull(skb, sizeof(*p));
-+	skb->mac.raw = skb->data;
-+	netif_receive_skb(skb);
-+	return 0;
-+}
-+
-+static int do_term(struct t3cdev *dev, struct sk_buff *skb)
-+{
-+	unsigned int hwtid = ntohl(skb->priority) >> 8 & 0xfffff;
-+	unsigned int opcode = G_OPCODE(ntohl(skb->csum));
-+	struct t3c_tid_entry *t3c_tid;
-+
-+	t3c_tid = lookup_tid(&(T3C_DATA(dev))->tid_maps, hwtid);
-+	if (t3c_tid->ctx && t3c_tid->client->handlers &&
-+		t3c_tid->client->handlers[opcode]) {
-+		return t3c_tid->client->handlers[opcode](dev,skb,t3c_tid->ctx);
-+	} else {
-+		printk(KERN_ERR "%s: received clientless CPL command 0x%x\n",
-+			dev->name, opcode);
-+		return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
-+	}
-+}
-+
-+static int nb_callback(struct notifier_block *self, unsigned long event,
-+	void *ctx)
-+{
-+	switch (event) {
-+		case (NETEVENT_NEIGH_UPDATE): {
-+			cxgb_neigh_update((struct neighbour *)ctx);
-+			break;
-+		}
-+		case (NETEVENT_PMTU_UPDATE):
-+			break;
-+		case (NETEVENT_REDIRECT): {
-+			struct netevent_redirect *nr = ctx;
-+			cxgb_redirect(nr->old, nr->new);
-+			cxgb_neigh_update(nr->new->neighbour);
-+			break;
-+		}
-+		default:
-+			break;
++		t3_write_reg(adapter, A_XGM_RGMII_IMP,
++			     V_RGMIIIMPPD(2) | V_RGMIIIMPPU(3));
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_XGM_IMPSETUPDATE,
++				 F_XGM_IMPSETUPDATE);
 +	}
 +	return 0;
 +}
 +
-+static struct notifier_block nb = {
-+	.notifier_call = nb_callback
++static void calibrate_xgm_t3b(adapter_t *adapter)
++{
++	if (!uses_xaui(adapter)) {
++		t3_write_reg(adapter, A_XGM_RGMII_IMP, F_CALRESET |
++			     F_CALUPDATE | V_RGMIIIMPPD(2) | V_RGMIIIMPPU(3));
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_CALRESET, 0);
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, 0,
++				 F_XGM_IMPSETUPDATE);
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_XGM_IMPSETUPDATE,
++				 0);
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, F_CALUPDATE, 0);
++		t3_set_reg_field(adapter, A_XGM_RGMII_IMP, 0, F_CALUPDATE);
++	}
++}
++
++struct mc7_timing_params {
++	unsigned char ActToPreDly;
++	unsigned char ActToRdWrDly;
++	unsigned char PreCyc;
++	unsigned char RefCyc[5];
++	unsigned char BkCyc;
++	unsigned char WrToRdDly;
++	unsigned char RdToWrDly;
 +};
 +
 +/*
-+ * Process a received packet with an unknown/unexpected CPL opcode.
++ * Write a value to a register and check that the write completed.  These
++ * writes normally complete in a cycle or two, so one read should suffice.
++ * The very first read exists to flush the posted write to the device.
 + */
-+static int do_bad_cpl(struct t3cdev *dev, struct sk_buff *skb)
++static int wrreg_wait(adapter_t *adapter, unsigned int addr, u32 val)
 +{
-+	printk(KERN_ERR "%s: received bad CPL command 0x%x\n", dev->name,
-+	       *skb->data);
-+	return CPL_RET_BUF_DONE | CPL_RET_BAD_MSG;
++	t3_write_reg(adapter,	addr, val);
++	(void) t3_read_reg(adapter, addr);                   /* flush */
++	if (!(t3_read_reg(adapter, addr) & F_BUSY))
++		return 0;
++	CH_ERR("%s: write to MC7 register 0x%x timed out\n",
++	       adapter_name(adapter), addr);
++	return -EIO;
 +}
 +
-+/*
-+ * Handlers for each CPL opcode
-+ */
-+static cpl_handler_func cpl_handlers[NUM_CPL_CMDS];
-+
-+/*
-+ * Add a new handler to the CPL dispatch table.  A NULL handler may be supplied
-+ * to unregister an existing handler.
-+ */
-+void t3_register_cpl_handler(unsigned int opcode, cpl_handler_func h)
++static int mc7_init(struct mc7 *mc7, unsigned int mc7_clock, int mem_type)
 +{
-+	if (opcode < NUM_CPL_CMDS)
-+		cpl_handlers[opcode] = h ? h : do_bad_cpl;
++	static unsigned int mc7_mode[] = { 0x632, 0x642, 0x652, 0x432, 0x442 };
++	static struct mc7_timing_params mc7_timings[] = {
++		{ 12, 3, 4, { 20, 28, 34, 52, 0 }, 15, 6, 4 },
++		{ 12, 4, 5, { 20, 28, 34, 52, 0 }, 16, 7, 4 },
++		{ 12, 5, 6, { 20, 28, 34, 52, 0 }, 17, 8, 4 },
++		{ 9,  3, 4, { 15, 21, 26, 39, 0 }, 12, 6, 4 },
++		{ 9,  4, 5, { 15, 21, 26, 39, 0 }, 13, 7, 4 }
++	};
++
++	u32 val;
++	unsigned int width, density, slow, attempts;
++	adapter_t *adapter = mc7->adapter;
++	struct mc7_timing_params *p = &mc7_timings[mem_type];
++
++	val = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);
++	slow = val & F_SLOW;
++	width = G_WIDTH(val);
++	density = G_DEN(val);
++
++	t3_write_reg(adapter, mc7->offset + A_MC7_CFG, val | F_IFEN);
++	val = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);  /* flush */
++	msleep(1);
++
++	if (!slow) {
++		t3_write_reg(adapter, mc7->offset + A_MC7_CAL, F_SGL_CAL_EN);
++		(void) t3_read_reg(adapter, mc7->offset + A_MC7_CAL);
++		msleep(1);
++		if (t3_read_reg(adapter, mc7->offset + A_MC7_CAL) &
++		    (F_BUSY | F_SGL_CAL_EN | F_CAL_FAULT)) {
++			CH_ERR("%s: %s MC7 calibration timed out\n",
++			       adapter_name(adapter), mc7->name);
++			goto out_fail;
++		}
++	}
++
++	t3_write_reg(adapter, mc7->offset + A_MC7_PARM,
++		     V_ACTTOPREDLY(p->ActToPreDly) |
++		     V_ACTTORDWRDLY(p->ActToRdWrDly) | V_PRECYC(p->PreCyc) |
++		     V_REFCYC(p->RefCyc[density]) | V_BKCYC(p->BkCyc) |
++		     V_WRTORDDLY(p->WrToRdDly) | V_RDTOWRDLY(p->RdToWrDly));
++
++	t3_write_reg(adapter, mc7->offset + A_MC7_CFG,
++		     val | F_CLKEN | F_TERM150);
++	(void) t3_read_reg(adapter, mc7->offset + A_MC7_CFG); /* flush */
++
++	if (!slow)
++		t3_set_reg_field(adapter, mc7->offset + A_MC7_DLL, F_DLLENB,
++				 F_DLLENB);
++	udelay(1);
++
++	val = slow ? 3 : 6;
++	if (wrreg_wait(adapter, mc7->offset + A_MC7_PRE, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE2, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE3, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val))
++		goto out_fail;
++
++	if (!slow) {
++		t3_write_reg(adapter, mc7->offset + A_MC7_MODE, 0x100);
++		t3_set_reg_field(adapter, mc7->offset + A_MC7_DLL,
++				 F_DLLRST, 0);
++		udelay(5);
++	}
++
++	if (wrreg_wait(adapter, mc7->offset + A_MC7_PRE, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_REF, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_REF, 0) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_MODE,
++		       mc7_mode[mem_type]) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val | 0x380) ||
++	    wrreg_wait(adapter, mc7->offset + A_MC7_EXT_MODE1, val))
++		goto out_fail;
++
++	/* clock value is in KHz */
++	mc7_clock = mc7_clock * 7812 + mc7_clock / 2;  /* ns */
++	mc7_clock /= 1000000;                          /* KHz->MHz, ns->us */
++
++	t3_write_reg(adapter, mc7->offset + A_MC7_REF,
++		     F_PERREFEN | V_PREREFDIV(mc7_clock));
++	(void) t3_read_reg(adapter, mc7->offset + A_MC7_REF); /* flush */
++
++	t3_write_reg(adapter, mc7->offset + A_MC7_ECC,
++		     F_ECCGENEN | F_ECCCHKEN);
++	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_DATA, 0);
++	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_ADDR_BEG, 0);
++	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_ADDR_END,
++		     (mc7->size << width) - 1);
++	t3_write_reg(adapter, mc7->offset + A_MC7_BIST_OP, V_OP(1));
++	(void) t3_read_reg(adapter, mc7->offset + A_MC7_BIST_OP); /* flush */
++
++	attempts = 50;
++	do {
++		msleep(250);
++		val = t3_read_reg(adapter, mc7->offset + A_MC7_BIST_OP);
++	} while ((val & F_BUSY) && --attempts);
++	if (val & F_BUSY) {
++		CH_ERR("%s: %s MC7 BIST timed out\n", adapter_name(adapter),
++		       mc7->name);
++		goto out_fail;
++	}
++
++	/* Enable normal memory accesses. */
++	t3_set_reg_field(adapter, mc7->offset + A_MC7_CFG, 0, F_RDY);
++	return 0;
++
++ out_fail:
++	return -1;
++}
++
++static void config_pcie(adapter_t *adap)
++{
++	static u16 ack_lat[4][6] = {
++		{ 237, 416, 559, 1071, 2095, 4143 },
++		{ 128, 217, 289, 545, 1057, 2081 },
++		{ 73, 118, 154, 282, 538, 1050 },
++		{ 67, 107, 86, 150, 278, 534 }
++	};
++	static u16 rpl_tmr[4][6] = {
++		{ 711, 1248, 1677, 3213, 6285, 12429 },
++		{ 384, 651, 867, 1635, 3171, 6243 },
++		{ 219, 354, 462, 846, 1614, 3150 },
++		{ 201, 321, 258, 450, 834, 1602 }
++	};
++
++	u16 val;
++	unsigned int log2_width, pldsize;
++	unsigned int fst_trn_rx, fst_trn_tx, acklat, rpllmt;
++
++	t3_os_pci_read_config_2(adap,
++				adap->params.pci.pcie_cap_addr + PCI_EXP_DEVCTL,
++				&val);
++	pldsize = (val & PCI_EXP_DEVCTL_PAYLOAD) >> 5;
++
++	t3_os_pci_read_config_2(adap,
++				adap->params.pci.pcie_cap_addr + PCI_EXP_LNKSTA,
++			       	&val);
++
++	fst_trn_tx = G_NUMFSTTRNSEQ(t3_read_reg(adap, A_PCIE_PEX_CTRL0));
++	fst_trn_rx = adap->params.rev == 0 ? fst_trn_tx :
++			G_NUMFSTTRNSEQRX(t3_read_reg(adap, A_PCIE_MODE));
++	log2_width = fls(adap->params.pci.width) - 1;
++	acklat = ack_lat[log2_width][pldsize];
++	if (val & 1)                            /* check LOsEnable */
++		acklat += fst_trn_tx * 4;
++	rpllmt = rpl_tmr[log2_width][pldsize] + fst_trn_rx * 4;
++
++	if (adap->params.rev == 0)
++		t3_set_reg_field(adap, A_PCIE_PEX_CTRL1,
++				 V_T3A_ACKLAT(M_T3A_ACKLAT),
++				 V_T3A_ACKLAT(acklat));
 +	else
-+		printk(KERN_ERR "T3C: handler registration for "
-+		       "opcode %x failed\n", opcode);
-+}
-+EXPORT_SYMBOL(t3_register_cpl_handler);
++		t3_set_reg_field(adap, A_PCIE_PEX_CTRL1, V_ACKLAT(M_ACKLAT),
++				 V_ACKLAT(acklat));
 +
-+/*
-+ * T3CDEV's receive method.
-+ */
-+int process_rx(struct t3cdev *dev, struct sk_buff **skbs, int n)
-+{
-+	while (n--) {
-+		struct sk_buff *skb = *skbs++;
-+		unsigned int opcode = G_OPCODE(ntohl(skb->csum));
-+		int ret = cpl_handlers[opcode] (dev, skb);
++	t3_set_reg_field(adap, A_PCIE_PEX_CTRL0, V_REPLAYLMT(M_REPLAYLMT),
++			 V_REPLAYLMT(rpllmt));
 +
-+#if VALIDATE_TID
-+		if (ret & CPL_RET_UNKNOWN_TID) {
-+			union opcode_tid *p = cplhdr(skb);
-+
-+			printk(KERN_ERR "%s: CPL message (opcode %u) had "
-+			       "unknown TID %u\n", dev->name, opcode,
-+			       G_TID(ntohl(p->opcode_tid)));
-+		}
-+#endif
-+		if (ret & CPL_RET_BUF_DONE)
-+			kfree_skb(skb);
-+	}
-+	return 0;
++	t3_write_reg(adap, A_PCIE_PEX_ERR, 0xffffffff);
++	t3_set_reg_field(adap, A_PCIE_CFG, F_PCIE_CLIDECEN, F_PCIE_CLIDECEN);
 +}
 +
 +/*
-+ * Sends an sk_buff to a T3C driver after dealing with any active network taps.
++ * Initialize and configure T3 HW modules.  This performs the
++ * initialization steps that need to be done once after a card is reset.
++ * MAC and PHY initialization is handled separarely whenever a port is enabled.
++ *
++ * fw_params are passed to FW and their value is platform dependent.  Only the
++ * top 8 bits are available for use, the rest must be 0.
 + */
-+int cxgb3_ofld_send(struct t3cdev *dev, struct sk_buff *skb)
++int t3_init_hw(adapter_t *adapter, u32 fw_params)
 +{
-+	int r;
++	int err = -EIO, attempts = 100;
++	const struct vpd_params *vpd = &adapter->params.vpd;
 +
-+	local_bh_disable();
-+	r = dev->send(dev, skb);
-+	local_bh_enable();
-+	return r;
-+}
-+EXPORT_SYMBOL(cxgb3_ofld_send);
++	if (adapter->params.rev > 0)
++		calibrate_xgm_t3b(adapter);
++	else if (calibrate_xgm(adapter))
++		goto out_err;
 +
-+static int is_offloading(struct net_device *dev)
-+{
-+	struct adapter *adapter;
-+	int port;
++	if (vpd->mclk) {
++		partition_mem(adapter, &adapter->params.tp);
 +
-+	read_lock(&adapter_list_lock);
-+	list_for_each_entry(adapter, &adapter_list, adapter_list) {
-+		for_each_port(adapter, port) {
-+			if (dev == adapter->port[port].dev) {
-+				read_unlock(&adapter_list_lock);
-+				return 1;
-+			}
-+		}
-+	}
-+	read_unlock(&adapter_list_lock);
-+	return 0;
-+}
-+
-+void cxgb_neigh_update(struct neighbour *neigh)
-+{
-+	struct net_device *dev = neigh->dev;
-+
-+	if (dev && (is_offloading(dev))) {
-+		struct t3cdev *tdev = T3CDEV(dev);
-+
-+		BUG_ON(!tdev);
-+		t3_l2t_update(tdev, neigh);
-+	}
-+}
-+
-+static void set_l2t_ix(struct t3cdev *tdev, u32 tid, struct l2t_entry *e)
-+{
-+	struct sk_buff *skb;
-+	struct cpl_set_tcb_field *req;
-+
-+	skb = alloc_skb(sizeof(*req), GFP_ATOMIC);
-+	if (!skb) {
-+		printk(KERN_ERR "%s: cannot allocate skb!\n", __FUNCTION__);
-+		return;
-+	}
-+	skb->priority = CPL_PRIORITY_CONTROL;
-+	req = (struct cpl_set_tcb_field *)skb_put(skb, sizeof(*req));
-+	req->wr.wr_hi = htonl(V_WR_OP(FW_WROPCODE_FORWARD));
-+	OPCODE_TID(req) = htonl(MK_OPCODE_TID(CPL_SET_TCB_FIELD, tid));
-+	req->reply = 0;
-+	req->cpu_idx = 0;
-+	req->word = htons(W_TCB_L2T_IX);
-+	req->mask = cpu_to_be64(V_TCB_L2T_IX(M_TCB_L2T_IX));
-+	req->val = cpu_to_be64(V_TCB_L2T_IX(e->idx));
-+	tdev->send(tdev, skb);
-+}
-+
-+void cxgb_redirect(struct dst_entry *old, struct dst_entry *new)
-+{
-+	struct net_device *olddev, *newdev;
-+	struct tid_info *ti;
-+	struct t3cdev *tdev;
-+	u32 tid;
-+	int update_tcb;
-+	struct l2t_entry *e;
-+	struct t3c_tid_entry *te;
-+
-+	olddev = old->neighbour->dev;
-+	newdev = new->neighbour->dev;
-+	if (!is_offloading(olddev))
-+		return;
-+	if (!is_offloading(newdev)) {
-+		printk(KERN_WARNING "%s: Redirect to non-offload"
-+		       "device ignored.\n", __FUNCTION__);
-+		return;
-+	}
-+	tdev = T3CDEV(olddev);
-+	BUG_ON(!tdev);
-+	if (tdev != T3CDEV(newdev)) {
-+		printk(KERN_WARNING "%s: Redirect to different "
-+		       "offload device ignored.\n", __FUNCTION__);
-+		return;
++		if (mc7_init(&adapter->pmrx, vpd->mclk, vpd->mem_timing) ||
++		    mc7_init(&adapter->pmtx, vpd->mclk, vpd->mem_timing) ||
++		    mc7_init(&adapter->cm, vpd->mclk, vpd->mem_timing) ||
++		    t3_mc5_init(&adapter->mc5, adapter->params.mc5.nservers,
++			        adapter->params.mc5.nfilters,
++			       	adapter->params.mc5.nroutes))
++			goto out_err;
 +	}
 +
-+	/* Add new L2T entry */
-+	e = t3_l2t_get(tdev, new->neighbour, new->neighbour->dev->if_port);
-+	if (!e) {
-+		printk(KERN_ERR "%s: couldn't allocate new l2t entry!\n",
-+		       __FUNCTION__);
-+		return;
-+	}
++	if (tp_init(adapter, &adapter->params.tp))
++		goto out_err;
 +
-+	/* Walk tid table and notify clients of dst change. */
-+	ti = &(T3C_DATA(tdev))->tid_maps;
-+	for (tid=0; tid < ti->ntids; tid++) {
-+		te = lookup_tid(ti, tid);
-+		BUG_ON(!te);
-+		if (te->ctx && te->client && te->client->redirect) {
-+			update_tcb = te->client->redirect(te->ctx, old, new,
-+							  e);
-+			if (update_tcb)  {
-+				l2t_hold(L2DATA(tdev), e);
-+				set_l2t_ix(tdev, tid, e);
-+			}
-+		}
-+	}
-+	l2t_release(L2DATA(tdev), e);
-+}
++	t3_tp_set_coalescing_size(adapter,
++				  min(adapter->params.sge.max_pkt_size,
++				      MAX_RX_COALESCING_LEN), 1);
++	t3_tp_set_max_rxsize(adapter,
++			     min(adapter->params.sge.max_pkt_size, 16384U));
++	ulp_config(adapter, &adapter->params.tp);
 +
-+/*
-+ * Allocate a chunk of memory using kmalloc or, if that fails, vmalloc.
-+ * The allocated memory is cleared.
-+ */
-+void *cxgb_alloc_mem(unsigned long size)
-+{
-+	void *p = kmalloc(size, GFP_KERNEL);
-+
-+	if (!p)
-+		p = vmalloc(size);
-+	if (p)
-+		memset(p, 0, size);
-+	return p;
-+}
-+
-+/*
-+ * Free memory allocated through t3_alloc_mem().
-+ */
-+void cxgb_free_mem(void *addr)
-+{
-+	unsigned long p = (unsigned long) addr;
-+
-+	if (p >= VMALLOC_START && p < VMALLOC_END)
-+		vfree(addr);
++	if (is_pcie(adapter))
++		config_pcie(adapter);
 +	else
-+		kfree(addr);
-+}
++		t3_set_reg_field(adapter, A_PCIX_CFG, 0, F_CLIDECEN);
 +
-+/*
-+ * Allocate and initialize the TID tables.  Returns 0 on success.
-+ */
-+static int init_tid_tabs(struct tid_info *t, unsigned int ntids,
-+			 unsigned int natids, unsigned int nstids,
-+			 unsigned int atid_base, unsigned int stid_base)
-+{
-+	unsigned long size = ntids * sizeof(*t->tid_tab) +
-+	    natids * sizeof(*t->atid_tab) + nstids * sizeof(*t->stid_tab);
++	t3_write_reg(adapter, A_PM1_RX_CFG, 0xf000f000);
++	init_hw_for_avail_ports(adapter, adapter->params.nports);
++	t3_sge_init(adapter, &adapter->params.sge);
 +
-+	t->tid_tab = cxgb_alloc_mem(size);
-+	if (!t->tid_tab)
-+		return -ENOMEM;
++	t3_write_reg(adapter, A_CIM_HOST_ACC_DATA, vpd->uclk | fw_params);
++	t3_write_reg(adapter, A_CIM_BOOT_CFG,
++		     V_BOOTADDR(FW_FLASH_BOOT_ADDR >> 2));
++	(void) t3_read_reg(adapter, A_CIM_BOOT_CFG);    /* flush */
 +
-+	t->stid_tab = (union listen_entry *)&t->tid_tab[ntids];
-+	t->atid_tab = (union active_open_entry *)&t->stid_tab[nstids];
-+	t->ntids = ntids;
-+	t->nstids = nstids;
-+	t->stid_base = stid_base;
-+	t->sfree = NULL;
-+	t->natids = natids;
-+	t->atid_base = atid_base;
-+	t->afree = NULL;
-+	t->stids_in_use = t->atids_in_use = 0;
-+	atomic_set(&t->tids_in_use, 0);
-+	spin_lock_init(&t->stid_lock);
-+	spin_lock_init(&t->atid_lock);
++	do {                          /* wait for uP to initialize */
++		msleep(20);
++	} while (t3_read_reg(adapter, A_CIM_HOST_ACC_DATA) && --attempts);
++	if (!attempts)
++		goto out_err;
 +
-+	/*
-+	 * Setup the free lists for stid_tab and atid_tab.
-+	 */
-+	if (nstids) {
-+		while (--nstids)
-+			t->stid_tab[nstids - 1].next = &t->stid_tab[nstids];
-+		t->sfree = t->stid_tab;
-+	}
-+	if (natids) {
-+		while (--natids)
-+			t->atid_tab[natids - 1].next = &t->atid_tab[natids];
-+		t->afree = t->atid_tab;
-+	}
-+	return 0;
-+}
-+
-+static void free_tid_maps(struct tid_info *t)
-+{
-+	cxgb_free_mem(t->tid_tab);
-+}
-+
-+static inline void add_adapter(adapter_t *adap)
-+{
-+	write_lock(&adapter_list_lock);
-+	list_add_tail(&adap->adapter_list, &adapter_list);
-+	write_unlock(&adapter_list_lock);
-+}
-+
-+static inline void remove_adapter(adapter_t *adap)
-+{
-+	write_lock(&adapter_list_lock);
-+	list_del(&adap->adapter_list);
-+	write_unlock(&adapter_list_lock);
-+}
-+
-+int cxgb3_offload_activate(struct adapter *adapter)
-+{
-+	struct t3cdev *dev = &adapter->tdev;
-+	int natids, err;
-+	struct t3c_data *t;
-+	struct tid_range stid_range, tid_range;
-+	struct ddp_params ddp;
-+	struct mtutab mtutab;
-+	unsigned int l2t_capacity;
-+
-+	t = kcalloc(1, sizeof(*t), GFP_KERNEL);
-+	if (!t)
-+		return -ENOMEM;
-+
-+	err = -EOPNOTSUPP;
-+	if (dev->ctl(dev, GET_TX_MAX_CHUNK, &t->tx_max_chunk) < 0 ||
-+	    dev->ctl(dev, GET_MAX_OUTSTANDING_WR, &t->max_wrs) < 0 ||
-+	    dev->ctl(dev, GET_L2T_CAPACITY, &l2t_capacity) < 0 ||
-+	    dev->ctl(dev, GET_MTUS, &mtutab) < 0 ||
-+	    dev->ctl(dev, GET_DDP_PARAMS, &ddp) < 0 ||
-+	    dev->ctl(dev, GET_TID_RANGE, &tid_range) < 0 ||
-+	    dev->ctl(dev, GET_STID_RANGE, &stid_range) < 0)
-+		goto out_free;
-+
-+	err = -ENOMEM;
-+	L2DATA(dev) = t3_init_l2t(l2t_capacity);
-+	if (!L2DATA(dev))
-+		goto out_free;
-+
-+	natids = min(tid_range.num / 2, MAX_ATIDS);
-+	err = init_tid_tabs(&t->tid_maps, tid_range.num, natids,
-+			    stid_range.num, ATID_BASE, stid_range.base);
-+	if (err)
-+		goto out_free_l2t;
-+
-+	t->mtus = mtutab.mtus;
-+	t->nmtus = mtutab.size;
-+
-+	t->ddp_llimit = ddp.llimit;
-+	t->ddp_ulimit = ddp.ulimit;
-+	t->ddp_tagmask = ddp.tag_mask;
-+
-+	INIT_WORK(&t->tid_release_task, t3_process_tid_release_list, t);
-+	spin_lock_init(&t->tid_release_lock);
-+	INIT_LIST_HEAD(&t->list_node);
-+	t->dev = dev;
-+
-+	T3C_DATA(dev) = t;
-+	dev->recv = process_rx;
-+	dev->neigh_update = t3_l2t_update;
-+
-+	/* Register netevent handler once */
-+	if (list_empty(&adapter_list))
-+		register_netevent_notifier(&nb);
-+
-+	add_adapter(adapter);
-+	return 0;
-+
-+out_free_l2t:
-+	t3_free_l2t(L2DATA(dev));
-+	L2DATA(dev) = NULL;
-+out_free:
-+	kfree(t);
++	err = 0;
++ out_err:
 +	return err;
 +}
 +
-+void cxgb3_offload_deactivate(struct adapter *adapter)
-+{
-+	struct t3cdev *tdev = &adapter->tdev;
-+	struct t3c_data *t = T3C_DATA(tdev);
-+
-+	remove_adapter(adapter);
-+	if (list_empty(&adapter_list))
-+		unregister_netevent_notifier(&nb);
-+
-+	free_tid_maps(&t->tid_maps);
-+	T3C_DATA(tdev) = NULL;
-+	t3_free_l2t(L2DATA(tdev));
-+	L2DATA(tdev) = NULL;
-+	kfree(t);
-+}
-+
-+static inline void register_tdev(struct t3cdev *tdev)
-+{
-+	static int unit;
-+
-+	mutex_lock(&cxgb3_db_lock);
-+	snprintf(tdev->name, sizeof(tdev->name), "ofld_dev%d", unit++);
-+	list_add_tail(&tdev->ofld_dev_list, &ofld_dev_list);
-+	mutex_unlock(&cxgb3_db_lock);
-+}
-+
-+static inline void unregister_tdev(struct t3cdev *tdev)
-+{
-+	mutex_lock(&cxgb3_db_lock);
-+	list_del(&tdev->ofld_dev_list);
-+	mutex_unlock(&cxgb3_db_lock);
-+}
-+
-+void __devinit cxgb3_adapter_ofld(struct adapter *adapter)
-+{
-+	struct t3cdev *tdev = &adapter->tdev;
-+
-+	INIT_LIST_HEAD(&tdev->ofld_dev_list);
-+
-+	cxgb3_set_dummy_ops(tdev);
-+	tdev->send = t3_offload_tx;
-+	tdev->ctl = cxgb_offload_ctl;
-+	tdev->type = adapter->params.rev == 0 ?
-+		     T3A : T3B;
-+
-+	register_tdev(tdev);
-+}
-+
-+void __devexit cxgb3_adapter_unofld(struct adapter *adapter)
-+{
-+	struct t3cdev *tdev = &adapter->tdev;
-+
-+	tdev->recv = NULL;
-+	tdev->neigh_update = NULL;
-+
-+	unregister_tdev(tdev);
-+}
-+
-+void __init cxgb3_offload_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NUM_CPL_CMDS; ++i)
-+		cpl_handlers[i] = do_bad_cpl;
-+
-+	t3_register_cpl_handler(CPL_SMT_WRITE_RPL, do_smt_write_rpl);
-+	t3_register_cpl_handler(CPL_L2T_WRITE_RPL, do_l2t_write_rpl);
-+	t3_register_cpl_handler(CPL_PASS_OPEN_RPL, do_stid_rpl);
-+	t3_register_cpl_handler(CPL_CLOSE_LISTSRV_RPL, do_stid_rpl);
-+	t3_register_cpl_handler(CPL_PASS_ACCEPT_REQ, do_cr);
-+	t3_register_cpl_handler(CPL_PASS_ESTABLISH, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_ABORT_RPL_RSS, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_ABORT_RPL, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_RX_URG_NOTIFY, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_RX_DATA, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_TX_DATA_ACK, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_TX_DMA_ACK, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_ACT_OPEN_RPL, do_act_open_rpl);
-+	t3_register_cpl_handler(CPL_PEER_CLOSE, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_CLOSE_CON_RPL, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_ABORT_REQ_RSS, do_abort_req_rss);
-+	t3_register_cpl_handler(CPL_ACT_ESTABLISH, do_act_establish);
-+	t3_register_cpl_handler(CPL_SET_TCB_RPL, do_set_tcb_rpl);
-+	t3_register_cpl_handler(CPL_RDMA_TERMINATE, do_term);
-+	t3_register_cpl_handler(CPL_RDMA_EC_STATUS, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_TRACE_PKT, do_trace);
-+	t3_register_cpl_handler(CPL_RX_DATA_DDP, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_RX_DDP_COMPLETE, do_hwtid_rpl);
-+	t3_register_cpl_handler(CPL_ISCSI_HDR, do_hwtid_rpl);
-+}
-diff --git a/drivers/net/cxgb3/l2t.c b/drivers/net/cxgb3/l2t.c
-new file mode 100644
-index 0000000..2a8b509
---- /dev/null
-+++ b/drivers/net/cxgb3/l2t.c
-@@ -0,0 +1,558 @@
-+/*
-+ * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
-+ * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
++/**
++ *	get_pci_mode - determine a card's PCI mode
++ *	@adapter: the adapter
++ *	@p: where to store the PCI settings
 + *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
++ *	Determines a card's PCI mode and associated parameters, such as speed
++ *	and width.
 + */
-+#include <linux/skbuff.h>
-+#include <linux/netdevice.h>
-+#include <linux/if.h>
-+#include <linux/if_vlan.h>
-+#include <linux/jhash.h>
-+#include <net/neighbour.h>
-+#include "t3cdev.h"
-+#include "cxgb3_defs.h"
-+#include "l2t.h"
-+#include "t3_cpl.h"
-+#include "firmware_exports.h"
-+
-+#define VLAN_NONE 0xfff
-+
-+/*
-+ * Module locking notes:  There is a RW lock protecting the L2 table as a
-+ * whole plus a spinlock per L2T entry.  Entry lookups and allocations happen
-+ * under the protection of the table lock, individual entry changes happen
-+ * while holding that entry's spinlock.  The table lock nests outside the
-+ * entry locks.  Allocations of new entries take the table lock as writers so
-+ * no other lookups can happen while allocating new entries.  Entry updates
-+ * take the table lock as readers so multiple entries can be updated in
-+ * parallel.  An L2T entry can be dropped by decrementing its reference count
-+ * and therefore can happen in parallel with entry allocation but no entry
-+ * can change state or increment its ref count during allocation as both of
-+ * these perform lookups.
-+ */
-+
-+static inline unsigned int vlan_prio(const struct l2t_entry *e)
++static void __devinit get_pci_mode(adapter_t *adapter, struct pci_params *p)
 +{
-+	return e->vlan >> 13;
-+}
++	static unsigned short speed_map[] = { 33, 66, 100, 133 };
++	u32 pci_mode, pcie_cap;
 +
-+static inline unsigned int arp_hash(u32 key, int ifindex,
-+				    const struct l2t_data *d)
-+{
-+	return jhash_2words(key, ifindex, 0) & (d->nentries - 1);
-+}
++	pcie_cap = t3_os_find_pci_capability(adapter, PCI_CAP_ID_EXP);
++	if (pcie_cap) {
++		u16 val;
 +
-+static inline void neigh_replace(struct l2t_entry *e, struct neighbour *n)
-+{
-+	neigh_hold(n);
-+	if (e->neigh)
-+		neigh_release(e->neigh);
-+	e->neigh = n;
-+}
-+
-+/*
-+ * Set up an L2T entry and send any packets waiting in the arp queue.  The
-+ * supplied skb is used for the CPL_L2T_WRITE_REQ.  Must be called with the
-+ * entry locked.
-+ */
-+static int setup_l2e_send_pending(struct t3cdev *dev, struct sk_buff *skb,
-+				  struct l2t_entry *e)
-+{
-+	struct cpl_l2t_write_req *req;
-+
-+	if (!skb) {
-+		skb = alloc_skb(sizeof(*req), GFP_ATOMIC);
-+		if (!skb)
-+			return -ENOMEM;
++		p->variant = PCI_VARIANT_PCIE;
++		p->pcie_cap_addr = pcie_cap;
++		t3_os_pci_read_config_2(adapter, pcie_cap + PCI_EXP_LNKSTA,
++					&val);
++		p->width = (val >> 4) & 0x3f;
++		return;
 +	}
 +
-+	req = (struct cpl_l2t_write_req *)__skb_put(skb, sizeof(*req));
-+	req->wr.wr_hi = htonl(V_WR_OP(FW_WROPCODE_FORWARD));
-+	OPCODE_TID(req) = htonl(MK_OPCODE_TID(CPL_L2T_WRITE_REQ, e->idx));
-+	req->params = htonl(V_L2T_W_IDX(e->idx) | V_L2T_W_IFF(e->smt_idx) |
-+			    V_L2T_W_VLAN(e->vlan & VLAN_VID_MASK) |
-+			    V_L2T_W_PRIO(vlan_prio(e)));
-+	memcpy(e->dmac, e->neigh->ha, sizeof(e->dmac));
-+	memcpy(req->dst_mac, e->dmac, sizeof(req->dst_mac));
-+	skb->priority = CPL_PRIORITY_CONTROL;
-+	cxgb3_ofld_send(dev, skb);
-+	while (e->arpq_head) {
-+		skb = e->arpq_head;
-+		e->arpq_head = skb->next;
-+		skb->next = NULL;
-+		cxgb3_ofld_send(dev, skb);
-+	}
-+	e->arpq_tail = NULL;
-+	e->state = L2T_STATE_VALID;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Add a packet to the an L2T entry's queue of packets awaiting resolution.
-+ * Must be called with the entry's lock held.
-+ */
-+static inline void arpq_enqueue(struct l2t_entry *e, struct sk_buff *skb)
-+{
-+	skb->next = NULL;
-+	if (e->arpq_head)
-+		e->arpq_tail->next = skb;
++	pci_mode = t3_read_reg(adapter, A_PCIX_MODE);
++	p->speed = speed_map[G_PCLKRANGE(pci_mode)];
++	p->width = (pci_mode & F_64BIT) ? 64 : 32;
++	pci_mode = G_PCIXINITPAT(pci_mode);
++	if (pci_mode == 0)
++		p->variant = PCI_VARIANT_PCI;
++	else if (pci_mode < 4)
++		p->variant = PCI_VARIANT_PCIX_MODE1_PARITY;
++	else if (pci_mode < 8)
++		p->variant = PCI_VARIANT_PCIX_MODE1_ECC;
 +	else
-+		e->arpq_head = skb;
-+	e->arpq_tail = skb;
++		p->variant = PCI_VARIANT_PCIX_266_MODE2;
 +}
 +
-+int t3_l2t_send_slow(struct t3cdev *dev, struct sk_buff *skb,
-+		     struct l2t_entry *e)
++/**
++ *	init_link_config - initialize a link's SW state
++ *	@lc: structure holding the link state
++ *	@ai: information about the current card
++ *
++ *	Initializes the SW state maintained for each link, including the link's
++ *	capabilities and default speed/duplex/flow-control/autonegotiation
++ *	settings.
++ */
++static void __devinit init_link_config(struct link_config *lc,
++				       unsigned int caps)
 +{
-+again:
-+	switch (e->state) {
-+	case L2T_STATE_STALE:     /* entry is stale, kick off revalidation */
-+		neigh_event_send(e->neigh, NULL);
-+		spin_lock_bh(&e->lock);
-+		if (e->state == L2T_STATE_STALE)
-+			e->state = L2T_STATE_VALID;
-+		spin_unlock_bh(&e->lock);
-+	case L2T_STATE_VALID:     /* fast-path, send the packet on */
-+		return cxgb3_ofld_send(dev, skb);
-+	case L2T_STATE_RESOLVING:
-+		spin_lock_bh(&e->lock);
-+		if (e->state != L2T_STATE_RESOLVING) { // ARP already completed
-+			spin_unlock_bh(&e->lock);
-+			goto again;
-+		}
-+		arpq_enqueue(e, skb);
-+		spin_unlock_bh(&e->lock);
-+
-+		/*
-+		 * Only the first packet added to the arpq should kick off
-+		 * resolution.  However, because the alloc_skb below can fail,
-+		 * we allow each packet added to the arpq to retry resolution
-+		 * as a way of recovering from transient memory exhaustion.
-+		 * A better way would be to use a work request to retry L2T
-+		 * entries when there's no memory.
-+		 */
-+		if (!neigh_event_send(e->neigh, NULL)) {
-+			skb = alloc_skb(sizeof(struct cpl_l2t_write_req),
-+					GFP_ATOMIC);
-+			if (!skb)
-+				break;
-+
-+			spin_lock_bh(&e->lock);
-+			if (e->arpq_head)
-+				setup_l2e_send_pending(dev, skb, e);
-+			else                           /* we lost the race */
-+				__kfree_skb(skb);
-+			spin_unlock_bh(&e->lock);
-+		}
++	lc->supported = caps;
++	lc->requested_speed = lc->speed = SPEED_INVALID;
++	lc->requested_duplex = lc->duplex = DUPLEX_INVALID;
++	lc->requested_fc = lc->fc = PAUSE_RX | PAUSE_TX;
++	if (lc->supported & SUPPORTED_Autoneg) {
++		lc->advertising = lc->supported;
++		lc->autoneg = AUTONEG_ENABLE;
++		lc->requested_fc |= PAUSE_AUTONEG;
++	} else {
++		lc->advertising = 0;
++		lc->autoneg = AUTONEG_DISABLE;
 +	}
-+	return 0;
 +}
-+EXPORT_SYMBOL(t3_l2t_send_slow);
 +
-+void t3_l2t_send_event(struct t3cdev *dev, struct l2t_entry *e)
++/**
++ *	mc7_calc_size - calculate MC7 memory size
++ *	@cfg: the MC7 configuration
++ *
++ *	Calculates the size of an MC7 memory in bytes from the value of its
++ *	configuration register.
++ */
++static unsigned int __devinit mc7_calc_size(u32 cfg)
 +{
-+again:
-+	switch (e->state) {
-+	case L2T_STATE_STALE:     /* entry is stale, kick off revalidation */
-+		neigh_event_send(e->neigh, NULL);
-+		spin_lock_bh(&e->lock);
-+		if (e->state == L2T_STATE_STALE) {
-+			e->state = L2T_STATE_VALID;
-+		}
-+		spin_unlock_bh(&e->lock);
-+		return;
-+	case L2T_STATE_VALID:     /* fast-path, send the packet on */
-+		return;
-+	case L2T_STATE_RESOLVING:
-+		spin_lock_bh(&e->lock);
-+		if (e->state != L2T_STATE_RESOLVING) { // ARP already completed
-+			spin_unlock_bh(&e->lock);
-+			goto again;
-+		}
-+		spin_unlock_bh(&e->lock);
++	unsigned int width = G_WIDTH(cfg);
++	unsigned int banks = !!(cfg & F_BKS) + 1;
++	unsigned int org = !!(cfg & F_ORG) + 1;
++	unsigned int density = G_DEN(cfg);
++	unsigned int MBs = ((256 << density) * banks) / (org << width);
 +
-+		/*
-+		 * Only the first packet added to the arpq should kick off
-+		 * resolution.  However, because the alloc_skb below can fail,
-+		 * we allow each packet added to the arpq to retry resolution
-+		 * as a way of recovering from transient memory exhaustion.
-+		 * A better way would be to use a work request to retry L2T
-+		 * entries when there's no memory.
-+		 */
-+		neigh_event_send(e->neigh, NULL);
-+	}
-+	return;
++	return MBs << 20;
 +}
-+EXPORT_SYMBOL(t3_l2t_send_event);
++
++static void __devinit mc7_prep(adapter_t *adapter, struct mc7 *mc7,
++			       unsigned int base_addr, const char *name)
++{
++	u32 cfg;
++
++	mc7->adapter = adapter;
++	mc7->name = name;
++	mc7->offset = base_addr - MC7_PMRX_BASE_ADDR;
++	cfg = t3_read_reg(adapter, mc7->offset + A_MC7_CFG);
++	mc7->size = mc7_calc_size(cfg);
++	mc7->width = G_WIDTH(cfg);
++}
++
++void mac_prep(struct cmac *mac, adapter_t *adapter, int index)
++{
++	mac->adapter = adapter;
++	mac->offset = (XGMAC0_1_BASE_ADDR - XGMAC0_0_BASE_ADDR) * index;
++	mac->nucast = 1;
++
++	if (adapter->params.rev == 0 && uses_xaui(adapter)) {
++		t3_write_reg(adapter, A_XGM_SERDES_CTRL + mac->offset,
++			     is_10G(adapter) ? 0x2901c04 : 0x2301c04);
++		t3_set_reg_field(adapter, A_XGM_PORT_CFG + mac->offset,
++				 F_ENRGMII, 0);
++	}
++}
++
++void early_hw_init(adapter_t *adapter, const struct adapter_info *ai)
++{
++	u32 val = V_PORTSPEED(is_10G(adapter) ? 3 : 2);
++
++	mi1_init(adapter, ai);
++	t3_write_reg(adapter, A_I2C_CFG,                  /* set for 80KHz */
++		     V_I2C_CLKDIV(adapter->params.vpd.cclk / 80 - 1));
++	t3_write_reg(adapter, A_T3DBG_GPIO_EN,
++		     ai->gpio_out | F_GPIO0_OEN | F_GPIO0_OUT_VAL);
++
++	if (adapter->params.rev == 0 || !uses_xaui(adapter))
++		val |= F_ENRGMII;
++
++	/* Enable MAC clocks so we can access the registers */
++	t3_write_reg(adapter, A_XGM_PORT_CFG, val);
++	(void) t3_read_reg(adapter, A_XGM_PORT_CFG);
++
++	val |= F_CLKDIVRESET_;
++	t3_write_reg(adapter, A_XGM_PORT_CFG, val);
++	(void) t3_read_reg(adapter, A_XGM_PORT_CFG);
++	t3_write_reg(adapter, XGM_REG(A_XGM_PORT_CFG, 1), val);
++	(void) t3_read_reg(adapter, A_XGM_PORT_CFG);
++}
 +
 +/*
-+ * Allocate a free L2T entry.  Must be called with l2t_data.lock held.
++ * Reset the adapter.  PCIe cards lose their config space during reset, PCI-X
++ * ones don't.
 + */
-+static struct l2t_entry *alloc_l2e(struct l2t_data *d)
++int t3_reset_adapter(adapter_t *adapter)
 +{
-+	struct l2t_entry *end, *e, **p;
++    int i;
++    uint16_t devid = 0;
 +
-+	if (!atomic_read(&d->nfree))
-+		return NULL;
++	if (is_pcie(adapter))
++		t3_os_pci_save_state(adapter);
++	t3_write_reg(adapter, A_PL_RST, F_CRSTWRM | F_CRSTWRMMODE);
 +
-+	/* there's definitely a free entry */
-+	for (e = d->rover, end = &d->l2tab[d->nentries]; e != end; ++e)
-+		if (atomic_read(&e->refcnt) == 0)
-+			goto found;
-+
-+	for (e = &d->l2tab[1]; atomic_read(&e->refcnt); ++e) ;
-+found:
-+	d->rover = e + 1;
-+	atomic_dec(&d->nfree);
-+
-+	/*
-+	 * The entry we found may be an inactive entry that is
-+	 * presently in the hash table.  We need to remove it.
++ 	/*
++	 * Delay. Give Some time to device to reset fully.
++	 * XXX The delay time should be modified.
 +	 */
-+	if (e->state != L2T_STATE_UNUSED) {
-+		int hash = arp_hash(e->addr, e->ifindex, d);
-+
-+		for (p = &d->l2tab[hash].first; *p; p = &(*p)->next)
-+			if (*p == e) {
-+				*p = e->next;
-+				break;
-+			}
-+		e->state = L2T_STATE_UNUSED;
++	for (i = 0; i < 10; i++) {
++		msleep(50);
++		t3_os_pci_read_config_2(adapter, 0x00, &devid);
++		if (devid == 0x1425)
++			break;
 +	}
-+	return e;
-+}
 +
-+/*
-+ * Called when an L2T entry has no more users.  The entry is left in the hash
-+ * table since it is likely to be reused but we also bump nfree to indicate
-+ * that the entry can be reallocated for a different neighbor.  We also drop
-+ * the existing neighbor reference in case the neighbor is going away and is
-+ * waiting on our reference.
-+ *
-+ * Because entries can be reallocated to other neighbors once their ref count
-+ * drops to 0 we need to take the entry's lock to avoid races with a new
-+ * incarnation.
-+ */
-+void t3_l2e_free(struct l2t_data *d, struct l2t_entry *e)
-+{
-+	spin_lock_bh(&e->lock);
-+	if (atomic_read(&e->refcnt) == 0) {  /* hasn't been recycled */
-+		if (e->neigh) {
-+			neigh_release(e->neigh);
-+			e->neigh = NULL;
-+		}
-+	}
-+	spin_unlock_bh(&e->lock);
-+	atomic_inc(&d->nfree);
-+}
-+EXPORT_SYMBOL(t3_l2e_free);
++	if (devid != 0x1425)
++		return -1;
 +
-+/*
-+ * Update an L2T entry that was previously used for the same next hop as neigh.
-+ * Must be called with softirqs disabled.
-+ */
-+static inline void reuse_entry(struct l2t_entry *e, struct neighbour *neigh)
-+{
-+	unsigned int nud_state;
-+
-+	spin_lock(&e->lock);                /* avoid race with t3_l2t_free */
-+
-+	if (neigh != e->neigh)
-+		neigh_replace(e, neigh);
-+	nud_state = neigh->nud_state;
-+	if (memcmp(e->dmac, neigh->ha, sizeof(e->dmac)) ||
-+	    !(nud_state & NUD_VALID))
-+		e->state = L2T_STATE_RESOLVING;
-+	else if (nud_state & NUD_CONNECTED)
-+		e->state = L2T_STATE_VALID;
-+	else
-+		e->state = L2T_STATE_STALE;
-+	spin_unlock(&e->lock);
-+}
-+
-+struct l2t_entry *t3_l2t_get(struct t3cdev *dev, struct neighbour *neigh,
-+			     unsigned int smt_idx)
-+{
-+	struct l2t_entry *e;
-+	struct l2t_data *d = L2DATA(dev);
-+	u32 addr = *(u32 *) neigh->primary_key;
-+	int ifidx = neigh->dev->ifindex;
-+	int hash = arp_hash(addr, ifidx, d);
-+
-+	write_lock_bh(&d->lock);
-+	for (e = d->l2tab[hash].first; e; e = e->next)
-+		if (e->addr == addr && e->ifindex == ifidx &&
-+		    e->smt_idx == smt_idx) {
-+			l2t_hold(d, e);
-+			if (atomic_read(&e->refcnt) == 1)
-+				reuse_entry(e, neigh);
-+			goto done;
-+		}
-+
-+	/* Need to allocate a new entry */
-+	e = alloc_l2e(d);
-+	if (e) {
-+		spin_lock(&e->lock);          /* avoid race with t3_l2t_free */
-+		e->next = d->l2tab[hash].first;
-+		d->l2tab[hash].first = e;
-+		e->state = L2T_STATE_RESOLVING;
-+		e->addr = addr;
-+		e->ifindex = ifidx;
-+		e->smt_idx = smt_idx;
-+		atomic_set(&e->refcnt, 1);
-+		neigh_replace(e, neigh);
-+		if (neigh->dev->priv_flags & IFF_802_1Q_VLAN)
-+			e->vlan = VLAN_DEV_INFO(neigh->dev)->vlan_id;
-+		else
-+			e->vlan = VLAN_NONE;
-+		spin_unlock(&e->lock);
-+	}
-+done:
-+	write_unlock_bh(&d->lock);
-+	return e;
-+}
-+EXPORT_SYMBOL(t3_l2t_get);
-+
-+/*
-+ * Called when address resolution fails for an L2T entry to handle packets
-+ * on the arpq head.  If a packet specifies a failure handler it is invoked,
-+ * otherwise the packets is sent to the offload device.
-+ *
-+ * XXX: maybe we should abandon the latter behavior and just require a failure
-+ * handler.
-+ */
-+static void handle_failed_resolution(struct t3cdev *dev, struct sk_buff *arpq)
-+{
-+	while (arpq) {
-+		struct sk_buff *skb = arpq;
-+		struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
-+
-+		arpq = skb->next;
-+		skb->next = NULL;
-+		if (cb->arp_failure_handler)
-+			cb->arp_failure_handler(dev, skb);
-+		else
-+			cxgb3_ofld_send(dev, skb);
-+	}
-+}
-+
-+/*
-+ * Called when the host's ARP layer makes a change to some entry that is
-+ * loaded into the HW L2 table.
-+ */
-+void t3_l2t_update(struct t3cdev *dev, struct neighbour *neigh)
-+{
-+	struct l2t_entry *e;
-+	struct sk_buff *arpq = NULL;
-+	struct l2t_data *d = L2DATA(dev);
-+	u32 addr = *(u32 *) neigh->primary_key;
-+	int ifidx = neigh->dev->ifindex;
-+	int hash = arp_hash(addr, ifidx, d);
-+
-+	read_lock_bh(&d->lock);
-+	for (e = d->l2tab[hash].first; e; e = e->next)
-+		if (e->addr == addr && e->ifindex == ifidx) {
-+			spin_lock(&e->lock);
-+			goto found;
-+		}
-+	read_unlock_bh(&d->lock);
-+	return;
-+
-+found:
-+	read_unlock(&d->lock);
-+	if (atomic_read(&e->refcnt)) {
-+		if (neigh != e->neigh)
-+			neigh_replace(e, neigh);
-+
-+		if (e->state == L2T_STATE_RESOLVING) {
-+			if (neigh->nud_state & NUD_FAILED) {
-+				arpq = e->arpq_head;
-+				e->arpq_head = e->arpq_tail = NULL;
-+			} else if (neigh_is_connected(neigh))
-+				setup_l2e_send_pending(dev, NULL, e);
-+		} else {
-+			e->state = neigh_is_connected(neigh) ?
-+				L2T_STATE_VALID : L2T_STATE_STALE;
-+			if (memcmp(e->dmac, neigh->ha, 6))
-+				setup_l2e_send_pending(dev, NULL, e);
-+		}
-+	}
-+	spin_unlock_bh(&e->lock);
-+
-+	if (arpq)
-+		handle_failed_resolution(dev, arpq);
-+}
-+
-+struct l2t_data *t3_init_l2t(unsigned int l2t_capacity)
-+{
-+	struct l2t_data *d;
-+	int i, size = sizeof(*d) + l2t_capacity * sizeof(struct l2t_entry);
-+
-+	d = cxgb_alloc_mem(size);
-+	if (!d)
-+		return NULL;
-+
-+	d->nentries = l2t_capacity;
-+	d->rover = &d->l2tab[1];	/* entry 0 is not used */
-+	atomic_set(&d->nfree, l2t_capacity - 1);
-+	rwlock_init(&d->lock);
-+
-+	for (i = 0; i < l2t_capacity; ++i) {
-+		d->l2tab[i].idx = i;
-+		d->l2tab[i].state = L2T_STATE_UNUSED;
-+		spin_lock_init(&d->l2tab[i].lock);
-+		atomic_set(&d->l2tab[i].refcnt, 0);
-+	}
-+	return d;
-+}
-+
-+void t3_free_l2t(struct l2t_data *d)
-+{
-+	cxgb_free_mem(d);
-+}
-+
-+#ifdef CONFIG_PROC_FS
-+#include <linux/module.h>
-+#include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
-+
-+static inline void *l2t_get_idx(struct seq_file *seq, loff_t pos)
-+{
-+	struct l2t_data *d = seq->private;
-+
-+	return pos >= d->nentries ? NULL : &d->l2tab[pos];
-+}
-+
-+static void *l2t_seq_start(struct seq_file *seq, loff_t *pos)
-+{
-+	return *pos ? l2t_get_idx(seq, *pos) : SEQ_START_TOKEN;
-+}
-+
-+static void *l2t_seq_next(struct seq_file *seq, void *v, loff_t *pos)
-+{
-+	v = l2t_get_idx(seq, *pos + 1);
-+	if (v)
-+		++*pos;
-+	return v;
-+}
-+
-+static void l2t_seq_stop(struct seq_file *seq, void *v)
-+{
-+}
-+
-+static char l2e_state(const struct l2t_entry *e)
-+{
-+	switch (e->state) {
-+	case L2T_STATE_VALID: return 'V';  /* valid, fast-path entry */
-+	case L2T_STATE_STALE: return 'S';  /* needs revalidation, but usable */
-+	case L2T_STATE_RESOLVING:
-+		return e->arpq_head ? 'A' : 'R';
-+	default:
-+		return 'U';
-+	}
-+}
-+
-+static int l2t_seq_show(struct seq_file *seq, void *v)
-+{
-+	if (v == SEQ_START_TOKEN)
-+		seq_puts(seq, "Index IP address      Ethernet address   VLAN  "
-+			 "Prio  State   Users SMTIDX  Port\n");
-+	else {
-+		char ip[20];
-+		struct l2t_entry *e = v;
-+
-+		spin_lock_bh(&e->lock);
-+		sprintf(ip, "%u.%u.%u.%u", NIPQUAD(e->addr));
-+		seq_printf(seq, "%-5u %-15s %02x:%02x:%02x:%02x:%02x:%02x  %4d"
-+			   "  %3u     %c   %7u   %4u %s\n",
-+			   e->idx, ip, e->dmac[0], e->dmac[1], e->dmac[2],
-+			   e->dmac[3], e->dmac[4], e->dmac[5],
-+			   e->vlan & VLAN_VID_MASK, vlan_prio(e),
-+			   l2e_state(e), atomic_read(&e->refcnt), e->smt_idx,
-+			   e->neigh ? e->neigh->dev->name : "");
-+		spin_unlock_bh(&e->lock);
-+	}
++	if (is_pcie(adapter))
++		t3_os_pci_restore_state(adapter);
 +	return 0;
 +}
 +
-+static struct seq_operations l2t_seq_ops = {
-+	.start = l2t_seq_start,
-+	.next = l2t_seq_next,
-+	.stop = l2t_seq_stop,
-+	.show = l2t_seq_show
-+};
-+
-+static int l2t_seq_open(struct inode *inode, struct file *file)
-+{
-+	int rc = seq_open(file, &l2t_seq_ops);
-+
-+	if (!rc) {
-+		struct proc_dir_entry *dp = PDE(inode);
-+		struct seq_file *seq = file->private_data;
-+
-+		seq->private = dp->data;
-+	}
-+	return rc;
-+}
-+
-+static struct file_operations l2t_seq_fops = {
-+	.owner = THIS_MODULE,
-+	.open = l2t_seq_open,
-+	.read = seq_read,
-+	.llseek = seq_lseek,
-+	.release = seq_release,
-+};
-+
 +/*
-+ * Create the proc entries for the L2 table under dir.
++ * Initialize adapter SW state for the various HW modules, set initial values
++ * for some adapter tunables, take PHYs out of reset, and initialize the MDIO
++ * interface.
 + */
-+int t3_l2t_proc_setup(struct proc_dir_entry *dir, struct l2t_data *d)
++int __devinit t3_prep_adapter(adapter_t *adapter,
++			      const struct adapter_info *ai, int reset)
 +{
-+	struct proc_dir_entry *p;
++	int ret;
++	unsigned int i, j = 0;
 +
-+	if (!dir)
-+		return -EINVAL;
++	get_pci_mode(adapter, &adapter->params.pci);
 +
-+	p = create_proc_entry("l2t", S_IRUGO, dir);
-+	if (!p)
-+		return -ENOMEM;
++	adapter->params.info = ai;
++	adapter->params.nports = ai->nports;
++	adapter->params.rev = t3_read_reg(adapter, A_PL_REV);
++	adapter->params.linkpoll_period = 0;
++	adapter->params.stats_update_period = is_10G(adapter) ?
++		MAC_STATS_ACCUM_SECS : (MAC_STATS_ACCUM_SECS * 10);
++	adapter->params.pci.vpd_cap_addr =
++		t3_os_find_pci_capability(adapter, PCI_CAP_ID_VPD);
 +
-+	p->proc_fops = &l2t_seq_fops;
-+	p->data = d;
++	ret = get_vpd_params(adapter, &adapter->params.vpd);
++	if (ret < 0)
++		return ret;
++
++	if (reset && t3_reset_adapter(adapter))
++		return -1;
++
++	t3_sge_prep(adapter, &adapter->params.sge);
++
++	if (adapter->params.vpd.mclk) {
++		struct tp_params *p = &adapter->params.tp;
++
++		mc7_prep(adapter, &adapter->pmrx, MC7_PMRX_BASE_ADDR, "PMRX");
++		mc7_prep(adapter, &adapter->pmtx, MC7_PMTX_BASE_ADDR, "PMTX");
++		mc7_prep(adapter, &adapter->cm, MC7_CM_BASE_ADDR, "CM");
++
++		p->nchan = ai->nports;
++		p->pmrx_size = t3_mc7_size(&adapter->pmrx);
++		p->pmtx_size = t3_mc7_size(&adapter->pmtx);
++		p->cm_size = t3_mc7_size(&adapter->cm);
++		p->chan_rx_size = p->pmrx_size / 2;     /* only 1 Rx channel */
++		p->chan_tx_size = p->pmtx_size / p->nchan;
++		p->rx_pg_size = 64 * 1024;
++		p->tx_pg_size = is_10G(adapter) ? 64 * 1024 : 16 * 1024;
++		p->rx_num_pgs = pm_num_pages(p->chan_rx_size, p->rx_pg_size);
++		p->tx_num_pgs = pm_num_pages(p->chan_tx_size, p->tx_pg_size);
++		p->ntimer_qs = p->cm_size >= (128 << 20) ||
++			       adapter->params.rev > 0 ? 12 : 6;
++
++		adapter->params.mc5.nservers = DEFAULT_NSERVERS;
++		adapter->params.mc5.nfilters = adapter->params.rev > 0 ?
++					       DEFAULT_NFILTERS : 0;
++		adapter->params.mc5.nroutes = 0;
++		t3_mc5_prep(adapter, &adapter->mc5, MC5_MODE_144_BIT);
++
++		init_mtus(adapter->params.mtus);
++		init_cong_ctrl(adapter->params.a_wnd, adapter->params.b_wnd);
++	}
++
++	early_hw_init(adapter, ai);
++
++	for_each_port(adapter, i) {
++		u8 hw_addr[6];
++		struct port_info *p = &adapter->port[i];
++
++		while (!adapter->params.vpd.port_type[j])
++			++j;
++
++		p->port_type = &port_types[adapter->params.vpd.port_type[j]];
++		p->port_type->phy_prep(&p->phy, adapter, ai->phy_base_addr + j,
++				       ai->mdio_ops);
++		mac_prep(&p->mac, adapter, j);
++		++j;
++
++		/*
++		 * The VPD EEPROM stores the base Ethernet address for the
++		 * card.  A port's address is derived from the base by adding
++		 * the port's index to the base's low octet.
++		 */
++		memcpy(hw_addr, adapter->params.vpd.eth_base, 5);
++		hw_addr[5] = adapter->params.vpd.eth_base[5] + i;
++
++		t3_os_set_hw_addr(adapter, i, hw_addr);
++		init_link_config(&p->link_config, p->port_type->caps);
++		p->phy.ops->power_down(&p->phy, 1);
++		if (!(p->port_type->caps & SUPPORTED_IRQ))
++			adapter->params.linkpoll_period = 10;
++	}
++
 +	return 0;
 +}
 +
-+void t3_l2t_proc_free(struct proc_dir_entry *dir)
++void t3_led_ready(adapter_t *adapter)
 +{
-+	if (dir)
-+		remove_proc_entry("l2t", dir);
++	t3_set_reg_field(adapter, A_T3DBG_GPIO_EN, F_GPIO0_OUT_VAL,
++			 F_GPIO0_OUT_VAL);
 +}
-+#endif

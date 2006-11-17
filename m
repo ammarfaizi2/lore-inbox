@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755533AbWKQHV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755532AbWKQHVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755533AbWKQHV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 02:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755534AbWKQHV6
+	id S1755532AbWKQHVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 02:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755534AbWKQHVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 02:21:58 -0500
-Received: from raven.upol.cz ([158.194.120.4]:9650 "EHLO raven.upol.cz")
-	by vger.kernel.org with ESMTP id S1755535AbWKQHV4 (ORCPT
+	Fri, 17 Nov 2006 02:21:46 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20421 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1755532AbWKQHVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 02:21:56 -0500
-Date: Fri, 17 Nov 2006 07:28:48 +0000
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: newsreaders (Re: Looking for recent lkml email)
-Message-ID: <20061117072848.GA13287@flower.upol.cz>
-References: <20061116162151.GA23930@tumblerings.org> <20061116165235.GA28447@tumblerings.org> <slrnelq3s1.7lr.olecom@flower.upol.cz> <20061116224420.11c201e0.zaitcev@redhat.com>
-MIME-Version: 1.0
+	Fri, 17 Nov 2006 02:21:45 -0500
+Date: Fri, 17 Nov 2006 07:52:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sleeping functions called in invalid context during resume
+Message-ID: <20061117065202.GA11877@elte.hu>
+References: <20061114223002.10c231bd@localhost.localdomain> <20061115012025.13c72fc1.akpm@osdl.org> <20061115093354.GA30813@elte.hu> <20061115100119.460b7a4e@localhost.localdomain> <20061115180436.GB29795@elte.hu> <20061116212158.0ef99842@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061116224420.11c201e0.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Oleg Verych <olecom@flower.upol.cz>
+In-Reply-To: <20061116212158.0ef99842@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo, Pete.
 
-On Thu, Nov 16, 2006 at 10:44:20PM -0800, Pete Zaitcev wrote:
-[]
-> The good news reader might be a problem. In fact, I'm currently looking
-> for one. Criteria:
->  - GUI with support for X clipboard (not just selections)
->  - Ability to bounce to myself
+* Stephen Hemminger <shemminger@osdl.org> wrote:
+
+> > > BUG: sleeping function called from invalid context at drivers/base/power/resume.c:99
+> > > in_atomic():1, irqs_disabled():0
+> > > 
+> > > Call Trace:  
+> > >  [<ffffffff80266117>] show_trace+0x34/0x47
+> > >  [<ffffffff8026613c>] dump_stack+0x12/0x17
+> > >  [<ffffffff803734e5>] device_resume+0x19/0x51
+> > >  [<ffffffff80292157>] enter_state+0x19b/0x1b5
+> > >  [<ffffffff802921cf>] state_store+0x5e/0x79
+> > >  [<ffffffff802cc157>] sysfs_write_file+0xc5/0xf8
+> > >  [<ffffffff80215059>] vfs_write+0xce/0x174
+> > >  [<ffffffff802159a5>] sys_write+0x45/0x6e
+> > >  [<ffffffff802593de>] system_call+0x7e/0x83  
+> > > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > > 
 > 
-> I use Pan, but it cannot bounce articles. It only saves them, so I have
-> to find them (it uses Message-ID for name), open in vi, add "From xxx"
-> on top, then do the "Import External mbox" dance in my mailreader.
-> In previous Pan the useful trick was to "print" article, and specfy
-> your lpr to be a scrip which called sendmail. But they took it away.
+> Ingo, the later version of your lockdep patch (with the x86_64 fix), 
+> worked. There is nothing locked during these errors.
+> 
+> The problem was the APIC error is leaving preempt-disabled.
 
-The slrn newsreader is text console, so x-terminal+mouse to use X
-clipboard.
+ah, that could be the case - do you have a fix-patch for that?
 
-If you want to bounce message, in slrn there are 2 options:
-,--
-|  F                  Forward the current article to someone (via email).
-|        ESC 1 F        Forward the current article (including all headers).
-`--
-Tested, works.
+preempt-disabled leaks are only caught via CONFIG_PREEMPT_TRACE (not via 
+lockdep), which debug feature you can find in the -rt tree:
 
-Sending is difficult (for a while):
-slrn converts "Cc" header to "To", when it sends copies by SMTP, and
-removes it from NNTP postings. I've used "Mail-Follow-Up" header, but
-now i want to patch slrn with better lkml + gmane.org support (:.
+  http://redhat.com/~mingo/realtime-preempt/
 
---[OT]--
-slrn + gmane.org is a miracle, that enables lkml (and many others MLs)
-for me.
+(there's no easy standalone patch for now.)
 
-BTW. On you web site i've read historical lkml messages, like Linus'
-moving from Transmeta, and i saw, that you had news<->lkml bridge.
-____
+it will be enabled if you select CONFIG_DEBUG_PREEMPT.
+
+> I have no idea what causes:
+> 
+> APIC error on CPU0: 00(00)
+> 
+> Is it an ACPI problem?
+
+a 00 error code? Never seen that ... How frequently does it happen?
+
+	Ingo

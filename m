@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424825AbWKQAtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424827AbWKQAvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424825AbWKQAtf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Nov 2006 19:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424826AbWKQAtd
+	id S1424827AbWKQAvb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Nov 2006 19:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424828AbWKQAvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Nov 2006 19:49:33 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:15049 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1424825AbWKQAtc (ORCPT
+	Thu, 16 Nov 2006 19:51:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62942 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1424827AbWKQAva (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Nov 2006 19:49:32 -0500
-Date: Fri, 17 Nov 2006 01:49:30 +0100
-From: Petr Baudis <pasky@suse.cz>
-To: git@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Cogito-0.18.2
-Message-ID: <20061117004930.GC7201@pasky.or.cz>
-MIME-Version: 1.0
+	Thu, 16 Nov 2006 19:51:30 -0500
+Date: Fri, 17 Nov 2006 11:50:52 +1100
+From: David Chinner <dgc@sgi.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <nigel@suspend2.net>,
+       David Chinner <dgc@sgi.com>
+Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
+Message-ID: <20061117005052.GK11034@melbourne.sgi.com>
+References: <200611160912.51226.rjw@sisk.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200611160912.51226.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Thu, Nov 16, 2006 at 09:12:49AM +0100, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> The following two patches introduce a mechanism that should allow us to
+> avoid suspend-related corruptions of XFS without the freezing of bdevs which
+> Pavel considers as too invasive (apart from this, the freezing of bdevs may
+> lead to some undesirable interactions with dm and for now it seems to be
+> supported for real by XFS only).
 
-  I've released cogito-0.18.2, bringing a couple of bugfixes and a trivial new
-feature to cogito-0.18.1. Still nothing too groundshattering.
+Has this been tested and proven to fix the problem with XFS? It's
+been asserted that this will fix XFS and suspend, but it's
+not yet been proven that this is even the problem.
 
-* cg-log does not follow history across renames anymore; it never really
-  actually worked and was instead causing problems and random error
-  messages. There needs to be git-core support for this funcionality,
-  hacking it with a perl filter is bad design, so I'm not going to fix
-  the filter (but I'd take patches if someone else did ;).
+I think the problem is a race between sys_sync, the kernel thread
+freeze and the xfsbufd flushing async, delayed write metadata
+buffers resulting in a inconsistent suspend image being created.
+If this is the case, then freezing the workqueues does not
+fix the problem. i.e:
 
-* Fix cg-init not letting you edit the initial commit message by default
-* Fix cg-clone -l which would not setup alternates properly in some cases
-* Fix cg-merge not picking the right base when following volatile branches
-* Fix cg-log -d sometimes showing "% @" in diff output
-* Some other minor fixes
+suspend				xfs
+-------				---
+sys_sync completes
+				xfsbufd flushes delwri metadata
+kernel thread freeze
+workqueue freeze
+suspend image start
+				async I/O starts to complete
+suspend image finishes
+				async I/O all complete
 
-* New cg-object-id -b to print the current branch name
+The problem here is the memory image has an empty delayed write
+metadata buffer queue, but the I/O completion queue will be missing
+some (or all) of the I/O that was issued, and so on resume we have
+a memory image that still thinks the I/Os are progress but they
+are not queued anywhere for completion processing.
 
-* Documentation improvements (better documented ignoring mechanism,
-  ~/.gitconfig mentioned, GIT_COMMITTER_* bogus information fixed, ...)
-* Some testsuite fixes
+Hence after a successful resume after the above occurred on suspend,
+we can have a filesystem that is potentially inconsistent, and it
+will almost certainly hang soon after activity starts again on it
+because we cannot push the tail of the log forwards due to the lost
+buffers.
 
-  Happy hacking,
+Cheers,
 
+Dave.
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-Of the 3 great composers Mozart tells us what it's like to be human,
-Beethoven tells us what it's like to be Beethoven and Bach tells us
-what it's like to be the universe.  -- Douglas Adams
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

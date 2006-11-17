@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933661AbWKQPPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933639AbWKQPOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933661AbWKQPPE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 10:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933655AbWKQPPD
+	id S933639AbWKQPOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 10:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933655AbWKQPOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 10:15:03 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61902 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S933666AbWKQPPA (ORCPT
+	Fri, 17 Nov 2006 10:14:10 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59342 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S933639AbWKQPOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 10:15:00 -0500
-Date: Fri, 17 Nov 2006 16:14:41 +0100
+	Fri, 17 Nov 2006 10:14:07 -0500
+Date: Fri, 17 Nov 2006 16:13:48 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alasdair G Kergon <agk@redhat.com>,
+       Eric Sandeen <sandeen@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Srinivasa DS <srinivasa@in.ibm.com>,
        Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
-Message-ID: <20061117151441.GB8859@elf.ucw.cz>
-References: <200611160912.51226.rjw@sisk.pl> <20061117005052.GK11034@melbourne.sgi.com>
+Subject: Re: [PATCH 2.6.19 5/5] fs: freeze_bdev with semaphore not mutex
+Message-ID: <20061117151348.GA8859@elf.ucw.cz>
+References: <20061107183459.GG6993@agk.surrey.redhat.com> <20061110103942.GG3196@elf.ucw.cz> <20061112223012.GH11034@melbourne.sgi.com> <200611122343.06625.rjw@sisk.pl> <20061116232349.GI11034@melbourne.sgi.com> <20061116234053.GC6757@elf.ucw.cz> <20061117014051.GM11034@melbourne.sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117005052.GK11034@melbourne.sgi.com>
+In-Reply-To: <20061117014051.GM11034@melbourne.sgi.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2006-11-17 11:50:52, David Chinner wrote:
-> On Thu, Nov 16, 2006 at 09:12:49AM +0100, Rafael J. Wysocki wrote:
-> > Hi,
+On Fri 2006-11-17 12:40:51, David Chinner wrote:
+> On Fri, Nov 17, 2006 at 12:40:53AM +0100, Pavel Machek wrote:
+> > On Fri 2006-11-17 10:23:49, David Chinner wrote:
+> > > On Sun, Nov 12, 2006 at 11:43:05PM +0100, Rafael J. Wysocki wrote:
+> > > > On Sunday, 12 November 2006 23:30, David Chinner wrote:
+> > > > > And how does freezing them at that point in time guarantee consistent
+> > > > > filesystem state?
+> > > > 
+> > > > If the work queues are frozen, there won't be any fs-related activity _after_
+> > > > we create the suspend image. 
+> > > 
+> > > fs-related activity before or after the suspend image is captured is
+> > > not a problem - it's fs-related activity _during_ the suspend that
+> > > is an issue here. If we have async I/O completing during the suspend
+> > > image capture, we've got problems....
 > > 
-> > The following two patches introduce a mechanism that should allow us to
-> > avoid suspend-related corruptions of XFS without the freezing of bdevs which
-> > Pavel considers as too invasive (apart from this, the freezing of bdevs may
-> > lead to some undesirable interactions with dm and for now it seems to be
-> > supported for real by XFS only).
+> > fs-related activity _after_ image is captured definitely is a problem
+> > -- it breaks swsusp invariants.
+> > 
+> > During image capture, any fs-related activity is not possible, as we
+> > are running interrupts disabled, DMA disabled.
 > 
-> Has this been tested and proven to fix the problem with XFS? It's
-> been asserted that this will fix XFS and suspend, but it's
-> not yet been proven that this is even the problem.
-> 
-> I think the problem is a race between sys_sync, the kernel thread
-> freeze and the xfsbufd flushing async, delayed write metadata
-> buffers resulting in a inconsistent suspend image being created.
-> If this is the case, then freezing the workqueues does not
-> fix the problem. i.e:
-> 
-> suspend				xfs
-> -------				---
-> sys_sync completes
-> 				xfsbufd flushes delwri metadata
-> kernel thread freeze
-> workqueue freeze
-> suspend image start
-> 				async I/O starts to complete
-> suspend image finishes
-> 				async I/O all complete
+> Ok, so the I/o that finishes during the image capture won't be reported
+> until after the capture completes. that means we lose the capability
 
-This can't happen, because creating suspend image is atomic. (No
-interrupts, no DMAs, no drivers running).
-									Pavel
+There's no I/O in flight during image capture. Interrupts are
+disabled, DMAs are stopped, and drivers were told to shut down (that
+includes finishing any outstanding work, and drivers do that
+currently; but perhaps docs should be more explicit about it).
+								Pavel
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

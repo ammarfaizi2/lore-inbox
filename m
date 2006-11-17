@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933716AbWKQQbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932946AbWKQQev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933716AbWKQQbd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 11:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932949AbWKQQbd
+	id S932946AbWKQQev (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 11:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933709AbWKQQev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 11:31:33 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:7872 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932941AbWKQQbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 11:31:32 -0500
-Date: Fri, 17 Nov 2006 16:31:28 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <linux-acpi@vger.kernel.org>
-Subject: Re: acpiphp makes noise on every lid close/open
-Message-ID: <20061117163128.GA2068@srcf.ucam.org>
-References: <20061102175403.279df320.kristen.c.accardi@intel.com> <20061105232944.GA23256@vasa.acc.umu.se> <20061106092117.GB2175@elf.ucw.cz> <20061107204409.GA37488@vasa.acc.umu.se> <20061107134439.1d54dc66.kristen.c.accardi@intel.com> <20061117102237.GS14886@vasa.acc.umu.se> <20061117151341.GA1162@srcf.ucam.org> <20061117153717.GU14886@vasa.acc.umu.se> <20061117154627.GA1544@srcf.ucam.org> <20061117160810.GW14886@vasa.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061117160810.GW14886@vasa.acc.umu.se>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Fri, 17 Nov 2006 11:34:51 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:41638 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP id S932946AbWKQQeu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 11:34:50 -0500
+Message-ID: <455DE480.7000500@in.ibm.com>
+Date: Fri, 17 Nov 2006 22:04:08 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: "Patrick.Le-Dot" <Patrick.Le-Dot@bull.net>
+CC: ckrm-tech@lists.sourceforge.net, dev@openvz.org, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, rohitseth@google.com
+Subject: Re: [ckrm-tech] [RFC][PATCH 5/8] RSS controller task migration	support
+References: <20061117132533.A5FCF1B6A2@openx4.frec.bull.fr>
+In-Reply-To: <20061117132533.A5FCF1B6A2@openx4.frec.bull.fr>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 05:08:10PM +0100, David Weinehall wrote:
+Patrick.Le-Dot wrote:
+>> ...
+>> For implementing guarantees, we can use limits. Please see
+>> http://wiki.openvz.org/Containers/Guarantees_for_resources.
+> 
+> Nack.
+> 
+> This seems to be correct for resources like cpu, disk or network
+> bandwidth but not for the memory just because nobody in this wiki
+> speaks about the kswapd and page reclaim (but it's true that a such
+> demon does not exist for cpu, disk or... then the problem is more
+> simple).
+> 
+> For a customer the main reason to use guarantee is to be sure that
+> some pages of a job remain in memory when the system is low on free
+> memory. This should be true even for a job in group/container A with
+> a smooth activity compared to a group/container B with a set of jobs
+> using memory more agressively...
+> 
 
-> Good question.  Personally I'd say we refuse to suspend when we have
-> devices we *know* to be dock-devices etc mounted.
+I am not against guarantees, but
 
-Kernel-level or userspace? IBM certainly used to sell bay-mounted hard 
-drives, and while it's possible for a user to pull one out while the 
-machine is suspended, I suspect that the general use case is probably 
-for it to carry on being used.
+Consider the following scenario, let's say we implement guarantees
 
-Possibly what's needed is something like Apple's nullfs - force unmount 
-the drive on suspend, and put a nullfs there instead. On resume, if the 
-drive is still there, remount it. If not, userspace applications get 
-upset about the missing drive but no data is lost. The downside to this 
-approach would be trying to figure out how to get the drive remounted 
-before the rest of userspace starts trying to scribble over it again...
+1. If we account for kernel resources, how do you provide guarantees
+   when you have non-reclaimable resources?
+2. If a customer runs a system with swap turned off (which is quite
+   common), then anonymous memory becomes irreclaimable. If a group
+   takes more than it's fair share (exceeds its guarantee), you
+   have scenario similar to 1 above.
+
+> What happens if we use limits to implement guarantees ?
+> 
+>>> ...
+>>> The idea of getting a guarantee is simple:
+>>> if any group gi requires a Gi units of resource from R units available
+>>> then limiting all the rest groups with R - Gi units provides a desired
+>>> guarantee
+> 
+> If the limit is a "hard limit" then we have implemented reservation and
+> this is too strict.
+>
+> If the limit is a "soft limit" then group/container B is autorized to
+> use more than the limit and nothing is guaranteed for group/container A...
+> 
+> Patrick
+
+
+Yes, but it is better than failing to meet a guarantee (if guarantees are
+desired :))
+
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

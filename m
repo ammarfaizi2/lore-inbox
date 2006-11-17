@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755468AbWKQGtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755489AbWKQGtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755468AbWKQGtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 01:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755489AbWKQGtJ
+	id S1755489AbWKQGtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 01:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755494AbWKQGtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 01:49:09 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:60304 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1755468AbWKQGtI (ORCPT
+	Fri, 17 Nov 2006 01:49:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42707 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755489AbWKQGtW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 01:49:08 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: sleeping functions called in invalid context during resume
-Date: Fri, 17 Nov 2006 07:49:01 +0100
-User-Agent: KMail/1.9.5
-Cc: Stephen Hemminger <shemminger@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-References: <20061114223002.10c231bd@localhost.localdomain> <20061116212158.0ef99842@localhost.localdomain> <20061116221800.bfbd80c4.akpm@osdl.org>
-In-Reply-To: <20061116221800.bfbd80c4.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 17 Nov 2006 01:49:22 -0500
+Date: Thu, 16 Nov 2006 22:44:20 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Oleg Verych <olecom@flower.upol.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for recent lkml email
+Message-Id: <20061116224420.11c201e0.zaitcev@redhat.com>
+In-Reply-To: <slrnelq3s1.7lr.olecom@flower.upol.cz>
+References: <20061116162151.GA23930@tumblerings.org>
+	<20061116165235.GA28447@tumblerings.org>
+	<slrnelq3s1.7lr.olecom@flower.upol.cz>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611170749.02129.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 17 Nov 2006 01:18:10 +0000 (UTC), Oleg Verych <olecom@flower.upol.cz> wrote:
 
-> > I have no idea what causes:
-> > 
-> > APIC error on CPU0: 00(00)
-> > 
-> > Is it an ACPI problem?
+> To do not produce megabytes of additional traffic in case of any
+> kind of backlog and have anything you lkml like, i would suggest to have
+> good news reader and point it to news.gmane.org service (well, i'm
+> sure, there are many who have lkml->news scheme privately).
 
-What CPU/chipset?
+The good news reader might be a problem. In fact, I'm currently looking
+for one. Criteria:
+ - GUI with support for X clipboard (not just selections)
+ - Ability to bounce to myself
 
-> 
-> Strange.  x86_64 has that stray exit_idle() in smp_error_interrupt() but
-> afaict it won't cause this to happen.
-> 
-> What's that idle_notifier doing in x86_64 anyway?  
+I use Pan, but it cannot bounce articles. It only saves them, so I have
+to find them (it uses Message-ID for name), open in vi, add "From xxx"
+on top, then do the "Import External mbox" dance in my mailreader.
+In previous Pan the useful trick was to "print" article, and specfy
+your lpr to be a scrip which called sendmail. But they took it away.
 
-I originally added it for my (now abandoned in favour of dyntick) noidletick 
-implementation. I would have removed it again, but perfmon plans to use it
-too and I suspect dyntick will too (?)
-
-> It appears to have no 
-> users.  If there _is_ a user, and if its IDLE_END handler is altering the
-> preempt-count then perhaps there's your explanation.
-
-There shouldn't be a user currently in tree.
- 
-> But it all appears to be dead code to me.
-
-Right now it is yes.
-
--Andi
- 
+-- Pete

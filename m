@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752375AbWKRVKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWKRVZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752375AbWKRVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 16:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752385AbWKRVKA
+	id S1751452AbWKRVZv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 16:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752694AbWKRVZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 16:10:00 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:60828 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1752367AbWKRVJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 16:09:57 -0500
-Date: Sat, 18 Nov 2006 13:09:57 -0800
-From: thockin@hockin.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: boot from efi on x86_64
-Message-ID: <20061118210957.GA5117@hockin.org>
-References: <200611182107.03667.spatz@psybear.com> <20061118204013.GA13645@irc.pl>
+	Sat, 18 Nov 2006 16:25:51 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:28371 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1751452AbWKRVZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 16:25:50 -0500
+Date: Sun, 19 Nov 2006 00:25:42 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061118212542.GA235@oleg>
+References: <20061118171410.GB4427@us.ibm.com> <Pine.LNX.4.44L0.0611181536050.15971-100000@netrider.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061118204013.GA13645@irc.pl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44L0.0611181536050.15971-100000@netrider.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2006 at 09:40:13PM +0100, Tomasz Torcz wrote:
-> On Sat, Nov 18, 2006 at 09:07:03PM +0200, Dror Levin wrote:
-> > looking at the kernel source, after constant failures to boot linux on a core 
-> > 2 imac, has made me understand that only i386 and ia64 support efi booting, 
-> > but x86_64 does not.
-> > it makes sense, if you think about it... AFAIK, until the new core 2 imacs 
-> > were out there was no x86_64 efi pc, so why should the kernel support it?
-> 
->   Few days ago I played with Intel servers with EM64T Xeons (NetBurst
-> based). They are x86_64, and motherboard (Intel chipset) utilised EFI.
+On 11/18, Alan Stern wrote:
+>
+> By the way, I think the fastpath for synchronize_srcu() should be safe, 
+> now that you have added the memory barriers into srcu_read_lock() and 
+> srcu_read_unlock().  You might as well try putting it in.
 
-but did it use GRUB or elilo ?
+I still think the fastpath should do mb() unconditionally to be correct.
+
+> Although now that I look at it again, you have forgotten to put smp_mb()
+> after the atomic_inc() call and before the atomic_dec().
+
+As I see it, currently we don't need this barrier because synchronize_srcu()
+does synchronize_sched() before reading ->hardluckref.
+
+But if we add the fastpath into synchronize_srcu() then yes, we need mb()
+after atomic_inc().
+
+Unless I totally confused :)
+
+Oleg.
+

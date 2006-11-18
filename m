@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753370AbWKRNut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754617AbWKRNze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753370AbWKRNut (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 08:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754265AbWKRNut
+	id S1754617AbWKRNze (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 08:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754621AbWKRNze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 08:50:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1678 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1753370AbWKRNut (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 08:50:49 -0500
-Date: Sat, 18 Nov 2006 14:49:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-rt3, yum repo
-Message-ID: <20061118134928.GA25913@elte.hu>
-References: <20061117200357.GA736@elte.hu> <455EFD37.4080100@stud.feec.vutbr.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <455EFD37.4080100@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4141]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 18 Nov 2006 08:55:34 -0500
+Received: from excu-mxob-2.symantec.com ([198.6.49.23]:162 "EHLO
+	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
+	id S1754617AbWKRNze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 08:55:34 -0500
+X-AuditID: c6063117-a07e5bb00000257a-46-455f10d55439 
+Date: Sat, 18 Nov 2006 13:55:54 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Francis Moreau <francis.moro@gmail.com>
+cc: a.p.zijlstra@chello.nl, linux-kernel@vger.kernel.org
+Subject: Re: Re : vm: weird behaviour when munmapping
+In-Reply-To: <38b2ab8a0611171301pe16229ch441ec24c538b1998@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611181340220.7193@blonde.wat.veritas.com>
+References: <38b2ab8a0611171301pe16229ch441ec24c538b1998@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 18 Nov 2006 13:55:33.0288 (UTC) FILETIME=[3747AA80:01C70B19]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-
-> Ingo Molnar wrote:
+On Fri, 17 Nov 2006, Francis Moreau wrote:
+> On Fri, 2006-11-17 at 14:12 +0000, moreau francis wrote:
+> > Peter Zijlstra wrote:
+> >
+> > The new object is the one allocated using:
+> > new = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
 > 
-> >i've released the 2.6.18-rc6-rt3 tree
-> Hi Ingo,
-> lockdep doesn't compile on UP. per_cpu_offset only makes sense on SMP.
+> Of course but at this point the choice of the new VMA is already made
+> by the caller. So in our case do_munmap() decided that B is the new
+> one as you said. But I still don't see why...
 
-yeah - i'll remove the offset printing instead. (fixed the bug for which 
-it was helpful)
+split_vma decides which address range will use the newly allocated
+vm_area_struct in such a way as to suit its own convenience, and
+that of mremap's move_vma.  "new" is the name of a variable in
+split_vma, you should stop agonizing over it.
 
-	Ingo
+> 
+> And as I said previously it will end up by calling consecutively:
+> 
+>        vma->vm_ops->open(B)
+>        vma->vm_ops->close(B)
+
+You are attaching too much significance to the current address
+of the vma which is passed to your driver in open and close.
+As mmap.c splits and merges vmas, in response to system calls
+unmapping and mapping, those addresses will change.
+
+The important thing is the info contained within the vma: perhaps
+your underlying complaint is that your driver is not getting as
+much info as it wants about what's happening?
+
+I think (haven't searched) most drivers, if they care at all,
+only care about the total number of their vmas: can free
+resources when that count goes down to 0.
+
+Hugh

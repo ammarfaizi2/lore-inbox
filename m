@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756096AbWKRAhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756095AbWKRAhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756096AbWKRAhv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756101AbWKRAhv
+	id S1756095AbWKRAhs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756096AbWKRAhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:37:51 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:44494 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1756096AbWKRAhu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:37:50 -0500
-Date: Fri, 17 Nov 2006 16:38:59 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com, oleg@tv-sign.ru
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061118003859.GG2632@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20061117191538.GA2632@us.ibm.com> <Pine.LNX.4.44L0.0611171421270.2627-100000@iolanthe.rowland.org>
+	Fri, 17 Nov 2006 19:37:48 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:45796 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1756095AbWKRAhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:37:47 -0500
+Date: Fri, 17 Nov 2006 19:37:18 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
+Subject: Re: [PATCH 19/20] x86_64: Extend bzImage protocol for relocatable kernel
+Message-ID: <20061118003718.GB4321@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061117223432.GA15449@in.ibm.com> <20061117225826.GT15449@in.ibm.com> <455E540C.6090202@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0611171421270.2627-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <455E540C.6090202@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 02:27:15PM -0500, Alan Stern wrote:
-> On Fri, 17 Nov 2006, Paul E. McKenney wrote:
+On Fri, Nov 17, 2006 at 04:30:04PM -0800, H. Peter Anvin wrote:
+> Vivek Goyal wrote:
+> >
+> >o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
+> >  load the protected mode kernel at non-1MB address. Now protected mode
+> >  component is relocatable and can be loaded at non-1MB addresses.
+> >
+> >o As of today kdump uses it to run a second kernel from a reserved memory
+> >  area.
+> >
+> >Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 > 
-> > > It works for me, but the overhead is still large. Before it would take
-> > > 8-12 jiffies for a synchronize_srcu() to complete without there actually
-> > > being any reader locks active, now it takes 2-3 jiffies. So it's
-> > > definitely faster, and as suspected the loss of two of three
-> > > synchronize_sched() cut down the overhead to a third.
-> > 
-> > Good to hear, thank you for trying it out!
-> > 
-> > > It's still too heavy for me, by far the most calls I do to
-> > > synchronize_srcu() doesn't have any reader locks pending. I'm still a
-> > > big advocate of the fastpath srcu_readers_active() check. I can
-> > > understand the reluctance to make it the default, but for my case it's
-> > > "safe enough", so if we could either export srcu_readers_active() or
-> > > export a synchronize_srcu_fast() (or something like that), then SRCU
-> > > would be a good fit for barrier vs plug rework.
-> > 
-> > OK, will export the interface.  Do your queues have associated locking?
-> > 
-> > > > Attached is a patch that compiles, but probably goes down in flames
-> > > > otherwise.
-> > > 
-> > > Works here :-)
-> > 
-> > I have at least a couple bugs that would show up under low-memory
-> > situations, will fix and post an update.
+> Do you have a patch for Documentation/i386/boot.txt as well?
 > 
-> Perhaps a better approach to the initialization problem would be to assume 
-> that either:
-> 
->     1.  The srcu_struct will be initialized before it is used, or
-> 
->     2.  When it is used before initialization, the system is running
-> 	only one thread.
 
-Are these assumptions valid?  If so, they would indeed simplify things
-a bit.
+Yes. As documentation is shared between i386 and x86_64, It is already there
+in Andi's tree and in -mm. I had pushed that with i386 relocatable bzImage
+changes.
 
-> In other words, statically allocated SRCU strucures that get used during
-> system startup must be initialized before the system starts multitasking.  
-> That seems like a reasonable requirement.
-> 
-> This eliminates worries about readers holding mutexes.  It doesn't 
-> solve the issues surrounding your hardluckref, but maybe it makes them 
-> easier to think about.
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/x86_64-mm-extend-bzimage-protocol-for-relocatable-protected-mode-kernel.patch
 
-For the moment, I cheaped out and used a mutex_trylock.  If this can block,
-I will need to add a separate spinlock to guard per_cpu_ref allocation.
-
-Hmmm...  How to test this?  Time for the wrapper around alloc_percpu()
-that randomly fails, I guess.  ;-)
-
-						Thanx, Paul
+Thanks
+Vivek

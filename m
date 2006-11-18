@@ -1,106 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753771AbWKRCIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755889AbWKRCbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753771AbWKRCIP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 21:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753787AbWKRCIP
+	id S1755889AbWKRCbe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 21:31:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756158AbWKRCbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 21:08:15 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:11164 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1753771AbWKRCIO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 21:08:14 -0500
-Subject: Re: [PATCH 1/7] paravirtualization: header and stubs for
-	paravirtualizing critical operations
-From: john stultz <johnstul@us.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andi Kleen <ak@muc.de>, Andi Kleen <ak@suse.de>,
-       virtualization@lists.osdl.org, Chris Wright <chrisw@sous-sol.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1162376827.23462.5.camel@localhost.localdomain>
-References: <20061029024504.760769000@sous-sol.org>
-	 <20061029024607.401333000@sous-sol.org> <200610290831.21062.ak@suse.de>
-	 <1162178936.9802.34.camel@localhost.localdomain>
-	 <20061030231132.GA98768@muc.de>
-	 <1162376827.23462.5.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 17 Nov 2006 18:08:06 -0800
-Message-Id: <1163815686.5374.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Nov 2006 21:31:34 -0500
+Received: from raven.upol.cz ([158.194.120.4]:48370 "EHLO raven.upol.cz")
+	by vger.kernel.org with ESMTP id S1755889AbWKRCbd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 21:31:33 -0500
+Date: Sat, 18 Nov 2006 02:38:32 +0000
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] emit logging when a process receives a fatal signal
+Message-ID: <20061118023832.GG13827@flower.upol.cz>
+References: <20061118010946.GB31268@vanheusden.com> <slrnelsomr.dd3.olecom@flower.upol.cz> <20061118020200.GC31268@vanheusden.com> <20061118020413.GD31268@vanheusden.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118020413.GD31268@vanheusden.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Oleg Verych <olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-01 at 21:27 +1100, Rusty Russell wrote:
-> Create a paravirt.h header for all the critical operations which need
-> to be replaced with hypervisor calls, and include that instead of
-> defining native operations, when CONFIG_PARAVIRT.
-> 
-> This patch does the dumbest possible replacement of paravirtualized
-> instructions: calls through a "paravirt_ops" structure.  Currently
-> these are function implementations of native hardware: hypervisors
-> will override the ops structure with their own variants.
-> 
-[snip]
+On Sat, Nov 18, 2006 at 03:04:13AM +0100, Folkert van Heusden wrote:
+> > > > I found that sometimes processes disappear on some heavily used system
+> > > > of mine without any logging. So I've written a patch against 2.6.18.2
+> > > > which emits logging when a process emits a fatal signal.
+> > > Why not to patch default signal handlers in glibc, to have not only
+> > > stderr, but syslog, or /dev/kmsg copy of fatal messages?
+> > Afaik when a proces gets shot because of a segfault, also the libraries
+> > it used are shot so to say. iirc some of the more fatal signals are
+> > handled directly by the kernel.
 
-> +struct paravirt_ops paravirt_ops = {
-> +	.name = "bare hardware",
-[snip]
-> +	.get_wallclock = native_get_wallclock,
-> +	.set_wallclock = native_set_wallclock,
+Kernel sends signals, no doubt.
 
-[snip]
+Then, who you think prints that "Killed" or "Segmentation fault"
+messages in *stderr*?
+[Hint: libc's default signal handler (man 2 signal).]
 
-> --- /dev/null
-> +++ b/include/asm-i386/time.h
-> @@ -0,0 +1,41 @@
-> +#ifndef _ASMi386_TIME_H
-> +#define _ASMi386_TIME_H
-> +
-> +#include <linux/efi.h>
-> +#include "mach_time.h"
-> +
-> +static inline unsigned long native_get_wallclock(void)
-> +{
-> +	unsigned long retval;
-> +
-> +	if (efi_enabled)
-> +		retval = efi_get_time();
-> +	else
-> +		retval = mach_get_cmos_time();
-> +
-> +	return retval;
-> +}
-> +
-> +static inline int native_set_wallclock(unsigned long nowtime)
-> +{
-> +	int retval;
-> +
-> +	if (efi_enabled)
-> +		retval = efi_set_rtc_mmss(nowtime);
-> +	else
-> +		retval = mach_set_rtc_mmss(nowtime);
-> +
-> +	return retval;
-> +}
-> +
-> +#ifdef CONFIG_PARAVIRT
-> +#include <asm/paravirt.h>
-> +#else /* !CONFIG_PARAVIRT */
-> +
-> +#define get_wallclock() native_get_wallclock()
-> +#define set_wallclock(x) native_set_wallclock(x)
+> Also: what about statically build programs?
 
+"-lc" embeds libc in static binary, no?
 
-Could a better name then "get/set_wallclock" be used here? Its too vague
-and would be easily confused with do_set/gettimeofday() functions.
-
-My suggestion would be to use "persistent_clock" to describe the
-battery-backed CMOS/hardware clock. (I assume that is what you intend
-this paravirt_op to be, rather then get the high-resolution system
-timeofday)
-
-thanks
--john
-
-
+IMHO it's not a lkml issue. Here are many who would say you, that userspace
+preblems are userspace problems.
+____

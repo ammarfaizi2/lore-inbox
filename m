@@ -1,99 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756100AbWKRAZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756102AbWKRA1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756100AbWKRAZf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756103AbWKRAZf
+	id S1756102AbWKRA1g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756104AbWKRA1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:25:35 -0500
-Received: from mga09.intel.com ([134.134.136.24]:34705 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1756102AbWKRAZd (ORCPT
+	Fri, 17 Nov 2006 19:27:36 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22150 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1756102AbWKRA1g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:25:33 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,436,1157353200"; 
-   d="scan'208"; a="163335981:sNHT18274214"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Mike Galbraith'" <efault@gmx.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <nickpiggin@yahoo.com.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [rfc patch] Re: sched: incorrect argument used in task_hot()
-Date: Fri, 17 Nov 2006 16:25:09 -0800
-Message-ID: <000501c70aa8$01bc4e50$2880030a@amr.corp.intel.com>
+	Fri, 17 Nov 2006 19:27:36 -0500
+Date: Sat, 18 Nov 2006 01:27:10 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, rjw@sisk.pl
+Subject: Re: [PATCH 9/20] x86_64: 64bit PIC SMP trampoline
+Message-ID: <20061118002710.GF9188@elf.ucw.cz>
+References: <20061117223432.GA15449@in.ibm.com> <20061117224535.GJ15449@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccKliWzwHiwh3FYQWmFmOHHJ88AWQADjB+w
-In-Reply-To: <1163801933.23357.33.camel@Homer.simpson.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061117224535.GJ15449@in.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote on Friday, November 17, 2006 2:19 PM
-> > And a changelog, then we're all set!
-> > 
-> > Oh.  And a patch, too.
-> 
-> Co-opt rq->timestamp_last_tick to maintain a cache_hot_time evaluation
-> reference timestamp at both tick and sched times to prevent said
-> reference, formerly rq->timestamp_last_tick, from being behind
-> task->last_ran at evaluation time, and to move said reference closer to
-> current time on the remote processor, intent being to improve cache hot
-> evaluation and timestamp adjustment accuracy for task migration.
-> 
-> Fix minor sched_time double accounting error which occurs when a task
-> passing through schedule() does not schedule off, and takes the next
-> timer tick.
-> 
-> [....]
-> 
-> @@ -2206,7 +2207,7 @@ skip_queue:
->  	}
->  
->  #ifdef CONFIG_SCHEDSTATS
-> -	if (task_hot(tmp, busiest->timestamp_last_tick, sd))
-> +	if (task_hot(tmp, busiest->most_recent_timestamp, sd))
->  		schedstat_inc(sd, lb_hot_gained[idle]);
->  #endif
+Hi!
 
+> that long mode is supported.  Asking if long mode is implemented is
+> down right silly but we have traditionally had some of these checks,
+> and they can't hurt anything.  So when the totally ludicrous happens
+> we just might handle it correctly.
 
-While we at it, let's clean up this hunk.  task_hot is evaluated twice in
-the more common case of nr_balance_failed <= cache_nice_tries. We should
-only test/increment relevant stats for forced migration.
-Patch on top of yours.
+Well, it is silly, and it is 50 lines of dense assembly. can we get
+rid of it or get it shared with bootup version?
 
+The REQUIRED_MASK1/2 look like something that could get out of sync,
+for example.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+The rest of patch looks okay.
 
+(The traditional checks were unneeded, so it is okay to drop them...)
 
---- ./kernel/sched.c.orig	2006-11-17 13:37:46.000000000 -0800
-+++ ./kernel/sched.c	2006-11-17 14:20:34.000000000 -0800
-@@ -2088,8 +2088,13 @@ int can_migrate_task(struct task_struct 
- 	 * 2) too many balance attempts have failed.
- 	 */
- 
--	if (sd->nr_balance_failed > sd->cache_nice_tries)
-+	if (sd->nr_balance_failed > sd->cache_nice_tries) {
-+		#ifdef CONFIG_SCHEDSTATS
-+		if (task_hot(p, rq->most_recent_timestamp, sd))
-+			schedstat_inc(sd, lb_hot_gained[idle]);
-+		#endif
- 		return 1;
-+	}
- 
- 	if (task_hot(p, rq->most_recent_timestamp, sd))
- 		return 0;
-@@ -2189,11 +2194,6 @@ skip_queue:
- 		goto skip_bitmap;
- 	}
- 
--#ifdef CONFIG_SCHEDSTATS
--	if (task_hot(tmp, busiest->most_recent_timestamp, sd))
--		schedstat_inc(sd, lb_hot_gained[idle]);
--#endif
--
- 	pull_task(busiest, array, tmp, this_rq, dst_array, this_cpu);
- 	pulled++;
- 	rem_load_move -= tmp->load_weight;
+								Pavel
+
+> +	.code16
+> +verify_cpu:
+> +	pushl	$0			# Kill any dangerous flags
+> +	popfl
+> +
+> +	/* minimum CPUID flags for x86-64 */
+> +	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
+> +#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
+> +			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
+> +#define REQUIRED_MASK2 (1<<29)
+> +
+> +	pushfl				# check for cpuid
+> +	popl	%eax
+> +	movl	%eax, %ebx
+> +	xorl	$0x200000,%eax
+> +	pushl	%eax
+> +	popfl
+> +	pushfl
+> +	popl	%eax
+> +	pushl	%ebx
+> +	popfl
+> +	cmpl	%eax, %ebx
+> +	jz	no_longmode
+> +
+> +	xorl	%eax, %eax		# See if cpuid 1 is implemented
+> +	cpuid
+> +	cmpl	$0x1, %eax
+> +	jb	no_longmode
+> +
+> +	movl	$0x01, %eax		# Does the cpu have what it takes?
+> +	cpuid
+> +	andl	$REQUIRED_MASK1, %edx
+> +	xorl	$REQUIRED_MASK1, %edx
+> +	jnz	no_longmode
+> +
+> +	movl	$0x80000000, %eax	# See if extended cpuid is implemented
+> +	cpuid
+> +	cmpl	$0x80000001, %eax
+> +	jb	no_longmode
+> +
+> +	movl	$0x80000001, %eax	# Does the cpu have what it takes?
+> +	cpuid
+> +	andl	$REQUIRED_MASK2, %edx
+> +	xorl	$REQUIRED_MASK2, %edx
+> +	jnz	no_longmode
+> +
+> +	ret				# The cpu supports long mode
+> +
+> +no_longmode:
+> +	hlt
+> +	jmp no_longmode
+> +
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

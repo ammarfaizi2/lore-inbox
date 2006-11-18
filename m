@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755191AbWKRQbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755198AbWKRQ5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755191AbWKRQbY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 11:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756253AbWKRQbY
+	id S1755198AbWKRQ5w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 11:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755189AbWKRQ5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 11:31:24 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32436 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1755191AbWKRQbY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 11:31:24 -0500
-Date: Sat, 18 Nov 2006 17:30:32 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc6-rt4, changed yum repository
-Message-ID: <20061118163032.GA14625@elte.hu>
+	Sat, 18 Nov 2006 11:57:51 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:41681 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1755180AbWKRQ5v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 11:57:51 -0500
+Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Joseph Fannin <jhf@columbus.rr.com>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Larry Finger <Larry.Finger@lwfinger.net>,
+       Bcm43xx-dev@lists.berlios.de, LKML <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org, John Linville <linville@tuxdriver.com>,
+       Michael Buesch <mb@bu3sch.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061118112438.GB15349@nineveh.rivenstone.net>
+References: <455B63EC.8070704@madrabbit.org>
+	 <20061118112438.GB15349@nineveh.rivenstone.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GYTok38B2melWxge36NU"
+Date: Sat, 18 Nov 2006 17:55:55 +0100
+Message-Id: <1163868955.27188.2.camel@johannes.berg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.2 
+X-sips-origin: submit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i've released the 2.6.18-rc6-rt4 tree, which can be downloaded from the 
-usual place:
 
-  http://redhat.com/~mingo/realtime-preempt/
+--=-GYTok38B2melWxge36NU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-NOTE: the YUM repository has changed the -rt kernel's package name, it's 
-now kernel-rt, so it does not override the kernel package. If you have 
-rt.repo already then just do a "yum install kernel-rt".
+On Sat, 2006-11-18 at 06:24 -0500, Joseph Fannin wrote:
 
-If there's no rt repository yet, the -rt YUM repository for Fedora Core 
-6 can be activated via:
+>     This sounds like what my laptop was doing in -rc5, though mine
+> didn't take hours to start acting up.
+>=20
+>     I *think* it was the MSI troubles, causing interrupts to get
+> lost forever.  Anyway, it went away in -rc6.
 
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
-   yum install kernel-rt
+Hah, that's a lot more plausible than bcm43xx's drain patch actually
+causing this. So maybe somehow interrupts for bcm43xx aren't routed
+properly or something...
 
-a number of fixes were done since -rt3, and merges of Linus' latest -git 
-tree.
+Ray, please check /proc/interrupts when this happens.
 
-to build a 2.6.19-rc6-rt4 tree, the following patches should be applied:
+I am convinced that the patch in question (drain tx status) is not
+causing this -- the patch should be a no-op in most cases anyway, and in
+those cases where it isn't a no-op it'll run only once at card init and
+remove some things from a hardware-internal FIFO.
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.18.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.19-rc6.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rc6-rt4
+johannes
 
-as usual, bugreports, fixes and suggestions are welcome,
+--=-GYTok38B2melWxge36NU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-	Ingo
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iD8DBQBFXzsb/ETPhpq3jKURAm80AJ44eSZHzQHOfpvhKLL3DVH+N2lF3QCgopKQ
+ZbcPCp+FSe3daOEimqJv4n8=
+=BC0X
+-----END PGP SIGNATURE-----
+
+--=-GYTok38B2melWxge36NU--
+

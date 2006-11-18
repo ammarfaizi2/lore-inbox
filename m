@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754660AbWKROT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754665AbWKRO0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754660AbWKROT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 09:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754661AbWKROT1
+	id S1754665AbWKRO0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 09:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754709AbWKRO0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 09:19:27 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:59914 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1754660AbWKROT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 09:19:26 -0500
-Date: Sat, 18 Nov 2006 15:19:23 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>,
-       Kumar Gala <galak@kernel.crashing.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
-Subject: Re: RTC , ds1307 I2C driver and NTP does not work.
-Message-Id: <20061118151923.6044d956.khali@linux-fr.org>
-In-Reply-To: <F6AD7E21CDF4E145A44F61F43EE6D939AF4560@tmnt04.transmode.se>
-References: <F6AD7E21CDF4E145A44F61F43EE6D939AF4560@tmnt04.transmode.se>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 09:26:20 -0500
+Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:49605
+	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1754665AbWKRO0U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 09:26:20 -0500
+Message-ID: <455F180A.9080301@seclark.us>
+Date: Sat, 18 Nov 2006 09:26:18 -0500
+From: Stephen Clark <Stephen.Clark@seclark.us>
+Reply-To: Stephen.Clark@seclark.us
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ismail Donmez <ismail@pardus.org.tr>
+CC: jketreno@linux.intel.com, linux-kernel@vger.kernel.org
+Subject: Re: IEEE80211 and IPW3945
+References: <20061118102056.GA4492@gimli> <200611181449.53483.ismail@pardus.org.tr>
+In-Reply-To: <200611181449.53483.ismail@pardus.org.tr>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 18:38:10 +0100, Joakim Tjernlund wrote:
-> On Nov 17, 2006, at 10:38 AM, Joakim Tjernlund wrote:
-> 
-> > I get this when I activathte NTP and ntp "sync" the time the I2C HW  
-> > clock.
-> 
-> You may be better off posting this to lkml and copy the i2c list (and  
-> rtc if one exists).  Since its more a driver issue than anything  
-> really ppc specific.  Clearly we are doing schedules() in mpc_xfer()  
-> and maybe we shouldn't be.
+Ismail Donmez wrote:
 
-It's OK to schedule or sleep in mpc_xfer. It's not OK to call mpc_xfer
-from an interrupt context, which is what appears to be happening here.
-So the ds1307 driver would need to be changed not to directly call
-i2c_transfer from the interrupt. Using a workqueue should work.
+>18 Kas 2006 Cts 12:20 tarihinde, Martin Lorenz şunları yazmıştı: 
+>  
+>
+>>Dear James,
+>>
+>>I just had some issues when trying to compile ieee80211 1.2.15 together
+>>with ipw3945 1.1.2 on the latest kernel tree
+>>
+>>attached are two patches I had to create to work around it
+>>I guess they are self-explanatory :-)
+>>    
+>>
+>
+>I wonder when will ieee80211 tree will be merged to mainline, according to 
+>some posts[1] its needed for some devices.
+>
+>[1] http://www.ubuntuforums.org/showthread.php?t=156930
+>
+>/ismail
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-That being said, I wonder why one would want to set the time from an
-interrupt context in the first place. Maybe that's what needs fixing.
+On Mon, 13 Nov 2006 08:42:55 -0500 Stephen Clark wrote:
 
-> > BUG: scheduling while atomic: swapper/0x00010000/0
-> > Call Trace:^M
-> > [C0245C80] [C000860C] show_stack+0x48/0x194 (unreliable)
-> > [C0245CB0] [C01BEFF4] schedule+0x5d4/0x618
-> > [C0245CF0] [C01BF9C8] schedule_timeout+0x70/0xd0
-> > [C0245D30] [C014416C] i2c_wait+0x164/0x1d8
-> > [C0245D80] [C0144490] mpc_xfer+0x2b0/0x3a8
-> > [C0245DD0] [C01423E8] i2c_transfer+0x58/0x7c
-> > [C0245DF0] [C0141124] ds1307_set_time+0x1bc/0x234
-> > [C0245E00] [C013F82C] rtc_set_time+0xb0/0xb8^M
-> > [C0245E20] [C000BFC4] set_rtc_class_time+0x34/0x58
-> > [C0245E40] [C000C8D0] timer_interrupt+0x5a0/0x5fc
-> > [C0245EE0] [C000F7B0] ret_from_except+0x0/0x14
-> > --- Exception: 901 at cpu_idle+0xc8/0xf0
-> >     LR = cpu_idle+0xec/0xf0
-> > [C0245FC0] [C000388C] rest_init+0x28/0x38
-> > [C0245FD0] [C01F36E0] start_kernel+0x1d8/0x228
-> > [C0245FF0] [00003438] 0x3438
-> >
-> > I have activated RTC CLASS and have this in my board file:
-> > #ifdef CONFIG_RTC_CLASS
-> > late_initcall(rtc_class_hookup);
-> > #endif
-> >
-> > kernel 2.6.19-rc5
-> >
-> >  Jocke
+
+>> can someone tell me why I have to replace the 803.11 stack that is 
+>> already in
+>> linux 2.6.19 rc5 with the stack at sf.
+>  
+>
+
+You don't have to.
+The one in .19-rc5 is new enough (the one in .18 too AFAIK)
+
+I have successfully run ipw3945 with FC6 using the ieee80211 stack from the kernel
+I just had to compile with:
+ make IEEE80211_API=2 EXTRA_CFLAGS=-DIEEE80211_API_VERSION=2
+
+and ln autoconf.h to config.h
+
+HTH,
+steve
+
+
 
 -- 
-Jean Delvare
+
+"They that give up essential liberty to obtain temporary safety, 
+deserve neither liberty nor safety."  (Ben Franklin)
+
+"The course of history shows that as a government grows, liberty 
+decreases."  (Thomas Jefferson)
+
+
+

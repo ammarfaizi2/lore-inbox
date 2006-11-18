@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755847AbWKRAqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755869AbWKRBAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755847AbWKRAqN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754078AbWKRAqN
+	id S1755869AbWKRBAh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 20:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756105AbWKRBAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:46:13 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:35728 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1755847AbWKRAqN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:46:13 -0500
-Message-ID: <455E57BA.7060309@zytor.com>
-Date: Fri, 17 Nov 2006 16:45:46 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 17 Nov 2006 20:00:37 -0500
+Received: from nlpi001.sbcis.sbc.com ([207.115.36.30]:42697 "EHLO
+	nlpi001.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S1755869AbWKRBAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 20:00:36 -0500
+X-ORBL: [67.117.73.34]
+Date: Sat, 18 Nov 2006 03:00:23 +0200
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Vladimir Ananiev <vovan888@gmail.com>
+Subject: Re: Basic support for siemens sx1
+Message-ID: <20061118010022.GQ6072@atomide.com>
+References: <20061116170209.GA5544@elf.ucw.cz> <20061117175431.GD6072@atomide.com> <20061118003816.GA9187@elf.ucw.cz>
 MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-Subject: Re: [PATCH 19/20] x86_64: Extend bzImage protocol for relocatable
- kernel
-References: <20061117223432.GA15449@in.ibm.com> <20061117225826.GT15449@in.ibm.com> <455E540C.6090202@zytor.com> <20061118003718.GB4321@in.ibm.com>
-In-Reply-To: <20061118003718.GB4321@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118003816.GA9187@elf.ucw.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal wrote:
-> On Fri, Nov 17, 2006 at 04:30:04PM -0800, H. Peter Anvin wrote:
->> Vivek Goyal wrote:
->>> o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
->>>  load the protected mode kernel at non-1MB address. Now protected mode
->>>  component is relocatable and can be loaded at non-1MB addresses.
->>>
->>> o As of today kdump uses it to run a second kernel from a reserved memory
->>>  area.
->>>
->>> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
->> Do you have a patch for Documentation/i386/boot.txt as well?
->>
+* Pavel Machek <pavel@ucw.cz> [061118 02:38]:
+> Hi!
 > 
-> Yes. As documentation is shared between i386 and x86_64, It is already there
-> in Andi's tree and in -mm. I had pushed that with i386 relocatable bzImage
-> changes.
+> > * Pavel Machek <pavel@ucw.cz> [061116 19:04]:
+> > > From: Vladimir Ananiev <vovan888@gmail.com>
+> > > 
+> > > This adds basic support for Siemens SX1. More patches are available,
+> > > with video driver, mixer, and serial ports working. That is enough to
+> > > do gsm calls with right userland.
+> > 
+> > Cool.
 > 
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/x86_64-mm-extend-bzimage-protocol-for-relocatable-protected-mode-kernel.patch
+> :-)
 > 
+> > > It would be nice to get basic patches merged to the -omap tree... do
+> > > they look ok?
+> > 
+> > Yeah, looks good, except for the i2c part. Is Sofia really a TI PCF8574
+> > i2c chip? In that case it could use the gpioexpander code.  
+> > 
+> > Anyways, let's plan on pushing this to linux-omap tree, then do the
+> > changes for gpioexpander, and send that upstream too.
+> 
+> Works for me. I'll check with google to find out what sofia really is.
 
-Your documentation change is buggy.
+OK, I've pushed to linux-omap after separating USB and MMC code into
+separate patches. Also did a bit more tabifying on the code.
 
-The fields at 0230/4 and 0234/1 are 2.05+ not 2.04+
+BTW, PCF8574 .pdf is available on TI's site.
 
-Please fix, also please update the last revision date.
+Regards,
 
-	-hpa
+Tony

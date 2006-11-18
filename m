@@ -1,82 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754385AbWKRKjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754368AbWKRKkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754385AbWKRKjq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 05:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754391AbWKRKjq
+	id S1754368AbWKRKkF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 05:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756284AbWKRKkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 05:39:46 -0500
-Received: from posti5.jyu.fi ([130.234.4.34]:48262 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S1754368AbWKRKjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 05:39:45 -0500
-Date: Sat, 18 Nov 2006 12:39:07 +0200 (EET)
-From: Tero Roponen <teanropo@jyu.fi>
-X-X-Sender: teanropo@jalava.cc.jyu.fi
-To: Andrew Morton <akpm@osdl.org>
-cc: James Simmons <jsimmons@infradead.org>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] fb: modedb uses wrong default_mode
-In-Reply-To: <20061117124013.b6e4183d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0611181235490.22722@jalava.cc.jyu.fi>
-References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
- <20061115152952.0e92c50d.akpm@osdl.org> <20061115234456.GB3674@cosmic.amd.com>
- <Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
- <20061117124013.b6e4183d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 18 Nov 2006 05:40:04 -0500
+Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:62725 "EHLO
+	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1755982AbWKRKj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 05:39:59 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [PATCH] emit logging when a process receives a fatal signal
+References: <20061118010946.GB31268@vanheusden.com> <20061118020200.GC31268@vanheusden.com> <20061118020413.GD31268@vanheusden.com> <20061118023832.GG13827@flower.upol.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
+Date: 18 Nov 2006 10:39:56 GMT
+Message-ID: <455ee2fb$0$338$e4fe514c@news.xs4all.nl>
+X-Trace: 1163846396 news.xs4all.nl 338 [::ffff:194.109.0.112]:60727
+X-Complaints-To: abuse@xs4all.nl
+In-Reply-To: <20061118023832.GG13827@flower.upol.cz>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006, Andrew Morton wrote:
-> 
-> Here's the current version of this monster patch:
-> 
-> From: Jordan Crouse <jordan.crouse@amd.com>
-> 
-> If no default mode is specified, it should be grabbed from the supplied
-> database, not the default one.
-> 
-> [teanropo@jyu.fi: fix it]
-> [akpm@osdl.org: simplify it]
-> [akpm@osdl.org: remove pointless DEFAULT_MODEDB_INDEX]
-> Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: "Antonino A. Daplas" <adaplas@pol.net>
-> Signed-off-by: Tero Roponen <teanropo@jyu.fi>
-> Cc: James Simmons <jsimmons@infradead.org>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/video/modedb.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff -puN drivers/video/modedb.c~video-get-the-default-mode-from-the-right-database drivers/video/modedb.c
-> --- a/drivers/video/modedb.c~video-get-the-default-mode-from-the-right-database
-> +++ a/drivers/video/modedb.c
-> @@ -34,8 +34,6 @@ const char *global_mode_option;
->       *  Standard video mode definitions (taken from XFree86)
->       */
->  
-> -#define DEFAULT_MODEDB_INDEX	0
-> -
->  static const struct fb_videomode modedb[] = {
->      {
->  	/* 640x400 @ 70 Hz, 31.5 kHz hsync */
-> @@ -505,8 +503,10 @@ int fb_find_mode(struct fb_var_screeninf
->  	db = modedb;
->  	dbsize = ARRAY_SIZE(modedb);
->      }
-> +
->      if (!default_mode)
-> -	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
-> +	default_mode = &db[0];
-> +
->      if (!default_bpp)
->  	default_bpp = 8;
->  
-> _
+In article <20061118023832.GG13827@flower.upol.cz>,
+Oleg Verych  <olecom@flower.upol.cz> wrote:
+>On Sat, Nov 18, 2006 at 03:04:13AM +0100, Folkert van Heusden wrote:
+>> > > > I found that sometimes processes disappear on some heavily used system
+>> > > > of mine without any logging. So I've written a patch against 2.6.18.2
+>> > > > which emits logging when a process emits a fatal signal.
+>> > > Why not to patch default signal handlers in glibc, to have not only
+>> > > stderr, but syslog, or /dev/kmsg copy of fatal messages?
+>> > Afaik when a proces gets shot because of a segfault, also the libraries
+>> > it used are shot so to say. iirc some of the more fatal signals are
+>> > handled directly by the kernel.
+>
+>Kernel sends signals, no doubt.
+>
+>Then, who you think prints that "Killed" or "Segmentation fault"
+>messages in *stderr*?
+>[Hint: libc's default signal handler (man 2 signal).]
 
-I'm using neofb and this Works For Me (TM).
+There is no such thing as a "libc default signal handler".
+[Hint: waitpid (man 2 waitpid).]
 
-Thanks,
-Tero Roponen
+Mike.

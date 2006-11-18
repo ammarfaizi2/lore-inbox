@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755972AbWKREdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755959AbWKREkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755972AbWKREdr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 23:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755959AbWKREdr
+	id S1755959AbWKREkL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 23:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755973AbWKREkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 23:33:47 -0500
-Received: from mx2.rowland.org ([192.131.102.7]:55314 "HELO mx2.rowland.org")
-	by vger.kernel.org with SMTP id S1755972AbWKREdq (ORCPT
+	Fri, 17 Nov 2006 23:40:11 -0500
+Received: from main.gmane.org ([80.91.229.2]:61606 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1755959AbWKREkI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 23:33:46 -0500
-Date: Fri, 17 Nov 2006 23:33:45 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-cc: Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, <manfred@colorfullife.com>, <oleg@tv-sign.ru>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061118003859.GG2632@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0611172318180.8754-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Nov 2006 23:40:08 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: We're still coping with GCC < 3.0
+Date: Sat, 18 Nov 2006 04:39:44 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnelt421.dd3.olecom@flower.upol.cz>
+References: <200611172228.58658.blaisorblade@yahoo.it>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, Oleg Verych <olecom@flower.upol.cz>
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006, Paul E. McKenney wrote:
+Hallo.
 
-> > Perhaps a better approach to the initialization problem would be to assume 
-> > that either:
-> > 
-> >     1.  The srcu_struct will be initialized before it is used, or
-> > 
-> >     2.  When it is used before initialization, the system is running
-> > 	only one thread.
-> 
-> Are these assumptions valid?  If so, they would indeed simplify things
-> a bit.
+On 2006-11-17, someone with nick Blaisorblade wrote:
+> In arch/i386/kernel/irq.c (current git head) I found this comment:
+>
+> /*
+>  * These should really be __section__(".bss.page_aligned") as well, but
+>  * gcc's 3.0 and earlier don't handle that correctly.
+>  */
+> static char softirq_stack[NR_CPUS * THREAD_SIZE]
+>                 __attribute__((__aligned__(THREAD_SIZE)));
+>
+> static char hardirq_stack[NR_CPUS * THREAD_SIZE]
+>                 __attribute__((__aligned__(THREAD_SIZE)));
+>
+> That should be fixed now that we require GCC 3.0, not?
+>
+> Btw, there are other such comments, like in include/asm-i386/semaphore.h: 
+> sema_init (for GCC 2.7!). That one might not be the case to fix because of the 
+> increased stack usage
+>
+> I've seen other similar tests around, so I thought that it'd be useful to 
+> centralize all tests for GCC versions to headers like include/compiler.h so 
+> they're promptly removed when deprecating old compilers.
+>
+> What about this?
 
-I don't know.  Maybe Andrew can tell us -- is it true that the kernel runs 
-only one thread up through the time the core_initcalls are finished?
+Tested patches to Andrew Morton and code maintainers.
+See also:
+<http://marc.theaimsgroup.com/?l=linux-kernel&m=116315825009126&w=2>
 
-If not, can we create another initcall level that is guaranteed to run 
-before any threads are spawned?
-
-> For the moment, I cheaped out and used a mutex_trylock.  If this can block,
-> I will need to add a separate spinlock to guard per_cpu_ref allocation.
-
-I haven't looked at your revised patch yet...  But it's important to keep 
-things as simple as possible.
-
-> Hmmm...  How to test this?  Time for the wrapper around alloc_percpu()
-> that randomly fails, I guess.  ;-)
-
-Do you really want things to continue in a highly degraded mode when 
-percpu allocation fails?  Maybe it would be better just to pass the 
-failure back to the caller.
-
-Alan Stern
+-- e-mail --
+> (CC me on replies as I'm not subscribed)
+Cc yourself, isn't this smart idea?
+Also, please, honor "Mail-Followup-To" headers and the like.
+____
 

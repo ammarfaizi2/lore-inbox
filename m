@@ -1,36 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753945AbWKRFtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753976AbWKRF61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753945AbWKRFtt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 00:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755992AbWKRFtt
+	id S1753976AbWKRF61 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 00:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755993AbWKRF61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 00:49:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:13037 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1753945AbWKRFts (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 00:49:48 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH 18/20] x86_64: Relocatable kernel support
-Date: Sat, 18 Nov 2006 05:49:34 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnelt84v.dd3.olecom@flower.upol.cz>
-References: <20061117223432.GA15449@in.ibm.com> <20061117225718.GS15449@in.ibm.com>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: flower.upol.cz
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, olecom@flower.upol.cz, vgoyal@in.ibm.com, Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com, akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Sat, 18 Nov 2006 00:58:27 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:56565 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1753976AbWKRF60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 00:58:26 -0500
+Date: Fri, 17 Nov 2006 21:56:05 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH -mm] profile_likely: export do_check_likely
+Message-Id: <20061117215605.40226e71.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-17, Vivek Goyal wrote:
-[]
->  static void error(char *x)
-> @@ -281,57 +335,8 @@ static void error(char *x)
->  	while(1);	/* Halt */
->  }
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Is it possible to make this optional (using "panic" reboot timeout)?
-____
+I see MODPOST warnings for all modules in some (random) configs; e.g.:
+(This is a short list; I see >100 of these.)
 
+WARNING: "do_check_likely" [net/sched/cls_basic.ko] undefined!
+WARNING: "do_check_likely" [net/netfilter/x_tables.ko] undefined!
+WARNING: "do_check_likely" [net/key/af_key.ko] undefined!
+WARNING: "do_check_likely" [kernel/rcutorture.ko] undefined!
+WARNING: "do_check_likely" [fs/xfs/xfs.ko] undefined!
+WARNING: "do_check_likely" [fs/sysv/sysv.ko] undefined!
+WARNING: "do_check_likely" [fs/reiserfs/reiserfs.ko] undefined!
+WARNING: "do_check_likely" [fs/ntfs/ntfs.ko] undefined!
+WARNING: "do_check_likely" [fs/minix/minix.ko] undefined!
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ lib/likely_prof.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- linux-2619-rc5mm2.orig/lib/likely_prof.c
++++ linux-2619-rc5mm2/lib/likely_prof.c
+@@ -10,6 +10,7 @@
+  */
+ 
+ #include <linux/init.h>
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/fs.h>
+ #include <linux/seq_file.h>
+@@ -50,6 +51,7 @@ int do_check_likely(struct likeliness *l
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL(do_check_likely);
+ 
+ static void * lp_seq_start(struct seq_file *out, loff_t *pos)
+ {
+
+
+---

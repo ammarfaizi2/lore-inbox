@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754665AbWKRO0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754761AbWKROjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754665AbWKRO0U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 09:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754709AbWKRO0U
+	id S1754761AbWKROjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 09:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754768AbWKROjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 09:26:20 -0500
-Received: from smtpout04-04.prod.mesa1.secureserver.net ([64.202.165.199]:49605
-	"HELO smtpout04-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1754665AbWKRO0U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 09:26:20 -0500
-Message-ID: <455F180A.9080301@seclark.us>
-Date: Sat, 18 Nov 2006 09:26:18 -0500
-From: Stephen Clark <Stephen.Clark@seclark.us>
-Reply-To: Stephen.Clark@seclark.us
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ismail Donmez <ismail@pardus.org.tr>
-CC: jketreno@linux.intel.com, linux-kernel@vger.kernel.org
-Subject: Re: IEEE80211 and IPW3945
-References: <20061118102056.GA4492@gimli> <200611181449.53483.ismail@pardus.org.tr>
-In-Reply-To: <200611181449.53483.ismail@pardus.org.tr>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 18 Nov 2006 09:39:11 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:42259 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1754761AbWKROjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 09:39:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=EYkKvXkMWkF4BMv7HXxD07DetnWIeCsGoT6iH0cJLzaBIdQtYuWJQ3N5a1i4YTMYD4erP3W0VaXLDzejmjvQXETSsX3oACDMMKrPHcRuiJAIyTXfGL9XSgDRyY9xkqRMID+GUOr+xlAroQ84reTxU35jDIkHQd4rvOCqkMv5Xx4=
+Date: Sat, 18 Nov 2006 17:39:03 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Pavol Gono <palo.gono@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tests of kernel modules
+Message-ID: <20061118143903.GA4974@martell.zuzino.mipt.ru>
+References: <52e895540611171923p425e30feh832c693d7529b6a7@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52e895540611171923p425e30feh832c693d7529b6a7@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ismail Donmez wrote:
-
->18 Kas 2006 Cts 12:20 tarihinde, Martin Lorenz şunları yazmıştı: 
->  
+On Sat, Nov 18, 2006 at 04:23:06AM +0100, Pavol Gono wrote:
+> After resolving http://bugzilla.kernel.org/show_bug.cgi?id=7481
+> I was thinking about possibilities how to prevent such bugs with
+> testing. Usually just few insmods and rmmods show, whether the
+> initialization and cleanup code of module is ok or not.
 >
->>Dear James,
->>
->>I just had some issues when trying to compile ieee80211 1.2.15 together
->>with ipw3945 1.1.2 on the latest kernel tree
->>
->>attached are two patches I had to create to work around it
->>I guess they are self-explanatory :-)
->>    
->>
+> I created a script which do the automatic job of finding all modules
+> and inserting/removing them (see attachment). On my Lifebook E8110,
+> kernel 2.6.18.2, the following modules were problematic:
+> arptable_filter pktgen rfcomm rpcsec_gss_krb5 sdhci xt_NFQUEUE
+> Kernel logs usually say "BUG: unable to handle kernel paging request
+> at virtual address ..." or "BUG: unable to handle kernel NULL pointer
+> dereference at virtual address 00000000".
 >
->I wonder when will ieee80211 tree will be merged to mainline, according to 
->some posts[1] its needed for some devices.
->
->[1] http://www.ubuntuforums.org/showthread.php?t=156930
->
->/ismail
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+> When trying knoppix 5.0.1, my script causes total freeze quickly.
+> Is it worth to report each buggy module to bugzilla?
 
-On Mon, 13 Nov 2006 08:42:55 -0500 Stephen Clark wrote:
-
-
->> can someone tell me why I have to replace the 803.11 stack that is 
->> already in
->> linux 2.6.19 rc5 with the stack at sf.
->  
->
-
-You don't have to.
-The one in .19-rc5 is new enough (the one in .18 too AFAIK)
-
-I have successfully run ipw3945 with FC6 using the ieee80211 stack from the kernel
-I just had to compile with:
- make IEEE80211_API=2 EXTRA_CFLAGS=-DIEEE80211_API_VERSION=2
-
-and ln autoconf.h to config.h
-
-HTH,
-steve
-
-
-
--- 
-
-"They that give up essential liberty to obtain temporary safety, 
-deserve neither liberty nor safety."  (Ben Franklin)
-
-"The course of history shows that as a government grows, liberty 
-decreases."  (Thomas Jefferson)
-
-
+Yes. To mainline bugzilla. or to relevant mailing lists (linux-kernel,
+netdev, ...) Be sure to use latest mainline kernel.
 

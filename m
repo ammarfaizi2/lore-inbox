@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756101AbWKRAjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755847AbWKRAqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756101AbWKRAjS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756113AbWKRAjS
+	id S1755847AbWKRAqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754078AbWKRAqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:39:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55179 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1756101AbWKRAjR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:39:17 -0500
-Date: Sat, 18 Nov 2006 01:38:47 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
-       lwang@redhat.com, dzickus@redhat.com, rjw@sisk.pl
-Subject: Re: [PATCH 9/20] x86_64: 64bit PIC SMP trampoline
-Message-ID: <20061118003847.GB9187@elf.ucw.cz>
-References: <20061117223432.GA15449@in.ibm.com> <20061117224535.GJ15449@in.ibm.com> <20061118002710.GF9188@elf.ucw.cz> <20061118003352.GA4321@in.ibm.com>
+	Fri, 17 Nov 2006 19:46:13 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:35728 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1755847AbWKRAqN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:46:13 -0500
+Message-ID: <455E57BA.7060309@zytor.com>
+Date: Fri, 17 Nov 2006 16:45:46 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061118003352.GA4321@in.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: vgoyal@in.ibm.com
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
+Subject: Re: [PATCH 19/20] x86_64: Extend bzImage protocol for relocatable
+ kernel
+References: <20061117223432.GA15449@in.ibm.com> <20061117225826.GT15449@in.ibm.com> <455E540C.6090202@zytor.com> <20061118003718.GB4321@in.ibm.com>
+In-Reply-To: <20061118003718.GB4321@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2006-11-17 19:33:52, Vivek Goyal wrote:
-> On Sat, Nov 18, 2006 at 01:27:10AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > that long mode is supported.  Asking if long mode is implemented is
-> > > down right silly but we have traditionally had some of these checks,
-> > > and they can't hurt anything.  So when the totally ludicrous happens
-> > > we just might handle it correctly.
-> > 
-> > Well, it is silly, and it is 50 lines of dense assembly. can we get
-> > rid of it or get it shared with bootup version?
-> > 
+Vivek Goyal wrote:
+> On Fri, Nov 17, 2006 at 04:30:04PM -0800, H. Peter Anvin wrote:
+>> Vivek Goyal wrote:
+>>> o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
+>>>  load the protected mode kernel at non-1MB address. Now protected mode
+>>>  component is relocatable and can be loaded at non-1MB addresses.
+>>>
+>>> o As of today kdump uses it to run a second kernel from a reserved memory
+>>>  area.
+>>>
+>>> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+>> Do you have a patch for Documentation/i386/boot.txt as well?
+>>
 > 
-> Hi Pavel,
+> Yes. As documentation is shared between i386 and x86_64, It is already there
+> in Andi's tree and in -mm. I had pushed that with i386 relocatable bzImage
+> changes.
 > 
-> Last patch in the series (patch 20)  already does that. That patch just
-> puts all the assembly at one place which everybody shares. 
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc5/2.6.19-rc5-mm2/broken-out/x86_64-mm-extend-bzimage-protocol-for-relocatable-protected-mode-kernel.patch
 > 
-> I know it is bad to introduce and delete your own code, but I kept that
-> patch as last patch as all the other patches have got fair bit of testing
-> in RHEL kernels and I wanted to make sure that if last patch breaks something
-> problem can be isolated relatively easily.
 
-Ahha, okay. ACK, then.
-								Pavel
+Your documentation change is buggy.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+The fields at 0230/4 and 0234/1 are 2.05+ not 2.04+
+
+Please fix, also please update the last revision date.
+
+	-hpa

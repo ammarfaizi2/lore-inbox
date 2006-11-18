@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756305AbWKRMfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754301AbWKRMc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756305AbWKRMfM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 07:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756312AbWKRMfD
+	id S1754301AbWKRMc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 07:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754525AbWKRMc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 07:35:03 -0500
-Received: from lugor.de ([212.112.242.222]:36801 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1756305AbWKRMfB (ORCPT
+	Sat, 18 Nov 2006 07:32:29 -0500
+Received: from smtp-out3.iol.cz ([194.228.2.91]:35029 "EHLO smtp-out3.iol.cz")
+	by vger.kernel.org with ESMTP id S1754301AbWKRMc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 07:35:01 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Martin Lorenz <martin@lorenz.eu.org>
-Subject: Re: IEEE80211 and IPW3945
-Date: Sat, 18 Nov 2006 13:31:40 +0100
-User-Agent: KMail/1.9.5
-Cc: jketreno@linux.intel.com, linux-kernel@vger.kernel.org
-References: <20061118102056.GA4492@gimli>
-In-Reply-To: <20061118102056.GA4492@gimli>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Sat, 18 Nov 2006 07:32:29 -0500
+Message-ID: <455EFD37.4080100@stud.feec.vutbr.cz>
+Date: Sat, 18 Nov 2006 13:31:51 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1468166.5ol7sJaUzv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-rt3, yum repo
+References: <20061117200357.GA736@elte.hu>
+In-Reply-To: <20061117200357.GA736@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611181331.44937.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Sat, 18 Nov 2006 13:31:45 +0100 (CET)
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1468166.5ol7sJaUzv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ingo Molnar wrote:
 
-On Saturday 18 November 2006 11:20, Martin Lorenz wrote:
-> Dear James,
->
-> I just had some issues when trying to compile ieee80211 1.2.15 together
-> with ipw3945 1.1.2 on the latest kernel tree
->
-> attached are two patches I had to create to work around it
-> I guess they are self-explanatory :-)
+> i've released the 2.6.18-rc6-rt3 tree
+Hi Ingo,
+lockdep doesn't compile on UP. per_cpu_offset only makes sense on SMP.
 
-I think you should not recreate linux/config.h but remove the reference to=
-=20
-it...
-=2D-=20
-Regards,
-Christian
+Michal
 
---nextPart1468166.5ol7sJaUzv
-Content-Type: application/pgp-signature
+diff --git a/kernel/lockdep.c b/kernel/lockdep.c
+index 8f6ba22..d46082d 100644
+--- a/kernel/lockdep.c
++++ b/kernel/lockdep.c
+@@ -1194,8 +1194,13 @@ register_lock_class(struct lockdep_map *
+  	 */
+ 	if (!static_obj(lock->key)) {
+ 		debug_locks_off();
++#ifdef CONFIG_SMP
+ 		printk("INFO: trying to register non-static key %p (%016lx).\n",
+ 			lock->key, per_cpu_offset(raw_smp_processor_id()));
++#else
++		printk("INFO: trying to register non-static key %p.\n",
++			lock->key);
++#endif
+ 		printk("the code is fine but needs lockdep annotation.\n");
+ 		printk("turning off the locking correctness validator.\n");
+ 		dump_stack();
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFXv0wlZfG2c8gdSURAnrzAJ4sESveZ70t1KQS9zOxBn8OBrI8+ACg7hEw
-V7s96kfZmCgltnbzqFgG0BM=
-=9Qbb
------END PGP SIGNATURE-----
-
---nextPart1468166.5ol7sJaUzv--

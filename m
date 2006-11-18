@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756192AbWKRG5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756193AbWKRG6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756192AbWKRG5d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 01:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756193AbWKRG5c
+	id S1756193AbWKRG6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 01:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756195AbWKRG6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 01:57:32 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:61672 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1756192AbWKRG5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 01:57:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ZY86/5GaI1xLXzIefrgCx1A/MAYH3ruVKgWpMen9LsMxJR1s4jrketCWGgUiokb4EdcLSCQwS0wMsXDNApoKmC413tzntxIB+UL6uyMotdyuQ6fl6yHo/CKUo2bzxVqp6pgjk8JTNrb7Tq2YsN3g0bP80RGz+yM3X44ABTZNwXQ=
-Date: Sat, 18 Nov 2006 15:51:44 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] input: make serio_register_driver() return error code
-Message-ID: <20061118065144.GA3093@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Dmitry Torokhov <dtor@insightbb.com>, linux-kernel@vger.kernel.org
-References: <20061107120605.GA13896@localhost> <d120d5000611070620l5a0731d8jd5778bc8c8b49b2b@mail.gmail.com> <20061108123636.GA14871@localhost> <200611170137.35955.dtor@insightbb.com>
+	Sat, 18 Nov 2006 01:58:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:41947 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1756193AbWKRG6P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 01:58:15 -0500
+Date: Sat, 18 Nov 2006 07:56:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC: 2.6 patch] remove kernel/lockdep.c:lockdep_internal
+Message-ID: <20061118065650.GA32226@elte.hu>
+References: <20061117235833.GO31879@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611170137.35955.dtor@insightbb.com>
+In-Reply-To: <20061117235833.GO31879@stusta.de>
 User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -3.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.7 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_40 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-1.1 BAYES_40               BODY: Bayesian spam probability is 20 to 40%
+	[score: 0.3770]
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 01:37:34AM -0500, Dmitry Torokhov wrote:
-> I think I found a way to handle all errors when registering serio driver.
-> What do you think about the patch below?
+
+* Adrian Bunk <bunk@stusta.de> wrote:
+
+> This patch removes the no longer used lockdep_internal().
 > 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Looks good to me.
-I also tested this patch with my patch 2/4 (which actually checking
-the return code of serio_register_driver() for each input driver).
+agreed.
 
-Acked-by: Akinobu Mita <akinobu.mita@gmail.com>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756379AbWKRTDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756377AbWKRTCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756379AbWKRTDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 14:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756383AbWKRTDG
+	id S1756377AbWKRTCl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 14:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756378AbWKRTCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 14:03:06 -0500
-Received: from ms-smtp-04.rdc-kc.rr.com ([24.94.166.116]:58784 "EHLO
-	ms-smtp-04.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S1756379AbWKRTDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 14:03:03 -0500
-Message-ID: <455F58AC.3030801@lwfinger.net>
-Date: Sat, 18 Nov 2006 13:02:04 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Ray Lee <ray-lk@madrabbit.org>
-CC: Johannes Berg <johannes@sipsolutions.net>,
-       Joseph Fannin <jhf@columbus.rr.com>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Michael Buesch <mb@bu3sch.de>, Bcm43xx-dev@lists.berlios.denunk,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-References: <455B63EC.8070704@madrabbit.org> <20061118112438.GB15349@nineveh.rivenstone.net> <1163868955.27188.2.camel@johannes.berg> <455F3D44.4010502@lwfinger.net> <455F4271.1060405@madrabbit.org>
-In-Reply-To: <455F4271.1060405@madrabbit.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 14:02:41 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:24034 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1756376AbWKRTCk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 14:02:40 -0500
+Date: Sat, 18 Nov 2006 22:02:17 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Jens Axboe <jens.axboe@oracle.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061118190217.GB163@oleg>
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118002845.GF2632@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Lee wrote:
-> Larry Finger wrote:
->> Johannes Berg wrote:
->>> Hah, that's a lot more plausible than bcm43xx's drain patch actually
->>> causing this. So maybe somehow interrupts for bcm43xx aren't routed
->>> properly or something...
->>>
->>> Ray, please check /proc/interrupts when this happens.
-> 
-> When it happens, I can't. The keyboard is entirely dead (I'm in X, perhaps at
-> a console it would be okay). The only thing that works is magic SysRq. even
-> ctrl-alt-f1 to get to a console doesn't work.
-> 
-> That said, /proc/interrupts doesn't show MSI routed things on my AMD64 laptop.
-> 
->>> I am convinced that the patch in question (drain tx status) is not
->>> causing this -- the patch should be a no-op in most cases anyway, and in
->>> those cases where it isn't a no-op it'll run only once at card init and
->>> remove some things from a hardware-internal FIFO.
-> 
-> Okay, I can buy that.
-> 
->> I agree that drain tx status should not cause the problem.
->>
->> Ray, does -rc6 solve your problem as it did for Joseph?
-> 
-> I can't get it to repeat other than the first two times. However, I
-> accidentally stopped NetworkManager from handling my wireless a few days ago,
-> and haven't restarted it, so that may play into this.
-> 
-> Humor me one last time, I beg. Did you look at the messages file I posted? (Or
-> maybe I didn't include this second bit... Damn, I need to be more careful with
-> cutting and pasting...)
+On 11/17, Paul E. McKenney wrote:
+>
+>  int srcu_read_lock(struct srcu_struct *sp)
+>  {
+>  	int idx;
+> +	struct srcu_struct_array *sap;
+>  
+>  	preempt_disable();
+>  	idx = sp->completed & 0x1;
+> -	barrier();  /* ensure compiler looks -once- at sp->completed. */
+> -	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]++;
+> -	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+> +	sap = rcu_dereference(sp->per_cpu_ref);
+> +	if (likely(sap != NULL)) {
+> +		barrier();  /* ensure compiler looks -once- at sp->completed. */
+> +		per_cpu_ptr(rcu_dereference(sap),
+> +			    smp_processor_id())->c[idx]++;
+> +		smp_mb();
+> +		preempt_enable();
+> +		return idx;
+> +	}
+> +	if (mutex_trylock(&sp->mutex)) {
+> +		preempt_enable();
+> +		if (sp->per_cpu_ref == NULL)
+> +			sp->per_cpu_ref = alloc_srcu_struct_percpu();
+> +		if (sp->per_cpu_ref == NULL) {
+> +			atomic_inc(&sp->hardluckref);
+> +			mutex_unlock(&sp->mutex);
+> +			return -1;
+> +		}
+> +		mutex_unlock(&sp->mutex);
+> +		return srcu_read_lock(sp);
+> +	}
+>  	preempt_enable();
+> -	return idx;
+> +	atomic_inc(&sp->hardluckref);
+> +	return -1;
+>  }
 
-The locking stuff wasn't in any of the messages that I received.
+This is a real nitpick, but in theory we have a possibility for the livelock.
 
-> The second sysrq-t shows locking stuff going on, can you tell me if it looks
-> reasonable? It still seems to me that something acquiring and not releasing
-> rtnl_lock explains what I was seeing (rtnl lock is implicated in both sysrq-t
-> backtraces). I don't know if that thing is bcm43xx, though.
-> 
-> Is this part reasonable?:
->  1 lock held by events/0/4:
->   #0:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
->  2 locks held by NetworkManager/4837:
->   #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
->   #1:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
->  1 lock held by wpa_supplicant/5953:
->   #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+Suppose that synchronize_srcu() takes sp->mutex and fails to allocate
+sp->per_cpu_ref. If we have a flow of srcu_read_lock/srcu_read_unlock,
+this loop in synchronize_srcu()
 
-I'm not an expert on locking, but it certainly looks as if bcm43xx and wpa_supplicant are OK by 
-themselves, but that NetworkManager interferes. This behavior matches what I see - I don't have 
-NetworkManager on my system, but I do use wpa_supplicant, with no lockups. Of course, I have i386 
-architecture.
+  	while (srcu_readers_active_idx(sp, idx))
+  		schedule_timeout_interruptible(1);
 
-Although NetworkManager may be the catalyst to trigger the bug, I doubt that it is the cause. 
-Strictly as a guess, I would suspect that the locking problem is in SoftMAC, where we know there can 
-be locking difficulties, but no one is fixing them because EOL is near for that component.
+may spin unpredictably long, because we use the same sp->hardluckref for
+accounting.
 
-Larry
+Oleg.
+

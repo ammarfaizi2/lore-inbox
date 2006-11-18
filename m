@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756364AbWKRSaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755317AbWKRSr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756364AbWKRSaG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 13:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756366AbWKRSaG
+	id S1755317AbWKRSr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 13:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755318AbWKRSr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 13:30:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32015 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1756364AbWKRSaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 13:30:03 -0500
-Date: Sat, 18 Nov 2006 19:30:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Larry Finger <Larry.Finger@lwfinger.net>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Joseph Fannin <jhf@columbus.rr.com>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-       John Linville <linville@tuxdriver.com>, Michael Buesch <mb@bu3sch.de>,
-       Bcm43xx-dev@lists.berlios.de
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-Message-ID: <20061118183001.GY31879@stusta.de>
-References: <455B63EC.8070704@madrabbit.org> <20061118112438.GB15349@nineveh.rivenstone.net> <1163868955.27188.2.camel@johannes.berg> <455F3D44.4010502@lwfinger.net> <455F4271.1060405@madrabbit.org>
-MIME-Version: 1.0
+	Sat, 18 Nov 2006 13:47:26 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:51343 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1755317AbWKRSrZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 13:47:25 -0500
+Date: Sat, 18 Nov 2006 21:46:24 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Jens Axboe <jens.axboe@oracle.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061118184624.GA163@oleg>
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <455F4271.1060405@madrabbit.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061118002845.GF2632@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2006 at 09:27:13AM -0800, Ray Lee wrote:
-> Larry Finger wrote:
-> > Johannes Berg wrote:
-> >> Hah, that's a lot more plausible than bcm43xx's drain patch actually
-> >> causing this. So maybe somehow interrupts for bcm43xx aren't routed
-> >> properly or something...
-> >>
-> >> Ray, please check /proc/interrupts when this happens.
+On 11/17, Paul E. McKenney wrote:
+>
+> Oleg, any thoughts about Jens's optimization?  He would code something
+> like:
 > 
-> When it happens, I can't. The keyboard is entirely dead (I'm in X, perhaps at
-> a console it would be okay). The only thing that works is magic SysRq. even
-> ctrl-alt-f1 to get to a console doesn't work.
-> 
-> That said, /proc/interrupts doesn't show MSI routed things on my AMD64 laptop.
->...
+> 	if (srcu_readers_active(&my_srcu))
+> 		synchronize_srcu();
+> 	else
+> 		smp_mb();
 
-If there is any interrupt related problem involved, it should be visible 
-from dmesg.
+Well, this is clearly racy, no? I am not sure, but may be we can do
 
-Can you send the complete dmesg's from -rc3, -rc5 and -rc6?
+	smp_mb();
+	if (srcu_readers_active(&my_srcu))
+		synchronize_srcu();
 
-> Ray
+in this case we also need to add 'smp_mb()' into srcu_read_lock() after
+'atomic_inc(&sp->hardluckref)'.
 
-cu
-Adrian
+> However, he is doing ordered I/O requests rather than protecting data
+> structures.
 
--- 
+Probably this makes a difference, but I don't understand this.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Oleg.
 

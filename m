@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756398AbWKRTct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756397AbWKRTeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756398AbWKRTct (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 14:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756399AbWKRTct
+	id S1756397AbWKRTeg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 14:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756400AbWKRTeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 14:32:49 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:57495 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1756397AbWKRTct (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 14:32:49 -0500
-Date: Sat, 18 Nov 2006 20:31:50 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Folkert van Heusden <folkert@vanheusden.com>
-cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] emit logging when a process receives a fatal signal
-In-Reply-To: <20061118133205.GE31268@vanheusden.com>
-Message-ID: <Pine.LNX.4.61.0611182030360.10940@yvahk01.tjqt.qr>
-References: <200611181146.kAIBkW52028010@harpo.it.uu.se>
- <20061118133205.GE31268@vanheusden.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sat, 18 Nov 2006 14:34:36 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:57755 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1756397AbWKRTef
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 14:34:35 -0500
+Date: Sat, 18 Nov 2006 22:34:26 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061118193426.GC163@oleg>
+References: <20061118002845.GF2632@us.ibm.com> <Pine.LNX.4.44L0.0611181054470.28058-100000@netrider.rowland.org> <20061118171410.GB4427@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118171410.GB4427@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> 4. If this is about detecting the loss of specific processes
->>    (network services say), then the problem can be solved in
->>    user-space by using a separate monitor process, or by
->>    controlling the processes via ptrace.
+On 11/18, Paul E. McKenney wrote:
 >
->No not only for specific processes. It helps you detect problems with
->processes you dind't know they have bugs and flakey hardware (sig 11).
+> On Sat, Nov 18, 2006 at 11:15:27AM -0500, Alan Stern wrote:
+> > > +			    smp_processor_id())->c[idx]++;
+> > > +		smp_mb();
+> > > +		preempt_enable();
+> > > +		return idx;
+> > > +	}
+> > > +	if (mutex_trylock(&sp->mutex)) {
+> > > +		preempt_enable();
+> > 
+> > Move the preempt_enable() before the "if", then get rid of the
+> > preempt_enable() after the "if" block.
+> 
+> No can do.  The preempt_enable() must follow the increment and
+> the memory barrier, otherwise the synchronize_sched() inside
+> synchronize_srcu() can't do its job.
 
-Write an LSM module that hooks ->task_kill. It's probably the most 
-beautiful and non-intrusive solution in the set of possible solutions.
+Given that srcu_read_lock() does smp_mb() after ->c[idx]++, what
+is the purpose of synchronize_srcu() ? It seems to me it could be
+replaced by smp_mb().
 
+synchronize_srcu:
 
+	sp->completed++;
 
-	-`J'
--- 
+	mb();
+
+	// if the reader did any memory access _after_
+	// srcu_read_lock()->mb() we must see the changes.
+	while (srcu_readers_active_idx(sp, idx))
+		sleep();
+
+No?
+
+Oleg.
+

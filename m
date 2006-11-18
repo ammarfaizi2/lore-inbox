@@ -1,54 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754301AbWKRMc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754549AbWKRMnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754301AbWKRMc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 07:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754525AbWKRMc3
+	id S1754549AbWKRMnP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 07:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754550AbWKRMnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 07:32:29 -0500
-Received: from smtp-out3.iol.cz ([194.228.2.91]:35029 "EHLO smtp-out3.iol.cz")
-	by vger.kernel.org with ESMTP id S1754301AbWKRMc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 07:32:29 -0500
-Message-ID: <455EFD37.4080100@stud.feec.vutbr.cz>
-Date: Sat, 18 Nov 2006 13:31:51 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-rt3, yum repo
-References: <20061117200357.GA736@elte.hu>
-In-Reply-To: <20061117200357.GA736@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 07:43:15 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:18069 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S1754549AbWKRMnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 07:43:14 -0500
+Date: Sat, 18 Nov 2006 15:45:47 +0300
+Message-Id: <200611181245.kAICjlDb024887@vass.7ka.mipt.ru>
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: OpenVZ Developers Mailing List <devel@openvz.org>
+From: Vasily Tarasov <vtaras@openvz.org>
+Subject: [PATCH] mounstats NULL pointer dereference
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (mailer.campus.mipt.ru [194.85.82.4]); Sat, 18 Nov 2006 15:43:43 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+OpenVZ developers team has encountered the following problem in 2.6.19-rc6 
+kernel. After some seconds of running script 
 
-> i've released the 2.6.18-rc6-rt3 tree
-Hi Ingo,
-lockdep doesn't compile on UP. per_cpu_offset only makes sense on SMP.
+while [[ 1 ]]
+do
+	find  /proc -name mountstats | xargs cat
+done
 
-Michal
+this Oops appears:
 
-diff --git a/kernel/lockdep.c b/kernel/lockdep.c
-index 8f6ba22..d46082d 100644
---- a/kernel/lockdep.c
-+++ b/kernel/lockdep.c
-@@ -1194,8 +1194,13 @@ register_lock_class(struct lockdep_map *
-  	 */
- 	if (!static_obj(lock->key)) {
- 		debug_locks_off();
-+#ifdef CONFIG_SMP
- 		printk("INFO: trying to register non-static key %p (%016lx).\n",
- 			lock->key, per_cpu_offset(raw_smp_processor_id()));
-+#else
-+		printk("INFO: trying to register non-static key %p.\n",
-+			lock->key);
-+#endif
- 		printk("the code is fine but needs lockdep annotation.\n");
- 		printk("turning off the locking correctness validator.\n");
- 		dump_stack();
+BUG: unable to handle kernel NULL pointer dereference at virtual address
+00000010
+ printing eip:
+c01a6b70
+*pde = 00000000
+Oops: 0000 [#1]
+SMP
+Modules linked in: xt_length ipt_ttl xt_tcpmss ipt_TCPMSS iptable_mangle
+iptable_filter xt_multiport xt_limit ipt_tos ipt_REJECT ip_tables x_tables
+parport_pc lp parport sunrpc af_packet thermal processor fan button battery
+asus_acpi ac ohci_hcd ehci_hcd usbcore i2c_nforce2 i2c_core tg3 floppy
+pata_amd
+ide_cd cdrom sata_nv libata
+CPU:    1
+EIP:    0060:[<c01a6b70>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.19-rc6 #2)
+EIP is at mountstats_open+0x70/0xf0
+eax: 00000000   ebx: e6247030   ecx: e62470f8   edx: 00000000
+esi: 00000000   edi: c01a6b00   ebp: c33b83c0   esp: f4105eb4
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 6044, ti=f4105000 task=f4104a70 task.ti=f4105000)
+Stack: c33b83c0 c04ee940 f46a4a80 c33b83c0 e4df31b4 c01a6b00 f4105000 c0169231
+       e4df31b4 c33b83c0 c33b83c0 f4105f20 00000003 f4105000 c0169445 f2503cf0
+       f7f8c4c0 00008000 c33b83c0 00000000 00008000 c0169350 f4105f20 00008000
+Call Trace:
+ [<c01a6b00>] mountstats_open+0x0/0xf0
+ [<c0169231>] __dentry_open+0x181/0x250
+ [<c0169445>] nameidata_to_filp+0x35/0x50
+ [<c0169350>] do_filp_open+0x50/0x60
+ [<c01873d6>] seq_read+0xc6/0x300
+ [<c0169511>] get_unused_fd+0x31/0xc0
+ [<c01696d3>] do_sys_open+0x63/0x110
+ [<c01697a7>] sys_open+0x27/0x30
+ [<c01030bd>] sysenter_past_esp+0x56/0x79
+ =======================
+Code: 45 74 8b 54 24 20 89 44 24 08 8b 42 f0 31 d2 e8 47 cb f8 ff 85 c0 89 c3
+74 51 8d 80 a0 04 00 00 e8 46 06 2c 00 8b 83 48 04 00 00 <8b> 78 10 85 ff 74
+03
+f0 ff 07 b0 01 86 83 a0 04 00 00 f0 ff 4b
+EIP: [<c01a6b70>] mountstats_open+0x70/0xf0 SS:ESP 0068:f4105eb4
 
+The problem is that task->nsproxy can be equal NULL for some time during
+task exit. This patch fixes the BUG.
 
+Signed-off-by: Vasily Tarasov <vtaras@openvz.org>
+
+--
+
+--- ./fs/proc/base.c.mountstatsfix	2006-11-18 02:43:48.000000000 +0300
++++ ./fs/proc/base.c	2006-11-18 03:11:41.000000000 +0300
+@@ -442,7 +442,8 @@
+ 
+ 		if (task) {
+ 			task_lock(task);
+-			namespace = task->nsproxy->namespace;
++			if (task->nsproxy)
++				namespace = task->nsproxy->namespace;
+ 			if (namespace)
+ 				get_namespace(namespace);
+ 			task_unlock(task);
+--- ./include/linux/nsproxy.h.mountstatsfix	2006-11-18 02:43:51.000000000 +0300
++++ ./include/linux/nsproxy.h	2006-11-18 03:15:25.000000000 +0300
+@@ -45,8 +45,10 @@
+ {
+ 	struct nsproxy *ns = p->nsproxy;
+ 	if (ns) {
+-		put_nsproxy(ns);
++		task_lock(p);
+ 		p->nsproxy = NULL;
++		task_unlock(p);
++		put_nsproxy(ns);
+ 	}
+ }
+ #endif

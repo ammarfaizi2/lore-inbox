@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755327AbWKRTH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755326AbWKRTG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755327AbWKRTH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 14:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755330AbWKRTH2
+	id S1755326AbWKRTG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 14:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755327AbWKRTG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 14:07:28 -0500
-Received: from [87.69.65.201] ([87.69.65.201]:40874 "EHLO psybear.com")
-	by vger.kernel.org with ESMTP id S1755322AbWKRTH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 14:07:27 -0500
-From: Dror Levin <spatz@psybear.com>
-To: linux-kernel@vger.kernel.org
-Subject: boot from efi on x86_64
-Date: Sat, 18 Nov 2006 21:07:03 +0200
-User-Agent: KMail/1.9.5
+	Sat, 18 Nov 2006 14:06:58 -0500
+Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:47574 "EHLO
+	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S1755326AbWKRTG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 14:06:57 -0500
+Message-ID: <455F59BB.6060204@lwfinger.net>
+Date: Sat, 18 Nov 2006 13:06:35 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Chris Wright <chrisw@sous-sol.org>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org, mb@bu3sch.de,
+       greg@kroah.com, "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: [patch 07/30] bcm43xx: Drain TX status before starting IRQs
+References: <20061116024332.124753000@sous-sol.org> <20061116024511.458086000@sous-sol.org>
+In-Reply-To: <20061116024511.458086000@sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611182107.03667.spatz@psybear.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-looking at the kernel source, after constant failures to boot linux on a core 
-2 imac, has made me understand that only i386 and ia64 support efi booting, 
-but x86_64 does not.
-it makes sense, if you think about it... AFAIK, until the new core 2 imacs 
-were out there was no x86_64 efi pc, so why should the kernel support it?
-i would like to ask that the efi boot code be ported to x86_64 and so people 
-would not have to use boot camp and bios emulation to boot linux on new 
-imacs.
+Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> From: Michael Buesch <mb@bu3sch.de>
+> 
+> Drain the Microcode TX-status-FIFO before we enable IRQs.
+> This is required, because the FIFO may still have entries left
+> from a previous run. Those would immediately fire after enabling
+> IRQs and would lead to an oops in the DMA TXstatus handling code.
+> 
+> Cc: "John W. Linville" <linville@tuxdriver.com>
+> Signed-off-by: Michael Buesch <mb@bu3sch.de>
+> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> ---
 
-thank you for your time and help.
+Chris,
 
-P.S.
-i'm not currently subscribed to the lkml, so please CC me when you reply.
+The regression turns out to be a locking problem involving bcm43xx, wpa_supplicant, and 
+NetworkManager. The exact cause is unknown; however, this patch is clearly not the problem. Please 
+reinstate it for inclusion in -stable.
+
+Thanks,
+
+Larry
+
+

@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756397AbWKRTeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756412AbWKRTzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756397AbWKRTeg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 14:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756400AbWKRTeg
+	id S1756412AbWKRTzW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 14:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756410AbWKRTzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 14:34:36 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:57755 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1756397AbWKRTef
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 14:34:35 -0500
-Date: Sat, 18 Nov 2006 22:34:26 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061118193426.GC163@oleg>
-References: <20061118002845.GF2632@us.ibm.com> <Pine.LNX.4.44L0.0611181054470.28058-100000@netrider.rowland.org> <20061118171410.GB4427@us.ibm.com>
-Mime-Version: 1.0
+	Sat, 18 Nov 2006 14:55:22 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9744 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1755243AbWKRTzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 14:55:20 -0500
+Date: Sat, 18 Nov 2006 20:55:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>
+Cc: adaplas@pol.net, James Simmons <jsimmons@infradead.org>,
+       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       geert@linux-m68k.org, zippel@linux-m68k.org, linux-m68k@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove broken video drivers
+Message-ID: <20061118195519.GZ31879@stusta.de>
+References: <20061118000235.GV31879@stusta.de> <Pine.LNX.4.58.0611181132230.7667@xplor.biophys.uni-duesseldorf.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061118171410.GB4427@us.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.58.0611181132230.7667@xplor.biophys.uni-duesseldorf.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/18, Paul E. McKenney wrote:
->
-> On Sat, Nov 18, 2006 at 11:15:27AM -0500, Alan Stern wrote:
-> > > +			    smp_processor_id())->c[idx]++;
-> > > +		smp_mb();
-> > > +		preempt_enable();
-> > > +		return idx;
-> > > +	}
-> > > +	if (mutex_trylock(&sp->mutex)) {
-> > > +		preempt_enable();
-> > 
-> > Move the preempt_enable() before the "if", then get rid of the
-> > preempt_enable() after the "if" block.
+On Sat, Nov 18, 2006 at 11:34:41AM +0100, Michael Schmitz wrote:
+> On Sat, 18 Nov 2006, Adrian Bunk wrote:
 > 
-> No can do.  The preempt_enable() must follow the increment and
-> the memory barrier, otherwise the synchronize_sched() inside
-> synchronize_srcu() can't do its job.
+> > This patch removes video drivers that:
+> > - had already been marked as BROKEN in 2.6.0 three years ago and
+> > - are still marked as BROKEN.
+> >
+> > These are the following drivers:
+> > - FB_CYBER
+> > - FB_VIRGE
+> > - FB_RETINAZ3
+> > - FB_ATARI
+> 
+> FB_ATARI has just been revived. Geert has a preliminary patch; I'll send
+> the final one soonish.
 
-Given that srcu_read_lock() does smp_mb() after ->c[idx]++, what
-is the purpose of synchronize_srcu() ? It seems to me it could be
-replaced by smp_mb().
+Thanks for this information.
 
-synchronize_srcu:
+Are any of the following Atari options that are also on my
+"BROKEN since at least 2.6.0" list also being revived?
 
-	sp->completed++;
+- HADES (arch/m68k/Kconfig)
+- ATARI_ACSI (drivers/net/Kconfig)
+- ATARI_BIONET (drivers/net/Kconfig)
+- ATARI_PAMSNET (drivers/net/Kconfig)
+- ATARI_SCSI (drivers/scsi/Kconfig)
 
-	mb();
+> 	Michael
 
-	// if the reader did any memory access _after_
-	// srcu_read_lock()->mb() we must see the changes.
-	while (srcu_readers_active_idx(sp, idx))
-		sleep();
+cu
+Adrian
 
-No?
+-- 
 
-Oleg.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

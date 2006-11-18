@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756180AbWKRGmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754084AbWKRGuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756180AbWKRGmX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 01:42:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756184AbWKRGmX
+	id S1754084AbWKRGuD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 01:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754096AbWKRGuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 01:42:23 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:55252 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1756180AbWKRGmX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 01:42:23 -0500
-Message-ID: <455EAB28.9000500@zytor.com>
-Date: Fri, 17 Nov 2006 22:41:44 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sat, 18 Nov 2006 01:50:03 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:27827 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1754084AbWKRGuA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 01:50:00 -0500
+Date: Sat, 18 Nov 2006 07:49:49 +0100
+From: Andi Kleen <ak@suse.de>
+To: LKML <linux-kernel@vger.kernel.org>, olecom@flower.upol.cz,
+       vgoyal@in.ibm.com, Reloc Kernel List <fastboot@lists.osdl.org>,
+       ebiederm@xmission.com, akpm@osdl.org, ak@suse.de, hpa@zytor.com,
+       magnus.damm@gmail.com, lwang@redhat.com, dzickus@redhat.com,
+       pavel@suse.cz, rjw@sisk.pl
+Subject: Re: [PATCH 18/20] x86_64: Relocatable kernel support
+Message-ID: <20061118064949.GH30547@bingen.suse.de>
+References: <20061117223432.GA15449@in.ibm.com> <20061117225718.GS15449@in.ibm.com> <slrnelt84v.dd3.olecom@flower.upol.cz>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>, olecom@flower.upol.cz,
-       vgoyal@in.ibm.com, akpm@osdl.org, rjw@sisk.pl, ebiederm@xmission.com,
-       Reloc Kernel List <fastboot@lists.osdl.org>, pavel@suse.cz,
-       magnus.damm@gmail.com
-Subject: Re: [PATCH 20/20] x86_64: Move CPU verification code to common file
-References: <20061117223432.GA15449@in.ibm.com> <20061117225953.GU15449@in.ibm.com> <slrnelt6h7.dd3.olecom@flower.upol.cz> <20061118063802.GE30547@bingen.suse.de>
-In-Reply-To: <20061118063802.GE30547@bingen.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrnelt84v.dd3.olecom@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> May hang be done optional? There was a discussion about applying
->> "panic" reboot timeout here. Is it possible to implement somehow?
+On Sat, Nov 18, 2006 at 05:56:47AM +0000, Oleg Verych wrote:
 > 
-> It would be tricky, but might be possible.  But that would be a completely
-> new feature -- the kernel has always hung in this case. If you think you need 
-> it submit a (followup) patch. But I don't think it's fair to ask Vivek to do it.
+> On 2006-11-17, Vivek Goyal wrote:
+> []
+> >  static void error(char *x)
+> > @@ -281,57 +335,8 @@ static void error(char *x)
+> >  	while(1);	/* Halt */
+> >  }
 > 
-> Besides i don't think it would be any useful. panic reboot only
-> makes sense if you can recover after reboot. But if your CPU somehow
-> suddenly loses its ability to run 64bit code, no reboot of the world will 
-> recover.
-> 
+> Is it possible to make this optional (using "panic" reboot timeout)?
 
-Not true.  Some bootloaders support a fallback kernel.  This case is 
-particular important if one accidentally installs the wrong kernel for 
-the machine.
+There is no command line parsing at this point. I guess it would
+be possible to implement, but some work. Do you want to submit a patch ?
 
-	-hpa
+-Andi

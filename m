@@ -1,96 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753973AbWKRF6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755992AbWKRGAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753973AbWKRF6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 00:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753976AbWKRF6Y
+	id S1755992AbWKRGAK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 01:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755993AbWKRGAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 00:58:24 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:55285 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1753973AbWKRF6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 00:58:23 -0500
-Date: Fri, 17 Nov 2006 21:52:40 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: ak@suse.de, akpm <akpm@osdl.org>
-Subject: [PATCH -mm] handle BUG=n
-Message-Id: <20061117215240.cd49870d.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sat, 18 Nov 2006 01:00:09 -0500
+Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:64099
+	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
+	with ESMTP id S1755992AbWKRGAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 01:00:07 -0500
+Date: Fri, 17 Nov 2006 21:57:46 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
+       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
+       David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       manfred@colorfullife.com, oleg@tv-sign.ru
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061118055746.GB6059@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20061118003859.GG2632@us.ibm.com> <Pine.LNX.4.44L0.0611172318180.8754-100000@netrider.rowland.org> <20061117205103.847081a4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061117205103.847081a4.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+On Fri, Nov 17, 2006 at 08:51:03PM -0800, Andrew Morton wrote:
+> On Fri, 17 Nov 2006 23:33:45 -0500 (EST)
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> 
+> > On Fri, 17 Nov 2006, Paul E. McKenney wrote:
+> >
+> > > > Perhaps a better approach to the initialization problem would be to assume
+> > > > that either:
+> > > >
+> > > >     1.  The srcu_struct will be initialized before it is used, or
+> > > >
+> > > >     2.  When it is used before initialization, the system is running
+> > > > 	only one thread.
+> > >
+> > > Are these assumptions valid?  If so, they would indeed simplify things
+> > > a bit.
+> >
+> > I don't know.  Maybe Andrew can tell us -- is it true that the kernel runs
+> > only one thread up through the time the core_initcalls are finished?
+> 
+> I don't see why - a core_initcall could go off and do the
+> multithreaded-pci-probing thing, or it could call kernel_thread() or
+> anything.  I doubt if any core_initcall functions _do_ do that, but there
+> are a lot of them.
+> 
+> > If not, can we create another initcall level that is guaranteed to run
+> > before any threads are spawned?
+> 
+> It's a simple and cheap matter to create a precore_initcall() - one would
+> need to document it carefully to be able to preserve whatever guarantees it
+> needs.
+> 
+> However by the time the initcalls get run, various thing are already
+> happening: SMP is up, the keventd threads are running, the CPU scheduler
+> migration threads are running, ksoftirqd, softlockup-detector, etc.
+> keventd is the problematic one.
+> 
+> So I guess you'd need a new linker section and a call from
+> do_pre_smp_initcalls() or thereabouts.
 
-Handle BUG=n, GENERIC_BUG=n to prevent build errors:
+Hmmm...  OK then, for the moment, I will stick with the current checks
+in the primitives.  Not that I particularly like the "bulking up" of
+srcu_read_lock() and srcu_read_unlock() -- but if the super-fast
+version is needed, it can easily be provided either within the
+confines of the subsystem that needs it, or as yet another set of
+RCU-like primitives.  Hopefully this latter option can be avoided!
 
-arch/x86_64/kernel/built-in.o: In function `die':
-(.text+0x3b3c): undefined reference to `report_bug'
-arch/x86_64/kernel/built-in.o: In function `module_arch_cleanup':
-(.text+0x10b60): undefined reference to `module_bug_cleanup'
-arch/x86_64/kernel/built-in.o: In function `module_finalize':
-(.text+0x10c98): undefined reference to `module_bug_finalize'
+BTW, the reason for the hardluckref is that I don't want to inflict a
+failure return from srcu_read_lock() on you guys.  The non-blocking
+synchronization community has repeatedly made that sort of mistake,
+and I have no intention of letting it propagate any further.  ;-)
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- include/linux/bug.h |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
-
---- linux-2619-rc5mm2.orig/include/linux/bug.h
-+++ linux-2619-rc5mm2/include/linux/bug.h
-@@ -3,6 +3,12 @@
- 
- #include <asm/bug.h>
- 
-+enum bug_trap_type {
-+	BUG_TRAP_TYPE_NONE = 0,
-+	BUG_TRAP_TYPE_WARN = 1,
-+	BUG_TRAP_TYPE_BUG = 2,
-+};
-+
- #ifdef CONFIG_GENERIC_BUG
- #include <linux/module.h>
- #include <asm-generic/bug.h>
-@@ -12,12 +18,6 @@ static inline int is_warning_bug(const s
- 	return bug->flags & BUGFLAG_WARNING;
- }
- 
--enum bug_trap_type {
--	BUG_TRAP_TYPE_NONE = 0,
--	BUG_TRAP_TYPE_WARN = 1,
--	BUG_TRAP_TYPE_BUG = 2,
--};
--
- const struct bug_entry *find_bug(unsigned long bugaddr);
- 
- enum bug_trap_type report_bug(unsigned long bug_addr);
-@@ -29,5 +29,19 @@ void module_bug_cleanup(struct module *)
- /* These are defined by the architecture */
- int is_valid_bugaddr(unsigned long addr);
- 
-+#else	/* !CONFIG_GENERIC_BUG */
-+
-+static inline enum bug_trap_type report_bug(unsigned long bug_addr)
-+{
-+	return BUG_TRAP_TYPE_BUG;
-+}
-+static inline int  module_bug_finalize(const Elf_Ehdr *hdr,
-+					const Elf_Shdr *sechdrs,
-+					struct module *mod)
-+{
-+	return 0;
-+}
-+static inline void module_bug_cleanup(struct module *mod) {}
-+
- #endif	/* CONFIG_GENERIC_BUG */
- #endif	/* _LINUX_BUG_H */
-
-
----
+						Thanx, Paul

@@ -1,122 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755214AbWKRR1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755217AbWKRRat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755214AbWKRR1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 12:27:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755210AbWKRR1Q
+	id S1755217AbWKRRat (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 12:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755216AbWKRRat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 12:27:16 -0500
-Received: from tapsys.com ([72.36.178.242]:37310 "EHLO tapsys.com")
-	by vger.kernel.org with ESMTP id S1755208AbWKRR1P (ORCPT
+	Sat, 18 Nov 2006 12:30:49 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:31429 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1755212AbWKRRar (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 12:27:15 -0500
-Message-ID: <455F4271.1060405@madrabbit.org>
-Date: Sat, 18 Nov 2006 09:27:13 -0800
-From: Ray Lee <ray-lk@madrabbit.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Sat, 18 Nov 2006 12:30:47 -0500
+Date: Sat, 18 Nov 2006 18:25:25 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Divy Le Ray <divy@chelsio.com>" <divy@chelsio.com>
+cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/10] cxgb3 - main header files
+In-Reply-To: <20061117202320.25878.26769.stgit@colfax2.asicdesigners.com>
+Message-ID: <Pine.LNX.4.61.0611181757010.5252@yvahk01.tjqt.qr>
+References: <20061117202320.25878.26769.stgit@colfax2.asicdesigners.com>
 MIME-Version: 1.0
-To: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: Johannes Berg <johannes@sipsolutions.net>,
-       Joseph Fannin <jhf@columbus.rr.com>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-       John Linville <linville@tuxdriver.com>, Michael Buesch <mb@bu3sch.de>,
-       Bcm43xx-dev@lists.berlios.denunk, Adrian Bunk <bunk@stusta.de>
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-References: <455B63EC.8070704@madrabbit.org> <20061118112438.GB15349@nineveh.rivenstone.net> <1163868955.27188.2.camel@johannes.berg> <455F3D44.4010502@lwfinger.net>
-In-Reply-To: <455F3D44.4010502@lwfinger.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry Finger wrote:
-> Johannes Berg wrote:
->> Hah, that's a lot more plausible than bcm43xx's drain patch actually
->> causing this. So maybe somehow interrupts for bcm43xx aren't routed
->> properly or something...
->>
->> Ray, please check /proc/interrupts when this happens.
 
-When it happens, I can't. The keyboard is entirely dead (I'm in X, perhaps at
-a console it would be okay). The only thing that works is magic SysRq. even
-ctrl-alt-f1 to get to a console doesn't work.
+On Nov 17 2006 12:23, Divy Le Ray <divy@chelsio.com> wrote:
+>Subject: [PATCH 1/10] cxgb3 - main header files
 
-That said, /proc/interrupts doesn't show MSI routed things on my AMD64 laptop.
+(For all files)
 
->> I am convinced that the patch in question (drain tx status) is not
->> causing this -- the patch should be a no-op in most cases anyway, and in
->> those cases where it isn't a no-op it'll run only once at card init and
->> remove some things from a hardware-internal FIFO.
->
+Some suggestions:
 
-Okay, I can buy that.
+ *  change the typedefs to struct, this includes:
+        adapter_t -> struct adapter
 
-> I agree that drain tx status should not cause the problem.
-> 
-> Ray, does -rc6 solve your problem as it did for Joseph?
 
-I can't get it to repeat other than the first two times. However, I
-accidentally stopped NetworkManager from handling my wireless a few days ago,
-and haven't restarted it, so that may play into this.
 
-Humor me one last time, I beg. Did you look at the messages file I posted? (Or
-maybe I didn't include this second bit... Damn, I need to be more careful with
-cutting and pasting...)
+ *  function prototypes and function headers (e.g. t3_get_cong_cntl_tab)
+    are listed as
 
-The second sysrq-t shows locking stuff going on, can you tell me if it looks
-reasonable? It still seems to me that something acquiring and not releasing
-rtnl_lock explains what I was seeing (rtnl lock is implicated in both sysrq-t
-backtraces). I don't know if that thing is bcm43xx, though.
+        void t3_get_cong_cntl_tab(adapter_t *adap,
+                         unsigned short incr[NMTUS][NCCTRL_WIN]);
 
-Is this part reasonable?:
- 1 lock held by events/0/4:
-  #0:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
- 2 locks held by NetworkManager/4837:
-  #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
-  #1:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
- 1 lock held by wpa_supplicant/5953:
-  #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+    which could be shortened to
 
-(So locks A, A&B, B)
+        void t3_get_cong_cntl_tab(adapter_t *adap,
+                         unsigned short incr[][]);
 
-...of the below...
+    functions where there is only one level of [], e.g.
 
- Showing all locks held in the system:
- 1 lock held by events/0/4:
-  #0:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
- 1 lock held by getty/4224:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by getty/4225:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by getty/4226:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by getty/4227:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by getty/4228:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by getty/4229:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 2 locks held by NetworkManager/4837:
-  #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
-  #1:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
- 1 lock held by wpa_supplicant/5953:
-  #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
- 1 lock held by less/29492:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
- 1 lock held by bash/9871:
-  #0:  (&tty->atomic_read_lock){--..}, at: [mutex_lock_interruptible+9/16]
-mutex_lock_interruptible+0x9/0x10
+        void t3_load_mtus(adapter_t *adap, unsigned short mtus[NMTUS],
+                  unsigned short alpha[NCCTRL_WIN],
+                  unsigned short beta[NCCTRL_WIN], unsigned short mtu_cap);
 
- =============================================
+    could become
 
-Regardless, I'm going to withdraw my regression report until I can reproduce
-this. I can't justify holding anything up if we can't even finger a culprit to
-look at. In the meantime I'll try running with rc6.
+        void t3_load_mtus(adapter_t *adap, unsigned short *mtus,
+                  unsigned short *alpha,
+                  unsigned short *beta, unsigned short mtu_cap);
 
-Ray
+    depending on your taste.
+
+
+
+ *  get rid of superfluous from-void/to-void casts, such as:
+
+        cxgb3_main.c:754:  struct adapter *adapter =
+                           (struct adapter *)dev->priv;
+
+    in some places, the 'U' suffix for literal numbers is not required,
+    such as:
+
+        cxgb3_main.c:292:   unsigned int nq1 = max((unsigned
+                            int)adap->port[1].nqsets, 1U);
+
+        sge.c:2359:  qs->rspq.holdoff_tmr = max(p->coalesce_usecs * 10, 1U);
+
+
+
+ *  const run 1: const'ify structs that do not change or
+    are not changed, such as
+
+        cxgb3_main.c:924:static char stats_strings[][ETH_GSTRING_LEN] = {
+
+        t3_hw.c:220:static struct mdio_ops mi1_mdio_ops = {
+        t3_hw.c:271:static struct mdio_ops mi1_mdio_ext_ops = {
+
+        t3_hw.c:1130:   static struct intr_info pcix1_intr_info[] = {
+        t3_hw.c:1166:   static struct intr_info pcie_intr_info[] = {
+
+    (these are just the small picture)
+
+
+
+ *  const run 2: const'ify locals that do not change, such as
+
+        cxgb3_offload.c:63:     struct adapter *adapter = tdev2adap(tdev);
+
+
+
+ *  const run 3: const'ify function arguments that do not change, e.g.
+
+       static inline int offload_activated(struct t3cdev *tdev)
+
+
+Note that the listed lines do not cover all source lines - cxgb3
+is quite some code.
+
+Running it through sparse gives 'context imbalance' (whatever that is - i just
+tried sparse).
+
+
+	-`J'
+-- 

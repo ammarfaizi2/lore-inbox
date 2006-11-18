@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWKRVZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753882AbWKRVdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWKRVZv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 16:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752694AbWKRVZv
+	id S1753882AbWKRVdM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 16:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753888AbWKRVdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 16:25:51 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:28371 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1751452AbWKRVZu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 16:25:50 -0500
-Date: Sun, 19 Nov 2006 00:25:42 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061118212542.GA235@oleg>
-References: <20061118171410.GB4427@us.ibm.com> <Pine.LNX.4.44L0.0611181536050.15971-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 18 Nov 2006 16:33:11 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:9862 "HELO
+	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1753882AbWKRVdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 16:33:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=H0bfmYse+X294VOxX0mu7gD3OlYaD8/HSL2cnJJOokIKwbBO+sqpiSmUpEnz/ufaOheof0PwToR+hbIX0TCP4WbSX/4N408x+E+px1b8BXi3Qzo5USJBRaNYXCc9Hcjk+LY9N+er11xpgaQASeLQrByU07Tc8GewbeloxE/d+pQ=  ;
+X-YMail-OSG: eCdA9ZgVM1k5gDxql4371dW6ceuemHwHC7FGfaTpqeMtH4H3QDI7wvg3sgiqYvofXsrwo.9Qtm8gk4uH58HNdwafDSksyWFTOsodo1UGPOHzGyPuLDypOW02awepii8bW2qkLOEXgB8l8LLZZwW1SXuQ1GHS4qF.31I-
+From: David Brownell <david-b@pacbell.net>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Subject: Re: [patch 0/6] [RFC] Add MMC Password Protection (lock/unlock) support V6
+Date: Sat, 18 Nov 2006 11:17:53 -0800
+User-Agent: KMail/1.7.1
+Cc: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       linux-kernel@vger.kernel.org, Pierre Ossman <drzeus-list@drzeus.cx>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       "Biris Ilias (EXT-INdT/Manaus)" <Ilias.Biris@indt.org.br>
+References: <455DB1FB.1060403@indt.org.br>
+In-Reply-To: <455DB1FB.1060403@indt.org.br>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0611181536050.15971-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611181117.54242.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/18, Alan Stern wrote:
->
-> By the way, I think the fastpath for synchronize_srcu() should be safe, 
-> now that you have added the memory barriers into srcu_read_lock() and 
-> srcu_read_unlock().  You might as well try putting it in.
+On Friday 17 November 2006 4:58 am, Anderson Briglia wrote:
 
-I still think the fastpath should do mb() unconditionally to be correct.
+> - Password caching: when inserting a locked card, the driver should try
+>    to unlock it with the currently stored password (if any), and if it
+>    fails, revoke the key containing it and fallback to the normal "no
+>    password present" situation.
 
-> Although now that I look at it again, you have forgotten to put smp_mb()
-> after the atomic_inc() call and before the atomic_dec().
+Is there some reason why the key isn't associated with the MMC/SD card
+identifier(s)?  It should be practical to swap several cards in/out
+without the kernel _needing_ to discard their keys.  What you're saying
+is that you'll cache only one key at a time, and that it won't have
+anything associating it with a particular card.  That's not at all how
+the key retention service is designed to work...
 
-As I see it, currently we don't need this barrier because synchronize_srcu()
-does synchronize_sched() before reading ->hardluckref.
 
-But if we add the fastpath into synchronize_srcu() then yes, we need mb()
-after atomic_inc().
+> - Some cards have an incorrect behaviour (hardware bug?) regarding
+>    password acceptance: if an affected card has password <pwd>, it
+>    accepts <pwd><xxx> as the correct password too, where <xxx> is any
+>    sequence of characters, of any length. In other words, on these cards
+>    only the first <password length> bytes need to match the correct
+>    password.
 
-Unless I totally confused :)
+I thought the MMC vendors expected to see the actual user-typed
+password get SHA1-hashed into a value which would take up the whole
+buffer?  In general that's a good idea, since it promotes use of
+longer passphrases (more information) over short ones (easy2crack).
 
-Oleg.
+Plus, such hashing would prevent this issue ... if vendor tests are
+done with hashed passphrases, that would explain why this class of
+hardware issue got past design validation.
 
+- Dave

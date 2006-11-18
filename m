@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753877AbWKREx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753920AbWKRFWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753877AbWKREx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 23:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753882AbWKREx3
+	id S1753920AbWKRFWN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 00:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753921AbWKRFWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 23:53:29 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1753877AbWKREx2 (ORCPT
+	Sat, 18 Nov 2006 00:22:13 -0500
+Received: from main.gmane.org ([80.91.229.2]:12995 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1753920AbWKRFWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 23:53:28 -0500
-Date: Fri, 17 Nov 2006 20:51:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
-       David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       <manfred@colorfullife.com>, <oleg@tv-sign.ru>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-Id: <20061117205103.847081a4.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44L0.0611172318180.8754-100000@netrider.rowland.org>
-References: <20061118003859.GG2632@us.ibm.com>
-	<Pine.LNX.4.44L0.0611172318180.8754-100000@netrider.rowland.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 00:22:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: Re: [PATCH 20/20] x86_64: Move CPU verification code to common file
+Date: Sat, 18 Nov 2006 05:21:58 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnelt6h7.dd3.olecom@flower.upol.cz>
+References: <20061117223432.GA15449@in.ibm.com> <20061117225953.GU15449@in.ibm.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, olecom@flower.upol.cz, vgoyal@in.ibm.com, akpm@osdl.org, rjw@sisk.pl, ebiederm@xmission.com, hpa@zytor.com,   Reloc Kernel List <fastboot@lists.osdl.org>, pavel@suse.cz, magnus.damm@gmail.com, ak@suse.de
+User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: fastboot@lists.osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 23:33:45 -0500 (EST)
-Alan Stern <stern@rowland.harvard.edu> wrote:
+Hallo.
 
-> On Fri, 17 Nov 2006, Paul E. McKenney wrote:
-> 
-> > > Perhaps a better approach to the initialization problem would be to assume 
-> > > that either:
-> > > 
-> > >     1.  The srcu_struct will be initialized before it is used, or
-> > > 
-> > >     2.  When it is used before initialization, the system is running
-> > > 	only one thread.
-> > 
-> > Are these assumptions valid?  If so, they would indeed simplify things
-> > a bit.
-> 
-> I don't know.  Maybe Andrew can tell us -- is it true that the kernel runs 
-> only one thread up through the time the core_initcalls are finished?
+On 2006-11-17, Vivek Goyal wrote:
+[]
+> +no_longmode:
+> +	/* This isn't an x86-64 CPU so hang */
+> +1:
+> +	hlt
+> +	jmp     1b
+> +
+> +#include "../../kernel/verify_cpu.S"
+> +
 
-I don't see why - a core_initcall could go off and do the
-multithreaded-pci-probing thing, or it could call kernel_thread() or
-anything.  I doubt if any core_initcall functions _do_ do that, but there
-are a lot of them.
+May hang be done optional? There was a discussion about applying
+"panic" reboot timeout here. Is it possible to implement somehow?
 
-> If not, can we create another initcall level that is guaranteed to run 
-> before any threads are spawned?
+[]
+> diff -puN /dev/null arch/x86_64/kernel/verify_cpu.S
+> --- /dev/null	2006-11-17 00:03:10.168280803 -0500
+> +++ linux-2.6.19-rc6-reloc-root/arch/x86_64/kernel/verify_cpu.S	2006-11-17 00:14:07.000000000 -0500
+> @@ -0,0 +1,106 @@
+> +/*
+> + *
+> + *	verify_cpu.S - Code for cpu long mode and SSE verification
+> + *
+> + *	Copyright (c) 2006-2007  Vivek Goyal (vgoyal@in.ibm.com)
+                           ^^^^
+Warning: File verify_cpu.S has modification time in the future...
+(preliminary shoot (in the head ;))
 
-It's a simple and cheap matter to create a precore_initcall() - one would
-need to document it carefully to be able to preserve whatever guarantees it
-needs.
+[]
+> +verify_cpu:
+> +
+> +	pushfl				# Save caller passed flags
+> +	pushl	$0			# Kill any dangerous flags
+> +	popfl
+> +
+> +	/* minimum CPUID flags for x86-64 */
+> +	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
 
-However by the time the initcalls get run, various thing are already
-happening: SMP is up, the keventd threads are running, the CPU scheduler
-migration threads are running, ksoftirqd, softlockup-detector, etc. 
-keventd is the problematic one.
+Maybe there's a place for this in Documentation/ ?
 
-So I guess you'd need a new linker section and a call from
-do_pre_smp_initcalls() or thereabouts.
+> +#define SSE_MASK ((1<<25)|(1<<26))
+> +#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
+> +					   (1<<13)|(1<<15)|(1<<24))
+
+Maybe there is a more readable way to setup this mask?
+____
+

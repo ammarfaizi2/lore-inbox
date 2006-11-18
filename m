@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754437AbWKRLpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756305AbWKRMfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754437AbWKRLpM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 06:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756296AbWKRLpM
+	id S1756305AbWKRMfM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 07:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756312AbWKRMfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 06:45:12 -0500
-Received: from aa012msr.fastwebnet.it ([85.18.95.72]:47571 "EHLO
-	aa012msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1754437AbWKRLpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 06:45:10 -0500
-Date: Sat, 18 Nov 2006 12:43:49 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: sleeping functions called in invalid context during resume
-Message-ID: <20061118124349.16743124@localhost>
-In-Reply-To: <20061117083008.7758149a@localhost.localdomain>
-References: <20061114223002.10c231bd@localhost.localdomain>
-	<20061116212158.0ef99842@localhost.localdomain>
-	<20061117065202.GA11877@elte.hu>
-	<200611171646.05860.rjw@sisk.pl>
-	<20061117083008.7758149a@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Nov 2006 07:35:03 -0500
+Received: from lugor.de ([212.112.242.222]:36801 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S1756305AbWKRMfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 07:35:01 -0500
+From: "Hesse, Christian" <mail@earthworm.de>
+To: Martin Lorenz <martin@lorenz.eu.org>
+Subject: Re: IEEE80211 and IPW3945
+Date: Sat, 18 Nov 2006 13:31:40 +0100
+User-Agent: KMail/1.9.5
+Cc: jketreno@linux.intel.com, linux-kernel@vger.kernel.org
+References: <20061118102056.GA4492@gimli>
+In-Reply-To: <20061118102056.GA4492@gimli>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1468166.5ol7sJaUzv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200611181331.44937.mail@earthworm.de>
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Sat, 18 Nov 2006 13:31:45 +0100 (CET)
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 08:30:08 -0800
-Stephen Hemminger <shemminger@osdl.org> wrote:
+--nextPart1468166.5ol7sJaUzv
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > > > APIC error on CPU0: 00(00)
-> > > > 
-> > > > Is it an ACPI problem?
-> > > 
-> > > a 00 error code? Never seen that ... How frequently does it happen?
-> > 
-> > On my x86-64 boxes the "APIC error on CPU0" message appears on every resume,
-> > but it doesn't seem to be related to any visible problems.
-> > 
-> > It's been there forever, AFAICT.
-> 
-> Yes, it is there on every resume.
+On Saturday 18 November 2006 11:20, Martin Lorenz wrote:
+> Dear James,
+>
+> I just had some issues when trying to compile ieee80211 1.2.15 together
+> with ipw3945 1.1.2 on the latest kernel tree
+>
+> attached are two patches I had to create to work around it
+> I guess they are self-explanatory :-)
 
-Here too... so it's common on x86_64   ;)
+I think you should not recreate linux/config.h but remove the reference to=
+=20
+it...
+=2D-=20
+Regards,
+Christian
 
+--nextPart1468166.5ol7sJaUzv
+Content-Type: application/pgp-signature
 
-	$ dmesg | grep Suspending | wc -l
-	9
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-	$ dmesg | grep "APIC err" | wc -l
-	9
+iD8DBQBFXv0wlZfG2c8gdSURAnrzAJ4sESveZ70t1KQS9zOxBn8OBrI8+ACg7hEw
+V7s96kfZmCgltnbzqFgG0BM=
+=9Qbb
+-----END PGP SIGNATURE-----
 
--- 
-	Paolo Ornati
-	Linux 2.6.19-rc4-g2de6c39f on x86_64
+--nextPart1468166.5ol7sJaUzv--

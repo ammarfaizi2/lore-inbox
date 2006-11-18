@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755326AbWKRTG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756393AbWKRTbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755326AbWKRTG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 14:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755327AbWKRTG6
+	id S1756393AbWKRTbI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 14:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756396AbWKRTbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 14:06:58 -0500
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:47574 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S1755326AbWKRTG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 14:06:57 -0500
-Message-ID: <455F59BB.6060204@lwfinger.net>
-Date: Sat, 18 Nov 2006 13:06:35 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Sat, 18 Nov 2006 14:31:08 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:53635 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1756393AbWKRTbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 14:31:05 -0500
+Date: Sat, 18 Nov 2006 20:30:02 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Oleg Verych <olecom@flower.upol.cz>
+cc: Folkert van Heusden <folkert@vanheusden.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] emit logging when a process receives a fatal signal
+In-Reply-To: <20061118023832.GG13827@flower.upol.cz>
+Message-ID: <Pine.LNX.4.61.0611182029150.10940@yvahk01.tjqt.qr>
+References: <20061118010946.GB31268@vanheusden.com> <slrnelsomr.dd3.olecom@flower.upol.cz>
+ <20061118020200.GC31268@vanheusden.com> <20061118020413.GD31268@vanheusden.com>
+ <20061118023832.GG13827@flower.upol.cz>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, netdev@vger.kernel.org, mb@bu3sch.de,
-       greg@kroah.com, "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: [patch 07/30] bcm43xx: Drain TX status before starting IRQs
-References: <20061116024332.124753000@sous-sol.org> <20061116024511.458086000@sous-sol.org>
-In-Reply-To: <20061116024511.458086000@sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> 
-> From: Michael Buesch <mb@bu3sch.de>
-> 
-> Drain the Microcode TX-status-FIFO before we enable IRQs.
-> This is required, because the FIFO may still have entries left
-> from a previous run. Those would immediately fire after enabling
-> IRQs and would lead to an oops in the DMA TXstatus handling code.
-> 
-> Cc: "John W. Linville" <linville@tuxdriver.com>
-> Signed-off-by: Michael Buesch <mb@bu3sch.de>
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
 
-Chris,
-
-The regression turns out to be a locking problem involving bcm43xx, wpa_supplicant, and 
-NetworkManager. The exact cause is unknown; however, this patch is clearly not the problem. Please 
-reinstate it for inclusion in -stable.
-
-Thanks,
-
-Larry
+On Nov 18 2006 02:38, Oleg Verych wrote:
+>On Sat, Nov 18, 2006 at 03:04:13AM +0100, Folkert van Heusden wrote:
+>> > > > I found that sometimes processes disappear on some heavily used system
+>> > > > of mine without any logging. So I've written a patch against 2.6.18.2
+>> > > > which emits logging when a process emits a fatal signal.
+>> > > Why not to patch default signal handlers in glibc, to have not only
+>> > > stderr, but syslog, or /dev/kmsg copy of fatal messages?
+>> > Afaik when a proces gets shot because of a segfault, also the libraries
+>> > it used are shot so to say. iirc some of the more fatal signals are
+>> > handled directly by the kernel.
+>
+>Kernel sends signals, no doubt.
+>
+>Then, who you think prints that "Killed" or "Segmentation fault"
+>messages in *stderr*?
+>[Hint: libc's default signal handler (man 2 signal).]
 
 
+Please enlighten us on how you plan to catch the uncatchable SIGKILL.
+
+
+	-`J'
+-- 

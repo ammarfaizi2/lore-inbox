@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756197AbWKRG75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756201AbWKRHBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756197AbWKRG75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 01:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756200AbWKRG74
+	id S1756201AbWKRHBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 02:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756202AbWKRHBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 01:59:56 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:27619 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1756198AbWKRG7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 01:59:55 -0500
-Message-ID: <455EAF54.5090500@zytor.com>
-Date: Fri, 17 Nov 2006 22:59:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Oleg Verych <olecom@flower.upol.cz>
-CC: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       vgoyal@in.ibm.com, akpm@osdl.org, rjw@sisk.pl, ebiederm@xmission.com,
-       Reloc Kernel List <fastboot@lists.osdl.org>, pavel@suse.cz,
-       magnus.damm@gmail.com
-Subject: Re: [PATCH 20/20] x86_64: Move CPU verification code to common file
-References: <20061117223432.GA15449@in.ibm.com> <20061117225953.GU15449@in.ibm.com> <slrnelt6h7.dd3.olecom@flower.upol.cz> <20061118063802.GE30547@bingen.suse.de> <20061118070101.GA14673@flower.upol.cz>
-In-Reply-To: <20061118070101.GA14673@flower.upol.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 02:01:14 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16581 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1756201AbWKRHBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 02:01:13 -0500
+Date: Sat, 18 Nov 2006 08:00:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, John Stultz <johnstul@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC: -mm patch] remove kernel/timer.c:wall_jiffies
+Message-ID: <20061118070006.GC32226@elte.hu>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061117235945.GQ31879@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061117235945.GQ31879@stusta.de>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
+	[score: 0.0880]
+	1.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Verych wrote:
+
+* Adrian Bunk <bunk@stusta.de> wrote:
+
+> "wall_jiffies" was added, but it's completely unused...
 > 
-> It will burn CPU, until power cycle will be done (my AMD64 laptop and
-> Intel's amd64 destop PC require that). In case of reboot timeout (or
-> just reboot with jump to BIOS), i will just choose another image to boot
-> or will press F8 to have another boot device.
-> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-That's a fairly stupid argument, since it assumes operator intervention, 
-at which point you have access to the machine anyway.
+yeah, that's a merge leftover in:
 
-A stronger argument is, again, that some bootloaders can do unattended 
-fallback.
+  gtod-persistent-clock-support-core.patch
 
-However, this test should probably be pushed earlier, into setup.S, 
-where executing a BIOS-clean reboot is much easier.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-	-hpa
+	Ingo

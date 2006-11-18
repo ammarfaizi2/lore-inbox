@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756295AbWKRLZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756290AbWKRL3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756295AbWKRLZR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 06:25:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756289AbWKRLZR
+	id S1756290AbWKRL3I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 06:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756296AbWKRL3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 06:25:17 -0500
-Received: from ms-smtp-05.ohiordc.rr.com ([65.24.5.139]:30080 "EHLO
-	ms-smtp-05.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S1755952AbWKRLZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 06:25:15 -0500
-Date: Sat, 18 Nov 2006 06:24:39 -0500
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Larry Finger <Larry.Finger@lwfinger.net>, Bcm43xx-dev@lists.berlios.de,
-       LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       John Linville <linville@tuxdriver.com>, Michael Buesch <mb@bu3sch.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
-Message-ID: <20061118112438.GB15349@nineveh.rivenstone.net>
-Mail-Followup-To: Ray Lee <ray-lk@madrabbit.org>,
-	Larry Finger <Larry.Finger@lwfinger.net>,
-	Bcm43xx-dev@lists.berlios.de, LKML <linux-kernel@vger.kernel.org>,
-	netdev@vger.kernel.org, John Linville <linville@tuxdriver.com>,
-	Michael Buesch <mb@bu3sch.de>, Andrew Morton <akpm@osdl.org>
-References: <455B63EC.8070704@madrabbit.org>
+	Sat, 18 Nov 2006 06:29:08 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:64474 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1756290AbWKRL3F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 06:29:05 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <455EEE17.4020605@s5r6.in-berlin.de>
+Date: Sat, 18 Nov 2006 12:27:19 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
-Content-Disposition: inline
-In-Reply-To: <455B63EC.8070704@madrabbit.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: jhf@columbus.rr.com (Joseph Fannin)
+To: Greg KH <greg@kroah.com>
+CC: Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       bcollins@debian.org
+Subject: Re: 2.6.19-rc5-mm2 (Oops in class_device_remove_attrs during nodemgr_remove_host)
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061116171715.GA3645@inferi.kami.home> <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de> <20061117071650.GA4974@inferi.kami.home> <455DCEF7.3060906@s5r6.in-berlin.de> <455DD42B.1020004@s5r6.in-berlin.de> <20061118094706.GA17879@kroah.com>
+In-Reply-To: <20061118094706.GA17879@kroah.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Fri, Nov 17, 2006 at 04:24:27PM +0100, Stefan Richter wrote:
+>> I wrote:
+>>> Either the FireWire host's device->klist_children was overwritten before
+>>> the call to device_for_each_child
+>> or *during* the run of device_for_each_child, which first successfully
+>> called nodemgr_remove_ne for node [0-00:1023] but then stumbled over the
+>> false node [20754571-38:0455].
+>>
+>>> (perhaps nodemgr didn't hold a reference which it should have), or/and
+>>> all of this is an issue with the ongoing migration away from class_device.
+> 
+> I don't have any firewire class_device migration patches in -mm right
+> now.
 
---kORqDWCi7qDJ0mEj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, I looked through the driver core related patches in -mm but wasn't
+sure if there was a change to generic code which could affect
+ieee1394/nodemgr.
 
-On Wed, Nov 15, 2006 at 11:01:00AM -0800, Ray Lee wrote:
+> I do have one sitting here if you wish to play around with it, but it
+> needs some more infrastructure patches that I have not really tested all
+> that well yet.
 
-> I've come back to my laptop being mostly dead after hours of it being off on
-> its own (twice now). Mostly dead meaning the keyboard is nearly
-> non-responsive, but the mouse works great (I'm in X, of course). I say 'nearly
-> dead' as sysrq-t,b works, so I'm sorta stumped there. (x-session seems to use
-> netlink, so perhaps that's the connection? ctrl-alt-f[1-7] don't do anything,
-> however.)
+(Is this infrastructure something which other subsystems will require
+anyway? If not, maybe the ieee1394 subsystem's sysfs interface could be
+cut to size instead.)
 
-    This sounds like what my laptop was doing in -rc5, though mine
-didn't take hours to start acting up.
+> Either way, I don't think this is caused by any new class_device
+> patches, but I'm very willing to be proven wrong :)
 
-    I *think* it was the MSI troubles, causing interrupts to get
-lost forever.  Anyway, it went away in -rc6.
+Good, I just wanted to hear your opinion before drilling further down.
+Seems there is an older bug in nodemgr. But whatever it is, the reporter
+reproduced it _only_ in -mm, with either of 2.6.19-rc-mm's and
+2.6.19-rc's ieee1394 code. Time for me to let -mm loose on my PC.
 
-    I don't have the broadcom hardware.
-
---
-Joseph Fannin
-jfannin@gmail.com || jhf@columbus.rr.com
-
-
---kORqDWCi7qDJ0mEj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFFXu121/BPLCVlRuARAo1rAKCoqAGZmIEOKxvGammQ7Jndeq+56gCfe6kI
-/vXcf3d19VuTO7AdvjcJtJ4=
-=HXJQ
------END PGP SIGNATURE-----
-
---kORqDWCi7qDJ0mEj--
+Thanks,
+-- 
+Stefan Richter
+-=====-=-==- =-== =--=-
+http://arcgraph.de/sr/

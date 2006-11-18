@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753681AbWKRAbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752929AbWKRAe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753681AbWKRAbF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756110AbWKRAbF
+	id S1752929AbWKRAe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756079AbWKRAe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:31:05 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:36503 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1753681AbWKRAbD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:31:03 -0500
-Message-ID: <455E540C.6090202@zytor.com>
-Date: Fri, 17 Nov 2006 16:30:04 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Fri, 17 Nov 2006 19:34:26 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:14277 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752929AbWKRAe0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:34:26 -0500
+Date: Fri, 17 Nov 2006 19:33:52 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-Subject: Re: [PATCH 19/20] x86_64: Extend bzImage protocol for relocatable
- kernel
-References: <20061117223432.GA15449@in.ibm.com> <20061117225826.GT15449@in.ibm.com>
-In-Reply-To: <20061117225826.GT15449@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, rjw@sisk.pl
+Subject: Re: [PATCH 9/20] x86_64: 64bit PIC SMP trampoline
+Message-ID: <20061118003352.GA4321@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061117223432.GA15449@in.ibm.com> <20061117224535.GJ15449@in.ibm.com> <20061118002710.GF9188@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118002710.GF9188@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal wrote:
+On Sat, Nov 18, 2006 at 01:27:10AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> o Extend the bzImage protocol (same as i386) to allow bzImage loaders to
->   load the protected mode kernel at non-1MB address. Now protected mode
->   component is relocatable and can be loaded at non-1MB addresses.
+> > that long mode is supported.  Asking if long mode is implemented is
+> > down right silly but we have traditionally had some of these checks,
+> > and they can't hurt anything.  So when the totally ludicrous happens
+> > we just might handle it correctly.
 > 
-> o As of today kdump uses it to run a second kernel from a reserved memory
->   area.
+> Well, it is silly, and it is 50 lines of dense assembly. can we get
+> rid of it or get it shared with bootup version?
 > 
-> Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 
-Do you have a patch for Documentation/i386/boot.txt as well?
+Hi Pavel,
 
-	-hpa
+Last patch in the series (patch 20)  already does that. That patch just
+puts all the assembly at one place which everybody shares. 
+
+I know it is bad to introduce and delete your own code, but I kept that
+patch as last patch as all the other patches have got fair bit of testing
+in RHEL kernels and I wanted to make sure that if last patch breaks something
+problem can be isolated relatively easily.
+
+Thanks
+Vivek

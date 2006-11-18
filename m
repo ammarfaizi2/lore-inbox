@@ -1,77 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756354AbWKRQS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755173AbWKRQPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756354AbWKRQS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 11:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756351AbWKRQS1
+	id S1755173AbWKRQPa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 11:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755178AbWKRQPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 11:18:27 -0500
-Received: from mga09.intel.com ([134.134.136.24]:51868 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1755178AbWKRQS0 (ORCPT
+	Sat, 18 Nov 2006 11:15:30 -0500
+Received: from mx2.rowland.org ([192.131.102.7]:2321 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1755173AbWKRQP3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 11:18:26 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,437,1157353200"; 
-   d="scan'208"; a="163568915:sNHT19082315"
-Message-ID: <455F324F.3090208@linux.intel.com>
-Date: Sat, 18 Nov 2006 19:18:23 +0300
-From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Sat, 18 Nov 2006 11:15:29 -0500
+Date: Sat, 18 Nov 2006 11:15:27 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061118002845.GF2632@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0611181054470.28058-100000@netrider.rowland.org>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Len Brown <lenb@kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org
-Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
-References: <200611142303.47325.david-b@pacbell.net> <455C8696.80508@linux.intel.com> <200611162222.44836.david-b@pacbell.net> <200611171304.00889.david-b@pacbell.net>
-In-Reply-To: <200611171304.00889.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please take a look at 7466, they seem to fight same problem, so may be 
-removing same patch will work...
-And Linus is about to drop it anyway...
-Regards,
-    Alex.
-David Brownell wrote:
-> On Thursday 16 November 2006 10:22 pm, David Brownell wrote:
->   
->> On Thursday 16 November 2006 7:41 am, Alexey Starikovskiy wrote:
->>     
->>> --- a/drivers/acpi/ec.c
->>> +++ b/drivers/acpi/ec.c
->>> @@ -467,8 +467,8 @@ static u32 acpi_ec_gpe_handler(void *dat
->>>                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
->>>         }
->>>         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
->>> -       return status == AE_OK ?
->>> -           ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
->>> +       WARN_ON(ACPI_FAILURE(status));
->>> +       return ACPI_INTERRUPT_HANDLED;
->>>  }
->>>  
->>>       
->> Strange ... applying this on top of the previous patch seems to work
->> much better, but that WARN_ON hasn't triggered.  At least, not yet.
->> Updating to RC6, with your two patches installed...
->>     
->
-> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
-> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [2006070
-> 7]
-> ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE
-> _TIME
->
-> OK, I don't get the WARN_ON when these happen, so it's got to be one of the
-> other EC updates.
->
-> It'd be nice if this were easily reproducible ...
->
-> - Dave
->
+There are a few things I don't like about this patch.
+
+On Fri, 17 Nov 2006, Paul E. McKenney wrote:
+
+> diff -urpNa -X dontdiff linux-2.6.19-rc5/kernel/srcu.c linux-2.6.19-rc5-dsrcu/kernel/srcu.c
+> --- linux-2.6.19-rc5/kernel/srcu.c	2006-11-17 13:54:17.000000000 -0800
+> +++ linux-2.6.19-rc5-dsrcu/kernel/srcu.c	2006-11-17 14:15:06.000000000 -0800
+> @@ -34,6 +34,18 @@
+>  #include <linux/smp.h>
+>  #include <linux/srcu.h>
+>  
+> +/*
+> + * Initialize the per-CPU array, returning the pointer.
+> + */
+> +static inline struct srcu_struct_array *alloc_srcu_struct_percpu(void)
+> +{
+> +	struct srcu_struct_array *sap;
+> +
+> +	sap = alloc_percpu(struct srcu_struct_array);
+> +	smp_wmb();
+> +	return (sap);
+
+Style: Don't use () here.
+
+> +}
+> +
+>  /**
+>   * init_srcu_struct - initialize a sleep-RCU structure
+>   * @sp: structure to initialize.
+
+> @@ -94,7 +112,8 @@ void cleanup_srcu_struct(struct srcu_str
+>  	WARN_ON(sum);  /* Leakage unless caller handles error. */
+>  	if (sum != 0)
+>  		return;
+> -	free_percpu(sp->per_cpu_ref);
+> +	if (sp->per_cpu_ref != NULL)
+> +		free_percpu(sp->per_cpu_ref);
+
+Now that Andrew has accepted the "allow free_percpu(NULL)" change, you can 
+remove the test here.
+
+>  	sp->per_cpu_ref = NULL;
+>  }
+>  
+> @@ -105,18 +124,39 @@ void cleanup_srcu_struct(struct srcu_str
+>   * Counts the new reader in the appropriate per-CPU element of the
+>   * srcu_struct.  Must be called from process context.
+>   * Returns an index that must be passed to the matching srcu_read_unlock().
+> + * The index is -1 if the srcu_struct is not and cannot be initialized.
+>   */
+>  int srcu_read_lock(struct srcu_struct *sp)
+>  {
+>  	int idx;
+> +	struct srcu_struct_array *sap;
+>  
+>  	preempt_disable();
+>  	idx = sp->completed & 0x1;
+> -	barrier();  /* ensure compiler looks -once- at sp->completed. */
+> -	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]++;
+> -	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+> +	sap = rcu_dereference(sp->per_cpu_ref);
+> +	if (likely(sap != NULL)) {
+> +		barrier();  /* ensure compiler looks -once- at sp->completed. */
+
+Put this barrier() back where the old one was (outside the "if").
+
+> +		per_cpu_ptr(rcu_dereference(sap),
+
+You don't need the rcu_dereference here, you already have it above.
+
+> +			    smp_processor_id())->c[idx]++;
+> +		smp_mb();
+> +		preempt_enable();
+> +		return idx;
+> +	}
+> +	if (mutex_trylock(&sp->mutex)) {
+> +		preempt_enable();
+
+Move the preempt_enable() before the "if", then get rid of the 
+preempt_enable() after the "if" block.
+
+> +		if (sp->per_cpu_ref == NULL)
+> +			sp->per_cpu_ref = alloc_srcu_struct_percpu();
+
+It would be cleaner to put the mutex_unlock() and closing '}' right here.
+
+> +		if (sp->per_cpu_ref == NULL) {
+> +			atomic_inc(&sp->hardluckref);
+> +			mutex_unlock(&sp->mutex);
+> +			return -1;
+> +		}
+> +		mutex_unlock(&sp->mutex);
+> +		return srcu_read_lock(sp);
+> +	}
+>  	preempt_enable();
+> -	return idx;
+> +	atomic_inc(&sp->hardluckref);
+> +	return -1;
+>  }
+>  
+>  /**
+> @@ -131,10 +171,17 @@ int srcu_read_lock(struct srcu_struct *s
+>   */
+>  void srcu_read_unlock(struct srcu_struct *sp, int idx)
+>  {
+> -	preempt_disable();
+> -	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+> -	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]--;
+> -	preempt_enable();
+> +	if (likely(idx != -1)) {
+> +		preempt_disable();
+> +		smp_mb();
+> +		per_cpu_ptr(rcu_dereference(sp->per_cpu_ref),
+> +			    smp_processor_id())->c[idx]--;
+> +		preempt_enable();
+> +		return;
+> +	}
+> +	mutex_lock(&sp->mutex);
+> +	atomic_dec(&sp->hardluckref);
+> +	mutex_unlock(&sp->mutex);
+
+You don't need the mutex to protect an atomic_dec.
+
+>  }
+>  
+>  /**
+> @@ -158,6 +205,11 @@ void synchronize_srcu(struct srcu_struct
+>  	idx = sp->completed;
+>  	mutex_lock(&sp->mutex);
+>  
+> +	/* Initialize if not already initialized. */
+> +
+> +	if (sp->per_cpu_ref == NULL)
+> +		sp->per_cpu_ref = alloc_srcu_struct_percpu();
+
+What happens if a prior reader failed to allocate the memory but this call 
+succeeds?  You need to check hardluckref before doing this.  The same is 
+true in srcu_read_lock().
+
+> +
+>  	/*
+>  	 * Check to see if someone else did the work for us while we were
+>  	 * waiting to acquire the lock.  We need -two- advances of
+> @@ -173,65 +225,25 @@ void synchronize_srcu(struct srcu_struct
+>  		return;
+>  	}
+>  
+> -	synchronize_sched();  /* Force memory barrier on all CPUs. */
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->   
+> -	/*
+> -	 * The preceding synchronize_sched() ensures that any CPU that
+> -	 * sees the new value of sp->completed will also see any preceding
+> -	 * changes to data structures made by this CPU.  This prevents
+> -	 * some other CPU from reordering the accesses in its SRCU
+> -	 * read-side critical section to precede the corresponding
+> -	 * srcu_read_lock() -- ensuring that such references will in
+> -	 * fact be protected.
+> -	 *
+> -	 * So it is now safe to do the flip.
+> -	 */
+> -
+> +	smp_mb();  /* ensure srcu_read_lock() sees prior change first! */
+>  	idx = sp->completed & 0x1;
+>  	sp->completed++;
+>  
+> -	synchronize_sched();  /* Force memory barrier on all CPUs. */
+> +	synchronize_sched();
+>  
+>  	/*
+>  	 * At this point, because of the preceding synchronize_sched(),
+>  	 * all srcu_read_lock() calls using the old counters have completed.
+>  	 * Their corresponding critical sections might well be still
+>  	 * executing, but the srcu_read_lock() primitives themselves
+> -	 * will have finished executing.
+> +	 * will have finished executing.  The "old" rank of counters
+> +	 * can therefore only decrease, never increase in value.
+>  	 */
+>  
+>  	while (srcu_readers_active_idx(sp, idx))
+>  		schedule_timeout_interruptible(1);
+>  
+> -	synchronize_sched();  /* Force memory barrier on all CPUs. */
+> -
+> -	/*
+> -	 * The preceding synchronize_sched() forces all srcu_read_unlock()
+> -	 * primitives that were executing concurrently with the preceding
+> -	 * for_each_possible_cpu() loop to have completed by this point.
+> -	 * More importantly, it also forces the corresponding SRCU read-side
+> -	 * critical sections to have also completed, and the corresponding
+> -	 * references to SRCU-protected data items to be dropped.
+> -	 *
+> -	 * Note:
+> -	 *
+> -	 *	Despite what you might think at first glance, the
+> -	 *	preceding synchronize_sched() -must- be within the
+> -	 *	critical section ended by the following mutex_unlock().
+> -	 *	Otherwise, a task taking the early exit can race
+> -	 *	with a srcu_read_unlock(), which might have executed
+> -	 *	just before the preceding srcu_readers_active() check,
+> -	 *	and whose CPU might have reordered the srcu_read_unlock()
+> -	 *	with the preceding critical section.  In this case, there
+> -	 *	is nothing preventing the synchronize_sched() task that is
+> -	 *	taking the early exit from freeing a data structure that
+> -	 *	is still being referenced (out of order) by the task
+> -	 *	doing the srcu_read_unlock().
+> -	 *
+> -	 *	Alternatively, the comparison with "2" on the early exit
+> -	 *	could be changed to "3", but this increases synchronize_srcu()
+> -	 *	latency for bulk loads.  So the current code is preferred.
+> -	 */
+> +	smp_mb();  /* must see critical section prior to srcu_read_unlock() */
+>  
+>  	mutex_unlock(&sp->mutex);
+>  }
+> 
+
+Alan Stern
+

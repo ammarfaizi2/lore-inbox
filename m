@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755964AbWKREbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755972AbWKREdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755964AbWKREbf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 23:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755972AbWKREbf
+	id S1755972AbWKREdr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 23:33:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755959AbWKREdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 23:31:35 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:50333 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1755964AbWKREbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 23:31:34 -0500
-Date: Fri, 17 Nov 2006 20:31:33 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: Bela Lubkin <blubkin@vmware.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: RE: touch_cache() only touches two thirds
-In-Reply-To: <Pine.LNX.4.64.0611171953420.12661@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.64.0611172028480.12661@twinlark.arctic.org>
-References: <FE74AC4E0A23124DA52B99F17F441597DA118C@PA-EXCH03.vmware.com>
- <p734pt7k8s0.fsf@bingen.suse.de> <FE74AC4E0A23124DA52B99F17F44159701DBBFE7@PA-EXCH03.vmware.com>
- <Pine.LNX.4.64.0611171953420.12661@twinlark.arctic.org>
+	Fri, 17 Nov 2006 23:33:47 -0500
+Received: from mx2.rowland.org ([192.131.102.7]:55314 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1755972AbWKREdq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 23:33:46 -0500
+Date: Fri, 17 Nov 2006 23:33:45 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+cc: Jens Axboe <jens.axboe@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
+       Thomas Gleixner <tglx@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, john stultz <johnstul@us.ibm.com>,
+       David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, <manfred@colorfullife.com>, <oleg@tv-sign.ru>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061118003859.GG2632@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0611172318180.8754-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006, dean gaudet wrote:
+On Fri, 17 Nov 2006, Paul E. McKenney wrote:
 
-> another pointer chase arranged to fill the L1 (or L2) using many many 
-> pages.  i.e. suppose i wanted to traverse 32KiB L1 with 64B cache lines 
-> then i'd allocate 512 pages and put one line on each page (pages ordered 
-> randomly), but colour them so they fill the L1.  this conveniently happens 
-> to fit in a 2MiB huge page on x86, so you could even ameliorate the TLB 
-> pressure from the microbenchmark.
-
-btw, for L2-sized measurements you don't need to be so clever... you can 
-get away with a random traversal of the L2 on 128B boundaries.  (need to 
-avoid the "next-line prefetch" issues on p-m/core/core2, p4 model 3 and 
-later.)  there's just so many more pages required to map the L2 than any 
-reasonable prefetcher is going to have any time soon.
-
--dean
-
-
-> the benchmark i was considering would be like so:
+> > Perhaps a better approach to the initialization problem would be to assume 
+> > that either:
+> > 
+> >     1.  The srcu_struct will be initialized before it is used, or
+> > 
+> >     2.  When it is used before initialization, the system is running
+> > 	only one thread.
 > 
-> 	switch to cpu m
-> 	scrub the cache
-> 	switch to cpu n
-> 	scrub the cache
-> 	traverse the coloured list and modify each cache line as we go
-> 	switch to cpu m
-> 	start timing
-> 	traverse the coloured list without modification
-> 	stop timing
+> Are these assumptions valid?  If so, they would indeed simplify things
+> a bit.
+
+I don't know.  Maybe Andrew can tell us -- is it true that the kernel runs 
+only one thread up through the time the core_initcalls are finished?
+
+If not, can we create another initcall level that is guaranteed to run 
+before any threads are spawned?
+
+> For the moment, I cheaped out and used a mutex_trylock.  If this can block,
+> I will need to add a separate spinlock to guard per_cpu_ref allocation.
+
+I haven't looked at your revised patch yet...  But it's important to keep 
+things as simple as possible.
+
+> Hmmm...  How to test this?  Time for the wrapper around alloc_percpu()
+> that randomly fails, I guess.  ;-)
+
+Do you really want things to continue in a highly degraded mode when 
+percpu allocation fails?  Maybe it would be better just to pass the 
+failure back to the caller.
+
+Alan Stern
+

@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756087AbWKRAMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753553AbWKRAMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756087AbWKRAMA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Nov 2006 19:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753553AbWKRALl
+	id S1753553AbWKRAMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Nov 2006 19:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756070AbWKRAMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Nov 2006 19:11:41 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51974 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1756070AbWKRAGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Nov 2006 19:06:30 -0500
-Date: Sat, 18 Nov 2006 01:06:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [2.6 patch] mark pci_find_device() as __deprecated
-Message-ID: <20061118000629.GW31879@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061117142145.GX31879@stusta.de> <20061117143236.GA23210@devserv.devel.redhat.com>
+	Fri, 17 Nov 2006 19:12:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60328 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1756075AbWKRALz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Nov 2006 19:11:55 -0500
+Date: Sat, 18 Nov 2006 01:11:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, hpa@zytor.com, magnus.damm@gmail.com,
+       lwang@redhat.com, dzickus@redhat.com, rjw@sisk.pl
+Subject: Re: [PATCH 8/20] x86_64: Add EFER to the set registers saved by save_processor_state
+Message-ID: <20061118001129.GA9188@elf.ucw.cz>
+References: <20061117223432.GA15449@in.ibm.com> <20061117224411.GI15449@in.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061117143236.GA23210@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061117224411.GI15449@in.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2006 at 09:32:36AM -0500, Alan Cox wrote:
-> On Fri, Nov 17, 2006 at 03:21:45PM +0100, Adrian Bunk wrote:
-> > This patch removes the no longer used pci_find_device_reverse().
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> Acked-by: Alan Cox <alan@redhat.com>
-> 
-> Soon we should deprecate pci_find_device as well
+Hi!
 
-So let's mark it as __deprecated now, which also has the side effect 
-that noone can later whine that removing it might break some shiny 
-external modules.
+> EFER varies like %cr4 depending on the cpu capabilities, and which cpu
+> capabilities we want to make use of.  So save/restore it make certain
+> we have the same EFER value when we are done.
 
-Oh, and if anything starts complaining "But this adds some warnings to 
-my kernel build!", he should either first fix the 200 kB (sic) of 
-warnings I'm getting in 2.6.19-rc5-mm2 starting at MODPOST or go to hell.
+I still think that comment is right: EFER is function(cpu
+capabilities, kernel version, kernel cmdline); and that _should_ be
+constant accross suspend.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Anyway saving it does not hurt and code is probably easier to
+understand.
 
---- linux-2.6.19-rc5-mm2/include/linux/pci.h.old	2006-11-18 01:03:27.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/include/linux/pci.h	2006-11-18 01:05:46.000000000 +0100
-@@ -441,7 +441,7 @@
- 
- /* Generic PCI functions exported to card drivers */
- 
--struct pci_dev *pci_find_device (unsigned int vendor, unsigned int device, const struct pci_dev *from);
-+struct pci_dev __deprecated *pci_find_device (unsigned int vendor, unsigned int device, const struct pci_dev *from);
- struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
- int pci_find_capability (struct pci_dev *dev, int cap);
- int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
+ACK.
+								Pavel
+
+
+>  	/* XMM0..XMM15 should be handled by kernel_fpu_begin(). */
+> -	/* EFER should be constant for kernel version, no need to handle it. */
+>  	/*
+>  	 * segment registers
+>  	 */
+> @@ -50,6 +49,7 @@ void __save_processor_state(struct saved
+>  	/*
+>  	 * control registers 
+>  	 */
+> +	rdmsrl(MSR_EFER, ctxt->efer);
+>  	asm volatile ("movq %%cr0, %0" : "=r" (ctxt->cr0));
+>  	asm volatile ("movq %%cr2, %0" : "=r" (ctxt->cr2));
+>  	asm volatile ("movq %%cr3, %0" : "=r" (ctxt->cr3));
+> @@ -75,6 +75,7 @@ void __restore_processor_state(struct sa
+>  	/*
+>  	 * control registers
+>  	 */
+> +	wrmsrl(MSR_EFER, ctxt->efer);
+>  	asm volatile ("movq %0, %%cr8" :: "r" (ctxt->cr8));
+>  	asm volatile ("movq %0, %%cr4" :: "r" (ctxt->cr4));
+>  	asm volatile ("movq %0, %%cr3" :: "r" (ctxt->cr3));
+> --- linux-2.6.19-rc6-reloc/include/asm-x86_64/suspend.h~x86_64-Add-EFER-to-the-set-registers-saved-by-save_processor_state	2006-11-17 00:08:16.000000000 -0500
+> @@ -17,6 +17,7 @@ struct saved_context {
+>    	u16 ds, es, fs, gs, ss;
+>  	unsigned long gs_base, gs_kernel_base, fs_base;
+>  	unsigned long cr0, cr2, cr3, cr4, cr8;
+> +	unsigned long efer;
+>  	u16 gdt_pad;
+>  	u16 gdt_limit;
+>  	unsigned long gdt_base;
+> _
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

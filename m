@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755261AbWKRWNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755259AbWKRWJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755261AbWKRWNS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 17:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755268AbWKRWNS
+	id S1755259AbWKRWJN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 17:09:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755260AbWKRWJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 17:13:18 -0500
-Received: from firewall.rowland.harvard.edu ([140.247.233.35]:9812 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP
-	id S1755261AbWKRWNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 17:13:17 -0500
-Date: Sat, 18 Nov 2006 17:13:16 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061118212542.GA235@oleg>
-Message-ID: <Pine.LNX.4.44L0.0611181656230.23270-100000@netrider.rowland.org>
+	Sat, 18 Nov 2006 17:09:13 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:1208 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1755259AbWKRWJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 17:09:12 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <455F8475.3010407@s5r6.in-berlin.de>
+Date: Sat, 18 Nov 2006 23:08:53 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mattia Dongili <malattia@linux.it>
+CC: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       bcollins@debian.org
+Subject: Re: 2.6.19-rc5-mm2 (Oops in class_device_remove_attrs during nodemgr_remove_host)
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061116171715.GA3645@inferi.kami.home> <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de> <20061117071650.GA4974@inferi.kami.home> <455DCEF7.3060906@s5r6.in-berlin.de> <455DD42B.1020004@s5r6.in-berlin.de> <20061118094706.GA17879@kroah.com> <455EEE17.4020605@s5r6.in-berlin.de> <455F3DED.3070603@s5r6.in-berlin.de> <455F7EDD.6060007@s5r6.in-berlin.de>
+In-Reply-To: <455F7EDD.6060007@s5r6.in-berlin.de>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2006, Oleg Nesterov wrote:
+I wrote:
+> It seems like one of the patches in -mm overwrites a device's list of
+> children with junk.
 
-> On 11/18, Alan Stern wrote:
-> >
-> > By the way, I think the fastpath for synchronize_srcu() should be safe, 
-> > now that you have added the memory barriers into srcu_read_lock() and 
-> > srcu_read_unlock().  You might as well try putting it in.
-> 
-> I still think the fastpath should do mb() unconditionally to be correct.
+And this happens only if eth1394 wasn't unloaded (therefore unbound
+from FireWire "ud" devices beneath FireWire "ne" devices beneath the
+FireWire host devices) before the host devices's children are to be
+removed.
 
-Yes, it definitely should.
+> Mattia, *if* your machine is able to compile and reboot into new
+> kernels  really quickly, it would be nice if you could biject between
+> the -mm patches.
+...
+> But hold on, I will do one other thing after I sent this message; I'll
+> test -mm with CONFIG_SYSFS_DEPRECATED=y.
 
-> > Although now that I look at it again, you have forgotten to put smp_mb()
-> > after the atomic_inc() call and before the atomic_dec().
-> 
-> As I see it, currently we don't need this barrier because synchronize_srcu()
-> does synchronize_sched() before reading ->hardluckref.
-> 
-> But if we add the fastpath into synchronize_srcu() then yes, we need mb()
-> after atomic_inc().
-> 
-> Unless I totally confused :)
-
-Put it this way: If the missing memory barrier in srcu_read_lock() after
-the atomic_inc call isn't needed, then neither is the existing memory
-barrier after the per-cpu counter gets incremented.  Likewise, if a memory
-barrier isn't needed before the atomic_dec in srcu_read_unlock(), then
-neither is the memory barrier before the per-cpu counter gets decremented.
-
-What you're ignoring is the synchronize_sched() call at the end of
-synchronize_srcu(), which has been replaced with smp_mb().  The smp_mb()
-needs to pair against a memory barrier on the read side, and that memory
-barrier has to occur after srcu_read_lock() has incremented the counter
-and before the read-side critical section begins.  Otherwise code in the
-critical section might leak out to before the counter is incremented.
-
-Alan Stern
-
+CONFIG_SYSFS_DEPRECATED=y does not change anything.
+-- 
+Stefan Richter
+-=====-=-==- =-== =--=-
+http://arcgraph.de/sr/

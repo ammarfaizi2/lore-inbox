@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755087AbWKRPxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756354AbWKRQS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755087AbWKRPxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 10:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755137AbWKRPxm
+	id S1756354AbWKRQS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 11:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756351AbWKRQS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 10:53:42 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:61582 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1755087AbWKRPxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 10:53:42 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sat, 18 Nov 2006 16:52:29 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.19-rc5-mm2] fs/dlm: fix recursive dependency in Kconfig
-To: cluster-devel@redhat.com
-cc: linux-kernel@vger.kernel.org, Patrick Caulfield <pcaulfie@redhat.com>,
-       David Teigland <teigland@redhat.com>, Andrew Morton <akpm@osdl.org>
-Message-ID: <tkrat.c2d67cf7278af0e7@s5r6.in-berlin.de>
+	Sat, 18 Nov 2006 11:18:27 -0500
+Received: from mga09.intel.com ([134.134.136.24]:51868 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1755178AbWKRQS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 11:18:26 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,437,1157353200"; 
+   d="scan'208"; a="163568915:sNHT19082315"
+Message-ID: <455F324F.3090208@linux.intel.com>
+Date: Sat, 18 Nov 2006 19:18:23 +0300
+From: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+To: David Brownell <david-b@pacbell.net>
+CC: Len Brown <lenb@kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: 2.6.19-rc5 nasty ACPI regression, AE_TIME errors
+References: <200611142303.47325.david-b@pacbell.net> <455C8696.80508@linux.intel.com> <200611162222.44836.david-b@pacbell.net> <200611171304.00889.david-b@pacbell.net>
+In-Reply-To: <200611171304.00889.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make xconfig says
-"Warning! Found recursive dependency: INET IPV6 DLM (null) DLM_TCP INET"
-
-Seems to be another example of how badly the "select" keyword is handled
-by the .config make targets. Replace all occurences of "select" in dlm's
-Kconfig by "depends on" and some additional help texts.
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
- fs/dlm/Kconfig |   20 ++++++++++++++++----
- 1 files changed, 16 insertions(+), 4 deletions(-)
-
-Index: linux-2.6.19-rc5-mm2/fs/dlm/Kconfig
-===================================================================
---- linux-2.6.19-rc5-mm2.orig/fs/dlm/Kconfig	2006-11-18 13:25:31.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/fs/dlm/Kconfig	2006-11-18 16:40:21.000000000 +0100
-@@ -1,14 +1,22 @@
- menu "Distributed Lock Manager"
- 	depends on EXPERIMENTAL
- 
-+comment "DLM requires CONFIGFS_FS in section 'Pseudo filesystems'"
-+	depends on CONFIGFS_FS=n
-+
-+comment "DLM requires at least one of INET and IP_SCTP in section 'Networking'"
-+	depends on !(INET || IP_SCTP)
-+
- config DLM
- 	tristate "Distributed Lock Manager (DLM)"
--	depends on IPV6 || IPV6=n
--	select CONFIGFS_FS
-+	depends on (IPV6 || IPV6=n) && (INET || IP_SCTP) && CONFIGFS_FS
- 	help
- 	A general purpose distributed lock manager for kernel or userspace
- 	applications.
- 
-+	If you want to link DLM statically instead of as a module, configure
-+	IPV6 as statically linked too or switch it off.
-+
- choice
- 	prompt "Select DLM communications protocol"
- 	depends on DLM
-@@ -18,13 +26,17 @@ choice
- 	SCTP supports multi-homed operations whereas TCP doesn't.
- 	However, SCTP seems to have stability problems at the moment.
- 
-+	Activate INET (TCP/IP networking) in the Networking section
-+	to be able to use DLM over TCP.  Activate SCTP in the
-+	Networking section to use DLM over SCTP.
-+
- config DLM_TCP
- 	bool "TCP/IP"
--	select INET
-+	depends on INET
- 
- config DLM_SCTP
- 	bool "SCTP"
--	select IP_SCTP
-+	depends on IP_SCTP
- 
- endchoice
- 
-
-
+Please take a look at 7466, they seem to fight same problem, so may be 
+removing same patch will work...
+And Linus is about to drop it anyway...
+Regards,
+    Alex.
+David Brownell wrote:
+> On Thursday 16 November 2006 10:22 pm, David Brownell wrote:
+>   
+>> On Thursday 16 November 2006 7:41 am, Alexey Starikovskiy wrote:
+>>     
+>>> --- a/drivers/acpi/ec.c
+>>> +++ b/drivers/acpi/ec.c
+>>> @@ -467,8 +467,8 @@ static u32 acpi_ec_gpe_handler(void *dat
+>>>                 status = acpi_os_execute(OSL_EC_BURST_HANDLER, acpi_ec_gpe_query, ec);
+>>>         }
+>>>         acpi_enable_gpe(NULL, ec->gpe_bit, ACPI_ISR);
+>>> -       return status == AE_OK ?
+>>> -           ACPI_INTERRUPT_HANDLED : ACPI_INTERRUPT_NOT_HANDLED;
+>>> +       WARN_ON(ACPI_FAILURE(status));
+>>> +       return ACPI_INTERRUPT_HANDLED;
+>>>  }
+>>>  
+>>>       
+>> Strange ... applying this on top of the previous patch seems to work
+>> much better, but that WARN_ON hasn't triggered.  At least, not yet.
+>> Updating to RC6, with your two patches installed...
+>>     
+>
+> ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
+> ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for [OpcodeName unavailable] [2006070
+> 7]
+> ACPI Error (psparse-0537): Method parse/execution failed [\_TZ_.THRM._TMP] (Node ffff810002032d10), AE
+> _TIME
+>
+> OK, I don't get the WARN_ON when these happen, so it's got to be one of the
+> other EC updates.
+>
+> It'd be nice if this were easily reproducible ...
+>
+> - Dave
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>   

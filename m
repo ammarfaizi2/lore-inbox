@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753976AbWKRF61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755995AbWKRF6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753976AbWKRF61 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 00:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755993AbWKRF61
+	id S1755995AbWKRF6w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 00:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755993AbWKRF6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 00:58:27 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:56565 "EHLO
+	Sat, 18 Nov 2006 00:58:45 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:59893 "EHLO
 	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1753976AbWKRF60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 00:58:26 -0500
-Date: Fri, 17 Nov 2006 21:56:05 -0800
+	id S1755992AbWKRF6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 00:58:31 -0500
+Date: Fri, 17 Nov 2006 21:54:57 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH -mm] profile_likely: export do_check_likely
-Message-Id: <20061117215605.40226e71.randy.dunlap@oracle.com>
+Cc: markus.lidel@shadowconnect.com, akpm <akpm@osdl.org>
+Subject: [PATCH] I2O: handle __copy_from_user
+Message-Id: <20061117215457.cb800735.randy.dunlap@oracle.com>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,42 +29,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <randy.dunlap@oracle.com>
 
-I see MODPOST warnings for all modules in some (random) configs; e.g.:
-(This is a short list; I see >100 of these.)
+Handle __copy_from_user() return value.
 
-WARNING: "do_check_likely" [net/sched/cls_basic.ko] undefined!
-WARNING: "do_check_likely" [net/netfilter/x_tables.ko] undefined!
-WARNING: "do_check_likely" [net/key/af_key.ko] undefined!
-WARNING: "do_check_likely" [kernel/rcutorture.ko] undefined!
-WARNING: "do_check_likely" [fs/xfs/xfs.ko] undefined!
-WARNING: "do_check_likely" [fs/sysv/sysv.ko] undefined!
-WARNING: "do_check_likely" [fs/reiserfs/reiserfs.ko] undefined!
-WARNING: "do_check_likely" [fs/ntfs/ntfs.ko] undefined!
-WARNING: "do_check_likely" [fs/minix/minix.ko] undefined!
+Noticed by inspection, not from build warning.
 
 Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 ---
- lib/likely_prof.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/message/i2o/i2o_config.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- linux-2619-rc5mm2.orig/lib/likely_prof.c
-+++ linux-2619-rc5mm2/lib/likely_prof.c
-@@ -10,6 +10,7 @@
-  */
+--- linux-2619-rc5mm2.orig/drivers/message/i2o/i2o_config.c
++++ linux-2619-rc5mm2/drivers/message/i2o/i2o_config.c
+@@ -265,7 +265,11 @@ static int i2o_cfg_swdl(unsigned long ar
+ 		return -ENOMEM;
+ 	}
  
- #include <linux/init.h>
-+#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/fs.h>
- #include <linux/seq_file.h>
-@@ -50,6 +51,7 @@ int do_check_likely(struct likeliness *l
+-	__copy_from_user(buffer.virt, kxfer.buf, fragsize);
++	if (__copy_from_user(buffer.virt, kxfer.buf, fragsize)) {
++		i2o_msg_nop(c, msg);
++		i2o_dma_free(&c->pdev->dev, &buffer);
++		return -EFAULT;
++	}
  
- 	return ret;
- }
-+EXPORT_SYMBOL(do_check_likely);
- 
- static void * lp_seq_start(struct seq_file *out, loff_t *pos)
- {
+ 	msg->u.head[0] = cpu_to_le32(NINE_WORD_MSG_SIZE | SGL_OFFSET_7);
+ 	msg->u.head[1] =
 
 
 ---

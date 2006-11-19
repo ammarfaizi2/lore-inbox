@@ -1,96 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933415AbWKSVw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933416AbWKSV54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933415AbWKSVw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933400AbWKSVw4
+	id S933416AbWKSV54 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 16:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933420AbWKSV5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:52:56 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:58541 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S933397AbWKSVwz (ORCPT
+	Sun, 19 Nov 2006 16:57:55 -0500
+Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:27931
+	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
+	with ESMTP id S933416AbWKSV5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:52:55 -0500
-Date: Sun, 19 Nov 2006 22:46:19 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jay Cliburn <jacliburn@bellsouth.net>
-cc: jeff@garzik.org, shemminger@osdl.org, romieu@fr.zoreil.com,
-       csnook@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] atl1: Main C file for Attansic L1 driver
-In-Reply-To: <20061119203050.GD29736@osprey.hogchain.net>
-Message-ID: <Pine.LNX.4.61.0611192237170.6324@yvahk01.tjqt.qr>
-References: <20061119203050.GD29736@osprey.hogchain.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sun, 19 Nov 2006 16:57:55 -0500
+Date: Sun, 19 Nov 2006 13:54:21 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061119215421.GK4427@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20061119205516.GA117@oleg> <Pine.LNX.4.44L0.0611191606580.20262-100000@netrider.rowland.org> <20061119211731.GA151@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061119211731.GA151@oleg>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->+char at_driver_name[] = "atl1";
->+static const char at_driver_string[] = "Attansic(R) L1 Ethernet Network Driver";
->+const char at_driver_version[] = DRV_VERSION;
->+static const char at_copyright[] =
->+    "Copyright(c) 2005-2006 Attansic Corporation.";
->+
+On Mon, Nov 20, 2006 at 12:17:31AM +0300, Oleg Nesterov wrote:
+> On 11/19, Alan Stern wrote:
+> > On Sun, 19 Nov 2006, Oleg Nesterov wrote:
+> >
+> > > > What happens if synchronize_xxx manages to execute inbetween
+> > > > xxx_read_lock's
+> > > >
+> > > >  		idx = sp->completed & 0x1;
+> > > >  		atomic_inc(sp->ctr + idx);
+> > > >
+> > > > statements?
+> > >
+> > > Oops. I forgot about explicit mb() before sp->completed++ in synchronize_xxx().
+> > >
+> > > So synchronize_xxx() should do
+> > >
+> > > 	smp_mb();
+> > > 	idx = sp->completed++ & 0x1;
+> > >
+> > > 	for (;;) { ... }
+> > >
+> > > >               You see, there's no way around using synchronize_sched().
+> > >
+> > > With this change I think we are safe.
+> > >
+> > > If synchronize_xxx() increments ->completed in between, the caller of
+> > > xxx_read_lock() will see all memory ops (started before synchronize_xxx())
+> > > completed. It is ok that synchronize_xxx() returns immediately.
+> >
+> > Yes, the reader will see a consistent picture, but it will have
+> > incremented the wrong element of sp->ctr[].  What happens if another
+> > synchronize_xxx() occurs while the reader is still running?
+> 
+> It will wait for xxx_read_unlock() on reader's side. And for this reason
+> this idx in fact is not exactly wrong :)
 
->+extern s32 at_read_mac_addr(struct at_hw *hw);
->+extern s32 at_init_hw(struct at_hw *hw);
->+extern s32 at_get_speed_and_duplex(struct at_hw *hw, u16 * speed, u16 * duplex);
->+extern s32 at_set_speed_and_duplex(struct at_hw *hw, u16 speed, u16 duplex);
->+extern u32 at_auto_get_fc(struct at_adapter *adapter, u16 duplex);
->+extern u32 at_hash_mc_addr(struct at_hw *hw, u8 * mc_addr);
->+extern void at_hash_set(struct at_hw *hw, u32 hash_value);
->+extern s32 at_read_phy_reg(struct at_hw *hw, u16 reg_addr, u16 * phy_data);
->+extern s32 at_write_phy_reg(struct at_hw *hw, u32 reg_addr, u16 phy_data);
->+extern s32 at_validate_mdi_setting(struct at_hw *hw);
->+extern void set_mac_addr(struct at_hw *hw);
->+extern int get_permanent_address(struct at_hw *hw);
->+extern s32 at_phy_enter_power_saving(struct at_hw *hw);
->+extern s32 at_reset_hw(struct at_hw *hw);
->+extern void at_check_options(struct at_adapter *adapter);
->+void at_set_ethtool_ops(struct net_device *netdev);
+I am not seeing this.
 
-Put externs in a .h file.
+Let's assume sp->completed starts out zero.
 
->+static u16 at_alloc_rx_buffers(struct at_adapter *adapter)
->+{
-...
->+	u16 rfd_next_to_use, next_next;
->+	struct rx_free_desc *rfd_desc;
->+
->+	next_next = rfd_next_to_use = (u16) atomic_read(&rfd_ring->next_to_use);
+o	CPU 0 starts executing xxx_read_lock(), but is interrupted
+	(or whatever) just before the atomic_inc().  Upon return,
+	it will increment sp->ctr[0].
 
-Cast not needed.
+o	CPU 1 executes synchronize_xxx() to completion, which it
+	can because CPU 0 has not yet incremented the counter.
+	It waited on sp->ctr[0], and incremented sp->completed to 1.
 
->+		buffer_info->length = (u16) adapter->rx_buffer_len;
+o	CPU 0 returns from interrupt and completes xxx_read_lock(),
+	but has incremented sp->ctr[0].
 
->+	rrd_next_to_clean = (u16) atomic_read(&rrd_ring->next_to_clean);
+o	CPU 0 continues into its critical section, picking up a
+	pointer to an xxx-protected data structure (or, in Jens's
+	case starting an xxx-protected I/O).
 
-Same (check the others too)
+o	CPU 1 executes another synchronize_xxx().  This completes
+	immediately because it is waiting for sp->ctr[1] to go
+	to zero, but CPU 0 incremented sp->ctr[0].  (Right?)
 
->+			if (++rfd_ring->next_to_clean == rfd_ring->count) {
->+				rfd_ring->next_to_clean = 0;
->+			}
->+		}
->+
->+		buffer_info = &rfd_ring->buffer_info[rrd->buf_indx];
->+		if (++rfd_ring->next_to_clean == rfd_ring->count) {
->+			rfd_ring->next_to_clean = 0;
->+		}
+o	CPU 1 continues, either freeing a data structure while
+	CPU 0 is still referencing it, or, in Jens's case, completing
+	an I/O barrier while there is still outstanding I/O.
 
-Here is a stylistic one: {} is not needed for single-statememnt ifs.
+Or am I missing something?
 
->+static irqreturn_t at_intr(int irq, void *data)
->+{
->+	struct at_adapter *adapter = ((struct net_device *)data)->priv;
-
-(Ahem)
-
->+	if (0 == (status = adapter->cmb.cmb->int_stats))
-
-Someone else is probably going to complain about this one...
-
-
-I have not looked through all of it, so there are sure some more places.
-
-	-`J'
--- 
+						Thanx, Paul

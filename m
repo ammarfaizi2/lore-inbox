@@ -1,41 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756732AbWKSP7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756739AbWKSQDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756732AbWKSP7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 10:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756735AbWKSP7j
+	id S1756739AbWKSQDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 11:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756738AbWKSQDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 10:59:39 -0500
-Received: from mo-p07-ob.rzone.de ([81.169.146.188]:3216 "EHLO
-	mo-p07-ob.rzone.de") by vger.kernel.org with ESMTP id S1756732AbWKSP7i
+	Sun, 19 Nov 2006 11:03:16 -0500
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:42903
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1756734AbWKSQDP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 10:59:38 -0500
-Date: Sun, 19 Nov 2006 16:58:47 +0100 (MET)
-From: Olaf Hering <olaf@aepfle.de>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uml fails to compile due to missing offsetof
-Message-ID: <20061119155847.GA6890@aepfle.de>
-References: <20061119120000.GA4926@aepfle.de> <20061119142507.GA3284@ccure.user-mode-linux.org>
+	Sun, 19 Nov 2006 11:03:15 -0500
+From: Michael Buesch <mb@bu3sch.de>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Subject: Re: bcm43xx regression 2.6.19rc3 -> rc5, rtnl_lock trouble?
+Date: Sun, 19 Nov 2006 17:01:21 +0100
+User-Agent: KMail/1.9.5
+References: <455B63EC.8070704@madrabbit.org> <455F4271.1060405@madrabbit.org> <455F58AC.3030801@lwfinger.net>
+In-Reply-To: <455F58AC.3030801@lwfinger.net>
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       Joseph Fannin <jhf@columbus.rr.com>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Michael Buesch <mb@bu3sch.de>, Bcm43xx-dev@lists.berlios.denunk,
+       Adrian Bunk <bunk@stusta.de>, Ray Lee <ray-lk@madrabbit.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061119142507.GA3284@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611191701.21593.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, Jeff Dike wrote:
-
-> On Sun, Nov 19, 2006 at 01:00:01PM +0100, Olaf Hering wrote:
+On Saturday 18 November 2006 20:02, Larry Finger wrote:
+> Ray Lee wrote:
+> > Larry Finger wrote:
+> >> Johannes Berg wrote:
+> >>> Hah, that's a lot more plausible than bcm43xx's drain patch actually
+> >>> causing this. So maybe somehow interrupts for bcm43xx aren't routed
+> >>> properly or something...
+> >>>
+> >>> Ray, please check /proc/interrupts when this happens.
 > > 
-> > I fail to see how arch/um/sys-i386/user-offsets.c can compile since
-> > offsetof() was declared __KERNEL__ only in include/linux/stddef.h.
-> > Does it work for anyone else? 
+> > When it happens, I can't. The keyboard is entirely dead (I'm in X, perhaps at
+> > a console it would be okay). The only thing that works is magic SysRq. even
+> > ctrl-alt-f1 to get to a console doesn't work.
+> > 
+> > That said, /proc/interrupts doesn't show MSI routed things on my AMD64 laptop.
+> > 
+> >>> I am convinced that the patch in question (drain tx status) is not
+> >>> causing this -- the patch should be a no-op in most cases anyway, and in
+> >>> those cases where it isn't a no-op it'll run only once at card init and
+> >>> remove some things from a hardware-internal FIFO.
+> > 
+> > Okay, I can buy that.
+> > 
+> >> I agree that drain tx status should not cause the problem.
+> >>
+> >> Ray, does -rc6 solve your problem as it did for Joseph?
+> > 
+> > I can't get it to repeat other than the first two times. However, I
+> > accidentally stopped NetworkManager from handling my wireless a few days ago,
+> > and haven't restarted it, so that may play into this.
+> > 
+> > Humor me one last time, I beg. Did you look at the messages file I posted? (Or
+> > maybe I didn't include this second bit... Damn, I need to be more careful with
+> > cutting and pasting...)
 > 
-> It obviously works for me.  offsetof is very standard C.  I'd venture
-> to say that a system which can't find it has a broken gcc installation.
+> The locking stuff wasn't in any of the messages that I received.
+> 
+> > The second sysrq-t shows locking stuff going on, can you tell me if it looks
+> > reasonable? It still seems to me that something acquiring and not releasing
+> > rtnl_lock explains what I was seeing (rtnl lock is implicated in both sysrq-t
+> > backtraces). I don't know if that thing is bcm43xx, though.
+> > 
+> > Is this part reasonable?:
+> >  1 lock held by events/0/4:
+> >   #0:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+> >  2 locks held by NetworkManager/4837:
+> >   #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+> >   #1:  (&bcm->mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+> >  1 lock held by wpa_supplicant/5953:
+> >   #0:  (rtnl_mutex){--..}, at: [mutex_lock+9/16] mutex_lock+0x9/0x10
+> 
+> I'm not an expert on locking, but it certainly looks as if bcm43xx and wpa_supplicant are OK by 
+> themselves, but that NetworkManager interferes. This behavior matches what I see - I don't have 
+> NetworkManager on my system, but I do use wpa_supplicant, with no lockups. Of course, I have i386 
+> architecture.
+> 
+> Although NetworkManager may be the catalyst to trigger the bug, I doubt that it is the cause. 
+> Strictly as a guess, I would suspect that the locking problem is in SoftMAC, where we know there can 
+> be locking difficulties, but no one is fixing them because EOL is near for that component.
 
-How do you get _STDDEF_H defined in
-/usr/lib/gcc/<target>/<vers>/include/stddef.h ?
-For me _STDDEF_H remains undefined, and /usr/include/linux/stddef.h has
-offsetof inside __KERNEL__.
+Well, this is different. The (known) locking problems are of type "missing locking".
+But this seems to be a deadlock or something, so clearly a bug that
+must be fixed. Even in softmac.
+I don't know yet how this can happen, though.
+
+-- 
+Greetings Michael.

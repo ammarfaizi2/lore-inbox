@@ -1,111 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933131AbWKSUGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933138AbWKSUHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933131AbWKSUGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:06:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933132AbWKSUGk
+	id S933138AbWKSUHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933132AbWKSUHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:06:40 -0500
-Received: from hera.kernel.org ([140.211.167.34]:9122 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S933131AbWKSUGk (ORCPT
+	Sun, 19 Nov 2006 15:07:55 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31938 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S933138AbWKSUHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:06:40 -0500
-Date: Sun, 19 Nov 2006 20:06:37 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Linux 2.4.33.4
-Message-ID: <20061119200637.GA18968@hera.kernel.org>
+	Sun, 19 Nov 2006 15:07:54 -0500
+Date: Sun, 19 Nov 2006 21:06:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi type IRQ handlers
+Message-ID: <20061119200650.GA22949@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1163966437.5826.99.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-Here's linux-2.4.33.4, which adds a few fixes on top of 2.4.33.3.
-All of those are pretty minimal. Nothing critical here, there is
-no reason to hurry an upgrade for people running 2.4.33.3, unless
-they're hit by one of those bugs of course. It also fixes two
-vulnerabilities :
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-  - CVE-2006-5174 : copy_from_user information leak on s390
-  - CVE-2006-4997 : do not refer freed skbuff in clip_mkip()
+> Wait wait wait .... Can somebody (Ingo ?) explain me why the fasteoi 
+> handler is being changed and what is the rationale for adding an ack 
+> that was not necessary before ?
 
-Location: ftp://ftp.kernel.org/pub/linux/kernel/v2.4/
+dont worry, it's -rt only stuff.
 
-Regards,
-Willy
---
-
-Summary of changes from v2.4.33.3 to v2.4.33.4
-============================================
-
-Akinobu Mita (1):
-      WATCHDOG: sc1200wdt.c pnp unregister fix.
-
-dann frazier (1):
-      Backport fix for CVE-2006-4997 to 2.4 tree
-
-Dick Streefland (1):
-      incorrect timeout in mtd AMD driver of 2.4 kernel
-
-Geert Uytterhoeven (1):
-      fbdev: correct buffer size limit in fbmem_read_proc()
-
-Herbert Xu (1):
-      SCTP: Always linearise packet on input
-
-Jeff Garzik (1):
-      ISDN: fix drivers, by handling errors thrown by ->readstat()
-
-Jurzitza, Dieter (1):
-      really fix size display for sun partitions larger than 1TByte
-
-Martin Schwidefsky (3):
-      copy_from_user information leak on s390.
-      s390 : fix typo in recent copy_from_user fix
-      [S390] user readable uninitialised kernel memory (3rd version)
-
-Michael Chen (1):
-      i386: fix overflow in vmap on an x86 system which has more than 4GB memory.
-
-mostrows@earthlink.net (1):
-      Advertise PPPoE MTU
-
-NeilBrown (1):
-      knfsd: Fix race that can disable NFS server.
-
-Patrick McHardy (1):
-      [NETFILTER]: Fix deadlock on NAT helper unload
-
-PaX Team (2):
-      MIPS: fix long long cast in pte macro
-      i386: fix long long cast in pte macro
-
-Pete Zaitcev (2):
-      USB: Little Rework for usbserial
-      USB: unsigned long flags
-
-Steffen Maier (1):
-      block: fix negative bias of ios_in_flight (CONFIG_BLK_STATS) because of unbalanced I/O accounting
-
-Stephen Hemminger (1):
-      [BRIDGE]: netfilter deadlock
-
-Toyo Abe (1):
-      x86_64: Fix missing delay when the TSC counter just overflowed
-
-Willy Tarreau (10):
-      i386: remove unsigned long long cast in __pte() macro.
-      2.4.x: i386/x86_64 bitops clobberings
-      [PATCH-2.4] i2c-elv: fix erroneous '&&' operator
-      fix "&& 0xffff" typo in gdth.c
-      fix obvious "&& 0xFFFFFF" typo in cpqfcTSworker
-      fix "&& 0xff" typo in qeth_qdio_input_handler
-      fix two "&& 0x03" in usbnet
-      EXT3: avoid crashing by not dividing by zero.
-      EXT2: avoid crashing by not dividing by zero.
-      Change VERSION to 2.4.33.4
-
+	Ingo

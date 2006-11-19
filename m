@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756668AbWKSNoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756681AbWKSOEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756668AbWKSNoX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 08:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756669AbWKSNoX
+	id S1756681AbWKSOEX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 09:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756679AbWKSOEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 08:44:23 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:5340 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1756668AbWKSNoX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 08:44:23 -0500
-Date: Sun, 19 Nov 2006 14:43:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <fzu@wemgehoertderstaat.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-rt4, changed yum repository
-Message-ID: <20061119134301.GA2792@elte.hu>
-References: <20061118163032.GA14625@elte.hu> <200611191539.42023.fzu@wemgehoertderstaat.de>
-Mime-Version: 1.0
+	Sun, 19 Nov 2006 09:04:23 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31241 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1756677AbWKSOEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 09:04:22 -0500
+Date: Sun, 19 Nov 2006 15:04:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] mark pci_find_device() as __deprecated
+Message-ID: <20061119140420.GF31879@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061117142145.GX31879@stusta.de> <20061117143236.GA23210@devserv.devel.redhat.com> <20061118000629.GW31879@stusta.de> <1163929632.31358.481.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611191539.42023.fzu@wemgehoertderstaat.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0009]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1163929632.31358.481.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Karsten Wiese <fzu@wemgehoertderstaat.de> wrote:
-
-> work_resched:
-> 	DISABLE_INTERRUPTS
-> 	call __schedule
-> 					# make sure we don't miss an interrupt
-> 					# setting need_resched or sigpending
-> 					# between sampling and the iret
-> 	movl TI_flags(%ebp), %ecx
-> 	andl $_TIF_WORK_MASK, %ecx	# is there any work to be done other
-> 					# than syscall tracing?
-> 	jz restore_all
-> 	testl $(_TIF_NEED_RESCHED|_TIF_NEED_RESCHED_DELAYED), %ecx
-> 	jnz work_resched
+On Sun, Nov 19, 2006 at 10:47:12AM +0100, Arjan van de Ven wrote:
 > 
-> The hwclock page_fault happens at the
->  	movl TI_flags(%ebp), %ecx
-> line.
+> > 
+> > Oh, and if anything starts complaining "But this adds some warnings to 
+> > my kernel build!", he should either first fix the 200 kB (sic) of 
+> > warnings I'm getting in 2.6.19-rc5-mm2 starting at MODPOST or go to hell.
+> 
+> we can solve this btw; we could have a
+> 
+> #define THIS_MODULE_IS_LEGACY_CRAP_AND_WONT_GET_FIXED
+>...
 
-hm, weird - maybe something corrupts %ebp here? Could you try to add 
-this to before the faulting instruction:
+The few warnings by __deprecated are not that much of a problem.
 
-	GET_THREAD_INFO(%ebp)
+But the > 200 kB starting at MODPOST in -mm are really annoying.
+And it seems noone cares about them.
 
-this will make sure %ebp has the right contents.
+cu
+Adrian
 
-	Ingo
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

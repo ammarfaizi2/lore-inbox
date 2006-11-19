@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933476AbWKSW3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933479AbWKSWae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933476AbWKSW3F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 17:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933479AbWKSW3E
+	id S933479AbWKSWae (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 17:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933493AbWKSWae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 17:29:04 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:5568 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S933476AbWKSW3C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 17:29:02 -0500
-Date: Mon, 20 Nov 2006 01:28:47 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061119222847.GA189@oleg>
-References: <20061119205516.GA117@oleg> <Pine.LNX.4.44L0.0611191606580.20262-100000@netrider.rowland.org> <20061119211731.GA151@oleg> <20061119215421.GK4427@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061119215421.GK4427@us.ibm.com>
-User-Agent: Mutt/1.5.11
+	Sun, 19 Nov 2006 17:30:34 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:54985 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S933479AbWKSWad (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 17:30:33 -0500
+Message-ID: <4560DB6B.9020601@suse.com>
+Date: Sun, 19 Nov 2006 17:32:11 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
+       sam@ravnborg.org
+Subject: Re: reiserfs NET=n build error
+References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com> <200611191959.55969.ak@suse.de> <4560AAC1.3000800@oracle.com> <20061119205711.GE3078@ftp.linux.org.uk>
+In-Reply-To: <20061119205711.GE3078@ftp.linux.org.uk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/19, Paul E. McKenney wrote:
->
-> On Mon, Nov 20, 2006 at 12:17:31AM +0300, Oleg Nesterov wrote:
-> > 
-> > It will wait for xxx_read_unlock() on reader's side. And for this reason
-> > this idx in fact is not exactly wrong :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Al Viro wrote:
+> On Sun, Nov 19, 2006 at 11:04:33AM -0800, Randy Dunlap wrote:
+>> Andi Kleen wrote:
+>>>>> I would copy a relatively simple C implementation, like 
+>>>>> arch/h8300/lib/checksum.c
+>>>> As long as the h8300 version has the same output as the x86 version.
+>>> The trouble is that the different architecture have different output 
+>>> for csum_partial. So you already got a bug when someone wants to move
+>>> file systems.
+>>>
+>>> -Andi
+>> That argues for having only one version of it (in a lib.; my preference)
+>> -or- Every module having its own local copy/version of it.  :(
 > 
-> I am not seeing this.
+> Wrong.  csum_partial() result is defined modulo 0xffff and it's basically
+> "whatever's convenient as intermediate for this architecture".
 > 
-> Let's assume sp->completed starts out zero.
+> reiserfs use of it is just plain broken.  net/* is fine, since all
+> final uses are via csum_fold() or equivalents.
 > 
-> o	CPU 0 starts executing xxx_read_lock(), but is interrupted
-> 	(or whatever) just before the atomic_inc().  Upon return,
-> 	it will increment sp->ctr[0].
+> Note that reiserfs use is broken in another way: it takes fixed-endian value
+> and feeds it to cpu_to_le32().  IOW, even if everything had literally the
+> same csum_partial(), the value it shits on disk would be endian-dependent.
 
-Right.
+Oh great. Even better. :(
 
-> o	CPU 1 executes synchronize_xxx() to completion, which it
-> 	can because CPU 0 has not yet incremented the counter.
-> 	It waited on sp->ctr[0], and incremented sp->completed to 1.
-> 
-> o	CPU 0 returns from interrupt and completes xxx_read_lock(),
-> 	but has incremented sp->ctr[0].
-> 
-> o	CPU 0 continues into its critical section, picking up a
-> 	pointer to an xxx-protected data structure (or, in Jens's
-> 	case starting an xxx-protected I/O).
-> 
-> o	CPU 1 executes another synchronize_xxx().  This completes
-> 	immediately because it is waiting for sp->ctr[1] to go
-> 	to zero, but CPU 0 incremented sp->ctr[0].  (Right?)
+- -Jeff
 
-Right!
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
 
-> o	CPU 1 continues, either freeing a data structure while
-> 	CPU 0 is still referencing it, or, in Jens's case, completing
-> 	an I/O barrier while there is still outstanding I/O.
-> 
-> Or am I missing something?
-
-No, it is me.
-
-Alan, Paul, thanks a lot for your patience!
-
-Oleg.
-
+iD8DBQFFYNtqLPWxlyuTD7IRAux8AKCbxW4zX5Q7y8LfPT0FY/W4A8v0PQCggV11
+EbMvTGkAb5WXa0f7EgUz5Qk=
+=Zm0q
+-----END PGP SIGNATURE-----

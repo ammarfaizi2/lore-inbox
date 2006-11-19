@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933276AbWKSUwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933275AbWKSUzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933276AbWKSUwo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933278AbWKSUwo
+	id S933275AbWKSUzS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933278AbWKSUzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:52:44 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:1221 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S933276AbWKSUwn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:52:43 -0500
-Date: Sun, 19 Nov 2006 20:52:38 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Andi Kleen <ak@suse.de>, Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org
-Subject: Re: reiserfs NET=n build error
-Message-ID: <20061119205238.GD3078@ftp.linux.org.uk>
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com>
+	Sun, 19 Nov 2006 15:55:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20687 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933275AbWKSUzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 15:55:16 -0500
+Date: Sun, 19 Nov 2006 15:55:03 -0500
+From: Dave Jones <davej@redhat.com>
+To: David Rientjes <rientjes@cs.washington.edu>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Hiroshi Miura <miura@da-cha.org>,
+       Zwane Mwaikambo <zwane@commfireservices.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 cpufreq: cs5530A allows active idle
+Message-ID: <20061119205503.GB1832@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Rientjes <rientjes@cs.washington.edu>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Hiroshi Miura <miura@da-cha.org>,
+	Zwane Mwaikambo <zwane@commfireservices.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64N.0611191121050.391@attu4.cs.washington.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45608FC2.5040406@suse.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64N.0611191121050.391@attu4.cs.washington.edu>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2006 at 12:09:22PM -0500, Jeff Mahoney wrote:
-> > I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
-> 
-> As long as the h8300 version has the same output as the x86 version.
+On Sun, Nov 19, 2006 at 11:24:08AM -0800, David Rientjes wrote:
+ > The cs5530A will be able to go into active idle (PWRSVE) so its PCI class 
+ > revision should be accurately stored.
 
-As the matter of fact, h8300 version is severely broken and no, it
-definitely does *not* give the same values.  Not even guaranteed
-to be the same mod 0xffff is some cases, which is very much not
-OK for networking uses.
+Already queued in cpufreq.git for .20
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

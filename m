@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWKSRrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWKSRu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWKSRrz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:47:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWKSRrz
+	id S932270AbWKSRu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 12:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWKSRu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:47:55 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:51126 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932313AbWKSRry (ORCPT
+	Sun, 19 Nov 2006 12:50:26 -0500
+Received: from mail.gmx.net ([213.165.64.20]:6333 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932270AbWKSRuZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:47:54 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Sun, 19 Nov 2006 12:50:25 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch] PM: suspend/resume debugging should depend on 
+	SOFTWARE_SUSPEND
+From: Mike Galbraith <efault@gmx.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] PM: suspend/resume debugging should depend on  SOFTWARE_SUSPEND
-Date: Sun, 19 Nov 2006 18:44:13 +0100
-User-Agent: KMail/1.9.1
 Cc: Chuck Ebbert <76306.1226@compuserve.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
 In-Reply-To: <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	 <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+Content-Type: text/plain
+Date: Sun, 19 Nov 2006 18:52:07 +0100
+Message-Id: <1163958727.5977.15.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611191844.14354.rjw@sisk.pl>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 19 November 2006 18:33, Linus Torvalds wrote:
+On Sun, 2006-11-19 at 09:33 -0800, Linus Torvalds wrote:
 > 
 > On Sun, 19 Nov 2006, Chuck Ebbert wrote:
 > >
@@ -42,20 +44,9 @@ On Sunday, 19 November 2006 18:33, Linus Torvalds wrote:
 > 
 > Sane people use suspend-to-ram, and that's when you need the suspend and 
 > resume debugging.
-> 
-> Software-suspend is silly. I want my machine back in three seconds, not 
-> waiting for minutes..
 
-In fact that's up to 30 seconds on a modern box, usually less than that.
+Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
+AGP card, I have no choices except swsusp or reboot.
 
-And suspend-to-ram doesn't work on quilte a lot of boxes right now.  Also, you
-can use the software suspend on boxes that don't support the suspend-to-ram
-at all.
+	-Mike
 
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

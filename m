@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933300AbWKSVIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933297AbWKSVLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933300AbWKSVIu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933316AbWKSVIu
+	id S933297AbWKSVLU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 16:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933301AbWKSVLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:08:50 -0500
-Received: from gate.crashing.org ([63.228.1.57]:29135 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S933300AbWKSVIt (ORCPT
+	Sun, 19 Nov 2006 16:11:20 -0500
+Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:7774
+	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
+	with ESMTP id S933297AbWKSVLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:08:49 -0500
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
-	type IRQ handlers
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, dwalker@mvista.com
-In-Reply-To: <4560C409.9030709@ru.mvista.com>
-References: <200611192243.34850.sshtylyov@ru.mvista.com>
-	 <1163966437.5826.99.camel@localhost.localdomain>
-	 <20061119200650.GA22949@elte.hu>
-	 <1163967590.5826.104.camel@localhost.localdomain>
-	 <4560BDF5.400@ru.mvista.com>
-	 <1163968376.5826.110.camel@localhost.localdomain>
-	 <4560C121.30403@ru.mvista.com>
-	 <1163968885.5826.116.camel@localhost.localdomain>
-	 <4560C409.9030709@ru.mvista.com>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 08:08:43 +1100
-Message-Id: <1163970524.5826.128.camel@localhost.localdomain>
+	Sun, 19 Nov 2006 16:11:19 -0500
+Date: Sun, 19 Nov 2006 13:07:46 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061119210746.GD4427@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118184624.GA163@oleg>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118184624.GA163@oleg>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 18, 2006 at 09:46:24PM +0300, Oleg Nesterov wrote:
+> On 11/17, Paul E. McKenney wrote:
+> >
+> > Oleg, any thoughts about Jens's optimization?  He would code something
+> > like:
+> >
+> > 	if (srcu_readers_active(&my_srcu))
+> > 		synchronize_srcu();
+> > 	else
+> > 		smp_mb();
+> 
+> Well, this is clearly racy, no? I am not sure, but may be we can do
+> 
+> 	smp_mb();
+> 	if (srcu_readers_active(&my_srcu))
+> 		synchronize_srcu();
+> 
+> in this case we also need to add 'smp_mb()' into srcu_read_lock() after
+> 'atomic_inc(&sp->hardluckref)'.
+> 
+> > However, he is doing ordered I/O requests rather than protecting data
+> > structures.
+> 
+> Probably this makes a difference, but I don't understand this.
 
->     I'm not sure it's feasible. The idea behind level/edge flows is to 
-> eliminate the interrupt priority I think. That's why they EOI ASAP (with the 
-> level handler masking IRQ before that) -- this way the other interrupts may 
-> come thru.
+OK, one hypothesis here...
 
-Well, the idea behind the level/edge flow is not exactly that afaik.
-It's more like having tailored handlers for level/edge on PICs that are
-not intelligent to auto-mask with a priority mecanism (ie. dumb PICs
-which are very common in the embedded field, and for example, on ARM
-where genirq takes its roots).
+	The I/Os must be somehow explicitly ordered to qualify
+	for I/O-barrier separation.  If two independent processes
+	issue I/Os concurrently with a third process doing an
+	I/O barrier, the I/O barrier is free to separate the
+	two concurrent I/Os or not, on its whim.
 
->     I used to think that fasteoi was intended for SMP PICs which are 
-> intelligent enough to mask off the interrupts pending delivery or handling on 
-> CPUs and unmask them upon receiving EOI -- just like x86 IOAPIC does.
+Jens, is the above correct?  If so, what would the two processes
+need to do in order to ensure that their I/O was considered to be
+ordered with respect to the I/O barrier?  Here are some possibilities:
 
-In general, PICs that are intelligent enough to mask off, wether using
-something as you describe or using priorities. I don't feel the need of
-going through hoops to allow lower or same priority interrupts in.
-First, if you really need an interrupt to be serviced quick, then you
-can just give it a higher priority. In the general case however, I do
--not- want to allow interrupts to stack up. Imagine a big IBM machine
-with hundreds interrupt lines, what happens to the kernel stack if we
-let them interrupt each other ?
+1.	I/O barriers apply only to preceding and following I/Os from
+	the process issuing the I/O barrier.
 
->  This 
-> way, the acceptance of the lower priority interrupts shouldn't be hindered on 
-> the other CPUs. Maybe the scheme is different for OpenPIC (I know it has the 
-> different interrupt distribution scheme from IOAPIC)?
+2.	As for #1 above, but restricted to task rather than process.
 
-I don't think there is a real need to let lower priority interrupts in
-on a CPU that is currently handling a higher priority one.
+3.	I/O system calls that have completed are ordered by the
+	barrier to precede I/O system calls that have not yet
+	started, but I/O system calls still in flight could legally
+	land on either side of the concurrently executing I/O
+	barrier.
 
-In the case of RT, though, with delayed delivery, then, the option to
-mask and EOI right away is always possible.
+4.	Something else entirely?
 
-Ben.
+Given some restriction like one of the above, it is entirely possible
+that we don't even need the memory barrier...
 
-
-
+						Thanx, Paul

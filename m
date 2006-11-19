@@ -1,101 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756692AbWKSOYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756693AbWKSO1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756692AbWKSOYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 09:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756695AbWKSOYQ
+	id S1756693AbWKSO1h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 09:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756694AbWKSO1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 09:24:16 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:52639 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1756692AbWKSOYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 09:24:15 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sun, 19 Nov 2006 15:23:03 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: deadlock in "modprobe -r ohci1394" shortly after "modprobe
- ohci1394"
-To: linux1394-devel@lists.sourceforge.net
-cc: Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <455FA159.2080303@s5r6.in-berlin.de>
-Message-ID: <tkrat.8ead93641e26cf48@s5r6.in-berlin.de>
-References: <455FA159.2080303@s5r6.in-berlin.de>
+	Sun, 19 Nov 2006 09:27:37 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46857 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1756693AbWKSO1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 09:27:36 -0500
+Date: Sun, 19 Nov 2006 15:27:35 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] mark pci_find_device() as __deprecated
+Message-ID: <20061119142735.GI31879@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org> <20061117142145.GX31879@stusta.de> <20061117143236.GA23210@devserv.devel.redhat.com> <20061118000629.GW31879@stusta.de> <1163929632.31358.481.camel@laptopd505.fenrus.org> <20061119140420.GF31879@stusta.de> <1163945584.31358.516.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1163945584.31358.516.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> http://bugzilla.kernel.org/show_bug.cgi?id=6706 :
-...
-> Right now I don't see a sane fix but I will have a few nights sleep over
-> it...
+On Sun, Nov 19, 2006 at 03:13:04PM +0100, Arjan van de Ven wrote:
+> On Sun, 2006-11-19 at 15:04 +0100, Adrian Bunk wrote:
+> > On Sun, Nov 19, 2006 at 10:47:12AM +0100, Arjan van de Ven wrote:
+> > > 
+> > > > 
+> > > > Oh, and if anything starts complaining "But this adds some warnings to 
+> > > > my kernel build!", he should either first fix the 200 kB (sic) of 
+> > > > warnings I'm getting in 2.6.19-rc5-mm2 starting at MODPOST or go to hell.
+> > > 
+> > > we can solve this btw; we could have a
+> > > 
+> > > #define THIS_MODULE_IS_LEGACY_CRAP_AND_WONT_GET_FIXED
+> > >...
+> > 
+> > The few warnings by __deprecated are not that much of a problem.
+> 
+> yes they are; the current situation prevents things that are used in
+> only a set of old unmaintained legacy drivers (read: ISDN) as being
 
-A couple of reboots and a slightly charred pizza later I found out the
-following:
+ISDN at least has reachable maintainers.
 
-1. If Alan's 2.6.16 patch is reverted, the deadlock is gone as expected.
-   See bugzilla for the reverting patch.
+There are much worse drivers in the kernel.
 
-2. The following patch works too, without the need to revert Alan's
-   driver core changes.
+> marked __deprecated because they add too many warnings, while the API
+> really should be marked deprecated..
+> 
+> think for example the entire sleep_on() family of API's (which basically
+> are impossible to use race-free in 2.6)
 
-3. Now that I have an at least unsane (sic) fix for the deadlock, a new
-   bug in eth1394's remove code was revealed. This is a separate issue
-   and logged as http://bugzilla.kernel.org/show_bug.cgi?id=7550 .
+At about 100 warnings with an allyesconfig kernel build and less than a 
+handful of warnings with a normal .config .
 
-Please comment on the patch below.
+That's not that bad, and it might result in even these legacy drivers 
+getting fixed so that the API can be completely removed.
 
-
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: ieee1394: nodemgr: fix deadlock in shutdown
-
-If "modprobe ohci1394" was quickly followed by "modprobe -r ohci1394",
-say with 1 second pause in between, the modprobe -r got stuck in
-uninterruptible sleep in kthread_stop.  At the same time the knodemgrd
-slept uninterruptibly in bus_rescan_devices_helper.
-
-This was a regression since Linux 2.6.16,
-	commit bf74ad5bc41727d5f2f1c6bedb2c1fac394de731
-	"Hold the device's parent's lock during probe and remove"
-
-The fix lets ieee1394's nodemgr temporarily counteract the driver core's
-downed parent->sem.  Thus bus_rescan_devices_helper can proceed and
-knodemgrd terminates properly.
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
- drivers/ieee1394/nodemgr.c |   11 +++++++++++
- 1 files changed, 11 insertions(+)
-
-Index: linux-2.6.19-rc4/drivers/ieee1394/nodemgr.c
-===================================================================
---- linux-2.6.19-rc4.orig/drivers/ieee1394/nodemgr.c	2006-11-18 23:31:35.000000000 +0100
-+++ linux-2.6.19-rc4/drivers/ieee1394/nodemgr.c	2006-11-19 15:14:50.000000000 +0100
-@@ -1873,8 +1873,19 @@ static void nodemgr_remove_host(struct h
- {
- 	struct host_info *hi = hpsb_get_hostinfo(&nodemgr_highlevel, host);
- 
-+	/* Here comes a potential deadlock. A "modprobe -r ohci1394" calls
-+	 * nodemgr_remove_host from driver_detach which takes the parent->sem.
-+	 * Meanwhile, knodemgrd may be running into bus_rescan_devices_helper
-+	 * which would block on the same semaphore. Therefore lift the
-+	 * semaphore until knodemgrd exited. */
- 	if (hi) {
-+		/* up(&host->device.sem);	--- apparently not required */
-+		if (host->device.parent)
-+			up(&host->device.parent->sem);
- 		kthread_stop(hi->thread);
-+		if (host->device.parent)
-+			down(&host->device.parent->sem);
-+		/* down(&host->device.sem);	--- apparently not required */
- 		nodemgr_remove_host_dev(&host->device);
- 	}
- }
+cu
+Adrian
 
 -- 
-Stefan Richter
--=====-=-==- =-== =--==
-http://arcgraph.de/sr/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

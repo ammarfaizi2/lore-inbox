@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932900AbWKSTAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932873AbWKSTA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932900AbWKSTAM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 14:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932873AbWKSTAM
+	id S932873AbWKSTA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 14:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932934AbWKSTA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 14:00:12 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:13220 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932900AbWKSTAL (ORCPT
+	Sun, 19 Nov 2006 14:00:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:46783 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932873AbWKSTAz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 14:00:11 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jeff Mahoney <jeffm@suse.com>
-Subject: Re: reiserfs NET=n build error
-Date: Sun, 19 Nov 2006 19:59:55 +0100
-User-Agent: KMail/1.9.5
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org, Al Viro <viro@ftp.linux.org.uk>
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com>
-In-Reply-To: <45608FC2.5040406@suse.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 19 Nov 2006 14:00:55 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch] PM: suspend/resume debugging should depend on 
+	SOFTWARE_SUSPEND
+From: Mike Galbraith <efault@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+In-Reply-To: <Pine.LNX.4.64.0611191023390.3692@woody.osdl.org>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	 <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+	 <1163958727.5977.15.camel@Homer.simpson.net>
+	 <Pine.LNX.4.64.0611191023390.3692@woody.osdl.org>
+Content-Type: text/plain
+Date: Sun, 19 Nov 2006 20:02:37 +0100
+Message-Id: <1163962957.5868.3.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611191959.55969.ak@suse.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
+On Sun, 2006-11-19 at 10:25 -0800, Linus Torvalds wrote:
 > 
-> As long as the h8300 version has the same output as the x86 version.
+> On Sun, 19 Nov 2006, Mike Galbraith wrote:
+> > 
+> > Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
+> > AGP card, I have no choices except swsusp or reboot.
+> 
+> Try using regular VGA console, and letting X re-initialize the card. It's 
+> worked for me on several machines (Mac Mini and Compaq EVO) where the 
+> kernel cannot initialize the graphics itself.
+> 
+> It does mean that you have to run X when suspending, but most people do 
+> anyway..
 
-The trouble is that the different architecture have different output 
-for csum_partial. So you already got a bug when someone wants to move
-file systems.
+Thanks for the tip, but it didn't work.  It suspended instantly, and got
+my hopes up (manually, SuSE says "not supported, go away"), but resume
+still left me with an utterly dead box (minus flashing crud on display).
 
--Andi
+	-Mike
+

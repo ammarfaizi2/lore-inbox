@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756791AbWKSRHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756797AbWKSROZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756791AbWKSRHo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756793AbWKSRHo
+	id S1756797AbWKSROZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 12:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756799AbWKSROZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:07:44 -0500
-Received: from mx2.suse.de ([195.135.220.15]:32911 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1756791AbWKSRHn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:07:43 -0500
-Message-ID: <45608FC2.5040406@suse.com>
-Date: Sun, 19 Nov 2006 12:09:22 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-Organization: SUSE Labs, Novell, Inc
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Sun, 19 Nov 2006 12:14:25 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:19894 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1756797AbWKSROY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 12:14:24 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <456090C9.1040900@s5r6.in-berlin.de>
+Date: Sun, 19 Nov 2006 18:13:45 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: reiserfs NET=n build error
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de>
-In-Reply-To: <200611190650.49282.ak@suse.de>
-X-Enigmail-Version: 0.94.0.0
+To: Mattia Dongili <malattia@linux.it>
+CC: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       bcollins@debian.org
+Subject: Re: ohci1394 oops bisected [was Re: 2.6.19-rc5-mm2 (Oops in class_device_remove_attrs
+ during nodemgr_remove_host)]
+References: <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de> <20061117071650.GA4974@inferi.kami.home> <455DCEF7.3060906@s5r6.in-berlin.de> <455DD42B.1020004@s5r6.in-berlin.de> <20061118094706.GA17879@kroah.com> <455EEE17.4020605@s5r6.in-berlin.de> <455F3DED.3070603@s5r6.in-berlin.de> <455F7EDD.6060007@s5r6.in-berlin.de> <20061119162220.GA2536@inferi.kami.home>
+In-Reply-To: <20061119162220.GA2536@inferi.kami.home>
+X-Enigmail-Version: 0.94.1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Mattia Dongili wrote:
+> the winner is... gregkh-driver-network-device.patch
 
-Andi Kleen wrote:
-> On Sunday 19 November 2006 05:22, Randy Dunlap wrote:
->> With CONFIG_NET=n and REISERFS_FS=m (randconfig), kernel build ends with
->>
->> Kernel: arch/x86_64/boot/bzImage is ready  (#15)
->>   Building modules, stage 2.
->>   MODPOST 137 modules
->> WARNING: "csum_partial" [fs/reiserfs/reiserfs.ko] undefined!
->> make[1]: *** [__modpost] Error 1
->> make: *** [modules] Error 2
->>
->> on both 2.6.19-rc6 and 2.6.19-rc6-git2.
->>
->> Looks like arch/x86_64/lib/lib.a is not being linked into the
->> final kernel image for some reason.  lib.a does contain csum_partial.
-> 
-> iirc Al Viro has been cleaning that up. Essentially reiserfs should
-> use its own C copy of the checksum functions. Using csum_partial() is not
-> safe because its output varies by architecture.
-> 
-> I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
+Interesting. Looks very much like eth1394's sysfs interface is getting
+in the way. And since it is entirely handled by the ieee1394 core, it
+means ieee1394 needs the class_dev to dev treatment. I think it's OK if
+we just wait for Greg to finish his preliminary patch. Until then,
+CONFIG_IEEE1394_ETH1394=n should avoid the oops. (Or Andrew marks
+eth1394 broken or removes gregkh-driver-network-device.patch...)
 
-As long as the h8300 version has the same output as the x86 version.
-
-- -Jeff
-
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
-
-iD8DBQFFYI/BLPWxlyuTD7IRAjveAJ0U+D3PO6h+2z83ZG9ZLay3q5JBFACcDHFQ
-hIaiIBCFzfHg9qak9cxUtRo=
-=GuqM
------END PGP SIGNATURE-----
+Mattia, thanks for the many tests.
+-- 
+Stefan Richter
+-=====-=-==- =-== =--==
+http://arcgraph.de/sr/

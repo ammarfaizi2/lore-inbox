@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933385AbWKSVlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933390AbWKSVmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933385AbWKSVlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933386AbWKSVlm
+	id S933390AbWKSVmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 16:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933389AbWKSVmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:41:42 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:37083 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S933385AbWKSVll
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:41:41 -0500
-Subject: Re: [patch] PM: suspend/resume debugging should depend on 
-	SOFTWARE_SUSPEND
-From: Nigel Cunningham <nigelc@bur.st>
-Reply-To: nigelc@bur.st
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-In-Reply-To: <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com>
-	 <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 08:41:37 +1100
-Message-Id: <1163972497.8823.5.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Nov 2006 16:42:40 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:63929 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S933388AbWKSVmj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 16:42:39 -0500
+Date: Sun, 19 Nov 2006 22:36:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jay Cliburn <jacliburn@bellsouth.net>
+cc: jeff@garzik.org, shemminger@osdl.org, romieu@fr.zoreil.com,
+       csnook@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] atl1: Header files for Attansic L1 driver
+In-Reply-To: <20061119203006.GC29736@osprey.hogchain.net>
+Message-ID: <Pine.LNX.4.61.0611192233270.6324@yvahk01.tjqt.qr>
+References: <20061119203006.GC29736@osprey.hogchain.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
 
-On Sun, 2006-11-19 at 09:33 -0800, Linus Torvalds wrote:
-> 
-> On Sun, 19 Nov 2006, Chuck Ebbert wrote:
-> >
-> > When doing 'make oldconfig' we should ask about suspend/resume
-> > debug features when SOFTWARE_SUSPEND is not enabled.
-> 
-> That's wrong.
-> 
-> I never use SOFTWARE_SUSPEND, and I think the whole concept is totally 
-> broken.
-> 
-> Sane people use suspend-to-ram, and that's when you need the suspend and 
-> resume debugging.
-> 
-> Software-suspend is silly. I want my machine back in three seconds, not 
-> waiting for minutes..
+On Nov 19 2006 14:30, Jay Cliburn wrote:
+>+
+>+#define	LBYTESWAP( a )  ( ( ( (a) & 0x00ff00ff ) << 8 ) | ( ( (a) & 0xff00ff00 ) >> 8 ) )
+>+#define	LONGSWAP( a )	( ( LBYTESWAP( a ) << 16 ) | ( LBYTESWAP( a ) >> 16 ) )
+>+#define	SHORTSWAP( a )	( ( (a) << 8 ) | ( (a) >> 8 ) )
 
-If it's taking minutes, something is wrong. You should be looking at
-more like 10-30 seconds, depending on which implementation you're using,
-the speed of your cpu and hard disk and how much ram was saved in the
-image. For suspend2, for example, the rule of thumb is
+Please use swab16/swab32 for these.
 
-ram_in_use_in_MB() / hard_disk_speed() / 2 seconds + bios time + time to
-get to starting the resume
+>+#define AT_DESC_UNUSED(R) \
+>+	((((R)->next_to_clean > (R)->next_to_use) ? 0 : (R)->count) + \
+>+	(R)->next_to_clean - (R)->next_to_use - 1)
+>+
+>+#define AT_DESC_USED(R) \
+>+	(((R)->next_to_clean > (R)->next_to_use) ?	\
+>+		((R)->count+(R)->next_to_use-(R)->next_to_clean+1) : \
+>+		((R)->next_to_use-(R)->next_to_clean+1))
 
-Where hard disk speed is the result of hdparm -t. Assumes LZF
-compression (that's the /2).
+These look like they are on the edge to be written as a static-inline function.
+What do others think?
 
-Regards,
+>+#define AT_WRITE_REG(a, reg, value) ( \
+>+	writel((value), ((a)->hw_addr + reg)))
+>+
+>+#define AT_READ_REG(a, reg) ( \
+>+	readl((a)->hw_addr + reg ))
+>+
+>+#define AT_WRITE_REGB(a, reg, value) (\
+>+	writeb((value), ((a)->hw_addr + reg)))
+>+
+>+#define AT_READ_REGB(a, reg) (\
+>+	readb((a)->hw_addr + reg))
+>+
+>+#define AT_WRITE_REGW(a, reg, value) (\
+>+	writew((value), ((a)->hw_addr + reg)))
+>+
+>+#define AT_READ_REGW(a, reg) (\
+>+	readw((a)->hw_addr + reg))
+>+
+>+#define AT_WRITE_REG_ARRAY(a, reg, offset, value) ( \
+>+	writel((value), (((a)->hw_addr + reg) + ((offset) << 2))))
+>+
+>+#define AT_READ_REG_ARRAY(a, reg, offset) ( \
+>+	readl(((a)->hw_addr + reg) + ((offset) << 2)))
 
-Nigel
+Possibly similarly.
 
+
+	-`J'
+-- 

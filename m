@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933132AbWKSUJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933142AbWKSUKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933132AbWKSUJa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933139AbWKSUJa
+	id S933142AbWKSUKs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933139AbWKSUKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:09:30 -0500
-Received: from h155.mvista.com ([63.81.120.155]:48301 "EHLO imap.sh.mvista.com")
-	by vger.kernel.org with ESMTP id S933132AbWKSUJ3 (ORCPT
+	Sun, 19 Nov 2006 15:10:48 -0500
+Received: from mx1.suse.de ([195.135.220.2]:37012 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S933142AbWKSUKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:09:29 -0500
-Message-ID: <4560BA57.40600@ru.mvista.com>
-Date: Sun, 19 Nov 2006 23:11:03 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Sun, 19 Nov 2006 15:10:47 -0500
+Message-ID: <4560BAAF.2030202@suse.com>
+Date: Sun, 19 Nov 2006 15:12:31 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: mingo@elte.hu, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
- type IRQ handlers
-References: <200611192243.34850.sshtylyov@ru.mvista.com>	 <1163966437.5826.99.camel@localhost.localdomain> <1163966649.5826.101.camel@localhost.localdomain>
-In-Reply-To: <1163966649.5826.101.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andi Kleen <ak@suse.de>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
+       sam@ravnborg.org, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: reiserfs NET=n build error
+References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com> <200611191959.55969.ak@suse.de>
+In-Reply-To: <200611191959.55969.ak@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Benjamin Herrenschmidt wrote:
+Andi Kleen wrote:
+>>> I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
+>> As long as the h8300 version has the same output as the x86 version.
+> 
+> The trouble is that the different architecture have different output 
+> for csum_partial. So you already got a bug when someone wants to move
+> file systems.
 
->>>As fasteoi type chips never had to define their ack() method before the
->>>recent Ingo's change to handle_fasteoi_irq(), any attempt to execute handler
->>>in thread resulted in the kernel crash. So, define their ack() methods to be
->>>the same as their eoi() ones...
+Yeah, Al Viro noticed that about reiserfs earlier this month. The
+problem is that there's really no good fix for it. I was under the
+impression that csum_partial would be arch-independent and was in asm/
+for performance reasons. The comment in asm-x86_64 indicates that's not
+the case, but the comment in asm-i386 still doesn't. I developed the
+code on i386. Moving forward we can define an arch-independent hash
+function for that and accept the old arch-dependent checksums, but
+there's still the issue of old kernels not understanding it on any arch.
+Kind of a nice shot to the foot considering the work I put into making
+reiserfs endian safe in the 2.4 days.
 
->>>Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+I'm hoping there's a better solution to be found than creating a
+checksum verifier that checks all known versions. :(
 
->>>---
->>>Since there was no feedback on three solutions I suggested, I'm going the way
->>>of least resistance and making the fasteoi type chips behave the way that
->>>handle_fasteoi_irq() is expecting from them...
 
->>Wait wait wait .... Can somebody (Ingo ?) explain me why the fasteoi
->>handler is being changed and what is the rationale for adding an ack
->>that was not necessary before ?
+- -Jeff
 
-    It's changed in the RT patch for the case of threaded IRQ. This patch is 
-not for the mainline kernels.
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
 
-> To be more precise, I don't see in what circumstances a fasteoi type PIC
-> would need an ack routine that does something different than the eoi...
-> and if it always does the same thing, why not just call eoi ?
-
-    Because Ingo decided that calling mask() and ack() methods was a better 
-than calling mask() and eoi(). Here's the thread:
-
-http://ozlabs.org/pipermail/linuxppc-dev/2006-October/026546.html
-
-> Ben.
-
-WBR, Sergei
-
+iD8DBQFFYLqvLPWxlyuTD7IRAj7RAKCkOHL9EgTrmHSo97xzG5tBxWgzCACgiBcW
+uzd/oSwXDHECHPEcIL58xoo=
+=udEd
+-----END PGP SIGNATURE-----

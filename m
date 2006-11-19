@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932825AbWKST4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933121AbWKSUAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932825AbWKST4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 14:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933121AbWKST43
+	id S933121AbWKSUAh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933127AbWKSUAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 14:56:29 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53452 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932825AbWKST43 (ORCPT
+	Sun, 19 Nov 2006 15:00:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:55480 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S933121AbWKSUAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 14:56:29 -0500
-Date: Sun, 19 Nov 2006 11:55:59 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mike Galbraith <efault@gmx.de>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch] PM: suspend/resume debugging should depend on 
- SOFTWARE_SUSPEND
-In-Reply-To: <1163962957.5868.3.camel@Homer.simpson.net>
-Message-ID: <Pine.LNX.4.64.0611191155090.3692@woody.osdl.org>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> 
- <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>  <1163958727.5977.15.camel@Homer.simpson.net>
-  <Pine.LNX.4.64.0611191023390.3692@woody.osdl.org> <1163962957.5868.3.camel@Homer.simpson.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Nov 2006 15:00:36 -0500
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+	type IRQ handlers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Cc: mingo@elte.hu, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com
+In-Reply-To: <200611192243.34850.sshtylyov@ru.mvista.com>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 07:00:37 +1100
+Message-Id: <1163966437.5826.99.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-11-19 at 22:43 +0300, Sergei Shtylyov wrote:
+> As fasteoi type chips never had to define their ack() method before the
+> recent Ingo's change to handle_fasteoi_irq(), any attempt to execute handler
+> in thread resulted in the kernel crash. So, define their ack() methods to be
+> the same as their eoi() ones...
+> 
+> Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+> 
+> ---
+> Since there was no feedback on three solutions I suggested, I'm going the way
+> of least resistance and making the fasteoi type chips behave the way that
+> handle_fasteoi_irq() is expecting from them...
+
+Wait wait wait .... Can somebody (Ingo ?) explain me why the fasteoi
+handler is being changed and what is the rationale for adding an ack
+that was not necessary before ?
+
+Cheers,
+Ben.
 
 
-On Sun, 19 Nov 2006, Mike Galbraith wrote:
->
-> Thanks for the tip, but it didn't work.  It suspended instantly, and got
-> my hopes up (manually, SuSE says "not supported, go away"), but resume
-> still left me with an utterly dead box (minus flashing crud on display).
-
-Right. That's why we have PM_DEBUG and PM_TRACE, and why I sent out the 
-small email about how to use them.
-
-The utterly dead box is the common case when some driver doesn't actually 
-resume properly ;(
-
-		Linus

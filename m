@@ -1,109 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933169AbWKSU3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933186AbWKSUaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933169AbWKSU3S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933166AbWKSU3S
+	id S933186AbWKSUaG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933166AbWKSUaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:29:18 -0500
-Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:29665 "EHLO
-	imf21aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S933169AbWKSU3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:29:16 -0500
-Date: Sun, 19 Nov 2006 14:29:15 -0600
-From: Jay Cliburn <jacliburn@bellsouth.net>
-To: jeff@garzik.org
-Cc: shemminger@osdl.org, romieu@fr.zoreil.com, csnook@redhat.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] atl1: Build files for Attansic L1 driver
-Message-ID: <20061119202915.GB29736@osprey.hogchain.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Sun, 19 Nov 2006 15:30:06 -0500
+Received: from h155.mvista.com ([63.81.120.155]:58285 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S933188AbWKSUaE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 15:30:04 -0500
+Message-ID: <4560BF28.8010406@ru.mvista.com>
+Date: Sun, 19 Nov 2006 23:31:36 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+ type IRQ handlers
+References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain> <20061119200650.GA22949@elte.hu> <1163967590.5826.104.camel@localhost.localdomain> <20061119202348.GA27649@elte.hu>
+In-Reply-To: <20061119202348.GA27649@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jay Cliburn <jacliburn@bellsouth.net>
+Hello.
 
-This patch contains the build files for the Attansic L1 gigabit ethernet
-adapter driver.
+Ingo Molnar wrote:
 
-Signed-off-by: Jay Cliburn <jacliburn@bellsouth.net>
----
+>>What do you need an ack() for on fasteoi ? On all fasteoi controllers 
+>>I have, ack is implicit by obtaining the vector number and all there 
+>>is is an eoi...
 
- Kconfig       |   12 ++++++++++++
- Makefile      |    1 +
- atl1/Makefile |   30 ++++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+)
+> it's a compatibility hack only. Threaded handlers are a different type 
+> of flow, but often the fasteoi handler is not changed to the threaded 
+> handler so i changed it to be a threaded handler too.
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 6e863aa..f503d10 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2329,6 +2329,18 @@ config QLA3XXX
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called qla3xxx.
- 
-+config ATL1
-+	tristate "Attansic(R) L1 Gigabit Ethernet support (EXPERIMENTAL)"
-+	depends on NET_PCI && PCI && EXPERIMENTAL
-+	select CRC32
-+	select MII
-+	---help---
-+	  This driver supports Attansic L1 gigabit ethernet adapter.
-+
-+	  To compile this driver as a module, choose M here.  The module
-+	  will be called atl1.
-+
-+
- endmenu
- 
- #
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index f270bc4..b839af8 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -8,6 +8,7 @@ obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
- obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
-+obj-$(CONFIG_ATL1) += atl1/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
- 
- gianfar_driver-objs := gianfar.o \
-diff --git a/drivers/net/atl1/Makefile b/drivers/net/atl1/Makefile
-new file mode 100644
-index 0000000..1a10b91
---- /dev/null
-+++ b/drivers/net/atl1/Makefile
-@@ -0,0 +1,30 @@
-+################################################################################
-+#
-+# Attansic L1 gigabit ethernet driver
-+# Copyright(c) 2005 - 2006 Attansic Corporation.
-+#
-+# This program is free software; you can redistribute it and/or modify it
-+# under the terms and conditions of the GNU General Public License,
-+# version 2, as published by the Free Software Foundation.
-+#
-+# This program is distributed in the hope it will be useful, but WITHOUT
-+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+# more details.
-+#
-+# You should have received a copy of the GNU General Public License along with
-+# this program; if not, write to the Free Software Foundation, Inc.,
-+# 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
-+#
-+# The full GNU General Public License is included in this distribution in
-+# the file called "COPYING".
-+#
-+################################################################################
-+
-+#
-+# Makefile for the Attansic L1 gigabit ethernet driver
-+#
-+
-+obj-$(CONFIG_ATL1) += atl1.o
-+
-+atl1-objs := atl1_main.o atl1_hw.o atl1_ethtool.o atl1_param.o
+   The fasteoi flow seem to only had been used for x86 IOAPIC in the RT patch 
+only *before* PPC took to using them in the mainline...
+
+> threaded handlers need a mask() + an ack(), because that's the correct
+
+    Not all of them. This could be customized on type-by-type basis. I.e. we 
+could call eoi() instead of ack() for fasteoi chips without having to resort 
+to the duplicated ack/eoi handlers.
+
+> model to map them to kernel threads - threaded handlers can be delayed 
+> for a long time if something higher-prio is preempting them.
+> 
+> 	Ingo
+
+WBR, Sergei

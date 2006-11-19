@@ -1,113 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWKSR6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWKSSEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWKSR6A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWKSR6A
+	id S932652AbWKSSEb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 13:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbWKSSEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:58:00 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:40126 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S932601AbWKSR57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:57:59 -0500
-Date: Sun, 19 Nov 2006 22:00:27 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061119190027.GA3676@oleg>
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061117092925.GT7164@kernel.dk>
-User-Agent: Mutt/1.5.11
+	Sun, 19 Nov 2006 13:04:31 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:51168 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932652AbWKSSEa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 13:04:30 -0500
+Message-ID: <45609CA9.8030806@garzik.org>
+Date: Sun, 19 Nov 2006 13:04:25 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Oleg Verych <olecom@flower.upol.cz>
+CC: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [e-mail problems] with infradead.org recipients
+References: <slrnem0qco.fp5.olecom@flower.upol.cz>
+In-Reply-To: <slrnem0qco.fp5.olecom@flower.upol.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/17, Jens Axboe wrote:
->
-> It works for me, but the overhead is still large. Before it would take
-> 8-12 jiffies for a synchronize_srcu() to complete without there actually
-> being any reader locks active, now it takes 2-3 jiffies. So it's
-> definitely faster, and as suspected the loss of two of three
-> synchronize_sched() cut down the overhead to a third.
+Oleg Verych wrote:
+> Hi, guys. I have problems with you.
 > 
-> It's still too heavy for me, by far the most calls I do to
-> synchronize_srcu() doesn't have any reader locks pending. I'm still a
-> big advocate of the fastpath srcu_readers_active() check. I can
-> understand the reluctance to make it the default, but for my case it's
-> "safe enough", so if we could either export srcu_readers_active() or
-> export a synchronize_srcu_fast() (or something like that), then SRCU
-> would be a good fit for barrier vs plug rework.
+> Is some special NS or route needed? I can add, no problem (ISP problems
+> are very unlikely, but possible ;).
+> 
+> Final-Recipient: RFC822; arjan infradead.org
+> Action: failed
+> Status: 4.4.7
+> Remote-MTA: DNS; canuck.infradead.org
+> Last-Attempt-Date: Sun, 19 Nov 2006 14:27:52 +0100
+> 
+> Final-Recipient: RFC822; matthew wil.cx
+> Action: delayed
+> Status: 4.4.1
+> Remote-MTA: DNS; canuck.infradead.org
+> Last-Attempt-Date: Sun, 19 Nov 2006 12:49:26 +0100
+> Will-Retry-Until: Fri, 24 Nov 2006 08:43:49 +0100
 
-Just an idea. How about another variant of srcu which is more optimized
-for writers?
 
-	struct xxx_struct {
-		int completed;
-		atomic_t ctr[2];
-		struct mutex mutex;
-		wait_queue_head_t wq;
-	};
+I bet this is greylisting on infradead.org.  Greylisting will put 
+unknown IPs into a database, and /temporarily/ reject the mail, asking 
+for the remote mail server to queue it.  Once $GREYLIST_TIME has passed, 
+infradead.org will accept the email.  This successfully filters out a 
+lot of spammers, and broken SMTP servers that have broken retransmit 
+[rules].
 
-	void init_xxx_struct(struct xxx_struct *sp)
-	{
-		sp->completed = 0;
-		atomic_set(sp->ctr + 0, 1);
-		atomic_set(sp->ctr + 1, 1);
-		mutex_init(&sp->mutex);
-		init_waitqueue_head(&sp->wq);
-	}
+You probably need to fix the mail server delivering the mails to 
+properly retransmit...
 
-	int xxx_read_lock(struct xxx_struct *sp)
-	{
-		int idx;
+	Jeff
 
-		idx = sp->completed & 0x1;
-		atomic_inc(sp->ctr + idx);
-		smp_mb__after_atomic_inc();
 
-		return idx;
-	}
-
-	void xxx_read_unlock(struct xxx_struct *sp, int idx)
-	{
-		if (atomic_dec_and_test(sp->ctr + idx))
-			wake_up(&sp->wq);
-	}
-
-	void synchronize_xxx(struct xxx_struct *sp)
-	{
-		wait_queue_t wait;
-		int idx;
-
-		init_wait(&wait);
-		mutex_lock(&sp->mutex);
-
-		idx = sp->completed++ & 0x1;
-
-		for (;;) {
-			prepare_to_wait(&sp->wq, &wait, TASK_UNINTERRUPTIBLE);
-
-			if (!atomic_add_unless(sp->ctr + idx, -1, 1))
-				break;
-
-			schedule();
-			atomic_inc(sp->ctr + idx);
-		}
-		finish_wait(&sp->wq, &wait);
-
-		mutex_unlock(&sp->mutex);
-	}
-
-Very simple. Note that synchronize_xxx() is O(1), doesn't poll, and could
-be optimized further.
-
-Oleg.
 

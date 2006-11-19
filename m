@@ -1,68 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933085AbWKSTvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933118AbWKSTyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933085AbWKSTvx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 14:51:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933114AbWKSTvx
+	id S933118AbWKSTyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 14:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933121AbWKSTyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 14:51:53 -0500
-Received: from mail.gmx.net ([213.165.64.20]:40375 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S933085AbWKSTvw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 14:51:52 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] PM: suspend/resume debugging should depend on 
-	SOFTWARE_SUSPEND
-From: Mike Galbraith <efault@gmx.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200611191958.15152.rjw@sisk.pl>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com>
-	 <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-	 <1163958727.5977.15.camel@Homer.simpson.net>
-	 <200611191958.15152.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Sun, 19 Nov 2006 20:53:36 +0100
-Message-Id: <1163966016.5744.8.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 19 Nov 2006 14:54:40 -0500
+Received: from firewall.rowland.harvard.edu ([140.247.233.35]:61906 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S933118AbWKSTyj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 14:54:39 -0500
+Date: Sun, 19 Nov 2006 14:54:37 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+cc: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: deadlock in "modprobe -r ohci1394" shortly after "modprobe
+ ohci1394"
+In-Reply-To: <tkrat.8ead93641e26cf48@s5r6.in-berlin.de>
+Message-ID: <Pine.LNX.4.44L0.0611191431120.15059-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-19 at 19:58 +0100, Rafael J. Wysocki wrote:
-> On Sunday, 19 November 2006 18:52, Mike Galbraith wrote:
-> > On Sun, 2006-11-19 at 09:33 -0800, Linus Torvalds wrote:
-> > > 
-> > > On Sun, 19 Nov 2006, Chuck Ebbert wrote:
-> > > >
-> > > > When doing 'make oldconfig' we should ask about suspend/resume
-> > > > debug features when SOFTWARE_SUSPEND is not enabled.
-> > > 
-> > > That's wrong.
-> > > 
-> > > I never use SOFTWARE_SUSPEND, and I think the whole concept is totally 
-> > > broken.
-> > > 
-> > > Sane people use suspend-to-ram, and that's when you need the suspend and 
-> > > resume debugging.
-> > 
-> > Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
-> > AGP card, I have no choices except swsusp or reboot.
+On Sun, 19 Nov 2006, Stefan Richter wrote:
+
+> I wrote:
+> > http://bugzilla.kernel.org/show_bug.cgi?id=6706 :
+> ...
+> > Right now I don't see a sane fix but I will have a few nights sleep over
+> > it...
 > 
-> Have you tried s2ram (http://en.opensuse.org/S2ram)?
+> A couple of reboots and a slightly charred pizza later I found out the
+> following:
+> 
+> 1. If Alan's 2.6.16 patch is reverted, the deadlock is gone as expected.
+>    See bugzilla for the reverting patch.
+> 
+> 2. The following patch works too, without the need to revert Alan's
+>    driver core changes.
+> 
+> 3. Now that I have an at least unsane (sic) fix for the deadlock, a new
+>    bug in eth1394's remove code was revealed. This is a separate issue
+>    and logged as http://bugzilla.kernel.org/show_bug.cgi?id=7550 .
+> 
+> Please comment on the patch below.
+> 
+> 
+> From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> Subject: ieee1394: nodemgr: fix deadlock in shutdown
+> 
+> If "modprobe ohci1394" was quickly followed by "modprobe -r ohci1394",
+> say with 1 second pause in between, the modprobe -r got stuck in
+> uninterruptible sleep in kthread_stop.  At the same time the knodemgrd
+> slept uninterruptibly in bus_rescan_devices_helper.
+> 
+> This was a regression since Linux 2.6.16,
+> 	commit bf74ad5bc41727d5f2f1c6bedb2c1fac394de731
+> 	"Hold the device's parent's lock during probe and remove"
+> 
+> The fix lets ieee1394's nodemgr temporarily counteract the driver core's
+> downed parent->sem.  Thus bus_rescan_devices_helper can proceed and
+> knodemgrd terminates properly.
+> 
+> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> ---
+>  drivers/ieee1394/nodemgr.c |   11 +++++++++++
+>  1 files changed, 11 insertions(+)
+> 
+> Index: linux-2.6.19-rc4/drivers/ieee1394/nodemgr.c
+> ===================================================================
+> --- linux-2.6.19-rc4.orig/drivers/ieee1394/nodemgr.c	2006-11-18 23:31:35.000000000 +0100
+> +++ linux-2.6.19-rc4/drivers/ieee1394/nodemgr.c	2006-11-19 15:14:50.000000000 +0100
+> @@ -1873,8 +1873,19 @@ static void nodemgr_remove_host(struct h
+>  {
+>  	struct host_info *hi = hpsb_get_hostinfo(&nodemgr_highlevel, host);
+>  
+> +	/* Here comes a potential deadlock. A "modprobe -r ohci1394" calls
+> +	 * nodemgr_remove_host from driver_detach which takes the parent->sem.
+> +	 * Meanwhile, knodemgrd may be running into bus_rescan_devices_helper
+> +	 * which would block on the same semaphore. Therefore lift the
+> +	 * semaphore until knodemgrd exited. */
+>  	if (hi) {
+> +		/* up(&host->device.sem);	--- apparently not required */
+> +		if (host->device.parent)
+> +			up(&host->device.parent->sem);
+>  		kthread_stop(hi->thread);
+> +		if (host->device.parent)
+> +			down(&host->device.parent->sem);
+> +		/* down(&host->device.sem);	--- apparently not required */
+>  		nodemgr_remove_host_dev(&host->device);
+>  	}
+>  }
 
-Cool.  That shows potential.  On an 2.6.19-rc6-rt4 kernel, it looked
-like it _might_ have eventually gotten past boot.  At one line of kernel
-output every ~10 seconds though, I gave up.  Virgin 2.6.19-rc6 went
-panic with a black screen... have options, will tinker.
+Obviously this patch isn't pretty.  It's also incorrect, because it 
+reacquires the parent's semaphore while holding the child's -- that's 
+another recipe for deadlock.
 
-(i _was_ quite content with swsusp, but now i want it all;)
+Knowing nothing at all about ieee1394, I get the feeling that the culprit
+here is a strange subsystem design.  In fact, I don't understand exactly
+what's going wrong.  Evidently the rmmod thread owns the locks for both
+the host being removed and its parent, and it wants to stop knodemgrd,
+which is waiting to acquire the host's parent's lock because it is
+attempting to rescan the parent.  Is that right?
 
-	Thanks,
+It doesn't make sense.  If knodemgrd is rescanning the parent then the 
+parent must not have a driver.  If it doesn't have a driver, how can it 
+have children?
 
-	-Mike
+Alan Stern
 

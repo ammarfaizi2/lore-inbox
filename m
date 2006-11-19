@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933123AbWKSTzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932825AbWKST4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933123AbWKSTzR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 14:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933126AbWKSTzR
+	id S932825AbWKST4a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 14:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933121AbWKST43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 14:55:17 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34508 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933123AbWKSTzP (ORCPT
+	Sun, 19 Nov 2006 14:56:29 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53452 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932825AbWKST43 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 14:55:15 -0500
-Date: Sun, 19 Nov 2006 11:54:56 -0800 (PST)
+	Sun, 19 Nov 2006 14:56:29 -0500
+Date: Sun, 19 Nov 2006 11:55:59 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Mike Galbraith <efault@gmx.de>
 cc: Chuck Ebbert <76306.1226@compuserve.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
 Subject: Re: [patch] PM: suspend/resume debugging should depend on 
  SOFTWARE_SUSPEND
-In-Reply-To: <200611191955.23782.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.64.0611191153200.3692@woody.osdl.org>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <200611191844.14354.rjw@sisk.pl>
- <Pine.LNX.4.64.0611191008310.3692@woody.osdl.org> <200611191955.23782.rjw@sisk.pl>
+In-Reply-To: <1163962957.5868.3.camel@Homer.simpson.net>
+Message-ID: <Pine.LNX.4.64.0611191155090.3692@woody.osdl.org>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com> 
+ <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>  <1163958727.5977.15.camel@Homer.simpson.net>
+  <Pine.LNX.4.64.0611191023390.3692@woody.osdl.org> <1163962957.5868.3.camel@Homer.simpson.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,25 +29,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 19 Nov 2006, Rafael J. Wysocki wrote:
-> 
-> > because people point to the suspend-to-disk instead.
-> 
-> Who they?
+On Sun, 19 Nov 2006, Mike Galbraith wrote:
+>
+> Thanks for the tip, but it didn't work.  It suspended instantly, and got
+> my hopes up (manually, SuSE says "not supported, go away"), but resume
+> still left me with an utterly dead box (minus flashing crud on display).
 
-Like you _just_ did.
+Right. That's why we have PM_DEBUG and PM_TRACE, and why I sent out the 
+small email about how to use them.
 
-> >  - enable PM_DEBUG, and PM_TRACE
-> 
-> This only works on i386, no?
-
-Right now the trivial functions are only available on i386, yes. The 
-concept works anywhere that has a CMOS chip, so if somebody were to spend 
-a few minutes testing it on x86-64 and others, it would work elsewhere 
-too..
-
-> I don't know of anyone who's doing that.
-
-I know. I'm probably the only one. Frustrating.
+The utterly dead box is the common case when some driver doesn't actually 
+resume properly ;(
 
 		Linus

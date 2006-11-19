@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933245AbWKSUid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933196AbWKSUlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933245AbWKSUid (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933230AbWKSUid
+	id S933196AbWKSUlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933208AbWKSUlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:38:33 -0500
-Received: from h155.mvista.com ([63.81.120.155]:1198 "EHLO imap.sh.mvista.com")
-	by vger.kernel.org with ESMTP id S933245AbWKSUic (ORCPT
+	Sun, 19 Nov 2006 15:41:16 -0500
+Received: from h155.mvista.com ([63.81.120.155]:4270 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S933196AbWKSUlO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:38:32 -0500
-Message-ID: <4560C121.30403@ru.mvista.com>
-Date: Sun, 19 Nov 2006 23:40:01 +0300
+	Sun, 19 Nov 2006 15:41:14 -0500
+Message-ID: <4560C1C6.8000203@ru.mvista.com>
+Date: Sun, 19 Nov 2006 23:42:46 +0300
 From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 Organization: MontaVista Software Inc.
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
@@ -21,8 +21,8 @@ Cc: Ingo Molnar <mingo@elte.hu>, linuxppc-dev@ozlabs.org,
        linux-kernel@vger.kernel.org, dwalker@mvista.com
 Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
  type IRQ handlers
-References: <200611192243.34850.sshtylyov@ru.mvista.com>	 <1163966437.5826.99.camel@localhost.localdomain>	 <20061119200650.GA22949@elte.hu>	 <1163967590.5826.104.camel@localhost.localdomain>	 <4560BDF5.400@ru.mvista.com> <1163968376.5826.110.camel@localhost.localdomain>
-In-Reply-To: <1163968376.5826.110.camel@localhost.localdomain>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>	 <1163966437.5826.99.camel@localhost.localdomain>	 <20061119200650.GA22949@elte.hu>	 <1163967590.5826.104.camel@localhost.localdomain>	 <20061119202348.GA27649@elte.hu>  <4560BF28.8010406@ru.mvista.com> <1163968570.5826.113.camel@localhost.localdomain>
+In-Reply-To: <1163968570.5826.113.camel@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,34 +32,33 @@ Hello.
 
 Benjamin Herrenschmidt wrote:
 
->>    I must not that this whole ack() vs eoi() stuff is misleading. For example,
->>in 8259 driver, mask_ack() method actually sends EOI to PIC, not ACK's an IRQ 
->>-- the actual ACK is implicit on x86 and is used to read the interrupt vector 
->>form 8259 on PPC. So, IMO, there probably should only have been either ack() 
->>or eoi() method in the first place. Though I'm not familiar with ARM from 
->>which genirq stuff originated...
+>>   The fasteoi flow seem to only had been used for x86 IOAPIC in the RT patch 
+>>only *before* PPC took to using them in the mainline...
 
-> They are different concepts. Ack clears the event on the PIC, it's
-> tyically necessary for resetting the edge detection logic for edge
-> interrupts and has to happen before the handler is called.
+> I don't think so, I asked for the fasteoi to be created while porting
+> ppc to genirq :-)
 
-    I know 8259. :-)
-    It also resets the corresponding IRQ bit in IRR, and sets it in ISR where 
-it's then cleared on EOI command.
+    Oh, I was unaware of such details. :-)
 
-> On MPIC or XICS, this is implicit by reading the vector. On some more
-> dumb controllers, this has to be done explicitely.
+>>>threaded handlers need a mask() + an ack(), because that's the correct
 
-    This is not implicit -- CPU has to read INTACK reg. on OpenPIC. Really 
-implicit method is in action on x86 where CPU issues dual ACK bus cycle to get 
-the vector form 8259...
+>>    Not all of them. This could be customized on type-by-type basis. I.e. we 
+>>could call eoi() instead of ack() for fasteoi chips without having to resort 
+>>to the duplicated ack/eoi handlers.
 
-> EOI is a more "high level" thing that some "intelligent" PICs that
-> automatically raise the priority do to restore the priority to what it
-> was before the interrupt occured.
+> I still don't see how ack() makes sense in the context of a fasteoi...
 
-    Thank you, I know. Even 8259 has the notion of priority and EOI works the 
-same way here.
+    It doesn't make sense even in the context of 8259 with its level/edge 
+flows. That's what I'm talking about...
+
+> You can either just not EOI until it's handled, but you'll indeed
+> introduce delays for other interrupts of the same priority or lower, or
+> you can mask() and then eoi(), which is, I think, what Apple does, to
+> deliver the interrupt to a thread (and later unmask).
+> In any case, I don't see the need for a separate ack().
+
+   Yeah, that's what the threaded versions of flow handlers are doing. Except 
+they're calling ack() to actually EOI an IRQ.
 
 > Ben.
 

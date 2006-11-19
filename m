@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756508AbWKSIQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756502AbWKSI3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756508AbWKSIQz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 03:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756510AbWKSIQz
+	id S1756502AbWKSI3m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 03:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756504AbWKSI3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 03:16:55 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:32799 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S1756508AbWKSIQz (ORCPT
+	Sun, 19 Nov 2006 03:29:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7386 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1756502AbWKSI3l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 03:16:55 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: irda-users@lists.sourceforge.net
-Subject: Is ircomm possible with smsc_ircc2?
-Date: Sun, 19 Nov 2006 11:16:47 +0300
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Nov 2006 03:29:41 -0500
+Date: Sun, 19 Nov 2006 09:29:21 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
+Message-ID: <20061119082921.GA21468@elf.ucw.cz>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611191116.47738.arvidjaar@mail.ru>
+In-Reply-To: <200611190320_MC3-1-D21B-111C@compuserve.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-I have Toshiba Portege 4000, which apparently needs smsc_ircc2 driver. Driver 
-seems to load OK:
+> When doing 'make oldconfig' we should ask about suspend/resume
+> debug features when SOFTWARE_SUSPEND is not enabled.
 
-Detected unconfigured Toshiba laptop with ALi ISA bridge SMSC IrDA chip, 
-pre-configuring device.
-Activated ALi 1533 ISA bridge port 0x02e8.
-Activated ALi 1533 ISA bridge port 0x02f8.
-found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-smsc_superio_flat(): IrDA not enabled
-smsc_superio_flat(): fir: 0x2f8, sir: 0x2e8, dma: 03, irq: 7, mode: 0x02
-SMsC IrDA Controller found
- IrCC version 2.0, firport 0x2f8, sirport 0x2e8 dma=3, irq=7
-No transceiver found. Defaulting to Fast pin select
+These are suspend-to-ram debugging features, mostly, so no, they
+should not depend on software suspend.
 
-and it registers irda0 interface but no /dev/ircomm* ever appears. I need them 
-(or at least I /think/ I need them) for SynCE (for installing programs in my 
-Pocket LOOX).
+NAK. 
 
-What is missing? Do I need additional driver? How can I access ircomm on this 
-HW?
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> 
+> --- 2.6.19-rc6-32.orig/kernel/power/Kconfig
+> +++ 2.6.19-rc6-32/kernel/power/Kconfig
+> @@ -38,7 +38,7 @@ config PM_DEBUG
+>  
+>  config DISABLE_CONSOLE_SUSPEND
+>  	bool "Keep console(s) enabled during suspend/resume (DANGEROUS)"
+> -	depends on PM && PM_DEBUG
+> +	depends on PM_DEBUG && SOFTWARE_SUSPEND
+>  	default n
+>  	---help---
+>  	This option turns off the console suspend mechanism that prevents
+> @@ -49,7 +49,7 @@ config DISABLE_CONSOLE_SUSPEND
+>  
+>  config PM_TRACE
+>  	bool "Suspend/resume event tracing"
+> -	depends on PM && PM_DEBUG && X86_32 && EXPERIMENTAL
+> +	depends on PM_DEBUG && SOFTWARE_SUSPEND && X86_32 && EXPERIMENTAL
+>  	default n
+>  	---help---
+>  	This enables some cheesy code to save the last PM event point in the
 
-TIA
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFYBLvR6LMutpd94wRAkuOAKC1f7GQ0AeL9xHcJEsMNn0AT9MIOQCglvcL
-YEZSnauoxed4K8uPpAMdKtw=
-=jU1k
------END PGP SIGNATURE-----
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756435AbWKSFvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756472AbWKSGPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756435AbWKSFvP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 00:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756436AbWKSFvP
+	id S1756472AbWKSGPX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 01:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756473AbWKSGPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 00:51:15 -0500
-Received: from ns1.suse.de ([195.135.220.2]:706 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1756434AbWKSFvO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 00:51:14 -0500
-From: Andi Kleen <ak@suse.de>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: reiserfs NET=n build error
-Date: Sun, 19 Nov 2006 06:50:49 +0100
-User-Agent: KMail/1.9.5
-Cc: lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org, Jeff Mahoney <jeffm@suse.com>,
-       Al Viro <viro@ftp.linux.org.uk>
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com>
-In-Reply-To: <20061118202206.01bdc0e0.randy.dunlap@oracle.com>
+	Sun, 19 Nov 2006 01:15:23 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:14820 "EHLO
+	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1756471AbWKSGPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 01:15:22 -0500
+Message-ID: <455FF672.4070502@lwfinger.net>
+Date: Sun, 19 Nov 2006 00:15:14 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Ray Lee <ray-lk@madrabbit.org>
+Subject: Problem with DMA on x86_64 with 3 GB RAM
+References: <455B63EC.8070704@madrabbit.org> <20061118112438.GB15349@nineveh.rivenstone.net> <1163868955.27188.2.camel@johannes.berg> <455F3D44.4010502@lwfinger.net> <455F4271.1060405@madrabbit.org>
+In-Reply-To: <455F4271.1060405@madrabbit.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611190650.49282.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 November 2006 05:22, Randy Dunlap wrote:
-> With CONFIG_NET=n and REISERFS_FS=m (randconfig), kernel build ends with
-> 
-> Kernel: arch/x86_64/boot/bzImage is ready  (#15)
->   Building modules, stage 2.
->   MODPOST 137 modules
-> WARNING: "csum_partial" [fs/reiserfs/reiserfs.ko] undefined!
-> make[1]: *** [__modpost] Error 1
-> make: *** [modules] Error 2
-> 
-> on both 2.6.19-rc6 and 2.6.19-rc6-git2.
-> 
-> Looks like arch/x86_64/lib/lib.a is not being linked into the
-> final kernel image for some reason.  lib.a does contain csum_partial.
+I am trying to debug a bcm43xx DMA problem on an x86_64 system with 3 GB RAM. Depending on the 
+particular chip and its implementation, dma transfers may use 64-, 32-, or 30-bit addressing, with 
+the problem interface using 30-bit addressing. From test prints, the correct mask (0x3FFFFFFF) is 
+supplied to pci_set_dma_mask and pci_set_consistent_dma_mask. Neither call returns an error. In 
+addition, several x86_64 systems with more than 1 GB RAM have worked with the current code.
 
-iirc Al Viro has been cleaning that up. Essentially reiserfs should
-use its own C copy of the checksum functions. Using csum_partial() is not
-safe because its output varies by architecture.
+If the system is booted with mem=1024M on the command line, it operates normally; however, it gets a 
+kernel NULL pointer dereference and panics when booted with either 2 or 3 GB RAM.
 
-I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
+The config parameters in the processor section are as follows:
 
--Andi
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_ZONE_DMA32=y
+CONFIG_LOCKDEP_SUPPORT=y
+CONFIG_STACKTRACE_SUPPORT=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_MMU=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_ARCH_POPULATES_NODE_MAP=y
+CONFIG_DMI=y
+CONFIG_AUDIT_ARCH=y
+CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
+
+I would appreciate any tips on debugging this problem. Are there any quantities that should be 
+dumped, etc?
+
+Thanks,
+
+Larry
+
+

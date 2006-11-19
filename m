@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933479AbWKSWae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933529AbWKSWek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933479AbWKSWae (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 17:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933493AbWKSWae
+	id S933529AbWKSWek (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 17:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933565AbWKSWek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 17:30:34 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:54985 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S933479AbWKSWad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 17:30:33 -0500
-Message-ID: <4560DB6B.9020601@suse.com>
-Date: Sun, 19 Nov 2006 17:32:11 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-Organization: SUSE Labs, Novell, Inc
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Sun, 19 Nov 2006 17:34:40 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:50676 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933529AbWKSWej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 17:34:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:reply-to:x-priority:message-id:to:cc:subject:mime-version:content-type:content-transfer-encoding;
+        b=JT3mHgMRJHEXwhefrUN+SUA/ygSapkcFecndgqnCoAksyPOwR1/+mu/qko/42ukwPXLMtWVRLgMhkggDnMZFFFa+nhjxWmxL2tNAnRK03KsIxUwakJZ+0fw++YmVw/mWdv+y3IDB/mDzh4h+OUvq8lvM0QHWiX+yTbS7yqCPr+o=
+Date: Mon, 20 Nov 2006 00:34:37 +0200
+From: Paul Sokolovsky <pmiscml@gmail.com>
+Reply-To: Paul Sokolovsky <pmiscml@gmail.com>
+X-Priority: 3 (Normal)
+Message-ID: <1154868495.20061120003437@gmail.com>
+To: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+CC: kernel-discuss@handhelds.org
+Subject: Where did find_bus() go in 2.6.18?
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org
-Subject: Re: reiserfs NET=n build error
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com> <200611191959.55969.ak@suse.de> <4560AAC1.3000800@oracle.com> <20061119205711.GE3078@ftp.linux.org.uk>
-In-Reply-To: <20061119205711.GE3078@ftp.linux.org.uk>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello linux-kernel,
 
-Al Viro wrote:
-> On Sun, Nov 19, 2006 at 11:04:33AM -0800, Randy Dunlap wrote:
->> Andi Kleen wrote:
->>>>> I would copy a relatively simple C implementation, like 
->>>>> arch/h8300/lib/checksum.c
->>>> As long as the h8300 version has the same output as the x86 version.
->>> The trouble is that the different architecture have different output 
->>> for csum_partial. So you already got a bug when someone wants to move
->>> file systems.
->>>
->>> -Andi
->> That argues for having only one version of it (in a lib.; my preference)
->> -or- Every module having its own local copy/version of it.  :(
-> 
-> Wrong.  csum_partial() result is defined modulo 0xffff and it's basically
-> "whatever's convenient as intermediate for this architecture".
-> 
-> reiserfs use of it is just plain broken.  net/* is fine, since all
-> final uses are via csum_fold() or equivalents.
-> 
-> Note that reiserfs use is broken in another way: it takes fixed-endian value
-> and feeds it to cpu_to_le32().  IOW, even if everything had literally the
-> same csum_partial(), the value it shits on disk would be endian-dependent.
+  We here at Handhelds.org upgrading our drivers to 2.6.18 and I just
+caught a case of find_bus() being undefined during link. Quickly
+traced this to
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=7e4ef085ea4b00cfc34e854edf448c729de8a0a5
 
-Oh great. Even better. :(
+  But alas, the commit message is not as good as some others are, and
+doesn't mention what should be used instead. So, if find_bus() is
+"unused", what should be used instead?
 
-- -Jeff
 
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+Thank you,
 
-iD8DBQFFYNtqLPWxlyuTD7IRAux8AKCbxW4zX5Q7y8LfPT0FY/W4A8v0PQCggV11
-EbMvTGkAb5WXa0f7EgUz5Qk=
-=Zm0q
------END PGP SIGNATURE-----
+-- 
+ Paul                          mailto:pmiscml@gmail.com
+

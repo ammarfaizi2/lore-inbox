@@ -1,135 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933340AbWKSVYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933344AbWKSV0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933340AbWKSVYc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933343AbWKSVYc
+	id S933344AbWKSV0v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 16:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933349AbWKSV0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:24:32 -0500
-Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:16708
+	Sun, 19 Nov 2006 16:26:51 -0500
+Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:28227
 	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
-	with ESMTP id S933340AbWKSVYb (ORCPT
+	with ESMTP id S933344AbWKSV0u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:24:31 -0500
-Date: Sun, 19 Nov 2006 13:20:57 -0800
+	Sun, 19 Nov 2006 16:26:50 -0500
+Date: Sun, 19 Nov 2006 13:23:16 -0800
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Jens Axboe <jens.axboe@oracle.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
        Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
        Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
        john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
        Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
        Andi Kleen <ak@suse.de>, manfred@colorfullife.com
 Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061119212057.GE4427@us.ibm.com>
+Message-ID: <20061119212316.GG4427@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <20061119190027.GA3676@oleg> <Pine.LNX.4.44L0.0611191512280.15059-100000@netrider.rowland.org> <20061119205516.GA117@oleg>
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118190217.GB163@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061119205516.GA117@oleg>
+In-Reply-To: <20061118190217.GB163@oleg>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2006 at 11:55:16PM +0300, Oleg Nesterov wrote:
-> On 11/19, Alan Stern wrote:
+On Sat, Nov 18, 2006 at 10:02:17PM +0300, Oleg Nesterov wrote:
+> On 11/17, Paul E. McKenney wrote:
 > >
-> > On Sun, 19 Nov 2006, Oleg Nesterov wrote:
+> >  int srcu_read_lock(struct srcu_struct *sp)
+> >  {
+> >  	int idx;
+> > +	struct srcu_struct_array *sap;
 > >
-> > > 	int xxx_read_lock(struct xxx_struct *sp)
-> > > 	{
-> > > 		int idx;
-> > >
-> > > 		idx = sp->completed & 0x1;
-> > > 		atomic_inc(sp->ctr + idx);
-> > > 		smp_mb__after_atomic_inc();
-> > >
-> > > 		return idx;
-> > > 	}
-> > >
-> > > 	void xxx_read_unlock(struct xxx_struct *sp, int idx)
-> > > 	{
-> > > 		if (atomic_dec_and_test(sp->ctr + idx))
-> > > 			wake_up(&sp->wq);
-> > > 	}
-> > >
-> > > 	void synchronize_xxx(struct xxx_struct *sp)
-> > > 	{
-> > > 		wait_queue_t wait;
-> > > 		int idx;
-> > >
-> > > 		init_wait(&wait);
-> > > 		mutex_lock(&sp->mutex);
-> > >
-> > > 		idx = sp->completed++ & 0x1;
-> > >
-> > > 		for (;;) {
-> > > 			prepare_to_wait(&sp->wq, &wait, TASK_UNINTERRUPTIBLE);
-> > >
-> > > 			if (!atomic_add_unless(sp->ctr + idx, -1, 1))
-> > > 				break;
-> > >
-> > > 			schedule();
-> > > 			atomic_inc(sp->ctr + idx);
-> > > 		}
-> > > 		finish_wait(&sp->wq, &wait);
-> > >
-> > > 		mutex_unlock(&sp->mutex);
-> > > 	}
-> > >
-> > > Very simple. Note that synchronize_xxx() is O(1), doesn't poll, and could
-> > > be optimized further.
-> >
-> > What happens if synchronize_xxx manages to execute inbetween
-> > xxx_read_lock's
-> >
-> >  		idx = sp->completed & 0x1;
-> >  		atomic_inc(sp->ctr + idx);
-> >
-> > statements?
+> >  	preempt_disable();
+> >  	idx = sp->completed & 0x1;
+> > -	barrier();  /* ensure compiler looks -once- at sp->completed. */
+> > -	per_cpu_ptr(sp->per_cpu_ref, smp_processor_id())->c[idx]++;
+> > -	srcu_barrier();  /* ensure compiler won't misorder critical section. */
+> > +	sap = rcu_dereference(sp->per_cpu_ref);
+> > +	if (likely(sap != NULL)) {
+> > +		barrier();  /* ensure compiler looks -once- at sp->completed. */
+> > +		per_cpu_ptr(rcu_dereference(sap),
+> > +			    smp_processor_id())->c[idx]++;
+> > +		smp_mb();
+> > +		preempt_enable();
+> > +		return idx;
+> > +	}
+> > +	if (mutex_trylock(&sp->mutex)) {
+> > +		preempt_enable();
+> > +		if (sp->per_cpu_ref == NULL)
+> > +			sp->per_cpu_ref = alloc_srcu_struct_percpu();
+> > +		if (sp->per_cpu_ref == NULL) {
+> > +			atomic_inc(&sp->hardluckref);
+> > +			mutex_unlock(&sp->mutex);
+> > +			return -1;
+> > +		}
+> > +		mutex_unlock(&sp->mutex);
+> > +		return srcu_read_lock(sp);
+> > +	}
+> >  	preempt_enable();
+> > -	return idx;
+> > +	atomic_inc(&sp->hardluckref);
+> > +	return -1;
+> >  }
 > 
-> Oops. I forgot about explicit mb() before sp->completed++ in synchronize_xxx().
+> This is a real nitpick, but in theory we have a possibility for the livelock.
 > 
-> So synchronize_xxx() should do
+> Suppose that synchronize_srcu() takes sp->mutex and fails to allocate
+> sp->per_cpu_ref. If we have a flow of srcu_read_lock/srcu_read_unlock,
+> this loop in synchronize_srcu()
 > 
-> 	smp_mb();
-> 	idx = sp->completed++ & 0x1;
+>   	while (srcu_readers_active_idx(sp, idx))
+>   		schedule_timeout_interruptible(1);
 > 
-> 	for (;;) { ... }
-> 
-> >               You see, there's no way around using synchronize_sched().
-> 
-> With this change I think we are safe.
-> 
-> If synchronize_xxx() increments ->completed in between, the caller of
-> xxx_read_lock() will see all memory ops (started before synchronize_xxx())
-> completed. It is ok that synchronize_xxx() returns immediately.
+> may spin unpredictably long, because we use the same sp->hardluckref for
+> accounting.
 
-Let me take Alan's example one step further:
-
-o	CPU 0 starts executing xxx_read_lock(), but is interrupted
-	(or whatever) just before the atomic_inc().
-
-o	CPU 1 executes synchronize_xxx() to completion, which it
-	can because CPU 0 has not yet incremented the counter.
-
-o	CPU 0 returns from interrupt and completes xxx_read_lock(),
-	but has incremented the wrong counter.
-
-o	CPU 0 continues into its critical section, picking up a
-	pointer to an xxx-protected data structure (or, in Jens's
-	case starting an xxx-protected I/O).
-
-o	CPU 1 executes another synchronize_xxx().  This completes
-	immediately because CPU 1 has the wrong counter incremented.
-
-o	CPU 1 continues, either freeing a data structure while
-	CPU 0 is still referencing it, or, in Jens's case, completing
-	an I/O barrier while there is still outstanding I/O.
-
-I agree with Alan -- unless I am missing something, we need a
-synchronize_sched() in synchronize_xxx().  One thing missing in
-the I/O-barrier case might be the possible restrictions I call
-out in my earlier email.
+Excellent point -- hardluckref also needs to be a two-element array.
 
 						Thanx, Paul

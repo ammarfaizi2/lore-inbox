@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932789AbWKSS0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbWKSSew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932789AbWKSS0z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 13:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWKSS0z
+	id S932785AbWKSSew (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 13:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932792AbWKSSew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 13:26:55 -0500
-Received: from [212.33.187.4] ([212.33.187.4]:60032 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932789AbWKSS0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 13:26:54 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] PM: suspend/resume debugging should depend on
-Date: Sun, 19 Nov 2006 21:30:11 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 19 Nov 2006 13:34:52 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5507 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932785AbWKSSew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 13:34:52 -0500
+X-Authenticated: #14349625
+Subject: Re: Sluggish system responsiveness on I/O
+From: Mike Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christian <christiand59@web.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <1163958288.22176.82.camel@mindpipe>
+References: <200611181412.29144.christiand59@web.de>
+	 <1163922694.7504.42.camel@Homer.simpson.net>
+	 <1163958288.22176.82.camel@mindpipe>
+Content-Type: text/plain
+Date: Sun, 19 Nov 2006 19:34:55 +0100
+Message-Id: <1163961295.5977.53.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611192130.11542.a1426z@gawab.com>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sun, 2006-11-19 at 09:33 -0800, Linus Torvalds wrote:
-> > On Sun, 19 Nov 2006, Chuck Ebbert wrote:
-> > > When doing 'make oldconfig' we should ask about suspend/resume
-> > > debug features when SOFTWARE_SUSPEND is not enabled.
-> >
-> > That's wrong.
-> >
-> > I never use SOFTWARE_SUSPEND, and I think the whole concept is totally
-> > broken.
-> >
-> > Sane people use suspend-to-ram, and that's when you need the suspend and
-> > resume debugging.
->
-> Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
-> AGP card, I have no choices except swsusp or reboot.
-
-You make it sound like suspend-to-ram is dependent on a correct display 
-adapter to work; it doesn't even work on a machine without a display 
-adapter.
-
-see http://bugzilla.kernel.org/show_bug.cgi?id=7037
+On Sun, 2006-11-19 at 12:44 -0500, Lee Revell wrote:
+> On Sun, 2006-11-19 at 08:51 +0100, Mike Galbraith wrote:
+> > That makes sense, I/O tasks don't generally hold the cpu for extended
+> > periods, whereas a cpu bound task does.
+> 
+> So what can we do about I/O intensive tasks that also want a lot of CPU,
+> for example, the bloatier Gnome/KDE apps?  Evolution is the worst for
+> me.
 
 
-Thanks!
+Evolution has big trouble with the ext3 (and maybe others) journal.
+I've _never_ seen evolution having scheduler priority problems, only
+journal problems (absolutely every damn time hefty I/O is going on).
 
---
-Al
+What should we do about I/O tasks that decide to use massive cpu?
+
+IMHO, absolutely nothing beyond what ever we decide to do with any other
+cpu intensvive task.  There is nothing special about scheduling I/O
+heavy tasks.  If it uses massive cpu for sustained periods, it must pay
+the price.  In the meantime, an I/O intensive task that decides to use
+heavy cpu will round-robin at relatively high frequency with every other
+"interactive" task, which may also be doing a burst of cpu heavy work.
+The reason for doing that cpu intensive burst just doesn't matter.
+
+Currently, we special case I/O tasks to limit the dynamic priority boost
+they can get via I/O.  I think that is wrong.
+
+	-Mike
 

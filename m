@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756694AbWKSO2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756698AbWKSOdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756694AbWKSO2b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 09:28:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756696AbWKSO2b
+	id S1756698AbWKSOdM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 09:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756699AbWKSOdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 09:28:31 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:11745 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1756694AbWKSO2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 09:28:30 -0500
-Date: Sun, 19 Nov 2006 09:25:07 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Olaf Hering <olaf@aepfle.de>
+	Sun, 19 Nov 2006 09:33:12 -0500
+Received: from 1wt.eu ([62.212.114.60]:19205 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1756698AbWKSOdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 09:33:11 -0500
+Date: Sun, 19 Nov 2006 15:33:01 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: dbrownell@users.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: uml fails to compile due to missing offsetof
-Message-ID: <20061119142507.GA3284@ccure.user-mode-linux.org>
-References: <20061119120000.GA4926@aepfle.de>
+Subject: [PATCH] fix "&& 0x03" obvious typo in net1080
+Message-ID: <20061119143301.GA2633@1wt.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061119120000.GA4926@aepfle.de>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2006 at 01:00:01PM +0100, Olaf Hering wrote:
-> 
-> I fail to see how arch/um/sys-i386/user-offsets.c can compile since
-> offsetof() was declared __KERNEL__ only in include/linux/stddef.h.
-> Does it work for anyone else? 
+Hi David,
 
-It obviously works for me.  offsetof is very standard C.  I'd venture
-to say that a system which can't find it has a broken gcc installation.
+I found this bug while grepping for "&& 0x" in drivers.
+Care to forward upstream ?
 
-> If so, is linux/stddef.h or /usr/include/linux/stddef.h used during
-> compilation?
+Regards,
+Willy
 
-/usr/include/linux/stddef.h (but see below) - this is a userspace
-file, so it builds against libc headers.
+>From e9b19b98763726db99237ccfea907cf88d3572ac Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Sun, 19 Nov 2006 15:30:11 +0100
+Subject: [PATCH] fix "&& 0x03" obvious typo in net1080
 
-> The x86_64 variant looks weird as well, linux/stddef.h is appearently
-> included via some other headers.
+Another obvious occurrence of this typo.
 
-Well, /usr/include/linux/stddef.h on my x86_64 box has no offsetof,
-despite being FC5 just like my i386 laptop.  Yay for consistency.
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ drivers/usb/net/net1080.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-However, there is a /usr/lib/gcc/x86_64-redhat-linux/4.1.1/include/stddef.h
-which defines offsetof (and there's a corresponding file on my
-laptop), so I bet that's the true source of offsetof.
-
-				Jeff
+diff --git a/drivers/usb/net/net1080.c b/drivers/usb/net/net1080.c
+index ce00de8..a774105 100644
+--- a/drivers/usb/net/net1080.c
++++ b/drivers/usb/net/net1080.c
+@@ -237,12 +237,12 @@ #define	STATUS_PORT_A		(1 << 15)
+ #define	STATUS_CONN_OTHER	(1 << 14)
+ #define	STATUS_SUSPEND_OTHER	(1 << 13)
+ #define	STATUS_MAILBOX_OTHER	(1 << 12)
+-#define	STATUS_PACKETS_OTHER(n)	(((n) >> 8) && 0x03)
++#define	STATUS_PACKETS_OTHER(n)	(((n) >> 8) & 0x03)
+ 
+ #define	STATUS_CONN_THIS	(1 << 6)
+ #define	STATUS_SUSPEND_THIS	(1 << 5)
+ #define	STATUS_MAILBOX_THIS	(1 << 4)
+-#define	STATUS_PACKETS_THIS(n)	(((n) >> 0) && 0x03)
++#define	STATUS_PACKETS_THIS(n)	(((n) >> 0) & 0x03)
+ 
+ #define	STATUS_UNSPEC_MASK	0x0c8c
+ #define	STATUS_NOISE_MASK 	((u16)~(0x0303|STATUS_UNSPEC_MASK))
 -- 
-Work email - jdike at linux dot intel dot com
+1.4.2.4
+

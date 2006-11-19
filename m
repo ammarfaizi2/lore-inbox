@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756797AbWKSROZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756799AbWKSROk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756797AbWKSROZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756799AbWKSROZ
+	id S1756799AbWKSROk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 12:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756801AbWKSROj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:14:25 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:19894 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1756797AbWKSROY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:14:24 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <456090C9.1040900@s5r6.in-berlin.de>
-Date: Sun, 19 Nov 2006 18:13:45 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Mattia Dongili <malattia@linux.it>
-CC: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+	Sun, 19 Nov 2006 12:14:39 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:20366 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1756799AbWKSROh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 12:14:37 -0500
+Date: Sun, 19 Nov 2006 12:14:32 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: ohci1394 oops bisected [was Re: 2.6.19-rc5-mm2 (Oops in
+ class_device_remove_attrs during nodemgr_remove_host)]
+In-reply-to: <20061119162220.GA2536@inferi.kami.home>
+To: linux-kernel@vger.kernel.org
+Cc: Mattia Dongili <malattia@linux.it>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
        bcollins@debian.org
-Subject: Re: ohci1394 oops bisected [was Re: 2.6.19-rc5-mm2 (Oops in class_device_remove_attrs
- during nodemgr_remove_host)]
-References: <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de> <20061117071650.GA4974@inferi.kami.home> <455DCEF7.3060906@s5r6.in-berlin.de> <455DD42B.1020004@s5r6.in-berlin.de> <20061118094706.GA17879@kroah.com> <455EEE17.4020605@s5r6.in-berlin.de> <455F3DED.3070603@s5r6.in-berlin.de> <455F7EDD.6060007@s5r6.in-berlin.de> <20061119162220.GA2536@inferi.kami.home>
-In-Reply-To: <20061119162220.GA2536@inferi.kami.home>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-id: <200611191214.32647.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <455CAE0F.1080502@s5r6.in-berlin.de>
+ <455F7EDD.6060007@s5r6.in-berlin.de> <20061119162220.GA2536@inferi.kami.home>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattia Dongili wrote:
-> the winner is... gregkh-driver-network-device.patch
+On Sunday 19 November 2006 11:22, Mattia Dongili wrote:
+>On Sat, Nov 18, 2006 at 10:45:01PM +0100, Stefan Richter wrote:
+>[...]
+>
+>> broken-out/gregkh-driver-config_sysfs_deprecated-bus.patch
+>> broken-out/gregkh-driver-config_sysfs_deprecated-class.patch
+>> broken-out/gregkh-driver-config_sysfs_deprecated-device.patch
+>> broken-out/gregkh-driver-config_sysfs_deprecated-PHYSDEV.patch
+>> broken-out/gregkh-driver-driver-link-sysfs-timing.patch
+>> broken-out/gregkh-driver-sysfs-crash-debugging.patch
+>> broken-out/gregkh-driver-udev-compatible-hack.patch
+>
+>Very close :) But no, the winner is...
+>gregkh-driver-network-device.patch
 
-Interesting. Looks very much like eth1394's sysfs interface is getting
-in the way. And since it is entirely handled by the ieee1394 core, it
-means ieee1394 needs the class_dev to dev treatment. I think it's OK if
-we just wait for Greg to finish his preliminary patch. Until then,
-CONFIG_IEEE1394_ETH1394=n should avoid the oops. (Or Andrew marks
-eth1394 broken or removes gregkh-driver-network-device.patch...)
+If this has anything to do with kino segfaulting and going away when 
+trying to make use of the on-screen camera motion controls, please see to 
+it that it gets incorporated into the next FC6 kernel release, its badly 
+needed for us ieee1394 users.
 
-Mattia, thanks for the many tests.
 -- 
-Stefan Richter
--=====-=-==- =-== =--==
-http://arcgraph.de/sr/
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

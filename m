@@ -1,111 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933441AbWKSWIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933424AbWKSWTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933441AbWKSWIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 17:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933445AbWKSWIS
+	id S933424AbWKSWTV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 17:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933463AbWKSWTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 17:08:18 -0500
-Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:43280
-	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
-	with ESMTP id S933441AbWKSWIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 17:08:18 -0500
-Date: Sun, 19 Nov 2006 14:04:44 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061119220444.GL4427@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20061119190027.GA3676@oleg> <Pine.LNX.4.44L0.0611191512280.15059-100000@netrider.rowland.org> <20061119205516.GA117@oleg> <20061119212057.GE4427@us.ibm.com> <20061119215053.GA176@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061119215053.GA176@oleg>
-User-Agent: Mutt/1.5.9i
+	Sun, 19 Nov 2006 17:19:21 -0500
+Received: from port254.ds1-he.adsl.cybercity.dk ([217.157.198.197]:9771 "EHLO
+	gere.msconsult.dk") by vger.kernel.org with ESMTP id S933424AbWKSWTU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 17:19:20 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Oleg Verych <olecom@flower.upol.cz>, linux-kernel@vger.kernel.org,
+       rasmus@msconsult.dk (=?utf-8?q?Rasmus_B=C3=B8g_Hansen?=)
+Subject: Re: smbfs (Re: BUG: soft lockup detected on CPU#0! (2.6.18.2))
+References: <867ixyvum6.fsf@gere.msconsult.dk>
+	<slrnelofru.7lr.olecom@flower.upol.cz>
+	<20061117145342.f566a62a.akpm@osdl.org>
+From: rasmus@msconsult.dk (=?utf-8?q?Rasmus_B=C3=B8g_Hansen?=)
+Date: Sun, 19 Nov 2006 23:18:57 +0100
+In-Reply-To: <20061117145342.f566a62a.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 17 Nov 2006 14:53:42 -0800")
+Message-ID: <86hcwvaxm6.fsf@gere.msconsult.dk>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Organization: MS Consult
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-MSC-MailScanner: Found to be clean
+X-MSC-MailScanner-From: rasmus@msconsult.dk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 12:50:53AM +0300, Oleg Nesterov wrote:
-> On 11/19, Paul E. McKenney wrote:
-> >
-> > On Sun, Nov 19, 2006 at 11:55:16PM +0300, Oleg Nesterov wrote:
-> > > So synchronize_xxx() should do
-> > >
-> > > 	smp_mb();
-> > > 	idx = sp->completed++ & 0x1;
-> > >
-> > > 	for (;;) { ... }
-> > >
-> > > >               You see, there's no way around using synchronize_sched().
-> > >
-> > > With this change I think we are safe.
-> > >
-> > > If synchronize_xxx() increments ->completed in between, the caller of
-> > > xxx_read_lock() will see all memory ops (started before synchronize_xxx())
-> > > completed. It is ok that synchronize_xxx() returns immediately.
-> >
-> > Let me take Alan's example one step further:
-> >
-> > o	CPU 0 starts executing xxx_read_lock(), but is interrupted
-> > 	(or whatever) just before the atomic_inc().
-> >
-> > o	CPU 1 executes synchronize_xxx() to completion, which it
-> > 	can because CPU 0 has not yet incremented the counter.
-> 
-> Let's suppose for simplicity that CPU 1 does "classical"
-> 
-> 	old = global_ptr;
-> 	global_ptr = new_value();
-> 
-> before synchronize_xxx(), and ->completed == 0.
+Andrew Morton <akpm@osdl.org> writes:
 
-OK.  But there are two of these in this example -- one such update
-per execution of synchronize_xxx(), right?
+> On Thu, 16 Nov 2006 10:30:41 +0000 (UTC)
+> Oleg Verych <olecom@flower.upol.cz> wrote:
+>
+>> [ Adding e-mail of Andrew Morton, he may have clue about who to ping ;]
+>> [ MAINTAINERS.smbfs seems to be emply                                 ]
+>
+> smbfs is unmaintained and we'd like to kill it off.  Please use cifs.
 
-> Now, synchronize_xxx() sets ->completed == 1. Because of mb()
-> 'global_ptr = new_value()' is completed.
-> 
-> > o	CPU 0 returns from interrupt and completes xxx_read_lock(),
-> > 	but has incremented the wrong counter.
-> 
-> ->completed == 1, it is not so wrong, see below
+Oh, I wasn't aware that CIFS had become stable enough and smbfs was
+deprecated.
 
-But CPU 0 kept idx==0 in xxx_read_lock() in the earlier steps, right?
-Therefore, CPU 0 increments sp->ctr[0] rather than sp->ctr[1].
+I will begin migration to cifs.
 
-> > o	CPU 0 continues into its critical section, picking up a
-> > 	pointer to an xxx-protected data structure (or, in Jens's
-> > 	case starting an xxx-protected I/O).
-> 
-> it sees the new value in global_ptr, we are safe.
+Thanks.
 
-It -does- see the new value corresponding to the -first- call to
-synchronize_xxx(), but gets in trouble due to the change just
-before the -second- call to synchronize_xxx().
+Regards
+/Rasmus
 
-> > o	CPU 1 executes another synchronize_xxx().  This completes
-> > 	immediately because CPU 1 has the wrong counter incremented.
-> 
-> No, it will notice .ctr[1] != 1 and wait.
+-- 
+Rasmus Bøg Hansen
+MSC Aps
+Bøgesvinget 8
+2740 Skovlunde
+44 53 93 66
 
-Unless I am missing something, we have incremented .ctr[0] rather
-than .ctr[1], so I do not believe that it will wait.
-
-> > o	CPU 1 continues, either freeing a data structure while
-> > 	CPU 0 is still referencing it, or, in Jens's case, completing
-> > 	an I/O barrier while there is still outstanding I/O.
-> 
-> CPU 1 continues only when CPU 0 does read_unlock(/*completed*/ 1),
-> we are safe.
-> 
-> Safe?
-
-I have my doubts...
-
-						Thanx, Paul

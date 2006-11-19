@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933055AbWKSTZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933078AbWKSTiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933055AbWKSTZK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 14:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933057AbWKSTZK
+	id S933078AbWKSTiu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 14:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933080AbWKSTiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 14:25:10 -0500
-Received: from 1wt.eu ([62.212.114.60]:21509 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S933055AbWKSTZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 14:25:08 -0500
-Date: Sun, 19 Nov 2006 20:25:02 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Christian Schmidt <lkml@digadd.de>, linux-kernel@vger.kernel.org
-Subject: Re: How to format a disk in an USB-Floppy-drive
-Message-ID: <20061119192502.GA23136@1wt.eu>
-References: <456081CE.9090205@digadd.de> <Pine.LNX.4.61.0611191925220.24349@yvahk01.tjqt.qr> <20061119184436.GC577@1wt.eu> <Pine.LNX.4.61.0611192015050.6208@yvahk01.tjqt.qr>
+	Sun, 19 Nov 2006 14:38:50 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:60645 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S933078AbWKSTit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 14:38:49 -0500
+Date: Sun, 19 Nov 2006 14:35:28 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uml fails to compile due to missing offsetof
+Message-ID: <20061119193528.GA4559@ccure.user-mode-linux.org>
+References: <20061119120000.GA4926@aepfle.de> <20061119142507.GA3284@ccure.user-mode-linux.org> <20061119155847.GA6890@aepfle.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0611192015050.6208@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061119155847.GA6890@aepfle.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2006 at 08:15:31PM +0100, Jan Engelhardt wrote:
-> 
-> On Nov 19 2006 19:44, Willy Tarreau wrote:
-> >On Sun, Nov 19, 2006 at 07:25:34PM +0100, Jan Engelhardt wrote:
-> >> > [~]>./scsifmt /dev/sdd fmt
-> >> > scsifmt: non-sense ioctl error
-> >> >
-> >> > Didn't work too well, too. Any ideas?
-> >> 
-> >> 
-> >> Does not mkfs suffice?
-> >
-> >No, he's talking about low-level format. This is necessary before writing
-> >anything on a floppy for the first time or after defects have been detected
-> >(remember these old ages ?).
-> 
-> Yeah but the scsi *disk* driver does not seem to handle *floppy* 
-> requests (just as it does not handle *cdrom* ioctls). I sense a Missing 
-> Feature here.
+On Sun, Nov 19, 2006 at 04:58:47PM +0100, Olaf Hering wrote:
+> How do you get _STDDEF_H defined in
+> /usr/lib/gcc/<target>/<vers>/include/stddef.h ?
+> For me _STDDEF_H remains undefined, and /usr/include/linux/stddef.h has
+> offsetof inside __KERNEL__.
 
-I'm just wondering whether an SCSI floppy drive should support the hard
-disk command set (including low-level fmt). I'm not even sure that our
-sd driver supports those commands itself ! Clearly smelling -ENOFEATURE...
+I guess that the __KERNEL__ is your problem.  I don't see that
+anything like that has any business being in the libc headers.  In the
+other case of this that I looked at, the stuff in /usr/include/linux/
+had been replaced by (or /usr/include/linux symlinked to) a kernel
+include/linux.
 
-Regards,
-Willy
-
+				Jeff
+-- 
+Work email - jdike at linux dot intel dot com

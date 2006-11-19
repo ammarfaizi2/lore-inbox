@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933138AbWKSUHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933132AbWKSUJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933138AbWKSUHz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933132AbWKSUHz
+	id S933132AbWKSUJa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:09:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933139AbWKSUJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:07:55 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:31938 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S933138AbWKSUHy (ORCPT
+	Sun, 19 Nov 2006 15:09:30 -0500
+Received: from h155.mvista.com ([63.81.120.155]:48301 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S933132AbWKSUJ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:07:54 -0500
-Date: Sun, 19 Nov 2006 21:06:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Sun, 19 Nov 2006 15:09:29 -0500
+Message-ID: <4560BA57.40600@ru.mvista.com>
+Date: Sun, 19 Nov 2006 23:11:03 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi type IRQ handlers
-Message-ID: <20061119200650.GA22949@elte.hu>
-References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1163966437.5826.99.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Cc: mingo@elte.hu, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+ type IRQ handlers
+References: <200611192243.34850.sshtylyov@ru.mvista.com>	 <1163966437.5826.99.camel@localhost.localdomain> <1163966649.5826.101.camel@localhost.localdomain>
+In-Reply-To: <1163966649.5826.101.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Benjamin Herrenschmidt wrote:
 
-> Wait wait wait .... Can somebody (Ingo ?) explain me why the fasteoi 
-> handler is being changed and what is the rationale for adding an ack 
-> that was not necessary before ?
+>>>As fasteoi type chips never had to define their ack() method before the
+>>>recent Ingo's change to handle_fasteoi_irq(), any attempt to execute handler
+>>>in thread resulted in the kernel crash. So, define their ack() methods to be
+>>>the same as their eoi() ones...
 
-dont worry, it's -rt only stuff.
+>>>Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
-	Ingo
+>>>---
+>>>Since there was no feedback on three solutions I suggested, I'm going the way
+>>>of least resistance and making the fasteoi type chips behave the way that
+>>>handle_fasteoi_irq() is expecting from them...
+
+>>Wait wait wait .... Can somebody (Ingo ?) explain me why the fasteoi
+>>handler is being changed and what is the rationale for adding an ack
+>>that was not necessary before ?
+
+    It's changed in the RT patch for the case of threaded IRQ. This patch is 
+not for the mainline kernels.
+
+> To be more precise, I don't see in what circumstances a fasteoi type PIC
+> would need an ack routine that does something different than the eoi...
+> and if it always does the same thing, why not just call eoi ?
+
+    Because Ingo decided that calling mask() and ack() methods was a better 
+than calling mask() and eoi(). Here's the thread:
+
+http://ozlabs.org/pipermail/linuxppc-dev/2006-October/026546.html
+
+> Ben.
+
+WBR, Sergei
+

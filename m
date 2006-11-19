@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756744AbWKSQSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756747AbWKSQWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756744AbWKSQSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 11:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756745AbWKSQSI
+	id S1756747AbWKSQWs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 11:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756749AbWKSQWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 11:18:08 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:42831 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1756744AbWKSQSG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 11:18:06 -0500
-Date: Sun, 19 Nov 2006 11:18:06 -0500
-From: ROBERT HANCOCK <hancockr@shaw.ca>
-Subject: Re: ata2: EH in ADMA mode, notifier 0x0 notifier_error 0x0 gen_ctl
-In-reply-to: <cb8795142da89.455f6345@shaw.ca>
-To: linux-kernel@vger.kernel.org, christiand59@web.de
-Message-id: <d037c80430c7f.45603d6e@shaw.ca>
-MIME-version: 1.0
-X-Mailer: Sun Java(tm) System Messenger Express 6.2-7.05 (built Sep  5 2006)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-X-Accept-Language: en
-References: <cb8795142da89.455f6345@shaw.ca>
+	Sun, 19 Nov 2006 11:22:48 -0500
+Received: from aa014msr.fastwebnet.it ([85.18.95.74]:64234 "EHLO
+	aa014msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1756747AbWKSQWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 11:22:48 -0500
+Date: Sun, 19 Nov 2006 17:22:20 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+       bcollins@debian.org
+Subject: ohci1394 oops bisected [was Re: 2.6.19-rc5-mm2 (Oops in class_device_remove_attrs during nodemgr_remove_host)]
+Message-ID: <20061119162220.GA2536@inferi.kami.home>
+Mail-Followup-To: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+	Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+	bcollins@debian.org
+References: <455CAE0F.1080502@s5r6.in-berlin.de> <20061116203926.GA3314@inferi.kami.home> <455CEB48.5000906@s5r6.in-berlin.de> <20061117071650.GA4974@inferi.kami.home> <455DCEF7.3060906@s5r6.in-berlin.de> <455DD42B.1020004@s5r6.in-berlin.de> <20061118094706.GA17879@kroah.com> <455EEE17.4020605@s5r6.in-berlin.de> <455F3DED.3070603@s5r6.in-berlin.de> <455F7EDD.6060007@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <455F7EDD.6060007@s5r6.in-berlin.de>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.19-rc5-mm2-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian wrote:
-> 
-> FYI:
-> My system config is one 400GB disk at sda, and two 250GB disks on a dmraid 
-> nvidia-fakeraid set of sdb and sdc.
-> 
-> My kernel message buffer gets quickly overrun by a flood of these error 
-> messages:
-> 
-> Nov 17 22:48:12 ubuntu kernel: [  119.566540] attempt to access beyond end of 
-> device
-> Nov 17 22:48:12 ubuntu kernel: [  119.566602] sdb: rw=0, want=976784000, 
-> limit=488397168
+On Sat, Nov 18, 2006 at 10:45:01PM +0100, Stefan Richter wrote:
+[...]
+> broken-out/gregkh-driver-config_sysfs_deprecated-bus.patch
+> broken-out/gregkh-driver-config_sysfs_deprecated-class.patch
+> broken-out/gregkh-driver-config_sysfs_deprecated-device.patch
+> broken-out/gregkh-driver-config_sysfs_deprecated-PHYSDEV.patch
+> broken-out/gregkh-driver-driver-link-sysfs-timing.patch
+> broken-out/gregkh-driver-sysfs-crash-debugging.patch
+> broken-out/gregkh-driver-udev-compatible-hack.patch
 
-This seems like some other issue. For some reason the kernel is trying to access something way out at about 465GB on the /dev/sdb device..
+Very close :) But no, the winner is...
+gregkh-driver-network-device.patch
 
-> p.s:
-> Why does the kernel report a queue depth of 31/32, but hdparm says its 32? Is 
-> this correct?
-> 
-> ata1.00: ATA-7, max UDMA7, 781422768 sectors: LBA48 NCQ (depth 31/32)
-
-The drive supports 32 but libata reserves one queue entry for its own use, therefore the actual queue depth in use is 31.
+-- 
+mattia
+:wq!

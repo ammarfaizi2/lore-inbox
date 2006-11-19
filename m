@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756685AbWKSONM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756689AbWKSOTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756685AbWKSONM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 09:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756686AbWKSONM
+	id S1756689AbWKSOTb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 09:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756690AbWKSOTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 09:13:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50657 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1756685AbWKSONM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 09:13:12 -0500
-Subject: Re: [2.6 patch] mark pci_find_device() as __deprecated
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20061119140420.GF31879@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	 <20061117142145.GX31879@stusta.de>
-	 <20061117143236.GA23210@devserv.devel.redhat.com>
-	 <20061118000629.GW31879@stusta.de>
-	 <1163929632.31358.481.camel@laptopd505.fenrus.org>
-	 <20061119140420.GF31879@stusta.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 19 Nov 2006 15:13:04 +0100
-Message-Id: <1163945584.31358.516.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 19 Nov 2006 09:19:31 -0500
+Received: from main.gmane.org ([80.91.229.2]:996 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1756689AbWKSOTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 09:19:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Oleg Verych <olecom@flower.upol.cz>
+Subject: [e-mail problems] with infradead.org recipients
+Date: Sun, 19 Nov 2006 14:19:16 +0000 (UTC)
+Organization: Palacky University in Olomouc, experimental physics department.
+Message-ID: <slrnem0qco.fp5.olecom@flower.upol.cz>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: flower.upol.cz
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-19 at 15:04 +0100, Adrian Bunk wrote:
-> On Sun, Nov 19, 2006 at 10:47:12AM +0100, Arjan van de Ven wrote:
-> > 
-> > > 
-> > > Oh, and if anything starts complaining "But this adds some warnings to 
-> > > my kernel build!", he should either first fix the 200 kB (sic) of 
-> > > warnings I'm getting in 2.6.19-rc5-mm2 starting at MODPOST or go to hell.
-> > 
-> > we can solve this btw; we could have a
-> > 
-> > #define THIS_MODULE_IS_LEGACY_CRAP_AND_WONT_GET_FIXED
-> >...
-> 
-> The few warnings by __deprecated are not that much of a problem.
+Hi, guys. I have problems with you.
 
-yes they are; the current situation prevents things that are used in
-only a set of old unmaintained legacy drivers (read: ISDN) as being
-marked __deprecated because they add too many warnings, while the API
-really should be marked deprecated..
+Is some special NS or route needed? I can add, no problem (ISP problems
+are very unlikely, but possible ;).
 
-think for example the entire sleep_on() family of API's (which basically
-are impossible to use race-free in 2.6)
+Final-Recipient: RFC822; arjan infradead.org
+Action: failed
+Status: 4.4.7
+Remote-MTA: DNS; canuck.infradead.org
+Last-Attempt-Date: Sun, 19 Nov 2006 14:27:52 +0100
 
+Final-Recipient: RFC822; matthew wil.cx
+Action: delayed
+Status: 4.4.1
+Remote-MTA: DNS; canuck.infradead.org
+Last-Attempt-Date: Sun, 19 Nov 2006 12:49:26 +0100
+Will-Retry-Until: Fri, 24 Nov 2006 08:43:49 +0100
 
-
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+____
 

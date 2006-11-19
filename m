@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933142AbWKSUKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933139AbWKSULn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933142AbWKSUKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933139AbWKSUKs
+	id S933139AbWKSULn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933144AbWKSULn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:10:48 -0500
-Received: from mx1.suse.de ([195.135.220.2]:37012 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S933142AbWKSUKr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:10:47 -0500
-Message-ID: <4560BAAF.2030202@suse.com>
-Date: Sun, 19 Nov 2006 15:12:31 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-Organization: SUSE Labs, Novell, Inc
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: reiserfs NET=n build error
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com> <200611190650.49282.ak@suse.de> <45608FC2.5040406@suse.com> <200611191959.55969.ak@suse.de>
-In-Reply-To: <200611191959.55969.ak@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 19 Nov 2006 15:11:43 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:53086 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S933135AbWKSULm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 15:11:42 -0500
+Date: Sun, 19 Nov 2006 15:11:21 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Kino segfault (was Re: ohci1394 oops bisected)
+In-reply-to: <45609D74.8070201@s5r6.in-berlin.de>
+To: linux-kernel@vger.kernel.org
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Mattia Dongili <malattia@linux.it>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
+       bcollins@debian.org
+Message-id: <200611191511.21409.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <455CAE0F.1080502@s5r6.in-berlin.de>
+ <200611191214.32647.gene.heskett@verizon.net>
+ <45609D74.8070201@s5r6.in-berlin.de>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sunday 19 November 2006 13:07, Stefan Richter wrote:
+>Gene Heskett wrote:
+>> If this has anything to do with kino segfaulting and going away when
+>> trying to make use of the on-screen camera motion controls, please see
+>> to it that it gets incorporated into the next FC6 kernel release, its
+>> badly needed for us ieee1394 users.
+>
+>No, it's very probably unrelated. You could report Kino related bugs via
+>www.kinodv.org --- or on bugzilla.redhat.com if it's merely an issue
+>with the distributed versions of Kino/ libraries/ kernel.
 
-Andi Kleen wrote:
->>> I would copy a relatively simple C implementation, like arch/h8300/lib/checksum.c
->> As long as the h8300 version has the same output as the x86 version.
-> 
-> The trouble is that the different architecture have different output 
-> for csum_partial. So you already got a bug when someone wants to move
-> file systems.
-
-Yeah, Al Viro noticed that about reiserfs earlier this month. The
-problem is that there's really no good fix for it. I was under the
-impression that csum_partial would be arch-independent and was in asm/
-for performance reasons. The comment in asm-x86_64 indicates that's not
-the case, but the comment in asm-i386 still doesn't. I developed the
-code on i386. Moving forward we can define an arch-independent hash
-function for that and accept the old arch-dependent checksums, but
-there's still the issue of old kernels not understanding it on any arch.
-Kind of a nice shot to the foot considering the work I put into making
-reiserfs endian safe in the 2.4 days.
-
-I'm hoping there's a better solution to be found than creating a
-checksum verifier that checks all known versions. :(
-
-
-- -Jeff
-
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
-
-iD8DBQFFYLqvLPWxlyuTD7IRAj7RAKCkOHL9EgTrmHSo97xzG5tBxWgzCACgiBcW
-uzd/oSwXDHECHPEcIL58xoo=
-=udEd
------END PGP SIGNATURE-----
+Dan is aware of my problem(s) but cannot duplicate them on his system.  
+That is the first place I took my problem to.
+ 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

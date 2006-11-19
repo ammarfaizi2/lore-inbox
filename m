@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756772AbWKSQpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756776AbWKSQuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756772AbWKSQpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 11:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756773AbWKSQpU
+	id S1756776AbWKSQuU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 11:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756778AbWKSQuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 11:45:20 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:448 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1756772AbWKSQpT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 11:45:19 -0500
-Date: Sun, 19 Nov 2006 11:34:27 -0500
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: [git pull] PCMCIA fixes for 2.6.19-rc6
-Message-ID: <20061119163427.GA2924@dominikbrodowski.de>
-Mail-Followup-To: torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 19 Nov 2006 11:50:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23505 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1756776AbWKSQuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 11:50:19 -0500
+Subject: Re: [2.6 patch] mark pci_find_device() as __deprecated
+From: Arjan van de Ven <arjan@infradead.org>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20061119152421.GB19613@rhun.ibm.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	 <20061117142145.GX31879@stusta.de>
+	 <20061117143236.GA23210@devserv.devel.redhat.com>
+	 <20061118000629.GW31879@stusta.de>
+	 <1163929632.31358.481.camel@laptopd505.fenrus.org>
+	 <20061119095258.GK3735@rhun.zurich.ibm.com>
+	 <20061119140600.GG31879@stusta.de>  <20061119152421.GB19613@rhun.ibm.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 19 Nov 2006 17:50:09 +0100
+Message-Id: <1163955010.31358.529.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hej Linus,
+On Sun, 2006-11-19 at 17:24 +0200, Muli Ben-Yehuda wrote:
+> On Sun, Nov 19, 2006 at 03:06:00PM +0100, Adrian Bunk wrote:
+> 
+> > unmaintained != not used
+> > 
+> > As an example, some people might be unhappy if the floppy driver that is 
+> > unmaintained for ages and not in a good state was removed.
+> 
+> I understand. However, if it was slated to be removed, said people
+> might be inclined to start maintaining it. We have a bar for inclusion
+> of new code into the tree - why shouldn't a quality bar also be
+> applied to old code in the tree?
 
-Please pull from
+this bypasses the convenient fact that there are 2 types of
+unmaintained:
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-fixes-2.6.git/
+1) Drivers that barely, if at all, limp along and nobody has hw for
+2) Drivers that no one person is the declared maintainer, but which do
+get fixed when they break by "someone"
 
-The diffstat and list of changes follows; the patches will be sent out to
-the linux-pcmcia list and other relevant subsystem lists, if applicable.
+floppy.c is of the later kind; the hardware is widespread enough to make
+that feasible I suppose; while the former kind are mostly ISA slot cards
+that virtually nobody has (or only people who can't or don't want to
+care about the linux kernel driver; a bunch of serial expander drivers
+and a whole lot of the ISDN drivers falls in this category)
 
-Thanks,
-	Dominik
+marking the category 1) drivers that limp along as "don't warn on
+deprecated" is sort of fair; they're not far enough down deathrow yet
+that they can be removed entirely, yet they also shouldn't clutter up
+the build logs and they shouldn't prevent us from deprecating APIs that
+are truely broken (*_sleep_on(), cli() etc) in 2.6 kernels...
 
-----
- drivers/ata/pata_pcmcia.c       |    2 
- drivers/char/pcmcia/cm4000_cs.c |    6 -
- drivers/char/pcmcia/cm4040_cs.c |    6 -
- drivers/ide/legacy/ide-cs.c     |    2 
- drivers/pcmcia/cs.c             |    7 -
- drivers/pcmcia/cs_internal.h    |    2 
- drivers/pcmcia/ds.c             |  165 +++++++++++++++++++++++-----------------
- drivers/pcmcia/pcmcia_ioctl.c   |    7 +
- drivers/pcmcia/pd6729.c         |    8 -
- drivers/pcmcia/socket_sysfs.c   |    4 
- include/pcmcia/ss.h             |    5 -
- 11 files changed, 125 insertions(+), 89 deletions(-)
-----
-Akinobu Mita (1):
-      cm4000_cs: fix return value check
 
-Dominik Brodowski (4):
-      pcmcia: start over after CIS override
-      pcmcia: multifunction card handling fixes
-      pcmcia: fix 'rmmod pcmcia' with leftover devices
-      pcmcia: handle __copy_from_user() return value in ioctl
-
-Komuro (1):
-      pcmcia: allow shared IRQs on pd6729 sockets
-
-Marcin Juszkiewicz (1):
-      pcmcia: yet another IDE ID
-
-Matt Reimer (1):
-      pcmcia: Add an id to ide-cs.c
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

@@ -1,99 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933416AbWKSV54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933429AbWKSWAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933416AbWKSV54 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933420AbWKSV5z
+	id S933429AbWKSWAv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 17:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933426AbWKSWAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:57:55 -0500
-Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:27931
-	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
-	with ESMTP id S933416AbWKSV5z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:57:55 -0500
-Date: Sun, 19 Nov 2006 13:54:21 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061119215421.GK4427@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20061119205516.GA117@oleg> <Pine.LNX.4.44L0.0611191606580.20262-100000@netrider.rowland.org> <20061119211731.GA151@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061119211731.GA151@oleg>
-User-Agent: Mutt/1.5.9i
+	Sun, 19 Nov 2006 17:00:51 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:61149 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S933429AbWKSWAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 17:00:51 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4560D2CA.9050000@s5r6.in-berlin.de>
+Date: Sun, 19 Nov 2006 22:55:22 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: deadlock in "modprobe -r ohci1394" shortly after "modprobe ohci1394"
+References: <Pine.LNX.4.44L0.0611191431120.15059-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0611191431120.15059-100000@netrider.rowland.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 12:17:31AM +0300, Oleg Nesterov wrote:
-> On 11/19, Alan Stern wrote:
-> > On Sun, 19 Nov 2006, Oleg Nesterov wrote:
-> >
-> > > > What happens if synchronize_xxx manages to execute inbetween
-> > > > xxx_read_lock's
-> > > >
-> > > >  		idx = sp->completed & 0x1;
-> > > >  		atomic_inc(sp->ctr + idx);
-> > > >
-> > > > statements?
-> > >
-> > > Oops. I forgot about explicit mb() before sp->completed++ in synchronize_xxx().
-> > >
-> > > So synchronize_xxx() should do
-> > >
-> > > 	smp_mb();
-> > > 	idx = sp->completed++ & 0x1;
-> > >
-> > > 	for (;;) { ... }
-> > >
-> > > >               You see, there's no way around using synchronize_sched().
-> > >
-> > > With this change I think we are safe.
-> > >
-> > > If synchronize_xxx() increments ->completed in between, the caller of
-> > > xxx_read_lock() will see all memory ops (started before synchronize_xxx())
-> > > completed. It is ok that synchronize_xxx() returns immediately.
-> >
-> > Yes, the reader will see a consistent picture, but it will have
-> > incremented the wrong element of sp->ctr[].  What happens if another
-> > synchronize_xxx() occurs while the reader is still running?
+Alan Stern wrote:
+> On Sun, 19 Nov 2006, Stefan Richter wrote:
+>> @@ -1873,8 +1873,19 @@ static void nodemgr_remove_host(struct h
+...
+>>  	if (hi) {
+>> +		/* up(&host->device.sem);	--- apparently not required */
+>> +		if (host->device.parent)
+>> +			up(&host->device.parent->sem);
+>>  		kthread_stop(hi->thread);
+>> +		if (host->device.parent)
+>> +			down(&host->device.parent->sem);
+>> +		/* down(&host->device.sem);	--- apparently not required */
+>>  		nodemgr_remove_host_dev(&host->device);
+>>  	}
+>>  }
 > 
-> It will wait for xxx_read_unlock() on reader's side. And for this reason
-> this idx in fact is not exactly wrong :)
+> Obviously this patch isn't pretty.  It's also incorrect, because it 
+> reacquires the parent's semaphore while holding the child's -- that's 
+> another recipe for deadlock.
+> 
+> Knowing nothing at all about ieee1394, I get the feeling that the culprit
+> here is a strange subsystem design.  In fact, I don't understand exactly
+> what's going wrong.  Evidently the rmmod thread owns the locks for both
+> the host being removed and its parent, and it wants to stop knodemgrd,
+> which is waiting to acquire the host's parent's lock because it is
+> attempting to rescan the parent.  Is that right?
 
-I am not seeing this.
+That's right.
 
-Let's assume sp->completed starts out zero.
+> It doesn't make sense.  If knodemgrd is rescanning the parent then the 
+> parent must not have a driver.  If it doesn't have a driver, how can it 
+> have children?
 
-o	CPU 0 starts executing xxx_read_lock(), but is interrupted
-	(or whatever) just before the atomic_inc().  Upon return,
-	it will increment sp->ctr[0].
+Well, I don't fully understand the reasoning behind it. (But even less
+do I grasp the driver core.) Short story: It may indeed be possible to
+get rid of the parent relationship to the host device and of the
+rescanning of the host device. Long story:
 
-o	CPU 1 executes synchronize_xxx() to completion, which it
-	can because CPU 0 has not yet incremented the counter.
-	It waited on sp->ctr[0], and incremented sp->completed to 1.
+ieee1394 has:
+ - struct hpsb_host (contains a struct device and a struct class_device)
+ieee1394's nodemgr in addition has:
+ - struct node_entry (ditto)
+ - struct unit_directory (ditto)
 
-o	CPU 0 returns from interrupt and completes xxx_read_lock(),
-	but has incremented sp->ctr[0].
+nodemgr also provides different .release callbacks for each of these
+devices and class_devices, an .uevent callback for unit_directory
+class_devices and the struct bus_type for the three kinds of device.
 
-o	CPU 0 continues into its critical section, picking up a
-	pointer to an xxx-protected data structure (or, in Jens's
-	case starting an xxx-protected I/O).
+All of the existing protocol drivers bind only to unit_directories, so
+these are the most important ones as far as driver matching is
+concerned. (There is only a little out-of-tree driver, mem1394 for
+forensics, which binds differently because it doesn't require any actual
+protocol on a remote node.)
 
-o	CPU 1 executes another synchronize_xxx().  This completes
-	immediately because it is waiting for sp->ctr[1] to go
-	to zero, but CPU 0 incremented sp->ctr[0].  (Right?)
+A hpsb_host is merely access to controllers; each one controls a bus. On
+a bus live a few node_entries, as many as there are nodes with an active
+link layer controller. This includes the local host, therefore there is
+always at least one node_entry per bus. A node may implement 0, 1 or
+more units and presents them in a hierarchical manner. A unit talks a
+protocol; and our protocol drivers access such a unit and, if the
+protocol has this necessity, the unit's node. (While doing so, it also
+accesses the hpsb_host in front of the node.)
 
-o	CPU 1 continues, either freeing a data structure while
-	CPU 0 is still referencing it, or, in Jens's case, completing
-	an I/O barrier while there is still outstanding I/O.
+If support for eth1394 is configured in, our drivers add a unit to each
+of the local nodes which indicate IP over 1394 capability to external
+nodes. This unit_directory also matches the eth1394 when the driver core
+scans the ieee1394_bus_type.
 
-Or am I missing something?
+So in short, I think we could actually live with a minimum sysfs
+implementation which exposes only unit directories. (But I may be
+missing something --- I'm not quite familiar with the sysfs interfacing
+tools, that is udev and hald.) At least device file naming of SBP-2
+units wouldn't suffer because udev takes the unique name of SBP-2 units
+from a sysfs attribute of the SCSI device, not from the unit_directory's
+device.
 
-						Thanx, Paul
+The /sys/class/net/eth?/device links of eth1394 class devices currently
+point to the hpsb_host devices i.e. fw-host devices; maybe they could as
+well point to respective unit directories.
+
+So maybe a simple, flat sysfs representation without node_entry devices,
+perhaps also without fw-host devices --- or at least a representation
+(1) without parent relationship to the fw-host devices and (2) without
+ieee1394_bus_type in fw-host devices --- is possible without breaking
+userspace. It probably would eliminate the problem which we are
+discussing here. This would mean that we loose the ability to bind
+protocol drivers to a hpsb_host (and depending on how far the
+respresentation is cut down, also the ability to bind protocol drivers
+to a node_entry). But as I said I see no actual need for this ability.
+-- 
+Stefan Richter
+-=====-=-==- =-== =--==
+http://arcgraph.de/sr/

@@ -1,61 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756799AbWKSROk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756802AbWKSRVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756799AbWKSROk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756801AbWKSROj
+	id S1756802AbWKSRVE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 12:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756806AbWKSRVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:14:39 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:20366 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1756799AbWKSROh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:14:37 -0500
-Date: Sun, 19 Nov 2006 12:14:32 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: ohci1394 oops bisected [was Re: 2.6.19-rc5-mm2 (Oops in
- class_device_remove_attrs during nodemgr_remove_host)]
-In-reply-to: <20061119162220.GA2536@inferi.kami.home>
-To: linux-kernel@vger.kernel.org
-Cc: Mattia Dongili <malattia@linux.it>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
-       bcollins@debian.org
-Message-id: <200611191214.32647.gene.heskett@verizon.net>
-Organization: Not detectable
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <455CAE0F.1080502@s5r6.in-berlin.de>
- <455F7EDD.6060007@s5r6.in-berlin.de> <20061119162220.GA2536@inferi.kami.home>
-User-Agent: KMail/1.9.5
+	Sun, 19 Nov 2006 12:21:04 -0500
+Received: from mo-p07-ob.rzone.de ([81.169.146.190]:65073 "EHLO
+	mo-p07-ob.rzone.de") by vger.kernel.org with ESMTP id S1756802AbWKSRVC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 12:21:02 -0500
+Date: Sun, 19 Nov 2006 18:20:47 +0100 (MET)
+From: Olaf Hering <olaf@aepfle.de>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uml fails to compile due to missing offsetof
+Message-ID: <20061119172047.GA7376@aepfle.de>
+References: <20061119120000.GA4926@aepfle.de> <aday7q7jrds.fsf@cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <aday7q7jrds.fsf@cisco.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 November 2006 11:22, Mattia Dongili wrote:
->On Sat, Nov 18, 2006 at 10:45:01PM +0100, Stefan Richter wrote:
->[...]
->
->> broken-out/gregkh-driver-config_sysfs_deprecated-bus.patch
->> broken-out/gregkh-driver-config_sysfs_deprecated-class.patch
->> broken-out/gregkh-driver-config_sysfs_deprecated-device.patch
->> broken-out/gregkh-driver-config_sysfs_deprecated-PHYSDEV.patch
->> broken-out/gregkh-driver-driver-link-sysfs-timing.patch
->> broken-out/gregkh-driver-sysfs-crash-debugging.patch
->> broken-out/gregkh-driver-udev-compatible-hack.patch
->
->Very close :) But no, the winner is...
->gregkh-driver-network-device.patch
+On Sun, Nov 19, Roland Dreier wrote:
 
-If this has anything to do with kino segfaulting and going away when 
-trying to make use of the on-screen camera motion controls, please see to 
-it that it gets incorporated into the next FC6 kernel release, its badly 
-needed for us ieee1394 users.
+> looks weird to me.  AFAIK the C standard says that offsetof() comes
+> from plain old <stddef.h>.  Does the (untested) patch below fix the
+> build for you?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Yes, it does.

@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933284AbWKSVC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933299AbWKSVJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933284AbWKSVC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 16:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933287AbWKSVC4
+	id S933299AbWKSVJT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 16:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933316AbWKSVJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 16:02:56 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:47463 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S933284AbWKSVCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 16:02:55 -0500
-Date: Sun, 19 Nov 2006 13:02:48 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Jeff Mahoney <jeffm@suse.com>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org
-Subject: Re: reiserfs NET=n build error
-Message-Id: <20061119130248.c7e7b181.randy.dunlap@oracle.com>
-In-Reply-To: <20061119205711.GE3078@ftp.linux.org.uk>
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com>
-	<200611190650.49282.ak@suse.de>
-	<45608FC2.5040406@suse.com>
-	<200611191959.55969.ak@suse.de>
-	<4560AAC1.3000800@oracle.com>
-	<20061119205711.GE3078@ftp.linux.org.uk>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Sun, 19 Nov 2006 16:09:18 -0500
+Received: from firewall.rowland.harvard.edu ([140.247.233.35]:3293 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S933299AbWKSVJR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 16:09:17 -0500
+Date: Sun, 19 Nov 2006 16:09:17 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Jens Axboe <jens.axboe@oracle.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, <manfred@colorfullife.com>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061119205516.GA117@oleg>
+Message-ID: <Pine.LNX.4.44L0.0611191606580.20262-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2006 20:57:11 +0000 Al Viro wrote:
+On Sun, 19 Nov 2006, Oleg Nesterov wrote:
 
-> On Sun, Nov 19, 2006 at 11:04:33AM -0800, Randy Dunlap wrote:
-> > Andi Kleen wrote:
-> > >>>I would copy a relatively simple C implementation, like 
-> > >>>arch/h8300/lib/checksum.c
-> > >>As long as the h8300 version has the same output as the x86 version.
-> > >
-> > >The trouble is that the different architecture have different output 
-> > >for csum_partial. So you already got a bug when someone wants to move
-> > >file systems.
-> > >
-> > >-Andi
+> > What happens if synchronize_xxx manages to execute inbetween 
+> > xxx_read_lock's
 > > 
-> > That argues for having only one version of it (in a lib.; my preference)
-> > -or- Every module having its own local copy/version of it.  :(
+> >  		idx = sp->completed & 0x1;
+> >  		atomic_inc(sp->ctr + idx);
+> > 
+> > statements?
 > 
-> Wrong.  csum_partial() result is defined modulo 0xffff and it's basically
-> "whatever's convenient as intermediate for this architecture".
+> Oops. I forgot about explicit mb() before sp->completed++ in synchronize_xxx().
 > 
-> reiserfs use of it is just plain broken.  net/* is fine, since all
-> final uses are via csum_fold() or equivalents.
+> So synchronize_xxx() should do
 > 
-> Note that reiserfs use is broken in another way: it takes fixed-endian value
-> and feeds it to cpu_to_le32().  IOW, even if everything had literally the
-> same csum_partial(), the value it shits on disk would be endian-dependent.
+> 	smp_mb();
+> 	idx = sp->completed++ & 0x1;
 > 
-> As for net/*, with proper types it's pretty straightforward.  See
-> davem's net-2.6.20 for that...
+> 	for (;;) { ... }
+> 
+> >               You see, there's no way around using synchronize_sched().
+> 
+> With this change I think we are safe.
+> 
+> If synchronize_xxx() increments ->completed in between, the caller of
+> xxx_read_lock() will see all memory ops (started before synchronize_xxx())
+> completed. It is ok that synchronize_xxx() returns immediately.
 
-OK.  I guessed that there was some sanity in there somewhere (either
-in the provider or consumer), but apparently there's none in either place.
-:(
+Yes, the reader will see a consistent picture, but it will have 
+incremented the wrong element of sp->ctr[].  What happens if another 
+synchronize_xxx() occurs while the reader is still running?
 
----
-~Randy
+Alan
+

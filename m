@@ -1,99 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756664AbWKSNhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756666AbWKSNjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756664AbWKSNhs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 08:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756665AbWKSNhr
+	id S1756666AbWKSNjq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 08:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756667AbWKSNjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 08:37:47 -0500
-Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:14859 "EHLO
-	smtp-vbr12.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1756664AbWKSNhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 08:37:45 -0500
-Date: Sun, 19 Nov 2006 14:37:42 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: oops while booting using serial console [2.6.17]
-Message-ID: <20061119133742.GI31268@vanheusden.com>
+	Sun, 19 Nov 2006 08:39:46 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:52877 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1756666AbWKSNjp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 08:39:45 -0500
+From: Karsten Wiese <fzu@wemgehoertderstaat.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.19-rc6-rt4, changed yum repository
+Date: Sun, 19 Nov 2006 15:39:41 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061118163032.GA14625@elte.hu>
+In-Reply-To: <20061118163032.GA14625@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sun Nov 19 00:08:47 CET 2006
-X-Message-Flag: MultiTail - tail on steroids
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611191539.42023.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. PROBLEM: oops while booting using serial console [2.6.17]
+Hi,
 
-2. when booting 2.6.17 with 'console=ttyS0' parameter, things crash after the "shpchp: Standard Hot Plug PCI Controller Driver version: 0.4" comes up
+Boot bugs happening here on fc6 running locally compiled 2.6.19-rc-rt
+UP i386 kernels on a K8.
+They happen on some boots, some are ok.
+If bug happens, boot seams to stop after the
+"for interactive setup , press 'I'" sort of message
+and continues after I enter control+c.
+Next message after that is about the time having been set.
+If bug happened, the time is incorrectly set mostly to 3600s
+in the future.
 
-4. 2.6.17
+This is the last part of SysRq+T right after such a bug happened:
 
-6.
-BUG: unable to handle kernel NULL pointer dereference at virtual address 0000000c
- printing eip:
-b0200282
-*pde = 00000000
-Oops: 0000 [#1]
-SMP
-Modules linked in: i2c_viapro shpchp pci_hotplug i2c_core floppy via_ircc via_agp agpgart rtc eth1394 via82cxxx_audio uart401 sound ac97_codec irda crc_ccitt snd_via82xx evdev gameport snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd_page_alloc snd_mpu401_uart psmouse snd_rawmidi snd_seq_device snd serio_raw 8250_pnp soundcore pcspkr parport_pc parport ext3 jbd mbcache dm_mirror dm_snapshot dm_mod ide_generic ide_cd cdrom ide_disk ohci1394 ieee1394 uhci_hcd via82cxxx generic ehci_hcd 8139too 8139cp via_rhine mii usbcore ide_core thermal processor fan
-CPU:    0
-EIP:    0060:[<b0200282>]    Not tainted VLI
-EFLAGS: 00010206   (2.6.17-2-686 #1)
-EIP is at uart_write_room+0x9/0x16
-eax: cef56400   ebx: 00000006   ecx: ce0ea0b0   edx: 00000000
-esi: ce0b0000   edi: ceb07000   ebp: 00000006   esp: ce053f18
-ds: 007b   es: 007b   ss: 0068
-Process S03udev (pid: 2007, threadinfo=ce052000 task=ce0ea0b0)
-Stack: b01f456d ceb07000 b165cb80 00000282 00000000 ce0ea0b0 b0116f2d ce0b0138
-       ce0b0138 00000006 ce0b0000 00000006 00000006 b01f21d3 00000006 080e9408
-       b165cb80 b01f448c ce0b000c ce0b03e8 00000000 b01f2b64 b165cb80 b165cb80
+ =======================
+init          S [f7e6d000] F7EB1F60     0   296      1   297           286 (NOTLB)
+       f7eb1f28 00000086 c014928e f7eb1f60 f7fb07b8 c191d6c4 f7eeb1a0 c191d600
+       00000007 f7e6d12c f7e6d000 d4b9b4a7 00000007 0000262b c014a6ab f6867568
+       00018a21 00000000 f7fc1000 00000001 f7eb1f88 f7eb1f40 c02ca94b f7feee00
 Call Trace:
- <b01f456d> write_chan+0xe1/0x293  <b0116f2d> default_wake_function+0x0/0xc
- <b01f21d3> tty_write+0x147/0x1d8  <b01f448c> write_chan+0x0/0x293
- <b01f2b64> redirected_tty_write+0x1c/0x6c  <b01f2b48> redirected_tty_write+0x0/0x6c
- <b0153379> vfs_write+0xa1/0x140  <b0153963> sys_write+0x3c/0x63
- <b0102b4f> syscall_call+0x7/0xb
-Code: 09 08 8b 40 10 74 09 81 60 10 ff ff ff fd eb 07 81 48 10 00 00 00 02 8b 5e 68 89 f0 ff 53 2c 5b 5e c3 8b 80 80 01 00 00 8b 50 10 <8b> 42 0c 2b 42 08 48 25 ff 0f 00 00 c3 8b 80 80 01 00 00 8b 50
-EIP: [<b0200282>] uart_write_room+0x9/0x16 SS:ESP 0068:ce053f18
+ [<c014928e>] do_wp_page+0x34a/0x395
+ [<c014a6ab>] __handle_mm_fault+0x7b9/0x7db
+ [<c02ca94b>] schedule+0xcd/0xe9
+ [<c0118903>] eligible_child+0x9f/0xb0
+ [<c0119d53>] do_wait+0x9f1/0xacd
+ [<c0114409>] default_wake_function+0x0/0x16
+ [<c0119e60>] sys_wait4+0x31/0x34
+ [<c0119e8a>] sys_waitpid+0x27/0x2b
+ [<c0102e49>] sysenter_past_esp+0x56/0x79
+ =======================
+rc.sysinit    S [f7fc1000] FF889000     0   297    296   322               (NOTLB)
+       f7e76f28 00000086 c01492cf ff889000 08113fcc f6873860 f7fee600 c17f5760
+       00000006 f7fc112c f7fc1000 dd1e3416 00000008 0000df7d c014a642 f687744c
+       011543fb 00000000 f7e7baa0 00000001 f7e76f88 f7e76f40 c02ca94b f7fee600
+Call Trace:
+ [<c01492cf>] do_wp_page+0x38b/0x395
+ [<c014a642>] __handle_mm_fault+0x750/0x7db
+ [<c02ca94b>] schedule+0xcd/0xe9
+ [<c0118903>] eligible_child+0x9f/0xb0
+ [<c0119d53>] do_wait+0x9f1/0xacd
+ [<c012fd91>] rt_down+0xe/0x25
+ [<c0114409>] default_wake_function+0x0/0x16
+ [<c0119e60>] sys_wait4+0x31/0x34
+ [<c0119e8a>] sys_waitpid+0x27/0x2b
+ [<c0102e49>] sysenter_past_esp+0x56/0x79
+ =======================
+hwclock       R [f7e7baa0] F6873224 [on rq #0]     0   322    297                     (NOTLB)
+       c1902fb4 00003086 f7fee434 f6873224 f7fee434 c02cd498 00000000 00000000
+       00000001 f7e7bbcc f7e7baa0 795f1ab5 0000000d 003cda22 c02e8fc2 00000004
+       4e8951e9 00000002 00240384 00000000 00000000 c1902000 c0102f22 00240384
+Call Trace:
+ [<c02cd498>] do_page_fault+0x2b9/0x552
+ [<c0102f22>] work_resched+0x6/0x19
+ =======================
 
-8.2
-folkert@tompoes:~$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : CentaurHauls
-cpu family      : 6
-model           : 9
-model name      : VIA Nehemiah
-stepping        : 1
-cpu MHz         : 999.639
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu de tsc msr cx8 mtrr pge cmov mmx fxsr sse fxsr_opt up
-bogomips        : 2001.30
+work_resched sits in entry.S:
 
+work_resched:
+	DISABLE_INTERRUPTS
+	call __schedule
+					# make sure we don't miss an interrupt
+					# setting need_resched or sigpending
+					# between sampling and the iret
+	movl TI_flags(%ebp), %ecx
+	andl $_TIF_WORK_MASK, %ecx	# is there any work to be done other
+					# than syscall tracing?
+	jz restore_all
+	testl $(_TIF_NEED_RESCHED|_TIF_NEED_RESCHED_DELAYED), %ecx
+	jnz work_resched
 
+The hwclock page_fault happens at the
+ 	movl TI_flags(%ebp), %ecx
+line.
 
+Will try the yum repo kernel next.
 
+      Karsten
 
-Folkert van Heusden
-
--- 
-www.biglumber.com <- site where one can exchange PGP key signatures 
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

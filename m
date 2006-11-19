@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933209AbWKSUbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933187AbWKSUaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933209AbWKSUbp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 15:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933230AbWKSUbp
+	id S933187AbWKSUaS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 15:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933172AbWKSUaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 15:31:45 -0500
-Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:16525 "EHLO
+	Sun, 19 Nov 2006 15:30:17 -0500
+Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:23948 "EHLO
 	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S933209AbWKSUbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 15:31:41 -0500
-Date: Sun, 19 Nov 2006 14:31:37 -0600
+	id S933187AbWKSUaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 15:30:10 -0500
+Date: Sun, 19 Nov 2006 14:30:06 -0600
 From: Jay Cliburn <jacliburn@bellsouth.net>
 To: jeff@garzik.org
 Cc: shemminger@osdl.org, romieu@fr.zoreil.com, csnook@redhat.com,
        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] atl1: Ancillary C files for Attansic L1 driver
-Message-ID: <20061119203137.GE29736@osprey.hogchain.net>
+Subject: [PATCH 2/4] atl1: Header files for Attansic L1 driver
+Message-ID: <20061119203006.GC29736@osprey.hogchain.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Jay Cliburn <jacliburn@bellsouth.net>
 
-This patch contains auxiliary C files for the Attansic L1 gigabit ethernet
-adapter driver.
+This patch contains the header files needed by the Attansic L1 gigabit
+ethernet adapter driver.
 
 Signed-off-by: Jay Cliburn <jacliburn@bellsouth.net>
 ---
 
- atl1_ethtool.c |  530 +++++++++++++++++++++++++++++++++++
- atl1_hw.c      |  840
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- atl1_param.c   |  203 +++++++++++++
- 3 files changed, 1573 insertions(+)
+ atl1.h       |  251 ++++++++++++++
+ atl1_hw.h    |  991
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ atl1_osdep.h |   78 ++++
+ 3 files changed, 1320 insertions(+)
 
-diff --git a/drivers/net/atl1/atl1_ethtool.c b/drivers/net/atl1/atl1_ethtool.c
+diff --git a/drivers/net/atl1/atl1.h b/drivers/net/atl1/atl1.h
 new file mode 100644
-index 0000000..36da53a
+index 0000000..95a5fa1
 --- /dev/null
-+++ b/drivers/net/atl1/atl1_ethtool.c
-@@ -0,0 +1,530 @@
-+/** atl1_ethtool.c - atl1 ethtool support
++++ b/drivers/net/atl1/atl1.h
+@@ -0,0 +1,251 @@
++/** atl1.h - atl1 main header
 +
 +Copyright(c) 2005 - 2006 Attansic Corporation. All rights reserved.
 +Copyright(c) 2006 Chris Snook <csnook@redhat.com>
@@ -67,1365 +68,1237 @@ index 0000000..36da53a
 +Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 +*/
 +
++#ifndef _ATL1_H_
++#define _ATL1_H_
++
++#include <linux/tcp.h>
++#include <linux/skbuff.h>
 +#include <linux/netdevice.h>
++#include <linux/pci.h>
++#include <linux/spinlock_types.h>
++#include <linux/workqueue.h>
++#include <linux/timer.h>
 +
-+#include "atl1.h"
++#include <asm/types.h>
++#include <asm/atomic.h>
 +
-+#ifdef SIOCETHTOOL
-+#include <asm/uaccess.h>
-+
-+extern char at_driver_name[];
-+extern char at_driver_version[];
-+extern s32 at_up(struct at_adapter *adapter);
-+extern void at_down(struct at_adapter *adapter);
-+extern void at_reset(struct at_adapter *adapter);
-+extern s32 at_setup_ring_resources(struct at_adapter *adapter);
-+extern void at_free_ring_resources(struct at_adapter *adapter);
-+extern s32 at_phy_setup_autoneg_adv(struct at_hw *hw);
-+extern s32 at_write_phy_reg(struct at_hw *hw, u32 reg_addr, u16 phy_data);
-+extern s32 at_get_speed_and_duplex(struct at_hw *hw, u16 * speed, u16 * duplex);
-+
-+#ifdef	ETHTOOL_GSTATS
-+struct at_stats {
-+	char stat_string[ETH_GSTRING_LEN];
-+	int sizeof_stat;
-+	int stat_offset;
-+};
-+
-+#define AT_STAT(m) sizeof(((struct at_adapter *)0)->m), \
-+	offsetof(struct at_adapter, m)
-+
-+static struct at_stats at_gstrings_stats[] = {
-+	{"rx_packets", AT_STAT(soft_stats.rx_packets)},
-+	{"tx_packets", AT_STAT(soft_stats.tx_packets)},
-+	{"rx_bytes", AT_STAT(soft_stats.rx_bytes)},
-+	{"tx_bytes", AT_STAT(soft_stats.tx_bytes)},
-+	{"rx_errors", AT_STAT(soft_stats.rx_errors)},
-+	{"tx_errors", AT_STAT(soft_stats.tx_errors)},
-+	{"rx_dropped", AT_STAT(net_stats.rx_dropped)},
-+	{"tx_dropped", AT_STAT(net_stats.tx_dropped)},
-+	{"multicast", AT_STAT(soft_stats.multicast)},
-+	{"collisions", AT_STAT(soft_stats.collisions)},
-+	{"rx_length_errors", AT_STAT(soft_stats.rx_length_errors)},
-+	{"rx_over_errors", AT_STAT(soft_stats.rx_missed_errors)},
-+	{"rx_crc_errors", AT_STAT(soft_stats.rx_crc_errors)},
-+	{"rx_frame_errors", AT_STAT(soft_stats.rx_frame_errors)},
-+	{"rx_fifo_errors", AT_STAT(soft_stats.rx_fifo_errors)},
-+	{"rx_missed_errors", AT_STAT(soft_stats.rx_missed_errors)},
-+	{"tx_aborted_errors", AT_STAT(soft_stats.tx_aborted_errors)},
-+	{"tx_carrier_errors", AT_STAT(soft_stats.tx_carrier_errors)},
-+	{"tx_fifo_errors", AT_STAT(soft_stats.tx_fifo_errors)},
-+	{"tx_window_errors", AT_STAT(soft_stats.tx_window_errors)},
-+	{"tx_abort_exce_coll", AT_STAT(soft_stats.excecol)},
-+	{"tx_abort_late_coll", AT_STAT(soft_stats.latecol)},
-+	{"tx_deferred_ok", AT_STAT(soft_stats.deffer)},
-+	{"tx_single_coll_ok", AT_STAT(soft_stats.scc)},
-+	{"tx_multi_coll_ok", AT_STAT(soft_stats.mcc)},
-+	{"tx_underun", AT_STAT(soft_stats.tx_underun)},
-+	{"tx_trunc", AT_STAT(soft_stats.tx_trunc)},
-+	{"tx_pause", AT_STAT(soft_stats.tx_pause)},
-+	{"rx_pause", AT_STAT(soft_stats.rx_pause)},
-+	{"rx_rrd_ov", AT_STAT(soft_stats.rx_rrd_ov)},
-+	{"rx_trunc", AT_STAT(soft_stats.rx_trunc)}
-+};
-+
-+#define AT_STATS_LEN sizeof(at_gstrings_stats) / sizeof(struct at_stats)
-+#endif				/* ETHTOOL_GSTATS */
-+
-+static int at_get_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_hw *hw = &adapter->hw;
-+
-+	ecmd->supported = (SUPPORTED_10baseT_Half |
-+			   SUPPORTED_10baseT_Full |
-+			   SUPPORTED_100baseT_Half |
-+			   SUPPORTED_100baseT_Full |
-+			   SUPPORTED_1000baseT_Full |
-+			   SUPPORTED_Autoneg | SUPPORTED_TP);
-+	ecmd->advertising = ADVERTISED_TP;
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		ecmd->advertising |= ADVERTISED_Autoneg;
-+		if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR) {
-+			ecmd->advertising |= ADVERTISED_Autoneg;
-+			ecmd->advertising |=
-+			    (ADVERTISED_10baseT_Half |
-+			     ADVERTISED_10baseT_Full |
-+			     ADVERTISED_100baseT_Half |
-+			     ADVERTISED_100baseT_Full |
-+			     ADVERTISED_1000baseT_Full);
-+		} else {
-+			ecmd->advertising |= (ADVERTISED_1000baseT_Full);
-+		}
-+	}
-+	ecmd->port = PORT_TP;
-+	ecmd->phy_address = 0;
-+	ecmd->transceiver = XCVR_INTERNAL;
-+
-+	if (netif_carrier_ok(adapter->netdev)) {
-+		u16 link_speed, link_duplex;
-+		at_get_speed_and_duplex(hw, &link_speed, &link_duplex);
-+		ecmd->speed = link_speed;
-+		if (link_duplex == FULL_DUPLEX)
-+			ecmd->duplex = DUPLEX_FULL;
-+		else
-+			ecmd->duplex = DUPLEX_HALF;
-+	} else {
-+		ecmd->speed = -1;
-+		ecmd->duplex = -1;
-+	}
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		ecmd->autoneg = AUTONEG_ENABLE;
-+	} else {
-+		ecmd->autoneg = AUTONEG_DISABLE;
-+	}
-+	
-+	return 0;
-+}
-+
-+static int at_set_settings(struct net_device *netdev, struct ethtool_cmd *ecmd)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_hw *hw = &adapter->hw;
-+	u16 phy_data;
-+	int ret_val = 0;
-+	u16 old_media_type = hw->media_type;
-+
-+	if (netif_running(adapter->netdev)) {
-+		printk(KERN_DEBUG "%s: ethtool shutting down link adapter\n", 
-+			at_driver_name);
-+		at_down(adapter);
-+	}
-+
-+	if (ecmd->autoneg == AUTONEG_ENABLE) {
-+		hw->media_type = MEDIA_TYPE_AUTO_SENSOR;
-+	} else {
-+		if (ecmd->speed == SPEED_1000) {
-+			if (ecmd->duplex != DUPLEX_FULL) {
-+				printk(KERN_WARNING
-+				       "%s: can't force to 1000M half duplex\n",
-+					at_driver_name);
-+				ret_val = -EINVAL;
-+				goto exit_sset;
-+			}
-+			hw->media_type = MEDIA_TYPE_1000M_FULL;
-+		} else if (ecmd->speed == SPEED_100) {
-+			if (ecmd->duplex == DUPLEX_FULL) {
-+				hw->media_type = MEDIA_TYPE_100M_FULL;
-+			} else {
-+				hw->media_type = MEDIA_TYPE_100M_HALF;
-+			}
-+		} else {
-+			if (ecmd->duplex == DUPLEX_FULL) {
-+				hw->media_type = MEDIA_TYPE_10M_FULL;
-+			} else {
-+				hw->media_type = MEDIA_TYPE_10M_HALF;
-+			}
-+		}
-+	}
-+	switch (hw->media_type) {
-+	case MEDIA_TYPE_AUTO_SENSOR:
-+		ecmd->advertising =
-+		    ADVERTISED_10baseT_Half |
-+		    ADVERTISED_10baseT_Full |
-+		    ADVERTISED_100baseT_Half |
-+		    ADVERTISED_100baseT_Full |
-+		    ADVERTISED_1000baseT_Full |
-+		    ADVERTISED_Autoneg | ADVERTISED_TP;
-+		break;
-+	case MEDIA_TYPE_1000M_FULL:
-+		ecmd->advertising =
-+		    ADVERTISED_1000baseT_Full |
-+		    ADVERTISED_Autoneg | ADVERTISED_TP;
-+		break;
-+	default:
-+		ecmd->advertising = 0;
-+		break;
-+	}
-+	if (at_phy_setup_autoneg_adv(hw)) {
-+		ret_val = -EINVAL;
-+		printk(KERN_WARNING 
-+			"%s: invalid ethtool speed/duplex setting\n", 
-+			at_driver_name);
-+		goto exit_sset;
-+	}
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		phy_data = MII_CR_RESET | MII_CR_AUTO_NEG_EN;
-+	} else {
-+		switch (hw->media_type) {
-+		case MEDIA_TYPE_100M_FULL:
-+			phy_data =
-+			    MII_CR_FULL_DUPLEX | MII_CR_SPEED_100 |
-+			    MII_CR_RESET;
-+			break;
-+		case MEDIA_TYPE_100M_HALF:
-+			phy_data = MII_CR_SPEED_100 | MII_CR_RESET;
-+			break;
-+		case MEDIA_TYPE_10M_FULL:
-+			phy_data =
-+			    MII_CR_FULL_DUPLEX | MII_CR_SPEED_10 | MII_CR_RESET;
-+			break;
-+		default:	/* MEDIA_TYPE_10M_HALF: */
-+			phy_data = MII_CR_SPEED_10 | MII_CR_RESET;
-+			break;
-+		}
-+	}
-+	at_write_phy_reg(hw, MII_BMCR, phy_data);
-+exit_sset:
-+	if (ret_val) {
-+		hw->media_type = old_media_type;
-+	}
-+	if (netif_running(adapter->netdev)) {
-+		printk(KERN_DEBUG "%s: ethtool starting link adapter\n", 
-+			at_driver_name);
-+		at_up(adapter);
-+	} else if (!ret_val) {
-+		printk(KERN_DEBUG "%s: ethtool resetting link adapter\n", 
-+			at_driver_name);
-+		at_reset(adapter);
-+	}
-+	return ret_val;
-+}
-+
-+static void at_get_drvinfo(struct net_device *netdev,
-+				struct ethtool_drvinfo *drvinfo)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+
-+	strncpy(drvinfo->driver, at_driver_name, 32);
-+	strncpy(drvinfo->version, at_driver_version, 32);
-+	strncpy(drvinfo->fw_version, "N/A", 32);
-+	strncpy(drvinfo->bus_info, pci_name(adapter->pdev), 32);
-+#ifdef  ETHTOOL_GEEPROM
-+	drvinfo->eedump_len = 48;
-+#endif	/* ETHTOOL_GEEPROM */
-+}
-+
-+static void at_get_wol(struct net_device *netdev,
-+			    struct ethtool_wolinfo *wol)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+
-+	wol->supported = WAKE_UCAST | WAKE_MCAST | WAKE_BCAST | WAKE_MAGIC;
-+	wol->wolopts = 0;
-+	if (adapter->wol & AT_WUFC_EX)
-+		wol->wolopts |= WAKE_UCAST;
-+	if (adapter->wol & AT_WUFC_MC)
-+		wol->wolopts |= WAKE_MCAST;
-+	if (adapter->wol & AT_WUFC_BC)
-+		wol->wolopts |= WAKE_BCAST;
-+	if (adapter->wol & AT_WUFC_MAG)
-+		wol->wolopts |= WAKE_MAGIC;
-+	return;
-+}
-+
-+static int at_set_wol(struct net_device *netdev,
-+			struct ethtool_wolinfo *wol)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+
-+	if (wol->wolopts & (WAKE_PHY | WAKE_ARP | WAKE_MAGICSECURE))
-+		return -EOPNOTSUPP;
-+	adapter->wol = 0;
-+	if (wol->wolopts & WAKE_UCAST)
-+		adapter->wol |= AT_WUFC_EX;
-+	if (wol->wolopts & WAKE_MCAST)
-+		adapter->wol |= AT_WUFC_MC;
-+	if (wol->wolopts & WAKE_BCAST)
-+		adapter->wol |= AT_WUFC_BC;
-+	if (wol->wolopts & WAKE_MAGIC)
-+		adapter->wol |= AT_WUFC_MAG;
-+	return 0;
-+}
-+
-+static void at_get_ringparam(struct net_device *netdev,
-+			    struct ethtool_ringparam *ring)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_tpd_ring *txdr = &adapter->tpd_ring;
-+	struct at_rfd_ring *rxdr = &adapter->rfd_ring;
-+
-+	ring->rx_max_pending = 2048;
-+	ring->tx_max_pending = 1024;
-+	ring->rx_mini_max_pending = 0;
-+	ring->rx_jumbo_max_pending = 0;
-+	ring->rx_pending = rxdr->count;
-+	ring->tx_pending = txdr->count;
-+	ring->rx_mini_pending = 0;
-+	ring->rx_jumbo_pending = 0;
-+}
-+
-+static int at_set_ringparam(struct net_device *netdev,
-+			    struct ethtool_ringparam *ring)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	int err;
-+	struct at_tpd_ring *tpdr = &adapter->tpd_ring;
-+	struct at_rrd_ring *rrdr = &adapter->rrd_ring;
-+	struct at_rfd_ring *rfdr = &adapter->rfd_ring;
-+
-+	struct at_tpd_ring tpd_old, tpd_new;
-+	struct at_rfd_ring rfd_old, rfd_new;
-+	struct at_rrd_ring rrd_old, rrd_new;
-+
-+	tpd_old = adapter->tpd_ring;
-+	rfd_old = adapter->rfd_ring;
-+	rrd_old = adapter->rrd_ring;
-+
-+	if (netif_running(adapter->netdev))
-+		at_down(adapter);
-+
-+	rfdr->count = (u16) max(ring->rx_pending, (u32) 32);
-+	rfdr->count = rfdr->count > 2048 ? 2048 : rfdr->count;
-+	rfdr->count = (rfdr->count + 3) & ~3;
-+	rrdr->count = rfdr->count;
-+
-+	tpdr->count = (u16) max(ring->tx_pending, (u32) 16);
-+	tpdr->count = tpdr->count > 1024 ? 1024 : tpdr->count;
-+	tpdr->count = (tpdr->count + 3) & ~3;
-+
-+	if (netif_running(adapter->netdev)) {
-+		/* try to get new resources before deleting old */
-+		if ((err = at_setup_ring_resources(adapter)))
-+			goto err_setup_ring;
-+
-+		/* save the new, restore the old in order to free it,
-+		 * then restore the new back again */
-+		rfd_new = adapter->rfd_ring;
-+		rrd_new = adapter->rrd_ring;
-+		tpd_new = adapter->tpd_ring;
-+		adapter->rfd_ring = rfd_old;
-+		adapter->rrd_ring = rrd_old;
-+		adapter->tpd_ring = tpd_old;
-+		at_free_ring_resources(adapter);
-+		adapter->rfd_ring = rfd_new;
-+		adapter->rrd_ring = rrd_new;
-+		adapter->tpd_ring = tpd_new;
-+
-+		if ((err = at_up(adapter)))
-+			return err;
-+	}
-+	return 0;
-+
-+      err_setup_ring:
-+	adapter->rfd_ring = rfd_old;
-+	adapter->rrd_ring = rrd_old;
-+	adapter->tpd_ring = tpd_old;
-+	at_up(adapter);
-+	return err;
-+}
-+
-+static void at_get_pauseparam(struct net_device *netdev,
-+			     struct ethtool_pauseparam *epause)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_hw *hw = &adapter->hw;
-+
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		epause->autoneg = AUTONEG_ENABLE;
-+	} else {
-+		epause->autoneg = AUTONEG_DISABLE;
-+	}
-+	epause->rx_pause = 1;
-+	epause->tx_pause = 1;
-+}
-+
-+static int at_set_pauseparam(struct net_device *netdev,
-+			     struct ethtool_pauseparam *epause)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_hw *hw = &adapter->hw;
-+
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		epause->autoneg = AUTONEG_ENABLE;
-+	} else {
-+		epause->autoneg = AUTONEG_DISABLE;
-+	}
-+
-+	epause->rx_pause = 1;
-+	epause->tx_pause = 1;
-+
-+	return 0;
-+}
-+
-+static u32 at_get_tx_csum(struct net_device *netdev)
-+{
-+	return (netdev->features & NETIF_F_HW_CSUM) != 0;
-+}
-+
-+static int at_set_tx_csum(struct net_device *netdev, u32 data)
-+{
-+	if (data)
-+		netdev->features |= NETIF_F_HW_CSUM;
-+	else
-+		netdev->features &= ~NETIF_F_HW_CSUM;
-+
-+	return 0;
-+}
++#include "atl1_hw.h"
 +
 +#ifdef NETIF_F_TSO
-+static int at_set_tso(struct net_device *netdev, u32 data)
-+{
-+	if (data)
-+		netdev->features |= NETIF_F_TSO;
-+	else
-+		netdev->features &= ~NETIF_F_TSO;
-+	return 0;
-+}
-+#endif /* NETIF_F_TSO */
-+
-+static void at_get_strings(struct net_device *netdev, u32 stringset, u8 *data)
-+{
-+	u8 *p = data;
-+	int i;
-+
-+	switch (stringset) {
-+	case ETH_SS_STATS:
-+		for (i = 0; i < AT_STATS_LEN; i++) {
-+			memcpy(p, at_gstrings_stats[i].stat_string,
-+				ETH_GSTRING_LEN);
-+			p += ETH_GSTRING_LEN;
-+		}
-+		break;
-+	}
-+}
-+
-+static int at_nway_reset(struct net_device *netdev)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	struct at_hw *hw = &adapter->hw;	
-+	
-+	if (netif_running(netdev)) {
-+		u16 phy_data;
-+		at_down(adapter);
-+
-+		if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+			hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+			phy_data = MII_CR_RESET | MII_CR_AUTO_NEG_EN;
-+		} else {
-+			switch (hw->media_type) {
-+			case MEDIA_TYPE_100M_FULL:
-+				phy_data = MII_CR_FULL_DUPLEX |
-+					MII_CR_SPEED_100 | MII_CR_RESET;
-+				break;
-+			case MEDIA_TYPE_100M_HALF:
-+				phy_data = MII_CR_SPEED_100 | MII_CR_RESET;
-+				break;	
-+			case MEDIA_TYPE_10M_FULL:
-+				phy_data = MII_CR_FULL_DUPLEX |
-+					MII_CR_SPEED_10 | MII_CR_RESET;
-+				break;
-+			default:  /* MEDIA_TYPE_10M_HALF */
-+				phy_data = MII_CR_SPEED_10 | MII_CR_RESET;
-+			}
-+		}
-+		at_write_phy_reg(hw, MII_BMCR, phy_data);
-+		at_up(adapter);
-+	}
-+	return 0;
-+}
-+
-+static void at_get_ethtool_stats(struct net_device *netdev,
-+		struct ethtool_stats *stats, u64 *data)
-+{
-+	struct at_adapter *adapter = netdev_priv(netdev);
-+	int i;
-+
-+	for (i = 0; i < AT_STATS_LEN; i++) {
-+		char *p = (char *)adapter+at_gstrings_stats[i].stat_offset;
-+		data[i] = (at_gstrings_stats[i].sizeof_stat ==
-+			sizeof(u64)) ? *(u64 *)p : *(u32 *)p;
-+	}
-+
-+}
-+
-+static const struct ethtool_ops at_ethtool_ops = {
-+	.get_settings		= at_get_settings,
-+	.set_settings		= at_set_settings,
-+	.get_drvinfo		= at_get_drvinfo,
-+	.get_wol		= at_get_wol,
-+	.set_wol		= at_set_wol,
-+	.get_ringparam		= at_get_ringparam,
-+	.set_ringparam		= at_set_ringparam,
-+	.get_pauseparam		= at_get_pauseparam,
-+	.set_pauseparam 	= at_set_pauseparam,
-+	.get_tx_csum		= at_get_tx_csum,
-+	.set_tx_csum		= at_set_tx_csum,
-+	.get_link		= ethtool_op_get_link,
-+	.get_sg			= ethtool_op_get_sg,
-+	.set_sg			= ethtool_op_set_sg,
-+	.get_strings		= at_get_strings,
-+	.nway_reset		= at_nway_reset,
-+	.get_ethtool_stats	= at_get_ethtool_stats,
-+#ifdef NETIF_F_TSO
-+	.get_tso		= ethtool_op_get_tso,
-+	.set_tso		= at_set_tso,
++#include <net/checksum.h>
 +#endif
-+};
-+
-+void at_set_ethtool_ops(struct net_device *netdev)
-+{
-+	SET_ETHTOOL_OPS(netdev, &at_ethtool_ops);
-+}
-+#endif	/* SIOCETHTOOL */
-diff --git a/drivers/net/atl1/atl1_hw.c b/drivers/net/atl1/atl1_hw.c
-new file mode 100644
-index 0000000..74ec263
---- /dev/null
-+++ b/drivers/net/atl1/atl1_hw.c
-@@ -0,0 +1,840 @@
-+/** atl1_hw.c - atl1 hardware operations
-+
-+Copyright(c) 2005 - 2006 Attansic Corporation. All rights reserved.
-+Copyright(c) 2006 Chris Snook <csnook@redhat.com>
-+Copyright(c) 2006 Jay Cliburn <jcliburn@gmail.com>
-+
-+Derived from Intel e1000 driver
-+Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
-+
-+This program is free software; you can redistribute it and/or modify it
-+under the terms of the GNU General Public License as published by the Free
-+Software Foundation; either version 2 of the License, or (at your option)
-+any later version.
-+
-+This program is distributed in the hope that it will be useful, but WITHOUT
-+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+more details.
-+
-+You should have received a copy of the GNU General Public License along with
-+this program; if not, write to the Free Software Foundation, Inc., 59
-+Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-+*/
-+
-+#include "atl1.h"
 +
 +#ifdef SIOCGMIIPHY
 +#include <linux/mii.h>
 +#endif
 +
-+extern char at_driver_name[];
++#ifdef SIOCETHTOOL
++#include <linux/ethtool.h>
++#endif
 +
-+/**
-+FIXME: are we keeping this?
++#ifdef NETIF_F_HW_VLAN_TX
++#include <linux/if_vlan.h>
++#endif
 +
-+ * The little-endian AUTODIN II ethernet CRC calculations.
-+ * A big-endian version is also available.
-+ * This is slow but compact code.  Do not use this routine 
-+ * for bulk data, use a table-based routine instead.
-+ * This is common code and should be moved to net/core/crc.c.
-+ * Chips may use the upper or lower CRC bits, and may reverse 
-+ * and/or invert them.  Select the endian-ness that results 
-+ * in minimal calculations.
++#define BAR_0	0
++
++#define	LBYTESWAP( a )  ( ( ( (a) & 0x00ff00ff ) << 8 ) | ( ( (a) & 0xff00ff00 ) >> 8 ) )
++#define	LONGSWAP( a )	( ( LBYTESWAP( a ) << 16 ) | ( LBYTESWAP( a ) >> 16 ) )
++#define	SHORTSWAP( a )	( ( (a) << 8 ) | ( (a) >> 8 ) )
++
++struct at_adapter;
++
++#define AT_MAX_INTR	3
++
++#define AT_DEFAULT_TPD		    256
++#define AT_MAX_TPD		    1023
++#define AT_MIN_TPD		    64
++#define AT_DEFAULT_RFD		    512
++#define AT_MIN_RFD		    128
++#define AT_MAX_RFD		    2047
++
++#define AT_DESC_UNUSED(R) \
++	((((R)->next_to_clean > (R)->next_to_use) ? 0 : (R)->count) + \
++	(R)->next_to_clean - (R)->next_to_use - 1)
++
++#define AT_DESC_USED(R) \
++	(((R)->next_to_clean > (R)->next_to_use) ?	\
++		((R)->count+(R)->next_to_use-(R)->next_to_clean+1) : \
++		((R)->next_to_use-(R)->next_to_clean+1))
++
++#define AT_GET_DESC(R, i, type)		(&(((type *)((R)->desc))[i]))
++#define AT_RFD_DESC(R, i)		AT_GET_DESC(R, i, struct rx_free_desc)
++#define AT_TPD_DESC(R, i)		AT_GET_DESC(R, i, struct tx_packet_desc)
++#define AT_RRD_DESC(R, i)		AT_GET_DESC(R, i, struct rx_return_desc)
++
++/** wrapper around a pointer to a socket buffer,
++ * so a DMA handle can be stored along with the buffer
 + */
-+static u32 ether_crc_le(int length, unsigned char *data)
-+{
-+	u32 crc = ~0;		/* Initial value. */
-+	while (--length >= 0) {
-+		unsigned char current_octet = *data++;
-+		int bit;
-+		for (bit = 8; --bit >= 0; current_octet >>= 1) {
-+			if ((crc ^ current_octet) & 1) {
-+				crc >>= 1;
-+				crc ^= 0xedb88320;
-+			} else
-+				crc >>= 1;
-+		}
-+	}
-+	return ~crc;
-+}
-+
-+void at_read_pci_cfg(struct at_hw *hw, u32 reg, u16 * value)
-+{
-+        struct at_adapter *adapter = hw->back;
-+        pci_read_config_word(adapter->pdev, reg, value);
-+}
-+
-+void at_write_pci_cfg(struct at_hw *hw, u32 reg, u16 * value)
-+{
-+        struct at_adapter *adapter = hw->back;
-+        pci_write_config_word(adapter->pdev, reg, *value);
-+}
-+
-+/**
-+ * Reset the transmit and receive units; mask and clear all interrupts.
-+ * hw - Struct containing variables accessed by shared code
-+ * return : AT_SUCCESS  or  idle status (if error)
-+ */
-+s32 at_reset_hw(struct at_hw * hw)
-+{
-+	u32 icr;
-+	u16 pci_cfg_cmd_word;
-+	int i;
-+
-+	/* Workaround for PCI problem when BIOS sets MMRBC incorrectly. */
-+	at_read_pci_cfg(hw, PCI_REG_COMMAND, &pci_cfg_cmd_word);
-+	if ((pci_cfg_cmd_word &
-+	     (CMD_IO_SPACE | CMD_MEMORY_SPACE | CMD_BUS_MASTER))
-+	    != (CMD_IO_SPACE | CMD_MEMORY_SPACE | CMD_BUS_MASTER)) {
-+		pci_cfg_cmd_word |=
-+		    (CMD_IO_SPACE | CMD_MEMORY_SPACE | CMD_BUS_MASTER);
-+		at_write_pci_cfg(hw, PCI_REG_COMMAND, &pci_cfg_cmd_word);
-+	}
-+
-+	/* Clear Interrupt mask to stop board from generating
-+	 * interrupts & Clear any pending interrupt events 
-+	 AT_WRITE_REG(hw, REG_IMR, 0);
-+	 AT_WRITE_REG(hw, REG_ISR, 0xffffffff);
-+	 */
-+
-+	/* Issue Soft Reset to the MAC.  This will reset the chip's
-+	 * transmit, receive, DMA.  It will not effect
-+	 * the current PCI configuration.  The global reset bit is self-
-+	 * clearing, and should clear within a microsecond.
-+	 */
-+	AT_WRITE_REG(hw, REG_MASTER_CTRL, MASTER_CTRL_SOFT_RST);
-+	wmb();
-+
-+	AT_WRITE_REGW(hw, REG_GPHY_ENABLE, 1);
-+
-+	msec_delay(1);		/* delay about 1ms */
-+
-+	/* Wait at least 10ms for All module to be Idle */
-+	for (i = 0; i < 10; i++) {
-+		icr = AT_READ_REG(hw, REG_IDLE_STATUS);
-+		if (!icr)
-+			break;
-+		msec_delay(1);	/* delay 1 ms */
-+		cpu_relax();	/* FIXME: is this still the right way to do this? */
-+	}
-+
-+	if (icr) {
-+		return icr;
-+	}
-+
-+	return AT_SUCCESS;
-+}
-+
-+static inline bool eth_address_valid(u8 * p_addr)
-+{
-+	/* Invalid PermanentAddress ? */
-+	if (((p_addr[0] == 0) &&
-+	     (p_addr[1] == 0) &&
-+	     (p_addr[2] == 0) &&
-+	     (p_addr[3] == 0) && (p_addr[4] == 0) && (p_addr[5] == 0)
-+	    ) || (p_addr[0] & 1)) {	/* Multicast address or Broadcast Address */
-+		return false;
-+	}
-+	return true;
-+}
-+
-+/** function about EEPROM
-+ *
-+ * check_eeprom_exist
-+ * return 0 if eeprom exist
-+ */
-+static int check_eeprom_exist(struct at_hw *hw)
-+{
-+	u32 value;
-+	value = AT_READ_REG(hw, REG_SPI_FLASH_CTRL);
-+	if (value & SPI_FLASH_CTRL_EN_VPD) {
-+		value &= ~SPI_FLASH_CTRL_EN_VPD;
-+		AT_WRITE_REG(hw, REG_SPI_FLASH_CTRL, value);
-+	}
-+	value = AT_READ_REGW(hw, REG_PCIE_CAP_LIST);
-+	return ((value & 0xFF00) == 0x6C00) ? 0 : 1;
-+}
-+
-+static bool read_eeprom(struct at_hw *hw, u32 offset, u32 * p_value)
-+{
-+	int i;
-+	u32 control;
-+
-+	if (offset & 3)
-+		return false;	/* address do not align */
-+
-+	AT_WRITE_REG(hw, REG_VPD_DATA, 0);
-+	control = (offset & VPD_CAP_VPD_ADDR_MASK) << VPD_CAP_VPD_ADDR_SHIFT;
-+	AT_WRITE_REG(hw, REG_VPD_CAP, control);
-+
-+	for (i = 0; i < 10; i++) {
-+		msec_delay(2);
-+		control = AT_READ_REG(hw, REG_VPD_CAP);
-+		if (control & VPD_CAP_VPD_FLAG)
-+			break;
-+	}
-+	if (control & VPD_CAP_VPD_FLAG) {
-+		*p_value = AT_READ_REG(hw, REG_VPD_DATA);
-+		return true;
-+	}
-+	return false;		/* timeout */
-+}
-+
-+/**
-+ * Reads the value from a PHY register
-+ * hw - Struct containing variables accessed by shared code
-+ * reg_addr - address of the PHY register to read
-+ */
-+s32 at_read_phy_reg(struct at_hw * hw, u16 reg_addr, u16 * phy_data)
-+{
-+	u32 val;
-+	int i;
-+
-+	val = ((u32) (reg_addr & MDIO_REG_ADDR_MASK)) << MDIO_REG_ADDR_SHIFT |
-+	    	MDIO_START | MDIO_SUP_PREAMBLE | MDIO_RW | MDIO_CLK_25_4 <<
-+ 		MDIO_CLK_SEL_SHIFT;
-+	AT_WRITE_REG(hw, REG_MDIO_CTRL, val);
-+
-+	wmb();
-+
-+	for (i = 0; i < MDIO_WAIT_TIMES; i++) {
-+		usec_delay(2);
-+		val = AT_READ_REG(hw, REG_MDIO_CTRL);
-+		if (!(val & (MDIO_START | MDIO_BUSY))) {
-+			break;
-+		}
-+		wmb();
-+	}
-+	if (!(val & (MDIO_START | MDIO_BUSY))) {
-+		*phy_data = (u16) val;
-+		return AT_SUCCESS;
-+	}
-+	return AT_ERR_PHY;
-+}
-+
-+#define CUSTOM_SPI_CS_SETUP	2
-+#define CUSTOM_SPI_CLK_HI	2
-+#define CUSTOM_SPI_CLK_LO	2
-+#define CUSTOM_SPI_CS_HOLD	2
-+#define CUSTOM_SPI_CS_HI	3
-+
-+static bool spi_read(struct at_hw *hw, u32 addr, u32 * buf)
-+{
-+	int i;
-+	u32 value;
-+
-+	AT_WRITE_REG(hw, REG_SPI_DATA, 0);
-+	AT_WRITE_REG(hw, REG_SPI_ADDR, addr);
-+
-+	value = SPI_FLASH_CTRL_WAIT_READY |
-+	    (CUSTOM_SPI_CS_SETUP & SPI_FLASH_CTRL_CS_SETUP_MASK) <<
-+	    SPI_FLASH_CTRL_CS_SETUP_SHIFT | (CUSTOM_SPI_CLK_HI &
-+					     SPI_FLASH_CTRL_CLK_HI_MASK) <<
-+	    SPI_FLASH_CTRL_CLK_HI_SHIFT | (CUSTOM_SPI_CLK_LO &
-+					   SPI_FLASH_CTRL_CLK_LO_MASK) <<
-+	    SPI_FLASH_CTRL_CLK_LO_SHIFT | (CUSTOM_SPI_CS_HOLD &
-+					   SPI_FLASH_CTRL_CS_HOLD_MASK) <<
-+	    SPI_FLASH_CTRL_CS_HOLD_SHIFT | (CUSTOM_SPI_CS_HI &
-+					    SPI_FLASH_CTRL_CS_HI_MASK) <<
-+	    SPI_FLASH_CTRL_CS_HI_SHIFT | (1 & SPI_FLASH_CTRL_INS_MASK) <<
-+	    SPI_FLASH_CTRL_INS_SHIFT;
-+
-+	AT_WRITE_REG(hw, REG_SPI_FLASH_CTRL, value);
-+
-+	value |= SPI_FLASH_CTRL_START;
-+
-+	AT_WRITE_REG(hw, REG_SPI_FLASH_CTRL, value);
-+
-+	for (i = 0; i < 10; i++) {
-+		msec_delay(1);	/* 1ms */
-+		value = AT_READ_REG(hw, REG_SPI_FLASH_CTRL);
-+		if (!(value & SPI_FLASH_CTRL_START))
-+			break;
-+	}
-+
-+	if (value & SPI_FLASH_CTRL_START)
-+		return false;
-+
-+	*buf = AT_READ_REG(hw, REG_SPI_DATA);
-+
-+	return true;
-+}
-+
-+/**
-+ * get_permanent_address
-+ * return 0 if get valid mac address, 
-+ */
-+int get_permanent_address(struct at_hw *hw)
-+{
-+	u32 addr[2];
-+	u32 i, control;
-+	u16 reg;
-+	u8 eth_addr[NODE_ADDRESS_SIZE];
-+	bool key_valid;
-+
-+	if (eth_address_valid(hw->perm_mac_addr))
-+		return 0;
-+
-+	/* init */
-+	addr[0] = addr[1] = 0;
-+
-+	if (!check_eeprom_exist(hw)) {	/* eeprom exist */
-+		reg = 0;
-+		key_valid = false;
-+		/* Read out all EEPROM content */
-+		i = 0;
-+		while (1) {
-+			if (read_eeprom(hw, i + 0x100, &control)) {
-+				if (key_valid) {
-+					if (reg == REG_MAC_STA_ADDR)
-+						addr[0] = control;
-+					else if (reg == (REG_MAC_STA_ADDR + 4)) {
-+						addr[1] = control;
-+					}
-+					key_valid = false;
-+				} else if ((control & 0xff) == 0x5A) {
-+					key_valid = true;
-+					reg = (u16) (control >> 16);
-+				} else {
-+					break;	/* assume data end while encount an invalid KEYWORD */
-+				}
-+			} else {
-+				break;	/* read error */
-+			}
-+			i += 4;
-+		}
-+
-+		*(u32 *) & eth_addr[2] = LONGSWAP(addr[0]);
-+		*(u16 *) & eth_addr[0] = SHORTSWAP(*(u16 *) & addr[1]);
-+
-+		if (eth_address_valid(eth_addr)) {
-+			memcpy(hw->perm_mac_addr, eth_addr, NODE_ADDRESS_SIZE);
-+			return 0;
-+		}
-+		return 1;
-+	}
-+
-+	/* see if SPI FLAGS exist ? */
-+	addr[0] = addr[1] = 0;
-+	reg = 0;
-+	key_valid = false;
-+	i = 0;
-+	while (1) {
-+		if (spi_read(hw, i + 0x1f000, &control)) {
-+			if (key_valid) {
-+				if (reg == REG_MAC_STA_ADDR)
-+					addr[0] = control;
-+				else if (reg == (REG_MAC_STA_ADDR + 4)) {
-+					addr[1] = control;
-+				}
-+				key_valid = false;
-+			} else if ((control & 0xff) == 0x5A) {
-+				key_valid = true;
-+				reg = (u16) (control >> 16);
-+			} else {
-+				break;	/* data end */
-+			}
-+		} else {
-+			break;	/* read error */
-+		}
-+		i += 4;
-+	}
-+
-+	*(u32 *) & eth_addr[2] = LONGSWAP(addr[0]);
-+	*(u16 *) & eth_addr[0] = SHORTSWAP(*(u16 *) & addr[1]);
-+	if (eth_address_valid(eth_addr)) {
-+		memcpy(hw->perm_mac_addr, eth_addr, NODE_ADDRESS_SIZE);
-+		return 0;
-+	}
-+	return 1;
-+}
-+
-+/**
-+ * Reads the adapter's MAC address from the EEPROM 
-+ * hw - Struct containing variables accessed by shared code
-+ */
-+s32 at_read_mac_addr(struct at_hw * hw)
-+{
-+	u16 i;
-+
-+	if (get_permanent_address(hw)) {
-+		hw->perm_mac_addr[0] = 0x00;
-+		hw->perm_mac_addr[1] = 0x13;
-+		hw->perm_mac_addr[2] = 0x74;
-+		hw->perm_mac_addr[3] = 0x00;
-+		hw->perm_mac_addr[4] = 0x5c;
-+		hw->perm_mac_addr[5] = 0x38;
-+	}
-+	for (i = 0; i < NODE_ADDRESS_SIZE; i++)
-+		hw->mac_addr[i] = hw->perm_mac_addr[i];
-+	return AT_SUCCESS;
-+}
-+
-+/**
-+ * Hashes an address to determine its location in the multicast table
-+ * hw - Struct containing variables accessed by shared code
-+ * mc_addr - the multicast address to hash
-+ *
-+ * at_hash_mc_addr
-+ *  purpose
-+ *      set hash value for a multicast address
-+ *      hash calcu processing :
-+ *          1. calcu 32bit CRC for multicast address
-+ *          2. reverse crc with MSB to LSB
-+ */
-+u32 at_hash_mc_addr(struct at_hw * hw, u8 * mc_addr)
-+{
-+	u32 crc32, value = 0;
-+	int i;
-+
-+	crc32 = ether_crc_le(6, mc_addr);
-+	crc32 = ~crc32;
-+	for (i = 0; i < 32; i++)
-+		value |= (((crc32 >> i) & 1) << (31 - i));
-+
-+	return value;
-+}
-+
-+/**
-+ * Sets the bit in the multicast table corresponding to the hash value.
-+ * hw - Struct containing variables accessed by shared code
-+ * hash_value - Multicast address hash value
-+ */
-+void at_hash_set(struct at_hw *hw, u32 hash_value)
-+{
-+	u32 hash_bit, hash_reg;
-+	u32 mta;
-+
-+	/* The HASH Table  is a register array of 2 32-bit registers.
-+	 * It is treated like an array of 64 bits.  We want to set
-+	 * bit BitArray[hash_value]. So we figure out what register
-+	 * the bit is in, read it, OR in the new bit, then write
-+	 * back the new value.  The register is determined by the
-+	 * upper 7 bits of the hash value and the bit within that
-+	 * register are determined by the lower 5 bits of the value.
-+	 */
-+	hash_reg = (hash_value >> 31) & 0x1;
-+	hash_bit = (hash_value >> 26) & 0x1F;
-+
-+	mta = AT_READ_REG_ARRAY(hw, REG_RX_HASH_TABLE, hash_reg);
-+
-+	mta |= (1 << hash_bit);
-+
-+	AT_WRITE_REG_ARRAY(hw, REG_RX_HASH_TABLE, hash_reg, mta);
-+}
-+
-+/**
-+ * Writes a value to a PHY register
-+ * hw - Struct containing variables accessed by shared code
-+ * reg_addr - address of the PHY register to write
-+ * data - data to write to the PHY
-+ */
-+s32 at_write_phy_reg(struct at_hw *hw, u32 reg_addr, u16 phy_data)
-+{
-+	int i;
-+	u32 val;
-+
-+	val = ((u32) (phy_data & MDIO_DATA_MASK)) << MDIO_DATA_SHIFT |
-+	    (reg_addr & MDIO_REG_ADDR_MASK) << MDIO_REG_ADDR_SHIFT |
-+	    MDIO_SUP_PREAMBLE |
-+	    MDIO_START | MDIO_CLK_25_4 << MDIO_CLK_SEL_SHIFT;
-+	AT_WRITE_REG(hw, REG_MDIO_CTRL, val);
-+
-+	wmb();
-+
-+	for (i = 0; i < MDIO_WAIT_TIMES; i++) {
-+		usec_delay(2);
-+		val = AT_READ_REG(hw, REG_MDIO_CTRL);
-+		if (!(val & (MDIO_START | MDIO_BUSY))) {
-+			break;
-+		}
-+		wmb();
-+	}
-+
-+	if (!(val & (MDIO_START | MDIO_BUSY)))
-+		return AT_SUCCESS;
-+
-+	return AT_ERR_PHY;
-+}
-+
-+/**
-+ * Make L001's PHY out of Power Saving State (bug)
-+ * hw - Struct containing variables accessed by shared code
-+ * when power on, L001's PHY always on Power saving State
-+ * (Gigabit Link forbidden)
-+ */
-+static s32 at_phy_leave_power_saving(struct at_hw *hw)
-+{
-+	s32 ret;
-+	if ((ret = at_write_phy_reg(hw, 29, 0x0029)))
-+		return ret;
-+	return at_write_phy_reg(hw, 30, 0);
-+}
-+
-+/**
-+TODO: do something or get rid of this
-+*/
-+s32 at_phy_enter_power_saving(struct at_hw * hw)
-+{
-+/*    s32 ret_val;
-+ *    u16 phy_data;
-+ */
-+
-+/*
-+    ret_val = at_write_phy_reg(hw, ...);
-+    ret_val = at_write_phy_reg(hw, ...);
-+    ....
-+*/
-+	return AT_SUCCESS;
-+}
-+
-+/**
-+ * Resets the PHY and make all config validate
-+ * hw - Struct containing variables accessed by shared code
-+ *
-+ * Sets bit 15 and 12 of the MII Control regiser (for F001 bug)
-+ */
-+static s32 at_phy_reset(struct at_hw *hw)
-+{
-+	s32 ret_val;
-+	u16 phy_data;
-+
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL) {
-+		phy_data = MII_CR_RESET | MII_CR_AUTO_NEG_EN;
-+	} else {
-+		switch (hw->media_type) {
-+		case MEDIA_TYPE_100M_FULL:
-+			phy_data =
-+			    MII_CR_FULL_DUPLEX | MII_CR_SPEED_100 |
-+			    MII_CR_RESET;
-+			break;
-+		case MEDIA_TYPE_100M_HALF:
-+			phy_data = MII_CR_SPEED_100 | MII_CR_RESET;
-+			break;
-+		case MEDIA_TYPE_10M_FULL:
-+			phy_data =
-+			    MII_CR_FULL_DUPLEX | MII_CR_SPEED_10 | MII_CR_RESET;
-+			break;
-+		default:	/* MEDIA_TYPE_10M_HALF: */
-+			phy_data = MII_CR_SPEED_10 | MII_CR_RESET;
-+			break;
-+		}
-+	}
-+
-+	ret_val = at_write_phy_reg(hw, MII_BMCR, phy_data);
-+	if (ret_val) {
-+		u32 val;
-+		int i;
-+		/**************************************
-+		 * pcie serdes link may be down !
-+		 **************************************/
-+		printk(KERN_DEBUG "%s: autoneg caused pcie phy link down\n", 
-+			at_driver_name);
-+
-+		for (i = 0; i < 25; i++) {
-+			msec_delay(1);
-+			val = AT_READ_REG(hw, REG_MDIO_CTRL);
-+			if (!(val & (MDIO_START | MDIO_BUSY))) {
-+				break;
-+			}
-+		}
-+
-+		if (0 != (val & (MDIO_START | MDIO_BUSY))) {
-+			printk(KERN_WARNING 
-+				"%s: pcie link down at least for 25ms\n", 
-+				at_driver_name);
-+			return ret_val;
-+		}
-+	}
-+	return AT_SUCCESS;
-+}
-+
-+/**
-+ * Configures PHY autoneg and flow control advertisement settings
-+ * hw - Struct containing variables accessed by shared code
-+ */
-+s32 at_phy_setup_autoneg_adv(struct at_hw * hw)
-+{
-+	s32 ret_val;
-+	s16 mii_autoneg_adv_reg;
-+	s16 mii_1000t_ctrl_reg;
-+
-+	/* Read the MII Auto-Neg Advertisement Register (Address 4). */
-+	mii_autoneg_adv_reg = MII_AR_DEFAULT_CAP_MASK;
-+
-+	/* Read the MII 1000Base-T Control Register (Address 9). */
-+	mii_1000t_ctrl_reg = MII_AT001_CR_1000T_DEFAULT_CAP_MASK;
-+
-+	/* First we clear all the 10/100 mb speed bits in the Auto-Neg
-+	 * Advertisement Register (Address 4) and the 1000 mb speed bits in
-+	 * the  1000Base-T Control Register (Address 9).
-+	 */
-+	mii_autoneg_adv_reg &= ~MII_AR_SPEED_MASK;
-+	mii_1000t_ctrl_reg &= ~MII_AT001_CR_1000T_SPEED_MASK;
-+
-+	/* Need to parse media_type  and set up
-+	 * the appropriate PHY registers.
-+	 */
-+	switch (hw->media_type) {
-+	case MEDIA_TYPE_AUTO_SENSOR:
-+		mii_autoneg_adv_reg |= (MII_AR_10T_HD_CAPS |
-+					MII_AR_10T_FD_CAPS |
-+					MII_AR_100TX_HD_CAPS |
-+					MII_AR_100TX_FD_CAPS);
-+		mii_1000t_ctrl_reg |= MII_AT001_CR_1000T_FD_CAPS;
-+		break;
-+
-+	case MEDIA_TYPE_1000M_FULL:
-+		mii_1000t_ctrl_reg |= MII_AT001_CR_1000T_FD_CAPS;
-+		break;
-+
-+	case MEDIA_TYPE_100M_FULL:
-+		mii_autoneg_adv_reg |= MII_AR_100TX_FD_CAPS;
-+		break;
-+
-+	case MEDIA_TYPE_100M_HALF:
-+		mii_autoneg_adv_reg |= MII_AR_100TX_HD_CAPS;
-+		break;
-+
-+	case MEDIA_TYPE_10M_FULL:
-+		mii_autoneg_adv_reg |= MII_AR_10T_FD_CAPS;
-+		break;
-+
-+	default:
-+		mii_autoneg_adv_reg |= MII_AR_10T_HD_CAPS;
-+		break;
-+	}
-+
-+	/* flow control fixed to enable all */
-+	mii_autoneg_adv_reg |= (MII_AR_ASM_DIR | MII_AR_PAUSE);
-+
-+	hw->mii_autoneg_adv_reg = mii_autoneg_adv_reg;
-+	hw->mii_1000t_ctrl_reg = mii_1000t_ctrl_reg;
-+
-+	ret_val = at_write_phy_reg(hw, MII_ADVERTISE, mii_autoneg_adv_reg);
-+	if (ret_val)
-+		return ret_val;
-+
-+	ret_val = at_write_phy_reg(hw, MII_AT001_CR, mii_1000t_ctrl_reg);
-+	if (ret_val)
-+		return ret_val;
-+
-+	return AT_SUCCESS;
-+}
-+
-+/**
-+ * Configures link settings.
-+ * hw - Struct containing variables accessed by shared code
-+ * Assumes the hardware has previously been reset and the
-+ * transmitter and receiver are not enabled.
-+ */
-+static s32 at_setup_link(struct at_hw *hw)
-+{
-+	s32 ret_val;
-+
-+	/* Options:
-+	 *  PHY will advertise value(s) parsed from
-+	 *  autoneg_advertised and fc
-+	 *  no matter what autoneg is , We will not wait link result.
-+	 */
-+	ret_val = at_phy_setup_autoneg_adv(hw);
-+	if (ret_val) {
-+		printk(KERN_DEBUG "%s: error setting up autonegotiation\n", 
-+			at_driver_name);
-+		return ret_val;
-+	}
-+	/* SW.Reset , En-Auto-Neg if needed */
-+	ret_val = at_phy_reset(hw);
-+	if (ret_val) {
-+		printk(KERN_DEBUG "%s: error resetting the phy\n", at_driver_name);
-+		return ret_val;
-+	}
-+	hw->phy_configured = true;
-+	return ret_val;
-+}
-+
-+struct spi_flash_dev flash_table[] = {
-+/*	manu_name WRSR  READ  PRGM  WREN  WRDI  RDSR  RDID  SECTOR_ERASE CHIP_ERASE */
-+	{"Atmel", 0x00, 0x03, 0x02, 0x06, 0x04, 0x05, 0x15, 0x52,        0x62},
-+	{"SST",   0x01, 0x03, 0x02, 0x06, 0x04, 0x05, 0x90, 0x20,        0x60},
-+	{"ST",    0x01, 0x03, 0x02, 0x06, 0x04, 0x05, 0xAB, 0xD8,        0xC7},
++struct at_buffer {
++	struct sk_buff *skb;
++	u16 length;
++	u16 alloced;
++	dma_addr_t dma;
 +};
 +
-+static void init_flash_opcode(struct at_hw *hw)
-+{
-+	if (hw->flash_vendor >= sizeof(flash_table) / sizeof(flash_table[0])) {
-+		hw->flash_vendor = 0;	/* ATMEL */
-+	}
-+	/* Init OP table */
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_PROGRAM,
-+		      flash_table[hw->flash_vendor].cmd_program);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_SC_ERASE,
-+		      flash_table[hw->flash_vendor].cmd_sector_erase);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_CHIP_ERASE,
-+		      flash_table[hw->flash_vendor].cmd_chip_erase);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_RDID,
-+		      flash_table[hw->flash_vendor].cmd_rdid);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_WREN,
-+		      flash_table[hw->flash_vendor].cmd_wren);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_RDSR,
-+		      flash_table[hw->flash_vendor].cmd_rdsr);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_WRSR,
-+		      flash_table[hw->flash_vendor].cmd_wrsr);
-+	AT_WRITE_REGB(hw, REG_SPI_FLASH_OP_READ,
-+		      flash_table[hw->flash_vendor].cmd_read);
-+}
++#define MAX_TX_BUF_LEN		0x3000	/* 12KB */
 +
-+/**
-+ * Performs basic configuration of the adapter.
-+ * hw - Struct containing variables accessed by shared code
-+ * Assumes that the controller has previously been reset and is in a
-+ * post-reset uninitialized state. Initializes multicast table, 
-+ * and  Calls routines to setup link
-+ * Leaves the transmit and receive units disabled and uninitialized.
-+ */
-+s32 at_init_hw(struct at_hw *hw)
-+{
-+	u32 ret_val = 0;
++struct at_tpd_ring {
++	void *desc;		/* pointer to the descriptor ring memory */
++	dma_addr_t dma;		/* physical adress of the descriptor ring */
++	u16 size;		/* length of descriptor ring in bytes */
++	u16 count;		/* number of descriptors in the ring */
 +
-+	/* Zero out the Multicast HASH table */
-+	AT_WRITE_REG(hw, REG_RX_HASH_TABLE, 0);
-+	/* clear the old settings from the multicast hash table */
-+	AT_WRITE_REG_ARRAY(hw, REG_RX_HASH_TABLE, 1, 0);
++	u16 hw_idx;		/* hardware index */
++	atomic_t next_to_clean;
++	atomic_t next_to_use;
++	struct at_buffer *buffer_info;
++};
 +
-+	init_flash_opcode(hw);
++struct at_rfd_ring {
++	void *desc;
++	dma_addr_t dma;
++	u16 size;
++	u16 count;
++	atomic_t next_to_use;
++	u16 next_to_clean;
++	struct at_buffer *buffer_info;
++};
 +
-+	if (!hw->phy_configured) {
-+		/* enable GPHY LinkChange Interrrupt */
-+		ret_val = at_write_phy_reg(hw, 18, 0xC00);
-+		if (ret_val)
-+			return ret_val;
-+		/* make PHY out of power-saving state */
-+		ret_val = at_phy_leave_power_saving(hw);
-+		if (ret_val)
-+			return ret_val;
-+		/* Call a subroutine to configure the link */
-+		ret_val = at_setup_link(hw);
-+	}
-+	return ret_val;
-+}
++struct at_rrd_ring {
++	void *desc;
++	dma_addr_t dma;
++	unsigned int size;
++	u16 count;
++	u16 next_to_use;
++	atomic_t next_to_clean;
++};
 +
-+/**
-+ * Detects the current speed and duplex settings of the hardware.
-+ * hw - Struct containing variables accessed by shared code
-+ * speed - Speed of the connection
-+ * duplex - Duplex setting of the connection
-+ */
-+s32 at_get_speed_and_duplex(struct at_hw * hw, u16 * speed, u16 * duplex)
-+{
-+	s32 ret_val;
-+	u16 phy_data;
++struct at_ring_header {
++	/* pointer to the descriptor ring memory */
++	void *desc;
++	/* physical adress of the descriptor ring */
++	dma_addr_t dma;
++	/* length of descriptor ring in bytes */
++	unsigned int size;
++};
 +
-+	/* ; --- Read   PHY Specific Status Register (17) */
-+	ret_val = at_read_phy_reg(hw, MII_AT001_PSSR, &phy_data);
-+	if (ret_val)
-+		return ret_val;
++struct at_cmb {
++	struct coals_msg_block *cmb;
++	dma_addr_t dma;
++};
 +
-+	if (!(phy_data & MII_AT001_PSSR_SPD_DPLX_RESOLVED))
-+		return AT_ERR_PHY_RES;
++struct at_smb {
++	struct stats_msg_block *smb;
++	dma_addr_t dma;
++};
 +
-+	switch (phy_data & MII_AT001_PSSR_SPEED) {
-+	case MII_AT001_PSSR_1000MBS:
-+		*speed = SPEED_1000;
-+		break;
-+	case MII_AT001_PSSR_100MBS:
-+		*speed = SPEED_100;
-+		break;
-+	case MII_AT001_PSSR_10MBS:
-+		*speed = SPEED_10;
-+		break;
-+	default:
-+		printk(KERN_DEBUG "%s: error getting speed\n", at_driver_name);
-+		return AT_ERR_PHY_SPEED;
-+		break;
-+	}
-+	if (phy_data & MII_AT001_PSSR_DPLX) {
-+		*duplex = FULL_DUPLEX;
-+	} else {
-+		*duplex = HALF_DUPLEX;
-+	}
-+	return AT_SUCCESS;
-+}
++/* Statistics counters */
++struct at_sft_stats {
++	u64 rx_packets;
++	u64 tx_packets;
++	u64 rx_bytes;
++	u64 tx_bytes;
++	u64 multicast;
++	u64 collisions;
++	u64 rx_errors;
++	u64 rx_length_errors;
++	u64 rx_crc_errors;
++	u64 rx_frame_errors;
++	u64 rx_fifo_errors;
++	u64 rx_missed_errors;
++	u64 tx_errors;
++	u64 tx_fifo_errors;
++	u64 tx_aborted_errors;
++	u64 tx_window_errors;
++	u64 tx_carrier_errors;
 +
-+void set_mac_addr(struct at_hw *hw)
-+{
-+	u32 value;
-+	/* 00-0B-6A-F6-00-DC
-+	   0:  6AF600DC   1: 000B
-+	   low dword */
-+	value = (((u32) hw->mac_addr[2]) << 24) |
-+	    (((u32) hw->mac_addr[3]) << 16) |
-+	    (((u32) hw->mac_addr[4]) << 8) | (((u32) hw->mac_addr[5]));
-+	AT_WRITE_REG_ARRAY(hw, REG_MAC_STA_ADDR, 0, value);
-+	/* hight dword */
-+	value = (((u32) hw->mac_addr[0]) << 8) | (((u32) hw->mac_addr[1]));
-+	AT_WRITE_REG_ARRAY(hw, REG_MAC_STA_ADDR, 1, value);
-+}
++	u64 tx_pause;		/* The number of Pause packet transmitted. */
++	u64 excecol;		/* The number of transmit packets aborted due to excessive collisions. */
++	u64 deffer;		/* The number of packets transmitted that is deferred. */
++	u64 scc;		/* The number of packets subsequently transmitted successfully with a single prior collision. */
++	u64 mcc;		/* The number of packets subsequently transmitted successfully with multiple prior collisions. */
++	u64 latecol;		/* The number of packets transmitted with late collisions. */
++	u64 tx_underun;		/* The number of transmit packets aborted due to transmit FIFO underrun, or TRD FIFO underrun */
++	u64 tx_trunc;		/* The number of transmit packets truncated due to size exceeding MTU, regardless if it is truncated by Selene or not.
++				 * (The name is not really reflects the meaning in this case here.) */
++	u64 rx_pause;		/* The number of Pause packet received. */
++	u64 rx_rrd_ov;
++	u64 rx_trunc;
++};
 +
-+/*
-+ * FIXME -- this function isn't called anywhere.
-+ */
-+s32 at_set_speed_and_duplex(struct at_hw *hw, u16 speed, u16 duplex)
-+{
-+	s32 ret_val;
-+	u16 phy_data;
-+	if (speed == SPEED_1000) {
-+		hw->media_type = MEDIA_TYPE_1000M_FULL;
-+		phy_data = MII_CR_SPEED_1000;
-+	} else if ((speed == SPEED_100) && (duplex == FULL_DUPLEX)) {
-+		hw->media_type = MEDIA_TYPE_100M_FULL;
-+		phy_data = MII_CR_SPEED_100 | MII_CR_FULL_DUPLEX;
-+	} else if ((speed == SPEED_100) && (duplex == HALF_DUPLEX)) {
-+		hw->media_type = MEDIA_TYPE_100M_HALF;
-+		phy_data = MII_CR_SPEED_100;
-+	} else if ((speed == SPEED_10) && (duplex == FULL_DUPLEX)) {
-+		hw->media_type = MEDIA_TYPE_10M_FULL;
-+		phy_data = MII_CR_SPEED_10 | MII_CR_FULL_DUPLEX;
-+	} else if ((speed == SPEED_10) && (duplex == HALF_DUPLEX)) {
-+		hw->media_type = MEDIA_TYPE_10M_HALF;
-+		phy_data = MII_CR_SPEED_10;
-+	} else {
-+		printk(KERN_WARNING "%s: speed=%d, duplex=%d not supported\n",
-+		       at_driver_name, speed, duplex);
-+		return AT_ERR_CONFIG;
-+	}
++/* board specific private data structure */
++#define AT_REGS_LEN	8
 +
-+	/* add reset signal */
-+	phy_data |= MII_CR_RESET;
++struct at_adapter {
++	/* OS defined structs */
++	struct net_device *netdev;
++	struct pci_dev *pdev;
++	struct net_device_stats net_stats;
++	struct at_sft_stats soft_stats;
 +
-+	if (hw->media_type == MEDIA_TYPE_AUTO_SENSOR ||
-+	    hw->media_type == MEDIA_TYPE_1000M_FULL)
-+		phy_data |= MII_CR_AUTO_NEG_EN;
++#ifdef NETIF_F_HW_VLAN_TX
++	struct vlan_group *vlgrp;
++#endif
++	u32 rx_buffer_len;
++	u32 wol;
++	u16 link_speed;
++	u16 link_duplex;
++	spinlock_t stats_lock;
++	spinlock_t tx_lock;
++	atomic_t irq_sem;
++	struct work_struct tx_timeout_task;
++	struct work_struct link_chg_task;
++	struct work_struct pcie_dma_to_rst_task;
++	struct timer_list watchdog_timer;
++	struct timer_list phy_config_timer;
++	bool phy_timer_pending;
 +
-+	ret_val = at_write_phy_reg(hw, MII_BMCR, phy_data);
-+	if (ret_val) {
-+		u32 val;
-+		int i;
-+		/**************************************
-+		 * pcie serdes link may be down !
-+		 **************************************/
-+		printk(KERN_DEBUG "%s: autoneg caused pcie phy link down\n", at_driver_name);
++	bool mac_disabled;
 +
-+		for (i = 0; i < 25; i++) {
-+			msec_delay(1);
-+			val = AT_READ_REG(hw, REG_MDIO_CTRL);
-+			if (!(val & (MDIO_START | MDIO_BUSY))) {
-+				break;
-+			}
-+		}
++	/* All descriptor rings' memory */
++	struct at_ring_header ring_header;
 +
-+		if (0 != (val & (MDIO_START | MDIO_BUSY))) {
-+			printk(KERN_WARNING 
-+				"%s: pcie link down at least for 25ms\n", 
-+				at_driver_name);
-+			return ret_val;
-+		}
-+	}
-+	return AT_SUCCESS;
-+}
-diff --git a/drivers/net/atl1/atl1_param.c b/drivers/net/atl1/atl1_param.c
++	/* TX */
++	struct at_tpd_ring tpd_ring;
++	spinlock_t mb_lock;
++
++	/* RX */
++	struct at_rfd_ring rfd_ring;
++	struct at_rrd_ring rrd_ring;
++	u64 hw_csum_err;
++	u64 hw_csum_good;
++
++	u32 gorcl;
++	u64 gorcl_old;
++
++	/* Interrupt Moderator timer ( 2us resolution) */
++	u16 imt;
++	/* Interrupt Clear timer (2us resolution) */
++	u16 ict;
++
++	/* structs defined in at_hw.h */
++	u32 bd_number;		/* board number */
++	bool pci_using_64;
++	struct at_hw hw;
++	struct at_smb smb;
++	struct at_cmb cmb;
++
++#ifdef ETHTOOL_TEST
++	u32 test_icr;
++	struct at_ring_header test_ring_header;
++	struct at_tpd_ring test_tpd_ring;
++	struct at_rfd_ring test_rfd_ring;
++	struct at_rrd_ring test_rrd_ring;
++#endif
++	u32 pci_state[16];
++};
++
++#endif				/* _ATL1_H_ */
+diff --git a/drivers/net/atl1/atl1_hw.h b/drivers/net/atl1/atl1_hw.h
 new file mode 100644
-index 0000000..4f25a33
+index 0000000..0e3e2ab
 --- /dev/null
-+++ b/drivers/net/atl1/atl1_param.c
-@@ -0,0 +1,203 @@
-+/** atl1_param.c - atl1 parameter parsing
++++ b/drivers/net/atl1/atl1_hw.h
+@@ -0,0 +1,991 @@
++/** atl1_hw.h - atl1 hardware definitions
++
++Copyright(c) 2005 - 2006 Attansic Corporation. All rights reserved.
++Copyright(c) 2006 Chris Snook <csnook@redhat.com>
++Copyright(c) 2006 Jay Cliburn <jcliburn@gmail.com>
++
++Derived from Intel e1000 driver
++Copyright(c) 1999 - 2005 Intel Corporation. All rights reserved.
++
++This program is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2 of the License, or (at your option)
++any later version.
++
++This program is distributed in the hope that it will be useful, but WITHOUT
++ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++more details.
++
++You should have received a copy of the GNU General Public License along with
++this program; if not, write to the Free Software Foundation, Inc., 59
++Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++There are a lot of defines in here that are unused and/or have cryptic names.
++Please leave them alone, as they're the closest thing we have to a spec from
++Attansic at present. *ahem* -- CHS
++*/
++
++#ifndef _ATL1_HW_H_
++#define _ATL1_HW_H_
++
++#include "atl1_osdep.h"
++
++#define _AT_ATTRIB_PACK_ __attribute__ ((packed))
++
++struct at_adapter;
++struct at_hw;
++
++/** function prototypes */
++
++/** register definitions */
++#define REG_PCIE_CAP_LIST			0x58
++
++#define REG_VPD_CAP				0x6C
++#define VPD_CAP_ID_MASK				0xff
++#define VPD_CAP_ID_SHIFT			0
++#define VPD_CAP_NEXT_PTR_MASK			0xFF
++#define VPD_CAP_NEXT_PTR_SHIFT			8
++#define VPD_CAP_VPD_ADDR_MASK			0x7FFF
++#define VPD_CAP_VPD_ADDR_SHIFT			16
++#define VPD_CAP_VPD_FLAG			0x80000000
++
++#define REG_VPD_DATA				0x70
++
++#define REG_SPI_FLASH_CTRL			0x200
++#define SPI_FLASH_CTRL_STS_NON_RDY		0x1
++#define SPI_FLASH_CTRL_STS_WEN			0x2
++#define SPI_FLASH_CTRL_STS_WPEN			0x80
++#define SPI_FLASH_CTRL_DEV_STS_MASK		0xFF
++#define SPI_FLASH_CTRL_DEV_STS_SHIFT		0
++#define SPI_FLASH_CTRL_INS_MASK			0x7
++#define SPI_FLASH_CTRL_INS_SHIFT		8
++#define SPI_FLASH_CTRL_START			0x800
++#define SPI_FLASH_CTRL_EN_VPD			0x2000
++#define SPI_FLASH_CTRL_LDSTART			0x8000
++#define SPI_FLASH_CTRL_CS_HI_MASK		0x3
++#define SPI_FLASH_CTRL_CS_HI_SHIFT		16
++#define SPI_FLASH_CTRL_CS_HOLD_MASK		0x3
++#define SPI_FLASH_CTRL_CS_HOLD_SHIFT		18
++#define SPI_FLASH_CTRL_CLK_LO_MASK		0x3
++#define SPI_FLASH_CTRL_CLK_LO_SHIFT		20
++#define SPI_FLASH_CTRL_CLK_HI_MASK		0x3
++#define SPI_FLASH_CTRL_CLK_HI_SHIFT		22
++#define SPI_FLASH_CTRL_CS_SETUP_MASK		0x3
++#define SPI_FLASH_CTRL_CS_SETUP_SHIFT		24
++#define SPI_FLASH_CTRL_EROM_PGSZ_MASK		0x3
++#define SPI_FLASH_CTRL_EROM_PGSZ_SHIFT		26
++#define SPI_FLASH_CTRL_WAIT_READY		0x10000000
++
++#define REG_SPI_ADDR				0x204
++
++#define REG_SPI_DATA				0x208
++
++#define REG_SPI_FLASH_CONFIG			0x20C
++#define SPI_FLASH_CONFIG_LD_ADDR_MASK		0xFFFFFF
++#define SPI_FLASH_CONFIG_LD_ADDR_SHIFT		0
++#define SPI_FLASH_CONFIG_VPD_ADDR_MASK		0x3
++#define SPI_FLASH_CONFIG_VPD_ADDR_SHIFT		24
++#define SPI_FLASH_CONFIG_LD_EXIST		0x4000000
++
++#define REG_SPI_FLASH_OP_PROGRAM		0x210
++#define REG_SPI_FLASH_OP_SC_ERASE		0x211
++#define REG_SPI_FLASH_OP_CHIP_ERASE		0x212
++#define REG_SPI_FLASH_OP_RDID			0x213
++#define REG_SPI_FLASH_OP_WREN			0x214
++#define REG_SPI_FLASH_OP_RDSR			0x215
++#define REG_SPI_FLASH_OP_WRSR			0x216
++#define REG_SPI_FLASH_OP_READ			0x217
++
++#define REG_TWSI_CTRL				0x218
++#define TWSI_CTRL_LD_OFFSET_MASK		0xFF
++#define TWSI_CTRL_LD_OFFSET_SHIFT		0
++#define TWSI_CTRL_LD_SLV_ADDR_MASK		0x7
++#define TWSI_CTRL_LD_SLV_ADDR_SHIFT		8
++#define TWSI_CTRL_SW_LDSTART			0x800
++#define TWSI_CTRL_HW_LDSTART			0x1000
++#define TWSI_CTRL_SMB_SLV_ADDR_MASK		0x7F
++#define TWSI_CTRL_SMB_SLV_ADDR_SHIFT		15
++#define TWSI_CTRL_LD_EXIST			0x400000
++#define TWSI_CTRL_READ_FREQ_SEL_MASK		0x3
++#define TWSI_CTRL_READ_FREQ_SEL_SHIFT		23
++#define TWSI_CTRL_FREQ_SEL_100K			0
++#define TWSI_CTRL_FREQ_SEL_200K			1
++#define TWSI_CTRL_FREQ_SEL_300K			2
++#define TWSI_CTRL_FREQ_SEL_400K			3
++#define TWSI_CTRL_SMB_SLV_ADDR
++#define TWSI_CTRL_WRITE_FREQ_SEL_MASK		0x3
++#define TWSI_CTRL_WRITE_FREQ_SEL_SHIFT		24
++
++#define REG_PCIE_DEV_MISC_CTRL			0x21C
++#define PCIE_DEV_MISC_CTRL_EXT_PIPE		0x2
++#define PCIE_DEV_MISC_CTRL_RETRY_BUFDIS		0x1
++#define PCIE_DEV_MISC_CTRL_SPIROM_EXIST		0x4
++#define PCIE_DEV_MISC_CTRL_SERDES_ENDIAN	0x8
++#define PCIE_DEV_MISC_CTRL_SERDES_SEL_DIN	0x10
++
++/** Selene Master Control Register */
++#define REG_MASTER_CTRL				0x1400
++#define MASTER_CTRL_SOFT_RST			0x1
++#define MASTER_CTRL_MTIMER_EN			0x2
++#define MASTER_CTRL_ITIMER_EN			0x4
++#define MASTER_CTRL_MANUAL_INT			0x8
++#define MASTER_CTRL_REV_NUM_SHIFT		16
++#define MASTER_CTRL_REV_NUM_MASK		0xff
++#define MASTER_CTRL_DEV_ID_SHIFT		24
++#define MASTER_CTRL_DEV_ID_MASK			0xff
++
++/** Timer Initial Value Register */
++#define REG_MANUAL_TIMER_INIT			0x1404
++
++/** IRQ ModeratorTimer Initial Value Register */
++#define REG_IRQ_MODU_TIMER_INIT			0x1408
++
++#define REG_GPHY_ENABLE				0x140C
++
++/** IRQ Anti-Lost Timer Initial Value Register */
++#define REG_CMBDISDMA_TIMER			0x140E
++
++/** Block IDLE Status Register */
++#define REG_IDLE_STATUS				0x1410
++#define IDLE_STATUS_RXMAC			1
++#define IDLE_STATUS_TXMAC			2
++#define IDLE_STATUS_RXQ				4
++#define IDLE_STATUS_TXQ				8
++#define IDLE_STATUS_DMAR			0x10
++#define IDLE_STATUS_DMAW			0x20
++#define IDLE_STATUS_SMB				0x40
++#define IDLE_STATUS_CMB				0x80
++
++/** MDIO Control Register */
++#define REG_MDIO_CTRL				0x1414
++#define MDIO_DATA_MASK				0xffff
++#define MDIO_DATA_SHIFT				0
++#define MDIO_REG_ADDR_MASK			0x1f
++#define MDIO_REG_ADDR_SHIFT			16
++#define MDIO_RW					0x200000
++#define MDIO_SUP_PREAMBLE			0x400000
++#define MDIO_START				0x800000
++#define MDIO_CLK_SEL_SHIFT			24
++#define MDIO_CLK_25_4				0
++#define MDIO_CLK_25_6				2
++#define MDIO_CLK_25_8				3
++#define MDIO_CLK_25_10				4
++#define MDIO_CLK_25_14				5
++#define MDIO_CLK_25_20				6
++#define MDIO_CLK_25_28				7
++#define MDIO_BUSY				0x8000000
++#define MDIO_WAIT_TIMES				30
++
++/** MII PHY Status Register */
++#define REG_PHY_STATUS				0x1418
++
++/** BIST Control and Status Register0 (for the Packet Memory) */
++#define REG_BIST0_CTRL				0x141c
++#define BIST0_NOW				0x1
++#define BIST0_SRAM_FAIL				0x2
++#define BIST0_FUSE_FLAG				0x4
++#define REG_BIST1_CTRL				0x1420
++#define BIST1_NOW				0x1
++#define BIST1_SRAM_FAIL				0x2
++#define BIST1_FUSE_FLAG				0x4
++
++/** MAC Control Register */
++#define REG_MAC_CTRL				0x1480
++#define MAC_CTRL_TX_EN				1
++#define MAC_CTRL_RX_EN				2
++#define MAC_CTRL_TX_FLOW			4
++#define MAC_CTRL_RX_FLOW			8
++#define MAC_CTRL_LOOPBACK			0x10
++#define MAC_CTRL_DUPLX				0x20
++#define MAC_CTRL_ADD_CRC			0x40
++#define MAC_CTRL_PAD				0x80
++#define MAC_CTRL_LENCHK				0x100
++#define MAC_CTRL_HUGE_EN			0x200
++#define MAC_CTRL_PRMLEN_SHIFT			10
++#define MAC_CTRL_PRMLEN_MASK			0xf
++#define MAC_CTRL_RMV_VLAN			0x4000
++#define MAC_CTRL_PROMIS_EN			0x8000
++#define MAC_CTRL_TX_PAUSE			0x10000
++#define MAC_CTRL_SCNT				0x20000
++#define MAC_CTRL_SRST_TX			0x40000
++#define MAC_CTRL_TX_SIMURST			0x80000
++#define MAC_CTRL_SPEED_SHIFT			20
++#define MAC_CTRL_SPEED_MASK			0x300000
++#define MAC_CTRL_SPEED_1000			2
++#define MAC_CTRL_SPEED_10_100			1
++#define MAC_CTRL_DBG_TX_BKPRESURE		0x400000
++#define MAC_CTRL_TX_HUGE			0x800000
++#define MAC_CTRL_RX_CHKSUM_EN			0x1000000
++#define MAC_CTRL_MC_ALL_EN			0x2000000
++#define MAC_CTRL_BC_EN				0x4000000
++#define MAC_CTRL_DBG				0x8000000
++
++/** MAC IPG/IFG Control Register */
++#define REG_MAC_IPG_IFG				0x1484
++#define MAC_IPG_IFG_IPGT_SHIFT			0
++#define MAC_IPG_IFG_IPGT_MASK			0x7f
++#define MAC_IPG_IFG_MIFG_SHIFT			8
++#define MAC_IPG_IFG_MIFG_MASK			0xff
++#define MAC_IPG_IFG_IPGR1_SHIFT			16
++#define MAC_IPG_IFG_IPGR1_MASK			0x7f
++#define MAC_IPG_IFG_IPGR2_SHIFT			24
++#define MAC_IPG_IFG_IPGR2_MASK			0x7f
++
++/** MAC STATION ADDRESS */
++#define REG_MAC_STA_ADDR			0x1488
++
++/** Hash table for multicast address */
++#define REG_RX_HASH_TABLE			0x1490
++
++/** MAC Half-Duplex Control Register */
++#define REG_MAC_HALF_DUPLX_CTRL			0x1498
++#define MAC_HALF_DUPLX_CTRL_LCOL_SHIFT		0
++#define MAC_HALF_DUPLX_CTRL_LCOL_MASK		0x3ff
++#define MAC_HALF_DUPLX_CTRL_RETRY_SHIFT		12
++#define MAC_HALF_DUPLX_CTRL_RETRY_MASK		0xf
++#define MAC_HALF_DUPLX_CTRL_EXC_DEF_EN		0x10000
++#define MAC_HALF_DUPLX_CTRL_NO_BACK_C		0x20000
++#define MAC_HALF_DUPLX_CTRL_NO_BACK_P		0x40000
++#define MAC_HALF_DUPLX_CTRL_ABEBE		0x80000
++#define MAC_HALF_DUPLX_CTRL_ABEBT_SHIFT		20
++#define MAC_HALF_DUPLX_CTRL_ABEBT_MASK		0xf
++#define MAC_HALF_DUPLX_CTRL_JAMIPG_SHIFT	24
++#define MAC_HALF_DUPLX_CTRL_JAMIPG_MASK		0xf
++
++/** Maximum Frame Length Control Register */
++#define REG_MTU					0x149c
++
++/** Wake-On-Lan control register */
++#define REG_WOL_CTRL				0x14a0
++#define WOL_PATTERN_EN				0x00000001
++#define WOL_PATTERN_PME_EN			0x00000002
++#define WOL_MAGIC_EN				0x00000004
++#define WOL_MAGIC_PME_EN			0x00000008
++#define WOL_LINK_CHG_EN				0x00000010
++#define WOL_LINK_CHG_PME_EN			0x00000020
++#define WOL_PATTERN_ST				0x00000100
++#define WOL_MAGIC_ST				0x00000200
++#define WOL_LINKCHG_ST				0x00000400
++#define WOL_CLK_SWITCH_EN			0x00008000
++#define WOL_PT0_EN				0x00010000
++#define WOL_PT1_EN				0x00020000
++#define WOL_PT2_EN				0x00040000
++#define WOL_PT3_EN				0x00080000
++#define WOL_PT4_EN				0x00100000
++#define WOL_PT5_EN				0x00200000
++#define WOL_PT6_EN				0x00400000
++
++/** WOL Length ( 2 DWORD ) */
++#define REG_WOL_PATTERN_LEN			0x14a4
++#define WOL_PT_LEN_MASK				0x7f
++#define WOL_PT0_LEN_SHIFT			0
++#define WOL_PT1_LEN_SHIFT			8
++#define WOL_PT2_LEN_SHIFT			16
++#define WOL_PT3_LEN_SHIFT			24
++#define WOL_PT4_LEN_SHIFT			0
++#define WOL_PT5_LEN_SHIFT			8
++#define WOL_PT6_LEN_SHIFT			16
++
++/** Internal SRAM Partition Register */
++#define REG_SRAM_RFD_ADDR			0x1500
++#define REG_SRAM_RFD_LEN			(REG_SRAM_RFD_ADDR+ 4)
++#define REG_SRAM_RRD_ADDR			(REG_SRAM_RFD_ADDR+ 8)
++#define REG_SRAM_RRD_LEN			(REG_SRAM_RFD_ADDR+12)
++#define REG_SRAM_TPD_ADDR			(REG_SRAM_RFD_ADDR+16)
++#define REG_SRAM_TPD_LEN			(REG_SRAM_RFD_ADDR+20)
++#define REG_SRAM_TRD_ADDR			(REG_SRAM_RFD_ADDR+24)
++#define REG_SRAM_TRD_LEN			(REG_SRAM_RFD_ADDR+28)
++#define REG_SRAM_RXF_ADDR			(REG_SRAM_RFD_ADDR+32)
++#define REG_SRAM_RXF_LEN			(REG_SRAM_RFD_ADDR+36)
++#define REG_SRAM_TXF_ADDR			(REG_SRAM_RFD_ADDR+40)
++#define REG_SRAM_TXF_LEN			(REG_SRAM_RFD_ADDR+44)
++#define REG_SRAM_TCPH_PATH_ADDR			(REG_SRAM_RFD_ADDR+48)
++#define SRAM_TCPH_ADDR_MASK			0x0fff
++#define SRAM_TCPH_ADDR_SHIFT			0
++#define SRAM_PATH_ADDR_MASK			0x0fff
++#define SRAM_PATH_ADDR_SHIFT			16
++
++/** Load Ptr Register */
++#define REG_LOAD_PTR				(REG_SRAM_RFD_ADDR+52)
++
++/** Descriptor Control register */
++#define REG_DESC_BASE_ADDR_HI			0x1540
++#define REG_DESC_RFD_ADDR_LO			(REG_DESC_BASE_ADDR_HI+4)
++#define REG_DESC_RRD_ADDR_LO			(REG_DESC_BASE_ADDR_HI+8)
++#define REG_DESC_TPD_ADDR_LO			(REG_DESC_BASE_ADDR_HI+12)
++#define REG_DESC_CMB_ADDR_LO			(REG_DESC_BASE_ADDR_HI+16)
++#define REG_DESC_SMB_ADDR_LO			(REG_DESC_BASE_ADDR_HI+20)
++#define REG_DESC_RFD_RRD_RING_SIZE		(REG_DESC_BASE_ADDR_HI+24)
++#define DESC_RFD_RING_SIZE_MASK			0x7ff
++#define DESC_RFD_RING_SIZE_SHIFT		0
++#define DESC_RRD_RING_SIZE_MASK			0x7ff
++#define DESC_RRD_RING_SIZE_SHIFT		16
++#define REG_DESC_TPD_RING_SIZE			(REG_DESC_BASE_ADDR_HI+28)
++#define DESC_TPD_RING_SIZE_MASK			0x3ff
++#define DESC_TPD_RING_SIZE_SHIFT		0
++
++/** TXQ Control Register */
++#define REG_TXQ_CTRL				0x1580
++#define TXQ_CTRL_TPD_BURST_NUM_SHIFT		0
++#define TXQ_CTRL_TPD_BURST_NUM_MASK		0x1f
++#define TXQ_CTRL_EN				0x20
++#define TXQ_CTRL_ENH_MODE			0x40
++#define TXQ_CTRL_TPD_FETCH_TH_SHIFT		8
++#define TXQ_CTRL_TPD_FETCH_TH_MASK		0x3f
++#define TXQ_CTRL_TXF_BURST_NUM_SHIFT		16
++#define TXQ_CTRL_TXF_BURST_NUM_MASK		0xffff
++
++/** Jumbo packet Threshold for task offload */
++#define REG_TX_JUMBO_TASK_TH_TPD_IPG		0x1584
++#define TX_JUMBO_TASK_TH_MASK			0x7ff
++#define TX_JUMBO_TASK_TH_SHIFT			0
++#define TX_TPD_MIN_IPG_MASK			0x1f
++#define TX_TPD_MIN_IPG_SHIFT			16
++
++/** RXQ Control Register */
++#define REG_RXQ_CTRL				0x15a0
++#define RXQ_CTRL_RFD_BURST_NUM_SHIFT		0
++#define RXQ_CTRL_RFD_BURST_NUM_MASK		0xff
++#define RXQ_CTRL_RRD_BURST_THRESH_SHIFT		8
++#define RXQ_CTRL_RRD_BURST_THRESH_MASK		0xff
++#define RXQ_CTRL_RFD_PREF_MIN_IPG_SHIFT		16
++#define RXQ_CTRL_RFD_PREF_MIN_IPG_MASK		0x1f
++#define RXQ_CTRL_CUT_THRU_EN			0x40000000
++#define RXQ_CTRL_EN				0x80000000
++
++/** Rx jumbo packet threshold and rrd  retirement timer */
++#define REG_RXQ_JMBOSZ_RRDTIM			(REG_RXQ_CTRL+ 4)
++#define RXQ_JMBOSZ_TH_MASK			0x7ff
++#define RXQ_JMBOSZ_TH_SHIFT			0
++#define RXQ_JMBO_LKAH_MASK			0xf
++#define RXQ_JMBO_LKAH_SHIFT			11
++#define RXQ_RRD_TIMER_MASK			0xffff
++#define RXQ_RRD_TIMER_SHIFT			16
++
++/** RFD flow control register */
++#define REG_RXQ_RXF_PAUSE_THRESH		(REG_RXQ_CTRL+ 8)
++#define RXQ_RXF_PAUSE_TH_HI_SHIFT		16
++#define RXQ_RXF_PAUSE_TH_HI_MASK		0xfff
++#define RXQ_RXF_PAUSE_TH_LO_SHIFT		0
++#define RXQ_RXF_PAUSE_TH_LO_MASK		0xfff
++
++/** RRD flow control register */
++#define REG_RXQ_RRD_PAUSE_THRESH		(REG_RXQ_CTRL+12)
++#define RXQ_RRD_PAUSE_TH_HI_SHIFT		0
++#define RXQ_RRD_PAUSE_TH_HI_MASK		0xfff
++#define RXQ_RRD_PAUSE_TH_LO_SHIFT		16
++#define RXQ_RRD_PAUSE_TH_LO_MASK		0xfff
++
++/** DMA Engine Control Register */
++#define REG_DMA_CTRL				0x15c0
++#define DMA_CTRL_DMAR_IN_ORDER			0x1
++#define DMA_CTRL_DMAR_ENH_ORDER			0x2
++#define DMA_CTRL_DMAR_OUT_ORDER			0x4
++#define DMA_CTRL_RCB_VALUE			0x8
++#define DMA_CTRL_DMAR_BURST_LEN_SHIFT		4
++#define DMA_CTRL_DMAR_BURST_LEN_MASK		7
++#define DMA_CTRL_DMAW_BURST_LEN_SHIFT		7
++#define DMA_CTRL_DMAW_BURST_LEN_MASK		7
++#define DMA_CTRL_DMAR_EN				0x400
++#define DMA_CTRL_DMAW_EN				0x800
++
++/** CMB/SMB Control Register */
++#define REG_CSMB_CTRL				0x15d0
++#define CSMB_CTRL_CMB_NOW			1
++#define CSMB_CTRL_SMB_NOW			2
++#define CSMB_CTRL_CMB_EN			4
++#define CSMB_CTRL_SMB_EN			8
++
++/** CMB DMA Write Threshold Register */
++#define REG_CMB_WRITE_TH			(REG_CSMB_CTRL+ 4)
++#define CMB_RRD_TH_SHIFT			0
++#define CMB_RRD_TH_MASK				0x7ff
++#define CMB_TPD_TH_SHIFT			16
++#define CMB_TPD_TH_MASK				0x7ff
++
++/** RX/TX count-down timer to trigger CMB-write. 2us resolution. */
++#define REG_CMB_WRITE_TIMER			(REG_CSMB_CTRL+ 8)
++#define CMB_RX_TM_SHIFT				0
++#define CMB_RX_TM_MASK				0xffff
++#define CMB_TX_TM_SHIFT				16
++#define CMB_TX_TM_MASK				0xffff
++
++/** Number of packet received since last CMB write */
++#define REG_CMB_RX_PKT_CNT			(REG_CSMB_CTRL+12)
++
++/** Number of packet transmitted since last CMB write */
++#define REG_CMB_TX_PKT_CNT			(REG_CSMB_CTRL+16)
++
++/** SMB auto DMA timer register */
++#define REG_SMB_TIMER				(REG_CSMB_CTRL+20)
++
++/** Mailbox Register */
++#define REG_MAILBOX				0x15f0
++#define MB_RFD_PROD_INDX_SHIFT			0
++#define MB_RFD_PROD_INDX_MASK			0x7ff
++#define MB_RRD_CONS_INDX_SHIFT			11
++#define MB_RRD_CONS_INDX_MASK			0x7ff
++#define MB_TPD_PROD_INDX_SHIFT			22
++#define MB_TPD_PROD_INDX_MASK			0x3ff
++
++/** Interrupt Status Register */
++#define REG_ISR					0x1600
++#define ISR_SMB					1
++#define ISR_TIMER				2
++#define ISR_MANUAL				4
++#define ISR_RXF_OV				8
++#define ISR_RFD_UNRUN				0x10
++#define ISR_RRD_OV				0x20
++#define ISR_TXF_UNRUN				0x40
++#define ISR_LINK				0x80
++#define ISR_HOST_RFD_UNRUN			0x100
++#define ISR_HOST_RRD_OV				0x200
++#define ISR_DMAR_TO_RST				0x400
++#define ISR_DMAW_TO_RST				0x800
++#define ISR_GPHY				0x1000
++#define ISR_RX_PKT				0x10000
++#define ISR_TX_PKT				0x20000
++#define ISR_TX_DMA				0x40000
++#define ISR_RX_DMA				0x80000
++#define ISR_CMB_RX				0x100000
++#define ISR_CMB_TX				0x200000
++#define ISR_MAC_RX				0x400000
++#define ISR_MAC_TX				0x800000
++#define ISR_UR_DETECTED				0x1000000
++#define ISR_FERR_DETECTED			0x2000000
++#define ISR_NFERR_DETECTED			0x4000000
++#define ISR_CERR_DETECTED			0x8000000
++#define ISR_PHY_LINKDOWN			0x10000000
++#define ISR_DIS_SMB				0x20000000
++#define ISR_DIS_DMA				0x40000000
++#define ISR_DIS_INT				0x80000000
++
++/** Interrupt Mask Register */
++#define REG_IMR					0x1604
++
++/** Normal Interrupt mask  */
++#define IMR_NORMAL_MASK	(\
++	ISR_SMB		|\
++	ISR_GPHY	|\
++	ISR_PHY_LINKDOWN|\
++	ISR_DMAR_TO_RST	|\
++	ISR_DMAW_TO_RST	|\
++	ISR_CMB_TX	|\
++	ISR_CMB_RX	)
++
++/** Debug Interrupt Mask  (enable all interrupt) */
++#define IMR_DEBUG_MASK	(\
++	ISR_SMB		|\
++	ISR_TIMER	|\
++	ISR_MANUAL	|\
++	ISR_RXF_OV	|\
++	ISR_RFD_UNRUN	|\
++	ISR_RRD_OV	|\
++	ISR_TXF_UNRUN	|\
++	ISR_LINK	|\
++	ISR_CMB_TX	|\
++	ISR_CMB_RX	|\
++	ISR_RX_PKT	|\
++	ISR_TX_PKT	|\
++	ISR_MAC_RX	|\
++	ISR_MAC_TX	)
++
++/** Interrupt Status Register */
++#define REG_RFD_RRD_IDX				0x1800
++#define REG_TPD_IDX				0x1804
++
++/** MII definition
++ * PHY Common Register */
++#define MII_BMCR					0x00
++#define MII_BMSR					0x01
++#define MII_PHYSID1					0x02
++#define MII_PHYSID2					0x03
++#define MII_ADVERTISE					0x04
++#define MII_LPA						0x05
++#define MII_EXPANSION					0x06
++#define MII_AT001_CR					0x09
++#define MII_AT001_SR					0x0A
++#define MII_AT001_ESR					0x0F
++#define MII_AT001_PSCR					0x10
++#define MII_AT001_PSSR					0x11
++#define MII_DCOUNTER					0x12
++#define MII_FCSCOUNTER					0x13
++#define MII_NWAYTEST					0x14
++#define MII_RERRCOUNTER					0x15
++#define MII_SREVISION					0x16
++#define MII_RESV1					0x17
++#define MII_LBRERROR					0x18
++#define MII_PHYADDR					0x19
++#define MII_RESV2					0x1a
++#define MII_TPISTATUS					0x1b
++#define MII_NCONFIG					0x1c
++
++/** PHY Control Register */
++#define MII_CR_SPEED_SELECT_MSB				0x0040	/* bits 6,13: 10=1000, 01=100, 00=10 */
++#define MII_CR_COLL_TEST_ENABLE				0x0080	/* Collision test enable */
++#define MII_CR_FULL_DUPLEX				0x0100	/* FDX =1, half duplex =0 */
++#define MII_CR_RESTART_AUTO_NEG				0x0200	/* Restart auto negotiation */
++#define MII_CR_ISOLATE					0x0400	/* Isolate PHY from MII */
++#define MII_CR_POWER_DOWN				0x0800	/* Power down */
++#define MII_CR_AUTO_NEG_EN				0x1000	/* Auto Neg Enable */
++#define MII_CR_SPEED_SELECT_LSB				0x2000	/* bits 6,13: 10=1000, 01=100, 00=10 */
++#define MII_CR_LOOPBACK					0x4000	/* 0 = normal, 1 = loopback */
++#define MII_CR_RESET					0x8000	/* 0 = normal, 1 = PHY reset */
++#define MII_CR_SPEED_MASK				0x2040
++#define MII_CR_SPEED_1000				0x0040
++#define MII_CR_SPEED_100				0x2000
++#define MII_CR_SPEED_10					0x0000
++
++/** PHY Status Register */
++#define MII_SR_EXTENDED_CAPS				0x0001	/* Extended register capabilities */
++#define MII_SR_JABBER_DETECT				0x0002	/* Jabber Detected */
++#define MII_SR_LINK_STATUS				0x0004	/* Link Status 1 = link */
++#define MII_SR_AUTONEG_CAPS				0x0008	/* Auto Neg Capable */
++#define MII_SR_REMOTE_FAULT				0x0010	/* Remote Fault Detect */
++#define MII_SR_AUTONEG_COMPLETE				0x0020	/* Auto Neg Complete */
++#define MII_SR_PREAMBLE_SUPPRESS			0x0040	/* Preamble may be suppressed */
++#define MII_SR_EXTENDED_STATUS				0x0100	/* Ext. status info in Reg 0x0F */
++#define MII_SR_100T2_HD_CAPS				0x0200	/* 100T2 Half Duplex Capable */
++#define MII_SR_100T2_FD_CAPS				0x0400	/* 100T2 Full Duplex Capable */
++#define MII_SR_10T_HD_CAPS				0x0800	/* 10T   Half Duplex Capable */
++#define MII_SR_10T_FD_CAPS				0x1000	/* 10T   Full Duplex Capable */
++#define MII_SR_100X_HD_CAPS				0x2000	/* 100X  Half Duplex Capable */
++#define MII_SR_100X_FD_CAPS				0x4000	/* 100X  Full Duplex Capable */
++#define MII_SR_100T4_CAPS				0x8000	/* 100T4 Capable */
++
++/** Link partner ability register. */
++#define MII_LPA_SLCT					0x001f	/* Same as advertise selector  */
++#define MII_LPA_10HALF					0x0020	/* Can do 10mbps half-duplex   */
++#define MII_LPA_10FULL					0x0040	/* Can do 10mbps full-duplex   */
++#define MII_LPA_100HALF					0x0080	/* Can do 100mbps half-duplex  */
++#define MII_LPA_100FULL					0x0100	/* Can do 100mbps full-duplex  */
++#define MII_LPA_100BASE4				0x0200	/* 100BASE-T4  */
++#define MII_LPA_PAUSE					0x0400	/* PAUSE */
++#define MII_LPA_ASYPAUSE				0x0800	/* Asymmetrical PAUSE */
++#define MII_LPA_RFAULT					0x2000	/* Link partner faulted        */
++#define MII_LPA_LPACK					0x4000	/* Link partner acked us       */
++#define MII_LPA_NPAGE					0x8000	/* Next page bit               */
++
++/** Autoneg Advertisement Register */
++#define MII_AR_SELECTOR_FIELD				0x0001	/* indicates IEEE 802.3 CSMA/CD */
++#define MII_AR_10T_HD_CAPS				0x0020	/* 10T   Half Duplex Capable */
++#define MII_AR_10T_FD_CAPS				0x0040	/* 10T   Full Duplex Capable */
++#define MII_AR_100TX_HD_CAPS				0x0080	/* 100TX Half Duplex Capable */
++#define MII_AR_100TX_FD_CAPS				0x0100	/* 100TX Full Duplex Capable */
++#define MII_AR_100T4_CAPS				0x0200	/* 100T4 Capable */
++#define MII_AR_PAUSE					0x0400	/* Pause operation desired */
++#define MII_AR_ASM_DIR					0x0800	/* Asymmetric Pause Direction bit */
++#define MII_AR_REMOTE_FAULT				0x2000	/* Remote Fault detected */
++#define MII_AR_NEXT_PAGE				0x8000	/* Next Page ability supported */
++#define MII_AR_SPEED_MASK				0x01E0
++#define MII_AR_DEFAULT_CAP_MASK				0x0DE0
++
++/** 1000BASE-T Control Register */
++#define MII_AT001_CR_1000T_HD_CAPS			0x0100	/* Advertise 1000T HD capability */
++#define MII_AT001_CR_1000T_FD_CAPS			0x0200	/* Advertise 1000T FD capability  */
++#define MII_AT001_CR_1000T_REPEATER_DTE			0x0400	/* 1=Repeater/switch device port, 0=DTE device */
++#define MII_AT001_CR_1000T_MS_VALUE			0x0800	/* 1=Configure PHY as Master, 0=Configure PHY as Slave */
++#define MII_AT001_CR_1000T_MS_ENABLE			0x1000	/* 1=Master/Slave manual config value, 0=Automatic Master/Slave config */
++#define MII_AT001_CR_1000T_TEST_MODE_NORMAL		0x0000	/* Normal Operation */
++#define MII_AT001_CR_1000T_TEST_MODE_1			0x2000	/* Transmit Waveform test */
++#define MII_AT001_CR_1000T_TEST_MODE_2			0x4000	/* Master Transmit Jitter test */
++#define MII_AT001_CR_1000T_TEST_MODE_3			0x6000	/* Slave Transmit Jitter test */
++#define MII_AT001_CR_1000T_TEST_MODE_4			0x8000	/* Transmitter Distortion test */
++#define MII_AT001_CR_1000T_SPEED_MASK			0x0300
++#define MII_AT001_CR_1000T_DEFAULT_CAP_MASK		0x0300
++
++/** 1000BASE-T Status Register */
++#define MII_AT001_SR_1000T_LP_HD_CAPS			0x0400	/* LP is 1000T HD capable */
++#define MII_AT001_SR_1000T_LP_FD_CAPS			0x0800	/* LP is 1000T FD capable */
++#define MII_AT001_SR_1000T_REMOTE_RX_STATUS		0x1000	/* Remote receiver OK */
++#define MII_AT001_SR_1000T_LOCAL_RX_STATUS		0x2000	/* Local receiver OK */
++#define MII_AT001_SR_1000T_MS_CONFIG_RES		0x4000	/* 1=Local TX is Master, 0=Slave */
++#define MII_AT001_SR_1000T_MS_CONFIG_FAULT		0x8000	/* Master/Slave config fault */
++#define MII_AT001_SR_1000T_REMOTE_RX_STATUS_SHIFT	12
++#define MII_AT001_SR_1000T_LOCAL_RX_STATUS_SHIFT	13
++
++/** Extended Status Register */
++#define MII_AT001_ESR_1000T_HD_CAPS			0x1000	/* 1000T HD capable */
++#define MII_AT001_ESR_1000T_FD_CAPS			0x2000	/* 1000T FD capable */
++#define MII_AT001_ESR_1000X_HD_CAPS			0x4000	/* 1000X HD capable */
++#define MII_AT001_ESR_1000X_FD_CAPS			0x8000	/* 1000X FD capable */
++
++/** AT001 PHY Specific Control Register */
++#define MII_AT001_PSCR_JABBER_DISABLE			0x0001	/* 1=Jabber Function disabled */
++#define MII_AT001_PSCR_POLARITY_REVERSAL		0x0002	/* 1=Polarity Reversal enabled */
++#define MII_AT001_PSCR_SQE_TEST				0x0004	/* 1=SQE Test enabled */
++#define MII_AT001_PSCR_MAC_POWERDOWN			0x0008
++#define MII_AT001_PSCR_CLK125_DISABLE			0x0010	/* 1=CLK125 low, 0=CLK125 toggling */
++#define MII_AT001_PSCR_MDI_MANUAL_MODE			0x0000	/* MDI Crossover Mode bits 6:5, Manual MDI configuration */
++#define MII_AT001_PSCR_MDIX_MANUAL_MODE			0x0020	/* Manual MDIX configuration */
++#define MII_AT001_PSCR_AUTO_X_1000T			0x0040	/* 1000BASE-T: Auto crossover, 100BASE-TX/10BASE-T: MDI Mode */
++#define MII_AT001_PSCR_AUTO_X_MODE			0x0060	/* Auto crossover enabled all speeds. */
++#define MII_AT001_PSCR_10BT_EXT_DIST_ENABLE		0x0080	/* 1=Enable Extended 10BASE-T distance (Lower 10BASE-T RX Threshold), 0=Normal 10BASE-T RX Threshold */
++#define MII_AT001_PSCR_MII_5BIT_ENABLE			0x0100	/* 1=5-Bit interface in 100BASE-TX, 0=MII interface in 100BASE-TX */
++#define MII_AT001_PSCR_SCRAMBLER_DISABLE		0x0200	/* 1=Scrambler disable */
++#define MII_AT001_PSCR_FORCE_LINK_GOOD			0x0400	/* 1=Force link good */
++#define MII_AT001_PSCR_ASSERT_CRS_ON_TX			0x0800	/* 1=Assert CRS on Transmit */
++#define MII_AT001_PSCR_POLARITY_REVERSAL_SHIFT		1
++#define MII_AT001_PSCR_AUTO_X_MODE_SHIFT		5
++#define MII_AT001_PSCR_10BT_EXT_DIST_ENABLE_SHIFT	7
++
++/** AT001 PHY Specific Status Register */
++#define MII_AT001_PSSR_SPD_DPLX_RESOLVED		0x0800	/* 1=Speed & Duplex resolved */
++#define MII_AT001_PSSR_DPLX				0x2000	/* 1=Duplex 0=Half Duplex */
++#define MII_AT001_PSSR_SPEED				0xC000	/* Speed, bits 14:15 */
++#define MII_AT001_PSSR_10MBS				0x0000	/* 00=10Mbs */
++#define MII_AT001_PSSR_100MBS				0x4000	/* 01=100Mbs */
++#define MII_AT001_PSSR_1000MBS				0x8000	/* 10=1000Mbs */
++
++/** PCI Command Register Bit Definitions */
++#define PCI_REG_COMMAND					0x04	/* PCI Command Register */
++#define CMD_IO_SPACE					0x0001
++#define CMD_MEMORY_SPACE				0x0002
++#define CMD_BUS_MASTER					0x0004
++
++/** Wake Up Filter Control */
++#define AT_WUFC_LNKC	0x00000001	/* Link Status Change Wakeup Enable */
++#define AT_WUFC_MAG	0x00000002	/* Magic Packet Wakeup Enable */
++#define AT_WUFC_EX	0x00000004	/* Directed Exact Wakeup Enable */
++#define AT_WUFC_MC	0x00000008	/* Multicast Wakeup Enable */
++#define AT_WUFC_BC	0x00000010	/* Broadcast Wakeup Enable */
++
++/** Error Codes */
++#define AT_SUCCESS		0
++#define AT_ERR_EEPROM		1
++#define AT_ERR_PHY		2
++#define AT_ERR_CONFIG		3
++#define AT_ERR_PARAM		4
++#define AT_ERR_MAC_TYPE		5
++#define AT_ERR_PHY_TYPE		6
++#define AT_ERR_PHY_SPEED	7
++#define AT_ERR_PHY_RES		8
++
++#define SPEED_0		0xffff
++#define SPEED_10	10
++#define SPEED_100	100
++#define SPEED_1000	1000
++#define HALF_DUPLEX	1
++#define FULL_DUPLEX	2
++
++#define MEDIA_TYPE_AUTO_SENSOR	0
++#define MEDIA_TYPE_1000M_FULL	1
++#define MEDIA_TYPE_100M_FULL	2
++#define MEDIA_TYPE_100M_HALF	3
++#define MEDIA_TYPE_10M_FULL	4
++#define MEDIA_TYPE_10M_HALF	5
++
++#define ADVERTISE_10_HALF		0x0001
++#define ADVERTISE_10_FULL		0x0002
++#define ADVERTISE_100_HALF		0x0004
++#define ADVERTISE_100_FULL		0x0008
++#define ADVERTISE_1000_HALF		0x0010
++#define ADVERTISE_1000_FULL		0x0020
++#define AUTONEG_ADVERTISE_SPEED_DEFAULT	0x002F	/* Everything but 1000-Half */
++#define AUTONEG_ADVERTISE_10_100_ALL	0x000F	/* All 10/100 speeds */
++#define AUTONEG_ADVERTISE_10_ALL	0x0003	/* 10Mbps Full & Half speeds */
++
++/** The size (in bytes) of a ethernet packet */
++#define ENET_HEADER_SIZE		14
++#define MAXIMUM_ETHERNET_FRAME_SIZE	1518	/* with FCS */
++#define MINIMUM_ETHERNET_FRAME_SIZE	64	/* with FCS */
++#define ETHERNET_FCS_SIZE		4
++#define MAX_JUMBO_FRAME_SIZE		0x2800
++
++#define PHY_AUTO_NEG_TIME	45	/* 4.5 Seconds */
++#define PHY_FORCE_TIME		20	/* 2.0 Seconds */
++
++/** For checksumming , the sum of all words in the EEPROM should equal 0xBABA */
++#define EEPROM_SUM		0xBABA
++#define NODE_ADDRESS_SIZE	6
++
++/** Statistics counters collected by the MAC */
++struct stats_msg_block {
++	/* rx */
++	u32 rx_ok;		/* The number of good packet received. */
++	u32 rx_bcast;		/* The number of good broadcast packet received. */
++	u32 rx_mcast;		/* The number of good multicast packet received. */
++	u32 rx_pause;		/* The number of Pause packet received. */
++	u32 rx_ctrl;		/* The number of Control packet received other than Pause frame. */
++	u32 rx_fcs_err;		/* The number of packets with bad FCS. */
++	u32 rx_len_err;		/* The number of packets with mismatch of length field and actual size. */
++	u32 rx_byte_cnt;	/* The number of bytes of good packet received. FCS is NOT included. */
++	u32 rx_runt;		/* The number of packets received that are less than 64 byte long and with good FCS. */
++	u32 rx_frag;		/* The number of packets received that are less than 64 byte long and with bad FCS. */
++	u32 rx_sz_64;		/* The number of good and bad packets received that are 64 byte long. */
++	u32 rx_sz_65_127;	/* The number of good and bad packets received that are between 65 and 127-byte long. */
++	u32 rx_sz_128_255;	/* The number of good and bad packets received that are between 128 and 255-byte long. */
++	u32 rx_sz_256_511;	/* The number of good and bad packets received that are between 256 and 511-byte long. */
++	u32 rx_sz_512_1023;	/* The number of good and bad packets received that are between 512 and 1023-byte long. */
++	u32 rx_sz_1024_1518;	/* The number of good and bad packets received that are between 1024 and 1518-byte long. */
++	u32 rx_sz_1519_max;	/* The number of good and bad packets received that are between 1519-byte and MTU. */
++	u32 rx_sz_ov;		/* The number of good and bad packets received that are more than MTU size šC truncated by Selene. */
++	u32 rx_rxf_ov;		/* The number of frame dropped due to occurrence of RX FIFO overflow. */
++	u32 rx_rrd_ov;		/* The number of frame dropped due to occurrence of RRD overflow. */
++	u32 rx_align_err;	/* Alignment Error */
++	u32 rx_bcast_byte_cnt;	/* The byte count of broadcast packet received, excluding FCS. */
++	u32 rx_mcast_byte_cnt;	/* The byte count of multicast packet received, excluding FCS. */
++	u32 rx_err_addr;	/* The number of packets dropped due to address filtering. */
++
++	/* tx */
++	u32 tx_ok;		/* The number of good packet transmitted. */
++	u32 tx_bcast;		/* The number of good broadcast packet transmitted. */
++	u32 tx_mcast;		/* The number of good multicast packet transmitted. */
++	u32 tx_pause;		/* The number of Pause packet transmitted. */
++	u32 tx_exc_defer;	/* The number of packets transmitted with excessive deferral. */
++	u32 tx_ctrl;		/* The number of packets transmitted is a control frame, excluding Pause frame. */
++	u32 tx_defer;		/* The number of packets transmitted that is deferred. */
++	u32 tx_byte_cnt;	/* The number of bytes of data transmitted. FCS is NOT included. */
++	u32 tx_sz_64;		/* The number of good and bad packets transmitted that are 64 byte long. */
++	u32 tx_sz_65_127;	/* The number of good and bad packets transmitted that are between 65 and 127-byte long. */
++	u32 tx_sz_128_255;	/* The number of good and bad packets transmitted that are between 128 and 255-byte long. */
++	u32 tx_sz_256_511;	/* The number of good and bad packets transmitted that are between 256 and 511-byte long. */
++	u32 tx_sz_512_1023;	/* The number of good and bad packets transmitted that are between 512 and 1023-byte long. */
++	u32 tx_sz_1024_1518;	/* The number of good and bad packets transmitted that are between 1024 and 1518-byte long. */
++	u32 tx_sz_1519_max;	/* The number of good and bad packets transmitted that are between 1519-byte and MTU. */
++	u32 tx_1_col;		/* The number of packets subsequently transmitted successfully with a single prior collision. */
++	u32 tx_2_col;		/* The number of packets subsequently transmitted successfully with multiple prior collisions. */
++	u32 tx_late_col;	/* The number of packets transmitted with late collisions. */
++	u32 tx_abort_col;	/* The number of transmit packets aborted due to excessive collisions. */
++	u32 tx_underrun;	/* The number of transmit packets aborted due to transmit FIFO underrun, or TRD FIFO underrun */
++	u32 tx_rd_eop;		/* The number of times that read beyond the EOP into the next frame area when TRD was not written timely */
++	u32 tx_len_err;		/* The number of transmit packets with length field does NOT match the actual frame size. */
++	u32 tx_trunc;		/* The number of transmit packets truncated due to size exceeding MTU. */
++	u32 tx_bcast_byte;	/* The byte count of broadcast packet transmitted, excluding FCS. */
++	u32 tx_mcast_byte;	/* The byte count of multicast packet transmitted, excluding FCS. */
++	u32 smb_updated;	/* 1: SMB Updated. This is used by software as the indication of the statistics update.
++				 * Software should clear this bit as soon as retrieving the statistics information. */
++} _AT_ATTRIB_PACK_;
++
++/** Coalescing Message Block */
++struct coals_msg_block {
++	u32 int_stats;		/* interrupt status */
++	u16 rrd_prod_idx;	/* TRD Producer Index. */
++	u16 rfd_cons_idx;	/* RFD Consumer Index. */
++	u16 update;		/* Selene sets this bit every time it DMA the CMB to host memory.
++				 * Software supposes to clear this bit when CMB information is processed. */
++	u16 tpd_cons_idx;	/* TPD Consumer Index. */
++} _AT_ATTRIB_PACK_;
++
++/** RRD descriptor */
++struct rx_return_desc {
++	u8 num_buf;		/* Number of RFD buffers used by the received packet */
++	u8 resved;
++	u16 buf_indx;		/* RFD Index of the first buffer */
++	union {
++		u32 valid;
++		struct {
++			u16 rx_chksum;
++			u16 pkt_size;
++		} xsum_sz;
++	} xsz;
++
++	u16 pkt_flg;		/* Packet flags */
++	u16 err_flg;		/* Error flags */
++	u16 resved2;
++	u16 vlan_tag;		/* VLAN TAG */
++} _AT_ATTRIB_PACK_;
++
++#define PACKET_FLAG_ETH_TYPE	0x0080
++#define PACKET_FLAG_VLAN_INS	0x0100
++#define PACKET_FLAG_ERR		0x0200
++#define PACKET_FLAG_IPV4	0x0400
++#define PACKET_FLAG_UDP		0x0800
++#define PACKET_FLAG_TCP		0x1000
++#define PACKET_FLAG_BCAST	0x2000
++#define PACKET_FLAG_MCAST	0x4000
++#define PACKET_FLAG_PAUSE	0x8000
++
++#define ERR_FLAG_CRC		0x0001
++#define ERR_FLAG_CODE		0x0002
++#define ERR_FLAG_DRIBBLE	0x0004
++#define ERR_FLAG_RUNT		0x0008
++#define ERR_FLAG_OV		0x0010
++#define ERR_FLAG_TRUNC		0x0020
++#define ERR_FLAG_IP_CHKSUM	0x0040
++#define ERR_FLAG_L4_CHKSUM	0x0080
++#define ERR_FLAG_LEN		0x0100
++#define ERR_FLAG_DES_ADDR	0x0200
++
++/** RFD descriptor */
++struct rx_free_desc {
++	__le64 buffer_addr;	/* Address of the descriptor's data buffer */
++	__le16 buf_len;		/* Size of the receive buffer in host memory, in byte */
++	u16 coalese;		/* Update consumer index to host after the reception of this frame */
++} _AT_ATTRIB_PACK_;
++
++/** TPD descriptor */
++struct tso_param {
++	unsigned buf_len:14;
++	unsigned dma_int:1;
++	unsigned pkt_int:1;
++	u16 valan_tag;
++	unsigned eop:1;
++	/* command */
++	unsigned coalese:1;
++	unsigned ins_vlag:1;
++	unsigned custom_chksum:1;
++	unsigned segment:1;
++	unsigned ip_chksum:1;
++	unsigned tcp_chksum:1;
++	unsigned udp_chksum:1;
++	/* packet state */
++	unsigned vlan_tagged:1;
++	unsigned eth_type:1;
++	unsigned iphl:4;
++	unsigned tcp_hdrlen:4;
++	unsigned hdr_flg:1;
++	unsigned mss:13;
++} _AT_ATTRIB_PACK_;
++
++struct csum_param {
++	unsigned buf_len:14;
++	unsigned dma_int:1;
++	unsigned pkt_int:1;
++	u16 valan_tag;
++	unsigned eop:1;
++	/* command */
++	unsigned coalese:1;
++	unsigned ins_vlag:1;
++	unsigned custom_chksum:1;
++	unsigned segment:1;
++	unsigned ip_chksum:1;
++	unsigned tcp_chksum:1;
++	unsigned udp_chksum:1;
++	/* packet state */
++	unsigned vlan_tagged:1;
++	unsigned eth_type:1;
++	unsigned iphl:4;
++	unsigned:2;
++	unsigned payload_offset:8;
++	unsigned xsum_offset:8;
++} _AT_ATTRIB_PACK_;
++
++union tpd_descr {
++	u64 data;
++	struct csum_param csum;
++	struct tso_param tso;
++} _AT_ATTRIB_PACK_;
++
++struct tx_packet_desc {
++	__le64 buffer_addr;
++	union tpd_descr desc;
++} _AT_ATTRIB_PACK_;
++
++/** DMA Order Settings */
++enum at_dma_order {
++	at_dma_ord_in = 1,
++	at_dma_ord_enh = 2,
++	at_dma_ord_out = 4
++};
++
++enum at_dma_rcb {
++	at_rcb_64 = 0,
++	at_rcb_128 = 1
++};
++
++enum at_dma_req_block {
++	at_dma_req_128 = 0,
++	at_dma_req_256 = 1,
++	at_dma_req_512 = 2,
++	at_dam_req_1024 = 3,
++	at_dam_req_2048 = 4,
++	at_dma_req_4096 = 5
++};
++
++/* UNUSED - jkc 20061118
++enum at_speed_duplex_type {
++	at_10_half = 0,
++	at_10_full = 1,
++	at_100_half = 2,
++	at_100_full = 3
++};
++*/
++
++struct spi_flash_dev {
++	const char *manu_name;	/* manufacturer id */
++	/* op-code */
++	u8 cmd_wrsr;
++	u8 cmd_read;
++	u8 cmd_program;
++	u8 cmd_wren;
++	u8 cmd_wrdi;
++	u8 cmd_rdsr;
++	u8 cmd_rdid;
++	u8 cmd_sector_erase;
++	u8 cmd_chip_erase;
++};
++
++/** Structure containing variables used by the shared code */
++struct at_hw {
++	u8 __iomem *hw_addr;
++	void *back;
++
++	enum at_dma_order dma_ord;
++	enum at_dma_rcb rcb_value;
++	enum at_dma_req_block dmar_block;
++	enum at_dma_req_block dmaw_block;
++
++	u8 preamble_len;
++	u8 max_retry;		/* Retransmission maximum , afterwards the packet will be discarded. */
++	u8 jam_ipg;		/* IPG to start JAM for collision based flow control in half-duplex mode. In unit of 8-bit time. */
++	u8 ipgt;		/* Desired back to back inter-packet gap. The default is 96-bit time. */
++	u8 min_ifg;		/* Minimum number of IFG to enforce in between RX frames. Frame gap below such IFP is dropped. */
++	u8 ipgr1;		/* 64bit Carrier-Sense window */
++	u8 ipgr2;		/* 96-bit IPG window */
++
++	u8 tpd_burst;		/* Number of TPD to prefetch in a cache-aligned burst. Each TPD is 16-byte in length. */
++	u8 rfd_burst;		/* Number of RFD to prefetch in a cache-aligned burst. Each RFD is 12-byte in length. */
++	u8 rfd_fetch_gap;
++	u8 rrd_burst;		/* Threshold of number of RRDs can be retired in a burst. Each RRD is 16-byte in length. */
++	u8 tpd_fetch_th;
++	u8 tpd_fetch_gap;
++	u16 tx_jumbo_task_th;
++	u16 txf_burst;		/* Number of data byte to read in a cache-aligned burst. Each SRAM entry is 8-byte in length. */
++	u16 rx_jumbo_th;	/* Jumbo packet size for non-VLAN packet. VLAN packet should add 4-byte */
++	u16 rx_jumbo_lkah;
++	u16 rrd_ret_timer;	/* RRD retirement timer. Decrement by 1 after every 512ns passes. */
++	u16 lcol;		/* Collision Window */
++
++	u16 cmb_tpd;
++	u16 cmb_rrd;
++	u16 cmb_rx_timer;
++	u16 cmb_tx_timer;
++	u32 smb_timer;
++	u16 media_type;
++	u16 autoneg_advertised;
++	u16 pci_cmd_word;
++
++	u16 mii_autoneg_adv_reg;
++	u16 mii_1000t_ctrl_reg;
++
++	u32 mem_rang;
++	u32 txcw;
++	u32 max_frame_size;
++	u32 min_frame_size;
++	u32 mc_filter_type;
++	u32 num_mc_addrs;
++	u32 collision_delta;
++	u32 tx_packet_delta;
++	u16 phy_spd_default;
++
++	u16 dev_rev;
++	u16 device_id;
++	u16 vendor_id;
++	u16 subsystem_id;
++	u16 subsystem_vendor_id;
++	u8 revision_id;
++
++	/* spi flash */
++	u8 flash_vendor;
++
++	u8 dma_fairness;
++	u8 mac_addr[NODE_ADDRESS_SIZE];
++	u8 perm_mac_addr[NODE_ADDRESS_SIZE];
++
++	/* bool phy_preamble_sup; */
++	bool phy_configured;
++};
++
++#endif				/* _ATL1_HW_H_ */
+diff --git a/drivers/net/atl1/atl1_osdep.h b/drivers/net/atl1/atl1_osdep.h
+new file mode 100644
+index 0000000..8e0c097
+--- /dev/null
++++ b/drivers/net/atl1/atl1_osdep.h
+@@ -0,0 +1,78 @@
++/** atl1_osdep.h
 +
 +Copyright(c) 2005 - 2006 Attansic Corporation. All rights reserved.
 +Copyright(c) 2006 Chris Snook <csnook@redhat.com>
@@ -1449,182 +1322,57 @@ index 0000000..4f25a33
 +Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 +*/
 +
-+#include "atl1.h"
-+#include <linux/moduleparam.h>
++#ifndef _ATL1_OSDEP_H_
++#define _ATL1_OSDEP_H_
 +
-+extern char at_driver_name[];
++#include <linux/types.h>
++#include <linux/pci.h>
++#include <linux/delay.h>
++#include <asm/io.h>
++#include <linux/interrupt.h>
++#include <linux/sched.h>
 +
-+/* This is the only thing that needs to be changed to adjust the
-+ * maximum number of ports that the driver can manage.
++#define usec_delay(x)	udelay(x)
++#ifndef msec_delay
++#define msec_delay(x)	do { if(in_interrupt()) { \
++			/* Don't mdelay in interrupt context!*/ \
++				BUG(); \
++			} else { \
++				msleep(x); \
++			}} while(0)
++/* Some workarounds require millisecond delays and are run during interrupt
++ * context.  Most notably, when establishing link, the phy may need tweaking
++ * but cannot process phy register reads/writes faster than millisecond
++ * intervals...and we establish link due to a "link status change" interrupt.
 + */
-+#define AT_MAX_NIC 4
++#define msec_delay_irq(x) mdelay(x)
++#endif
 +
-+#define OPTION_UNSET    -1
-+#define OPTION_DISABLED 0
-+#define OPTION_ENABLED  1
++#define PCI_COMMAND_REGISTER	PCI_COMMAND
++#define CMD_MEM_WRT_INVALIDATE	PCI_COMMAND_INVALIDATE
 +
-+#define AT_PARAM_INIT { [0 ... AT_MAX_NIC] = OPTION_UNSET }
++#define AT_WRITE_REG(a, reg, value) ( \
++	writel((value), ((a)->hw_addr + reg)))
 +
-+/* Interrupt Moderate Timer in units of 2 us
-+ *
-+ * Valid Range: 10-65535
-+ *
-+ * Default Value: 100 (200us)
-+ */
-+static int __devinitdata int_mod_timer[AT_MAX_NIC+1] = AT_PARAM_INIT;
-+static int num_int_mod_timer = 0;
-+module_param_array_named(int_mod_timer, int_mod_timer, int, &num_int_mod_timer, 0);
-+MODULE_PARM_DESC(int_mod_timer, "Interrupt moderator timer");
++#define AT_READ_REG(a, reg) ( \
++	readl((a)->hw_addr + reg ))
 +
-+/* flash_vendor
-+ *
-+ * Valid Range: 0-2
-+ *
-+ * 0 - Atmel
-+ * 1 - SST
-+ * 2 - ST
-+ *
-+ * Default Value: 0
-+ */
-+static int __devinitdata flash_vendor[AT_MAX_NIC+1] = AT_PARAM_INIT;
-+static int num_flash_vendor = 0;
-+module_param_array_named(flash_vendor, flash_vendor, int, &num_flash_vendor, 0);
-+MODULE_PARM_DESC(flash_vendor, "SPI flash vendor");
++#define AT_WRITE_REGB(a, reg, value) (\
++	writeb((value), ((a)->hw_addr + reg)))
 +
-+#define DEFAULT_INT_MOD_CNT	100	/* 200us */
-+#define MAX_INT_MOD_CNT		65000
-+#define MIN_INT_MOD_CNT		50
++#define AT_READ_REGB(a, reg) (\
++	readb((a)->hw_addr + reg))
 +
-+#define FLASH_VENDOR_DEFAULT	0
-+#define FLASH_VENDOR_MIN	0
-+#define FLASH_VENDOR_MAX	2
++#define AT_WRITE_REGW(a, reg, value) (\
++	writew((value), ((a)->hw_addr + reg)))
 +
-+struct at_option {
-+	enum { enable_option, range_option, list_option } type;
-+	char *name;
-+	char *err;
-+	int def;
-+	union {
-+		struct {	/* range_option info */
-+			int min;
-+			int max;
-+		} r;
-+		struct {	/* list_option info */
-+			int nr;
-+			struct at_opt_list {
-+				int i;
-+				char *str;
-+			} *p;
-+		} l;
-+	} arg;
-+};
++#define AT_READ_REGW(a, reg) (\
++	readw((a)->hw_addr + reg))
 +
-+static int __devinit at_validate_option(int *value, struct at_option *opt)
-+{
-+	if (*value == OPTION_UNSET) {
-+		*value = opt->def;
-+		return 0;
-+	}
++#define AT_WRITE_REG_ARRAY(a, reg, offset, value) ( \
++	writel((value), (((a)->hw_addr + reg) + ((offset) << 2))))
 +
-+	switch (opt->type) {
-+	case enable_option:
-+		switch (*value) {
-+		case OPTION_ENABLED:
-+			printk(KERN_INFO "%s: %s Enabled\n", at_driver_name, opt->name);
-+			return 0;
-+		case OPTION_DISABLED:
-+			printk(KERN_INFO "%s: %s Disabled\n", at_driver_name, opt->name);
-+			return 0;
-+		}
-+		break;
-+	case range_option:
-+		if (*value >= opt->arg.r.min && *value <= opt->arg.r.max) {
-+			printk(KERN_INFO "%s: %s set to %i\n", at_driver_name, opt->name, *value);
-+			return 0;
-+		}
-+		break;
-+	case list_option:{
-+			int i;
-+			struct at_opt_list *ent;
++#define AT_READ_REG_ARRAY(a, reg, offset) ( \
++	readl(((a)->hw_addr + reg) + ((offset) << 2)))
 +
-+			for (i = 0; i < opt->arg.l.nr; i++) {
-+				ent = &opt->arg.l.p[i];
-+				if (*value == ent->i) {
-+					if (ent->str[0] != '\0')
-+						printk(KERN_INFO "%s: %s\n",
-+						       at_driver_name, ent->str);
-+					return 0;
-+				}
-+			}
-+		}
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	printk(KERN_INFO "%s: invalid %s specified (%i) %s\n",
-+	       at_driver_name, opt->name, *value, opt->err);
-+	*value = opt->def;
-+	return -1;
-+}
-+
-+/**
-+ * at_check_options - Range Checking for Command Line Parameters
-+ * @adapter: board private structure
-+ *
-+ * This routine checks all command line parameters for valid user
-+ * input.  If an invalid value is given, or if no user specified
-+ * value exists, a default value is used.  The final value is stored
-+ * in a variable in the adapter structure.
-+ **/
-+void __devinit at_check_options(struct at_adapter *adapter)
-+{
-+	int bd = adapter->bd_number;
-+	if (bd >= AT_MAX_NIC) {
-+		printk(KERN_NOTICE "%s: warning: no configuration for board #%i\n", 
-+			at_driver_name, bd);
-+		printk(KERN_NOTICE "%s: using defaults for all values\n", 
-+			at_driver_name);
-+	}
-+	{			/* Interrupt Moderate Timer */
-+		struct at_option opt = {
-+			.type = range_option,
-+			.name = "Interrupt Moderator Timer",
-+			.err = "using default of " 
-+				__MODULE_STRING(DEFAULT_INT_MOD_CNT),
-+			.def = DEFAULT_INT_MOD_CNT,
-+			.arg = {.r =
-+				{.min = MIN_INT_MOD_CNT,.max = MAX_INT_MOD_CNT}}
-+		};
-+		int val;
-+		if (num_int_mod_timer > bd) {
-+			val = int_mod_timer[bd];
-+			at_validate_option(&val, &opt);
-+			adapter->imt = (u16) val;
-+		} else {
-+			adapter->imt = (u16) (opt.def);
-+		}
-+	}
-+
-+	{			/* Flsh Vendor */
-+		struct at_option opt = {
-+			.type = range_option,
-+			.name = "SPI Flash Vendor",
-+			.err = "using default of "
-+			    	__MODULE_STRING(FLASH_VENDOR_DEFAULT),
-+			.def = DEFAULT_INT_MOD_CNT,
-+			.arg = {.r =
-+				{.min = FLASH_VENDOR_MIN,.max =
-+				 FLASH_VENDOR_MAX}}
-+		};
-+		int val;
-+		if (num_flash_vendor > bd) {
-+			val = flash_vendor[bd];
-+			at_validate_option(&val, &opt);
-+			adapter->hw.flash_vendor = (u8) val;
-+		} else {
-+			adapter->hw.flash_vendor = (u8) (opt.def);
-+		}
-+	}
-+}
++#endif				/* _ATL1_OSDEP_H_ */

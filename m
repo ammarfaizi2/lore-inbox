@@ -1,98 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755432AbWKSAMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755458AbWKSArb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755432AbWKSAMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Nov 2006 19:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755436AbWKSAMg
+	id S1755458AbWKSArb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Nov 2006 19:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755463AbWKSArb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Nov 2006 19:12:36 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:32968 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1755432AbWKSAMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Nov 2006 19:12:36 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <455FA159.2080303@s5r6.in-berlin.de>
-Date: Sun, 19 Nov 2006 01:12:09 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: linux1394-devel@lists.sourceforge.net
-CC: Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: deadlock in "modprobe -r ohci1394" shortly after "modprobe ohci1394"
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Nov 2006 19:47:31 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2592 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1755458AbWKSAra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Nov 2006 19:47:30 -0500
+Date: Sat, 18 Nov 2006 19:47:17 -0500
+From: ROBERT HANCOCK <hancockr@shaw.ca>
+Subject: Re: ata2: EH in ADMA mode, notifier 0x0 notifier_error 0x0 gen_ctl
+To: linux-kernel@vger.kernel.org, christiand59@web.de
+Message-id: <cb8795142da89.455f6345@shaw.ca>
+MIME-version: 1.0
+X-Mailer: Sun Java(tm) System Messenger Express 6.2-7.05 (built Sep  5 2006)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just rediscovered a deadlock in drivers/ieee1394/nodemgr.c which I
-thought didn't exist anymore. It's still there, it's just a matter of
-timing to trigger this. Quoting myself from
-http://bugzilla.kernel.org/show_bug.cgi?id=6706 :
-
-------------------------------------------------------------------------
-# modprobe ohci1394 && modprobe -r ohci1394
-works.
-
-# modprobe ohci1394 && sleep 1 && modprobe -r ohci1394
-gets stuck in uninterruptible sleep on kthread_stop(). This is trying to
-stop the knodemgrd which uninterruptibly sleeps on
-bus_rescan_devices_helper() meanwhile.
-
-
-Call trace of the modprobe -r context:
-    kthread_stop		in kernel/kthread.c
-    nodemgr_remove_host		in drivers/ieee1394/nodemgr.c
-    __unregister_host		in drivers/ieee1394/highlevel.c
-    highlevel_remove_host	in drivers/ieee1394/highlevel.c
-    hpsb_remove_host		in drivers/ieee1394/hosts.c
-    ohci1394_pci_remove		in drivers/ieee1394/ohci1394.c
-    pci_device_remove		in pci/pci-driver.c
-    __device_release_driver	in drivers/base/dd.c
-    driver_detach		in drivers/base/dd.c
-
-Call trace of the knodemgrd context:
-    bus_rescan_devices_helper	in drivers/base/bus.c
-    bus_rescan_devices		in drivers/base/bus.c
-    nodemgr_node_probe		in drivers/ieee1394/nodemgr.c
-    nodemgr_host_thread		in drivers/ieee1394/nodemgr.c
-
-
-It seems the following is the culprit:
-
-Since Linux 2.6.16, bus_rescan_devices_helper takes
-down(&dev->parent->sem) if a parent device exists. This is true for all
-devices that are managed by nodemgr. (FireWire ud's have ud's or ne's as
-parent, and FireWire ne's have hosts as parent.) And yes, the call in
-driver_detach to __device_release_driver is enclosed in down(&dev->sem).
-------------------------------------------------------------------------
-
-
-The relevant change to bus_rescan_devices_helper in 2.6.16 is
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=bf74ad5bc41727d5f2f1c6bedb2c1fac394de731
-
-> commit bf74ad5bc41727d5f2f1c6bedb2c1fac394de731
-> Author: Alan Stern <stern@rowland.harvard.edu>
-> Date:   Thu Nov 17 16:54:12 2005 -0500
+Christian wrote:
+> During my I/O load test, after about half an hour of heavy I/O on three SATAII 
+> disks the system suddenly hung for about 3 seconds. After that I checked 
+> dmesg and found the following error output:
 > 
->     [PATCH] Hold the device's parent's lock during probe and remove
-> 
->     This patch (as604) makes the driver core hold a device's parent's lock
->     as well as the device's lock during calls to the probe and remove
->     methods in a driver.  This facility is needed by USB device drivers,
->     owing to the peculiar way USB devices work:
-[...]
->     I have not tested this patch for conflicts with other subsystems.  As
->     far as I can see, the only possibility of conflict would lie in the
->     bus_rescan_devices pathway, and it seems pretty remote.  Nevertheless,
->     it would be good for this to get a lot of testing in -mm.
+> [ 4574.193809] ata2: EH in ADMA mode, notifier 0x0 notifier_error 0x0 gen_ctl 
+> 0x1501000 status 0x400
+> [ 4574.193826] ata2: CPB 0: ctl_flags 0x1f, resp_flags 0x1
+> [ 4574.193835] ata2: CPB 1: ctl_flags 0x1f, resp_flags 0x2
 
-Yes, it's pretty remote but there is indeed one if I'm not entirely
-mistaken.
+All this output is from the debugging code I have in the error handler in sata_nv for ADMA mode.
 
-Right now I don't see a sane fix but I will have a few nights sleep over
-it...
--- 
-Stefan Richter
--=====-=-==- =-== =--==
-http://arcgraph.de/sr/
+> [ 4574.194366] ata2: Resetting port
+> [ 4574.194411] ata2.00: exception Emask 0x0 SAct 0x2 SErr 0x0 action 0x2 
+> frozen
+> [ 4574.194453] ata2.00: tag 1 cmd 0x60 Emask 0x4 stat 0x40 err 0x0 (timeout)
+
+Hmm, it looks like the controller thinks the command has been sent to the drive and has "released" the command for the drive to do its thing, and hasn't received a response back yet. (At least that's what I believe bit 1 in the response flags means..) This might not be the fault of the controller or driver, it might just be the drive not responding. Can you post some drive information (like full dmesg from bootup)?

@@ -1,33 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756802AbWKSRVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756807AbWKSRg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756802AbWKSRVE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 12:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756806AbWKSRVE
+	id S1756807AbWKSRg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 12:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756805AbWKSRg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:21:04 -0500
-Received: from mo-p07-ob.rzone.de ([81.169.146.190]:65073 "EHLO
-	mo-p07-ob.rzone.de") by vger.kernel.org with ESMTP id S1756802AbWKSRVC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:21:02 -0500
-Date: Sun, 19 Nov 2006 18:20:47 +0100 (MET)
-From: Olaf Hering <olaf@aepfle.de>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uml fails to compile due to missing offsetof
-Message-ID: <20061119172047.GA7376@aepfle.de>
-References: <20061119120000.GA4926@aepfle.de> <aday7q7jrds.fsf@cisco.com>
+	Sun, 19 Nov 2006 12:36:26 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:49575 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1756807AbWKSRgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 12:36:25 -0500
+Date: Sun, 19 Nov 2006 09:33:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on 
+ SOFTWARE_SUSPEND
+In-Reply-To: <200611190320_MC3-1-D21B-111C@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <aday7q7jrds.fsf@cisco.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, Roland Dreier wrote:
 
-> looks weird to me.  AFAIK the C standard says that offsetof() comes
-> from plain old <stddef.h>.  Does the (untested) patch below fix the
-> build for you?
 
-Yes, it does.
+On Sun, 19 Nov 2006, Chuck Ebbert wrote:
+>
+> When doing 'make oldconfig' we should ask about suspend/resume
+> debug features when SOFTWARE_SUSPEND is not enabled.
+
+That's wrong.
+
+I never use SOFTWARE_SUSPEND, and I think the whole concept is totally 
+broken.
+
+Sane people use suspend-to-ram, and that's when you need the suspend and 
+resume debugging.
+
+Software-suspend is silly. I want my machine back in three seconds, not 
+waiting for minutes..
+
+		Linus

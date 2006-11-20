@@ -1,45 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966656AbWKTUi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966675AbWKTUoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966656AbWKTUi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966660AbWKTUi4
+	id S966675AbWKTUoh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966676AbWKTUoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:38:56 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:17867 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S966656AbWKTUiz (ORCPT
+	Mon, 20 Nov 2006 15:44:37 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:63941 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S966675AbWKTUog (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:38:55 -0500
-Date: Mon, 20 Nov 2006 21:38:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Simon Richter <Simon.Richter@hogyros.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: implement daemon() in the kernel
-In-Reply-To: <4561ABB4.6090700@hogyros.de>
-Message-ID: <Pine.LNX.4.61.0611202133170.31982@yvahk01.tjqt.qr>
-References: <4561ABB4.6090700@hogyros.de>
+	Mon, 20 Nov 2006 15:44:36 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: nigel@suspend2.net
+Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
+Date: Mon, 20 Nov 2006 21:40:46 +0100
+User-Agent: KMail/1.9.1
+Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200611160912.51226.rjw@sisk.pl> <20061120001540.GX11034@melbourne.sgi.com> <1164020537.10428.11.camel@nigel.suspend2.net>
+In-Reply-To: <1164020537.10428.11.camel@nigel.suspend2.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611202140.47322.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Nov 20 2006 14:20, Simon Richter wrote:
->
-> - a reverse vfork()
->
->The child process is created and suspended, the parent continues to run
->until it calls exec() or _exit(). The good thing here is that it should
->be easy to implement as the infrastructure for suspending a process
->until another exits already exists.
+On Monday, 20 November 2006 12:02, Nigel Cunningham wrote:
+> Hi all.
+> 
+> I've did some testing this afternoon with bdev freezing disabled and
+> without any non-vanilla code to freeze kthreads (Rafael's or my older
+> version).
 
-How about the Cygwin way, i.e. 'suspend' the parent and let the child 
-run after fork.
+Thanks for testing this.
 
-Your case: If it exec()s within a specific time limit, fine. If not, you 
-can follow the suggestion to copy its entire memory space.
+> If I put a BUG_ON() in submit_bio for non suspend2 I/O, it catches this
+> trace:
+> 
+> submit_bio
+> xfs_buf_iorequest
+> xlog_bdstrat_cb
+> xlog_state_release_iclog
+> xlog_state_sync_all
+> xfs_log_force
+> xfs_syncsub
+> xfs_sync
+> vfs_sync
+> vfs_sync_worker
+> xfssyncd
+> keventd_create_kthread
+
+Well, this trace apparently comes from xfssyncd wich explicitly calls
+try_to_freeze().  When does this happen?
+
+> I haven't yet reproduced anything on another code path (eg pdflush).
+> 
+> So, it would appear that freezing kthreads without freezing bdevs should
+> be a possible solution. It may however leave some I/O unsynced
+> pre-resume and therefore result in possible dataloss if no resume
+> occurs. I therefore wonder whether it's better to stick with bdev
+> freezing
+
+It looks like xfs is the only filesystem that really implements bdev freezing,
+so for other filesystems it's irrelevant.  However, it may affect the dm, and
+I'm not sure what happens if someone tries to use a swap file on a dm
+device for the suspend _after_ we have frozen bdevs.
+
+> or create some variant wherein XFS is taught to fully flush 
+> pending writes and not create new I/O.
+
+I think we should prevent filesystems from submitting any new I/O after
+processes have been frozen, this way or another.
+
+Greetings,
+Rafael
 
 
-	-`J'
 -- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

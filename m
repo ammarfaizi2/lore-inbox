@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966382AbWKTSwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966395AbWKTSxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966382AbWKTSwz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:52:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966395AbWKTSwz
+	id S966395AbWKTSxn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966423AbWKTSxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:52:55 -0500
-Received: from nlpi029.sbcis.sbc.com ([207.115.36.58]:6866 "EHLO
-	nlpi029.sbcis.sbc.com") by vger.kernel.org with ESMTP
-	id S966382AbWKTSwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:52:54 -0500
-X-ORBL: [67.117.73.34]
-Date: Mon, 20 Nov 2006 18:52:22 +0000
-From: Tony Lindgren <tony@atomide.com>
-To: Komal Shah <komal.shah802003@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vladimir Ananiev <vovan888@gmail.com>
-Subject: Re: Siemens SX1: sound cleanups
-Message-ID: <20061120185222.GC4597@atomide.com>
-References: <20061119114938.GA22514@elf.ucw.cz> <s5h4psus8n9.wl%tiwai@suse.de> <3a5b1be00611200446m69d1c593qa13649ff6b9f0506@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a5b1be00611200446m69d1c593qa13649ff6b9f0506@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Mon, 20 Nov 2006 13:53:43 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:10379 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S966431AbWKTSxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:53:42 -0500
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+	overridden
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: James Morris <jmorris@namei.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+       steved@redhat.com
+In-Reply-To: <26860.1163607813@redhat.com>
+References: <XMMS.LNX.4.64.0611151115360.8593@d.namei>
+	 <XMMS.LNX.4.64.0611141618300.25022@d.namei>
+	 <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
+	 <15153.1163593562@redhat.com>   <26860.1163607813@redhat.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 20 Nov 2006 13:49:53 -0500
+Message-Id: <1164048593.13758.37.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Komal Shah <komal.shah802003@gmail.com> [061120 12:46]:
-> On 11/20/06, Takashi Iwai <tiwai@suse.de> wrote:
-> >At Sun, 19 Nov 2006 12:49:38 +0100,
-> >Pavel Machek wrote:
-> >>
-> >> Hi!
-> >>
-> >> These are cleanups for codingstyle in sound parts of siemens sx1. They
-> >> should not change any code. Please apply,
-> >>
-> >>                                                               Pavel
-> >
-> >Which tree does include these drivers?
-> >I've never seen nor review it...
+On Wed, 2006-11-15 at 16:23 +0000, David Howells wrote:
+> James Morris <jmorris@namei.org> wrote:
 > 
-> It's Linux Texas Instruments OMAP processors tree, hosted at following 
-> links:
+> > Well, the value can be changed at any time, so you could be using a 
+> > temporary fscreate value, or your new value could be overwritten 
+> > immediately by writing to /proc/$$/attr/fscreate
 > 
-> http://source.mvista.com/git/gitweb.cgi?p=linux-omap-2.6.git;a=log
+> Ah.  Hmmm.  By whom?  In selinux_setprocattr():
 > 
-> OR mirror copy is also available to view at
+> 	if (current != p) {
+> 		/* SELinux only allows a process to change its own
+> 		   security attributes. */
+> 		return -EACCES;
+> 	}
 > 
-> http://www.kernel.org/git/
-> 
-> You have not seen those drivers, because we have _not_ yet submitted
-> ALSA drivers for aic23 and ts2102 to upstream.
+> But current busy inside the cache and can't do this.
 
-Yeah, we should clean-up and those for sending to alsa list for merging.
+Correct; this is no different than modifying ->fsuid temporarily.
 
-Tony
+> > I think we need to add a separate field for this purpose, which can only 
+> > be written to via the in-kernel API and overrides fscreate.
+> 
+> So, like my acts-as security ID patch?
+> 
+> Would it still need to be controlled by MAC policy in that case?  Doing so is
+> a bit of a pain as it means I have a whole bunch of extra failures I still
+> need to check for, and the race in which the rules might change is still a
+> possibility I have to deal with.
+
+I don't see any value added by introducing yet another field for the
+create SID (unlike the actor SID, where we need to distinguish it for
+certain checks where the task is the target rather than the actor), so I
+don't advocate this approach.
+
+I still suspect that the task flag approach would have been rather
+simpler...
+
+-- 
+Stephen Smalley
+National Security Agency
+

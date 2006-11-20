@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966248AbWKTRfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966227AbWKTRfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966248AbWKTRfw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:35:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966267AbWKTRfw
+	id S966227AbWKTRfF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966257AbWKTRfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:35:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:36361 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S966248AbWKTRfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:35:51 -0500
-Date: Mon, 20 Nov 2006 18:35:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Paul Sokolovsky <pmiscml@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       kernel-discuss@handhelds.org
-Subject: Re: Where did find_bus() go in 2.6.18?
-Message-ID: <20061120173550.GV31879@stusta.de>
-References: <1154868495.20061120003437@gmail.com> <4560ECAF.1030901@gmail.com> <20061120001212.GA28427@suse.de> <1148526308.20061120161322@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1148526308.20061120161322@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 20 Nov 2006 12:35:05 -0500
+Received: from pat.uio.no ([129.240.10.15]:30187 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S966227AbWKTRfD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:35:03 -0500
+Subject: Re: NFSROOT with NFS Version 3
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061120173311.154e54a6.Christoph.Pleger@uni-dortmund.de>
+References: <20061117164021.03b2cc24.Christoph.Pleger@uni-dortmund.de>
+	 <1163780417.5709.34.camel@lade.trondhjem.org>
+	 <20061120120750.1b1688e8.Christoph.Pleger@uni-dortmund.de>
+	 <20061120135716.GA14122@tsunami.ccur.com>
+	 <20061120173311.154e54a6.Christoph.Pleger@uni-dortmund.de>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 12:34:40 -0500
+Message-Id: <1164044080.5700.61.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.202, required 12,
+	autolearn=disabled, AWL 1.66, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 04:13:22PM +0200, Paul Sokolovsky wrote:
->...
->   But note that I don't really ask mainline kernel developers how to
-> fix this driver - I would actually be ashamed to do so, as I myself a
-> (newbie) kernel hacker. So, the question stays the same, though I
-> probably reformulate it a bit stronger now: how it came that ability
-> to query buses (at all) was removed from 2.6.18?
+On Mon, 2006-11-20 at 17:33 +0100, Christoph Pleger wrote:
+> Hello,
 > 
->   As it was before, it was clear that LDM consists of multiple layers,
-> and each layer offers consistent and complete set of operations on it,
-> like adding new object on this layer, removing, adding child, removing
-> child, *and* query objects on this level or among childs. I may miss
-> some accidental gaps in that picture of course, but it still was an
-> integral, complete design paradigm offering full dynamicity and
-> introspection.
+> On Mon, 20 Nov 2006 08:57:16 -0500
+> Joe Korty <joe.korty@ccur.com> wrote:
 > 
->   And suddenly - oops, in 2.6.18 we lose ability to query the highest
-> level of hierarchy, namely bus set. And on what criterion? "unused". I
-> would really dream that such core, the most basic APIs are not being
-> defined in terms of "someone does use it right now". A method to query
-> objects of core kernel data sets is just integral part of interface to
-> these datasets, you cannot remove it and not cripple such interface.
-> Again, it's loss of introspection, and that's not just "cleanup", it's
-> a paradigm shift.
->...
+> > On Mon, Nov 20, 2006 at 12:07:50PM +0100, Christoph Pleger wrote:
+> > > Warning: Unable to open an initial console
+> > 
+> > This usually means /dev/console doesn't exist.  With many of
+> > today's distributions, this means you didn't boot with a
+> > initrd properly set up to run with your newly built kernel.
+> 
+> The device /dev/console exists, but init/main.c tries to open it
+> read-write. As the nfsroot is mounted read-only, /dev/console cannot be
+> opened read-write.
 
-As Documentation/stable_api_nonsense.txt explains, there is no stable 
-kernel API. If you don't want to get the APIs your driver uses 
-changed/removed you should really try to get it merged into mainline.
+Yes. NFSv3 has an ACCESS rpc call, which allows the client to request
+the correct permissions from the server rather than relying on mode
+bits.
+IOW: this is definitely an intentional feature.
 
-The find_bus() case is even more interesting since you are using it in a 
-driver although it has never been exported to modules. Considering that 
-you anyway have to patch the kernel for getting your driver running 
-(since it won't run as a module against an unmodified kernel), you could 
-simply undo my patch locally until you submit your driver for inclusion 
-in mainline.
-
->  Paul
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Cheers,
+  Trond
 

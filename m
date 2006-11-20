@@ -1,142 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965463AbWKTKDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965652AbWKTKOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965463AbWKTKDu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 05:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965464AbWKTKDu
+	id S965652AbWKTKOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 05:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965591AbWKTKOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 05:03:50 -0500
-Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:65248 "EHLO
-	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S965419AbWKTKDs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 05:03:48 -0500
-To: akpm@osdl.org
-CC: randy.dunlap@oracle.com, linux-kernel@vger.kernel.org
-Subject: [patch] fuse: fix compile without CONFIG_BLOCK
-Message-Id: <E1Gm5zn-0002tV-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 20 Nov 2006 11:03:23 +0100
+	Mon, 20 Nov 2006 05:14:33 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:4041 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S965600AbWKTKOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 05:14:32 -0500
+Date: Mon, 20 Nov 2006 11:14:31 +0100
+From: Sander <sander@humilis.net>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/5] Register ext3dev filesystem
+Message-ID: <20061120101431.GA8831@favonius>
+Reply-To: sander@humilis.net
+References: <1155172642.3161.74.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1155172642.3161.74.camel@localhost.localdomain>
+X-Uptime: 10:52:02 up 17:03, 17 users,  load average: 3.16, 3.00, 3.01
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Randy.
+Mingming Cao wrote (ao):
+> Register ext4 filesystem as ext3dev filesystem in kernel.
 
-Andrew, can you please add this patch in place of
-fuse-depends-on-block.patch?
+[cut]
 
-Thanks,
-Miklos
-----
+> diff -puN fs/Kconfig~register-ext3dev fs/Kconfig
+> --- linux-2.6.18-rc4/fs/Kconfig~register-ext3dev	2006-08-09 15:41:29.277105718 -0700
+> +++ linux-2.6.18-rc4-ming/fs/Kconfig	2006-08-09 15:41:29.321106074 -0700
+> @@ -138,6 +138,72 @@ config EXT3_FS_SECURITY
+>  	  If you are not using a security module that requires using
+>  	  extended attributes for file security labels, say N.
+>  
+> +config EXT3DEV_FS
+> +	tristate "Developmenting extended fs support"
+> +	select JBD
+> +	help
+> +	  Ext3dev is a precede filesystem toward next generation
+> +	  of extended fs, based on ext3 filesystem code. It will be
+> +	  renamed ext4 fs later once this ext3dev is mature and stabled.
 
-Randy Dunlap wote:
-> Should FUSE depend on BLOCK?  Without that and with BLOCK=n, I get:
-> 
-> inode.c:(.text+0x3acc5): undefined reference to `sb_set_blocksize'
-> inode.c:(.text+0x3a393): undefined reference to `get_sb_bdev'
-> fs/built-in.o:(.data+0xd718): undefined reference to `kill_block_super
+[cut]
 
-Most fuse filesystems work fine without block device support, so I
-think a better solution is to disable the 'fuseblk' filesystem type if
-BLOCK=n.
+> +	  To compile this file system support as a module, choose M here: the
+> +	  module will be called ext2.  Be aware however that the file system
+                                ^^^^
+This should be 'ext4'?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-CC: Randy Dunlap <randy.dunlap@oracle.com>
+	With kind regards, Sander
 
----
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-11-19 21:09:19.000000000 +0100
-+++ linux/fs/fuse/inode.c	2006-11-19 23:12:03.000000000 +0100
-@@ -535,8 +535,10 @@ static int fuse_fill_super(struct super_
- 		return -EINVAL;
- 
- 	if (is_bdev) {
-+#ifdef CONFIG_BLOCK
- 		if (!sb_set_blocksize(sb, d.blksize))
- 			return -EINVAL;
-+#endif
- 	} else {
- 		sb->s_blocksize = PAGE_CACHE_SIZE;
- 		sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
-@@ -629,6 +631,14 @@ static int fuse_get_sb(struct file_syste
- 	return get_sb_nodev(fs_type, flags, raw_data, fuse_fill_super, mnt);
- }
- 
-+static struct file_system_type fuse_fs_type = {
-+	.owner		= THIS_MODULE,
-+	.name		= "fuse",
-+	.get_sb		= fuse_get_sb,
-+	.kill_sb	= kill_anon_super,
-+};
-+
-+#ifdef CONFIG_BLOCK
- static int fuse_get_sb_blk(struct file_system_type *fs_type,
- 			   int flags, const char *dev_name,
- 			   void *raw_data, struct vfsmount *mnt)
-@@ -637,13 +647,6 @@ static int fuse_get_sb_blk(struct file_s
- 			   mnt);
- }
- 
--static struct file_system_type fuse_fs_type = {
--	.owner		= THIS_MODULE,
--	.name		= "fuse",
--	.get_sb		= fuse_get_sb,
--	.kill_sb	= kill_anon_super,
--};
--
- static struct file_system_type fuseblk_fs_type = {
- 	.owner		= THIS_MODULE,
- 	.name		= "fuseblk",
-@@ -652,6 +655,26 @@ static struct file_system_type fuseblk_f
- 	.fs_flags	= FS_REQUIRES_DEV,
- };
- 
-+static inline int register_fuseblk(void)
-+{
-+	return register_filesystem(&fuseblk_fs_type);
-+}
-+
-+static inline void unregister_fuseblk(void)
-+{
-+	unregister_filesystem(&fuseblk_fs_type);
-+}
-+#else
-+static inline int register_fuseblk(void)
-+{
-+	return 0;
-+}
-+
-+static inline void unregister_fuseblk(void)
-+{
-+}
-+#endif
-+
- static decl_subsys(fuse, NULL, NULL);
- static decl_subsys(connections, NULL, NULL);
- 
-@@ -673,7 +696,7 @@ static int __init fuse_fs_init(void)
- 	if (err)
- 		goto out;
- 
--	err = register_filesystem(&fuseblk_fs_type);
-+	err = register_fuseblk();
- 	if (err)
- 		goto out_unreg;
- 
-@@ -688,7 +711,7 @@ static int __init fuse_fs_init(void)
- 	return 0;
- 
-  out_unreg2:
--	unregister_filesystem(&fuseblk_fs_type);
-+	unregister_fuseblk();
-  out_unreg:
- 	unregister_filesystem(&fuse_fs_type);
-  out:
-@@ -698,7 +721,7 @@ static int __init fuse_fs_init(void)
- static void fuse_fs_cleanup(void)
- {
- 	unregister_filesystem(&fuse_fs_type);
--	unregister_filesystem(&fuseblk_fs_type);
-+	unregister_fuseblk();
- 	kmem_cache_destroy(fuse_inode_cachep);
- }
- 
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

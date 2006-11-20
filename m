@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966769AbWKTVVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966784AbWKTVVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966769AbWKTVVa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 16:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966771AbWKTVVa
+	id S966784AbWKTVVi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 16:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966771AbWKTVVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 16:21:30 -0500
-Received: from mail.gmx.net ([213.165.64.20]:42219 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S966769AbWKTVV3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 16:21:29 -0500
-X-Authenticated: #20450766
-Date: Mon, 20 Nov 2006 22:21:27 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Alan <alan@lxorguk.ukuu.org.uk>, Stefan Roese <ml@stefan-roese.de>,
-       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH] serial: Use real irq on UART0 (IRQ = 0) on PPC4xx systems
-In-Reply-To: <20061120130455.GB22330@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.60.0611202210400.5957@poirot.grange>
-References: <200611201200.36780.ml@stefan-roese.de>
- <20061120114248.60bb0869@localhost.localdomain> <200611201255.37754.ml@stefan-roese.de>
- <20061120121015.2fb667d0@localhost.localdomain> <20061120130455.GB22330@flint.arm.linux.org.uk>
+	Mon, 20 Nov 2006 16:21:37 -0500
+Received: from avexch1.qlogic.com ([198.70.193.115]:24447 "EHLO
+	avexch1.qlogic.com") by vger.kernel.org with ESMTP id S966784AbWKTVVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 16:21:36 -0500
+Date: Mon, 20 Nov 2006 13:21:33 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-driver@qlogic.com, hch@infradead.org
+Subject: Re: [PATCH 2/2] Use mutex_lock_timeout in qla2xxx driver
+Message-ID: <20061120212133.GJ11420@andrew-vasquezs-computer.local>
+References: <20061109182721.GN16952@parisc-linux.org> <20061109183054.GO16952@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061109183054.GO16952@parisc-linux.org>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.12-2006-07-14
+X-OriginalArrivalTime: 20 Nov 2006 21:21:35.0281 (UTC) FILETIME=[DB7F3A10:01C70CE9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006, Russell King wrote:
+On Thu, 09 Nov 2006, Matthew Wilcox wrote:
 
-> > On Mon, 20 Nov 2006 12:54:32 +0100 (MET)
-> > Stefan Roese <ml@stefan-roese.de> wrote:
-> > > Let's see, if I got this right. You mean that on such a platform, where 0 is a 
-> > > valid physical IRQ, we should assign another value as virtual IRQ number (not 
-> > > 0 and not -1 of course). And then the platform "pic" implementation should 
-> > > take care of the remapping of these virtual IRQ numbers to the physical 
-> > > numbers.
+> qla2xxx can use a mutex instead of a semaphore for mailbox serialisation.
+> It can also use the new mutex_down_timeout function I introduced in
+> patch 1/2.
 > 
-> Since IRQ0 is not valid, can we arrange for the generic interrupt
-> infrastructure to always fail it's allocation, and then remove the
-> utterly unused bloatful irq_desc[0] ?
+> Compile-tested only (I don't have a qlogic card conveniently available
+> right now).
 > 
-> Didn't think so since x86 folk would scream.  Wait a moment, x86 can
-> map IRQ0 to some other number for the timer interrupt, just like
-> other architectures are being forced to map their UART interrupts.
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-I think, what Russell means, is this:
+Initial testing appears promising.
 
-#define is_real_interrupt(irq) ((irq) != NO_IRQ)
-
-where the NO_IRQ macro has been introduced a LONG time ago specifically 
-for this purpose, and is conveniently defined on some platforms to 
-(unsigned int)-1 or similar, including asm-powerpc/irq.h. And yes, this 
-has been discussed MANY times.
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Ack-by: Andrew Vasquez <andrew.vasquez@qlogic.com>

@@ -1,203 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966325AbWKTSL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966355AbWKTSNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966325AbWKTSL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966288AbWKTSKw
+	id S966355AbWKTSNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966339AbWKTSNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:10:52 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:57550 "EHLO
+	Mon, 20 Nov 2006 13:13:21 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:57594 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S934276AbWKTSHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:07:08 -0500
-Message-Id: <20061120180527.841828000@arndb.de>
+	id S934211AbWKTSHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:07:01 -0500
+Message-Id: <20061120180521.245775000@arndb.de>
 References: <20061120174454.067872000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Mon, 20 Nov 2006 18:45:15 +0100
+Date: Mon, 20 Nov 2006 18:44:57 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: cbe-oss-dev@ozlabs.org
 Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Kevin Corry <kevcorry@us.ibm.com>,
-       Carl Love <carll@us.ibm.com>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH 21/22] cell: add routines for managing PMU interrupts
-Content-Disposition: inline; filename=oprofile-for-cell-prereqs-new-routines-for-managing-pmu-interrupts.diff
+       Paul Mackerras <paulus@samba.org>,
+       Dwayne Grant McConnell <decimal@us.ibm.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [PATCH 03/22] spufs: Change %llx to 0x%llx.
+Content-Disposition: inline; filename=spufs-change-llx-to-0x-llx.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kevin Corry <kevcorry@us.ibm.com>
+From: Dwayne Grant McConnell <decimal@us.ibm.com>
+This patches changes /npc, /decr, /decr_status, /spu_tag_mask, 
+/event_mask, /event_status, and /srr0 files to provide output according to 
+the format string "0x%llx" instead of "%llx".
 
-The following routines are added to arch/powerpc/platforms/cell/pmu.c:
- cbe_clear_pm_interrupts()
- cbe_enable_pm_interrupts()
- cbe_disable_pm_interrupts()
- cbe_query_pm_interrupts()
- cbe_pm_irq()
- cbe_init_pm_irq()
+Before this patch some files used "0x%llx" and other used "%llx" which is 
+inconsistent and potentially confusing. A user might assume "%llx" numbers 
+were decimal if they happened to not contain any a-f digits. This change 
+will break any code cannot tolerate a leading 0x in the file contents. The 
+only known users of these files are the libspe but there might also be 
+some scripts which access these files. This risk is deemed acceptable for 
+future consistency.
 
-This also adds a routine in arch/powerpc/platforms/cell/interrupt.c and
-some macros in cbe_regs.h to manipulate the IIC_IR register:
- iic_set_interrupt_routing()
-
-Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
-Signed-off-by: Carl Love <carll@us.ibm.com>
+Signed-off-by: Dwayne Grant McConnell <decimal@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Index: linux-2.6/arch/powerpc/platforms/cell/pmu.c
+
+---
+Dwayne Grant McConnell <decimal@us.ibm.com>
+Lotus Notes Mail: Dwayne McConnell [Mail]/Austin/IBM@IBMUS
+Lotus Notes Calendar: Dwayne McConnell [Calendar]/Austin/IBM@IBMUS
+
+Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/pmu.c
-+++ linux-2.6/arch/powerpc/platforms/cell/pmu.c
-@@ -22,9 +22,11 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
-+#include <linux/interrupt.h>
- #include <linux/types.h>
- #include <asm/io.h>
- #include <asm/machdep.h>
-+#include <asm/pmc.h>
- #include <asm/reg.h>
- #include <asm/spu.h>
- 
-@@ -338,3 +340,71 @@ void cbe_read_trace_buffer(u32 cpu, u64 
+--- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
++++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
+@@ -1391,7 +1391,8 @@ static u64 spufs_npc_get(void *data)
+ 	spu_release(ctx);
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(cbe_read_trace_buffer);
+-DEFINE_SIMPLE_ATTRIBUTE(spufs_npc_ops, spufs_npc_get, spufs_npc_set, "%llx\n")
++DEFINE_SIMPLE_ATTRIBUTE(spufs_npc_ops, spufs_npc_get, spufs_npc_set,
++			"0x%llx\n")
  
-+/*
-+ * Enabling/disabling interrupts for the entire performance monitoring unit.
-+ */
-+
-+u32 cbe_query_pm_interrupts(u32 cpu)
-+{
-+	return cbe_read_pm(cpu, pm_status);
-+}
-+EXPORT_SYMBOL_GPL(cbe_query_pm_interrupts);
-+
-+u32 cbe_clear_pm_interrupts(u32 cpu)
-+{
-+	/* Reading pm_status clears the interrupt bits. */
-+	return cbe_query_pm_interrupts(cpu);
-+}
-+EXPORT_SYMBOL_GPL(cbe_clear_pm_interrupts);
-+
-+void cbe_enable_pm_interrupts(u32 cpu, u32 thread, u32 mask)
-+{
-+	/* Set which node and thread will handle the next interrupt. */
-+	iic_set_interrupt_routing(cpu, thread, 0);
-+
-+	/* Enable the interrupt bits in the pm_status register. */
-+	if (mask)
-+		cbe_write_pm(cpu, pm_status, mask);
-+}
-+EXPORT_SYMBOL_GPL(cbe_enable_pm_interrupts);
-+
-+void cbe_disable_pm_interrupts(u32 cpu)
-+{
-+	cbe_clear_pm_interrupts(cpu);
-+	cbe_write_pm(cpu, pm_status, 0);
-+}
-+EXPORT_SYMBOL_GPL(cbe_disable_pm_interrupts);
-+
-+static irqreturn_t cbe_pm_irq(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	perf_irq(regs);
-+	return IRQ_HANDLED;
-+}
-+
-+int __init cbe_init_pm_irq(void)
-+{
-+	unsigned int irq;
-+	int rc, node;
-+
-+	for_each_node(node) {
-+		irq = irq_create_mapping(NULL, IIC_IRQ_IOEX_PMI |
-+					       (node << IIC_IRQ_NODE_SHIFT));
-+		if (irq == NO_IRQ) {
-+			printk("ERROR: Unable to allocate irq for node %d\n",
-+			       node);
-+			return -EINVAL;
-+		}
-+
-+		rc = request_irq(irq, cbe_pm_irq,
-+				 IRQF_DISABLED, "cbe-pmu-0", NULL);
-+		if (rc) {
-+			printk("ERROR: Request for irq on node %d failed\n",
-+			       node);
-+			return rc;
-+		}
-+	}
-+
-+	return 0;
-+}
-+arch_initcall(cbe_init_pm_irq);
-+
-Index: linux-2.6/arch/powerpc/platforms/cell/interrupt.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/interrupt.c
-+++ linux-2.6/arch/powerpc/platforms/cell/interrupt.c
-@@ -396,3 +396,19 @@ void __init iic_init_IRQ(void)
- 	/* Enable on current CPU */
- 	iic_setup_cpu();
+ static void spufs_decr_set(void *data, u64 val)
+ {
+@@ -1413,7 +1414,7 @@ static u64 spufs_decr_get(void *data)
+ 	return ret;
  }
-+
-+void iic_set_interrupt_routing(int cpu, int thread, int priority)
-+{
-+	struct cbe_iic_regs __iomem *iic_regs = cbe_get_cpu_iic_regs(cpu);
-+	u64 iic_ir = 0;
-+	int node = cpu >> 1;
-+
-+	/* Set which node and thread will handle the next interrupt */
-+	iic_ir |= CBE_IIC_IR_PRIO(priority) |
-+		  CBE_IIC_IR_DEST_NODE(node);
-+	if (thread == 0)
-+		iic_ir |= CBE_IIC_IR_DEST_UNIT(CBE_IIC_IR_PT_0);
-+	else
-+		iic_ir |= CBE_IIC_IR_DEST_UNIT(CBE_IIC_IR_PT_1);
-+	out_be64(&iic_regs->iic_ir, iic_ir);
-+}
-Index: linux-2.6/arch/powerpc/platforms/cell/interrupt.h
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/interrupt.h
-+++ linux-2.6/arch/powerpc/platforms/cell/interrupt.h
-@@ -83,5 +83,7 @@ extern u8 iic_get_target_id(int cpu);
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_decr_ops, spufs_decr_get, spufs_decr_set,
+-			"%llx\n")
++			"0x%llx\n")
  
- extern void spider_init_IRQ(void);
+ static void spufs_decr_status_set(void *data, u64 val)
+ {
+@@ -1435,7 +1436,7 @@ static u64 spufs_decr_status_get(void *d
+ 	return ret;
+ }
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_decr_status_ops, spufs_decr_status_get,
+-			spufs_decr_status_set, "%llx\n")
++			spufs_decr_status_set, "0x%llx\n")
  
-+extern void iic_set_interrupt_routing(int cpu, int thread, int priority);
-+
- #endif
- #endif /* ASM_CELL_PIC_H */
-Index: linux-2.6/include/asm-powerpc/cell-pmu.h
-===================================================================
---- linux-2.6.orig/include/asm-powerpc/cell-pmu.h
-+++ linux-2.6/include/asm-powerpc/cell-pmu.h
-@@ -87,4 +87,9 @@ extern void cbe_disable_pm(u32 cpu);
+ static void spufs_spu_tag_mask_set(void *data, u64 val)
+ {
+@@ -1457,7 +1458,7 @@ static u64 spufs_spu_tag_mask_get(void *
+ 	return ret;
+ }
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_spu_tag_mask_ops, spufs_spu_tag_mask_get,
+-			spufs_spu_tag_mask_set, "%llx\n")
++			spufs_spu_tag_mask_set, "0x%llx\n")
  
- extern void cbe_read_trace_buffer(u32 cpu, u64 *buf);
+ static void spufs_event_mask_set(void *data, u64 val)
+ {
+@@ -1479,7 +1480,7 @@ static u64 spufs_event_mask_get(void *da
+ 	return ret;
+ }
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_event_mask_ops, spufs_event_mask_get,
+-			spufs_event_mask_set, "%llx\n")
++			spufs_event_mask_set, "0x%llx\n")
  
-+extern void cbe_enable_pm_interrupts(u32 cpu, u32 thread, u32 mask);
-+extern void cbe_disable_pm_interrupts(u32 cpu);
-+extern u32  cbe_query_pm_interrupts(u32 cpu);
-+extern u32  cbe_clear_pm_interrupts(u32 cpu);
-+
- #endif /* __ASM_CELL_PMU_H__ */
-Index: linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/cbe_regs.h
-+++ linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
-@@ -185,6 +185,14 @@ struct cbe_iic_regs {
- 	struct	cbe_iic_thread_regs thread[2];			/* 0x0400 */
+ static void spufs_srr0_set(void *data, u64 val)
+ {
+@@ -1501,7 +1502,7 @@ static u64 spufs_srr0_get(void *data)
+ 	return ret;
+ }
+ DEFINE_SIMPLE_ATTRIBUTE(spufs_srr0_ops, spufs_srr0_get, spufs_srr0_set,
+-			"%llx\n")
++			"0x%llx\n")
  
- 	u64	iic_ir;						/* 0x0440 */
-+#define CBE_IIC_IR_PRIO(x)      (((x) & 0xf) << 12)
-+#define CBE_IIC_IR_DEST_NODE(x) (((x) & 0xf) << 4)
-+#define CBE_IIC_IR_DEST_UNIT(x) ((x) & 0xf)
-+#define CBE_IIC_IR_IOC_0        0x0
-+#define CBE_IIC_IR_IOC_1S       0xb
-+#define CBE_IIC_IR_PT_0         0xe
-+#define CBE_IIC_IR_PT_1         0xf
-+
- 	u64	iic_is;						/* 0x0448 */
- #define CBE_IIC_IS_PMI		0x2
- 
+ static u64 spufs_id_get(void *data)
+ {
 
 --
 

@@ -1,200 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966462AbWKTWQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966867AbWKTWQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966462AbWKTWQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966373AbWKTWQM
+	id S966867AbWKTWQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966873AbWKTWQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:16:12 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:40535 "HELO
+	Mon, 20 Nov 2006 17:16:07 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:56919 "HELO
 	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966866AbWKTWPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:15:50 -0500
+	id S966868AbWKTWPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:15:54 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=F9f9s4J2rZuwLtQsmdCCbeap4QfMm4rb9t5ssgHs8V3Gjw8GymOfRV+aVPNIrkHMF+BxV8soJC2dVYaYPujpcOuIGFgdgeRhxVbR5wRVtkaeD06PYZ+SwXwS7ia1o4dnlxho+elVn9u430FX5aLseRj0zjkfe+xvGoOCW3uqpNM=  ;
-X-YMail-OSG: _Z8X3sYVM1lmVZbLA2KmV2aHacFAkqEQFkacRNsmYlAARQpUKJ9rL_XOZpPLjQSTA_xlm9Qz7ozoBqYZjEgT1Xoh9kTyiTncgnodXsYe6CdlmvRWJTjXmpYwFCkLrW_oWZciJHxwRafU71G2XPXa4GABpCMi6ZT96v8-
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=rX8ueLcrHYpqAO+JcHbA22AJvt9o1ORPLy/eejFrofqD/+vUiekul+rou/P50UKcNe2x170a75F5kX9BFqlQDbBvAlW0iXDQ2cHZjNP7riBQF5LcVon4NI0lWA6qSnflDWOlkSEdT8Bh1G6dI1QIHz89r7fq10XvgvMcG1zz5Qc=  ;
+X-YMail-OSG: HUzXJ6IVM1llu1wEzzBxxBcJ6CIUe4N9ZbLhFdAy1VrNAxLpQYwcK.aI2E3w5d049g27clEb72xxmKy1Ap8gXve320V.7b8lqN14mz7v1.5Wi9pojefAykiIxkPeV3fPowTHvoIv.S0t1DAhYICPuQE22aLYz5nuglo-
 From: David Brownell <david-b@pacbell.net>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: Re: [RFC/PATCH] arch-neutral GPIO calls: AVR32 implementation
-Date: Mon, 20 Nov 2006 13:47:08 -0800
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
+Date: Mon, 20 Nov 2006 14:15:17 -0800
 User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>, jamey.hicks@hp.com,
+Cc: Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Bill Gatliff <bgat@billgatliff.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
        Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <20061116155455.3833f3a4@cad-250-152.norway.atmel.com>
-In-Reply-To: <20061116155455.3833f3a4@cad-250-152.norway.atmel.com>
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>,
+       Paul Mundt <lethal@linux-sh.org>
+References: <200611111541.34699.david-b@pacbell.net> <4558C794.90602@billgatliff.com> <20061113201535.GA20388@linux-sh.org>
+In-Reply-To: <20061113201535.GA20388@linux-sh.org>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611201415.19095.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611201347.10331.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 November 2006 6:54 am, Haavard Skinnemoen wrote:
-> On Sat, 11 Nov 2006 15:41:32 -0800
-> David Brownell <david-b@pacbell.net> wrote:
-> 
-> > Below, find what I think is a useful proposal, trivially
-> > implementable on many ARMs (at91, omap, pxa, ep93xx, ixp2000,
-> > pnx4008, davinci, more) as well as the new AVR32.
-> 
-> FYI, here's the AVR32 implementation of the API you propose. Thanks for
-> writing this up, Dave.
-> 
-> I'm still not sure about how to implement the
-> gpio_request()/gpio_free() calls, though.
+OK, just trying to summarize here:
 
-Simplest would be to manipulate a bitmask:
+ - Nobody has reported **ANY** real problem with the API, other than a minor
+   comment from Andrew Victor about a must_check annotation (resolved in a
+   nyet-posted update).  No surprise; there are already nearly a dozen APIs
+   in the kernel doing exactly the same thing.
 
-  gpio_request() --> return test_and_set_bit(...) ? -EBUSY : 0;
-  gpio_free() --> clear_bit(...)
+ - Various folk want to see an additional API that can work with things like
+   I2C GPIO expanders ... where the bit get/set calls require task contexts.
+   Everyone agrees such a thing is eventually needed, but nobody needs it
+   "today".
 
-Or if you want to track the identifiers and provide a debugfs dump
-of the active GPIOs and their status, use an array of strings (and
-spinlock its updates) or nuls as "fat bits", instead of a bit array.  
+ - There's interest in a userspace interface to GPIOs; nothing pressing, and
+   that's at a different level, but worth noting since it always comes up.
 
+ - Paul Mundt also wants to see pin muxing APIs.  Fine, but that's both
+   orthogonal and highly platform-specific.  I can't support trying to
+   merge it into the generic notion of a GPIO line.
 
-> Since they're not supposed to 
-> do any port configuration, I think I might convert them to no-ops and
-> do the allocation (and warn about conflicts) when configuring the port
-> multiplexer.
+ - Paul also wants to see implementations package multiple sync/atomic GPIO
+   controllers using this API.  The API that I pulled together clearly permits
+   implementations to do that ... but it does not require them to do so.
 
-What they're supposed to do is report conflicts between two
-drivers which both think they own the GPIO ... as errors.
-
-That's different from pin mux setup, which for most embedded
-systems is just making sure the SOC is configured to match
-what Linux expects.  The boot loader usualy does some of that,
-but it's probably not validated to do more than reliably boot
-an operating system ... so pin muxing can't realistically
-report anything as an error.  At best, it's a suggestion to
-update the bootloader someday.
-
-
->	 Since the pin will be configured for one particular usage, 
-> having multiple drivers try to use it will cause problems and handing
-> it out to the first driver that comes along will not really solve
-> anything...
-
-No, but letting the second one report the fatal error is a big help.
-And heck, you've got reasonable chance the first driver will work,
-if the second doesn't interfere with it!  (Or maybe it's the other
-way around.  At least you'd have logged a fatal error message ...)
-
- 
-> Of course, if other arches want gpio_request()/gpio_free(), I'm all for
-> keeping them.
-
-I thought you were someone who _wanted_ this mechanism?
-Or were you instead thinking of a pin mux mechanism?
-
-There can be no arch-neutral pin muxing that takes just
-a GPIO number as input (which is how gpio_request works).
-The reason is that there are platforms which need muxing,
-and which have multiple options as to which pin a given
-GPIO goes out on (and contrariwise, which GPIO is coupled
-to a given pin). 
-
-
-> +int gpio_request(unsigned int gpio, const char *label)
-> +{
-> +	struct pio_device *pio;
-> +	unsigned int pin;
-> +
-> +	pio = gpio_to_pio(gpio);
-> +	if (!pio)
-> +		return -ENODEV;
-> +
-> +	pin = gpio & 0x1f;
-> +	if (test_and_set_bit(pin, &pio->alloc_mask))
-> +		return -EBUSY;
-> +
-> +	pio_writel(pio, PER, 1 << pin);
-
-Enabling the pin as a GPIO is a pin mux responsibility, not
-a "keep drivers from stepping all over each other" thing.
-
-Admittedly, the GPIO controller in those Atmel chips (AVR32,
-AT91) does have a one-to-one mapping for muxable pins and GPIOs,
-but that's not a portable notion.
-
-
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(gpio_request);
-> +
-> +void gpio_free(unsigned int gpio)
-> +{
-> +	struct pio_device *pio;
-> +	unsigned int pin;
-> +
-> +	pio = gpio_to_pio(gpio);
-> +	BUG_ON(!pio);
-
-Don't use BUG_ON in new code ... in this case it'd be best to just
-warn and return.  Notice by the way that this isn't an inverse of
-the gpio_request(), since you aren't taking the pin back from the
-GPIO controller.
-
-
-
-
-> +#define GPIO_PIOA_BASE	(0)
-> +#define GPIO_PIN_PA0	(GPIO_PIOA_BASE +  0)
-> +#define GPIO_PIN_PA1	(GPIO_PIOA_BASE +  1)
-> +#define GPIO_PIN_PA2	(GPIO_PIOA_BASE +  2)
-> ...
-
-Someone had the suggestion to reduce the number of #defines
-by doing someting like
-
-  #define GPIO_PIN_PA(N) (GPIO_PIOA_BASE + (N))
-  #define GPIO_PIN_PB(N) (GPIO_PIOB_BASE + (N))
-  #define GPIO_PIN_PC(N) (GPIO_PIOC_BASE + (N))
-  #define GPIO_PIN_PD(N) (GPIO_PIOD_BASE + (N))
-
-I kind of like that, even if it's not such a direct match to
-Atmel's documentation.
-
-
-> --- /dev/null
-> +++ b/include/asm-avr32/arch-at32ap/gpio.h
-> @@ -0,0 +1,25 @@
-> +#ifndef __ASM_AVR32_GPIO_H
-> +#define __ASM_AVR32_GPIO_H
-> +
-> +#include <linux/compiler.h>
-> +#include <asm/irq.h>
-> +
-> +int __must_check gpio_request(unsigned int gpio, const char *label);
-> +void gpio_free(unsigned int gpio);
-> +
-> +int gpio_direction_input(unsigned int gpio);
-> +int gpio_direction_output(unsigned int gpio);
-> +int gpio_get_value(unsigned int gpio);
-> +void gpio_set_value(unsigned int gpio, int value);
-> +
-> +static inline int gpio_to_irq(unsigned int gpio)
-> +{
-> +	return gpio + GPIO_IRQ_BASE;
-> +}
-> +
-> +static inline int irq_to_gpio(unsigned int irq)
-> +{
-> +	return irq - GPIO_IRQ_BASE;
-> +}
-> +
-> +#endif /* __ASM_AVR32_GPIO_H */
-
-Aren't you going to want to add AVR-specific extensions so that
-drivers (or more typically, board init code) can manage pullups
-and input de-glitching?
+I could certainly take all that feedback and let it lead me to some particular
+implementation -- example, a table of { controller, index, flags } structs indexed
+by the GPIO numbers, with controller ops vectors matching the primitives -- but
+even if that were to happen, I'd like to know if anyone has any major disagreement
+with the summary above.
 
 - Dave
-

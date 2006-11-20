@@ -1,174 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966294AbWKTR4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966261AbWKTR5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966294AbWKTR4J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966295AbWKTR4J
+	id S966261AbWKTR5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966284AbWKTR5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:56:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14551 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S966294AbWKTR4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:56:06 -0500
-Date: Mon, 20 Nov 2006 18:55:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi type IRQ handlers
-Message-ID: <20061120175502.GA12733@elte.hu>
-References: <1163966437.5826.99.camel@localhost.localdomain> <20061119200650.GA22949@elte.hu> <1163967590.5826.104.camel@localhost.localdomain> <20061119202348.GA27649@elte.hu> <1163985380.5826.139.camel@localhost.localdomain> <20061120100144.GA27812@elte.hu> <4561C9EC.3020506@ru.mvista.com> <20061120165621.GA1504@elte.hu> <4561DFE1.4020708@ru.mvista.com> <20061120172642.GA8683@elte.hu>
+	Mon, 20 Nov 2006 12:57:24 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:29390 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S966296AbWKTR5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:57:23 -0500
+Date: Mon, 20 Nov 2006 18:57:21 +0100
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: avl@logic.at, linux-kernel@vger.kernel.org
+Subject: Re: possible bug in ide-disk.c (2.6.18.2 but also older)
+Message-ID: <20061120175721.GT6851@gamma.logic.tuwien.ac.at>
+Reply-To: avl@logic.at
+References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at> <20061120152505.5d0ba6c5@localhost.localdomain> <20061120165601.GS6851@gamma.logic.tuwien.ac.at> <20061120172812.64837a0a@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061120172642.GA8683@elte.hu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.5 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20061120172812.64837a0a@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+From: Andreas Leitgeb <avl@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 20, 2006 at 05:28:12PM +0000, Alan wrote:
+> > Alternatively, a kernel-option to manually disable hpa-checking
+> > would be a good step to solve the problem even for drives like mine.
+> It's a compile time option. If you don't have GPT partitioning support
+> then the system ought to behave correctly.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+To me it now seems that my symptoms have twofold cause:
+  -) misinterpretation of that drive's reported number of sectors.
+  -) accessing the last reported sector in search for a GPT.
 
-> i'm hacking up something now to see whether it makes sense to 
-> introduce a central threaded flow type, or whether it's better the 
-> branch off the current flow types (as the code does it right now).
+If I turn off GPT, then perhaps the last (non-existent-but-
+believed-by-the-kernel-to-exist) sector is likely never ever
+accessed, and therefore the dma-switching-off doesn't happen.
+(Well, at least not at boot time, but still, if anyone did 
+"dd if=/dev/hda ..." without limiting count=...)
 
-ok, a central flow type caused more problems than good - the main 
-complication is that the handler needs to know the true 'flow' 
-(edge/level/fasteoi, etc.) anyway, even in the threaded case.
+Otoh, patching out this "addr++;" leads to the GPT-test to 
+access a valid (in HD's view) sector which contains (who knows,
+I even might have a GPT without being aware) or doesn't contain
+a GPT, but anyway everthing works.
 
-So i rather went on making the existing flow handlers more 
-threading-friendly, and undoing the x86_64 and i386 arch changes to make 
-sure that the default handlers all work fine. Does the patch below 
-(against -rt4) do the trick for your on PPC too?
+This does make sense to me.
+Please let me know if this makes no sense
+  to anyone really knowing ide-stuff.
 
-[ also, i excluded old-style do_IRQ() platforms from irq threading -
-  those hopelessly mix all the flow types that makes robust threading
-  support not really possible. ]
-
-	Ingo
-
-Index: linux/arch/i386/kernel/io_apic.c
-===================================================================
---- linux.orig/arch/i386/kernel/io_apic.c
-+++ linux/arch/i386/kernel/io_apic.c
-@@ -1272,22 +1272,12 @@ static struct irq_chip ioapic_chip;
- static void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
- 	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--			trigger == IOAPIC_LEVEL) {
--#ifdef CONFIG_PREEMPT_HARDIRQS
-+			trigger == IOAPIC_LEVEL)
- 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					    handle_level_irq, "level-threaded");
--#else
--		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					      handle_fasteoi_irq, "fasteoi");
--#endif
--	} else {
--#ifdef CONFIG_PREEMPT_HARDIRQS
-+					 handle_fasteoi_irq, "fasteoi");
-+	else {
- 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					      handle_edge_irq, "edge-threaded");
--#else
--		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					      handle_edge_irq, "edge");
--#endif
-+					 handle_edge_irq, "edge");
- 	}
- 	set_intr_gate(vector, interrupt[irq]);
- }
-Index: linux/arch/x86_64/kernel/io_apic.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/io_apic.c
-+++ linux/arch/x86_64/kernel/io_apic.c
-@@ -787,22 +787,12 @@ static struct irq_chip ioapic_chip;
- static void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
- 	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--			trigger == IOAPIC_LEVEL) {
--#ifdef CONFIG_PREEMPT_HARDIRQS
--		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					    handle_level_irq, "level-threaded");
--#else
-+			trigger == IOAPIC_LEVEL)
- 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
- 					      handle_fasteoi_irq, "fasteoi");
--#endif
--	} else {
--#ifdef CONFIG_PREEMPT_HARDIRQS
--		set_irq_chip_and_handler_name(irq, &ioapic_chip,
--					      handle_edge_irq, "edge-threaded");
--#else
-+	else {
- 		set_irq_chip_and_handler_name(irq, &ioapic_chip,
- 					      handle_edge_irq, "edge");
--#endif
- 	}
- }
- 
-Index: linux/kernel/Kconfig.preempt
-===================================================================
---- linux.orig/kernel/Kconfig.preempt
-+++ linux/kernel/Kconfig.preempt
-@@ -105,7 +105,7 @@ config PREEMPT_SOFTIRQS
- config PREEMPT_HARDIRQS
- 	bool "Thread Hardirqs"
- 	default n
--#	depends on PREEMPT
-+	depends on !GENERIC_HARDIRQS_NO__DO_IRQ
- 	help
- 	  This option reduces the latency of the kernel by 'threading'
-           hardirqs. This means that all (or selected) hardirqs will run
-Index: linux/kernel/irq/chip.c
-===================================================================
---- linux.orig/kernel/irq/chip.c
-+++ linux/kernel/irq/chip.c
-@@ -238,8 +238,10 @@ static inline void mask_ack_irq(struct i
- 	if (desc->chip->mask_ack)
- 		desc->chip->mask_ack(irq);
- 	else {
--		desc->chip->mask(irq);
--		desc->chip->ack(irq);
-+		if (desc->chip->mask)
-+			desc->chip->mask(irq);
-+		if (desc->chip->mask)
-+			desc->chip->ack(irq);
- 	}
- }
- 
-Index: linux/kernel/irq/handle.c
-===================================================================
---- linux.orig/kernel/irq/handle.c
-+++ linux/kernel/irq/handle.c
-@@ -266,12 +266,6 @@ fastcall notrace unsigned int __do_IRQ(u
- 		goto out;
- 
- 	/*
--	 * hardirq redirection to the irqd process context:
--	 */
--	if (redirect_hardirq(desc))
--		goto out_no_end;
--
--	/*
- 	 * Edge triggered interrupts need to remember
- 	 * pending events.
- 	 * This applies to any hw interrupts that allow a second
-@@ -303,7 +297,6 @@ out:
- 	 * disabled while the handler was running.
- 	 */
- 	desc->chip->end(irq);
--out_no_end:
- 	spin_unlock(&desc->lock);
- 
- 	return 1;
+PS: If it weren't that the failure to access that last sector
+    caused dma to be turned off, I'd never have noticed anything
+    special.

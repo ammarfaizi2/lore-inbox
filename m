@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965914AbWKTP3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965920AbWKTPfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965914AbWKTP3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 10:29:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965916AbWKTP3g
+	id S965920AbWKTPfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 10:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965921AbWKTPfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 10:29:36 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:35080 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965914AbWKTP3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 10:29:35 -0500
-Date: Mon, 20 Nov 2006 15:29:27 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tony Olech <tony.olech@elandigitalsystems.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Linux kernel development <linux-kernel@vger.kernel.org>,
-       PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
-       David Hinds <dahinds@users.sourceforge.net>,
-       Jaroslav Kysela <perex@suse.cz>,
-       Bart Prescott <bart.prescott@elandigitalsystems.com>
-Subject: Re: [PATCH] PCMCIA identification strings for cards manufactured by Elan
-Message-ID: <20061120152927.GA26791@flint.arm.linux.org.uk>
-Mail-Followup-To: Tony Olech <tony.olech@elandigitalsystems.com>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Linux kernel development <linux-kernel@vger.kernel.org>,
-	PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
-	David Hinds <dahinds@users.sourceforge.net>,
-	Jaroslav Kysela <perex@suse.cz>,
-	Bart Prescott <bart.prescott@elandigitalsystems.com>
-References: <200611201214.kAKCErcU005240@imap.elan.private> <20061120130237.GA22330@flint.arm.linux.org.uk> <1164032582.30853.36.camel@n04-143.elan.private>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164032582.30853.36.camel@n04-143.elan.private>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Nov 2006 10:35:18 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:48288 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S965920AbWKTPfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 10:35:16 -0500
+Message-ID: <4561CB33.2060502@s5r6.in-berlin.de>
+Date: Mon, 20 Nov 2006 16:35:15 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] WorkStruct: Separate delayable and non-delayable
+ events.
+References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com> <20061120142716.12685.47219.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20061120142716.12685.47219.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 02:23:02PM +0000, Tony Olech wrote:
-> Hi,
-> The strings came from our company product database.
-> I do not have the time to track down examples of each
-> varient, but here are the two I have been testing with:
-> 
-> Socket 0:
->   product info: "Elan", "Serial+Parallel Port: SP230", "1.00",
-> "KIT:K51477-006           "
->   manfid: 0x015d, 0x4c45
->   function: 2 (serial)
-> 
-> Socket 1:
->   product info: "Elan", "Serial Port: SL332", "1.01", "KIT:K51520-027
-> "
->   manfid: 0x015d, 0x4c45
->   function: 2 (serial)
-> 
-> AND NO, matching on function ID just randomly locked up the
-> kernel, but now I think that was because of the "pdaudiocf"
-> module and its MANF_ID/CARD_ID number matching.
+David Howells wrote:
+> Separate delayable work items from non-delayable work items be splitting them
+> into a separate structure (dwork_struct), which incorporates a work_struct and
+> the timer_list removed from work_struct.
+...
+>  	if (!delay)
+> -		rc = queue_work(ata_wq, &ap->port_task);
+> +		rc = queue_dwork(ata_wq, &ap->port_task);
+>  	else
+>  		rc = queue_delayed_work(ata_wq, &ap->port_task, delay);
+...
 
-The obvious question is - if you only remove the IDs from pdaudiocf, does
-it then work?
+A consequent (if somewhat silly) name for queue_delayed_work would be
+queue_delayed_dwork, since it requires a struct dwork_struct.
 
+Are there many or frequent usages of "undelayed delayable work" like
+above, where runtime decides if a delay is necessary? If not,
+queue_dwork could be removed from the API and queue_(delayed_|d)work be
+called with delay=0.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Stefan Richter
+-=====-=-==- =-== =-=--
+http://arcgraph.de/sr/

@@ -1,107 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966680AbWKTUtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966695AbWKTUxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966680AbWKTUtu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966690AbWKTUtu
+	id S966695AbWKTUxf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966698AbWKTUxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:49:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:38032 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S966680AbWKTUtt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:49:49 -0500
-Date: Mon, 20 Nov 2006 12:51:06 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061120205106.GI8033@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20061120185712.GA95@oleg> <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
+	Mon, 20 Nov 2006 15:53:35 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:38843 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S966695AbWKTUxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 15:53:34 -0500
+Date: Mon, 20 Nov 2006 15:52:56 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Pavel Emelianov <xemul@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@redhat.com, Kirill Korotaev <dev@openvz.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Fix misrouted interrupts deadlocks
+Message-ID: <20061120205256.GB6141@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <455484E4.1020100@openvz.org> <20061120192335.GA11879@in.ibm.com> <20061120195652.GA6141@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061120195652.GA6141@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 03:01:59PM -0500, Alan Stern wrote:
-> On Mon, 20 Nov 2006, Oleg Nesterov wrote:
+On Mon, Nov 20, 2006 at 02:56:52PM -0500, Vivek Goyal wrote:
+> On Mon, Nov 20, 2006 at 02:23:35PM -0500, Vivek Goyal wrote:
+> > On Fri, Nov 10, 2006 at 04:55:48PM +0300, Pavel Emelianov wrote:
+> > > As the second lock on booth CPUs is taken before checking that
+> > > this irq is being handled in another processor this may cause
+> > > a deadlock. This issue is only theoretical.
+> > > 
+> > > I propose the attached patch to fix booth problems: when trying
+> > > to handle misrouted IRQ active desc->lock may be unlocked.
+> > > 
+> > > Please comment.
+> > 
+> > > --- ./kernel/irq/spurious.c.irqlockup	2006-11-09 11:19:10.000000000 +0300
+> > > +++ ./kernel/irq/spurious.c	2006-11-10 16:53:38.000000000 +0300
+> > > @@ -147,7 +147,11 @@ void note_interrupt(unsigned int irq, st
+> > >  	if (unlikely(irqfixup)) {
+> > >  		/* Don't punish working computers */
+> > >  		if ((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE) {
+> > > -			int ok = misrouted_irq(irq);
+> > > +			int ok;
+> > > +
+> > > +			spin_unlock(&desc->lock);
+> > > +			ok = misrouted_irq(irq);
+> > > +			spin_lock(&desc->lock);
+> > 
+> > Hi Pavel,
+> > 
+> > Till -rc5, I was able to boot a kernel with irqpoll option and in -rc6 I 
+> > can't. It simply hangs. I suspect it is realted to this change. I have yet
+> > to confirm that. But before that one observation.
+> > 
 > 
-> > On 11/20, Alan Stern wrote:
-> > >
-> > > @@ -158,6 +199,11 @@ void synchronize_srcu(struct srcu_struct
-> > >
-> > > [... snip ...]
-> > >
-> > > +#ifdef	SMP__STORE_MB_LOAD_WORKS	/* The fast path */
-> > > +	if (srcu_readers_active_idx(sp, idx) == 0)
-> > > +		goto done;
-> > > +#endif
-> >
-> > I guess this is connected to another message from you,
+> Hi Pavel,
 > 
-> Yes.
-> 
-> > > But of course it _is_ needed for the fastpath to work.  In fact, it might
-> > > not be good enough, depending on the architecture.  Here's what the
-> > > fastpath ends up looking like (using c[idx] is essentially the same as
-> > > using hardluckref):
-> > >
-> > >         WRITER                          READER
-> > >         ------                          ------
-> > >         dataptr = &(new data)           atomic_inc(&hardluckref)
-> > >         mb                              mb
-> > >         while (hardluckref > 0) ;       access *dataptr
-> > >
-> > > Notice the pattern: Each CPU does store-mb-load.  It is known that on
-> > > some architectures each CPU can end up loading the old value (the value
-> > > from before the other CPU's store).  This would mean the writer would see
-> > > hardluckref == 0 right away and the reader would see the old dataptr.
-> >
-> > So, if we have global A == B == 0,
-> >
-> > 	CPU_0		CPU_1
-> >
-> > 	A = 1;		B = 2;
-> > 	mb();		mb();
-> > 	b = B;		a = A;
-> >
-> > It could happen that a == b == 0, yes?
-> 
-> Exactly.
-> 
-> > Isn't this contradicts with definition
-> > of mb?
-> 
-> One might think so, at first.  But if you do a careful search, you'll find
-> that there _is_ no definition of mb!  People state in vague terms what
-> it's supposed to do, but they are almost never specific enough to tell
-> whether the example above should work.
+> If I backout your changes, everything works fine. So it looks like that
+> the problem I am facing is because of your patch but I don't have a logical
+> explanation yet that why the problem is there. Just realasing a lock
+> which is not currently acquired should not hang the system?
+>
+Some more data regarding this issue.
 
-Yep -- mb() is currently defined only for specific CPUs.  :-/
+For my system it gets locked in following sequence.
 
-Some Linux kernel code has been written by considering each SMP-capable
-CPU in turn, but that does not scale with increasing numbers of SMP-capable
-CPUs.
+handle_level_irq() {
+	spin_unlock(desc->lock)
+	......
+	note_interrupt() {
+		/* Called without desc->lock held */
+		spin_unlock(desc->lock)
+		misrouted_irq()
+		spin_lock(desc->lock)	
+	}
+	spin_lock(desc->lock) /* Lockup */ 	
+}
 
-> > By definition, when CPU_0 issues 'b = B', 'A = 1' should be visible to other
-> > CPUs, yes?
-> 
-> No.  Memory barriers don't guarantee that any particular store will become
-> visible to other CPUs at any particular time.  They guarantee only that a
-> certain sequence of stores will become visible in a particular order
-> (provided the other CPUs also use the correct memory barriers).
-> 
-> >  Now, b == 0 means that CPU_1 did not read 'a = A' yet, otherwise
-> > 'B = 2' should be visible to all CPUs (by definition again).
-> >
-> > Could you please clarify this?
-> 
-> Here's an example showing how the code can fail.  (Paul can correct me if
-> I get this wrong.)
+So basically problems seems to be due to calling conventions of
+note_interrupt(). In few cases we call it with desc->lock held and in other
+cases we call it with desc->lock not held.
 
-Looks good to me!
+I guess, note_interrupt() should restore the desc->lock status back to the 
+state of the lock when function was entered so that caller does not lockup.
 
-							Thanx, Paul
+Thanks
+Vivek

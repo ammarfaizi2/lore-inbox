@@ -1,59 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966334AbWKTSUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966363AbWKTS14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966334AbWKTSUc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966314AbWKTSUb
+	id S966363AbWKTS14 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966364AbWKTS14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:20:31 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.158]:61799 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S966334AbWKTSUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:20:30 -0500
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
-	type IRQ handlers
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061120175502.GA12733@elte.hu>
-References: <1163966437.5826.99.camel@localhost.localdomain>
-	 <20061119200650.GA22949@elte.hu>
-	 <1163967590.5826.104.camel@localhost.localdomain>
-	 <20061119202348.GA27649@elte.hu>
-	 <1163985380.5826.139.camel@localhost.localdomain>
-	 <20061120100144.GA27812@elte.hu> <4561C9EC.3020506@ru.mvista.com>
-	 <20061120165621.GA1504@elte.hu> <4561DFE1.4020708@ru.mvista.com>
-	 <20061120172642.GA8683@elte.hu>  <20061120175502.GA12733@elte.hu>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 10:20:18 -0800
-Message-Id: <1164046818.3028.31.camel@localhost.localdomain>
+	Mon, 20 Nov 2006 13:27:56 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:13959 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S966363AbWKTS1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:27:55 -0500
+Date: Mon, 20 Nov 2006 10:24:38 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: zippel@linux-m68k.org, jes@trained-monkey.org
+Cc: Adrian Bunk <bunk@stusta.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xconfig segfault
+Message-Id: <20061120102438.94ff4b0a.randy.dunlap@oracle.com>
+In-Reply-To: <4560FB07.2040102@oracle.com>
+References: <20061119161231.e509e5bf.randy.dunlap@oracle.com>
+	<20061120004147.GC31879@stusta.de>
+	<4560FB07.2040102@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-20 at 18:55 +0100, Ingo Molnar wrote:
-> Index: linux/kernel/irq/chip.c
-> ===================================================================
-> --- linux.orig/kernel/irq/chip.c
-> +++ linux/kernel/irq/chip.c
-> @@ -238,8 +238,10 @@ static inline void mask_ack_irq(struct i
->         if (desc->chip->mask_ack)
->                 desc->chip->mask_ack(irq);
->         else {
-> -               desc->chip->mask(irq);
-> -               desc->chip->ack(irq);
-> +               if (desc->chip->mask)
-> +                       desc->chip->mask(irq);
-> +               if (desc->chip->mask)
-> +                       desc->chip->ack(irq);
->         }
->  } 
+On Sun, 19 Nov 2006 16:47:03 -0800 Randy Dunlap wrote:
+
+> Adrian Bunk wrote:
+> > On Sun, Nov 19, 2006 at 04:12:31PM -0800, Randy Dunlap wrote:
+> >> make xconfig is segfaulting on me in 2.6.19-rc6 and later
+> >> when I do ^F (find/search).
+> >> Works fine in 2.6.19-rc5 and earlier.
+> >>
+> >> The only message log I get is:
+> >>
+> >> qconf[5839]: segfault at 0000000000000008 rip 00000000004289bc rsp 00007fffa08ccf10 error 4
+> >>
+> >> I don't see any changes in scripts/kconfig/* in 2.6.19-rc6.
+> >> Any ideas/suggestions?
+> > 
+> > Works fine for me in -rc6.
+> > 
+> > Did you upgrade Qt, or could there be any other local change that broke 
+> > it for you?
+> 
+> Didn't upgrade Qt.  I started out suspecting that it was a local change
+> that broke it, like a library, but I rebuilt/re-tested 2.6.19-rc[123456]
+> and rc1..rc5 all work for me, while rc6 segfaults.
+> And rc6 works for me on an i386/i686 machine, but fails on x86_64.
+
+I found the problem patch, but not the root cause.
+
+The xconfig segfault begins in 2.6.19-rc5-git3 (-git2 is OK).
+A relatively simple Kconfig change causes it (but why?).
+
+(Note:  The running kernel doesn't matter, just which kernel tree
+is being viewed/config-ed.)
+
+If I back out the patches below, -git3 (xconfig ^F find/search)
+works for me.
+
+---
+~Randy
 
 
-Did you mean to check ->mask both times here?
-
-Daniel
-
+diff -Naurp -X linux-2.6.19-rc5-git2/Documentation/dontdiff linux-2.6.19-rc5-git2/drivers/char/Kconfig linux-2.6.19-rc5-git3/drivers/char/Kconfig
+--- linux-2.6.19-rc5-git2/drivers/char/Kconfig	2006-11-20 08:47:26.000000000 -0800
++++ linux-2.6.19-rc5-git3/drivers/char/Kconfig	2006-11-20 08:48:34.000000000 -0800
+@@ -409,14 +409,6 @@ config SGI_MBCS
+          If you have an SGI Altix with an attached SABrick
+          say Y or M here, otherwise say N.
+ 
+-config MSPEC
+-	tristate "Memory special operations driver"
+-	depends on IA64
+-	help
+-	  If you have an ia64 and you want to enable memory special
+-	  operations support (formerly known as fetchop), say Y here,
+-	  otherwise say N.
+-
+ source "drivers/serial/Kconfig"
+ 
+ config UNIX98_PTYS
+diff -Naurp -X linux-2.6.19-rc5-git2/Documentation/dontdiff linux-2.6.19-rc5-git2/arch/ia64/Kconfig linux-2.6.19-rc5-git3/arch/ia64/Kconfig
+--- linux-2.6.19-rc5-git2/arch/ia64/Kconfig	2006-11-20 08:47:41.000000000 -0800
++++ linux-2.6.19-rc5-git3/arch/ia64/Kconfig	2006-11-20 08:48:34.000000000 -0800
+@@ -484,6 +484,15 @@ source "net/Kconfig"
+ 
+ source "drivers/Kconfig"
+ 
++config MSPEC
++	tristate "Memory special operations driver"
++	depends on IA64
++	select IA64_UNCACHED_ALLOCATOR
++	help
++	  If you have an ia64 and you want to enable memory special
++	  operations support (formerly known as fetchop), say Y here,
++	  otherwise say N.
++
+ source "fs/Kconfig"
+ 
+ source "lib/Kconfig"

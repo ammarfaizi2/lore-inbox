@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966421AbWKTSpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966430AbWKTSt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966421AbWKTSpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966425AbWKTSpV
+	id S966430AbWKTSt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:49:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966432AbWKTSt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:45:21 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:51843 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S966421AbWKTSpT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:45:19 -0500
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
-	overridden
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
-       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
-       steved@redhat.com
-In-Reply-To: <XMMS.LNX.4.64.0611141618300.25022@d.namei>
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
-	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>
-	 <XMMS.LNX.4.64.0611141618300.25022@d.namei>
+	Mon, 20 Nov 2006 13:49:27 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17286 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S966427AbWKTStZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:49:25 -0500
+Subject: Re: Problem booting linux 2.6.19-rc5, 2.6.19-rc5-git6,
+	2.6.19-rc5-mm2 with md raid 1 over lvm root
+From: Lee Revell <rlrevell@joe-job.com>
+To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-raid@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com,
+       dm-devel@redhat.com
+In-Reply-To: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org>
+References: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 20 Nov 2006 13:41:13 -0500
-Message-Id: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 20 Nov 2006 13:49:15 -0500
+Message-Id: <1164048555.30805.78.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-14 at 16:19 -0500, James Morris wrote:
-> On Tue, 14 Nov 2006, David Howells wrote:
-> 
-> > +static u32 selinux_set_fscreate_secid(u32 secid)
-> > +{
-> > +	struct task_security_struct *tsec = current->security;
-> > +	u32 oldsid = tsec->create_sid;
-> > +
-> > +	tsec->create_sid = secid;
-> > +	return oldsid;
-> > +}
-> 
-> The ability to set this needs to be mediated via MAC policy.
-> 
-> See selinux_setprocattr()
+On Wed, 2006-11-15 at 23:54 +0100, Nicolas Mailhot wrote:
+> I have the following problem : based on the news that a working alsa
+> driver had just been published and pushed 2.6.19-way, I bought a new
+> sound card (expensive pro, if used one). Unfortunately using the
+> out-of-tree driver fails, so its author suggested to just try building
+> one of the 2.6.19 rcs. 
 
-That's different - selinux_set_fscreate_secid() is for internal use by a
-kernel module that wishes to temporarily assume a particular fscreate
-SID, whereas selinux_setprocattr() handles userspace writes
-to /proc/self/attr nodes.  Imposing a permission check here makes no
-sense.
+Just out of curiosity, which soundcard/driver?  I'm not aware of any pro
+soundcards that got ALSA support recently, just cheap consumer stuff.
 
--- 
-Stephen Smalley
-National Security Agency
+Lee
 

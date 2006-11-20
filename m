@@ -1,259 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966343AbWKTSMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966325AbWKTSL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966343AbWKTSMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966288AbWKTSLe
+	id S966325AbWKTSL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966288AbWKTSKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:11:34 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:43002 "EHLO
+	Mon, 20 Nov 2006 13:10:52 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:57550 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S934284AbWKTSHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:07:04 -0500
-Message-Id: <20061120180525.281408000@arndb.de>
+	id S934276AbWKTSHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:07:08 -0500
+Message-Id: <20061120180527.841828000@arndb.de>
 References: <20061120174454.067872000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Mon, 20 Nov 2006 18:45:08 +0100
+Date: Mon, 20 Nov 2006 18:45:15 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: cbe-oss-dev@ozlabs.org
 Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH 14/22] spufs: use SPU master control to prevent wild SPU execution
-Content-Disposition: inline; filename=spufs-master-control.diff
+       Paul Mackerras <paulus@samba.org>, Kevin Corry <kevcorry@us.ibm.com>,
+       Carl Love <carll@us.ibm.com>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: [PATCH 21/22] cell: add routines for managing PMU interrupts
+Content-Disposition: inline; filename=oprofile-for-cell-prereqs-new-routines-for-managing-pmu-interrupts.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When the user changes the runcontrol register, an SPU might be
-running without a process being attached to it and waiting for
-events. In order to prevent this, make sure we always disable
-the priv1 master control when we're not inside of spu_run.
+From: Kevin Corry <kevcorry@us.ibm.com>
 
+The following routines are added to arch/powerpc/platforms/cell/pmu.c:
+ cbe_clear_pm_interrupts()
+ cbe_enable_pm_interrupts()
+ cbe_disable_pm_interrupts()
+ cbe_query_pm_interrupts()
+ cbe_pm_irq()
+ cbe_init_pm_irq()
+
+This also adds a routine in arch/powerpc/platforms/cell/interrupt.c and
+some macros in cbe_regs.h to manipulate the IIC_IR register:
+ iic_set_interrupt_routing()
+
+Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
+Signed-off-by: Carl Love <carll@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
----
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/hw_ops.c
+Index: linux-2.6/arch/powerpc/platforms/cell/pmu.c
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/hw_ops.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/hw_ops.c
-@@ -216,13 +216,26 @@ static void spu_hw_runcntl_write(struct 
- 	spin_unlock_irq(&ctx->spu->register_lock);
- }
+--- linux-2.6.orig/arch/powerpc/platforms/cell/pmu.c
++++ linux-2.6/arch/powerpc/platforms/cell/pmu.c
+@@ -22,9 +22,11 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
  
--static void spu_hw_runcntl_stop(struct spu_context *ctx)
-+static void spu_hw_master_start(struct spu_context *ctx)
- {
--	spin_lock_irq(&ctx->spu->register_lock);
--	out_be32(&ctx->spu->problem->spu_runcntl_RW, SPU_RUNCNTL_STOP);
--	while (in_be32(&ctx->spu->problem->spu_status_R) & SPU_STATUS_RUNNING)
--		cpu_relax();
--	spin_unlock_irq(&ctx->spu->register_lock);
-+	struct spu *spu = ctx->spu;
-+	u64 sr1;
++#include <linux/interrupt.h>
+ #include <linux/types.h>
+ #include <asm/io.h>
+ #include <asm/machdep.h>
++#include <asm/pmc.h>
+ #include <asm/reg.h>
+ #include <asm/spu.h>
+ 
+@@ -338,3 +340,71 @@ void cbe_read_trace_buffer(u32 cpu, u64 
+ }
+ EXPORT_SYMBOL_GPL(cbe_read_trace_buffer);
+ 
++/*
++ * Enabling/disabling interrupts for the entire performance monitoring unit.
++ */
 +
-+	spin_lock_irq(&spu->register_lock);
-+	sr1 = spu_mfc_sr1_get(spu) | MFC_STATE1_MASTER_RUN_CONTROL_MASK;
-+	spu_mfc_sr1_set(spu, sr1);
-+	spin_unlock_irq(&spu->register_lock);
++u32 cbe_query_pm_interrupts(u32 cpu)
++{
++	return cbe_read_pm(cpu, pm_status);
++}
++EXPORT_SYMBOL_GPL(cbe_query_pm_interrupts);
++
++u32 cbe_clear_pm_interrupts(u32 cpu)
++{
++	/* Reading pm_status clears the interrupt bits. */
++	return cbe_query_pm_interrupts(cpu);
++}
++EXPORT_SYMBOL_GPL(cbe_clear_pm_interrupts);
++
++void cbe_enable_pm_interrupts(u32 cpu, u32 thread, u32 mask)
++{
++	/* Set which node and thread will handle the next interrupt. */
++	iic_set_interrupt_routing(cpu, thread, 0);
++
++	/* Enable the interrupt bits in the pm_status register. */
++	if (mask)
++		cbe_write_pm(cpu, pm_status, mask);
++}
++EXPORT_SYMBOL_GPL(cbe_enable_pm_interrupts);
++
++void cbe_disable_pm_interrupts(u32 cpu)
++{
++	cbe_clear_pm_interrupts(cpu);
++	cbe_write_pm(cpu, pm_status, 0);
++}
++EXPORT_SYMBOL_GPL(cbe_disable_pm_interrupts);
++
++static irqreturn_t cbe_pm_irq(int irq, void *dev_id, struct pt_regs *regs)
++{
++	perf_irq(regs);
++	return IRQ_HANDLED;
 +}
 +
-+static void spu_hw_master_stop(struct spu_context *ctx)
++int __init cbe_init_pm_irq(void)
 +{
-+	struct spu *spu = ctx->spu;
-+	u64 sr1;
++	unsigned int irq;
++	int rc, node;
 +
-+	spin_lock_irq(&spu->register_lock);
-+	sr1 = spu_mfc_sr1_get(spu) & ~MFC_STATE1_MASTER_RUN_CONTROL_MASK;
-+	spu_mfc_sr1_set(spu, sr1);
-+	spin_unlock_irq(&spu->register_lock);
- }
- 
- static int spu_hw_set_mfc_query(struct spu_context * ctx, u32 mask, u32 mode)
-@@ -295,7 +308,8 @@ struct spu_context_ops spu_hw_ops = {
- 	.status_read = spu_hw_status_read,
- 	.get_ls = spu_hw_get_ls,
- 	.runcntl_write = spu_hw_runcntl_write,
--	.runcntl_stop = spu_hw_runcntl_stop,
-+	.master_start = spu_hw_master_start,
-+	.master_stop = spu_hw_master_stop,
- 	.set_mfc_query = spu_hw_set_mfc_query,
- 	.read_mfc_tagstatus = spu_hw_read_mfc_tagstatus,
- 	.get_mfc_free_elements = spu_hw_get_mfc_free_elements,
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/backing_ops.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/backing_ops.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/backing_ops.c
-@@ -280,9 +280,26 @@ static void spu_backing_runcntl_write(st
- 	spin_unlock(&ctx->csa.register_lock);
- }
- 
--static void spu_backing_runcntl_stop(struct spu_context *ctx)
-+static void spu_backing_master_start(struct spu_context *ctx)
- {
--	spu_backing_runcntl_write(ctx, SPU_RUNCNTL_STOP);
-+	struct spu_state *csa = &ctx->csa;
-+	u64 sr1;
++	for_each_node(node) {
++		irq = irq_create_mapping(NULL, IIC_IRQ_IOEX_PMI |
++					       (node << IIC_IRQ_NODE_SHIFT));
++		if (irq == NO_IRQ) {
++			printk("ERROR: Unable to allocate irq for node %d\n",
++			       node);
++			return -EINVAL;
++		}
 +
-+	spin_lock(&csa->register_lock);
-+	sr1 = csa->priv1.mfc_sr1_RW | MFC_STATE1_MASTER_RUN_CONTROL_MASK;
-+	csa->priv1.mfc_sr1_RW = sr1;
-+	spin_unlock(&csa->register_lock);
++		rc = request_irq(irq, cbe_pm_irq,
++				 IRQF_DISABLED, "cbe-pmu-0", NULL);
++		if (rc) {
++			printk("ERROR: Request for irq on node %d failed\n",
++			       node);
++			return rc;
++		}
++	}
++
++	return 0;
 +}
++arch_initcall(cbe_init_pm_irq);
 +
-+static void spu_backing_master_stop(struct spu_context *ctx)
+Index: linux-2.6/arch/powerpc/platforms/cell/interrupt.c
+===================================================================
+--- linux-2.6.orig/arch/powerpc/platforms/cell/interrupt.c
++++ linux-2.6/arch/powerpc/platforms/cell/interrupt.c
+@@ -396,3 +396,19 @@ void __init iic_init_IRQ(void)
+ 	/* Enable on current CPU */
+ 	iic_setup_cpu();
+ }
++
++void iic_set_interrupt_routing(int cpu, int thread, int priority)
 +{
-+	struct spu_state *csa = &ctx->csa;
-+	u64 sr1;
++	struct cbe_iic_regs __iomem *iic_regs = cbe_get_cpu_iic_regs(cpu);
++	u64 iic_ir = 0;
++	int node = cpu >> 1;
 +
-+	spin_lock(&csa->register_lock);
-+	sr1 = csa->priv1.mfc_sr1_RW & ~MFC_STATE1_MASTER_RUN_CONTROL_MASK;
-+	csa->priv1.mfc_sr1_RW = sr1;
-+	spin_unlock(&csa->register_lock);
- }
- 
- static int spu_backing_set_mfc_query(struct spu_context * ctx, u32 mask,
-@@ -347,7 +364,8 @@ struct spu_context_ops spu_backing_ops =
- 	.status_read = spu_backing_status_read,
- 	.get_ls = spu_backing_get_ls,
- 	.runcntl_write = spu_backing_runcntl_write,
--	.runcntl_stop = spu_backing_runcntl_stop,
-+	.master_start = spu_backing_master_start,
-+	.master_stop = spu_backing_master_stop,
- 	.set_mfc_query = spu_backing_set_mfc_query,
- 	.read_mfc_tagstatus = spu_backing_read_mfc_tagstatus,
- 	.get_mfc_free_elements = spu_backing_get_mfc_free_elements,
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
++	/* Set which node and thread will handle the next interrupt */
++	iic_ir |= CBE_IIC_IR_PRIO(priority) |
++		  CBE_IIC_IR_DEST_NODE(node);
++	if (thread == 0)
++		iic_ir |= CBE_IIC_IR_DEST_UNIT(CBE_IIC_IR_PT_0);
++	else
++		iic_ir |= CBE_IIC_IR_DEST_UNIT(CBE_IIC_IR_PT_1);
++	out_be64(&iic_regs->iic_ir, iic_ir);
++}
+Index: linux-2.6/arch/powerpc/platforms/cell/interrupt.h
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/spufs.h
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/spufs.h
-@@ -116,7 +116,8 @@ struct spu_context_ops {
- 	 u32(*status_read) (struct spu_context * ctx);
- 	char*(*get_ls) (struct spu_context * ctx);
- 	void (*runcntl_write) (struct spu_context * ctx, u32 data);
--	void (*runcntl_stop) (struct spu_context * ctx);
-+	void (*master_start) (struct spu_context * ctx);
-+	void (*master_stop) (struct spu_context * ctx);
- 	int (*set_mfc_query)(struct spu_context * ctx, u32 mask, u32 mode);
- 	u32 (*read_mfc_tagstatus)(struct spu_context * ctx);
- 	u32 (*get_mfc_free_elements)(struct spu_context *ctx);
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/context.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/context.c
-@@ -122,29 +122,29 @@ void spu_unmap_mappings(struct spu_conte
+--- linux-2.6.orig/arch/powerpc/platforms/cell/interrupt.h
++++ linux-2.6/arch/powerpc/platforms/cell/interrupt.h
+@@ -83,5 +83,7 @@ extern u8 iic_get_target_id(int cpu);
  
- int spu_acquire_exclusive(struct spu_context *ctx)
- {
--       int ret = 0;
-+	int ret = 0;
+ extern void spider_init_IRQ(void);
  
--       down_write(&ctx->state_sema);
--       /* ctx is about to be freed, can't acquire any more */
--       if (!ctx->owner) {
--               ret = -EINVAL;
--               goto out;
--       }
--
--       if (ctx->state == SPU_STATE_SAVED) {
--               ret = spu_activate(ctx, 0);
--               if (ret)
--                       goto out;
--               ctx->state = SPU_STATE_RUNNABLE;
--       } else {
--               /* We need to exclude userspace access to the context. */
--               spu_unmap_mappings(ctx);
--       }
-+	down_write(&ctx->state_sema);
-+	/* ctx is about to be freed, can't acquire any more */
-+	if (!ctx->owner) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
++extern void iic_set_interrupt_routing(int cpu, int thread, int priority);
 +
-+	if (ctx->state == SPU_STATE_SAVED) {
-+		ret = spu_activate(ctx, 0);
-+		if (ret)
-+			goto out;
-+		ctx->state = SPU_STATE_RUNNABLE;
-+	} else {
-+		/* We need to exclude userspace access to the context. */
-+		spu_unmap_mappings(ctx);
-+	}
- 
- out:
--       if (ret)
--               up_write(&ctx->state_sema);
--       return ret;
-+	if (ret)
-+		up_write(&ctx->state_sema);
-+	return ret;
- }
- 
- int spu_acquire_runnable(struct spu_context *ctx)
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
+ #endif
+ #endif /* ASM_CELL_PIC_H */
+Index: linux-2.6/include/asm-powerpc/cell-pmu.h
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/inode.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -248,8 +248,13 @@ static int spu_setup_isolated(struct spu
- 	if (!isolated_loader)
- 		return -ENODEV;
+--- linux-2.6.orig/include/asm-powerpc/cell-pmu.h
++++ linux-2.6/include/asm-powerpc/cell-pmu.h
+@@ -87,4 +87,9 @@ extern void cbe_disable_pm(u32 cpu);
  
--	if ((ret = spu_acquire_exclusive(ctx)) != 0)
--		return ret;
-+	/* prevent concurrent operation with spu_run */
-+	down(&ctx->run_sema);
-+	ctx->ops->master_start(ctx);
+ extern void cbe_read_trace_buffer(u32 cpu, u64 *buf);
+ 
++extern void cbe_enable_pm_interrupts(u32 cpu, u32 thread, u32 mask);
++extern void cbe_disable_pm_interrupts(u32 cpu);
++extern u32  cbe_query_pm_interrupts(u32 cpu);
++extern u32  cbe_clear_pm_interrupts(u32 cpu);
 +
-+	ret = spu_acquire_exclusive(ctx);
-+	if (ret)
-+		goto out;
- 
- 	mfc_cntl = &ctx->spu->priv2->mfc_control_RW;
- 
-@@ -315,12 +320,14 @@ out_drop_priv:
- 
- out_unlock:
- 	spu_release_exclusive(ctx);
-+out:
-+	ctx->ops->master_stop(ctx);
-+	up(&ctx->run_sema);
- 	return ret;
- }
- 
- int spu_recycle_isolated(struct spu_context *ctx)
- {
--	ctx->ops->runcntl_stop(ctx);
- 	return spu_setup_isolated(ctx);
- }
- 
-@@ -435,6 +442,8 @@ out:
- 	if (ret >= 0 && (flags & SPU_CREATE_ISOLATE)) {
- 		int setup_err = spu_setup_isolated(
- 				SPUFS_I(dentry->d_inode)->i_ctx);
-+		/* FIXME: clean up context again on failure to avoid
-+		          leak. */
- 		if (setup_err)
- 			ret = setup_err;
- 	}
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/run.c
+ #endif /* __ASM_CELL_PMU_H__ */
+Index: linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
 ===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/run.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/run.c
-@@ -207,6 +207,7 @@ long spufs_run_spu(struct file *file, st
- 	if (down_interruptible(&ctx->run_sema))
- 		return -ERESTARTSYS;
+--- linux-2.6.orig/arch/powerpc/platforms/cell/cbe_regs.h
++++ linux-2.6/arch/powerpc/platforms/cell/cbe_regs.h
+@@ -185,6 +185,14 @@ struct cbe_iic_regs {
+ 	struct	cbe_iic_thread_regs thread[2];			/* 0x0400 */
  
-+	ctx->ops->master_start(ctx);
- 	ctx->event_return = 0;
- 	ret = spu_run_init(ctx, npc);
- 	if (ret)
-@@ -234,7 +235,7 @@ long spufs_run_spu(struct file *file, st
- 	} while (!ret && !(status & (SPU_STATUS_STOPPED_BY_STOP |
- 				      SPU_STATUS_STOPPED_BY_HALT)));
- 
--	ctx->ops->runcntl_stop(ctx);
-+	ctx->ops->master_stop(ctx);
- 	ret = spu_run_fini(ctx, npc, &status);
- 	spu_yield(ctx);
+ 	u64	iic_ir;						/* 0x0440 */
++#define CBE_IIC_IR_PRIO(x)      (((x) & 0xf) << 12)
++#define CBE_IIC_IR_DEST_NODE(x) (((x) & 0xf) << 4)
++#define CBE_IIC_IR_DEST_UNIT(x) ((x) & 0xf)
++#define CBE_IIC_IR_IOC_0        0x0
++#define CBE_IIC_IR_IOC_1S       0xb
++#define CBE_IIC_IR_PT_0         0xe
++#define CBE_IIC_IR_PT_1         0xf
++
+ 	u64	iic_is;						/* 0x0448 */
+ #define CBE_IIC_IS_PMI		0x2
  
 
 --

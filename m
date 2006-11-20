@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933867AbWKTCyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756594AbWKTCzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933867AbWKTCyv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 21:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756819AbWKTCyv
+	id S1756594AbWKTCzD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 21:55:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756819AbWKTCzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 21:54:51 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:9820 "EHLO
+	Sun, 19 Nov 2006 21:55:03 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:28764 "EHLO
 	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1756594AbWKTCyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 21:54:50 -0500
-Date: Sun, 19 Nov 2006 18:51:24 -0800
+	id S1756594AbWKTCzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 21:55:01 -0500
+Date: Sun, 19 Nov 2006 18:52:28 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] parport: section mismatches with HOTPLUG=n
-Message-Id: <20061119185124.dc429c6b.randy.dunlap@oracle.com>
+Cc: davej@codemonkey.org.uk, akpm <akpm@osdl.org>
+Subject: [PATCH] agp-amd64: section mismatches with HOTPLUG=n
+Message-Id: <20061119185228.ba33163f.randy.dunlap@oracle.com>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -29,57 +29,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <randy.dunlap@oracle.com>
 
-When CONFIG_HOTPLUG=n, parport_pc calls some __devinit == __init code
-that could be discarded.  These calls are made from parport_irq_probe(),
-which is called from parport_pc_probe_port(), which is an exported
-symbol, so the calls could (possibly) happen after init time.
+When CONFIG_HOTPLUG=n, agp_amd64_resume() calls nforce3_agp_init(),
+which is __devinit == __init, so has been discarded and is not
+usable for resume.
 
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text between 'parport_irq_probe' (at offset 0x31d) and 'parport_pc_probe_port'
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text between 'parport_irq_probe' (at offset 0x346) and 'parport_pc_probe_port'
+WARNING: drivers/char/agp/amd64-agp.o - Section mismatch: reference to .init.text: from .text between 'agp_amd64_resume' (at offset 0x249) and 'amd64_tlbflush'
 
 Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 ---
- drivers/parport/parport_pc.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/char/agp/amd64-agp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2619-rc6g2.orig/drivers/parport/parport_pc.c
-+++ linux-2619-rc6g2/drivers/parport/parport_pc.c
-@@ -1975,7 +1975,7 @@ static int __devinit parport_ECPPS2_supp
- /* --- IRQ detection -------------------------------------- */
+--- linux-2619-rc6g2.orig/drivers/char/agp/amd64-agp.c
++++ linux-2619-rc6g2/drivers/char/agp/amd64-agp.c
+@@ -459,7 +459,7 @@ static const struct aper_size_info_32 nf
  
- /* Only if supports ECP mode */
--static int __devinit programmable_irq_support(struct parport *pb)
-+static int programmable_irq_support(struct parport *pb)
+ /* Handle shadow device of the Nvidia NForce3 */
+ /* CHECK-ME original 2.4 version set up some IORRs. Check if that is needed. */
+-static int __devinit nforce3_agp_init(struct pci_dev *pdev)
++static int nforce3_agp_init(struct pci_dev *pdev)
  {
- 	int irq, intrLine;
- 	unsigned char oecr = inb (ECONTROL (pb));
-@@ -1992,7 +1992,7 @@ static int __devinit programmable_irq_su
- 	return irq;
- }
- 
--static int __devinit irq_probe_ECP(struct parport *pb)
-+static int irq_probe_ECP(struct parport *pb)
- {
- 	int i;
- 	unsigned long irqs;
-@@ -2020,7 +2020,7 @@ static int __devinit irq_probe_ECP(struc
-  * This detection seems that only works in National Semiconductors
-  * This doesn't work in SMC, LGS, and Winbond 
-  */
--static int __devinit irq_probe_EPP(struct parport *pb)
-+static int irq_probe_EPP(struct parport *pb)
- {
- #ifndef ADVANCED_DETECT
- 	return PARPORT_IRQ_NONE;
-@@ -2059,7 +2059,7 @@ static int __devinit irq_probe_EPP(struc
- #endif /* Advanced detection */
- }
- 
--static int __devinit irq_probe_SPP(struct parport *pb)
-+static int irq_probe_SPP(struct parport *pb)
- {
- 	/* Don't even try to do this. */
- 	return PARPORT_IRQ_NONE;
+ 	u32 tmp, apbase, apbar, aplimit;
+ 	struct pci_dev *dev1;
 
 
 ---

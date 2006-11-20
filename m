@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWKTMqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934138AbWKTMvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbWKTMqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 07:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934149AbWKTMqM
+	id S934138AbWKTMvf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 07:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934149AbWKTMvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 07:46:12 -0500
-Received: from wx-out-0506.google.com ([66.249.82.230]:13239 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S934152AbWKTMqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 07:46:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QYl1VoWVnvEOn7wyVrb9LmtBjd8IuPoPkif4dieWXH4Bpjr0eM29tydyBJF/ea/V6XsFZ9kUyLZrct+NBFMJH0/CjXD5G0jTBGUooodOLL7+jgOmTL7hSRNZB+1r57DFoKr3Ibi9W573V5saR7O1Z35eV5ahQpLRVRdQ6eQIQIM=
-Message-ID: <3a5b1be00611200446m69d1c593qa13649ff6b9f0506@mail.gmail.com>
-Date: Mon, 20 Nov 2006 14:46:11 +0200
-From: "Komal Shah" <komal.shah802003@gmail.com>
-To: "Takashi Iwai" <tiwai@suse.de>
-Subject: Re: Siemens SX1: sound cleanups
-Cc: "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       "Vladimir Ananiev" <vovan888@gmail.com>, tony@atomide.com
-In-Reply-To: <s5h4psus8n9.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Nov 2006 07:51:35 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50890 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S934138AbWKTMvf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 07:51:35 -0500
+Subject: Re: [PATCH] PCMCIA identification strings for cards manufactured
+	by Elan
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tony Olech <tony.olech@elandigitalsystems.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux kernel development <linux-kernel@vger.kernel.org>,
+       PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Jaroslav Kysela <perex@suse.cz>,
+       Bart Prescott <bart.prescott@elandigitalsystems.com>
+In-Reply-To: <200611201214.kAKCErcU005240@imap.elan.private>
+References: <200611201214.kAKCErcU005240@imap.elan.private>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 20 Nov 2006 13:51:25 +0100
+Message-Id: <1164027086.31358.588.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061119114938.GA22514@elf.ucw.cz> <s5h4psus8n9.wl%tiwai@suse.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20/06, Takashi Iwai <tiwai@suse.de> wrote:
-> At Sun, 19 Nov 2006 12:49:38 +0100,
-> Pavel Machek wrote:
-> >
-> > Hi!
-> >
-> > These are cleanups for codingstyle in sound parts of siemens sx1. They
-> > should not change any code. Please apply,
-> >
-> >                                                               Pavel
->
-> Which tree does include these drivers?
-> I've never seen nor review it...
+Hi,
 
-It's Linux Texas Instruments OMAP processors tree, hosted at following links:
+> a card is inserted, resulting in various random lockups
+> 
+> *** linux-2.6.18/sound/pcmcia/pdaudiocf/pdaudiocf.c.orig	2006-11-20 10:24:23.000000000 +0000
+> --- linux-2.6.18/sound/pcmcia/pdaudiocf/pdaudiocf.c	2006-11-20 10:33:46.000000000 +0000
+> ***************
+> *** 298,306 ****
+>   /*
+>    * Module entry points
+>    */
+>   static struct pcmcia_device_id snd_pdacf_ids[] = {
+> ! 	PCMCIA_DEVICE_MANF_CARD(0x015d, 0x4c45),
 
-http://source.mvista.com/git/gitweb.cgi?p=linux-omap-2.6.git;a=log
 
-OR mirror copy is also available to view at
+please use the "-u" option for diff; that's the preferred (only) form
+the Linux kernel folks are used to looking at diffs, and applying them.
+Also, it's very helpful and customary to also pass the "-p" option (this
+improves the context so that reviews are easier)
 
-http://www.kernel.org/git/
+would you mind redoing the diff and then resending it?
 
-You have not seen those drivers, because we have _not_ yet submitted
-ALSA drivers for aic23 and ts2102 to upstream.
+Thanks!
 
-Pavel,  better submit those -omap tree based changes to dedicated
-linux-omap-open-source mailing list instead. Please visit
-http://linux.omap.com Thanx.
 
----Komal Shah
-http://komalshah.blogspot.com
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

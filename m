@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934194AbWKTOaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934202AbWKTOah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934194AbWKTOaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 09:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934193AbWKTO35
+	id S934202AbWKTOah (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 09:30:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934193AbWKTOab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 09:29:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21640 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S934192AbWKTO3y (ORCPT
+	Mon, 20 Nov 2006 09:30:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27016 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S934192AbWKTO36 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 09:29:54 -0500
+	Mon, 20 Nov 2006 09:29:58 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/4] WorkStruct: Separate delayable and non-delayable events.
-Date: Mon, 20 Nov 2006 14:27:16 +0000
+Subject: [PATCH 3/4] WorkStruct: Merge the pending bit into the wq_data pointer
+Date: Mon, 20 Nov 2006 14:27:20 +0000
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Message-Id: <20061120142716.12685.47219.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061120142720.12685.79394.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
 References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -23,642 +23,193 @@ User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Separate delayable work items from non-delayable work items be splitting them
-into a separate structure (dwork_struct), which incorporates a work_struct and
-the timer_list removed from work_struct.
-
-The work_struct struct is huge, and this limits it's usefulness.  On a 64-bit
-architecture it's nearly 100 bytes in size.  This reduces that by half for the
-non-delayable type of event.
+Reclaim a word from the size of the work_struct by folding the pending bit and
+the wq_data pointer together.  This shouldn't cause misalignment problems as
+all pointers should be at least 4-byte aligned.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- arch/x86_64/kernel/mce.c           |    2 +-
- drivers/ata/libata-core.c          |    8 +++---
- drivers/ata/libata-eh.c            |    2 +-
- drivers/char/random.c              |    2 +-
- drivers/char/tty_io.c              |    2 +-
- fs/aio.c                           |    4 ++-
- fs/nfs/client.c                    |    2 +-
- fs/nfs/namespace.c                 |    3 ++
- include/linux/aio.h                |    2 +-
- include/linux/kbd_kern.h           |    2 +-
- include/linux/libata.h             |    4 ++-
- include/linux/nfs_fs_sb.h          |    2 +-
- include/linux/sunrpc/rpc_pipe_fs.h |    2 +-
- include/linux/sunrpc/xprt.h        |    2 +-
- include/linux/tty.h                |    2 +-
- include/linux/workqueue.h          |   48 +++++++++++++++++++++++++++++-------
- kernel/workqueue.c                 |   46 ++++++++++++++++++-----------------
- mm/slab.c                          |    8 +++---
- net/core/link_watch.c              |    4 ++-
- net/sunrpc/cache.c                 |    4 ++-
- net/sunrpc/rpc_pipe.c              |    3 ++
- net/sunrpc/xprtsock.c              |    8 ++++--
- 22 files changed, 98 insertions(+), 64 deletions(-)
+ drivers/block/floppy.c    |    4 ++--
+ include/linux/workqueue.h |   19 +++++++++++++++----
+ kernel/workqueue.c        |   41 ++++++++++++++++++++++++++++++++---------
+ 3 files changed, 49 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86_64/kernel/mce.c b/arch/x86_64/kernel/mce.c
-index bbea888..c351d16 100644
---- a/arch/x86_64/kernel/mce.c
-+++ b/arch/x86_64/kernel/mce.c
-@@ -307,7 +307,7 @@ #endif /* CONFIG_X86_MCE_INTEL */
- 
- static int check_interval = 5 * 60; /* 5 minutes */
- static void mcheck_timer(void *data);
--static DECLARE_WORK(mcheck_work, mcheck_timer, NULL);
-+static DECLARE_DELAYABLE_WORK(mcheck_work, mcheck_timer, NULL);
- 
- static void mcheck_check_cpu(void *info)
- {
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 915a55a..90e4ae2 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -937,10 +937,10 @@ void ata_port_queue_task(struct ata_port
- 	if (ap->pflags & ATA_PFLAG_FLUSH_PORT_TASK)
- 		return;
- 
--	PREPARE_WORK(&ap->port_task, fn, data);
-+	PREPARE_DELAYABLE_WORK(&ap->port_task, fn, data);
- 
- 	if (!delay)
--		rc = queue_work(ata_wq, &ap->port_task);
-+		rc = queue_dwork(ata_wq, &ap->port_task);
- 	else
- 		rc = queue_delayed_work(ata_wq, &ap->port_task, delay);
- 
-@@ -5320,8 +5320,8 @@ #else
- 	ap->msg_enable = ATA_MSG_DRV | ATA_MSG_ERR | ATA_MSG_WARN;
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 5a14fac..aa1eb44 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -1868,7 +1868,7 @@ #endif
+ 	printk("fdc_busy=%lu\n", fdc_busy);
+ 	if (do_floppy)
+ 		printk("do_floppy=%p\n", do_floppy);
+-	if (floppy_work.pending)
++	if (work_pending(&floppy_work))
+ 		printk("floppy_work.func=%p\n", floppy_work.func);
+ 	if (timer_pending(&fd_timer))
+ 		printk("fd_timer.function=%p\n", fd_timer.function);
+@@ -4498,7 +4498,7 @@ #endif
+ 		printk("floppy timer still active:%s\n", timeout_message);
+ 	if (timer_pending(&fd_timer))
+ 		printk("auxiliary floppy timer still active\n");
+-	if (floppy_work.pending)
++	if (work_pending(&floppy_work))
+ 		printk("work still pending\n");
  #endif
- 
--	INIT_WORK(&ap->port_task, NULL, NULL);
--	INIT_WORK(&ap->hotplug_task, ata_scsi_hotplug, ap);
-+	INIT_DELAYABLE_WORK(&ap->port_task, NULL, NULL);
-+	INIT_DELAYABLE_WORK(&ap->hotplug_task, ata_scsi_hotplug, ap);
- 	INIT_WORK(&ap->scsi_rescan_task, ata_scsi_dev_rescan, ap);
- 	INIT_LIST_HEAD(&ap->eh_done_q);
- 	init_waitqueue_head(&ap->eh_wait_q);
-diff --git a/drivers/ata/libata-eh.c b/drivers/ata/libata-eh.c
-index 02b2b27..a209b6e 100644
---- a/drivers/ata/libata-eh.c
-+++ b/drivers/ata/libata-eh.c
-@@ -332,7 +332,7 @@ void ata_scsi_error(struct Scsi_Host *ho
- 	if (ap->pflags & ATA_PFLAG_LOADING)
- 		ap->pflags &= ~ATA_PFLAG_LOADING;
- 	else if (ap->pflags & ATA_PFLAG_SCSI_HOTPLUG)
--		queue_work(ata_aux_wq, &ap->hotplug_task);
-+		queue_dwork(ata_aux_wq, &ap->hotplug_task);
- 
- 	if (ap->pflags & ATA_PFLAG_RECOVERED)
- 		ata_port_printk(ap, KERN_INFO, "EH complete\n");
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index eb6b13f..2ea1c84 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1424,7 +1424,7 @@ static unsigned int ip_cnt;
- 
- static void rekey_seq_generator(void *private_);
- 
--static DECLARE_WORK(rekey_work, rekey_seq_generator, NULL);
-+static DECLARE_DELAYABLE_WORK(rekey_work, rekey_seq_generator, NULL);
- 
- /*
-  * Lock avoidance:
-diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
-index e90ea39..d7f25b2 100644
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -3580,7 +3580,7 @@ static void initialize_tty_struct(struct
- 	tty->overrun_time = jiffies;
- 	tty->buf.head = tty->buf.tail = NULL;
- 	tty_buffer_init(tty);
--	INIT_WORK(&tty->buf.work, flush_to_ldisc, tty);
-+	INIT_DELAYABLE_WORK(&tty->buf.work, flush_to_ldisc, tty);
- 	init_MUTEX(&tty->buf.pty_sem);
- 	mutex_init(&tty->termios_mutex);
- 	init_waitqueue_head(&tty->write_wait);
-diff --git a/fs/aio.c b/fs/aio.c
-index 9476659..c94b871 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -227,7 +227,7 @@ static struct kioctx *ioctx_alloc(unsign
- 
- 	INIT_LIST_HEAD(&ctx->active_reqs);
- 	INIT_LIST_HEAD(&ctx->run_list);
--	INIT_WORK(&ctx->wq, aio_kick_handler, ctx);
-+	INIT_DELAYABLE_WORK(&ctx->wq, aio_kick_handler, ctx);
- 
- 	if (aio_setup_ring(ctx) < 0)
- 		goto out_freectx;
-@@ -876,7 +876,7 @@ static void aio_kick_handler(void *data)
- 	 * we're in a worker thread already, don't use queue_delayed_work,
- 	 */
- 	if (requeue)
--		queue_work(aio_wq, &ctx->wq);
-+		queue_dwork(aio_wq, &ctx->wq);
- }
- 
- 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 6e19b28..54b8dd2 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -143,7 +143,7 @@ #ifdef CONFIG_NFS_V4
- 	INIT_LIST_HEAD(&clp->cl_state_owners);
- 	INIT_LIST_HEAD(&clp->cl_unused);
- 	spin_lock_init(&clp->cl_lock);
--	INIT_WORK(&clp->cl_renewd, nfs4_renew_state, clp);
-+	INIT_DELAYABLE_WORK(&clp->cl_renewd, nfs4_renew_state, clp);
- 	rpc_init_wait_queue(&clp->cl_rpcwaitq, "NFS client");
- 	clp->cl_boot_time = CURRENT_TIME;
- 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
-diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
-index ec1114b..2fa2fbe 100644
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -21,7 +21,8 @@ #define NFSDBG_FACILITY		NFSDBG_VFS
- static void nfs_expire_automounts(void *list);
- 
- LIST_HEAD(nfs_automount_list);
--static DECLARE_WORK(nfs_automount_task, nfs_expire_automounts, &nfs_automount_list);
-+static DECLARE_DELAYABLE_WORK(nfs_automount_task, nfs_expire_automounts,
-+			      &nfs_automount_list);
- int nfs_mountpoint_expiry_timeout = 500 * HZ;
- 
- static struct vfsmount *nfs_do_submount(const struct vfsmount *mnt_parent,
-diff --git a/include/linux/aio.h b/include/linux/aio.h
-index 0d71c00..444213a 100644
---- a/include/linux/aio.h
-+++ b/include/linux/aio.h
-@@ -194,7 +194,7 @@ struct kioctx {
- 
- 	struct aio_ring_info	ring_info;
- 
--	struct work_struct	wq;
-+	struct dwork_struct	wq;
- };
- 
- /* prototypes */
-diff --git a/include/linux/kbd_kern.h b/include/linux/kbd_kern.h
-index efe0ee4..5192d18 100644
---- a/include/linux/kbd_kern.h
-+++ b/include/linux/kbd_kern.h
-@@ -158,7 +158,7 @@ static inline void con_schedule_flip(str
- 	if (t->buf.tail != NULL)
- 		t->buf.tail->commit = t->buf.tail->used;
- 	spin_unlock_irqrestore(&t->buf.lock, flags);
--	schedule_work(&t->buf.work);
-+	schedule_dwork(&t->buf.work);
- }
- 
- #endif
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index abd2deb..d5da14b 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -568,8 +568,8 @@ struct ata_port {
- 	struct ata_host		*host;
- 	struct device 		*dev;
- 
--	struct work_struct	port_task;
--	struct work_struct	hotplug_task;
-+	struct dwork_struct	port_task;
-+	struct dwork_struct	hotplug_task;
- 	struct work_struct	scsi_rescan_task;
- 
- 	unsigned int		hsm_task_state;
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index c44be53..0e1fc56 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -52,7 +52,7 @@ #ifdef CONFIG_NFS_V4
- 
- 	unsigned long		cl_lease_time;
- 	unsigned long		cl_last_renewal;
--	struct work_struct	cl_renewd;
-+	struct dwork_struct	cl_renewd;
- 
- 	struct rpc_wait_queue	cl_rpcwaitq;
- 
-diff --git a/include/linux/sunrpc/rpc_pipe_fs.h b/include/linux/sunrpc/rpc_pipe_fs.h
-index a2eb9b4..0ff5b78 100644
---- a/include/linux/sunrpc/rpc_pipe_fs.h
-+++ b/include/linux/sunrpc/rpc_pipe_fs.h
-@@ -30,7 +30,7 @@ struct rpc_inode {
- #define RPC_PIPE_WAIT_FOR_OPEN	1
- 	int flags;
- 	struct rpc_pipe_ops *ops;
--	struct work_struct queue_timeout;
-+	struct dwork_struct queue_timeout;
- };
- 
- static inline struct rpc_inode *
-diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
-index 60394fb..62ac23b 100644
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -177,7 +177,7 @@ struct rpc_xprt {
- 	unsigned long		connect_timeout,
- 				bind_timeout,
- 				reestablish_timeout;
--	struct work_struct	connect_worker;
-+	struct dwork_struct	connect_worker;
- 	unsigned short		port;
- 
- 	/*
-diff --git a/include/linux/tty.h b/include/linux/tty.h
-index 44091c0..2bdc0e7 100644
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -53,7 +53,7 @@ struct tty_buffer {
- };
- 
- struct tty_bufhead {
--	struct work_struct		work;
-+	struct dwork_struct		work;
- 	struct semaphore pty_sem;
- 	spinlock_t lock;
- 	struct tty_buffer *head;	/* Queue head */
+ 	old_fdc = fdc;
 diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-index 9bca353..6df8388 100644
+index 0d5bbd4..67e6a7f 100644
 --- a/include/linux/workqueue.h
 +++ b/include/linux/workqueue.h
-@@ -17,6 +17,10 @@ struct work_struct {
- 	void (*func)(void *);
+@@ -14,11 +14,15 @@ struct workqueue_struct;
+ typedef void (*work_func_t)(void *data);
+ 
+ struct work_struct {
+-	unsigned long pending;
++	/* the first word is the work queue pointer and the pending flag
++	 * rolled into one */
++	unsigned long management;
++#define WORK_STRUCT_PENDING 0		/* T if work item pending execution */
++#define WORK_STRUCT_FLAG_MASK (3UL)
++#define WORK_STRUCT_WQ_DATA_MASK (~WORK_STRUCT_FLAG_MASK)
+ 	struct list_head entry;
+ 	work_func_t func;
  	void *data;
- 	void *wq_data;
-+};
-+
-+struct dwork_struct {
-+	struct work_struct work;
- 	struct timer_list timer;
+-	void *wq_data;
  };
  
-@@ -28,12 +32,19 @@ #define __WORK_INITIALIZER(n, f, d) {			
-         .entry	= { &(n).entry, &(n).entry },			\
- 	.func = (f),						\
- 	.data = (d),						\
-+	}
-+
-+#define __DWORK_INITIALIZER(n, f, d) {				\
-+	.work = __WORK_INITIALIZER((n).work, (f), (d)),		\
- 	.timer = TIMER_INITIALIZER(NULL, 0, 0),			\
- 	}
- 
- #define DECLARE_WORK(n, f, d)					\
- 	struct work_struct n = __WORK_INITIALIZER(n, f, d)
- 
-+#define DECLARE_DELAYABLE_WORK(n, f, d)				\
-+	struct dwork_struct n = __DWORK_INITIALIZER(n, f, d)
-+
- /*
-  * initialize a work-struct's func and data pointers:
-  */
-@@ -43,6 +54,9 @@ #define PREPARE_WORK(_work, _func, _data
- 		(_work)->data = _data;				\
+ struct dwork_struct {
+@@ -65,7 +69,7 @@ #define PREPARE_DELAYABLE_WORK(_work, _f
+ #define INIT_WORK(_work, _func, _data)				\
+ 	do {							\
+ 		INIT_LIST_HEAD(&(_work)->entry);		\
+-		(_work)->pending = 0;				\
++		(_work)->management = 0;			\
+ 		PREPARE_WORK((_work), (_func), (_data));	\
  	} while (0)
  
-+#define PREPARE_DELAYABLE_WORK(_work, _func, _data)		\
-+	PREPARE_WORK(&(_work)->work, (_func), (_data))
-+
- /*
-  * initialize all of a work-struct:
-  */
-@@ -51,6 +65,11 @@ #define INIT_WORK(_work, _func, _data)		
- 		INIT_LIST_HEAD(&(_work)->entry);		\
- 		(_work)->pending = 0;				\
- 		PREPARE_WORK((_work), (_func), (_data));	\
-+	} while (0)
-+
-+#define INIT_DELAYABLE_WORK(_work, _func, _data)		\
-+	do {							\
-+		INIT_WORK(&(_work)->work, (_func), (_data));	\
+@@ -75,6 +79,13 @@ #define INIT_DELAYABLE_WORK(_work, _func
  		init_timer(&(_work)->timer);			\
  	} while (0)
  
-@@ -62,39 +81,48 @@ #define create_singlethread_workqueue(na
- extern void destroy_workqueue(struct workqueue_struct *wq);
++/**
++ * work_pending - Find out whether a work item is currently pending
++ * @work: The work item in question
++ */
++#define work_pending(work) \
++	test_bit(WORK_STRUCT_PENDING, &(work)->management)
++
+ extern struct workqueue_struct *__create_workqueue(const char *name,
+ 						    int singlethread);
+ #define create_workqueue(name) __create_workqueue((name), 0)
+@@ -124,7 +135,7 @@ static inline int cancel_delayed_work(st
  
- extern int FASTCALL(queue_work(struct workqueue_struct *wq, struct work_struct *work));
--extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
-+static inline
-+int queue_dwork(struct workqueue_struct *wq, struct dwork_struct *dwork)
-+{
-+	return queue_work(wq, &dwork->work);
-+}
-+extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct dwork_struct *dwork, unsigned long delay));
- extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
--	struct work_struct *work, unsigned long delay);
-+	struct dwork_struct *work, unsigned long delay);
- extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
- 
- extern int FASTCALL(schedule_work(struct work_struct *work));
--extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
-+static inline int schedule_dwork(struct dwork_struct *dwork)
-+{
-+	return schedule_work(&dwork->work);
-+}
-+extern int FASTCALL(schedule_delayed_work(struct dwork_struct *dwork, unsigned long delay));
- 
--extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
-+extern int schedule_delayed_work_on(int cpu, struct dwork_struct *dwork, unsigned long delay);
- extern int schedule_on_each_cpu(void (*func)(void *info), void *info);
- extern void flush_scheduled_work(void);
- extern int current_is_keventd(void);
- extern int keventd_up(void);
- 
- extern void init_workqueues(void);
--void cancel_rearming_delayed_work(struct work_struct *work);
-+void cancel_rearming_delayed_work(struct dwork_struct *dwork);
- void cancel_rearming_delayed_workqueue(struct workqueue_struct *,
--				       struct work_struct *);
-+				       struct dwork_struct *);
- int execute_in_process_context(void (*fn)(void *), void *,
- 			       struct execute_work *);
- 
- /*
-  * Kill off a pending schedule_delayed_work().  Note that the work callback
-- * function may still be running on return from cancel_delayed_work().  Run
-+ * function may still be running on return from cancel_delayed_dwork().  Run
-  * flush_scheduled_work() to wait on it.
-  */
--static inline int cancel_delayed_work(struct work_struct *work)
-+static inline int cancel_delayed_work(struct dwork_struct *dwork)
- {
- 	int ret;
- 
--	ret = del_timer_sync(&work->timer);
-+	ret = del_timer_sync(&dwork->timer);
+ 	ret = del_timer_sync(&dwork->timer);
  	if (ret)
--		clear_bit(0, &work->pending);
-+		clear_bit(0, &dwork->work.pending);
+-		clear_bit(0, &dwork->work.pending);
++		clear_bit(WORK_STRUCT_PENDING, &dwork->work.management);
  	return ret;
  }
  
 diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 17c2f03..bfd1888 100644
+index bb2b6a7..a81d151 100644
 --- a/kernel/workqueue.c
 +++ b/kernel/workqueue.c
-@@ -122,29 +122,30 @@ EXPORT_SYMBOL_GPL(queue_work);
+@@ -80,6 +80,29 @@ static inline int is_single_threaded(str
+ 	return list_empty(&wq->list);
+ }
  
++static inline void set_wq_data(struct work_struct *work, void *wq)
++{
++	unsigned long new, old, res;
++
++	/* assume the pending flag is already set and that the task has already
++	 * been queued on this workqueue */
++	new = (unsigned long) wq | (1UL << WORK_STRUCT_PENDING);
++	res = work->management;
++	if (res != new) {
++		do {
++			old = res;
++			new = (unsigned long) wq;
++			new |= (old & WORK_STRUCT_FLAG_MASK);
++			res = cmpxchg(&work->management, old, new);
++		} while (res != old);
++	}
++}
++
++static inline void *get_wq_data(struct work_struct *work)
++{
++	return (void *) (work->management & WORK_STRUCT_WQ_DATA_MASK);
++}
++
+ /* Preempt must be disabled. */
+ static void __queue_work(struct cpu_workqueue_struct *cwq,
+ 			 struct work_struct *work)
+@@ -87,7 +110,7 @@ static void __queue_work(struct cpu_work
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&cwq->lock, flags);
+-	work->wq_data = cwq;
++	set_wq_data(work, cwq);
+ 	list_add_tail(&work->entry, &cwq->worklist);
+ 	cwq->insert_sequence++;
+ 	wake_up(&cwq->more_work);
+@@ -108,7 +131,7 @@ int fastcall queue_work(struct workqueue
+ {
+ 	int ret = 0, cpu = get_cpu();
+ 
+-	if (!test_and_set_bit(0, &work->pending)) {
++	if (!test_and_set_bit(WORK_STRUCT_PENDING, &work->management)) {
+ 		if (unlikely(is_single_threaded(wq)))
+ 			cpu = singlethread_cpu;
+ 		BUG_ON(!list_empty(&work->entry));
+@@ -123,7 +146,7 @@ EXPORT_SYMBOL_GPL(queue_work);
  static void delayed_work_timer_fn(unsigned long __data)
  {
--	struct work_struct *work = (struct work_struct *)__data;
--	struct workqueue_struct *wq = work->wq_data;
-+	struct dwork_struct *dwork = (struct dwork_struct *)__data;
-+	struct workqueue_struct *wq = dwork->work.wq_data;
+ 	struct dwork_struct *dwork = (struct dwork_struct *)__data;
+-	struct workqueue_struct *wq = dwork->work.wq_data;
++	struct workqueue_struct *wq = get_wq_data(&dwork->work);
  	int cpu = smp_processor_id();
  
  	if (unlikely(is_single_threaded(wq)))
- 		cpu = singlethread_cpu;
+@@ -147,12 +170,12 @@ int fastcall queue_delayed_work(struct w
+ 	struct timer_list *timer = &dwork->timer;
+ 	struct work_struct *work = &dwork->work;
  
--	__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), work);
-+	__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), &dwork->work);
- }
- 
- /**
-  * queue_delayed_work - queue work on a workqueue after delay
-  * @wq: workqueue to use
-- * @work: work to queue
-+ * @work: delayable work to queue
-  * @delay: number of jiffies to wait before queueing
-  *
-  * Returns 0 if @work was already on a queue, non-zero otherwise.
-  */
- int fastcall queue_delayed_work(struct workqueue_struct *wq,
--			struct work_struct *work, unsigned long delay)
-+			struct dwork_struct *dwork, unsigned long delay)
- {
- 	int ret = 0;
--	struct timer_list *timer = &work->timer;
-+	struct timer_list *timer = &dwork->timer;
-+	struct work_struct *work = &dwork->work;
- 
- 	if (!test_and_set_bit(0, &work->pending)) {
+-	if (!test_and_set_bit(0, &work->pending)) {
++	if (!test_and_set_bit(WORK_STRUCT_PENDING, &work->management)) {
  		BUG_ON(timer_pending(timer));
-@@ -153,7 +154,7 @@ int fastcall queue_delayed_work(struct w
- 		/* This stores wq for the moment, for the timer_fn */
- 		work->wq_data = wq;
- 		timer->expires = jiffies + delay;
--		timer->data = (unsigned long)work;
-+		timer->data = (unsigned long)dwork;
- 		timer->function = delayed_work_timer_fn;
- 		add_timer(timer);
- 		ret = 1;
-@@ -172,10 +173,11 @@ EXPORT_SYMBOL_GPL(queue_delayed_work);
-  * Returns 0 if @work was already on a queue, non-zero otherwise.
-  */
- int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
--			struct work_struct *work, unsigned long delay)
-+			struct dwork_struct *dwork, unsigned long delay)
- {
- 	int ret = 0;
--	struct timer_list *timer = &work->timer;
-+	struct timer_list *timer = &dwork->timer;
-+	struct work_struct *work = &dwork->work;
+ 		BUG_ON(!list_empty(&work->entry));
  
- 	if (!test_and_set_bit(0, &work->pending)) {
+ 		/* This stores wq for the moment, for the timer_fn */
+-		work->wq_data = wq;
++		set_wq_data(work, wq);
+ 		timer->expires = jiffies + delay;
+ 		timer->data = (unsigned long)dwork;
+ 		timer->function = delayed_work_timer_fn;
+@@ -179,12 +202,12 @@ int queue_delayed_work_on(int cpu, struc
+ 	struct timer_list *timer = &dwork->timer;
+ 	struct work_struct *work = &dwork->work;
+ 
+-	if (!test_and_set_bit(0, &work->pending)) {
++	if (!test_and_set_bit(WORK_STRUCT_PENDING, &work->management)) {
  		BUG_ON(timer_pending(timer));
-@@ -184,7 +186,7 @@ int queue_delayed_work_on(int cpu, struc
+ 		BUG_ON(!list_empty(&work->entry));
+ 
  		/* This stores wq for the moment, for the timer_fn */
- 		work->wq_data = wq;
+-		work->wq_data = wq;
++		set_wq_data(work, wq);
  		timer->expires = jiffies + delay;
--		timer->data = (unsigned long)work;
-+		timer->data = (unsigned long)dwork;
+ 		timer->data = (unsigned long)dwork;
  		timer->function = delayed_work_timer_fn;
- 		add_timer_on(timer, cpu);
- 		ret = 1;
-@@ -468,31 +470,31 @@ EXPORT_SYMBOL(schedule_work);
+@@ -220,8 +243,8 @@ static void run_workqueue(struct cpu_wor
+ 		list_del_init(cwq->worklist.next);
+ 		spin_unlock_irqrestore(&cwq->lock, flags);
  
- /**
-  * schedule_delayed_work - put work task in global workqueue after delay
-- * @work: job to be done
-+ * @dwork: job to be done
-  * @delay: number of jiffies to wait
-  *
-  * After waiting for a given time this puts a job in the kernel-global
-  * workqueue.
-  */
--int fastcall schedule_delayed_work(struct work_struct *work, unsigned long delay)
-+int fastcall schedule_delayed_work(struct dwork_struct *dwork, unsigned long delay)
- {
--	return queue_delayed_work(keventd_wq, work, delay);
-+	return queue_delayed_work(keventd_wq, dwork, delay);
- }
- EXPORT_SYMBOL(schedule_delayed_work);
+-		BUG_ON(work->wq_data != cwq);
+-		clear_bit(0, &work->pending);
++		BUG_ON(get_wq_data(work) != cwq);
++		clear_bit(WORK_STRUCT_PENDING, &work->management);
+ 		f(data);
  
- /**
-  * schedule_delayed_work_on - queue work in global workqueue on CPU after delay
-  * @cpu: cpu to use
-- * @work: job to be done
-+ * @dwork: job to be done
-  * @delay: number of jiffies to wait
-  *
-  * After waiting for a given time this puts a job in the kernel-global
-  * workqueue on the specified CPU.
-  */
- int schedule_delayed_work_on(int cpu,
--			struct work_struct *work, unsigned long delay)
-+			struct dwork_struct *dwork, unsigned long delay)
- {
--	return queue_delayed_work_on(cpu, keventd_wq, work, delay);
-+	return queue_delayed_work_on(cpu, keventd_wq, dwork, delay);
- }
- EXPORT_SYMBOL(schedule_delayed_work_on);
- 
-@@ -539,12 +541,12 @@ EXPORT_SYMBOL(flush_scheduled_work);
-  * cancel_rearming_delayed_workqueue - reliably kill off a delayed
-  *			work whose handler rearms the delayed work.
-  * @wq:   the controlling workqueue structure
-- * @work: the delayed work struct
-+ * @dwork: the delayed work struct
-  */
- void cancel_rearming_delayed_workqueue(struct workqueue_struct *wq,
--				       struct work_struct *work)
-+				       struct dwork_struct *dwork)
- {
--	while (!cancel_delayed_work(work))
-+	while (!cancel_delayed_work(dwork))
- 		flush_workqueue(wq);
- }
- EXPORT_SYMBOL(cancel_rearming_delayed_workqueue);
-@@ -552,11 +554,11 @@ EXPORT_SYMBOL(cancel_rearming_delayed_wo
- /**
-  * cancel_rearming_delayed_work - reliably kill off a delayed keventd
-  *			work whose handler rearms the delayed work.
-- * @work: the delayed work struct
-+ * @dwork: the delayed work struct
-  */
--void cancel_rearming_delayed_work(struct work_struct *work)
-+void cancel_rearming_delayed_work(struct dwork_struct *dwork)
- {
--	cancel_rearming_delayed_workqueue(keventd_wq, work);
-+	cancel_rearming_delayed_workqueue(keventd_wq, dwork);
- }
- EXPORT_SYMBOL(cancel_rearming_delayed_work);
- 
-diff --git a/mm/slab.c b/mm/slab.c
-index 3c4a7e3..ad281b2 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -753,7 +753,7 @@ int slab_is_available(void)
- 	return g_cpucache_up == FULL;
- }
- 
--static DEFINE_PER_CPU(struct work_struct, reap_work);
-+static DEFINE_PER_CPU(struct dwork_struct, reap_work);
- 
- static inline struct array_cache *cpu_cache_get(struct kmem_cache *cachep)
- {
-@@ -916,16 +916,16 @@ #endif
-  */
- static void __devinit start_cpu_timer(int cpu)
- {
--	struct work_struct *reap_work = &per_cpu(reap_work, cpu);
-+	struct dwork_struct *reap_work = &per_cpu(reap_work, cpu);
- 
- 	/*
- 	 * When this gets called from do_initcalls via cpucache_init(),
- 	 * init_workqueues() has already run, so keventd will be setup
- 	 * at that time.
- 	 */
--	if (keventd_up() && reap_work->func == NULL) {
-+	if (keventd_up() && reap_work->work.func == NULL) {
- 		init_reap_node(cpu);
--		INIT_WORK(reap_work, cache_reap, NULL);
-+		INIT_DELAYABLE_WORK(reap_work, cache_reap, NULL);
- 		schedule_delayed_work_on(cpu, reap_work, HZ + 3 * cpu);
- 	}
- }
-diff --git a/net/core/link_watch.c b/net/core/link_watch.c
-index 4b36114..c63c167 100644
---- a/net/core/link_watch.c
-+++ b/net/core/link_watch.c
-@@ -35,7 +35,7 @@ static unsigned long linkwatch_flags;
- static unsigned long linkwatch_nextevent;
- 
- static void linkwatch_event(void *dummy);
--static DECLARE_WORK(linkwatch_work, linkwatch_event, NULL);
-+static DECLARE_DELAYABLE_WORK(linkwatch_work, linkwatch_event, NULL);
- 
- static LIST_HEAD(lweventlist);
- static DEFINE_SPINLOCK(lweventlist_lock);
-@@ -172,7 +172,7 @@ void linkwatch_fire_event(struct net_dev
- 
- 			/* If we wrap around we'll delay it by at most HZ. */
- 			if (!delay || delay > HZ)
--				schedule_work(&linkwatch_work);
-+				schedule_dwork(&linkwatch_work);
- 			else
- 				schedule_delayed_work(&linkwatch_work, delay);
- 		}
-diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
-index 00cb388..1435b71 100644
---- a/net/sunrpc/cache.c
-+++ b/net/sunrpc/cache.c
-@@ -285,7 +285,7 @@ static struct file_operations content_fi
- static struct file_operations cache_flush_operations;
- 
- static void do_cache_clean(void *data);
--static DECLARE_WORK(cache_cleaner, do_cache_clean, NULL);
-+static DECLARE_DELAYABLE_WORK(cache_cleaner, do_cache_clean, NULL);
- 
- void cache_register(struct cache_detail *cd)
- {
-@@ -337,7 +337,7 @@ void cache_register(struct cache_detail 
- 	spin_unlock(&cache_list_lock);
- 
- 	/* start the cleaning process */
--	schedule_work(&cache_cleaner);
-+	schedule_dwork(&cache_cleaner);
- }
- 
- int cache_unregister(struct cache_detail *cd)
-diff --git a/net/sunrpc/rpc_pipe.c b/net/sunrpc/rpc_pipe.c
-index 9a0b41a..333307e 100644
---- a/net/sunrpc/rpc_pipe.c
-+++ b/net/sunrpc/rpc_pipe.c
-@@ -837,7 +837,8 @@ init_once(void * foo, kmem_cache_t * cac
- 		INIT_LIST_HEAD(&rpci->pipe);
- 		rpci->pipelen = 0;
- 		init_waitqueue_head(&rpci->waitq);
--		INIT_WORK(&rpci->queue_timeout, rpc_timeout_upcall_queue, rpci);
-+		INIT_DELAYABLE_WORK(&rpci->queue_timeout,
-+				    rpc_timeout_upcall_queue, rpci);
- 		rpci->ops = NULL;
- 	}
- }
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 757fc91..b0a8635 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1262,7 +1262,7 @@ static void xs_connect(struct rpc_task *
- 			xprt->reestablish_timeout = XS_TCP_MAX_REEST_TO;
- 	} else {
- 		dprintk("RPC:      xs_connect scheduled xprt %p\n", xprt);
--		schedule_work(&xprt->connect_worker);
-+		schedule_dwork(&xprt->connect_worker);
- 
- 		/* flush_scheduled_work can sleep... */
- 		if (!RPC_IS_ASYNC(task))
-@@ -1375,7 +1375,8 @@ int xs_setup_udp(struct rpc_xprt *xprt, 
- 	/* XXX: header size can vary due to auth type, IPv6, etc. */
- 	xprt->max_payload = (1U << 16) - (MAX_HEADER << 3);
- 
--	INIT_WORK(&xprt->connect_worker, xs_udp_connect_worker, xprt);
-+	INIT_DELAYABLE_WORK(&xprt->connect_worker, xs_udp_connect_worker,
-+			    xprt);
- 	xprt->bind_timeout = XS_BIND_TO;
- 	xprt->connect_timeout = XS_UDP_CONN_TO;
- 	xprt->reestablish_timeout = XS_UDP_REEST_TO;
-@@ -1420,7 +1421,8 @@ int xs_setup_tcp(struct rpc_xprt *xprt, 
- 	xprt->tsh_size = sizeof(rpc_fraghdr) / sizeof(u32);
- 	xprt->max_payload = RPC_MAX_FRAGMENT_SIZE;
- 
--	INIT_WORK(&xprt->connect_worker, xs_tcp_connect_worker, xprt);
-+	INIT_DELAYABLE_WORK(&xprt->connect_worker, xs_tcp_connect_worker,
-+			    xprt);
- 	xprt->bind_timeout = XS_BIND_TO;
- 	xprt->connect_timeout = XS_TCP_CONN_TO;
- 	xprt->reestablish_timeout = XS_TCP_INIT_REEST_TO;
+ 		spin_lock_irqsave(&cwq->lock, flags);

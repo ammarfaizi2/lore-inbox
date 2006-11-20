@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966711AbWKTW7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934279AbWKTXGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966711AbWKTW7a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966877AbWKTW7a
+	id S934279AbWKTXGi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 18:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934276AbWKTXGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:59:30 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:27079 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S966711AbWKTW73 (ORCPT
+	Mon, 20 Nov 2006 18:06:38 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:29895 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S934272AbWKTXGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:59:29 -0500
+	Mon, 20 Nov 2006 18:06:37 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: nigelc@bur.st
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
-Date: Mon, 20 Nov 2006 23:55:49 +0100
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: Quadratic behavior of shrink_dcache_parent()
+Date: Tue, 21 Nov 2006 00:03:12 +0100
 User-Agent: KMail/1.9.1
-Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200611160912.51226.rjw@sisk.pl> <1164061586.15714.1.camel@nigel.suspend2.net> <1164062390.15714.5.camel@nigel.suspend2.net>
-In-Reply-To: <1164062390.15714.5.camel@nigel.suspend2.net>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <E1Gm731-0003Br-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1Gm731-0003Br-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611202355.50487.rjw@sisk.pl>
+Message-Id: <200611210003.13417.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 20 November 2006 23:39, Nigel Cunningham wrote:
-> (Sorry to reply again)
-
-(No big deal)
-
-> On Tue, 2006-11-21 at 09:26 +1100, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
-> > > I think I/O can only be submitted from the process context.  Thus if we freeze
-> > > all (and I mean _all_) threads that are used by filesystems, including worker
-> > > threads, we should effectively prevent fs-related I/O from being submitted
-> > > after tasks have been frozen.
-> > 
-> > I know that will work. It's what I used to do before the switch to bdev
-> > freezing. I guess I need to look again at why I made the switch. Perhaps
-> > it was just because you guys gave freezing kthreads a bad wrap as too
-> > invasive or something. Bdev freezing is certainly fewer lines of code.
+On Monday, 20 November 2006 12:10, Miklos Szeredi wrote:
+> The shrink_dcache_parent() can take a very long time for deep
+> directory trees: minutes for depth of 100,000, probably hours for
+> depth of 1,000,000.
 > 
-> No, it looks like I wrongly believed that XFS was submitting I/O off a
-> timer, so that freezing kthreads wasn't enough. In that case, it looks
-> like freezing kthreads should be a good solution.
+> The reason is that after dropping a leaf, it starts again from the
+> root.
 
-Okay, so let's implement it. :-)
+Oh, well.  So that's the reason why the shrinking of memory in swsusp can
+take so much time.
+
+> Filesystems affected include FUSE, NFS, CIFS.  Others I haven't
+> checked.  NFS and to a lesser extent CIFS don't seem to efficiently
+> handle lookups within such a deep hierarchy, so they're sort of
+> immune.
+> 
+> But with FUSE it's pretty easy to DoS the system.
+> 
+> Limiting the depth to some sane value could work around this problem,
+> but that would mean having to traverse subtrees in rename().
+> 
+> Any better ideas?
+
+None, for now.  It looks like I need to learn that code ...
 
 Greetings,
 Rafael

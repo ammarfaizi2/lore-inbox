@@ -1,98 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755650AbWKTNVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934034AbWKTN0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755650AbWKTNVB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 08:21:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756459AbWKTNVA
+	id S934034AbWKTN0k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 08:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934035AbWKTN0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 08:21:00 -0500
-Received: from static.88-198-202-190.clients.your-server.de ([88.198.202.190]:4766
-	"EHLO kleinhenz.com") by vger.kernel.org with ESMTP
-	id S1755649AbWKTNU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 08:20:59 -0500
-Message-ID: <4561ABB4.6090700@hogyros.de>
-Date: Mon, 20 Nov 2006 14:20:52 +0100
-From: Simon Richter <Simon.Richter@hogyros.de>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
+	Mon, 20 Nov 2006 08:26:40 -0500
+Received: from h155.mvista.com ([63.81.120.155]:56003 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S934034AbWKTN0j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 08:26:39 -0500
+Message-ID: <4561AD63.1060201@ru.mvista.com>
+Date: Mon, 20 Nov 2006 16:28:03 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RFC: implement daemon() in the kernel
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: url=http://www.hogyros.de/simon.asc
-Content-Type: text/plain; charset=UTF-8
+To: Stefan Roese <ml@stefan-roese.de>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] serial: Use real irq on UART0 (IRQ = 0) on PPC4xx systems
+References: <200611201200.36780.ml@stefan-roese.de>
+In-Reply-To: <200611201200.36780.ml@stefan-roese.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please CC me on replies]
+Hello.
 
-Hi,
+Stefan Roese wrote:
+> This patch fixes a problem seen on multiple 4xx platforms, where
+> the UART0 interrupt number is 0. The macro "is_real_interrupt" lead
+> on those systems to not use an real interrupt but the timer based
+> implementation.
 
-I'm working with Linux on MMUless systems, and one of the biggest issues
-in porting software is the lack of working fork().
+> This problem was detected and fixed by
+> Charles Gales <cgales@amcc.com> and John Baxter <jbaxter@amcc.com>
+> from AMCC.
 
-Except some special cases (like openssh's priviledge separation), fork()
-is called in mainly three cases:
+> Signed-off-by: Stefan Roese <sr@denx.de>
 
- - spawn off a new process, which calls exec() immediately
+> ---
+> commit f83094acd3258575c9a5cdb1d65e241c16eff03a
+> tree 72582c5eeb2a9c8ea57287616d51e42fff8ed641
+> parent f56f68c4e1977f0e884a304af4c617bed4909417
+> author Stefan Roese <sr@denx.de> Sat, 18 Nov 2006 10:28:50 +0100
+> committer Stefan Roese <sr@denx.de> Sat, 18 Nov 2006 10:28:50 +0100
 
-This can be easily replaced by a call to vfork(), which invokes the
-clone() syscall with the CLONE_VFORK flag.
+>  drivers/serial/8250.c |   22 ++++++++++++++--------
+>  1 files changed, 14 insertions(+), 8 deletions(-)
 
- - split off some work into a separate thread and provide address space
-separation
+> diff --git a/drivers/serial/8250.c b/drivers/serial/8250.c
+> index e34bd03..a51679e 100644
+> --- a/drivers/serial/8250.c
+> +++ b/drivers/serial/8250.c
+> @@ -76,8 +76,14 @@ static unsigned int nr_uarts = CONFIG_SE
+>   * We default to IRQ0 for the "no irq" hack.   Some
+>   * machine types want others as well - they're free
+>   * to redefine this in their header file.
+> + * NOTE:  Some PPC4xx use IRQ0 for a UART Interrupt, so
+> + * we will assume that the IRQ is always real
+>   */
+> +#ifdef CONFIG_4xx
+> +#define is_real_interrupt(irq)	(1)
+> +#else
+>  #define is_real_interrupt(irq)	((irq) != 0)
+> +#endif
 
-Since we don't have a MMU, there is no address space separation anyway,
-so we can replace this with a pthread_create(), which in turn calls clone().
+    This should have been done in <asm/serial.h> instead, like this:
 
- - daemonize a process
+#undef is_real_interrupt(irq)
+#define is_real_interrupt(irq)	1
 
-There is a function called daemon() that does this; its behaviour is
-roughly defined by (modulo error handling)
+    Not too smart as well,but at least this wasy you won't be pulluting the 
+generic code...
 
-int daemon(int nochdir, int noclose)
-{
-	if(!nochdir)
-		chdir("/");
-
-	if(!noclose)
-	{
-		int fd = open("/dev/null", O_RDWR);
-		dup2(fd, 0);
-		dup2(fd, 1);
-		dup2(fd, 2);
-		close(fd);
-	}
-
-	if(fork() > 0)
-		_exit(0);
-}
-
-Since it calls _exit() right after fork() returns (so daemon() never
-returns to the calling process except in case of an error) it would be
-possible to implement this on MMUless machines if the last two lines
-could happen in the kernel.
-
-I can see three possible implementations:
-
- - "cheap" implementation
-
-The process is assigned a new PID and the parent is pretended to have
-exited. There are a lot of pitfalls here, so it is probably not a good idea.
-
- - a reverse vfork()
-
-The child process is created and suspended, the parent continues to run
-until it calls exec() or _exit(). The good thing here is that it should
-be easy to implement as the infrastructure for suspending a process
-until another exits already exists.
-
- - "normal" implementation
-
-The child is created, the parent immediately zombiefied with a return
-code of zero. This might be more difficult to implement as the current
-implementation of fork() does not need to terminate a process in any
-way, so there might be funny locking and other issues.
-
-Questions? Comments?
-
-   Simon
+WBR, Sergei

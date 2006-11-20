@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966531AbWKTWPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966606AbWKTWTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966531AbWKTWPl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966606AbWKTWPk
+	id S966606AbWKTWTe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966275AbWKTWTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:15:40 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:25942 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966531AbWKTWPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:15:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=HRkvoub9zgFHs6UtMpCPTomL6U7fTShcoNL1BPJqxCg78eC48xpe9Oiy33nGQpmAPS9DJ2d6okRDB5+PrZVwjrwYNs62axfzkcZ2SBMmXLuzTly5SqEWEDjW1keyIKuF0wwC92zJt5DQwWMHiC05x/B/ip5vhg6LMlrsq7PpMBY=  ;
-X-YMail-OSG: ea.T9TQVM1lRZ8_dU0na5EvLD04lkbsKIrnqHuADfKEIKPWVsIAirv_FJ0gxrYDidok6VfHrD5H4SgUTMBoZ7w3YCyACPLZ0D3SEY2cluAVk6V3eMT0.lKSYoMD71nRbTSVgvkc5UpJBlh6ZItYifa2dD84mdnEgr_Q-
-From: David Brownell <david-b@pacbell.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.19-rc6 0/6] more rtc framework/driver updates
-Date: Mon, 20 Nov 2006 10:14:41 -0800
-User-Agent: KMail/1.7.1
+	Mon, 20 Nov 2006 17:19:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:51920 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S966606AbWKTWTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:19:32 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611201014.41980.david-b@pacbell.net>
+Message-ID: <17762.9524.67555.778549@cargo.ozlabs.ibm.com>
+Date: Tue, 21 Nov 2006 08:59:16 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: Re: [PATCH 01/22] powerpc: convert idle_loop to use hard_irq_disable()
+In-Reply-To: <20061120180520.418063000@arndb.de>
+References: <20061120174454.067872000@arndb.de>
+	<20061120180520.418063000@arndb.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are more RTC framework updates, basically for the 2.6.20 queue:
+Arnd Bergmann writes:
 
- - /proc/driver/rtc update ... display the 'struct rtc_wkalrm' status
-   bits more sensibly (though the EFI "irq pending" flag is nonsense
-   with an OS running)
+> I got a bug report that I believe might be fixed by this
+> patch. The problem seems to be that with soft-disabled
+> interrupts in power_save, we can still get external exceptions
+> on Cell, even if we are in pause(0) a.k.a. sleep state.
 
- - rtc-sa1100 update ... wasn't reporting "alarm enabled", and its
-   extra procfs info duplicated information already found there
+[snip]
 
- - X86_PC updates ... create an rtc_cmos platform device when PNPACPI
-   isn't available do make one through PNP.  (Non-PC platforms can do
-   similar things if they have a "cmos" RTC.)
+> -				local_irq_disable();
+> +				hard_irq_disable();
 
- - Export ACPI RTC extensions through platform_data to the PNP device
-   or the platform device, as appropriate.
+This would mean that any platform-specific power_save function that
+wants to re-enable interrupts (as the pseries ones do) would have to
+do hard_irq_enable instead of local_irq_enable.  Also, I don't think
+this change will be good on iSeries.
 
- - New "rtc-cmos" driver, for the RTC on most PCs.  For most folk this
-   seems like it should be able to replace drivers/char/rtc.c ...
+What we want is an irq-disable function that is like local_irq_disable
+but also clears MSR_EE and the hard irq enabled flag (provided we
+aren't running on iSeries).
 
- - Newish "rtc-omap" driver, for the RTC on OMAP1 processors.  No point
-   in having this just live in the OMAP tree.
-
-Folk wanting to try "rtc-cmos" will likely be wanting to tweak their
-/dev/rtc node to become a symlink to /dev/rtc0, at least until the
-new version of util-linux comes out (with updated "hwclock" knowing
-about the new RTC class devices).
-
-- Dave
-
+Paul.

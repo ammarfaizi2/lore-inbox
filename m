@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966236AbWKTRWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966213AbWKTR0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966236AbWKTRWq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966238AbWKTRWq
+	id S966213AbWKTR0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966239AbWKTR0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:22:46 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64213 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S966236AbWKTRWp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:22:45 -0500
-Date: Mon, 20 Nov 2006 17:28:12 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: avl@logic.at
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible bug in ide-disk.c (2.6.18.2 but also older)
-Message-ID: <20061120172812.64837a0a@localhost.localdomain>
-In-Reply-To: <20061120165601.GS6851@gamma.logic.tuwien.ac.at>
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at>
-	<20061120152505.5d0ba6c5@localhost.localdomain>
-	<20061120165601.GS6851@gamma.logic.tuwien.ac.at>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 12:26:24 -0500
+Received: from nlpi029.sbcis.sbc.com ([207.115.36.58]:55771 "EHLO
+	nlpi029.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S966213AbWKTR0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:26:23 -0500
+X-ORBL: [67.117.73.34]
+Date: Mon, 20 Nov 2006 17:26:09 +0000
+From: Tony Lindgren <tony@atomide.com>
+To: Vladimir <vovan888@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Basic support for siemens sx1
+Message-ID: <20061120172609.GB4597@atomide.com>
+References: <20061116170209.GA5544@elf.ucw.cz> <20061117175431.GD6072@atomide.com> <20061118003816.GA9187@elf.ucw.cz> <20061118010022.GQ6072@atomide.com> <ce55079f0611200056k19ab8b92p4aad189e6884e75@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ce55079f0611200056k19ab8b92p4aad189e6884e75@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While I used Knoppix to determine the age of the bug, it does also
-> appear with a plain vanilla 2.6.18.2 kernel from www.kernel.org.
-> The ChangeLog for 2.6.18.3 also doesn't mention ide-disk.
+* Vladimir <vovan888@gmail.com> [061120 08:57]:
+> 2006/11/18, Tony Lindgren <tony@atomide.com>:
+> >* Pavel Machek <pavel@ucw.cz> [061118 02:38]:
+> >> Hi!
+> >>
+> >> > * Pavel Machek <pavel@ucw.cz> [061116 19:04]:
+> >> > > From: Vladimir Ananiev <vovan888@gmail.com>
+> >> > >
+> >> > > This adds basic support for Siemens SX1. More patches are available,
+> >> > > with video driver, mixer, and serial ports working. That is enough to
+> >> > > do gsm calls with right userland.
+> >> >
+> >> > Cool.
+> >>
+> >> :-)
+> >>
+> >> > > It would be nice to get basic patches merged to the -omap tree... do
+> >> > > they look ok?
+> >> >
+> >> > Yeah, looks good, except for the i2c part. Is Sofia really a TI PCF8574
+> >> > i2c chip? In that case it could use the gpioexpander code.
+> >> >
+> >> > Anyways, let's plan on pushing this to linux-omap tree, then do the
+> >> > changes for gpioexpander, and send that upstream too.
+> >>
+> >> Works for me. I'll check with google to find out what sofia really is.
+> >
+> >OK, I've pushed to linux-omap after separating USB and MMC code into
+> >separate patches. Also did a bit more tabifying on the code.
+> >
+> >BTW, PCF8574 .pdf is available on TI's site.
+> >
+> >Regards,
+> >
+> >Tony
+> >
+> 
+> Sofia is manufactured by Dialog and i didnt find any docs about it...
+> And it is completely different from PCF8574, it is power controller IC.
 
-The old IDE layer does not currently have a maintainer.
- 
-> I must admit, I don't know about GPT.  My system's bios
-> is old enough to not know about EFI, and the partition-scheme
-> on that harddisk dates back quite a few years, so it's unlikely
-> to be anything than the good ol' MBR.
+OK, thanks for clarifying that.
 
-The reason I ask is that they put the partition in the last sector which
-means a block read of the last sector goes off the end of the disk and
-certainly used to be mishandled by the IDE code.
-
-> Alternatively, a kernel-option to manually disable hpa-checking
-> would be a good step to solve the problem even for drives like mine.
-
-It's a compile time option. If you don't have GPT partitioning support
-then the system ought to behave correctly.
-
-Alan
+Tony

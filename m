@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965382AbWKTK1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934041AbWKTK04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965382AbWKTK1W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 05:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965693AbWKTK1W
+	id S934041AbWKTK04 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 05:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934042AbWKTK04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 05:27:22 -0500
-Received: from il.qumranet.com ([62.219.232.206]:32474 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S965382AbWKTK1V (ORCPT
+	Mon, 20 Nov 2006 05:26:56 -0500
+Received: from il.qumranet.com ([62.219.232.206]:31194 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S934041AbWKTK0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 05:27:21 -0500
-Subject: [PATCH 1/3] KVM: Handle rdmsr(MSR_EFER)
+	Mon, 20 Nov 2006 05:26:55 -0500
+Message-ID: <456182ED.4070803@qumranet.com>
+Date: Mon, 20 Nov 2006 12:26:53 +0200
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 20 Nov 2006 10:27:20 -0000
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
 To: kvm-devel@lists.sourceforge.net
-Cc: akpm@osdl.org, kvm-devel@lists.sourceforge.net, yaniv.kamay@qumranet.com,
-       linux-kernel@vger.kernel.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Yaniv Kamay <yaniv.kamay@qumranet.com>
+Subject: Re: [PATCH 0/3] KVM: Assorted minor fixes
 References: <45617A00.5040303@qumranet.com>
 In-Reply-To: <45617A00.5040303@qumranet.com>
-Message-Id: <20061120102720.9B03025015E@cleopatra.q>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Yaniv Kamay <yaniv@qumranet.com>
+Avi Kivity wrote:
+> The following patchset fixes some minor kvm issues, mostly found while 
+> adding AMD support.
+>
 
-Allow guests to read the EFER msr.
+Forgot to cc lkml with the actual patches.  Will resend.  Please ignore 
+any duplicates.
 
-Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+-- 
+error compiling committee.c: too many arguments to function
 
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -2323,6 +2323,9 @@ static int get_msr(struct kvm_vcpu *vcpu
- 	case MSR_GS_BASE:
- 		data = vmcs_readl(GUEST_GS_BASE);
- 		break;
-+	case MSR_EFER:
-+		data = vcpu->shadow_efer;
-+		break;
- #endif
- 	case MSR_IA32_TIME_STAMP_COUNTER:
- 		data = guest_read_tsc();

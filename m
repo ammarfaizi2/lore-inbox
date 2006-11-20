@@ -1,133 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966205AbWKTQ6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966209AbWKTRBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966205AbWKTQ6M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 11:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966197AbWKTQ6M
+	id S966209AbWKTRBz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966210AbWKTRBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 11:58:12 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:23478 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S966205AbWKTQ6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 11:58:10 -0500
-Date: Mon, 20 Nov 2006 08:59:23 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061120165923.GD8033@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118184624.GA163@oleg> <20061119210746.GD4427@us.ibm.com> <20061120071514.GB4077@kernel.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061120071514.GB4077@kernel.dk>
-User-Agent: Mutt/1.4.1i
+	Mon, 20 Nov 2006 12:01:55 -0500
+Received: from h155.mvista.com ([63.81.120.155]:16327 "EHLO imap.sh.mvista.com")
+	by vger.kernel.org with ESMTP id S966207AbWKTRBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:01:54 -0500
+Message-ID: <4561DFE1.4020708@ru.mvista.com>
+Date: Mon, 20 Nov 2006 20:03:29 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+ type IRQ handlers
+References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain> <20061119200650.GA22949@elte.hu> <1163967590.5826.104.camel@localhost.localdomain> <20061119202348.GA27649@elte.hu> <1163985380.5826.139.camel@localhost.localdomain> <20061120100144.GA27812@elte.hu> <4561C9EC.3020506@ru.mvista.com> <20061120165621.GA1504@elte.hu>
+In-Reply-To: <20061120165621.GA1504@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 08:15:14AM +0100, Jens Axboe wrote:
-> On Sun, Nov 19 2006, Paul E. McKenney wrote:
-> > On Sat, Nov 18, 2006 at 09:46:24PM +0300, Oleg Nesterov wrote:
-> > > On 11/17, Paul E. McKenney wrote:
-> > > >
-> > > > Oleg, any thoughts about Jens's optimization?  He would code something
-> > > > like:
-> > > >
-> > > > 	if (srcu_readers_active(&my_srcu))
-> > > > 		synchronize_srcu();
-> > > > 	else
-> > > > 		smp_mb();
-> > >
-> > > Well, this is clearly racy, no? I am not sure, but may be we can do
-> > >
-> > > 	smp_mb();
-> > > 	if (srcu_readers_active(&my_srcu))
-> > > 		synchronize_srcu();
-> > >
-> > > in this case we also need to add 'smp_mb()' into srcu_read_lock() after
-> > > 'atomic_inc(&sp->hardluckref)'.
-> > >
-> > > > However, he is doing ordered I/O requests rather than protecting data
-> > > > structures.
-> > >
-> > > Probably this makes a difference, but I don't understand this.
-> >
-> > OK, one hypothesis here...
-> >
-> > 	The I/Os must be somehow explicitly ordered to qualify
-> > 	for I/O-barrier separation.  If two independent processes
-> > 	issue I/Os concurrently with a third process doing an
-> > 	I/O barrier, the I/O barrier is free to separate the
-> > 	two concurrent I/Os or not, on its whim.
-> >
-> > Jens, is the above correct?  If so, what would the two processes
-> 
-> That's completely correct, hence my somewhat relaxed approach with SRCU.
+Hello.
 
-OK, less scary in that case.  ;-)
+Ingo Molnar wrote:
 
-> > need to do in order to ensure that their I/O was considered to be
-> > ordered with respect to the I/O barrier?  Here are some possibilities:
-> 
-> If we consider the barrier a barrier in a certain stream of requests,
-> it is the responsibility of the issuer of that barrier to ensure that
-> the queueing is ordered. So if two "unrelated" streams of requests with
-> barriers hit __make_request() at the same time, we don't go to great
-> lengths to ensure who gets there firt.
+>>>on PPC64, 'get the vector' initiates an ACK as well - is that done 
+>>>before handle_irq() is done?
 
-So the "preceding" requests have to have completed their I/O system
-calls?  If this is the case, does this include normal (non-direct/raw)
-writes and asynchronous reads?  My guess is that it would include
-asynchronous I/O, but not buffered writes.
+>>   Exactly. How else do_IRQ() would know the vector?
 
-> > 1.	I/O barriers apply only to preceding and following I/Os from
-> > 	the process issuing the I/O barrier.
-> >
-> > 2.	As for #1 above, but restricted to task rather than process.
-> >
-> > 3.	I/O system calls that have completed are ordered by the
-> > 	barrier to precede I/O system calls that have not yet
-> > 	started, but I/O system calls still in flight could legally
-> > 	land on either side of the concurrently executing I/O
-> > 	barrier.
-> >
-> > 4.	Something else entirely?
-> >
-> > Given some restriction like one of the above, it is entirely possible
-> > that we don't even need the memory barrier...
-> 
-> 3 is the closest. The request queue doesn't really know the scope of the
-> barrier, it has to rely on the issuer getting it right. If you have two
-> competing processes issuing io and process A relies on process B issuing
-> a barrier, they have to synchronize that between them. Normally that is
-> not a problem, since that's how the file systems always did io before
-> barriers on items that need to be on disk (it was a serialization point
-> anyway, it's just a stronger one now).
+> the reason i'm asking is that in this case masking is a bit late at this 
+> point and there's a chance for a repeat interrupt.
 
-So something like a user-level mutex or atomic instructions must be used
-by the tasks doing the pre-barrier I/Os to announce that these I/Os have
-been started in the kernel.
+    How's that? Acknowledge != EOI on OpenPIC (as well as 8259).
+    Acknoledging sets the bit in the in-service register preventing all the 
+interrupts with same or lower prioriry from being accepted.
 
-> That said, I think the
-> 
->         smp_mb();
->         if (srcu_readers_active(sp))
->                 synchronize_srcu();
-> 
-> makes the most sense.
+> 	Ingo
 
-If the user-level tasks/threads/processes must explicitly synchronize,
-and if the pre-barrier I/O-initation syscalls have to have completed,
-then I am not sure that the smp_mb() is needed.  Seems like the queuing
-mechanisms in the syscall and the user-level synchronization would have
-supplied the needed memory barriers.  Or are you using some extremely
-lightweight user-level synchronization?
-
-							Thanx, Paul
+WBR, Sergei

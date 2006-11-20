@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934092AbWKTMBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934093AbWKTME0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934092AbWKTMBe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 07:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934095AbWKTMBe
+	id S934093AbWKTME0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 07:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934096AbWKTME0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 07:01:34 -0500
-Received: from poczta.o2.pl ([193.17.41.142]:9927 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S934092AbWKTMBd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 07:01:33 -0500
-Date: Mon, 20 Nov 2006 13:07:52 +0100
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AF_UNIX recv/shutdown race
-Message-ID: <20061120120752.GE1001@ff.dom.local>
-Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
-	linux-kernel@vger.kernel.org
-References: <51488.68.160.147.35.1163979646.squirrel@webmail.metacarta.com> <20061120120159.GC1001@ff.dom.local>
+	Mon, 20 Nov 2006 07:04:26 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32228 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S934093AbWKTMEZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 07:04:25 -0500
+Date: Mon, 20 Nov 2006 12:10:15 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Stefan Roese <ml@stefan-roese.de>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] serial: Use real irq on UART0 (IRQ = 0) on PPC4xx
+ systems
+Message-ID: <20061120121015.2fb667d0@localhost.localdomain>
+In-Reply-To: <200611201255.37754.ml@stefan-roese.de>
+References: <200611201200.36780.ml@stefan-roese.de>
+	<20061120114248.60bb0869@localhost.localdomain>
+	<200611201255.37754.ml@stefan-roese.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061120120159.GC1001@ff.dom.local>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 01:01:59PM +0100, Jarek Poplawski wrote:
-> On 20-11-2006 00:40, jmalicki@metacarta.com wrote:
-...
-> Are you sure you can use spin_lock here? 
+On Mon, 20 Nov 2006 12:54:32 +0100 (MET)
+Stefan Roese <ml@stefan-roese.de> wrote:
+> Let's see, if I got this right. You mean that on such a platform, where 0 is a 
+> valid physical IRQ, we should assign another value as virtual IRQ number (not 
+> 0 and not -1 of course). And then the platform "pic" implementation should 
+> take care of the remapping of these virtual IRQ numbers to the physical 
+> numbers.
+> 
+> Correct?
 
-Sorry linux-kernel - it was for netdev.
-
-Jarek P.
+Absolutely correct in all the detail.

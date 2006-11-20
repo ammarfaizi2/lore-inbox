@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966509AbWKTTcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966537AbWKTTfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966509AbWKTTcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 14:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966506AbWKTTcI
+	id S966537AbWKTTfk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 14:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966538AbWKTTfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 14:32:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21156 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S966493AbWKTTcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 14:32:04 -0500
-Date: Mon, 20 Nov 2006 19:31:36 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-cc: Richard Purdie <rpurdie@rpsys.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, paulus@samba.org,
-       Lennart Poettering <mzxreary@0pointer.de>,
-       Andriy Skulysh <askulysh@image.kiev.ua>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-acpi@vger.kernel.org, Antonino Daplas <adaplas@pol.net>,
-       Holger Macht <hmacht@suse.de>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] backlight: do not power off backlight when unregistering
-In-Reply-To: <20061110000829.GA9021@khazad-dum.debian.net>
-Message-ID: <Pine.LNX.4.64.0611201928310.17639@pentafluge.infradead.org>
-References: <20061105225429.GE14295@khazad-dum.debian.net>
- <1162773394.5473.18.camel@localhost.localdomain> <20061110000829.GA9021@khazad-dum.debian.net>
+	Mon, 20 Nov 2006 14:35:40 -0500
+Received: from mail.tmr.com ([64.65.253.246]:35988 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S966537AbWKTTfi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 14:35:38 -0500
+Message-ID: <456202FF.8060709@tmr.com>
+Date: Mon, 20 Nov 2006 14:33:19 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tejun Heo <htejun@gmail.com>
+CC: Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-raid@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com,
+       dm-devel@redhat.com
+Subject: Re: Problem booting linux 2.6.19-rc5, 2.6.19-rc5-git6,      2.6.19-rc5-mm2
+ with md raid 1 over lvm root
+References: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org> <455BB01B.2080309@gmail.com>
+In-Reply-To: <455BB01B.2080309@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tejun Heo wrote:
+> Nicolas Mailhot wrote:
+>> The failing kernels (I tried -rc5, -rc5-git6, -rc5-mm2 only print :
+>>
+>> %<----
+>> device-mapper: ioctl: 4.7.0-ioctl (2006-06-24) initialised:
+>> dm-devel@redhat.com
+>> md: Autodetecting RAID arrays.
+>> md: autorun ...
+>> md: ... autorun DONE.
+>> %<-----
+>>
+>> (I didn't bother copying the rest of the failing kernel dmesg, as sata
+>> initialisation fills the first half of the screen, then dm is 
+>> initialised,
+>> then you only get the logical consequences of failing to detect the /
+>> volume. The sata part seems fine – it prints the name of the hard drives
+>> we want to use)
+>>
+>> I'm attaching the dmesg for the working distro kernel (yes I know not 
+>> 100%
+>> distro kernel, but very close to one), distro config , and the config I
+>> used in my test. If anyone could help me to figure what's wrong I'd be
+>> grateful.
+>
+> Say 'y' not 'm' to SCSI disk support.
+>
+That will probably work, but just building a new initrd is probably a 
+lot easier. Although I thought the SCSI modules were included if built 
+and installed if present.
 
-> The following in-tree (latest linux-2.6 git tree) drivers are desktop/laptop
-> devices and likely do not want the "dim and power off backlight on
-> backlight_device_unregister" behavior:
-> 
-> drivers/video/aty/*
-> drivers/video/riva/fbdev.c
-> drivers/video/nvidia/nv_backlight.c
-> drivers/misc/msi-laptop.c
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-...
- 
-> I have CC'ed the relevant people (please forgive me any ommissions) for the
-> drivers listed above, so they can chime in if their driver should retain the
-> "dim and power off backlight on backlight_device_unregister" behaviour.
-
-Hm. In the case of some drivers the hardware state on x86 is set back to 
-text mode in some cases. So do we in that case dim the backlight?
 

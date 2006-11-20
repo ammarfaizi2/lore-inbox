@@ -1,30 +1,28 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756814AbWKSRmq (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 19 Nov 2006 12:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756815AbWKSRmq
+	id S1756863AbWKTEtU (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 19 Nov 2006 23:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756864AbWKTEtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 12:42:46 -0500
-Received: from port0030-abi-adsl.cwjamaica.com ([208.131.190.30]:40965 "HELO
-	port0030-abi-adsl.cwjamaica.com") by vger.kernel.org with SMTP
-	id S1756814AbWKSRmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 12:42:46 -0500
-Date: Sun, 19 Nov 2006 11:38:58 -0500
-From: Kerri Lockwood <emceejqky@globerecords.com>
-Reply-To: Kerri Lockwood <emceejqky@globerecords.com>
-Message-ID: <993429456103.125705470335@globerecords.com>
+	Sun, 19 Nov 2006 23:49:20 -0500
+Received: from [218.26.63.7] ([218.26.63.7]:36914 "HELO 218.26.63.7")
+	by vger.kernel.org with SMTP id S1756863AbWKTEtT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 23:49:19 -0500
+Reply-To: "Leland Ziegler" <wolfheartedeqsf@mail15.calypso.net>
+From: "Leland" <wolfheartedeqsf@mail15.calypso.net>
+Message-ID: <1637864958.20061119215745@krxoigqpxvbgkh>
+Date: Sun, 19 Nov 2006 21:57:45 -0500
 To: <linux-kernel@vger.kernel.org>
-Subject: sexuallly explicitt:Younng Eighteen so lubricious and exacting!
+Subject: seexually explicitt:appetizing Woman at haardcore fuckiing!
 MIME-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0649-1, 18/11/2006), Outbound message
-X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1756814AbWKSRmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1756863AbWKTEtU@vger.kernel.org>
 
 
-savory russiaan overnice Teen !
+Russsian hot Ladies hardcoree actiion.
 
-http://blastrmanj.com
+http://marinnaeta.com
 

@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966629AbWKTUVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966640AbWKTUVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966629AbWKTUVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966637AbWKTUVH
+	id S966640AbWKTUVd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966642AbWKTUVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:21:07 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:14273 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S966629AbWKTUVE convert rfc822-to-8bit (ORCPT
+	Mon, 20 Nov 2006 15:21:33 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:12626 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S966640AbWKTUVb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:21:04 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: maynardj@us.ibm.com
-Subject: Re: [PATCH 1/1]OProfile for Cell bug fix
-Date: Mon, 20 Nov 2006 21:21:01 +0100
-User-Agent: KMail/1.9.5
-Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <4561DCE8.20502@us.ibm.com>
-In-Reply-To: <4561DCE8.20502@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Mon, 20 Nov 2006 15:21:31 -0500
+Date: Mon, 20 Nov 2006 21:21:16 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Alan Stern <stern@rowland.harvard.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061120202115.GG8055@kernel.dk>
+References: <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118184624.GA163@oleg> <20061119210746.GD4427@us.ibm.com> <20061120071514.GB4077@kernel.dk> <20061120165923.GD8033@us.ibm.com> <20061120175553.GC8055@kernel.dk> <20061120200933.GG8033@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611202121.01573.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <20061120200933.GG8033@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 November 2006 17:50, Maynard Johnson wrote:
->   Subject: Bug fixes for OProfile for Cell
->
-> From: Maynard Johnson <maynardj@us.ibm.com>
->
-> This patch contains three crucial fixes:
->         - op_model_cell.c:cell_virtual_cntr: correctly access the per-cpu
->           pmc_values arrays
->
->         - op_model_cell.c:cell_reg_setup:  initialize _all_ 4 elements of
->           pmc_values with reset_value
->
->         - include/asm-powerpc/cell-pmu.h:  fix broken macro,
-> PM07_CTR_INPUT_MUX
->
-> Signed-off-by: Carl Love <carll@us.ibm.com>
-> Signed-off-by: Maynard Johnson <mpjohn@us.ibm.com>
+On Mon, Nov 20 2006, Paul E. McKenney wrote:
+> > > So the "preceding" requests have to have completed their I/O system
+> > > calls?  If this is the case, does this include normal (non-direct/raw)
+> > > writes and asynchronous reads?  My guess is that it would include
+> > > asynchronous I/O, but not buffered writes.
+> > 
+> > They need not have completed, but they must have been queued at the
+> > block layer level. IOW, the io scheduler must know about them. Since
+> > it's a block layer device property, we really don't care about system
+> > calls since any of them could amount to 1 or lots more individual io
+> > requests.
+> > 
+> > But now we have taken a detour from the original problem. As I wrote
+> > above, the io scheduler must know about the requests. When the plug list
+> > ends up in the private process context, the io scheduler doesn't know
+> > about it yet. When a barrier is queued, the block layer does not care
+> > about io that hasn't been issued yet (dirty data in the page cache
+> > perhaps), since if it hasn't been seen, it's by definition not
+> > interesting. But if some of the requests reside in a different process
+> > private request list, then that is a violation of this rule since it
+> > should technically belong to the block layer / io scheduler at that
+> > point. This is where I wanted to use SRCU.
+> 
+> OK.  Beyond a certain point, I would need to see the code using SRCU.
 
-Ok, looks good. I've posted the combined oprofile patch now as part of
-my cell patch series for 2.6.20, using the version you sent me during
-the Weekend. Can you check that everything from this patch is included
-there as well?
+Yeah, of course. It's actually in the 'plug' branch of the block repo
+(and has been for some weeks), so it's public. I'll post the updated
+patch soon again.
 
-	Arnd <><
+> > > If the user-level tasks/threads/processes must explicitly synchronize,
+> > > and if the pre-barrier I/O-initation syscalls have to have completed,
+> > > then I am not sure that the smp_mb() is needed.  Seems like the queuing
+> > > mechanisms in the syscall and the user-level synchronization would have
+> > > supplied the needed memory barriers.  Or are you using some extremely
+> > > lightweight user-level synchronization?
+> > 
+> > Once a process holds a queue plug, any write issued to that plug list
+> > will do an srcu_read_lock(). So as far as I can tell, the smp_mb() is
+> > needed to ensure that an immediately following synchronize_srcu() from a
+> > barrier write queued on a different CPU will see that srcu_read_lock().
+> 
+> Is the srcu_read_lock() invoked before actually queueing the I/O?
+
+Yes,
+
+> Is there any interaction with the queues befory calling synchronize_srcu()?
+> If yes to both, it might be possible to remove the memory barrier.
+
+There might, there might not be. Currently it replugs the queue to
+prevent a livelock if the same process currently holds a read_lock on
+the queue. And I guess that will stay, so that's a yes here as well.
+
+> That said, the overhead of the smp_mb() is so small compared to that of
+> the I/O path that it might not be worth it.
+
+I could not convince myself that it wasn't always needed, so I'd agree.
+
+-- 
+Jens Axboe
+

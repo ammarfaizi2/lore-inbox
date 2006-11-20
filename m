@@ -1,57 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966881AbWKTXSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWKTXWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966881AbWKTXSi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 18:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966877AbWKTXSi
+	id S1030421AbWKTXWl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 18:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWKTXWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 18:18:38 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:16018 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966521AbWKTXSg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 18:18:36 -0500
-Date: Mon, 20 Nov 2006 15:17:02 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Chris Snook <csnook@redhat.com>,
-       Jay Cliburn <jacliburn@bellsouth.net>, romieu@fr.zoreil.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] atl1: Main C file for Attansic L1 driver
-Message-ID: <20061120151702.054bc541@dxpl.pdx.osdl.net>
-In-Reply-To: <45622654.7030400@garzik.org>
-References: <20061119203050.GD29736@osprey.hogchain.net>
-	<200611200057.45274.arnd@arndb.de>
-	<45614769.4020005@redhat.com>
-	<200611201322.00495.arnd@arndb.de>
-	<20061120100202.6a79e382@freekitty>
-	<4562036E.3020409@garzik.org>
-	<20061120121524.68cf39d8@freekitty>
-	<45621FEB.204@garzik.org>
-	<20061120135959.66debead@freekitty>
-	<45622654.7030400@garzik.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Nov 2006 18:22:41 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:1276 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030421AbWKTXWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 18:22:40 -0500
+Message-ID: <45623803.7070103@oracle.com>
+Date: Mon, 20 Nov 2006 15:19:31 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: jes@trained-monkey.org, Adrian Bunk <bunk@stusta.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xconfig segfault
+References: <20061119161231.e509e5bf.randy.dunlap@oracle.com> <20061120004147.GC31879@stusta.de> <4560FB07.2040102@oracle.com> <20061120102438.94ff4b0a.randy.dunlap@oracle.com> <Pine.LNX.4.64.0611202254200.6242@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0611202254200.6242@scrub.home>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 17:04:04 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
-
-> Stephen Hemminger wrote:
-> > What I would like is for the mii core to maintain the bits (like advertising)
-> > in the mii structure and if not running, it should just change the offline
-> > copy, then when link is brought up use the changes that were requested while
-> > link was down. Understand?
-> > 
-> > That's why in the skge/sky2, I keep state bits and don't apply them until
-> > link is started. If mii (and phylib) did this, I could use them; but as it
-> > is they require PHY to be powered all the time.
+Roman Zippel wrote:
+> Hi,
 > 
+> On Mon, 20 Nov 2006, Randy Dunlap wrote:
 > 
-> You have the power to change it :)  But need to review the other drivers 
-> to assess the impact of the change, of course.
+>> I found the problem patch, but not the root cause.
+>>
+>> The xconfig segfault begins in 2.6.19-rc5-git3 (-git2 is OK).
+>> A relatively simple Kconfig change causes it (but why?).
+>>
+>> (Note:  The running kernel doesn't matter, just which kernel tree
+>> is being viewed/config-ed.)
+>>
+>> If I back out the patches below, -git3 (xconfig ^F find/search)
+>> works for me.
+> 
+> I cannot reproduce this. Could you try to run qconf within gdb for a 
+> backtrace (adding -g to HOST_EXTRACFLAGS might get more useful output).
 
-planned to, in due course.
+Sure, let me know what you want next.
+
+Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread 46953334203536 (LWP 23635)]
+0x00000000004289bc in ConfigMainWindow::searchConfig ()
+(gdb) bt
+#0  0x00000000004289bc in ConfigMainWindow::searchConfig ()
+#1  0x0000000000428ae2 in ConfigMainWindow::qt_invoke ()
+#2  0x00002ab42ab8b79c in QObject::activate_signal ()
+   from /usr/lib64/libqt-mt.so.3
+#3  0x00002ab42ab8c4b3 in QObject::activate_signal ()
+   from /usr/lib64/libqt-mt.so.3
+#4  0x00002ab42ae889b3 in QAction::qt_invoke () from /usr/lib64/libqt-mt.so.3
+#5  0x00002ab42ab8b79c in QObject::activate_signal ()
+   from /usr/lib64/libqt-mt.so.3
+#6  0x00002ab42ae6d628 in QSignal::signal () from /usr/lib64/libqt-mt.so.3
+#7  0x00002ab42aba42a5 in QSignal::activate () from /usr/lib64/libqt-mt.so.3
+#8  0x00002ab42ab31a45 in QAccelPrivate::activate ()
+   from /usr/lib64/libqt-mt.so.3
+#9  0x00002ab42ab333e2 in QAccelManager::dispatchAccelEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#10 0x00002ab42ab338fc in qt_dispatchAccelEvent () from /usr/lib64/libqt-mt.so.3
+#11 0x00002ab42ab35d7a in QApplication::notify () from /usr/lib64/libqt-mt.so.3
+#12 0x00002ab42ab31fce in QAccelManager::tryAccelEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#13 0x00002ab42ab323ac in qt_tryAccelEvent () from /usr/lib64/libqt-mt.so.3
+#14 0x00002ab42aadb39c in QETWidget::translateKeyEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#15 0x00002ab42aadc180 in QApplication::x11ProcessEvent ()
+   from /usr/lib64/libqt-mt.so.3
+#16 0x00002ab42aaeb22f in QEventLoop::processEvents ()
+   from /usr/lib64/libqt-mt.so.3
+#17 0x00002ab42ab49691 in QEventLoop::enterLoop () from /usr/lib64/libqt-mt.so.3
+#18 0x00002ab42ab4953a in QEventLoop::exec () from /usr/lib64/libqt-mt.so.3
+#19 0x0000000000425e23 in main ()
+(gdb) 
+
+-- 
+~Randy

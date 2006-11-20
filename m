@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966251AbWKTR2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966245AbWKTR1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966251AbWKTR2E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966253AbWKTR2D
+	id S966245AbWKTR1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966246AbWKTR1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:28:03 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12684 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S966246AbWKTR1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:27:44 -0500
-Date: Mon, 20 Nov 2006 18:26:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi type IRQ handlers
-Message-ID: <20061120172642.GA8683@elte.hu>
-References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain> <20061119200650.GA22949@elte.hu> <1163967590.5826.104.camel@localhost.localdomain> <20061119202348.GA27649@elte.hu> <1163985380.5826.139.camel@localhost.localdomain> <20061120100144.GA27812@elte.hu> <4561C9EC.3020506@ru.mvista.com> <20061120165621.GA1504@elte.hu> <4561DFE1.4020708@ru.mvista.com>
+	Mon, 20 Nov 2006 12:27:40 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:42761 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S966245AbWKTR1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:27:39 -0500
+Date: Mon, 20 Nov 2006 17:27:31 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tony Olech <tony.olech@elandigitalsystems.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux kernel development <linux-kernel@vger.kernel.org>,
+       PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Jaroslav Kysela <perex@suse.cz>,
+       Bart Prescott <bart.prescott@elandigitalsystems.com>
+Subject: Re: [PATCH] PCMCIA identification strings for cards manufactured by Elan
+Message-ID: <20061120172731.GC26791@flint.arm.linux.org.uk>
+Mail-Followup-To: Tony Olech <tony.olech@elandigitalsystems.com>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Linux kernel development <linux-kernel@vger.kernel.org>,
+	PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
+	David Hinds <dahinds@users.sourceforge.net>,
+	Jaroslav Kysela <perex@suse.cz>,
+	Bart Prescott <bart.prescott@elandigitalsystems.com>
+References: <200611201214.kAKCErcU005240@imap.elan.private> <20061120130237.GA22330@flint.arm.linux.org.uk> <1164032582.30853.36.camel@n04-143.elan.private> <20061120152927.GA26791@flint.arm.linux.org.uk> <1164041509.30853.48.camel@n04-143.elan.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4561DFE1.4020708@ru.mvista.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.0937]
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1164041509.30853.48.camel@n04-143.elan.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 20, 2006 at 04:51:48PM +0000, Tony Olech wrote:
+> Hi Russell,
+> if I take out the patches to parport_cs and serial_cs,
+> leaving in only the patch to "pdaudiocf" our SP230 card
+> no longer works - it does not lock up the kernel, admittedly,
+> and the serial only card does works, but we would like
+> all are cards to just work.
 
-* Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
+Sounds like function ID matching is broken.  Dominik?
 
-> Hello.
-> 
-> Ingo Molnar wrote:
-> 
-> >>>on PPC64, 'get the vector' initiates an ACK as well - is that done 
-> >>>before handle_irq() is done?
-> 
-> >>  Exactly. How else do_IRQ() would know the vector?
-> 
-> >the reason i'm asking is that in this case masking is a bit late at this 
-> >point and there's a chance for a repeat interrupt.
-> 
->    How's that? Acknowledge != EOI on OpenPIC (as well as 8259). 
-> Acknoledging sets the bit in the in-service register preventing all 
-> the interrupts with same or lower prioriry from being accepted.
+> ALSO, I have found no way to force a particular 16-bit
+> pcmcia card to be handled by a particular module in a
+> similar way to the USB generic serial driver module
+> parameter. Have I misssed the obvious? Or is that a
+> desirable feature that have been taken out of the David
+> Hinds original implementation?
 
-ah, ok. The x86 APIC does that automatically, and only an EOI has to be 
-passed. So i guess we are in wild agreement ;)
+Again, Dominik's area of expertise.
 
-i'm hacking up something now to see whether it makes sense to introduce 
-a central threaded flow type, or whether it's better the branch off the 
-current flow types (as the code does it right now).
-
-	Ingo
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

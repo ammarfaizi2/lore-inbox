@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934274AbWKTSHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966298AbWKTSIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934274AbWKTSHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934279AbWKTSHA
+	id S966298AbWKTSIY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934299AbWKTSHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:07:00 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:63696 "EHLO
+	Mon, 20 Nov 2006 13:07:46 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:16599 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S934274AbWKTSG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:06:59 -0500
-Message-Id: <20061120180522.956875000@arndb.de>
+	id S934273AbWKTSH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:07:26 -0500
+Message-Id: <20061120180522.364469000@arndb.de>
 References: <20061120174454.067872000@arndb.de>
 User-Agent: quilt/0.45-1
-Date: Mon, 20 Nov 2006 18:45:01 +0100
+Date: Mon, 20 Nov 2006 18:45:00 +0100
 From: Arnd Bergmann <arnd@arndb.de>
 To: cbe-oss-dev@ozlabs.org
 Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
        Paul Mackerras <paulus@samba.org>,
        Dwayne Grant McConnell <decimal@us.ibm.com>,
        Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH 07/22] spufs: read from signal files only if data is there
-Content-Disposition: inline; filename=spufs-require-context-save-for-signal-read-2.diff
+Subject: [PATCH 06/22] spufs: implement /mbox_info, /ibox_info, and /wbox_info.
+Content-Disposition: inline; filename=spufs-mbox-info.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Dwayne Grant McConnell <decimal@us.ibm.com>
-We need to check the channel count of the signal notification registers
-before reading them, because it can be undefined when the count is
-zero. In order to read count and data atomically, we read from the
-saved context.
+This patch implements read only access to
 
-This patch uses spu_acquire_saved() to force a context save before a
-/signal1 or /signal2 read. Because of this it is no longer necessary to
-have backing_ops and hw_ops versions of this function so they have been
-removed.
+/mbox_info - SPU Write Outbound Mailbox
+/ibox_info - SPU Write Outbound Interrupt Mailbox
+/wbox_info - SPU Read Inbound Mailbox
 
-Regular applications should not rely on reading this register
-to be fast, as it's conceptually a write-only file from the PPE
-perspective.
+These files are used by gdb in order to look into the current mailbox
+queues without changing the contents at the same time. They are
+not meant for general programming use, since the access requires
+a context save and is therefore rather slow.
+
+It would be good to complement this patch with one that adds
+write support as well.
 
 Signed-off-by: Dwayne Grant McConnell <decimal@us.ibm.com>
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
@@ -52,106 +52,110 @@ Index: linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
 ===================================================================
 --- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/file.c
 +++ linux-2.6/arch/powerpc/platforms/cell/spufs/file.c
-@@ -723,19 +723,27 @@ static ssize_t spufs_signal1_read(struct
- 			size_t len, loff_t *pos)
- {
- 	struct spu_context *ctx = file->private_data;
-+	int ret = 0;
- 	u32 data;
- 
- 	if (len < 4)
- 		return -EINVAL;
- 
--	spu_acquire(ctx);
--	data = ctx->ops->signal1_read(ctx);
-+	spu_acquire_saved(ctx);
-+	if (ctx->csa.spu_chnlcnt_RW[3]) {
-+		data = ctx->csa.spu_chnldata_RW[3];
-+		ret = 4;
-+	}
- 	spu_release(ctx);
- 
-+	if (!ret)
-+		goto out;
-+
- 	if (copy_to_user(buf, &data, 4))
- 		return -EFAULT;
- 
--	return 4;
-+out:
-+	return ret;
+@@ -1552,6 +1552,93 @@ static int spufs_info_open(struct inode 
+ 	return 0;
  }
  
- static ssize_t spufs_signal1_write(struct file *file, const char __user *buf,
-@@ -811,21 +819,27 @@ static int spufs_signal2_open(struct ino
- static ssize_t spufs_signal2_read(struct file *file, char __user *buf,
- 			size_t len, loff_t *pos)
- {
--	struct spu_context *ctx;
++static ssize_t spufs_mbox_info_read(struct file *file, char __user *buf,
++				   size_t len, loff_t *pos)
++{
 +	struct spu_context *ctx = file->private_data;
-+	int ret = 0;
- 	u32 data;
- 
--	ctx = file->private_data;
--
- 	if (len < 4)
- 		return -EINVAL;
- 
--	spu_acquire(ctx);
--	data = ctx->ops->signal2_read(ctx);
-+	spu_acquire_saved(ctx);
-+	if (ctx->csa.spu_chnlcnt_RW[4]) {
-+		data =  ctx->csa.spu_chnldata_RW[4];
-+		ret = 4;
-+	}
- 	spu_release(ctx);
- 
-+	if (!ret)
-+		goto out;
++	u32 mbox_stat;
++	u32 data;
 +
- 	if (copy_to_user(buf, &data, 4))
- 		return -EFAULT;
- 
-+out:
- 	return 4;
- }
- 
-Index: linux-2.6/arch/powerpc/platforms/cell/spufs/hw_ops.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/cell/spufs/hw_ops.c
-+++ linux-2.6/arch/powerpc/platforms/cell/spufs/hw_ops.c
-@@ -135,21 +135,11 @@ static int spu_hw_wbox_write(struct spu_
- 	return ret;
- }
- 
--static u32 spu_hw_signal1_read(struct spu_context *ctx)
--{
--	return in_be32(&ctx->spu->problem->signal_notify1);
--}
--
- static void spu_hw_signal1_write(struct spu_context *ctx, u32 data)
++	if (!access_ok(VERIFY_WRITE, buf, len))
++		return -EFAULT;
++
++	spu_acquire_saved(ctx);
++	spin_lock(&ctx->csa.register_lock);
++	mbox_stat = ctx->csa.prob.mb_stat_R;
++	if (mbox_stat & 0x0000ff) {
++		data = ctx->csa.prob.pu_mb_R;
++	}
++	spin_unlock(&ctx->csa.register_lock);
++	spu_release(ctx);
++
++	return simple_read_from_buffer(buf, len, pos, &data, sizeof data);
++}
++
++static struct file_operations spufs_mbox_info_fops = {
++	.open = spufs_info_open,
++	.read = spufs_mbox_info_read,
++	.llseek  = generic_file_llseek,
++};
++
++static ssize_t spufs_ibox_info_read(struct file *file, char __user *buf,
++				   size_t len, loff_t *pos)
++{
++	struct spu_context *ctx = file->private_data;
++	u32 ibox_stat;
++	u32 data;
++
++	if (!access_ok(VERIFY_WRITE, buf, len))
++		return -EFAULT;
++
++	spu_acquire_saved(ctx);
++	spin_lock(&ctx->csa.register_lock);
++	ibox_stat = ctx->csa.prob.mb_stat_R;
++	if (ibox_stat & 0xff0000) {
++		data = ctx->csa.priv2.puint_mb_R;
++	}
++	spin_unlock(&ctx->csa.register_lock);
++	spu_release(ctx);
++
++	return simple_read_from_buffer(buf, len, pos, &data, sizeof data);
++}
++
++static struct file_operations spufs_ibox_info_fops = {
++	.open = spufs_info_open,
++	.read = spufs_ibox_info_read,
++	.llseek  = generic_file_llseek,
++};
++
++static ssize_t spufs_wbox_info_read(struct file *file, char __user *buf,
++				   size_t len, loff_t *pos)
++{
++	struct spu_context *ctx = file->private_data;
++	int i, cnt;
++	u32 data[4];
++	u32 wbox_stat;
++
++	if (!access_ok(VERIFY_WRITE, buf, len))
++		return -EFAULT;
++
++	spu_acquire_saved(ctx);
++	spin_lock(&ctx->csa.register_lock);
++	wbox_stat = ctx->csa.prob.mb_stat_R;
++	cnt = (wbox_stat & 0x00ff00) >> 8;
++	for (i = 0; i < cnt; i++) {
++		data[i] = ctx->csa.spu_mailbox_data[i];
++	}
++	spin_unlock(&ctx->csa.register_lock);
++	spu_release(ctx);
++
++	return simple_read_from_buffer(buf, len, pos, &data,
++				cnt * sizeof(u32));
++}
++
++static struct file_operations spufs_wbox_info_fops = {
++	.open = spufs_info_open,
++	.read = spufs_wbox_info_read,
++	.llseek  = generic_file_llseek,
++};
++
+ static ssize_t spufs_dma_info_read(struct file *file, char __user *buf,
+ 			      size_t len, loff_t *pos)
  {
- 	out_be32(&ctx->spu->problem->signal_notify1, data);
- }
- 
--static u32 spu_hw_signal2_read(struct spu_context *ctx)
--{
--	return in_be32(&ctx->spu->problem->signal_notify2);
--}
--
- static void spu_hw_signal2_write(struct spu_context *ctx, u32 data)
- {
- 	out_be32(&ctx->spu->problem->signal_notify2, data);
-@@ -294,9 +284,7 @@ struct spu_context_ops spu_hw_ops = {
- 	.mbox_stat_poll = spu_hw_mbox_stat_poll,
- 	.ibox_read = spu_hw_ibox_read,
- 	.wbox_write = spu_hw_wbox_write,
--	.signal1_read = spu_hw_signal1_read,
- 	.signal1_write = spu_hw_signal1_write,
--	.signal2_read = spu_hw_signal2_read,
- 	.signal2_write = spu_hw_signal2_write,
- 	.signal1_type_set = spu_hw_signal1_type_set,
- 	.signal1_type_get = spu_hw_signal1_type_get,
+@@ -1661,6 +1748,9 @@ struct tree_descr spufs_dir_contents[] =
+ 	{ "psmap", &spufs_psmap_fops, 0666, },
+ 	{ "phys-id", &spufs_id_ops, 0666, },
+ 	{ "object-id", &spufs_object_id_ops, 0666, },
++	{ "mbox_info", &spufs_mbox_info_fops, 0444, },
++	{ "ibox_info", &spufs_ibox_info_fops, 0444, },
++	{ "wbox_info", &spufs_wbox_info_fops, 0444, },
+ 	{ "dma_info", &spufs_dma_info_fops, 0444, },
+ 	{ "proxydma_info", &spufs_proxydma_info_fops, 0444, },
+ 	{},
 
 --
 

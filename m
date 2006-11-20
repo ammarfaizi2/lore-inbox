@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966390AbWKTWeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966646AbWKTWjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966390AbWKTWeS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966409AbWKTWeR
+	id S966646AbWKTWjz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966637AbWKTWjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:34:17 -0500
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:51591
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S966390AbWKTWeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:34:16 -0500
-Date: Sun, 19 Nov 2006 22:41:06 -0800
-From: Brad Boyer <flar@allandria.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: funaho@jurai.org, linux-mac68k@mac.linux-m68k.org, geert@linux-m68k.org,
-       zippel@linux-m68k.org, linux-m68k@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove the broken BLK_DEV_SWIM_IOP driver
-Message-ID: <20061120064106.GA25209@cynthia.pants.nu>
-References: <20061120210654.GC31879@stusta.de>
+	Mon, 20 Nov 2006 17:39:55 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:31168 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S966644AbWKTWjy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:39:54 -0500
+Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid
+	suspend-related XFS corruptions
+From: Nigel Cunningham <nigelc@bur.st>
+Reply-To: nigelc@bur.st
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <1164061586.15714.1.camel@nigel.suspend2.net>
+References: <200611160912.51226.rjw@sisk.pl>
+	 <200611202140.47322.rjw@sisk.pl>
+	 <1164060206.14889.13.camel@nigel.suspend2.net>
+	 <200611202318.29207.rjw@sisk.pl>
+	 <1164061586.15714.1.camel@nigel.suspend2.net>
+Content-Type: text/plain
+Date: Tue, 21 Nov 2006 09:39:50 +1100
+Message-Id: <1164062390.15714.5.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061120210654.GC31879@stusta.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 10:06:54PM +0100, Adrian Bunk wrote:
-> The BLK_DEV_SWIM_IOP driver has:
-> - already been marked as BROKEN in 2.6.0 three years ago and
-> - is still marked as BROKEN.
+(Sorry to reply again)
+
+On Tue, 2006-11-21 at 09:26 +1100, Nigel Cunningham wrote:
+> Hi.
 > 
-> Drivers that had been marked as BROKEN for such a long time seem to be
-> unlikely to be revived in the forseeable future.
+> On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
+> > I think I/O can only be submitted from the process context.  Thus if we freeze
+> > all (and I mean _all_) threads that are used by filesystems, including worker
+> > threads, we should effectively prevent fs-related I/O from being submitted
+> > after tasks have been frozen.
 > 
-> But if anyone wants to ever revive this driver, the code is still
-> present in the older kernel releases.
+> I know that will work. It's what I used to do before the switch to bdev
+> freezing. I guess I need to look again at why I made the switch. Perhaps
+> it was just because you guys gave freezing kthreads a bad wrap as too
+> invasive or something. Bdev freezing is certainly fewer lines of code.
 
-Feel free to remove this one. It was never in a state that worked, but
-was added to the tree anyway. I tried to fix it when I was given a
-copy of the documentation, but it needed more work than I initially
-expected. The initial version that was in the tree could only detect
-the drives, and the only thing I added other than some bug fixes was
-support for the eject ioctl. The read/write path in the driver is
-missing the actual data transfer routines, and is therefore not in
-a working state.
+No, it looks like I wrongly believed that XFS was submitting I/O off a
+timer, so that freezing kthreads wasn't enough. In that case, it looks
+like freezing kthreads should be a good solution.
 
-For the record, I believe the linux-mac68k list is dead.
+Regards,
 
-	Brad Boyer
-	flar@allandria.com
+Nigel
 

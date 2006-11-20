@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934279AbWKTXGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934280AbWKTXJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934279AbWKTXGi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 18:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934276AbWKTXGi
+	id S934280AbWKTXJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 18:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934281AbWKTXJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 18:06:38 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:29895 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S934272AbWKTXGh (ORCPT
+	Mon, 20 Nov 2006 18:09:44 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:34012 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S934280AbWKTXJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 18:06:37 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: Quadratic behavior of shrink_dcache_parent()
-Date: Tue, 21 Nov 2006 00:03:12 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <E1Gm731-0003Br-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1Gm731-0003Br-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Mon, 20 Nov 2006 18:09:44 -0500
+Date: Tue, 21 Nov 2006 00:09:36 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Tony Lindgren <tony@atomide.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.19-rc6 6/6] rtc-omap driver
+Message-ID: <20061121000936.6df60c2b@inspiron>
+In-Reply-To: <200611201028.48701.david-b@pacbell.net>
+References: <200611201014.41980.david-b@pacbell.net>
+	<200611201028.48701.david-b@pacbell.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611210003.13417.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 20 November 2006 12:10, Miklos Szeredi wrote:
-> The shrink_dcache_parent() can take a very long time for deep
-> directory trees: minutes for depth of 100,000, probably hours for
-> depth of 1,000,000.
+On Mon, 20 Nov 2006 10:28:48 -0800
+David Brownell <david-b@pacbell.net> wrote:
+
+> This creates a new RTC-framework driver for the RTC/calendar module found
+> in various OMAP1 chips.  (OMAP2 and OMAP3 use external RTCs, like those in
+> TI's multifunction PM companion chips.)  It's been in the Linux-OMAP tree
+> for several months now, and other trees before that, so it's quite stable.
+> The most notable issue is that the OMAP IRQ code doesn't yet support the
+> RTC IRQ as a wakeup event.  Once that's fixed, a patch will be needed.
 > 
-> The reason is that after dropping a leaf, it starts again from the
-> root.
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Oh, well.  So that's the reason why the shrinking of memory in swsusp can
-take so much time.
+ Thanks David!
 
-> Filesystems affected include FUSE, NFS, CIFS.  Others I haven't
-> checked.  NFS and to a lesser extent CIFS don't seem to efficiently
-> handle lookups within such a deep hierarchy, so they're sort of
-> immune.
-> 
-> But with FUSE it's pretty easy to DoS the system.
-> 
-> Limiting the depth to some sane value could work around this problem,
-> but that would mean having to traverse subtrees in rename().
-> 
-> Any better ideas?
-
-None, for now.  It looks like I need to learn that code ...
-
-Greetings,
-Rafael
-
+ Acked-by: Alessandro Zummo <a.zummo@towertech.it>
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934173AbWKTOO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934176AbWKTOPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934173AbWKTOO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 09:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934174AbWKTOO5
+	id S934176AbWKTOPX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 09:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934178AbWKTOPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 09:14:57 -0500
-Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:25013 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S934173AbWKTOO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 09:14:57 -0500
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-Subject: Re: 2.6.19-rc6-rt4, changed yum repository
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061118163032.GA14625@elte.hu>
-References: <20061118163032.GA14625@elte.hu>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 20 Nov 2006 14:14:53 +0000
-Message-Id: <1164032093.10606.5.camel@localhost.localdomain>
+	Mon, 20 Nov 2006 09:15:22 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:6869 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S934176AbWKTOPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 09:15:20 -0500
+Subject: Re: [Patch -mm 1/1] driver core: Introduce device_move(): move a
+	device to a new parent.
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+In-Reply-To: <20061120135515.38298bf5@gondolin.boeblingen.de.ibm.com>
+References: <20061116154210.217f2e04@gondolin.boeblingen.de.ibm.com>
+	 <1163695657.7900.9.camel@min.off.vrfy.org>
+	 <20061117042338.GA11131@kroah.com>
+	 <20061120090537.6d59dbc5@gondolin.boeblingen.de.ibm.com>
+	 <20061120135515.38298bf5@gondolin.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 15:15:03 +0100
+Message-Id: <1164032103.5541.12.camel@min.off.vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4ddcc9dd12ba6cf3155e4d81b383efda
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-11-18 at 17:30 +0100, Ingo Molnar wrote:
-> i've released the 2.6.18-rc6-rt4 tree, which can be downloaded from the 
-> usual place:
+On Mon, 2006-11-20 at 13:55 +0100, Cornelia Huck wrote: 
+> From: Cornelia Huck <cornelia.huck@de.ibm.com>
 > 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
-> NOTE: the YUM repository has changed the -rt kernel's package name, it's 
-> now kernel-rt, so it does not override the kernel package. If you have 
-> rt.repo already then just do a "yum install kernel-rt".
-> 
-> If there's no rt repository yet, the -rt YUM repository for Fedora Core 
-> 6 can be activated via:
+> Provide a function device_move() to move a device to a new parent device. Add
+> auxilliary functions kobject_move() and sysfs_move_dir().
+> kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
+> previous path (DEVPATH_OLD) in addition to the usual values. For this, a new
+> interface kobject_uevent_env() is created that allows to add further
+> environmental data to the uevent at the kobject layer.
 
-Can you provide kernel-rt-devel for compile nvidia DRI kernel module ? 
+> +void kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+> +			int num_envp, char *envp[])
 
-I had tried 2.6.19-rc6-rt4, and no regressions from 2.6.18+dyntick.
+We usually use a NULL terminated array for things like this. Does
+passing the number of entries give us an advantage?
 
-but I still can freeze computer when make heavy copy to SATA HD. 
+> +{
+> +	/* Disallow dumb users. */
+> +	if (num_envp > NUM_EXT_ENVP)
+> +		return;
+
+Why do we need such a limit? There are still thousand other ways to
+screw things up. :)
+
+And kobject_uevent() can just call kobject_uevent_env(), there is no
+need for the indirection with do_*, right?
+
 Thanks,
-
-Sérgio M. B. 
+Kay
 

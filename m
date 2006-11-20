@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934258AbWKTQdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934252AbWKTQce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934258AbWKTQdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 11:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934260AbWKTQdO
+	id S934252AbWKTQce (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 11:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934256AbWKTQce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 11:33:14 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:14315 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S934258AbWKTQdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 11:33:13 -0500
-Date: Mon, 20 Nov 2006 17:33:11 +0100
-From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFSROOT with NFS Version 3
-Message-Id: <20061120173311.154e54a6.Christoph.Pleger@uni-dortmund.de>
-In-Reply-To: <20061120135716.GA14122@tsunami.ccur.com>
-References: <20061117164021.03b2cc24.Christoph.Pleger@uni-dortmund.de>
-	<1163780417.5709.34.camel@lade.trondhjem.org>
-	<20061120120750.1b1688e8.Christoph.Pleger@uni-dortmund.de>
-	<20061120135716.GA14122@tsunami.ccur.com>
-Organization: Universitaet Dortmund
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; sparc-sun-solaris2.8)
+	Mon, 20 Nov 2006 11:32:34 -0500
+Received: from pat.uio.no ([129.240.10.15]:937 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S934252AbWKTQcd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 11:32:33 -0500
+Subject: Re: [PATCH 0/4] WorkStruct: Shrink work_struct by two thirds
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
+References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 11:32:06 -0500
+Message-Id: <1164040326.5700.46.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.206, required 12,
+	autolearn=disabled, AWL 1.66, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-On Mon, 20 Nov 2006 08:57:16 -0500
-Joe Korty <joe.korty@ccur.com> wrote:
-
-> On Mon, Nov 20, 2006 at 12:07:50PM +0100, Christoph Pleger wrote:
-> > Warning: Unable to open an initial console
+On Mon, 2006-11-20 at 14:27 +0000, David Howells wrote:
 > 
-> This usually means /dev/console doesn't exist.  With many of
-> today's distributions, this means you didn't boot with a
-> initrd properly set up to run with your newly built kernel.
+> The workqueue struct is huge, and this limits it's usefulness.  On a 64-bit
+> architecture it's nearly 100 bytes in size, of which the timer_list is half.
+> These patches shrink work_struct by 8 of the 12 words it ordinarily consumes.
+> This is done by:
+> 
+>  (1) Splitting the timer out so that delayable work items are defined by a
+>      separate structure which incorporates a basic work_struct and a timer.
 
-The device /dev/console exists, but init/main.c tries to open it
-read-write. As the nfsroot is mounted read-only, /dev/console cannot be
-opened read-write.
+Why not simply add a timer argument to 'queue_delayed_work()' and
+'cancel_delayed_work()'? That may allow you to reuse an existing timer
+struct if you already have it embedded somewhere else.
 
-Regards
-  Christoph Pleger
+Cheers
+  Trond
+

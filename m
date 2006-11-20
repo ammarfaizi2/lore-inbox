@@ -1,135 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965357AbWKTKCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965394AbWKTKD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965357AbWKTKCp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 05:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965291AbWKTKCp
+	id S965394AbWKTKD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 05:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965382AbWKTKD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 05:02:45 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:44021 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965357AbWKTKCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 05:02:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OAhpKZdYw1Dp1P/cmBC0hCHnMZDcrfv4k0AZbGsgvrYC0okjCN0Mi3tLmM2DQnpcOJ2yHkMF5Py+nIlz2xG+bXjxpABDrp9pu8v5usiP2VRhmF1mcA4bC63jW70q+b+S20+RBwGkdpNJl4ku8K8/HjuNw5EIOQHoxtmYvOMUqVQ=
-Message-ID: <aec7e5c30611200202j77c9e20cgd89ca782ac73e58b@mail.gmail.com>
-Date: Mon, 20 Nov 2006 19:02:42 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: vgoyal@in.ibm.com
-Subject: Re: [PATCH 17/20] x86_64: Remove CONFIG_PHYSICAL_START
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Reloc Kernel List" <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, hpa@zytor.com, lwang@redhat.com,
-       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
-In-Reply-To: <20061118024529.GC25205@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 05:03:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:34971 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965418AbWKTKD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 05:03:28 -0500
+Date: Mon, 20 Nov 2006 11:01:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi type IRQ handlers
+Message-ID: <20061120100144.GA27812@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com> <1163966437.5826.99.camel@localhost.localdomain> <20061119200650.GA22949@elte.hu> <1163967590.5826.104.camel@localhost.localdomain> <20061119202348.GA27649@elte.hu> <1163985380.5826.139.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061117223432.GA15449@in.ibm.com>
-	 <20061117225628.GR15449@in.ibm.com>
-	 <aec7e5c30611171714p23c00fdbgea4a1097cfdf4ec0@mail.gmail.com>
-	 <20061118024529.GC25205@in.ibm.com>
+In-Reply-To: <1163985380.5826.139.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.4
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/18/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> On Sat, Nov 18, 2006 at 10:14:31AM +0900, Magnus Damm wrote:
-> > On 11/18/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
-> > >I am about to add relocatable kernel support which has essentially
-> > >no cost so there is no point in retaining CONFIG_PHYSICAL_START
-> > >and retaining CONFIG_PHYSICAL_START makes implementation of and
-> > >testing of a relocatable kernel more difficult.
-> > >
-> > >Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> > >Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
-> > >---
 
-[snip]
- >linux-2.6.19-rc6-reloc/arch/x86_64/mm/fault.c~x86_64-Remove-CONFIG_PHYSICAL_START
-  2006-11-17 00:12:50.000000000 -0500
-> > >+++ linux-2.6.19-rc6-reloc-root/arch/x86_64/mm/fault.c  2006-11-17
-> > >00:12:50.000000000 -0500
-> > >@@ -644,9 +644,9 @@ void vmalloc_sync_all(void)
-> > >                        start = address + PGDIR_SIZE;
-> > >        }
-> > >        /* Check that there is no need to do the same for the modules
-> > >        area. */
-> > >-       BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL));
-> > >+       BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL_map));
-> > >        BUILD_BUG_ON(!(((MODULES_END - 1) & PGDIR_MASK) ==
-> > >-                               (__START_KERNEL & PGDIR_MASK)));
-> > >+                               (__START_KERNEL_map & PGDIR_MASK)));
-> > > }
-> >
-> > This code looks either like a bugfix or a bug. If it's a fix then
-> > maybe it should be broken out and submitted separately for the
-> > rc-kernels?
-> >
->
-> Magnus, Eric got rid of __START_KERNEL because he was compiling kernel
-> for physical addr zero which made __START_KERNEL and __START_KERNEL_map
-> same, hence he got rid of __START_KERNEL. That's why above change.
->
-> But compiling for physical address zero has got drawback that one can
-> not directly load a vmlinux as it shall have to be loaded at physical
-> addr zero. Hence I changed the behavior back to compile the kernel for
-> physical addr 2MB. So now __START_KERNEL = __START_KERNEL_map + 2MB.
->
-> Now it makes sense to retain __START_KERNEL. I have done the changes.
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-I misunderstood and thought __START_KERNEL was a physical address and
-__START_KERNEL_map was a virtual one. But now I understand. Thank you.
+> If my understanding of "threaded handlers" is correct, that is 
+> delaying the delivery of the interrupt to a thread while restoring the 
+> ability to process further interrupts of the same or lower priority 
+> immediately.
 
->
-> > >diff -puN include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START
-> > >include/asm-x86_64/page.h
-> > >---
-> > >linux-2.6.19-rc6-reloc/include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START        2006-11-17 00:12:50.000000000 -0500
-> > >+++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/page.h       2006-11-17
-> > >00:12:50.000000000 -0500
-> > >@@ -75,8 +75,6 @@ typedef struct { unsigned long pgprot; }
-> > >
-> > > #endif /* !__ASSEMBLY__ */
-> > >
-> > >-#define __PHYSICAL_START       _AC(CONFIG_PHYSICAL_START,UL)
-> > >-#define __START_KERNEL         (__START_KERNEL_map + __PHYSICAL_START)
-> > > #define __START_KERNEL_map     _AC(0xffffffff80000000,UL)
-> > > #define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
-> >
-> > I understand that you want to remove the Kconfig option
-> > CONFIG_PHYSICAL_START and that is fine with me. I don't however like
-> > the idea of replacing __PHYSICAL_START and __START_KERNEL with
-> > hardcoded values. Is there any special reason behind this?
-> >
->
-> All the hardcodings for 2MB have disappeared in final version. See next
-> patch in the series which actually implements relocatable kernel. Actually
-> the whole logic itself has changed hence we did not require these
-> hardcodings. This patch retains these hardcodings so that even if somebody
-> removes the top patch, kernel can be compiled and booted.
->
-> So bottom line, all the hardcodings are not present once all the patches
-> have been applied.
+correct. It's basically a different type of 'flow' of handling an 
+interrupt. It's a host-side genirq-level detail that should have no 
+irqchip level impact at all.
 
-My gut feeling said a big no when I saw that you replaced constants
-with hardcoded values. But if the hardcoded values disappear when all
-patches are applied then I'm happy!
+The only detail is that sometimes a threaded flow /cannot/ be 
+implemented if the irqchip lacks certain methods. (such as a 
+mask/unmask)
 
-> > The code in page.h already has constants for __START_KERNEL_map and
-> > __PAGE_OFFSET (thank god) and none of them are adjustable via Kconfig.
-> > Why not change as little as possible and keep __PHYSICAL_START and
-> > __START_KERNEL in page.h and the places that use them but remove
-> > references to CONFIG_PHYSICAL_START in Kconfig, defconfig, and page.h?
->
-> Good suggestion. Now I have retained __START_KERNEL. But did not feel
-> the need to retain __PHYSICAL_START. It will be used only at one place
-> in page.h
+i.e. Sergei's patch tweaking the irqchip data structures is wrong - the 
+correct approach is what i do for i386/x86_64: install a different 
+"threaded" flow handler. I prefer this to tweaking the existing 
+'fasteoi' handler, to make the act of supporting a threaded flow design 
+explicit. (and to allow a mixed threaded/non-threaded flow setup) I 
+didnt take Daniel's prior patch for that reason: he tried to tweak the 
+fasteoi flow handler - which is an almost good approach but not good 
+enough :-)
 
-Just to nitpick, isn't the 2M value used both in page.h and head.S? I
-don't fully understand the reason why you are hardcoding, but it is
-not that important. I think this version of the patch is much better.
-Thank you!
+> There is no such thing as an explicit "ack" on fasteoi controllers. 
+> The ack is implicit with the reading of the vector (either via a 
+> special cycle on the bus or via reading the intack register for 
+> example on mpic).
 
-/ magnus
+well, even if it's coupled to the reading of the vector, there is an ack 
+initiated by the host. This is not really a fundamental thing, it's API 
+semantics of the hardware interface.
+
+so the question is not 'is there an ACK' (all non-MSI-type-of IRQ 
+delivery mechanisms have some sort of ACK mechanism), but what is the 
+precise structure of ACK-ing an IRQ that the host recieves.
+
+on PPC64, 'get the vector' initiates an ACK as well - is that done 
+before handle_irq() is done?
+
+> So by doing a mask followed by an eoi, you essentially mask the 
+> interrupt preventing further delivery of that interrupt and lower the 
+> CPU priority in the PIC thus allowing processing of further 
+> interrupts.
+
+correct, that's what should happen.
+
+> Are there other fasteoi controllers than the ones I have on powerpc 
+> anyway ?
+
+well, if you mean the x86 APICs, there you get the vector 'for free' as 
+part of the IRQ entry call sequence, and there's an EOI register in the 
+local APIC that notifies the IRQ hardware, lowers the CPU priority, etc. 
+We have that as an ->eoi handler right now.
+
+	Ingo

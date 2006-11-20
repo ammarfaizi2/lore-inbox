@@ -1,27 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030511AbWKTXeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbWKTXgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030511AbWKTXeE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 18:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbWKTXeE
+	id S1030535AbWKTXgW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 18:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWKTXgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 18:34:04 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:55021 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030511AbWKTXeB (ORCPT
+	Mon, 20 Nov 2006 18:36:22 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:55533 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030535AbWKTXgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 18:34:01 -0500
-Date: Tue, 21 Nov 2006 00:30:36 +0100 (CET)
+	Mon, 20 Nov 2006 18:36:21 -0500
+Date: Tue, 21 Nov 2006 00:36:10 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: jes@trained-monkey.org, Adrian Bunk <bunk@stusta.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xconfig segfault
-In-Reply-To: <45623803.7070103@oracle.com>
-Message-ID: <Pine.LNX.4.64.0611210029140.6242@scrub.home>
-References: <20061119161231.e509e5bf.randy.dunlap@oracle.com>
- <20061120004147.GC31879@stusta.de> <4560FB07.2040102@oracle.com>
- <20061120102438.94ff4b0a.randy.dunlap@oracle.com> <Pine.LNX.4.64.0611202254200.6242@scrub.home>
- <45623803.7070103@oracle.com>
+To: Phil Oester <kernel@linuxace.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: make menuconfig regression in 2.6.19-rc
+In-Reply-To: <20061114003752.GA15295@linuxace.com>
+Message-ID: <Pine.LNX.4.64.0611210035150.6243@scrub.home>
+References: <20061114003752.GA15295@linuxace.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,30 +25,50 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Mon, 20 Nov 2006, Randy Dunlap wrote:
+On Mon, 13 Nov 2006, Phil Oester wrote:
 
-> > I cannot reproduce this. Could you try to run qconf within gdb for a
-> > backtrace (adding -g to HOST_EXTRACFLAGS might get more useful output).
+> In commit 350b5b76384e77bcc58217f00455fdbec5cac594, the default menuconfig
+> color scheme was changed to bluetitle.  This breaks the highlighting
+> of the selected item for me with TERM=vt100.  The only way I can see
+> which item is selected is via:
 > 
-> Sure, let me know what you want next.
+>     make MENUCONFIG_COLOR=mono menuconfig
+> 
+> Which restores the pre-2.6.19 white on black highlighting.  
 
-Hmm, an uninitialize field is IMO the only thing that could go wrong here.
+Could you try the patch below?
 
 bye, Roman
 
 ---
- scripts/kconfig/qconf.cc |    1 +
- 1 file changed, 1 insertion(+)
+ scripts/kconfig/lxdialog/util.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-Index: linux-2.6/scripts/kconfig/qconf.cc
+Index: linux-2.6-mm/scripts/kconfig/lxdialog/util.c
 ===================================================================
---- linux-2.6.orig/scripts/kconfig/qconf.cc
-+++ linux-2.6/scripts/kconfig/qconf.cc
-@@ -1259,6 +1259,7 @@ void ConfigSearchWindow::search(void)
-  * Construct the complete config widget
+--- linux-2.6-mm.orig/scripts/kconfig/lxdialog/util.c
++++ linux-2.6-mm/scripts/kconfig/lxdialog/util.c
+@@ -221,16 +221,14 @@ static void init_dialog_colors(void)
   */
- ConfigMainWindow::ConfigMainWindow(void)
-+	: searchWindow(0)
+ static void color_setup(const char *theme)
  {
- 	QMenuBar* menu;
- 	bool ok;
+-	if (set_theme(theme)) {
+-		if (has_colors()) {	/* Terminal supports color? */
+-			start_color();
+-			init_dialog_colors();
+-		}
+-	}
+-	else
+-	{
++	int use_color;
++
++	use_color = set_theme(theme);
++	if (use_color && has_colors()) {
++		start_color();
++		init_dialog_colors();
++	} else
+ 		set_mono_theme();
+-	}
+ }
+ 
+ /*

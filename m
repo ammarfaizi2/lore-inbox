@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966537AbWKTTfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966539AbWKTTf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966537AbWKTTfk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 14:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966538AbWKTTfk
+	id S966539AbWKTTf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 14:35:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966537AbWKTTf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 14:35:40 -0500
-Received: from mail.tmr.com ([64.65.253.246]:35988 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S966537AbWKTTfi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 14:35:38 -0500
-Message-ID: <456202FF.8060709@tmr.com>
-Date: Mon, 20 Nov 2006 14:33:19 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
+	Mon, 20 Nov 2006 14:35:27 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:43939 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S966535AbWKTTf0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 14:35:26 -0500
+Message-ID: <4562036E.3020409@garzik.org>
+Date: Mon, 20 Nov 2006 14:35:10 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-raid@vger.kernel.org, neilb@cse.unsw.edu.au, mingo@redhat.com,
-       dm-devel@redhat.com
-Subject: Re: Problem booting linux 2.6.19-rc5, 2.6.19-rc5-git6,      2.6.19-rc5-mm2
- with md raid 1 over lvm root
-References: <41884.81.64.156.37.1163631254.squirrel@rousalka.dyndns.org> <455BB01B.2080309@gmail.com>
-In-Reply-To: <455BB01B.2080309@gmail.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Arnd Bergmann <arnd@arndb.de>, Chris Snook <csnook@redhat.com>,
+       Jay Cliburn <jacliburn@bellsouth.net>, romieu@fr.zoreil.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] atl1: Main C file for Attansic L1 driver
+References: <20061119203050.GD29736@osprey.hogchain.net>	<200611200057.45274.arnd@arndb.de>	<45614769.4020005@redhat.com>	<200611201322.00495.arnd@arndb.de> <20061120100202.6a79e382@freekitty>
+In-Reply-To: <20061120100202.6a79e382@freekitty>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Nicolas Mailhot wrote:
->> The failing kernels (I tried -rc5, -rc5-git6, -rc5-mm2 only print :
->>
->> %<----
->> device-mapper: ioctl: 4.7.0-ioctl (2006-06-24) initialised:
->> dm-devel@redhat.com
->> md: Autodetecting RAID arrays.
->> md: autorun ...
->> md: ... autorun DONE.
->> %<-----
->>
->> (I didn't bother copying the rest of the failing kernel dmesg, as sata
->> initialisation fills the first half of the screen, then dm is 
->> initialised,
->> then you only get the logical consequences of failing to detect the /
->> volume. The sata part seems fine – it prints the name of the hard drives
->> we want to use)
->>
->> I'm attaching the dmesg for the working distro kernel (yes I know not 
->> 100%
->> distro kernel, but very close to one), distro config , and the config I
->> used in my test. If anyone could help me to figure what's wrong I'd be
->> grateful.
->
-> Say 'y' not 'm' to SCSI disk support.
->
-That will probably work, but just building a new initrd is probably a 
-lot easier. Although I thought the SCSI modules were included if built 
-and installed if present.
+Stephen Hemminger wrote:
+> Using common MII code is good, but one problem with the existing MII code is that
+> it doesn't work when device is down. This makes it impossible to set speed/duplex
+> before device comes up.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+
+That's not true at all.  drivers/net/mii.c uses caller-provided locking 
+in all cases, and there is nothing that prevents the common code from 
+being called when the interface is down.
+
+You are probably thinking about all the netif_running() checks found in 
+the drivers, particularly in the ->begin() hook.
+
+	Jeff
 
 

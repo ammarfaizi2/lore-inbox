@@ -1,67 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966768AbWKTV2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966767AbWKTVfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966768AbWKTV2f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 16:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966787AbWKTV2e
+	id S966767AbWKTVfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 16:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966788AbWKTVfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 16:28:34 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:6079 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S966768AbWKTV2e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 16:28:34 -0500
-Date: Mon, 20 Nov 2006 16:28:32 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: deadlock in "modprobe -r ohci1394" shortly after "modprobe
- ohci1394"
-In-Reply-To: <456213F2.8070805@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.44L0.0611201626390.7916-100000@iolanthe.rowland.org>
+	Mon, 20 Nov 2006 16:35:42 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:19679 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S966767AbWKTVfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 16:35:41 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Mon, 20 Nov 2006 22:34:40 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [2.6 patch] the scheduled removal of
+ RAW1394_REQ_ISO_{SEND,LISTEN}
+To: Adrian Bunk <bunk@stusta.de>
+cc: Jody McIntyre <scjody@modernduck.com>, bcollins@debian.org,
+       linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20061120210705.GD31879@stusta.de>
+Message-ID: <tkrat.7924e1457666b8be@s5r6.in-berlin.de>
+References: <20061120210705.GD31879@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006, Stefan Richter wrote:
+On 20 Nov, Adrian Bunk wrote:
+> This patch contains the scheduled removal of requests of type 
+> RAW1394_REQ_ISO_SEND, RAW1394_REQ_ISO_LISTEN.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  Documentation/feature-removal-schedule.txt |    9 -
+>  drivers/ieee1394/highlevel.c               |   37 ----
+>  drivers/ieee1394/highlevel.h               |   21 --
+>  drivers/ieee1394/hosts.h                   |    2 
+>  drivers/ieee1394/ieee1394_core.c           |    7 
+>  drivers/ieee1394/ieee1394_transactions.c   |   30 ----
+>  drivers/ieee1394/ieee1394_transactions.h   |    2 
+>  drivers/ieee1394/raw1394-private.h         |    5 
+>  drivers/ieee1394/raw1394.c                 |  157 ---------------------
+>  drivers/ieee1394/raw1394.h                 |    4 
+>  10 files changed, 3 insertions(+), 271 deletions(-)
 
-> Alan Stern wrote:
-> > Wait a minute.  Above you agreed that the problem was caused by knodemgrd 
-> > attempting to rescan the host's _parent_.  So which is the focus of the 
-> > deadlock: the host or its parent?
-> 
-> The parent of the hpsb_host.
-> 
-> ohci1394 works on a pci_dev which contains a dev, let's call it A.
-> 
-> ieee1394 has a hpsb_host which contains a dev, let's call it B. B's
-> parent is A. Then there is one or more node_entry with dev C whose
-> parent is B, end unit_directory with dev D whose parent is C.
-> 
-> The bus of devices B, C, D is set to be ieee1394_bus_type, and that's
-> what knodemgrd is scanning.
-> 
-> knodemgrd blocks on the semaphore of the parent of B because
-> driver_detach took the semaphore of A (and of the parent of A if there
-> is one).
+Thanks for this cleanup. Now that you did the work I hope you are not
+too upset that a recent discussion on linux1394-devel and
+libdc1394-devel concluded with another delay of the feature removal.
+http://thread.gmane.org/gmane.linux.kernel.firewire.devel/8055
+Here is what I sent to the lists after the discussion:
 
-Okay, I get it.
 
-> > Is the problem caused by the fact that some of these struct device's 
-> > aren't bound to a driver?  Remember, bus_rescan_devices() will skip over 
-> > anything that already has a driver.  Could you solve your problem by 
-> > adding a do_nothing driver that would bind to these otherwise unused 
-> > devices?
-> 
-> Excellently, that's what I will try in a minute. It is surely intended
-> that the hpsb_host can get a driver bound too, but as I mentioned, we
-> don't have a driver which needs this capability and I don't foresee any
-> such driver.
-> 
-> Thanks for the directions.
+Date: Mon, 20 Nov 2006 00:05:05 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: ieee1394: raw1394: defer feature removal of old isoch interface
 
-You're welcome.  Let me know how it turns out.
+Known to be affected:
+ - libdc1394: prefers video1394 for now, old-style raw1394 support might
+   be dropped eventually
+ - OpenH323 PWLib, AVC video input module: uses libraw1394's old API
 
-Alan Stern
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+ Documentation/feature-removal-schedule.txt |   11 ++++++-----
+ drivers/ieee1394/raw1394.c                 |   17 +++++++++++++++++
+ 2 files changed, 23 insertions(+), 5 deletions(-)
+
+Index: linux/Documentation/feature-removal-schedule.txt
+===================================================================
+--- linux.orig/Documentation/feature-removal-schedule.txt	2006-11-11 12:42:21.000000000 +0100
++++ linux/Documentation/feature-removal-schedule.txt	2006-11-11 15:49:42.000000000 +0100
+@@ -30,11 +30,12 @@ Who:	Adrian Bunk <bunk@stusta.de>
+ ---------------------------
+ 
+ What:	raw1394: requests of type RAW1394_REQ_ISO_SEND, RAW1394_REQ_ISO_LISTEN
+-When:	November 2006
+-Why:	Deprecated in favour of the new ioctl-based rawiso interface, which is
+-	more efficient.  You should really be using libraw1394 for raw1394
+-	access anyway.
+-Who:	Jody McIntyre <scjody@modernduck.com>
++When:	June 2007
++Why:	Deprecated in favour of the more efficient and robust rawiso interface.
++	Affected are applications which use the deprecated part of libraw1394
++	(raw1394_iso_write, raw1394_start_iso_write, raw1394_start_iso_rcv,
++	raw1394_stop_iso_rcv) or bypass	libraw1394.
++Who:	Dan Dennedy <dan@dennedy.org>, Stefan Richter <stefanr@s5r6.in-berlin.de>
+ 
+ ---------------------------
+ 
+Index: linux/drivers/ieee1394/raw1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/raw1394.c	2006-11-11 12:42:21.000000000 +0100
++++ linux/drivers/ieee1394/raw1394.c	2006-11-11 14:59:50.000000000 +0100
+@@ -99,6 +99,21 @@ static struct hpsb_address_ops arm_ops =
+ 
+ static void queue_complete_cb(struct pending_request *req);
+ 
++#include <asm/current.h>
++static void print_old_iso_deprecation(void)
++{
++	static pid_t p;
++
++	if (p == current->pid)
++		return;
++	p = current->pid;
++	printk(KERN_WARNING "raw1394: WARNING - Program \"%s\" uses unsupported"
++	       " isochronous request types which will be removed in a next"
++	       " kernel release\n", current->comm);
++	printk(KERN_WARNING "raw1394: Update your software to use libraw1394's"
++	       " newer interface\n");
++}
++
+ static struct pending_request *__alloc_pending_request(gfp_t flags)
+ {
+ 	struct pending_request *req;
+@@ -2292,6 +2307,7 @@ static int state_connected(struct file_i
+ 		return sizeof(struct raw1394_request);
+ 
+ 	case RAW1394_REQ_ISO_SEND:
++		print_old_iso_deprecation();
+ 		return handle_iso_send(fi, req, node);
+ 
+ 	case RAW1394_REQ_ARM_REGISTER:
+@@ -2310,6 +2326,7 @@ static int state_connected(struct file_i
+ 		return reset_notification(fi, req);
+ 
+ 	case RAW1394_REQ_ISO_LISTEN:
++		print_old_iso_deprecation();
+ 		handle_iso_listen(fi, req);
+ 		return sizeof(struct raw1394_request);
+ 
+
+-- 
+Stefan Richter
+-=====-=-==- =-== =-=--
+http://arcgraph.de/sr/
 

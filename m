@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966439AbWKTS4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966065AbWKTTEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966439AbWKTS4x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966440AbWKTS4x
+	id S966065AbWKTTEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 14:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966366AbWKTTEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:56:53 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:62867 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S966437AbWKTS4w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:56:52 -0500
-Message-ID: <4561FA6F.4030400@gmail.com>
-Date: Mon, 20 Nov 2006 19:56:47 +0100
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Mon, 20 Nov 2006 14:04:16 -0500
+Received: from nlpi001.sbcis.sbc.com ([207.115.36.30]:16044 "EHLO
+	nlpi001.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S966065AbWKTTEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 14:04:15 -0500
+X-ORBL: [67.117.73.34]
+Date: Mon, 20 Nov 2006 19:04:04 +0000
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Vladimir Ananiev <vovan888@gmail.com>
+Subject: Re: Siemens sx1: merge framebuffer support
+Message-ID: <20061120190404.GD4597@atomide.com>
+References: <20061118181607.GA15275@elf.ucw.cz>
 MIME-Version: 1.0
-To: Akinobu Mita <akinobu.mita@gmail.com>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-Subject: Re: kobject_add failed with -EEXIST
-References: <4561E290.7060100@gmail.com> <20061120182312.GA16006@APFDCB5C>
-In-Reply-To: <20061120182312.GA16006@APFDCB5C>
-X-Enigmail-Version: 0.94.1.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Muni-Spam-TestIP: 147.251.48.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061118181607.GA15275@elf.ucw.cz>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akinobu Mita wrote:
-> ---
->  drivers/base/class.c |    2 ++
->  1 file changed, 2 insertions(+)
+* Pavel Machek <pavel@ucw.cz> [061118 18:16]:
+> From: Vladimir Ananiev <vovan888@gmail.com>
 > 
-> Index: work-fault-inject/drivers/base/class.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/base/class.c
-> +++ work-fault-inject/drivers/base/class.c
-> @@ -163,6 +163,8 @@ int class_register(struct class * cls)
->  void class_unregister(struct class * cls)
->  {
->  	pr_debug("device class '%s': unregistering\n", cls->name);
-> +	if (cls->virtual_dir)
-> +		kobject_unregister(cls->virtual_dir);
->  	remove_class_attrs(cls);
->  	subsystem_unregister(&cls->subsys);
->  }
-> 
+> Framebuffer support for Siemens SX1; this is second big patch. (Third
+> one will be mixer/sound support). Support is simple / pretty minimal,
+> but seems to work okay (and is somehow important for a cell phone :-).
 
-This solves my problem.
+Pushed to linux-omap. I guess you're planning to send the missing
+Kconfig + Makefile patch for this?
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Also, it would be better to use omap_mcbsp_xmit_word() or
+omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
+it does not do any checking that it worked. The aic23 and tsc2101
+audio in linux-omap tree in general has the same problem.
+
+Regards,
+
+Tony

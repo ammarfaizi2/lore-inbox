@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966193AbWKTUfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966654AbWKTUhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966193AbWKTUfF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966654AbWKTUfF
+	id S966654AbWKTUhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966656AbWKTUhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:35:05 -0500
-Received: from mx2.suse.de ([195.135.220.15]:15070 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S966193AbWKTUfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:35:03 -0500
-Date: Mon, 20 Nov 2006 12:34:40 -0800
-From: Greg KH <gregkh@suse.de>
-To: Akinobu Mita <akinobu.mita@gmail.com>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driver core: delete virtual directory on class_unregister()
-Message-ID: <20061120203440.GA5458@suse.de>
-References: <4561E290.7060100@gmail.com> <20061120182312.GA16006@APFDCB5C> <4561FA6F.4030400@gmail.com> <20061120195318.GB18077@APFDCB5C>
+	Mon, 20 Nov 2006 15:37:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1187 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S966654AbWKTUhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 15:37:14 -0500
+Date: Mon, 20 Nov 2006 20:37:08 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-fbdev-devel@lists.sourceforge.net, Tero Roponen <teanropo@jyu.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] fb: modedb uses wrong default_mode
+In-Reply-To: <20061120120521.68724342.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0611202033460.26386@pentafluge.infradead.org>
+References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+ <20061115152952.0e92c50d.akpm@osdl.org> <20061115234456.GB3674@cosmic.amd.com>
+ <Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
+ <20061117124013.b6e4183d.akpm@osdl.org> <Pine.LNX.4.64.0611201643460.17639@pentafluge.infradead.org>
+ <20061120120521.68724342.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061120195318.GB18077@APFDCB5C>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 04:53:18AM +0900, Akinobu Mita wrote:
-> Class virtual directory is created as the need arises.
-> But it is not deleted when the class is unregistered.
+
+> > I really don't trust dbsize. The driver writer can pass in the wrong 
+> > number.
 > 
-> Cc: Greg Kroah-Hartman <gregkh@suse.de>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> That would be a bug.
+
+Excuse my paranoia about what driver writers will do :-/
+
+> > Whereas ARRAY_SIZE will always be correct. Lets take the position 
+> > that we use dbsize then we need to test if dbsize is greater than the 
+> > really size of the modedb. The dbsize parameter was for the days before we
+> > had ARRAY_SIZE.
+> > 
+> > > int fb_find_mode(struct fb_var_screeninfo *var,
+> > > 		 struct fb_info *info, const char *mode_option,
+> > > 		 const struct fb_videomode *db, unsigned int dbsize,
+> > > 		 const struct fb_videomode *default_mode,
+> > > 		 unsigned int default_bpp)
+> > > {
+> > >     int i;
+> > > 
+> > >     /* Set up defaults */
+> > >     if (!db) {
+> > > 	db = modedb;
+> > > 	dbsize = ARRAY_SIZE(modedb);
+> > >     }
+> > 
+> >       if (dbsize > ARRAY_SIZE(db))
+> > 	dbsize = ARRAY_SIZE(db);
 > 
-> ---
->  drivers/base/class.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> Index: work-fault-inject/drivers/base/class.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/base/class.c
-> +++ work-fault-inject/drivers/base/class.c
-> @@ -163,6 +163,8 @@ int class_register(struct class * cls)
->  void class_unregister(struct class * cls)
->  {
->  	pr_debug("device class '%s': unregistering\n", cls->name);
-> +	if (cls->virtual_dir)
-> +		kobject_unregister(cls->virtual_dir);
->  	remove_class_attrs(cls);
->  	subsystem_unregister(&cls->subsys);
->  }
+> We can't do ARRAY_SIZE on a random pointer like this: the compiler needs to
+> see the full definition of the array itself, and that is back in the
+> caller's compilation unit.
 
-Hm, why is this not reproducable for me then without this patch?
+Good point about the pointer being valid. In that case we have to deal 
+with dbsize. Still nervous about going out of bounds of the array.
 
-Very strange, I'll dig into it some more this evening, gotta go do
-family stuff for the rest of the day...
-
-thanks,
-
-greg k-h

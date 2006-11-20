@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966280AbWKTRnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966285AbWKTRpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966280AbWKTRnE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966281AbWKTRnE
+	id S966285AbWKTRpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966287AbWKTRpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:43:04 -0500
-Received: from static.88-198-202-190.clients.your-server.de ([88.198.202.190]:27070
-	"EHLO kleinhenz.com") by vger.kernel.org with ESMTP id S966280AbWKTRnB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:43:01 -0500
-Message-ID: <4561E923.3080305@hogyros.de>
-Date: Mon, 20 Nov 2006 18:42:59 +0100
-From: Simon Richter <Simon.Richter@hogyros.de>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Mark Rustad <mrustad@mac.com>
-Cc: Linux-Kernel mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: implement daemon() in the kernel
-References: <4561ABB4.6090700@hogyros.de> <33832325-EF32-4C6D-B566-8B7CE179FF1C@mac.com>
-In-Reply-To: <33832325-EF32-4C6D-B566-8B7CE179FF1C@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 12:45:55 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:61888 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S966285AbWKTRpy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:45:54 -0500
+Date: Mon, 20 Nov 2006 12:45:52 -0500
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Tony Olech <tony.olech@elandigitalsystems.com>,
+       Linux kernel development <linux-kernel@vger.kernel.org>,
+       PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
+       David Hinds <dahinds@users.sourceforge.net>,
+       Jaroslav Kysela <perex@suse.cz>,
+       Bart Prescott <bart.prescott@elandigitalsystems.com>
+Subject: Re: [PATCH] PCMCIA identification strings for cards manufactured by Elan
+Message-ID: <20061120174552.GB18660@isilmar.linta.de>
+Mail-Followup-To: Tony Olech <tony.olech@elandigitalsystems.com>,
+	Linux kernel development <linux-kernel@vger.kernel.org>,
+	PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>,
+	David Hinds <dahinds@users.sourceforge.net>,
+	Jaroslav Kysela <perex@suse.cz>,
+	Bart Prescott <bart.prescott@elandigitalsystems.com>
+References: <200611201214.kAKCErcU005240@imap.elan.private> <20061120130237.GA22330@flint.arm.linux.org.uk> <1164032582.30853.36.camel@n04-143.elan.private> <20061120152927.GA26791@flint.arm.linux.org.uk> <1164041509.30853.48.camel@n04-143.elan.private> <20061120172731.GC26791@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061120172731.GC26791@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Nov 20, 2006 at 05:27:31PM +0000, Russell King wrote:
+> On Mon, Nov 20, 2006 at 04:51:48PM +0000, Tony Olech wrote:
+> > Hi Russell,
+> > if I take out the patches to parport_cs and serial_cs,
+> > leaving in only the patch to "pdaudiocf" our SP230 card
+> > no longer works - it does not lock up the kernel, admittedly,
+> > and the serial only card does works, but we would like
+> > all are cards to just work.
+> 
+> Sounds like function ID matching is broken.  Dominik?
 
-Mark Rustad schrieb:
+No, it isn't -- it is a multifunction card, and these require special
+care (i.e. manf_id / prod_id matches). If func_id says "multifunction", that
+does not say anything about which drivers to use...
 
-> There is a better way. Simply implement fork(). It can be done even 
-> without an MMU. People think it is impossible, but that is only because 
-> they don't consider the possibility of copying memory back and forth on 
-> task switch. It sounds horrible, but in the vast majority of cases, 
-> either the parent or child either exits or does an exec pretty quickly, 
-> so in reality it doesn't cost much. The benefits are many: being able to 
-> use real shells such as bash and thereby being able to use real shell 
-> scripts.
-
-This imposes quite a significant overhead for the common case (in which 
-the application has specifically requested that the parent process be 
-terminated after the child process is fork()ed off). Even if the cost of 
-transferring memory contents was cheap (which it isn't), you'd annoy the 
-memory management subsystem unless you did a lot of weird tricks to 
-avoid allocating from a large block.
-
-> You do have to look out for any applications that fork and do not either 
-> exit or exec, but that is so much better than having to modify so many 
-> things just to get them to run.
-
-Well, in fact just having a libc that does not define a symbol for 
-"fork" and then going to the places the linker mentions as having 
-undefined references is a pretty easy way. Mind you, in 90% of cases you 
-can replace them by a vfork() and be done.
-
-    Simon
+Thanks,
+	Dominik

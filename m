@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934175AbWKTORH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933924AbWKTOTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934175AbWKTORH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 09:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934177AbWKTORG
+	id S933924AbWKTOTr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 09:19:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934178AbWKTOTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 09:17:06 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:62920 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S934175AbWKTORF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 09:17:05 -0500
-Date: Mon, 20 Nov 2006 15:17:00 +0100
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: [PATCH -mm 0/4][AIO] - AIO completion signal notification v2
-Message-ID: <20061120151700.4a4f9407@frecb000686>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/11/2006 15:24:04,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 20/11/2006 15:24:06,
-	Serialize complete at 20/11/2006 15:24:06
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 20 Nov 2006 09:19:47 -0500
+Received: from nsvy.infos.cz ([82.100.43.2]:43464 "EHLO nsvy.infos.cz")
+	by vger.kernel.org with ESMTP id S933924AbWKTOTq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 09:19:46 -0500
+From: =?iso-8859-2?q?Anton=EDn_Kol=EDsek?= <akolisek@linuxx.hyperlinx.cz>
+To: linux-kernel@vger.kernel.org
+Subject: problem with booting on linux-2.6.18.3
+Date: Mon, 20 Nov 2006 15:19:40 +0100
+User-Agent: KMail/1.9.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611201519.40251.akolisek@linuxx.hyperlinx.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everyone,
 
+i want to report one problem i last kernel tree (Vanilla 2.6.18.2 and 
+2.6.18.3). 
+When i boot my PC i get this message:
 
-  Hi
+unknown interrupt or fault at EIP 0001006 00000060 c038feca
+. . . 
 
-  Here is the latest rework of the AIO completion signal notification patches.
+This report goes in cycle again and again, so i must reboot my comp anyway.
 
-  This set consists in 4 patches:
+But in kernel 2.6.18.1 no problem. Everything is all right.
+Not help acpi=off.
 
-	1. aio-header-fix-includes: fixes the double inclusion of uio.h in aio.h
+Kernel config:
 
-	2. export-good_sigevent: move good_sigevent into signal.c and export it
+CONFIG_PREEMPT_VOLUNTARY=y
+CONFIG_ACPI=y
+CONFIG_PNPACPI=y
 
-	3. aio-notify-sig: the AIO completion signal notification
+PC:
+AthlonXP 2800+ (Barton)
+ASUS K7N8X-X (nforce2)
 
-	4. listio: adds listio support
+Slackware Linux 11.0 (current)
+gcc-3.4.6
 
-  Description are in the individual patches.
+Maybe its nothing but who knows ;-)
 
-
-  Changes from v1:
-	- cleanups suggested by Christoph Hellwig, Badari Pulavarty and Zach Brown
-	- added lisio patch
-
-
-  Comments are welcome as usual.
-
-  Thanks,
-
-  Sébastien.
-
+Best regards
+			A.K.
+-- 
+Antonin Kolisek
+http://linuxx.hyperlinx.cz

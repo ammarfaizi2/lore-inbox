@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966393AbWKTWa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966390AbWKTWeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966393AbWKTWa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934279AbWKTWa6
+	id S966390AbWKTWeS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966409AbWKTWeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:30:58 -0500
-Received: from de01egw01.freescale.net ([192.88.165.102]:61435 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S934272AbWKTWa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:30:57 -0500
-Date: Mon, 20 Nov 2006 16:30:50 -0600
-From: Kim Phillips <kim.phillips@freescale.com>
-To: linuxppc-dev@ozlabs.org
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net
-Subject: [POWERPC][PATCH 1/2] Revert "[POWERPC] Enable generic rtc hook for
- the MPC8349 mITX"
-Message-Id: <20061120163050.1ce160b8.kim.phillips@freescale.com>
-Organization: Freescale Semiconductor
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 20 Nov 2006 17:34:17 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:51591
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S966390AbWKTWeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:34:16 -0500
+Date: Sun, 19 Nov 2006 22:41:06 -0800
+From: Brad Boyer <flar@allandria.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: funaho@jurai.org, linux-mac68k@mac.linux-m68k.org, geert@linux-m68k.org,
+       zippel@linux-m68k.org, linux-m68k@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove the broken BLK_DEV_SWIM_IOP driver
+Message-ID: <20061120064106.GA25209@cynthia.pants.nu>
+References: <20061120210654.GC31879@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAQ=
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061120210654.GC31879@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This reverts commit a8ed4f7ec3aa472134d7de6176f823b2667e450b.
+On Mon, Nov 20, 2006 at 10:06:54PM +0100, Adrian Bunk wrote:
+> The BLK_DEV_SWIM_IOP driver has:
+> - already been marked as BROKEN in 2.6.0 three years ago and
+> - is still marked as BROKEN.
+> 
+> Drivers that had been marked as BROKEN for such a long time seem to be
+> unlikely to be revived in the forseeable future.
+> 
+> But if anyone wants to ever revive this driver, the code is still
+> present in the older kernel releases.
 
-As advised by David Brownell:
+Feel free to remove this one. It was never in a state that worked, but
+was added to the tree anyway. I tried to fix it when I was given a
+copy of the documentation, but it needed more work than I initially
+expected. The initial version that was in the tree could only detect
+the drives, and the only thing I added other than some bug fixes was
+support for the eject ioctl. The read/write path in the driver is
+missing the actual data transfer routines, and is therefore not in
+a working state.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116387226902131&w=2
----
- arch/powerpc/platforms/83xx/mpc834x_itx.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+For the record, I believe the linux-mac68k list is dead.
 
-diff --git a/arch/powerpc/platforms/83xx/mpc834x_itx.c b/arch/powerpc/platforms/83xx/mpc834x_itx.c
-index e152d06..314c42a 100644
---- a/arch/powerpc/platforms/83xx/mpc834x_itx.c
-+++ b/arch/powerpc/platforms/83xx/mpc834x_itx.c
-@@ -108,10 +108,6 @@ static int __init mpc834x_itx_probe(void
- 	return 1;
- }
- 
--#ifdef CONFIG_RTC_CLASS
--late_initcall(rtc_class_hookup);
--#endif
--
- define_machine(mpc834x_itx) {
- 	.name			= "MPC834x ITX",
- 	.probe			= mpc834x_itx_probe,
--- 
-1.4.2.3
+	Brad Boyer
+	flar@allandria.com
 

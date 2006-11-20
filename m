@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966595AbWKTW0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934217AbWKTW33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966595AbWKTW0d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:26:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966871AbWKTW0d
+	id S934217AbWKTW33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934272AbWKTW33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:26:33 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:57282 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S966595AbWKTW0c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:26:32 -0500
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid
-	suspend-related XFS corruptions
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200611202318.29207.rjw@sisk.pl>
-References: <200611160912.51226.rjw@sisk.pl>
-	 <200611202140.47322.rjw@sisk.pl>
-	 <1164060206.14889.13.camel@nigel.suspend2.net>
-	 <200611202318.29207.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 09:26:26 +1100
-Message-Id: <1164061586.15714.1.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 17:29:29 -0500
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:19353 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S934217AbWKTW32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:29:28 -0500
+Date: Mon, 20 Nov 2006 17:29:25 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no,
+       selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org, aviro@redhat.com,
+       steved@redhat.com
+Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
+ overridden
+In-Reply-To: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <XMMS.LNX.4.64.0611201727470.31270@d.namei>
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>
+  <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com> 
+ <XMMS.LNX.4.64.0611141618300.25022@d.namei> <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 20 Nov 2006, Stephen Smalley wrote:
 
-On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
-> I think I/O can only be submitted from the process context.  Thus if we freeze
-> all (and I mean _all_) threads that are used by filesystems, including worker
-> threads, we should effectively prevent fs-related I/O from being submitted
-> after tasks have been frozen.
-
-I know that will work. It's what I used to do before the switch to bdev
-freezing. I guess I need to look again at why I made the switch. Perhaps
-it was just because you guys gave freezing kthreads a bad wrap as too
-invasive or something. Bdev freezing is certainly fewer lines of code.
-
-> This can be done with the help of create_freezeable_workqueue() introduced in
-> this patch and I'd like to implement it (and there are only a few filesystems
-> that use work queues).
+> > The ability to set this needs to be mediated via MAC policy.
+> > 
+> > See selinux_setprocattr()
 > 
-> The freezing of bdevs might be a good solution if:
-> (1) we were sure it wouldn't interact with dm in a wrong way,
-> (2) _all_ of the filesystems implemented it.
-> For now, neither (1) nor (2) are satisfied and we need to know we're safe
-> _now_.
+> That's different - selinux_set_fscreate_secid() is for internal use by a
+> kernel module that wishes to temporarily assume a particular fscreate
+> SID, whereas selinux_setprocattr() handles userspace writes
+> to /proc/self/attr nodes.  Imposing a permission check here makes no
+> sense.
 
-Yeah.
+Well, the hook is exported generally to the kernel, so we need to 
+ensure that it is documented with a big warning.  The name of the hook 
+should perhaps make it more obvious,  like set_internal_ or so.
 
-Regards,
 
-Nigel
 
+- James
+-- 
+James Morris
+<jmorris@namei.org>

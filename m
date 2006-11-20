@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966631AbWKTUIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966624AbWKTUJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966631AbWKTUIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966627AbWKTUIs
+	id S966624AbWKTUJx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966626AbWKTUJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:08:48 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:28582 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S966626AbWKTUIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:08:47 -0500
-Date: Mon, 20 Nov 2006 21:04:48 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Chris Snook <csnook@redhat.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
-       shemminger@osdl.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] atl1: Build files for Attansic L1 driver
-Message-ID: <20061120200448.GA15720@electric-eye.fr.zoreil.com>
-References: <20061119202915.GB29736@osprey.hogchain.net> <20061119152432.a85d4166.randy.dunlap@oracle.com> <456145DA.804@redhat.com> <4561CCA6.8080209@oracle.com> <4561D59F.5020206@redhat.com>
+	Mon, 20 Nov 2006 15:09:53 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5546 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S966624AbWKTUJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 15:09:52 -0500
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+	type IRQ handlers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+In-Reply-To: <20061120165621.GA1504@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>
+	 <1163966437.5826.99.camel@localhost.localdomain>
+	 <20061119200650.GA22949@elte.hu>
+	 <1163967590.5826.104.camel@localhost.localdomain>
+	 <20061119202348.GA27649@elte.hu>
+	 <1163985380.5826.139.camel@localhost.localdomain>
+	 <20061120100144.GA27812@elte.hu> <4561C9EC.3020506@ru.mvista.com>
+	 <20061120165621.GA1504@elte.hu>
+Content-Type: text/plain
+Date: Tue, 21 Nov 2006 07:09:45 +1100
+Message-Id: <1164053385.8073.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4561D59F.5020206@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Snook <csnook@redhat.com> :
-[...]
-> To be precise, mii-tool is deprecated, in favor of ethtool.  There are 
+On Mon, 2006-11-20 at 17:56 +0100, Ingo Molnar wrote:
+> * Sergei Shtylyov <sshtylyov@ru.mvista.com> wrote:
+> 
+> > >on PPC64, 'get the vector' initiates an ACK as well - is that done 
+> > >before handle_irq() is done?
+> > 
+> >    Exactly. How else do_IRQ() would know the vector?
+> 
+> the reason i'm asking is that in this case masking is a bit late at this 
+> point and there's a chance for a repeat interrupt.
 
-$ man mii-tool
-[...]
-       -v, --verbose
-              Display  more  detailed  MII status information.  If used twice,
-                                                                ^^^^^^^^^^^^^
-              also display raw MII register contents.
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+What do you mean by a bit late ?
 
-Is there a similar feature in ethtool ?
+You can't mask before you know what interrupt occured so you don't
+really have a choice there :-) I'm pretty sure that mask + eoi is what
+Apple does on Darwin too though.
 
--- 
-Ueimor
+Cheers,
+Ben.
+
+

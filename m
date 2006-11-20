@@ -1,66 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966607AbWKTUCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966603AbWKTUCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966607AbWKTUCa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966625AbWKTUCa
+	id S966603AbWKTUCD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966610AbWKTUCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:02:30 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51211 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S966607AbWKTUC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:02:28 -0500
-Date: Mon, 20 Nov 2006 21:02:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>
-Cc: adaplas@pol.net, James Simmons <jsimmons@infradead.org>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       geert@linux-m68k.org, zippel@linux-m68k.org, linux-m68k@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove broken video drivers
-Message-ID: <20061120200227.GZ31879@stusta.de>
-References: <20061118000235.GV31879@stusta.de> <Pine.LNX.4.58.0611181132230.7667@xplor.biophys.uni-duesseldorf.de> <20061118195519.GZ31879@stusta.de> <Pine.LNX.4.58.0611201014280.24134@xplor.biophys.uni-duesseldorf.de>
+	Mon, 20 Nov 2006 15:02:01 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:7559 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S966603AbWKTUCA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 15:02:00 -0500
+Date: Mon, 20 Nov 2006 15:01:59 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061120185712.GA95@oleg>
+Message-ID: <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0611201014280.24134@xplor.biophys.uni-duesseldorf.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 10:17:28AM +0100, Michael Schmitz wrote:
-> > > > - FB_ATARI
-> > >
-> > > FB_ATARI has just been revived. Geert has a preliminary patch; I'll send
-> > > the final one soonish.
+On Mon, 20 Nov 2006, Oleg Nesterov wrote:
+
+> On 11/20, Alan Stern wrote:
 > >
-> > Thanks for this information.
+> > @@ -158,6 +199,11 @@ void synchronize_srcu(struct srcu_struct
 > >
-> > Are any of the following Atari options that are also on my
-> > "BROKEN since at least 2.6.0" list also being revived?
+> > [... snip ...]
 > >
-> > - HADES (arch/m68k/Kconfig)
-> > - ATARI_ACSI (drivers/net/Kconfig)
-> > - ATARI_BIONET (drivers/net/Kconfig)
+> > +#ifdef	SMP__STORE_MB_LOAD_WORKS	/* The fast path */
+> > +	if (srcu_readers_active_idx(sp, idx) == 0)
+> > +		goto done;
+> > +#endif
 > 
-> These three I can try to 'revive' without actually being able to test
-> them.
+> I guess this is connected to another message from you,
+
+Yes.
+
+> > But of course it _is_ needed for the fastpath to work.  In fact, it might
+> > not be good enough, depending on the architecture.  Here's what the
+> > fastpath ends up looking like (using c[idx] is essentially the same as
+> > using hardluckref):
+> > 
+> >         WRITER                          READER
+> >         ------                          ------
+> >         dataptr = &(new data)           atomic_inc(&hardluckref)
+> >         mb                              mb
+> >         while (hardluckref > 0) ;       access *dataptr
+> > 
+> > Notice the pattern: Each CPU does store-mb-load.  It is known that on
+> > some architectures each CPU can end up loading the old value (the value
+> > from before the other CPU's store).  This would mean the writer would see
+> > hardluckref == 0 right away and the reader would see the old dataptr.
 > 
-> > - ATARI_PAMSNET (drivers/net/Kconfig)
-> > - ATARI_SCSI (drivers/scsi/Kconfig)
+> So, if we have global A == B == 0,
 > 
-> These two (assuming PAMSNET is the VME ethercard) I can even test myself.
-> So you can mark them 'being worked on'...
+> 	CPU_0		CPU_1
+> 
+> 	A = 1;		B = 2;
+> 	mb();		mb();
+> 	b = B;		a = A;
+> 
+> It could happen that a == b == 0, yes?
 
-Thanks, I've removed them from my death row.
+Exactly.
 
-> 	Michael
+> Isn't this contradicts with definition
+> of mb?
 
-cu
-Adrian
+One might think so, at first.  But if you do a careful search, you'll find
+that there _is_ no definition of mb!  People state in vague terms what
+it's supposed to do, but they are almost never specific enough to tell
+whether the example above should work.
 
--- 
+> By definition, when CPU_0 issues 'b = B', 'A = 1' should be visible to other
+> CPUs, yes?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+No.  Memory barriers don't guarantee that any particular store will become 
+visible to other CPUs at any particular time.  They guarantee only that a 
+certain sequence of stores will become visible in a particular order 
+(provided the other CPUs also use the correct memory barriers).
+
+>  Now, b == 0 means that CPU_1 did not read 'a = A' yet, otherwise
+> 'B = 2' should be visible to all CPUs (by definition again).
+> 
+> Could you please clarify this?
+
+Here's an example showing how the code can fail.  (Paul can correct me if 
+I get this wrong.)
+
+	"A = 1" and "B = 2" are issued simultaneously.  The two caches
+	send out Invalidate messages, and each queues the message it
+	receives for later processing.
+
+	Both CPUs execute their "mb" instructions.  The mb forces each
+	cache to wait until it receives an Acknowdgement for the 
+	Invalidate it sent.
+
+	Both caches send an Acknowledgement message to the other.  The
+	mb instructions complete.
+
+	"b = B" and "a = A" execute.  The caches return A==0 and B==0
+	because they haven't yet invalidated their cache lines.
+
+	Cache 0 invalidates its line for B and Cache 1 invalidates its
+	line for A.  But it's already too late.
+
+The reason the code failed is because the mb instructions didn't force
+the caches to wait until the Invalidate messages in their queues had been 
+fully carried out (i.e., the lines had actually been invalidated).  This 
+is because at the time the mb started, those messages had not been 
+acknowledged -- they were just sitting in the cache's invalidate queue.
+
+
+> Btw, this is funny, but I was going to suggest _exactly_ same cleanup for
+> srcu_read_lock :)
+
+I guess we think alike!
+
+Alan
 

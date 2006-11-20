@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933832AbWKTBK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933836AbWKTBQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933832AbWKTBK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 20:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933831AbWKTBK5
+	id S933836AbWKTBQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 20:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933834AbWKTBQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 20:10:57 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38824 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S933829AbWKTBK4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 20:10:56 -0500
-Date: Mon, 20 Nov 2006 01:15:34 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Jay Cliburn <jacliburn@bellsouth.net>
-Cc: jeff@garzik.org, shemminger@osdl.org, romieu@fr.zoreil.com,
-       csnook@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] atl1: Revised Attansic L1 ethernet driver
-Message-ID: <20061120011534.54b1e010@localhost.localdomain>
-In-Reply-To: <20061119202817.GA29736@osprey.hogchain.net>
-References: <20061119202817.GA29736@osprey.hogchain.net>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Sun, 19 Nov 2006 20:16:29 -0500
+Received: from gate.crashing.org ([63.228.1.57]:13978 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S933836AbWKTBQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 20:16:28 -0500
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+	type IRQ handlers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+In-Reply-To: <20061119202348.GA27649@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>
+	 <1163966437.5826.99.camel@localhost.localdomain>
+	 <20061119200650.GA22949@elte.hu>
+	 <1163967590.5826.104.camel@localhost.localdomain>
+	 <20061119202348.GA27649@elte.hu>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 12:16:19 +1100
+Message-Id: <1163985380.5826.139.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would be nice if it used atl_ not at_ so its less likely to cause
-namespace clashes.
 
-You have various macros for swaps that are pretty ugly - we have
-cpu_to and le/be_to_cpu functions for most swapping cases and these are
-generally optimised assembler (eg bswap on x86)
+> it's a compatibility hack only. Threaded handlers are a different type 
+> of flow, but often the fasteoi handler is not changed to the threaded 
+> handler so i changed it to be a threaded handler too.
+> 
+> threaded handlers need a mask() + an ack(), because that's the correct 
+> model to map them to kernel threads - threaded handlers can be delayed 
+> for a long time if something higher-prio is preempting them.
 
-AT_DESC_USED/UNUSED would be better as inline functions but thats not a
-serious concern.
+I've re-read the old thread and I disagree with you there. I think the
+right approach was proposed initially by Daniel Walker.
 
-Be careful with :1 bitfields when working with hardware - the compiler
-has more than one choice about how to pack them.
+If my understanding of "threaded handlers" is correct, that is delaying
+the delivery of the interrupt to a thread while restoring the ability to
+process further interrupts of the same or lower priority immediately.
 
-The irq enable/disable use for locking on vlan appears unsafe. PCI
-interrupt delivery is asynchronous which means you can get this happen
+There is no such thing as an explicit "ack" on fasteoi controllers. The
+ack is implicit with the reading of the vector (either via a special
+cycle on the bus or via reading the intack register for example on
+mpic).
+
+So by doing a mask followed by an eoi, you essentially mask the
+interrupt preventing further delivery of that interrupt and lower the
+CPU priority in the PIC thus allowing processing of further interrupts.
+
+Are there other fasteoi controllers than the ones I have on powerpc
+anyway ?
+
+There is one thing I disagree with in the initial patch from Daniel
+however, it's the fact that he can't deal with fasteoi handlers that
+have no mask/unmask.
+
+I have such a controller, on Cell, though currently I do have an empty
+mask and unmask for it, I've been thinking about removing them (and
+fixing callers to test for NULL). This is the Cell's top level
+controller and it is edge only (at this level, on Cell, all interrupts
+are messages).
+
+Thus it can perfectly well cope with soft-masking (delayed disable if
+you prefer) and that is compatible with using a fasteoi handler. There
+should be no reason why that wouldn't work for -rt as well.
+
+Ben.
 
 
-	card sends PCI interrupt
-	We call irq_disable
-	We take lock
-	We poke bits
-	We drop lock
-
-	PCI interrupt arrives
-
-
-This really does happen, typically its nasty to debug as well because you
-usually only get it on PIII boards on the one in n-zillion times a
-message collides and is retransmitted on the APIC bus.
-
-skb->len is unsigned so <= 0 can be == 0. More importantly the subtraction
-before the test will wrap and is completely unsafe (see at_xmit_frame)
-
-
-Alan

@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934032AbWKTJVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933907AbWKTJfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934032AbWKTJVs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 04:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934030AbWKTJVs
+	id S933907AbWKTJfc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 04:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934031AbWKTJfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 04:21:48 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:57236 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S934022AbWKTJVq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 04:21:46 -0500
-Date: Mon, 20 Nov 2006 12:19:51 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061120091951.GA13050@2ka.mipt.ru>
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <20061120004301.d1815a95.akpm@osdl.org> <20061120085158.GA2816@2ka.mipt.ru> <20061120011516.56311f7a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Mon, 20 Nov 2006 04:35:32 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:6521 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933907AbWKTJfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 04:35:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cBD1pgboWRCcPvNUwXJ4OHEpeE/7WJPfUVbnSMBZQVcj2BtUMlj4UKgv9dIq52lJRracR2dUKx2q97AixbyqiZEB+caiSdCMCohxH/r+0ddWt2OIQ03Z/Ujuga+2GdYOsxX30w5l07ntcK699+T5A5EZJjZJof6455Z9d7bS7gg=
+Message-ID: <74d0deb30611200135m2851a47fjc8253a52dca0c1d0@mail.gmail.com>
+Date: Mon, 20 Nov 2006 10:35:30 +0100
+From: "pHilipp Zabel" <philipp.zabel@gmail.com>
+To: "Paul Sokolovsky" <pmiscml@gmail.com>
+Subject: Re: Where did find_bus() go in 2.6.18?
+Cc: linux-kernel@vger.kernel.org, "Adrian Bunk" <bunk@stusta.de>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>, kernel-discuss@handhelds.org
+In-Reply-To: <1154868495.20061120003437@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061120011516.56311f7a.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 20 Nov 2006 12:19:52 +0300 (MSK)
+References: <1154868495.20061120003437@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 01:15:16AM -0800, Andrew Morton (akpm@osdl.org) wrote:
-> On Mon, 20 Nov 2006 11:51:59 +0300
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> 
-> > On Mon, Nov 20, 2006 at 12:43:01AM -0800, Andrew Morton (akpm@osdl.org) wrote:
-> > > > > >If thread calls kevent_wait() it means it has processed previous entries, 
-> > > > > >one can call kevent_wait() with $num parameter as zero, which
-> > > > > >means that thread does not want any new events, so nothing will be
-> > > > > >copied.
-> > > > > 
-> > > > > This doesn't solve the problem.  You could only request new events when 
-> > > > > all previously reported events are processed.  Plus: how do you report 
-> > > > > events if the you don't allow get_event pass them on?
-> > > > 
-> > > > Userspace should itself maintain order and possibility to get event in
-> > > > this implementation, kernel just returns events which were requested.
-> > > 
-> > > That would mean that in a multithreaded application (or multi-processes
-> > > sharing the same MAP_SHARED ringbuffer), all threads/processes will be
-> > > slowed down to wait for the slowest one.
-> > 
-> > Not at all - all other threads can call kevent_get_events() with theirs
-> > own place in the ring buffer, so while one of them is processing an
-> > entry, others can fill next entries.
-> 
-> eh?  That's not a ringbuffer, and it sounds awfully complex.
-> 
-> I don't know if this (new?) proposal resolves the
-> events-gets-lost-due-to-thread-cancellation problem?  Would need to see
-> considerably more detail.
+Hi Paul,
 
-It does - event is copied into shared buffer, but place (or index in the
-ring buffer) is selected by userspace (wrapper, glibc, anything).
-It is simple and (from my point of view) elegant, but it will not be used - 
-I surrender and implement kenelspace ring buffer management right now, I 
-just said that it is possible to implement any kind of ring buffer in 
-userspace with old kevent_get_events() syscall only.
+On 11/19/06, Paul Sokolovsky <pmiscml@gmail.com> wrote:
+> Hello linux-kernel,
+>
+>   We here at Handhelds.org upgrading our drivers to 2.6.18 and I just
+> caught a case of find_bus() being undefined during link.
 
--- 
-	Evgeniy Polyakov
+I assume you are referring to the ipaq h2200 battery driver that uses
+    bus = find_bus("w1");
+to "find" the one wire bus?
+
+I think the solution would be to use w1_bus_type instead, but for that
+it would have to be exported.
+
+Index: linux-2.6/drivers/w1/w1.c
+===================================================================
+--- linux-2.6.orig/drivers/w1/w1.c      2006-10-28 22:58:11.000000000 +0200
++++ linux-2.6/drivers/w1/w1.c   2006-10-29 02:01:30.000000000 +0200
+@@ -194,7 +194,7 @@
+
+ static int w1_uevent(struct device *dev, char **envp, int num_envp, char *buffe
+r, int buffer_size);
+
+-static struct bus_type w1_bus_type = {
++struct bus_type w1_bus_type = {
+        .name = "w1",
+        .match = w1_master_match,
+        .uevent = w1_uevent,
+@@ -978,3 +978,5 @@
+
+ module_init(w1_init);
+ module_exit(w1_fini);
++
++EXPORT_SYMBOL_GPL(w1_bus_type);
+
+regards
+Philipp

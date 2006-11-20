@@ -1,179 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965326AbWKTJ6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965357AbWKTKCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965326AbWKTJ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 04:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965334AbWKTJ6I
+	id S965357AbWKTKCp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 05:02:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965291AbWKTKCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 04:58:08 -0500
-Received: from mail-gw2.sa.eol.hu ([212.108.200.109]:33499 "EHLO
-	mail-gw2.sa.eol.hu") by vger.kernel.org with ESMTP id S965326AbWKTJ6H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 04:58:07 -0500
-To: akpm@osdl.org
-CC: "Russ Cox" <rsc@swtch.com>, linux-kernel@vger.kernel.org
-Subject: [patch] fuse: fix Oops in lookup
-Message-Id: <E1Gm5u9-0002su-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 20 Nov 2006 10:57:33 +0100
+	Mon, 20 Nov 2006 05:02:45 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:44021 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965357AbWKTKCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 05:02:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OAhpKZdYw1Dp1P/cmBC0hCHnMZDcrfv4k0AZbGsgvrYC0okjCN0Mi3tLmM2DQnpcOJ2yHkMF5Py+nIlz2xG+bXjxpABDrp9pu8v5usiP2VRhmF1mcA4bC63jW70q+b+S20+RBwGkdpNJl4ku8K8/HjuNw5EIOQHoxtmYvOMUqVQ=
+Message-ID: <aec7e5c30611200202j77c9e20cgd89ca782ac73e58b@mail.gmail.com>
+Date: Mon, 20 Nov 2006 19:02:42 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: vgoyal@in.ibm.com
+Subject: Re: [PATCH 17/20] x86_64: Remove CONFIG_PHYSICAL_START
+Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       "Reloc Kernel List" <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, hpa@zytor.com, lwang@redhat.com,
+       dzickus@redhat.com, pavel@suse.cz, rjw@sisk.pl
+In-Reply-To: <20061118024529.GC25205@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061117223432.GA15449@in.ibm.com>
+	 <20061117225628.GR15449@in.ibm.com>
+	 <aec7e5c30611171714p23c00fdbgea4a1097cfdf4ec0@mail.gmail.com>
+	 <20061118024529.GC25205@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix bug in certain error paths of lookup routines.  The request object
-was reused for sending FORGET, which is illegal.  This bug could cause
-an Oops in 2.6.18.  In earlier versions it might silently corrupt
-memory, but this is very unlikely.
+On 11/18/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> On Sat, Nov 18, 2006 at 10:14:31AM +0900, Magnus Damm wrote:
+> > On 11/18/06, Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> > >I am about to add relocatable kernel support which has essentially
+> > >no cost so there is no point in retaining CONFIG_PHYSICAL_START
+> > >and retaining CONFIG_PHYSICAL_START makes implementation of and
+> > >testing of a relocatable kernel more difficult.
+> > >
+> > >Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> > >Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+> > >---
 
-These error paths are never triggered by libfuse, so this wasn't
-noticed even with the 2.6.18 kernel, only with a filesystem using the
-raw kernel interface.
+[snip]
+ >linux-2.6.19-rc6-reloc/arch/x86_64/mm/fault.c~x86_64-Remove-CONFIG_PHYSICAL_START
+  2006-11-17 00:12:50.000000000 -0500
+> > >+++ linux-2.6.19-rc6-reloc-root/arch/x86_64/mm/fault.c  2006-11-17
+> > >00:12:50.000000000 -0500
+> > >@@ -644,9 +644,9 @@ void vmalloc_sync_all(void)
+> > >                        start = address + PGDIR_SIZE;
+> > >        }
+> > >        /* Check that there is no need to do the same for the modules
+> > >        area. */
+> > >-       BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL));
+> > >+       BUILD_BUG_ON(!(MODULES_VADDR > __START_KERNEL_map));
+> > >        BUILD_BUG_ON(!(((MODULES_END - 1) & PGDIR_MASK) ==
+> > >-                               (__START_KERNEL & PGDIR_MASK)));
+> > >+                               (__START_KERNEL_map & PGDIR_MASK)));
+> > > }
+> >
+> > This code looks either like a bugfix or a bug. If it's a fix then
+> > maybe it should be broken out and submitted separately for the
+> > rc-kernels?
+> >
+>
+> Magnus, Eric got rid of __START_KERNEL because he was compiling kernel
+> for physical addr zero which made __START_KERNEL and __START_KERNEL_map
+> same, hence he got rid of __START_KERNEL. That's why above change.
+>
+> But compiling for physical address zero has got drawback that one can
+> not directly load a vmlinux as it shall have to be loaded at physical
+> addr zero. Hence I changed the behavior back to compile the kernel for
+> physical addr 2MB. So now __START_KERNEL = __START_KERNEL_map + 2MB.
+>
+> Now it makes sense to retain __START_KERNEL. I have done the changes.
 
-Thanks to Russ Cox for the bug report and test filesystem.
+I misunderstood and thought __START_KERNEL was a physical address and
+__START_KERNEL_map was a virtual one. But now I understand. Thank you.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+>
+> > >diff -puN include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START
+> > >include/asm-x86_64/page.h
+> > >---
+> > >linux-2.6.19-rc6-reloc/include/asm-x86_64/page.h~x86_64-Remove-CONFIG_PHYSICAL_START        2006-11-17 00:12:50.000000000 -0500
+> > >+++ linux-2.6.19-rc6-reloc-root/include/asm-x86_64/page.h       2006-11-17
+> > >00:12:50.000000000 -0500
+> > >@@ -75,8 +75,6 @@ typedef struct { unsigned long pgprot; }
+> > >
+> > > #endif /* !__ASSEMBLY__ */
+> > >
+> > >-#define __PHYSICAL_START       _AC(CONFIG_PHYSICAL_START,UL)
+> > >-#define __START_KERNEL         (__START_KERNEL_map + __PHYSICAL_START)
+> > > #define __START_KERNEL_map     _AC(0xffffffff80000000,UL)
+> > > #define __PAGE_OFFSET           _AC(0xffff810000000000,UL)
+> >
+> > I understand that you want to remove the Kconfig option
+> > CONFIG_PHYSICAL_START and that is fine with me. I don't however like
+> > the idea of replacing __PHYSICAL_START and __START_KERNEL with
+> > hardcoded values. Is there any special reason behind this?
+> >
+>
+> All the hardcodings for 2MB have disappeared in final version. See next
+> patch in the series which actually implements relocatable kernel. Actually
+> the whole logic itself has changed hence we did not require these
+> hardcodings. This patch retains these hardcodings so that even if somebody
+> removes the top patch, kernel can be compiled and booted.
+>
+> So bottom line, all the hardcodings are not present once all the patches
+> have been applied.
 
----
-Index: linux/fs/fuse/dir.c
-===================================================================
---- linux.orig/fs/fuse/dir.c	2006-11-19 20:07:47.000000000 +0100
-+++ linux/fs/fuse/dir.c	2006-11-19 20:07:49.000000000 +0100
-@@ -138,6 +138,7 @@ static int fuse_dentry_revalidate(struct
- 		struct fuse_entry_out outarg;
- 		struct fuse_conn *fc;
- 		struct fuse_req *req;
-+		struct fuse_req *forget_req;
- 		struct dentry *parent;
- 
- 		/* Doesn't hurt to "reset" the validity timeout */
-@@ -152,25 +153,33 @@ static int fuse_dentry_revalidate(struct
- 		if (IS_ERR(req))
- 			return 0;
- 
-+		forget_req = fuse_get_req(fc);
-+		if (IS_ERR(forget_req)) {
-+			fuse_put_request(fc, req);
-+			return 0;
-+		}
-+
- 		parent = dget_parent(entry);
- 		fuse_lookup_init(req, parent->d_inode, entry, &outarg);
- 		request_send(fc, req);
- 		dput(parent);
- 		err = req->out.h.error;
-+		fuse_put_request(fc, req);
- 		/* Zero nodeid is same as -ENOENT */
- 		if (!err && !outarg.nodeid)
- 			err = -ENOENT;
- 		if (!err) {
- 			struct fuse_inode *fi = get_fuse_inode(inode);
- 			if (outarg.nodeid != get_node_id(inode)) {
--				fuse_send_forget(fc, req, outarg.nodeid, 1);
-+				fuse_send_forget(fc, forget_req,
-+						 outarg.nodeid, 1);
- 				return 0;
- 			}
- 			spin_lock(&fc->lock);
- 			fi->nlookup ++;
- 			spin_unlock(&fc->lock);
- 		}
--		fuse_put_request(fc, req);
-+		fuse_put_request(fc, forget_req);
- 		if (err || (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
- 			return 0;
- 
-@@ -221,6 +230,7 @@ static struct dentry *fuse_lookup(struct
- 	struct inode *inode = NULL;
- 	struct fuse_conn *fc = get_fuse_conn(dir);
- 	struct fuse_req *req;
-+	struct fuse_req *forget_req;
- 
- 	if (entry->d_name.len > FUSE_NAME_MAX)
- 		return ERR_PTR(-ENAMETOOLONG);
-@@ -229,9 +239,16 @@ static struct dentry *fuse_lookup(struct
- 	if (IS_ERR(req))
- 		return ERR_PTR(PTR_ERR(req));
- 
-+	forget_req = fuse_get_req(fc);
-+	if (IS_ERR(forget_req)) {
-+		fuse_put_request(fc, req);
-+		return ERR_PTR(PTR_ERR(forget_req));
-+	}
-+
- 	fuse_lookup_init(req, dir, entry, &outarg);
- 	request_send(fc, req);
- 	err = req->out.h.error;
-+	fuse_put_request(fc, req);
- 	/* Zero nodeid is same as -ENOENT, but with valid timeout */
- 	if (!err && outarg.nodeid &&
- 	    (invalid_nodeid(outarg.nodeid) || !valid_mode(outarg.attr.mode)))
-@@ -240,11 +257,11 @@ static struct dentry *fuse_lookup(struct
- 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
- 				  &outarg.attr);
- 		if (!inode) {
--			fuse_send_forget(fc, req, outarg.nodeid, 1);
-+			fuse_send_forget(fc, forget_req, outarg.nodeid, 1);
- 			return ERR_PTR(-ENOMEM);
- 		}
- 	}
--	fuse_put_request(fc, req);
-+	fuse_put_request(fc, forget_req);
- 	if (err && err != -ENOENT)
- 		return ERR_PTR(err);
- 
-@@ -388,6 +405,13 @@ static int create_new_entry(struct fuse_
- 	struct fuse_entry_out outarg;
- 	struct inode *inode;
- 	int err;
-+	struct fuse_req *forget_req;
-+
-+	forget_req = fuse_get_req(fc);
-+	if (IS_ERR(forget_req)) {
-+		fuse_put_request(fc, req);
-+		return PTR_ERR(forget_req);
-+	}
- 
- 	req->in.h.nodeid = get_node_id(dir);
- 	req->out.numargs = 1;
-@@ -395,24 +419,24 @@ static int create_new_entry(struct fuse_
- 	req->out.args[0].value = &outarg;
- 	request_send(fc, req);
- 	err = req->out.h.error;
--	if (err) {
--		fuse_put_request(fc, req);
--		return err;
--	}
-+	fuse_put_request(fc, req);
-+	if (err)
-+		goto out_put_forget_req;
-+
- 	err = -EIO;
- 	if (invalid_nodeid(outarg.nodeid))
--		goto out_put_request;
-+		goto out_put_forget_req;
- 
- 	if ((outarg.attr.mode ^ mode) & S_IFMT)
--		goto out_put_request;
-+		goto out_put_forget_req;
- 
- 	inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
- 			  &outarg.attr);
- 	if (!inode) {
--		fuse_send_forget(fc, req, outarg.nodeid, 1);
-+		fuse_send_forget(fc, forget_req, outarg.nodeid, 1);
- 		return -ENOMEM;
- 	}
--	fuse_put_request(fc, req);
-+	fuse_put_request(fc, forget_req);
- 
- 	if (S_ISDIR(inode->i_mode)) {
- 		struct dentry *alias;
-@@ -434,8 +458,8 @@ static int create_new_entry(struct fuse_
- 	fuse_invalidate_attr(dir);
- 	return 0;
- 
-- out_put_request:
--	fuse_put_request(fc, req);
-+ out_put_forget_req:
-+	fuse_put_request(fc, forget_req);
- 	return err;
- }
- 
+My gut feeling said a big no when I saw that you replaced constants
+with hardcoded values. But if the hardcoded values disappear when all
+patches are applied then I'm happy!
+
+> > The code in page.h already has constants for __START_KERNEL_map and
+> > __PAGE_OFFSET (thank god) and none of them are adjustable via Kconfig.
+> > Why not change as little as possible and keep __PHYSICAL_START and
+> > __START_KERNEL in page.h and the places that use them but remove
+> > references to CONFIG_PHYSICAL_START in Kconfig, defconfig, and page.h?
+>
+> Good suggestion. Now I have retained __START_KERNEL. But did not feel
+> the need to retain __PHYSICAL_START. It will be used only at one place
+> in page.h
+
+Just to nitpick, isn't the 2M value used both in page.h and head.S? I
+don't fully understand the reason why you are hardcoding, but it is
+not that important. I think this version of the patch is much better.
+Thank you!
+
+/ magnus

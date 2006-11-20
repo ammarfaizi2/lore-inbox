@@ -1,104 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965828AbWKTNIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755650AbWKTNVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965828AbWKTNIP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 08:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965834AbWKTNIO
+	id S1755650AbWKTNVB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 08:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756459AbWKTNVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 08:08:14 -0500
-Received: from c2bthomr11.btconnect.com ([194.73.73.227]:58460 "EHLO
-	c2bthomr11.btconnect.com") by vger.kernel.org with ESMTP
-	id S965828AbWKTNIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 08:08:14 -0500
-Message-Id: <200611201306.kAKD6gRt008347@imap.elan.private>
-From: Tony Olech <tony.olech@elandigitalsystems.com>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Linux kernel development <linux-kernel@vger.kernel.org>
-Cc: PCMCIA Maintainence <linux-pcmcia@lists.infradead.org>
-Cc: David Hinds <dahinds@users.sourceforge.net>
-Cc: Jaroslav Kysela <perex@suse.cz>
-Cc: Bart Prescott <bart.prescott@elandigitalsystems.com>
-Subject: [PATCH] PCMCIA identification strings for Elan -- second attempt
-Date: Mon, 20 Nov 2006 13:04:39 +0000
-Elan-checked-message-originator: tony.olech@elandigitalsystems.com == tony-olech
-Elan-message-recipient: linux@dominikbrodowski.net
-Elan-message-recipient: linux-pcmcia@lists.infradead.org
-Elan-message-recipient: perex@suse.cz
-Elan-message-recipient: dahinds@users.sourceforge.net
-Elan-message-recipient: linux-kernel@vger.kernel.org
+	Mon, 20 Nov 2006 08:21:00 -0500
+Received: from static.88-198-202-190.clients.your-server.de ([88.198.202.190]:4766
+	"EHLO kleinhenz.com") by vger.kernel.org with ESMTP
+	id S1755649AbWKTNU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 08:20:59 -0500
+Message-ID: <4561ABB4.6090700@hogyros.de>
+Date: Mon, 20 Nov 2006 14:20:52 +0100
+From: Simon Richter <Simon.Richter@hogyros.de>
+User-Agent: Icedove 1.5.0.7 (X11/20061014)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RFC: implement daemon() in the kernel
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: url=http://www.hogyros.de/simon.asc
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch against linux kernel 2.6.18 to add PCMCIA identification strings
-From: Tony Olech <tony.olech@elandigitalsystems.com>
+[please CC me on replies]
 
-In older versions of the linux kernel it was sufficient for the
-16-bit PCMCIA card manufacturer to distribute or make available
-a text configuration file along with the physical cards. Such a
-file with an extension of ".conf" and placed in the /etc/pcmcia
-very easily enabled new hardware without rebuilding the kernel,
-however with the new scheme of things, having found no userland
-solution to the problem of new 16bit pcmcia card identification
-this patch enumerates Elan Digital Systems strings.
+Hi,
 
-In addition, for the ID strings to result in the correct module
-being loaded, the too wide matching criterion of the PDaudioCF
-card needs to have the MANF_ID/CARD_ID numbers replaced by the
-more specific PROD_ID1 and PROD_ID2 strings. It is unfortunate
-that otherwise the pdaudiocf module is loaded whenever an ELAN
-pcmcia card is inserted, resulting in various random lockups
+I'm working with Linux on MMUless systems, and one of the biggest issues
+in porting software is the lack of working fork().
 
---- ./sound/pcmcia/pdaudiocf/pdaudiocf.c.orig	2006-11-20 10:24:23.000000000 +0000
-+++ ./sound/pcmcia/pdaudiocf/pdaudiocf.c	2006-11-20 10:33:46.000000000 +0000
-@@ -299,7 +299,8 @@ static int pdacf_resume(struct pcmcia_de
-  * Module entry points
-  */
- static struct pcmcia_device_id snd_pdacf_ids[] = {
--	PCMCIA_DEVICE_MANF_CARD(0x015d, 0x4c45),
-+	/* this is too general PCMCIA_DEVICE_MANF_CARD(0x015d, 0x4c45), */
-+	PCMCIA_DEVICE_PROD_ID12("Core Sound","PDAudio-CF",0x396d19d2,0x71717b49),
- 	PCMCIA_DEVICE_NULL
- };
- MODULE_DEVICE_TABLE(pcmcia, snd_pdacf_ids);
---- ./drivers/serial/serial_cs.c.orig	2006-11-17 10:59:10.000000000 +0000
-+++ ./drivers/serial/serial_cs.c	2006-11-17 10:59:54.000000000 +0000
-@@ -787,6 +787,30 @@ static struct pcmcia_device_id serial_id
- 	PCMCIA_DEVICE_CIS_PROD_ID123("ADVANTECH", "COMpad-32/85", "1.0", 0x96913a85, 0x8fbe92ae, 0x0877b627, "COMpad2.cis"),
- 	PCMCIA_DEVICE_CIS_PROD_ID2("RS-COM 2P", 0xad20b156, "RS-COM-2P.cis"),
- 	PCMCIA_DEVICE_CIS_MANF_CARD(0x0013, 0x0000, "GLOBETROTTER.cis"),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.","SERIAL CARD: SL100  1.00.",0x19ca78af,0xf964f42b),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.","SERIAL CARD: SL100",0x19ca78af,0x71d98e83),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.","SERIAL CARD: SL232  1.00.",0x19ca78af,0x69fb7490),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.","SERIAL CARD: SL232",0x19ca78af,0xb6bc0235),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c2000.","SERIAL CARD: CF232",0x63f2e0bd,0xb9e175d3),
-+	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c2000.","SERIAL CARD: CF232-5",0x63f2e0bd,0xfce33442),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: CF232",0x3beb8cf2,0x171e7190),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: CF232-5",0x3beb8cf2,0x20da4262),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: CF428",0x3beb8cf2,0xea5dd57d),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: CF500",0x3beb8cf2,0xd77255fa),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: IC232",0x3beb8cf2,0x6a709903),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: SL232",0x3beb8cf2,0x18430676),
-+	PCMCIA_DEVICE_PROD_ID12("Elan","Serial Port: XL232",0x3beb8cf2,0x6f933767),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(0,"Elan","Serial Port: CF332",0x3beb8cf2,0x16dc1ba7),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(0,"Elan","Serial Port: SL332",0x3beb8cf2,0x19816c41),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(0,"Elan","Serial Port: SL385",0x3beb8cf2,0x64112029),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(0,"Elan","Serial Port: SL432",0x3beb8cf2,0x1cce7ac4),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(0,"Elan","Serial+Parallel Port: SP230",0x3beb8cf2,0xdb9e58bc),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(1,"Elan","Serial Port: CF332",0x3beb8cf2,0x16dc1ba7),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(1,"Elan","Serial Port: SL332",0x3beb8cf2,0x19816c41),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(1,"Elan","Serial Port: SL385",0x3beb8cf2,0x64112029),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(1,"Elan","Serial Port: SL432",0x3beb8cf2,0x1cce7ac4),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(2,"Elan","Serial Port: SL432",0x3beb8cf2,0x1cce7ac4),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(3,"Elan","Serial Port: SL432",0x3beb8cf2,0x1cce7ac4),
- 	/* too generic */
- 	/* PCMCIA_MFC_DEVICE_MANF_CARD(0, 0x0160, 0x0002), */
- 	/* PCMCIA_MFC_DEVICE_MANF_CARD(1, 0x0160, 0x0002), */
---- ./drivers/parport/parport_cs.c.orig	2006-11-17 10:57:55.000000000 +0000
-+++ ./drivers/parport/parport_cs.c	2006-11-17 10:58:52.000000000 +0000
-@@ -263,6 +263,7 @@ void parport_cs_release(struct pcmcia_de
- 
- static struct pcmcia_device_id parport_ids[] = {
- 	PCMCIA_DEVICE_FUNC_ID(3),
-+	PCMCIA_MFC_DEVICE_PROD_ID12(1,"Elan","Serial+Parallel Port: SP230",0x3beb8cf2,0xdb9e58bc),
- 	PCMCIA_DEVICE_MANF_CARD(0x0137, 0x0003),
- 	PCMCIA_DEVICE_NULL
- };
+Except some special cases (like openssh's priviledge separation), fork()
+is called in mainly three cases:
+
+ - spawn off a new process, which calls exec() immediately
+
+This can be easily replaced by a call to vfork(), which invokes the
+clone() syscall with the CLONE_VFORK flag.
+
+ - split off some work into a separate thread and provide address space
+separation
+
+Since we don't have a MMU, there is no address space separation anyway,
+so we can replace this with a pthread_create(), which in turn calls clone().
+
+ - daemonize a process
+
+There is a function called daemon() that does this; its behaviour is
+roughly defined by (modulo error handling)
+
+int daemon(int nochdir, int noclose)
+{
+	if(!nochdir)
+		chdir("/");
+
+	if(!noclose)
+	{
+		int fd = open("/dev/null", O_RDWR);
+		dup2(fd, 0);
+		dup2(fd, 1);
+		dup2(fd, 2);
+		close(fd);
+	}
+
+	if(fork() > 0)
+		_exit(0);
+}
+
+Since it calls _exit() right after fork() returns (so daemon() never
+returns to the calling process except in case of an error) it would be
+possible to implement this on MMUless machines if the last two lines
+could happen in the kernel.
+
+I can see three possible implementations:
+
+ - "cheap" implementation
+
+The process is assigned a new PID and the parent is pretended to have
+exited. There are a lot of pitfalls here, so it is probably not a good idea.
+
+ - a reverse vfork()
+
+The child process is created and suspended, the parent continues to run
+until it calls exec() or _exit(). The good thing here is that it should
+be easy to implement as the infrastructure for suspending a process
+until another exits already exists.
+
+ - "normal" implementation
+
+The child is created, the parent immediately zombiefied with a return
+code of zero. This might be more difficult to implement as the current
+implementation of fork() does not need to terminate a process in any
+way, so there might be funny locking and other issues.
+
+Questions? Comments?
+
+   Simon

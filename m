@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966364AbWKTS3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966377AbWKTSdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966364AbWKTS3S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966373AbWKTS3R
+	id S966377AbWKTSdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966373AbWKTSdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:29:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:40909 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S966364AbWKTS3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:29:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=qbDb+/KypdcnZ5X7PFNQZRnDx/yVTN84OaQfJceEmie7QoJ152o/NOGvdqrV2M0XVtIsJdD4c328kCtjzpxCBCsqHZaAPz0JdVCNqJzX2tTTNhQeeeQ3/uKbrpdOZ8HUAY9LA9ZhT8tw5/qAafRjFlBb6yQ6DVo5L/B9wciuj5Y=
-Date: Tue, 21 Nov 2006 03:23:12 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>
-Subject: Re: kobject_add failed with -EEXIST
-Message-ID: <20061120182312.GA16006@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	Jiri Slaby <jirislaby@gmail.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Greg KH <gregkh@suse.de>
-References: <4561E290.7060100@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4561E290.7060100@gmail.com>
-User-Agent: Mutt/1.4.2.2i
+	Mon, 20 Nov 2006 13:33:16 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46231 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966377AbWKTSdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:33:14 -0500
+Date: Mon, 20 Nov 2006 10:32:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] WorkStruct: Separate delayable and non-delayable
+ events.
+In-Reply-To: <4561CB33.2060502@s5r6.in-berlin.de>
+Message-ID: <Pine.LNX.4.64.0611201030400.3692@woody.osdl.org>
+References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
+ <20061120142716.12685.47219.stgit@warthog.cambridge.redhat.com>
+ <4561CB33.2060502@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 06:14:56PM +0100, Jiri Slaby wrote:
-> Hi!
+
+
+On Mon, 20 Nov 2006, Stefan Richter wrote:
+
+> David Howells wrote:
+> > Separate delayable work items from non-delayable work items be splitting them
+> > into a separate structure (dwork_struct), which incorporates a work_struct and
+> > the timer_list removed from work_struct.
+> ...
+> >  	if (!delay)
+> > -		rc = queue_work(ata_wq, &ap->port_task);
+> > +		rc = queue_dwork(ata_wq, &ap->port_task);
+> >  	else
+> >  		rc = queue_delayed_work(ata_wq, &ap->port_task, delay);
+> ...
 > 
-> Does anybody have some clue, what's wrong with the attached module?
-> Kernel complains when the module is insmoded second time (DRIVER_DEBUG enabled):
+> A consequent (if somewhat silly) name for queue_delayed_work would be
+> queue_delayed_dwork, since it requires a struct dwork_struct.
 
-Could you try this patch? I also had similar problem.
+Yes. Please don't use "dwork" as a name AT ALL. Not in "dwork_struct" and 
+not in "queue_dwork()".
 
+"dwork" just sounds d[w]orky. More importantly, we don't use short-hand 
+that isn't obvious, unless there is some industry-standard and old meaning 
+to it that everybody understands. "delayed_work" may be more typing, but 
+anybody who needs to type things that fast had better slow down anyway to 
+_think_.
 
----
- drivers/base/class.c |    2 ++
- 1 file changed, 2 insertions(+)
+No excuses for short and unreadable names.
 
-Index: work-fault-inject/drivers/base/class.c
-===================================================================
---- work-fault-inject.orig/drivers/base/class.c
-+++ work-fault-inject/drivers/base/class.c
-@@ -163,6 +163,8 @@ int class_register(struct class * cls)
- void class_unregister(struct class * cls)
- {
- 	pr_debug("device class '%s': unregistering\n", cls->name);
-+	if (cls->virtual_dir)
-+		kobject_unregister(cls->virtual_dir);
- 	remove_class_attrs(cls);
- 	subsystem_unregister(&cls->subsys);
- }
+		Linus

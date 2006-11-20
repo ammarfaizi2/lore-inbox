@@ -1,180 +1,403 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966210AbWKTRDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966190AbWKTREs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966210AbWKTRDO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 12:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966207AbWKTRDN
+	id S966190AbWKTREs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 12:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966216AbWKTREs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 12:03:13 -0500
-Received: from 41.19.177.216.mht.nh.inaddr.G4.net ([216.177.19.41]:48133 "EHLO
-	mail.resara.com") by vger.kernel.org with ESMTP id S966190AbWKTRDM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 12:03:12 -0500
-Subject: lock held at task exit time
-From: Brendan Powers <brendan@resara.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-vxtyaR1+GWRh8yaMMMO6"
-Date: Mon, 20 Nov 2006 12:01:05 -0500
-Message-Id: <1164042065.11790.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 20 Nov 2006 12:04:48 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:43929 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S966190AbWKTREq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 12:04:46 -0500
+Message-ID: <4561DF7B.7090201@oracle.com>
+Date: Mon, 20 Nov 2006 09:01:47 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Roland Dreier <rdreier@cisco.com>
+CC: lkml <linux-kernel@vger.kernel.org>, rolandd@cisco.com,
+       openib-general@openib.org
+Subject: Re: infiniband section mismatches
+References: <20061119184437.2608912c.randy.dunlap@oracle.com> <adau00uiebt.fsf@cisco.com>
+In-Reply-To: <adau00uiebt.fsf@cisco.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roland Dreier wrote:
+> Thanks for reporting this.  I've queued up a couple of patches to fix
+> this for 2.6.20 (see below).
+> 
+>  - R.
 
---=-vxtyaR1+GWRh8yaMMMO6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+
+> diff --git a/drivers/infiniband/hw/mthca/mthca_av.c b/drivers/infiniband/hw/mthca/mthca_av.c
+> index 6959945..57cdc1b 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_av.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_av.c
+> @@ -33,7 +33,6 @@
+>   * $Id: mthca_av.c 1349 2004-12-16 21:09:43Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/string.h>
+>  #include <linux/slab.h>
+>  
+> @@ -323,7 +322,7 @@ int mthca_ah_query(struct ib_ah *ibah, s
+>  	return 0;
+>  }
+>  
+> -int __devinit mthca_init_av_table(struct mthca_dev *dev)
+> +int mthca_init_av_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  
+> diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+> index 149b369..283d50b 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_cq.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+> @@ -36,7 +36,6 @@
+>   * $Id: mthca_cq.c 1369 2004-12-20 16:17:07Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/hardirq.h>
+>  
+>  #include <asm/io.h>
+> @@ -970,7 +969,7 @@ void mthca_free_cq(struct mthca_dev *dev
+>  	mthca_free_mailbox(dev, mailbox);
+>  }
+>  
+> -int __devinit mthca_init_cq_table(struct mthca_dev *dev)
+> +int mthca_init_cq_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  
+> diff --git a/drivers/infiniband/hw/mthca/mthca_eq.c b/drivers/infiniband/hw/mthca/mthca_eq.c
+> index e284e06..8ec9fa1 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_eq.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_eq.c
+> @@ -33,7 +33,6 @@
+>   * $Id: mthca_eq.c 1382 2004-12-24 02:21:02Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/errno.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/pci.h>
+> @@ -479,10 +478,10 @@ static irqreturn_t mthca_arbel_msi_x_int
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static int __devinit mthca_create_eq(struct mthca_dev *dev,
+> -				     int nent,
+> -				     u8 intr,
+> -				     struct mthca_eq *eq)
+> +static int mthca_create_eq(struct mthca_dev *dev,
+> +			   int nent,
+> +			   u8 intr,
+> +			   struct mthca_eq *eq)
+>  {
+>  	int npages;
+>  	u64 *dma_list = NULL;
+> @@ -664,9 +663,9 @@ static void mthca_free_irqs(struct mthca
+>  				 dev->eq_table.eq + i);
+>  }
+>  
+> -static int __devinit mthca_map_reg(struct mthca_dev *dev,
+> -				   unsigned long offset, unsigned long size,
+> -				   void __iomem **map)
+> +static int mthca_map_reg(struct mthca_dev *dev,
+> +			 unsigned long offset, unsigned long size,
+> +			 void __iomem **map)
+>  {
+>  	unsigned long base = pci_resource_start(dev->pdev, 0);
+>  
+> @@ -691,7 +690,7 @@ static void mthca_unmap_reg(struct mthca
+>  	iounmap(map);
+>  }
+>  
+> -static int __devinit mthca_map_eq_regs(struct mthca_dev *dev)
+> +static int mthca_map_eq_regs(struct mthca_dev *dev)
+>  {
+>  	if (mthca_is_memfree(dev)) {
+>  		/*
+> @@ -781,7 +780,7 @@ static void mthca_unmap_eq_regs(struct m
+>  	}
+>  }
+>  
+> -int __devinit mthca_map_eq_icm(struct mthca_dev *dev, u64 icm_virt)
+> +int mthca_map_eq_icm(struct mthca_dev *dev, u64 icm_virt)
+>  {
+>  	int ret;
+>  	u8 status;
+> @@ -825,7 +824,7 @@ void mthca_unmap_eq_icm(struct mthca_dev
+>  	__free_page(dev->eq_table.icm_page);
+>  }
+>  
+> -int __devinit mthca_init_eq_table(struct mthca_dev *dev)
+> +int mthca_init_eq_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  	u8 status;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_mad.c b/drivers/infiniband/hw/mthca/mthca_mad.c
+> index 45e106f..acfa41d 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_mad.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_mad.c
+> @@ -317,7 +317,7 @@ err:
+>  	return ret;
+>  }
+>  
+> -void __devexit mthca_free_agents(struct mthca_dev *dev)
+> +void mthca_free_agents(struct mthca_dev *dev)
+>  {
+>  	struct ib_mad_agent *agent;
+>  	int p, q;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
+> index 47ea021..0491ec7 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_main.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_main.c
+> @@ -98,7 +98,7 @@ static struct mthca_profile default_prof
+>  	.uarc_size	   = 1 << 18,	/* Arbel only */
+>  };
+>  
+> -static int __devinit mthca_tune_pci(struct mthca_dev *mdev)
+> +static int mthca_tune_pci(struct mthca_dev *mdev)
+>  {
+>  	int cap;
+>  	u16 val;
+> @@ -143,7 +143,7 @@ static int __devinit mthca_tune_pci(stru
+>  	return 0;
+>  }
+>  
+> -static int __devinit mthca_dev_lim(struct mthca_dev *mdev, struct mthca_dev_lim *dev_lim)
+> +static int mthca_dev_lim(struct mthca_dev *mdev, struct mthca_dev_lim *dev_lim)
+>  {
+>  	int err;
+>  	u8 status;
+> @@ -255,7 +255,7 @@ static int __devinit mthca_dev_lim(struc
+>  	return 0;
+>  }
+>  
+> -static int __devinit mthca_init_tavor(struct mthca_dev *mdev)
+> +static int mthca_init_tavor(struct mthca_dev *mdev)
+>  {
+>  	u8 status;
+>  	int err;
+> @@ -333,7 +333,7 @@ err_disable:
+>  	return err;
+>  }
+>  
+> -static int __devinit mthca_load_fw(struct mthca_dev *mdev)
+> +static int mthca_load_fw(struct mthca_dev *mdev)
+>  {
+>  	u8 status;
+>  	int err;
+> @@ -379,10 +379,10 @@ err_free:
+>  	return err;
+>  }
+>  
+> -static int __devinit mthca_init_icm(struct mthca_dev *mdev,
+> -				    struct mthca_dev_lim *dev_lim,
+> -				    struct mthca_init_hca_param *init_hca,
+> -				    u64 icm_size)
+> +static int mthca_init_icm(struct mthca_dev *mdev,
+> +			  struct mthca_dev_lim *dev_lim,
+> +			  struct mthca_init_hca_param *init_hca,
+> +			  u64 icm_size)
+>  {
+>  	u64 aux_pages;
+>  	u8 status;
+> @@ -575,7 +575,7 @@ static void mthca_free_icms(struct mthca
+>  	mthca_free_icm(mdev, mdev->fw.arbel.aux_icm);
+>  }
+>  
+> -static int __devinit mthca_init_arbel(struct mthca_dev *mdev)
+> +static int mthca_init_arbel(struct mthca_dev *mdev)
+>  {
+>  	struct mthca_dev_lim        dev_lim;
+>  	struct mthca_profile        profile;
+> @@ -683,7 +683,7 @@ static void mthca_close_hca(struct mthca
+>  		mthca_SYS_DIS(mdev, &status);
+>  }
+>  
+> -static int __devinit mthca_init_hca(struct mthca_dev *mdev)
+> +static int mthca_init_hca(struct mthca_dev *mdev)
+>  {
+>  	u8 status;
+>  	int err;
+> @@ -720,7 +720,7 @@ err_close:
+>  	return err;
+>  }
+>  
+> -static int __devinit mthca_setup_hca(struct mthca_dev *dev)
+> +static int mthca_setup_hca(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  	u8 status;
+> @@ -875,8 +875,7 @@ err_uar_table_free:
+>  	return err;
+>  }
+>  
+> -static int __devinit mthca_request_regions(struct pci_dev *pdev,
+> -					   int ddr_hidden)
+> +static int mthca_request_regions(struct pci_dev *pdev, int ddr_hidden)
+>  {
+>  	int err;
+>  
+> @@ -928,7 +927,7 @@ static void mthca_release_regions(struct
+>  			   MTHCA_HCR_SIZE);
+>  }
+>  
+> -static int __devinit mthca_enable_msi_x(struct mthca_dev *mdev)
+> +static int mthca_enable_msi_x(struct mthca_dev *mdev)
+>  {
+>  	struct msix_entry entries[3];
+>  	int err;
+> @@ -1213,7 +1212,7 @@ int __mthca_restart_one(struct pci_dev *
+>  }
+>  
+>  static int __devinit mthca_init_one(struct pci_dev *pdev,
+> -			     const struct pci_device_id *id)
+> +				    const struct pci_device_id *id)
+>  {
+>  	static int mthca_version_printed = 0;
+>  	int ret;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_mcg.c b/drivers/infiniband/hw/mthca/mthca_mcg.c
+> index 47ca8a9..a8ad072 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_mcg.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_mcg.c
+> @@ -32,7 +32,6 @@
+>   * $Id: mthca_mcg.c 1349 2004-12-16 21:09:43Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/string.h>
+>  #include <linux/slab.h>
+>  
+> @@ -371,7 +370,7 @@ int mthca_multicast_detach(struct ib_qp
+>  	return err;
+>  }
+>  
+> -int __devinit mthca_init_mcg_table(struct mthca_dev *dev)
+> +int mthca_init_mcg_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  	int table_size = dev->limits.num_mgms + dev->limits.num_amgms;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_mr.c b/drivers/infiniband/hw/mthca/mthca_mr.c
+> index a486dec..f71ffa8 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_mr.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_mr.c
+> @@ -34,7 +34,6 @@
+>   */
+>  
+>  #include <linux/slab.h>
+> -#include <linux/init.h>
+>  #include <linux/errno.h>
+>  
+>  #include "mthca_dev.h"
+> @@ -135,7 +134,7 @@ static void mthca_buddy_free(struct mthc
+>  	spin_unlock(&buddy->lock);
+>  }
+>  
+> -static int __devinit mthca_buddy_init(struct mthca_buddy *buddy, int max_order)
+> +static int mthca_buddy_init(struct mthca_buddy *buddy, int max_order)
+>  {
+>  	int i, s;
+>  
+> @@ -759,7 +758,7 @@ void mthca_arbel_fmr_unmap(struct mthca_
+>  	*(u8 *) fmr->mem.arbel.mpt = MTHCA_MPT_STATUS_SW;
+>  }
+>  
+> -int __devinit mthca_init_mr_table(struct mthca_dev *dev)
+> +int mthca_init_mr_table(struct mthca_dev *dev)
+>  {
+>  	unsigned long addr;
+>  	int err, i;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_pd.c b/drivers/infiniband/hw/mthca/mthca_pd.c
+> index 59df516..c1e9507 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_pd.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_pd.c
+> @@ -34,7 +34,6 @@
+>   * $Id: mthca_pd.c 1349 2004-12-16 21:09:43Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/errno.h>
+>  
+>  #include "mthca_dev.h"
+> @@ -69,7 +68,7 @@ void mthca_pd_free(struct mthca_dev *dev
+>  	mthca_free(&dev->pd_table.alloc, pd->pd_num);
+>  }
+>  
+> -int __devinit mthca_init_pd_table(struct mthca_dev *dev)
+> +int mthca_init_pd_table(struct mthca_dev *dev)
+>  {
+>  	return mthca_alloc_init(&dev->pd_table.alloc,
+>  				dev->limits.num_pds,
+> diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+> index 6a7822e..33e3ba7 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_qp.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+> @@ -35,7 +35,6 @@
+>   * $Id: mthca_qp.c 1355 2004-12-17 15:23:43Z roland $
+>   */
+>  
+> -#include <linux/init.h>
+>  #include <linux/string.h>
+>  #include <linux/slab.h>
+>  
+> @@ -2241,7 +2240,7 @@ void mthca_free_err_wqe(struct mthca_dev
+>  		*new_wqe = 0;
+>  }
+>  
+> -int __devinit mthca_init_qp_table(struct mthca_dev *dev)
+> +int mthca_init_qp_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  	u8 status;
+> diff --git a/drivers/infiniband/hw/mthca/mthca_srq.c b/drivers/infiniband/hw/mthca/mthca_srq.c
+> index f5d7677..58fcf5a 100644
+> --- a/drivers/infiniband/hw/mthca/mthca_srq.c
+> +++ b/drivers/infiniband/hw/mthca/mthca_srq.c
+> @@ -715,7 +715,7 @@ int mthca_max_srq_sge(struct mthca_dev *
+>  		     sizeof (struct mthca_data_seg));
+>  }
+>  
+> -int __devinit mthca_init_srq_table(struct mthca_dev *dev)
+> +int mthca_init_srq_table(struct mthca_dev *dev)
+>  {
+>  	int err;
+>  
+> diff --git a/drivers/infiniband/hw/amso1100/c2_rnic.c b/drivers/infiniband/hw/amso1100/c2_rnic.c
+> index 623dc95..1687c51 100644
+> --- a/drivers/infiniband/hw/amso1100/c2_rnic.c
+> +++ b/drivers/infiniband/hw/amso1100/c2_rnic.c
+> @@ -441,7 +441,7 @@ static int c2_rnic_close(struct c2_dev *
+>   * involves initalizing the various limits and resouce pools that
+>   * comprise the RNIC instance.
+>   */
+> -int c2_rnic_init(struct c2_dev *c2dev)
+> +int __devinit c2_rnic_init(struct c2_dev *c2dev)
+>  {
+>  	int err;
+>  	u32 qsize, msgsize;
+> @@ -611,7 +611,7 @@ int c2_rnic_init(struct c2_dev *c2dev)
+>  /*
+>   * Called by c2_remove to cleanup the RNIC resources.
+>   */
+> -void c2_rnic_term(struct c2_dev *c2dev)
+> +void __devexit c2_rnic_term(struct c2_dev *c2dev)
+>  {
+>  
+>  	/* Close the open adapter instance */
 
 
-Hello, i have a machine that locks up occasionally when trying to
-unmount a cifs mount. The program unmounting it uses the umount2 syscall
-to do the unmounting. 
-
-I got these messages along with the stack trace in syslog
-kernel: note: umount.special[18370] exited with preempt_count 1
-kernel: BUG: umount.special/18370, lock held at task exit time!
-
-Does this mean there is a bug in the kernel, or am i doing something
-wrong in the umount.special process?
-
-Attached is the full crash log and the source to umount.special
-
-You will need to CC me when replying.
-
-Info:
-Machine i386/Xeon
-Kernel versions: 2.6.17.11, and 2.6.16.7
-Distro: Debian Sarge(3.1)
-
-Any help would be appreciated. 
-
-
---=-vxtyaR1+GWRh8yaMMMO6
-Content-Disposition: attachment; filename=error_log
-Content-Type: text/plain; name=error_log; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
->From syslog
-Nov 17 07:55:38 resara1 kernel: f8d675c5
-Nov 17 07:55:38 resara1 kernel: Modules linked in: nls_cp437 cifs smbfs ipv6 nfsd exportfs lockd nfs_acl sunrpc af_packet binfmt_misc autofs4 generic piix ide_generic ext3 jbd mbcache i2c_i801 i2c_core lp joydev parport_pc parport pcspkr rtc shpchp pciehp pci_hotplug tsdev mousedev evdev psmouse sd_mod e1000 ide_cd cdrom ide_disk floppy usb_storage ide_core vga16fb vgastate usbserial usbhid usbkbd ehci_hcd uhci_hcd usbcore thermal processor fan 3w_xxxx ata_piix libata scsi_mod unix
-Nov 17 07:55:38 resara1 kernel: EIP:    0060:[pg0+949675461/1069831168]    Not tainted VLI
-Nov 17 07:55:38 resara1 kernel: EFLAGS: 00010206   (2.6.17.11.resara-opteron #1)
-Nov 17 07:55:38 resara1 kernel:  BUG: warning at kernel/exit.c:855/do_exit()
-Nov 17 07:55:38 resara1 kernel:  <c012296c> do_exit+0x46c/0x480  <c0104567> die+0x227/0x230
-Nov 17 07:55:38 resara1 kernel:  <c0115ebe> do_page_fault+0x2de/0x70c  <c02bca62> __reacquire_kernel_lock+0x42/0x60
-Nov 17 07:55:38 resara1 kernel:  <c02ba235> schedule+0x3f5/0x750  <c0129218> try_to_del_timer_sync+0x58/0x70
-Nov 17 07:55:38 resara1 kernel:  <c0115be0> do_page_fault+0x0/0x70c  <c0103c6f> error_code+0x4f/0x54
-Nov 17 07:55:38 resara1 kernel:  <f8d675c5> sesInfoFree+0x25/0xb0 [cifs]  <f8d5e993> cifs_umount+0x53/0x1f0 [cifs]
-Nov 17 07:55:38 resara1 kernel:  <f8d4e182> cifs_put_super+0x32/0xb0 [cifs]  <c016af89> generic_shutdown_super+0x139/0x150
-Nov 17 07:55:38 resara1 kernel:  <c016b8a6> kill_anon_super+0x16/0x50  <c016ad6c> deactivate_super+0x6c/0xb0
-Nov 17 07:55:38 resara1 kernel:  <c018315f> sys_umount+0x3f/0x90  <c01030d3> syscall_call+0x7/0xb
-Nov 17 07:55:38 resara1 kernel: note: umount.special[18370] exited with preempt_count 1
-Nov 17 07:55:38 resara1 kernel: BUG: umount.special/18370, lock held at task exit time!
-Nov 17 07:55:38 resara1 kernel:  [eb4b7e50] {alloc_super}
-Nov 17 07:55:38 resara1 kernel: .. held by:    umount.special:18370 [ea347030, 117]
-Nov 17 07:55:38 resara1 kernel: ... acquired at:               generic_shutdown_super+0x5f/0x150
-Nov 17 07:55:50 resara1 kernel:  <c0140c59> softlockup_tick+0xa9/0xd0  <c01295ec> update_process_times+0x3c/0x90
-Nov 17 07:55:50 resara1 kernel:  <c011161f> smp_apic_timer_interrupt+0x5f/0x70  <c02bc6e4> _write_lock+0x64/0x90
-Nov 17 07:55:50 resara1 kernel:  <c0103ba4> apic_timer_interrupt+0x1c/0x24  <c02bc6e4> _write_lock+0x64/0x90
-Nov 17 07:55:50 resara1 kernel:  <f8d60d9d> cifs_close+0xdd/0x220 [cifs]  <c0164e8f> __fput+0x13f/0x160
-Nov 17 07:55:50 resara1 kernel:  <c01633cd> filp_close+0x4d/0x80  <c0163470> sys_close+0x70/0xa0
-Nov 17 07:55:50 resara1 kernel:  <c01030d3> syscall_call+0x7/0xb
-Nov 17 07:55:51 resara1 kernel:  <c0140c59> softlockup_tick+0xa9/0xd0  <c01295ec> update_process_times+0x3c/0x90
-Nov 17 07:55:51 resara1 kernel:  <c011161f> smp_apic_timer_interrupt+0x5f/0x70  <c02bc6e2> _write_lock+0x62/0x90
-Nov 17 07:55:51 resara1 kernel:  <c0103ba4> apic_timer_interrupt+0x1c/0x24  <c02bc6e2> _write_lock+0x62/0x90
-Nov 17 07:55:51 resara1 kernel:  <f8d60d9d> cifs_close+0xdd/0x220 [cifs]  <c0164e8f> __fput+0x13f/0x160
-Nov 17 07:55:51 resara1 kernel:  <c01633cd> filp_close+0x4d/0x80  <c0163470> sys_close+0x70/0xa0
-Nov 17 07:55:51 resara1 kernel:  <c01030d3> syscall_call+0x7/0xb
-
-
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: Oops: 0002 [#1]
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: PREEMPT SMP
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:        eb4b7e50 c016af89 eb4b7e00 dfa504c0 00000011 f8d88260 bf96be90 c016b8a6
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: Stack: 00335bdc 00335bdc f8d5e993 ef8f3ec0 e8df0b80 00000000 e9107f08 e9107f08
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: EIP is at sesInfoFree+0x25/0xb0 [cifs]
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: eax: 00000002   ebx: ef8f3ec0   ecx: 00000001   edx: 00000018
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: esi: fffffffb   edi: cad383c0   ebp: ef8f3ec0   esp: e9107ed4
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: ds: 007b   es: 007b   ss: 0068
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: CPU:    3
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: Process umount.special (pid: 18370, threadinfo=e9106000 task=ea347030)
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:        cad383c0 eb4b7e00 f8d88200 e9106000 f8d4e182 eb4b7e00 cad383c0 eb4b7e00
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:  <f8d5e993> cifs_umount+0x53/0x1f0 [cifs]  <f8d4e182> cifs_put_super+0x32/0xb0 [cifs]
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:  <c016ad6c> deactivate_super+0x6c/0xb0  <c018315f> sys_umount+0x3f/0x90
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:  <c01030d3> syscall_call+0x7/0xb
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: Code: 8d b6 00 00 00 00 83 ec 08 89 5c 24 04 8b 5c 24 0c 85 db 74 71 b8 d8 90 d8 f8 e8 c7 50 55 c7 f0 ff 0d 1c 91 d8 f8 8b 53 04 8b 03 <89> 50 04 89 02 c7 43 04 00 02 20 00 c7 03 00 01 10 00 b8 d8 90
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel:  <c016af89> generic_shutdown_super+0x139/0x150  <c016b8a6> kill_anon_super+0x16/0x50
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: Call Trace:
-
-Message from syslogd@resara1 at Fri Nov 17 07:55:38 2006 ...
-resara1 kernel: EIP: [pg0+949675461/1069831168] sesInfoFree+0x25/0xb0 [cifs] SS:ESP 0068:e9107ed4
---=-vxtyaR1+GWRh8yaMMMO6
-Content-Disposition: attachment; filename=main.cpp
-Content-Type: text/x-c++src; name=main.cpp; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <sys/mount.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-extern int errno;
-
-
-int main(int argc, char* argv[])
-{
-	if(argc != 2)
-	{
-		printf("usage: umount.special <mountpoint>\n");
-		return(1);
-	}
-
-	if(strstr(argv[1],getenv("HOME")) == NULL)
-	{
-		printf("You cannot umount filesystems outside your home directory\n");
-		return(2);
-	}
-
-	int retval = umount2(argv[1],2);
-	if(retval != 0)
-	{
-		printf("%s\n",strerror(errno));
-	}
-	return(retval);
-}
-
---=-vxtyaR1+GWRh8yaMMMO6--
-
+-- 
+~Randy

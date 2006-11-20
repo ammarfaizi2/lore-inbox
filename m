@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966423AbWKTSyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966435AbWKTS43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966423AbWKTSyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 13:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966429AbWKTSyf
+	id S966435AbWKTS43 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 13:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966436AbWKTS43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 13:54:35 -0500
-Received: from [198.186.3.68] ([198.186.3.68]:40646 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S966423AbWKTSye (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 13:54:34 -0500
-Message-ID: <4561F9EA.1020402@serpentine.com>
-Date: Mon, 20 Nov 2006 10:54:34 -0800
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Mon, 20 Nov 2006 13:56:29 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:32163 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S966435AbWKTS42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 13:56:28 -0500
+Message-ID: <4561FA5B.3060702@s5r6.in-berlin.de>
+Date: Mon, 20 Nov 2006 19:56:27 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
 MIME-Version: 1.0
-To: rdreier@cisco.com
-Cc: lkml <linux-kernel@vger.kernel.org>, randy.dunlap@oracle.com,
-       openib-general@openib.org
-Subject: Re: ipath uses skb functions
-References: <20061119125106.0ea9541e.randy.dunlap@oracle.com>
-In-Reply-To: <20061119125106.0ea9541e.randy.dunlap@oracle.com>
-Content-Type: multipart/mixed;
- boundary="------------030402010401050601020904"
+To: Adrian Bunk <bunk@stusta.de>
+CC: Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, zippel@linux-m68k.org,
+       jejb <james.bottomley@steeleye.com>
+Subject: Re: how to handle indirect kconfig dependencies
+References: <20061116200741.fb607fe4.randy.dunlap@oracle.com> <455DBF3D.40801@s5r6.in-berlin.de> <20061120181319.GX31879@stusta.de>
+In-Reply-To: <20061120181319.GX31879@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030402010401050601020904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Adrian Bunk wrote:
+> "All of the various shipped tools ... need to be fixed" is a bit 
+> misleading since one of the features of the 2.6 kconfig is that this 
+> code is shared by all tools.
 
-Randy Dunlap wrote:
-> but doesn't depends on NET (Networking).
-
-Thanks.  One-liner patch attached.  Roland, please add this to your 
-for-2.6.19 or for-2.6.20 queue, as you see fit.
-
-	<b
-
---------------030402010401050601020904
-Content-Type: text/x-patch;
- name="ipath-config-net.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipath-config-net.patch"
-
-IB/ipath - make Kconfig depend on CONFIG_NET
-
-Spotted by Randy Dunlap.
-
-Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
-
-diff -r 9769053d8f77 drivers/infiniband/hw/ipath/Kconfig
---- a/drivers/infiniband/hw/ipath/Kconfig	Tue Nov 14 10:07:29 2006 -0800
-+++ b/drivers/infiniband/hw/ipath/Kconfig	Mon Nov 20 10:51:25 2006 -0800
-@@ -1,6 +1,6 @@ config INFINIBAND_IPATH
- config INFINIBAND_IPATH
- 	tristate "QLogic InfiniPath Driver"
--	depends on (PCI_MSI || HT_IRQ) && 64BIT && INFINIBAND
-+	depends on (PCI_MSI || HT_IRQ) && 64BIT && INFINIBAND && NET
- 	---help---
- 	This is a driver for QLogic InfiniPath host channel adapters,
- 	including InfiniBand verbs support.  This driver allows these
-
---------------030402010401050601020904--
+All the better, the job will be quickly done then.
+-- 
+Stefan Richter
+-=====-=-==- =-== =-=--
+http://arcgraph.de/sr/

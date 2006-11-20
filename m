@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755902AbWKTLCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756037AbWKTLDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755902AbWKTLCq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 06:02:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755951AbWKTLCq
+	id S1756037AbWKTLDb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 06:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756171AbWKTLDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 06:02:46 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:54428 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1755902AbWKTLCp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 06:02:45 -0500
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid
-	suspend-related XFS corruptions
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: David Chinner <dgc@sgi.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20061120001540.GX11034@melbourne.sgi.com>
-References: <200611160912.51226.rjw@sisk.pl>
-	 <20061117005052.GK11034@melbourne.sgi.com> <200611171719.31389.rjw@sisk.pl>
-	 <20061120001540.GX11034@melbourne.sgi.com>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 22:02:17 +1100
-Message-Id: <1164020537.10428.11.camel@nigel.suspend2.net>
+	Mon, 20 Nov 2006 06:03:31 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:5582 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1756134AbWKTLDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 06:03:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=fGxfemz/k/Y72u/uU8J2Tl7jc29nH5nUOR+q2GHqKaAHtYS2FTMbO0fq+r5NkeG6JLCgDkbqfy+roT26fIuAcPVsI0yehJRJWx6LwEw3zVMAAQ2VYVEc+NIVtLsUkvdePTPljLZyMhLrICmJcXS0ZIpuLE2OY10b67jUtNI3PIM=
+Date: Mon, 20 Nov 2006 19:57:35 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Don Mullis <dwm@meer.net>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm <akpm@osdl.org>
+Subject: Re: [PATCH -mm] fault-injection: reject-failure-if-any-caller-lies-within-specified range
+Message-ID: <20061120105735.GA9795@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Don Mullis <dwm@meer.net>, linux-kernel@vger.kernel.org, ak@suse.de,
+	akpm <akpm@osdl.org>
+References: <455217df.719dec4f.2c80.ffffb500@mx.google.com> <1163991847.2912.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1163991847.2912.15.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Sun, Nov 19, 2006 at 07:04:07PM -0800, Don Mullis wrote:
+> /debug/fail_make_request can force a failure like the following:
+> 
+> 	FAULT_INJECTION: forcing a failure
+...
+> 	Buffer I/O error on device hda2, logical block 5782
+> 	lost page write due to I/O error on hda2
+> 	Aborting journal on device hda2.
+> 	journal commit I/O error
+> 	ext3_abort called.
+> 	EXT3-fs error (device hda2): ext3_journal_start_sb: Detected aborted journal
+> 	Remounting filesystem read-only
+> 
+> The above read-only remount effectively ends the test run.  
 
-I've did some testing this afternoon with bdev freezing disabled and
-without any non-vanilla code to freeze kthreads (Rafael's or my older
-version).
+This test is a little intentional.
+(Normal I/O may fail, but journal commit I/O doesn't fail)
 
-If I put a BUG_ON() in submit_bio for non suspend2 I/O, it catches this
-trace:
+If you want to do this, you could put journal on the other device.
 
-submit_bio
-xfs_buf_iorequest
-xlog_bdstrat_cb
-xlog_state_release_iclog
-xlog_state_sync_all
-xfs_log_force
-xfs_syncsub
-xfs_sync
-vfs_sync
-vfs_sync_worker
-xfssyncd
-keventd_create_kthread
+> Implementation approach is to extend the existing
+> address-start/address-end mechanism specifying a range _required_ to
+> be found on the stack, by the addition of an address range to be
+> _rejected_.  
 
-I haven't yet reproduced anything on another code path (eg pdflush).
-
-So, it would appear that freezing kthreads without freezing bdevs should
-be a possible solution. It may however leave some I/O unsynced
-pre-resume and therefore result in possible dataloss if no resume
-occurs. I therefore wonder whether it's better to stick with bdev
-freezing or create some variant wherein XFS is taught to fully flush
-pending writes and not create new I/O.
-
-Regards,
-
-Nigel
+The only problem about this is, the users who set reject address range really
+don't want to insert failures from the address range. So they have to change
+stacktrace-depth large enough. It will cause large slow down by aggressive
+stacktrace and there is no guarantee to prevent from injecting failures the
+address range.
 

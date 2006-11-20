@@ -1,125 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966603AbWKTUCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966610AbWKTUGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966603AbWKTUCD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966610AbWKTUCB
+	id S966610AbWKTUGP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966611AbWKTUGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:02:01 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:7559 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S966603AbWKTUCA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:02:00 -0500
-Date: Mon, 20 Nov 2006 15:01:59 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061120185712.GA95@oleg>
-Message-ID: <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Nov 2006 15:06:15 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:2747 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966610AbWKTUGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 15:06:14 -0500
+Date: Mon, 20 Nov 2006 12:05:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-fbdev-devel@lists.sourceforge.net, Tero Roponen <teanropo@jyu.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] fb: modedb uses wrong default_mode
+Message-Id: <20061120120521.68724342.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611201643460.17639@pentafluge.infradead.org>
+References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
+	<20061115152952.0e92c50d.akpm@osdl.org>
+	<20061115234456.GB3674@cosmic.amd.com>
+	<Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
+	<20061117124013.b6e4183d.akpm@osdl.org>
+	<Pine.LNX.4.64.0611201643460.17639@pentafluge.infradead.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006, Oleg Nesterov wrote:
+On Mon, 20 Nov 2006 16:48:05 +0000 (GMT)
+James Simmons <jsimmons@infradead.org> wrote:
 
-> On 11/20, Alan Stern wrote:
-> >
-> > @@ -158,6 +199,11 @@ void synchronize_srcu(struct srcu_struct
-> >
-> > [... snip ...]
-> >
-> > +#ifdef	SMP__STORE_MB_LOAD_WORKS	/* The fast path */
-> > +	if (srcu_readers_active_idx(sp, idx) == 0)
-> > +		goto done;
-> > +#endif
-> 
-> I guess this is connected to another message from you,
-
-Yes.
-
-> > But of course it _is_ needed for the fastpath to work.  In fact, it might
-> > not be good enough, depending on the architecture.  Here's what the
-> > fastpath ends up looking like (using c[idx] is essentially the same as
-> > using hardluckref):
+> > > 	    db = modedb;
+> > > 	dbsize = ARRAY_SIZE(modedb);
+> > > 
+> > > 	if (!default_mode)
+> > > 	    default_mode = &db[DEFAULT_MODEDB_INDEX];
+> > > 	if (!default_bpp)
+> > > 	    default_bpp = 8;
+> > > 
+> > > db will always be set.
 > > 
-> >         WRITER                          READER
-> >         ------                          ------
-> >         dataptr = &(new data)           atomic_inc(&hardluckref)
-> >         mb                              mb
-> >         while (hardluckref > 0) ;       access *dataptr
+> > I think we do need dbsize, and that the code which I have now:
+> 
+> I really don't trust dbsize. The driver writer can pass in the wrong 
+> number.
+
+That would be a bug.
+
+> Whereas ARRAY_SIZE will always be correct. Lets take the position 
+> that we use dbsize then we need to test if dbsize is greater than the 
+> really size of the modedb. The dbsize parameter was for the days before we
+> had ARRAY_SIZE.
+> 
+> > int fb_find_mode(struct fb_var_screeninfo *var,
+> > 		 struct fb_info *info, const char *mode_option,
+> > 		 const struct fb_videomode *db, unsigned int dbsize,
+> > 		 const struct fb_videomode *default_mode,
+> > 		 unsigned int default_bpp)
+> > {
+> >     int i;
 > > 
-> > Notice the pattern: Each CPU does store-mb-load.  It is known that on
-> > some architectures each CPU can end up loading the old value (the value
-> > from before the other CPU's store).  This would mean the writer would see
-> > hardluckref == 0 right away and the reader would see the old dataptr.
+> >     /* Set up defaults */
+> >     if (!db) {
+> > 	db = modedb;
+> > 	dbsize = ARRAY_SIZE(modedb);
+> >     }
 > 
-> So, if we have global A == B == 0,
-> 
-> 	CPU_0		CPU_1
-> 
-> 	A = 1;		B = 2;
-> 	mb();		mb();
-> 	b = B;		a = A;
-> 
-> It could happen that a == b == 0, yes?
+>       if (dbsize > ARRAY_SIZE(db))
+> 	dbsize = ARRAY_SIZE(db);
 
-Exactly.
+We can't do ARRAY_SIZE on a random pointer like this: the compiler needs to
+see the full definition of the array itself, and that is back in the
+caller's compilation unit.
 
-> Isn't this contradicts with definition
-> of mb?
-
-One might think so, at first.  But if you do a careful search, you'll find
-that there _is_ no definition of mb!  People state in vague terms what
-it's supposed to do, but they are almost never specific enough to tell
-whether the example above should work.
-
-> By definition, when CPU_0 issues 'b = B', 'A = 1' should be visible to other
-> CPUs, yes?
-
-No.  Memory barriers don't guarantee that any particular store will become 
-visible to other CPUs at any particular time.  They guarantee only that a 
-certain sequence of stores will become visible in a particular order 
-(provided the other CPUs also use the correct memory barriers).
-
->  Now, b == 0 means that CPU_1 did not read 'a = A' yet, otherwise
-> 'B = 2' should be visible to all CPUs (by definition again).
-> 
-> Could you please clarify this?
-
-Here's an example showing how the code can fail.  (Paul can correct me if 
-I get this wrong.)
-
-	"A = 1" and "B = 2" are issued simultaneously.  The two caches
-	send out Invalidate messages, and each queues the message it
-	receives for later processing.
-
-	Both CPUs execute their "mb" instructions.  The mb forces each
-	cache to wait until it receives an Acknowdgement for the 
-	Invalidate it sent.
-
-	Both caches send an Acknowledgement message to the other.  The
-	mb instructions complete.
-
-	"b = B" and "a = A" execute.  The caches return A==0 and B==0
-	because they haven't yet invalidated their cache lines.
-
-	Cache 0 invalidates its line for B and Cache 1 invalidates its
-	line for A.  But it's already too late.
-
-The reason the code failed is because the mb instructions didn't force
-the caches to wait until the Invalidate messages in their queues had been 
-fully carried out (i.e., the lines had actually been invalidated).  This 
-is because at the time the mb started, those messages had not been 
-acknowledged -- they were just sitting in the cache's invalidate queue.
-
-
-> Btw, this is funny, but I was going to suggest _exactly_ same cleanup for
-> srcu_read_lock :)
-
-I guess we think alike!
-
-Alan
 

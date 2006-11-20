@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933778AbWKTAMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933799AbWKTANS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933778AbWKTAMV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 19:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933799AbWKTAMV
+	id S933799AbWKTANS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 19:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933801AbWKTANS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 19:12:21 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:15926 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S933778AbWKTAMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 19:12:20 -0500
-Date: Sun, 19 Nov 2006 16:12:31 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: xconfig segfault
-Message-Id: <20061119161231.e509e5bf.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 19 Nov 2006 19:13:18 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:22153 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S933799AbWKTANR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 19:13:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:reply-to:x-priority:message-id:to:cc:subject:in-reply-to:references:mime-version:content-type:content-transfer-encoding;
+        b=I/YzYEuifgvvVcvTM01/yzqp0CC75kOIHPLLVMUVu9uGXHZHdnP7MN/YK5CbBw6ry8o2204usC1K0e/RsND+ekQ4p7tCUYqRQGcCpJE8DW7as7TI2/82U7VSMHqjF9QvM5tOewQ0t3X3t0OsL8VZGPoZGxw8I1heFaGlq2xB1Tw=
+Date: Mon, 20 Nov 2006 02:13:14 +0200
+From: Paul Sokolovsky <pmiscml@gmail.com>
+Reply-To: Paul Sokolovsky <pmiscml@gmail.com>
+X-Priority: 3 (Normal)
+Message-ID: <664994303.20061120021314@gmail.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+Subject: Re[2]: Where did find_bus() go in 2.6.18?
+In-Reply-To: <4560ECAF.1030901@gmail.com>
+References: <1154868495.20061120003437@gmail.com> <4560ECAF.1030901@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make xconfig is segfaulting on me in 2.6.19-rc6 and later
-when I do ^F (find/search).
-Works fine in 2.6.19-rc5 and earlier.
+Hello Jiri,
 
-The only message log I get is:
+Monday, November 20, 2006, 1:45:51 AM, you wrote:
 
-qconf[5839]: segfault at 0000000000000008 rip 00000000004289bc rsp 00007fffa08ccf10 error 4
+> Paul Sokolovsky wrote:
+>>   But alas, the commit message is not as good as some others are, and
+>> doesn't mention what should be used instead. So, if find_bus() is
+>> "unused", what should be used instead?
 
-I don't see any changes in scripts/kconfig/* in 2.6.19-rc6.
-Any ideas/suggestions?
+> You should probably mention what for?
 
-Thanks,
----
-~Randy
+  Indeed, I'm sorry! Looking at find_bus()'s docstring:
+
+/**
+ *      find_bus - locate bus by name.
+ *      @name:  name of bus.
+
+ So well, I'd like to know exactly that - what function should be
+used instead of find_bus() to locate bus by name.
+
+
+> regards,
+
+
+
+-- 
+Best regards,
+ Paul                            mailto:pmiscml@gmail.com
+

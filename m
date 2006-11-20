@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756723AbWKTLLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755893AbWKTLNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756723AbWKTLLL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 06:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756721AbWKTLLK
+	id S1755893AbWKTLNw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 06:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756134AbWKTLNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 06:11:10 -0500
-Received: from mail-gw3.sa.ew.hu ([212.108.200.82]:54692 "EHLO
-	mail-gw3.sa.ew.hu") by vger.kernel.org with ESMTP id S1755919AbWKTLLJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 06:11:09 -0500
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Quadratic behavior of shrink_dcache_parent()
-Message-Id: <E1Gm731-0003Br-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 20 Nov 2006 12:10:47 +0100
+	Mon, 20 Nov 2006 06:13:52 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:12293 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1755893AbWKTLNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 06:13:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KGQ3aDM1xfNpMtpuTqzLB/xAB282ZXEN04XUSUGKcCVXhVevjTkpXycnRFiduB5C2Z7prPgNkm9LvwKfFuNiGk723dEyTDRga3a3xcaAGt9MAEEbqpYQHLRQ7tbNkt72q5diMt2WV2EUeRSVYjyPVF7OvVp/MR+WABev0e3gPoc=
+Message-ID: <21d7e9970611200313u767dfa6dxe84a38affa732f80@mail.gmail.com>
+Date: Mon, 20 Nov 2006 22:13:49 +1100
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Paolo Ornati" <ornati@fastwebnet.it>
+Subject: Re: GoogleEarth triggers 99% System Load... DRI/X problem?
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061120115613.04676c09@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061120115613.04676c09@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The shrink_dcache_parent() can take a very long time for deep
-directory trees: minutes for depth of 100,000, probably hours for
-depth of 1,000,000.
+On 11/20/06, Paolo Ornati <ornati@fastwebnet.it> wrote:
+> Sometimes, when using GoogleEarth, X gets stuck (only the cursor can go
+> around).
+>
+> Kernel version: it's not a new thing, I've seen this happen for quite
+> some time (oh, and the -dirty in my current kernel is just because of
+> a fix for APIC: http://lkml.org/lkml/2006/11/18/84).
+>
+>
 
-The reason is that after dropping a leaf, it starts again from the
-root.
+It's a GPU crash, better off on dri-devel mailing lists as it involves
+the 3D driver and googleearth crashing it.. attach an xorg.conf and
+Xorg.0.log....
 
-Filesystems affected include FUSE, NFS, CIFS.  Others I haven't
-checked.  NFS and to a lesser extent CIFS don't seem to efficiently
-handle lookups within such a deep hierarchy, so they're sort of
-immune.
-
-But with FUSE it's pretty easy to DoS the system.
-
-Limiting the depth to some sane value could work around this problem,
-but that would mean having to traverse subtrees in rename().
-
-Any better ideas?
-
-Thanks,
-Miklos
+Dave.

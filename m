@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933885AbWKTCYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933890AbWKTCYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933885AbWKTCYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Nov 2006 21:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933876AbWKTCYT
+	id S933890AbWKTCYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Nov 2006 21:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933888AbWKTCYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Nov 2006 21:24:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42001 "HELO
+	Sun, 19 Nov 2006 21:24:53 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:51473 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S933875AbWKTCX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Nov 2006 21:23:58 -0500
-Date: Mon, 20 Nov 2006 03:23:58 +0100
+	id S933890AbWKTCYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Nov 2006 21:24:45 -0500
+Date: Mon, 20 Nov 2006 03:24:44 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Ping Cheng <pingc@wacom.com>
+To: Tony Olech <tony.olech@elandigitalsystems.com>
 Cc: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] make drivers/usb/input/wacom_sys.c:wacom_sys_irq() static
-Message-ID: <20061120022357.GJ31879@stusta.de>
+Subject: [2.6 patch] drivers/usb/misc/ftdi-elan.c: fixes and cleanups
+Message-ID: <20061120022444.GT31879@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,35 +23,76 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global wacom_sys_irq() static.
+This patch contains the following possible cleanups:
+- make the needlessly global ftdi_release_platform_dev() static
+- remove the unused usb_ftdi_elan_read_reg()
+- proper prototypes for the following functions:
+  - usb_ftdi_elan_read_pcimem()
+  - usb_ftdi_elan_write_pcimem()
+
+Note that the misplaced prototypes for the latter ones in 
+drivers/usb/host/u132-hcd.c were buggy. Depending on the calling 
+convention of the architecture calling one of them could have turned 
+your stack into garbage.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/usb/input/wacom.h     |    1 -
- drivers/usb/input/wacom_sys.c |    2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/host/u132-hcd.c  |    6 +-----
+ drivers/usb/misc/ftdi-elan.c |   10 +---------
+ drivers/usb/misc/usb_u132.h  |    4 ++++
+ 3 files changed, 6 insertions(+), 14 deletions(-)
 
---- linux-2.6.19-rc5-mm2/drivers/usb/input/wacom.h.old	2006-11-20 01:05:38.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/usb/input/wacom.h	2006-11-20 01:05:44.000000000 +0100
-@@ -110,7 +110,6 @@
- };
+--- linux-2.6.19-rc5-mm2/drivers/usb/misc/ftdi-elan.c.old	2006-11-20 01:09:28.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/usb/misc/ftdi-elan.c	2006-11-20 01:09:51.000000000 +0100
+@@ -303,7 +303,7 @@
  
- extern int wacom_wac_irq(struct wacom_wac * wacom_wac, void * wcombo);
--extern void wacom_sys_irq(struct urb *urb);
- extern void wacom_report_abs(void *wcombo, unsigned int abs_type, int abs_data);
- extern void wacom_report_rel(void *wcombo, unsigned int rel_type, int rel_data);
- extern void wacom_report_key(void *wcombo, unsigned int key_type, int key_data);
---- linux-2.6.19-rc5-mm2/drivers/usb/input/wacom_sys.c.old	2006-11-20 01:05:52.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/usb/input/wacom_sys.c	2006-11-20 01:05:58.000000000 +0100
-@@ -42,7 +42,7 @@
- 	return wcombo->wacom->dev;
+ 
+ EXPORT_SYMBOL_GPL(ftdi_elan_gone_away);
+-void ftdi_release_platform_dev(struct device *dev)
++static void ftdi_release_platform_dev(struct device *dev)
+ {
+         dev->parent = NULL;
+ }
+@@ -1426,14 +1426,6 @@
+         }
  }
  
--void wacom_sys_irq(struct urb *urb)
-+static void wacom_sys_irq(struct urb *urb)
+-int usb_ftdi_elan_read_reg(struct platform_device *pdev, u32 *data)
+-{
+-        struct usb_ftdi *ftdi = platform_device_to_usb_ftdi(pdev);
+-        return ftdi_elan_read_reg(ftdi, data);
+-}
+-
+-
+-EXPORT_SYMBOL_GPL(usb_ftdi_elan_read_reg);
+ static int ftdi_elan_read_config(struct usb_ftdi *ftdi, int config_offset,
+         u8 width, u32 *data)
  {
- 	struct wacom *wacom = urb->context;
- 	struct wacom_combo wcombo;
+--- linux-2.6.19-rc5-mm2/drivers/usb/misc/usb_u132.h.old	2006-11-20 02:41:07.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/usb/misc/usb_u132.h	2006-11-20 02:49:00.000000000 +0100
+@@ -95,3 +95,7 @@
+          int halted, int skipped, int actual, int non_null));
+ int usb_ftdi_elan_edset_flush(struct platform_device *pdev, u8 ed_number,
+         void *endp);
++int usb_ftdi_elan_read_pcimem(struct platform_device *pdev, int mem_offset,
++			      u8 width, u32 *data);
++int usb_ftdi_elan_write_pcimem(struct platform_device *pdev, int mem_offset,
++			       u8 width, u32 data);
+--- linux-2.6.19-rc5-mm2/drivers/usb/host/u132-hcd.c.old	2006-11-20 01:09:58.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/usb/host/u132-hcd.c	2006-11-20 02:42:24.000000000 +0100
+@@ -205,11 +205,7 @@
+         struct u132_port port[MAX_U132_PORTS];
+         struct u132_endp *endp[MAX_U132_ENDPS];
+ };
+-int usb_ftdi_elan_read_reg(struct platform_device *pdev, u32 *data);
+-int usb_ftdi_elan_read_pcimem(struct platform_device *pdev, u8 addressofs,
+-        u8 width, u32 *data);
+-int usb_ftdi_elan_write_pcimem(struct platform_device *pdev, u8 addressofs,
+-        u8 width, u32 data);
++
+ /*
+ * these can not be inlines because we need the structure offset!!
+ * Does anyone have a better way?????
 

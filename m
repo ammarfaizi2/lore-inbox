@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966610AbWKTUGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966611AbWKTUHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966610AbWKTUGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 15:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966611AbWKTUGP
+	id S966611AbWKTUHN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 15:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966622AbWKTUHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 15:06:15 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:2747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966610AbWKTUGO (ORCPT
+	Mon, 20 Nov 2006 15:07:13 -0500
+Received: from gate.crashing.org ([63.228.1.57]:20141 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S966611AbWKTUHL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 15:06:14 -0500
-Date: Mon, 20 Nov 2006 12:05:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, Tero Roponen <teanropo@jyu.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] fb: modedb uses wrong default_mode
-Message-Id: <20061120120521.68724342.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611201643460.17639@pentafluge.infradead.org>
-References: <Pine.LNX.4.64.0611151933070.12799@jalava.cc.jyu.fi>
-	<20061115152952.0e92c50d.akpm@osdl.org>
-	<20061115234456.GB3674@cosmic.amd.com>
-	<Pine.LNX.4.64.0611171919090.9851@pentafluge.infradead.org>
-	<20061117124013.b6e4183d.akpm@osdl.org>
-	<Pine.LNX.4.64.0611201643460.17639@pentafluge.infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 20 Nov 2006 15:07:11 -0500
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+	type IRQ handlers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+In-Reply-To: <20061120100144.GA27812@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>
+	 <1163966437.5826.99.camel@localhost.localdomain>
+	 <20061119200650.GA22949@elte.hu>
+	 <1163967590.5826.104.camel@localhost.localdomain>
+	 <20061119202348.GA27649@elte.hu>
+	 <1163985380.5826.139.camel@localhost.localdomain>
+	 <20061120100144.GA27812@elte.hu>
+Content-Type: text/plain
+Date: Tue, 21 Nov 2006 07:07:10 +1100
+Message-Id: <1164053230.8073.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 16:48:05 +0000 (GMT)
-James Simmons <jsimmons@infradead.org> wrote:
+On Mon, 2006-11-20 at 11:01 +0100, Ingo Molnar wrote:
 
-> > > 	    db = modedb;
-> > > 	dbsize = ARRAY_SIZE(modedb);
-> > > 
-> > > 	if (!default_mode)
-> > > 	    default_mode = &db[DEFAULT_MODEDB_INDEX];
-> > > 	if (!default_bpp)
-> > > 	    default_bpp = 8;
-> > > 
-> > > db will always be set.
-> > 
-> > I think we do need dbsize, and that the code which I have now:
+> so the question is not 'is there an ACK' (all non-MSI-type-of IRQ 
+> delivery mechanisms have some sort of ACK mechanism), but what is the 
+> precise structure of ACK-ing an IRQ that the host recieves.
 > 
-> I really don't trust dbsize. The driver writer can pass in the wrong 
-> number.
+> on PPC64, 'get the vector' initiates an ACK as well - is that done 
+> before handle_irq() is done?
 
-That would be a bug.
+Yes.
 
-> Whereas ARRAY_SIZE will always be correct. Lets take the position 
-> that we use dbsize then we need to test if dbsize is greater than the 
-> really size of the modedb. The dbsize parameter was for the days before we
-> had ARRAY_SIZE.
+> > So by doing a mask followed by an eoi, you essentially mask the 
+> > interrupt preventing further delivery of that interrupt and lower the 
+> > CPU priority in the PIC thus allowing processing of further 
+> > interrupts.
 > 
-> > int fb_find_mode(struct fb_var_screeninfo *var,
-> > 		 struct fb_info *info, const char *mode_option,
-> > 		 const struct fb_videomode *db, unsigned int dbsize,
-> > 		 const struct fb_videomode *default_mode,
-> > 		 unsigned int default_bpp)
-> > {
-> >     int i;
-> > 
-> >     /* Set up defaults */
-> >     if (!db) {
-> > 	db = modedb;
-> > 	dbsize = ARRAY_SIZE(modedb);
-> >     }
+> correct, that's what should happen.
 > 
->       if (dbsize > ARRAY_SIZE(db))
-> 	dbsize = ARRAY_SIZE(db);
+> > Are there other fasteoi controllers than the ones I have on powerpc 
+> > anyway ?
+> 
+> well, if you mean the x86 APICs, there you get the vector 'for free' as 
+> part of the IRQ entry call sequence, and there's an EOI register in the 
+> local APIC that notifies the IRQ hardware, lowers the CPU priority, etc. 
+> We have that as an ->eoi handler right now.
 
-We can't do ARRAY_SIZE on a random pointer like this: the compiler needs to
-see the full definition of the array itself, and that is back in the
-caller's compilation unit.
+Ok, so that's like me. Which means that what you need is a specific thre
+aded_fasteoi flow handler that does mask & eoi, not ack.
 
+Note that I still think it would work in the absence of mask too if the
+controller only does edge interrupts, as it is the case for the cell.
+
+Cheers,
+Ben.
 

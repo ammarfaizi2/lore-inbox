@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932831AbWKTIej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934011AbWKTIo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932831AbWKTIej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 03:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933042AbWKTIej
+	id S934011AbWKTIo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 03:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934009AbWKTIo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 03:34:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49608 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932831AbWKTIei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 03:34:38 -0500
-Subject: Re: Re[2]: Where did find_bus() go in 2.6.18?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Paul Sokolovsky <pmiscml@gmail.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <664994303.20061120021314@gmail.com>
-References: <1154868495.20061120003437@gmail.com>
-	 <4560ECAF.1030901@gmail.com>  <664994303.20061120021314@gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 20 Nov 2006 09:34:35 +0100
-Message-Id: <1164011675.31358.566.camel@laptopd505.fenrus.org>
+	Mon, 20 Nov 2006 03:44:29 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:8628 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S934008AbWKTIo2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 03:44:28 -0500
+Date: Mon, 20 Nov 2006 00:43:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-Id: <20061120004301.d1815a95.akpm@osdl.org>
+In-Reply-To: <20061120082500.GA25467@2ka.mipt.ru>
+References: <11630606361046@2ka.mipt.ru>
+	<45564EA5.6020607@redhat.com>
+	<20061113105458.GA8182@2ka.mipt.ru>
+	<4560F07B.10608@redhat.com>
+	<20061120082500.GA25467@2ka.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-20 at 02:13 +0200, Paul Sokolovsky wrote:
-> Hello Jiri,
-> 
-> Monday, November 20, 2006, 1:45:51 AM, you wrote:
-> 
-> > Paul Sokolovsky wrote:
-> >>   But alas, the commit message is not as good as some others are, and
-> >> doesn't mention what should be used instead. So, if find_bus() is
-> >> "unused", what should be used instead?
-> 
-> > You should probably mention what for?
-> 
->   Indeed, I'm sorry! Looking at find_bus()'s docstring:
-> 
-> /**
->  *      find_bus - locate bus by name.
->  *      @name:  name of bus.
-> 
->  So well, I'd like to know exactly that - what function should be
-> used instead of find_bus() to locate bus by name.
+On Mon, 20 Nov 2006 11:25:01 +0300
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-I think the question more was "what do you need to look up a bus by name
-for in the kernel"? Like.. what are you trying to achieve? What module
-is this for? (does it have a homepage where people can download the
-source etc so that they can give you a more informed answer)....
-
-
+> On Sun, Nov 19, 2006 at 04:02:03PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> > Evgeniy Polyakov wrote:
+> > >>Possible solution:
+> > >>
+> > >>a) it would be possible to have a "used" flag in each ring buffer entry.
+> > >>   That's too expensive, I guess.
+> > >>
+> > >>b) kevent_wait needs another parameter which specifies the which is the
+> > >>   last (i.e., least recently added) entry in the ring buffer.
+> > >>   Everything between this entry and the current head (in ->kidx) is
+> > >>   occupied.  If multiple threads arrive in kevent_wait the highest idx
+> > >>   (with wrap around possibly lowest) is used.
+> > >>
+> > >>   kevent_wait will not try to move more entries into the ring buffer
+> > >>   if ->kidx and the higest index passed in to any kevent_wait call
+> > >>   is equal (i.e., the ring buffer is full).
+> > >>
+> > >>   There is one issue, though, and that is that a system call is needed
+> > >>   to signal to the kernel that more entries in the ring buffer are
+> > >>   processed and that they can be refilled.  This goes against the
+> > >>   kernel filling the ring buffer automatically (see below)
+> > >
+> > >If thread calls kevent_wait() it means it has processed previous entries, 
+> > >one can call kevent_wait() with $num parameter as zero, which
+> > >means that thread does not want any new events, so nothing will be
+> > >copied.
+> > 
+> > This doesn't solve the problem.  You could only request new events when 
+> > all previously reported events are processed.  Plus: how do you report 
+> > events if the you don't allow get_event pass them on?
 > 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> Userspace should itself maintain order and possibility to get event in
+> this implementation, kernel just returns events which were requested.
+
+That would mean that in a multithreaded application (or multi-processes
+sharing the same MAP_SHARED ringbuffer), all threads/processes will be
+slowed down to wait for the slowest one.
+
+> > >They all already imeplemented. Just all above, and it was done several
+> > >months ago already. No need to reinvent what is already there.
+> > >Even if we will decide to remove kevent_get_events() in favour of ring
+> > >buffer-only implementation, winting-for-event syscall will be
+> > >essentially kevent_get_events() without pointer to the place where to
+> > >put events.
+> > 
+> > Right, but this limitation of the interface is important.  It means the 
+> > interface of the kernel is smaller: fewer possibilities for problems and 
+> > fewer constraints if in future something should be changed (and smaller 
+> > kernel).
+> 
+> Ok, lets see for ring buffer implementation right now, and then we will
+> decide if we want to remove or to stay with kevent_get_events() syscall.
+
+I agree that kevent_get_events() is duplicative and we shouldn't need it. 
+Better to concentrate all our development effort on the single and most
+flexible means of delivery.
 

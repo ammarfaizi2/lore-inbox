@@ -1,63 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966868AbWKTWQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966872AbWKTWQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966868AbWKTWQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 17:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966857AbWKTWPn
+	id S966872AbWKTWQK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 17:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966868AbWKTWQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 17:15:43 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:31318 "HELO
+	Mon, 20 Nov 2006 17:16:09 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:46423 "HELO
 	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966606AbWKTWPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 17:15:41 -0500
+	id S966860AbWKTWPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 17:15:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=QoDWn8bdcmGAudqA1L6lSZ6iSOhA0X5ea27eNrrgzbwL1TuK0ENoSDdHQDw7RB7oA3sgPIRt7YNy4dJg2EucEiH32jZ8gAj7XFPiqs6zowzeAPiC3VLrY+YLmPbsDEWpeoxagEWfLciuiJ4R4DoF2njp1cgYmsQ1C775ezufFUI=  ;
-X-YMail-OSG: hr.7OnYVM1mgMG2VO80t1XrWAqt2B.o8sM4z.ngP2aiHjE0NsLKMOwKf2j2WzqnjKWLQu3kb9YJ_xF76y_uL9ScPLTid4IHtVVIFP055CLgDgzzgYpvn1g--
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=wE0oyPZSnPnNqK9mq6/M1g9ZBQIY4WgmQXICchemu4XtofZfakFGYHBs/5AL74g94g0dVtQ70PHosocnPiJw78IAqsDuj+tiTTZL95ZjCCl4NOmgSHbHBgTV1qxdZe11Gkw0VXWiTzoGkXDgBiIHma3nLc0rAP7tyisqiBCeOro=  ;
+X-YMail-OSG: kisshc8VM1l8UQNT.2BvB_SGTO4E9JyEmEwrs8aDmZ.amaPfswKUCHciR709vKMEZxiqvN3pgnH_P1TDEem9Ri5qt695mz.SpcPWYNQeZbQ7S55JUFYlSbkBvK9HRrgUqaj19CBE2tYXavUg93bjZ2tcIqcYHBHqb98-
 From: David Brownell <david-b@pacbell.net>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: [patch 2.6.19-rc6 1/6] rtc class /proc/driver/rtc update
-Date: Mon, 20 Nov 2006 10:17:19 -0800
+To: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
+Date: Mon, 20 Nov 2006 13:49:28 -0800
 User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200611201014.41980.david-b@pacbell.net>
-In-Reply-To: <200611201014.41980.david-b@pacbell.net>
+Cc: Bill Gatliff <bgat@billgatliff.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
+       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
+References: <200611111541.34699.david-b@pacbell.net> <4558C794.90602@billgatliff.com> <20061113201535.GA20388@linux-sh.org>
+In-Reply-To: <20061113201535.GA20388@linux-sh.org>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611201349.29999.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611201017.19961.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix two minor botches in the procfs dumping of RTC alarm status:
+On Monday 13 November 2006 12:15 pm, Paul Mundt wrote:
+> On Mon, Nov 13, 2006 at 01:29:24PM -0600, Bill Gatliff wrote:
+> 
+> Pin muxing is somewhat of a decoupled issue,
 
- - Stop confusing "alarm enabled" with "wakeup enabled".
+I'll continue to read that as "100% orthogonal to any GPIO API since it's
+so thoroughly platform-specific".  :)
 
- - Don't display bogus "irq pending/un-acked" status; those are the rather
-   pointless semantics EFI assigned to this (for a no-IRQs environment).
 
-The main RTC that seems confused about this is the sa1100 one, which
-doesn't actually report whether it enabled the alarm.
+>	 but it's quite related when 
+> "GPIO" is just another pin state depending on the mux. The primary
+> concern here is where we end up doing the refcounting for the pins, so we
+> don't run in to a situation where a pin is toggled out from an existing
+> user with regards to drivers contending for pin functions. 
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+A fine example of two platform-specific notions.  First, that GPIO signals
+are muxed in that way ... they could easily have dedicated pins!!  Second,
+that there's even a one-to-one association between pins and GPIOs ... I'll
+repeat the previous example of OMAP1, where certain GPIOs could come out on
+any of several pins.  And where some pins can be muxed to work with more
+than one GPIO (but only one at a time, of course).  Clearly, neither pin
+refcounting nor GPIO claiming can be sufficient to prevent such problems ...
 
-Index: g26/drivers/rtc/rtc-proc.c
-===================================================================
---- g26.orig/drivers/rtc/rtc-proc.c	2006-11-20 09:35:39.000000000 -0800
-+++ g26/drivers/rtc/rtc-proc.c	2006-11-20 09:36:23.000000000 -0800
-@@ -66,9 +66,11 @@ static int rtc_proc_show(struct seq_file
- 		else
- 			seq_printf(seq, "**\n");
- 		seq_printf(seq, "alrm_wakeup\t: %s\n",
-+				device_may_wakeup(class_dev->dev)
-+					? "yes" : "no");
-+		seq_printf(seq, "alrm_enabled\t: %s\n",
- 				alrm.enabled ? "yes" : "no");
--		seq_printf(seq, "alrm_pending\t: %s\n",
--				alrm.pending ? "yes" : "no");
-+		/* alrm.pending ("irq un-acked") is useless ... */
- 	}
- 
- 	seq_printf(seq, "24hr\t\t: yes\n");
+
+Another issue that's orthogonal to a GPIO API is IRQ trigger modes:
+
+> > Think: today, most drivers don't know or care if an IRQ line is
+> > edge-triggered or level-triggered.  That code is in the domain of the
+> > IRQ subsystem.  What David is proposing is the same sort of thing for
+> > GPIO.
+> > 
+> I would suggest that it's exactly the opposite, other than the blatantly
+> obvious cases (edge-triggered NMI, controllers with fixed detection
+> logic, etc.) it's _specifically_ up to the drivers to indicate where to
+> do the detection, as to allow the IRQ controller to adjust the sense
+> selection for that particular IRQ. Grepping drivers/ for IRQF_TRIGGER is
+> a pretty good indicator of this.
+
+It's easy to think that way, but then it's just as easy to assemble boards
+that happen to route IRQs through an inverting buffer because of signal
+level or strength issues.  And with discrete controllers, I've certainly
+had to cope with drivers running on systems that don't support the ideal
+triggering mode ... typically there'd be an edge trigger mode (e.g. only
+"both edges" supported) for a chip whose IRQ is active low.
+
+It's better to make the board setup include the right IRQ triggering mode
+for each IRQ, so that drivers don't have to embed board-specific knowledge
+like that.  It's bad enough to have to write the driver to cope with some
+unnatural trigger mode ... but it's really rude to make them have to try
+guess several times before they can find which one works!!
+
+Boards can pass the IORESOURCE_IRQ_* flags in irq resources, though it
+seems not many do.
+
+- Dave
+

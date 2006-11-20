@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933958AbWKTGZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933968AbWKTGgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933958AbWKTGZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 01:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933960AbWKTGZ4
+	id S933968AbWKTGgA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 01:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933967AbWKTGgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 01:25:56 -0500
-Received: from relay.rinet.ru ([195.54.192.35]:60641 "EHLO relay.rinet.ru")
-	by vger.kernel.org with ESMTP id S933958AbWKTGZz (ORCPT
+	Mon, 20 Nov 2006 01:36:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26065 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933964AbWKTGf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 01:25:55 -0500
-Message-ID: <45614A95.6090102@mail.ru>
-Date: Mon, 20 Nov 2006 09:26:29 +0300
-From: Michael Raskin <a1d23ab4@mail.ru>
-User-Agent: Thunderbird 2.0a1 (X11/20060809)
+	Mon, 20 Nov 2006 01:35:59 -0500
+Message-ID: <45614C80.5070303@redhat.com>
+Date: Mon, 20 Nov 2006 01:34:40 -0500
+From: Chris Snook <csnook@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc1-mm1+ memory problem
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
+       shemminger@osdl.org, romieu@fr.zoreil.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] atl1: Revised Attansic L1 ethernet driver
+References: <20061119202817.GA29736@osprey.hogchain.net> <20061120011534.54b1e010@localhost.localdomain>
+In-Reply-To: <20061120011534.54b1e010@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (relay.rinet.ru [195.54.192.35]); Mon, 20 Nov 2006 09:25:54 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Short description: when X is loaded (maybe any heavy application is 
-sufficient, but I don't use anything heavy in console), 'free' says used 
-memory is growing.
+Alan wrote:
+> Would be nice if it used atl_ not at_ so its less likely to cause
+> namespace clashes.
 
-Keywords: memory.
+Some of this code looked like Attansic may have meant to share it 
+between drivers for atl1/atl2/atf1/atf2, but seeing as I can't find any 
+code for those, I'll convert it all to atl1_ and let Attansic generalize 
+the code if they ever decide they want to submit drivers.
 
-Kernel: built locally, gcc 4.0.3
+> You have various macros for swaps that are pretty ugly - we have
+> cpu_to and le/be_to_cpu functions for most swapping cases and these are
+> generally optimised assembler (eg bswap on x86)
+> 
+> AT_DESC_USED/UNUSED would be better as inline functions but thats not a
+> serious concern.
+> 
+> Be careful with :1 bitfields when working with hardware - the compiler
+> has more than one choice about how to pack them.
 
-I have a strange problem with 2.6.19-rc-mm kernels. After I load X, I 
-notice that memory is marked used at rate of tens of KB/s. Then it 
-starts to swap very heavily, when physical memory is all used. I tried 
-to verify it - it is so with all -mm kernels after 2.6.19-rc1-mm1, 
-including 2.6.19-rc5-mm2. At the meantime everything works OK with 
-kernels 2.6.18-mm3 and 2.6.19-rc1 through 2.6.19-rc6. I do not see any 
-options that should be memory eating in my .config . Module list is 
-short enough to include inline.
+Lacking a spec, I'm not entirely sure what the original intent was, so 
+we're stuck with testing.  Is there a specific disambiguation technique 
+you recommend?
 
-When I just run some things like periodical suck, oops proxy server etc 
-with X shut down, I do not notice "leak" from console because of small 
-fluctuations of memory use. When I run X and shut it down, used memory 
-count goes up a few megs (consistent with speed of eating it by X).
+> The irq enable/disable use for locking on vlan appears unsafe. PCI
+> interrupt delivery is asynchronous which means you can get this happen
+> 
+> 
+> 	card sends PCI interrupt
+> 	We call irq_disable
+> 	We take lock
+> 	We poke bits
+> 	We drop lock
+> 
+> 	PCI interrupt arrives
+> 
+> 
+> This really does happen, typically its nasty to debug as well because you
+> usually only get it on PIII boards on the one in n-zillion times a
+> message collides and is retransmitted on the APIC bus.
 
-I didn't find exactly this problem in lkml or www, though the problem 
-with OOM on 2.6.19-rc-mm seems similar.
+Nice catch.  I admit the VLAN code is not so well audited or tested. 
+Fortunately, the chip only seems to be on Asus M2V motherboards, at 
+least for now, but I want to audit all of the locking code at some point.
 
-What should I check to fix problem or produce a useful bug report?
+> skb->len is unsigned so <= 0 can be == 0. More importantly the subtraction
+> before the test will wrap and is completely unsafe (see at_xmit_frame)
 
-/etc/sysconfig/modules:
+Thanks!
 
-ehci-hcd, usb-storage, usbhid, ipaq, i915
-
-Now loaded in 2.6.19-rc6:
-
-i915, drm, ipaq, usbserial, usbhid, usb_storage, libusual, ehci_hcd, 
-usbcore
-
-Main configuration options:
-
-http://bigtip.narod.ru/temp/xorg.conf.txt
-http://bigtip.narod.ru/temp/config-2.6.19-rc2-mm5-swsusp-my-1.txt
-http://bigtip.narod.ru/temp/lspci.txt
-
-Drivers:
-
-http://bigtip.narod.ru/temp/ioports.txt
-http://bigtip.narod.ru/temp/iomem.txt
+	-- Chris

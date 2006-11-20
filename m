@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966468AbWKTT5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966602AbWKTT5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966468AbWKTT5E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 14:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966602AbWKTT5E
+	id S966602AbWKTT5R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 14:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966604AbWKTT5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 14:57:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35518 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966468AbWKTT5B (ORCPT
+	Mon, 20 Nov 2006 14:57:17 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:57763 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S966602AbWKTT5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 14:57:01 -0500
-Message-ID: <4562085F.1040900@mentalrootkit.com>
-Date: Mon, 20 Nov 2006 14:56:15 -0500
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>, David Howells <dhowells@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       trond.myklebust@fys.uio.no, selinux@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org, aviro@redhat.com, steved@redhat.com
-Subject: Re: [PATCH 12/19] CacheFiles: Permit a process's create SID to be
- overridden
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com>	 <20061114200647.12943.39802.stgit@warthog.cambridge.redhat.com>	 <XMMS.LNX.4.64.0611141618300.25022@d.namei> <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1164048073.13758.29.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 14:57:15 -0500
+Date: Mon, 20 Nov 2006 14:56:52 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>
+Subject: Re: [RFC] [PATCH] Fix misrouted interrupts deadlocks
+Message-ID: <20061120195652.GA6141@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <455484E4.1020100@openvz.org> <20061120192335.GA11879@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061120192335.GA11879@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
-> On Tue, 2006-11-14 at 16:19 -0500, James Morris wrote:
->> On Tue, 14 Nov 2006, David Howells wrote:
->>
->>> +static u32 selinux_set_fscreate_secid(u32 secid)
->>> +{
->>> +	struct task_security_struct *tsec = current->security;
->>> +	u32 oldsid = tsec->create_sid;
->>> +
->>> +	tsec->create_sid = secid;
->>> +	return oldsid;
->>> +}
->> The ability to set this needs to be mediated via MAC policy.
->>
->> See selinux_setprocattr()
+On Mon, Nov 20, 2006 at 02:23:35PM -0500, Vivek Goyal wrote:
+> On Fri, Nov 10, 2006 at 04:55:48PM +0300, Pavel Emelianov wrote:
+> > As the second lock on booth CPUs is taken before checking that
+> > this irq is being handled in another processor this may cause
+> > a deadlock. This issue is only theoretical.
+> > 
+> > I propose the attached patch to fix booth problems: when trying
+> > to handle misrouted IRQ active desc->lock may be unlocked.
+> > 
+> > Please comment.
 > 
-> That's different - selinux_set_fscreate_secid() is for internal use by a
-> kernel module that wishes to temporarily assume a particular fscreate
-> SID, whereas selinux_setprocattr() handles userspace writes
-> to /proc/self/attr nodes.  Imposing a permission check here makes no
-> sense.
+> > --- ./kernel/irq/spurious.c.irqlockup	2006-11-09 11:19:10.000000000 +0300
+> > +++ ./kernel/irq/spurious.c	2006-11-10 16:53:38.000000000 +0300
+> > @@ -147,7 +147,11 @@ void note_interrupt(unsigned int irq, st
+> >  	if (unlikely(irqfixup)) {
+> >  		/* Don't punish working computers */
+> >  		if ((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE) {
+> > -			int ok = misrouted_irq(irq);
+> > +			int ok;
+> > +
+> > +			spin_unlock(&desc->lock);
+> > +			ok = misrouted_irq(irq);
+> > +			spin_lock(&desc->lock);
+> 
+> Hi Pavel,
+> 
+> Till -rc5, I was able to boot a kernel with irqpoll option and in -rc6 I 
+> can't. It simply hangs. I suspect it is realted to this change. I have yet
+> to confirm that. But before that one observation.
 > 
 
-Since that discussion last week I have been thinking about this and I 
-have to say I agree with Steve. This should be a kernel only mechanism 
-for impersonating another SID - controlling the setting of process 
-attributes shouldn't be restricted as this will only lead to 
-inconsistencies in those attributes.
+Hi Pavel,
 
-Karl
+If I backout your changes, everything works fine. So it looks like that
+the problem I am facing is because of your patch but I don't have a logical
+explanation yet that why the problem is there. Just realasing a lock
+which is not currently acquired should not hang the system?
+
+Thanks
+Vivek

@@ -1,113 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933986AbWKTHPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933465AbWKTH77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933986AbWKTHPc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 02:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933987AbWKTHPc
+	id S933465AbWKTH77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 02:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933684AbWKTH77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 02:15:32 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:35679 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S933986AbWKTHPb (ORCPT
+	Mon, 20 Nov 2006 02:59:59 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:20770 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S933465AbWKTH76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 02:15:31 -0500
-Date: Mon, 20 Nov 2006 08:15:14 +0100
+	Mon, 20 Nov 2006 02:59:58 -0500
+Date: Mon, 20 Nov 2006 08:59:42 +0100
 From: Jens Axboe <jens.axboe@oracle.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061120071514.GB4077@kernel.dk>
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118184624.GA163@oleg> <20061119210746.GD4427@us.ibm.com>
+To: Jim Schutt <jaschut@sandia.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: splice/vmsplice performance test results
+Message-ID: <20061120075941.GF4077@kernel.dk>
+References: <1163700539.2672.14.camel@sale659.sandia.gov> <20061116202529.GH7164@kernel.dk> <1163784110.8170.8.camel@sale659.sandia.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061119210746.GD4427@us.ibm.com>
+In-Reply-To: <1163784110.8170.8.camel@sale659.sandia.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19 2006, Paul E. McKenney wrote:
-> On Sat, Nov 18, 2006 at 09:46:24PM +0300, Oleg Nesterov wrote:
-> > On 11/17, Paul E. McKenney wrote:
-> > >
-> > > Oleg, any thoughts about Jens's optimization?  He would code something
-> > > like:
-> > >
-> > > 	if (srcu_readers_active(&my_srcu))
-> > > 		synchronize_srcu();
-> > > 	else
-> > > 		smp_mb();
+On Fri, Nov 17 2006, Jim Schutt wrote:
+> On Thu, 2006-11-16 at 21:25 +0100, Jens Axboe wrote:
+> > On Thu, Nov 16 2006, Jim Schutt wrote:
+> > > Hi,
+> > > 
+> 
+> > > My test program can do one of the following:
+> > > 
+> > > send data:
+> > >  A) read() from file into buffer, write() buffer into socket
+> > >  B) mmap() section of file, write() that into socket, munmap()
+> > >  C) splice() from file to pipe, splice() from pipe to socket
+> > > 
+> > > receive data:
+> > >  1) read() from socket into buffer, write() buffer into file
+> > >  2) ftruncate() to extend file, mmap() new extent, read() 
+> > >       from socket into new extent, munmap()
+> > >  3) read() from socket into buffer, vmsplice() buffer to 
+> > >      pipe, splice() pipe to file (using the double-buffer trick)
+> > > 
+> > > Here's the results, using:
+> > >  - 64 KiB buffer, mmap extent, or splice
+> > >  - 1 MiB TCP window
+> > >  - 16 GiB data sent across network
+> > > 
+> > > A) from /dev/zero -> 1) to /dev/null : 857 MB/s (6.86 Gb/s)
+> > > 
+> > > A) from file      -> 1) to /dev/null : 472 MB/s (3.77 Gb/s)
+> > > B) from file      -> 1) to /dev/null : 366 MB/s (2.93 Gb/s)
+> > > C) from file      -> 1) to /dev/null : 854 MB/s (6.83 Gb/s)
+> > > 
+> > > A) from /dev/zero -> 1) to file      : 375 MB/s (3.00 Gb/s)
+> > > A) from /dev/zero -> 2) to file      : 150 MB/s (1.20 Gb/s)
+> > > A) from /dev/zero -> 3) to file      : 286 MB/s (2.29 Gb/s)
+> > > 
+> > > I had (naively) hoped the read/vmsplice/splice combination would 
+> > > run at the same speed I can write a file, i.e. at about 450 MB/s
+> > > on my setup.  Do any of my numbers seem bogus, so I should look 
+> > > harder at my test program?
 > > 
-> > Well, this is clearly racy, no? I am not sure, but may be we can do
-> > 
-> > 	smp_mb();
-> > 	if (srcu_readers_active(&my_srcu))
-> > 		synchronize_srcu();
-> > 
-> > in this case we also need to add 'smp_mb()' into srcu_read_lock() after
-> > 'atomic_inc(&sp->hardluckref)'.
-> > 
-> > > However, he is doing ordered I/O requests rather than protecting data
-> > > structures.
-> > 
-> > Probably this makes a difference, but I don't understand this.
+> > Could be read-ahead playing in here, I'd have to take a closer look at
+> > the generated io patterns to say more about that. Any chance you can
+> > capture iostat or blktrace info for such a run to compare that goes to
+> > the disk?
 > 
-> OK, one hypothesis here...
+> I've attached a file with iostat and vmstat results for the case
+> where I read from a socket and write a file, vs. the case where I
+> read from a socket and use vmsplice/splice to write the file.
+> (Sorry it's not inline - my mailer locks up when I try to
+> include the file.)
 > 
-> 	The I/Os must be somehow explicitly ordered to qualify
-> 	for I/O-barrier separation.  If two independent processes
-> 	issue I/Os concurrently with a third process doing an
-> 	I/O barrier, the I/O barrier is free to separate the
-> 	two concurrent I/Os or not, on its whim.
-> 
-> Jens, is the above correct?  If so, what would the two processes
+> Would you still like blktrace info for these two cases?
 
-That's completely correct, hence my somewhat relaxed approach with SRCU.
-
-> need to do in order to ensure that their I/O was considered to be
-> ordered with respect to the I/O barrier?  Here are some possibilities:
-
-If we consider the barrier a barrier in a certain stream of requests,
-it is the responsibility of the issuer of that barrier to ensure that
-the queueing is ordered. So if two "unrelated" streams of requests with
-barriers hit __make_request() at the same time, we don't go to great
-lengths to ensure who gets there firt.
-
-> 1.	I/O barriers apply only to preceding and following I/Os from
-> 	the process issuing the I/O barrier.
-> 
-> 2.	As for #1 above, but restricted to task rather than process.
-> 
-> 3.	I/O system calls that have completed are ordered by the
-> 	barrier to precede I/O system calls that have not yet
-> 	started, but I/O system calls still in flight could legally
-> 	land on either side of the concurrently executing I/O
-> 	barrier.
-> 
-> 4.	Something else entirely?
-> 
-> Given some restriction like one of the above, it is entirely possible
-> that we don't even need the memory barrier...
-
-3 is the closest. The request queue doesn't really know the scope of the
-barrier, it has to rely on the issuer getting it right. If you have two
-competing processes issuing io and process A relies on process B issuing
-a barrier, they have to synchronize that between them. Normally that is
-not a problem, since that's how the file systems always did io before
-barriers on items that need to be on disk (it was a serialization point
-anyway, it's just a stronger one now).
-
-That said, I think the
-
-        smp_mb();
-        if (srcu_readers_active(sp))
-                synchronize_srcu();
-
-makes the most sense.
+No, I think the iostat data is fine, I don't think the blktrace info
+would give me any more insight on this problem. I'll set up a test to
+reproduce it here, looks like the write out path could be optimized some
+more.
 
 -- 
 Jens Axboe

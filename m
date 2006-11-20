@@ -1,84 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966186AbWKTQ4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966205AbWKTQ6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966186AbWKTQ4K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 11:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966197AbWKTQ4J
+	id S966205AbWKTQ6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 11:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966197AbWKTQ6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 11:56:09 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:38340 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S966198AbWKTQ4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 11:56:08 -0500
-Date: Mon, 20 Nov 2006 17:56:01 +0100
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: avl@logic.at, linux-kernel@vger.kernel.org
-Subject: Re: possible bug in ide-disk.c (2.6.18.2 but also older)
-Message-ID: <20061120165601.GS6851@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at> <20061120152505.5d0ba6c5@localhost.localdomain>
+	Mon, 20 Nov 2006 11:58:12 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:23478 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S966205AbWKTQ6K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 11:58:10 -0500
+Date: Mon, 20 Nov 2006 08:59:23 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Thomas Gleixner <tglx@timesys.com>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, David Miller <davem@davemloft.net>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, manfred@colorfullife.com
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061120165923.GD8033@us.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061117183945.GA367@oleg> <20061118002845.GF2632@us.ibm.com> <20061118184624.GA163@oleg> <20061119210746.GD4427@us.ibm.com> <20061120071514.GB4077@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061120152505.5d0ba6c5@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+In-Reply-To: <20061120071514.GB4077@kernel.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 03:25:05PM +0000, Alan wrote:
-> On Mon, 20 Nov 2006 15:51:48 +0100
-> Andreas Leitgeb <avl@logic.at> wrote:
-> > Since I got not even a beep as answer, I'm trying again
-> > to get this through to someone who cares:
-> Sounds like the Knoppix kernel is built with GPT partition handling and
-> your disk has an odd number of sectors ?
+On Mon, Nov 20, 2006 at 08:15:14AM +0100, Jens Axboe wrote:
+> On Sun, Nov 19 2006, Paul E. McKenney wrote:
+> > On Sat, Nov 18, 2006 at 09:46:24PM +0300, Oleg Nesterov wrote:
+> > > On 11/17, Paul E. McKenney wrote:
+> > > >
+> > > > Oleg, any thoughts about Jens's optimization?  He would code something
+> > > > like:
+> > > >
+> > > > 	if (srcu_readers_active(&my_srcu))
+> > > > 		synchronize_srcu();
+> > > > 	else
+> > > > 		smp_mb();
+> > >
+> > > Well, this is clearly racy, no? I am not sure, but may be we can do
+> > >
+> > > 	smp_mb();
+> > > 	if (srcu_readers_active(&my_srcu))
+> > > 		synchronize_srcu();
+> > >
+> > > in this case we also need to add 'smp_mb()' into srcu_read_lock() after
+> > > 'atomic_inc(&sp->hardluckref)'.
+> > >
+> > > > However, he is doing ordered I/O requests rather than protecting data
+> > > > structures.
+> > >
+> > > Probably this makes a difference, but I don't understand this.
+> >
+> > OK, one hypothesis here...
+> >
+> > 	The I/Os must be somehow explicitly ordered to qualify
+> > 	for I/O-barrier separation.  If two independent processes
+> > 	issue I/Os concurrently with a third process doing an
+> > 	I/O barrier, the I/O barrier is free to separate the
+> > 	two concurrent I/Os or not, on its whim.
+> >
+> > Jens, is the above correct?  If so, what would the two processes
+> 
+> That's completely correct, hence my somewhat relaxed approach with SRCU.
 
-While I used Knoppix to determine the age of the bug, it does also
-appear with a plain vanilla 2.6.18.2 kernel from www.kernel.org.
-The ChangeLog for 2.6.18.3 also doesn't mention ide-disk.
+OK, less scary in that case.  ;-)
 
-I must admit, I don't know about GPT.  My system's bios
-is old enough to not know about EFI, and the partition-scheme
-on that harddisk dates back quite a few years, so it's unlikely
-to be anything than the good ol' MBR.
+> > need to do in order to ensure that their I/O was considered to be
+> > ordered with respect to the I/O barrier?  Here are some possibilities:
+> 
+> If we consider the barrier a barrier in a certain stream of requests,
+> it is the responsibility of the issuer of that barrier to ensure that
+> the queueing is ordered. So if two "unrelated" streams of requests with
+> barriers hit __make_request() at the same time, we don't go to great
+> lengths to ensure who gets there firt.
 
-The original reported number of sectors was an even number.
-After HPA-correction it was an odd number.  I cannot tell
-if the original even number wasn't actually "odd" in the
-sense of "strange". It was, at least, plausible in so far
-as access to the last sector went ok, whereas access to the
-hpa-corrected (with addr++) last sector failed.
+So the "preceding" requests have to have completed their I/O system
+calls?  If this is the case, does this include normal (non-direct/raw)
+writes and asynchronous reads?  My guess is that it would include
+asynchronous I/O, but not buffered writes.
 
-> > The problem is in  idedisk_read_native_max_address()
-> > and equivalently in idedisk_read_native_max_address_ext()
-> > in a line like this (near the end):
-> >   addr++; /* since the return value is (maxlba - 1), we add 1 */
-> > I believe that this is wrong, in so far as it is device-specific.
-> Which part of the standard are you referring to here ?
+> > 1.	I/O barriers apply only to preceding and following I/Os from
+> > 	the process issuing the I/O barrier.
+> >
+> > 2.	As for #1 above, but restricted to task rather than process.
+> >
+> > 3.	I/O system calls that have completed are ordered by the
+> > 	barrier to precede I/O system calls that have not yet
+> > 	started, but I/O system calls still in flight could legally
+> > 	land on either side of the concurrently executing I/O
+> > 	barrier.
+> >
+> > 4.	Something else entirely?
+> >
+> > Given some restriction like one of the above, it is entirely possible
+> > that we don't even need the memory barrier...
+> 
+> 3 is the closest. The request queue doesn't really know the scope of the
+> barrier, it has to rely on the issuer getting it right. If you have two
+> competing processes issuing io and process A relies on process B issuing
+> a barrier, they have to synchronize that between them. Normally that is
+> not a problem, since that's how the file systems always did io before
+> barriers on items that need to be on disk (it was a serialization point
+> anyway, it's just a stronger one now).
 
-I must also admit that I do know nothing about drive hardware specs.
+So something like a user-level mutex or atomic instructions must be used
+by the tasks doing the pre-barrier I/Os to announce that these I/Os have
+been started in the kernel.
 
-All I know is, that the current code works for some(most?) disks,
-and triggers turning off dma on some other drives and, that changing 
-"addr++;" to "addr+=drive->sect0;"  (or removing the line completely)
-solved the problem for my particular drive.
+> That said, I think the
+> 
+>         smp_mb();
+>         if (srcu_readers_active(sp))
+>                 synchronize_srcu();
+> 
+> makes the most sense.
 
-I hope that someone who understands the ide-driver better than I do,
-would evaluate my proposed solution, and either confirm the bug,
-or say that this affects just a few broken drives, and that these
-don't justify any fixing of the driver.
+If the user-level tasks/threads/processes must explicitly synchronize,
+and if the pre-barrier I/O-initation syscalls have to have completed,
+then I am not sure that the smp_mb() is needed.  Seems like the queuing
+mechanisms in the syscall and the user-level synchronization would have
+supplied the needed memory barriers.  Or are you using some extremely
+lightweight user-level synchronization?
 
-I could live with either, and I'm glad when this issue is at least
-taken care of.  If this has been discussed already in the past, then
-please give me a pointer, since my googling failed to give me anything
-but archives of other people complaining about the same problem.
-
-For the while being, I currently patch out the hpa-detection entirely
-before compiling a new kernel for that particular machine, until either
-the bug is corrected for me (and others with an equal harddisk), or
-until I replace my affected 40GB disk with a newer/larger one for
-which the "addr++" then again might happen to be the right thing.
-
-Alternatively, a kernel-option to manually disable hpa-checking
-would be a good step to solve the problem even for drives like mine.
-
+							Thanx, Paul

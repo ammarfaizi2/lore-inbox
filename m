@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbWKTXgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWKTXis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030535AbWKTXgW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 18:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030536AbWKTXgW
+	id S1030411AbWKTXis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 18:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966880AbWKTXis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 18:36:22 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:55533 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030535AbWKTXgV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 18:36:21 -0500
-Date: Tue, 21 Nov 2006 00:36:10 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Phil Oester <kernel@linuxace.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: make menuconfig regression in 2.6.19-rc
-In-Reply-To: <20061114003752.GA15295@linuxace.com>
-Message-ID: <Pine.LNX.4.64.0611210035150.6243@scrub.home>
-References: <20061114003752.GA15295@linuxace.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Nov 2006 18:38:48 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:52571 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S966869AbWKTXir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 18:38:47 -0500
+Date: Mon, 20 Nov 2006 15:35:28 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Patrick Caulfield <pcaulfie@redhat.com>, cluster-devel@redhat.com,
+       linux-kernel@vger.kernel.org, David Teigland <teigland@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.19-rc5-mm2] fs/dlm: fix recursive dependency in
+ Kconfig
+Message-Id: <20061120153528.5ace6089.randy.dunlap@oracle.com>
+In-Reply-To: <20061120174509.GW31879@stusta.de>
+References: <tkrat.c2d67cf7278af0e7@s5r6.in-berlin.de>
+	<456179F6.1060501@redhat.com>
+	<45619547.5070301@s5r6.in-berlin.de>
+	<20061120174509.GW31879@stusta.de>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 20 Nov 2006 18:45:09 +0100 Adrian Bunk wrote:
 
-On Mon, 13 Nov 2006, Phil Oester wrote:
-
-> In commit 350b5b76384e77bcc58217f00455fdbec5cac594, the default menuconfig
-> color scheme was changed to bluetitle.  This breaks the highlighting
-> of the selected item for me with TERM=vt100.  The only way I can see
-> which item is selected is via:
+> On Mon, Nov 20, 2006 at 12:45:11PM +0100, Stefan Richter wrote:
+> >...
+> > Anyway. Whatever you chose to do (or already have chosen to do) in
+> > fs/dlm/Kconfig, keep in mind that the "select" keyword is presently only
+> > poorly supported by the various .config generators and that it forces UI
+> > considerations into the Kconfig files which should better not be
+> > overloaded with UI issues. Or in other words: It is rather easy to write
+> > correct and well-supported Kconfig files if you stick with "depend on",
+> > but you get into trouble fast with generous usage of "select".
 > 
->     make MENUCONFIG_COLOR=mono menuconfig
-> 
-> Which restores the pre-2.6.19 white on black highlighting.  
+> For variables like NET or INET it doesn't matter in practice whether you 
+> use "select" or "depends on". But for other variables it makes it really 
+> hard for users to enable an option if you use "depends on".
 
-Could you try the patch below?
-
-bye, Roman
+Doing a "select" NET or INET enables a ton of code, which IMO
+should be done explicitly, not covertly by a select.
 
 ---
- scripts/kconfig/lxdialog/util.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
-
-Index: linux-2.6-mm/scripts/kconfig/lxdialog/util.c
-===================================================================
---- linux-2.6-mm.orig/scripts/kconfig/lxdialog/util.c
-+++ linux-2.6-mm/scripts/kconfig/lxdialog/util.c
-@@ -221,16 +221,14 @@ static void init_dialog_colors(void)
-  */
- static void color_setup(const char *theme)
- {
--	if (set_theme(theme)) {
--		if (has_colors()) {	/* Terminal supports color? */
--			start_color();
--			init_dialog_colors();
--		}
--	}
--	else
--	{
-+	int use_color;
-+
-+	use_color = set_theme(theme);
-+	if (use_color && has_colors()) {
-+		start_color();
-+		init_dialog_colors();
-+	} else
- 		set_mono_theme();
--	}
- }
- 
- /*
+~Randy

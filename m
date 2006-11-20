@@ -1,95 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966058AbWKTQWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966112AbWKTQ0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966058AbWKTQWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 11:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966127AbWKTQWo
+	id S966112AbWKTQ0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 11:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966144AbWKTQ0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 11:22:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27304 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S966058AbWKTQWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 11:22:42 -0500
-Message-ID: <4561D59F.5020206@redhat.com>
-Date: Mon, 20 Nov 2006 11:19:43 -0500
-From: Chris Snook <csnook@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>
-CC: Jay Cliburn <jacliburn@bellsouth.net>, jeff@garzik.org,
-       shemminger@osdl.org, romieu@fr.zoreil.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] atl1: Build files for Attansic L1 driver
-References: <20061119202915.GB29736@osprey.hogchain.net> <20061119152432.a85d4166.randy.dunlap@oracle.com> <456145DA.804@redhat.com> <4561CCA6.8080209@oracle.com>
-In-Reply-To: <4561CCA6.8080209@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Nov 2006 11:26:10 -0500
+Received: from h155.mvista.com ([63.81.120.158]:60947 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S966112AbWKTQ0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 11:26:08 -0500
+Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
+	type IRQ handlers
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ingo Molnar <mingo@elte.hu>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+In-Reply-To: <20061120100144.GA27812@elte.hu>
+References: <200611192243.34850.sshtylyov@ru.mvista.com>
+	 <1163966437.5826.99.camel@localhost.localdomain>
+	 <20061119200650.GA22949@elte.hu>
+	 <1163967590.5826.104.camel@localhost.localdomain>
+	 <20061119202348.GA27649@elte.hu>
+	 <1163985380.5826.139.camel@localhost.localdomain>
+	 <20061120100144.GA27812@elte.hu>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 08:25:54 -0800
+Message-Id: <1164039954.3028.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> Chris Snook wrote:
->> Randy Dunlap wrote:
->>> On Sun, 19 Nov 2006 14:29:15 -0600 Jay Cliburn wrote:
->>>
->>>> From: Jay Cliburn <jacliburn@bellsouth.net>
->>>>
->>>> This patch contains the build files for the Attansic L1 gigabit 
->>>> ethernet
->>>> adapter driver.
->>>>
->>>> Signed-off-by: Jay Cliburn <jacliburn@bellsouth.net>
->>>> ---
->>>>
->>>>  Kconfig       |   12 ++++++++++++
->>>>  Makefile      |    1 +
->>>>  atl1/Makefile |   30 ++++++++++++++++++++++++++++++
->>>>  3 files changed, 43 insertions(+)
->>>>
->>>> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
->>>> index 6e863aa..f503d10 100644
->>>> --- a/drivers/net/Kconfig
->>>> +++ b/drivers/net/Kconfig
->>>> @@ -2329,6 +2329,18 @@ config QLA3XXX
->>>>        To compile this driver as a module, choose M here: the module
->>>>        will be called qla3xxx.
->>>>  
->>>> +config ATL1
->>>> +    tristate "Attansic(R) L1 Gigabit Ethernet support (EXPERIMENTAL)"
->>>> +    depends on NET_PCI && PCI && EXPERIMENTAL
->>>> +    select CRC32
->>>> +    select MII
->>>> +    ---help---
->>>> +      This driver supports Attansic L1 gigabit ethernet adapter.
->>>> +
->>>> +      To compile this driver as a module, choose M here.  The module
->>>> +      will be called atl1.
->>>> +
->>>> +
->>>>  endmenu
->>>
->>> One problem here is that MII depends on NET_ETHERNET, which is
->>> 10/100 ethernet, which may not be enabled if someone has only
->>> gigabit ethernet.  :)
->>
->> I'm actually quite inclined to rip out all MII support entirely. 
->> There's a lot of code in this driver that needs cleaning up 
->> cosmetically, and removing deprecated features would certainly speed 
->> things up.  What do you think?
+On Mon, 2006-11-20 at 11:01 +0100, Ingo Molnar wrote:
+
+> correct. It's basically a different type of 'flow' of handling an 
+> interrupt. It's a host-side genirq-level detail that should have no 
+> irqchip level impact at all.
 > 
-> All of that sounds like a good idea to me.
-> I didn't realize that MII support is deprecated.  Do you mean
-> that it's deprecated for gigabit?
+> The only detail is that sometimes a threaded flow /cannot/ be 
+> implemented if the irqchip lacks certain methods. (such as a 
+> mask/unmask)
+> 
+> i.e. Sergei's patch tweaking the irqchip data structures is wrong - the 
+> correct approach is what i do for i386/x86_64: install a different 
+> "threaded" flow handler. I prefer this to tweaking the existing 
+> 'fasteoi' handler, to make the act of supporting a threaded flow design 
+> explicit. (and to allow a mixed threaded/non-threaded flow setup) I 
+> didnt take Daniel's prior patch for that reason: he tried to tweak the 
+> fasteoi flow handler - which is an almost good approach but not good 
+> enough :-)
 > 
 
-To be precise, mii-tool is deprecated, in favor of ethtool.  There are 
-other things that use mii capabilities.  Bonding uses miimon, but the 
-arp monitor is an alternative, and I don't think there's much overlap 
-between workloads where people care about bonding and workloads people 
-run on an Asus M2V motherboard, so I'm not sure there's much 
-justification to bother supporting the feature, except completeness. 
-Thus my question to netdev:
+It makes porting to powerpc for instance harder because some controllers
+have ack(), and some don't.. Some have mask(), and some don't.. So you
+end up with what Sergei is doing which is flat out make ack == eoi ..
+Where you have multiple irq chip types each one really needs an
+individual evaluation ..
 
-Would anyone care if we removed MII support from an experimental driver 
-for a chip that is only known to ship on non-OEM desktop boards?
+I don't really agree with your method since it increase the porting
+effort, and I don't see a gain from it.. In fact the changes that you
+make seem like it would be more difficult to support a simple reversal
+from a thread to an interrupt context handler, since your permanently
+changing the "flow handler" , as you called it, no matter what the
+context is. So the person using this code will have to investigate this
+new flow handler, which will result is a very anti-climactic ending and
+lots of useless work since it's really making ack == eoi (at least for
+powerpc). 
 
-	-- Chris
+Daniel
+

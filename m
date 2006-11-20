@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966112AbWKTQ0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966145AbWKTQ0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966112AbWKTQ0K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 11:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966144AbWKTQ0K
+	id S966145AbWKTQ0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 11:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966148AbWKTQ0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 11:26:10 -0500
-Received: from h155.mvista.com ([63.81.120.158]:60947 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S966112AbWKTQ0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 11:26:08 -0500
-Subject: Re: [PATCH] 2.6.18-rt7: PowerPC: fix breakage in threaded fasteoi
-	type IRQ handlers
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ingo Molnar <mingo@elte.hu>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, dwalker@mvista.com
-In-Reply-To: <20061120100144.GA27812@elte.hu>
-References: <200611192243.34850.sshtylyov@ru.mvista.com>
-	 <1163966437.5826.99.camel@localhost.localdomain>
-	 <20061119200650.GA22949@elte.hu>
-	 <1163967590.5826.104.camel@localhost.localdomain>
-	 <20061119202348.GA27649@elte.hu>
-	 <1163985380.5826.139.camel@localhost.localdomain>
-	 <20061120100144.GA27812@elte.hu>
-Content-Type: text/plain
-Date: Mon, 20 Nov 2006 08:25:54 -0800
-Message-Id: <1164039954.3028.19.camel@localhost.localdomain>
+	Mon, 20 Nov 2006 11:26:25 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:12423 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S966146AbWKTQ0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 11:26:24 -0500
+Date: Mon, 20 Nov 2006 11:25:55 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] i386: Correct documentation for bzImage protocol v2.05
+Message-ID: <20061120162555.GI11450@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-20 at 11:01 +0100, Ingo Molnar wrote:
+o Correct the documentation for bzImage protocol extension due to relocatable
+  bzImage.
 
-> correct. It's basically a different type of 'flow' of handling an 
-> interrupt. It's a host-side genirq-level detail that should have no 
-> irqchip level impact at all.
-> 
-> The only detail is that sometimes a threaded flow /cannot/ be 
-> implemented if the irqchip lacks certain methods. (such as a 
-> mask/unmask)
-> 
-> i.e. Sergei's patch tweaking the irqchip data structures is wrong - the 
-> correct approach is what i do for i386/x86_64: install a different 
-> "threaded" flow handler. I prefer this to tweaking the existing 
-> 'fasteoi' handler, to make the act of supporting a threaded flow design 
-> explicit. (and to allow a mixed threaded/non-threaded flow setup) I 
-> didnt take Daniel's prior patch for that reason: he tried to tweak the 
-> fasteoi flow handler - which is an almost good approach but not good 
-> enough :-)
-> 
+o Last time forgot to copy the patch to mailing list. Hence sending it
+  again.
 
-It makes porting to powerpc for instance harder because some controllers
-have ack(), and some don't.. Some have mask(), and some don't.. So you
-end up with what Sergei is doing which is flat out make ack == eoi ..
-Where you have multiple irq chip types each one really needs an
-individual evaluation ..
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
 
-I don't really agree with your method since it increase the porting
-effort, and I don't see a gain from it.. In fact the changes that you
-make seem like it would be more difficult to support a simple reversal
-from a thread to an interrupt context handler, since your permanently
-changing the "flow handler" , as you called it, no matter what the
-context is. So the person using this code will have to investigate this
-new flow handler, which will result is a very anti-climactic ending and
-lots of useless work since it's really making ack == eoi (at least for
-powerpc). 
+ linux-2.6.19-rc5-mm2-vivek/Documentation/i386/boot.txt |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Daniel
+diff -puN Documentation/i386/boot.txt~i386-correct-documentation-for-bzImage-protocol-extension Documentation/i386/boot.txt
+--- linux-2.6.19-rc5-mm2/Documentation/i386/boot.txt~i386-correct-documentation-for-bzImage-protocol-extension	2006-11-17 20:40:33.000000000 -0500
++++ linux-2.6.19-rc5-mm2-vivek/Documentation/i386/boot.txt	2006-11-17 20:41:38.000000000 -0500
+@@ -2,7 +2,7 @@
+ 		     ----------------------------
+ 
+ 		    H. Peter Anvin <hpa@zytor.com>
+-			Last update 2005-09-02
++			Last update 2006-11-17
+ 
+ On the i386 platform, the Linux kernel uses a rather complicated boot
+ convention.  This has evolved partially due to historical aspects, as
+@@ -131,8 +131,8 @@ Offset	Proto	Name		Meaning
+ 0226/2	N/A	pad1		Unused
+ 0228/4	2.02+	cmd_line_ptr	32-bit pointer to the kernel command line
+ 022C/4	2.03+	initrd_addr_max	Highest legal initrd address
+-0230/4	2.04+	kernel_alignment Physical addr alignment required for kernel
+-0234/1	2.04+	relocatable_kernel Whether kernel is relocatable or not
++0230/4	2.05+	kernel_alignment Physical addr alignment required for kernel
++0234/1	2.05+	relocatable_kernel Whether kernel is relocatable or not
+ 
+ (1) For backwards compatibility, if the setup_sects field contains 0, the
+     real value is 4.
+_
 
+----- End forwarded message -----

@@ -1,71 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934021AbWKTI5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933932AbWKTJIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934021AbWKTI5H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 03:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934022AbWKTI5H
+	id S933932AbWKTJIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 04:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934015AbWKTJIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 03:57:07 -0500
-Received: from nz-out-0102.google.com ([64.233.162.193]:61149 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S934021AbWKTI5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 03:57:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SbC+vQL3FyvVLJ+XjvzccrKu/ozhDeXTWlV0rzXnxdv22XPFPWf1AAGNR441PV/+btbvA/0O+Qm1KJTa7Ly3eEWXAYcIztRPEVHZsb5hIwQsmgn7dSD8Xvqxh7cxZ1ZTkQ+aMB3ye71WrlcdMk4LE06U9fYVulZq11/o1wyh/YA=
-Message-ID: <ce55079f0611200056k19ab8b92p4aad189e6884e75@mail.gmail.com>
-Date: Mon, 20 Nov 2006 11:56:59 +0300
-From: Vladimir <vovan888@gmail.com>
-To: "Tony Lindgren" <tony@atomide.com>
-Subject: Re: Basic support for siemens sx1
-Cc: "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061118010022.GQ6072@atomide.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 20 Nov 2006 04:08:18 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:49563 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S933932AbWKTJIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 04:08:16 -0500
+Subject: Re: 2.6.19-rc5: lockdep warnings starting irattach
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Andrey Borzenkov <arvidjaar@mail.ru>, Andrew Morton <akpm@osdl.org>
+Cc: samuel@sortiz.org, irda-users@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       arjan <arjan@infradead.org>
+In-Reply-To: <200611181612.36008.arvidjaar@mail.ru>
+References: <200611181612.36008.arvidjaar@mail.ru>
+Content-Type: text/plain
+Date: Mon, 20 Nov 2006 10:04:46 +0100
+Message-Id: <1164013486.5968.133.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061116170209.GA5544@elf.ucw.cz>
-	 <20061117175431.GD6072@atomide.com> <20061118003816.GA9187@elf.ucw.cz>
-	 <20061118010022.GQ6072@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/11/18, Tony Lindgren <tony@atomide.com>:
-> * Pavel Machek <pavel@ucw.cz> [061118 02:38]:
-> > Hi!
-> >
-> > > * Pavel Machek <pavel@ucw.cz> [061116 19:04]:
-> > > > From: Vladimir Ananiev <vovan888@gmail.com>
-> > > >
-> > > > This adds basic support for Siemens SX1. More patches are available,
-> > > > with video driver, mixer, and serial ports working. That is enough to
-> > > > do gsm calls with right userland.
-> > >
-> > > Cool.
-> >
-> > :-)
-> >
-> > > > It would be nice to get basic patches merged to the -omap tree... do
-> > > > they look ok?
-> > >
-> > > Yeah, looks good, except for the i2c part. Is Sofia really a TI PCF8574
-> > > i2c chip? In that case it could use the gpioexpander code.
-> > >
-> > > Anyways, let's plan on pushing this to linux-omap tree, then do the
-> > > changes for gpioexpander, and send that upstream too.
-> >
-> > Works for me. I'll check with google to find out what sofia really is.
->
-> OK, I've pushed to linux-omap after separating USB and MMC code into
-> separate patches. Also did a bit more tabifying on the code.
->
-> BTW, PCF8574 .pdf is available on TI's site.
->
-> Regards,
->
-> Tony
->
+On Sat, 2006-11-18 at 16:12 +0300, Andrey Borzenkov wrote:
 
-Sofia is manufactured by Dialog and i didnt find any docs about it...
-And it is completely different from PCF8574, it is power controller IC.
+> =============================================
+> [ INFO: possible recursive locking detected ]
+> 2.6.19-rc5-2avb #2
+> - ---------------------------------------------
+> pppd/26425 is trying to acquire lock:
+>  (&hashbin->hb_spinlock){....}, at: [<dfdea87a>] irlmp_slsap_inuse+0x5a/0x170 
+> [irda]
+> 
+> but task is already holding lock:
+>  (&hashbin->hb_spinlock){....}, at: [<dfdea857>] irlmp_slsap_inuse+0x37/0x170 
+> [irda]
+> 
+> other info that might help us debug this:
+> 1 lock held by pppd/26425:
+>  #0:  (&hashbin->hb_spinlock){....}, at: [<dfdea857>] 
+> irlmp_slsap_inuse+0x37/0x170 [irda]
+> 
+> stack backtrace:
+>  [<c010413c>] dump_trace+0x1cc/0x200
+>  [<c010418a>] show_trace_log_lvl+0x1a/0x30
+>  [<c01047f2>] show_trace+0x12/0x20
+>  [<c01048c9>] dump_stack+0x19/0x20
+>  [<c01346ca>] __lock_acquire+0x8fa/0xc20
+>  [<c0134d2d>] lock_acquire+0x5d/0x80
+>  [<c02a851c>] _spin_lock+0x2c/0x40
+>  [<dfdea87a>] irlmp_slsap_inuse+0x5a/0x170 [irda]
+>  [<dfdebab2>] irlmp_open_lsap+0x62/0x180 [irda]
+>  [<dfdf35d1>] irttp_open_tsap+0x181/0x230 [irda]
+>  [<dfdc0c3d>] ircomm_open_tsap+0x5d/0xa0 [ircomm]
+>  [<dfdc05d8>] ircomm_open+0xb8/0xd0 [ircomm]
+>  [<dfdd0477>] ircomm_tty_open+0x4f7/0x570 [ircomm_tty]
+>  [<c020bbe4>] tty_open+0x174/0x340
+>  [<c016bd69>] chrdev_open+0x89/0x170
+>  [<c0167bd6>] __dentry_open+0xa6/0x1d0
+>  [<c0167da5>] nameidata_to_filp+0x35/0x40
+>  [<c0167df9>] do_filp_open+0x49/0x50
+>  [<c0167e47>] do_sys_open+0x47/0xd0
+>  [<c0167f0c>] sys_open+0x1c/0x20
+>  [<c010307d>] sysenter_past_esp+0x56/0x8d
+>  [<b7f86410>] 0xb7f86410
+>  =======================
+
+The comment at the nesting lock says:
+
+	/* Careful for priority inversions here !
+	 * irlmp->links is never taken while another IrDA
+	 * spinlock is held, so we are safe. Jean II */
+
+So, under the assumption the author was right, it just needs a lockdep
+annotation.
+
+(depends on patches in -mm for spin_lock_irqsave_nested())
+
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ net/irda/irlmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6-mm/net/irda/irlmp.c
+===================================================================
+--- linux-2.6-mm.orig/net/irda/irlmp.c	2006-11-20 09:54:50.000000000 +0100
++++ linux-2.6-mm/net/irda/irlmp.c	2006-11-20 09:57:39.000000000 +0100
+@@ -1678,7 +1678,7 @@ static int irlmp_slsap_inuse(__u8 slsap_
+ 	 *  every IrLAP connection and check every LSAP associated with each
+ 	 *  the connection.
+ 	 */
+-	spin_lock_irqsave(&irlmp->links->hb_spinlock, flags);
++	spin_lock_irqsave_nested(&irlmp->links->hb_spinlock, flags, 1);
+ 	lap = (struct lap_cb *) hashbin_get_first(irlmp->links);
+ 	while (lap != NULL) {
+ 		IRDA_ASSERT(lap->magic == LMP_LAP_MAGIC, goto errlap;);
+
+

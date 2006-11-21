@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031216AbWKUQtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031183AbWKUQsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031216AbWKUQtI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 11:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031214AbWKUQtI
+	id S1031183AbWKUQsA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031212AbWKUQr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 11:49:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56006 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1031199AbWKUQtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 11:49:07 -0500
-Date: Tue, 21 Nov 2006 11:46:44 -0500
-From: Andy Gospodarek <andy@greyhouse.net>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: fubar@us.ibm.com, ctindel@users.sourceforge.net
-Subject: [PATCH 2.6.19] bonding: incorrect bonding state reported via ioctl
-Message-ID: <20061121164643.GA2539@gospo.rdu.redhat.com>
-Mime-Version: 1.0
+	Tue, 21 Nov 2006 11:47:59 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:10847 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1031183AbWKUQr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:47:58 -0500
+To: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
+Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openib-general@openib.org, raisch@de.ibm.com
+Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address to determine pending work requests
+X-Message-Flag: Warning: May contain useful information
+References: <200611202354.13030.hnguyen@linux.vnet.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 21 Nov 2006 08:47:52 -0800
+In-Reply-To: <200611202354.13030.hnguyen@linux.vnet.ibm.com> (Hoang-Nam Nguyen's message of "Mon, 20 Nov 2006 23:54:12 +0100")
+Message-ID: <adaslgcg30n.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+X-OriginalArrivalTime: 21 Nov 2006 16:47:53.0540 (UTC) FILETIME=[C9CA2840:01C70D8C]
+Authentication-Results: sj-dkim-5; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim5002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Umm, it's really late to merge things for 2.6.19.  How severe is this
+bug?  Why has it not been found until now if it causing crashes?
 
-This is a small fix-up to finish out the work done by Jay Vosburgh to
-add carrier-state support for bonding devices.  The output in
-/proc/net/bonding/bondX was correct, but when collecting the same info
-via an iotcl it could still be incorrect.
-
-Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
----
-
- bond_main.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3547,7 +3547,7 @@ static int bond_do_ioctl(struct net_devi
- 			mii->val_out = 0;
- 			read_lock_bh(&bond->lock);
- 			read_lock(&bond->curr_slave_lock);
--			if (bond->curr_active_slave) {
-+			if (netif_carrier_ok(bond->dev)) {
- 				mii->val_out = BMSR_LSTATUS;
- 			}
- 			read_unlock(&bond->curr_slave_lock);
+ - R.

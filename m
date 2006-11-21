@@ -1,128 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756767AbWKUWXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031223AbWKUWfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756767AbWKUWXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756774AbWKUWXA
+	id S1031223AbWKUWfn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031241AbWKUWfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:23:00 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36062 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1756767AbWKUWW7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:22:59 -0500
-Date: Tue, 21 Nov 2006 14:18:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-cc: Adrian Bunk <bunk@stusta.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       Pavel Emelianov <xemul@openvz.org>, mingo@redhat.com, dev@sw.ru
-Subject: Re: 2.6.19-rc6: known regressions (v4)
-In-Reply-To: <20061121213335.GB30010@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
- <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com>
+	Tue, 21 Nov 2006 17:35:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:47004 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1031223AbWKUWfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 17:35:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=ggDDlKq5OVwnfywnTtogPsTgE2lYPS7PO2XTL5VEk1eV5l+vS5s29dnigSJms06Lqwmk0h+18uJVRYmTouMMlWQZpnnF8n9MrLnkd3HoOCmPXZRshnyFNC3K3jqoBKKTXG+vwWcPK18pvJjQp90t+taXz9NYM/QA2gJGEyLCLbw=
+Message-ID: <45637F7E.80909@gmail.com>
+Date: Tue, 21 Nov 2006 23:36:46 +0100
+From: jan sonnek <xsonnek@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jketreno@linux.intel.com
+CC: linux-kernel@vger.kernel.org
+Subject: Wifi driver ipw3945 disappear connecting with access point 
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, how does the pathes for driver looks like? My bug is.
+
+In my notebook asus, I use wifi card ipw3945 and I have installed driver version
+ipw3945-linux-1.1.0, downloaded from intel home page. I use Fedora core 6 and I
 
 
-On Tue, 21 Nov 2006, Vivek Goyal wrote:
-
-> On Tue, Nov 21, 2006 at 10:24:24PM +0100, Adrian Bunk wrote:
-> > This email lists some known regressions in 2.6.19-rc6 compared to 2.6.18
-> > that are not yet fixed in Linus' tree.
-> > 
-> > If you find your name in the Cc header, you are either submitter of one
-> > of the bugs, maintainer of an affectected subsystem or driver, a patch
-> > of you caused a breakage or I'm considering you in any other way possibly
-> > involved with one or more of these issues.
-> > 
-> > Due to the huge amount of recipients, please trim the Cc when answering.
-> > 
-> > 
-> > Subject    : kernel hangs when booting with irqpoll
-> > References : http://lkml.org/lkml/2006/11/20/233
-> > Submitter  : Vivek Goyal <vgoyal@in.ibm.com>
-> > Caused-By  : Pavel Emelianov <xemul@openvz.org>
-> >              commit f72fa707604c015a6625e80f269506032d5430dc
-> > Handled-By : Vivek Goyal <vgoyal@in.ibm.com>
-> > Status     : problem is being debugged
-> > 
-> 
-> Adrian,
-> 
-> Pavel already provided a fix for this issue.
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116409933100117&w=2
-
-I really think this is wrong.
-
-The original patch was wrong, and the _real_ problem is in __do_IRQ() that 
-got the desc->lock too early.
-
-I _think_ the correct fix is to simply revert the broken commit, and fix 
-the _one_ place that called "misnote_interrupt()" with the lock held.
-
-Something like this..
-
-I also think that the real fix will be to move the whole
-
-	if (!noirqdebug)
-		note_interrupt(irq, desc, action_ret);
+have also installed ieee80211-1.2.15. I connect to acces point and when I begin
+to downloading some file or sometimes my connection disapper and in a one/two
+seccond I connected it again. Here is 3 iwconfig status before signal disapper
 
 
-into handle_IRQ_event itself, since every caller (except for 
-"misrouted_irq()" itself, and that should probably be done separately) 
-should always do it. Right now we have a lot of people that just do
+and after, the Invalid misc is increasing: 
 
-	action_ret = handle_IRQ_event(irq, action);
-	if (!noirqdebug)
-		note_interrupt(irq, desc, action_ret);
+eth1      unassociated  ESSID:off/any  
+          Mode:Managed  Frequency=2.442 GHz  Access Point: Not-Associated   
+          Bit Rate:0 kb/s   Tx-Power:16 dBm   
 
-explicitly.
 
-The only thing that keeps us from doing that is that we don't pass in 
-"desc", but we should just do that.
+          Retry limit:15   RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:off
+          Link Quality:0  Signal level:0  Noise level:0
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
 
-But in the meantime, this appears to be the minimal fix. Can people please 
-test and verify?
 
-		Linus
+          Tx excessive retries:0  Invalid misc:3358   Missed beacon:0
 
----
-diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
-index 42aa6f1..a681912 100644
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -231,10 +231,10 @@ fastcall unsigned int __do_IRQ(unsigned
- 		spin_unlock(&desc->lock);
- 
- 		action_ret = handle_IRQ_event(irq, action);
--
--		spin_lock(&desc->lock);
- 		if (!noirqdebug)
- 			note_interrupt(irq, desc, action_ret);
-+
-+		spin_lock(&desc->lock);
- 		if (likely(!(desc->status & IRQ_PENDING)))
- 			break;
- 		desc->status &= ~IRQ_PENDING;
-diff --git a/kernel/irq/spurious.c b/kernel/irq/spurious.c
-index 9c7e2e4..543ea2e 100644
---- a/kernel/irq/spurious.c
-+++ b/kernel/irq/spurious.c
-@@ -147,11 +147,7 @@ void note_interrupt(unsigned int irq, st
- 	if (unlikely(irqfixup)) {
- 		/* Don't punish working computers */
- 		if ((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE) {
--			int ok;
--
--			spin_unlock(&desc->lock);
--			ok = misrouted_irq(irq);
--			spin_lock(&desc->lock);
-+			int ok = misrouted_irq(irq);
- 			if (action_ret == IRQ_NONE)
- 				desc->irqs_unhandled -= ok;
- 		}
+sit0      no wireless extensions.
+
+[root@wired-198 xsonnek]# iwconfig 
+lo        no wireless extensions.
+
+eth0      no wireless extensions.
+
+
+
+eth1      IEEE 802.11b  ESSID:"wlan_fi"  
+          Mode:Managed  Frequency:2.442 GHz  Access Point: 00:02:2D:1B:43:13   
+          Bit Rate:11 Mb/s   Tx-Power:15 dBm   
+          Retry limit:15   RTS thr:off   Fragment thr:off
+
+
+          Encryption key:off
+          Power Management:off
+          Link Quality=77/100  Signal level=-57 dBm  Noise level=-58 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:3375   Missed beacon:0
+
+
+
+sit0      no wireless extensions.
+
+[root@wired-198 xsonnek]# iwconfig 
+lo        no wireless extensions.
+
+eth0      no wireless extensions.
+
+eth1      IEEE 802.11b  ESSID:"wlan_fi"  
+
+
+          Mode:Managed  Frequency:2.442 GHz  Access Point: 00:02:2D:1B:43:13   
+          Bit Rate:11 Mb/s   Tx-Power:15 dBm   
+          Retry limit:15   RTS thr:off   Fragment thr:off
+          Encryption key:off
+
+
+          Power Management:off
+          Link Quality=77/100  Signal level=-57 dBm  Noise level=-58 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:3382   Misse
+
+
+
+
+Many Thanks, Jan Sonnek
+

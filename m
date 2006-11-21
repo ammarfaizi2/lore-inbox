@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031176AbWKUQqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031216AbWKUQtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031176AbWKUQqx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 11:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031183AbWKUQqx
+	id S1031216AbWKUQtI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031214AbWKUQtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 11:46:53 -0500
-Received: from mail.suse.de ([195.135.220.2]:40630 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1031176AbWKUQqw (ORCPT
+	Tue, 21 Nov 2006 11:49:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56006 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1031199AbWKUQtH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 11:46:52 -0500
-From: Andi Kleen <ak@suse.de>
-To: Larry Finger <Larry.Finger@lwfinger.net>
-Subject: Re: Problem with DMA on x86_64 with 3 GB RAM
-Date: Tue, 21 Nov 2006 17:46:39 +0100
-User-Agent: KMail/1.9.5
-Cc: Ray Lee <ray-lk@madrabbit.org>, linux-kernel@vger.kernel.org
-References: <455B63EC.8070704@madrabbit.org> <p73psbhay8n.fsf@bingen.suse.de> <45632B30.9090506@lwfinger.net>
-In-Reply-To: <45632B30.9090506@lwfinger.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Nov 2006 11:49:07 -0500
+Date: Tue, 21 Nov 2006 11:46:44 -0500
+From: Andy Gospodarek <andy@greyhouse.net>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: fubar@us.ibm.com, ctindel@users.sourceforge.net
+Subject: [PATCH 2.6.19] bonding: incorrect bonding state reported via ioctl
+Message-ID: <20061121164643.GA2539@gospo.rdu.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611211746.39173.ak@suse.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Shouldn't this problem be mentioned somewhere in the documentation, or did I miss something?
+This is a small fix-up to finish out the work done by Jay Vosburgh to
+add carrier-state support for bonding devices.  The output in
+/proc/net/bonding/bondX was correct, but when collecting the same info
+via an iotcl it could still be incorrect.
 
-Possibly, but devices that cannot address at least 4GB are normally
-categorized as "hardware bugs" (or less polite descriptions) and those don't 
-tend to get much airtime in documentation.
+Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+---
 
--Andi
+ bond_main.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3547,7 +3547,7 @@ static int bond_do_ioctl(struct net_devi
+ 			mii->val_out = 0;
+ 			read_lock_bh(&bond->lock);
+ 			read_lock(&bond->curr_slave_lock);
+-			if (bond->curr_active_slave) {
++			if (netif_carrier_ok(bond->dev)) {
+ 				mii->val_out = BMSR_LSTATUS;
+ 			}
+ 			read_unlock(&bond->curr_slave_lock);

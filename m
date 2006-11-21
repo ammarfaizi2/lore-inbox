@@ -1,81 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbWKTXsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030498AbWKUACJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030538AbWKTXsM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 18:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030542AbWKTXsM
+	id S1030498AbWKUACJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 19:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966882AbWKUACJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 18:48:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40676 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030538AbWKTXsL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 18:48:11 -0500
-Date: Mon, 20 Nov 2006 18:45:35 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Jan Beulich <jbeulich@novell.com>,
-       Metathronius Galabant <m.galabant@googlemail.com>,
-       Michael Buesch <mb@bu3sch.de>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 46/61] fix Intel RNG detection
-Message-ID: <20061120234535.GD17736@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>,
-	Chris Wedgwood <reviews@ml.cw.f00f.org>,
-	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-	Jan Beulich <jbeulich@novell.com>,
-	Metathronius Galabant <m.galabant@googlemail.com>,
-	Michael Buesch <mb@bu3sch.de>, Greg Kroah-Hartman <gregkh@suse.de>
-References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org>
-Mime-Version: 1.0
+	Mon, 20 Nov 2006 19:02:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31246 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S966886AbWKUACI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 19:02:08 -0500
+Date: Tue, 21 Nov 2006 01:02:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.33-rc1
+Message-ID: <20061121000207.GB5200@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061101054343.623157000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2006 at 09:34:26PM -0800, Chris Wright wrote:
- 
- > From: Jan Beulich <jbeulich@novell.com>
- > 
- > [PATCH] fix Intel RNG detection
- > 
- > Previously, since determination whether there was an Intel random number
- > generator was based on a single bit, on systems with a matching bridge
- > device but without a firmware hub, there was a 50% chance that the code
- > would incorrectly decide that the system had an RNG.  This patch adds
- > detection of the firmware hub to better qualify the existence of an RNG.
- > 
- > There is one issue with the patch: I was unable to determine the LPC
- > equivalent for the PCI bridge 8086:2430 (since the old code didn't care
- > about which of the many devices provided by the ICH/ESB it was chose to use
- > the PCI bridge device, but the FWH settings live in the LPC device, so the
- > device list needed to be changed).
- > 
- > Signed-off-by: Jan Beulich <jbeulich@novell.com>
- > Signed-off-by: Michael Buesch <mb@bu3sch.de>
- > Signed-off-by: Andrew Morton <akpm@osdl.org>
- > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
- > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
- > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Security fixes since 2.6.16.32:
+- CVE-2005-4352: security/seclvl.c: fix time wrap
 
 
-Since I pushed an update to our Fedora users based on 2.6.18.2, a few people
-have reported they no longer have their RNG's detected.
-Here's one report: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=215144
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-		Dave
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
--- 
-http://www.codemonkey.org.uk
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+
+
+Changes since 2.6.16.32:
+
+Adrian Bunk (4):
+      security/seclvl.c: fix time wrap (CVE-2005-4352)
+      drivers/scsi/psi240i.c: fix an array overrun
+      V4L/DVB: Saa7134: rename dmasound_{init,exit}
+      Linux 2.6.16.33-rc1
+
+Alexey Dobriyan (1):
+      ipmi_si_intf.c: fix "&& 0xff" typos
+
+Andrew Morton (1):
+      disable debugging version of write_lock()
+
+Artur Skawina (1):
+      sis900 adm7001 PHY support
+
+Badari Pulavarty (1):
+      ext3 -nobh option causes oops
+
+Benjamin Herrenschmidt (1):
+      POWERPC: Make alignment exception always check exception table
+
+Bob Moore (1):
+      Reduce ACPI verbosity on null handle condition
+
+Daniel Drake (1):
+      sata_promise: Support FastTrak TX4300/TX4310
+
+Daniel Ritz (1):
+      fix via586 irq routing for pirq 5
+
+Daniele Venzano (1):
+      Add new PHY to sis900 supported list
+
+David Miller (1):
+      [RTNETLINK]: Fix IFLA_ADDRESS handling.
+
+Diego Calleja (1):
+      Fix BeFS slab corruption
+
+Dmitry Mishin (1):
+      Fix timer race in dst GC code
+
+Michael Chan (1):
+      [TG3]: Fix array overrun in tg3_read_partno().
+
+Michael-Luke Jones (1):
+      Old IDE, fix SATA detection for cabling
+
+Paul Fulghum (1):
+      synclink_gt fix receive tty error handling
+
+
+ Makefile                                   |    2 +-
+ arch/i386/pci/irq.c                        |    4 ++--
+ arch/powerpc/kernel/traps.c                |   18 ++++++++++--------
+ arch/ppc/kernel/traps.c                    |   18 ++++++++++--------
+ drivers/acpi/namespace/nsxfeval.c          |    5 +++--
+ drivers/char/ipmi/ipmi_si_intf.c           |    6 +++---
+ drivers/char/synclink_gt.c                 |   14 +++++++-------
+ drivers/ide/ide-iops.c                     |    4 ++++
+ drivers/media/video/saa7134/saa7134-alsa.c |   10 +++++-----
+ drivers/media/video/saa7134/saa7134-core.c |   16 ++++++++--------
+ drivers/media/video/saa7134/saa7134-oss.c  |   10 +++++-----
+ drivers/media/video/saa7134/saa7134.h      |    4 ++--
+ drivers/net/sis900.c                       |    2 ++
+ drivers/net/tg3.c                          |   19 ++++++++++++-------
+ drivers/scsi/psi240i.c                     |    2 +-
+ drivers/scsi/sata_promise.c                |    2 ++
+ fs/befs/linuxvfs.c                         |   11 +++++++++--
+ fs/ext3/inode.c                            |    6 +++---
+ lib/spinlock_debug.c                       |   10 ++++++----
+ net/core/dst.c                             |    3 +--
+ net/core/rtnetlink.c                       |   15 ++++++++++++++-
+ security/seclvl.c                          |    2 ++
+ 22 files changed, 112 insertions(+), 71 deletions(-)
+

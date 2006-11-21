@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030711AbWKUEDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966529AbWKUESO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030711AbWKUEDO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 23:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030710AbWKUEDN
+	id S966529AbWKUESO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 23:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966568AbWKUESO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 23:03:13 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:65205 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1030711AbWKUEDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 23:03:13 -0500
-Date: Mon, 20 Nov 2006 21:03:12 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Allow 32-bit and 64-bit hashes
-Message-ID: <20061121040312.GR18567@parisc-linux.org>
-MIME-Version: 1.0
+	Mon, 20 Nov 2006 23:18:14 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12689 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S966529AbWKUESN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 23:18:13 -0500
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to go about debuging a system lockup? 
+In-reply-to: Your message of "Thu, 16 Nov 2006 16:21:40 CDT."
+             <20061116212140.GP8236@csclub.uwaterloo.ca> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Date: Tue, 21 Nov 2006 15:17:49 +1100
+Message-ID: <8823.1164082669@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lennart Sorensen (on Thu, 16 Nov 2006 16:21:40 -0500) wrote:
+>On Thu, Nov 16, 2006 at 09:49:06PM +0100, Jesper Juhl wrote:
+>> Well, I have a few ideas that are hopefully useul.
+>> 
+>> - If you have not done so already, then go in to the "Kernel Hacking"
+>> section of the kernel configuration and enable some (all?) of the
+>> debug options and see if that produces anything that will help you
+>> track down the problem.
+>
+>I enabled the things that sounded useful.  I will try enabling the rest.
+>
+>> - You could enable 'magic sysrq' and see if you can manage to get a
+>> backtrace with it when it hangs (see Documentation/sysrq.txt) (ohh and
+>> raise the console log level so you get all messages, including debug
+>> ones).
+>
+>Yeah I did that.  No response to sysrq (at least not on the serial
+>console.  Maybe I should get a keyboard connector put on.)  Normally we
+>run without VGA/keyboard/etc, and just serial console.  Of course the
+>serial console requires working interrupts.  Not sure about the keyboard
+>driver.
+>
+>> - You could also try kdb (http://oss.sgi.com/projects/kdb/) or kgdb
+>> (http://kgdb.linsyssoft.com/). That might help you pinpoint the
+>> failure.
+>
+>Can I run that remotely somehow?  I never really looked at kdb or kgdb
+>before.
 
-The sym2 driver would like to hash a u32 value, and it could just
-call hash_long() and rely on integer promotion on 64-bit machines, but
-that seems a little wasteful.
+kgdb can only be run remotely.  kdb can be run on the local keyboard/console
+or over a serial console.
 
-Following Arjan's suggestion, I split the existing hash_long into
-hash_u32 and hash_u64, and made hash_long an alias to the appropriate
-function.
-
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-
-diff --git a/include/linux/hash.h b/include/linux/hash.h
-index acf17bb..0e6e5a9 100644
---- a/include/linux/hash.h
-+++ b/include/linux/hash.h
-@@ -13,23 +13,36 @@
-  * them can use shifts and additions instead of multiplications for
-  * machines where multiplications are slow.
-  */
--#if BITS_PER_LONG == 32
- /* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
--#define GOLDEN_RATIO_PRIME 0x9e370001UL
--#elif BITS_PER_LONG == 64
-+#define GOLDEN_RATIO_PRIME_32 0x9e370001UL
- /*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
--#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
-+#define GOLDEN_RATIO_PRIME_64 0x9e37fffffffc0001ULL
-+
-+#if BITS_PER_LONG == 32
-+#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_PRIME_32
-+#define hash_long(val, bits) hash_u32(val, bits)
-+#elif BITS_PER_LONG == 64
-+#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_PRIME_64
-+#define hash_long(val, bits) hash_u64(val, bits)
- #else
- #error Define GOLDEN_RATIO_PRIME for your wordsize.
- #endif
- 
--static inline unsigned long hash_long(unsigned long val, unsigned int bits)
-+static inline unsigned long hash_u32(u32 val, unsigned int bits)
-+{
-+	/* On some cpus multiply is faster, on others gcc will do shifts */
-+	unsigned int hash = val * GOLDEN_RATIO_PRIME_32;
-+
-+	/* High bits are more random, so use them. */
-+	return hash >> (32 - bits);
-+}
-+
-+static inline unsigned long hash_u64(u64 val, unsigned int bits)
- {
--	unsigned long hash = val;
-+	u64 hash = val;
- 
--#if BITS_PER_LONG == 64
- 	/*  Sigh, gcc can't optimise this alone like it does for 32 bits. */
--	unsigned long n = hash;
-+	u64 n = hash;
- 	n <<= 18;
- 	hash -= n;
- 	n <<= 33;
-@@ -42,13 +55,9 @@ static inline unsigned long hash_long(un
- 	hash += n;
- 	n <<= 2;
- 	hash += n;
--#else
--	/* On some cpus multiply is faster, on others gcc will do shifts */
--	hash *= GOLDEN_RATIO_PRIME;
--#endif
- 
- 	/* High bits are more random, so use them. */
--	return hash >> (BITS_PER_LONG - bits);
-+	return hash >> (64 - bits);
- }
- 	
- static inline unsigned long hash_ptr(void *ptr, unsigned int bits)

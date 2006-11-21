@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030742AbWKULZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030872AbWKULaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030742AbWKULZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 06:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966961AbWKULZ0
+	id S1030872AbWKULaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 06:30:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966964AbWKULaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 06:25:26 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38096 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S966964AbWKULZZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 06:25:25 -0500
-Date: Tue, 21 Nov 2006 11:28:29 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: Larry Finger <Larry.Finger@lwfinger.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with DMA on x86_64 with 3 GB RAM
-Message-ID: <20061121112829.19a9c043@localhost.localdomain>
-In-Reply-To: <456282DE.1000407@madrabbit.org>
-References: <455B63EC.8070704@madrabbit.org>
-	<20061118112438.GB15349@nineveh.rivenstone.net>
-	<1163868955.27188.2.camel@johannes.berg>
-	<455F3D44.4010502@lwfinger.net>
-	<455F4271.1060405@madrabbit.org>
-	<455FF672.4070502@lwfinger.net>
-	<456282DE.1000407@madrabbit.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Nov 2006 06:30:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39076 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S966961AbWKULaQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 06:30:16 -0500
+Date: Tue, 21 Nov 2006 12:30:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Komal Shah <komal.shah802003@gmail.com>
+Cc: Vladimir <vovan888@gmail.com>, Tony Lindgren <tony@atomide.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Siemens sx1: merge framebuffer support
+Message-ID: <20061121113005.GA1900@elf.ucw.cz>
+References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <3a5b1be00611210042p2237a0fbpece68912e3d23f4c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3a5b1be00611210042p2237a0fbpece68912e3d23f4c@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Confused. As in, once the bcm43xx module initcall happens? Or without bcm43xx
-> at all? If the former, is the behavior different when built as a module versus
-> built-in? (ie, are there ordering problems.)
+Hi1
 
-The pci_dma code on the x86_64 platform is broken for the case of PCI
-devices with < 32bit DMA. Has been forever, this is a problem with
-various devices, although most of the others are obsolete except for the
-bcm43xx and b44 (the latter has hacks to work around the x86-64
-brokenness).
+> >> > Framebuffer support for Siemens SX1; this is second big patch. (Third
+> >> > one will be mixer/sound support). Support is simple / pretty minimal,
+> >> > but seems to work okay (and is somehow important for a cell phone :-).
+> >>
+> >> Pushed to linux-omap. I guess you're planning to send the missing
+> >> Kconfig + Makefile patch for this?
+> >>
+> >> Also, it would be better to use omap_mcbsp_xmit_word() or
+> >> omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
+> >> it does not do any checking that it worked. The aic23 and tsc2101
+> >> audio in linux-omap tree in general has the same problem.
+> >>
+> >> Regards,
+> >>
+> >> Tony
+> >>
+> >
+> >Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
+> >so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
+> 
+> Please also send defconfig (may be siemens_sx1_defconfig OR
+> omap_sx1_310_defconfig) patch for this mobile once, your minimum
+> required patches are pushed to -omap git tree. Thanx.
 
-At the very least the pci_set_dma_mask should error in this situation or
-switch to using GFP_DMA (24bit) memory spaces. Having it error isn't the
-whole solution as you still need some way to handle the "what do I do
-next". 
-
-Alan
+Yes, will do. I was trying to get it compiling first.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

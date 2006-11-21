@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031368AbWKUVBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031430AbWKUVAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031368AbWKUVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031431AbWKUVBE
+	id S1031430AbWKUVAb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031368AbWKUVAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:01:04 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:8381 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1031368AbWKUVBC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:01:02 -0500
-Date: Wed, 22 Nov 2006 00:01:05 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061121210105.GA381@oleg>
-References: <20061119214315.GI4427@us.ibm.com> <Pine.LNX.4.44L0.0611211244200.6140-100000@iolanthe.rowland.org> <20061121191338.GB2013@us.ibm.com>
-Mime-Version: 1.0
+	Tue, 21 Nov 2006 16:00:31 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56585 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1031430AbWKUVAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:00:30 -0500
+Date: Tue, 21 Nov 2006 22:00:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Rientjes <rientjes@cs.washington.edu>
+Cc: d binderman <dcb314@hotmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 msr: remove unused variable
+Message-ID: <20061121210029.GO5200@stusta.de>
+References: <BAY107-F28B649DE13B7A3C02F1B459CEC0@phx.gbl> <Pine.LNX.4.64N.0611211225300.25455@attu4.cs.washington.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061121191338.GB2013@us.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.64N.0611211225300.25455@attu4.cs.washington.edu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21, Paul E. McKenney wrote:
->
-> On Tue, Nov 21, 2006 at 12:56:21PM -0500, Alan Stern wrote:
-> > Here's another potential problem with the fast path approach.  It's not
-> > very serious, but you might want to keep it in mind.
-> > 
-> > The idea is that a reader can start up on one CPU and finish on another,
-> > and a writer might see the finish event but not the start event.  For
-> > example:
+On Tue, Nov 21, 2006 at 12:27:22PM -0800, David Rientjes wrote:
+> Remove unused variable in msr_write().
 > 
-> One approach to get around this would be for the the "idx" returned from
-> srcu_read_lock() to keep track of the CPU as well as the index within
-> the CPU.  This would require atomic_inc()/atomic_dec() on the fast path,
-> but would not add much to the overhead on x86 because the smp_mb() imposes
-> an atomic operation anyway.  There would be little cache thrashing in the
-> case where there is no preemption -- but if the readers almost always sleep,
-> and where it is common for the srcu_read_unlock() to run on a different CPU
-> than the srcu_read_lock(), then the additional cache thrashing could add
-> significant overhead.
+> Reported by D Binderman <dcb314@hotmail.com>.
+> 
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
+> ---
+>  arch/i386/kernel/msr.c |    3 +--
+>  1 files changed, 1 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/i386/kernel/msr.c b/arch/i386/kernel/msr.c
+> index d535cdb..331bd59 100644
+> --- a/arch/i386/kernel/msr.c
+> +++ b/arch/i386/kernel/msr.c
+> @@ -195,7 +195,6 @@ static ssize_t msr_write(struct file *fi
+>  {
+>  	const u32 __user *tmp = (const u32 __user *)buf;
+>  	u32 data[2];
+> -	size_t rv;
+>  	u32 reg = *ppos;
+>  	int cpu = iminor(file->f_dentry->d_inode);
+>  	int err;
+> @@ -203,7 +202,7 @@ static ssize_t msr_write(struct file *fi
+>  	if (count % 8)
+>  		return -EINVAL;	/* Invalid chunk size */
+>  
+> -	for (rv = 0; count; count -= 8) {
+> +	for (; count; count -= 8) {
+>...
 
-If you are going to do this, it seems better to just forget about ->per_cpu_ref,
-and use only ->hardluckref[]. This also allows to avoid the polling in
-synchronize_srcu().
+What about changing this to a while() loop?
 
-Oleg.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

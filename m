@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966428AbWKUUIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031383AbWKUUTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966428AbWKUUIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934195AbWKUUIJ
+	id S1031383AbWKUUTS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934411AbWKUUTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:08:09 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:54700 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S934171AbWKUUIG (ORCPT
+	Tue, 21 Nov 2006 15:19:17 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:8924 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S934402AbWKUUTP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:08:06 -0500
-Date: Tue, 21 Nov 2006 12:07:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [RFC 1/7] Remove declaration of sighand_cachep from slab.h
-Message-Id: <20061121120723.5b880f72.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611211151300.30359@schroedinger.engr.sgi.com>
-References: <20061118054342.8884.12804.sendpatchset@schroedinger.engr.sgi.com>
-	<20061118054347.8884.36259.sendpatchset@schroedinger.engr.sgi.com>
-	<20061118172739.30538d16.sfr@canb.auug.org.au>
-	<Pine.LNX.4.64.0611200817020.16173@schroedinger.engr.sgi.com>
-	<20061121000743.bb9ea2d0.akpm@osdl.org>
-	<Pine.LNX.4.64.0611211133300.30133@schroedinger.engr.sgi.com>
-	<20061121114901.54a36e4b.akpm@osdl.org>
-	<Pine.LNX.4.64.0611211151300.30359@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 15:19:15 -0500
+Message-ID: <45635F39.1000708@garzik.org>
+Date: Tue, 21 Nov 2006 15:19:05 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru>
+In-Reply-To: <20061121184605.GA7787@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 11:56:33 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
+Another:  pass a 'flags' argument to kevent_init(2).  I guarantee you 
+will need it eventually.  It IMO would help with later binary 
+compatibility, if nothing else.  You wouldn't need a new syscall to 
+introduce struct kevent_ring_v2.
 
-> On Tue, 21 Nov 2006, Andrew Morton wrote:
-> 
-> > spose so, although I wouldn't bother about the typedef->#define change.  
-> > We just keep on plugging away at it until one day we can just remove the typedef.
-> 
-> You do have script that can replace a string throughout the kernel 
-> right?
+	Jeff
 
-Nope.
 
-> 
-> A patch is following that does the core things in mm and 
-> include/linux/slab.h. Would you accept that patch and then do
-> 
-> s/kmem_cache_t/struct kmem_cache/g
-> 
-> over all the kernel sources?
 
-This is one of those low-priority background activities.  Not worth
-a lot of fuss.
-
-I'd suggest that you proceeed with the original cleanups you were
-proposing, except use `struct kmem_cache' in header files rather than
-kmem_cache_t in .c files.
-
-Then, as a separate and later exercise someone (maybe you) can raise
-patches to do the kmem_cache_t->kmem_cache conversion.  They should go
-through maintainers hence they should be appropriately split and they will
-take months to all get to mainline.  Once this is all completed we can remove the
-typedef.

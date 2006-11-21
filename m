@@ -1,160 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWKUVUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161369AbWKUVY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161415AbWKUVUG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWKUVTx
+	id S1161369AbWKUVY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031436AbWKUVY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:19:53 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:18876 "HELO
-	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161369AbWKUVTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:19:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
-  b=T2YNqrColAbXWpiY+bUEWrPaEdPeMF7kfLNE/Ytbk5AyhSg/CkAB7VU39DQJPTMP1xTwBkc7+GwYmMxB6PJDEbszwm3zq3tH4qAZ1eVtX16oB3Es5Vprl4wa1w2y31doplSKAht1bnKjp8jALqz8jjo5ZO66UpQN+c3edEEIYMY=  ;
-X-YMail-OSG: Dpdxj8AVM1kaZ8vhIlRnX8Yjf.8Wj401bm73I7ZJ5I_ErrxnVUnq6vB5Hm2X0Hr2QtqkfZm6QzDQq_Xf5mXC89QeDRzHoLttJUHv8SAjdMrP5r6Y6XdJemdk8OfPU6WMdr2GMLPG.eV_3FAOCHtdrHnG5LpUkMuEOOU-
-From: David Brownell <david-b@pacbell.net>
-To: Bill Gatliff <bgat@billgatliff.com>
-Subject: Re: [RFC/PATCH] arch-neutral GPIO calls: AVR32 implementation
-Date: Tue, 21 Nov 2006 10:19:02 -0800
-User-Agent: KMail/1.7.1
-Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       jamey.hicks@hp.com, Kevin Hilman <khilman@mvista.com>,
-       Nicolas Pitre <nico@cam.org>, Russell King <rmk@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611202107.00754.david-b@pacbell.net> <456293D4.2030103@billgatliff.com>
-In-Reply-To: <456293D4.2030103@billgatliff.com>
+	Tue, 21 Nov 2006 16:24:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12298 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1031434AbWKUVY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:24:26 -0500
+Date: Tue, 21 Nov 2006 22:24:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Pavel Emelianov <xemul@openvz.org>,
+       Andre Noll <maan@systemlinux.org>,
+       David Rientjes <rientjes@cs.washington.edu>, ak@suse.de,
+       discuss@x86-64.org, Prakash Punnoor <prakash@punnoor.de>,
+       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net,
+       David Brownell <david-b@pacbell.net>, Len Brown <len.brown@intel.com>,
+       Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
+       linux-acpi@vger.kernel.org, Ernst Herzberg <earny@net4u.de>,
+       Kumar Gala <galak@kernel.crashing.org>,
+       Joakim Tjernlund <joakim.tjernlund@transmode.se>,
+       Kim Phillips <kim.phillips@freescale.com>, paulus@samba.org,
+       linuxppc-dev@ozlabs.org, a.zummo@towertech.it,
+       Randy Dunlap <randy.dunlap@oracle.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Phil Oester <kernel@linuxace.com>,
+       Sam Ravnborg <sam@mars.ravnborg.org>,
+       Mattia Dongili <malattia@linux.it>, davej@codemonkey.org.uk,
+       cpufreq@lists.linux.org.uk
+Subject: 2.6.19-rc6: known regressions (v4)
+Message-ID: <20061121212424.GQ5200@stusta.de>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611211019.04603.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 November 2006 9:51 pm, Bill Gatliff wrote:
+This email lists some known regressions in 2.6.19-rc6 compared to 2.6.18
+that are not yet fixed in Linus' tree.
 
-> In OMAP, as far as I can tell after skimming the datasheet (and being 
-> reminded why I avoid TI's microcontrollers!),
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you caused a breakage or I'm considering you in any other way possibly
+involved with one or more of these issues.
 
-Microcontroller??  Hah!  That'd be MSP430, or AVR8, or an ARM7 ... when
-it can run vmlinux, it seems far away from being a microcontroller!
-Despite how long it can run on a teeny weeny battery.
-
-You'd like OMAP2 better though, in terms of pin setup it's way nicer.
-Each GPIO seems to correspond to a single pin.  Nobody much liked the
-consequences of how OMAP1 did it.
+Due to the huge amount of recipients, please trim the Cc when answering.
 
 
-> someone has to set up the  
-> MUX so that a given GPIO can get to a specified pin.  And practically 
-> speaking, what's soldered to a pin is nearly immutable for a given board 
-> (or at least a particular revision; you won't change it in software 
-> anyway!).
-
-Yep; though there _is_ the model of "SOC-on-a-card" plugging into a
-custom chassis (maybe an industrial app), as opposed to using custom
-boards for everything.  Though if you think of the "board" as being
-that whole chassis-plus-CPUcard assembly, it's still more or less
-immutable as you described.
+Subject    : kernel hangs when booting with irqpoll
+References : http://lkml.org/lkml/2006/11/20/233
+Submitter  : Vivek Goyal <vgoyal@in.ibm.com>
+Caused-By  : Pavel Emelianov <xemul@openvz.org>
+             commit f72fa707604c015a6625e80f269506032d5430dc
+Handled-By : Vivek Goyal <vgoyal@in.ibm.com>
+Status     : problem is being debugged
 
 
->      So for sanity's sake the GPIO "resource manager" would have  
-> to refuse a request for a GPIO line assigned to a pin that had already 
-> been committed to something else, be it another GPIO line or a 
-> peripheral function.  So I think having the notion of a resource manager 
-> _at all_ implies that you're into some amount of MUX analysis/management 
-> on machines that have them.
-
-That's a big "if".  There's no such "manager" right now, other than the
-people designing a given board and putting Linux onto it.
+Subject    : x86_64: Bad page state in process 'swapper'
+References : http://lkml.org/lkml/2006/11/10/135
+             http://lkml.org/lkml/2006/11/10/208
+Submitter  : Andre Noll <maan@systemlinux.org>
+Handled-By : David Rientjes <rientjes@cs.washington.edu>
+Status     : problem is being debugged
 
 
-> Aside: You state that there are many-to-many possibilities.  In theory 
-> yes, but for OMAP and any other practical machine, no.  You never have 
-> an infinite number of pins or GPIOs, so even with some kind of radical 
-> "switch fabric" the number of unique combinations of GPIO+pin still 
-> would be bounded.  In the case of OMAP, it looks like most of the GPIOs 
-> can be assigned to one of two pins, and each pin can be assigned to one 
-> of two GPIOs.  So, "some-to-some".  :)
-
-My point was more that it's "not one-to-one".  And clearly a given system
-will only use one mapping (Paul's comments aside) ... the issue is that
-knowing you're using a particular GPIO doesn't mean you know what pin is
-involved, and contrariwise that knowing what pin doesn't mean you know what
-GPIO to use.
-
-Yes it's a PITA ... and I've seen boards that needed to get re-spun because
-the board desigersn goofed, with two different interfaces expecting to mux a
-(different) pin to GPIO7.  Didn't get discovered till late since each of the
-two interfaces worked fine by themselves; system integration testing found it.
-I suspect that's one reason OMAP2 is different in how it does the pin setup!
+Subject    : x86_64: oprofile doesn't work
+References : http://lkml.org/lkml/2006/10/27/3
+             http://lkml.org/lkml/2006/11/15/92
+Submitter  : Prakash Punnoor <prakash@punnoor.de>
+Status     : problem is being discussed
 
 
-> The "multiplexing" that I was wishing to leave out of the GPIO API was 
-> the part where you assign pins to peripheral functions *or* GPIO, a'la 
-> AT91.  The existing kernel code for that chip provides a number of 
-> functions to help board authors get all the routing and configuration 
-> right for each pin ("peripheral A function, or peripheral B, or GPIO?  
-> Input, or output?  Pullup resistor, or no?  Input filtering, or no?") 
-> (*).  I'm ok with not trying to consolidate that functionality in an 
-> arch-neutral GPIO-only API right now, since machines do that so differently.
-
-Yes, I think we're seeing agreement on that now.
+Subject    : ACPI: AE_TIME errors
+References : http://lkml.org/lkml/2006/11/15/12
+Submitter  : David Brownell <david-b@pacbell.net>
+Handled-By : Len Brown <len.brown@intel.com>
+             Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
+Status     : problem is being debugged
 
 
-> But I was assuming all along that we were overloading the notion of a 
-> "gpio number" enumeration, such that each enumeration ultimately 
-> referred to a unique combination of GPIO+pin for the instant machine.  
-
-Well, none of the existing software does that, or has needed to.
-
-To the extent that the $SUBJECT calls are just common syntax for
-what many platforms are already doing, they all use the same notion
-of a "gpio number" which doesn't reference pinout ... there's a
-direct mapping to a bit in a gpio controller register, that's it.
+Subject    : ThinkPad R50p: boot fail with (lapic && on_battery)
+References : http://lkml.org/lkml/2006/10/31/333
+Submitter  : Ernst Herzberg <earny@net4u.de>
+Handled-By : Len Brown <len.brown@intel.com>
+Status     : problem is being debugged
 
 
-> And once you've got that, there's no reason why the underlying 
-> implementation couldn't assert the proper routing at the time a specific 
-> GPIO+pin was requested.  Maybe that's up to the individual authors as to 
-> whether they want to provide this in their implementations, or choose 
-> instead to leave out the MUX configuration and just map GPIO 
-> enumerations to physical GPIO line numbers (and hope for the best at 
-> runtime).  But I still don't see a reason why they shouldn't if they're 
-> willing to do the code.
-
-They could; the GPIO numbers, and interpretation, are platform-specific.
-
- 
-> Sorry to recycle on all of this again.  Maybe I'm just a slow learner, 
-> maybe I just was misunderstanding some of the terminology we were 
-> throwing around.  Maybe it's something else entirely.
-
-Who knows.  I thought you were most likely wishing everything was as
-simple and straightforward as it is on AT91, AVR32, and OMAP2.  ;)
-
-In the restricted context of GPIO numbers, I think it is.  And it might
-even be practical to come up with a widely used pin mux API ... it's
-just that significant platforms like OMAP1 would be unlikely to fit.
-
-- Dave
+Subject    : powerpc: serious RTC problems
+References : http://lkml.org/lkml/2006/11/17/187
+             http://lkml.org/lkml/2006/11/18/99
+Submitter  : Kumar Gala <galak@kernel.crashing.org>
+             Joakim Tjernlund <joakim.tjernlund@transmode.se>
+Caused-By  : Kim Phillips <kim.phillips@freescale.com>
+             commit 7a69af63e788a324d162201a0b23df41bcf158dd
+             commit a8ed4f7ec3aa472134d7de6176f823b2667e450b
+Handled-By : David Brownell <david-b@pacbell.net
+             Kim Phillips <kim.phillips@freescale.com>
+Patch      : http://lkml.org/lkml/2006/11/20/320
+             http://lkml.org/lkml/2006/11/20/321
+Status     : patches available
 
 
+Subject    : xconfig crashes on x86_64
+References : http://lkml.org/lkml/2006/11/19/177
+Submitter  : Randy Dunlap <randy.dunlap@oracle.com>
+Handled-By : Roman Zippel <zippel@linux-m68k.org>
+Patch      : http://lkml.org/lkml/2006/11/20/340
+Status     : patch available
 
-> 
-> 
-> * - Most of which was written by Dave Brownell.  Thanks!
-> 
-> 
-> 
-> b.g.
-> 
-> -- 
-> Bill Gatliff
-> bgat@billgatliff.com
-> 
+
+Subject    : menuconfig problems with TERM=vt100
+References : http://lkml.org/lkml/2006/11/13/369
+Submitter  : Phil Oester <kernel@linuxace.com>
+Caused-By  : Sam Ravnborg <sam@mars.ravnborg.org>
+             commit 350b5b76384e77bcc58217f00455fdbec5cac594
+Handled-By : Roman Zippel <zippel@linux-m68k.org>
+Patch      : http://lkml.org/lkml/2006/11/20/341
+Status     : patch available
+
+
+Subject    : CPU_FREQ_GOV_ONDEMAND=y compile error
+References : http://lkml.org/lkml/2006/11/17/198
+Submitter  : alex1000@comcast.net
+Caused-By  : Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+             commit 05ca0350e8caa91a5ec9961c585c98005b6934ea
+Handled-By : Mattia Dongili <malattia@linux.it>
+Patch      : http://lkml.org/lkml/2006/11/17/236
+Status     : patch available
+
+

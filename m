@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031293AbWKUU71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031368AbWKUVBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031293AbWKUU71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031362AbWKUU71
+	id S1031368AbWKUVBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031431AbWKUVBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:59:27 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:44690 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1031293AbWKUU70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:59:26 -0500
-Date: Tue, 21 Nov 2006 15:59:25 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-cc: linux-usb-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.19-rc5: possible regression - OHCI dead
- after several STD/resume cycles
-In-Reply-To: <200611212108.28154.arvidjaar@mail.ru>
-Message-ID: <Pine.LNX.4.44L0.0611211555360.6410-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Nov 2006 16:01:04 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:8381 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1031368AbWKUVBC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:01:02 -0500
+Date: Wed, 22 Nov 2006 00:01:05 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061121210105.GA381@oleg>
+References: <20061119214315.GI4427@us.ibm.com> <Pine.LNX.4.44L0.0611211244200.6140-100000@iolanthe.rowland.org> <20061121191338.GB2013@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061121191338.GB2013@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006, Andrey Borzenkov wrote:
-
-> Using 2.6.9-rc5 + Alan Stern fix for "can't disable OHCI wakeup via sysfs". I 
-> started noticing strange messages after resume:
+On 11/21, Paul E. McKenney wrote:
+>
+> On Tue, Nov 21, 2006 at 12:56:21PM -0500, Alan Stern wrote:
+> > Here's another potential problem with the fast path approach.  It's not
+> > very serious, but you might want to keep it in mind.
+> > 
+> > The idea is that a reader can start up on one CPU and finish on another,
+> > and a writer might see the finish event but not the start event.  For
+> > example:
 > 
-> ACPI: PCI Interrupt 0000:00:06.0[A] -> Link [LNKH] -> GSI 11 (level, low) -> 
-> IRQ 11
-> ACPI: PCI interrupt for device 0000:00:06.0 disabled
-> ACPI: PCI interrupt for device 0000:00:0a.0 disabled
-> pccard: card ejected from slot 0
-> Stopping tasks... 
-> ===========================================================================================done.
-> Shrinking memory... done (27344 pages freed)
-> Suspending console(s)
->  usbdev1.1_ep81: PM: suspend 0->1, parent 1-0:1.0 already 1
-> hub 1-0:1.0: PM: suspend 1->1, parent usb1 already 1
->  usbdev1.1_ep00: PM: suspend 0->1, parent usb1 already 1
-> usb usb1: PM: suspend 1->1, parent 0000:00:02.0 already 2
-...
->  usbdev1.1_ep00: PM: resume from 0, parent usb1 still 1
->  usbdev1.1_ep81: PM: resume from 0, parent 1-0:1.0 still 1
-> Restarting tasks... done.
-> 
-> those strange are usbdev1.1_ep00/81.
+> One approach to get around this would be for the the "idx" returned from
+> srcu_read_lock() to keep track of the CPU as well as the index within
+> the CPU.  This would require atomic_inc()/atomic_dec() on the fast path,
+> but would not add much to the overhead on x86 because the smp_mb() imposes
+> an atomic operation anyway.  There would be little cache thrashing in the
+> case where there is no preemption -- but if the readers almost always sleep,
+> and where it is common for the srcu_read_unlock() to run on a different CPU
+> than the srcu_read_lock(), then the additional cache thrashing could add
+> significant overhead.
 
-Those aren't real devices at all; they are merely entries in sysfs which
-represent logical communication endpoints in the OHCI controller.  It's  
-not meaningful to speak of suspending or resuming them, but the PM core 
-tries to do anyway.  You can ignore those messages; they are harmless.
+If you are going to do this, it seems better to just forget about ->per_cpu_ref,
+and use only ->hardluckref[]. This also allows to avoid the polling in
+synchronize_srcu().
 
-> Now I needed to read from USB stick - it was not detected. Actually even HUB 
-> itself has not been shown in lsusb output. Reloading ohci did fix it.
-> 
-> This never happend to me in all previous versions (since 2.6.15 I guess). Also 
-> it did not start immediately after Alan's patch so I do not believe it is 
-> related.
-> 
-> Please tell me what can I sensibly test and which input info should I collect. 
-> Thank you. Configuration, dmesg etc available on request. lspci:
-
-Turn on CONFIG_USB_DEBUG and then post the dmesg log showing what happens
-when you plug in your USB stick.
-
-Alan Stern
+Oleg.
 

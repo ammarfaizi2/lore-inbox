@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030720AbWKUFfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030730AbWKUFiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030720AbWKUFfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 00:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030722AbWKUFfp
+	id S1030730AbWKUFiN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 00:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKUFiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 00:35:45 -0500
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:58510 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030720AbWKUFfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 00:35:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=IlEMoR4XMcoLVJGk1liQW1MqKS1OPIdrR35VW7dCJwqLoSFzEjqiTOzNnD2Jv840cWPR/wDYRVsZSE6/0FVKu4XYK9AwuJqDN8JPrxb5Jv6cWLVHEW6hkexeoEJL/0Ags4KPSZDr2lOlPkQVeA94IfYbPgF1lDdKDx1XlMaYjQs=  ;
-X-YMail-OSG: ZlU6AxIVM1moafE.Oedo7MPgSJESBxZZhMy080WLryCE0Z.m1ISpS1Umxtzgs7_M5WRmJozfpTeqFHmHMavixACdyTiR5oHTq6RB.bOVQgC2hx6X.WH8vUj6J5rLsnMnoJ2wKT9IyJN9IGD9k14QK_fz.lawgSPzcvc-
-From: David Brownell <david-b@pacbell.net>
-To: Bill Gatliff <bgat@billgatliff.com>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-Date: Mon, 20 Nov 2006 21:35:38 -0800
-User-Agent: KMail/1.7.1
-Cc: Paul Mundt <lethal@linux-sh.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611202045.09760.david-b@pacbell.net> <45628A1A.8060101@billgatliff.com>
-In-Reply-To: <45628A1A.8060101@billgatliff.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611202135.39970.david-b@pacbell.net>
+	Tue, 21 Nov 2006 00:38:13 -0500
+Received: from ozlabs.org ([203.10.76.45]:48813 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030726AbWKUFiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 00:38:12 -0500
+Subject: Re: [PATCH 17/22] coredump: Add SPU elf notes to coredump.
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: cbe-oss-dev@ozlabs.org, linux-arch@vger.kernel.org,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       Dwayne Grant McConnell <decimal@us.ibm.com>
+In-Reply-To: <20061120180526.374170000@arndb.de>
+References: <20061120174454.067872000@arndb.de>
+	 <20061120180526.374170000@arndb.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Di0HqZQDpqqiq6j0IZLF"
+Date: Tue, 21 Nov 2006 16:38:08 +1100
+Message-Id: <1164087488.13318.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 20 November 2006 9:09 pm, Bill Gatliff wrote:
-> Why not have GPIO numbers refer to unique combinations of GPIO+pin? 
 
-That sounds unduly complicated compared to just using the GPIO numbers
-which are used throughout the hardware and software docs.  It'd also
-be a big (and needless) disruption to code that's been working fine for
-several years now ... and there'd need to be some scheme to recognize
-that most GPIO numbers suddenly become invalid (since the space would
-become large and sparsely populated, vs small and dense).
+--=-Di0HqZQDpqqiq6j0IZLF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Maybe if it were being done over from scratch, that'd be workable.
-But at this point I have a hard time seeing anyone want to change,
-even if there were a better argument.
+On Mon, 2006-11-20 at 18:45 +0100, Arnd Bergmann wrote:
+> Index: linux-2.6/include/linux/elf.h
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linux-2.6.orig/include/linux/elf.h
+> +++ linux-2.6/include/linux/elf.h
+> @@ -368,5 +368,12 @@ extern Elf64_Dyn _DYNAMIC [];
+> =20
+>  #endif
+> =20
+> +#ifndef ARCH_HAVE_EXTRA_ELF_NOTES
+> +static inline int arch_notes_size(void) { return 0; }
+> +static inline int arch_write_notes(void) { return 0; }
+> +
+> +#define ELF_CORE_EXTRA_NOTES_SIZE arch_notes_size()
+> +#define ELF_CORE_WRITE_EXTRA_NOTES arch_write_notes(file)
+> +#endif /* ARCH_HAVE_EXTRA_ELF_NOTES */
 
+This is broken for !CELL. arch_write_notes(void) can't be called as
+arch_write_notes(file).
 
-> If the GPIO line is tied to a piece of external hardware, that connection 
-> is surely through a specific pin.  So it seems like you'd need GPIO+pin 
-> every time there was an option.
+cheers
 
-Pin muxing is set up once, early, and from then on it suffices to use
-the GPIO number.  The mux problems are orthogonal to GPIOs.
+--=20
+Michael Ellerman
+OzLabs, IBM Australia Development Lab
 
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
 
-> 	It seems like the point 
-> here is to help a driver find and assert their GPIO _pin_ so that the 
-> driver can can talk to the attached external hardware.
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
 
-Updating the GPIO controller is always (all architectures!) done in terms
-of a number mapping to some controller and a bit number, not a pin.  The
-drivers never care about pins.
+--=-Di0HqZQDpqqiq6j0IZLF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-The only thing that cares about pins is board setup code -- briefly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-- Dave
+iD8DBQBFYpDAdSjSd0sB4dIRAgdWAKDGO7KacnuOyxm4GKOOMRK/BXJi5gCffc3g
+ZycW3TG83/VOlWKCUes4GTA=
+=osyr
+-----END PGP SIGNATURE-----
+
+--=-Di0HqZQDpqqiq6j0IZLF--
+

@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030613AbWKUAv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbWKUAyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030613AbWKUAv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 19:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbWKUAvz
+	id S1030593AbWKUAyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 19:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWKUAyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 19:51:55 -0500
-Received: from nigel.suspend2.net ([203.171.70.205]:60044 "EHLO
-	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1030613AbWKUAvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 19:51:54 -0500
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid
-	suspend-related XFS corruptions
-From: Nigel Cunningham <nigelc@bur.st>
-Reply-To: nigelc@bur.st
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200611202355.50487.rjw@sisk.pl>
-References: <200611160912.51226.rjw@sisk.pl>
-	 <1164061586.15714.1.camel@nigel.suspend2.net>
-	 <1164062390.15714.5.camel@nigel.suspend2.net>
-	 <200611202355.50487.rjw@sisk.pl>
+	Mon, 20 Nov 2006 19:54:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16605 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030593AbWKUAyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 19:54:02 -0500
+Subject: Re: [PATCH 01/22] powerpc: convert idle_loop to use
+	hard_irq_disable()
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+In-Reply-To: <20061120180520.418063000@arndb.de>
+References: <20061120174454.067872000@arndb.de>
+	 <20061120180520.418063000@arndb.de>
 Content-Type: text/plain
-Date: Tue, 21 Nov 2006 11:51:50 +1100
-Message-Id: <1164070310.15714.15.camel@nigel.suspend2.net>
+Date: Tue, 21 Nov 2006 11:53:44 +1100
+Message-Id: <1164070425.8073.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+I got a bug report that I believe might be fixed by this
+patch. The problem seems to be that with soft-disabled
+interrupts in power_save, we can still get external exceptions
+on Cell, even if we are in pause(0) a.k.a. sleep state.
 
-On Mon, 2006-11-20 at 23:55 +0100, Rafael J. Wysocki wrote:
-> On Monday, 20 November 2006 23:39, Nigel Cunningham wrote:
-> > (Sorry to reply again)
-> 
-> (No big deal)
-> 
-> > On Tue, 2006-11-21 at 09:26 +1100, Nigel Cunningham wrote:
-> > > Hi.
-> > > 
-> > > On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
-> > > > I think I/O can only be submitted from the process context.  Thus if we freeze
-> > > > all (and I mean _all_) threads that are used by filesystems, including worker
-> > > > threads, we should effectively prevent fs-related I/O from being submitted
-> > > > after tasks have been frozen.
-> > > 
-> > > I know that will work. It's what I used to do before the switch to bdev
-> > > freezing. I guess I need to look again at why I made the switch. Perhaps
-> > > it was just because you guys gave freezing kthreads a bad wrap as too
-> > > invasive or something. Bdev freezing is certainly fewer lines of code.
-> > 
-> > No, it looks like I wrongly believed that XFS was submitting I/O off a
-> > timer, so that freezing kthreads wasn't enough. In that case, it looks
-> > like freezing kthreads should be a good solution.
-> 
-> Okay, so let's implement it. :-)
+When the CPU really wakes up through the 0x100 (system reset)
+vector, while we have already started processing the 0x500
+(external) exception, we get a panic in unrecoverable_exception()
+because of the lost state.
 
-Agreed. I'm a bit confused now about what the latest version of your
-patches is, but I'll be happy to switch back to kthread freezing in the
-next Suspend2 release if it will help with getting them wider testing.
+This occurred in Systemsim for Cell, but as far as I can see,
+it can theoretically occur on any machine that uses the
+system reset exception to get out of sleep state.
 
-Nigel
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
+What about that patch instead ?
+
+Index: linux-cell/arch/powerpc/platforms/cell/pervasive.c
+===================================================================
+--- linux-cell.orig/arch/powerpc/platforms/cell/pervasive.c	2006-11-21 11:01:12.000000000 +1100
++++ linux-cell/arch/powerpc/platforms/cell/pervasive.c	2006-11-21 11:48:12.000000000 +1100
+@@ -41,6 +41,15 @@
+ static void cbe_power_save(void)
+ {
+ 	unsigned long ctrl, thread_switch_control;
++
++	/*
++	 * We need to hard disable interrupts, but we also need to mark them
++	 * hard disabled in the PACA so that the local_irq_enable() done by
++	 * our caller upon return propertly hard enables.
++	 */
++	hard_irq_disable();
++	get_paca()->hard_enabled = 0;
++
+ 	ctrl = mfspr(SPRN_CTRLF);
+ 
+ 	/* Enable DEC and EE interrupt request */
+
 

@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbWKUVCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWKUVGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161098AbWKUVCm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWKUVCm
+	id S1161032AbWKUVGW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbWKUVGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:02:42 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10964 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161098AbWKUVCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:02:41 -0500
-Date: Tue, 21 Nov 2006 21:06:22 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [2.6.19 patch] i386/x86_64: remove the unused
- EXPORT_SYMBOL(dump_trace)
-Message-ID: <20061121210622.6cea428f@localhost.localdomain>
-In-Reply-To: <20061121201844.GA7099@infradead.org>
-References: <20061121194138.GF5200@stusta.de>
-	<200611212047.30192.ak@suse.de>
-	<20061121201844.GA7099@infradead.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Nov 2006 16:06:22 -0500
+Received: from mx1.cs.washington.edu ([128.208.5.52]:26251 "EHLO
+	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1161032AbWKUVGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:06:21 -0500
+Date: Tue, 21 Nov 2006 13:03:05 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Adrian Bunk <bunk@stusta.de>
+cc: d binderman <dcb314@hotmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 msr: remove unused variable
+In-Reply-To: <20061121210029.GO5200@stusta.de>
+Message-ID: <Pine.LNX.4.64N.0611211302060.29071@attu4.cs.washington.edu>
+References: <BAY107-F28B649DE13B7A3C02F1B459CEC0@phx.gbl>
+ <Pine.LNX.4.64N.0611211225300.25455@attu4.cs.washington.edu>
+ <20061121210029.GO5200@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 20:18:44 +0000
-Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 21 Nov 2006, Adrian Bunk wrote:
 
-> On Tue, Nov 21, 2006 at 08:47:30PM +0100, Andi Kleen wrote:
-> > On Tuesday 21 November 2006 20:41, Adrian Bunk wrote:
-> > > This patch removes the unused EXPORT_SYMBOL(dump_trace) added on i386 
-> > > and x86_64 in 2.6.19-rc.
-> > > 
-> > > By removing them before the final 2.6.19 we avoid the possibility of 
-> > > people later whining that we removed exports they started using.
+> On Tue, Nov 21, 2006 at 12:27:22PM -0800, David Rientjes wrote:
+> > Remove unused variable in msr_write().
 > > 
-> > I exported it for systemtap so that they can stop using the broken
-> > hack they currently use as unwinder.
+> > Reported by D Binderman <dcb314@hotmail.com>.
+> > 
+> > Cc: H. Peter Anvin <hpa@zytor.com>
+> > Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
+> > ---
+> >  arch/i386/kernel/msr.c |    3 +--
+> >  1 files changed, 1 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/i386/kernel/msr.c b/arch/i386/kernel/msr.c
+> > index d535cdb..331bd59 100644
+> > --- a/arch/i386/kernel/msr.c
+> > +++ b/arch/i386/kernel/msr.c
+> > @@ -195,7 +195,6 @@ static ssize_t msr_write(struct file *fi
+> >  {
+> >  	const u32 __user *tmp = (const u32 __user *)buf;
+> >  	u32 data[2];
+> > -	size_t rv;
+> >  	u32 reg = *ppos;
+> >  	int cpu = iminor(file->f_dentry->d_inode);
+> >  	int err;
+> > @@ -203,7 +202,7 @@ static ssize_t msr_write(struct file *fi
+> >  	if (count % 8)
+> >  		return -EINVAL;	/* Invalid chunk size */
+> >  
+> > -	for (rv = 0; count; count -= 8) {
+> > +	for (; count; count -= 8) {
+> >...
 > 
-> Nack, dump_trace is nothing that should be export for broken out of tree
-> junk.
+> What about changing this to a while() loop?
+> 
 
-It is exported for systemtap not random broken out of tree junk, and the
-result is a good deal prettier. Systemtap guys really ought to get their
-stuff merged too, although how we merge a dynamic module writing tool I'm
-not so sure ?
+Unnecessary because tmp is also incremented at the bottom of this for loop 
+so there are two incremental variables.  It is not better served with a 
+while loop; the absence of an initialization variable does not suggest 
+such.
 
-Alan
+		David

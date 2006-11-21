@@ -1,65 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966917AbWKUImD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030736AbWKUIxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966917AbWKUImD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 03:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966927AbWKUImD
+	id S1030736AbWKUIxG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030737AbWKUIxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 03:42:03 -0500
-Received: from wx-out-0506.google.com ([66.249.82.233]:36209 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S966917AbWKUImA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 03:42:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fnxYLhlXOieu9Y7dwertNkLC06AgCVeaklvKo/WoLmHi/HAODb87bQxdA/SUNUkYo9d3ECF2a4TO0C24BYuDUhhpJxUE6vLspBJI1T/V0MJISPvmXI4+4yoOTZkaayDE9LVwdwxfwxDUv2LvU8lSWRJUEQYYD6ZUYioWzcoKY6A=
-Message-ID: <3a5b1be00611210042p2237a0fbpece68912e3d23f4c@mail.gmail.com>
-Date: Tue, 21 Nov 2006 10:42:00 +0200
-From: "Komal Shah" <komal.shah802003@gmail.com>
-To: Vladimir <vovan888@gmail.com>
-Subject: Re: Siemens sx1: merge framebuffer support
-Cc: "Tony Lindgren" <tony@atomide.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com>
+	Tue, 21 Nov 2006 03:53:06 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:47977 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030736AbWKUIxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 03:53:03 -0500
+Message-ID: <4562BD4E.20600@openvz.org>
+Date: Tue, 21 Nov 2006 11:48:14 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061118181607.GA15275@elf.ucw.cz>
-	 <20061120190404.GD4597@atomide.com>
-	 <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com>
+To: Vivek Goyal <vgoyal@in.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@sw.ru>
+Subject: [RFC][PATCH] Fix locking on misrouted interrupts
+Content-Type: multipart/mixed;
+ boundary="------------080709080502010506090302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/06, Vladimir <vovan888@gmail.com> wrote:
-> 2006/11/20, Tony Lindgren <tony@atomide.com>:
-> > * Pavel Machek <pavel@ucw.cz> [061118 18:16]:
-> > > From: Vladimir Ananiev <vovan888@gmail.com>
-> > >
-> > > Framebuffer support for Siemens SX1; this is second big patch. (Third
-> > > one will be mixer/sound support). Support is simple / pretty minimal,
-> > > but seems to work okay (and is somehow important for a cell phone :-).
-> >
-> > Pushed to linux-omap. I guess you're planning to send the missing
-> > Kconfig + Makefile patch for this?
-> >
-> > Also, it would be better to use omap_mcbsp_xmit_word() or
-> > omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
-> > it does not do any checking that it worked. The aic23 and tsc2101
-> > audio in linux-omap tree in general has the same problem.
-> >
-> > Regards,
-> >
-> > Tony
-> >
->
-> Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
-> so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
+This is a multi-part message in MIME format.
+--------------080709080502010506090302
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Please also send defconfig (may be siemens_sx1_defconfig OR
-omap_sx1_310_defconfig) patch for this mobile once, your minimum
-required patches are pushed to -omap git tree. Thanx.
+Vivek noted that many places call note_interrupt()
+without desc->lock being held. Since note_interrupt()
+which tries to unlock this lock to handle spurious
+interrupts accodring to
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f72fa707604c015a6625e80f269506032d5430dc
 
--- 
----Komal Shah
-http://komalshah.blogspot.com
+Looking at note_interrupt() I found that desc->lock
+IS required in this function but all the places that
+call note_interrupt() lock it after the call. One
+exception from this rule is __do_IRQ().
+
+So I move spin_lock(&desc->lock); before calling
+note_interrupt() in all places.
+
+Signed-off-bt: Pavel Emelianov <xemul@openvz.org>
+
+--------------080709080502010506090302
+Content-Type: text/plain;
+ name="diff-note-interrupt-locking-fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-note-interrupt-locking-fix"
+
+--- ./kernel/irq/chip.c.noteintfix	2006-11-21 11:27:18.000000000 +0300
++++ ./kernel/irq/chip.c	2006-11-21 11:48:18.000000000 +0300
+@@ -281,10 +281,11 @@ handle_simple_irq(unsigned int irq, stru
+ 	spin_unlock(&desc->lock);
+ 
+ 	action_ret = handle_IRQ_event(irq, action);
++
++	spin_lock(&desc->lock);
+ 	if (!noirqdebug)
+ 		note_interrupt(irq, desc, action_ret);
+ 
+-	spin_lock(&desc->lock);
+ 	desc->status &= ~IRQ_INPROGRESS;
+ out_unlock:
+ 	spin_unlock(&desc->lock);
+@@ -330,10 +331,11 @@ handle_level_irq(unsigned int irq, struc
+ 	spin_unlock(&desc->lock);
+ 
+ 	action_ret = handle_IRQ_event(irq, action);
++
++	spin_lock(&desc->lock);
+ 	if (!noirqdebug)
+ 		note_interrupt(irq, desc, action_ret);
+ 
+-	spin_lock(&desc->lock);
+ 	desc->status &= ~IRQ_INPROGRESS;
+ 	if (!(desc->status & IRQ_DISABLED) && desc->chip->unmask)
+ 		desc->chip->unmask(irq);
+@@ -381,10 +383,11 @@ handle_fasteoi_irq(unsigned int irq, str
+ 	spin_unlock(&desc->lock);
+ 
+ 	action_ret = handle_IRQ_event(irq, action);
++
++	spin_lock(&desc->lock);
+ 	if (!noirqdebug)
+ 		note_interrupt(irq, desc, action_ret);
+ 
+-	spin_lock(&desc->lock);
+ 	desc->status &= ~IRQ_INPROGRESS;
+ out:
+ 	desc->chip->eoi(irq);
+@@ -460,10 +463,12 @@ handle_edge_irq(unsigned int irq, struct
+ 
+ 		desc->status &= ~IRQ_PENDING;
+ 		spin_unlock(&desc->lock);
++
+ 		action_ret = handle_IRQ_event(irq, action);
++
++		spin_lock(&desc->lock);
+ 		if (!noirqdebug)
+ 			note_interrupt(irq, desc, action_ret);
+-		spin_lock(&desc->lock);
+ 
+ 	} while ((desc->status & (IRQ_PENDING | IRQ_DISABLED)) == IRQ_PENDING);
+ 
+@@ -483,6 +488,7 @@ out_unlock:
+ void fastcall
+ handle_percpu_irq(unsigned int irq, struct irq_desc *desc)
+ {
++	unsigned long flags;
+ 	irqreturn_t action_ret;
+ 
+ 	kstat_this_cpu.irqs[irq]++;
+@@ -491,8 +497,11 @@ handle_percpu_irq(unsigned int irq, stru
+ 		desc->chip->ack(irq);
+ 
+ 	action_ret = handle_IRQ_event(irq, desc->action);
+-	if (!noirqdebug)
++	if (!noirqdebug) {
++		spin_lock_irqsave(&desc->lock, flags);
+ 		note_interrupt(irq, desc, action_ret);
++		spin_unlock_irqrestore(&desc->lock, flags);
++	}
+ 
+ 	if (desc->chip->eoi)
+ 		desc->chip->eoi(irq);
+
+--------------080709080502010506090302--

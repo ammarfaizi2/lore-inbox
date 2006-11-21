@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966111AbWKUJHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030760AbWKUJKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966111AbWKUJHi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 04:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966362AbWKUJHi
+	id S1030760AbWKUJKU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 04:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030769AbWKUJKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 04:07:38 -0500
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:50841
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S966111AbWKUJHg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 04:07:36 -0500
-From: Michael Buesch <mb@bu3sch.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [PATCH 46/61] fix Intel RNG detection
-Date: Tue, 21 Nov 2006 10:05:35 +0100
-User-Agent: KMail/1.9.5
-References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org> <20061120234535.GD17736@redhat.com>
-In-Reply-To: <20061120234535.GD17736@redhat.com>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Jan Beulich <jbeulich@novell.com>,
-       Metathronius Galabant <m.galabant@googlemail.com>,
-       Michael Buesch <mb@bu3sch.de>, Greg Kroah-Hartman <gregkh@suse.de>
+	Tue, 21 Nov 2006 04:10:19 -0500
+Received: from mga03.intel.com ([143.182.124.21]:8358 "EHLO mga03.intel.com")
+	by vger.kernel.org with ESMTP id S1030760AbWKUJKR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 04:10:17 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,442,1157353200"; 
+   d="gz'50?scan'50,208,50"; a="148749368:sNHT10892600950"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611211005.35984.mb@bu3sch.de>
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C70D4C.CF8DEE89"
+Subject: [PATCH 2.6.19-rc6-git2] EFI: mapping memory region of runtime services when using memmap kernel parameter
+Date: Tue, 21 Nov 2006 11:09:55 +0200
+Message-ID: <C1467C8B168BCF40ACEC2324C1A2B074A6A6A5@hasmsx411.ger.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.19-rc6-git2] EFI: mapping memory region of runtime services when using memmap kernel parameter
+Thread-Index: AccNS/jjjas+RVGtQI+1axKdX6QZSQ==
+From: "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>
+To: <randy.dunlap@oracle.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Nov 2006 09:09:55.0975 (UTC) FILETIME=[CFE27970:01C70D4C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 November 2006 00:45, Dave Jones wrote:
-> On Tue, Oct 31, 2006 at 09:34:26PM -0800, Chris Wright wrote:
->  
->  > From: Jan Beulich <jbeulich@novell.com>
->  > 
->  > [PATCH] fix Intel RNG detection
->  > 
->  > Previously, since determination whether there was an Intel random number
->  > generator was based on a single bit, on systems with a matching bridge
->  > device but without a firmware hub, there was a 50% chance that the code
->  > would incorrectly decide that the system had an RNG.  This patch adds
->  > detection of the firmware hub to better qualify the existence of an RNG.
->  > 
->  > There is one issue with the patch: I was unable to determine the LPC
->  > equivalent for the PCI bridge 8086:2430 (since the old code didn't care
->  > about which of the many devices provided by the ICH/ESB it was chose to use
->  > the PCI bridge device, but the FWH settings live in the LPC device, so the
->  > device list needed to be changed).
->  > 
->  > Signed-off-by: Jan Beulich <jbeulich@novell.com>
->  > Signed-off-by: Michael Buesch <mb@bu3sch.de>
->  > Signed-off-by: Andrew Morton <akpm@osdl.org>
->  > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->  > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->  > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> 
-> Since I pushed an update to our Fedora users based on 2.6.18.2, a few people
-> have reported they no longer have their RNG's detected.
-> Here's one report: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=215144
+This is a multi-part message in MIME format.
 
-Well, this patch should acutally fix false detections.
-Did these people actually have a _working_ rng before?
-I saw a report of a mac user, for which the rng disappeared. But
-the previously "detected" rng didn't work either. (Work as in produces
-sane random numbers). So there actually wasn't a rng available all the time.
+------_=_NextPart_001_01C70D4C.CF8DEE89
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 
--- 
-Greetings Michael.
+RnJvbTogQXJ0aW9tIE15YXNrb3V2c2tleSA8YXJ0aW9tLm15YXNrb3V2c2tleUBpbnRlbC5jb20+
+DQoNCldoZW4gdXNpbmcgbWVtbWFwIGtlcm5lbCBwYXJhbWV0ZXIgaW4gRUZJIGJvb3Qgd2Ugc2hv
+dWxkIGFsc28gYWRkIHRvIG1lbW9yeSBtYXAgDQptZW1vcnkgcmVnaW9ucyBvZiBydW50aW1lIHNl
+cnZpY2VzIHRvIGVuYWJsZSB0aGVpciBtYXBwaW5nIGxhdGVyLg0KDQpTaWduZWQtb2ZmLWJ5OiBB
+cnRpb20gTXlhc2tvdXZza2V5IDxhcnRpb20ubXlhc2tvdXZza2V5QGludGVsLmNvbT4NCi0tLQ0K
+DQoNCg==
+
+------_=_NextPart_001_01C70D4C.CF8DEE89
+Content-Type: application/x-gtar;
+	name="efi-memmap.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Description: efi-memmap.patch.gz
+Content-Disposition: attachment;
+	filename="efi-memmap.patch.gz"
+
+H4sICCLBYkUAC2VmaS1tZW1tYXAucGF0Y2gApVZtb9s2EP6sAPkP92mwLUu2nNRJnDhIMThtgOUF
+TbuhGwaBkWibiUQKFJXWG/bfd3yRI7vKmnQGbEvkPXcP7x4eeS5FPoG3UjGRw+WKlA+ieiwf6ApO
+iBkM88bgGeOKZmEi8tPdnd2d35aUQ1UyvoCc5jkp4IFKTjMoiCQ5VVQC4zA7v4A7IRR8oVAuRZWl
+QLJSAElTUEIjhVyBRu/uuBdJF0zwEsQcZMUVyxFJ5SNLaKkhlJO7jIJaUiY1sNAMMoLxQk3rli04
+TQMxnwd3qx9cXBAEuztIKGXzOQRVIa8gY7z6GozCcRgdBTIZBwumRqGQbME4yQaMJ1mV0oExG9A5
+C5ftkDZLE/AHInij4XAcRFEQHUE0nOwfTPajcFh/wB/i/O6O7/svp7LhMpoMx5O9N9+6PDuDYG84
+6o/B138HgAP0K1aAw6NgKaCrmHGmGMnYXzTGXNM8lrQUlUwwsZ7+lEpWiQI3SqGXEkVqI9o9Rjvn
+suKlqSlkAisdG88mxIKqWMujo4M2EVjLpl2JdlIlcZ6XZWfTGxdftAcN9htgVsbkkbBMKy22suxo
+T/YxTmmZxAp6kG+EdUtqGGpd281xbAQFg17vNbIiMlkO2N7heGD31gCXUhVh8kxBnzN/kcCeA2+r
+7HAyGr5GZS/yG01Ge5PRwTNS2z/qj96g1vB/f1+LrVREscSKzRW6kOKOxtjQSisHTHaLVcZyhmKw
+HWZLC+anRMFq7N9apy3zSSUl5SrG/iVhCkOsa+AZyWgJ2Sfow72rt8fmYJRju1ba1Y4Dz2sRU54a
+X56h2yuMu3a7PvQ4Si7OU8fAX6NwqohsbHQ1FxI6BRpZDYb47SM9DYICThrDyM+F9wrw1wATU6cE
+Yb5vyPv/5bZ/b36hiDZmLUWvJSR8J5ruFWaZhWO3lf88DU6L5aq07z509ACv8rggCzwuTk4gGnUd
+VJdCT6tVQWE61UdT/PP11a+zq48X11dvf4kvZ5fXHz7Xq/SecmxS6n8/ujXybs6v4pv3n283yXSd
+D02jrb9gL1mHXnN98n46tdqEROCZyCvq3HkIT4pVx7Htg/luJdR0qdrvxiLWbq0uTbqbGQym9bjX
+6WxAA4vz4ebtu1l8e/H7LIi6cHrq3t9fnH+sM29IakJcmpY4RbX4EK1nJXYEyesF1YnfpmEnTXY/
+3bRQqdf4jzNFEbZoq47SUl3v3vfdo/NBs5KCzpkpBlFKsrtKUfjJiMfqJf7wCQV0OeuiptYk26br
+2g56cMFByBRvSPoKRB7otxcdZ4tnzFoo+gq1JI9Ug9zRXeOerLfuUHgDa1yxeoNXauZ/5RFsHqHO
+5rYG7o+bw64jbPSN9ZbqbGJ7z5FdCwlsZNOpXMNj2H3oIZ5d1slxs8ds7WtjhjZ/sD9Dt7WbQ275
+/wJ2npjhPgsAAA==
+
+------_=_NextPart_001_01C70D4C.CF8DEE89--

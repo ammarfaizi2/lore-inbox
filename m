@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWKUXH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754881AbWKUXNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161363AbWKUXH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 18:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161413AbWKUXH5
+	id S1754881AbWKUXNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 18:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754883AbWKUXNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 18:07:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23174 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161363AbWKUXH4 (ORCPT
+	Tue, 21 Nov 2006 18:13:09 -0500
+Received: from gw.goop.org ([64.81.55.164]:24786 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1754881AbWKUXNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 18:07:56 -0500
-Date: Wed, 22 Nov 2006 00:07:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Tejun Heo <htejun@gmail.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: SATA powersave patches
-Message-ID: <20061121230744.GD1995@elf.ucw.cz>
-References: <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz> <4505394F.6060806@gmail.com> <20060918100548.GJ3746@elf.ucw.cz> <450E771E.1070207@gmail.com> <20061106135751.GA13517@elf.ucw.cz> <454F747A.9050209@gmail.com> <20061112183927.GB5081@ucw.cz> <456280FE.70607@gmail.com>
+	Tue, 21 Nov 2006 18:13:08 -0500
+Message-ID: <456387F9.3010000@goop.org>
+Date: Tue, 21 Nov 2006 15:12:57 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <456280FE.70607@gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151824.36198.ak@suse.de> <200611151846.31109.dada1@cosmosbay.com> <200611211238.20419.dada1@cosmosbay.com> <456372AD.5080807@goop.org> <4563766E.8070408@cosmosbay.com>
+In-Reply-To: <4563766E.8070408@cosmosbay.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Eric Dumazet wrote:
+> for umask/getppid(), its a basic loop with 100.000.000 iterations
 
-> >>If I understood correctly, the high power consumption of 
-> >>ahci controller can be solved by dynamically turning off 
-> >>command processing while the controller is idle, which 
-> >>fits nicely into link powersaving, right?  So, I think 
-> >>full-fledged leveled dynamic PM would be an overkill for 
-> >>this particular problem, but then again, maybe the 
-> >
-> >It is single bit, and it should not even need a timeout, AFAICT, so
-> >perhaps we should just fix it (no need for dynamic PM layers). It
-> >probably does not even need to be configurable...
-> 
-> I think this has been discussed in linux-ide recently but just to add my 
-> 2 cents.  ALPE and ASP can cause quite some problems.  Many devices 
-> don't implement link powermanagement mode properly and some locks up 
+Ah, OK, so there's about 2.5-3.5ns difference due to the instructions
+you removed.  That's very much in line with that I saw in my measurements.
 
-Ok, so it needs to be optional :-). I played with the code a little
-bit, but did not find combination that both worked and saved power :-(.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+> for read/write(), loop with 10.000.000 iterations
+
+2 syscalls/iteration?  It's interesting you measured about the same
+absolute time difference (.42s) even though you're doing 1/5th the
+number of syscalls.
+
+> elapsed time (/usr/bin/time ./prog)
+> 10 runs, and the minimum time is taken.
+
+Hm, but "time" measures user, system and real time.  You used real time?
+
+> Hum... Do you mean a cache miss every time we do a syscall ? What
+> could invalidate this cache exactly ?
+
+Well, there might be a miss simply because the line got evicted.  But as
+Andi pointed out, a hot benchmark like this is very unlikely to get any
+cache misses unless there's something very unfortunate happening.
+
+    J

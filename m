@@ -1,282 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031347AbWKUWxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031302AbWKUWxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031347AbWKUWxx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031290AbWKUWxj
+	id S1031302AbWKUWxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031299AbWKUWxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:53:39 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:29607 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1031284AbWKUWxY
+	Tue, 21 Nov 2006 17:53:12 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:24231 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1031284AbWKUWxE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:53:24 -0500
+	Tue, 21 Nov 2006 17:53:04 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org
 Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org, clameter@sgi.com
-Message-Id: <20061121225323.11710.3647.sendpatchset@skynet.skynet.ie>
+Message-Id: <20061121225303.11710.64499.sendpatchset@skynet.skynet.ie>
 In-Reply-To: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
 References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 9/11] Add a bitmap that is used to track flags affecting a block of pages
-Date: Tue, 21 Nov 2006 22:53:23 +0000 (GMT)
+Subject: [PATCH 8/11] [DEBUG] Add statistics
+Date: Tue, 21 Nov 2006 22:53:03 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Page clustering uses two bits per page to track if the page can be moved
-or reclaimed.  However, what is of real interest is what the whole block
-of pages is being used for.  This patch adds a bitmap that is used for
-flags affecting a whole a MAX_ORDER block of pages. Later patches drop the
-requirement to use page->flags and this bitmap is used instead.
+This patch is strictly debug only.  It outputs some information to
+/proc/buddyinfo that may help explain what went wrong if page clustering
+totally breaks down and prints out a trace when fallbacks occur to help
+determine if allocation flagging is incomplete.
 
-In non-SPARSEMEM configurations, the bitmap is stored in the struct zone
-and allocated during initialisation. SPARSEMEM statically allocates the
-bitmap in a struct mem_section so that bitmaps do not have to be resized
-during memory hotadd. This wastes a small amount of memory per unused section
-(usually sizeof(unsigned long)) but the complexity of dynamically allocating
-the memory is quite high.
-
-This mechanism is a proof of concept, so it uses obviously correct over optimal
-implementation.
-
-Additional credit to Andy Whitcroft who reviewed up an earlier implementation
-of the mechanism an suggested how to make it a *lot* cleaner.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
 ---
 
- include/linux/mmzone.h          |   13 +++
- include/linux/pageblock-flags.h |   48 ++++++++++++++
- mm/page_alloc.c                 |  115 +++++++++++++++++++++++++++++++++++
- 3 files changed, 176 insertions(+)
+ page_alloc.c |   32 ++++++++++++++++++++++++++++++++
+ vmstat.c     |   16 ++++++++++++++++
+ 2 files changed, 48 insertions(+)
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-009_stats/include/linux/mmzone.h linux-2.6.19-rc5-mm2-101_pageblock_bits/include/linux/mmzone.h
---- linux-2.6.19-rc5-mm2-009_stats/include/linux/mmzone.h	2006-11-21 10:57:46.000000000 +0000
-+++ linux-2.6.19-rc5-mm2-101_pageblock_bits/include/linux/mmzone.h	2006-11-21 11:23:20.000000000 +0000
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/seqlock.h>
- #include <linux/nodemask.h>
-+#include <linux/pageblock-flags.h>
- #include <asm/atomic.h>
- #include <asm/page.h>
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-008_reclaimable/mm/page_alloc.c linux-2.6.19-rc5-mm2-009_stats/mm/page_alloc.c
+--- linux-2.6.19-rc5-mm2-008_reclaimable/mm/page_alloc.c	2006-11-21 10:57:46.000000000 +0000
++++ linux-2.6.19-rc5-mm2-009_stats/mm/page_alloc.c	2006-11-21 11:52:40.000000000 +0000
+@@ -58,6 +58,10 @@ unsigned long totalram_pages __read_most
+ unsigned long totalreserve_pages __read_mostly;
+ long nr_swap_pages;
+ int percpu_pagelist_fraction;
++#ifdef CONFIG_PAGE_CLUSTERING
++int split_count[MIGRATE_TYPES];
++int fallback_counts[MIGRATE_TYPES];
++#endif /* CONFIG_PAGE_CLUSTERING */
  
-@@ -222,6 +223,14 @@ struct zone {
+ static void __free_pages_ok(struct page *page, unsigned int order);
+ 
+@@ -84,6 +88,8 @@ int sysctl_lowmem_reserve_ratio[MAX_NR_Z
  #endif
- 	struct free_area	free_area[MAX_ORDER];
- 
-+#ifndef CONFIG_SPARSEMEM
-+	/*
-+	 * Flags for a MAX_ORDER_NR_PAGES block. See pageblock-flags.h.
-+	 * In SPARSEMEM, this map is stored in struct mem_section
-+	 */
-+	unsigned long           *pageblock_flags;
-+#endif /* CONFIG_SPARSEMEM */
-+
- 
- 	ZONE_PADDING(_pad1_)
- 
-@@ -677,6 +686,9 @@ extern struct zone *next_zone(struct zon
- #define PAGES_PER_SECTION       (1UL << PFN_SECTION_SHIFT)
- #define PAGE_SECTION_MASK	(~(PAGES_PER_SECTION-1))
- 
-+#define SECTION_BLOCKFLAGS_BITS \
-+		((SECTION_SIZE_BITS - (MAX_ORDER-1)) * NR_PAGEBLOCK_BITS)
-+
- #if (MAX_ORDER - 1 + PAGE_SHIFT) > SECTION_SIZE_BITS
- #error Allocator MAX_ORDER exceeds SECTION_SIZE
- #endif
-@@ -696,6 +708,7 @@ struct mem_section {
- 	 * before using it wrong.
- 	 */
- 	unsigned long section_mem_map;
-+	DECLARE_BITMAP(pageblock_flags, SECTION_BLOCKFLAGS_BITS);
  };
  
- #ifdef CONFIG_SPARSEMEM_EXTREME
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-009_stats/include/linux/pageblock-flags.h linux-2.6.19-rc5-mm2-101_pageblock_bits/include/linux/pageblock-flags.h
---- linux-2.6.19-rc5-mm2-009_stats/include/linux/pageblock-flags.h	2006-11-21 11:33:29.000000000 +0000
-+++ linux-2.6.19-rc5-mm2-101_pageblock_bits/include/linux/pageblock-flags.h	2006-11-21 11:23:20.000000000 +0000
-@@ -0,0 +1,48 @@
-+/*
-+ * Macros for manipulating and testing flags related to a
-+ * MAX_ORDER_NR_PAGES block of pages.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation version 2 of the License
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2006
-+ *
-+ * Original author, Mel Gorman
-+ * Major cleanups and reduction of bit operations, Andy Whitcroft
-+ */
-+#ifndef PAGEBLOCK_FLAGS_H
-+#define PAGEBLOCK_FLAGS_H
++static int printfallback_count;
 +
-+#include <linux/types.h>
-+
-+/* Bit indices that affect a whole block of pages */
-+enum pageblock_bits {
-+	NR_PAGEBLOCK_BITS
-+};
-+
-+/* Forward declaration */
-+struct page;
-+
-+/* Declarations for getting and setting flags. See mm/page_alloc.c */
-+unsigned long get_pageblock_flags_group(struct page *page,
-+					int start_bitidx, int end_bitidx);
-+void set_pageblock_flags_group(struct page *page, unsigned long flags,
-+					int start_bitidx, int end_bitidx);
-+
-+#define get_pageblock_flags(page) \
-+			get_pageblock_flags_group(page, 0, NR_PAGEBLOCK_BITS-1)
-+#define set_pageblock_flags(page) \
-+			set_pageblock_flags_group(page, 0, NR_PAGEBLOCK_BITS-1)
-+
-+#endif	/* PAGEBLOCK_FLAGS_H */
-+
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-009_stats/mm/page_alloc.c linux-2.6.19-rc5-mm2-101_pageblock_bits/mm/page_alloc.c
---- linux-2.6.19-rc5-mm2-009_stats/mm/page_alloc.c	2006-11-21 11:52:40.000000000 +0000
-+++ linux-2.6.19-rc5-mm2-101_pageblock_bits/mm/page_alloc.c	2006-11-21 11:52:45.000000000 +0000
-@@ -2945,6 +2945,41 @@ static void __init calculate_node_totalp
- 							realtotalpages);
- }
+ EXPORT_SYMBOL(totalram_pages);
  
-+#ifndef CONFIG_SPARSEMEM
-+/*
-+ * Calculate the size of the zone->blockflags rounded to an unsigned long
-+ * Start by making sure zonesize is a multiple of MAX_ORDER-1 by rounding up
-+ * Then figure 1 NR_PAGEBLOCK_BITS worth of bits per MAX_ORDER-1, finally
-+ * round what is now in bits to nearest long in bits, then return it in
-+ * bytes.
-+ */
-+static unsigned long __init usemap_size(unsigned long zonesize)
-+{
-+	unsigned long usemapsize;
+ static char *zone_names[MAX_NR_ZONES] = {
+@@ -750,6 +756,27 @@ static struct page *__rmqueue_fallback(s
+ 					struct page, lru);
+ 			area->nr_free--;
+ 
++			/* Account for a MAX_ORDER block being split */
++			if (current_order == MAX_ORDER - 1 &&
++					order < MAX_ORDER - 1) {
++				split_count[start_migratetype]++;
++			}
 +
-+	usemapsize = roundup(zonesize, MAX_ORDER_NR_PAGES);
-+	usemapsize = usemapsize >> (MAX_ORDER-1);
-+	usemapsize *= NR_PAGEBLOCK_BITS;
-+	usemapsize = roundup(usemapsize, 8 * sizeof(unsigned long));
++			/* Account for fallbacks of interest */
++			if (order < HUGETLB_PAGE_ORDER &&
++					current_order != MAX_ORDER - 1) {
++				fallback_counts[start_migratetype]++;
++				if (printfallback_count < 500 && start_migratetype != MIGRATE_MOVABLE) {
++					printfallback_count++;
++					printk("ALLOC FALLBACK %d TYPE %d TO %d ZONE %s\n", printfallback_count, start_migratetype, migratetype, zone->name);
++					printk("===========================\n");
++					dump_stack();
++					printk("===========================\n");
++			}
 +
-+	return usemapsize / 8;
-+}
 +
-+static void __init setup_usemap(struct pglist_data *pgdat,
-+				struct zone *zone, unsigned long zonesize)
-+{
-+	unsigned long usemapsize = usemap_size(zonesize);
-+	zone->pageblock_flags = NULL;
-+	if (usemapsize) {
-+		zone->pageblock_flags = alloc_bootmem_node(pgdat, usemapsize);
-+		memset(zone->pageblock_flags, 0, usemapsize);
-+	}
-+}
-+#else
-+static void inline setup_usemap(struct pglist_data *pgdat,
-+				struct zone *zone, unsigned long zonesize) {}
-+#endif /* CONFIG_SPARSEMEM */
++			}
 +
- /*
-  * Set up the zone data structures:
-  *   - mark all pages reserved
-@@ -3028,6 +3063,7 @@ static void __meminit free_area_init_cor
- 		if (!size)
+ 			/* Remove the page from the freelists */
+ 			list_del(&page->lru);
+ 			rmv_page_order(page);
+@@ -805,6 +832,11 @@ static struct page *__rmqueue(struct zon
+ 		if (list_empty(&area->free_list[migratetype]))
  			continue;
  
-+		setup_usemap(pgdat, zone, size);
- 		ret = init_currently_empty_zone(zone, zone_start_pfn, size);
- 		BUG_ON(ret);
- 		zone_start_pfn += size;
-@@ -3744,3 +3780,82 @@ int highest_possible_node_id(void)
++#ifdef CONFIG_PAGE_CLUSTERING
++		if (current_order == MAX_ORDER - 1 && order < MAX_ORDER - 1)
++			split_count[migratetype]++;
++#endif /* CONFIG_PAGE_CLUSTERING */
++
+ 		page = list_entry(area->free_list[migratetype].next,
+ 					struct page, lru);
+ 		list_del(&page->lru);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-008_reclaimable/mm/vmstat.c linux-2.6.19-rc5-mm2-009_stats/mm/vmstat.c
+--- linux-2.6.19-rc5-mm2-008_reclaimable/mm/vmstat.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-009_stats/mm/vmstat.c	2006-11-21 10:59:36.000000000 +0000
+@@ -13,6 +13,11 @@
+ #include <linux/module.h>
+ #include <linux/cpu.h>
+ 
++#ifdef CONFIG_PAGE_CLUSTERING
++extern int split_count[MIGRATE_TYPES];
++extern int fallback_counts[MIGRATE_TYPES];
++#endif /* CONFIG_PAGE_CLUSTERING */
++
+ void __get_zone_counts(unsigned long *active, unsigned long *inactive,
+ 			unsigned long *free, struct pglist_data *pgdat)
+ {
+@@ -403,6 +408,17 @@ static void *frag_next(struct seq_file *
+ 
+ static void frag_stop(struct seq_file *m, void *arg)
+ {
++#ifdef CONFIG_PAGE_CLUSTERING
++	seq_printf(m, "Fallback counts\n");
++	seq_printf(m, "Unmovable: %8d\n", fallback_counts[MIGRATE_UNMOVABLE]);
++	seq_printf(m, "Reclaim:   %8d\n", fallback_counts[MIGRATE_RECLAIMABLE]);
++	seq_printf(m, "Movable:   %8d\n", fallback_counts[MIGRATE_MOVABLE]);
++
++	seq_printf(m, "\nSplit counts\n");
++	seq_printf(m, "Unmovable: %8d\n", split_count[MIGRATE_UNMOVABLE]);
++	seq_printf(m, "Reclaim:   %8d\n", split_count[MIGRATE_RECLAIMABLE]);
++	seq_printf(m, "Movable:   %8d\n", split_count[MIGRATE_MOVABLE]);
++#endif /* CONFIG_PAGE_CLUSTERING */
  }
- EXPORT_SYMBOL(highest_possible_node_id);
- #endif
-+
-+/* Return a pointer to the bitmap storing bits affecting a block of pages */
-+static inline unsigned long *get_pageblock_bitmap(struct zone *zone,
-+							unsigned long pfn)
-+{
-+#ifdef CONFIG_SPARSEMEM
-+	unsigned long blockpfn;
-+	blockpfn = pfn & ~(MAX_ORDER_NR_PAGES - 1);
-+	return __pfn_to_section(blockpfn)->pageblock_flags;
-+#else
-+	return zone->pageblock_flags;
-+#endif /* CONFIG_SPARSEMEM */
-+}
-+
-+static inline int pfn_to_bitidx(struct zone *zone, unsigned long pfn)
-+{
-+#ifdef CONFIG_SPARSEMEM
-+	pfn &= (PAGES_PER_SECTION-1);
-+	return (pfn >> (MAX_ORDER-1)) * NR_PAGEBLOCK_BITS;
-+#else
-+	pfn = pfn - zone->zone_start_pfn;
-+	return (pfn >> (MAX_ORDER-1)) * NR_PAGEBLOCK_BITS;
-+#endif /* CONFIG_SPARSEMEM */
-+}
-+
-+/**
-+ * get_pageblock_flags_group - Return the requested group of flags for the MAX_ORDER_NR_PAGES block of pages
-+ * @page: The page within the block of interest
-+ * @start_bitidx: The first bit of interest to retrieve
-+ * @end_bitidx: The last bit of interest
-+ * returns pageblock_bits flags
-+ */
-+unsigned long get_pageblock_flags_group(struct page *page,
-+					int start_bitidx, int end_bitidx)
-+{
-+	struct zone *zone;
-+	unsigned long *bitmap;
-+	unsigned long pfn, bitidx;
-+	unsigned long flags = 0;
-+	unsigned long value = 1;
-+
-+	zone = page_zone(page);
-+	pfn = page_to_pfn(page);
-+	bitmap = get_pageblock_bitmap(zone, pfn);
-+	bitidx = pfn_to_bitidx(zone, pfn);
-+
-+	for (; start_bitidx <= end_bitidx; start_bitidx++, value <<= 1)
-+		if (test_bit(bitidx + start_bitidx, bitmap))
-+			flags |= value;
-+
-+	return flags;
-+}
-+
-+/**
-+ * set_pageblock_flags_group - Set the requested group of flags for a MAX_ORDER_NR_PAGES block of pages
-+ * @page: The page within the block of interest
-+ * @start_bitidx: The first bit of interest
-+ * @end_bitidx: The last bit of interest
-+ * @flags: The flags to set
-+ */
-+void set_pageblock_flags_group(struct page *page, unsigned long flags,
-+					int start_bitidx, int end_bitidx)
-+{
-+	struct zone *zone;
-+	unsigned long *bitmap;
-+	unsigned long pfn, bitidx;
-+	unsigned long value = 1;
-+
-+	zone = page_zone(page);
-+	pfn = page_to_pfn(page);
-+	bitmap = get_pageblock_bitmap(zone, pfn);
-+	bitidx = pfn_to_bitidx(zone, pfn);
-+
-+	for (; start_bitidx <= end_bitidx; start_bitidx++, value <<= 1)
-+		if (flags & value)
-+			__set_bit(bitidx + start_bitidx, bitmap);
-+		else
-+			__clear_bit(bitidx + start_bitidx, bitmap);
-+}
+ 
+ /*

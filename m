@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030979AbWKUPJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933513AbWKUPQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030979AbWKUPJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 10:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030847AbWKUPJG
+	id S933513AbWKUPQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 10:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934377AbWKUPQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 10:09:06 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:14327 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030979AbWKUPJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 10:09:04 -0500
-Date: Tue, 21 Nov 2006 16:09:39 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, Jiri Slaby <jirislaby@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driver core: delete virtual directory on
- class_unregister()
-Message-ID: <20061121160939.7a9a1f7d@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20061121095853.GA16279@APFDCB5C>
-References: <4561E290.7060100@gmail.com>
-	<20061120182312.GA16006@APFDCB5C>
-	<4561FA6F.4030400@gmail.com>
-	<20061120195318.GB18077@APFDCB5C>
-	<20061120203440.GA5458@suse.de>
-	<20061121095853.GA16279@APFDCB5C>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Tue, 21 Nov 2006 10:16:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29334 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933513AbWKUPQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 10:16:57 -0500
+Subject: Re: Re[2]: Where did find_bus() go in 2.6.18?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Paul Sokolovsky <pmiscml@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Greg KH <gregkh@suse.de>,
+       Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       kernel-discuss@handhelds.org
+In-Reply-To: <1697835939.20061121170846@gmail.com>
+References: <1154868495.20061120003437@gmail.com>
+	 <4560ECAF.1030901@gmail.com> <20061120001212.GA28427@suse.de>
+	 <1148526308.20061120161322@gmail.com> <20061120173550.GV31879@stusta.de>
+	 <1697835939.20061121170846@gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 21 Nov 2006 16:16:34 +0100
+Message-Id: <1164122195.31358.677.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 18:58:53 +0900,
-Akinobu Mita <akinobu.mita@gmail.com> wrote:
 
-> On Mon, Nov 20, 2006 at 12:34:40PM -0800, Greg KH wrote:
-> >
-> > Hm, why is this not reproducable for me then without this patch?
-> >
-> 
-> I can reproduce it by reloading raw.ko on 2.6.19-rc5-mm2.
-> not happened on 2.6.19-rc6.
+>   And removing a method from an integral, high-level API set is not the
+> same as killing static variable in a hardware driver.
 
-I can reproduce this on 2.9.19-rc5-mm2 with CONFIG_SYSFS_DEPRECATED as
-well.
+removing dead code that nobody is using should be applauded though. 
+If we left all unused code in the kernel binary we'd soon have a 100Mb
+vmlinuz file.... and an unmaintainable mess.
 
-> After unloading raw.ko, /sys/devices/virtual/raw is still exist.
-> So next loading raw.ko will fail.
+Actively removing parts of the kernel code that nobody is using is a
+fight against that bloat (and yes the kernel has grown far too big
+already, as I'm sure the handheld.org people already know... you
+wouldn't want a 2x bigger vmlinuz right?...
 
-And as virtual_device_parent() fails to do much error checking, we end
-up with /sys/devices/rawctl instead of /sys/devices/virtual/raw/rawctl.
-raw_init() won't notice anything has gone wrong...
+Also, if an API or part of an API is unused, it's quite possibly an API
+that SHOULDN'T be used, either because it's designed totally shite (like
+sleep_on() is :), because the implementation is really horrid or because
+it offers a function that nobody actually needs.
 
-Perhaps it would make sense to create /sys/device/virtual/<class>/
-already in class_register() (regardless of whether there will be any
-devices for this class) and unconditionally remove it in
-class_unregister()? Removing something in _unregister() which was not
-created by _register() but by some unrelated action seems a bit
-lopsided to me...
+All three are grounds for removal to keep the vmlinuz side down in my
+book. That isn't change for change's sake (I'm starting to sound like a
+Harry Potter book) but that's an attempt to keep the bloat of the
+vmlinuz down.
+
 
 -- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

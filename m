@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966897AbWKUCSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966899AbWKUCVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966897AbWKUCSl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 21:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966900AbWKUCSl
+	id S966899AbWKUCVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 21:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966901AbWKUCVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 21:18:41 -0500
-Received: from mga05.intel.com ([192.55.52.89]:26642 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S966897AbWKUCSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 21:18:41 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,441,1157353200"; 
-   d="scan'208"; a="166999881:sNHT34886467"
-Date: Mon, 20 Nov 2006 17:54:42 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: [patch] sched: decrease number of load balances
-Message-ID: <20061120175441.C17305@unix-os.sc.intel.com>
-References: <20061120142633.A17305@unix-os.sc.intel.com> <Pine.LNX.4.64.0611201625240.23868@schroedinger.engr.sgi.com> <20061120164338.B17305@unix-os.sc.intel.com> <Pine.LNX.4.64.0611201734490.24998@schroedinger.engr.sgi.com>
+	Mon, 20 Nov 2006 21:21:41 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:1686 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S966899AbWKUCVk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 21:21:40 -0500
+Date: Mon, 20 Nov 2006 18:21:09 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Jan Beulich <jbeulich@novell.com>,
+       Metathronius Galabant <m.galabant@googlemail.com>,
+       Michael Buesch <mb@bu3sch.de>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
+Message-ID: <20061121022109.GF1397@sequoia.sous-sol.org>
+References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org> <20061120234535.GD17736@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.64.0611201734490.24998@schroedinger.engr.sgi.com>; from clameter@sgi.com on Mon, Nov 20, 2006 at 05:39:42PM -0800
+In-Reply-To: <20061120234535.GD17736@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 05:39:42PM -0800, Christoph Lameter wrote:
-> On Mon, 20 Nov 2006, Siddha, Suresh B wrote:
-> 
-> > My patch is not changing any idle load balancing logic and hence it is no
-> > less/more aggressive as the current one.
-> 
-> But you cannot do anything in addition to idle balancing. You can only 
-> draw a process to the cpu you are balancing on. And we are already doing 
-> that.
+* Dave Jones (davej@redhat.com) wrote:
+> Since I pushed an update to our Fedora users based on 2.6.18.2, a few people
+> have reported they no longer have their RNG's detected.
+> Here's one report: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=215144
 
-Yes. The above logic is not changed.
+Hmm, I wonder if the report is valid?  Jan's patch would have the correct
+side effect of disabling false positives (for RNG identification).
+Be good to check that it actually used to work.
 
-Once an idle processor('P') picked up some load(based on load differences of groups
-at level 'X) at level 'X', group of cpus(containing 'P') in level 'X-1' will try to
-distribute that load among them depending on their groups load at that level. And
-this repeats till we reach the lowest level..
-
-> So this cuts down the frequency of idle balance?
-
-Frequency of idle processor doing balance is same as today but what we reduce
-is number of processors doing that load balance.
-
-> And only the first idle processor of a group of idle processors does balancing?
-
-That is correct. If all the cpus in a group are busy, then only the first cpu in
-the group will do load balance between the groups. We really don't have to
-calculate who in the group is leastly loaded, as we can assume that load is equally
-balanced at level 'X-1' while doing load balancing at level 'X'.
+Having said that, Jan the datasheet recommendation is looser than your
+implementation.  It only recommends checking for manufacturer code,
+you check device code as well.  Do you know of any scenarios where that
+would matter (I can't conceive of any)?
 
 thanks,
-suresh
+-chris

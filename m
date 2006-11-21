@@ -1,70 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030593AbWKUAyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030624AbWKUAz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030593AbWKUAyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 19:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWKUAyF
+	id S1030624AbWKUAz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 19:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWKUAz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 19:54:05 -0500
-Received: from gate.crashing.org ([63.228.1.57]:16605 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030593AbWKUAyC (ORCPT
+	Mon, 20 Nov 2006 19:55:57 -0500
+Received: from localhost.localdomain ([127.0.0.1]:8613 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S1030620AbWKUAz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 19:54:02 -0500
-Subject: Re: [PATCH 01/22] powerpc: convert idle_loop to use
-	hard_irq_disable()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-In-Reply-To: <20061120180520.418063000@arndb.de>
-References: <20061120174454.067872000@arndb.de>
-	 <20061120180520.418063000@arndb.de>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 11:53:44 +1100
-Message-Id: <1164070425.8073.40.camel@localhost.localdomain>
+	Mon, 20 Nov 2006 19:55:56 -0500
+Date: Mon, 20 Nov 2006 19:55:56 -0500 (EST)
+Message-Id: <20061120.195556.23029046.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [-mm patch] make net/core/skbuff.c:skb_over_panic() static
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061117170205.GE31879@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	<20061117170205.GE31879@stusta.de>
+X-Mailer: Mew version 5.1 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a bug report that I believe might be fixed by this
-patch. The problem seems to be that with soft-disabled
-interrupts in power_save, we can still get external exceptions
-on Cell, even if we are in pause(0) a.k.a. sleep state.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Fri, 17 Nov 2006 18:02:05 +0100
 
-When the CPU really wakes up through the 0x100 (system reset)
-vector, while we have already started processing the 0x500
-(external) exception, we get a panic in unrecoverable_exception()
-because of the lost state.
+> skb_over_panic() can now become static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-This occurred in Systemsim for Cell, but as far as I can see,
-it can theoretically occur on any machine that uses the
-system reset exception to get out of sleep state.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
----
-What about that patch instead ?
-
-Index: linux-cell/arch/powerpc/platforms/cell/pervasive.c
-===================================================================
---- linux-cell.orig/arch/powerpc/platforms/cell/pervasive.c	2006-11-21 11:01:12.000000000 +1100
-+++ linux-cell/arch/powerpc/platforms/cell/pervasive.c	2006-11-21 11:48:12.000000000 +1100
-@@ -41,6 +41,15 @@
- static void cbe_power_save(void)
- {
- 	unsigned long ctrl, thread_switch_control;
-+
-+	/*
-+	 * We need to hard disable interrupts, but we also need to mark them
-+	 * hard disabled in the PACA so that the local_irq_enable() done by
-+	 * our caller upon return propertly hard enables.
-+	 */
-+	hard_irq_disable();
-+	get_paca()->hard_enabled = 0;
-+
- 	ctrl = mfspr(SPRN_CTRLF);
- 
- 	/* Enable DEC and EE interrupt request */
-
-
+Applied to net-2.6.20, thanks Adrian.

@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756866AbWKUXvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756884AbWKUXzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756866AbWKUXvo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 18:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756867AbWKUXvn
+	id S1756884AbWKUXzT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 18:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756883AbWKUXzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 18:51:43 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:43410 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1756866AbWKUXvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 18:51:43 -0500
-Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
-References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
-	 <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
-	 <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 15:51:36 -0800
-Message-Id: <1164153096.9131.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 21 Nov 2006 18:55:19 -0500
+Received: from nz-out-0102.google.com ([64.233.162.205]:4472 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1756884AbWKUXzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 18:55:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W54OdHj6Rxmd9ki4xbtFXWznuMm90QlzMU94guvKX8zSQzIxly142ZdqFHiB8AJi0XZVjTtf29bvnwJA6jz/xE0QlglMOCsKWWvFJHzJZ9ErKwjz19LG254f0b+9O8Qm57aeyTwmqv7f3C9haWTm7dsiGoGL5hLx8ANb88Y0wOA=
+Message-ID: <9a8748490611211555r8c51870q2f34892a806e9303@mail.gmail.com>
+Date: Wed, 22 Nov 2006 00:55:16 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Maarten Maathuis" <madman2003@gmail.com>
+Subject: Re: A curious user would like to know what anonpages are.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6d4bc9fc0611211530te8b9b6m84860c7aacdd1b01@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6d4bc9fc0611211530te8b9b6m84860c7aacdd1b01@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-21 at 23:43 +0000, Mel Gorman wrote:
-> On Tue, 21 Nov 2006, Christoph Lameter wrote:
-> > Are GFP_HIGHUSER allocations always movable? It would reduce the size of
-> > the patch if this would be added to GFP_HIGHUSER.
-> 
-> No, they aren't. Page tables allocated with HIGHPTE are currently not 
-> movable for example. A number of drivers (infiniband for example) also use 
-> __GFP_HIGHMEM that are not movable.
+On 22/11/06, Maarten Maathuis <madman2003@gmail.com> wrote:
+> Recently i noticed an (in my eyes) unexplainable memory loss, I
+> couldn't trace it a specific process, the slab, buffers or any of the
+> usual places.
+>
+> cat /proc/meminfo revealed something called anonpages, which seemed to
+> be around a 100 MiB large.
+>
+> I have no idea what they are, searching the mailinglist archives or
+> using a conventional search engine didn't yield anything usefull.
+>
+> Can anyone enlighten a curious user?
+>
 
-I think Christoph was saying that it might reduce the size of the patch
-to include it by _default_.  You could always go to the
-weird^Wspecialized users and mask the bits back off.
+Hmm, wouldn't that be "anonymous pages"?  See http://lwn.net/Articles/77106/
 
-We probably also need to start getting a nice list of those users which
-are HIGH but not MOVABLE.  This would provide that by default, I think.
 
--- Dave
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

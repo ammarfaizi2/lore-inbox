@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966900AbWKUCwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934296AbWKUCsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966900AbWKUCwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 21:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966901AbWKUCwZ
+	id S934296AbWKUCsF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 21:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934294AbWKUCsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 21:52:25 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:30097 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966900AbWKUCwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 21:52:24 -0500
+	Mon, 20 Nov 2006 21:48:05 -0500
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:59550 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S966898AbWKUCsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 21:48:03 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
   h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=5XNeef/wl1lqmKuSOaSggs36zVSZA74m/+kCfAPE5xzcgtFd3MQbOQOKNdGksdF/V/eH8ulIG5PcssOM7Ywa56JsemhAf70yIwlQIsm4ICyh5APvYt0NxnNN9vyshDCwWZoN6XVeZctpIE1FpqvRxg9xBURBxqw0YC8tCAfRjIw=  ;
-X-YMail-OSG: ayHcAkwVM1m61i1xDq41q6r2D0P_1.YBbID5KYEw4ArDMHMeGtOp6bK.xTRhuY46Taxcw00jyfLmkqXZs2IoH0QlQoExLhMr63_lm1BDnIs4iP0FyzTmJ5keURaY56AsGXguzveY_nxuGbDU_CZTuqkf6eoJRDuVCv4-
+  b=2n2BJ9jrDVsiMN+8/BLDIHXuxWslNrzjGZgvGMpPvAKC8+RS0Y/CGIq2D70/DcMh1Y4q551jRNzL5f66/CsAiW0NpWFTPIYls/Gopjr20H5qSEpU7rtjjGVj1QSIkCtLBxR6eYqoPeFsm2ZT/pMkHYUjGTil4jCHYBhBbdI4dxo=  ;
+X-YMail-OSG: xq7DxCUVM1kZSI1VkgcOibssKKCOIfw4S2bUqdv8vCqFt3tABgDjNy4y5LPLB43.stKpM44uwNS5b7zukm8nOTFDzDLiXfBGaiLxH0IdtqUbxMM3K.wgZ2H761_ZXdWnM0UEVEEpms5pcFG9hvZehEEfzsyMnQ7P9oo-
 From: David Brownell <david-b@pacbell.net>
-To: Willy Tarreau <w@1wt.eu>
-Subject: Re: [PATCH] fix "&& 0x03" obvious typo in net1080
-Date: Mon, 20 Nov 2006 18:52:19 -0800
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [Bulk] Re: [patch 2.6.19-rc6 1/6] rtc class /proc/driver/rtc update
+Date: Mon, 20 Nov 2006 18:47:57 -0800
 User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <20061119143301.GA2633@1wt.eu>
-In-Reply-To: <20061119143301.GA2633@1wt.eu>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <200611201014.41980.david-b@pacbell.net> <200611201017.19961.david-b@pacbell.net> <20061121001352.55f3ce2b@inspiron>
+In-Reply-To: <20061121001352.55f3ce2b@inspiron>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611201852.20407.david-b@pacbell.net>
+Message-Id: <200611201847.58135.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 November 2006 6:33 am, Willy Tarreau wrote:
-> Hi David,
+On Monday 20 November 2006 3:13 pm, Alessandro Zummo wrote:
+> On Mon, 20 Nov 2006 10:17:19 -0800
+> David Brownell <david-b@pacbell.net> wrote:
 > 
-> I found this bug while grepping for "&& 0x" in drivers.
-> Care to forward upstream ?
+> > Fix two minor botches in the procfs dumping of RTC alarm status:
+> > 
+> >  - Stop confusing "alarm enabled" with "wakeup enabled".
+> > 
+> >  - Don't display bogus "irq pending/un-acked" status; those are the rather
+> >    pointless semantics EFI assigned to this (for a no-IRQs environment).
+> 
+>  I wouldn't change that, the /proc interface to rtc is old
+>  and should not be used anyhow. Here I'm trying to mimic
+>  the behaviour of the original one.
 
-I thought this already _was_ upstream ... Greg?
+The "original" one never had such fields.  Even the efirtc.c
+code (which originated those flags) didn't call them that;
+it used "Enabled" not "alrm_enabled", so at least this patch
+moves closer to that "original" behavior.
 
 
-> Regards,
-> Willy
+>  sysfs provides a much better interface
+>  (once we'll have all the attributes exported, of course :) )
+
+That's an orthgonal issue.  (Though one can argue that the
+procfs file should be /proc/driver/rtc0 etc, one per RTC,
+rather than /proc/driver/rtc...)
+
+
+>  I don't know if there's any user space tool relying on this.
+
+There shouldn't be any code parsing /proc/driver/rtc ... if there
+is such stuff, it's already got so many variants to cope with that
+adding one that actually matches the rest of the system would be
+a net simplification.
+
+
+>  If yes, then it should be fixed.
 > 
-> >From e9b19b98763726db99237ccfea907cf88d3572ac Mon Sep 17 00:00:00 2001
-> From: Willy Tarreau <w@1wt.eu>
-> Date: Sun, 19 Nov 2006 15:30:11 +0100
-> Subject: [PATCH] fix "&& 0x03" obvious typo in net1080
-> 
-> Another obvious occurrence of this typo.
-> 
-> Signed-off-by: Willy Tarreau <w@1wt.eu>
-> ---
->  drivers/usb/net/net1080.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/usb/net/net1080.c b/drivers/usb/net/net1080.c
-> index ce00de8..a774105 100644
-> --- a/drivers/usb/net/net1080.c
-> +++ b/drivers/usb/net/net1080.c
-> @@ -237,12 +237,12 @@ #define	STATUS_PORT_A		(1 << 15)
->  #define	STATUS_CONN_OTHER	(1 << 14)
->  #define	STATUS_SUSPEND_OTHER	(1 << 13)
->  #define	STATUS_MAILBOX_OTHER	(1 << 12)
-> -#define	STATUS_PACKETS_OTHER(n)	(((n) >> 8) && 0x03)
-> +#define	STATUS_PACKETS_OTHER(n)	(((n) >> 8) & 0x03)
->  
->  #define	STATUS_CONN_THIS	(1 << 6)
->  #define	STATUS_SUSPEND_THIS	(1 << 5)
->  #define	STATUS_MAILBOX_THIS	(1 << 4)
-> -#define	STATUS_PACKETS_THIS(n)	(((n) >> 0) && 0x03)
-> +#define	STATUS_PACKETS_THIS(n)	(((n) >> 0) & 0x03)
->  
->  #define	STATUS_UNSPEC_MASK	0x0c8c
->  #define	STATUS_NOISE_MASK 	((u16)~(0x0303|STATUS_UNSPEC_MASK))
-> -- 
-> 1.4.2.4
-> 
+>  Any thoughts?
+
+The whole RTC framework is still labeled "experimental", and
+AFAIK I'm the first person to audit the use of those flags.
+
+Until it's no longer experimental, I have a hard time thinking
+that backwards compatibility should prevent fixing such interface
+bugs ... interface bugs are normally in the "fix ASAP" category,
+since if you delay fixing them the costs grow exponentially.
+
+- Dave

@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031276AbWKUScI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031278AbWKUSen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031276AbWKUScI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 13:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031279AbWKUScI
+	id S1031278AbWKUSen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 13:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031279AbWKUSem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 13:32:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:7376 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1031278AbWKUScF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 13:32:05 -0500
-From: Andi Kleen <ak@suse.de>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Problem with DMA on x86_64 with 3 GB RAM
-Date: Tue, 21 Nov 2006 19:31:53 +0100
-User-Agent: KMail/1.9.5
-Cc: Larry Finger <Larry.Finger@lwfinger.net>, Ray Lee <ray-lk@madrabbit.org>,
-       linux-kernel@vger.kernel.org
-References: <455B63EC.8070704@madrabbit.org> <200611211746.39173.ak@suse.de> <20061121182726.7d31451f@localhost.localdomain>
-In-Reply-To: <20061121182726.7d31451f@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611211931.53802.ak@suse.de>
+	Tue, 21 Nov 2006 13:34:42 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:15799 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1031278AbWKUSem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 13:34:42 -0500
+Subject: Re: RFC/T: Trial fix for the bcm43xx - wpa_supplicant -
+	NetworkManager deadlock
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Dan Williams <dcbw@redhat.com>,
+       Broadcom Linux <bcm43xx-dev@lists.berlios.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <45633FF8.6010209@lwfinger.net>
+References: <4561DBE0.2060908@lwfinger.net> <45628C05.405@madrabbit.org>
+	 <45633FF8.6010209@lwfinger.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MJTypfeyva44t17NiCeJ"
+Date: Tue, 21 Nov 2006 19:32:42 +0100
+Message-Id: <1164133962.3631.14.camel@johannes.berg>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> The documentation is correct, the implementation is broken. The
-> documented behaviour works for all platforms except one whose maintainer
-> has a problem with it and refuses to follow the spec.
+--=-MJTypfeyva44t17NiCeJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The reference is still what i386 does.
+On Tue, 2006-11-21 at 12:05 -0600, Larry Finger wrote:
 
-> > Possibly, but devices that cannot address at least 4GB are normally
-> > categorized as "hardware bugs" (or less polite descriptions) and those don't 
-> > tend to get much airtime in documentation.
-> 
-> The rest of the kernel deals with hardware limitations, 
+> Although my understanding of locking has been shown to be deficient, it l=
+ooks to me as if the
+> deadlock involves a WX call while a scan is in progress. The following pa=
+tch uses
+> mutex_trylock rather than mutex_lock so that WX calls are rejected if the=
+ lock is already held.
+> Please try this patch with wpa_supplicant and NetworkManager both running=
+. I have tested it with
+> wpa_supplicant alone.
 
-Yes, but you don't find it normally in the documentation, just
-in some very dark corners of the code.
+I don't think this is the right thing to do. This cannot be causing the
+deadlock as for a deadlock you need (at least) two locks. Now, since any
+calls from userspace to d80211 acquire the mutex first, they should be
+fine. They also both acquire the rtnl lock first.
 
-> 30bit DMA works 
-> on the other platforms. This is an x86-64 platform problem. It
-> misimplements the basic pci_ functionality. 
+The deadlock must be somewhere deeper. Can we run this with lockdep
+enabled? Might give us a hint before we dig out all the used locks
+here...
 
-Well, if you claim that then i386 misimplements it too. 
+johannes
 
-Normally people don't hit it on 32bit because with the default user/kernel split
-the limit is 900MB, which tends to be ok for most hardware. But you
-could easily hit it with non standard __PAGE_OFFSET as it is now
-possible to configure. 
+--=-MJTypfeyva44t17NiCeJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I claim x86-64 is bug to bug compatible to i386 as far as possible. 
-Since that is what drivers are typically written for it's the most
-important specification.
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
 
-> If it doesn't wish to 
-> implement the stuff (and there btw Andi I do think your view has
-> considerable merit) it should fail the set_mask requests.
+iD8DBQBFY0ZI/ETPhpq3jKURAq+DAKCY/nJiUTMh3ZXuz46Gz2PG3h6xEQCgmDoj
+PWwxEJpBueqEETy0BEMd0oM=
+=pRQH
+-----END PGP SIGNATURE-----
 
-If it did like you're recommending a huge number of drivers
-in the tree wouldn't work anymore (just think about what pci_alloc_consistent
-does) 
+--=-MJTypfeyva44t17NiCeJ--
 
-I have a long term master plan to merge GFP_DMA and swiotlb
-into a single pool -- if that ever happens it might be possible
-to fix it properly. But probably most of the drivers who needed
-it wouldn't work anyways because they typically tend to forget
-enough *_sync calls to make software bounce buffering work.
-
--Andi

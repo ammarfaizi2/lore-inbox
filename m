@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030881AbWKULem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030885AbWKULiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030881AbWKULem (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 06:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030882AbWKULel
+	id S1030885AbWKULiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 06:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030887AbWKULiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 06:34:41 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:13103 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030881AbWKULeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 06:34:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=TThEqhZc1PaIIHQVu6Iy2mOs8Y5WYhNz3ewmeEAH7cI9exn3OF6ix3qoxLQyiBPBkOTfZhnNfCVGBKc5neFsb/gVLFeTKOwrdAyKCHLcZh6XAVy9C87oNiKcOvnwqas3Xhy2KQ3cI7QUon6SbU5uo9H9wmm3Kuj8990m4q0BQ4Y=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2/2] NFS3: Calculate 'w' a bit later in nfs3svc_encode_getaclres()
-Date: Tue, 21 Nov 2006 12:34:26 +0100
+	Tue, 21 Nov 2006 06:38:09 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:42713 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1030885AbWKULiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 06:38:06 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] i386-pda UP optimization
+Date: Tue, 21 Nov 2006 12:38:20 +0100
 User-Agent: KMail/1.9.5
-Cc: Andreas Gruenbacher <agruen@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-       nfs@lists.sourceforge.net, David Rientjes <rientjes@cs.washington.edu>,
-       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151824.36198.ak@suse.de> <200611151846.31109.dada1@cosmosbay.com>
+In-Reply-To: <200611151846.31109.dada1@cosmosbay.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611211234.26564.jesper.juhl@gmail.com>
+Message-Id: <200611211238.20419.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NFS3: Calculate 'w' a bit later in nfs3svc_encode_getaclres()
-      This is a small performance optimization since we can return before
-      needing 'w'. It also saves a few bytes of .text :
-      Before:
-           text    data     bss     dec     hex filename
-           1632     140       0    1772     6ec fs/nfsd/nfs3acl.o
-      After:
-           text    data     bss     dec     hex filename
-           1624     140       0    1764     6e4 fs/nfsd/nfs3acl.o
+On Wednesday 15 November 2006 18:46, Eric Dumazet wrote:
+> On Wednesday 15 November 2006 18:24, Andi Kleen wrote:
+> > On Wednesday 15 November 2006 18:20, Ingo Molnar wrote:
+> > > * Andi Kleen <ak@suse.de> wrote:
+> > > > On Wednesday 15 November 2006 12:27, Eric Dumazet wrote:
+> > > > > Seeing %gs prefixes used now by i386 port, I recalled seeing
+> > > > > strange oprofile results on Opteron machines.
+> > > > >
+> > > > > I really think %gs prefixes can be expensive in some (most ?)
+> > > > > cases, even if the Intel/AMD docs say they are free.
+> > > >
+> > > > They aren't free, just very cheap.
+> > >
+> > > Eric's test shows a 5% slowdown. That's far from cheap.
+> >
+> > I have my doubts about the accuracy of his test results. That is why I
+> > asked him to double check.
+>
+> Fair enough :)
+>
+> I plan doing *lot* of tests as soon as possible (not possible during
+> daytime unfortunately, I miss a dev machine)
+>
 
+I did *lot* of reboots of my Dell D610 machine, with some trivial benchmarks 
+using : pipe/write()/read, umask(), or getppid(), using or not oprofile.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
--- 
+I managed to avoid reloading %gs in sysenter_entry .
+(avoiding the two instructions : movl $(__KERNEL_PDA), %edx; movl %edx, %gs
 
- fs/nfsd/nfs3acl.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+I could not avoid reloading %gs in system_call, I dont know why, but modern 
+glibc use sysenter so I dont care :)
 
-diff --git a/fs/nfsd/nfs3acl.c b/fs/nfsd/nfs3acl.c
-index fcad289..3e3f2de 100644
---- a/fs/nfsd/nfs3acl.c
-+++ b/fs/nfsd/nfs3acl.c
-@@ -171,19 +171,19 @@ static int nfs3svc_encode_getaclres(stru
- 	p = nfs3svc_encode_post_op_attr(rqstp, p, &resp->fh);
- 	if (resp->status == 0 && dentry && dentry->d_inode) {
- 		struct inode *inode = dentry->d_inode;
--		int w = nfsacl_size(
--			(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
--			(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
- 		struct kvec *head = rqstp->rq_res.head;
- 		unsigned int base;
- 		int n;
-+		int w;
- 
- 		*p++ = htonl(resp->mask);
- 		if (!xdr_ressize_check(rqstp, p))
- 			return 0;
- 		base = (char *)p - (char *)head->iov_base;
- 
--		rqstp->rq_res.page_len = w;
-+		rqstp->rq_res.page_len = w = nfsacl_size(
-+			(resp->mask & NFS_ACL)   ? resp->acl_access  : NULL,
-+			(resp->mask & NFS_DFACL) ? resp->acl_default : NULL);
- 		while (w > 0) {
- 			if (!rqstp->rq_respages[rqstp->rq_resused++])
- 				return 0;
+I confirm I got better results with my patched kernel in all tests I've done.
 
+umask : 12.64 s instead of 12.90 s
+getppid : 13.37 s instead of 13.72 s
+pipe/read/write : 9.10 s instead of 9.52 s
 
+(I got very different results in umask() bench, patching it not to use xchg(), 
+since this instruction is expensive on x86 and really change oprofile 
+results. I will submit a patch for this.
+
+Eric

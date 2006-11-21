@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966923AbWKUIX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030623AbWKUIYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966923AbWKUIX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 03:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966925AbWKUIX6
+	id S1030623AbWKUIYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030729AbWKUIYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 03:23:58 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:5541 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S966923AbWKUIX5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 03:23:57 -0500
-Date: Tue, 21 Nov 2006 09:22:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19-rc6-rt0, -rt YUM repository
-Message-ID: <20061121082249.GA2433@elte.hu>
-References: <20061116153553.GA12583@elte.hu> <1163694712.26026.1.camel@localhost.localdomain> <Pine.LNX.4.64.0611162212110.21141@frodo.shire> <1163713469.26026.4.camel@localhost.localdomain> <20061116220733.GA17217@elte.hu> <1163779116.6953.38.camel@mindpipe> <20061117161742.GA10182@elte.hu> <1163785495.3097.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Nov 2006 03:24:43 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:15816 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030623AbWKUIYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 03:24:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H8U+pOP2xsjohA7lWzI03q9SsjUE2Ev/MKSV4NXuJTeJ/5agenBWVHvfuZVVFtn6ci6wtrmcHm81pLk2RErFFUDOCcw1SAx91r3FMvmERZD6Zqsgaj1DCH5gqojKkDpqIz8RbRngUg8fE13+4Zbsyc4IVj695MiFCp7OgVY9z/s=
+Message-ID: <92cbf19b0611210024j3c1e2c6cr4b6d47ed6aaf2925@mail.gmail.com>
+Date: Tue, 21 Nov 2006 00:24:40 -0800
+From: "Chakri n" <chakriin5@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic in cifs_revalidate
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1163785495.3097.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -3.4
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.4 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_05 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-0.4 BAYES_05               BODY: Bayesian spam probability is 1 to 5%
-	[score: 0.0221]
-	0.3 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+I am seeing a kernel panic in cifs module. It seems to be a result of
+invalid inode entry in dentry for the file it is trying to validate.
 
-> [...] are you just grabbing Jeff's tree? I noticed they aren't always 
-> commented "shut up gcc" .
+The inode->i_ino is set zero and inode->i_mapping is set to NULL in
+the inode pointer in the dentry (0xdf8ea200) structure. I went through
+the cifs code and could not find any valid case that could trigger
+this situation. Is there any case which can lead to this situation?
 
-> -       } prev, curr;
-> +       } prev = { } /* shut up gcc */ , curr = { } /* shut up gcc */ ;
+0xed47fe70 0xc0133b30 filemap_fdatawait+0x20 (0x0, 0xe0e1c780, 0x0,
+0xf5b35000, 0x0)
+                               kernel .text 0xc0100000 0xc0133b10 0xc0133bc0
+0xed47feb8 0xf8b49855 [cifs]cifs_revalidate+0x225 (0xdf8ea200)
+                               cifs .text 0xf8b27060 0xf8b49630 0xf8b49af0
+0xed47fec4 0xf8b3ec71 [cifs]cifs_d_revalidate+0x11 (0xdf8ea200, 0x0, 0xef47a031)
+                               cifs .text 0xf8b27060 0xf8b3ec60 0xf8b3ec7d
+0xed47fed8 0xc0151c03 cached_lookup+0x43 (0xe8e03a00, 0xed47fefc, 0x0,
+0x1, 0xe7f5b0f8)
+                               kernel .text 0xc0100000 0xc0151bc0 0xc0151c20
+0xed47ff18 0xc01522a8 link_path_walk+0x3e8
+                               kernel .text 0xc0100000 0xc0151ec0 0xc0152610
+0xed47ff20 0xc0152629 path_walk+0x19 (0x8002, 0x8003, 0x83141a0)
+                               kernel .text 0xc0100000 0xc0152610 0xc0152630
+0xed47ff34 0xc015280a path_lookup+0x3a (0x0, 0x0, 0x2, 0x0, 0x0)
+                               kernel .text 0xc0100000 0xc01527d0 0xc0152810
+0xed47ff64 0xc0152d3a open_namei+0x6a (0xef47a000, 0x8003, 0x0,
+0xed47ff7c, 0xe8e03a00)
+                               kernel .text 0xc0100000 0xc0152cd0 0xc0153260
+0xed47ffa0 0xc01448b1 filp_open+0x41 (0xef47a000, 0x8002, 0x0,
+0xed47e000, 0x8002)
+                               kernel .text 0xc0100000 0xc0144870 0xc01448e0
+0xed47ffbc 0xc0144ca1 sys_open+0x51 (0x83141a0, 0x8002, 0x0, 0x8002, 0x83141a0)
 
-i just do them by hand every time i hit one.
-
-	Ingo
+Thanks
+--Chakri

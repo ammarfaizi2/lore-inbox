@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030768AbWKUKDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWKUKFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030768AbWKUKDA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 05:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030803AbWKUKDA
+	id S1030804AbWKUKFn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 05:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWKUKFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 05:03:00 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:28273 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030768AbWKUKC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 05:02:59 -0500
+	Tue, 21 Nov 2006 05:05:43 -0500
+Received: from nz-out-0102.google.com ([64.233.162.196]:39487 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030804AbWKUKFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 05:05:42 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ayncHnswc82KPMeol9WXR9Pz7YJ3WI+MA1iGjBttW0u+liqjstrE5H6XmnqFlh4BeocAiaBvJkgcNANdfl4DIJ6I3enK6g1vQ5RSf8wK99fw1NrQMevhIhSROJ7rqJbsbBFbrO9sCHSh+AJztk/AQebfPsoXw1D5tjdi0EwP0ow=
-Message-ID: <4562CECB.5000107@gmail.com>
-Date: Tue, 21 Nov 2006 19:02:51 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Dipti Ranjan Tarai <dipti@innomedia.soft.net>
-CC: linux-kernel@vger.kernel.org
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Uf28XoWEDiuBh88UFDjT0oIxiiSswWj5rE49ePdwVX0wNZiN+IfT+Y3FVn+kFlAOdAvPRgK5E2rQoWYeq+iuqEIyTihowOIsi6HKXyqParnsz7jy8pBSxWYacGWm6yfm5t8GDMX6auZ3wLBmiUoBkfGOqfcgRPgTgNQqFa7vBQI=
+Message-ID: <9a8748490611210205v7beea9aer7c511f2dd4dbf95a@mail.gmail.com>
+Date: Tue, 21 Nov 2006 11:05:40 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Dipti Ranjan Tarai" <dipti@innomedia.soft.net>
 Subject: Re: How to read/write from/to the HD with out kernel cashing
-References: <4562CCB2.1030400@innomedia.soft.net>
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <4562CCB2.1030400@innomedia.soft.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4562CCB2.1030400@innomedia.soft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipti Ranjan Tarai wrote:
+On 21/11/06, Dipti Ranjan Tarai <dipti@innomedia.soft.net> wrote:
 > Hi all,
->       I am using fedora core -3 with kernel 2.6.10. I want to read/write 
-> a sector from/to the HD with out kernel caching. Basically my aim is to 
-> communicate directly with the ide drivers so that I can bypass the 
-> kernel cache. Please give some idea regarding this.
-
-man 2 open, then look for O_DIRECT.
+>        I am using fedora core -3 with kernel 2.6.10. I want to
+> read/write a sector from/to the HD with out kernel caching. Basically my
+> aim is to communicate directly with the ide drivers so that I can bypass
+> the kernel cache. Please give some idea regarding this.
+>
+Why wouldn't the (obsolete) RAW driver (CONFIG_RAW_DRIVER) or (better)
+O_DIRECT work for you??
 
 -- 
-tejun
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

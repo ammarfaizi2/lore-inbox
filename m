@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031283AbWKUShH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031273AbWKUSig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031283AbWKUShH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 13:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031289AbWKUShH
+	id S1031273AbWKUSig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 13:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031284AbWKUSig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 13:37:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27400 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031283AbWKUShF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 13:37:05 -0500
-Date: Tue, 21 Nov 2006 19:37:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Alexaner Zarochentsev <zam@namesys.com>,
-       reiserfs-dev@namesys.com
-Subject: -mm: please drop reiser4-export-handle_ra_miss.patch
-Message-ID: <20061121183705.GE5200@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061114014125.dd315fff.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 21 Nov 2006 13:38:36 -0500
+Received: from crystal.sipsolutions.net ([195.210.38.204]:65438 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1031273AbWKUSif
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 13:38:35 -0500
+Subject: Re: RFC/T: Trial fix for the bcm43xx - wpa_supplicant -
+	NetworkManager deadlock
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Ray Lee <ray-lk@madrabbit.org>, Dan Williams <dcbw@redhat.com>,
+       Broadcom Linux <bcm43xx-dev@lists.berlios.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1164133962.3631.14.camel@johannes.berg>
+References: <4561DBE0.2060908@lwfinger.net> <45628C05.405@madrabbit.org>
+	 <45633FF8.6010209@lwfinger.net>  <1164133962.3631.14.camel@johannes.berg>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-spaxijl+mvp97IVdNDC2"
+Date: Tue, 21 Nov 2006 19:36:41 +0100
+Message-Id: <1164134201.3631.16.camel@johannes.berg>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-please drop reiser4-export-handle_ra_miss.patch, this patch was 
-obsoleted by reiser4-simplify-reading-of-partially-converted-files.patch.
+--=-spaxijl+mvp97IVdNDC2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-cu
-Adrian
+On Tue, 2006-11-21 at 19:32 +0100, Johannes Berg wrote:
 
--- 
+> I don't think this is the right thing to do.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Or put differently, this won't fix the problem if that "something:
+that's triggering the deadlock happens while you're in the locked
+section.
+
+johannes
+
+--=-spaxijl+mvp97IVdNDC2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iD8DBQBFY0c5/ETPhpq3jKURAmnRAKC1I4rdr6ELOWhRJP/pXj64bsQE0gCeLu9w
+iAdvsP9Ib393yWtF5J/IaME=
+=TSFH
+-----END PGP SIGNATURE-----
+
+--=-spaxijl+mvp97IVdNDC2--
 

@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030904AbWKUMSZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030914AbWKUMjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030904AbWKUMSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 07:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030909AbWKUMSZ
+	id S1030914AbWKUMjx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 07:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030915AbWKUMjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 07:18:25 -0500
-Received: from torres.zugschlus.de ([85.10.211.154]:36493 "EHLO
-	torres.zugschlus.de") by vger.kernel.org with ESMTP
-	id S1030904AbWKUMSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 07:18:24 -0500
-Date: Tue, 21 Nov 2006 13:18:23 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
+	Tue, 21 Nov 2006 07:39:53 -0500
+Received: from smtp-02.mandic.com.br ([200.225.81.133]:3744 "EHLO
+	smtp-02.mandic.com.br") by vger.kernel.org with ESMTP
+	id S1030914AbWKUMjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 07:39:52 -0500
+Message-ID: <4562F38F.8010404@mandic.com.br>
+Date: Tue, 21 Nov 2006 10:39:43 -0200
+From: "Renato S. Yamane" <renatoyamane@mandic.com.br>
+User-Agent: Thunderbird 1.5.0.8 (X11/20060911)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: ttyS0 not working any more, LSR safety check engaged
-Message-ID: <20061121121823.GA6208@torres.l21.ma.zugschlus.de>
-References: <20061111114352.GA9206@torres.l21.ma.zugschlus.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061111114352.GA9206@torres.l21.ma.zugschlus.de>
-User-Agent: Mutt/1.5.9i
+Subject: [ahci] Failed with error -12
+X-Enigmail-Version: 0.94.1.0
+OpenPGP: id=D420515A;
+	url=http://pgp.mit.edu
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2006 at 12:43:52PM +0100, Marc Haber wrote:
-> since a few kernel versions (I unfortunately do not have logs going
-> back more than two months, 2.6.17.13), the serial port on my hp compaq
-> nc8000 is not working any more.
-> 
-> The Linux kernel logs "ttyS0: LSR safety check engaged!" whenever I
-> try to use the port. Googling for this error message suggests that the
-> port may either not be present or broken. I can confirm that both are
-> not the case: The port is present and works fine both on Windows and
-> with an older Knoppix version using a very old 2.6 kernel (I think
-> 2.6.4).
-> 
-> Is it possible that a moderately recent update to the driver is
-> broken?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The issue was udev loading smsc_ircc2. As soon as smsc_ircc2 is
-loaded, the serial port shows the behavior listed above. Unloading the
-module does not help, a reboot is needed.
+I receive this error message on boot with Kernel 2.6.18.3
 
-I have now solved the issue locally by blacklisting smsc_ircc2 and
-hope that I didn't break anything in this process.
+relevant (I think) dmesg output:
+=======
+ahci 0000:00:1f.2: version 2.0
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKD] -> GSI 11 (level,
+low) -> IRQ 11
+ahci: probe of 0000:00:1f.2 failed with error -12
+ata_piix 0000:00:1f.2: version 2.00
+ata_piix 0000:00:1f.2: MAP [ P0 P2 IDE IDE ]
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKD] -> GSI 11 (level,
+low) -> IRQ 11
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x1100 irq 14
+scsi0 : ata_piix
+========
 
-Greetings
-Marc
+# hwinfo --disk
+23: IDE 00.0: 10600 Disk
+  [Created at block.191]
+  UDI: /org/freedesktop/Hal/devices/storage_serial_75QW2718S
+  Unique ID: mE25.WkVGlyavV53
+  Parent ID: w7Y8.owfwZLxeTg6
+  SysFS ID: /block/sda
+  SysFS BusID: 0:0:0:0
+  SysFS Device Link:
+/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0
+  Hardware Class: disk
+  Model: "TOSHIBA MK1032GA"
+  Vendor: "TOSHIBA"
+  Device: "MK1032GA"
+  Revision: "AB21"
+  Serial ID: "75QW2718S"
+  Driver: "ata_piix", "sd"
+  Device File: /dev/sda
+  Device Files: /dev/sda,
+/dev/disk/by-id/scsi-SATA_TOSHIBA_MK1032G_75QW2718S
+  Device Number: block 8:0-8:15
+  BIOS id: 0x80
+  Geometry (Logical): CHS 12161/255/63
+  Size: 195371568 sectors a 512 bytes
+  Config Status: cfg=no, avail=yes, need=no, active=unknown
+  Attached to: #16 (IDE interface)
 
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
+Best regards,
+- --
+Renato S. Yamane
+Fingerprint: 68AE A381 938A F4B9 8A23  D11A E351 5030 D420 515A
+PGP Server: http://pgp.mit.edu/ --> KeyID: 0xD420515A
+<http://www.renatoyamane.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+
+iD8DBQFFYvOO41FQMNQgUVoRAuMsAJ4u1LyPkzwzPDIodVBJlPNi9r1JQACfYDTN
+LS8v5Gkofy0OZUmiABCxXHE=
+=ndQX
+-----END PGP SIGNATURE-----

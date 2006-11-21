@@ -1,72 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934357AbWKUGmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWKUGoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934357AbWKUGmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 01:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934353AbWKUGmH
+	id S1030610AbWKUGoS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 01:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWKUGoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 01:42:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:64920 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S934357AbWKUGmE (ORCPT
+	Tue, 21 Nov 2006 01:44:18 -0500
+Received: from tapsys.com ([72.36.178.242]:39876 "EHLO tapsys.com")
+	by vger.kernel.org with ESMTP id S1030610AbWKUGoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 01:42:04 -0500
-Date: Mon, 20 Nov 2006 22:41:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: bus_id collisions
-Message-ID: <20061121064122.GA10510@kroah.com>
-References: <1164081736.8207.14.camel@localhost.localdomain>
+	Tue, 21 Nov 2006 01:44:17 -0500
+Message-ID: <4562A006.3070308@madrabbit.org>
+Date: Mon, 20 Nov 2006 22:43:18 -0800
+From: Ray Lee <ray@madrabbit.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164081736.8207.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Larry Finger <Larry.Finger@lwfinger.net>,
+       LKML <linux-kernel@vger.kernel.org>, Bcm43xx-dev@lists.berlios.de,
+       Michael Buesch <mb@bu3sch.de>, John Linville <linville@tuxdriver.com>
+Subject: Re: [patch 07/30] bcm43xx: Drain TX status before starting IRQs
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 03:02:16PM +1100, Benjamin Herrenschmidt wrote:
-> Hi Greg !
-> 
-> It occurs to me (after some trouble I had with custom bus types) that
-> this comment is incorrect in device.h, in the definition of struct
-> device :
-> 
->         char    bus_id[BUS_ID_SIZE];    /* position on parent bus */
-> 
-> As the bus_id needs to be unique for a given bus_type, not only under a
-> given parent, due to the symlinks in /sys/bus/<bus_type>/.
+On 11/18/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+> The regression turns out to be a locking problem involving bcm43xx,
+> wpa_supplicant, and NetworkManager. The exact cause is unknown; however,
+> this patch is clearly not the problem. Please
+> reinstate it for inclusion in -stable.
 
-Yes, sorry, that comment is _very_ old...
+This patch is different from the patch that I claim is wrong. The patch that I
+think is bad *actually changes locking* (merge error?); it is different than
+the -stable patch that was submitted.
 
-> This has caused me some trouble with of_platform devices, which are
-> sort-of platform devices but linked to the Open Firmware device-tree, as
-> I generate their names based on the nodes in the tree which need not be
-> unique as long as they are unique under a given parent.
-> 
-> I've worked around it, but I though the comment might need to be
-> clarified.
+Michael et al please read the patch (diff portion) below as if you're seeing
+it for the first time. Please note the locking changes introduced.
 
-Ok.
+user:        Michael Buesch <mb@bu3sch.de>
+date:        Wed Nov 01 08:15:40 2006 +0500
+files:       drivers/net/wireless/bcm43xx/bcm43xx_main.c
+description:
+[PATCH] bcm43xx: Fix low-traffic netdev watchdog TX timeouts
 
-> Also, I don't suppose you have any plan to move away from the bus_id
-> being a fixed size array inside struct device ?
+This fixes a netdev watchdog timeout problem.
+The software needs to call netif_tx_disable before running the
+hardware calibration code. The problem condition can be shown by the
+following timegraph.
 
-No, I had not heard of anyone having any problems with the size of it.
-We could just do it like the kobject does, and have a function to set it
-and handle the pointer vs. array issue there if you _really_ need a
-bigger size.
+|---5secs - ~10 jiffies time---|---|OOPS
+^                              ^
+last real TX                   periodic work stops netif
 
-> I would very much like to be able to have larger names ... Among
-> others, in order to handle the above problem, I tend to include the
-> fully translated 64 bits address of the device in the name :-)
-> (Hopefully, it's generally smaller and I don't have leading zero's but
-> still, I have little room left for the device name which is annoying).
+At OOPS, the following happens:
+The watchdog timer triggers, because the timeout of 5secs
+is over. The watchdog first checks for stopped TX.
+_Usually_ TX is only stopped from the TX handler to indicate
+a full TX queue. But this is different. We need to stop TX here,
+regardless of the TX queue state. So the watchdog recognizes
+the stopped device and assumes it is stopped due to full
+TX queues (Which is a _wrong_ assumption in this case). It then
+tests how far the last TX has been in the past. If it's more than
+5secs (which is the case for low or no traffic), it will fire
+a TX timeout.
 
-Oh, that's a very annoying bus id, but I guess it's legal.
+Signed-off-by: Michael Buesch <mb@bu3sch.de>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
 
-I'll poke around and see if I can make it bigger.  You don't want it
-bigger for static 'struct device' types, right?
+committer: John W. Linville <linville@laptop.(none)> 1162350940 -0500
 
-thanks,
 
-greg k-h
+diff -r 41ff0150cbadd56e692f148adb1bfd4ca420e3e0 -r
+ca97546422bd9a52a7000607d657ca2915f31104
+drivers/net/wireless/bcm43xx/bcm43xx_main.c
+--- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c       Wed Nov 01 08:15:39
+2006 +0500
++++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c       Wed Nov 01 08:15:40
+2006 +0500
+@@ -3163,9 +3163,11 @@ static void bcm43xx_periodic_work_handle
+ static void bcm43xx_periodic_work_handler(void *d)
+ {
+        struct bcm43xx_private *bcm = d;
++       struct net_device *net_dev = bcm->net_dev;
+        unsigned long flags;
+        u32 savedirqs = 0;
+        int badness;
++       unsigned long orig_trans_start = 0;
+
+        mutex_lock(&bcm->mutex);
+        badness = estimate_periodic_work_badness(bcm->periodic_state);
+@@ -3173,7 +3175,18 @@ static void bcm43xx_periodic_work_handle
+                /* Periodic work will take a long time, so we want it to
+                 * be preemtible.
+                 */
+-               netif_tx_disable(bcm->net_dev);
++
++               netif_tx_lock_bh(net_dev);
++               /* We must fake a started transmission here, as we are going to
++                * disable TX. If we wouldn't fake a TX, it would be possible to
++                * trigger the netdev watchdog, if the last real TX is already
++                * some time on the past (slightly less than 5secs)
++                */
++               orig_trans_start = net_dev->trans_start;
++               net_dev->trans_start = jiffies;
++               netif_stop_queue(net_dev);
++               netif_tx_unlock_bh(net_dev);
++
+                spin_lock_irqsave(&bcm->irq_lock, flags);
+                bcm43xx_mac_suspend(bcm);
+                if (bcm43xx_using_pio(bcm))
+@@ -3198,6 +3211,7 @@ static void bcm43xx_periodic_work_handle
+                        bcm43xx_pio_thaw_txqueues(bcm);
+                bcm43xx_mac_enable(bcm);
+                netif_wake_queue(bcm->net_dev);
++               net_dev->trans_start = orig_trans_start;
+        }
+        mmiowb();
+        spin_unlock_irqrestore(&bcm->irq_lock, flags);
+
+or the patch via gitweb:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=81e171b95d2d06a64465a1e6ab1e2fb864ea2448
+
+Ray
+
+

@@ -1,99 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031038AbWKUP7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934401AbWKUQHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031038AbWKUP7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 10:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031039AbWKUP7q
+	id S934401AbWKUQHL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934397AbWKUQHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 10:59:46 -0500
-Received: from mathups.math.u-psud.fr ([129.175.52.4]:26599 "EHLO
-	matups.math.u-psud.fr") by vger.kernel.org with ESMTP
-	id S1031038AbWKUP7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 10:59:45 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix asm constraints in i386 atomic_add_return
-Date: Tue, 21 Nov 2006 16:59:05 +0100
-User-Agent: KMail/1.9.5
-Cc: Linus Torvalds <torvalds@osdl.org>
+	Tue, 21 Nov 2006 11:07:11 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:56482 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S934401AbWKUQHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:07:09 -0500
+Message-ID: <4563242D.9050901@f2s.com>
+Date: Tue, 21 Nov 2006 16:07:09 +0000
+From: Ian Molton <spyro@f2s.com>
+Organization: The Dragon Roost
+User-Agent: Thunderbird 2.0a1 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_KJyYF5dtMnD/Os4"
-Message-Id: <200611211659.06576.baldrick@free.fr>
+To: linux-kernel@vger.kernel.org
+Cc: kernel-discuss@handhelds.org
+Subject: RFC - platform device, IRQs and SoC devices 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_KJyYF5dtMnD/Os4
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi there.
 
-Since v->counter is both read and written, it should be an
-output as well as an input for the asm.  The current code
-only gets away with this because counter is volatile.  Also,
-according to Documents/atomic_ops.txt, atomic_add_return
-should provide a memory barrier, in particular a compiler
-barrier, so the asm should be marked as clobbering memory.
-Test case attached.
+Im working on some SoC type devices attached to the system bus of my ARM 
+devboard in an isa-like way.
 
-Signed-off-by: Duncan Sands <baldrick@free.fr>
+The devices are small SoC (System On Chip) types, with one IRQ routed to 
+the half dozen (sub)devices on board the SoC.
 
-diff --git a/include/asm-i386/atomic.h b/include/asm-i386/atomic.h
-index 51a1662..6aab7a1 100644
---- a/include/asm-i386/atomic.h
-+++ b/include/asm-i386/atomic.h
-@@ -187,9 +187,9 @@ static __inline__ int atomic_add_return(
- 	/* Modern 486+ processor */
- 	__i = i;
- 	__asm__ __volatile__(
--		LOCK_PREFIX "xaddl %0, %1;"
--		:"=r"(i)
--		:"m"(v->counter), "0"(i));
-+		LOCK_PREFIX "xaddl %0, %1"
-+		:"+r" (i), "+m" (v->counter)
-+		: : "memory");
- 	return i + __i;
- 
- #ifdef CONFIG_M386
+At present, I am using a platform driver for the 'core' which handles 
+IRQ routing and device enumeration, and is currently passing the IRQ to 
+be used by the subdevices in a struct resource (along with two or three 
+IOMEM resources).
 
---Boundary-00=_KJyYF5dtMnD/Os4
-Content-Type: text/x-csrc;
-  charset="us-ascii";
-  name="t.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="t.c"
+this, however means that the subdevice resource definitions must be 
+copied in order that the IRQ field can be set dynamically.
 
-#include <stdio.h>
+One solution would be for there to be a method by which the subdevice 
+can query the SoC core device for the base of its IRQ range, which would 
+allow the subdevice data to be declared as a constant and not copied. 
+This makes the declaration of the subdevices in the main driver very 
+neat and compact.
 
-typedef struct { int counter; } atomic_t; /* NB: no "volatile" */
+can this be done with a 'platform device' or is this simply not possible?
 
-#define ATOMIC_INIT(i)	{ (i) }
+the real problem seems (to me) to be that struct resource is held as an 
+array. If it were a linked list, then I could hold all but the subdevice 
+IRQ in const data and simply 'tack on' a single dynamically created IRQ 
+resource to it.
 
-#define atomic_read(v)		((v)->counter)
+I propose that a 'next' field be added to the struct resource. All 
+existing code could remain the same for now, and continue to work, 
+whilst newer device drivers could use the next-> field to taverse the 
+list rather than treat it as an array.
 
-static __inline__ int atomic_add_return(int i, atomic_t *v)
-{
-	int __i = i;
+if all 'linked' entries come before 'array style' ones, then the 
+num_resources field would change to mean 'num_array_style_resources' and 
+the last 'linked' type resource would point to the head of the array. 
+The traversal routines would simply count the array offset from the 
+first 'array style' entry (with a NULL next field) or, if num_resources 
+is not set, assume all resources are linked, and the NULL ends the list 
+of resources.
 
-	__asm__ __volatile__(
-		"lock; xaddl %0, %1;"
-		:"=r"(i)
-		:"m"(v->counter), "0"(i));
-/*	__asm__ __volatile__(
-		"lock; xaddl %0, %1"
-		:"+r" (i), "+m" (v->counter)
-		: : "memory"); */
-	return i + __i;
-}
+This would allow for both statically allocated const arrays of struct 
+resource as we use now, and dynamically allocated resources, or a mix of 
+both for the few weird cases like my problem above.
 
-int main (void) {
-	atomic_t a = ATOMIC_INIT(0);
-	int x;
+Summary:
 
-	x = atomic_add_return (1, &a);
-	if ((x!=1) || (atomic_read(&a)!=1))
-		printf("fail: %i, %i\n", x, atomic_read(&a));
-}
+add struct resource *next; to struct resource.
+rename num_resources as resource_array_len to indicate it only counts 
+the number of resources listed in an array
+allow resources to be added dynamically by altering the pointer to the 
+firts resource and using that resources next pointer to point to the old 
+list head (OR) the old array head.
 
---Boundary-00=_KJyYF5dtMnD/Os4--
+possible enhancements:
+
+get_first_resource() - return first resource added, making it easy to 
+locate the first array type entry (if present)
+remove_resource() - obvious, but perhaps not very useful.

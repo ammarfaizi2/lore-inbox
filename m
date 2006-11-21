@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030730AbWKUFiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030735AbWKUFiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030730AbWKUFiN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 00:38:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030728AbWKUFiN
+	id S1030735AbWKUFiz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 00:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030734AbWKUFiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 00:38:13 -0500
-Received: from ozlabs.org ([203.10.76.45]:48813 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030726AbWKUFiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 00:38:12 -0500
-Subject: Re: [PATCH 17/22] coredump: Add SPU elf notes to coredump.
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: cbe-oss-dev@ozlabs.org, linux-arch@vger.kernel.org,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
-       Dwayne Grant McConnell <decimal@us.ibm.com>
-In-Reply-To: <20061120180526.374170000@arndb.de>
-References: <20061120174454.067872000@arndb.de>
-	 <20061120180526.374170000@arndb.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Di0HqZQDpqqiq6j0IZLF"
-Date: Tue, 21 Nov 2006 16:38:08 +1100
-Message-Id: <1164087488.13318.43.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 21 Nov 2006 00:38:54 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:12446 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1030727AbWKUFix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 00:38:53 -0500
+X-AuditID: d80ac21c-ad538bb000002cca-e3-456290ec9ed1 
+Date: Tue, 21 Nov 2006 05:39:06 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Mingming Cao <cmm@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+In-Reply-To: <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>  <20061114184919.GA16020@skynet.ie>
+  <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> 
+ <20061114113120.d4c22b02.akpm@osdl.org>  <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+  <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> 
+ <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> 
+ <20061115232228.afaf42f2.akpm@osdl.org>  <1163666960.4310.40.camel@localhost.localdomain>
+  <20061116011351.1401a00f.akpm@osdl.org>  <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+  <20061116132724.1882b122.akpm@osdl.org>  <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+ <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 21 Nov 2006 05:38:52.0297 (UTC) FILETIME=[53BE8F90:01C70D2F]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Nov 2006, Mingming Cao wrote:
+> 
+> So there is only one writer at the moment the hang was happening? 
 
---=-Di0HqZQDpqqiq6j0IZLF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I expect there were multiple writers when the task which hangs
+first entered its ext2_prepare_write (it's a make -j20 build on
+that ext2 filesystem); but by the time I come to look at the hang,
+there's only that one writer active - everything else would be waiting
+on that part of the build to complete (well, your question makes me
+realize that I didn't look down the whole "ps" listing to see what
+was waiting; but the hanging task is the only one I see running on
+on any cpu, each time I break in).
 
-On Mon, 2006-11-20 at 18:45 +0100, Arnd Bergmann wrote:
-> Index: linux-2.6/include/linux/elf.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.orig/include/linux/elf.h
-> +++ linux-2.6/include/linux/elf.h
-> @@ -368,5 +368,12 @@ extern Elf64_Dyn _DYNAMIC [];
-> =20
->  #endif
-> =20
-> +#ifndef ARCH_HAVE_EXTRA_ELF_NOTES
-> +static inline int arch_notes_size(void) { return 0; }
-> +static inline int arch_write_notes(void) { return 0; }
-> +
-> +#define ELF_CORE_EXTRA_NOTES_SIZE arch_notes_size()
-> +#define ELF_CORE_WRITE_EXTRA_NOTES arch_write_notes(file)
-> +#endif /* ARCH_HAVE_EXTRA_ELF_NOTES */
+> 
+> hmm, is the filesystem relatively all being used or reserved, i.e, the
+> free bits are all being reserved?  There is one extreme case that may
+> cause starvation. If filesystem free blocks are all being reserved, when
+> a  new writer need a free block, it has to go through the entire
+> filesystems, try to reserve a space, which will repeatly calling
+> rsv_window_add and rsv_window_remove, since. Finally give up and fall
+> back to allocation without reservation. But this is all theory, not sure
+> fits your case here.
 
-This is broken for !CELL. arch_write_notes(void) can't be called as
-arch_write_notes(file).
+I can understand that there may be a worst case like that: but I hope
+it wouldn't take 20 hours to find a free block on a default 340MB ext2
+filesystem!  And unless something else has gone wrong, this build would
+not be filling the filesystem to that extent: it's probably around 80%
+full at this stage, and shouldn't get fuller than 98% in the end.
 
-cheers
+Any suggestions for what I might check, next time it happens?
 
---=20
-Michael Ellerman
-OzLabs, IBM Australia Development Lab
-
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-Di0HqZQDpqqiq6j0IZLF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBFYpDAdSjSd0sB4dIRAgdWAKDGO7KacnuOyxm4GKOOMRK/BXJi5gCffc3g
-ZycW3TG83/VOlWKCUes4GTA=
-=osyr
------END PGP SIGNATURE-----
-
---=-Di0HqZQDpqqiq6j0IZLF--
-
+Hugh

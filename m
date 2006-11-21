@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031214AbWKURBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031218AbWKURBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031214AbWKURBV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 12:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031049AbWKURBV
+	id S1031218AbWKURBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 12:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031214AbWKURBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 12:01:21 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:65472 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1031215AbWKURBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 12:01:17 -0500
-Subject: Re: Bug: Pentium M not always detected by CPUFREQ
-From: Arjan van de Ven <arjan@infradead.org>
-To: Holger Schurig <hs4233@mail.mn-solutions.de>
-Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-In-Reply-To: <200611211646.29488.hs4233@mail.mn-solutions.de>
-References: <200611211646.29488.hs4233@mail.mn-solutions.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 21 Nov 2006 18:01:14 +0100
-Message-Id: <1164128474.31358.682.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Tue, 21 Nov 2006 12:01:12 -0500
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:18050 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1031202AbWKURBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 12:01:08 -0500
+Message-ID: <45633EDF.3050309@fr.ibm.com>
+Date: Tue, 21 Nov 2006 19:01:03 +0100
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+CC: Cedric Le Goater <clg@fr.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, Dmitry Mishin <dim@sw.ru>,
+       netdev@vger.kernel.org
+Subject: Re: [patch -mm] net namespace: empty framework
+References: <4563007B.9010202@fr.ibm.com> <4563046B.6040909@sw.ru>
+In-Reply-To: <4563046B.6040909@sw.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-21 at 16:46 +0100, Holger Schurig wrote:
-> Hi !
+Kirill Korotaev wrote:
+> Cedric,
 > 
-> One module thinks that I have a Pentium M, the other doesn't. 
-> Which module is right?
-> # cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 9
-> model name      : Intel(R) Celeron(R) processor            600MHz
-
-you don't have a pentium M
-
-> stepping        : 5
-> cpu MHz         : 598.093
-> cache size      : 64 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr 
-> pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 tm pbe
-> bogomips        : 1196.88
+> Dmitry Mishin and Daniel Lezcano are working together on the full
+> network namespace incorporating both needs of OpenVZ and VServer/IBM.
 > 
-> 
-> So far I can only say that speedstep-centrino doesn't have an 
-> entry for a CPU with a mere 600 MHz. May this be the problem
-> ?
+> Thanks,
+> Kirill
 
-as far as I know Celeron processors don't have actual frequency control
-capabilities (and no p4-clockmod doesn't count, that doesn't save you
-any energy realistically)....
+Kirill,
 
+We will need this framework to move the network isolation code to the 
+ns_proxy/net_namespace structure. So if Cedric gives us a empty 
+framework it is fine, except if someone does not agree with it...
 
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+   -- Daniel.

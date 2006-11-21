@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161372AbWKUVjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWKUVmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161372AbWKUVjD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161382AbWKUVjC
+	id S1161382AbWKUVmH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031442AbWKUVmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:39:02 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30986 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161372AbWKUVjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:39:00 -0500
-Date: Tue, 21 Nov 2006 22:39:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mattia Dongili <malattia@linux.it>, cpufreq@lists.linux.org.uk
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-Message-ID: <20061121213900.GT5200@stusta.de>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <20061121213139.GC9651@redhat.com>
+	Tue, 21 Nov 2006 16:42:07 -0500
+Received: from gw.goop.org ([64.81.55.164]:54753 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1031441AbWKUVmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:42:03 -0500
+Message-ID: <456372AD.5080807@goop.org>
+Date: Tue, 21 Nov 2006 13:42:05 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061121213139.GC9651@redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151824.36198.ak@suse.de> <200611151846.31109.dada1@cosmosbay.com> <200611211238.20419.dada1@cosmosbay.com>
+In-Reply-To: <200611211238.20419.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 04:31:39PM -0500, Dave Jones wrote:
-> On Tue, Nov 21, 2006 at 10:24:24PM +0100, Adrian Bunk wrote:
-> 
->  > Subject    : CPU_FREQ_GOV_ONDEMAND=y compile error
->  > References : http://lkml.org/lkml/2006/11/17/198
->  > Submitter  : alex1000@comcast.net
->  > Caused-By  : Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
->  >              commit 05ca0350e8caa91a5ec9961c585c98005b6934ea
->  > Handled-By : Mattia Dongili <malattia@linux.it>
->  > Patch      : http://lkml.org/lkml/2006/11/17/236
->  > Status     : patch available
-> 
-> not a regression, easily worked around, queued for .20
+Eric Dumazet wrote:
+> I did *lot* of reboots of my Dell D610 machine, with some trivial benchmarks 
+> using : pipe/write()/read, umask(), or getppid(), using or not oprofile.
+>
+> I managed to avoid reloading %gs in sysenter_entry .
+> (avoiding the two instructions : movl $(__KERNEL_PDA), %edx; movl %edx, %gs
+>
+> I could not avoid reloading %gs in system_call, I dont know why, but modern 
+> glibc use sysenter so I dont care :)
+>
+> I confirm I got better results with my patched kernel in all tests I've done.
+>
+> umask : 12.64 s instead of 12.90 s
+> getppid : 13.37 s instead of 13.72 s
+> pipe/read/write : 9.10 s instead of 9.52 s
+>
+> (I got very different results in umask() bench, patching it not to use xchg(), 
+> since this instruction is expensive on x86 and really change oprofile 
+> results. I will submit a patch for this.
+>   
 
-It is a regression since commit 05ca0350e8caa91a5ec9961c585c98005b6934ea 
-was merged after 2.6.18.
+Could you go into more detail about what you're actually measuring
+here?  Is it 10,000,000 loops of the single syscall?  pipe/read/write
+suggests that you're doing at least 2 syscalls per loop, but it takes
+the smallest elapsed time.
 
-Considering that the fix is trivial, why shouldn't it be merged before 
-2.6.19?
+What are you using as your time reference?  Real time?  Process time?
 
-> 		Dave
+For umask/getppid, assuming you're just running 1e7 iterations, you're
+seeing a difference of 25 and 35ns per iteration difference.  I wonder
+why it would be different for different syscalls; I would expect it to
+be a constant overhead either way.  Certainly these numbers are much
+larger than I saw when I benchmarked pda-vs-nopda using lmbench's null
+syscall (getppid) test; I saw an overall 9ns difference in null syscall
+time on my Core Duo run at 1GHz.  What's your CPU and speed?
 
-cu
-Adrian
+One possibility is a cache miss on the gdt while reloading %gs.  I've
+been planning on a patch to rearrange the gdt in order to pack all the
+commonly used segment descriptors into one or two cache lines so that
+all the segment register reloads can be done with a minimum of cache
+misses.  It would be interesting for you to replace the:
 
--- 
+    movl $(__KERNEL_PDA), %edx; movl %edx, %gs
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+with an appropriate read of the gdt entry, hm, which is a bit complex to
+find.
 
+    J

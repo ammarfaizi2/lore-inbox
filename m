@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966882AbWKUAeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030513AbWKUAiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966882AbWKUAeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 19:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965978AbWKUAeh
+	id S1030513AbWKUAiz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 19:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966892AbWKUAiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 19:34:37 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:55961 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S966882AbWKUAeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 19:34:36 -0500
-Date: Mon, 20 Nov 2006 16:34:32 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] WorkStruct: Merge the pending bit into the wq_data
- pointer
-Message-Id: <20061120163432.4824ffe7.randy.dunlap@oracle.com>
-In-Reply-To: <20061120142720.12685.79394.stgit@warthog.cambridge.redhat.com>
-References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
-	<20061120142720.12685.79394.stgit@warthog.cambridge.redhat.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 20 Nov 2006 19:38:55 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:22419 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S966893AbWKUAiy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 19:38:54 -0500
+Message-ID: <45624A91.3010604@zytor.com>
+Date: Mon, 20 Nov 2006 16:38:41 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Simon Richter <Simon.Richter@hogyros.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: implement daemon() in the kernel
+References: <4561ABB4.6090700@hogyros.de>
+In-Reply-To: <4561ABB4.6090700@hogyros.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 14:27:20 +0000 David Howells wrote:
-
-> Reclaim a word from the size of the work_struct by folding the pending bit and
-> the wq_data pointer together.  This shouldn't cause misalignment problems as
-> all pointers should be at least 4-byte aligned.
+Simon Richter wrote:
 > 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-> ---
+>  - daemonize a process
 > 
->  drivers/block/floppy.c    |    4 ++--
->  include/linux/workqueue.h |   19 +++++++++++++++----
->  kernel/workqueue.c        |   41 ++++++++++++++++++++++++++++++++---------
->  3 files changed, 49 insertions(+), 15 deletions(-)
+> There is a function called daemon() that does this; its behaviour is
+> roughly defined by (modulo error handling)
 > 
-> diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-> index 0d5bbd4..67e6a7f 100644
-> --- a/include/linux/workqueue.h
-> +++ b/include/linux/workqueue.h
-> @@ -14,11 +14,15 @@ struct workqueue_struct;
->  typedef void (*work_func_t)(void *data);
->  
->  struct work_struct {
-> -	unsigned long pending;
-> +	/* the first word is the work queue pointer and the pending flag
-> +	 * rolled into one */
-> +	unsigned long management;
-> +#define WORK_STRUCT_PENDING 0		/* T if work item pending execution */
+> int daemon(int nochdir, int noclose)
+> {
+> 	if(!nochdir)
+> 		chdir("/");
+> 
+> 	if(!noclose)
+> 	{
+> 		int fd = open("/dev/null", O_RDWR);
+> 		dup2(fd, 0);
+> 		dup2(fd, 1);
+> 		dup2(fd, 2);
+> 		close(fd);
+> 	}
+> 
+> 	if(fork() > 0)
 
-Does 'T' mean true?  I think Linus's comment applies here also.
+... that should be if (fork() == 0) ...
 
-> +#define WORK_STRUCT_FLAG_MASK (3UL)
-> +#define WORK_STRUCT_WQ_DATA_MASK (~WORK_STRUCT_FLAG_MASK)
->  	struct list_head entry;
->  	work_func_t func;
->  	void *data;
-> -	void *wq_data;
->  };
->  
->  struct dwork_struct {
+> 		_exit(0);
 
----
-~Randy
+	setsid();
+> }
+> 
+
+
+> Since it calls _exit() right after fork() returns (so daemon() never
+> returns to the calling process except in case of an error) it would be
+> possible to implement this on MMUless machines if the last two lines
+> could happen in the kernel.
+> 
+
+You could do this quite easily with clone() and a small assembly wrapper.
+
+The assembly wrapper needs to do the last two lines without touching the 
+stack in the parent.  That is usually quite trivial, even on 
+register-starved architectures; for example, on i386 it would look like 
+(ignoring vsyscalls for the moment, which are only an optimization anyway).
+
+__detach_from_parent:
+	pushl	%ebx
+	movl	$__NR_clone, %eax
+	movl	$CLONE_VM|SIGCHLD, %ebx
+	xorl	%ecx, %ecx
+	int	$0x80
+	cmpl	$-4096, %eax
+	ja	1f
+	andl	%eax, %eax
+	je	2f
+	# Parent process, must _exit(0)
+	xorl	%ebx, %ebx
+	movl	$__NR_exit, %eax
+	int	$0x80
+	# _exit() should never return
+	hlt
+1:	# Error on fork(), set errno and return -1
+	negl	%eax
+	movl	%eax, errno		# Or TLS equivalent
+	orl	$-1, %eax
+2:	# Child process jumps here with %eax == 0 already
+	popl	%ebx
+	ret
+

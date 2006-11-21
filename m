@@ -1,276 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965843AbWKUNpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030973AbWKUNzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965843AbWKUNpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 08:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966920AbWKUNpN
+	id S1030973AbWKUNzI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 08:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030974AbWKUNzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 08:45:13 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:55213 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S965843AbWKUNpL (ORCPT
+	Tue, 21 Nov 2006 08:55:08 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:15986 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1030973AbWKUNzH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 08:45:11 -0500
-Message-ID: <4563046B.6040909@sw.ru>
-Date: Tue, 21 Nov 2006 16:51:39 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Cedric Le Goater <clg@fr.ibm.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Daniel Lezcano <dlezcano@fr.ibm.com>, Dmitry Mishin <dim@sw.ru>,
-       netdev@vger.kernel.org
-Subject: Re: [patch -mm] net namespace: empty framework
-References: <4563007B.9010202@fr.ibm.com>
-In-Reply-To: <4563007B.9010202@fr.ibm.com>
+	Tue, 21 Nov 2006 08:55:07 -0500
+Date: Tue, 21 Nov 2006 14:54:54 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Jim Schutt <jaschut@sandia.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: splice/vmsplice performance test results
+Message-ID: <20061121135454.GV8055@kernel.dk>
+References: <1163700539.2672.14.camel@sale659.sandia.gov> <20061116202529.GH7164@kernel.dk> <1163784110.8170.8.camel@sale659.sandia.gov> <20061120075941.GF4077@kernel.dk> <20061120082426.GG4077@kernel.dk> <1164037743.19613.5.camel@sale659.sandia.gov>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1164037743.19613.5.camel@sale659.sandia.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric,
+On Mon, Nov 20 2006, Jim Schutt wrote:
+> On Mon, 2006-11-20 at 09:24 +0100, Jens Axboe wrote:
+> > On Mon, Nov 20 2006, Jens Axboe wrote:
+> > > On Fri, Nov 17 2006, Jim Schutt wrote:
+> > > > On Thu, 2006-11-16 at 21:25 +0100, Jens Axboe wrote:
+> > > > > On Thu, Nov 16 2006, Jim Schutt wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > 
+> > > > > > My test program can do one of the following:
+> > > > > > 
+> > > > > > send data:
+> > > > > >  A) read() from file into buffer, write() buffer into socket
+> > > > > >  B) mmap() section of file, write() that into socket, munmap()
+> > > > > >  C) splice() from file to pipe, splice() from pipe to socket
+> > > > > > 
+> > > > > > receive data:
+> > > > > >  1) read() from socket into buffer, write() buffer into file
+> > > > > >  2) ftruncate() to extend file, mmap() new extent, read() 
+> > > > > >       from socket into new extent, munmap()
+> > > > > >  3) read() from socket into buffer, vmsplice() buffer to 
+> > > > > >      pipe, splice() pipe to file (using the double-buffer trick)
+> > > > > > 
+> > > > > > Here's the results, using:
+> > > > > >  - 64 KiB buffer, mmap extent, or splice
+> > > > > >  - 1 MiB TCP window
+> > > > > >  - 16 GiB data sent across network
+> > > > > > 
+> > > > > > A) from /dev/zero -> 1) to /dev/null : 857 MB/s (6.86 Gb/s)
+> > > > > > 
+> > > > > > A) from file      -> 1) to /dev/null : 472 MB/s (3.77 Gb/s)
+> > > > > > B) from file      -> 1) to /dev/null : 366 MB/s (2.93 Gb/s)
+> > > > > > C) from file      -> 1) to /dev/null : 854 MB/s (6.83 Gb/s)
+> > > > > > 
+> > > > > > A) from /dev/zero -> 1) to file      : 375 MB/s (3.00 Gb/s)
+> > > > > > A) from /dev/zero -> 2) to file      : 150 MB/s (1.20 Gb/s)
+> > > > > > A) from /dev/zero -> 3) to file      : 286 MB/s (2.29 Gb/s)
+> > > > > > 
+> > > > > > I had (naively) hoped the read/vmsplice/splice combination would 
+> > > > > > run at the same speed I can write a file, i.e. at about 450 MB/s
+> > > > > > on my setup.  Do any of my numbers seem bogus, so I should look 
+> > > > > > harder at my test program?
+> > > > > 
+> > > > > Could be read-ahead playing in here, I'd have to take a closer look at
+> > > > > the generated io patterns to say more about that. Any chance you can
+> > > > > capture iostat or blktrace info for such a run to compare that goes to
+> > > > > the disk?
+> > > > 
+> > > > I've attached a file with iostat and vmstat results for the case
+> > > > where I read from a socket and write a file, vs. the case where I
+> > > > read from a socket and use vmsplice/splice to write the file.
+> > > > (Sorry it's not inline - my mailer locks up when I try to
+> > > > include the file.)
+> > > > 
+> > > > Would you still like blktrace info for these two cases?
+> > > 
+> > > No, I think the iostat data is fine, I don't think the blktrace info
+> > > would give me any more insight on this problem. I'll set up a test to
+> > > reproduce it here, looks like the write out path could be optimized some
+> > > more.
+> 
+> Great, let me know if you need testing from me.
 
-Dmitry Mishin and Daniel Lezcano are working together on the full
-network namespace incorporating both needs of OpenVZ and VServer/IBM.
+I found some suboptimal behaviour in your test app - you don't check for
+short reads and splice would really like things to be aligned for the
+best performance. I did some testing with the original app here, and I
+get 114.769MB/s for read-from-socket -> write-to-file and 109.878MB/s
+for read-from-socket -> vmsplice-splice-to-file. If I fix up the read to
+always get the full buffer size before doing the vmsplice+splice, the
+performance is up to the same as the read/write.
 
-Thanks,
-Kirill
+Since it's doing buffered writes, the results do vary a lot though (as
+you also indicated). A raw /dev/zero -> /dev/null is 3 times faster with
+vmsplice/splice.
 
-> From: Cedric Le Goater <cedric@legoater.org>
-> 
-> This patch adds an empty net namespace framework
-> 
-> Signed-off-by: Cedric Le Goater <cedric@legoater.org>
-> ---
->  include/linux/init_task.h     |    2 +
->  include/linux/net_namespace.h |   49 ++++++++++++++++++++++++++++++++++++++++++
->  include/linux/nsproxy.h       |    2 +
->  kernel/nsproxy.c              |   12 ++++++++++
->  net/Kconfig                   |    8 ++++++
->  net/core/Makefile             |    2 -
->  net/core/net_namespace.c      |   41 +++++++++++++++++++++++++++++++++++
->  7 files changed, 115 insertions(+), 1 deletion(-)
-> 
-> Index: 2.6.19-rc5-mm2/include/linux/init_task.h
-> ===================================================================
-> --- 2.6.19-rc5-mm2.orig/include/linux/init_task.h
-> +++ 2.6.19-rc5-mm2/include/linux/init_task.h
-> @@ -8,6 +8,7 @@
->  #include <linux/lockdep.h>
->  #include <linux/ipc.h>
->  #include <linux/pid_namespace.h>
-> +#include <linux/net_namespace.h>
->  
->  #define INIT_FDTABLE \
->  {							\
-> @@ -78,6 +79,7 @@ extern struct nsproxy init_nsproxy;
->  	.id		= 0,						\
->  	.uts_ns		= &init_uts_ns,					\
->  	.mnt_ns		= NULL,						\
-> +	INIT_NET_NS(net_ns)						\
->  	INIT_IPC_NS(ipc_ns)						\
->  }
->  
-> Index: 2.6.19-rc5-mm2/include/linux/net_namespace.h
-> ===================================================================
-> --- /dev/null
-> +++ 2.6.19-rc5-mm2/include/linux/net_namespace.h
-> @@ -0,0 +1,49 @@
-> +#ifndef _LINUX_NET_NAMESPACE_H
-> +#define _LINUX_NET_NAMESPACE_H
-> +
-> +#include <linux/kref.h>
-> +#include <linux/nsproxy.h>
-> +
-> +struct net_namespace {
-> +	struct kref	kref;
-> +};
-> +
-> +extern struct net_namespace init_net_ns;
-> +
-> +#ifdef CONFIG_NET_NS
-> +
-> +#define INIT_NET_NS(net_ns) .net_ns = &init_net_ns,
-> +
-> +static inline void get_net_ns(struct net_namespace *ns)
-> +{
-> +	kref_get(&ns->kref);
-> +}
-> +
-> +extern int copy_net_ns(int flags, struct task_struct *tsk);
-> +
-> +extern void free_net_ns(struct kref *kref);
-> +
-> +static inline void put_net_ns(struct net_namespace *ns)
-> +{
-> +	kref_put(&ns->kref, free_net_ns);
-> +}
-> +
-> +#else
-> +
-> +#define INIT_NET_NS(net_ns)
-> +
-> +static inline void get_net_ns(struct net_namespace *ns)
-> +{
-> +}
-> +
-> +static inline int copy_net_ns(int flags, struct task_struct *tsk)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline void put_net_ns(struct net_namespace *ns)
-> +{
-> +}
-> +#endif
-> +
-> +#endif /* _LINUX_NET_NAMESPACE_H */
-> Index: 2.6.19-rc5-mm2/include/linux/nsproxy.h
-> ===================================================================
-> --- 2.6.19-rc5-mm2.orig/include/linux/nsproxy.h
-> +++ 2.6.19-rc5-mm2/include/linux/nsproxy.h
-> @@ -10,6 +10,7 @@ struct mnt_namespace;
->  struct uts_namespace;
->  struct ipc_namespace;
->  struct pid_namespace;
-> +struct net_namespace;
->  
->  /*
->   * namespaces flags
-> @@ -42,6 +43,7 @@ struct nsproxy {
->  	struct ipc_namespace *ipc_ns;
->  	struct mnt_namespace *mnt_ns;
->  	struct pid_namespace *pid_ns;
-> +	struct net_namespace *net_ns;
->  
->  	struct hlist_node ns_hash_node;
->  };
-> Index: 2.6.19-rc5-mm2/kernel/nsproxy.c
-> ===================================================================
-> --- 2.6.19-rc5-mm2.orig/kernel/nsproxy.c
-> +++ 2.6.19-rc5-mm2/kernel/nsproxy.c
-> @@ -20,6 +20,7 @@
->  #include <linux/mnt_namespace.h>
->  #include <linux/utsname.h>
->  #include <linux/pid_namespace.h>
-> +#include <linux/net_namespace.h>
->  
->  #define NS_HASH_BITS 		3 /* this might need some configuration */
->  #define NS_HASH_SIZE		(1 << NS_HASH_BITS)
-> @@ -89,6 +90,8 @@ struct nsproxy *dup_namespaces(struct ns
->  			get_ipc_ns(ns->ipc_ns);
->  		if (ns->pid_ns)
->  			get_pid_ns(ns->pid_ns);
-> +		if (ns->net_ns)
-> +			get_net_ns(ns->net_ns);
->  	}
->  
->  	return ns;
-> @@ -136,10 +139,17 @@ int copy_namespaces(int flags, struct ta
->  	if (err)
->  		goto out_pid;
->  
-> +	err = copy_net_ns(flags, tsk);
-> +	if (err)
-> +		goto out_net;
-> +
->  out:
->  	put_nsproxy(old_ns);
->  	return err;
->  
-> +out_net:
-> +	if (new_ns->pid_ns)
-> +		put_pid_ns(new_ns->pid_ns);
->  out_pid:
->  	if (new_ns->ipc_ns)
->  		put_ipc_ns(new_ns->ipc_ns);
-> @@ -165,6 +175,8 @@ static void free_nsproxy(struct nsproxy 
->  		put_ipc_ns(ns->ipc_ns);
->  	if (ns->pid_ns)
->  		put_pid_ns(ns->pid_ns);
-> +	if (ns->net_ns)
-> +		put_net_ns(ns->net_ns);
->  	kfree(ns);
->  }
->  
-> Index: 2.6.19-rc5-mm2/net/core/Makefile
-> ===================================================================
-> --- 2.6.19-rc5-mm2.orig/net/core/Makefile
-> +++ 2.6.19-rc5-mm2/net/core/Makefile
-> @@ -3,7 +3,7 @@
->  #
->  
->  obj-y := sock.o request_sock.o skbuff.o iovec.o datagram.o stream.o scm.o \
-> -	 gen_stats.o gen_estimator.o
-> +	 gen_stats.o gen_estimator.o net_namespace.o
->  
->  obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
->  
-> Index: 2.6.19-rc5-mm2/net/core/net_namespace.c
-> ===================================================================
-> --- /dev/null
-> +++ 2.6.19-rc5-mm2/net/core/net_namespace.c
-> @@ -0,0 +1,41 @@
-> +/*
-> + *  This program is free software; you can redistribute it and/or
-> + *  modify it under the terms of the GNU General Public License as
-> + *  published by the Free Software Foundation, version 2 of the
-> + *  License.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/version.h>
-> +#include <linux/nsproxy.h>
-> +#include <linux/net_namespace.h>
-> +
-> +struct net_namespace init_net_ns = {
-> +	.kref = {
-> +		.refcount	= ATOMIC_INIT(2),
-> +	},
-> +};
-> +
-> +#ifdef CONFIG_NET_NS
-> +
-> +int copy_net_ns(int flags, struct task_struct *tsk)
-> +{
-> +	struct net_namespace *old_ns = tsk->nsproxy->net_ns;
-> +	int err = 0;
-> +
-> +	if (!old_ns)
-> +		return 0;
-> +
-> +	get_net_ns(old_ns);
-> +	return err;
-> +}
-> +
-> +void free_net_ns(struct kref *kref)
-> +{
-> +	struct net_namespace *ns;
-> +
-> +	ns = container_of(kref, struct net_namespace, kref);
-> +	kfree(ns);
-> +}
-> +
-> +#endif /* CONFIG_NET_NS */
-> Index: 2.6.19-rc5-mm2/net/Kconfig
-> ===================================================================
-> --- 2.6.19-rc5-mm2.orig/net/Kconfig
-> +++ 2.6.19-rc5-mm2/net/Kconfig
-> @@ -67,6 +67,14 @@ source "net/netlabel/Kconfig"
->  
->  endif # if INET
->  
-> +config NET_NS
-> +	bool "Network Namespaces"
-> +	help
-> +	  This option enables multiple independent network namespaces,
-> +	  each having own network devices, IP addresses, routes, and so on.
-> +	  If unsure, answer N.
-> +
-> +
->  config NETWORK_SECMARK
->  	bool "Security Marking"
->  	help
-> 
+-- 
+Jens Axboe
 

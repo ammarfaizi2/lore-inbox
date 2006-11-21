@@ -1,242 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWKULXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966410AbWKULWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030621AbWKULXg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 06:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966964AbWKULXg
+	id S966410AbWKULWP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 06:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966961AbWKULWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 06:23:36 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:65485 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S966961AbWKULXf (ORCPT
+	Tue, 21 Nov 2006 06:22:15 -0500
+Received: from pascal-2.arago.de ([194.153.130.10]:54446 "EHLO mail.arago.de")
+	by vger.kernel.org with ESMTP id S966410AbWKULWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 06:23:35 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: nigelc@bur.st
-Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
-Date: Tue, 21 Nov 2006 12:19:52 +0100
-User-Agent: KMail/1.9.1
-Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200611160912.51226.rjw@sisk.pl> <200611202355.50487.rjw@sisk.pl> <1164070310.15714.15.camel@nigel.suspend2.net>
-In-Reply-To: <1164070310.15714.15.camel@nigel.suspend2.net>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ZDuYFrZDuEdhvdQ"
-Message-Id: <200611211219.53086.rjw@sisk.pl>
+	Tue, 21 Nov 2006 06:22:14 -0500
+Date: Tue, 21 Nov 2006 12:22:09 +0100
+From: Vassilios Kotoulas <willy@arago.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 46/61] fix Intel RNG detection
+Message-ID: <20061121122209.N5023944@ohm.arago.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_ZDuYFrZDuEdhvdQ
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>> Dave Jones (davej@xxxxxxxxxx) wrote:
+>> Since I pushed an update to our Fedora users based on 2.6.18.2, a few people
+>> have reported they no longer have their RNG's detected.
+>> Here's one report: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=215144
+
+> Hmm, I wonder if the report is valid? Jan's patch would have the correct
+> side effect of disabling false positives (for RNG identification).
+> Be good to check that it actually used to work.
+>
+> Having said that, Jan the datasheet recommendation is looser than your
+> implementation. It only recommends checking for manufacturer code,
+> you check device code as well. Do you know of any scenarios where that
+> would matter (I can't conceive of any)?
 
 Hi,
 
-On Tuesday, 21 November 2006 01:51, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Mon, 2006-11-20 at 23:55 +0100, Rafael J. Wysocki wrote:
-> > On Monday, 20 November 2006 23:39, Nigel Cunningham wrote:
-> > > (Sorry to reply again)
-> > 
-> > (No big deal)
-> > 
-> > > On Tue, 2006-11-21 at 09:26 +1100, Nigel Cunningham wrote:
-> > > > Hi.
-> > > > 
-> > > > On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
-> > > > > I think I/O can only be submitted from the process context.  Thus if we freeze
-> > > > > all (and I mean _all_) threads that are used by filesystems, including worker
-> > > > > threads, we should effectively prevent fs-related I/O from being submitted
-> > > > > after tasks have been frozen.
-> > > > 
-> > > > I know that will work. It's what I used to do before the switch to bdev
-> > > > freezing. I guess I need to look again at why I made the switch. Perhaps
-> > > > it was just because you guys gave freezing kthreads a bad wrap as too
-> > > > invasive or something. Bdev freezing is certainly fewer lines of code.
-> > > 
-> > > No, it looks like I wrongly believed that XFS was submitting I/O off a
-> > > timer, so that freezing kthreads wasn't enough. In that case, it looks
-> > > like freezing kthreads should be a good solution.
-> > 
-> > Okay, so let's implement it. :-)
-> 
-> Agreed. I'm a bit confused now about what the latest version of your
-> patches is, but I'll be happy to switch back to kthread freezing in the
-> next Suspend2 release if it will help with getting them wider testing.
+sorry for the broken threading, I read this in the archives.
 
-The latest are:
+My RNG worked with the older kernel 2.6.18-1.2200.fc5
+I booted this kernel and made the following tests:
 
-support-for-freezeable-workqueues.patch
-use-freezeable-workqueues-in-xfs.patch
+hexdump -v /dev/hw_random
 
-(both attached for convenience) and the freezing of bdevs patch has been
-dropped.
+here is the beginning of the output:
 
-Greetings,
-Rafael
+0000000 a7ff 1dff b312 0be0 64c9 8f83 9082 7d94
+0000010 ac03 c513 ac1b b502 b93e 8f34 1a05 d417
+0000020 b9cc c5d5 345f e6f6 d84b 333c c156 9007
+0000030 0539 b145 7fdc 071b ea10 9145 c395 5536
+0000040 7942 f8a2 f07d a5ea 2c76 a934 742c 1288
+0000050 925a f710 67e6 8f68 ece2 bb23 536d bebe
+0000060 1ad3 ab94 ab7b 54c9 8ce3 adaa 7f79 edd7
+0000070 4c5b 0a28 66ee bc8d 90ae 0515 353e dcf5
 
+These Numbers seem random to me :)
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+rngtest produces the following output:
 
---Boundary-00=_ZDuYFrZDuEdhvdQ
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="support-for-freezeable-workqueues.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="support-for-freezeable-workqueues.patch"
+[root@kra:~] rngtest -t1 </dev/hw_random 
+rngtest 2
+Copyright (c) 2004 by Henrique de Moraes Holschuh
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
- include/linux/workqueue.h |    8 +++++---
- kernel/workqueue.c        |   20 ++++++++++++++------
- 2 files changed, 19 insertions(+), 9 deletions(-)
+rngtest: starting FIPS tests...
+rngtest: bits received from input: 60032
+rngtest: FIPS 140-2 successes: 3
+rngtest: FIPS 140-2 failures: 0
+rngtest: FIPS 140-2(2001-10-10) Monobit: 0
+rngtest: FIPS 140-2(2001-10-10) Poker: 0
+rngtest: FIPS 140-2(2001-10-10) Runs: 0
+rngtest: FIPS 140-2(2001-10-10) Long run: 0
+rngtest: FIPS 140-2(2001-10-10) Continuous run: 0
+rngtest: input channel speed: (min=44.617; avg=48.397; max=51.079)Kibits/s
+rngtest: FIPS tests speed: (min=62.129; avg=62.536; max=62.949)Mibits/s
+rngtest: Program run time: 1211852 microseconds
+rngtest: bits received from input: 120032
+rngtest: FIPS 140-2 successes: 6
+rngtest: FIPS 140-2 failures: 0
+rngtest: FIPS 140-2(2001-10-10) Monobit: 0
+rngtest: FIPS 140-2(2001-10-10) Poker: 0
+rngtest: FIPS 140-2(2001-10-10) Runs: 0
+rngtest: FIPS 140-2(2001-10-10) Long run: 0
+rngtest: FIPS 140-2(2001-10-10) Continuous run: 0
+rngtest: input channel speed: (min=44.307; avg=46.440; max=51.079)Kibits/s
+rngtest: FIPS tests speed: (min=59.980; avg=61.627; max=62.949)Mibits/s
+rngtest: Program run time: 2525610 microseconds
 
-Index: linux-2.6.19-rc5-mm2/include/linux/workqueue.h
-===================================================================
---- linux-2.6.19-rc5-mm2.orig/include/linux/workqueue.h
-+++ linux-2.6.19-rc5-mm2/include/linux/workqueue.h
-@@ -55,9 +55,11 @@ struct execute_work {
- 	} while (0)
- 
- extern struct workqueue_struct *__create_workqueue(const char *name,
--						    int singlethread);
--#define create_workqueue(name) __create_workqueue((name), 0)
--#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
-+						    int singlethread,
-+						    int freezeable);
-+#define create_workqueue(name) __create_workqueue((name), 0, 0)
-+#define create_freezeable_workqueue(name) __create_workqueue((name), 0, 1)
-+#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
- 
- extern void destroy_workqueue(struct workqueue_struct *wq);
- 
-Index: linux-2.6.19-rc5-mm2/kernel/workqueue.c
-===================================================================
---- linux-2.6.19-rc5-mm2.orig/kernel/workqueue.c
-+++ linux-2.6.19-rc5-mm2/kernel/workqueue.c
-@@ -31,6 +31,7 @@
- #include <linux/mempolicy.h>
- #include <linux/kallsyms.h>
- #include <linux/debug_locks.h>
-+#include <linux/freezer.h>
- 
- /*
-  * The per-CPU workqueue (if single thread, we always use the first
-@@ -57,6 +58,8 @@ struct cpu_workqueue_struct {
- 	struct task_struct *thread;
- 
- 	int run_depth;		/* Detect run_workqueue() recursion depth */
-+
-+	int freezeable;		/* Freeze the thread during suspend */
- } ____cacheline_aligned;
- 
- /*
-@@ -251,7 +254,8 @@ static int worker_thread(void *__cwq)
- 	struct k_sigaction sa;
- 	sigset_t blocked;
- 
--	current->flags |= PF_NOFREEZE;
-+	if (!cwq->freezeable)
-+		current->flags |= PF_NOFREEZE;
- 
- 	set_user_nice(current, -5);
- 
-@@ -274,6 +278,9 @@ static int worker_thread(void *__cwq)
- 
- 	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
-+		if (cwq->freezeable)
-+			try_to_freeze();
-+
- 		add_wait_queue(&cwq->more_work, &wait);
- 		if (list_empty(&cwq->worklist))
- 			schedule();
-@@ -350,7 +357,7 @@ void fastcall flush_workqueue(struct wor
- EXPORT_SYMBOL_GPL(flush_workqueue);
- 
- static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
--						   int cpu)
-+						   int cpu, int freezeable)
- {
- 	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
- 	struct task_struct *p;
-@@ -360,6 +367,7 @@ static struct task_struct *create_workqu
- 	cwq->thread = NULL;
- 	cwq->insert_sequence = 0;
- 	cwq->remove_sequence = 0;
-+	cwq->freezeable = freezeable;
- 	INIT_LIST_HEAD(&cwq->worklist);
- 	init_waitqueue_head(&cwq->more_work);
- 	init_waitqueue_head(&cwq->work_done);
-@@ -375,7 +383,7 @@ static struct task_struct *create_workqu
- }
- 
- struct workqueue_struct *__create_workqueue(const char *name,
--					    int singlethread)
-+					    int singlethread, int freezeable)
- {
- 	int cpu, destroy = 0;
- 	struct workqueue_struct *wq;
-@@ -395,7 +403,7 @@ struct workqueue_struct *__create_workqu
- 	mutex_lock(&workqueue_mutex);
- 	if (singlethread) {
- 		INIT_LIST_HEAD(&wq->list);
--		p = create_workqueue_thread(wq, singlethread_cpu);
-+		p = create_workqueue_thread(wq, singlethread_cpu, freezeable);
- 		if (!p)
- 			destroy = 1;
- 		else
-@@ -403,7 +411,7 @@ struct workqueue_struct *__create_workqu
- 	} else {
- 		list_add(&wq->list, &workqueues);
- 		for_each_online_cpu(cpu) {
--			p = create_workqueue_thread(wq, cpu);
-+			p = create_workqueue_thread(wq, cpu, freezeable);
- 			if (p) {
- 				kthread_bind(p, cpu);
- 				wake_up_process(p);
-@@ -657,7 +665,7 @@ static int __devinit workqueue_cpu_callb
- 		mutex_lock(&workqueue_mutex);
- 		/* Create a new workqueue thread for it. */
- 		list_for_each_entry(wq, &workqueues, list) {
--			if (!create_workqueue_thread(wq, hotcpu)) {
-+			if (!create_workqueue_thread(wq, hotcpu, 0)) {
- 				printk("workqueue for %i failed\n", hotcpu);
- 				return NOTIFY_BAD;
- 			}
-
---Boundary-00=_ZDuYFrZDuEdhvdQ
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="use-freezeable-workqueues-in-xfs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="use-freezeable-workqueues-in-xfs.patch"
-
----
- fs/xfs/linux-2.6/xfs_buf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.19-rc5-mm2/fs/xfs/linux-2.6/xfs_buf.c
-===================================================================
---- linux-2.6.19-rc5-mm2.orig/fs/xfs/linux-2.6/xfs_buf.c
-+++ linux-2.6.19-rc5-mm2/fs/xfs/linux-2.6/xfs_buf.c
-@@ -1826,11 +1826,11 @@ xfs_buf_init(void)
- 	if (!xfs_buf_zone)
- 		goto out_free_trace_buf;
- 
--	xfslogd_workqueue = create_workqueue("xfslogd");
-+	xfslogd_workqueue = create_freezeable_workqueue("xfslogd");
- 	if (!xfslogd_workqueue)
- 		goto out_free_buf_zone;
- 
--	xfsdatad_workqueue = create_workqueue("xfsdatad");
-+	xfsdatad_workqueue = create_freezeable_workqueue("xfsdatad");
- 	if (!xfsdatad_workqueue)
- 		goto out_destroy_xfslogd_workqueue;
- 
-
---Boundary-00=_ZDuYFrZDuEdhvdQ--
+I also updated the bugzilla report with these tests.

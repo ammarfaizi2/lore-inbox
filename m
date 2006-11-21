@@ -1,82 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031389AbWKUUUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031395AbWKUUYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031389AbWKUUUr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031386AbWKUUUr
+	id S1031395AbWKUUYL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031397AbWKUUYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:20:47 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29449 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031392AbWKUUUq (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:20:46 -0500
-Date: Tue, 21 Nov 2006 21:20:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: d binderman <dcb314@hotmail.com>, ak@suse.de
-Cc: Linux-Kernel@vger.kernel.org, discuss@x86-64.org, mingo@redhat.com
-Subject: [2.6 patch] x86_64 __setup_APIC_LVTT(): remove unused variable
-Message-ID: <20061121202046.GL5200@stusta.de>
-References: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
+	Tue, 21 Nov 2006 15:24:10 -0500
+Received: from mx1.suse.de ([195.135.220.2]:18665 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1031395AbWKUUYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:24:09 -0500
+From: Andi Kleen <ak@suse.de>
+To: David Rientjes <rientjes@cs.washington.edu>
+Subject: Re: arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was set but never us
+Date: Tue, 21 Nov 2006 21:22:05 +0100
+User-Agent: KMail/1.9.5
+Cc: d binderman <dcb314@hotmail.com>, Ingo Molnar <mingo@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl> <Pine.LNX.4.64N.0611211214230.25455@attu4.cs.washington.edu>
+In-Reply-To: <Pine.LNX.4.64N.0611211214230.25455@attu4.cs.washington.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611212122.05462.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 07:46:46PM +0000, d binderman wrote:
+On Tuesday 21 November 2006 21:18, David Rientjes wrote:
+> Remove unused GET_APIC_VERSION call from clear_local_APIC() and 
+> __setup_APIC_LVTT().
 > 
-> Hello there,
-> 
-> I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-> C compiler.
-> 
-> The compiler said
-> 
-> arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was set but 
-> never used
-> 
-> The source code is
-> 
->    unsigned int lvtt_value, tmp_value, ver;
-> 
-> I have checked the source code and I agree with the compiler.
-> Suggest delete local variable.
+> Reported by D Binderman <dcb314@hotmail.com>.
 
-Thanks for your report, patch below.
-
-> Regards
-> 
-> David Binderman
-
-cu
-Adrian
+Added thanks.
 
 
-<--  snip  -->
-
-
-This patch removes a variable that whose usage was removed some time ago 
-by Andi.
-
-Spotted by the Intel C compiler.
-
-Reported by David Binderman.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.19-rc5-mm2/arch/x86_64/kernel/apic.c.old	2006-11-21 21:17:03.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/arch/x86_64/kernel/apic.c	2006-11-21 21:17:16.000000000 +0100
-@@ -722,10 +722,9 @@
- 
- static void __setup_APIC_LVTT(unsigned int clocks)
- {
--	unsigned int lvtt_value, tmp_value, ver;
-+	unsigned int lvtt_value, tmp_value;
- 	int cpu = smp_processor_id();
- 
--	ver = GET_APIC_VERSION(apic_read(APIC_LVR));
- 	lvtt_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
- 
- 	if (cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask))
-
+-Andi

@@ -1,55 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031405AbWKUU1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031402AbWKUU0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031405AbWKUU1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031406AbWKUU1Y
+	id S1031402AbWKUU0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031403AbWKUU0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:27:24 -0500
-Received: from mx2.cs.washington.edu ([128.208.2.105]:2957 "EHLO
-	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1031405AbWKUU1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:27:23 -0500
-Date: Tue, 21 Nov 2006 12:27:22 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: d binderman <dcb314@hotmail.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] i386 msr: remove unused variable
-In-Reply-To: <BAY107-F28B649DE13B7A3C02F1B459CEC0@phx.gbl>
-Message-ID: <Pine.LNX.4.64N.0611211225300.25455@attu4.cs.washington.edu>
-References: <BAY107-F28B649DE13B7A3C02F1B459CEC0@phx.gbl>
+	Tue, 21 Nov 2006 15:26:47 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:3777 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1031402AbWKUU0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:26:47 -0500
+Date: Tue, 21 Nov 2006 15:26:44 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061121195638.GC2013@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0611211517190.6410-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused variable in msr_write().
+On Tue, 21 Nov 2006, Paul E. McKenney wrote:
 
-Reported by D Binderman <dcb314@hotmail.com>.
+> On Tue, Nov 21, 2006 at 07:44:20PM +0300, Oleg Nesterov wrote:
+> > On 11/20, Paul E. McKenney wrote:
+> > >
+> > > On Mon, Nov 20, 2006 at 09:57:12PM +0300, Oleg Nesterov wrote:
+> > > > >
+> > > > So, if we have global A == B == 0,
+> > > >
+> > > > 	CPU_0		CPU_1
+> > > >
+> > > > 	A = 1;		B = 2;
+> > > > 	mb();		mb();
+> > > > 	b = B;		a = A;
+> > > >
+> > > > It could happen that a == b == 0, yes? Isn't this contradicts with definition
+> > > > of mb?
+> > >
+> > > It can and does happen.  -Which- definition of mb()?  ;-)
+> > 
+> > I had a somewhat similar understanding before this discussion
+> > 
+> > 	[PATCH] Fix RCU race in access of nohz_cpu_mask
+> > 	http://marc.theaimsgroup.com/?t=113378060600003
+> > 
+> > 	Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+> > 	http://marc.theaimsgroup.com/?t=113432312600001
+> > 
+> > Could you please explain me again why that fix was correct? What we have now is:
+> > 
+> > CPU_0					CPU_1
+> > rcu_start_batch:			stop_hz_timer:
+> > 
+> >   rcp->cur++;			STORE	  nohz_cpu_mask |= cpu
+> > 
+> >   smp_mb();				  mb();		// missed actually
+> > 
+> >   ->cpumask = ~nohz_cpu_mask;	LOAD	  if (rcu_pending()) // reads rcp->cur
+> > 							nohz_cpu_mask &= ~cpu
+> > 
+> > So, it is possible that CPU_0 reads an empty nohz_cpu_mask and starts a grace
+> > period with CPU_1 included in rcp->cpumask. CPU_1 in turn reads an old value
+> > of rcp->cur (so rcu_pending() returns 0) and becomes CPU_IDLE.
+> 
+> At this point, I am not certain that it is in fact correct.  :-/
+> 
+> > Take another patch,
+> > 
+> > 	Re: Oops on 2.6.18
+> > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=116266392016286
+> > 
+> > switch_uid:			__sigqueue_alloc:
+> > 
+> >   STORE 'new_user' to ->user	  STORE "locked" to ->siglock
+> > 
+> >   mb();				  "mb()"; // sort of, wrt loads/stores above
+> > 
+> >   LOAD ->siglock		  LOAD ->siglock
+> > 
+> > Agian, it is possible that switch_uid() doesn't notice that ->siglock is locked
+> > and frees ->user. __sigqueue_alloc() in turn reads an old (freed) value of ->user
+> > and does get_uid() on it.
+> 
+> Ditto.
 
-Cc: H. Peter Anvin <hpa@zytor.com>
-Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
----
- arch/i386/kernel/msr.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+> > Paul, Alan, in case it was not clear: I am not arguing, just trying to
+> > understand, and I appreciate very much your time and your explanations.
+> 
+> Either way, we clearly need better definitions of what the memory barriers
+> actually do!  And I expect that we will need your help.
 
-diff --git a/arch/i386/kernel/msr.c b/arch/i386/kernel/msr.c
-index d535cdb..331bd59 100644
---- a/arch/i386/kernel/msr.c
-+++ b/arch/i386/kernel/msr.c
-@@ -195,7 +195,6 @@ static ssize_t msr_write(struct file *fi
- {
- 	const u32 __user *tmp = (const u32 __user *)buf;
- 	u32 data[2];
--	size_t rv;
- 	u32 reg = *ppos;
- 	int cpu = iminor(file->f_dentry->d_inode);
- 	int err;
-@@ -203,7 +202,7 @@ static ssize_t msr_write(struct file *fi
- 	if (count % 8)
- 		return -EINVAL;	/* Invalid chunk size */
- 
--	for (rv = 0; count; count -= 8) {
-+	for (; count; count -= 8) {
- 		if (copy_from_user(&data, tmp, 8))
- 			return -EFAULT;
- 		err = do_wrmsr(cpu, reg, data[0], data[1]);
+Things may not be quite as bad as they appear.  On many architectures the 
+store-mb-load pattern will work as expected.  (In fact, I don't know which 
+architectures it might fail on.)
+
+Furthermore this is a very difficult race to trigger.  You couldn't force 
+it to happen, for example, by adding a delay somewhere.
+
+Alan
+

@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031049AbWKUWGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754831AbWKUWKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031049AbWKUWGS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031223AbWKUWGR
+	id S1754831AbWKUWKO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755694AbWKUWKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:06:17 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:10958 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1031049AbWKUWGR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:06:17 -0500
-Date: Tue, 21 Nov 2006 14:07:34 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061121220734.GG2013@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20061120185712.GA95@oleg> <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org> <20061121200441.GA341@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061121200441.GA341@oleg>
-User-Agent: Mutt/1.4.1i
+	Tue, 21 Nov 2006 17:10:13 -0500
+Received: from gw.goop.org ([64.81.55.164]:59545 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1754831AbWKUWKL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 17:10:11 -0500
+Message-ID: <45637940.1090608@goop.org>
+Date: Tue, 21 Nov 2006 14:10:08 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Eric Dumazet <dada1@cosmosbay.com>, Ingo Molnar <mingo@elte.hu>,
+       akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611211238.20419.dada1@cosmosbay.com> <456372AD.5080807@goop.org> <200611212252.28493.ak@suse.de>
+In-Reply-To: <200611212252.28493.ak@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 11:04:41PM +0300, Oleg Nesterov wrote:
-> On 11/20, Alan Stern wrote:
-> >
-> > On Mon, 20 Nov 2006, Oleg Nesterov wrote:
-> >
-> > > So, if we have global A == B == 0,
-> > >
-> > > 	CPU_0		CPU_1
-> > >
-> > > 	A = 1;		B = 2;
-> > > 	mb();		mb();
-> > > 	b = B;		a = A;
-> > >
-> > > It could happen that a == b == 0, yes?
-> >
-> > 	Both CPUs execute their "mb" instructions.  The mb forces each
-> > 	cache to wait until it receives an Acknowdgement for the
-> > 	Invalidate it sent.
-> >
-> > 	Both caches send an Acknowledgement message to the other.  The
-> > 	mb instructions complete.
-> >
-> > 	"b = B" and "a = A" execute.  The caches return A==0 and B==0
-> > 	because they haven't yet invalidated their cache lines.
-> >
-> > The reason the code failed is because the mb instructions didn't force
-> > the caches to wait until the Invalidate messages in their queues had been
-> > fully carried out (i.e., the lines had actually been invalidated).
-> 
-> However, from
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=113435711112941
-> 
-> Paul E. McKenney wrote:
-> >
-> > 2.      rmb() guarantees that any changes seen by the interconnect
-> >         preceding the rmb() will be seen by any reads following the
-> >         rmb().
-> >
-> > 3.      mb() combines the guarantees made by rmb() and wmb().
-> 
-> Confused :(
+Andi Kleen wrote:
+>> For umask/getppid, assuming you're just running 1e7 iterations, you're
+>> seeing a difference of 25 and 35ns per iteration difference.  I wonder
+>> why it would be different for different syscalls; I would expect it to
+>> be a constant overhead either way.
+>>     
+>
+> They got different numbers of current references? 
+>   
 
-There are the weasel words "seen by the interconnect".  Alan is
-pointing out that the stores to A and B might not have been "seen by the
-interconnect" at the time that the pair of mb() instructions execute,
-since the other function of the mb() instructions is to ensure that
-any stores prior to each mb() is "seen by the interconnect" before any
-subsequenct stores are "seen by the interconnect".
+My understanding is that Eric has changed UP current (and other PDA ops)
+to not touch %gs at all, and the difference in reported times in due
+omitting the %gs load in entry.S (though %gs is still save/restored on
+the stack).
 
-Why wouldn't the store to A be seen by the interconnect at the time of
-CPU 1's mb()?  Because the cacheline containing A is still residing at
-CPU 1.  CPU 0's store to A cannot possibly be seen by the interconnect
-until after CPU 0 receives the corresponding cacheline.
+> On such micro benchmarks everything should be cache hot in theory
+> (unless it's a system with really small cache)
+>   
 
-Yes, it is confusing.  Memory barriers work a bit more straightforwardly
-on MMIO accesses, thankfully.  But it would probably be good to strive
-for minimal numbers of memory barriers, especially in common code.  :-/
+Yes, that would be my thought too, but maybe there's excessive aliasing
+on one of the ways, but I think he's using a Pentium M which has a 8-way L1.
 
-						Thanx, Paul
+>> been planning on a patch to rearrange the gdt in order to pack all the
+>> commonly used segment descriptors into one or two cache lines so that
+>> all the segment register reloads can be done with a minimum of cache
+>> misses.  It would be interesting for you to replace the:
+>>
+>>     movl $(__KERNEL_PDA), %edx; movl %edx, %gs
+>>
+>> with an appropriate read of the gdt entry, hm, which is a bit complex to
+>> find.
+>>     
+>
+> On UP it could be hardcoded. And oprofile can be used to profile for cache misses.
+>   
+
+Yes, assuming oprofile doesn't interfere with things too much. 
+Actually, just counting cache miss events during the course of a syscall
+would be most interesting (ie, no need to sample).
+
+
+    J

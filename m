@@ -1,263 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031055AbWKURAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031096AbWKURC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031055AbWKURAv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 12:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031096AbWKURAv
+	id S1031096AbWKURC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 12:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031200AbWKURC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 12:00:51 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63424 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1031055AbWKURAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 12:00:50 -0500
-Date: Tue, 21 Nov 2006 17:00:43 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] backlight: lcd: Remove dependenct from the framebuffer layer
-Message-ID: <Pine.LNX.4.64.0611211641570.13421@pentafluge.infradead.org>
+	Tue, 21 Nov 2006 12:02:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57048 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1031096AbWKURCz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 12:02:55 -0500
+Message-ID: <45633049.2000209@redhat.com>
+Date: Tue, 21 Nov 2006 08:58:49 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru>
+In-Reply-To: <20061121095302.GA15210@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Evgeniy Polyakov wrote:
+>> You don't want to have a channel like this.  The userlevel code doesn't 
+>> know which threads are waiting in the kernel on the event queue.  And it 
+>> seems to be much more complicated then simply have an kevent call which 
+>> tells the kernel "wake up N or 1 more threads since I cannot handle it". 
+>>  Basically a futex_wake()-like call.
+> 
+> Kernel does not know about any threads which waits for events, it only
+> has queue of events, it can only wake those who was parked in
+> kevent_get_events() or kevent_wait(), but syscall will return only when
+> condition it waits on is true, i.e. when there is new event in the ready
+> queue and/or ring buffer has empty slots, but kernel will wake them up
+> in any case if those conditions are true.
+> 
+> How should it know which syscall should be interrupted when special syscall
+> is called?
 
-The backlight and layer should be independent from the framebuffer layer.
-It can use the services offered by the framebuffer, but its absence should
-not prevent the backlight/lcd layer from functioning. 
+It's not about interrupting any threads.
 
-Signed-off-by: James Simmons <jsimmons@infradead.org>
----
+The issue is that the wakeup of a thread from the kevent_wait call 
+constitutes an "event notification".  If, as it should be, only one 
+thread is woken than this information mustn't get lost.  If the woken 
+thread cannot work on the events it got notified for, then it must tell 
+the kernel about it so that, *if* there are other threads waiting in 
+kevent_wait, one of those other threads can be woken.
 
- drivers/video/backlight/backlight.c |   85 ++++++++++++++++++++++-------------
- drivers/video/backlight/lcd.c       |   76 +++++++++++++++++++------------
- 4 files changed, 103 insertions(+), 64 deletions(-)
+What is needed is a simple "wake another thread waiting on this event 
+queue" syscall.  Yes, in theory we could open an additional pipe with 
+each event queue and use it for waking threads, but this is influencing 
+the ABI through the use of a file descriptor.  It's much better to have 
+an explicit way to do this.
 
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 27597c5..6766dfb 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -14,6 +14,57 @@ #include <linux/ctype.h>
- #include <linux/err.h>
- #include <linux/fb.h>
- 
-+
-+#if defined(CONFIG_FB) || (defined(CONFIG_FB_MODULE) && \
-+			   defined(CONFIG_BACKLIGHT_CLASS_DEVICE_MODULE))
-+/* This callback gets called when something important happens inside a
-+ * framebuffer driver. We're looking if that important event is blanking,
-+ * and if it is, we're switching backlight power as well ...
-+ */
-+static int fb_notifier_callback(struct notifier_block *self,
-+				unsigned long event, void *data)
-+{
-+	struct backlight_device *bd;
-+	struct fb_event *evdata =(struct fb_event *)data;
-+
-+	/* If we aren't interested in this event, skip it immediately ... */
-+	if (event != FB_EVENT_BLANK)
-+		return 0;
-+
-+	bd = container_of(self, struct backlight_device, fb_notif);
-+	down(&bd->sem);
-+	if (bd->props)
-+		if (!bd->props->check_fb ||
-+		    bd->props->check_fb(evdata->info)) {
-+			bd->props->fb_blank = *(int *)evdata->data;
-+			if (likely(bd->props && bd->props->update_status))
-+				bd->props->update_status(bd);
-+		}
-+	up(&bd->sem);
-+	return 0;
-+}
-+
-+static int backlight_register_fb(struct backlight_device *bd)
-+{
-+	memset(&bd->fb_notif, 0, sizeof(bd->fb_notif));
-+	bd->fb_notif.notifier_call = fb_notifier_callback;
-+
-+	return fb_register_client(&bd->fb_notif);
-+}
-+
-+static void backlight_unregister_fb(struct backlight_device *bd)
-+{
-+	fb_unregister_client(&bd->fb_notif);
-+}
-+#else
-+static inline int backlight_register_fb(struct backlight_device *bd)
-+{
-+	return 0;
-+}
-+
-+#define backlight_unregister_fb(...) do { } while (0)
-+#endif /* CONFIG_FB */
-+
- static ssize_t backlight_show_power(struct class_device *cdev, char *buf)
- {
- 	int rc = -ENXIO;
-@@ -151,33 +202,6 @@ static struct class_device_attribute bl_
- 	DECLARE_ATTR(max_brightness, 0444, backlight_show_max_brightness, NULL),
- };
- 
--/* This callback gets called when something important happens inside a
-- * framebuffer driver. We're looking if that important event is blanking,
-- * and if it is, we're switching backlight power as well ...
-- */
--static int fb_notifier_callback(struct notifier_block *self,
--				unsigned long event, void *data)
--{
--	struct backlight_device *bd;
--	struct fb_event *evdata =(struct fb_event *)data;
--
--	/* If we aren't interested in this event, skip it immediately ... */
--	if (event != FB_EVENT_BLANK)
--		return 0;
--
--	bd = container_of(self, struct backlight_device, fb_notif);
--	down(&bd->sem);
--	if (bd->props)
--		if (!bd->props->check_fb ||
--		    bd->props->check_fb(evdata->info)) {
--			bd->props->fb_blank = *(int *)evdata->data;
--			if (likely(bd->props && bd->props->update_status))
--				bd->props->update_status(bd);
--		}
--	up(&bd->sem);
--	return 0;
--}
--
- /**
-  * backlight_device_register - create and register a new object of
-  *   backlight_device class.
-@@ -215,10 +239,7 @@ error:		kfree(new_bd);
- 		return ERR_PTR(rc);
- 	}
- 
--	memset(&new_bd->fb_notif, 0, sizeof(new_bd->fb_notif));
--	new_bd->fb_notif.notifier_call = fb_notifier_callback;
--
--	rc = fb_register_client(&new_bd->fb_notif);
-+	rc = backlight_register_fb(new_bd);
- 	if (unlikely(rc))
- 		goto error;
- 
-@@ -268,7 +289,7 @@ void backlight_device_unregister(struct 
- 	bd->props = NULL;
- 	up(&bd->sem);
- 
--	fb_unregister_client(&bd->fb_notif);
-+	backlight_unregister_fb(bd);
- 
- 	class_device_unregister(&bd->class_dev);
- }
-diff --git a/drivers/video/backlight/lcd.c b/drivers/video/backlight/lcd.c
-index bc8ab00..cab36a4 100644
---- a/drivers/video/backlight/lcd.c
-+++ b/drivers/video/backlight/lcd.c
-@@ -14,6 +14,51 @@ #include <linux/ctype.h>
- #include <linux/err.h>
- #include <linux/fb.h>
- 
-+#if defined(CONFIG_FB) || (defined(CONFIG_FB_MODULE) && \
-+			   defined(CONFIG_LCD_CLASS_DEVICE_MODULE))
-+/* This callback gets called when something important happens inside a
-+ * framebuffer driver. We're looking if that important event is blanking,
-+ * and if it is, we're switching lcd power as well ...
-+ */
-+static int fb_notifier_callback(struct notifier_block *self,
-+				 unsigned long event, void *data)
-+{
-+	struct lcd_device *ld;
-+	struct fb_event *evdata =(struct fb_event *)data;
-+
-+	/* If we aren't interested in this event, skip it immediately ... */
-+	if (event != FB_EVENT_BLANK)
-+		return 0;
-+
-+	ld = container_of(self, struct lcd_device, fb_notif);
-+	down(&ld->sem);
-+	if (ld->props)
-+		if (!ld->props->check_fb || ld->props->check_fb(evdata->info))
-+			ld->props->set_power(ld, *(int *)evdata->data);
-+	up(&ld->sem);
-+	return 0;
-+}
-+
-+static int lcd_register_fb(struct lcd_device *ld)
-+{
-+	memset(&ld->fb_notif, 0, sizeof(&ld->fb_notif));
-+	ld->fb_notif.notifier_call = fb_notifier_callback;
-+	return fb_register_client(&ld->fb_notif);
-+}
-+
-+static void lcd_unregister_fb(struct lcd_device *ld)
-+{
-+	fb_unregister_client(&ld->fb_notif);
-+}
-+#else
-+static int lcd_register_fb(struct lcd_device *ld)
-+{
-+	return 0;
-+}
-+
-+#define lcd_unregister_fb(...) do { } while (0)
-+#endif /* CONFIG_FB */
-+
- static ssize_t lcd_show_power(struct class_device *cdev, char *buf)
- {
- 	int rc;
-@@ -127,29 +172,6 @@ static struct class_device_attribute lcd
- 	DECLARE_ATTR(max_contrast, 0444, lcd_show_max_contrast, NULL),
- };
- 
--/* This callback gets called when something important happens inside a
-- * framebuffer driver. We're looking if that important event is blanking,
-- * and if it is, we're switching lcd power as well ...
-- */
--static int fb_notifier_callback(struct notifier_block *self,
--				 unsigned long event, void *data)
--{
--	struct lcd_device *ld;
--	struct fb_event *evdata =(struct fb_event *)data;
--
--	/* If we aren't interested in this event, skip it immediately ... */
--	if (event != FB_EVENT_BLANK)
--		return 0;
--
--	ld = container_of(self, struct lcd_device, fb_notif);
--	down(&ld->sem);
--	if (ld->props)
--		if (!ld->props->check_fb || ld->props->check_fb(evdata->info))
--			ld->props->set_power(ld, *(int *)evdata->data);
--	up(&ld->sem);
--	return 0;
--}
--
- /**
-  * lcd_device_register - register a new object of lcd_device class.
-  * @name: the name of the new object(must be the same as the name of the
-@@ -186,10 +208,8 @@ error:		kfree(new_ld);
- 		return ERR_PTR(rc);
- 	}
- 
--	memset(&new_ld->fb_notif, 0, sizeof(new_ld->fb_notif));
--	new_ld->fb_notif.notifier_call = fb_notifier_callback;
-+	rc = lcd_register_fb(new_ld);
- 
--	rc = fb_register_client(&new_ld->fb_notif);
- 	if (unlikely(rc))
- 		goto error;
- 
-@@ -232,9 +252,7 @@ void lcd_device_unregister(struct lcd_de
- 	down(&ld->sem);
- 	ld->props = NULL;
- 	up(&ld->sem);
--
--	fb_unregister_client(&ld->fb_notif);
--
-+	lcd_unregister_fb(ld);
- 	class_device_unregister(&ld->class_dev);
- }
- EXPORT_SYMBOL(lcd_device_unregister);
--
+
+> No AIO, but syscall.
+> Only syscall time matters.
+> Syscall starts, it sould be sometime stopped. When it should be stopped?
+> It should be stopped after some time after it was started!
+> 
+> I still do not understand how will you use absolute timeout values
+> there. Please exaplain.
+
+What is there to explain?  If you are waiting for events which must 
+coincide with real-world events you'll naturally will want to formulate 
+something like "wait for X until 10:15h".  You cannot formulate this 
+correctly with relative timeouts since the realtime clock might be adjusted.
+
+
+> futex_wait() uses relative timeouts:
+>  static int futex_wait(u32 __user *uaddr, u32 val, unsigned long time)
+> 
+> Kernel use relative timeouts.
+
+Look again.  This time at the implementation.  For FUTEX_LOCK_PI the 
+timeout is an absolute timeout.
+
+> We have not have such symmetry.
+> Other event handling interfaces can not work with events, which do not
+> have file descriptor behind them. Kevent can and works.
+> Signals are just usual events.
+> 
+> You request to get events - and you get them.
+> You request to not get events during syscall - you remove events.
+
+None of this matches what I'm talking about.  If you want to block a 
+signal for the duration of the kevent_wait call this is nothing you can 
+do by registering an event.
+
+Registering events has nothing to do with signal masks.  They are not 
+modified.  It is the program's responsibility to set the mask up 
+correctly.  Just like sigwaitinfo() etc expect all signals which are 
+waited on to be blocked.
+
+The signal mask handling is orthogonal to all this and must be explicit. 
+  In some cases explicit pthread_sigmask/sigprocmask calls.  But this is 
+not atomic if a signal must be masked/unmasked for the *_wait call. 
+This is why we have variants like pselect/ppoll/epoll_pwait which 
+explicitly and *atomically* change the signal mask for the duration of 
+the call.
+
+
+> Btw, please point me to the discussion about real life usefullness of
+> that parameter for epoll. I read thread where sys_pepoll() was
+> intruduced, but except some theoretical handwaving about possible
+> usefullness there are no real signs of that requirement.
+
+Don't search for epoll_pwait, it's not widely used yet.  Search for 
+pselect, which is standardized.  You'll find plenty of uses of that 
+interface.  The number is certainly depressed in the moment since until 
+recently there was no correct implementation on Linux.  And the 
+interface is mostly used in real-time contexts where signals are more 
+commonly used.
+
+
+> What is the ground research or extended explaination about
+> blocking/unblocking some signals during syscall execution?
+
+Why is this even a question?  Have you done programming with signals? 
+You hatred of signals makes me think this isn't the case.
+
+You might want to unblock a signal on a *_wait call if it can be used to 
+interrupt the wait but you don't want this to happen during when the 
+thread is working on a request.
+
+You might want to block a signal, for instance, around a sigwaitinfo 
+call or, in this case, a kevent_wait call where the signal might be 
+delivered to the queue.
+
+There are countless possibilities.  Signals are very flexible.
+
+
+> There are _no_ additional syscalls.
+> I just introduced new case for event type.
+
+Which is a new syscall.  All demultiplexer cases are no syscalls. 
+Which, BTW, implies that unrecognized types should actually cause a 
+ENOSYS return value (this affects kevent_break).  We've been over this 
+many times.  If EINVAL is return this case cannot be distinguished from 
+invalid parameters.  This is crucial for future extensions where 
+userland (esp glibc) needs to be able to determine whether a new feature 
+is supported on the system.
+
+
+> You _need_ it to be done, since any kernel kevent user must have
+> enqueue/dequeue/callback callbacks. It is just an implementation of that
+> callbacks.
+
+I don't question that.  But there is no need to add the callback.  It 
+extends the kernel ABI/API.  And for what?  A vastly inferior timer 
+implementation compared to the POSIX timers.  And this while all that 
+needs to be done is to extend the POSIX timer code slightly to handle 
+SIGEV_KEVENT in addition to the other notification methods currently 
+used.  If you do it right then the code can be shared with the file AIO 
+code which currently is circulated as well and which uses parts of the 
+POSIX timer infrastructure.
+
+
+> Btw, how POSIX API should be extended to allow to queue events - queue
+> is required (which is created when user calls kevent_init() or
+> previoisly opened /dev/kevent), how should it be accessed, since it is
+> just a file descriptor in process task_struct.
+
+I've explained this multiple times.  The struct sigevent structure needs 
+to be extended to get a new part in the union.  Something like
+
+   struct {
+     int kevent_fd;
+     void *data;
+   } _sigev_kevent;
+
+Then define SIGEV_KEVENT as a value distinct from the other SIGEV_ 
+values.  In the code which handles setup of timers (the timer_create 
+syscall), recognize SIGEV_KEVENT and handle it appropriately.  I.e., 
+call into the code to register the event source, just like you'd do with 
+the current interface.  Then add the code to post an event to the event 
+queue where currently signals would be sent et voilà.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

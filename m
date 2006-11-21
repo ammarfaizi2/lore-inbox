@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966918AbWKUHfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934363AbWKUHjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966918AbWKUHfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 02:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966917AbWKUHfH
+	id S934363AbWKUHjx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 02:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934364AbWKUHjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 02:35:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:64170 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S966918AbWKUHfF (ORCPT
+	Tue, 21 Nov 2006 02:39:53 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:36384 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S934363AbWKUHjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 02:35:05 -0500
-Date: Mon, 20 Nov 2006 09:52:09 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kobject_add failed with -EEXIST
-Message-ID: <20061120175209.GA27255@suse.de>
-References: <4561E290.7060100@gmail.com> <20061120172733.GA26713@suse.de> <4561E68E.7040007@gmail.com>
-MIME-Version: 1.0
+	Tue, 21 Nov 2006 02:39:52 -0500
+Date: Tue, 21 Nov 2006 08:39:39 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061121073938.GI8055@kernel.dk>
+References: <20061120201334.GE8055@kernel.dk> <Pine.LNX.4.44L0.0611201629040.7916-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4561E68E.7040007@gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.44L0.0611201629040.7916-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 06:31:58PM +0100, Jiri Slaby wrote:
-> Greg KH wrote:
-> > On Mon, Nov 20, 2006 at 06:14:56PM +0100, Jiri Slaby wrote:
-> >> DEV: Unregistering device. ID = 'cls_device'
-> >> PM: Removing info for No Bus:cls_device
-> >> device_create_release called for cls_device
-> >> device class 'cls_class': unregistering
-> >> class 'cls_class': release.
-> >> class_create_release called for cls_class
-> >> cls_exit
+On Mon, Nov 20 2006, Alan Stern wrote:
+> On Mon, 20 Nov 2006, Jens Axboe wrote:
+> 
+> > > > Must we introduce memory allocations in srcu_read_lock()? It makes it
+> > > > much harder and nastier for me to use. I'd much prefer a failing
+> > > > init_srcu(), seems like a much better API.
+> > > 
+> > > Paul agrees with you that allocation failures in init_srcu() should be 
+> > > passed back to the caller, and I certainly don't mind doing so.
+> > > 
+> > > However we can't remove the memory allocation in srcu_read_lock().  That
+> > > was the point which started this whole thread: the per-cpu allocation
+> > > cannot be done statically, and some users of a static SRCU structure can't
+> > > easily call init_srcu() early enough.
+> > > 
+> > > Once the allocation succeeds, the overhead in srcu_read_lock() is minimal.
 > > 
-> > What does sysfs look like at this point in time?  Does
-> > /sys/class/cls_class exist?
+> > It's not about the overhead, it's about a potentially problematic
+> > allocation.
 > 
-> No, there is no such dir (it disappears).
-> 
-> > Also, which kernel version are you using here?
-> 
-> 2.6.19-rc6, 2.6.19-rc5-mm2
+> I'm not sure what you mean by "problematic allocation".  If you
+> successfully call init_srcu_struct then the allocation will be taken care
+> of.  Later calls to srcu_read_lock won't experience any slowdowns or
+> problems.
 
-I can't duplicate this here at all with your example code.  Check
-userspace to see if HAL or your udev scripts are doing something
-"odd"...
+That requires init_srcu_struct() to return the error. If it does that,
+I'm fine with it.
 
-What distro is this, and what version of HAL and udev are you using?
+> Does this answer your objection?  If not, can you explain in more detail 
+> what other features you would like?
 
-thanks,
+It does, if the allocation failure in init_srcu_struct() is signalled.
 
-greg k-h
+-- 
+Jens Axboe
+

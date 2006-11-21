@@ -1,34 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031183AbWKUQsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031210AbWKUQtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031183AbWKUQsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 11:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031212AbWKUQr7
+	id S1031210AbWKUQtj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031112AbWKUQtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 11:47:59 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:10847 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1031183AbWKUQr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 11:47:58 -0500
-To: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
-Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openib-general@openib.org, raisch@de.ibm.com
-Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address to determine pending work requests
-X-Message-Flag: Warning: May contain useful information
-References: <200611202354.13030.hnguyen@linux.vnet.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 21 Nov 2006 08:47:52 -0800
-In-Reply-To: <200611202354.13030.hnguyen@linux.vnet.ibm.com> (Hoang-Nam Nguyen's message of "Mon, 20 Nov 2006 23:54:12 +0100")
-Message-ID: <adaslgcg30n.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 21 Nov 2006 11:49:39 -0500
+Received: from nlpi043.sbcis.sbc.com ([207.115.36.72]:53387 "EHLO
+	nlpi043.sbcis.sbc.com") by vger.kernel.org with ESMTP
+	id S1031210AbWKUQth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:49:37 -0500
+X-ORBL: [67.117.73.34]
+Date: Tue, 21 Nov 2006 16:47:25 +0000
+From: Tony Lindgren <tony@atomide.com>
+To: Imre Deak <imre.deak@solidboot.com>,
+       Komal Shah <komal.shah802003@gmail.com>
+Cc: James Simmons <jsimmons@infradead.org>, Vladimir <vovan888@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Siemens sx1: merge framebuffer support
+Message-ID: <20061121164723.GB8193@atomide.com>
+References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <Pine.LNX.4.64.0611211503190.32103@pentafluge.infradead.org> <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Nov 2006 16:47:53.0540 (UTC) FILETIME=[C9CA2840:01C70D8C]
-Authentication-Results: sj-dkim-5; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim5002 verified; ); 
+Content-Disposition: inline
+In-Reply-To: <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Umm, it's really late to merge things for 2.6.19.  How severe is this
-bug?  Why has it not been found until now if it causing crashes?
+Hi,
 
- - R.
+* Komal Shah <komal.shah802003@gmail.com> [061121 15:35]:
+> On 11/21/06, James Simmons <jsimmons@infradead.org> wrote:
+> >
+> >Can you post the framebufer driver to the framebuffer list. We like to do
+> >peer review. Thank you :-)
+
+It would be nice to get the framebuffer integrated. I think it would be
+best if Imre submitted the patches as it's mostly his work.
+
+Imre, do you have time to send the patches to framebuffer list? If not,
+I can send them.
+
+> >On Tue, 21 Nov 2006, Vladimir wrote:
+> >
+> >> 2006/11/20, Tony Lindgren <tony@atomide.com>:
+> >> > * Pavel Machek <pavel@ucw.cz> [061118 18:16]:
+> >> > > From: Vladimir Ananiev <vovan888@gmail.com>
+> >> > >
+> >> > > Framebuffer support for Siemens SX1; this is second big patch. (Third
+> >> > > one will be mixer/sound support). Support is simple / pretty minimal,
+> >> > > but seems to work okay (and is somehow important for a cell phone 
+> >:-).
+> >> >
+> >> > Pushed to linux-omap. I guess you're planning to send the missing
+> >> > Kconfig + Makefile patch for this?
+> >> >
+> >> > Also, it would be better to use omap_mcbsp_xmit_word() or
+> >> > omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
+> >> > it does not do any checking that it worked. The aic23 and tsc2101
+> >> > audio in linux-omap tree in general has the same problem.
+> >> >
+> >> > Regards,
+> >> >
+> >> > Tony
+> >> >
+> >>
+> >> Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
+> >> so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
+> >> -
+> 
+> Again, framebuffer support patch is based on the omap framebuffer
+> driver, which is not yet submitted to upstream/fbdevel list. sx1
+> framebuffer support just fill up the hooks required by -omap fb driver
+> framework.
+
+Yes, but the framebuffer code is in pretty much ready to be sent
+upstream :)
+
+Regards,
+
+Tony

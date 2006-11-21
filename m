@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031375AbWKUUCC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031361AbWKUUEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031375AbWKUUCC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:02:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031372AbWKUUCB
+	id S1031361AbWKUUEw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031376AbWKUUEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:02:01 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:38107 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1031351AbWKUUCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:02:00 -0500
-Message-ID: <45635B29.4000801@garzik.org>
-Date: Tue, 21 Nov 2006 15:01:45 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru>
-In-Reply-To: <20061121184605.GA7787@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 21 Nov 2006 15:04:52 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:10650 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1031361AbWKUUEv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:04:51 -0500
+Date: Tue, 21 Nov 2006 23:04:41 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061121200441.GA341@oleg>
+References: <20061120185712.GA95@oleg> <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0611201439350.7569-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nitpick:  in ring_buffer.c (example app), I would use posix_memalign(3) 
-rather than malloc(3)
+On 11/20, Alan Stern wrote:
+>
+> On Mon, 20 Nov 2006, Oleg Nesterov wrote:
+> 
+> > So, if we have global A == B == 0,
+> > 
+> > 	CPU_0		CPU_1
+> > 
+> > 	A = 1;		B = 2;
+> > 	mb();		mb();
+> > 	b = B;		a = A;
+> > 
+> > It could happen that a == b == 0, yes?
+> 
+> 	Both CPUs execute their "mb" instructions.  The mb forces each
+> 	cache to wait until it receives an Acknowdgement for the 
+> 	Invalidate it sent.
+> 
+> 	Both caches send an Acknowledgement message to the other.  The
+> 	mb instructions complete.
+> 
+> 	"b = B" and "a = A" execute.  The caches return A==0 and B==0
+> 	because they haven't yet invalidated their cache lines.
+> 
+> The reason the code failed is because the mb instructions didn't force
+> the caches to wait until the Invalidate messages in their queues had been 
+> fully carried out (i.e., the lines had actually been invalidated).
 
-	Jeff
+However, from
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=113435711112941
 
+Paul E. McKenney wrote:
+>
+> 2.      rmb() guarantees that any changes seen by the interconnect
+>         preceding the rmb() will be seen by any reads following the
+>         rmb().
+>
+> 3.      mb() combines the guarantees made by rmb() and wmb().
 
+Confused :(
 
+Oleg.
 

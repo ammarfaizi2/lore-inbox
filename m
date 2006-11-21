@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966954AbWKUJbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966955AbWKUJip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966954AbWKUJbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 04:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966957AbWKUJbZ
+	id S966955AbWKUJip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 04:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966959AbWKUJip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 04:31:25 -0500
-Received: from gwmail.nue.novell.com ([195.135.221.19]:56476 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S966954AbWKUJbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 04:31:24 -0500
-Message-Id: <4562D5DA.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Tue, 21 Nov 2006 10:32:58 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Dave Jones" <davej@redhat.com>, "Chris Wright" <chrisw@sous-sol.org>
-Cc: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "Michael Buesch" <mb@bu3sch.de>,
-       "Metathronius Galabant" <m.galabant@googlemail.com>,
-       <stable@kernel.org>, "Michael Krufky" <mkrufky@linuxtv.org>,
-       "Justin Forbes" <jmforbes@linuxtx.org>, <alan@lxorguk.ukuu.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       "Chris Wedgwood" <reviews@ml.cw.f00f.org>, <akpm@osdl.org>,
-       <torvalds@osdl.org>, "Chuck Wolber" <chuckw@quantumlinux.com>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
-       "Randy Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
-References: <20061101053340.305569000@sous-sol.org>
- <20061101054343.623157000@sous-sol.org>
- <20061120234535.GD17736@redhat.com>
- <20061121022109.GF1397@sequoia.sous-sol.org>
-In-Reply-To: <20061121022109.GF1397@sequoia.sous-sol.org>
+	Tue, 21 Nov 2006 04:38:45 -0500
+Received: from colin.muc.de ([193.149.48.1]:44297 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S966955AbWKUJio (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 04:38:44 -0500
+Date: 21 Nov 2006 10:38:42 +0100
+Date: Tue, 21 Nov 2006 10:38:42 +0100
+From: Andi Kleen <ak@muc.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>
+Subject: Re: [PATCH] x86_64: Align data segment to PAGE_SIZE boundary
+Message-ID: <20061121093842.GA24407@muc.de>
+References: <20061120162909.GJ11450@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061120162909.GJ11450@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Chris Wright <chrisw@sous-sol.org> 21.11.06 03:21 >>>
->* Dave Jones (davej@redhat.com) wrote:
->> Since I pushed an update to our Fedora users based on 2.6.18.2, a few people
->> have reported they no longer have their RNG's detected.
->> Here's one report: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=215144 
->
->Hmm, I wonder if the report is valid?  Jan's patch would have the correct
->side effect of disabling false positives (for RNG identification).
->Be good to check that it actually used to work.
+On Mon, Nov 20, 2006 at 11:29:09AM -0500, Vivek Goyal wrote:
+> Hi Andi,
+> 
+> This patch was previously part of relocatable kernel series but now I have
+> forked it out as it is required for 2.6.19 kernels and relocatable kernel
+> patches have to wait.
 
-Indeed, that is quite significant to know here.
+I sent it to Linus. Thanks.
 
->Having said that, Jan the datasheet recommendation is looser than your
->implementation.  It only recommends checking for manufacturer code,
->you check device code as well.  Do you know of any scenarios where that
->would matter (I can't conceive of any)?
+-Andi
 
-Since Intel doesn't list any other device codes, I suppose there are none.
-But of course, it's not entirely impossible that there are others, but I
-wouldn't want to relax the already weak check; I'd rather want to add
-other device codes if we have proof that these are valid.
-
-Jan

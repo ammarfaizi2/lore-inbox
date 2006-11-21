@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030942AbWKUM74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030910AbWKUNLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030942AbWKUM74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 07:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030938AbWKUM7n
+	id S1030910AbWKUNLR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 08:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030930AbWKUNLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 07:59:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28614 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030935AbWKUM71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 07:59:27 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Ira Snyder <kernel@irasnyder.com>,
-       "Ira W. Snyder" <devel@irasnyder.com>, "Hans J. Koch" <koch@hjk-az.de>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 4/5] V4L/DVB (4849): Add missing spin_unlock to saa6588
-	decoder driver
-Date: Tue, 21 Nov 2006 10:38:50 -0200
-Message-id: <20061121123850.PS5395860004@infradead.org>
-In-Reply-To: <20061121123202.PS8610150000@infradead.org>
-References: <20061121123202.PS8610150000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 21 Nov 2006 08:11:17 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:4066 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030910AbWKUNLQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 08:11:16 -0500
+Date: Tue, 21 Nov 2006 14:09:26 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] WorkStruct: Shrink work_struct by two thirds
+In-Reply-To: <20061120111712.5e399d12.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0611211409030.17055@yvahk01.tjqt.qr>
+References: <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com>
+ <20061120111712.5e399d12.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ira Snyder <kernel@irasnyder.com>
+On Nov 20 2006 11:17, Andrew Morton wrote:
+>struct work_struct {
+>	union {
+>		struct work_struct_lite w;
+>		struct {
+>			unsigned long pending;
+>			struct list_head entry;
+>			void (*func)(void *);
+>			void *data;
+>			void *wq_data;
+>		};
+>	}
+         ^
 
-Sparse noticed a lock imbalance in read_from_buf(). Further inspection shows
-that the lock should not be held when the function exits.
-This adds a spin_unlock_irqrestore(), so that every exit path of the
-read_from_buf() function is consistent. The unlock was missing on an error
-path.
++;  ;-)
 
-Signed-off-by: Ira W. Snyder <devel@irasnyder.com>
-Signed-off-by: Hans J. Koch <koch@hjk-az.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+>	struct timer_list timer;
+>};
+>
 
- drivers/media/video/saa6588.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/media/video/saa6588.c b/drivers/media/video/saa6588.c
-index a81285c..7b9859c 100644
---- a/drivers/media/video/saa6588.c
-+++ b/drivers/media/video/saa6588.c
-@@ -212,8 +212,10 @@ static void read_from_buf(struct saa6588
- 	if (rd_blocks > s->block_count)
- 		rd_blocks = s->block_count;
- 
--	if (!rd_blocks)
-+	if (!rd_blocks) {
-+		spin_unlock_irqrestore(&s->lock, flags);
- 		return;
-+	}
- 
- 	for (i = 0; i < rd_blocks; i++) {
- 		if (block_to_user_buf(s, buf_ptr)) {
-
+	-`J'
+-- 

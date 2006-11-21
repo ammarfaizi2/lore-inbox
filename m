@@ -1,105 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWKUVTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWKUVUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161374AbWKUVTw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWKUVTw
+	id S1161415AbWKUVUG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWKUVTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:19:52 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:45500 "HELO
+	Tue, 21 Nov 2006 16:19:53 -0500
+Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:18876 "HELO
 	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161374AbWKUVTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:19:45 -0500
+	id S1161369AbWKUVTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:19:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=AODbPxcCYSCLQmhB6wqSlIYeQZqF9JLFUSgaDny/ZZ1nkaZU3O/+9PNa4Lw0N1XYRZeZiII9AxOnYqOa96Fzxro3CHxT+LiPYZ4Z1ssIiPck2YACLZ9WkOD9iJq6A+gx34dE2KdAx/cZGK6t5m5hSo+sE6s4DI5O5Q66kk5/vYU=  ;
-X-YMail-OSG: c2AbmewVM1msTWa7E1C31ZgX9S9U16obtZsXkyR2PZAmjS6p6vQtbAawEMWCWt7vt9kLj9FPiJ1BixeqFPRGb1tuxfOSfcQOwEDrMR2s6ZBKLp_cUFqQDPh2rzOAKYtX_a5TMSx8VLPX8lthEysuhVK7UQeEwZirHQw-
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=T2YNqrColAbXWpiY+bUEWrPaEdPeMF7kfLNE/Ytbk5AyhSg/CkAB7VU39DQJPTMP1xTwBkc7+GwYmMxB6PJDEbszwm3zq3tH4qAZ1eVtX16oB3Es5Vprl4wa1w2y31doplSKAht1bnKjp8jALqz8jjo5ZO66UpQN+c3edEEIYMY=  ;
+X-YMail-OSG: Dpdxj8AVM1kaZ8vhIlRnX8Yjf.8Wj401bm73I7ZJ5I_ErrxnVUnq6vB5Hm2X0Hr2QtqkfZm6QzDQq_Xf5mXC89QeDRzHoLttJUHv8SAjdMrP5r6Y6XdJemdk8OfPU6WMdr2GMLPG.eV_3FAOCHtdrHnG5LpUkMuEOOU-
 From: David Brownell <david-b@pacbell.net>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Bill Gatliff <bgat@billgatliff.com>
 Subject: Re: [RFC/PATCH] arch-neutral GPIO calls: AVR32 implementation
-Date: Tue, 21 Nov 2006 11:03:41 -0800
+Date: Tue, 21 Nov 2006 10:19:02 -0800
 User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611201347.10331.david-b@pacbell.net> <20061121101103.47add0cf@dhcp-252-105.norway.atmel.com>
-In-Reply-To: <20061121101103.47add0cf@dhcp-252-105.norway.atmel.com>
+       jamey.hicks@hp.com, Kevin Hilman <khilman@mvista.com>,
+       Nicolas Pitre <nico@cam.org>, Russell King <rmk@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>
+References: <200611111541.34699.david-b@pacbell.net> <200611202107.00754.david-b@pacbell.net> <456293D4.2030103@billgatliff.com>
+In-Reply-To: <456293D4.2030103@billgatliff.com>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611211019.04603.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611211103.43757.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 November 2006 1:11 am, Haavard Skinnemoen wrote:
+On Monday 20 November 2006 9:51 pm, Bill Gatliff wrote:
 
-> > Or if you want to track the identifiers and provide a debugfs dump
-> > of the active GPIOs and their status, use an array of strings (and
-> > spinlock its updates) or nuls as "fat bits", instead of a bit array.  
-> 
-> Might be useful. Maybe we should add a "struct device" parameter to
-> gpio_request() as well, to allow platforms to associate pins with the
-> devices using them through sysfs? Or perhaps just to generate an
-> appropriate name (otherwise, each driver would have to generate a
-> unique string by themselves, for each device it controls.)
+> In OMAP, as far as I can tell after skimming the datasheet (and being 
+> reminded why I avoid TI's microcontrollers!),
 
-I'm not so keeen on putting sysfs everywhere; it's not free!
-The notion of passing a device node makes some sense, except
-that a lot of the places I'm used to seeing GPIO requests are
-so early in the boot code that there _is_ no device node yet.
-Let me think about that one a bit...
+Microcontroller??  Hah!  That'd be MSP430, or AVR8, or an ARM7 ... when
+it can run vmlinux, it seems far away from being a microcontroller!
+Despite how long it can run on a teeny weeny battery.
+
+You'd like OMAP2 better though, in terms of pin setup it's way nicer.
+Each GPIO seems to correspond to a single pin.  Nobody much liked the
+consequences of how OMAP1 did it.
 
 
+> someone has to set up the  
+> MUX so that a given GPIO can get to a specified pin.  And practically 
+> speaking, what's soldered to a pin is nearly immutable for a given board 
+> (or at least a particular revision; you won't change it in software 
+> anyway!).
 
-> I think I understand now. I have to use separate bitmasks for GPIO and
-> port mux setup.
-> 
-> If gpio_request() could do port mux configuration, one bitmask would be
-> enough to trap all errors. But after reading the rest of this thread,
-> I think separating the gpio and portmux APIs is a good idea, so I'm not
-> going to try to do this. Although I might set a bit in both masks when
-> configuring a pin for peripheral I/O, just to indicate that it isn't
-> usable for gpio at all.
-
-On your hardware, you could just read the hardware when setting
-the gpio direction ... don't need an extra mask to catch that
-class of error.
+Yep; though there _is_ the model of "SOC-on-a-card" plugging into a
+custom chassis (maybe an industrial app), as opposed to using custom
+boards for everything.  Though if you think of the "board" as being
+that whole chassis-plus-CPUcard assembly, it's still more or less
+immutable as you described.
 
 
-> > > Of course, if other arches want gpio_request()/gpio_free(), I'm all
-> > > for keeping them.
-> > 
-> > I thought you were someone who _wanted_ this mechanism?
-> > Or were you instead thinking of a pin mux mechanism?
-> 
-> Yes and yes ;)
-> 
-> Which is of course the source of all this confusion. I just had to
-> realize that the final definition of gpio_request was I little bit
-> different than I originally expected. This means that gpio_request() is
-> no longer _essential_ on avr32 (which corresponds nicely with its
-> classification as "optional" in your api proposal) but very nice to
-> have.
+>      So for sanity's sake the GPIO "resource manager" would have  
+> to refuse a request for a GPIO line assigned to a pin that had already 
+> been committed to something else, be it another GPIO line or a 
+> peripheral function.  So I think having the notion of a resource manager 
+> _at all_ implies that you're into some amount of MUX analysis/management 
+> on machines that have them.
 
-Right; I think I've had the OMAP analogue of gpio_request() turn
-up errors only once (that code base was once a lot dirtier), but
-some newish debug dump code worked a lot better with that.
+That's a big "if".  There's no such "manager" right now, other than the
+people designing a given board and putting Linux onto it.
 
 
-> > Aren't you going to want to add AVR-specific extensions so that
-> > drivers (or more typically, board init code) can manage pullups
-> > and input de-glitching?
-> 
-> Yeah, I will definitely do that, but I thought that was supposed to be
-> part of the portmux api?
+> Aside: You state that there are many-to-many possibilities.  In theory 
+> yes, but for OMAP and any other practical machine, no.  You never have 
+> an infinite number of pins or GPIOs, so even with some kind of radical 
+> "switch fabric" the number of unique combinations of GPIO+pin still 
+> would be bounded.  In the case of OMAP, it looks like most of the GPIOs 
+> can be assigned to one of two pins, and each pin can be assigned to one 
+> of two GPIOs.  So, "some-to-some".  :)
 
-Yes it is.  I suppose I shouldn't have assumed it would go into
-that gpio.h header file, even though that's where it started out
-on the at91 platform.  :)
+My point was more that it's "not one-to-one".  And clearly a given system
+will only use one mapping (Paul's comments aside) ... the issue is that
+knowing you're using a particular GPIO doesn't mean you know what pin is
+involved, and contrariwise that knowing what pin doesn't mean you know what
+GPIO to use.
+
+Yes it's a PITA ... and I've seen boards that needed to get re-spun because
+the board desigersn goofed, with two different interfaces expecting to mux a
+(different) pin to GPIO7.  Didn't get discovered till late since each of the
+two interfaces worked fine by themselves; system integration testing found it.
+I suspect that's one reason OMAP2 is different in how it does the pin setup!
+
+
+> The "multiplexing" that I was wishing to leave out of the GPIO API was 
+> the part where you assign pins to peripheral functions *or* GPIO, a'la 
+> AT91.  The existing kernel code for that chip provides a number of 
+> functions to help board authors get all the routing and configuration 
+> right for each pin ("peripheral A function, or peripheral B, or GPIO?  
+> Input, or output?  Pullup resistor, or no?  Input filtering, or no?") 
+> (*).  I'm ok with not trying to consolidate that functionality in an 
+> arch-neutral GPIO-only API right now, since machines do that so differently.
+
+Yes, I think we're seeing agreement on that now.
+
+
+> But I was assuming all along that we were overloading the notion of a 
+> "gpio number" enumeration, such that each enumeration ultimately 
+> referred to a unique combination of GPIO+pin for the instant machine.  
+
+Well, none of the existing software does that, or has needed to.
+
+To the extent that the $SUBJECT calls are just common syntax for
+what many platforms are already doing, they all use the same notion
+of a "gpio number" which doesn't reference pinout ... there's a
+direct mapping to a bit in a gpio controller register, that's it.
+
+
+> And once you've got that, there's no reason why the underlying 
+> implementation couldn't assert the proper routing at the time a specific 
+> GPIO+pin was requested.  Maybe that's up to the individual authors as to 
+> whether they want to provide this in their implementations, or choose 
+> instead to leave out the MUX configuration and just map GPIO 
+> enumerations to physical GPIO line numbers (and hope for the best at 
+> runtime).  But I still don't see a reason why they shouldn't if they're 
+> willing to do the code.
+
+They could; the GPIO numbers, and interpretation, are platform-specific.
+
+ 
+> Sorry to recycle on all of this again.  Maybe I'm just a slow learner, 
+> maybe I just was misunderstanding some of the terminology we were 
+> throwing around.  Maybe it's something else entirely.
+
+Who knows.  I thought you were most likely wishing everything was as
+simple and straightforward as it is on AT91, AVR32, and OMAP2.  ;)
+
+In the restricted context of GPIO numbers, I think it is.  And it might
+even be practical to come up with a widely used pin mux API ... it's
+just that significant platforms like OMAP1 would be unlikely to fit.
 
 - Dave
 
+
+
+> 
+> 
+> * - Most of which was written by Dave Brownell.  Thanks!
+> 
+> 
+> 
+> b.g.
+> 
+> -- 
+> Bill Gatliff
+> bgat@billgatliff.com
+> 

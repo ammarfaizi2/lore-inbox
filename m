@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWKUVmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWKUVll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161382AbWKUVmH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031442AbWKUVmH
+	id S1161381AbWKUVll (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031440AbWKUVll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:42:07 -0500
-Received: from gw.goop.org ([64.81.55.164]:54753 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1031441AbWKUVmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:42:03 -0500
-Message-ID: <456372AD.5080807@goop.org>
-Date: Tue, 21 Nov 2006 13:42:05 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 21 Nov 2006 16:41:41 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33802 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1031441AbWKUVlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:41:40 -0500
+Date: Tue, 21 Nov 2006 22:41:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       Pavel Emelianov <xemul@openvz.org>, mingo@redhat.com, dev@sw.ru
+Subject: Re: 2.6.19-rc6: known regressions (v4)
+Message-ID: <20061121214140.GU5200@stusta.de>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com>
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386-pda UP optimization
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151824.36198.ak@suse.de> <200611151846.31109.dada1@cosmosbay.com> <200611211238.20419.dada1@cosmosbay.com>
-In-Reply-To: <200611211238.20419.dada1@cosmosbay.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061121213335.GB30010@in.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> I did *lot* of reboots of my Dell D610 machine, with some trivial benchmarks 
-> using : pipe/write()/read, umask(), or getppid(), using or not oprofile.
->
-> I managed to avoid reloading %gs in sysenter_entry .
-> (avoiding the two instructions : movl $(__KERNEL_PDA), %edx; movl %edx, %gs
->
-> I could not avoid reloading %gs in system_call, I dont know why, but modern 
-> glibc use sysenter so I dont care :)
->
-> I confirm I got better results with my patched kernel in all tests I've done.
->
-> umask : 12.64 s instead of 12.90 s
-> getppid : 13.37 s instead of 13.72 s
-> pipe/read/write : 9.10 s instead of 9.52 s
->
-> (I got very different results in umask() bench, patching it not to use xchg(), 
-> since this instruction is expensive on x86 and really change oprofile 
-> results. I will submit a patch for this.
->   
+On Tue, Nov 21, 2006 at 04:33:35PM -0500, Vivek Goyal wrote:
+> On Tue, Nov 21, 2006 at 10:24:24PM +0100, Adrian Bunk wrote:
+> > This email lists some known regressions in 2.6.19-rc6 compared to 2.6.18
+> > that are not yet fixed in Linus' tree.
+> > 
+> > If you find your name in the Cc header, you are either submitter of one
+> > of the bugs, maintainer of an affectected subsystem or driver, a patch
+> > of you caused a breakage or I'm considering you in any other way possibly
+> > involved with one or more of these issues.
+> > 
+> > Due to the huge amount of recipients, please trim the Cc when answering.
+> > 
+> > 
+> > Subject    : kernel hangs when booting with irqpoll
+> > References : http://lkml.org/lkml/2006/11/20/233
+> > Submitter  : Vivek Goyal <vgoyal@in.ibm.com>
+> > Caused-By  : Pavel Emelianov <xemul@openvz.org>
+> >              commit f72fa707604c015a6625e80f269506032d5430dc
+> > Handled-By : Vivek Goyal <vgoyal@in.ibm.com>
+> > Status     : problem is being debugged
+> > 
+> 
+> Adrian,
+> 
+> Pavel already provided a fix for this issue.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=116409933100117&w=2
 
-Could you go into more detail about what you're actually measuring
-here?  Is it 10,000,000 loops of the single syscall?  pipe/read/write
-suggests that you're doing at least 2 syscalls per loop, but it takes
-the smallest elapsed time.
+Thanks for the information, I missed this patch.
 
-What are you using as your time reference?  Real time?  Process time?
+> Thanks
+> Vivek
 
-For umask/getppid, assuming you're just running 1e7 iterations, you're
-seeing a difference of 25 and 35ns per iteration difference.  I wonder
-why it would be different for different syscalls; I would expect it to
-be a constant overhead either way.  Certainly these numbers are much
-larger than I saw when I benchmarked pda-vs-nopda using lmbench's null
-syscall (getppid) test; I saw an overall 9ns difference in null syscall
-time on my Core Duo run at 1GHz.  What's your CPU and speed?
+cu
+Adrian
 
-One possibility is a cache miss on the gdt while reloading %gs.  I've
-been planning on a patch to rearrange the gdt in order to pack all the
-commonly used segment descriptors into one or two cache lines so that
-all the segment register reloads can be done with a minimum of cache
-misses.  It would be interesting for you to replace the:
+-- 
 
-    movl $(__KERNEL_PDA), %edx; movl %edx, %gs
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-with an appropriate read of the gdt entry, hm, which is a bit complex to
-find.
-
-    J

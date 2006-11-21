@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030666AbWKUIGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030726AbWKUII0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030666AbWKUIGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 03:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030681AbWKUIGJ
+	id S1030726AbWKUII0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030727AbWKUIIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 03:06:09 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:8885 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030666AbWKUIGG (ORCPT
+	Tue, 21 Nov 2006 03:08:25 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:5042 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030726AbWKUIIZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 03:06:06 -0500
-Date: Tue, 21 Nov 2006 09:04:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-rt5
-Message-ID: <20061121080442.GA29784@elte.hu>
-References: <20061120220230.GA30835@elte.hu> <1164072901.3589.5.camel@monteirov>
+	Tue, 21 Nov 2006 03:08:25 -0500
+Date: Tue, 21 Nov 2006 00:07:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [RFC 1/7] Remove declaration of sighand_cachep from slab.h
+Message-Id: <20061121000743.bb9ea2d0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611200817020.16173@schroedinger.engr.sgi.com>
+References: <20061118054342.8884.12804.sendpatchset@schroedinger.engr.sgi.com>
+	<20061118054347.8884.36259.sendpatchset@schroedinger.engr.sgi.com>
+	<20061118172739.30538d16.sfr@canb.auug.org.au>
+	<Pine.LNX.4.64.0611200817020.16173@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164072901.3589.5.camel@monteirov>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_20 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.0 BAYES_20               BODY: Bayesian spam probability is 5 to 20%
-	[score: 0.0960]
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Nov 2006 08:20:13 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-* Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> wrote:
-
-> On Mon, 2006-11-20 at 23:02 +0100, Ingo Molnar wrote:
-> >  - vsyscall & tracing fixes: 'notsc' should not be required on the YUM
-> >    rpms anymore. 
+> On Sat, 18 Nov 2006, Stephen Rothwell wrote:
 > 
-> Well I still need it else no boot.
+> > Is there no suitable header file to put this in?
+> 
+> There is only a single file that uses sighand_cachep apart from where it 
+> was defined. If we would add it to signal.h then we would also have to
+> add an include for slab.h just for this statement.
 
-hmm ... still no log capture of that boot failure?
+That's one of the reasons why typedefs are bad.
 
-> Sorry for insist, but so difficult after build kernel, copy 
-> kernel-devel too, into yum directory ?
+Use `struct kmem_cache' instead of `kmem_cache_t' and lo, you can
+forward-declare it in the header file without having to include slab.h.
 
-sure, i've uploaded it for the latest kernel, and it will probably be 
-part of the repository in the future too. Could you check that it works 
-for you?
-
-	Ingo
+Patches which rid us of kmem_cache_t are always welcome..

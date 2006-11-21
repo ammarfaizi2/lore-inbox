@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031353AbWKUTqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031354AbWKUTrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031353AbWKUTqu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 14:46:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031354AbWKUTqu
+	id S1031354AbWKUTrg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 14:47:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031356AbWKUTrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 14:46:50 -0500
-Received: from bay0-omc3-s32.bay0.hotmail.com ([65.54.246.232]:20216 "EHLO
-	bay0-omc3-s32.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1031353AbWKUTqt (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 14:46:49 -0500
-Message-ID: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
-X-Originating-IP: [87.81.120.187]
-X-Originating-Email: [dcb314@hotmail.com]
-From: "d binderman" <dcb314@hotmail.com>
-To: Linux-Kernel@vger.kernel.org
-Subject: arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was set but never us
-Date: Tue, 21 Nov 2006 19:46:46 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 21 Nov 2006 19:46:48.0946 (UTC) FILETIME=[C8971D20:01C70DA5]
+	Tue, 21 Nov 2006 14:47:36 -0500
+Received: from ns1.suse.de ([195.135.220.2]:29152 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1031354AbWKUTrf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 14:47:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6.19 patch] i386/x86_64: remove the unused EXPORT_SYMBOL(dump_trace)
+Date: Tue, 21 Nov 2006 20:47:30 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <20061121194138.GF5200@stusta.de>
+In-Reply-To: <20061121194138.GF5200@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611212047.30192.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 21 November 2006 20:41, Adrian Bunk wrote:
+> This patch removes the unused EXPORT_SYMBOL(dump_trace) added on i386 
+> and x86_64 in 2.6.19-rc.
+> 
+> By removing them before the final 2.6.19 we avoid the possibility of 
+> people later whining that we removed exports they started using.
 
-Hello there,
+I exported it for systemtap so that they can stop using the broken
+hack they currently use as unwinder.
 
-I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-C compiler.
-
-The compiler said
-
-arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was set but 
-never used
-
-The source code is
-
-    unsigned int lvtt_value, tmp_value, ver;
-
-I have checked the source code and I agree with the compiler.
-Suggest delete local variable.
-
-Regards
-
-David Binderman
-
-_________________________________________________________________
-Be the first to hear what's new at MSN - sign up to our free newsletters! 
-http://www.msn.co.uk/newsletters
-
+-Andi

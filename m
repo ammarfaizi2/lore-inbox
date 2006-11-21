@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030872AbWKULaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030876AbWKULbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030872AbWKULaR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 06:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966964AbWKULaR
+	id S1030876AbWKULbL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 06:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030879AbWKULbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 06:30:17 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39076 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S966961AbWKULaQ (ORCPT
+	Tue, 21 Nov 2006 06:31:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34186 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030876AbWKULbK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 06:30:16 -0500
-Date: Tue, 21 Nov 2006 12:30:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Komal Shah <komal.shah802003@gmail.com>
-Cc: Vladimir <vovan888@gmail.com>, Tony Lindgren <tony@atomide.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Siemens sx1: merge framebuffer support
-Message-ID: <20061121113005.GA1900@elf.ucw.cz>
-References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <3a5b1be00611210042p2237a0fbpece68912e3d23f4c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3a5b1be00611210042p2237a0fbpece68912e3d23f4c@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 21 Nov 2006 06:31:10 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061120111712.5e399d12.akpm@osdl.org> 
+References: <20061120111712.5e399d12.akpm@osdl.org>  <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] WorkStruct: Shrink work_struct by two thirds 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 21 Nov 2006 11:28:18 +0000
+Message-ID: <10106.1164108498@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi1
+Andrew Morton <akpm@osdl.org> wrote:
 
-> >> > Framebuffer support for Siemens SX1; this is second big patch. (Third
-> >> > one will be mixer/sound support). Support is simple / pretty minimal,
-> >> > but seems to work okay (and is somehow important for a cell phone :-).
-> >>
-> >> Pushed to linux-omap. I guess you're planning to send the missing
-> >> Kconfig + Makefile patch for this?
-> >>
-> >> Also, it would be better to use omap_mcbsp_xmit_word() or
-> >> omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
-> >> it does not do any checking that it worked. The aic23 and tsc2101
-> >> audio in linux-omap tree in general has the same problem.
-> >>
-> >> Regards,
-> >>
-> >> Tony
-> >>
-> >
-> >Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
-> >so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
-> 
-> Please also send defconfig (may be siemens_sx1_defconfig OR
-> omap_sx1_310_defconfig) patch for this mobile once, your minimum
-> required patches are pushed to -omap git tree. Thanx.
+> Could we reduce the migration pain by leaving the work_struct as-is and
+> defining a new, leaner one and then incrementally migrating stuff over to
+> it?
 
-Yes, will do. I was trying to get it compiling first.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+That involves more work in the end for a number of reasons:
+
+ (1) The more common use (I think) is the immediate, not the delayed work
+     item.  One of them has to change, and it'd make sense for it to be the
+     latter.
+
+ (2) The internals of kernel/workqueue.c all refer to work_struct.  They'd all
+     have to change as that'd no longer be the common bit.
+
+ (3) All the work callback functions have to change anyway, and they have to
+     be handed the most common structure as their context - assuming the third
+     reduction is acceptable.
+
+ (4) All the initialisers have to change anyway as they take one fewer
+     argument - assuming the third reduction is acceptable.
+
+It'd be more feasible if the inventors of C had included C++-style function
+overloading and structure inheritance, but they didn't.
+
+David

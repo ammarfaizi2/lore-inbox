@@ -1,57 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030709AbWKUECW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030711AbWKUEDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030709AbWKUECW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 23:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030710AbWKUECW
+	id S1030711AbWKUEDO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 23:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030710AbWKUEDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 23:02:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46797 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030709AbWKUECW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 23:02:22 -0500
-Subject: bus_id collisions
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 15:02:16 +1100
-Message-Id: <1164081736.8207.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Nov 2006 23:03:13 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:65205 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1030711AbWKUEDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 23:03:13 -0500
+Date: Mon, 20 Nov 2006 21:03:12 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Allow 32-bit and 64-bit hashes
+Message-ID: <20061121040312.GR18567@parisc-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg !
 
-It occurs to me (after some trouble I had with custom bus types) that
-this comment is incorrect in device.h, in the definition of struct
-device :
+The sym2 driver would like to hash a u32 value, and it could just
+call hash_long() and rely on integer promotion on 64-bit machines, but
+that seems a little wasteful.
 
-        char    bus_id[BUS_ID_SIZE];    /* position on parent bus */
+Following Arjan's suggestion, I split the existing hash_long into
+hash_u32 and hash_u64, and made hash_long an alias to the appropriate
+function.
 
-As the bus_id needs to be unique for a given bus_type, not only under a
-given parent, due to the symlinks in /sys/bus/<bus_type>/.
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-This has caused me some trouble with of_platform devices, which are
-sort-of platform devices but linked to the Open Firmware device-tree, as
-I generate their names based on the nodes in the tree which need not be
-unique as long as they are unique under a given parent.
-
-I've worked around it, but I though the comment might need to be
-clarified.
-
-Also, I don't suppose you have any plan to move away from the bus_id
-being a fixed size array inside struct device ? I would very much like
-to be able to have larger names ... Among others, in order to handle the
-above problem, I tend to include the fully translated 64 bits address of
-the device in the name :-) (Hopefully, it's generally smaller and I
-don't have leading zero's but still, I have little room left for the
-device name which is annoying).
-
-Cheers,
-Ben.
-
-
-
-
+diff --git a/include/linux/hash.h b/include/linux/hash.h
+index acf17bb..0e6e5a9 100644
+--- a/include/linux/hash.h
++++ b/include/linux/hash.h
+@@ -13,23 +13,36 @@
+  * them can use shifts and additions instead of multiplications for
+  * machines where multiplications are slow.
+  */
+-#if BITS_PER_LONG == 32
+ /* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e370001UL
+-#elif BITS_PER_LONG == 64
++#define GOLDEN_RATIO_PRIME_32 0x9e370001UL
+ /*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
+-#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
++#define GOLDEN_RATIO_PRIME_64 0x9e37fffffffc0001ULL
++
++#if BITS_PER_LONG == 32
++#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_PRIME_32
++#define hash_long(val, bits) hash_u32(val, bits)
++#elif BITS_PER_LONG == 64
++#define GOLDEN_RATIO_PRIME GOLDEN_RATIO_PRIME_64
++#define hash_long(val, bits) hash_u64(val, bits)
+ #else
+ #error Define GOLDEN_RATIO_PRIME for your wordsize.
+ #endif
+ 
+-static inline unsigned long hash_long(unsigned long val, unsigned int bits)
++static inline unsigned long hash_u32(u32 val, unsigned int bits)
++{
++	/* On some cpus multiply is faster, on others gcc will do shifts */
++	unsigned int hash = val * GOLDEN_RATIO_PRIME_32;
++
++	/* High bits are more random, so use them. */
++	return hash >> (32 - bits);
++}
++
++static inline unsigned long hash_u64(u64 val, unsigned int bits)
+ {
+-	unsigned long hash = val;
++	u64 hash = val;
+ 
+-#if BITS_PER_LONG == 64
+ 	/*  Sigh, gcc can't optimise this alone like it does for 32 bits. */
+-	unsigned long n = hash;
++	u64 n = hash;
+ 	n <<= 18;
+ 	hash -= n;
+ 	n <<= 33;
+@@ -42,13 +55,9 @@ static inline unsigned long hash_long(un
+ 	hash += n;
+ 	n <<= 2;
+ 	hash += n;
+-#else
+-	/* On some cpus multiply is faster, on others gcc will do shifts */
+-	hash *= GOLDEN_RATIO_PRIME;
+-#endif
+ 
+ 	/* High bits are more random, so use them. */
+-	return hash >> (BITS_PER_LONG - bits);
++	return hash >> (64 - bits);
+ }
+ 	
+ static inline unsigned long hash_ptr(void *ptr, unsigned int bits)

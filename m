@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031263AbWKUSQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031267AbWKUSWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031263AbWKUSQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 13:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031249AbWKUSQ5
+	id S1031267AbWKUSWP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 13:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031268AbWKUSWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 13:16:57 -0500
-Received: from MAIL.13thfloor.at ([213.145.232.33]:11413 "EHLO
-	MAIL.13thfloor.at") by vger.kernel.org with ESMTP id S1031201AbWKUSQ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 13:16:56 -0500
-Date: Tue, 21 Nov 2006 19:16:55 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Daniel Lezcano <dlezcano@fr.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Cedric Le Goater <clg@fr.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Dmitry Mishin <dim@sw.ru>,
-       netdev@vger.kernel.org
-Subject: Re: [patch -mm] net namespace: empty framework
-Message-ID: <20061121181655.GA14656@MAIL.13thfloor.at>
-Mail-Followup-To: Daniel Lezcano <dlezcano@fr.ibm.com>,
-	Kirill Korotaev <dev@sw.ru>, Cedric Le Goater <clg@fr.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Dmitry Mishin <dim@sw.ru>, netdev@vger.kernel.org
-References: <4563007B.9010202@fr.ibm.com> <4563046B.6040909@sw.ru> <45633EDF.3050309@fr.ibm.com>
+	Tue, 21 Nov 2006 13:22:15 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40407 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1031267AbWKUSWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 13:22:14 -0500
+Date: Tue, 21 Nov 2006 18:27:26 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Larry Finger <Larry.Finger@lwfinger.net>, Ray Lee <ray-lk@madrabbit.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem with DMA on x86_64 with 3 GB RAM
+Message-ID: <20061121182726.7d31451f@localhost.localdomain>
+In-Reply-To: <200611211746.39173.ak@suse.de>
+References: <455B63EC.8070704@madrabbit.org>
+	<p73psbhay8n.fsf@bingen.suse.de>
+	<45632B30.9090506@lwfinger.net>
+	<200611211746.39173.ak@suse.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45633EDF.3050309@fr.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 07:01:03PM +0100, Daniel Lezcano wrote:
-> Kirill Korotaev wrote:
-> >Cedric,
-> >
-> >Dmitry Mishin and Daniel Lezcano are working together on the full
-> >network namespace incorporating both needs of OpenVZ and VServer/IBM.
-> >
-> >Thanks,
-> >Kirill
+On Tue, 21 Nov 2006 17:46:39 +0100
+Andi Kleen <ak@suse.de> wrote:
+
 > 
-> Kirill,
-> 
-> We will need this framework to move the network isolation code to the 
-> ns_proxy/net_namespace structure. So if Cedric gives us a empty 
-> framework it is fine, except if someone does not agree with it...
+> > Shouldn't this problem be mentioned somewhere in the documentation, or did I miss something?
 
-no problem here, but I think we will need another one,
-or some smart way to do the network isolation (layer 3)
-for the network namespace (as alternative to the layer 2
-approach) ...
+The documentation is correct, the implementation is broken. The
+documented behaviour works for all platforms except one whose maintainer
+has a problem with it and refuses to follow the spec.
+ 
+> Possibly, but devices that cannot address at least 4GB are normally
+> categorized as "hardware bugs" (or less polite descriptions) and those don't 
+> tend to get much airtime in documentation.
 
-as they are both complementary in some way, I'm not sure
-a single space will suffice ... 
+The rest of the kernel deals with hardware limitations, 30bit DMA works
+on the other platforms. This is an x86-64 platform problem. It
+misimplements the basic pci_ functionality. If it doesn't wish to
+implement the stuff (and there btw Andi I do think your view has
+considerable merit) it should fail the set_mask requests.
 
-best,
-Herbert
-
->   -- Daniel.
+Alan

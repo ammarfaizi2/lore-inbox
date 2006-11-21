@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966885AbWKUHz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030642AbWKUIGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966885AbWKUHz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 02:55:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966896AbWKUHz2
+	id S1030642AbWKUIGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030681AbWKUIGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 02:55:28 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51641 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S966885AbWKUHz0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 02:55:26 -0500
-Date: Tue, 21 Nov 2006 08:54:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile problems Re: 2.6.19-rc6-rt5
-Message-ID: <20061121075400.GC24711@elte.hu>
-References: <20061120220230.GA30835@elte.hu> <1164078473.3258.8.camel@monteirov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164078473.3258.8.camel@monteirov>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0010]
-	1.4 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 21 Nov 2006 03:06:14 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:2731 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1030642AbWKUIGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 03:06:13 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4562B35C.7090807@s5r6.in-berlin.de>
+Date: Tue, 21 Nov 2006 09:05:48 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: deadlock in "modprobe -r ohci1394" shortly after "modprobe ohci1394"
+References: <Pine.LNX.4.44L0.0611201942270.30952-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0611201942270.30952-100000@netrider.rowland.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Stern wrote:
+> The real issue here is the way ieee1394 sets up children of devices with
+> no driver.  On the face of it that is quite illogical: If a device has no
+> driver, then who can interrogate it to find out about its children?
 
-* Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> wrote:
+Perhaps I should turn this dummy driver into an actual representation of
+ieee1394 or ieee1394's nodemgr.
 
-> On Mon, 2006-11-20 at 23:02 +0100, Ingo Molnar wrote:
-> >   http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rc6-rt5
-> 
-> if I don't put in .config 
-> CONFIG_HOTPLUG_CPU=y
-> 
-> I got  
-> UPD     include/linux/compile.h
-> arch/x86_64/kernel/vsyscall.c: In function 'vsyscall_init':
-> arch/x86_64/kernel/vsyscall.c:334: error: 'cpu_vsyscall_notifier' undeclared (first use in this function)
-> arch/x86_64/kernel/vsyscall.c:334: error: (Each undeclared identifier is reported only once
+> USB faces a similar situation.  In a USB device, all the real work is 
+> actually done by "interfaces".  So we set up a device structure for the 
+> USB device itself, plus device structures for each of its interfaces.  The 
+> parent structure is bound to a (more or less) dummy driver, which insures 
+> that the child structures are deleted whenever it gets unbound.
 
-this one should be fixed by the patch below.
+I will eventually more thoroughly look at how USB and other subsystems
+with device hierarchies do it.
 
-	Ingo
+> Still, maybe some compromise can be reached.  Perhaps Dmitry's idea, or 
+> something like it, can be adopted.
 
-Index: linux/arch/x86_64/kernel/vsyscall.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/vsyscall.c
-+++ linux/arch/x86_64/kernel/vsyscall.c
-@@ -300,7 +300,6 @@ static void __cpuinit cpu_vsyscall_init(
- 	vsyscall_set_cpu(raw_smp_processor_id());
- }
- 
--#ifdef CONFIG_HOTPLUG_CPU
- static int __cpuinit
- cpu_vsyscall_notifier(struct notifier_block *n, unsigned long action, void *arg)
- {
-@@ -309,7 +308,6 @@ cpu_vsyscall_notifier(struct notifier_bl
- 		smp_call_function_single(cpu, cpu_vsyscall_init, NULL, 0, 1);
- 	return NOTIFY_DONE;
- }
--#endif
- 
- static void __init map_vsyscall(void)
- {
-Index: linux/mm/page_alloc.c
-===================================================================
---- linux.orig/mm/page_alloc.c
-+++ linux/mm/page_alloc.c
-@@ -2768,7 +2768,6 @@ void __init free_area_init(unsigned long
- 			__pa(PAGE_OFFSET) >> PAGE_SHIFT, NULL);
- }
- 
--#ifdef CONFIG_HOTPLUG_CPU
- static int page_alloc_cpu_notify(struct notifier_block *self,
- 				 unsigned long action, void *hcpu)
- {
-@@ -2786,7 +2785,6 @@ static int page_alloc_cpu_notify(struct 
- 	}
- 	return NOTIFY_OK;
- }
--#endif /* CONFIG_HOTPLUG_CPU */
- 
- void __init page_alloc_init(void)
- {
+Thanks for the input of both of you.
+-- 
+Stefan Richter
+-=====-=-==- =-== =-=-=
+http://arcgraph.de/sr/

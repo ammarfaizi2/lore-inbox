@@ -1,136 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031341AbWKUWyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031290AbWKUW5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031341AbWKUWyq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031308AbWKUWyh
+	id S1031290AbWKUW5u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031301AbWKUW5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:54:37 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:39335 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1031291AbWKUWyE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:54:04 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org, clameter@sgi.com
-Message-Id: <20061121225403.11710.37011.sendpatchset@skynet.skynet.ie>
-In-Reply-To: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
-References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 11/11] Use pageblock flags for page clustering
-Date: Tue, 21 Nov 2006 22:54:03 +0000 (GMT)
+	Tue, 21 Nov 2006 17:57:50 -0500
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:1458 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1031290AbWKUW5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 17:57:48 -0500
+Message-ID: <456380EA.9020902@wolfmountaingroup.com>
+Date: Tue, 21 Nov 2006 15:42:50 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thushara Wijeratna <thushw@gmail.com>
+CC: Samuel Korpi <strontianite@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: some help in kernel debugging
+References: <2625b9520611171304x213b3bc6h6e2a40d43ce4497c@mail.gmail.com>	 <dfed62190611200053g3fff5296te8251a22675730e0@mail.gmail.com> <2625b9520611211256y4dbfaf1eyd95e2ca8fb94cec6@mail.gmail.com>
+In-Reply-To: <2625b9520611211256y4dbfaf1eyd95e2ca8fb94cec6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch alters page clustering to use the pageblock bits for track how
-movable a block of pages is.
+There's a debugger called MDB which debugs linux startup from boot with 
+full symbols (it encapsulates
+linux similar to Xen), including setup of the internal tables.  Its 
+better than most of the other tools.   Unfortnately,
+its not free, but it is as powerful as any periscope board you have ever 
+seen. 
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
----
+I use it for all my development and I can track down bugs very quickly 
+with it.
 
- include/linux/pageblock-flags.h |    4 ++++
- mm/page_alloc.c                 |   27 ++++++++++++++++++++++-----
- 2 files changed, 26 insertions(+), 5 deletions(-)
+http://www.kdebug.com
 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-102_remove_clustering_flags/include/linux/pageblock-flags.h linux-2.6.19-rc5-mm2-103_clustering_pageblock/include/linux/pageblock-flags.h
---- linux-2.6.19-rc5-mm2-102_remove_clustering_flags/include/linux/pageblock-flags.h	2006-11-21 11:23:20.000000000 +0000
-+++ linux-2.6.19-rc5-mm2-103_clustering_pageblock/include/linux/pageblock-flags.h	2006-11-21 11:27:10.000000000 +0000
-@@ -27,6 +27,10 @@
- 
- /* Bit indices that affect a whole block of pages */
- enum pageblock_bits {
-+#ifdef CONFIG_PAGE_CLUSTERING
-+	PB_migrate,
-+	PB_migrate_end = (PB_migrate + 2) - 1, /* 2 bits for migrate types */
-+#endif /* CONFIG_PAGE_CLUSTERING */
- 	NR_PAGEBLOCK_BITS
- };
- 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-102_remove_clustering_flags/mm/page_alloc.c linux-2.6.19-rc5-mm2-103_clustering_pageblock/mm/page_alloc.c
---- linux-2.6.19-rc5-mm2-102_remove_clustering_flags/mm/page_alloc.c	2006-11-21 11:52:50.000000000 +0000
-+++ linux-2.6.19-rc5-mm2-103_clustering_pageblock/mm/page_alloc.c	2006-11-21 11:52:53.000000000 +0000
-@@ -143,8 +143,15 @@ static unsigned long __initdata dma_rese
- #endif /* CONFIG_ARCH_POPULATES_NODE_MAP */
- 
- #ifdef CONFIG_PAGE_CLUSTERING
--static inline int get_page_migratetype(struct page *page)
-+static inline int get_pageblock_migratetype(struct page *page)
- {
-+	return get_pageblock_flags_group(page, PB_migrate, PB_migrate_end);
-+}
-+
-+static void set_pageblock_migratetype(struct page *page, int migratetype)
-+{
-+	set_pageblock_flags_group(page, (unsigned long)migratetype,
-+					PB_migrate, PB_migrate_end);
- }
- 
- static inline int gfpflags_to_migratetype(gfp_t gfp_flags)
-@@ -155,11 +162,15 @@ static inline int gfpflags_to_migratetyp
- 		((gfp_flags & __GFP_RECLAIMABLE) != 0);
- }
- #else
--static inline int get_page_migratetype(struct page *page)
-+static inline int get_pageblock_migratetype(struct page *page)
- {
- 	return MIGRATE_UNMOVABLE;
- }
- 
-+static inline void set_pageblock_migratetype(struct page *page, int rclmtype)
-+{
-+}
-+
- static inline int gfpflags_to_migratetype(gfp_t gfp_flags)
- {
- 	return MIGRATE_UNMOVABLE;
-@@ -435,7 +446,7 @@ static inline void __free_one_page(struc
- {
- 	unsigned long page_idx;
- 	int order_size = 1 << order;
--	int migratetype = get_page_migratetype(page);
-+	int migratetype = get_pageblock_migratetype(page);
- 
- 	if (unlikely(PageCompound(page)))
- 		destroy_compound_page(page, order);
-@@ -715,6 +726,7 @@ int move_freepages_block(struct zone *zo
- 	if (page_zone(page) != page_zone(end_page))
- 		return 0;
- 
-+	set_pageblock_migratetype(start_page, migratetype);
- 	return move_freepages(zone, start_page, end_page, migratetype);
- }
- 
-@@ -834,6 +846,10 @@ static struct page *__rmqueue(struct zon
- 		rmv_page_order(page);
- 		area->nr_free--;
- 		zone->free_pages -= 1UL << order;
-+
-+		if (current_order == MAX_ORDER - 1)
-+			set_pageblock_migratetype(page, migratetype);
-+
- 		expand(zone, page, order, current_order, area, migratetype);
- 		goto got_page;
- 	}
-@@ -1022,7 +1038,7 @@ static void fastcall free_hot_cold_page(
- 	local_irq_save(flags);
- 	__count_vm_event(PGFREE);
- 	list_add(&page->lru, &pcp->list);
--	set_page_private(page, get_page_migratetype(page));
-+	set_page_private(page, get_pageblock_migratetype(page));
- 	pcp->count++;
- 	if (pcp->count >= pcp->high) {
- 		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
-@@ -2291,12 +2307,13 @@ void __meminit memmap_init_zone(unsigned
- 		SetPageReserved(page);
- 
- 		/*
--		 * Mark the page movable so that blocks are reserved for
-+		 * Mark the block movable so that blocks are reserved for
- 		 * movable at startup. This will force kernel allocations
- 		 * to reserve their blocks rather than leaking throughout
- 		 * the address space during boot when many long-lived
- 		 * kernel allocations are made
- 		 */
-+		set_pageblock_migratetype(page, MIGRATE_MOVABLE);
- 
- 		INIT_LIST_HEAD(&page->lru);
- #ifdef WANT_PAGE_VIRTUAL
+When you get tired of using printk and stone knives and bearskins to 
+look for the problem, you may wish to
+consider it, if these other approaches keep failing.   I have seen this 
+thread bounce around and I share your frustration
+with debugging Linux, its not easy for the most part and Linus' "use the 
+force' model does not work for everyone.
+
+Jeff
+
+
+Thushara Wijeratna wrote:
+
+> Samuel, thanks much for the pointers, I'm following up on UML.
+> BTW, I fixed my earlier problem after realizing (a chat with a Linux
+> savvy friend had nothing to do with it...) Basically I made the initrd
+> image on the dev machine for the same kernel version and copied it
+> over to the test machine, it then booted.
+>
+> I can now actually attach gdb and poke around and try to figure out
+> why it is throwing a SIGSEV. I have a stack like this:
+>
+> Program received signal SIGSEGV, Segmentation fault.
+> [Switching to Thread 1]
+> 0x00000000 in ?? ()
+> (gdb) bt
+> #0  0x00000000 in ?? ()
+> #1  0xc03051db in psmouse_interrupt (serio=0xc048cde0, data=250
+> '\uffff', flags=0,
+>    regs=0x0) at drivers/input/mouse/psmouse-base.c:206
+> #2  0xc030882a in i8042_interrupt (irq=0, dev_id=0x0, regs=0x0)
+>    at drivers/input/serio/i8042.c:433
+> #3  0xc03084f9 in i8042_aux_write (port=0x0, c=232 '\uffff')
+>    at drivers/input/serio/i8042.c:235
+> #4  0xc03053bb in psmouse_sendbyte (psmouse=0xf70aa7f8, byte=232 
+> '\uffff')
+>    at include/linux/serio.h:77
+>
+> and this is the code inside psmouse-base.c that is crashing:
+>
+>     rc = psmouse->protocol_handler(psmouse, regs);
+>
+> So I'm guessing I did't specify an option correctly in the `make
+> menuconfig` so that the kernel identifies my mouse and installs a
+> proper handler for it? It is a USB mouse and I thought I enabled it,
+> but I'm guessing I missed something.
+>
+> Thanks a lot for all your help, at some point I want to contribute
+> testing builds, this is good training...
+>
+> On 11/20/06, Samuel Korpi <strontianite@gmail.com> wrote:
+>
+>> Hi,
+>>
+>> I don't know what sort of debugging needs you have, exactly, but I
+>> would suggest you take a look at User Mode Linux (UML). UML provides a
+>> safe and pretty easy way to start you with kernel debugging and just
+>> looking into kernel internals. It is a virtual kernel running in user
+>> space, so it doesn't require a separate test machine, and you can
+>> debug it with normal gdb. Furthermore, it is included in current
+>> vanilla kernels, so you can get started without any extra patches.
+>>
+>> Main sources for information concerning UML are:
+>>
+>> Main page: http://www.user-mode-linux.org/
+>> HOWTO: http://user-mode-linux.sourceforge.net/UserModeLinux-HOWTO.html
+>> Wiki: http://uml.jfdi.org/
+>> Precompiled kernels and root file systems: http://uml.nagafix.co.uk/
+>>
+>> /Samuel Korpi
+>>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

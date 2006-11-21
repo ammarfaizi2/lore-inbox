@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031383AbWKUUTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031382AbWKUUS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031383AbWKUUTS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934411AbWKUUTR
+	id S1031382AbWKUUS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934411AbWKUUS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:19:17 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:8924 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S934402AbWKUUTP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:19:15 -0500
-Message-ID: <45635F39.1000708@garzik.org>
-Date: Tue, 21 Nov 2006 15:19:05 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Tue, 21 Nov 2006 15:18:29 -0500
+Received: from mx2.cs.washington.edu ([128.208.2.105]:10720 "EHLO
+	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S934402AbWKUUS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:18:28 -0500
+Date: Tue, 21 Nov 2006 12:18:12 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: d binderman <dcb314@hotmail.com>
+cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was
+ set but never us
+In-Reply-To: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
+Message-ID: <Pine.LNX.4.64N.0611211214230.25455@attu4.cs.washington.edu>
+References: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru>
-In-Reply-To: <20061121184605.GA7787@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another:  pass a 'flags' argument to kevent_init(2).  I guarantee you 
-will need it eventually.  It IMO would help with later binary 
-compatibility, if nothing else.  You wouldn't need a new syscall to 
-introduce struct kevent_ring_v2.
+Remove unused GET_APIC_VERSION call from clear_local_APIC() and 
+__setup_APIC_LVTT().
 
-	Jeff
+Reported by D Binderman <dcb314@hotmail.com>.
 
+Cc: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
+---
+ arch/x86_64/kernel/apic.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-
+diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
+index 4d9d5ed..96743aa 100644
+--- a/arch/x86_64/kernel/apic.c
++++ b/arch/x86_64/kernel/apic.c
+@@ -133,7 +133,6 @@ void clear_local_APIC(void)
+ 		apic_write(APIC_LVTERR, APIC_LVT_MASKED);
+ 	if (maxlvt >= 4)
+ 		apic_write(APIC_LVTPC, APIC_LVT_MASKED);
+-	v = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	apic_write(APIC_ESR, 0);
+ 	apic_read(APIC_ESR);
+ }
+@@ -644,10 +643,9 @@ #define APIC_DIVISOR 16
+ 
+ static void __setup_APIC_LVTT(unsigned int clocks)
+ {
+-	unsigned int lvtt_value, tmp_value, ver;
++	unsigned int lvtt_value, tmp_value;
+ 	int cpu = smp_processor_id();
+ 
+-	ver = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	lvtt_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+ 
+ 	if (cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask))

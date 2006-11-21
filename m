@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030731AbWKUIiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965885AbWKUIlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030731AbWKUIiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 03:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030737AbWKUIiM
+	id S965885AbWKUIlY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966111AbWKUIlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 03:38:12 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030731AbWKUIiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 03:38:12 -0500
-Date: Tue, 21 Nov 2006 00:37:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Raskin <a1d23ab4@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc1-mm1+ memory problem
-Message-Id: <20061121003745.aeda4f7c.akpm@osdl.org>
-In-Reply-To: <45614A95.6090102@mail.ru>
-References: <45614A95.6090102@mail.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 03:41:24 -0500
+Received: from wx-out-0506.google.com ([66.249.82.239]:45936 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965885AbWKUIlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 03:41:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DNhK+PRzUuJoE0WHek1v1nR+e8AqV50fIAI5eKG5toZtWmL6FiNKMzLE4E3T3oyBFtLsqbufrsgjiSTa5/nCQdeOPjkKvHPrnbRWhYjm+jiUUeeA8s05/Svpn2GHIVR0kqdHpddlztTAmWIEMkh9FeoJu/BEfkMpEYWassC3PM8=
+Message-ID: <38b2ab8a0611210041o2f5d251ale17082b951a90abb@mail.gmail.com>
+Date: Tue, 21 Nov 2006 09:41:22 +0100
+From: "Francis Moreau" <francis.moro@gmail.com>
+To: "Hugh Dickins" <hugh@veritas.com>
+Subject: Re: Re : vm: weird behaviour when munmapping
+Cc: a.p.zijlstra@chello.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0611201213460.11655@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <38b2ab8a0611171301pe16229ch441ec24c538b1998@mail.gmail.com>
+	 <Pine.LNX.4.64.0611181340220.7193@blonde.wat.veritas.com>
+	 <38b2ab8a0611200330w17a84994ne3a0eed11ae4485c@mail.gmail.com>
+	 <Pine.LNX.4.64.0611201213460.11655@blonde.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 09:26:29 +0300
-Michael Raskin <a1d23ab4@mail.ru> wrote:
+On 11/20/06, Hugh Dickins <hugh@veritas.com> wrote:
+> On Mon, 20 Nov 2006, Francis Moreau wrote:
+> >
+> > I end up to see "open(B), close(B)" sequence when unmapping a part of
+> > the dumb device that I found strange. I think that "open(A') close(B)"
+> > can give more information to the driver and reflect that B is unmapped
+> > and A' is still mapped and becomes the new mapped area.
+> > But it's may be just me...
+>
+> I think I do now get your point.  But your way round doesn't really
 
-> Short description: when X is loaded (maybe any heavy application is 
-> sufficient, but I don't use anything heavy in console), 'free' says used 
-> memory is growing.
-> 
-> Keywords: memory.
-> 
-> Kernel: built locally, gcc 4.0.3
-> 
-> I have a strange problem with 2.6.19-rc-mm kernels. After I load X, I 
-> notice that memory is marked used at rate of tens of KB/s. Then it 
-> starts to swap very heavily, when physical memory is all used. I tried 
-> to verify it - it is so with all -mm kernels after 2.6.19-rc1-mm1, 
-> including 2.6.19-rc5-mm2. At the meantime everything works OK with 
-> kernels 2.6.18-mm3 and 2.6.19-rc1 through 2.6.19-rc6. I do not see any 
-> options that should be memory eating in my .config . Module list is 
-> short enough to include inline.
-> 
-> When I just run some things like periodical suck, oops proxy server etc 
-> with X shut down, I do not notice "leak" from console because of small 
-> fluctuations of memory use. When I run X and shut it down, used memory 
-> count goes up a few megs (consistent with speed of eating it by X).
-> 
-> I didn't find exactly this problem in lkml or www, though the problem 
-> with OOM on 2.6.19-rc-mm seems similar.
-> 
-> What should I check to fix problem or produce a useful bug report?
+my fault, I think I wasn't very clear when explaining myself
 
-Monitor /proc/meminfo
+> reflect what's going on either: the range A' was already open and now
+> you open it again.  Until there's some driver actually needing more
+> sophisticated treatment, let's just leave it the simple way it is.
 
-If the leak is slab, monitor /proc/slabinfo and /proc/slab_allocators.
-/proc/slab_allocators needs CONFIG_DEBUG_SLAB_LEAK.
+Yes, I agree that both ways are not satisfacting. Maybe having
+vma->resize() method would have been better, I dunno.
 
-Thanks.
+Anyways thanks for your answers.
+-- 
+Francis

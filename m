@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031388AbWKUUU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031389AbWKUUUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031388AbWKUUU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031390AbWKUUU1
+	id S1031389AbWKUUUr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031386AbWKUUUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:20:27 -0500
-Received: from mx1.cs.washington.edu ([128.208.5.52]:40126 "EHLO
-	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1031388AbWKUUU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:20:26 -0500
-Date: Tue, 21 Nov 2006 12:20:19 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: d binderman <dcb314@hotmail.com>
-cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] x86_64 smpboot: remove unused variable
-In-Reply-To: <BAY107-F1209C38A8D8079599E1ECF9CEC0@phx.gbl>
-Message-ID: <Pine.LNX.4.64N.0611211218180.25455@attu4.cs.washington.edu>
-References: <BAY107-F1209C38A8D8079599E1ECF9CEC0@phx.gbl>
+	Tue, 21 Nov 2006 15:20:47 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29449 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1031392AbWKUUUq (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:20:46 -0500
+Date: Tue, 21 Nov 2006 21:20:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: d binderman <dcb314@hotmail.com>, ak@suse.de
+Cc: Linux-Kernel@vger.kernel.org, discuss@x86-64.org, mingo@redhat.com
+Subject: [2.6 patch] x86_64 __setup_APIC_LVTT(): remove unused variable
+Message-ID: <20061121202046.GL5200@stusta.de>
+References: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY107-F214E963C5A93489762562E9CEC0@phx.gbl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused bound variable in sync_tsc().
+On Tue, Nov 21, 2006 at 07:46:46PM +0000, d binderman wrote:
+> 
+> Hello there,
+> 
+> I just tried to compile Linux kernel 2.6.18.3 with the Intel C
+> C compiler.
+> 
+> The compiler said
+> 
+> arch/x86_64/kernel/apic.c(701): remark #593: variable "ver" was set but 
+> never used
+> 
+> The source code is
+> 
+>    unsigned int lvtt_value, tmp_value, ver;
+> 
+> I have checked the source code and I agree with the compiler.
+> Suggest delete local variable.
 
-Reported by D Binderman <dcb314@hotmail.com>.
+Thanks for your report, patch below.
 
-Cc: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@redhat.com>
-Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
----
- arch/x86_64/kernel/smpboot.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+> Regards
+> 
+> David Binderman
 
-diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
-index 62c2e74..6bc0ec5 100644
---- a/arch/x86_64/kernel/smpboot.c
-+++ b/arch/x86_64/kernel/smpboot.c
-@@ -271,7 +271,7 @@ static __cpuinit void sync_tsc(unsigned 
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+This patch removes a variable that whose usage was removed some time ago 
+by Andi.
+
+Spotted by the Intel C compiler.
+
+Reported by David Binderman.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.19-rc5-mm2/arch/x86_64/kernel/apic.c.old	2006-11-21 21:17:03.000000000 +0100
++++ linux-2.6.19-rc5-mm2/arch/x86_64/kernel/apic.c	2006-11-21 21:17:16.000000000 +0100
+@@ -722,10 +722,9 @@
+ 
+ static void __setup_APIC_LVTT(unsigned int clocks)
  {
- 	int i, done = 0;
- 	long delta, adj, adjust_latency = 0;
--	unsigned long flags, rt, master_time_stamp, bound;
-+	unsigned long flags, rt, master_time_stamp;
- #ifdef DEBUG_TSC_SYNC
- 	static struct syncdebug {
- 		long rt;	/* roundtrip time */
-@@ -300,11 +300,8 @@ #endif
- 	{
- 		for (i = 0; i < NUM_ROUNDS; ++i) {
- 			delta = get_delta(&rt, &master_time_stamp);
--			if (delta == 0) {
-+			if (delta == 0)
- 				done = 1;	/* let's lock on to this... */
--				bound = rt;
--			}
--
- 			if (!done) {
- 				unsigned long t;
- 				if (i > 0) {
+-	unsigned int lvtt_value, tmp_value, ver;
++	unsigned int lvtt_value, tmp_value;
+ 	int cpu = smp_processor_id();
+ 
+-	ver = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	lvtt_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+ 
+ 	if (cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask))
+

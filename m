@@ -1,110 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031257AbWKUWu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031255AbWKUWup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031257AbWKUWu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031258AbWKUWu0
+	id S1031255AbWKUWup (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031258AbWKUWup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:50:26 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:57510 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1031255AbWKUWuZ
+	Tue, 21 Nov 2006 17:50:45 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:59302 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1031255AbWKUWuo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:50:25 -0500
+	Tue, 21 Nov 2006 17:50:44 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org
 Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org, clameter@sgi.com
-Message-Id: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
-Subject: [PATCH 0/11] Avoiding fragmentation with page clustering v27
-Date: Tue, 21 Nov 2006 22:50:22 +0000 (GMT)
+Message-Id: <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
+In-Reply-To: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+Subject: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
+Date: Tue, 21 Nov 2006 22:50:42 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is another post of the patches aimed at reducing external
-fragmentation. Based on feedback from Christoph Lameter, it has been
-reworked in two important respects. One, allocations should be grouped by
-ability to migrate, not just reclaim. This lays the foundation for using
-page migration as a defragmentation solution later.  Second, the per-cpu
-structures were larger in earlier versions which is a problem on machines
-with large CPUs. They remain the same in this version.
 
-Tests show that the kernel is far better at servicing high-order allocations
-with these patches applied. kernbench figures show performance differences
-of between -0.1% and +0.5% on three test machines (two ppc64 and one x86_64).
+This patch adds a flag __GFP_MOVABLE.  Allocations using the __GFP_MOVABLE
+in this patch can either be migrated using the page migration mechanism
+or reclaimed by syncing with backing storage (be it a file or swap) and
+discarding.
 
-Changelog Since V27
 
-o Renamed anti-fragmentation to Page Clustering. Anti-fragmentation was giving
-  the mistaken impression that it was the 100% solution for high order
-  allocations. Instead, it greatly increases the chances high-order
-  allocations will succeed and lays the foundation for defragmentation and
-  memory hot-remove to work properly
-o Redefine page groupings based on ability to migrate or reclaim instead of
-  basing on reclaimability alone
-o Get rid of spurious inits
-o Per-cpu lists are no longer split up per-type. Instead the per-cpu list is
-  searched for a page of the appropriate type
-o Added more explanation commentary
-o Fix up bug in pageblock code where bitmap was used before being initalised
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+---
 
-Changelog Since V26
-o Fix double init of lists in setup_pageset
+ fs/block_dev.c            |    2 +-
+ fs/buffer.c               |    5 +++--
+ fs/compat.c               |    2 +-
+ fs/exec.c                 |    2 +-
+ fs/inode.c                |    2 +-
+ include/asm-i386/page.h   |    3 ++-
+ include/asm-ia64/page.h   |    4 +++-
+ include/asm-x86_64/page.h |    3 ++-
+ include/linux/gfp.h       |    4 +++-
+ include/linux/highmem.h   |    3 ++-
+ mm/hugetlb.c              |    5 +++--
+ mm/memory.c               |    6 ++++--
+ mm/swap_state.c           |    3 ++-
+ 13 files changed, 28 insertions(+), 16 deletions(-)
 
-Changelog Since V25
-o Fix loop order of for_each_rclmtype_order so that order of loop matches args
-o gfpflags_to_rclmtype uses gfp_t instead of unsigned long
-o Rename get_pageblock_type() to get_page_rclmtype()
-o Fix alignment problem in move_freepages()
-o Add mechanism for assigning flags to blocks of pages instead of page->flags
-o On fallback, do not examine the preferred list of free pages a second time
-
-The purpose of these patches is to reduce external fragmentation by grouping
-pages of related types together. When pages are migrated (or reclaimed under
-memory pressure), large contiguous pages will be freed. 
-
-This patch works by categorising allocations by their ability to migrate;
-
-Movable - The pages may be moved with the page migration mechanism. These are
-	generally userspace pages. 
-
-Reclaimable - These are allocations for some kernel caches that are
-	reclaimable or allocations that are known to be very short-lived.
-
-Unmovable - These are pages that are allocated by the kernel that
-	are not trivially reclaimed. For example, the memory allocated for a
-	loaded module would be in this category. By default, allocations are
-	considered to be of this type
-
-Instead of having one MAX_ORDER-sized array of free lists in struct free_area,
-there is one for each type of reclaimability. Once a 2^MAX_ORDER block of
-pages is split for a type of allocation, it is added to the free-lists for
-that type, in effect reserving it. Hence, over time, pages of the different
-types can be clustered together.
-
-When the preferred freelists are expired, the largest possible block is taken
-from an alternative list. Buddies that are split from that large block are
-placed on the preferred allocation-type freelists to mitigate fragmentation.
-
-This implementation gives best-effort for low fragmentation in all zones. To
-be effective, min_free_kbytes needs to be set to a value about 10% of physical
-memory (10% was found by experimentation, it may be workload dependant). To
-get that value lower, more invasive is required.
-
-Our tests show that about 60-70% of physical memory can be allocated on
-a desktop after a few days uptime. In benchmarks and stress tests, we are
-finding that 80% of memory is available as contiguous blocks at the end of
-the test. To compare, a standard kernel was getting < 1% of memory as large
-pages on a desktop and about 8-12% of memory as large pages at the end of
-stress tests.
-
-Following this email are 8 patches that implement page clustering with an
-additional 3 patches that provide an alternative to using page->flags. The
-early patches introduce the split between movable and all other allocations.
-Later we introduce a further split for reclaimable allocations.  Note that
-although in early patches an additional page flag is consumed, later patches
-reuse the suspend bits, releasing this bit again. The last three patches
-remove the restriction on suspend by introducing an alternative solution
-for tracking page blocks which remove the need for any page bits.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/fs/block_dev.c linux-2.6.19-rc5-mm2-001_clustering_flags/fs/block_dev.c
+--- linux-2.6.19-rc5-mm2-clean/fs/block_dev.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/fs/block_dev.c	2006-11-21 10:47:11.000000000 +0000
+@@ -380,7 +380,7 @@ struct block_device *bdget(dev_t dev)
+ 		inode->i_rdev = dev;
+ 		inode->i_bdev = bdev;
+ 		inode->i_data.a_ops = &def_blk_aops;
+-		mapping_set_gfp_mask(&inode->i_data, GFP_USER);
++		mapping_set_gfp_mask(&inode->i_data, GFP_USER|__GFP_MOVABLE);
+ 		inode->i_data.backing_dev_info = &default_backing_dev_info;
+ 		spin_lock(&bdev_lock);
+ 		list_add(&bdev->bd_list, &all_bdevs);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/fs/buffer.c linux-2.6.19-rc5-mm2-001_clustering_flags/fs/buffer.c
+--- linux-2.6.19-rc5-mm2-clean/fs/buffer.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/fs/buffer.c	2006-11-21 10:47:11.000000000 +0000
+@@ -1048,7 +1048,8 @@ grow_dev_page(struct block_device *bdev,
+ 	struct page *page;
+ 	struct buffer_head *bh;
+ 
+-	page = find_or_create_page(inode->i_mapping, index, GFP_NOFS);
++	page = find_or_create_page(inode->i_mapping, index,
++				   GFP_NOFS|__GFP_MOVABLE);
+ 	if (!page)
+ 		return NULL;
+ 
+@@ -2723,7 +2724,7 @@ int submit_bh(int rw, struct buffer_head
+ 	 * from here on down, it's all bio -- do the initial mapping,
+ 	 * submit_bio -> generic_make_request may further map this bio around
+ 	 */
+-	bio = bio_alloc(GFP_NOIO, 1);
++	bio = bio_alloc(GFP_NOIO|__GFP_MOVABLE, 1);
+ 
+ 	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
+ 	bio->bi_bdev = bh->b_bdev;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/fs/compat.c linux-2.6.19-rc5-mm2-001_clustering_flags/fs/compat.c
+--- linux-2.6.19-rc5-mm2-clean/fs/compat.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/fs/compat.c	2006-11-21 10:47:11.000000000 +0000
+@@ -1419,7 +1419,7 @@ static int compat_copy_strings(int argc,
+ 			page = bprm->page[i];
+ 			new = 0;
+ 			if (!page) {
+-				page = alloc_page(GFP_HIGHUSER);
++				page = alloc_page(GFP_HIGHUSER|__GFP_MOVABLE);
+ 				bprm->page[i] = page;
+ 				if (!page) {
+ 					ret = -ENOMEM;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/fs/exec.c linux-2.6.19-rc5-mm2-001_clustering_flags/fs/exec.c
+--- linux-2.6.19-rc5-mm2-clean/fs/exec.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/fs/exec.c	2006-11-21 10:47:11.000000000 +0000
+@@ -239,7 +239,7 @@ static int copy_strings(int argc, char _
+ 			page = bprm->page[i];
+ 			new = 0;
+ 			if (!page) {
+-				page = alloc_page(GFP_HIGHUSER);
++				page = alloc_page(GFP_HIGHUSER|__GFP_MOVABLE);
+ 				bprm->page[i] = page;
+ 				if (!page) {
+ 					ret = -ENOMEM;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/fs/inode.c linux-2.6.19-rc5-mm2-001_clustering_flags/fs/inode.c
+--- linux-2.6.19-rc5-mm2-clean/fs/inode.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/fs/inode.c	2006-11-21 10:47:11.000000000 +0000
+@@ -146,7 +146,7 @@ static struct inode *alloc_inode(struct 
+ 		mapping->a_ops = &empty_aops;
+  		mapping->host = inode;
+ 		mapping->flags = 0;
+-		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
++		mapping_set_gfp_mask(mapping, GFP_HIGHUSER|__GFP_MOVABLE);
+ 		mapping->assoc_mapping = NULL;
+ 		mapping->backing_dev_info = &default_backing_dev_info;
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/include/asm-i386/page.h linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-i386/page.h
+--- linux-2.6.19-rc5-mm2-clean/include/asm-i386/page.h	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-i386/page.h	2006-11-21 10:47:11.000000000 +0000
+@@ -35,7 +35,8 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) \
++	alloc_page_vma(GFP_HIGHUSER|__GFP_ZERO|__GFP_MOVABLE, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/include/asm-ia64/page.h linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-ia64/page.h
+--- linux-2.6.19-rc5-mm2-clean/include/asm-ia64/page.h	2006-11-08 02:24:20.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-ia64/page.h	2006-11-21 10:47:11.000000000 +0000
+@@ -89,7 +89,9 @@ do {						\
+ 
+ #define alloc_zeroed_user_highpage(vma, vaddr) \
+ ({						\
+-	struct page *page = alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr); \
++	struct page *page = alloc_page_vma(	\
++			GFP_HIGHUSER | __GFP_ZERO | __GFP_MOVABLE, \
++			vma, vaddr); 		\
+ 	if (page)				\
+  		flush_dcache_page(page);	\
+ 	page;					\
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/include/asm-x86_64/page.h linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-x86_64/page.h
+--- linux-2.6.19-rc5-mm2-clean/include/asm-x86_64/page.h	2006-11-08 02:24:20.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/include/asm-x86_64/page.h	2006-11-21 10:47:11.000000000 +0000
+@@ -51,7 +51,8 @@ void copy_page(void *, void *);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) \
++	alloc_page_vma(GFP_HIGHUSER|__GFP_ZERO|__GFP_MOVABLE, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ /*
+  * These are used to make use of C type-checking..
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/include/linux/gfp.h linux-2.6.19-rc5-mm2-001_clustering_flags/include/linux/gfp.h
+--- linux-2.6.19-rc5-mm2-clean/include/linux/gfp.h	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/include/linux/gfp.h	2006-11-21 10:47:11.000000000 +0000
+@@ -46,6 +46,7 @@ struct vm_area_struct;
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+ #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
+ #define __GFP_THISNODE	((__force gfp_t)0x40000u)/* No fallback, no policies */
++#define __GFP_MOVABLE	((__force gfp_t)0x80000u) /* Page is movable */
+ 
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
+@@ -54,7 +55,8 @@ struct vm_area_struct;
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE)
++			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE|\
++			__GFP_MOVABLE)
+ 
+ /* This equals 0, but use constants in case they ever change */
+ #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/include/linux/highmem.h linux-2.6.19-rc5-mm2-001_clustering_flags/include/linux/highmem.h
+--- linux-2.6.19-rc5-mm2-clean/include/linux/highmem.h	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/include/linux/highmem.h	2006-11-21 10:47:11.000000000 +0000
+@@ -65,7 +65,8 @@ static inline void clear_user_highpage(s
+ static inline struct page *
+ alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
+ {
+-	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
++	struct page *page = alloc_page_vma(GFP_HIGHUSER|__GFP_MOVABLE,
++								vma, vaddr);
+ 
+ 	if (page)
+ 		clear_user_highpage(page, vaddr);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/mm/hugetlb.c linux-2.6.19-rc5-mm2-001_clustering_flags/mm/hugetlb.c
+--- linux-2.6.19-rc5-mm2-clean/mm/hugetlb.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/mm/hugetlb.c	2006-11-21 10:47:11.000000000 +0000
+@@ -103,8 +103,9 @@ static int alloc_fresh_huge_page(void)
+ {
+ 	static int nid = 0;
+ 	struct page *page;
+-	page = alloc_pages_node(nid, GFP_HIGHUSER|__GFP_COMP|__GFP_NOWARN,
+-					HUGETLB_PAGE_ORDER);
++	page = alloc_pages_node(nid,
++			GFP_HIGHUSER|__GFP_COMP|__GFP_NOWARN|__GFP_MOVABLE,
++			HUGETLB_PAGE_ORDER);
+ 	nid = next_node(nid, node_online_map);
+ 	if (nid == MAX_NUMNODES)
+ 		nid = first_node(node_online_map);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/mm/memory.c linux-2.6.19-rc5-mm2-001_clustering_flags/mm/memory.c
+--- linux-2.6.19-rc5-mm2-clean/mm/memory.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/mm/memory.c	2006-11-21 10:47:11.000000000 +0000
+@@ -1564,7 +1564,8 @@ gotten:
+ 		if (!new_page)
+ 			goto oom;
+ 	} else {
+-		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
++		new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_MOVABLE,
++				vma, address);
+ 		if (!new_page)
+ 			goto oom;
+ 		cow_user_page(new_page, old_page, address);
+@@ -2188,7 +2189,8 @@ retry:
+ 
+ 			if (unlikely(anon_vma_prepare(vma)))
+ 				goto oom;
+-			page = alloc_page_vma(GFP_HIGHUSER, vma, address);
++			page = alloc_page_vma(GFP_HIGHUSER|__GFP_MOVABLE,
++				vma, address);
+ 			if (!page)
+ 				goto oom;
+ 			copy_user_highpage(page, new_page, address);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc5-mm2-clean/mm/swap_state.c linux-2.6.19-rc5-mm2-001_clustering_flags/mm/swap_state.c
+--- linux-2.6.19-rc5-mm2-clean/mm/swap_state.c	2006-11-14 14:01:37.000000000 +0000
++++ linux-2.6.19-rc5-mm2-001_clustering_flags/mm/swap_state.c	2006-11-21 10:47:11.000000000 +0000
+@@ -343,7 +343,8 @@ struct page *read_swap_cache_async(swp_e
+ 		 * Get a new page to read into from swap.
+ 		 */
+ 		if (!new_page) {
+-			new_page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
++			new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_MOVABLE,
++				vma, addr);
+ 			if (!new_page)
+ 				break;		/* Out of memory */
+ 		}

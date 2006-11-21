@@ -1,119 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966486AbWKUVui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030745AbWKUVwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966486AbWKUVui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966478AbWKUVui
+	id S1030745AbWKUVwp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031064AbWKUVwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:50:38 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:37056 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S966486AbWKUVug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:50:36 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Tue, 21 Nov 2006 22:50:02 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH] ieee1394: nodemgr: fix deadlock in shutdown
-To: linux1394-devel@lists.sourceforge.net
-cc: Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor@insightbb.com>
-In-Reply-To: <4562B35C.7090807@s5r6.in-berlin.de>
-Message-ID: <tkrat.fb60b517d907f89e@s5r6.in-berlin.de>
-References: <Pine.LNX.4.44L0.0611201942270.30952-100000@netrider.rowland.org>
- <4562B35C.7090807@s5r6.in-berlin.de>
+	Tue, 21 Nov 2006 16:52:45 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47263 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030745AbWKUVwp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:52:45 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] i386-pda UP optimization
+Date: Tue, 21 Nov 2006 22:52:28 +0100
+User-Agent: KMail/1.9.5
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Ingo Molnar <mingo@elte.hu>,
+       akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611211238.20419.dada1@cosmosbay.com> <456372AD.5080807@goop.org>
+In-Reply-To: <456372AD.5080807@goop.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611212252.28493.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If "modprobe ohci1394" was quickly followed by "modprobe -r ohci1394",
-say with 1 second pause in between, the modprobe -r got stuck in
-uninterruptible sleep in kthread_stop.  At the same time the knodemgrd
-slept uninterruptibly in bus_rescan_devices_helper.  That's because
-driver_detach took the semaphore of the PCI device and
-bus_rescan_devices_helper wanted to take the semaphore of the FireWire
-host device's parent, which is the same semaphore. This was a regression
-since Linux 2.6.16, commit bf74ad5bc41727d5f2f1c6bedb2c1fac394de731,
-"Hold the device's parent's lock during probe and remove".
 
-The fix (or workaround) adds a dummy driver to the hpsb_host device. Now
-bus_rescan_devices_helper won't scan the host device anymore.  This
-doesn't hurt since we have no drivers which will bind to these devices
-and it is unlikely that there will ever be such a driver.  The dummy
-driver is befittingly presented as a representation of ieee1394 itself.
+> For umask/getppid, assuming you're just running 1e7 iterations, you're
+> seeing a difference of 25 and 35ns per iteration difference.  I wonder
+> why it would be different for different syscalls; I would expect it to
+> be a constant overhead either way.
 
-Fixes: http://bugzilla.kernel.org/show_bug.cgi?id=6706
+They got different numbers of current references? 
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
+> Certainly these numbers are much 
+> larger than I saw when I benchmarked pda-vs-nopda using lmbench's null
+> syscall (getppid) test; I saw an overall 9ns difference in null syscall
+> time on my Core Duo run at 1GHz.  What's your CPU and speed?
+> 
+> One possibility is a cache miss on the gdt while reloading %gs.  I've
 
-There is now a /sys/bus/ieee1394/drivers/ieee1394, whose "bind" and
-"unbind" attributes are not welcome.  Is there a way to disable them?
+On such micro benchmarks everything should be cache hot in theory
+(unless it's a system with really small cache)
 
+> been planning on a patch to rearrange the gdt in order to pack all the
+> commonly used segment descriptors into one or two cache lines so that
+> all the segment register reloads can be done with a minimum of cache
+> misses.  It would be interesting for you to replace the:
+> 
+>     movl $(__KERNEL_PDA), %edx; movl %edx, %gs
+> 
+> with an appropriate read of the gdt entry, hm, which is a bit complex to
+> find.
 
- drivers/ieee1394/nodemgr.c |   21 ++++++++++++++++++---
- 1 files changed, 18 insertions(+), 3 deletions(-)
+On UP it could be hardcoded. And oprofile can be used to profile for cache misses.
 
-Index: linux/drivers/ieee1394/nodemgr.c
-===================================================================
---- linux.orig/drivers/ieee1394/nodemgr.c	2006-11-21 00:09:25.000000000 +0100
-+++ linux/drivers/ieee1394/nodemgr.c	2006-11-21 22:32:09.000000000 +0100
-@@ -14,6 +14,7 @@
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/kthread.h>
-+#include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <asm/atomic.h>
- 
-@@ -259,9 +260,20 @@ static struct device nodemgr_dev_templat
- 	.release	= nodemgr_release_ne,
- };
- 
-+/* This dummy driver prevents the host devices from being scanned. We have no
-+ * useful drivers for them yet, and there would be a deadlock possible if the
-+ * driver core scans the host device while the host's low-level driver (i.e.
-+ * the host's parent device) is being removed. */
-+static struct device_driver nodemgr_mid_layer_driver = {
-+	.bus		= &ieee1394_bus_type,
-+	.name		= "ieee1394",
-+	.owner		= THIS_MODULE,
-+};
-+
- struct device nodemgr_dev_template_host = {
- 	.bus		= &ieee1394_bus_type,
- 	.release	= nodemgr_release_host,
-+	.driver		= &nodemgr_mid_layer_driver,
- };
- 
- 
-@@ -704,11 +716,14 @@ static int nodemgr_bus_match(struct devi
- 		return 0;
- 
- 	ud = container_of(dev, struct unit_directory, device);
--	driver = container_of(drv, struct hpsb_protocol_driver, driver);
--
- 	if (ud->ne->in_limbo || ud->ignore_driver)
- 		return 0;
- 
-+	/* We only match drivers of type hpsb_protocol_driver */
-+	if (drv == &nodemgr_mid_layer_driver)
-+		return 0;
-+
-+	driver = container_of(drv, struct hpsb_protocol_driver, driver);
-         for (id = driver->id_table; id->match_flags != 0; id++) {
-                 if ((id->match_flags & IEEE1394_MATCH_VENDOR_ID) &&
-                     id->vendor_id != ud->vendor_id)
-@@ -1899,7 +1914,7 @@ int init_ieee1394_nodemgr(void)
- 		class_unregister(&nodemgr_ne_class);
- 		return error;
- 	}
--
-+	error = driver_register(&nodemgr_mid_layer_driver);
- 	hpsb_register_highlevel(&nodemgr_highlevel);
- 	return 0;
- }
-
-
-
+-Andi

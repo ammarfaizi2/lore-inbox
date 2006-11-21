@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031262AbWKUS1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031271AbWKUS2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031262AbWKUS1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 13:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031264AbWKUS1K
+	id S1031271AbWKUS2u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 13:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031272AbWKUS2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 13:27:10 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:39815 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1031262AbWKUS1I (ORCPT
+	Tue, 21 Nov 2006 13:28:49 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:61144 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1031271AbWKUS2t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 13:27:08 -0500
-Date: Tue, 21 Nov 2006 10:26:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Krafft <krafft@de.ibm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] fix call to alloc_bootmem after bootmem has been
- freed
-Message-Id: <20061121102616.47d03ccc.akpm@osdl.org>
-In-Reply-To: <20061121190213.1700761b@localhost>
-References: <20061115193049.3457b44c@localhost>
-	<20061115193238.4d23900c@localhost>
-	<20061121085535.9c62b54f.akpm@osdl.org>
-	<20061121190213.1700761b@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 13:28:49 -0500
+Message-ID: <4563455D.80207@garzik.org>
+Date: Tue, 21 Nov 2006 13:28:45 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: "Renato S. Yamane" <renatoyamane@mandic.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ahci] Failed with error -12
+References: <4562F38F.8010404@mandic.com.br>
+In-Reply-To: <4562F38F.8010404@mandic.com.br>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 19:02:13 +0100
-Christian Krafft <krafft@de.ibm.com> wrote:
-
-> > > Index: linux/mm/page_alloc.c
-> > > ===================================================================
-> > > --- linux.orig/mm/page_alloc.c
-> > > +++ linux/mm/page_alloc.c
-> > > @@ -1931,7 +1931,7 @@ int zone_wait_table_init(struct zone *zo
-> > >  	alloc_size = zone->wait_table_hash_nr_entries
-> > >  					* sizeof(wait_queue_head_t);
-> > >
-> > > - 	if (system_state == SYSTEM_BOOTING) {
-> > > +	if (!slab_is_available()) {
-> > >  		zone->wait_table = (wait_queue_head_t *)
-> > >  			alloc_bootmem_node(pgdat, alloc_size);
-> > >  	} else {
-> > 
-> > I don't think that slab_is_available() is an appropriate way of working out
-> > if we can call vmalloc().
+Renato S. Yamane wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Afaik slab_is_available() is the generic replacement for mem_init_done, which exists only on powerpc. 
-> If thats not appropriate, I dont know why. However, SYSTEM_BOOTING is definitively wrong.
+> I receive this error message on boot with Kernel 2.6.18.3
+> 
+> relevant (I think) dmesg output:
+> =======
+> ahci 0000:00:1f.2: version 2.0
+> ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+> ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKD] -> GSI 11 (level,
+> low) -> IRQ 11
+> ahci: probe of 0000:00:1f.2 failed with error -12
 
-slab is a very different thing from vmalloc.  One could easily envisage
-situations (now or in the future) in which slab is ready, but vmalloc is
-not (more likely vice versa).
+"-12" is ENOMEM, which means it failed to map an MMIO resource.
 
-It'd be better to add a new vmalloc_is_available.  (Just an int - no need
-for a helper function).
+Either (a) you should turn on AHCI (or RAID) in BIOS, or (b) you should 
+not even try to load ahci driver.
+
+	Jeff
+
+
 

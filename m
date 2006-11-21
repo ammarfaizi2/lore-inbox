@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030515AbWKUAEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966691AbWKUAKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030515AbWKUAEM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 19:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966886AbWKUAEM
+	id S966691AbWKUAKe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 19:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966880AbWKUAKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 19:04:12 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:5253 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S966882AbWKUAEK (ORCPT
+	Mon, 20 Nov 2006 19:10:34 -0500
+Received: from mail.tmr.com ([64.65.253.246]:36245 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S966691AbWKUAKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 19:04:10 -0500
-From: Karsten Wiese <fzu@wemgehoertderstaat.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.19-rc6-rt4, changed yum repository
-Date: Tue, 21 Nov 2006 01:04:10 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20061118163032.GA14625@elte.hu> <200611192156.39981.fzu@wemgehoertderstaat.de> <20061119211434.GA7538@elte.hu>
-In-Reply-To: <20061119211434.GA7538@elte.hu>
+	Mon, 20 Nov 2006 19:10:33 -0500
+Message-ID: <4562443C.2000005@tmr.com>
+Date: Mon, 20 Nov 2006 19:11:40 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>,
+       Linux Kernel mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NFSROOT with NFS Version 3
+References: <20061117164021.03b2cc24.Christoph.Pleger@uni-dortmund.de>	<1163780417.5709.34.camel@lade.trondhjem.org>	<20061120120750.1b1688e8.Christoph.Pleger@uni-dortmund.de>	<20061120135716.GA14122@tsunami.ccur.com> <20061120173311.154e54a6.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <20061120173311.154e54a6.Christoph.Pleger@uni-dortmund.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611210104.11151.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 19. November 2006 22:14 schrieb Ingo Molnar:
+Christoph Pleger wrote:
+> Hello,
 > 
-> * Karsten Wiese <fzu@wemgehoertderstaat.de> wrote:
+> On Mon, 20 Nov 2006 08:57:16 -0500
+> Joe Korty <joe.korty@ccur.com> wrote:
 > 
-> >  Call Trace:
-> >   [<c02d320f>] do_page_fault+0x2b9/0x552
-> >   [<c0102f22>] work_resched+0x6/0x20
+>> On Mon, Nov 20, 2006 at 12:07:50PM +0100, Christoph Pleger wrote:
+>>> Warning: Unable to open an initial console
+>> This usually means /dev/console doesn't exist.  With many of
+>> today's distributions, this means you didn't boot with a
+>> initrd properly set up to run with your newly built kernel.
 > 
-> > The  [<c0102f22>] work_resched+0x6/0x20 corresponds to
-> > 	mov    $0xfffff000,%ebp
-> 
-> > 0x000001c1 <work_resched+1>:    call   0x1c2 <work_resched+2>
-> > 0x000001c6 <work_resched+6>:    mov    $0xfffff000,%ebp
-> 
-> no, it's the call's return address that is work_resched+6.
-> 
-> to get a more usable snapshot of what this task is doing you'd need 
-> something like SysRq-P output. (that works on PREEMPT_RT only if you 
-> enable /proc/sys/kernel/debug_direct_keyboard - but careful, it might 
-> break if you generate too many interrupts - i usually only to do the 
-> SysRq-P and hope that it doesnt break then.)
+> The device /dev/console exists, but init/main.c tries to open it
+> read-write. As the nfsroot is mounted read-only, /dev/console cannot be
+> opened read-write.
 
-Thanks. It turned out, it was me having missed to .config enable
-	"Enhanced Real Time Clock Support"
-. Sorry for having bothered you about this.
-hwclock then couldn't open /dev/rtc, fell back to iopl(3) hw access.
-And that failed sometimes ;-)
+That doesn't sound right, but hum... try mounting noatime, perhaps some 
+additional checking is being done.
 
-I'd still like to know, why are there the do_page_fault() SysRq+T
-traces under hwclock context, while hwclock userspace is in a loop
-doing iopl(3)ed io-access? 
+Note: I'm pulling that out of the air, I haven't had a problem with it. 
+Dare I assume that you checked the major,minor and all that good stuff?
 
-hwclock's loop active then is:
-	for (i = 0; !cmos_clock_busy(); i++)
-		if (i >= 10000000)
-			return 1;
-with:
-	int cmos_clock_busy()
-	{
-		return   /* poll bit 7 (UIP) of Control Register A */
-	    (hclock_read(10) & 0x80);
-	}
-with hand interpreted:
-	unsigned long hclock_read(unsigned long reg)
-	{
-		unsigned long v;
-		__asm__ volatile ("cli");
-		outb (reg, clock_ctl_addr);
-		 v = inb (clock_data_addr);
-		__asm__ volatile ("sti");
-		return v;
-	}
-
-I guess:
-SysRq+T doesn't care about userspace eip and just displays hwclock's
-last used kernel stack?
-
-      Karsten
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

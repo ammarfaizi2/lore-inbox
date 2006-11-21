@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031229AbWKURK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031226AbWKURPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031229AbWKURK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 12:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031238AbWKURK3
+	id S1031226AbWKURPq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 12:15:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031227AbWKURPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 12:10:29 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.155]:51682 "EHLO
-	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S1031230AbWKURK2
+	Tue, 21 Nov 2006 12:15:45 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:58846 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1031226AbWKURPo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 12:10:28 -0500
-Message-ID: <45633360.6080109@ru.mvista.com>
-Date: Tue, 21 Nov 2006 20:12:00 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Tue, 21 Nov 2006 12:15:44 -0500
+Message-ID: <4563342B.9050500@zytor.com>
+Date: Tue, 21 Nov 2006 09:15:23 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       ltt-dev@shafik.org, mgreer@mvista.com, mlachwani@mvista.com
-Subject: Re: LTTng do_page_fault vs handle_mm_fault instrumentation
-References: <20061121160629.GA6944@Krystal> <4563289A.2000702@ru.mvista.com> <20061121170317.GA10250@Krystal>
-In-Reply-To: <20061121170317.GA10250@Krystal>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+CC: Simon Richter <Simon.Richter@hogyros.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: implement daemon() in the kernel
+References: <4561ABB4.6090700@hogyros.de> <45624A91.3010604@zytor.com> <4562C741.800@stud.feec.vutbr.cz>
+In-Reply-To: <4562C741.800@stud.feec.vutbr.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Michal Schmidt wrote:
+> H. Peter Anvin wrote:
+>> Simon Richter wrote:
+>>> int daemon(int nochdir, int noclose)
+>>> {
+>>>     if(!nochdir)
+>>>         chdir("/");
+>>>
+>>>     if(!noclose)
+>>>     {
+>>>         int fd = open("/dev/null", O_RDWR);
+>>>         dup2(fd, 0);
+>>>         dup2(fd, 1);
+>>>         dup2(fd, 2);
+>>>         close(fd);
+>>>     }
+>>>
+>>>     if(fork() > 0)
+>>
+>> ... that should be if (fork() == 0) ...
+> 
+> Are you sure? fork()==0 means we're the child, but it's the parent who 
+> should exit, isn't it?
+> 
 
-Mathieu Desnoyers wrote:
+Oh, right, of course.  Thinko; the lack of error handling confused me. 
+I did that right in the assembly code.
 
-> Instrumentation around the handle_mm_fault handler call, inside do_page_fault,
-> looked to me as a good compromise : it can access the struct pt_regs, it will
-> never be called from either a vmalloc fault or an erroneous page fault caused by
-> the tracer itself (which of course, never happens, but who knows...). It won't,
-> however, give information about some error paths in the page fault handler,
-> mainly related to kernel faults. It is also a little farther from the page
-> fault handler "real" entry and exit points, but I consider it a minor impact
-> compared to the cost of entering the trap on currently existing architectures.
-
-   I kept this approach mostly (note it would have been hard to change it due 
-to this particular handler's structure itself) but just cleaned it up. If you 
-consider that adding more markers was a bit too much, I can remove them. :-)
-
-WBR, Sergei
+	-hpa

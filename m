@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWKUKFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030806AbWKUKEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030804AbWKUKFn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 05:05:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030811AbWKUKFn
+	id S1030806AbWKUKEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 05:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030808AbWKUKEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 05:05:43 -0500
-Received: from nz-out-0102.google.com ([64.233.162.196]:39487 "EHLO
+	Tue, 21 Nov 2006 05:04:42 -0500
+Received: from nz-out-0102.google.com ([64.233.162.199]:62259 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030804AbWKUKFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 05:05:42 -0500
+	id S1030806AbWKUKEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 05:04:42 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Uf28XoWEDiuBh88UFDjT0oIxiiSswWj5rE49ePdwVX0wNZiN+IfT+Y3FVn+kFlAOdAvPRgK5E2rQoWYeq+iuqEIyTihowOIsi6HKXyqParnsz7jy8pBSxWYacGWm6yfm5t8GDMX6auZ3wLBmiUoBkfGOqfcgRPgTgNQqFa7vBQI=
-Message-ID: <9a8748490611210205v7beea9aer7c511f2dd4dbf95a@mail.gmail.com>
-Date: Tue, 21 Nov 2006 11:05:40 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Dipti Ranjan Tarai" <dipti@innomedia.soft.net>
-Subject: Re: How to read/write from/to the HD with out kernel cashing
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4562CCB2.1030400@innomedia.soft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=QreEcHfTrQCDhyUGhlyqCkkfR1LTRMLL2Gjd5QFdw83tn2UWLrB/rCCrkpJBmK2kz5RnY88dCKE4QNlg8LI6LaI2uaOklOQWl4xFWv6/rcodrNpDU/3utNrSdRS9HCHwKgi2guEkPGtN8fHMA2i8mxCVBMLy3bF30Ey/bW9qj3s=
+Date: Tue, 21 Nov 2006 18:58:53 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Jiri Slaby <jirislaby@gmail.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] driver core: delete virtual directory on class_unregister()
+Message-ID: <20061121095853.GA16279@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Greg KH <gregkh@suse.de>, Jiri Slaby <jirislaby@gmail.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <4561E290.7060100@gmail.com> <20061120182312.GA16006@APFDCB5C> <4561FA6F.4030400@gmail.com> <20061120195318.GB18077@APFDCB5C> <20061120203440.GA5458@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4562CCB2.1030400@innomedia.soft.net>
+In-Reply-To: <20061120203440.GA5458@suse.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/11/06, Dipti Ranjan Tarai <dipti@innomedia.soft.net> wrote:
-> Hi all,
->        I am using fedora core -3 with kernel 2.6.10. I want to
-> read/write a sector from/to the HD with out kernel caching. Basically my
-> aim is to communicate directly with the ide drivers so that I can bypass
-> the kernel cache. Please give some idea regarding this.
->
-Why wouldn't the (obsolete) RAW driver (CONFIG_RAW_DRIVER) or (better)
-O_DIRECT work for you??
+On Mon, Nov 20, 2006 at 12:34:40PM -0800, Greg KH wrote:
+> 
+> Hm, why is this not reproducable for me then without this patch?
+> 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I can reproduce it by reloading raw.ko on 2.6.19-rc5-mm2.
+not happened on 2.6.19-rc6.
+
+After unloading raw.ko, /sys/devices/virtual/raw is still exist.
+So next loading raw.ko will fail.
+

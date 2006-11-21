@@ -1,100 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161390AbWKUVqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966486AbWKUVui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161390AbWKUVqk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 16:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161401AbWKUVqk
+	id S966486AbWKUVui (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 16:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966478AbWKUVui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 16:46:40 -0500
-Received: from iabervon.org ([66.92.72.58]:51981 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1161390AbWKUVqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 16:46:38 -0500
-Date: Tue, 21 Nov 2006 16:46:37 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18.2: Nobody cared about the millionth sata_nv interrupt
-Message-ID: <Pine.LNX.4.64.0611211603270.20138@iabervon.org>
+	Tue, 21 Nov 2006 16:50:38 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:37056 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S966486AbWKUVug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 16:50:36 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Tue, 21 Nov 2006 22:50:02 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH] ieee1394: nodemgr: fix deadlock in shutdown
+To: linux1394-devel@lists.sourceforge.net
+cc: Alan Stern <stern@rowland.harvard.edu>,
+       Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor@insightbb.com>
+In-Reply-To: <4562B35C.7090807@s5r6.in-berlin.de>
+Message-ID: <tkrat.fb60b517d907f89e@s5r6.in-berlin.de>
+References: <Pine.LNX.4.44L0.0611201942270.30952-100000@netrider.rowland.org>
+ <4562B35C.7090807@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.]
-Nobody cared about the millionth sata_nv interrupt
+If "modprobe ohci1394" was quickly followed by "modprobe -r ohci1394",
+say with 1 second pause in between, the modprobe -r got stuck in
+uninterruptible sleep in kthread_stop.  At the same time the knodemgrd
+slept uninterruptibly in bus_rescan_devices_helper.  That's because
+driver_detach took the semaphore of the PCI device and
+bus_rescan_devices_helper wanted to take the semaphore of the FireWire
+host device's parent, which is the same semaphore. This was a regression
+since Linux 2.6.16, commit bf74ad5bc41727d5f2f1c6bedb2c1fac394de731,
+"Hold the device's parent's lock during probe and remove".
 
-[2.]
-Long after boot, I get "irq 209: nobody cared", and my hard drive 
-stops working (209 is libata for the hard drive). The third time this 
-happened, /proc/interrupts gave exactly 1000000 for the number of 
-interrupts; the second time it was also an even value in base 10 (but I 
-didn't remember what value) and I missed the first time it happened.
+The fix (or workaround) adds a dummy driver to the hpsb_host device. Now
+bus_rescan_devices_helper won't scan the host device anymore.  This
+doesn't hurt since we have no drivers which will bind to these devices
+and it is unlikely that there will ever be such a driver.  The dummy
+driver is befittingly presented as a representation of ieee1394 itself.
 
-[3.] 
-libata, sata_nv, kernel
+Fixes: http://bugzilla.kernel.org/show_bug.cgi?id=6706
 
-[4.]
-Linux version 2.6.18-gentoo-r2 (root@livecd) (gcc version 4.1.1 (Gentoo 
-4.1.1)) #1 Mon Nov 20 19:16:59 EST 2006
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
 
-(Based on 2.6.18.2)
+There is now a /sys/bus/ieee1394/drivers/ieee1394, whose "bind" and
+"unbind" attributes are not welcome.  Is there a way to disable them?
 
-None of the gentoo patches look at all related, and current -stable 
-doesn't look like it would fix anything related.
 
-[5.]
-2.6.17 either didn't have this issue or I didn't run it long enough. I'm 
-building it now to try more extensively.
+ drivers/ieee1394/nodemgr.c |   21 ++++++++++++++++++---
+ 1 files changed, 18 insertions(+), 3 deletions(-)
 
-[6.]
-Call Trace:
- [<ffffffff8020a9ce>] dump_stack+0x12/0x17
- [<ffffffff80240078>] __report_bad_irq+0x30/0x7d
- [<ffffffff8024028b>] note_interrupt+0x1c6/0x207
- [<ffffffff8023f8e7>] __do_IRQ+0x91/0xc5
- [<ffffffff8020bd87>] do_IRQ+0xe7/0xf5
- [<ffffffff80209b31>] ret_from_intr+0x0/0xa
-DWARF2 unwinder stuck at ret_from_intr+0x0/0xa
-Leftover inexact backtrace:
- <IRQ> [<ffffffff8805ee05>] :forcedeth:nv_nic_irq+0x5d/0x168
- [<ffffffff8805ee23>] :forcedeth:nv_nic_irq+0x7b/0x168
- [<ffffffff8023f827>] handle_IRQ_event+0x29/0x58
- [<ffffffff8023f8ce>] __do_IRQ+0x78/0xc5
- [<ffffffff8020bd87>] do_IRQ+0xe7/0xf5
- [<ffffffff80208884>] default_idle+0x0/0x50
- [<ffffffff80209b31>] ret_from_intr+0x0/0xa
- <EOI> [<ffffffff802088ad>] default_idle+0x29/0x50
- [<ffffffff80208910>] cpu_idle+0x3c/0x5b
- [<ffffffff8058f756>] start_kernel+0x1bd/0x1c2
- [<ffffffff8058f24b>] _sinittext+0x24b/0x24f
+Index: linux/drivers/ieee1394/nodemgr.c
+===================================================================
+--- linux.orig/drivers/ieee1394/nodemgr.c	2006-11-21 00:09:25.000000000 +0100
++++ linux/drivers/ieee1394/nodemgr.c	2006-11-21 22:32:09.000000000 +0100
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/delay.h>
+ #include <linux/kthread.h>
++#include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <asm/atomic.h>
+ 
+@@ -259,9 +260,20 @@ static struct device nodemgr_dev_templat
+ 	.release	= nodemgr_release_ne,
+ };
+ 
++/* This dummy driver prevents the host devices from being scanned. We have no
++ * useful drivers for them yet, and there would be a deadlock possible if the
++ * driver core scans the host device while the host's low-level driver (i.e.
++ * the host's parent device) is being removed. */
++static struct device_driver nodemgr_mid_layer_driver = {
++	.bus		= &ieee1394_bus_type,
++	.name		= "ieee1394",
++	.owner		= THIS_MODULE,
++};
++
+ struct device nodemgr_dev_template_host = {
+ 	.bus		= &ieee1394_bus_type,
+ 	.release	= nodemgr_release_host,
++	.driver		= &nodemgr_mid_layer_driver,
+ };
+ 
+ 
+@@ -704,11 +716,14 @@ static int nodemgr_bus_match(struct devi
+ 		return 0;
+ 
+ 	ud = container_of(dev, struct unit_directory, device);
+-	driver = container_of(drv, struct hpsb_protocol_driver, driver);
+-
+ 	if (ud->ne->in_limbo || ud->ignore_driver)
+ 		return 0;
+ 
++	/* We only match drivers of type hpsb_protocol_driver */
++	if (drv == &nodemgr_mid_layer_driver)
++		return 0;
++
++	driver = container_of(drv, struct hpsb_protocol_driver, driver);
+         for (id = driver->id_table; id->match_flags != 0; id++) {
+                 if ((id->match_flags & IEEE1394_MATCH_VENDOR_ID) &&
+                     id->vendor_id != ud->vendor_id)
+@@ -1899,7 +1914,7 @@ int init_ieee1394_nodemgr(void)
+ 		class_unregister(&nodemgr_ne_class);
+ 		return error;
+ 	}
+-
++	error = driver_register(&nodemgr_mid_layer_driver);
+ 	hpsb_register_highlevel(&nodemgr_highlevel);
+ 	return 0;
+ }
 
-handlers:
-[<ffffffff803480f1>] (nv_generic_interrupt+0x0/0x97)
-Disabling IRQ #209
 
-[7.]
-It's crashed three times in a day; the third time I was intentionally 
-driving up the hard drive interrupt count, and it crashed before too long. 
-Takes too long to bisect too effectively, but I think it'll be 
-reproduceable.
 
-[8.]
-00:08.0 IDE interface: nVidia Corporation MCP61 SATA Controller (rev a2) 
-(prog-if 85 [Master SecO PriO])
-        Subsystem: ASUSTeK Computer Inc. Unknown device 8234
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- 
-<MAbort- >SERR- <PERR-
-        Latency: 0 (750ns min, 250ns max)
-        Interrupt: pin A routed to IRQ 209
-        Region 0: I/O ports at e400 [size=8]
-        Region 1: I/O ports at e080 [size=4]
-        Region 2: I/O ports at e000 [size=8]
-        Region 3: I/O ports at dc00 [size=4]
-        Region 4: I/O ports at d880 [size=16]
-        Region 5: Memory at dff7c000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: <access denied>
-
-	-Daniel
-*This .sig left intentionally blank*

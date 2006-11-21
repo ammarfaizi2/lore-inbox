@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934332AbWKUGUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934344AbWKUGXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934332AbWKUGUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 01:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934337AbWKUGUW
+	id S934344AbWKUGXK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 01:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934341AbWKUGXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 01:20:22 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:23963 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S934332AbWKUGUU (ORCPT
+	Tue, 21 Nov 2006 01:23:10 -0500
+Received: from gate.crashing.org ([63.228.1.57]:19614 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S934345AbWKUGXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 01:20:20 -0500
-Date: Mon, 20 Nov 2006 22:19:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ego@in.ibm.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, vatsa@in.ibm.com,
-       dipankar@in.ibm.com, davej@redhat.com, mingo@elte.hu,
-       kiran@scalex86.org
-Subject: Re: [PATCH 1/4] Extend notifier_call_chain to count nr_calls made.
-Message-Id: <20061120221941.e2c379b3.akpm@osdl.org>
-In-Reply-To: <20061114122050.GB31787@in.ibm.com>
-References: <20061114121832.GA31787@in.ibm.com>
-	<20061114122050.GB31787@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 21 Nov 2006 01:23:08 -0500
+Subject: Re: bus_id collisions
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Miller <davem@davemloft.net>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20061120.221329.74747650.davem@davemloft.net>
+References: <1164081736.8207.14.camel@localhost.localdomain>
+	 <20061120.221329.74747650.davem@davemloft.net>
+Content-Type: text/plain
+Date: Tue, 21 Nov 2006 17:23:41 +1100
+Message-Id: <1164090222.5597.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2006 17:50:51 +0530
-Gautham R Shenoy <ego@in.ibm.com> wrote:
-
-> Provide notifier_call_chain with an option to call only a specified number of 
-> notifiers and also record the number of call to notifiers made.
+On Mon, 2006-11-20 at 22:13 -0800, David Miller wrote:
+> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Date: Tue, 21 Nov 2006 15:02:16 +1100
 > 
-> The need for this enhancement was identified in the post entitled 
-> "Slab - Eliminate lock_cpu_hotplug from slab" 
-> (http://lkml.org/lkml/2006/10/28/92) by Ravikiran G Thirumalai and 
-> Andrew Morton.
+> > This has caused me some trouble with of_platform devices, which are
+> > sort-of platform devices but linked to the Open Firmware device-tree, as
+> > I generate their names based on the nodes in the tree which need not be
+> > unique as long as they are unique under a given parent.
+> > 
+> > I've worked around it, but I though the comment might need to be
+> > clarified.
 > 
-> This patch adds two additional parameters to notifier_call_chain API namely 
->  - int nr_to_calls : Number of notifier_functions to be called. 
->  		     The don't care value is -1.
-> 
->  - unsigned int *nr_calls : Records the total number of notifier_funtions 
-> 			    called by notifier_call_chain. The don't care
-> 			    value is NULL.
-> 
-> ...
->
-> +
->  static int __kprobes notifier_call_chain(struct notifier_block **nl,
-> -		unsigned long val, void *v)
-> +					unsigned long val, void *v,
-> +					int nr_to_call,	unsigned int *nr_calls)
->  {
->  	int ret = NOTIFY_DONE;
->  	struct notifier_block *nb, *next_nb;
->  
->  	nb = rcu_dereference(*nl);
-> -	while (nb) {
-> +
-> +	while (nb && nr_to_call) {
->  		next_nb = rcu_dereference(nb->next);
->  		ret = nb->notifier_call(nb, val, v);
-> +
-> +		if (nr_calls)
-> +			*nr_calls ++;
+> BTW Ben, on sparc64 for of devices I use "%08x" and the PROM
+> node ID as the bus_id[] to deal with this.
 
-This gets
+Yes, the phandle would have been a good option... 
 
-kernel/sys.c: In function 'notifier_call_chain':
-kernel/sys.c:164: warning: value computed is not used
+Unfortunately, when we defined the simplified device-tree format for use
+by platforms without a real Open Firmware (embedded etc...), we made the
+phandle optional (the flat device-tree format that we defined doesn't
+have it, it's added as an optional property linux,phandle only when a
+node needs to be referenced by another one, like interrupt-map's
+etc...). Part of the reason there was to please embedded folks who
+scream at every single byte added anywhere :-)
 
+I suppose I can still decide that it's also mandatory for nodes that are
+to be used as of_platform_device's though... I need to discuss that with
+the embedded folks.
 
-And indeed, this code doesn't work.
+(BTW. I still need to look into back-porting some of your changes to
+that stuff and possibly having some of that code moved to a common
+location... I hope I'll have some time for that early next year).
 
-What happened?
+Ben.
+
 

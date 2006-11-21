@@ -1,57 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934321AbWKULLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWKULXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934321AbWKULLy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 06:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934349AbWKULLy
+	id S1030621AbWKULXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 06:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966964AbWKULXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 06:11:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31722 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S934321AbWKULLy (ORCPT
+	Tue, 21 Nov 2006 06:23:36 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:65485 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S966961AbWKULXf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 06:11:54 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061121100642.GA580@infradead.org> 
-References: <20061121100642.GA580@infradead.org>  <20061120142713.12685.97188.stgit@warthog.cambridge.redhat.com> <1164040326.5700.46.camel@lade.trondhjem.org> 
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] WorkStruct: Shrink work_struct by two thirds 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 21 Nov 2006 11:08:46 +0000
-Message-ID: <9685.1164107326@redhat.com>
+	Tue, 21 Nov 2006 06:23:35 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: nigelc@bur.st
+Subject: Re: [PATCH -mm 0/2] Use freezeable workqueues to avoid suspend-related XFS corruptions
+Date: Tue, 21 Nov 2006 12:19:52 +0100
+User-Agent: KMail/1.9.1
+Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200611160912.51226.rjw@sisk.pl> <200611202355.50487.rjw@sisk.pl> <1164070310.15714.15.camel@nigel.suspend2.net>
+In-Reply-To: <1164070310.15714.15.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ZDuYFrZDuEdhvdQ"
+Message-Id: <200611211219.53086.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+--Boundary-00=_ZDuYFrZDuEdhvdQ
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> > Why not simply add a timer argument to 'queue_delayed_work()' and
-> > 'cancel_delayed_work()'? That may allow you to reuse an existing timer
-> > struct if you already have it embedded somewhere else.
->
-> I doubt we can really reuse an existing timer,
+Hi,
 
-I have to agree with Christoph on that.  I don't think reusing an existing
-timer is going to work in most of the cases - in many cases there isn't an
-existing timer to reuse, and even if there is, it's usually there for some
-other purpose.
+On Tuesday, 21 November 2006 01:51, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Mon, 2006-11-20 at 23:55 +0100, Rafael J. Wysocki wrote:
+> > On Monday, 20 November 2006 23:39, Nigel Cunningham wrote:
+> > > (Sorry to reply again)
+> > 
+> > (No big deal)
+> > 
+> > > On Tue, 2006-11-21 at 09:26 +1100, Nigel Cunningham wrote:
+> > > > Hi.
+> > > > 
+> > > > On Mon, 2006-11-20 at 23:18 +0100, Rafael J. Wysocki wrote:
+> > > > > I think I/O can only be submitted from the process context.  Thus if we freeze
+> > > > > all (and I mean _all_) threads that are used by filesystems, including worker
+> > > > > threads, we should effectively prevent fs-related I/O from being submitted
+> > > > > after tasks have been frozen.
+> > > > 
+> > > > I know that will work. It's what I used to do before the switch to bdev
+> > > > freezing. I guess I need to look again at why I made the switch. Perhaps
+> > > > it was just because you guys gave freezing kthreads a bad wrap as too
+> > > > invasive or something. Bdev freezing is certainly fewer lines of code.
+> > > 
+> > > No, it looks like I wrongly believed that XFS was submitting I/O off a
+> > > timer, so that freezing kthreads wasn't enough. In that case, it looks
+> > > like freezing kthreads should be a good solution.
+> > 
+> > Okay, so let's implement it. :-)
+> 
+> Agreed. I'm a bit confused now about what the latest version of your
+> patches is, but I'll be happy to switch back to kthread freezing in the
+> next Suspend2 release if it will help with getting them wider testing.
 
-> but this seems to be the cleanest way despite that.  Let's follow the
-> philosophy of builing from small building blocks for our kernel APIs aswell.
+The latest are:
 
-I'm not so sure of that.  Currently the rest of the kernel is unaware there's a
-timer there and doesn't have to do anything about it directly.
+support-for-freezeable-workqueues.patch
+use-freezeable-workqueues-in-xfs.patch
 
-> As a second benefit it also makes handling the case of having both delayed
-> and immediate items on a single workqueue trivial.
+(both attached for convenience) and the freezing of bdevs patch has been
+dropped.
 
-It's pretty straightforward as it is now.  The worst bit is that we have to
-have several functions that do the same or a similar thing but with different
-names because they take different arguments.
+Greetings,
+Rafael
 
-The benefit of what we have at the moment is that there is only one timer
-callback routine required and everything uses that - not that we can't just
-export that, but it's cleaner to set things up since the rest of the kernel
-doesn't know there's a timer involved.
 
-David
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller
+
+--Boundary-00=_ZDuYFrZDuEdhvdQ
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="support-for-freezeable-workqueues.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="support-for-freezeable-workqueues.patch"
+
+ include/linux/workqueue.h |    8 +++++---
+ kernel/workqueue.c        |   20 ++++++++++++++------
+ 2 files changed, 19 insertions(+), 9 deletions(-)
+
+Index: linux-2.6.19-rc5-mm2/include/linux/workqueue.h
+===================================================================
+--- linux-2.6.19-rc5-mm2.orig/include/linux/workqueue.h
++++ linux-2.6.19-rc5-mm2/include/linux/workqueue.h
+@@ -55,9 +55,11 @@ struct execute_work {
+ 	} while (0)
+ 
+ extern struct workqueue_struct *__create_workqueue(const char *name,
+-						    int singlethread);
+-#define create_workqueue(name) __create_workqueue((name), 0)
+-#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
++						    int singlethread,
++						    int freezeable);
++#define create_workqueue(name) __create_workqueue((name), 0, 0)
++#define create_freezeable_workqueue(name) __create_workqueue((name), 0, 1)
++#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
+ 
+ extern void destroy_workqueue(struct workqueue_struct *wq);
+ 
+Index: linux-2.6.19-rc5-mm2/kernel/workqueue.c
+===================================================================
+--- linux-2.6.19-rc5-mm2.orig/kernel/workqueue.c
++++ linux-2.6.19-rc5-mm2/kernel/workqueue.c
+@@ -31,6 +31,7 @@
+ #include <linux/mempolicy.h>
+ #include <linux/kallsyms.h>
+ #include <linux/debug_locks.h>
++#include <linux/freezer.h>
+ 
+ /*
+  * The per-CPU workqueue (if single thread, we always use the first
+@@ -57,6 +58,8 @@ struct cpu_workqueue_struct {
+ 	struct task_struct *thread;
+ 
+ 	int run_depth;		/* Detect run_workqueue() recursion depth */
++
++	int freezeable;		/* Freeze the thread during suspend */
+ } ____cacheline_aligned;
+ 
+ /*
+@@ -251,7 +254,8 @@ static int worker_thread(void *__cwq)
+ 	struct k_sigaction sa;
+ 	sigset_t blocked;
+ 
+-	current->flags |= PF_NOFREEZE;
++	if (!cwq->freezeable)
++		current->flags |= PF_NOFREEZE;
+ 
+ 	set_user_nice(current, -5);
+ 
+@@ -274,6 +278,9 @@ static int worker_thread(void *__cwq)
+ 
+ 	set_current_state(TASK_INTERRUPTIBLE);
+ 	while (!kthread_should_stop()) {
++		if (cwq->freezeable)
++			try_to_freeze();
++
+ 		add_wait_queue(&cwq->more_work, &wait);
+ 		if (list_empty(&cwq->worklist))
+ 			schedule();
+@@ -350,7 +357,7 @@ void fastcall flush_workqueue(struct wor
+ EXPORT_SYMBOL_GPL(flush_workqueue);
+ 
+ static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
+-						   int cpu)
++						   int cpu, int freezeable)
+ {
+ 	struct cpu_workqueue_struct *cwq = per_cpu_ptr(wq->cpu_wq, cpu);
+ 	struct task_struct *p;
+@@ -360,6 +367,7 @@ static struct task_struct *create_workqu
+ 	cwq->thread = NULL;
+ 	cwq->insert_sequence = 0;
+ 	cwq->remove_sequence = 0;
++	cwq->freezeable = freezeable;
+ 	INIT_LIST_HEAD(&cwq->worklist);
+ 	init_waitqueue_head(&cwq->more_work);
+ 	init_waitqueue_head(&cwq->work_done);
+@@ -375,7 +383,7 @@ static struct task_struct *create_workqu
+ }
+ 
+ struct workqueue_struct *__create_workqueue(const char *name,
+-					    int singlethread)
++					    int singlethread, int freezeable)
+ {
+ 	int cpu, destroy = 0;
+ 	struct workqueue_struct *wq;
+@@ -395,7 +403,7 @@ struct workqueue_struct *__create_workqu
+ 	mutex_lock(&workqueue_mutex);
+ 	if (singlethread) {
+ 		INIT_LIST_HEAD(&wq->list);
+-		p = create_workqueue_thread(wq, singlethread_cpu);
++		p = create_workqueue_thread(wq, singlethread_cpu, freezeable);
+ 		if (!p)
+ 			destroy = 1;
+ 		else
+@@ -403,7 +411,7 @@ struct workqueue_struct *__create_workqu
+ 	} else {
+ 		list_add(&wq->list, &workqueues);
+ 		for_each_online_cpu(cpu) {
+-			p = create_workqueue_thread(wq, cpu);
++			p = create_workqueue_thread(wq, cpu, freezeable);
+ 			if (p) {
+ 				kthread_bind(p, cpu);
+ 				wake_up_process(p);
+@@ -657,7 +665,7 @@ static int __devinit workqueue_cpu_callb
+ 		mutex_lock(&workqueue_mutex);
+ 		/* Create a new workqueue thread for it. */
+ 		list_for_each_entry(wq, &workqueues, list) {
+-			if (!create_workqueue_thread(wq, hotcpu)) {
++			if (!create_workqueue_thread(wq, hotcpu, 0)) {
+ 				printk("workqueue for %i failed\n", hotcpu);
+ 				return NOTIFY_BAD;
+ 			}
+
+--Boundary-00=_ZDuYFrZDuEdhvdQ
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="use-freezeable-workqueues-in-xfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="use-freezeable-workqueues-in-xfs.patch"
+
+---
+ fs/xfs/linux-2.6/xfs_buf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.19-rc5-mm2/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.19-rc5-mm2.orig/fs/xfs/linux-2.6/xfs_buf.c
++++ linux-2.6.19-rc5-mm2/fs/xfs/linux-2.6/xfs_buf.c
+@@ -1826,11 +1826,11 @@ xfs_buf_init(void)
+ 	if (!xfs_buf_zone)
+ 		goto out_free_trace_buf;
+ 
+-	xfslogd_workqueue = create_workqueue("xfslogd");
++	xfslogd_workqueue = create_freezeable_workqueue("xfslogd");
+ 	if (!xfslogd_workqueue)
+ 		goto out_free_buf_zone;
+ 
+-	xfsdatad_workqueue = create_workqueue("xfsdatad");
++	xfsdatad_workqueue = create_freezeable_workqueue("xfsdatad");
+ 	if (!xfsdatad_workqueue)
+ 		goto out_destroy_xfslogd_workqueue;
+ 
+
+--Boundary-00=_ZDuYFrZDuEdhvdQ--

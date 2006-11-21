@@ -1,99 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756462AbWKUWVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756767AbWKUWXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756462AbWKUWVe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 17:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756706AbWKUWVe
+	id S1756767AbWKUWXA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 17:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756774AbWKUWXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 17:21:34 -0500
-Received: from nz-out-0102.google.com ([64.233.162.195]:48321 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1756462AbWKUWVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 17:21:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bmK0fEwmcUF4f8iKZBSFOj0IMtnlwdCO52ZLb8Zlo+ZccT1XvfHJzocM57m1b/jmEFVIOzvRY0VnX099uUcFwNMQdrsBfv9vzQQdvaDKmAPPWigs7QaozFMAaFM6g/tNo8wG2LQf+nr/oSdXodYsWnom6eQBFkw1t9IOr5jpMiI=
-Message-ID: <9a8748490611211421p696eb081j5691030f86f6bffe@mail.gmail.com>
-Date: Tue, 21 Nov 2006 23:21:32 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Rientjes" <rientjes@cs.washington.edu>
-Subject: Re: [PATCH] ISDN: Avoid a potential NULL ptr deref in ippp
-Cc: linux-kernel@vger.kernel.org,
-       "Michael Hipp" <Michael.Hipp@student.uni-tuebingen.de>,
-       "Karsten Keil" <kkeil@suse.de>,
-       "Kai Germaschewski" <kai.germaschewski@gmx.de>,
-       isdn4linux@listserv.isdn4linux.de, starvik@axis.com, dev-etrax@axis.com
-In-Reply-To: <Pine.LNX.4.64N.0611211211280.25455@attu4.cs.washington.edu>
+	Tue, 21 Nov 2006 17:23:00 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:36062 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1756767AbWKUWW7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 17:22:59 -0500
+Date: Tue, 21 Nov 2006 14:18:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+cc: Adrian Bunk <bunk@stusta.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       Pavel Emelianov <xemul@openvz.org>, mingo@redhat.com, dev@sw.ru
+Subject: Re: 2.6.19-rc6: known regressions (v4)
+In-Reply-To: <20061121213335.GB30010@in.ibm.com>
+Message-ID: <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+ <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610302117.24760.jesper.juhl@gmail.com>
-	 <9a8748490611210537q1f493d11w700099da3243ef39@mail.gmail.com>
-	 <Pine.LNX.4.64N.0611211211280.25455@attu4.cs.washington.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/11/06, David Rientjes <rientjes@cs.washington.edu> wrote:
-> On Tue, 21 Nov 2006, Jesper Juhl wrote:
->
-> > Any reason why we can't apply the patch below?
-> >
-> > On 30/10/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > >
-> > > There's a potential problem in isdn_ppp.c::isdn_ppp_decompress().
-> > > dev_alloc_skb() may fail and return NULL. If it does we will be passing a
-> > > NULL skb_out to ipc->decompress() and may also end up
-> > > dereferencing a NULL pointer at
-> > >     *proto = isdn_ppp_strip_proto(skb_out);
-> > > Correct this by testing 'skb_out' against NULL early and bail out.
-> > >
-> > >
-> > > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> > > ---
-> > >
-> > >  drivers/isdn/i4l/isdn_ppp.c |    5 +++++
-> > >  1 files changed, 5 insertions(+), 0 deletions(-)
-> > >
-> > > diff --git a/drivers/isdn/i4l/isdn_ppp.c b/drivers/isdn/i4l/isdn_ppp.c
-> > > index 119412d..5a97ce6 100644
-> > > --- a/drivers/isdn/i4l/isdn_ppp.c
-> > > +++ b/drivers/isdn/i4l/isdn_ppp.c
-> > > @@ -2536,6 +2536,11 @@ static struct sk_buff *isdn_ppp_decompre
-> > >                 rsparm.maxdlen = IPPP_RESET_MAXDATABYTES;
-> > >
-> > >                 skb_out = dev_alloc_skb(is->mru + PPP_HDRLEN);
-> > > +               if (!skb_out) {
-> > > +                       kfree_skb(skb);
-> > > +                       printk(KERN_ERR "ippp: decomp memory allocation
-> > > failure\n");
-> > > +                       return NULL;
-> > > +               }
-> > >                 len = ipc->decompress(stat, skb, skb_out, &rsparm);
-> > >                 kfree_skb(skb);
-> > >                 if (len <= 0) {
-> > >
-> >
->
-> I'm not sure that there's a problem with the original code.  If skb_out
-> cannot be allocated, the ipc->decompress function should return NULL
-> because struct ippp_struct *master would have been passed as NULL.  So len
-> would be 0 upon return, skb would be freed, and the following switch
-> statement would catch the error.  Notice it's not a bug to pass NULL to
-> kfree_skb() later.
->
-Ok, I see your point. There may not be an actual bug here, but
-couldn't it still be considered an improvement, given that with my
-patch we'll  a) print a warning that we ran into a memory shortage
-problem, and  b) we save a call to ipc->decompress() and some switch
-logic in the failing case.   ???
 
-I still think the patch makes sense. Perhaps not for the reasons
-initially stated, but it adds an error message for a condition that
-people may want to see and it errors out a bit earlier in the error
-case.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+On Tue, 21 Nov 2006, Vivek Goyal wrote:
+
+> On Tue, Nov 21, 2006 at 10:24:24PM +0100, Adrian Bunk wrote:
+> > This email lists some known regressions in 2.6.19-rc6 compared to 2.6.18
+> > that are not yet fixed in Linus' tree.
+> > 
+> > If you find your name in the Cc header, you are either submitter of one
+> > of the bugs, maintainer of an affectected subsystem or driver, a patch
+> > of you caused a breakage or I'm considering you in any other way possibly
+> > involved with one or more of these issues.
+> > 
+> > Due to the huge amount of recipients, please trim the Cc when answering.
+> > 
+> > 
+> > Subject    : kernel hangs when booting with irqpoll
+> > References : http://lkml.org/lkml/2006/11/20/233
+> > Submitter  : Vivek Goyal <vgoyal@in.ibm.com>
+> > Caused-By  : Pavel Emelianov <xemul@openvz.org>
+> >              commit f72fa707604c015a6625e80f269506032d5430dc
+> > Handled-By : Vivek Goyal <vgoyal@in.ibm.com>
+> > Status     : problem is being debugged
+> > 
+> 
+> Adrian,
+> 
+> Pavel already provided a fix for this issue.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=116409933100117&w=2
+
+I really think this is wrong.
+
+The original patch was wrong, and the _real_ problem is in __do_IRQ() that 
+got the desc->lock too early.
+
+I _think_ the correct fix is to simply revert the broken commit, and fix 
+the _one_ place that called "misnote_interrupt()" with the lock held.
+
+Something like this..
+
+I also think that the real fix will be to move the whole
+
+	if (!noirqdebug)
+		note_interrupt(irq, desc, action_ret);
+
+
+into handle_IRQ_event itself, since every caller (except for 
+"misrouted_irq()" itself, and that should probably be done separately) 
+should always do it. Right now we have a lot of people that just do
+
+	action_ret = handle_IRQ_event(irq, action);
+	if (!noirqdebug)
+		note_interrupt(irq, desc, action_ret);
+
+explicitly.
+
+The only thing that keeps us from doing that is that we don't pass in 
+"desc", but we should just do that.
+
+But in the meantime, this appears to be the minimal fix. Can people please 
+test and verify?
+
+		Linus
+
+---
+diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
+index 42aa6f1..a681912 100644
+--- a/kernel/irq/handle.c
++++ b/kernel/irq/handle.c
+@@ -231,10 +231,10 @@ fastcall unsigned int __do_IRQ(unsigned
+ 		spin_unlock(&desc->lock);
+ 
+ 		action_ret = handle_IRQ_event(irq, action);
+-
+-		spin_lock(&desc->lock);
+ 		if (!noirqdebug)
+ 			note_interrupt(irq, desc, action_ret);
++
++		spin_lock(&desc->lock);
+ 		if (likely(!(desc->status & IRQ_PENDING)))
+ 			break;
+ 		desc->status &= ~IRQ_PENDING;
+diff --git a/kernel/irq/spurious.c b/kernel/irq/spurious.c
+index 9c7e2e4..543ea2e 100644
+--- a/kernel/irq/spurious.c
++++ b/kernel/irq/spurious.c
+@@ -147,11 +147,7 @@ void note_interrupt(unsigned int irq, st
+ 	if (unlikely(irqfixup)) {
+ 		/* Don't punish working computers */
+ 		if ((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE) {
+-			int ok;
+-
+-			spin_unlock(&desc->lock);
+-			ok = misrouted_irq(irq);
+-			spin_lock(&desc->lock);
++			int ok = misrouted_irq(irq);
+ 			if (action_ret == IRQ_NONE)
+ 				desc->irqs_unhandled -= ok;
+ 		}

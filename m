@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031076AbWKURAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031010AbWKUQ70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031076AbWKURAS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 12:00:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031200AbWKURAR
+	id S1031010AbWKUQ70 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031055AbWKUQ70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 12:00:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61888 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1031076AbWKURAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 12:00:15 -0500
-Subject: Re: Bug: Pentium M not always detected by CPUFREQ
-From: Arjan van de Ven <arjan@infradead.org>
-To: Holger Schurig <hs4233@mail.mn-solutions.de>
-Cc: linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-In-Reply-To: <200611211646.29488.hs4233@mail.mn-solutions.de>
-References: <200611211646.29488.hs4233@mail.mn-solutions.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 21 Nov 2006 18:00:12 +0100
-Message-Id: <1164128412.31358.680.camel@laptopd505.fenrus.org>
+	Tue, 21 Nov 2006 11:59:26 -0500
+Received: from lixom.net ([66.141.50.11]:38575 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1031010AbWKUQ7Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:59:25 -0500
+Date: Tue, 21 Nov 2006 10:58:43 -0600
+From: Olof Johansson <olof@lixom.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/22] powerpc: convert idle_loop to use
+ hard_irq_disable()
+Message-ID: <20061121105843.6b270283@pb15>
+In-Reply-To: <200611211114.46305.arnd@arndb.de>
+References: <20061120174454.067872000@arndb.de>
+	<20061120180520.418063000@arndb.de>
+	<1164070425.8073.40.camel@localhost.localdomain>
+	<200611211114.46305.arnd@arndb.de>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-21 at 16:46 +0100, Holger Schurig wrote:
-> Hi !
-> 
-> One module thinks that I have a Pentium M, the other doesn't. 
-> Which module is right?
+On Tue, 21 Nov 2006 11:14:45 +0100 Arnd Bergmann <arnd@arndb.de> wrote:
 
-> model name      : Intel(R) Celeron(R) processor            600MHz
-> stepping        : 5
-> cpu MHz         : 598.093
-> cache size      : 64 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 2
-> wp              : yes
-> flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr 
-> pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 tm pbe
-> bogomips        : 1196.88
-> 
-> 
-> So far I can only say that speedstep-centrino doesn't have an 
-> entry for a CPU with a mere 600 MHz. May this be the problem?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> IIRC, all new CPUs are supposed to use the same mechanism based on the
+> 0x100 vector.
 
+It's only really affecting platforms without hypervisors though, which
+aren't all that many (yet).
+
+I don't have a problem dealing with it locally in my platform.
+
+
+-Olof

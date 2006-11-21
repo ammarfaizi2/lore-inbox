@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031378AbWKUUFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966428AbWKUUIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031378AbWKUUFa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031380AbWKUUFa
+	id S966428AbWKUUIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934195AbWKUUIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:05:30 -0500
-Received: from bay0-omc1-s16.bay0.hotmail.com ([65.54.246.88]:33443 "EHLO
-	bay0-omc1-s16.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1031378AbWKUUF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:05:29 -0500
-Message-ID: <BAY107-F1209C38A8D8079599E1ECF9CEC0@phx.gbl>
-X-Originating-IP: [87.81.120.187]
-X-Originating-Email: [dcb314@hotmail.com]
-From: "d binderman" <dcb314@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: arch/x86_64/kernel/smpboot.c(273): remark #593: variable "bound" was set but nev
-Date: Tue, 21 Nov 2006 20:05:25 +0000
+	Tue, 21 Nov 2006 15:08:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:54700 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S934171AbWKUUIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:08:06 -0500
+Date: Tue, 21 Nov 2006 12:07:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [RFC 1/7] Remove declaration of sighand_cachep from slab.h
+Message-Id: <20061121120723.5b880f72.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611211151300.30359@schroedinger.engr.sgi.com>
+References: <20061118054342.8884.12804.sendpatchset@schroedinger.engr.sgi.com>
+	<20061118054347.8884.36259.sendpatchset@schroedinger.engr.sgi.com>
+	<20061118172739.30538d16.sfr@canb.auug.org.au>
+	<Pine.LNX.4.64.0611200817020.16173@schroedinger.engr.sgi.com>
+	<20061121000743.bb9ea2d0.akpm@osdl.org>
+	<Pine.LNX.4.64.0611211133300.30133@schroedinger.engr.sgi.com>
+	<20061121114901.54a36e4b.akpm@osdl.org>
+	<Pine.LNX.4.64.0611211151300.30359@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 21 Nov 2006 20:05:28.0530 (UTC) FILETIME=[63EA1320:01C70DA8]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Nov 2006 11:56:33 -0800 (PST)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-Hello there,
+> On Tue, 21 Nov 2006, Andrew Morton wrote:
+> 
+> > spose so, although I wouldn't bother about the typedef->#define change.  
+> > We just keep on plugging away at it until one day we can just remove the typedef.
+> 
+> You do have script that can replace a string throughout the kernel 
+> right?
 
-I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-C compiler.
+Nope.
 
-The compiler said
+> 
+> A patch is following that does the core things in mm and 
+> include/linux/slab.h. Would you accept that patch and then do
+> 
+> s/kmem_cache_t/struct kmem_cache/g
+> 
+> over all the kernel sources?
 
-arch/x86_64/kernel/smpboot.c(273): remark #593: variable "bound" was set but 
-never used
+This is one of those low-priority background activities.  Not worth
+a lot of fuss.
 
-The source code is
+I'd suggest that you proceeed with the original cleanups you were
+proposing, except use `struct kmem_cache' in header files rather than
+kmem_cache_t in .c files.
 
-    unsigned long flags, rt, master_time_stamp, bound;
-
-I have checked the source code and I agree with the compiler.
-Suggest delete local variable.
-
-Regards
-
-David Binderman
-
-_________________________________________________________________
-Download the new Windows Live Toolbar, including Desktop search! 
-http://toolbar.live.com/?mkt=en-gb
-
+Then, as a separate and later exercise someone (maybe you) can raise
+patches to do the kmem_cache_t->kmem_cache conversion.  They should go
+through maintainers hence they should be appropriately split and they will
+take months to all get to mainline.  Once this is all completed we can remove the
+typedef.

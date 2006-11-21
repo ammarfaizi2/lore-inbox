@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030722AbWKUGsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966521AbWKUHIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030722AbWKUGsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 01:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030681AbWKUGsp
+	id S966521AbWKUHIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 02:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934223AbWKUHIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 01:48:45 -0500
-Received: from gate.crashing.org ([63.228.1.57]:31390 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1030723AbWKUGso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 01:48:44 -0500
-Subject: Re: bus_id collisions
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061121064122.GA10510@kroah.com>
-References: <1164081736.8207.14.camel@localhost.localdomain>
-	 <20061121064122.GA10510@kroah.com>
-Content-Type: text/plain
-Date: Tue, 21 Nov 2006 17:49:20 +1100
-Message-Id: <1164091760.5597.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 21 Nov 2006 02:08:46 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:61334 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S934195AbWKUHIq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 02:08:46 -0500
+Message-ID: <4562A605.8020606@drzeus.cx>
+Date: Tue, 21 Nov 2006 08:08:53 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Anyone using MMC multi-slot?
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everyone,
 
-> Oh, that's a very annoying bus id, but I guess it's legal.
-> 
-> I'll poke around and see if I can make it bigger.  You don't want it
-> bigger for static 'struct device' types, right?
+I've been trying to come up with ways to clean up the MMC layer a bit,
+and one idea I had was to remove the support for the bus topology. Both
+SD and MMC4 have deprecated this design, so I'm suspecting it's not
+something that is very popular.
 
-Don't bother too much if it's complicated. I'm trying other options as
-well, like possibly using the Open Firmware "phandle" (sort of object
-ID) which is only 32 bits, provided I can get the embedded folks to
-agree to have one at all...
+So my question to you is, have you seen any hardware that uses the bus
+feature of MMC and do you know if anyone runs Linux on it?
 
-Cheers,
-Ben.
+Rgds
+-- 
+     -- Pierre Ossman
 
-
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

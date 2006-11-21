@@ -1,96 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030636AbWKUBfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030618AbWKUBgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030636AbWKUBfK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 20:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWKUBfK
+	id S1030618AbWKUBgL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 20:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030633AbWKUBgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 20:35:10 -0500
-Received: from smtp1.netcabo.pt ([212.113.174.28]:19630 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1030636AbWKUBfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 20:35:08 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AgAAAJLmYUVThFhodGdsb2JhbACBRosEAQ
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.129.61):SA:0(-1.4/5.0):. Processed in 1.989239 secs Process 9417)
-Subject: Re: 2.6.19-rc6-rt5
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061120220230.GA30835@elte.hu>
-References: <20061120220230.GA30835@elte.hu>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-hoYxsxJPpMHVQMk/i/Vx"
-Date: Tue, 21 Nov 2006 01:35:01 +0000
-Message-Id: <1164072901.3589.5.camel@monteirov>
+	Mon, 20 Nov 2006 20:36:10 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:58271 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030618AbWKUBgI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 20:36:08 -0500
+Subject: Re: Boot failure with ext2 and initrds
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0611202031370.5912@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	 <20061114184919.GA16020@skynet.ie>
+	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
+	 <20061114113120.d4c22b02.akpm@osdl.org>
+	 <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
+	 <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com>
+	 <20061115232228.afaf42f2.akpm@osdl.org>
+	 <1163666960.4310.40.camel@localhost.localdomain>
+	 <20061116011351.1401a00f.akpm@osdl.org>
+	 <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+	 <20061116132724.1882b122.akpm@osdl.org>
+	 <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0611202031370.5912@blonde.wat.veritas.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Mon, 20 Nov 2006 17:36:01 -0800
+Message-Id: <1164072961.20900.22.camel@dyn9047017103.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-X-OriginalArrivalTime: 21 Nov 2006 01:35:07.0036 (UTC) FILETIME=[4668D5C0:01C70D0D]
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-11-20 at 20:54 +0000, Hugh Dickins wrote:
+> Not found anything relevant, but I keep noticing these lines
+> in ext2_try_to_allocate_with_rsv(), ext3 and ext4 similar:
+> 
+> 		} else if (grp_goal > 0 &&
+> 				(my_rsv->rsv_end - grp_goal + 1) < *count)
+> 			try_to_extend_reservation(my_rsv, sb,
+> 					*count-my_rsv->rsv_end + grp_goal - 1);
+> 
+> They're wrong, a no-op in most groups, aren't they?  rsv_end is an
+> absolute block number, whereas grp_goal is group-relative, so the
+> calculation ought to bring in group_first_block?  Or I'm confused.
+> 
 
---=-hoYxsxJPpMHVQMk/i/Vx
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, 2006-11-20 at 23:02 +0100, Ingo Molnar wrote:
->  - vsyscall & tracing fixes: 'notsc' should not be required on the YUM
->    rpms anymore.=20
-
-Well I still need it else no boot.
-
-Sorry for insist, but so difficult after build kernel, copy kernel-devel
-too, into yum directory ?
-
-Thanks,
---=20
-S=E9rgio M.B.
-
---=-hoYxsxJPpMHVQMk/i/Vx
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjExMjEwMTM0NTdaMCMGCSqGSIb3DQEJBDEWBBQFZ4HXP1pJhaxIxJZR9bVl
-Fv7h6DANBgkqhkiG9w0BAQEFAASCAQCCO6qC1J2DFuIM6Wb1L0l2GWjYfjIf6nunopNsFYltr1LR
-1M/KKSt++bE0BRwEDjvvc2ZbPoJVjtSEj7jV+qba+PnSnILw1YZ/6UH0FkpTk6nWQupNcyakc7G2
-RO04HR8k/gs7R1+TdyJQ0LTiC4MYeTErXKDFx8F4bEFSorKkOUmfjHQqMpDdlsU3VJA5qUza2zHK
-0sa9WI5QpAjf18+8/hU5Bd1NObaByfLI+ClL4OwStqfXaXQuEgJUdxPiQQiscYmdSjFNUCVNA0gH
-oJYWMMV9in9It77ZhZ0ko81Jd7ViRkew6el8IBEkDmBSYwR1lyqTyZ5r/Q7bm/BQeRhJAAAAAAAA
+You are right, thanks. Here are two patches, to fix this bug in ext3/4
+and ext2 correspondingly.
 
 
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
 
---=-hoYxsxJPpMHVQMk/i/Vx--
+---
+
+ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |   12 ++++++++----
+ linux-2.6.19-rc5-cmm/fs/ext4/balloc.c |   12 ++++++++----
+ 2 files changed, 16 insertions(+), 8 deletions(-)
+
+diff -puN fs/ext3/balloc.c~ext34_extend_reservation_window_fix fs/ext3/balloc.c
+--- linux-2.6.19-rc5/fs/ext3/balloc.c~ext34_extend_reservation_window_fix	2006-11-20 15:58:11.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-20 15:58:11.000000000 -0800
+@@ -1307,10 +1307,14 @@ ext3_try_to_allocate_with_rsv(struct sup
+ 			if (!goal_in_my_reservation(&my_rsv->rsv_window,
+ 							grp_goal, group, sb))
+ 				grp_goal = -1;
+-		} else if (grp_goal > 0 &&
+-			  (my_rsv->rsv_end-grp_goal+1) < *count)
+-			try_to_extend_reservation(my_rsv, sb,
+-					*count-my_rsv->rsv_end + grp_goal - 1);
++		} else if (grp_goal > 0) {
++			int curr = my_rsv->rsv_end -
++					(grp_goal + group_first_block) + 1;
++
++			if (curr < *count)
++				try_to_extend_reservation(my_rsv, sb,
++							*count - curr);
++			}
+ 
+ 		if ((my_rsv->rsv_start > group_last_block) ||
+ 				(my_rsv->rsv_end < group_first_block)) {
+diff -puN fs/ext4/balloc.c~ext34_extend_reservation_window_fix fs/ext4/balloc.c
+--- linux-2.6.19-rc5/fs/ext4/balloc.c~ext34_extend_reservation_window_fix	2006-11-20 15:58:11.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext4/balloc.c	2006-11-20 15:58:11.000000000 -0800
+@@ -1324,10 +1324,14 @@ ext4_try_to_allocate_with_rsv(struct sup
+ 			if (!goal_in_my_reservation(&my_rsv->rsv_window,
+ 							grp_goal, group, sb))
+ 				grp_goal = -1;
+-		} else if (grp_goal > 0 &&
+-			  (my_rsv->rsv_end-grp_goal+1) < *count)
+-			try_to_extend_reservation(my_rsv, sb,
+-					*count-my_rsv->rsv_end + grp_goal - 1);
++		} else if (grp_goal > 0) {
++			int curr = my_rsv->rsv_end -
++					(grp_goal + group_first_block) + 1;
++
++			if (curr < *count)
++				try_to_extend_reservation(my_rsv, sb,
++							*count - curr);
++			}
+ 
+ 		if ((my_rsv->rsv_start > group_last_block) ||
+ 				(my_rsv->rsv_end < group_first_block)) {
+
+
+Sync up ext2 with ext3/4 for the extend reservation window bug.
+
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
+
+
+
+---
+
+ linux-2.6.19-rc5-cmm/fs/ext2/balloc.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff -puN fs/ext2/balloc.c~ext2_reservation_extend_window_fix fs/ext2/balloc.c
+--- linux-2.6.19-rc5/fs/ext2/balloc.c~ext2_reservation_extend_window_fix	2006-11-20 16:05:36.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext2/balloc.c	2006-11-20 16:05:36.000000000 -0800
+@@ -1091,10 +1091,14 @@ ext2_try_to_allocate_with_rsv(struct sup
+ 			if (!goal_in_my_reservation(&my_rsv->rsv_window,
+ 							grp_goal, group, sb))
+ 				grp_goal = -1;
+-		} else if (grp_goal > 0 &&
+-				(my_rsv->rsv_end - grp_goal + 1) < *count)
+-			try_to_extend_reservation(my_rsv, sb,
+-					*count-my_rsv->rsv_end + grp_goal - 1);
++		} else if (grp_goal > 0) {
++			int curr = my_rsv->rsv_end -
++					(grp_goal + group_first_block) + 1;
++
++			if (curr < *count)
++				try_to_extend_reservation(my_rsv, sb,
++							*count - curr);
++			}
+ 
+ 		if ((my_rsv->rsv_start >=
+ 			group_first_block + EXT2_BLOCKS_PER_GROUP(sb))
+
+_
+
+

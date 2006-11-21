@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031412AbWKUUhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031418AbWKUUkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031412AbWKUUhf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 15:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031411AbWKUUhf
+	id S1031418AbWKUUkg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 15:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031419AbWKUUkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 15:37:35 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42761 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031412AbWKUUhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 15:37:35 -0500
-Date: Tue, 21 Nov 2006 21:37:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Matthew Wilcox <willy@parisc-linux.org>,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       linux-kernel@vger.kernel.org, Kyle McMartin <kyle@mcmartin.ca>
-Subject: [2.6 patch] arch/parisc/Makefile: remove GCC_VERSION
-Message-ID: <20061121203734.GN5200@stusta.de>
+	Tue, 21 Nov 2006 15:40:36 -0500
+Received: from [87.69.65.201] ([87.69.65.201]:18906 "EHLO psybear.com")
+	by vger.kernel.org with ESMTP id S1031418AbWKUUkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 15:40:35 -0500
+From: Dror Levin <spatz@psybear.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: boot from efi on x86_64
+Date: Tue, 21 Nov 2006 22:40:00 +0200
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200611182107.03667.spatz@psybear.com> <p73zmanc1iz.fsf@bingen.suse.de>
+In-Reply-To: <p73zmanc1iz.fsf@bingen.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611212240.00820.spatz@psybear.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the usage of GCC_VERSION from arch/parisc/Makefile.
+On Sunday 19 November 2006 09:56, Andi Kleen wrote:
+> x86-64 UEFI support is still being worked on.
+> Anyways, you should be able to boot Linux in the mean time using "boot
+> camp"
 
-There are no functional changes, it simply makes it a bit shorter (and 
-removes the last instance of GCC_VERSION in the kernel).
+I would rather not install "boot camp" since I have already installed Linux 
+and removed MacOS.
+Are there any patches I can experiment with in the mean time? I would be happy 
+to test anything you throw at me if it can help.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Kyle McMartin <kyle@mcmartin.ca>
-
----
-
-This patch was already sent on:
-- 19 Aug 2006
-- 12 Jan 2006
-
---- linux-2.6.15-mm3-hppa/arch/parisc/Makefile.old	2006-01-12 03:11:45.000000000 +0100
-+++ linux-2.6.15-mm3-hppa/arch/parisc/Makefile	2006-01-12 03:12:35.000000000 +0100
-@@ -35,12 +35,8 @@
- 
- OBJCOPY_FLAGS =-O binary -R .note -R .comment -S
- 
--GCC_VERSION     := $(call cc-version)
--ifneq ($(shell if [ -z $(GCC_VERSION) ] ; then echo "bad"; fi ;),)
--$(error Sorry, couldn't find ($(cc-version)).)
--endif
--ifneq ($(shell if [ $(GCC_VERSION) -lt 0303 ] ; then echo "bad"; fi ;),)
--$(error Sorry, your compiler is too old ($(GCC_VERSION)).  GCC v3.3 or above is required.)
-+ifneq ($(shell if [ $(call cc-version) -lt 0303 ] ; then echo "bad"; fi ;),)
-+$(error Sorry, your compiler is too old.  GCC v3.3 or above is required.)
- endif
- 
- cflags-y	:= -pipe
-
+Dror

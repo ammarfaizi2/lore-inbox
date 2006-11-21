@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030727AbWKUIJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966909AbWKUIP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030727AbWKUIJX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 03:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030737AbWKUIJX
+	id S966909AbWKUIP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 03:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966920AbWKUIP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 03:09:23 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:947 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030727AbWKUIJW (ORCPT
+	Tue, 21 Nov 2006 03:15:26 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:10847 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S966909AbWKUIP0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 03:09:22 -0500
-Date: Tue, 21 Nov 2006 00:09:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [RFC 4/7] Move files_cachep to file.h
-Message-Id: <20061121000902.52849f2f.akpm@osdl.org>
-In-Reply-To: <20061118054403.8884.32124.sendpatchset@schroedinger.engr.sgi.com>
-References: <20061118054342.8884.12804.sendpatchset@schroedinger.engr.sgi.com>
-	<20061118054403.8884.32124.sendpatchset@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 03:15:26 -0500
+Message-ID: <4562B476.801@sw.ru>
+Date: Tue, 21 Nov 2006 11:10:30 +0300
+From: Pavel Emelianov <xemul@sw.ru>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: vgoyal@in.ibm.com, mingo@redhat.com
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>
+Subject: Re: [RFC] [PATCH] Fix misrouted interrupts deadlocks
+References: <455484E4.1020100@openvz.org> <20061120192335.GA11879@in.ibm.com> <20061120195652.GA6141@in.ibm.com>
+In-Reply-To: <20061120195652.GA6141@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006 21:44:03 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
+> Hi Pavel,
+> 
+> If I backout your changes, everything works fine. So it looks like that
+> the problem I am facing is because of your patch but I don't have a logical
+> explanation yet that why the problem is there. Just realasing a lock
+> which is not currently acquired should not hang the system?
 
-> Move files_cachep to file.h
-> 
-> The proper place is in file.h since its related to file I/O.
-> 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.19-rc5-mm2/include/linux/file.h
-> ===================================================================
-> --- linux-2.6.19-rc5-mm2.orig/include/linux/file.h	2006-11-15 16:48:08.583913536 -0600
-> +++ linux-2.6.19-rc5-mm2/include/linux/file.h	2006-11-17 23:03:59.254839099 -0600
-> @@ -101,4 +101,6 @@ struct files_struct *get_files_struct(st
->  void FASTCALL(put_files_struct(struct files_struct *fs));
->  void reset_files_struct(struct task_struct *, struct files_struct *);
->  
-> +extern kmem_cache_t	*files_cachep;
-> +
->  #endif /* __LINUX_FILE_H */
-> Index: linux-2.6.19-rc5-mm2/include/linux/slab.h
-> ===================================================================
-> --- linux-2.6.19-rc5-mm2.orig/include/linux/slab.h	2006-11-17 23:03:55.587532089 -0600
-> +++ linux-2.6.19-rc5-mm2/include/linux/slab.h	2006-11-17 23:03:59.268512148 -0600
-> @@ -298,7 +298,6 @@ static inline void kmem_set_shrinker(kme
->  
->  /* System wide caches */
->  extern kmem_cache_t	*names_cachep;
-> -extern kmem_cache_t	*files_cachep;
->  extern kmem_cache_t	*filp_cachep;
->  extern kmem_cache_t	*fs_cachep;
->  
 
-Please convert to `struct kmem_cache' (all patches).
+Hm... A simple grep over the code showed that note_interrupt
+is called w/o desc->lock in all places but __do_IRQ(). And this
+looks like an error at least for the following reason:
+note_interrupt() calls __report_bad_irq() and __report_bad_irq()
+does require desc->lock to be held. So I suppose that we have
+to do spin_lock(&desc->lock) before calling note_interrupt().
+I'll prepare a patch in a moment.

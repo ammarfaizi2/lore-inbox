@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031306AbWKUStz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031313AbWKUSwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031306AbWKUStz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 13:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031308AbWKUStz
+	id S1031313AbWKUSwD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 13:52:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031310AbWKUSwC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 13:49:55 -0500
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:54469 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1031306AbWKUStz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 13:49:55 -0500
-Message-ID: <45634A4A.1040909@lwfinger.net>
-Date: Tue, 21 Nov 2006 12:49:46 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Johannes Berg <johannes@sipsolutions.net>
-CC: Ray Lee <ray-lk@madrabbit.org>, Dan Williams <dcbw@redhat.com>,
-       Broadcom Linux <bcm43xx-dev@lists.berlios.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: RFC/T: Trial fix for the bcm43xx - wpa_supplicant -	NetworkManager
- deadlock
-References: <4561DBE0.2060908@lwfinger.net> <45628C05.405@madrabbit.org> <45633FF8.6010209@lwfinger.net> <1164133962.3631.14.camel@johannes.berg> <1164134201.3631.16.camel@johannes.berg>
-In-Reply-To: <1164134201.3631.16.camel@johannes.berg>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Nov 2006 13:52:02 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:20402 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030869AbWKUSwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 13:52:01 -0500
+Date: Tue, 21 Nov 2006 21:46:05 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061121184605.GA7787@2ka.mipt.ru>
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061121174334.GA25518@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 21 Nov 2006 21:46:06 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Berg wrote:
-> On Tue, 2006-11-21 at 19:32 +0100, Johannes Berg wrote:
+On Tue, Nov 21, 2006 at 08:43:34PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> > I've explained this multiple times.  The struct sigevent structure needs 
+> > to be extended to get a new part in the union.  Something like
+> > 
+> >   struct {
+> >     int kevent_fd;
+> >     void *data;
+> >   } _sigev_kevent;
+> > 
+> > Then define SIGEV_KEVENT as a value distinct from the other SIGEV_ 
+> > values.  In the code which handles setup of timers (the timer_create 
+> > syscall), recognize SIGEV_KEVENT and handle it appropriately.  I.e., 
+> > call into the code to register the event source, just like you'd do with 
+> > the current interface.  Then add the code to post an event to the event 
+> > queue where currently signals would be sent et voilà.
 > 
->> I don't think this is the right thing to do.
-> 
-> Or put differently, this won't fix the problem if that "something:
-> that's triggering the deadlock happens while you're in the locked
-> section.
+> Ok, I see.
+> It is doable and simple.
+> I will try to implement it tomorrow.
 
-I'm going to install NM on my system to see if I can trigger the problem with lockdep enabled.
+I've checked the code.
+Since it will be a union, it is impossible to use _sigev_thread and it
+becomes just SIGEV_SIGNAL case with different delivery mechanism.
+Is it what you want?
 
-Larry
+-- 
+	Evgeniy Polyakov

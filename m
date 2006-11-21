@@ -1,84 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031210AbWKUQtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031212AbWKUQtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031210AbWKUQtj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 11:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031112AbWKUQtj
+	id S1031212AbWKUQtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031201AbWKUQto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 11:49:39 -0500
-Received: from nlpi043.sbcis.sbc.com ([207.115.36.72]:53387 "EHLO
-	nlpi043.sbcis.sbc.com") by vger.kernel.org with ESMTP
-	id S1031210AbWKUQth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 11:49:37 -0500
-X-ORBL: [67.117.73.34]
-Date: Tue, 21 Nov 2006 16:47:25 +0000
-From: Tony Lindgren <tony@atomide.com>
-To: Imre Deak <imre.deak@solidboot.com>,
-       Komal Shah <komal.shah802003@gmail.com>
-Cc: James Simmons <jsimmons@infradead.org>, Vladimir <vovan888@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Siemens sx1: merge framebuffer support
-Message-ID: <20061121164723.GB8193@atomide.com>
-References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <Pine.LNX.4.64.0611211503190.32103@pentafluge.infradead.org> <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 21 Nov 2006 11:49:44 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:52392 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1031214AbWKUQtn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:49:43 -0500
+Date: Tue, 21 Nov 2006 19:44:20 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061121164420.GA199@oleg>
+References: <20061119214315.GI4427@us.ibm.com> <Pine.LNX.4.44L0.0611201212040.3224-100000@iolanthe.rowland.org> <20061120185712.GA95@oleg> <20061120203836.GH8033@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20061120203836.GH8033@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-* Komal Shah <komal.shah802003@gmail.com> [061121 15:35]:
-> On 11/21/06, James Simmons <jsimmons@infradead.org> wrote:
-> >
-> >Can you post the framebufer driver to the framebuffer list. We like to do
-> >peer review. Thank you :-)
-
-It would be nice to get the framebuffer integrated. I think it would be
-best if Imre submitted the patches as it's mostly his work.
-
-Imre, do you have time to send the patches to framebuffer list? If not,
-I can send them.
-
-> >On Tue, 21 Nov 2006, Vladimir wrote:
-> >
-> >> 2006/11/20, Tony Lindgren <tony@atomide.com>:
-> >> > * Pavel Machek <pavel@ucw.cz> [061118 18:16]:
-> >> > > From: Vladimir Ananiev <vovan888@gmail.com>
-> >> > >
-> >> > > Framebuffer support for Siemens SX1; this is second big patch. (Third
-> >> > > one will be mixer/sound support). Support is simple / pretty minimal,
-> >> > > but seems to work okay (and is somehow important for a cell phone 
-> >:-).
-> >> >
-> >> > Pushed to linux-omap. I guess you're planning to send the missing
-> >> > Kconfig + Makefile patch for this?
-> >> >
-> >> > Also, it would be better to use omap_mcbsp_xmit_word() or
-> >> > omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
-> >> > it does not do any checking that it worked. The aic23 and tsc2101
-> >> > audio in linux-omap tree in general has the same problem.
-> >> >
-> >> > Regards,
-> >> >
-> >> > Tony
-> >> >
-> >>
-> >> Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
-> >> so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
-> >> -
+On 11/20, Paul E. McKenney wrote:
+>
+> On Mon, Nov 20, 2006 at 09:57:12PM +0300, Oleg Nesterov wrote:
+> > >
+> > So, if we have global A == B == 0,
+> > 
+> > 	CPU_0		CPU_1
+> > 
+> > 	A = 1;		B = 2;
+> > 	mb();		mb();
+> > 	b = B;		a = A;
+> > 
+> > It could happen that a == b == 0, yes? Isn't this contradicts with definition
+> > of mb?
 > 
-> Again, framebuffer support patch is based on the omap framebuffer
-> driver, which is not yet submitted to upstream/fbdevel list. sx1
-> framebuffer support just fill up the hooks required by -omap fb driver
-> framework.
+> It can and does happen.  -Which- definition of mb()?  ;-)
 
-Yes, but the framebuffer code is in pretty much ready to be sent
-upstream :)
+I had a somewhat similar understanding before this discussion
 
-Regards,
+	[PATCH] Fix RCU race in access of nohz_cpu_mask
+	http://marc.theaimsgroup.com/?t=113378060600003
 
-Tony
+	Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+	http://marc.theaimsgroup.com/?t=113432312600001
+
+Could you please explain me again why that fix was correct? What we have now is:
+
+CPU_0					CPU_1
+rcu_start_batch:			stop_hz_timer:
+
+  rcp->cur++;			STORE	  nohz_cpu_mask |= cpu
+
+  smp_mb();				  mb();		// missed actually
+
+  ->cpumask = ~nohz_cpu_mask;	LOAD	  if (rcu_pending()) // reads rcp->cur
+							nohz_cpu_mask &= ~cpu
+
+So, it is possible that CPU_0 reads an empty nohz_cpu_mask and starts a grace
+period with CPU_1 included in rcp->cpumask. CPU_1 in turn reads an old value
+of rcp->cur (so rcu_pending() returns 0) and becomes CPU_IDLE.
+
+Take another patch,
+
+	Re: Oops on 2.6.18
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=116266392016286
+
+switch_uid:			__sigqueue_alloc:
+
+  STORE 'new_user' to ->user	  STORE "locked" to ->siglock
+
+  mb();				  "mb()"; // sort of, wrt loads/stores above
+
+  LOAD ->siglock		  LOAD ->siglock
+
+Agian, it is possible that switch_uid() doesn't notice that ->siglock is locked
+and frees ->user. __sigqueue_alloc() in turn reads an old (freed) value of ->user
+and does get_uid() on it.
+
+> To see how this can happen, thing of the SMP system as a message-passing
+> system, and consider the following sequence of events:
+> 
+> o	The cache line for A is initially in CPU 1's cache, and the
+> 	cache line for B is initially in CPU 0's cache (backwards of
+> 	what you would want knowing about the upcoming writes).
+> 
+> o	CPU 0 stores to A, but because A is not in cache, places it in
+> 	CPU 0's store queue.  It also puts out a request for ownership
+> 	of the cache line containing A.
+> 
+> o	CPU 1 stores to B, with the same situation as for CPU 0's store
+> 	to A.
+> 
+> o	Both CPUs execute an mb(), which ensures that any subsequent writes
+> 	follow the writes to A and B, respectively.  Since neither CPU
+> 	has yet received the other CPU's request for ownership, there is
+> 	no ordering effects on subsequent reads.
+> 
+> o	CPU 0 executes "b = B", and since B is in CPU 0's cache, it loads
+> 	the current value, which is zero.
+> 
+> o	Ditto for CPU 1 and A.
+> 
+> o	CPUs 0 and 1 now receive each other's requests for ownership, so
+> 	exchange the cache lines containing A and B.
+> 
+> o	Once CPUs 0 and 1 receive ownership of the respective cache lines,
+> 	they complete their writes to A and B (moving the values from the
+> 	store buffers to the cache lines).
+
+Paul, Alan, in case it was not clear: I am not arguing, just trying to
+understand, and I appreciate very much your time and your explanations.
+
+Oleg.
+

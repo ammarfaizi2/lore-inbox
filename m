@@ -1,121 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031212AbWKUQtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031057AbWKUQ5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031212AbWKUQtp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 11:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031201AbWKUQto
+	id S1031057AbWKUQ5I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 11:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031064AbWKUQ5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 11:49:44 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:52392 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1031214AbWKUQtn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 11:49:43 -0500
-Date: Tue, 21 Nov 2006 19:44:20 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061121164420.GA199@oleg>
-References: <20061119214315.GI4427@us.ibm.com> <Pine.LNX.4.44L0.0611201212040.3224-100000@iolanthe.rowland.org> <20061120185712.GA95@oleg> <20061120203836.GH8033@us.ibm.com>
+	Tue, 21 Nov 2006 11:57:08 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:32980 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031057AbWKUQ5G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 11:57:06 -0500
+Date: Tue, 21 Nov 2006 08:55:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Krafft <krafft@de.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] fix call to alloc_bootmem after bootmem has been
+ freed
+Message-Id: <20061121085535.9c62b54f.akpm@osdl.org>
+In-Reply-To: <20061115193238.4d23900c@localhost>
+References: <20061115193049.3457b44c@localhost>
+	<20061115193238.4d23900c@localhost>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061120203836.GH8033@us.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20, Paul E. McKenney wrote:
->
-> On Mon, Nov 20, 2006 at 09:57:12PM +0300, Oleg Nesterov wrote:
-> > >
-> > So, if we have global A == B == 0,
-> > 
-> > 	CPU_0		CPU_1
-> > 
-> > 	A = 1;		B = 2;
-> > 	mb();		mb();
-> > 	b = B;		a = A;
-> > 
-> > It could happen that a == b == 0, yes? Isn't this contradicts with definition
-> > of mb?
+On Wed, 15 Nov 2006 19:32:38 +0100
+Christian Krafft <krafft@de.ibm.com> wrote:
+
+> In some cases it might happen, that alloc_bootmem is beeing called
+> after bootmem pages have been freed. This is, because the condition
+> SYSTEM_BOOTING is still true after bootmem has been freed.
 > 
-> It can and does happen.  -Which- definition of mb()?  ;-)
-
-I had a somewhat similar understanding before this discussion
-
-	[PATCH] Fix RCU race in access of nohz_cpu_mask
-	http://marc.theaimsgroup.com/?t=113378060600003
-
-	Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
-	http://marc.theaimsgroup.com/?t=113432312600001
-
-Could you please explain me again why that fix was correct? What we have now is:
-
-CPU_0					CPU_1
-rcu_start_batch:			stop_hz_timer:
-
-  rcp->cur++;			STORE	  nohz_cpu_mask |= cpu
-
-  smp_mb();				  mb();		// missed actually
-
-  ->cpumask = ~nohz_cpu_mask;	LOAD	  if (rcu_pending()) // reads rcp->cur
-							nohz_cpu_mask &= ~cpu
-
-So, it is possible that CPU_0 reads an empty nohz_cpu_mask and starts a grace
-period with CPU_1 included in rcp->cpumask. CPU_1 in turn reads an old value
-of rcp->cur (so rcu_pending() returns 0) and becomes CPU_IDLE.
-
-Take another patch,
-
-	Re: Oops on 2.6.18
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=116266392016286
-
-switch_uid:			__sigqueue_alloc:
-
-  STORE 'new_user' to ->user	  STORE "locked" to ->siglock
-
-  mb();				  "mb()"; // sort of, wrt loads/stores above
-
-  LOAD ->siglock		  LOAD ->siglock
-
-Agian, it is possible that switch_uid() doesn't notice that ->siglock is locked
-and frees ->user. __sigqueue_alloc() in turn reads an old (freed) value of ->user
-and does get_uid() on it.
-
-> To see how this can happen, thing of the SMP system as a message-passing
-> system, and consider the following sequence of events:
+> Signed-off-by: Christian Krafft <krafft@de.ibm.com>
 > 
-> o	The cache line for A is initially in CPU 1's cache, and the
-> 	cache line for B is initially in CPU 0's cache (backwards of
-> 	what you would want knowing about the upcoming writes).
-> 
-> o	CPU 0 stores to A, but because A is not in cache, places it in
-> 	CPU 0's store queue.  It also puts out a request for ownership
-> 	of the cache line containing A.
-> 
-> o	CPU 1 stores to B, with the same situation as for CPU 0's store
-> 	to A.
-> 
-> o	Both CPUs execute an mb(), which ensures that any subsequent writes
-> 	follow the writes to A and B, respectively.  Since neither CPU
-> 	has yet received the other CPU's request for ownership, there is
-> 	no ordering effects on subsequent reads.
-> 
-> o	CPU 0 executes "b = B", and since B is in CPU 0's cache, it loads
-> 	the current value, which is zero.
-> 
-> o	Ditto for CPU 1 and A.
-> 
-> o	CPUs 0 and 1 now receive each other's requests for ownership, so
-> 	exchange the cache lines containing A and B.
-> 
-> o	Once CPUs 0 and 1 receive ownership of the respective cache lines,
-> 	they complete their writes to A and B (moving the values from the
-> 	store buffers to the cache lines).
+> Index: linux/mm/page_alloc.c
+> ===================================================================
+> --- linux.orig/mm/page_alloc.c
+> +++ linux/mm/page_alloc.c
+> @@ -1931,7 +1931,7 @@ int zone_wait_table_init(struct zone *zo
+>  	alloc_size = zone->wait_table_hash_nr_entries
+>  					* sizeof(wait_queue_head_t);
+>  
+> - 	if (system_state == SYSTEM_BOOTING) {
+> +	if (!slab_is_available()) {
+>  		zone->wait_table = (wait_queue_head_t *)
+>  			alloc_bootmem_node(pgdat, alloc_size);
+>  	} else {
 
-Paul, Alan, in case it was not clear: I am not arguing, just trying to
-understand, and I appreciate very much your time and your explanations.
+I don't think that slab_is_available() is an appropriate way of working out
+if we can call vmalloc().
 
-Oleg.
+Also, a more complete description of the problem is needed, please.  Which
+caller is incorrectly allocating bootmem?
 

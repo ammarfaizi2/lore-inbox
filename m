@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934292AbWKUCDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966897AbWKUCSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934292AbWKUCDR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Nov 2006 21:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934296AbWKUCDR
+	id S966897AbWKUCSl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Nov 2006 21:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966900AbWKUCSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Nov 2006 21:03:17 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:5831 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S934292AbWKUCDQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Nov 2006 21:03:16 -0500
-Date: Tue, 21 Nov 2006 02:02:48 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
-Message-ID: <20061121020247.GA11206@srcf.ucam.org>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org> <200611191844.14354.rjw@sisk.pl> <Pine.LNX.4.64.0611191008310.3692@woody.osdl.org> <20061120221756.GA8708@thunk.org>
+	Mon, 20 Nov 2006 21:18:41 -0500
+Received: from mga05.intel.com ([192.55.52.89]:26642 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S966897AbWKUCSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Nov 2006 21:18:41 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,441,1157353200"; 
+   d="scan'208"; a="166999881:sNHT34886467"
+Date: Mon, 20 Nov 2006 17:54:42 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: [patch] sched: decrease number of load balances
+Message-ID: <20061120175441.C17305@unix-os.sc.intel.com>
+References: <20061120142633.A17305@unix-os.sc.intel.com> <Pine.LNX.4.64.0611201625240.23868@schroedinger.engr.sgi.com> <20061120164338.B17305@unix-os.sc.intel.com> <Pine.LNX.4.64.0611201734490.24998@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061120221756.GA8708@thunk.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.64.0611201734490.24998@schroedinger.engr.sgi.com>; from clameter@sgi.com on Mon, Nov 20, 2006 at 05:39:42PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 05:17:56PM -0500, Theodore Tso wrote:
+On Mon, Nov 20, 2006 at 05:39:42PM -0800, Christoph Lameter wrote:
+> On Mon, 20 Nov 2006, Siddha, Suresh B wrote:
+> 
+> > My patch is not changing any idle load balancing logic and hence it is no
+> > less/more aggressive as the current one.
+> 
+> But you cannot do anything in addition to idle balancing. You can only 
+> draw a process to the cpu you are balancing on. And we are already doing 
+> that.
 
-> If someone has a suggestion for how I can save the power state of all
-> of the various components in my laptop so that the laptop cna be
-> brought back to the 18W state after a suspend-to-ram, I'm all ears....
+Yes. The above logic is not changed.
 
-A good start might be to compare the PCI configuration registers before 
-and after suspend. However, I suspect it's more complicated than that. 
-Are you using the closed ATI drivers? If so, it's possible that they do 
-something at X startup that they're not doing on resume. A good 
-comparison might be to see if the power consumption is dramatically 
-different over suspend/resume if you only boot to text mode - that is, 
-never start X at all.
+Once an idle processor('P') picked up some load(based on load differences of groups
+at level 'X) at level 'X', group of cpus(containing 'P') in level 'X-1' will try to
+distribute that load among them depending on their groups load at that level. And
+this repeats till we reach the lowest level..
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> So this cuts down the frequency of idle balance?
+
+Frequency of idle processor doing balance is same as today but what we reduce
+is number of processors doing that load balance.
+
+> And only the first idle processor of a group of idle processors does balancing?
+
+That is correct. If all the cpus in a group are busy, then only the first cpu in
+the group will do load balance between the groups. We really don't have to
+calculate who in the group is leastly loaded, as we can assume that load is equally
+balanced at level 'X-1' while doing load balancing at level 'X'.
+
+thanks,
+suresh

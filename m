@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756917AbWKVGmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756919AbWKVGmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756917AbWKVGmO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 01:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756918AbWKVGmO
+	id S1756919AbWKVGmk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 01:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756921AbWKVGmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 01:42:14 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:3223 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1756917AbWKVGmN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 01:42:13 -0500
-Message-ID: <4563F14C.9060100@drzeus.cx>
-Date: Wed, 22 Nov 2006 07:42:20 +0100
-From: Pierre Ossman <drzeus-mmc@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Wed, 22 Nov 2006 01:42:39 -0500
+Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:22704 "EHLO
+	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
+	id S1756919AbWKVGmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 01:42:38 -0500
+Message-ID: <4563F158.3060209@qumranet.com>
+Date: Wed, 22 Nov 2006 08:42:32 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Alex Dubov <oakad@yahoo.com>
-CC: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1] MMC: new version of the TI Flash Media card reader
- driver
-References: <281931.6630.qm@web36709.mail.mud.yahoo.com>
-In-Reply-To: <281931.6630.qm@web36709.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+       kvm-devel@lists.sourceforge.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
+References: <4563667B.2060209@goop.org>
+In-Reply-To: <4563667B.2060209@goop.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2006 06:42:38.0332 (UTC) FILETIME=[66A6EBC0:01C70E01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Dubov wrote:
-> I know that the patch is too big, but I have no way to split it up. Basically, I've changed so
-> many things (I had quite a few problems with interrupts after suspend/resume) that it can be
-> regarded as a brand new driver. My SVN became somewhat messy too.
-> 
-> I can post the driver in it full (non-diff) form or as a 4 per-file diffs, but I have no way to
-> split it up into per-issue form (except for issues 3 and 5, which are one-liners).
-> 
+Jeremy Fitzhardinge wrote:
+>
+>
+> Like "volatile" variables, I think "asm volatile" is probably overused.
+> If you want to guarantee specific ordering of asms, it's probably better
+> to add an explicit dependency between them rather than rely on asm
+> volatile; this could either be a "memory" clobber, or something more
+> fine-grained.  For example:
+>
+>     /* need never be instansiated; never actually referenced */
+>     extern int spin_sequencer;
+>
+>     /* %0 never referenced */
+>     asm("take spinlock" : "+m" (spin_sequencer)...);
+>
+>     ...
+>
+>     /* again, %0 never referenced */
+>     asm("release spinlock" : "+m" (spin_sequencer)...);
+>
 
-That's a start. But 4 sounds like it could be broken out with some work.
+Very interesting.
 
-I'm not saying it's trivial to break this apart, but it is something
-that needs to be done. At the very least the commit messages need to
-reflect what is changed and why.
+Will it work on load/store architectures?  Since all memory access is 
+through a register, won't the constraint generate a useless register 
+load (and a use of the variable)?
 
-See it as practice as this is an issue you will be hit by now and then
-as a kernel developer. :)
 
-Rgds
 -- 
-     -- Pierre Ossman
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org

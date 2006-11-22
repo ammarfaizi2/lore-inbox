@@ -1,153 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756360AbWKVSg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756385AbWKVSmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756360AbWKVSg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756367AbWKVSg2
+	id S1756385AbWKVSmu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756389AbWKVSmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:36:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51136 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1756360AbWKVSg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:36:27 -0500
-Subject: Re: Incorrect order of last two arguments of ptrace for requests
-	PPC_PTRACE_GETREGS, SETREGS, GETFPREGS, SETFPREGS
-From: David Woodhouse <dwmw2@infradead.org>
-To: supriya kannery <supriyak@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-In-Reply-To: <453F421A.6070507@in.ibm.com>
-References: <453F421A.6070507@in.ibm.com>
-Content-Type: multipart/mixed; boundary="=-kaajnNrN3ClK/2QNwuM3"
-Date: Wed, 22 Nov 2006 18:36:20 +0000
-Message-Id: <1164220580.12365.8.camel@hades.cambridge.redhat.com>
+	Wed, 22 Nov 2006 13:42:50 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:39047 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1756384AbWKVSmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:42:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=UDxHiOh8piDjozjIb/Qn6eXRgQKaAstDUHuRoJyJ3dx7OfCDFg03R5hrSGj1fmTHSYFf0eDS21MwOg8kn1QKfH2v3nGi7zJRA4Ud5Yt0VVYLfUAcEgkl76geYUSIM4YjU5BGaRalivFQXJGOAEI0hTq2ENthPKK1O666JZITmMA=
+Date: Thu, 23 Nov 2006 03:36:54 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix copy_process() error check
+Message-ID: <20061122183654.GB2985@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6.dwmw2.2) 
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The return value of copy_process() should be checked by IS_ERR().
 
---=-kaajnNrN3ClK/2QNwuM3
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-On Wed, 2006-10-25 at 16:23 +0530, supriya kannery wrote:
-> In ptrace, when request is PPC_PTRACE_GETREGS, SETREGS, GETFPREGS and 
-> SETFPREGS, order of the last two arguments is not correct.
-> 
-> General format of ptrace is ptrace (request, pid, addr, data).  For the 
-> above mentioned request ids in ppc64, if we use ptrace like
-> 
->  long reg[32];
->  ptrace (PPC_PTRACE_GETREGS, pid, 0, &reg[0]);
-> 
-> the return value is always -1.
-> 
-> If we exchange the last two arguments like,
-> 
->  ptrace (PPC_PTRACE_GETREGS, pid, &reg[0], 0);
-> 
-> it works!
-> 
-> This is because PPC_PTRACE_GETREGS option for powerpc is implemented 
-> such that general purpose
-> registers of the child process get copied to the address variable 
-> instead of data variable. Same is
-> the case with other PPC request options PPC_PTRACE_SETREGS, GETFPREGS 
-> and SETFPREGS.
-> 
-> Prepared a patch for this problem and tested with 2.6.18-rc6 kernel. 
-> This patch can be applied directly to 2.6.19-rc3 kernel.
+---
+ kernel/fork.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-A more appropriate place to send this would be the linux-ppc development
-list.
-
--- 
-dwmw2
-
---=-kaajnNrN3ClK/2QNwuM3
-Content-Disposition: attachment; filename=ppc_ptrace_params.patch
-Content-Type: text/x-patch; name=ppc_ptrace_params.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Naurp linux-2.6.18-rc6/arch/powerpc/kernel/ptrace.c linux-2.6.18-rc6-mod/arch/powerpc/kernel/ptrace.c
---- linux-2.6.18-rc6/arch/powerpc/kernel/ptrace.c	2006-10-19 18:09:01.000000000 +0530
-+++ linux-2.6.18-rc6-mod/arch/powerpc/kernel/ptrace.c	2006-10-19 18:11:37.000000000 +0530
-@@ -406,7 +406,7 @@ long arch_ptrace(struct task_struct *chi
- 	case PPC_PTRACE_GETREGS: { /* Get GPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.regs)[0];
--		unsigned long __user *tmp = (unsigned long __user *)addr;
-+		unsigned long __user *tmp = (unsigned long __user *)data;
+Index: work-fault-inject/kernel/fork.c
+===================================================================
+--- work-fault-inject.orig/kernel/fork.c
++++ work-fault-inject/kernel/fork.c
+@@ -1318,9 +1318,8 @@ struct task_struct * __devinit fork_idle
+ 	struct pt_regs regs;
  
- 		for (i = 0; i < 32; i++) {
- 			ret = put_user(*reg, tmp);
-@@ -421,7 +421,7 @@ long arch_ptrace(struct task_struct *chi
- 	case PPC_PTRACE_SETREGS: { /* Set GPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.regs)[0];
--		unsigned long __user *tmp = (unsigned long __user *)addr;
-+		unsigned long __user *tmp = (unsigned long __user *)data;
+ 	task = copy_process(CLONE_VM, 0, idle_regs(&regs), 0, NULL, NULL, 0);
+-	if (!task)
+-		return ERR_PTR(-ENOMEM);
+-	init_idle(task, cpu);
++	if (!IS_ERR(task))
++		init_idle(task, cpu);
  
- 		for (i = 0; i < 32; i++) {
- 			ret = get_user(*reg, tmp);
-@@ -436,7 +436,7 @@ long arch_ptrace(struct task_struct *chi
- 	case PPC_PTRACE_GETFPREGS: { /* Get FPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
--		unsigned long __user *tmp = (unsigned long __user *)addr;
-+		unsigned long __user *tmp = (unsigned long __user *)data;
- 
- 		flush_fp_to_thread(child);
- 
-@@ -453,7 +453,7 @@ long arch_ptrace(struct task_struct *chi
- 	case PPC_PTRACE_SETFPREGS: { /* Get FPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
--		unsigned long __user *tmp = (unsigned long __user *)addr;
-+		unsigned long __user *tmp = (unsigned long __user *)data;
- 
- 		flush_fp_to_thread(child);
- 
-diff -Naurp linux-2.6.18-rc6/arch/powerpc/kernel/ptrace32.c linux-2.6.18-rc6-mod/arch/powerpc/kernel/ptrace32.c
---- linux-2.6.18-rc6/arch/powerpc/kernel/ptrace32.c	2006-10-19 18:09:01.000000000 +0530
-+++ linux-2.6.18-rc6-mod/arch/powerpc/kernel/ptrace32.c	2006-10-19 18:11:41.000000000 +0530
-@@ -345,7 +345,7 @@ long compat_sys_ptrace(int request, int 
- 	case PPC_PTRACE_GETREGS: { /* Get GPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.regs)[0];
--		unsigned int __user *tmp = (unsigned int __user *)addr;
-+		unsigned int __user *tmp = (unsigned int __user *)data;
- 
- 		for (i = 0; i < 32; i++) {
- 			ret = put_user(*reg, tmp);
-@@ -360,7 +360,7 @@ long compat_sys_ptrace(int request, int 
- 	case PPC_PTRACE_SETREGS: { /* Set GPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.regs)[0];
--		unsigned int __user *tmp = (unsigned int __user *)addr;
-+		unsigned int __user *tmp = (unsigned int __user *)data;
- 
- 		for (i = 0; i < 32; i++) {
- 			ret = get_user(*reg, tmp);
-@@ -375,7 +375,7 @@ long compat_sys_ptrace(int request, int 
- 	case PPC_PTRACE_GETFPREGS: { /* Get FPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
--		unsigned int __user *tmp = (unsigned int __user *)addr;
-+		unsigned int __user *tmp = (unsigned int __user *)data;
- 
- 		flush_fp_to_thread(child);
- 
-@@ -392,7 +392,7 @@ long compat_sys_ptrace(int request, int 
- 	case PPC_PTRACE_SETFPREGS: { /* Get FPRs 0 - 31. */
- 		int i;
- 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
--		unsigned int __user *tmp = (unsigned int __user *)addr;
-+		unsigned int __user *tmp = (unsigned int __user *)data;
- 
- 		flush_fp_to_thread(child);
- 
-
---=-kaajnNrN3ClK/2QNwuM3--
-
+ 	return task;
+ }

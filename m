@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755350AbWKVQcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755458AbWKVQl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755350AbWKVQcX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 11:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755351AbWKVQcX
+	id S1755458AbWKVQl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 11:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755440AbWKVQl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 11:32:23 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:41867 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1755350AbWKVQcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 11:32:22 -0500
-Date: Wed, 22 Nov 2006 08:32:23 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/5] WorkStruct: Merge the pending bit into the wq_data
- pointer [try #2]
-Message-Id: <20061122083223.6e0e5b76.randy.dunlap@oracle.com>
-In-Reply-To: <20061122130229.24778.13876.stgit@warthog.cambridge.redhat.com>
-References: <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com>
-	<20061122130229.24778.13876.stgit@warthog.cambridge.redhat.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 22 Nov 2006 11:41:58 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:29365 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755381AbWKVQl5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 11:41:57 -0500
+Date: Wed, 22 Nov 2006 10:41:54 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Dmitry Mishin <dim@openvz.org>, Daniel Lezcano <dlezcano@fr.ibm.com>,
+       Kirill Korotaev <dev@sw.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, netdev@vger.kernel.org
+Subject: Re: [patch -mm] net namespace: empty framework
+Message-ID: <20061122164154.GB17378@sergelap.austin.ibm.com>
+References: <4563007B.9010202@fr.ibm.com> <4563046B.6040909@sw.ru> <45633EDF.3050309@fr.ibm.com> <200611221121.59322.dim@openvz.org> <4564566F.7030202@fr.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4564566F.7030202@fr.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2006 13:02:29 +0000 David Howells wrote:
-
-> Reclaim a word from the size of the work_struct by folding the pending bit and
-> the wq_data pointer together.  This shouldn't cause misalignment problems as
-> all pointers should be at least 4-byte aligned.
+Quoting Cedric Le Goater (clg@fr.ibm.com):
+> Hello,
 > 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-> ---
+> Dmitry Mishin wrote:
 > 
->  drivers/block/floppy.c    |    4 ++--
->  include/linux/workqueue.h |   27 +++++++++++++++++++++++----
->  kernel/workqueue.c        |   41 ++++++++++++++++++++++++++++++++---------
->  3 files changed, 57 insertions(+), 15 deletions(-)
+> > This patch looks acceptable for us.
 > 
-> diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-> index cef40b2..ecc017d 100644
-> --- a/include/linux/workqueue.h
-> +++ b/include/linux/workqueue.h
-> @@ -14,11 +14,15 @@ struct workqueue_struct;
->  typedef void (*work_func_t)(void *data);
->  
->  struct work_struct {
-> -	unsigned long pending;
-> +	/* the first word is the work queue pointer and the pending flag
-> +	 * rolled into one */
-> +	unsigned long management;
-> +#define WORK_STRUCT_PENDING 0		/* T if work item pending execution */
+> good. shall we merge it then ? see comment below.
+> 
+> > BTW, Daniel, we agreed to be based on the Andrey's patchset. I do not see a
+> > reason, why Cedric force us to make some unnecessary work and move existent
+> > patchset over his interface.
+> 
+> yeah it's a bit different from andrey's but not that much and it's more in
 
-s/T/True/ # or whatever it means there
+Where is Andrey's patch?
 
-> +#define WORK_STRUCT_FLAG_MASK (3UL)
-> +#define WORK_STRUCT_WQ_DATA_MASK (~WORK_STRUCT_FLAG_MASK)
->  	struct list_head entry;
->  	work_func_t func;
->  	void *data;
-> -	void *wq_data;
->  };
->  
->  struct delayed_work {
-> @@ -75,6 +79,21 @@ #define INIT_DELAYED_WORK(_work, _func, 
->  		init_timer(&(_work)->timer);			\
->  	} while (0)
->  
-> +/**
-> + * work_pending - Find out whether a work item is currently pending
-> + * @work: The work item in question
-> + */
-> +#define work_pending(work) \
-> +	test_bit(WORK_STRUCT_PENDING, &(work)->management)
-> +
-> +/**
-> + * delayed_work_pending - Find out whether a delayable work item is currently
-> + * pending
+> the spirit of uts and ipc namespace (and user namespace if that reaches the
+> kernel one day :) so that's why i made the small changes.
 
-kernel-doc short function description needs to be on one line only.
-If more description is needed, please put it after the parameter(s) list
-and a "blank" ("*" only) line.
+I agree the namespace frameworks should be consistent, but i don't know
+whether Andrey's is or not.  I'd like to have the framework included so
+we reduce the number of silly rewrites due to clone flag collisions etc.
 
-> + * @work: The work item in question
-> + */
-> +#define delayed_work_pending(work) \
-> +	test_bit(WORK_STRUCT_PENDING, &(work)->work.management)
-> +
->  
->  extern struct workqueue_struct *__create_workqueue(const char *name,
->  						    int singlethread);
+> 
+> It also helping the nsproxy/namespace syscalls to have a similar interface
+> to manipulate namespaces. who knows, soon we might be able to have a 'struct
+> namespace' with a ops field to define new namespace types ?
+> 
+> I can also send a empty framework for user namespace  ;)
 
+Please do - then I'll rebase the patchset I sent to the containes list
+onto your patch, and resubmit the whole userns.
 
----
-~Randy
+-serge

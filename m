@@ -1,121 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755032AbWKVJqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755589AbWKVJuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755032AbWKVJqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 04:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755575AbWKVJqm
+	id S1755589AbWKVJuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 04:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755604AbWKVJuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 04:46:42 -0500
-Received: from smtp19.msg.oleane.net ([62.161.4.19]:25239 "EHLO
-	smtp19.msg.oleane.net") by vger.kernel.org with ESMTP
-	id S1755032AbWKVJql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 04:46:41 -0500
-Message-ID: <45641CB6.5060502@innova-card.com>
-Date: Wed, 22 Nov 2006 10:47:34 +0100
-From: Franck Bui-Huu <franck.bui-huu@innova-card.com>
-Reply-To: Franck <vagabon.xyz@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 22 Nov 2006 04:50:21 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:43356 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1755575AbWKVJuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 04:50:20 -0500
+Message-ID: <45641BEE.8060603@openvz.org>
+Date: Wed, 22 Nov 2006 12:44:14 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] softcursor.c: avoid unaligned accesses
+To: Linus Torvalds <torvalds@osdl.org>, Morton Andrew Morton <akpm@osdl.org>,
+       mingo@redhat.com
+CC: Vivek Goyal <vgoyal@in.ibm.com>, Adrian Bunk <bunk@stusta.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>, dev@sw.ru
+Subject: Re: 2.6.19-rc6: known regressions (v4)
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com> <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Franck Bui-Huu <fbuihuu@gmail.com>
+> I really think this is wrong.
+> 
+> The original patch was wrong, and the _real_ problem is in __do_IRQ() that 
+> got the desc->lock too early.
+> 
+> I _think_ the correct fix is to simply revert the broken commit, and fix 
+> the _one_ place that called "misnote_interrupt()" with the lock held.
+> 
+> Something like this..
+> 
+> I also think that the real fix will be to move the whole
+> 
+> 	if (!noirqdebug)
+> 		note_interrupt(irq, desc, action_ret);
+> 
+> 
+> into handle_IRQ_event itself, since every caller (except for 
+> "misrouted_irq()" itself, and that should probably be done separately) 
+> should always do it. Right now we have a lot of people that just do
+> 
+> 	action_ret = handle_IRQ_event(irq, action);
+> 	if (!noirqdebug)
+> 		note_interrupt(irq, desc, action_ret);
+> 
+> explicitly.
+> 
+> The only thing that keeps us from doing that is that we don't pass in 
+> "desc", but we should just do that.
+> 
+> But in the meantime, this appears to be the minimal fix. Can people please 
+> test and verify?
 
-This patch fixes some possible unaligned accesses when accessing
-fields of 'image' pointer. Indeed this pointer was obtained by
-allocating a block of memory that embeds a temporary array plus an
-image structure. The temporary buffer was located at the start of the
-allocated block and depending on its size, the image structure which
-comes right after can be unaligned.
+This works for me, but is this normal that desc's fields are
+modified non-atomically in note_interrupt()?
 
-For example when using mini fonts (4x6) (cursor's width is 4 and its
-height is 6) the temporary buf size is 6 bytes.
-
-Therefore this patch moves the image structure to the start of the
-block and moves the temporary buffer right after. It makes 'image'
-pointer always aligned and since the tempo buf is a buffer of char,
-it's always correctly aligned as well.
-
-It also fixes the file header alignement.
-
-Signed-off-by: Franck Bui-Huu <fbuihuu@gmail.com>
----
- drivers/video/console/softcursor.c |   26 +++++++++++++-------------
- 1 files changed, 13 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/video/console/softcursor.c b/drivers/video/console/softcursor.c
-index 7d07d83..f577bd8 100644
---- a/drivers/video/console/softcursor.c
-+++ b/drivers/video/console/softcursor.c
-@@ -1,11 +1,13 @@
- /*
-- * linux/drivers/video/softcursor.c -- Generic software cursor for frame buffer devices
-+ * linux/drivers/video/softcursor.c
-+ *
-+ * Generic software cursor for frame buffer devices
-  *
-  *  Created 14 Nov 2002 by James Simmons
-  *
-- * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file COPYING in the main directory of this archive
-- * for more details.
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License.  See the file COPYING in the main directory of this
-+ * archive for more details.
-  */
- 
- #include <linux/module.h>
-@@ -25,7 +27,7 @@ int soft_cursor(struct fb_info *info, st
- 	unsigned int buf_align = info->pixmap.buf_align - 1;
- 	unsigned int i, size, dsize, s_pitch, d_pitch;
- 	struct fb_image *image;
--	u8 *dst;
-+	u8 *src, *dst;
- 
- 	if (info->state != FBINFO_STATE_RUNNING)
- 		return 0;
-@@ -45,7 +47,8 @@ int soft_cursor(struct fb_info *info, st
- 		}
- 	}
- 
--	image = (struct fb_image *) (ops->cursor_src + dsize);
-+	src = ops->cursor_src + sizeof(struct fb_image);
-+	image = (struct fb_image *)ops->cursor_src;
- 	*image = cursor->image;
- 	d_pitch = (s_pitch + scan_align) & ~scan_align;
- 
-@@ -57,21 +60,18 @@ int soft_cursor(struct fb_info *info, st
- 		switch (cursor->rop) {
- 		case ROP_XOR:
- 			for (i = 0; i < dsize; i++)
--				ops->cursor_src[i] = image->data[i] ^
--					cursor->mask[i];
-+				src[i] = image->data[i] ^ cursor->mask[i];
- 			break;
- 		case ROP_COPY:
- 		default:
- 			for (i = 0; i < dsize; i++)
--				ops->cursor_src[i] = image->data[i] &
--					cursor->mask[i];
-+				src[i] = image->data[i] & cursor->mask[i];
- 			break;
- 		}
- 	} else
--		memcpy(ops->cursor_src, image->data, dsize);
-+		memcpy(src, image->data, dsize);
- 
--	fb_pad_aligned_buffer(dst, d_pitch, ops->cursor_src, s_pitch,
--			      image->height);
-+	fb_pad_aligned_buffer(dst, d_pitch, src, s_pitch, image->height);
- 	image->data = dst;
- 	info->fbops->fb_imageblit(info, image);
- 	return 0;
--- 
-1.4.3.4
-
-
+And one more thing - report_bad_irq() traverses desc->action
+list without any locking either.

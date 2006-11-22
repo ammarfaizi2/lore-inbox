@@ -1,61 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757090AbWKVWyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757118AbWKVW7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757090AbWKVWyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 17:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757092AbWKVWyO
+	id S1757118AbWKVW7D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 17:59:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757128AbWKVW7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 17:54:14 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:7142 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1757087AbWKVWyO (ORCPT
+	Wed, 22 Nov 2006 17:59:03 -0500
+Received: from 1wt.eu ([62.212.114.60]:26117 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1757118AbWKVW7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 17:54:14 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH 4/4] swsusp: Fix labels
-Date: Wed, 22 Nov 2006 23:50:18 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200611182335.27453.rjw@sisk.pl> <200611190025.06860.rjw@sisk.pl> <20061122143241.6b1a34ac.randy.dunlap@oracle.com>
-In-Reply-To: <20061122143241.6b1a34ac.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 17:59:01 -0500
+Date: Wed, 22 Nov 2006 23:58:56 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: R.E.Wolff@BitWizard.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] rio: typo in bitwise AND expression.
+Message-ID: <20061122225856.GB10758@1wt.eu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611222350.19243.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 22 November 2006 23:32, Randy Dunlap wrote:
-> On Sun, 19 Nov 2006 00:25:06 +0100 Rafael J. Wysocki wrote:
-> 
-> > On Sunday, 19 November 2006 00:06, Nigel Cunningham wrote:
-> > > Hi.
-> > > 
-> > > On Sat, 2006-11-18 at 23:51 +0100, Rafael J. Wysocki wrote:
-> > > > Move all labels in the swsusp code to the second column, so that they won't
-> > > > fool diff -p.
-> > > 
-> > > This sounds like working around brokenness in diff -p. Should/could a
-> > > patch be submitted to the diff maintainer instead?
-> > 
-> > No.  This feature of diff is actually documented.
-> > 
-> > There was a discussion on LKML about it some time ago and the patch follows
-> > the conclusion.
-> 
-> There was discussion, and then both Jesper and I tried to
-> reproduce the problem with diff and could not do so.
-> Maybe it has already been fixed. (?)
+Hi Rogier,
 
-Well, I'm not sure.
+here's a patch to fix a typo in rio_linux which affects both
+kernel 2.4 and 2.6. It's not big deal it seems as it only
+affects the irq-less path.
 
-Greetings,
-Rafael
+I found this one like that :
 
+ $ grep -r '[^&]&[^&]*![^=]' drivers/char/
 
+I'm sure others will find more efficient rules to catch such
+errors.
+
+Regards,
+Willy
+
+>From 4fb85842b76ad28893ea2aeaeb6dbc4e3f5a2dee Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Wed, 22 Nov 2006 23:54:48 +0100
+Subject: [PATCH] rio: typo in bitwise AND expression.
+
+The line :
+
+    hp->Mode &= !RIO_PCI_INT_ENABLE;
+
+is obviously wrong as RIO_PCI_INT_ENABLE=0x04 and is used as a bitmask
+2 lines before. Getting no IRQ would not disable RIO_PCI_INT_ENABLE
+but rather RIO_PCI_BOOT_FROM_RAM which equals 0x01.
+
+Obvious fix is to change ! for ~.
+
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ drivers/char/rio/rio_linux.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/char/rio/rio_linux.c b/drivers/char/rio/rio_linux.c
+index 7ac68cb..3228fad 100644
+--- a/drivers/char/rio/rio_linux.c
++++ b/drivers/char/rio/rio_linux.c
+@@ -1143,7 +1143,7 @@ #endif				/* PCI */
+ 				rio_dprintk(RIO_DEBUG_INIT, "Enabling interrupts on rio card.\n");
+ 				hp->Mode |= RIO_PCI_INT_ENABLE;
+ 			} else
+-				hp->Mode &= !RIO_PCI_INT_ENABLE;
++				hp->Mode &= ~RIO_PCI_INT_ENABLE;
+ 			rio_dprintk(RIO_DEBUG_INIT, "New Mode: %x\n", hp->Mode);
+ 			rio_start_card_running(hp);
+ 		}
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+1.4.2.4
+

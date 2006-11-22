@@ -1,92 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966980AbWKVBDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWKVBDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966980AbWKVBDL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 20:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966981AbWKVBDL
+	id S1030560AbWKVBDm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 20:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966983AbWKVBDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 20:03:11 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:19869 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966980AbWKVBDK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 20:03:10 -0500
-Date: Tue, 21 Nov 2006 17:02:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
-Message-Id: <20061121170228.4412b572.akpm@osdl.org>
-In-Reply-To: <20061120152252.7e5a4229@frecb000686>
-References: <20061120151700.4a4f9407@frecb000686>
-	<20061120152252.7e5a4229@frecb000686>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 20:03:42 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:14765 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S966982AbWKVBDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 20:03:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=E/oNw520QqZv37IKFR8TDkzl3cxxaJXYBDZcthoog3uAu18BXpjRlPSnrcPEh1ADy7EFa4fZwSE10DmEvaZ8lKJDr0rtNYkiuvRo33wmv8wh1a5iEjXSrfDOhZGmWLASqYiSgDWQi5Cz9z+rpMDvjufpCh+UKR32fYVYH1EQzdw=
+Message-ID: <4563A1E3.1030703@gmail.com>
+Date: Wed, 22 Nov 2006 10:03:31 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: "Gaston, Jason D" <jason.d.gaston@intel.com>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
+References: <39B20DF628532344BC7A2692CB6AEE07A5A310@orsmsx420.amr.corp.intel.com>
+In-Reply-To: <39B20DF628532344BC7A2692CB6AEE07A5A310@orsmsx420.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 15:22:52 +0100
-S__bastien Dugu__ <sebastien.dugue@bull.net> wrote:
+Gaston, Jason D wrote:
+> Did this come through ok, using Evolution, or do I need to try a
+> different email client and send again?
 
-> +static long aio_setup_sigevent(struct aio_notify *notify,
-> +			       struct sigevent __user *user_event)
-> +{
-> +	sigevent_t event;
-> +	struct task_struct *target;
-> +
-> +	if (copy_from_user(&event, user_event, sizeof (event)))
-> +		return -EFAULT;
-> +
-> +	if (event.sigev_notify == SIGEV_NONE)
-> +		return 0;
-> +
-> +	notify->notify = event.sigev_notify;
-> +	notify->signo = event.sigev_signo;
-> +	notify->value = event.sigev_value;
-> +
-> +	read_lock(&tasklist_lock);
-> +	target = good_sigevent(&event);
-> +
-> +	if (unlikely(!target || (target->flags & PF_EXITING)))
-> +		goto out_unlock;
-> +
-> +	notify->target = target;
-> +
-> +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
-> +		/*
-> +		 * This reference will be dropped in really_put_req() when
-> +		 * we're done with the request.
-> +		 */
-> +		get_task_struct(target);
-> +	}
+It's wrapped and more comments below.
 
-It worries me that this function can save away a task_struct* without
-having taken a reference against it.
+> -----Original Message-----
+> From: Gaston, Jason D 
+> Sent: Tuesday, November 21, 2006 2:52 PM
+> To: jgarzik@pobox.com; linux-ide@vger.kernel.org;
+> linux-kernel@vger.kernel.org; Gaston, Jason D
+> Subject: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
+> 
+> This patch adds the Intel ICH9 IDE mode SATA controller DID's.
+> 
+> Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+> 
+> --- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20
+> 04:58:48.000000000 -0800
+> +++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-20
+> 06:15:12.000000000 -0800
 
+Above two lines are wrapped.
 
-> +	read_unlock(&tasklist_lock);
-> +
-> +	/*
-> +	 * NOTE: we cannot free the sigqueue in the completion path as
-> +	 * the signal may not have been delivered to the target task.
-> +	 * Therefore it has to be freed in __sigqueue_free() when the
-> +	 * signal is collected if si_code is SI_ASYNCIO.
-> +	 */
-> +	notify->sigq = sigqueue_alloc();
-> +
-> +	if (unlikely(!notify->sigq))
-> +		return -EAGAIN;
-> +
-> +	return 0;
-> +
-> +out_unlock:
-> +	read_unlock(&tasklist_lock);
-> +	return -EINVAL;
-> +}
+> @@ -127,6 +127,7 @@
+>  	ich6_sata_ahci		= 8,
+>  	ich6m_sata_ahci		= 9,
+>  	ich8_sata_ahci		= 10,
+> +	ich9_sata_ahci		= 11,
+
+AFAICS, ich9 isn't different from ich8.  Any reason not to simply use 
+ich8_sata_ahci?
+
+[--snip--]
+> +static const struct piix_map_db ich9_map_db = {
+> +	.mask = 0x3,
+> +	.port_enable = 0x3,
+> +	.present_shift = 8,
+
+I guess this patch is against libata-dev#upstream-fixes.  Just FYI 
+.present_shift is gone in libata-dev#upstream.
+
+-- 
+tejun

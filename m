@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757046AbWKVViW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757051AbWKVVkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757046AbWKVViW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 16:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757047AbWKVViW
+	id S1757051AbWKVVkd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 16:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757060AbWKVVkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 16:38:22 -0500
-Received: from smtp8.orange.fr ([193.252.22.23]:14519 "EHLO
-	smtp-msa-out08.orange.fr") by vger.kernel.org with ESMTP
-	id S1757045AbWKVViV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 16:38:21 -0500
-X-ME-UUID: 20061122213819519.013CC1C0026E@mwinf0802.orange.fr
-Message-ID: <4564C34C.7050000@free.fr>
-Date: Wed, 22 Nov 2006 22:38:20 +0100
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: FYI build failure : 2.6.19-rc6-git5 unresolved spin_lock_irqsave_nested
-X-Enigmail-Version: 0.94.1.2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Nov 2006 16:40:33 -0500
+Received: from nigel.suspend2.net ([203.171.70.205]:46788 "EHLO
+	nigel.suspend2.net") by vger.kernel.org with ESMTP id S1757051AbWKVVkc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 16:40:32 -0500
+Subject: Patches from me.
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 23 Nov 2006 08:40:30 +1100
+Message-Id: <1164231630.9449.28.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-net/built-in.o: dans la fonction « irlmp_slsap_inuse »:
-irlmp.c:(.text+0x6ea89): référence indéfinie vers «
-spin_lock_irqsave_nested »
-make[1]: *** [.tmp_vmlinux1] Erreur 1
-make: *** [bzImage] Erreur 2
+Hi guys.
 
--- eric
+Just to let you know that I haven't given up on sending the stream of
+patches I started a few weeks ago. It's just that since then I've gained
+a more urgent priority - my final exam prior to ordination as a minister
+has been approved for March, and I have lots of preparation to do for
+it.
+
+Regards,
+
+Nigel
+

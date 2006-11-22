@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161869AbWKVIGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161857AbWKVIFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161869AbWKVIGD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 03:06:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161877AbWKVIGB
+	id S1161857AbWKVIFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 03:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161854AbWKVIFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 03:06:01 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:30359 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161869AbWKVIF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 03:05:59 -0500
-Message-ID: <4564050C.70607@jp.fujitsu.com>
-Date: Wed, 22 Nov 2006 17:06:36 +0900
+	Wed, 22 Nov 2006 03:05:25 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:19354 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161838AbWKVIFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 03:05:23 -0500
+Message-ID: <456404E2.1060102@jp.fujitsu.com>
+Date: Wed, 22 Nov 2006 17:05:54 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
@@ -20,250 +20,100 @@ Cc: Greg KH <greg@kroah.com>, Grant Grundler <grundler@parisc-linux.org>,
        Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
        linux-scsi@vger.kernel.org,
        Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: [PATCH 4/5] e1000 : Make Intel e1000 driver legacy I/O port free
+Subject: [PATCH 1/5] Update Documentation/pci.txt
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes Intel e1000 driver legacy I/O port free.
+This patch adds the description about legacy I/O port free driver into
+Documentation/pci.txt.
 
 Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
 Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
 ---
- drivers/net/e1000/e1000.h      |    6 +
- drivers/net/e1000/e1000_main.c |  146 ++++++++++++++++++++++-------------------
- 2 files changed, 83 insertions(+), 69 deletions(-)
+ Documentation/pci.txt |   70 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 70 insertions(+)
 
-Index: linux-2.6.19-rc6/drivers/net/e1000/e1000.h
+Index: linux-2.6.19-rc6/Documentation/pci.txt
 ===================================================================
---- linux-2.6.19-rc6.orig/drivers/net/e1000/e1000.h
-+++ linux-2.6.19-rc6/drivers/net/e1000/e1000.h
-@@ -75,8 +75,9 @@
- #define BAR_1		1
- #define BAR_5		5
-
--#define INTEL_E1000_ETHERNET_DEVICE(device_id) {\
--	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-+#define E1000_USE_IOPORT	(1 << 0)
-+#define INTEL_E1000_ETHERNET_DEVICE(device_id, flags) {\
-+	PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id), .driver_data = flags}
-
- struct e1000_adapter;
-
-@@ -342,6 +343,7 @@
- 	boolean_t quad_port_a;
- 	unsigned long flags;
- 	uint32_t eeprom_wol;
-+	int bars;		/* BARs to be enabled */
- };
-
- enum e1000_state_t {
-Index: linux-2.6.19-rc6/drivers/net/e1000/e1000_main.c
-===================================================================
---- linux-2.6.19-rc6.orig/drivers/net/e1000/e1000_main.c
-+++ linux-2.6.19-rc6/drivers/net/e1000/e1000_main.c
-@@ -47,62 +47,62 @@
-  *   {PCI_DEVICE(PCI_VENDOR_ID_INTEL, device_id)}
-  */
- static struct pci_device_id e1000_pci_tbl[] = {
--	INTEL_E1000_ETHERNET_DEVICE(0x1000),
--	INTEL_E1000_ETHERNET_DEVICE(0x1001),
--	INTEL_E1000_ETHERNET_DEVICE(0x1004),
--	INTEL_E1000_ETHERNET_DEVICE(0x1008),
--	INTEL_E1000_ETHERNET_DEVICE(0x1009),
--	INTEL_E1000_ETHERNET_DEVICE(0x100C),
--	INTEL_E1000_ETHERNET_DEVICE(0x100D),
--	INTEL_E1000_ETHERNET_DEVICE(0x100E),
--	INTEL_E1000_ETHERNET_DEVICE(0x100F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1010),
--	INTEL_E1000_ETHERNET_DEVICE(0x1011),
--	INTEL_E1000_ETHERNET_DEVICE(0x1012),
--	INTEL_E1000_ETHERNET_DEVICE(0x1013),
--	INTEL_E1000_ETHERNET_DEVICE(0x1014),
--	INTEL_E1000_ETHERNET_DEVICE(0x1015),
--	INTEL_E1000_ETHERNET_DEVICE(0x1016),
--	INTEL_E1000_ETHERNET_DEVICE(0x1017),
--	INTEL_E1000_ETHERNET_DEVICE(0x1018),
--	INTEL_E1000_ETHERNET_DEVICE(0x1019),
--	INTEL_E1000_ETHERNET_DEVICE(0x101A),
--	INTEL_E1000_ETHERNET_DEVICE(0x101D),
--	INTEL_E1000_ETHERNET_DEVICE(0x101E),
--	INTEL_E1000_ETHERNET_DEVICE(0x1026),
--	INTEL_E1000_ETHERNET_DEVICE(0x1027),
--	INTEL_E1000_ETHERNET_DEVICE(0x1028),
--	INTEL_E1000_ETHERNET_DEVICE(0x1049),
--	INTEL_E1000_ETHERNET_DEVICE(0x104A),
--	INTEL_E1000_ETHERNET_DEVICE(0x104B),
--	INTEL_E1000_ETHERNET_DEVICE(0x104C),
--	INTEL_E1000_ETHERNET_DEVICE(0x104D),
--	INTEL_E1000_ETHERNET_DEVICE(0x105E),
--	INTEL_E1000_ETHERNET_DEVICE(0x105F),
--	INTEL_E1000_ETHERNET_DEVICE(0x1060),
--	INTEL_E1000_ETHERNET_DEVICE(0x1075),
--	INTEL_E1000_ETHERNET_DEVICE(0x1076),
--	INTEL_E1000_ETHERNET_DEVICE(0x1077),
--	INTEL_E1000_ETHERNET_DEVICE(0x1078),
--	INTEL_E1000_ETHERNET_DEVICE(0x1079),
--	INTEL_E1000_ETHERNET_DEVICE(0x107A),
--	INTEL_E1000_ETHERNET_DEVICE(0x107B),
--	INTEL_E1000_ETHERNET_DEVICE(0x107C),
--	INTEL_E1000_ETHERNET_DEVICE(0x107D),
--	INTEL_E1000_ETHERNET_DEVICE(0x107E),
--	INTEL_E1000_ETHERNET_DEVICE(0x107F),
--	INTEL_E1000_ETHERNET_DEVICE(0x108A),
--	INTEL_E1000_ETHERNET_DEVICE(0x108B),
--	INTEL_E1000_ETHERNET_DEVICE(0x108C),
--	INTEL_E1000_ETHERNET_DEVICE(0x1096),
--	INTEL_E1000_ETHERNET_DEVICE(0x1098),
--	INTEL_E1000_ETHERNET_DEVICE(0x1099),
--	INTEL_E1000_ETHERNET_DEVICE(0x109A),
--	INTEL_E1000_ETHERNET_DEVICE(0x10A4),
--	INTEL_E1000_ETHERNET_DEVICE(0x10B5),
--	INTEL_E1000_ETHERNET_DEVICE(0x10B9),
--	INTEL_E1000_ETHERNET_DEVICE(0x10BA),
--	INTEL_E1000_ETHERNET_DEVICE(0x10BB),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1000, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1001, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1004, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1008, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1009, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100C, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100D, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100E, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x100F, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1010, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1011, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1012, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1013, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1014, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1015, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1016, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1017, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1018, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1019, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101A, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101D, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x101E, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1026, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1027, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1028, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1049, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x104A, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x104B, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x104C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x104D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x105F, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1060, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1075, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1076, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1077, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1078, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1079, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107A, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107B, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107C, E1000_USE_IOPORT),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107D, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107E, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x107F, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108A, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108B, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x108C, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1096, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1098, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x1099, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x109A, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10A4, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10B5, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10B9, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10BA, 0),
-+	INTEL_E1000_ETHERNET_DEVICE(0x10BB, 0),
- 	/* required last entry */
- 	{0,}
- };
-@@ -735,7 +735,14 @@
- 	int i, err, pci_using_dac;
- 	uint16_t eeprom_data = 0;
- 	uint16_t eeprom_apme_mask = E1000_EEPROM_APME;
--	if ((err = pci_enable_device(pdev)))
-+	int bars;
+--- linux-2.6.19-rc6.orig/Documentation/pci.txt
++++ linux-2.6.19-rc6/Documentation/pci.txt
+@@ -287,3 +287,73 @@
+ pci_find_device()		Superseded by pci_get_device()
+ pci_find_subsys()		Superseded by pci_get_subsys()
+ pci_find_slot()			Superseded by pci_get_slot()
 +
-+	if (ent->driver_data & E1000_USE_IOPORT)
-+		bars = pci_select_bars(pdev, IORESOURCE_MEM | IORESOURCE_IO);
-+	else
-+		bars = pci_select_bars(pdev, IORESOURCE_MEM);
 +
-+	if ((err = pci_enable_device_bars(pdev, bars)))
- 		return err;
++10. Legacy I/O port free driver
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Large servers may not be able to provide I/O port resources to all PCI
++devices. I/O Port space is only 64KB on Intel Architecture[1] and is
++likely also fragmented since the I/O base register of PCI-to-PCI
++bridge will usually be aligned to a 4KB boundary[2]. On such systems,
++pci_enable_device() and pci_request_regions() will fail when
++attempting to enable I/O Port regions that don't have I/O Port
++resources assigned.
++
++Fortunately, many PCI devices which request I/O Port resources also
++provide access to the same registers via MMIO BARs. These devices can
++be handled without using I/O port space and the drivers typically
++offer a CONFIG_ option to only use MMIO regions
++(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
++interface for legacy OSs and will work when I/O port resources are not
++assigned. The "PCI Local Bus Specification Revision 3.0" discusses
++this on p.44, "IMPLEMENTATION NOTE".
++
++If your PCI device driver doesn't need I/O port resources assigned to
++I/O Port BARs, you should use pci_enable_device_bars() instead of
++pci_enable_device() in order not to enable I/O port regions for the
++corresponding devices. In addition, you should use
++pci_request_selected_regions()/pci_release_selected_regions() instead
++of pci_request_regions()/pci_release_regions() in order not to
++request/release I/O port regions for the corresponding devices.
++
++[1] Some systems support 64KB I/O port space per PCI segment.
++[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
++
++
++11. MMIO Space and "Write Posting"
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Converting a driver from using I/O Port space to using MMIO space
++often requires some additional changes. Specifically, "write posting"
++needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
++already do. I/O Port space guarantees write transactions reach the PCI
++device before the CPU can continue. Writes to MMIO space allow to CPU
++continue before the transaction reaches the PCI device. HW weenies
++call this "Write Posting" because the write completion is "posted" to
++the CPU before the transaction has reached it's destination.
++
++Thus, timing sensitive code should add readl() where the CPU is
++expected to wait before doing other work.  The classic "bit banging"
++sequence works fine for I/O Port space:
++
++	for (i=8; --i; val >>= 1) {
++		outb(val & 1, ioport_reg);	/* write bit */
++		udelay(10);
++	}
++
++The same sequence for MMIO space should be:
++
++	for (i=8; --i; val >>= 1) {
++		writeb(val & 1, mmio_reg);	/* write bit */
++		readb(safe_mmio_reg);		/* flush posted write */
++		udelay(10);
++	}
++
++It is important that "safe_mmio_reg" not have any side effects that
++interferes with the correct operation of the device.
++
++Another case to watch out for is when resetting a PCI device. Use PCI
++Configuration space reads to flush the writel(). This will gracefully
++handle the PCI master abort on all platforms if the PCI device is
++expected to not respond to a readl().  Most x86 platforms will allow
++MMIO reads to master abort (aka "Soft Fail") and return garbage
++(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").
 
- 	if (!(err = pci_set_dma_mask(pdev, DMA_64BIT_MASK)) &&
-@@ -750,7 +757,8 @@
- 		pci_using_dac = 0;
- 	}
-
--	if ((err = pci_request_regions(pdev, e1000_driver_name)))
-+	err = pci_request_selected_regions(pdev, bars, e1000_driver_name);
-+	if (err)
- 		goto err_pci_reg;
-
- 	pci_set_master(pdev);
-@@ -769,6 +777,7 @@
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->msg_enable = (1 << debug) - 1;
-+	adapter->bars = bars;
-
- 	mmio_start = pci_resource_start(pdev, BAR_0);
- 	mmio_len = pci_resource_len(pdev, BAR_0);
-@@ -778,12 +787,15 @@
- 	if (!adapter->hw.hw_addr)
- 		goto err_ioremap;
-
--	for (i = BAR_1; i <= BAR_5; i++) {
--		if (pci_resource_len(pdev, i) == 0)
--			continue;
--		if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
--			adapter->hw.io_base = pci_resource_start(pdev, i);
--			break;
-+	if (ent->driver_data & E1000_USE_IOPORT) {
-+		for (i = BAR_1; i <= BAR_5; i++) {
-+			if (pci_resource_len(pdev, i) == 0)
-+				continue;
-+			if (pci_resource_flags(pdev, i) & IORESOURCE_IO) {
-+				adapter->hw.io_base =
-+					pci_resource_start(pdev, i);
-+				break;
-+			}
- 		}
- 	}
-
-@@ -1050,7 +1062,7 @@
- err_ioremap:
- 	free_netdev(netdev);
- err_alloc_etherdev:
--	pci_release_regions(pdev);
-+	pci_release_selected_regions(pdev, bars);
- err_pci_reg:
- err_dma:
- 	pci_disable_device(pdev);
-@@ -1111,7 +1123,7 @@
- 	iounmap(adapter->hw.hw_addr);
- 	if (adapter->hw.flash_address)
- 		iounmap(adapter->hw.flash_address);
--	pci_release_regions(pdev);
-+	pci_release_selected_regions(pdev, adapter->bars);
-
- 	free_netdev(netdev);
-
-@@ -4824,7 +4836,7 @@
-
- 	pci_set_power_state(pdev, PCI_D0);
- 	e1000_pci_restore_state(adapter);
--	if ((err = pci_enable_device(pdev))) {
-+	if ((err = pci_enable_device_bars(pdev, adapter->bars))) {
- 		printk(KERN_ERR "e1000: Cannot enable PCI device from suspend\n");
- 		return err;
- 	}
 

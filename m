@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757195AbWKVXzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757202AbWKVXzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757195AbWKVXzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 18:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757198AbWKVXzg
+	id S1757202AbWKVXzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 18:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757203AbWKVXzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 18:55:36 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:3820 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1757195AbWKVXzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 18:55:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=R4cQh73aPlQpE1gZOOtvztuJUablOTpIEPKL82VTvqUK4t1kXT4IukoVj/fmXUPtk6lAzwarejHZtka0fh2iP6Lu/Dk6u2U2U3fiOj9s6UBLrbXgoCLN8aM+pwo9t1M88nQ+17pIQnzAXqzo/ALfqT6G173OTld6Gi+CK0lkuK4=
-Message-ID: <4564E36E.8000405@gmail.com>
-Date: Thu, 23 Nov 2006 08:55:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
+	Wed, 22 Nov 2006 18:55:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6070 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757197AbWKVXzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 18:55:52 -0500
+Message-ID: <4564E2AB.1020202@redhat.com>
+Date: Wed, 22 Nov 2006 15:52:11 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Jason Gaston <jason.d.gaston@intel.com>
-CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for
- Intel ICH9
-References: <200611221236.16561.jason.d.gaston@intel.com>
-In-Reply-To: <200611221236.16561.jason.d.gaston@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 1/6] kevent: Description.
+References: <11641265982190@2ka.mipt.ru>
+In-Reply-To: <11641265982190@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Gaston wrote:
-> This updated patch adds the Intel ICH9 IDE mode SATA controller DID's.
-> 
-> Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
-Acked-by: Tejun Heo <htejun@gmail.com>
+Evgeniy Polyakov wrote:
+> + struct kevent_ring
+> + {
+> +   unsigned int ring_kidx, ring_uidx, ring_over;
+> +   struct ukevent event[0];
+> + }
+> + [...]
+> +ring_uidx - index of the first entry userspace can start reading from
+
+Do we need this value in the structure?  Userlevel cannot and should not 
+be able to modify it.  So, userland has in any case to track the tail 
+pointer itself.  Why then have this value at all?
+
+After kevent_init() the tail pointer is implicitly assumed to be 0. 
+Since the front pointer (well index) is also zero nothing is available 
+for reading.
 
 -- 
-tejun
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

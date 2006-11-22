@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753924AbWKVMJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753942AbWKVMLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753924AbWKVMJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753932AbWKVMJo
+	id S1753942AbWKVMLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 07:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753945AbWKVMLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:09:44 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:46299 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1753924AbWKVMJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:09:43 -0500
-Date: Wed, 22 Nov 2006 14:09:27 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: d binderman <dcb314@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH x86-64] Calgary: remove unused vars
-Message-ID: <20061122120927.GI4118@rhun.haifa.ibm.com>
-References: <BAY107-F16375715795A91CEA1E2D99CE30@phx.gbl>
+	Wed, 22 Nov 2006 07:11:17 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:11463 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1753942AbWKVMLQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 07:11:16 -0500
+Date: Wed, 22 Nov 2006 15:09:34 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061122120933.GA32681@2ka.mipt.ru>
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <BAY107-F16375715795A91CEA1E2D99CE30@phx.gbl>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4563FD53.7030307@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 15:09:37 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 11:45:24AM +0000, d binderman wrote:
+On Tue, Nov 21, 2006 at 11:33:39PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >Threads are parked in syscalls - which one should be interrupted?
 > 
-> Hello there,
+> It doesn't matter, use the same policy you use when waking a thread in 
+> case of an event.  This is not about waking a specific thread, it's 
+> about not dropping the event notification.
 > 
-> I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-> C compiler.
 > 
-> The compiler said
+> >And what if there were no threads waiting in syscalls?
 > 
-> arch/x86_64/kernel/pci-calgary.c(600): remark #593: variable "bbar" was set 
-> but never used
-> arch/x86_64/kernel/pci-calgary.c(601): remark #593: variable "busnum" was 
-> set but never used
+> This is fine, do nothing.  It means that the other threads are about to 
+> read the ring buffer and will pick up the event.
 > 
-> The source code is
 > 
->    void __iomem *bbar;
->    unsigned char busnum;
+> The case which must be avoided is that of all threads being in the 
+> kernel, one threads gets woken, and then is canceled.  Without notifying 
+> the kernel about the cancellation and in the absence of further events 
+> notifications the process is deadlocked.
 > 
-> I have checked the source code and I agree with the compiler.
-> Suggest delete local variables.
+> A second case which should be avoided is that there is a thread waiting 
+> when a thread gets canceled and there are one or more addition threads 
+> around, but not in the kernel.  But those other threads might not get to 
+> the ring buffer anytime soon, so handling the event is unnecessarily 
+> delayed.
 
-Thanks, I agree. Andi, please apply.
+Ok, to solve the problem in the way which should be good for both I
+decided to implement additional syscall which will allow to mark any
+event as ready and thus wake up appropriate threads. If userspace will
+request zero events to be marked as ready, syscall will just
+interrupt/wakeup one of the listeners parked in syscall.
 
-[PATCH x86-64] Calgary: remove unused vars
+Piece?
 
-Spotted by d binderman <dcb314@hotmail.com>.
-
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-
-diff -r aed4939c234b -r acb0eb3ee9c3 arch/x86_64/kernel/pci-calgary.c
---- a/arch/x86_64/kernel/pci-calgary.c	Mon Nov 20 22:44:19 2006 +0200
-+++ b/arch/x86_64/kernel/pci-calgary.c	Wed Nov 22 14:08:19 2006 +0200
-@@ -653,13 +653,8 @@ static void __init calgary_reserve_regio
- static void __init calgary_reserve_regions(struct pci_dev *dev)
- {
- 	unsigned int npages;
--	void __iomem *bbar;
--	unsigned char busnum;
- 	u64 start;
- 	struct iommu_table *tbl = dev->sysdata;
--
--	bbar = tbl->bbar;
--	busnum = dev->bus->number;
- 
- 	/* reserve bad_dma_address in case it's a legal address */
- 	iommu_range_reserve(tbl, bad_dma_address, 1);
+-- 
+	Evgeniy Polyakov

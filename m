@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756314AbWKVSSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756291AbWKVSVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756314AbWKVSSe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756337AbWKVSSe
+	id S1756291AbWKVSVK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756298AbWKVSVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:18:34 -0500
-Received: from gilford.textdrive.com ([207.7.108.53]:6369 "EHLO
-	gilford.textdrive.com") by vger.kernel.org with ESMTP
-	id S1756295AbWKVSSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:18:33 -0500
-Date: Wed, 22 Nov 2006 10:18:02 -0800
-From: Ira Snyder <kernel@irasnyder.com>
-To: trivial@kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sparse fix: initializer entry defined twice in pata_rz1000
-Message-Id: <20061122101802.7b035434.kernel@irasnyder.com>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i686-pc-linux-gnu)
+	Wed, 22 Nov 2006 13:21:10 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:21659 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1756291AbWKVSVJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:21:09 -0500
+Date: Wed, 22 Nov 2006 19:21:31 +0100
+From: DervishD <lkml@dervishd.net>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
+       The Peach <smartart@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: bug? VFAT copy problem
+Message-ID: <20061122182131.GA21699@DervishD>
+Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
+	The Peach <smartart@tiscali.it>, linux-kernel@vger.kernel.org
+References: <20061120164209.04417252@localhost> <877ixqhvlw.fsf@duaron.myhome.or.jp> <20061120184912.5e1b1cac@localhost> <87mz6kajks.fsf@duaron.myhome.or.jp> <1164204175.10427.1.camel@localhost.localdomain> <20061122145344.GB18141@DervishD> <87ac2jv517.fsf@duaron.myhome.or.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87ac2jv517.fsf@duaron.myhome.or.jp>
+User-Agent: Mutt/1.4.2.2i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] sparse fix: initializer entry defined twice in pata_rz1000
+    Hi OGAWA :)
 
-This removes the extra definition of the .error_handler member
-in the pata_rz1000 driver.
+ * OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> dixit:
+> DervishD <lkml@dervishd.net> writes:
+> >  * Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> dixit:
+> >> Have vfat a limit of a file size when copy ? 
+> >
+> >     2GB, if I recall correctly. FAT32 itself has a limit of 4GB-1 for
+> > file size, but Linux restricts it even more (don't ask me why).
+> 
+> It was fixed already, 2.6.x can handle 4GB-1.  2.4.x has limit of
+> 2GB-1 (there is patch).
 
-Signed-off-by: Ira W. Snyder <kernel@irasnyder.com>
+    Cool! Thanks for the information :)
 
----
-commit f84c313680a21fd6c487ac17f69c4c115472e257
-tree 6fbf62c0d7dff66229e1c5f48721acd704b4e07e
-parent e368d421bd8aef91af4013f1c289c6192f9a3e64
-author Ira W. Snyder <kernel@irasnyder.com> Sun, 19 Nov 2006 23:40:03 -0800
-committer Ira W. Snyder <kernel@irasnyder.com> Sun, 19 Nov 2006 23:40:03 -0800
+    Raúl Núñez de Arenas Coronado
 
- drivers/ata/pata_rz1000.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/ata/pata_rz1000.c b/drivers/ata/pata_rz1000.c
-index 4533b63..4747e89 100644
---- a/drivers/ata/pata_rz1000.c
-+++ b/drivers/ata/pata_rz1000.c
-@@ -103,8 +103,6 @@ static struct ata_port_operations rz1000
- 	.exec_command	= ata_exec_command,
- 	.dev_select 	= ata_std_dev_select,
- 
--	.error_handler	= rz1000_error_handler,
--
- 	.bmdma_setup 	= ata_bmdma_setup,
- 	.bmdma_start 	= ata_bmdma_start,
- 	.bmdma_stop	= ata_bmdma_stop,
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+It's my PC and I'll cry if I want to... RAmen!

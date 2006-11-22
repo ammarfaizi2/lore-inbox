@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757006AbWKVUgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757015AbWKVUh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757006AbWKVUgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 15:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757013AbWKVUgZ
+	id S1757015AbWKVUh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 15:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757016AbWKVUh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 15:36:25 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26118 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1757004AbWKVUgY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 15:36:24 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,449,1157353200"; 
-   d="scan'208"; a="165559888:sNHT18518178"
-From: Jason Gaston <jason.d.gaston@intel.com>
-To: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jason.d.gaston@intel.com, htejun@gmail.com
-Subject: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for Intel ICH9
-Date: Wed, 22 Nov 2006 12:36:16 -0800
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200611221236.16561.jason.d.gaston@intel.com>
+	Wed, 22 Nov 2006 15:37:27 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:17620 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1757014AbWKVUh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 15:37:26 -0500
+Date: Wed, 22 Nov 2006 21:37:24 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [Bulk] Re: [patch 2.6.19-rc6 1/6] rtc class /proc/driver/rtc
+ update
+Message-ID: <20061122213724.51c3e591@inspiron>
+In-Reply-To: <200611201847.58135.david-b@pacbell.net>
+References: <200611201014.41980.david-b@pacbell.net>
+	<200611201017.19961.david-b@pacbell.net>
+	<20061121001352.55f3ce2b@inspiron>
+	<200611201847.58135.david-b@pacbell.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updated patch adds the Intel ICH9 IDE mode SATA controller DID's.
+On Mon, 20 Nov 2006 18:47:57 -0800
+David Brownell <david-b@pacbell.net> wrote:
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+> >  I wouldn't change that, the /proc interface to rtc is old
+> >  and should not be used anyhow. Here I'm trying to mimic
+> >  the behaviour of the original one.
+> 
+> The "original" one never had such fields.  Even the efirtc.c
+> code (which originated those flags) didn't call them that;
+> it used "Enabled" not "alrm_enabled", so at least this patch
+> moves closer to that "original" behavior.
 
---- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20 04:58:48.000000000 -0800
-+++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-22 02:59:05.000000000 -0800
-@@ -227,15 +227,27 @@
- 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
- 	/* 2801GBM/GHM (ICH7M, identical to ICH6M) */
- 	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6m_sata_ahci },
--	/* Enterprise Southbridge 2 (where's the datasheet?) */
-+	/* Enterprise Southbridge 2 (631xESB/632xESB) */
- 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
--	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
-+	/* SATA Controller 1 IDE (ICH8) */
- 	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--	/* SATA Controller 2 IDE (ICH8, ditto) */
-+	/* SATA Controller 2 IDE (ICH8) */
- 	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--	/* Mobile SATA Controller IDE (ICH8M, ditto) */
-+	/* Mobile SATA Controller IDE (ICH8M) */
- 	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2921, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2926, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x2928, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x292d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x292e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	
- 	{ }	/* terminate list */
- };
- 
+ [..]
+
+> >  I don't know if there's any user space tool relying on this.
+> 
+> There shouldn't be any code parsing /proc/driver/rtc ... if there
+> is such stuff, it's already got so many variants to cope with that
+> adding one that actually matches the rest of the system would be
+> a net simplification.
+
+> The whole RTC framework is still labeled "experimental", and
+> AFAIK I'm the first person to audit the use of those flags.
+> 
+> Until it's no longer experimental, I have a hard time thinking
+> that backwards compatibility should prevent fixing such interface
+> bugs ... interface bugs are normally in the "fix ASAP" category,
+> since if you delay fixing them the costs grow exponentially.
+
+ given the experimental status, I'm inclined to remove the /proc
+ driver right now.
+
+ Any objection?
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

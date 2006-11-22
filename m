@@ -1,119 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756200AbWKVSG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756242AbWKVSHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756200AbWKVSG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756237AbWKVSG5
+	id S1756242AbWKVSHa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756296AbWKVSH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:06:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23251 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756200AbWKVSG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:06:56 -0500
-Message-ID: <45649166.8060209@redhat.com>
-Date: Wed, 22 Nov 2006 13:05:26 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>, phil.el@wanadoo.fr, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@redhat.com>,
-       oprofile-list@lists.sourceforge.net,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>	<20061115102122.GQ22565@stusta.de>	<200611151135.48306.dada1@cosmosbay.com> <200611221128.05769.dada1@cosmosbay.com>
-In-Reply-To: <200611221128.05769.dada1@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------040404030003050606060700"
+	Wed, 22 Nov 2006 13:07:29 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:61357 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1756292AbWKVSH2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:07:28 -0500
+Date: Wed, 22 Nov 2006 10:08:42 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061122180842.GG1755@us.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <20061121191338.GB2013@us.ibm.com> <Pine.LNX.4.44L0.0611211532340.6410-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0611211532340.6410-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040404030003050606060700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Eric Dumazet wrote:
-> On Wednesday 15 November 2006 11:35, Eric Dumazet wrote:
+On Tue, Nov 21, 2006 at 03:40:50PM -0500, Alan Stern wrote:
+> On Tue, 21 Nov 2006, Paul E. McKenney wrote:
 > 
->>On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
->>
->>>Subject    : x86_64: oprofile doesn't work
->>>References : http://lkml.org/lkml/2006/10/27/3
->>>Submitter  : Prakash Punnoor <prakash@punnoor.de>
->>>Status     : unknown
->>
+> > On Tue, Nov 21, 2006 at 12:56:21PM -0500, Alan Stern wrote:
+> > > Here's another potential problem with the fast path approach.  It's not
+> > > very serious, but you might want to keep it in mind.
+> > >
+> > > The idea is that a reader can start up on one CPU and finish on another,
+> > > and a writer might see the finish event but not the start event.  For
+> > > example:
+> ...
+> > > This requires two context switches to take place while the cpu loop in
+> > > srcu_readers_active_idx() runs, so perhaps it isn't realistic.  Is it
+> > > worth worrying about?
+> >
+> > Thank you -very- -much- for finding the basis behind my paranoia!
+> > I guess my intuition is still in good working order.  ;-)
 > 
-> I hit the same problem on i386 architecture too, if CONFIG_ACPI is not set.
+> Are you sure _this_ was the basis behind your paranoia?  Maybe it had
+> something else in mind...  :-)
+
+OK, I stand corrected, you found -one- basis for my paranoia.  There might
+indeed be others.  However, only -one- counter-example is required to
+invalidate a proposed algorithm.  ;-)
+
+> > It might be unlikely, but that makes it even worse -- a strange memory
+> > corruption problem that happens only under heavy load, and even then only
+> > sometimes.  No thank you!!!
+> >
+> > I suspect that this affects Jens as well, though I don't claim to
+> > completely understand his usage.
+> >
+> > One approach to get around this would be for the the "idx" returned from
+> > srcu_read_lock() to keep track of the CPU as well as the index within
+> > the CPU.  This would require atomic_inc()/atomic_dec() on the fast path,
+> > but would not add much to the overhead on x86 because the smp_mb() imposes
+> > an atomic operation anyway.  There would be little cache thrashing in the
+> > case where there is no preemption -- but if the readers almost always sleep,
+> > and where it is common for the srcu_read_unlock() to run on a different CPU
+> > than the srcu_read_lock(), then the additional cache thrashing could add
+> > significant overhead.
+> >
+> > Thoughts?
 > 
-> # opcontrol --setup --event=RESOURCE_STALLS:1000 --vmlinux=$VMFILE
-> # opcontrol --start
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/enabled: No such file or 
-> directory
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/event: No such file or directory
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/count: No such file or directory
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/kernel: No such file or 
-> directory
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/user: No such file or directory
-> /usr/bin/opcontrol: line 911: /dev/oprofile/0/unit_mask: No such file or 
-> directory
-> Using 2.6+ OProfile kernel interface.
-> Reading module info.
-> Using log file /var/lib/oprofile/oprofiled.log
-> Daemon started.
-> Profiler running.
-> 
-> # ls -l /dev/oprofile/
-> total 0
-> drwxr-xr-x 1 root root 0 Nov 22 11:18 1
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 backtrace_depth
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 buffer
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 buffer_size
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 buffer_watershed
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 cpu_buffer_size
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 cpu_type
-> -rw-rw-rw- 1 root root 0 Nov 22 11:18 dump
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 enable
-> -rw-r--r-- 1 root root 0 Nov 22 11:18 pointer_size
-> drwxr-xr-x 1 root root 0 Nov 22 11:18 stats
-> # dmesg | grep oprofile
-> oprofile: using NMI interrupt.
-> # opcontrol --version
-> opcontrol: oprofile 0.9.2 compiled on Nov 22 2006 11:24:09
-> 
-> Eric
+> I don't like the thought of extra overhead from cache thrashing.  Also it
+> seems silly to allocate per-cpu data and then write to another CPU's
+> element.
 
-You will also need another patch checked into the oprofile cvs last week mentioned:
+I am concerned about this as well, and am beginning to suspect that I
+need to make a special-purpose primitive specifically for Jens that he
+can include with his code.
 
-http://sourceforge.net/mailarchive/message.php?msg_id=35422937
+That said, some potential advantages of per-CPU elements that might see
+cache thrashing are:
 
--Will
+1.	the cross-CPU references might be rare.
 
+2.	memory contention is reduced compared to a single variable that
+	all CPUs are modifying.
 
---------------040404030003050606060700
-Content-Type: text/x-patch;
- name="opalloc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="opalloc.diff"
+Unfortunately, #1 seems unlikely in Jens's case -- why would the completion
+be so lucky as to show up on the same CPU as did the request most of the
+time?  #2 could be important in I/O heavy workloads with fast devices.
 
-Index: libop/op_alloc_counter.c
-===================================================================
-RCS file: /cvsroot/oprofile/oprofile/libop/op_alloc_counter.c,v
-retrieving revision 1.6
-diff -u -r1.6 op_alloc_counter.c
---- libop/op_alloc_counter.c	1 Oct 2003 21:53:46 -0000	1.6
-+++ libop/op_alloc_counter.c	17 Nov 2006 17:03:04 -0000
-@@ -130,7 +130,7 @@
- 		counter_arc const * arc = list_entry(pos, counter_arc, next);
- 
- 		if (allocated_mask & (1 << arc->counter))
--			return 0;
-+			continue;
- 
- 		counter_map[depth] = arc->counter;
- 
+> How about making srcu_readers_active_idx() so fast that there isn't time
+> for 2 context switches?  Disabling interrupts ought to be good enough
+> (except in virtualized environments perhaps).
 
---------------040404030003050606060700--
+NMIs?  ECC errors?  Cache misses?  And, as you say, virtualized
+environments.
+
+							Thanx, Paul

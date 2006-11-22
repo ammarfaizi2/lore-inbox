@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757082AbWKVVFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757020AbWKVVIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757082AbWKVVFk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 16:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757033AbWKVVFj
+	id S1757020AbWKVVIs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 16:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757021AbWKVVIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 16:05:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49582 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757059AbWKVVFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 16:05:37 -0500
-Message-ID: <4564BAC8.6020306@redhat.com>
-Date: Wed, 22 Nov 2006 13:02:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru>
-In-Reply-To: <20061122104416.GD11480@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Nov 2006 16:08:48 -0500
+Received: from ug-out-1314.google.com ([66.249.92.175]:15624 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1756986AbWKVVIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 16:08:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=s9Z1yb5uLb2EuYFUvwro+klQaWYrBCHwwKYLuWINx6imeHt2PA499c3ZnLQab2U0WItF0WYcsm6gn6vtM1aijHJJjnFsIbdfUCFSr2SPvtizB+bwrR5CYpfwS6o1Ns9wLcKAGpBckah3QwnKAsvzGvG/QISfnPJM75JQR3JGQd0=
+Date: Wed, 22 Nov 2006 22:07:07 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [script] Human-readable of supported pci hardware
+Message-Id: <20061122220707.ee78fc7d.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> But in this case it will be impossible to have SIGEV_THREAD and SIGEV_KEVENT
-> at the same time, it will be just the same as SIGEV_SIGNAL but with
-> different delivery mechanism. Is is what you expect for that?
+I've written a small (python) script that takes that info from
+/lib/modules/`uname -r`/modules.pcimap, looks up the PCIIDs in the pciid
+database (placed in /usr/share/misc/pci.ids in ubuntu, change the path if
+your system is different) and generates a list of human-readable hardware
+that each module supports (obviously the in-kernel stuff isn't included
+in the list). I've never seen a util that does this, and I though people
+may be interested in this crappy script
 
-Yes, that's expected.  The event if for the queue, not directed to a 
-specific thread.
+This only gives a list of supported "pci devices". It's easy to extend
+it to print also usb devices, and it'd be also possible for ieee1394
+or isapnp cards if there were a "id" database available.
 
-If in future we want to think about preferably waking a specific thread 
-we can then think about it.  But I doubt that'll be beneficial.  The 
-thread specific part in the signal handling is only used to implement 
-the SIGEV_THREAD notification.
+It be possible to dump the data in a database and do queries like "what
+sound cards does linux support?" But right now pretty much every driver
+except a few ones doesn't seem to set the pci_device_id.class field.
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+The script is at: http://www.terra.es/personal/diegocg/list-kernel-hardware.py
+
+
+Obligatory screenshot:
+
+Driver: snd-ymfpci
+        Device: YMF-724 (deviceid 0004); made by Yamaha Corporation (vendorid 1073)
+        Device: YMF-724F [DS-1 Audio Controller] (deviceid 000d); made by Yamaha Corporation (vendorid 1073)
+        Device: DS1L Audio (deviceid 000a); made by Yamaha Corporation (vendorid 1073)
+        Device: YMF-740C [DS-1L Audio Controller] (deviceid 000c); made by Yamaha Corporation (vendorid 1073)
+        Device: YMF-744B [DS-1S Audio Controller] (deviceid 0010); made by Yamaha Corporation (vendorid 1073)
+        Device: YMF-754 [DS-1E Audio Controller] (deviceid 0012); made by Yamaha Corporation (vendorid 1073)
+
+
+A full list for a default ubuntu kernel can be found at:
+http://www.terra.es/personal/diegocg/list.txt
+(obviously, to get a list of all the pci hardware supported by the
+kernel you'd need to compile a "allmodconfig" kernel)

@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754075AbWKVO6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754451AbWKVO6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754075AbWKVO6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 09:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754437AbWKVO6E
+	id S1754451AbWKVO6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 09:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754457AbWKVO6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 09:58:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12292 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1754075AbWKVO6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 09:58:02 -0500
-Date: Wed, 22 Nov 2006 15:58:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: d binderman <dcb314@hotmail.com>, linux-kernel@vger.kernel.org,
-       mel@csn.ul.ie
-Subject: Re: arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was set but nev
-Message-ID: <20061122145801.GH5200@stusta.de>
-References: <BAY107-F11C5D88BF00FBB291F3FC09CE30@phx.gbl> <p73mz6j8xdv.fsf@bingen.suse.de>
-MIME-Version: 1.0
+	Wed, 22 Nov 2006 09:58:48 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:37270 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1754450AbWKVO6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 09:58:47 -0500
+Date: Wed, 22 Nov 2006 09:58:21 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Pavel Emelianov <xemul@openvz.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
+       Adrian Bunk <bunk@stusta.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>, dev@sw.ru
+Subject: Re: 2.6.19-rc6: known regressions (v4)
+Message-ID: <20061122145821.GB2502@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com> <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org> <45641BEE.8060603@openvz.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p73mz6j8xdv.fsf@bingen.suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <45641BEE.8060603@openvz.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 01:43:40PM +0100, Andi Kleen wrote:
-> "d binderman" <dcb314@hotmail.com> writes:
+On Wed, Nov 22, 2006 at 12:44:14PM +0300, Pavel Emelianov wrote:
+> > I really think this is wrong.
+> >
+> > The original patch was wrong, and the _real_ problem is in __do_IRQ() that
+> > got the desc->lock too early.
+> >
+> > I _think_ the correct fix is to simply revert the broken commit, and fix
+> > the _one_ place that called "misnote_interrupt()" with the lock held.
+> >
+> > Something like this..
+> >
+> > I also think that the real fix will be to move the whole
+> >
+> > 	if (!noirqdebug)
+> > 		note_interrupt(irq, desc, action_ret);
+> >
+> >
+> > into handle_IRQ_event itself, since every caller (except for
+> > "misrouted_irq()" itself, and that should probably be done separately)
+> > should always do it. Right now we have a lot of people that just do
+> >
+> > 	action_ret = handle_IRQ_event(irq, action);
+> > 	if (!noirqdebug)
+> > 		note_interrupt(irq, desc, action_ret);
+> >
+> > explicitly.
+> >
+> > The only thing that keeps us from doing that is that we don't pass in
+> > "desc", but we should just do that.
+> >
+> > But in the meantime, this appears to be the minimal fix. Can people please
+> > test and verify?
 > 
-> > Hello there,
-> > 
-> > I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-> > C compiler.
-> > 
-> > The compiler said
-> > 
-> > arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was
-> > set but never used
+> This works for me, but is this normal that desc's fields are
+> modified non-atomically in note_interrupt()?
 > 
-> Actually it looks like a real bug -- probably added recently with the
-> new bootmap code.
+> And one more thing - report_bad_irq() traverses desc->action
+> list without any locking either.
 
-No, this unused assignment is in all 2.6 kernels starting with 2.6.0 and 
-even in 2.4 .
+Works for me too. But Pavel's concern look genuine. May be we should take
+the lock again in note_interrupt()/report_bad_irq() whenever we are
+accessing/modifying desc.
 
-> The bootmap should be reserved based on that size.
-> 
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks
+Vivek

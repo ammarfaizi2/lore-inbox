@@ -1,46 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162027AbWKVKmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162028AbWKVKql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162027AbWKVKmp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 05:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162031AbWKVKmo
+	id S1162028AbWKVKql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 05:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162037AbWKVKql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 05:42:44 -0500
-Received: from mx1.suse.de ([195.135.220.2]:36031 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162027AbWKVKmn (ORCPT
+	Wed, 22 Nov 2006 05:46:41 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:58556 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1162028AbWKVKqj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 05:42:43 -0500
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-Date: Wed, 22 Nov 2006 11:42:21 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Noll <maan@systemlinux.org>,
-       David Rientjes <rientjes@cs.washington.edu>, Mel Gorman <mel@skynet.ie>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de>
-In-Reply-To: <20061121212424.GQ5200@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 05:46:39 -0500
+Date: Wed, 22 Nov 2006 13:44:16 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061122104416.GD11480@2ka.mipt.ru>
+References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200611221142.21212.ak@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4563FE71.4040807@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 13:44:19 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ject    : x86_64: Bad page state in process 'swapper'
-> References : http://lkml.org/lkml/2006/11/10/135
->              http://lkml.org/lkml/2006/11/10/208
-> Submitter  : Andre Noll <maan@systemlinux.org>
-> Handled-By : David Rientjes <rientjes@cs.washington.edu>
-> Status     : problem is being debugged
+On Tue, Nov 21, 2006 at 11:38:25PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >I've checked the code.
+> >Since it will be a union, it is impossible to use _sigev_thread and it
+> >becomes just SIGEV_SIGNAL case with different delivery mechanism.
+> >Is it what you want?
+> 
+> struct sigevent is defined like this:
+> 
+> typedef struct sigevent {
+>         sigval_t sigev_value;
+>         int sigev_signo;
+>         int sigev_notify;
+>         union {
+>                 int _pad[SIGEV_PAD_SIZE];
+>                  int _tid;
+> 
+>                 struct {
+>                         void (*_function)(sigval_t);
+>                         void *_attribute;       /* really pthread_attr_t */
+>                 } _sigev_thread;
+>         } _sigev_un;
+> } sigevent_t;
+> 
+> 
+> For the SIGEV_KEVENT case:
+> 
+>   sigev_notify is set to SIGEV_KEVENT (obviously)
+> 
+>   sigev_value can be used for the void* data passed along with the
+>   signal, just like in the case of a signal delivery
+> 
+> Now you need a way to specify the kevent descriptor.  Just add
+> 
+>   int _kevent;
+> 
+> inside the union and if you want
+> 
+>   #define sigev_kevent_descr _sigev_un._kevent
+> 
+> That should be all.
 
-Does this still happen with -rc6? 
+That what I implemented.
+But in this case it will be impossible to have SIGEV_THREAD and SIGEV_KEVENT
+at the same time, it will be just the same as SIGEV_SIGNAL but with
+different delivery mechanism. Is is what you expect for that?
 
-It's probably another bug in the memmap parsing rewrite (Mel cc'ed) 
-but the debugging information in the standard kernel unfortunately
-doesn't give enough output to find out where it happens.
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
--Andi
+-- 
+	Evgeniy Polyakov

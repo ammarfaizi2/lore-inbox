@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162012AbWKVJLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162021AbWKVJXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162012AbWKVJLN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 04:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162011AbWKVJLN
+	id S1162021AbWKVJXy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 04:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162022AbWKVJXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 04:11:13 -0500
-Received: from gw.goop.org ([64.81.55.164]:3472 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1162012AbWKVJLL (ORCPT
+	Wed, 22 Nov 2006 04:23:54 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:42731 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1162021AbWKVJXx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 04:11:11 -0500
-Message-ID: <45641422.5090601@goop.org>
-Date: Wed, 22 Nov 2006 01:10:58 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Avi Kivity <avi@qumranet.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-       kvm-devel@lists.sourceforge.net, akpm@osdl.org,
+	Wed, 22 Nov 2006 04:23:53 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 1/2] fix call to alloc_bootmem after bootmem has been freed
+Date: Wed, 22 Nov 2006 10:23:40 +0100
+User-Agent: KMail/1.9.5
+Cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
-References: <4563667B.2060209@goop.org> <4563F158.3060209@qumranet.com>
-In-Reply-To: <4563F158.3060209@qumranet.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+References: <20061115193049.3457b44c@localhost> <20061121190213.1700761b@localhost> <20061121102616.47d03ccc.akpm@osdl.org>
+In-Reply-To: <20061121102616.47d03ccc.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200611221023.41807.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Very interesting.
->
-> Will it work on load/store architectures?  Since all memory access is
-> through a register, won't the constraint generate a useless register
-> load (and a use of the variable)?
+On Tuesday 21 November 2006 19:26, Andrew Morton wrote:
+> slab is a very different thing from vmalloc.  One could easily envisage
+> situations (now or in the future) in which slab is ready, but vmalloc is
+> not (more likely vice versa).
+> 
+> It'd be better to add a new vmalloc_is_available.  (Just an int - no need
+> for a helper function).
 
-Don't know; interesting question.  It might be worth lobbying the gcc
-folks for an asm() constraint which means "pretend this is being
-read/written, but don't generate any code, and raise an error if the asm
-actually tries to use it".  Or perhaps there's some way to do that already.
+In the time line, we currently have
 
-On the other hand, load/store archs tend to have lots of registers
-anyway, so maybe it isn't a big deal.
+start_kernel()
+   ...
+   setup_arch()
+      init_bootmem()              # alloc_bootmem starts working
+      ...
+      paging_init()               # needed for vmalloc
+   ...                            #
+   mem_init()
+      free_all_bootmem()          # alloc_bootmem stops working, alloc_pages
+				  # starts working
+   kmem_cache_init()              # kmalloc and vmalloc start working
+   ...
+   system_state = SYSTEM_RUNNING
 
-    J
+The one interesting point here is where you have to transition between
+calling alloc_bootmem and calling the regular allocator functions.
+Maybe calling it slab_is_available() was not the best choice for a name,
+but I don't see a point in having different names for essentially the
+same question, "bootmem or not bootmem". The powerpc platform has an
+integer variable called 'mem_init_done', which expresses this well
+IMHO, but it's currently not portable.
 
+Checking for SYSTEM_RUNNING is obviously the wrong choice, since it is
+set at a very late point in bootup, long after bootmem is gone.
 
+	Arnd <><

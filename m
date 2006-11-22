@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966995AbWKVBT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966994AbWKVBWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966995AbWKVBT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 20:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966994AbWKVBTZ
+	id S966994AbWKVBWv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 20:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966997AbWKVBWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 20:19:25 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53665 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S966995AbWKVBTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 20:19:25 -0500
-Date: Tue, 21 Nov 2006 17:19:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tony Lindgren <tony@atomide.com>
-Subject: Re: [patch 2.6.19-rc6 6/6] rtc-omap driver
-Message-Id: <20061121171906.5eec32d6.akpm@osdl.org>
-In-Reply-To: <200611201028.48701.david-b@pacbell.net>
-References: <200611201014.41980.david-b@pacbell.net>
-	<200611201028.48701.david-b@pacbell.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 20:22:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:42133 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966994AbWKVBWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 20:22:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=rbbKLSI3LdgxvM0pCgUjowZJ9ecnJwBWoRdJ5cvjz+vHNKEGFCHD1WiaqKC69YB3M4YnA6nC2zL7gilInX6W+OWyDPzPqR9A1GZbQAhKG6zosxtbXFaSXQedoXSgtKNEusEyMCsZTLYIJLEYrzqDDTAVX6zAKXVexemLojpZoTY=
+Message-ID: <4563A661.3070908@gmail.com>
+Date: Wed, 22 Nov 2006 10:22:41 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: Jason Gaston <jason.d.gaston@intel.com>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for
+ Intel ICH9
+References: <200611211653.51596.jason.d.gaston@intel.com>
+In-Reply-To: <200611211653.51596.jason.d.gaston@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2006 10:28:48 -0800
-David Brownell <david-b@pacbell.net> wrote:
-
-> This creates a new RTC-framework driver for the RTC/calendar module found
-> in various OMAP1 chips.  (OMAP2 and OMAP3 use external RTCs, like those in
-> TI's multifunction PM companion chips.)  It's been in the Linux-OMAP tree
-> for several months now, and other trees before that, so it's quite stable.
-> The most notable issue is that the OMAP IRQ code doesn't yet support the
-> RTC IRQ as a wakeup event.  Once that's fixed, a patch will be needed.
+Jason Gaston wrote:
+> This patch adds the Intel ICH9 IDE mode SATA controller DID's.
 > 
-> ...
->
-> +static int omap_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
-> +{
-> +	u8 reg;
-> +
-> +	/* Much userspace code uses RTC_ALM_SET, thus "don't care" for
-> +	 * day/month/year specifies alarms up to 24 hours in the future.
-> +	 * So we need to handle that ... but let's ignore the "don't care"
-> +	 * values for hours/minutes/seconds.
-> +	 */
-> +	if (alm->time.tm_mday <= 0
-> +			&& alm->time.tm_mon < 0
-> +			&& alm->time.tm_year < 0) {
-> +		struct rtc_time tm;
-> +		unsigned long now, then;
-> +
-> +		omap_rtc_read_time(dev, &tm);
-> +		rtc_tm_to_time(&tm, &now);
-> +
-> +		alm->time.tm_mday = tm.tm_mday;
-> +		alm->time.tm_mon = tm.tm_mon;
-> +		alm->time.tm_year = tm.tm_year;
-> +		rtc_tm_to_time(&alm->time, &then);
-> +
-> +		/* sometimes the alarm wraps into tomorrow */
-> +		if (then < now) {
+> Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+> 
+> --- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20 04:58:48.000000000 -0800
+> +++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-20 06:15:12.000000000 -0800
 
-This isn't wraparound-safe.  If you have then=0xffffffff and now=0x00000001.
+Yeap, it came through fine this time, but ich8 and ich9 are identical 
+from ata_piix's point of view.  Don't add ich9_sata_ahci, just use 
+ich8_sata_ahci.
 
-Perhaps that can't happen.
-
-> +MODULE_AUTHOR("George G. Davis (and others)");
-
-Maybe some additional signoffs would be appropirate?
+-- 
+tejun

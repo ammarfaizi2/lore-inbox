@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757138AbWKVXEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756014AbWKVXFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757138AbWKVXEH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 18:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757143AbWKVXEH
+	id S1756014AbWKVXFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 18:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757130AbWKVXFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 18:04:07 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:50203 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1757138AbWKVXEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 18:04:04 -0500
-To: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
-Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openib-general@openib.org, raisch@de.ibm.com
-Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address to determine pending work requests
-X-Message-Flag: Warning: May contain useful information
-References: <200611202354.13030.hnguyen@linux.vnet.ibm.com>
-	<adaslgcg30n.fsf@cisco.com>
-	<200611221029.10077.hnguyen@linux.vnet.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 22 Nov 2006 15:04:01 -0800
-In-Reply-To: <200611221029.10077.hnguyen@linux.vnet.ibm.com> (Hoang-Nam Nguyen's message of "Wed, 22 Nov 2006 10:29:09 +0100")
-Message-ID: <adaslgbaxsu.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Wed, 22 Nov 2006 18:05:18 -0500
+Received: from rtr.ca ([64.26.128.89]:45327 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1756014AbWKVXFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 18:05:17 -0500
+Message-ID: <4564D7AB.3000601@rtr.ca>
+Date: Wed, 22 Nov 2006 18:05:15 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Nov 2006 23:04:01.0291 (UTC) FILETIME=[7FA16DB0:01C70E8A]
-Authentication-Results: sj-dkim-7; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim7002 verified; ); 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on  SOFTWARE_SUSPEND
+References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > We found this bug actually through a code review by random. Since
- > (un)fortunately the queue pages were layouted in order, we've not
- > seen it earlier. It's certainly a bug and can cause kernel panic 
- > if above observation is not met, probably in stress situation
- > of system. That means the "former" code accesses next page that 
- > it has not allocated.
+Linus Torvalds wrote:
+>
+> Sane people use suspend-to-ram, and that's when you need the suspend and 
+> resume debugging.
+> 
+> Software-suspend is silly. I want my machine back in three seconds, not 
+> waiting for minutes..
 
-OK.  After thinking about this, I'm going to queue it for 2.6.20 --
-we're _way_ too close to the 2.6.19 final release to put in patches
-that aren't either small and obvious, or fix a problem someone hit in
-real life.
+ALL of my notebooks here have always been capable of Suspend-to-RAM with Linux,
+and that's how I like it.  We've had six different models (IBM, Dell, Toshiba),
+and they have all worked fine with S2R.
 
- - R.
+The older APM ones had zero issues, and just always worked.
+
+The newer ACPI ones have required some tweaking to the sleep/wakeup scripts,
+but now work perfectly with suspend-to-ram.
+
+Suspend-to-disk (and resume from disk) are way too slow for regular use,
+except of course for the swsusp2 version, which is nearly as quick as S2R is.
+
+I do use S2D when travelling, as it's much easier on the batteries while
+the notebook is packed away on the red-eye flights.
+
+Cheers

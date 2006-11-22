@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756919AbWKVGmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756922AbWKVGqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756919AbWKVGmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 01:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756921AbWKVGmj
+	id S1756922AbWKVGqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 01:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756924AbWKVGqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 01:42:39 -0500
-Received: from mis011-1.exch011.intermedia.net ([64.78.21.128]:22704 "EHLO
-	mis011-1.exch011.intermedia.net") by vger.kernel.org with ESMTP
-	id S1756919AbWKVGmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 01:42:38 -0500
-Message-ID: <4563F158.3060209@qumranet.com>
-Date: Wed, 22 Nov 2006 08:42:32 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-       kvm-devel@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [kvm-devel] [PATCH] KVM: Avoid using vmx instruction directly
-References: <4563667B.2060209@goop.org>
-In-Reply-To: <4563667B.2060209@goop.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Nov 2006 01:46:25 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:11137 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1756922AbWKVGqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 01:46:25 -0500
+Date: Tue, 21 Nov 2006 22:46:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: wbrana@gmail.com
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH] snd-hda-intel: fix insufficient memory
+Message-Id: <20061121224613.548207f9.akpm@osdl.org>
+In-Reply-To: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com>
+References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2006 06:42:38.0332 (UTC) FILETIME=[66A6EBC0:01C70E01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
->
->
-> Like "volatile" variables, I think "asm volatile" is probably overused.
-> If you want to guarantee specific ordering of asms, it's probably better
-> to add an explicit dependency between them rather than rely on asm
-> volatile; this could either be a "memory" clobber, or something more
-> fine-grained.  For example:
->
->     /* need never be instansiated; never actually referenced */
->     extern int spin_sequencer;
->
->     /* %0 never referenced */
->     asm("take spinlock" : "+m" (spin_sequencer)...);
->
->     ...
->
->     /* again, %0 never referenced */
->     asm("release spinlock" : "+m" (spin_sequencer)...);
->
+On Tue, 21 Nov 2006 21:33:29 +0100
+wbrana@gmail.com wrote:
 
-Very interesting.
+> Module allocates insufficient memory for multichannel and high quality
+> audio (96 kHz, 24 bit)
+> Patch for 2.6.19-* changes default/maximal size from 64/128 to 256/4096 kB.
+> 
+> --- sound/pci/hda/hda_intel.c.orig      2006-09-29 13:40:36.000000000 +0200
+> +++ sound/pci/hda/hda_intel.c   2006-11-05 16:45:13.000000000 +0100
+> @@ -1270,5 +1270,5 @@
+>         snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
+>                                               snd_dma_pci_data(chip->pci),
+> -                                             1024 * 64, 1024 * 128);
+> +                                             1024 * 256, 1024 * 4096);
+>         chip->pcm[pcm_dev] = pcm;
+>         if (chip->pcm_devs < pcm_dev + 1)
 
-Will it work on load/store architectures?  Since all memory access is 
-through a register, won't the constraint generate a useless register 
-load (and a use of the variable)?
+This was recently increased, but not by such a large amount:
 
+	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
+					      snd_dma_pci_data(chip->pci),
+					      1024 * 64, 1024 * 1024);
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+is that sufficient?

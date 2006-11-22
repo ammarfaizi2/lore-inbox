@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161857AbWKVIFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161854AbWKVIFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161857AbWKVIFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 03:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161854AbWKVIFZ
+	id S1161854AbWKVIFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 03:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161859AbWKVIFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 03:05:25 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:19354 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1161838AbWKVIFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 03:05:23 -0500
-Message-ID: <456404E2.1060102@jp.fujitsu.com>
-Date: Wed, 22 Nov 2006 17:05:54 +0900
+	Wed, 22 Nov 2006 03:05:38 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:26263 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161840AbWKVIFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 03:05:36 -0500
+Message-ID: <456404EF.3090902@jp.fujitsu.com>
+Date: Wed, 22 Nov 2006 17:06:07 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
@@ -20,100 +20,81 @@ Cc: Greg KH <greg@kroah.com>, Grant Grundler <grundler@parisc-linux.org>,
        Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
        linux-scsi@vger.kernel.org,
        Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: [PATCH 1/5] Update Documentation/pci.txt
+Subject: [PATCH 2/5] PCI : Move pci_fixup_device and is_enabled
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the description about legacy I/O port free driver into
-Documentation/pci.txt.
+This patch adds the following changes into generic PCI code especially
+for PCI legacy I/O port free drivers.
+
+    - Moved the following two things from pci_enable_device() into
+      pci_enable_device_bars(). Already some drivers are using
+      pci_enable_device_bars() to enable only the specific regions,
+      but they had no chance to be fixup and to up is_enabled flag.
+
+          o Call pci_fixup_device() on the device
+          o Checking & Setting dev->is_enabled
+
+    - Trivial cleanup
 
 Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
 Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
 ---
- Documentation/pci.txt |   70 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 70 insertions(+)
+ drivers/pci/pci.c |   20 ++++++++------------
+ 1 files changed, 8 insertions(+), 12 deletions(-)
 
-Index: linux-2.6.19-rc6/Documentation/pci.txt
+Index: linux-2.6.19-rc6/drivers/pci/pci.c
 ===================================================================
---- linux-2.6.19-rc6.orig/Documentation/pci.txt
-+++ linux-2.6.19-rc6/Documentation/pci.txt
-@@ -287,3 +287,73 @@
- pci_find_device()		Superseded by pci_get_device()
- pci_find_subsys()		Superseded by pci_get_subsys()
- pci_find_slot()			Superseded by pci_get_slot()
-+
-+
-+10. Legacy I/O port free driver
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Large servers may not be able to provide I/O port resources to all PCI
-+devices. I/O Port space is only 64KB on Intel Architecture[1] and is
-+likely also fragmented since the I/O base register of PCI-to-PCI
-+bridge will usually be aligned to a 4KB boundary[2]. On such systems,
-+pci_enable_device() and pci_request_regions() will fail when
-+attempting to enable I/O Port regions that don't have I/O Port
-+resources assigned.
-+
-+Fortunately, many PCI devices which request I/O Port resources also
-+provide access to the same registers via MMIO BARs. These devices can
-+be handled without using I/O port space and the drivers typically
-+offer a CONFIG_ option to only use MMIO regions
-+(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
-+interface for legacy OSs and will work when I/O port resources are not
-+assigned. The "PCI Local Bus Specification Revision 3.0" discusses
-+this on p.44, "IMPLEMENTATION NOTE".
-+
-+If your PCI device driver doesn't need I/O port resources assigned to
-+I/O Port BARs, you should use pci_enable_device_bars() instead of
-+pci_enable_device() in order not to enable I/O port regions for the
-+corresponding devices. In addition, you should use
-+pci_request_selected_regions()/pci_release_selected_regions() instead
-+of pci_request_regions()/pci_release_regions() in order not to
-+request/release I/O port regions for the corresponding devices.
-+
-+[1] Some systems support 64KB I/O port space per PCI segment.
-+[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
-+
-+
-+11. MMIO Space and "Write Posting"
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Converting a driver from using I/O Port space to using MMIO space
-+often requires some additional changes. Specifically, "write posting"
-+needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
-+already do. I/O Port space guarantees write transactions reach the PCI
-+device before the CPU can continue. Writes to MMIO space allow to CPU
-+continue before the transaction reaches the PCI device. HW weenies
-+call this "Write Posting" because the write completion is "posted" to
-+the CPU before the transaction has reached it's destination.
-+
-+Thus, timing sensitive code should add readl() where the CPU is
-+expected to wait before doing other work.  The classic "bit banging"
-+sequence works fine for I/O Port space:
-+
-+	for (i=8; --i; val >>= 1) {
-+		outb(val & 1, ioport_reg);	/* write bit */
-+		udelay(10);
-+	}
-+
-+The same sequence for MMIO space should be:
-+
-+	for (i=8; --i; val >>= 1) {
-+		writeb(val & 1, mmio_reg);	/* write bit */
-+		readb(safe_mmio_reg);		/* flush posted write */
-+		udelay(10);
-+	}
-+
-+It is important that "safe_mmio_reg" not have any side effects that
-+interferes with the correct operation of the device.
-+
-+Another case to watch out for is when resetting a PCI device. Use PCI
-+Configuration space reads to flush the writel(). This will gracefully
-+handle the PCI master abort on all platforms if the PCI device is
-+expected to not respond to a readl().  Most x86 platforms will allow
-+MMIO reads to master abort (aka "Soft Fail") and return garbage
-+(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").
+--- linux-2.6.19-rc6.orig/drivers/pci/pci.c
++++ linux-2.6.19-rc6/drivers/pci/pci.c
+@@ -558,12 +558,18 @@
+ {
+ 	int err;
 
++	if (dev->is_enabled)
++		return 0;
++
+ 	err = pci_set_power_state(dev, PCI_D0);
+ 	if (err < 0 && err != -EIO)
+ 		return err;
+ 	err = pcibios_enable_device(dev, bars);
+ 	if (err < 0)
+ 		return err;
++
++	pci_fixup_device(pci_fixup_enable, dev);
++	dev->is_enabled = 1;
+ 	return 0;
+ }
+
+@@ -578,17 +584,7 @@
+ int
+ pci_enable_device(struct pci_dev *dev)
+ {
+-	int err;
+-
+-	if (dev->is_enabled)
+-		return 0;
+-
+-	err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+-	if (err)
+-		return err;
+-	pci_fixup_device(pci_fixup_enable, dev);
+-	dev->is_enabled = 1;
+-	return 0;
++	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
+ }
+
+ /**
+@@ -737,7 +733,7 @@
+ {
+ 	if (pci_resource_len(pdev, bar) == 0)
+ 		return 0;
+-		
++
+ 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO) {
+ 		if (!request_region(pci_resource_start(pdev, bar),
+ 			    pci_resource_len(pdev, bar), res_name))
 

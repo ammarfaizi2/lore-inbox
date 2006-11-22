@@ -1,101 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756502AbWKVS7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756548AbWKVTAN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756502AbWKVS7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756537AbWKVS7m
+	id S1756548AbWKVTAN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756512AbWKVTAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:59:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59038 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756502AbWKVS7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:59:41 -0500
-Date: Wed, 22 Nov 2006 18:59:36 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Milan Broz <mbroz@redhat.com>, Heinz Mauelshagen <hjm@redhat.com>,
-       linux-kernel@vger.kernel.org, dm-devel@redhat.com
-Subject: [PATCH 01/11] dm io: fix bi_max_vecs
-Message-ID: <20061122185936.GR6993@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Milan Broz <mbroz@redhat.com>, Heinz Mauelshagen <hjm@redhat.com>,
-	linux-kernel@vger.kernel.org, dm-devel@redhat.com
+	Wed, 22 Nov 2006 14:00:13 -0500
+Received: from bay0-omc3-s32.bay0.hotmail.com ([65.54.246.232]:60922 "EHLO
+	bay0-omc3-s32.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1756548AbWKVTAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:00:11 -0500
+Message-ID: <BAY20-F249DFEB9C67DC4ECE4CA7ED8E30@phx.gbl>
+X-Originating-IP: [80.178.108.101]
+X-Originating-Email: [yan_952@hotmail.com]
+From: "Burman Yan" <yan_952@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@kernel.org, wolfgang@iksw-muees.de
+Subject: [PATCH 2.6.19-rc6] USB AUERSWALD: replace kmalloc+memset with kzalloc
+Date: Wed, 22 Nov 2006 21:00:08 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_2617_44a7_698c"
+X-OriginalArrivalTime: 22 Nov 2006 19:00:11.0648 (UTC) FILETIME=[6FAF1000:01C70E68]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heinz Mauelshagen <hjm@redhat.com>
+This is a multi-part message in MIME format.
 
-The existing code allocates an extra slot in bi_io_vec[] and uses it to
-store the region number.
+------=_NextPart_000_2617_44a7_698c
+Content-Type: text/plain; format=flowed
 
-This patch hides the extra slot from bio_add_page() so the region number
-can't get overwritten.
+Hi.
 
-Also remove a hard-coded SECTOR_SHIFT and fix a typo in a comment.
+This patch replaces kmalloc+memset with kzalloc in USB AUERSWALD driver.
 
-Signed-off-by: Heinz Mauelshagen <hjm@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-Cc: Milan Broz <mbroz@redhat.com>
-Cc: dm-devel@redhat.com
+Regards
+Yan Burman
 
-Index: linux-2.6.19-rc6/drivers/md/dm-io.c
-===================================================================
---- linux-2.6.19-rc6.orig/drivers/md/dm-io.c	2006-11-22 17:26:47.000000000 +0000
-+++ linux-2.6.19-rc6/drivers/md/dm-io.c	2006-11-22 17:26:53.000000000 +0000
-@@ -92,12 +92,12 @@ void dm_io_put(unsigned int num_pages)
-  *---------------------------------------------------------------*/
- static inline void bio_set_region(struct bio *bio, unsigned region)
- {
--	bio->bi_io_vec[bio->bi_max_vecs - 1].bv_len = region;
-+	bio->bi_io_vec[bio->bi_max_vecs].bv_len = region;
- }
- 
- static inline unsigned bio_get_region(struct bio *bio)
- {
--	return bio->bi_io_vec[bio->bi_max_vecs - 1].bv_len;
-+	return bio->bi_io_vec[bio->bi_max_vecs].bv_len;
- }
- 
- /*-----------------------------------------------------------------
-@@ -136,6 +136,7 @@ static int endio(struct bio *bio, unsign
- 		zero_fill_bio(bio);
- 
- 	dec_count(io, bio_get_region(bio), error);
-+	bio->bi_max_vecs++;
- 	bio_put(bio);
- 
- 	return 0;
-@@ -250,16 +251,18 @@ static void do_region(int rw, unsigned i
- 
- 	while (remaining) {
- 		/*
--		 * Allocate a suitably sized bio, we add an extra
--		 * bvec for bio_get/set_region().
-+		 * Allocate a suitably sized-bio: we add an extra
-+		 * bvec for bio_get/set_region() and decrement bi_max_vecs
-+		 * to hide it from bio_add_page().
- 		 */
--		num_bvecs = (remaining / (PAGE_SIZE >> 9)) + 2;
-+		num_bvecs = (remaining / (PAGE_SIZE >> SECTOR_SHIFT)) + 2;
- 		bio = bio_alloc_bioset(GFP_NOIO, num_bvecs, _bios);
- 		bio->bi_sector = where->sector + (where->count - remaining);
- 		bio->bi_bdev = where->bdev;
- 		bio->bi_end_io = endio;
- 		bio->bi_private = io;
- 		bio->bi_destructor = dm_bio_destructor;
-+		bio->bi_max_vecs--;
- 		bio_set_region(bio, region);
- 
- 		/*
-@@ -302,7 +305,7 @@ static void dispatch_io(int rw, unsigned
- 	}
- 
- 	/*
--	 * Drop the extra refence that we were holding to avoid
-+	 * Drop the extra reference that we were holding to avoid
- 	 * the io being completed too early.
- 	 */
- 	dec_count(io, 0, 0);
+_________________________________________________________________
+FREE pop-up blocking with the new MSN Toolbar - get it now! 
+http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
+
+------=_NextPart_000_2617_44a7_698c
+Content-Type: application/octet-stream; name="kzalloc_usb_auerswald.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kzalloc_usb_auerswald.patch"
+
+UmVwbGFjZSBrbWFsbG9jK21lbXNldCB3aXRoIGt6YWxsb2MKClNpZ25lZC1v
+ZmYtYnk6IFlhbiBCdXJtYW4gPHlhbl85NTJAaG90bWFpbC5jb20+CgpkaWZm
+IC1ydWJwIGxpbnV4LTIuNi4xOS1yYzVfb3JpZy9kcml2ZXJzL3VzYi9taXNj
+L2F1ZXJzd2FsZC5jIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxvYy9kcml2ZXJz
+L3VzYi9taXNjL2F1ZXJzd2FsZC5jCi0tLSBsaW51eC0yLjYuMTktcmM1X29y
+aWcvZHJpdmVycy91c2IvbWlzYy9hdWVyc3dhbGQuYwkyMDA2LTExLTA5IDEy
+OjE2OjIxLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjE5LXJjNV9r
+emFsbG9jL2RyaXZlcnMvdXNiL21pc2MvYXVlcnN3YWxkLmMJMjAwNi0xMS0x
+MSAyMjo0NDoxOC4wMDAwMDAwMDAgKzAyMDAKQEAgLTEzNzksNyArMTM3OSw3
+IEBAIHN0YXRpYyBpbnQgYXVlcmNoYXJfb3BlbiAoc3RydWN0IGlub2RlICoK
+IAl9CiAKIAkvKiB3ZSBoYXZlIGFjY2VzcyB0byB0aGUgZGV2aWNlLiBOb3cg
+bGV0cyBhbGxvY2F0ZSBtZW1vcnkgKi8KLQljY3AgPSAocGF1ZXJjaGFyX3Qp
+IGttYWxsb2Moc2l6ZW9mKGF1ZXJjaGFyX3QpLCBHRlBfS0VSTkVMKTsKKwlj
+Y3AgPSBremFsbG9jKHNpemVvZihhdWVyY2hhcl90KSwgR0ZQX0tFUk5FTCk7
+CiAJaWYgKGNjcCA9PSBOVUxMKSB7CiAJCWVyciAoIm91dCBvZiBtZW1vcnki
+KTsKIAkJcmV0ID0gLUVOT01FTTsKQEAgLTEzODcsNyArMTM4Nyw2IEBAIHN0
+YXRpYyBpbnQgYXVlcmNoYXJfb3BlbiAoc3RydWN0IGlub2RlICoKIAl9CiAK
+IAkvKiBJbml0aWFsaXplIGRldmljZSBkZXNjcmlwdG9yICovCi0JbWVtc2V0
+KCBjY3AsIDAsIHNpemVvZihhdWVyY2hhcl90KSk7CiAJaW5pdF9NVVRFWCgg
+JmNjcC0+bXV0ZXgpOwogCWluaXRfTVVURVgoICZjY3AtPnJlYWRtdXRleCk7
+CiAgICAgICAgIGF1ZXJidWZfaW5pdCAoJmNjcC0+YnVmY3RsKTsKQEAgLTE5
+MTUsMTQgKzE5MTQsMTMgQEAgc3RhdGljIGludCBhdWVyc3dhbGRfcHJvYmUg
+KHN0cnVjdCB1c2JfaQogCQlyZXR1cm4gLUVOT0RFVjsKIAogCS8qIGFsbG9j
+YXRlIG1lbW9yeSBmb3Igb3VyIGRldmljZSBhbmQgaW5pdGlhbGl6ZSBpdCAq
+LwotCWNwID0ga21hbGxvYyAoc2l6ZW9mKGF1ZXJzd2FsZF90KSwgR0ZQX0tF
+Uk5FTCk7CisJY3AgPSBremFsbG9jIChzaXplb2YoYXVlcnN3YWxkX3QpLCBH
+RlBfS0VSTkVMKTsKIAlpZiAoY3AgPT0gTlVMTCkgewogCQllcnIgKCJvdXQg
+b2YgbWVtb3J5Iik7CiAJCWdvdG8gcGZhaWw7CiAJfQogCiAJLyogSW5pdGlh
+bGl6ZSBkZXZpY2UgZGVzY3JpcHRvciAqLwotCW1lbXNldCAoY3AsIDAsIHNp
+emVvZihhdWVyc3dhbGRfdCkpOwogCWluaXRfTVVURVggKCZjcC0+bXV0ZXgp
+OwogCWNwLT51c2JkZXYgPSB1c2JkZXY7CiAJYXVlcmNoYWluX2luaXQgKCZj
+cC0+Y29udHJvbGNoYWluKTsK
+
+
+------=_NextPart_000_2617_44a7_698c--

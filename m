@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967077AbWKVDte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967082AbWKVD4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967077AbWKVDte (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 22:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967078AbWKVDte
+	id S967082AbWKVD4j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 22:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967083AbWKVD4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 22:49:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18923 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S967077AbWKVDte (ORCPT
+	Tue, 21 Nov 2006 22:56:38 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:65487 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S967082AbWKVD4h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 22:49:34 -0500
-Date: Tue, 21 Nov 2006 22:49:28 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-Message-ID: <20061122034928.GF533@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.64.0610071408220.3952@g5.osdl.org> <9a8748490610081633k7bf011d1q131b2f9e06f2808d@mail.gmail.com> <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> <Pine.LNX.4.64.0610161554140.3962@g5.osdl.org> <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com> <9a8748490610231330y65f3e243pe1101d11a28dbbfa@mail.gmail.com> <9a8748490611211646o2c92564dmfe8d6ffdf66228ba@mail.gmail.com> <Pine.LNX.4.64.0611211827590.3338@woody.osdl.org> <20061122032512.GE533@redhat.com> <Pine.LNX.4.64.0611211944120.3352@woody.osdl.org>
-Mime-Version: 1.0
+	Tue, 21 Nov 2006 22:56:37 -0500
+Date: Wed, 22 Nov 2006 12:55:17 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Bill Gatliff <bgat@billgatliff.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>,
+       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
+Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
+Message-ID: <20061122035517.GA8790@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Bill Gatliff <bgat@billgatliff.com>,
+	David Brownell <david-b@pacbell.net>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
+	Haavard Skinnemoen <hskinnemoen@atmel.com>,
+	Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Tony Lindgren <tony@atomide.com>
+References: <200611111541.34699.david-b@pacbell.net> <200611202135.39970.david-b@pacbell.net> <20061121060918.GA2033@linux-sh.org> <200611211013.19127.david-b@pacbell.net> <4563C5B1.2040304@billgatliff.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611211944120.3352@woody.osdl.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <4563C5B1.2040304@billgatliff.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 07:44:45PM -0800, Linus Torvalds wrote:
+On Tue, Nov 21, 2006 at 09:36:17PM -0600, Bill Gatliff wrote:
+> David Brownell wrote:
+> >I know some folk say they "need" to remux after boot in
+> >non-exceptional cases, but the ability to do that (or not) really
+> >seems like a separate discussion.
+> 
+> I don't need to REmux, but I don't want to bother setting up the routing 
+> manually at all.  I think the GPIO management stuff can do it properly 
+> on my behalf, given the information we have to acquire to get the GPIO 
+> API to work in the first place.
+> 
+You can't really have one without the other, and if you're going to add
+that sort of functionality, it's not strictly tied to the GPIOs.
 
- > > memset(buf, 0, SIZE);
- > 
- > I'm just checking that you're paying attention.
- > 
- > There's a reason sparse warns about the third parameter of a memset() 
- > being zero ;)
+> Kind of like with request_irq() and enable_irq().  The driver is saying, 
+> "I don't care what's actually behind this interrupt source X, I just 
+> want it routed over to me".  If we commit to hiding the muxing behind 
+> the API, instead of defining a new, parallel API,  we get that kind of 
+> mentality for GPIO as well.
+> 
+As soon as a driver comes along and says that it wants, say, GPIO 42,
+which happens to be an alternate pin function for pin #128, you've
+effectively coupled the two, especially since the underlying refcounting
+is more applicable to the pin function than the GPIO itself.
 
-Heh, it's amazing how commonplace that mistake is.
-Come back bzero, all is forgiven..
+And this is something where you will have to remux, or at least force
+that GPIOs availability through the board setup code, but there's little
+point in dealing with mux issues in the board setup code at all if this
+is done dynamically based off of the driver requirements and subsequent
+refcounting.
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+Static muxing is something that no longer makes any sense. Devices are
+piling more and more desired functions under mux, and that's not going
+away.

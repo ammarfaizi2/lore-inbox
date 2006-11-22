@@ -1,146 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756590AbWKVTDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756677AbWKVTEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756590AbWKVTDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756494AbWKVTDk
+	id S1756677AbWKVTEx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756666AbWKVTEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:03:40 -0500
-Received: from bay0-omc1-s7.bay0.hotmail.com ([65.54.246.79]:49376 "EHLO
-	bay0-omc1-s7.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1756590AbWKVTDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:03:39 -0500
-Message-ID: <BAY20-F15493599289AB9AEA11092D8E30@phx.gbl>
-X-Originating-IP: [80.178.108.101]
-X-Originating-Email: [yan_952@hotmail.com]
-From: "Burman Yan" <yan_952@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org
-Subject: [PATCH 2.6.19-rc6] kernel core: replace kmalloc+memset with kzalloc
-Date: Wed, 22 Nov 2006 21:03:37 +0200
+	Wed, 22 Nov 2006 14:04:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43684 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1756664AbWKVTEw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:04:52 -0500
+Date: Wed, 22 Nov 2006 19:04:48 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       Milan Broz <mbroz@redhat.com>
+Subject: [PATCH 09/11] dm: snapshot: abstract memory release
+Message-ID: <20061122190448.GZ6993@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+	Milan Broz <mbroz@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_NextPart_000_6d28_4752_6360"
-X-OriginalArrivalTime: 22 Nov 2006 19:03:39.0230 (UTC) FILETIME=[EB698FE0:01C70E68]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+From: Milan Broz <mbroz@redhat.com>
 
-------=_NextPart_000_6d28_4752_6360
-Content-Type: text/plain; format=flowed
+Move the code that releases memory used by a snapshot into a separate function.
 
-Hi.
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Cc: dm-devel@redhat.com
 
-This trivial patch replaces kmalloc+memset with kzalloc in a few kernel core 
-sources.
-
-Regards
-Yan Burman
-
-_________________________________________________________________
-FREE pop-up blocking with the new MSN Toolbar - get it now! 
-http://toolbar.msn.click-url.com/go/onm00200415ave/direct/01/
-
-------=_NextPart_000_6d28_4752_6360
-Content-Type: application/octet-stream; name="kzalloc_kernel.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="kzalloc_kernel.patch"
-
-UmVwbGFjZSBrbWFsbG9jK21lbXNldCB3aXRoIGt6YWxsb2MgCgpTaWduZWQt
-b2ZmLWJ5OiBZYW4gQnVybWFuIDx5YW5fOTUyQGhvdG1haWwuY29tPgoKZGlm
-ZiAtcnVicCBsaW51eC0yLjYuMTktcmM1X29yaWcvaXBjL3NlbS5jIGxpbnV4
-LTIuNi4xOS1yYzVfa3phbGxvYy9pcGMvc2VtLmMKLS0tIGxpbnV4LTIuNi4x
-OS1yYzVfb3JpZy9pcGMvc2VtLmMJMjAwNi0xMS0wOSAxMjoxNjoyMC4wMDAw
-MDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxvYy9pcGMv
-c2VtLmMJMjAwNi0xMS0xMSAyMjo0NDowNC4wMDAwMDAwMDAgKzAyMDAKQEAg
-LTEwNzAsMTQgKzEwNzAsMTMgQEAgc3RhdGljIHN0cnVjdCBzZW1fdW5kbyAq
-ZmluZF91bmRvKHN0cnVjdAogCWlwY19yY3VfZ2V0cmVmKHNtYSk7CiAJc2Vt
-X3VubG9jayhzbWEpOwogCi0JbmV3ID0gKHN0cnVjdCBzZW1fdW5kbyAqKSBr
-bWFsbG9jKHNpemVvZihzdHJ1Y3Qgc2VtX3VuZG8pICsgc2l6ZW9mKHNob3J0
-KSpuc2VtcywgR0ZQX0tFUk5FTCk7CisJbmV3ID0ga3phbGxvYyhzaXplb2Yo
-c3RydWN0IHNlbV91bmRvKSArIHNpemVvZihzaG9ydCkqbnNlbXMsIEdGUF9L
-RVJORUwpOwogCWlmICghbmV3KSB7CiAJCWlwY19sb2NrX2J5X3B0cigmc21h
-LT5zZW1fcGVybSk7CiAJCWlwY19yY3VfcHV0cmVmKHNtYSk7CiAJCXNlbV91
-bmxvY2soc21hKTsKIAkJcmV0dXJuIEVSUl9QVFIoLUVOT01FTSk7CiAJfQot
-CW1lbXNldChuZXcsIDAsIHNpemVvZihzdHJ1Y3Qgc2VtX3VuZG8pICsgc2l6
-ZW9mKHNob3J0KSpuc2Vtcyk7CiAJbmV3LT5zZW1hZGogPSAoc2hvcnQgKikg
-Jm5ld1sxXTsKIAluZXctPnNlbWlkID0gc2VtaWQ7CiAKZGlmZiAtcnVicCBs
-aW51eC0yLjYuMTktcmM1X29yaWcva2VybmVsL2F1ZGl0ZmlsdGVyLmMgbGlu
-dXgtMi42LjE5LXJjNV9remFsbG9jL2tlcm5lbC9hdWRpdGZpbHRlci5jCi0t
-LSBsaW51eC0yLjYuMTktcmM1X29yaWcva2VybmVsL2F1ZGl0ZmlsdGVyLmMJ
-MjAwNi0xMS0wOSAxMjoxNjoyMS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4
-LTIuNi4xOS1yYzVfa3phbGxvYy9rZXJuZWwvYXVkaXRmaWx0ZXIuYwkyMDA2
-LTExLTExIDIyOjQ0OjA0LjAwMDAwMDAwMCArMDIwMApAQCAtNjM2LDEwICs2
-MzYsOSBAQCBzdGF0aWMgc3RydWN0IGF1ZGl0X3J1bGUgKmF1ZGl0X2tydWxl
-X3RvCiAJc3RydWN0IGF1ZGl0X3J1bGUgKnJ1bGU7CiAJaW50IGk7CiAKLQly
-dWxlID0ga21hbGxvYyhzaXplb2YoKnJ1bGUpLCBHRlBfS0VSTkVMKTsKKwly
-dWxlID0ga3phbGxvYyhzaXplb2YoKnJ1bGUpLCBHRlBfS0VSTkVMKTsKIAlp
-ZiAodW5saWtlbHkoIXJ1bGUpKQogCQlyZXR1cm4gTlVMTDsKLQltZW1zZXQo
-cnVsZSwgMCwgc2l6ZW9mKCpydWxlKSk7CiAKIAlydWxlLT5mbGFncyA9IGty
-dWxlLT5mbGFncyB8IGtydWxlLT5saXN0bnI7CiAJcnVsZS0+YWN0aW9uID0g
-a3J1bGUtPmFjdGlvbjsKZGlmZiAtcnVicCBsaW51eC0yLjYuMTktcmM1X29y
-aWcva2VybmVsL2Z1dGV4LmMgbGludXgtMi42LjE5LXJjNV9remFsbG9jL2tl
-cm5lbC9mdXRleC5jCi0tLSBsaW51eC0yLjYuMTktcmM1X29yaWcva2VybmVs
-L2Z1dGV4LmMJMjAwNi0xMS0wOSAxMjoxNjoyMS4wMDAwMDAwMDAgKzAyMDAK
-KysrIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxvYy9rZXJuZWwvZnV0ZXguYwky
-MDA2LTExLTExIDIyOjQ0OjA0LjAwMDAwMDAwMCArMDIwMApAQCAtMzI0LDEy
-ICszMjQsMTEgQEAgc3RhdGljIGludCByZWZpbGxfcGlfc3RhdGVfY2FjaGUo
-dm9pZCkKIAlpZiAobGlrZWx5KGN1cnJlbnQtPnBpX3N0YXRlX2NhY2hlKSkK
-IAkJcmV0dXJuIDA7CiAKLQlwaV9zdGF0ZSA9IGttYWxsb2Moc2l6ZW9mKCpw
-aV9zdGF0ZSksIEdGUF9LRVJORUwpOworCXBpX3N0YXRlID0ga3phbGxvYyhz
-aXplb2YoKnBpX3N0YXRlKSwgR0ZQX0tFUk5FTCk7CiAKIAlpZiAoIXBpX3N0
-YXRlKQogCQlyZXR1cm4gLUVOT01FTTsKIAotCW1lbXNldChwaV9zdGF0ZSwg
-MCwgc2l6ZW9mKCpwaV9zdGF0ZSkpOwogCUlOSVRfTElTVF9IRUFEKCZwaV9z
-dGF0ZS0+bGlzdCk7CiAJLyogcGlfbXV0ZXggZ2V0cyBpbml0aWFsaXplZCBs
-YXRlciAqLwogCXBpX3N0YXRlLT5vd25lciA9IE5VTEw7CmRpZmYgLXJ1YnAg
-bGludXgtMi42LjE5LXJjNV9vcmlnL2tlcm5lbC9rZXhlYy5jIGxpbnV4LTIu
-Ni4xOS1yYzVfa3phbGxvYy9rZXJuZWwva2V4ZWMuYwotLS0gbGludXgtMi42
-LjE5LXJjNV9vcmlnL2tlcm5lbC9rZXhlYy5jCTIwMDYtMTEtMDkgMTI6MTY6
-MjEuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuMTktcmM1X2t6YWxs
-b2Mva2VybmVsL2tleGVjLmMJMjAwNi0xMS0xMSAyMjo0NDowNC4wMDAwMDAw
-MDAgKzAyMDAKQEAgLTEwOCwxMSArMTA4LDEwIEBAIHN0YXRpYyBpbnQgZG9f
-a2ltYWdlX2FsbG9jKHN0cnVjdCBraW1hZ2UKIAogCS8qIEFsbG9jYXRlIGEg
-Y29udHJvbGxpbmcgc3RydWN0dXJlICovCiAJcmVzdWx0ID0gLUVOT01FTTsK
-LQlpbWFnZSA9IGttYWxsb2Moc2l6ZW9mKCppbWFnZSksIEdGUF9LRVJORUwp
-OworCWltYWdlID0ga3phbGxvYyhzaXplb2YoKmltYWdlKSwgR0ZQX0tFUk5F
-TCk7CiAJaWYgKCFpbWFnZSkKIAkJZ290byBvdXQ7CiAKLQltZW1zZXQoaW1h
-Z2UsIDAsIHNpemVvZigqaW1hZ2UpKTsKIAlpbWFnZS0+aGVhZCA9IDA7CiAJ
-aW1hZ2UtPmVudHJ5ID0gJmltYWdlLT5oZWFkOwogCWltYWdlLT5sYXN0X2Vu
-dHJ5ID0gJmltYWdlLT5oZWFkOwpkaWZmIC1ydWJwIGxpbnV4LTIuNi4xOS1y
-YzVfb3JpZy9saWIva29iamVjdC5jIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxv
-Yy9saWIva29iamVjdC5jCi0tLSBsaW51eC0yLjYuMTktcmM1X29yaWcvbGli
-L2tvYmplY3QuYwkyMDA2LTExLTA5IDEyOjE2OjIwLjAwMDAwMDAwMCArMDIw
-MAorKysgbGludXgtMi42LjE5LXJjNV9remFsbG9jL2xpYi9rb2JqZWN0LmMJ
-MjAwNi0xMS0xMSAyMjo0NDowNC4wMDAwMDAwMDAgKzAyMDAKQEAgLTExMSwx
-MCArMTExLDkgQEAgY2hhciAqa29iamVjdF9nZXRfcGF0aChzdHJ1Y3Qga29i
-amVjdCAqawogCWxlbiA9IGdldF9rb2JqX3BhdGhfbGVuZ3RoKGtvYmopOwog
-CWlmIChsZW4gPT0gMCkKIAkJcmV0dXJuIE5VTEw7Ci0JcGF0aCA9IGttYWxs
-b2MobGVuLCBnZnBfbWFzayk7CisJcGF0aCA9IGt6YWxsb2MobGVuLCBnZnBf
-bWFzayk7CiAJaWYgKCFwYXRoKQogCQlyZXR1cm4gTlVMTDsKLQltZW1zZXQo
-cGF0aCwgMHgwMCwgbGVuKTsKIAlmaWxsX2tvYmpfcGF0aChrb2JqLCBwYXRo
-LCBsZW4pOwogCiAJcmV0dXJuIHBhdGg7CmRpZmYgLXJ1YnAgbGludXgtMi42
-LjE5LXJjNV9vcmlnL21tL25vbW11LmMgbGludXgtMi42LjE5LXJjNV9remFs
-bG9jL21tL25vbW11LmMKLS0tIGxpbnV4LTIuNi4xOS1yYzVfb3JpZy9tbS9u
-b21tdS5jCTIwMDYtMTEtMDkgMTI6MTY6MjEuMDAwMDAwMDAwICswMjAwCisr
-KyBsaW51eC0yLjYuMTktcmM1X2t6YWxsb2MvbW0vbm9tbXUuYwkyMDA2LTEx
-LTExIDIyOjQ0OjA0LjAwMDAwMDAwMCArMDIwMApAQCAtODA2LDEwICs4MDYs
-OSBAQCB1bnNpZ25lZCBsb25nIGRvX21tYXBfcGdvZmYoc3RydWN0IGZpbGUg
-CiAJdm1fZmxhZ3MgPSBkZXRlcm1pbmVfdm1fZmxhZ3MoZmlsZSwgcHJvdCwg
-ZmxhZ3MsIGNhcGFiaWxpdGllcyk7CiAKIAkvKiB3ZSdyZSBnb2luZyB0byBu
-ZWVkIHRvIHJlY29yZCB0aGUgbWFwcGluZyBpZiBpdCB3b3JrcyAqLwotCXZt
-bCA9IGttYWxsb2Moc2l6ZW9mKHN0cnVjdCB2bV9saXN0X3N0cnVjdCksIEdG
-UF9LRVJORUwpOworCXZtbCA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCB2bV9s
-aXN0X3N0cnVjdCksIEdGUF9LRVJORUwpOwogCWlmICghdm1sKQogCQlnb3Rv
-IGVycm9yX2dldHRpbmdfdm1sOwotCW1lbXNldCh2bWwsIDAsIHNpemVvZigq
-dm1sKSk7CiAKIAlkb3duX3dyaXRlKCZub21tdV92bWFfc2VtKTsKIApAQCAt
-ODg1LDExICs4ODQsMTAgQEAgdW5zaWduZWQgbG9uZyBkb19tbWFwX3Bnb2Zm
-KHN0cnVjdCBmaWxlIAogCX0KIAogCS8qIHdlJ3JlIGdvaW5nIHRvIG5lZWQg
-YSBWTUEgc3RydWN0IGFzIHdlbGwgKi8KLQl2bWEgPSBrbWFsbG9jKHNpemVv
-ZihzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QpLCBHRlBfS0VSTkVMKTsKKwl2bWEg
-PSBremFsbG9jKHNpemVvZihzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QpLCBHRlBf
-S0VSTkVMKTsKIAlpZiAoIXZtYSkKIAkJZ290byBlcnJvcl9nZXR0aW5nX3Zt
-YTsKIAotCW1lbXNldCh2bWEsIDAsIHNpemVvZigqdm1hKSk7CiAJSU5JVF9M
-SVNUX0hFQUQoJnZtYS0+YW5vbl92bWFfbm9kZSk7CiAJYXRvbWljX3NldCgm
-dm1hLT52bV91c2FnZSwgMSk7CiAJaWYgKGZpbGUpCg==
-
-
-------=_NextPart_000_6d28_4752_6360--
+Index: linux-2.6.19-rc6/drivers/md/dm-snap.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/md/dm-snap.c	2006-11-22 17:26:58.000000000 +0000
++++ linux-2.6.19-rc6/drivers/md/dm-snap.c	2006-11-22 17:27:01.000000000 +0000
+@@ -564,6 +564,17 @@ static int snapshot_ctr(struct dm_target
+ 	return r;
+ }
+ 
++static void __free_exceptions(struct dm_snapshot *s)
++{
++	kcopyd_client_destroy(s->kcopyd_client);
++	s->kcopyd_client = NULL;
++
++	exit_exception_table(&s->pending, pending_cache);
++	exit_exception_table(&s->complete, exception_cache);
++
++	s->store.destroy(&s->store);
++}
++
+ static void snapshot_dtr(struct dm_target *ti)
+ {
+ 	struct dm_snapshot *s = (struct dm_snapshot *) ti->private;
+@@ -574,13 +585,7 @@ static void snapshot_dtr(struct dm_targe
+ 	/* After this returns there can be no new kcopyd jobs. */
+ 	unregister_snapshot(s);
+ 
+-	kcopyd_client_destroy(s->kcopyd_client);
+-
+-	exit_exception_table(&s->pending, pending_cache);
+-	exit_exception_table(&s->complete, exception_cache);
+-
+-	/* Deallocate memory used */
+-	s->store.destroy(&s->store);
++	__free_exceptions(s);
+ 
+ 	dm_put_device(ti, s->origin);
+ 	dm_put_device(ti, s->cow);

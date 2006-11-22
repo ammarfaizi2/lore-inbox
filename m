@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756043AbWKVR2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755995AbWKVRbK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756043AbWKVR2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 12:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755995AbWKVR2Z
+	id S1755995AbWKVRbK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 12:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756053AbWKVRbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 12:28:25 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12968 "EHLO
+	Wed, 22 Nov 2006 12:31:10 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20648 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1756043AbWKVR2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 12:28:25 -0500
-Date: Wed, 22 Nov 2006 17:23:37 +0000
+	id S1756049AbWKVRbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 12:31:09 -0500
+Date: Wed, 22 Nov 2006 17:28:41 +0000
 From: Alan <alan@lxorguk.ukuu.org.uk>
-To: jgarzik@pobox.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] pata_rz1000: Force readahead off on resume
-Message-ID: <20061122172337.068fcbff@localhost.localdomain>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: [PATCH] pata_sil680 suspend/resume
+Message-ID: <20061122172841.0b90f042@localhost.localdomain>
 X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -21,109 +21,138 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The RZ1000 is a generic device except that it has a readahead fifo flaw
-that corrupts. We force this off at init time but we want to be paranoid
-and force it off at resume as well. I don't know of any actual hardware
-that supports both RZ1000 and suspend to RAM but given its a disk muncher
-better safe than sorry.
+The SI680 can come back from s2ram with the clocks disabled (crash time)
+or wrong (ugly as this can cause CRC errors, and in theory corruption).
+On a resume we must put the clock back.
 
 Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm2/drivers/ata/pata_rz1000.c linux-2.6.19-rc5-mm2/drivers/ata/pata_rz1000.c
---- linux.vanilla-2.6.19-rc5-mm2/drivers/ata/pata_rz1000.c	2006-11-15 13:26:00.000000000 +0000
-+++ linux-2.6.19-rc5-mm2/drivers/ata/pata_rz1000.c	2006-11-22 14:46:07.904069272 +0000
-@@ -21,7 +21,7 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm2/drivers/ata/pata_sil680.c linux-2.6.19-rc5-mm2/drivers/ata/pata_sil680.c
+--- linux.vanilla-2.6.19-rc5-mm2/drivers/ata/pata_sil680.c	2006-11-15 13:26:00.000000000 +0000
++++ linux-2.6.19-rc5-mm2/drivers/ata/pata_sil680.c	2006-11-22 14:44:57.221814608 +0000
+@@ -33,7 +33,7 @@
  #include <linux/libata.h>
  
- #define DRV_NAME	"pata_rz1000"
--#define DRV_VERSION	"0.2.2"
-+#define DRV_VERSION	"0.2.3"
- 
+ #define DRV_NAME "pata_sil680"
+-#define DRV_VERSION "0.3.2"
++#define DRV_VERSION "0.4.1"
  
  /**
-@@ -91,6 +91,8 @@
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
-+	.resume			= ata_scsi_device_resume,
-+	.suspend		= ata_scsi_device_suspend,
- };
- 
- static struct ata_port_operations rz1000_port_ops = {
-@@ -128,6 +130,19 @@
+  *	sil680_selreg		-	return register base
+@@ -262,32 +262,20 @@
  	.host_stop	= ata_host_stop
  };
  
-+static int rz1000_fifo_disable(struct pci_dev *pdev)
-+{
-+	u16 reg;
-+	/* Be exceptionally paranoid as we must be sure to apply the fix */
-+	if (pci_read_config_word(pdev, 0x40, &reg) != 0)
-+		return -1;
-+	reg &= 0xDFFF;
-+	if (pci_write_config_word(pdev, 0x40, reg) != 0)
-+		return -1;
-+	printk(KERN_INFO DRV_NAME ": disabled chipset readahead.\n");
-+	return 0;
+-static int sil680_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
++/**
++ *	sil680_init_chip		-	chip setup
++ *	@pdev: PCI device
++ *
++ *	Perform all the chip setup which must be done both when the device
++ *	is powered up on boot and when we resume in case we resumed from RAM.
++ *	Returns the final clock settings.
++ */
++ 
++static u8 sil680_init_chip(struct pci_dev *pdev)
+ {
+-	static struct ata_port_info info = {
+-		.sht = &sil680_sht,
+-		.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+-		.pio_mask = 0x1f,
+-		.mwdma_mask = 0x07,
+-		.udma_mask = 0x7f,
+-		.port_ops = &sil680_port_ops
+-	};
+-	static struct ata_port_info info_slow = {
+-		.sht = &sil680_sht,
+-		.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+-		.pio_mask = 0x1f,
+-		.mwdma_mask = 0x07,
+-		.udma_mask = 0x3f,
+-		.port_ops = &sil680_port_ops
+-	};
+-	static struct ata_port_info *port_info[2] = {&info, &info};
+-	static int printed_version;
+ 	u32 class_rev	= 0;
+ 	u8 tmpbyte	= 0;
+ 
+-	if (!printed_version++)
+-		dev_printk(KERN_DEBUG, &pdev->dev, "version " DRV_VERSION "\n");
+-
+         pci_read_config_dword(pdev, PCI_CLASS_REVISION, &class_rev);
+         class_rev &= 0xff;
+         /* FIXME: double check */
+@@ -322,8 +310,6 @@
+ 	pci_read_config_byte(pdev,   0x8A, &tmpbyte);
+ 	printk(KERN_INFO "sil680: BA5_EN = %d clock = %02X\n",
+ 			tmpbyte & 1, tmpbyte & 0x30);
+-	if ((tmpbyte & 0x30) == 0)
+-		port_info[0] = port_info[1] = &info_slow;
+ 
+ 	pci_write_config_byte(pdev,  0xA1, 0x72);
+ 	pci_write_config_word(pdev,  0xA2, 0x328A);
+@@ -342,11 +328,51 @@
+ 		case 0x20: printk(KERN_INFO "sil680: Using PCI clock.\n");break;
+ 		/* This last case is _NOT_ ok */
+ 		case 0x30: printk(KERN_ERR "sil680: Clock disabled ?\n");
+-			return -EIO;
++	}
++	return tmpbyte & 0x30;
 +}
 +
- /**
-  *	rz1000_init_one - Register RZ1000 ATA PCI device with kernel services
-  *	@pdev: PCI device to register
-@@ -142,7 +157,6 @@
- {
- 	static int printed_version;
- 	struct ata_port_info *port_info[2];
--	u16 reg;
- 	static struct ata_port_info info = {
- 		.sht = &rz1000_sht,
- 		.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
-@@ -153,23 +167,25 @@
- 	if (!printed_version++)
- 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
- 
--	/* Be exceptionally paranoid as we must be sure to apply the fix */
--	if (pci_read_config_word(pdev, 0x40, &reg) != 0)
--		goto fail;
--	reg &= 0xDFFF;
--	if (pci_write_config_word(pdev, 0x40, reg) != 0)
--		goto fail;
--	printk(KERN_INFO DRV_NAME ": disabled chipset readahead.\n");
--
--	port_info[0] = &info;
--	port_info[1] = &info;
--	return ata_pci_init_one(pdev, port_info, 2);
--fail:
-+	if (rz1000_fifo_disable(pdev) == 0) {
-+		port_info[0] = &info;
-+		port_info[1] = &info;
-+		return ata_pci_init_one(pdev, port_info, 2);
-+	}
- 	printk(KERN_ERR DRV_NAME ": failed to disable read-ahead on chipset..\n");
- 	/* Not safe to use so skip */
- 	return -ENODEV;
++static int sil680_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
++{
++	static struct ata_port_info info = {
++		.sht = &sil680_sht,
++		.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++		.pio_mask = 0x1f,
++		.mwdma_mask = 0x07,
++		.udma_mask = 0x7f,
++		.port_ops = &sil680_port_ops
++	};
++	static struct ata_port_info info_slow = {
++		.sht = &sil680_sht,
++		.flags = ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++		.pio_mask = 0x1f,
++		.mwdma_mask = 0x07,
++		.udma_mask = 0x3f,
++		.port_ops = &sil680_port_ops
++	};
++	static struct ata_port_info *port_info[2] = {&info, &info};
++	static int printed_version;
++
++	if (!printed_version++)
++		dev_printk(KERN_DEBUG, &pdev->dev, "version " DRV_VERSION "\n");
++
++	switch(sil680_init_chip(pdev))
++	{
++		case 0:
++			port_info[0] = port_info[1] = &info_slow;
++			break;
++		case 0x30:
++			return -ENODEV;
+ 	}
+ 	return ata_pci_init_one(pdev, port_info, 2);
  }
  
-+static int rz1000_reinit_one(struct pci_dev *pdev)
++static int sil680_reinit_one(struct pci_dev *pdev)
 +{
-+	/* If this fails on resume (which is a "cant happen" case), we
-+	   must stop as any progress risks data loss */
-+	if (rz1000_fifo_disable(pdev))
-+		panic("rz1000 fifo");
++	sil680_init_chip(pdev);
 +	return ata_pci_device_resume(pdev);
 +}
 +
- static const struct pci_device_id pata_rz1000[] = {
- 	{ PCI_VDEVICE(PCTECH, PCI_DEVICE_ID_PCTECH_RZ1000), },
- 	{ PCI_VDEVICE(PCTECH, PCI_DEVICE_ID_PCTECH_RZ1001), },
-@@ -181,7 +197,9 @@
+ static const struct pci_device_id sil680[] = {
+ 	{ PCI_VDEVICE(CMD, PCI_DEVICE_ID_SII_680), },
+ 
+@@ -357,7 +383,9 @@
  	.name 		= DRV_NAME,
- 	.id_table	= pata_rz1000,
- 	.probe 		= rz1000_init_one,
+ 	.id_table	= sil680,
+ 	.probe 		= sil680_init_one,
 -	.remove		= ata_pci_remove_one
 +	.remove		= ata_pci_remove_one,
 +	.suspend	= ata_pci_device_suspend,
-+	.resume		= rz1000_reinit_one,
++	.resume		= sil680_reinit_one,
  };
  
- static int __init rz1000_init(void)
+ static int __init sil680_init(void)
+

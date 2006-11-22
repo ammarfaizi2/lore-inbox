@@ -1,244 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755722AbWKVM6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755706AbWKVNFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755722AbWKVM6N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755759AbWKVM6N
+	id S1755706AbWKVNFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 08:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755765AbWKVNFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:58:13 -0500
-Received: from nz-out-0102.google.com ([64.233.162.195]:12898 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1755722AbWKVM6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:58:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=jgMMlfqUhleLlIbjLcpW7GgAxnD6s4frJZRqW3SXuRaoFFspyRTLFUyPBpC74DW9q8EF9Z46ZYYi9e6PcrjO27KMzr1caQwDm5NNChl8woTW58b81zXVdQaadWRZ6pH0uty+caw9+xk8m/teJBYfm+2Xwv/MEKuWvYcXdG82zjA=
-Message-ID: <9a8748490611220458w4d94d953v21f7a29a9f1bdb72@mail.gmail.com>
-Date: Wed, 22 Nov 2006 13:58:11 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Chinner" <dgc@sgi.com>
-Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to implicate xfs, scsi, networking, SMP
-Cc: chatz@melbourne.sgi.com, LKML <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com, xfs-masters@oss.sgi.com, netdev@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_23040_9945791.1164200291075"
-References: <200611211027.41971.jesper.juhl@gmail.com>
-	 <45637566.5020802@melbourne.sgi.com>
-	 <9a8748490611211402xdc2822fqbc95a77fe54d49b1@mail.gmail.com>
-	 <20061121233141.GP37654165@melbourne.sgi.com>
-	 <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com>
+	Wed, 22 Nov 2006 08:05:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61580 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755706AbWKVNFR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 08:05:17 -0500
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 2/5] WorkStruct: Typedef the work function prototype [try #2]
+Date: Wed, 22 Nov 2006 13:02:27 +0000
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Message-Id: <20061122130227.24778.13919.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com>
+References: <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_23040_9945791.1164200291075
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Define a type for the work function prototype.  It's not only kept in the
+work_struct struct, it's also passed as an argument to several functions.
 
-On 22/11/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 22/11/06, David Chinner <dgc@sgi.com> wrote:
-> > On Tue, Nov 21, 2006 at 11:02:23PM +0100, Jesper Juhl wrote:
-> > > On 21/11/06, David Chatterton <chatz@melbourne.sgi.com> wrote:
-...
-> > > >Thanks for traces, I've captured this information.
-> > > >
-> > > You are welcome. If you want/need more traces then I've got ~2.1G
-> > > worth of traces that you can have :)
-> >
-> > Well, we don't need that many, but it would be nice to have a
-> > set of unique traces that lead to overflows - could you process
-> > them in some way just to extract just the unique XFS traces that
-> > occur?
-> >
-> I'll try to extract a copy of each unique trace that involves xfs,
-> sometime tomorrow or the day after, and then send you the result.
->
+This makes it easier to change it.
 
-Attached are two files. The one named stack_overflows.txt.gz contains
-one instance of each unique stack overflow + trace that I've got.  The
-other file named kernel_BUG.txt.gz contains a few BUG() messages that
-were also in the logs.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+ drivers/block/floppy.c    |    4 ++--
+ include/linux/workqueue.h |    9 +++++----
+ kernel/workqueue.c        |    6 +++---
+ 3 files changed, 10 insertions(+), 9 deletions(-)
 
-------=_Part_23040_9945791.1164200291075
-Content-Type: application/x-gzip; name=stack_overflows.txt.gz
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eutqru1s
-Content-Disposition: attachment; filename="stack_overflows.txt.gz"
-
-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
-------=_Part_23040_9945791.1164200291075
-Content-Type: application/x-gzip; name=kernel_BUG.txt.gz
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eutqs2l1
-Content-Disposition: attachment; filename="kernel_BUG.txt.gz"
-
-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
-------=_Part_23040_9945791.1164200291075--
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 9e6d3a8..5a14fac 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -996,7 +996,7 @@ static DECLARE_WORK(floppy_work, NULL, N
+ 
+ static void schedule_bh(void (*handler) (void))
+ {
+-	PREPARE_WORK(&floppy_work, (void (*)(void *))handler, NULL);
++	PREPARE_WORK(&floppy_work, (work_func_t)handler, NULL);
+ 	schedule_work(&floppy_work);
+ }
+ 
+@@ -1008,7 +1008,7 @@ static void cancel_activity(void)
+ 
+ 	spin_lock_irqsave(&floppy_lock, flags);
+ 	do_floppy = NULL;
+-	PREPARE_WORK(&floppy_work, (void *)empty, NULL);
++	PREPARE_WORK(&floppy_work, (work_func_t)empty, NULL);
+ 	del_timer(&fd_timer);
+ 	spin_unlock_irqrestore(&floppy_lock, flags);
+ }
+diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
+index 9faacca..cef40b2 100644
+--- a/include/linux/workqueue.h
++++ b/include/linux/workqueue.h
+@@ -11,10 +11,12 @@ #include <linux/bitops.h>
+ 
+ struct workqueue_struct;
+ 
++typedef void (*work_func_t)(void *data);
++
+ struct work_struct {
+ 	unsigned long pending;
+ 	struct list_head entry;
+-	void (*func)(void *);
++	work_func_t func;
+ 	void *data;
+ 	void *wq_data;
+ };
+@@ -91,7 +93,7 @@ extern int FASTCALL(schedule_work(struct
+ extern int FASTCALL(schedule_delayed_work(struct delayed_work *work, unsigned long delay));
+ 
+ extern int schedule_delayed_work_on(int cpu, struct delayed_work *work, unsigned long delay);
+-extern int schedule_on_each_cpu(void (*func)(void *info), void *info);
++extern int schedule_on_each_cpu(work_func_t func, void *info);
+ extern void flush_scheduled_work(void);
+ extern int current_is_keventd(void);
+ extern int keventd_up(void);
+@@ -100,8 +102,7 @@ extern void init_workqueues(void);
+ void cancel_rearming_delayed_work(struct delayed_work *work);
+ void cancel_rearming_delayed_workqueue(struct workqueue_struct *,
+ 				       struct delayed_work *);
+-int execute_in_process_context(void (*fn)(void *), void *,
+-			       struct execute_work *);
++int execute_in_process_context(work_func_t fn, void *, struct execute_work *);
+ 
+ /*
+  * Kill off a pending schedule_delayed_work().  Note that the work callback
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 44fc54b..1e9d61e 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -217,7 +217,7 @@ static void run_workqueue(struct cpu_wor
+ 	while (!list_empty(&cwq->worklist)) {
+ 		struct work_struct *work = list_entry(cwq->worklist.next,
+ 						struct work_struct, entry);
+-		void (*f) (void *) = work->func;
++		work_func_t f = work->func;
+ 		void *data = work->data;
+ 
+ 		list_del_init(cwq->worklist.next);
+@@ -513,7 +513,7 @@ EXPORT_SYMBOL(schedule_delayed_work_on);
+  *
+  * schedule_on_each_cpu() is very slow.
+  */
+-int schedule_on_each_cpu(void (*func)(void *info), void *info)
++int schedule_on_each_cpu(work_func_t func, void *info)
+ {
+ 	int cpu;
+ 	struct work_struct *works;
+@@ -578,7 +578,7 @@ EXPORT_SYMBOL(cancel_rearming_delayed_wo
+  * Returns:	0 - function was executed
+  *		1 - function was scheduled for execution
+  */
+-int execute_in_process_context(void (*fn)(void *data), void *data,
++int execute_in_process_context(work_func_t fn, void *data,
+ 			       struct execute_work *ew)
+ {
+ 	if (!in_interrupt()) {

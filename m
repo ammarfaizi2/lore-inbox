@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756753AbWKVTwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756735AbWKVTzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756753AbWKVTwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756756AbWKVTwM
+	id S1756735AbWKVTzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756757AbWKVTzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:52:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:5133 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1756753AbWKVTwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:52:10 -0500
-Date: Wed, 22 Nov 2006 19:51:53 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Wed, 22 Nov 2006 14:55:35 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:10387 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1756735AbWKVTze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:55:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=To+yImZMCkXJcV8F/PFmp8JOrEsAdgEZkExZpre5MxPeZOgvwcDTslbwjRmZOBUFT2cc0MLz3EkxmFy1ozIiHUxx+Sadb9XH4BWj+oD12WfSIXUOj2LJZQ1Nh56GltIqzeQ+hC0voXHpKJzkktNily3iFH57kxv5tgzp7MX3KO8=  ;
+X-YMail-OSG: o7mIQ.MVM1ku7pATFFetRiTNMy3EhdtvREeyrkYEBmncwyiTjAJ93U9fS.tBlkoQWPDXn3dOLDjRYoVN1fRWlW8rRxz2e4RO2Aygs733RGI3NiRCzb0ZUw--
+From: David Brownell <david-b@pacbell.net>
 To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: NTP time sync
+Date: Wed, 22 Nov 2006 11:55:23 -0800
+User-Agent: KMail/1.7.1
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org,
-       Kumar Gala <galak@kernel.crashing.org>,
+       linuxppc-dev@ozlabs.org, Kumar Gala <galak@kernel.crashing.org>,
        Kim Phillips <kim.phillips@freescale.com>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Andi Kleen <ak@muc.de>, akpm@osdl.org, davem@davemloft.net,
        kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
-       ralf@linux-mips.org
-Subject: Re: NTP time sync
-Message-ID: <20061122195153.GC22601@flint.arm.linux.org.uk>
-Mail-Followup-To: Alessandro Zummo <alessandro.zummo@towertech.it>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org,
-	Kumar Gala <galak@kernel.crashing.org>,
-	Kim Phillips <kim.phillips@freescale.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Andi Kleen <ak@muc.de>, akpm@osdl.org, davem@davemloft.net,
-	kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
-	ralf@linux-mips.org
+       ralf@linux-mips.org, rmk@arm.linux.org.uk
 References: <20061122203633.611acaa8@inspiron>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20061122203633.611acaa8@inspiron>
-User-Agent: Mutt/1.4.1i
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611221155.26686.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 08:36:33PM +0100, Alessandro Zummo wrote:
-> 
+On Wednesday 22 November 2006 11:36 am, Alessandro Zummo wrote:
 > 
 >  wrto the in-kernel NTP synchronization,
 >  as discussed before [1], my opinion
@@ -55,16 +51,13 @@ On Wed, Nov 22, 2006 at 08:36:33PM +0100, Alessandro Zummo wrote:
 > 
 > [1] http://lkml.org/lkml/2006/3/28/358
 
-Fine, provided there's also a shell tool that can enquire whether the
-kernel is sync'd or not.  (Currently the 11-minute update does not
-occur when the kernel is desynced from a time source - the RTC itself
-might be more accurate in this case.)
+Suggested time of removal: one year after two relevant software
+package releases get updated:
 
-Throwing hwclock commands into crontab such that they do not take
-note of the kernel's sync status is probably a very bad move in that
-respect.
+  - NTPD, to call hwclock specifying the relevant RTC;
+  - util-linux, updating hwclock to know about /dev/rtcN;
+  - busybox, with its own hwclock implementation.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+The util-linux hwclock update is already in the queue, I'm told.
+
+- Dave

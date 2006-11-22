@@ -1,92 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161719AbWKVBhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161735AbWKVBng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161719AbWKVBhx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 20:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161722AbWKVBhx
+	id S1161735AbWKVBng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 20:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161733AbWKVBnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 20:37:53 -0500
-Received: from sp604005mt.neufgp.fr ([84.96.92.11]:58618 "EHLO smtp.Neuf.fr")
-	by vger.kernel.org with ESMTP id S1161719AbWKVBhw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 20:37:52 -0500
-Date: Tue, 21 Nov 2006 22:58:06 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] i386-pda UP optimization
-In-reply-to: <456372AD.5080807@goop.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Message-id: <4563766E.8070408@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8; format=flowed
-Content-transfer-encoding: 8BIT
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org>
- <200611151824.36198.ak@suse.de> <200611151846.31109.dada1@cosmosbay.com>
- <200611211238.20419.dada1@cosmosbay.com> <456372AD.5080807@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Tue, 21 Nov 2006 20:43:35 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:10211 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161735AbWKVBne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 20:43:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VFiPA2knKHTb+fUqonzaVhYt6cbzSOd3ISOXxZy8SofCmNYA/Q4RO6k8n7fqhfH3JqZWHWAETeKdH0+hvzqEMy3DP0qUNZRyipZqK3qXCzirI/KOSpA7J+hmZ9yGhluaMT+y+hL79hfrWpNMUwuuCAYZ5owBH37mq4wQmKhrXQs=
+Message-ID: <4563AB3E.9050305@gmail.com>
+Date: Wed, 22 Nov 2006 10:43:26 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: "Gaston, Jason D" <jason.d.gaston@intel.com>
+CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for
+ Intel ICH9
+References: <39B20DF628532344BC7A2692CB6AEE07A5A356@orsmsx420.amr.corp.intel.com>
+In-Reply-To: <39B20DF628532344BC7A2692CB6AEE07A5A356@orsmsx420.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge a écrit :
-> Eric Dumazet wrote:
->> I did *lot* of reboots of my Dell D610 machine, with some trivial benchmarks 
->> using : pipe/write()/read, umask(), or getppid(), using or not oprofile.
->>
->> I managed to avoid reloading %gs in sysenter_entry .
->> (avoiding the two instructions : movl $(__KERNEL_PDA), %edx; movl %edx, %gs
->>
->> I could not avoid reloading %gs in system_call, I dont know why, but modern 
->> glibc use sysenter so I dont care :)
->>
->> I confirm I got better results with my patched kernel in all tests I've done.
->>
->> umask : 12.64 s instead of 12.90 s
->> getppid : 13.37 s instead of 13.72 s
->> pipe/read/write : 9.10 s instead of 9.52 s
->>
->> (I got very different results in umask() bench, patching it not to use xchg(), 
->> since this instruction is expensive on x86 and really change oprofile 
->> results. I will submit a patch for this.
->>   
+Gaston, Jason D wrote:
+> I was thinking that if a functional difference was found, it would be
+> easier to tweak.
 > 
-> Could you go into more detail about what you're actually measuring
-> here?  Is it 10,000,000 loops of the single syscall?  pipe/read/write
-> suggests that you're doing at least 2 syscalls per loop, but it takes
-> the smallest elapsed time.
+> There are differences between the ICH8 and ICH9 SATA controller.  For
+> example, the PCS register now has port present bits that used to be
+> reserved in ICH8.  I'm not sure how or if these could be used in
+> ata_piix.
 
-for umask/getppid(), its a basic loop with 100.000.000 iterations
-for read/write(), loop with 10.000.000 iterations
-> 
-> What are you using as your time reference?  Real time?  Process time?
-> 
+Separating ich9 out from ich8 isn't difficult.  Let's do that when there 
+is need.  ata_piix always has been using the same entry if there is no 
+code difference and I don't see any reason to depart from that with ich9.
 
-elapsed time (/usr/bin/time ./prog)
-10 runs, and the minimum time is taken.
+Thanks.
 
-> For umask/getppid, assuming you're just running 1e7 iterations, you're
-> seeing a difference of 25 and 35ns per iteration difference.  I wonder
-> why it would be different for different syscalls; I would expect it to
-> be a constant overhead either way.  Certainly these numbers are much
-> larger than I saw when I benchmarked pda-vs-nopda using lmbench's null
-> syscall (getppid) test; I saw an overall 9ns difference in null syscall
-> time on my Core Duo run at 1GHz.  What's your CPU and speed?
-
-Its a 1.6GHz Pentium-M CPU (Dell D610)
-
-> 
-> One possibility is a cache miss on the gdt while reloading %gs.  I've
-> been planning on a patch to rearrange the gdt in order to pack all the
-> commonly used segment descriptors into one or two cache lines so that
-> all the segment register reloads can be done with a minimum of cache
-> misses.  It would be interesting for you to replace the:
-> 
->     movl $(__KERNEL_PDA), %edx; movl %edx, %gs
-> 
-> with an appropriate read of the gdt entry, hm, which is a bit complex to
-> find.
-> 
-
-Hum... Do you mean a cache miss every time we do a syscall ? What could 
-invalidate this cache exactly ?
-
-
+-- 
+tejun

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757101AbWKVW1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756906AbWKVWdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757101AbWKVW1n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 17:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757103AbWKVW1m
+	id S1756906AbWKVWdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 17:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756915AbWKVWdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 17:27:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49027 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757099AbWKVW1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 17:27:41 -0500
-Message-ID: <4564CE00.9030904@redhat.com>
-Date: Wed, 22 Nov 2006 14:24:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru> <20061122121516.GA7229@2ka.mipt.ru>
-In-Reply-To: <20061122121516.GA7229@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Nov 2006 17:33:05 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:9634 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1756906AbWKVWdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 17:33:04 -0500
+Date: Wed, 22 Nov 2006 14:32:41 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4/4] swsusp: Fix labels
+Message-Id: <20061122143241.6b1a34ac.randy.dunlap@oracle.com>
+In-Reply-To: <200611190025.06860.rjw@sisk.pl>
+References: <200611182335.27453.rjw@sisk.pl>
+	<200611182351.01924.rjw@sisk.pl>
+	<1163891174.6787.2.camel@nigel.suspend2.net>
+	<200611190025.06860.rjw@sisk.pl>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Wed, Nov 22, 2006 at 03:09:34PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
->> Ok, to solve the problem in the way which should be good for both I
->> decided to implement additional syscall which will allow to mark any
->> event as ready and thus wake up appropriate threads. If userspace will
->> request zero events to be marked as ready, syscall will just
->> interrupt/wakeup one of the listeners parked in syscall.
+On Sun, 19 Nov 2006 00:25:06 +0100 Rafael J. Wysocki wrote:
 
-I'll wait for the new code drop to comment.
+> On Sunday, 19 November 2006 00:06, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Sat, 2006-11-18 at 23:51 +0100, Rafael J. Wysocki wrote:
+> > > Move all labels in the swsusp code to the second column, so that they won't
+> > > fool diff -p.
+> > 
+> > This sounds like working around brokenness in diff -p. Should/could a
+> > patch be submitted to the diff maintainer instead?
+> 
+> No.  This feature of diff is actually documented.
+> 
+> There was a discussion on LKML about it some time ago and the patch follows
+> the conclusion.
 
+There was discussion, and then both Jesper and I tried to
+reproduce the problem with diff and could not do so.
+Maybe it has already been fixed. (?)
 
-> Btw, what about putting aditional multiplexer into add/remove/modify
-> switch? There will be logical 'ready' addon?
-
-Is it needed?  Usually this is done with a *_wait call with a timeout of 
-zero.  That code path might have to be optimized but it should already 
-be there.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+---
+~Randy

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030808AbWKVCxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967024AbWKVDXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030808AbWKVCxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 21:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030769AbWKVCxF
+	id S967024AbWKVDXn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 22:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967025AbWKVDXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 21:53:05 -0500
-Received: from iabervon.org ([66.92.72.58]:30990 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1030808AbWKVCxC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 21:53:02 -0500
-Date: Tue, 21 Nov 2006 21:53:01 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       David Miller <davem@davemloft.net>, Roland Dreier <rdreier@cisco.com>,
-       Ayaz Abdulla <aabdulla@nvidia.com>
-Subject: Re: [PATCH] Disable INTx when enabling MSI in forcedeth
-In-Reply-To: <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0611212147100.20138@iabervon.org>
-References: <Pine.LNX.4.64.0611212118540.20138@iabervon.org>
- <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
+	Tue, 21 Nov 2006 22:23:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63244 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S967024AbWKVDXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 22:23:42 -0500
+Date: Wed, 22 Nov 2006 04:23:41 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Nigel Cunningham <nigel@suspend2.net>,
+       pavel@suse.cz, linux-pm@osdl.org
+Subject: 2.6.19-rc5-mm2: suspend related BLOCK=n compile error
+Message-ID: <20061122032341.GV5200@stusta.de>
+References: <20061114014125.dd315fff.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061114014125.dd315fff.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006, Linus Torvalds wrote:
+swsusp-freeze-filesystems-during-suspend-rev-2.patch causes the 
+following compile error with CONFIG_BLOCK=n:
 
-> On Tue, 21 Nov 2006, Daniel Barkalow wrote:
-> >
-> > My nVidia ethernet card doesn't disable its own INTx when MSI is
-> > enabled. This causes a steady stream of spurious interrupts that
-> > eventually kills my SATA IRQ if MSI is used with forcedeth, which is
-> > true by default. Simply disabling the INTx interrupt takes care of it.
-> > 
-> > This is against -stable, and would be suitable once someone who knows the 
-> > code verifies that it's correct.
-> 
-> I _really_ think that we should do this in pci_msi_enable().
->
-> Screw cards that are not PCI-2.3 compliant - just make the rule be that if 
-> you use MSI, you _have_ to allow us to set the disable-INTx bit. It's then 
-> up to the drivers to decide if they can use MSI or not.
-> 
-> (Even a number of cards that are not PCI-2.3 may simply not _implement_ 
-> the disable-INTx bit, and in that case, they can use MSI if they disable 
-> INTx automatically - the ).
-> 
-> Comments?
+<--  snip  -->
 
-I think that's the right thing to do, but I bet it'll break systems until 
-the drivers are up to date. So I'd wait until 2.6.20 to do it that way, 
-but definitely do it that way then.
+...
+  CC      kernel/power/process.o
+/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c: In function 'freeze_processes':
+/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c:124: error: implicit declaration of function 'freeze_filesystems'
+/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c: In function 'thaw_processes':
+/home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c:189: error: implicit declaration of function 'thaw_filesystems'
+make[3]: *** [kernel/power/process.o] Error 1
 
-	-Daniel
-*This .sig left intentionally blank*
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

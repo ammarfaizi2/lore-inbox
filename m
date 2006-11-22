@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755292AbWKVQJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755310AbWKVQLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755292AbWKVQJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 11:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755277AbWKVQJ7
+	id S1755310AbWKVQLh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 11:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755277AbWKVQLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 11:09:59 -0500
-Received: from systemlinux.org ([83.151.29.59]:49585 "EHLO m18s25.vlinux.de")
-	by vger.kernel.org with ESMTP id S1755292AbWKVQJ6 (ORCPT
+	Wed, 22 Nov 2006 11:11:37 -0500
+Received: from mga01.intel.com ([192.55.52.88]:29712 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1755317AbWKVQLd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 11:09:58 -0500
-Date: Wed, 22 Nov 2006 17:05:49 +0100
-From: Andre Noll <maan@systemlinux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Rientjes <rientjes@cs.washington.edu>, Mel Gorman <mel@skynet.ie>
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-Message-ID: <20061122160549.GD27761@skl-net.de>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0/kgSOzhNoDC5T3a"
-Content-Disposition: inline
-In-Reply-To: <200611221142.21212.ak@suse.de>
-User-Agent: Mutt/1.5.9i
+	Wed, 22 Nov 2006 11:11:33 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,448,1157353200"; 
+   d="scan'208"; a="167824550:sNHT1772431367"
+Message-ID: <456476B0.70705@intel.com>
+Date: Wed, 22 Nov 2006 08:11:28 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH 4/5] e1000 : Make Intel e1000 driver legacy I/O port free
+References: <4564050C.70607@jp.fujitsu.com> <1164185809.31358.714.camel@laptopd505.fenrus.org> <20061122135423.GV18567@parisc-linux.org>
+In-Reply-To: <20061122135423.GV18567@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Wilcox wrote:
+> On Wed, Nov 22, 2006 at 09:56:49AM +0100, Arjan van de Ven wrote:
+>> On Wed, 2006-11-22 at 17:06 +0900, Hidetoshi Seto wrote:
+>>>  static struct pci_device_id e1000_pci_tbl[] = {
+>>> +	INTEL_E1000_ETHERNET_DEVICE(0x1004, 0),
+>>> +	INTEL_E1000_ETHERNET_DEVICE(0x1008, E1000_USE_IOPORT),
+>> Hi,
+>>
+>> this has the unfortunate effect that it's now a lot harder to add PCI
+>> ID's to this driver at runtime via sysfs ;(
+> 
+> It does?  Normally you get 0 passed in that field, so you'll just not
+> get io ports enabled ...
+> 
+> Need to set use_driver_data to get non-0 passed in that field.
 
---0/kgSOzhNoDC5T3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I think we want to condense the USE_IOPORT flag together with the other hardware feature 
+flags, as suggested by Jeff Garzik. This would save some headroom and leave the pci 
+device id table as it is.
 
-On 11:42, Andi Kleen wrote:
-> ject    : x86_64: Bad page state in process 'swapper'
-> > References : http://lkml.org/lkml/2006/11/10/135
-> >              http://lkml.org/lkml/2006/11/10/208
-> > Submitter  : Andre Noll <maan@systemlinux.org>
-> > Handled-By : David Rientjes <rientjes@cs.washington.edu>
-> > Status     : problem is being debugged
->=20
-> Does this still happen with -rc6?=20
+Cheers,
 
-Unfortunately, yes. I tried rc6, current git, and currrent git + David
-Rientjes' patch. They all show the same behaviour.
-
-> It's probably another bug in the memmap parsing rewrite (Mel cc'ed)=20
-> but the debugging information in the standard kernel unfortunately
-> doesn't give enough output to find out where it happens.
-
-Feel free to send me a debugging patch..
-
-Andre
---=20
-The only person who always got his work done by Friday was Robinson Crusoe
-
---0/kgSOzhNoDC5T3a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFZHVdWto1QDEAkw8RAtwtAJ427PoIMpKmGq18RHkisycRRx3naACdHfvm
-FkuAAJ8ZvZSksKVjoAqPIjo=
-=lyEX
------END PGP SIGNATURE-----
-
---0/kgSOzhNoDC5T3a--
+Auke

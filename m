@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031238AbWKVKKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755608AbWKVK30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031238AbWKVKKk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 05:10:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031133AbWKVKKk
+	id S1755608AbWKVK30 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 05:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755613AbWKVK30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 05:10:40 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:12306 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1031238AbWKVKKj (ORCPT
+	Wed, 22 Nov 2006 05:29:26 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:31922 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1755608AbWKVK3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 05:10:39 -0500
-Message-ID: <45642430.6030009@sw.ru>
-Date: Wed, 22 Nov 2006 13:19:28 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Wed, 22 Nov 2006 05:29:25 -0500
+Date: Wed, 22 Nov 2006 11:27:40 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: James Hunt <james@jameshunt.org.uk>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sct@redhat.com
+Subject: Re: [PATCH 1/3] ext2/3/4: enable "undeletable" file attribute.
+In-Reply-To: <20061121221632.GA12422@localdomain>
+Message-ID: <Pine.LNX.4.61.0611221127160.15991@yvahk01.tjqt.qr>
+References: <20061121221632.GA12422@localdomain>
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: Re: [SPARC64]: resumable error decoding
-References: <45630257.9070308@openvz.org> <20061121.161158.63124759.davem@davemloft.net>
-In-Reply-To: <20061121.161158.63124759.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Running stress tests on OpenVZ 2.6.18 sparc64 kernel we hit the following:
->>------- cut --------
->>[285401.094964] RESUMABLE ERROR: Reporting on cpu 0
->>[285401.626736] RESUMABLE ERROR: err_handle[410000000000c6f] err_stick[103921ee2007c] err_type[00000004:warning resumable]
->>[285402.869015] RESUMABLE ERROR: err_attrs[00000020:       ]
->>[285403.491920] RESUMABLE ERROR: err_raddr[0000000000000000] err_size[0] err_cpu[0]
-> 
-> 
-> This is a power-off request, did someone push the power-off button
-> or give the power-off command from the System Controller console?
-ahh, looks like this :)
-one of our users reproduced an issue which causes both mainstream and
-2.6.18 OVZ kerenls to hang on sparc :/ will investigate...
-probably he reset the box after the hang :)
 
-> I should add proper support for this, this report is a good reminder
-> :-)
-would be nice :@)
+>Currently, although you can mark a file as undeletable with 'chattr'...
+>
+>  > touch /tmp/wibble
+>  > ls -l /tmp/wibble
+>  -rw-rw-r-- 1 james james 0 Nov 16 20:00 /tmp/wibble
+>  > chattr +u /tmp/wibble      # mark file as undeletable
+>  > lsattr /tmp/wibble
+>  -u----------- /tmp/wibble
+>
+>... it's not honoured by the kernel:
+>
+>  > rm /tmp/wibble             # yikes! this should fail!!
 
-> All resumable errors of type 0x4 are power-off requests.
-> Unfortunately these encodings are not in any of the publicly published
-> documents.
-thanks a lot for the explanation!
+Currently, the immutable flag controls the behavior to forbid deletion.
 
-Thanks,
-Kirill
 
+	-`J'
+-- 

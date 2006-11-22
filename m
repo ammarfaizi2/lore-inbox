@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161735AbWKVBng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966970AbWKVBvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161735AbWKVBng (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 20:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161733AbWKVBnf
+	id S966970AbWKVBvG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 20:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967000AbWKVBvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 20:43:35 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:10211 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161735AbWKVBne (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 20:43:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=VFiPA2knKHTb+fUqonzaVhYt6cbzSOd3ISOXxZy8SofCmNYA/Q4RO6k8n7fqhfH3JqZWHWAETeKdH0+hvzqEMy3DP0qUNZRyipZqK3qXCzirI/KOSpA7J+hmZ9yGhluaMT+y+hL79hfrWpNMUwuuCAYZ5owBH37mq4wQmKhrXQs=
-Message-ID: <4563AB3E.9050305@gmail.com>
-Date: Wed, 22 Nov 2006 10:43:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
-CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for
- Intel ICH9
-References: <39B20DF628532344BC7A2692CB6AEE07A5A356@orsmsx420.amr.corp.intel.com>
-In-Reply-To: <39B20DF628532344BC7A2692CB6AEE07A5A356@orsmsx420.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Nov 2006 20:51:06 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52115 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S966970AbWKVBvC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 20:51:02 -0500
+Date: Tue, 21 Nov 2006 17:50:46 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@sous-sol.org>,
+       akpm@osdl.org, Randy Dunlap <rdunlap@xenotime.net>,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Justin Forbes <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Metathronius Galabant <m.galabant@googlemail.com>, torvalds@osdl.org,
+       Michael Krufky <mkrufky@linuxtv.org>, Michael Buesch <mb@bu3sch.de>,
+       Chuck Wolber <chuckw@quantumlinux.com>, stable@kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
+Message-ID: <20061122015046.GI1397@sequoia.sous-sol.org>
+References: <20061101053340.305569000@sous-sol.org> <20061101054343.623157000@sous-sol.org> <20061120234535.GD17736@redhat.com> <20061121022109.GF1397@sequoia.sous-sol.org> <4562D5DA.76E4.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4562D5DA.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaston, Jason D wrote:
-> I was thinking that if a functional difference was found, it would be
-> easier to tweak.
+* Jan Beulich (jbeulich@novell.com) wrote:
+> >>> Chris Wright <chrisw@sous-sol.org> 21.11.06 03:21 >>>
+> >Hmm, I wonder if the report is valid?  Jan's patch would have the correct
+> >side effect of disabling false positives (for RNG identification).
+> >Be good to check that it actually used to work.
 > 
-> There are differences between the ICH8 and ICH9 SATA controller.  For
-> example, the PCS register now has port present bits that used to be
-> reserved in ICH8.  I'm not sure how or if these could be used in
-> ata_piix.
+> Indeed, that is quite significant to know here.
 
-Separating ich9 out from ich8 isn't difficult.  Let's do that when there 
-is need.  ata_piix always has been using the same entry if there is no 
-code difference and I don't see any reason to depart from that with ich9.
+It does appear to work w/out the patch.  I've asked for a small bit
+of diagnostics (below), perhaps you've got something you'd rather see?
+I expect this to be a 24C0 LPC Bridge.
 
-Thanks.
 
--- 
-tejun
+diff --git a/drivers/char/hw_random/intel-rng.c b/drivers/char/hw_random/intel-rng.c
+index 8efbc9c..c655f57 100644
+--- a/drivers/char/hw_random/intel-rng.c
++++ b/drivers/char/hw_random/intel-rng.c
+@@ -304,6 +304,10 @@ #ifdef CONFIG_SMP
+ 	set_mb(waitflag, 0);
+ #endif
+ 
++	printk(PFX "pci vendor:device %hx:%hx fwh_dec_en1 %x bios_cntl_val %x "
++	       "mfc %x dvc %x\n", dev->vendor, dev->device,
++	       fwh_dec_en1_val, bios_cntl_val, mfc, dvc);
++
+ 	iounmap(mem);
+ 	pci_dev_put(dev);
+ 

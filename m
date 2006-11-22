@@ -1,75 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755523AbWKVHiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755530AbWKVHlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755523AbWKVHiy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 02:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755530AbWKVHiy
+	id S1755530AbWKVHlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 02:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755533AbWKVHlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 02:38:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64480 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1755523AbWKVHix (ORCPT
+	Wed, 22 Nov 2006 02:41:09 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:63167 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1755530AbWKVHlG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 02:38:53 -0500
-Message-ID: <4563FE71.4040807@redhat.com>
-Date: Tue, 21 Nov 2006 23:38:25 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 22 Nov 2006 02:41:06 -0500
+Message-ID: <4563FED4.10000@us.ibm.com>
+Date: Tue, 21 Nov 2006 23:40:04 -0800
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru>
-In-Reply-To: <20061121184605.GA7787@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, SystemTAP <systemtap@sources.redhat.com>
+Subject: Re: [2.6.19 patch] i386/x86_64: remove the unused	EXPORT_SYMBOL(dump_trace)
+References: <20061121194138.GF5200@stusta.de> <200611212047.30192.ak@suse.de>	<20061121201844.GA7099@infradead.org> <20061121210622.6cea428f@localhost.localdomain>
+In-Reply-To: <20061121210622.6cea428f@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> I've checked the code.
-> Since it will be a union, it is impossible to use _sigev_thread and it
-> becomes just SIGEV_SIGNAL case with different delivery mechanism.
-> Is it what you want?
+Alan wrote:
 
-struct sigevent is defined like this:
+>On Tue, 21 Nov 2006 20:18:44 +0000
+>Christoph Hellwig <hch@infradead.org> wrote:
+>
+>  
+>
+>>On Tue, Nov 21, 2006 at 08:47:30PM +0100, Andi Kleen wrote:
+>>    
+>>
+>>>On Tuesday 21 November 2006 20:41, Adrian Bunk wrote:
+>>>      
+>>>
+>>>>This patch removes the unused EXPORT_SYMBOL(dump_trace) added on i386
+>>>>and x86_64 in 2.6.19-rc.
+>>>>
+>>>>By removing them before the final 2.6.19 we avoid the possibility of
+>>>>people later whining that we removed exports they started using.
+>>>>        
+>>>>
+>>>I exported it for systemtap so that they can stop using the broken
+>>>hack they currently use as unwinder.
+>>>      
+>>>
+>>Nack, dump_trace is nothing that should be export for broken out of tree
+>>junk.
+>>    
+>>
+>
+>It is exported for systemtap not random broken out of tree junk, and the
+>result is a good deal prettier. Systemtap guys really ought to get their
+>stuff merged too, although how we merge a dynamic module writing tool I'm
+>not so sure ?
+>
+>  
+>
+As you all know SystemTap uses kprobes and relayfs as the basis which 
+are already merged into the mainline.
+We are looking at all the other pieces of SystemTap that can be merged 
+to mainline but as Alan mentioned it is not easy and obvious. We think 
+we can merge transport part of the runtime, here is the initial patch 
+under review in this thread
+http://sources.redhat.com/ml/systemtap/2006-q4/msg00031.html
+http://sources.redhat.com/ml/systemtap/2006-q4/msg00030.html
 
-typedef struct sigevent {
-         sigval_t sigev_value;
-         int sigev_signo;
-         int sigev_notify;
-         union {
-                 int _pad[SIGEV_PAD_SIZE];
-                  int _tid;
+We are open for other suggestions as well.
 
-                 struct {
-                         void (*_function)(sigval_t);
-                         void *_attribute;       /* really pthread_attr_t */
-                 } _sigev_thread;
-         } _sigev_un;
-} sigevent_t;
+bye,
+Vara Prasad
+
+>Alan
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
 
-For the SIGEV_KEVENT case:
-
-   sigev_notify is set to SIGEV_KEVENT (obviously)
-
-   sigev_value can be used for the void* data passed along with the
-   signal, just like in the case of a signal delivery
-
-Now you need a way to specify the kevent descriptor.  Just add
-
-   int _kevent;
-
-inside the union and if you want
-
-   #define sigev_kevent_descr _sigev_un._kevent
-
-That should be all.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

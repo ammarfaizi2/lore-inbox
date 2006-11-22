@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754278AbWKVMQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754366AbWKVMTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754278AbWKVMQs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754282AbWKVMQr
+	id S1754366AbWKVMTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 07:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754368AbWKVMTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:16:47 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:42908 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1754256AbWKVMQr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:16:47 -0500
-Date: Wed, 22 Nov 2006 15:15:16 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061122121516.GA7229@2ka.mipt.ru>
-References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 22 Nov 2006 07:19:23 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:59790 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1754330AbWKVMTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 07:19:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mii6MORnf2e3EaLpXcODbX2kXJsJeeTn6JioL+uYlvEy0oUbE3Art1BcNk0h4JSPLUwL1kTxK89QGCXf6mUbiv4GDV603+1Djv3fRGllVKlAwB6NY8bs5DMEA9HCdfmhAvJJSzE4EwbJKz7iYTzGvZ5FbfDdf19pjpNN8rHK0pY=
+Message-ID: <8bf247760611220419i1545352cvc3316562b8b53ce0@mail.gmail.com>
+Date: Wed, 22 Nov 2006 17:49:21 +0530
+From: Ram <vshrirama@gmail.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>
+Subject: Re: USB Mouse does not work, please advice
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45619678.5070400@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061122120933.GA32681@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 15:15:41 +0300 (MSK)
+References: <8bf247760611200316y761fa18dg4bdfc55e90b70309@mail.gmail.com>
+	 <45619678.5070400@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 03:09:34PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> Ok, to solve the problem in the way which should be good for both I
-> decided to implement additional syscall which will allow to mark any
-> event as ready and thus wake up appropriate threads. If userspace will
-> request zero events to be marked as ready, syscall will just
-> interrupt/wakeup one of the listeners parked in syscall.
+Hi,
+  Im using Linux 2.6.13 for PXA270.
 
-Btw, what about putting aditional multiplexer into add/remove/modify
-switch? There will be logical 'ready' addon?
 
--- 
-	Evgeniy Polyakov
+ I have connected a mouse and the mouse is detected.
+
+ When i do dmesg, i get the
+
+usb 1-1: new low speed USB device using pxa27x-ohci and address 10
+DEV: registering device: ID = '1-1'
+bus usb: add device 1-1
+bound device '1-1' to driver 'usb'
+DEV: registering device: ID = '1-1:1.0'
+bus usb: add device 1-1:1.0
+usb: Matched Device 1-1:1.0 with Driver usbhid
+input: USB HID v1.10 Mouse [Logitech Optical USB Mouse] on usb-pxa27x-1
+bound device '1-1:1.0' to driver 'usbhid'
+usb: Bound Device 1-1:1.0 to Driver usbhid
+
+When i do 'cat /proc/bus/input/devices': I get the message
+
+
+[root@Linux /]#cat /proc/bus/input/devices
+I: Bus=0003 Vendor=046d Product=c001 Version=2010
+N: Name="Logitech USB Mouse"
+P: Phys=usb-pxa27x-1/input0
+H: Handlers= event0
+B: EV=7
+B: KEY=70000 0 0 0 0 0 0 0 0
+B: REL=103
+
+
+The Handler field has only event0, But my mouse is not working?.
+
+
+If i do cat /dev/input/event0. Im able to see characters when i move
+the mouse, Im also getting interrupts.
+
+However, When i run XfbDev and move the mouse, the 'X' mark at the
+centre does not move.
+
+
+Am i missing something?.
+
+Regards,
+sriram

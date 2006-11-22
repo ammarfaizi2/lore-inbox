@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030609AbWKVErR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161748AbWKVFRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030609AbWKVErR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 23:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030869AbWKVErR
+	id S1161748AbWKVFRt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 00:17:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756775AbWKVFRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 23:47:17 -0500
-Received: from smtp2.mtco.com ([207.179.226.205]:8628 "EHLO smtp2.mtco.com")
-	by vger.kernel.org with ESMTP id S1030609AbWKVErR (ORCPT
+	Wed, 22 Nov 2006 00:17:49 -0500
+Received: from mo32.po.2iij.net ([210.128.50.17]:24640 "EHLO mo32.po.2iij.net")
+	by vger.kernel.org with ESMTP id S1756795AbWKVFRs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 23:47:17 -0500
-Message-ID: <4563D651.50109@billgatliff.com>
-Date: Tue, 21 Nov 2006 22:47:13 -0600
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20060926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Paul Mundt <lethal@linux-sh.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Haavard Skinnemoen <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-Subject: Re: [Bulk] Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-References: <200611111541.34699.david-b@pacbell.net> <200611211013.19127.david-b@pacbell.net> <4563C5B1.2040304@billgatliff.com> <200611212045.24581.david-b@pacbell.net>
-In-Reply-To: <200611212045.24581.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Nov 2006 00:17:48 -0500
+Message-Id: <200611220517.kAM5HXmQ033171@mbox31.po.2iij.net>
+Date: Wed, 22 Nov 2006 14:17:33 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yoichi_yuasa@tripeaks.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add return value checking of get_user() in
+ set_vesa_blanking()
+In-Reply-To: <20061121173115.6d258a5a.akpm@osdl.org>
+References: <20061121141528.234a9335.yoichi_yuasa@tripeaks.co.jp>
+	<20061121173115.6d258a5a.akpm@osdl.org>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David:
+On Tue, 21 Nov 2006 17:31:15 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-David Brownell wrote:
+> On Tue, 21 Nov 2006 14:15:28 +0900
+> Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
+> 
+> > Hi,
+> > 
+> > This patch has added return value checking of get_user() in set_vesa_blanking().
+> > 
+> > Yoichi
+> > 
+> > Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+> >  
+> > diff -pruN -X generic/Documentation/dontdiff generic-orig/drivers/char/vt.c generic/drivers/char/vt.c
+> > --- generic-orig/drivers/char/vt.c	2006-11-21 10:23:39.409667250 +0900
+> > +++ generic/drivers/char/vt.c	2006-11-21 10:11:48.037209250 +0900
+> > @@ -3318,9 +3318,10 @@ postcore_initcall(vtconsole_class_init);
+> >  
+> >  static void set_vesa_blanking(char __user *p)
+> >  {
+> > -    unsigned int mode;
+> > -    get_user(mode, p + 1);
+> > -    vesa_blank_mode = (mode < 4) ? mode : 0;
+> > +	unsigned int mode;
+> > +
+> > +	if (!get_user(mode, p + 1))
+> > +		vesa_blank_mode = (mode < 4) ? mode : 0;
+> >  }
+> >  
+> >  void do_blank_screen(int entering_gfx)
+> 
+> How about we go all the way?
 
->On Tuesday 21 November 2006 7:36 pm, Bill Gatliff wrote:
->
->  
->
->>I don't need to REmux, but I don't want to bother setting up the routing 
->>manually at all.  I think the GPIO management stuff can do it properly 
->>on my behalf, given the information we have to acquire to get the GPIO 
->>API to work in the first place.
->>    
->>
->
->Yet requesting GPIO_62 still doesn't tell me I have to
->update muxing for ball M7 or G20
->
+It's good for us.
 
-Which is why I was pushing you to define a GPIO62M7 enumeration!
+Thanks,
 
-> ... and knowing that for
->GPIOs doesn't go anywhere near knowing that for all the
->other chip functions.
->  
->
-
-True, but we've got to start somewhere!  :)
-
-
-b.g.
-
--- 
-Bill Gatliff
-bgat@billgatliff.com
-
+Yoichi

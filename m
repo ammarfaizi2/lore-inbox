@@ -1,121 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756681AbWKVTMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756682AbWKVTMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756681AbWKVTMY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756682AbWKVTMY
+	id S1756682AbWKVTMv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756659AbWKVTMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:12:24 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:270 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1756681AbWKVTMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:12:23 -0500
-Date: Wed, 22 Nov 2006 19:12:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Burman Yan <yan_952@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.19-rc6] serial: replace kmalloc+memset with kzalloc
-Message-ID: <20061122191217.GB22601@flint.arm.linux.org.uk>
-Mail-Followup-To: Burman Yan <yan_952@hotmail.com>,
-	linux-kernel@vger.kernel.org, trivial@kernel.org
-References: <BAY20-F16EB95A16D5DB8549DE6A1D8E30@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Nov 2006 14:12:51 -0500
+Received: from mx6.mail.ru ([194.67.23.26]:5460 "EHLO mx6.mail.ru")
+	by vger.kernel.org with ESMTP id S1756682AbWKVTMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:12:50 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: [linux-usb-devel] 2.6.19-rc5: modular USB rebuilds vmlinux?
+Date: Wed, 22 Nov 2006 22:12:43 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200611222145.59560.arvidjaar@mail.ru> <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
+In-Reply-To: <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <BAY20-F16EB95A16D5DB8549DE6A1D8E30@phx.gbl>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200611222212.44360.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 08:57:33PM +0200, Burman Yan wrote:
-> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/8250_acorn.c linux-2.6.19-rc5_kzalloc/drivers/serial/8250_acorn.c
-> --- linux-2.6.19-rc5_orig/drivers/serial/8250_acorn.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/8250_acorn.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -47,11 +47,10 @@ serial_card_probe(struct expansion_card 
->  	unsigned long bus_addr;
->  	unsigned int i;
->  
-> -	info = kmalloc(sizeof(struct serial_card_info), GFP_KERNEL);
-> +	info = kzalloc(sizeof(struct serial_card_info), GFP_KERNEL);
->  	if (!info)
->  		return -ENOMEM;
->  
-> -	memset(info, 0, sizeof(struct serial_card_info));
->  	info->num_ports = type->num_ports;
->  
->  	bus_addr = ecard_resource_start(ec, type->type);
-> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/8250_pci.c linux-2.6.19-rc5_kzalloc/drivers/serial/8250_pci.c
-> --- linux-2.6.19-rc5_orig/drivers/serial/8250_pci.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/8250_pci.c	2006-11-11 22:44:18.000000000 +0200
-> @@ -1614,7 +1614,7 @@ pciserial_init_ports(struct pci_dev *dev
->  			nr_ports = rc;
->  	}
->  
-> -	priv = kmalloc(sizeof(struct serial_private) +
-> +	priv = kzalloc(sizeof(struct serial_private) +
->  		       sizeof(unsigned int) * nr_ports,
->  		       GFP_KERNEL);
->  	if (!priv) {
-> @@ -1622,9 +1622,6 @@ pciserial_init_ports(struct pci_dev *dev
->  		goto err_deinit;
->  	}
->  
-> -	memset(priv, 0, sizeof(struct serial_private) +
-> -			sizeof(unsigned int) * nr_ports);
-> -
->  	priv->dev = dev;
->  	priv->quirk = quirk;
->  
-> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/serial_core.c linux-2.6.19-rc5_kzalloc/drivers/serial/serial_core.c
-> --- linux-2.6.19-rc5_orig/drivers/serial/serial_core.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/serial_core.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -1523,9 +1523,8 @@ static struct uart_state *uart_get(struc
->  	}
->  
->  	if (!state->info) {
-> -		state->info = kmalloc(sizeof(struct uart_info), GFP_KERNEL);
-> +		state->info = kzalloc(sizeof(struct uart_info), GFP_KERNEL);
->  		if (state->info) {
-> -			memset(state->info, 0, sizeof(struct uart_info));
->  			init_waitqueue_head(&state->info->open_wait);
->  			init_waitqueue_head(&state->info->delta_msr_wait);
->  
-> @@ -2167,13 +2166,11 @@ int uart_register_driver(struct uart_dri
->  	 * Maybe we should be using a slab cache for this, especially if
->  	 * we have a large number of ports to handle.
->  	 */
-> -	drv->state = kmalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);
-> +	drv->state = kzalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);
->  	retval = -ENOMEM;
->  	if (!drv->state)
->  		goto out;
->  
-> -	memset(drv->state, 0, sizeof(struct uart_state) * drv->nr);
-> -
->  	normal  = alloc_tty_driver(drv->nr);
->  	if (!normal)
->  		goto out;
-> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/serial_cs.c linux-2.6.19-rc5_kzalloc/drivers/serial/serial_cs.c
-> --- linux-2.6.19-rc5_orig/drivers/serial/serial_cs.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/serial_cs.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -334,10 +334,9 @@ static int serial_probe(struct pcmcia_de
->  	DEBUG(0, "serial_attach()\n");
->  
->  	/* Create new serial device */
-> -	info = kmalloc(sizeof (*info), GFP_KERNEL);
-> +	info = kzalloc(sizeof (*info), GFP_KERNEL);
->  	if (!info)
->  		return -ENOMEM;
-> -	memset(info, 0, sizeof (*info));
->  	info->p_dev = link;
->  	link->priv = info;
->  
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The above (and only the above 4 files):
+On Wednesday 22 November 2006 21:54, Randy Dunlap wrote:
+> On Wed, 22 Nov 2006 21:45:55 +0300 Andrey Borzenkov wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > I was under impression that I have fully modular USB. Still:
+> >
+> > {pts/1}% make -C ~/src/linux-git O=$HOME/build/linux-2.6.19
+> > make: Entering directory `/home/bor/src/linux-git'
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> > scripts/kconfig/conf -s arch/i386/Kconfig
+> >   Using /home/bor/src/linux-git as source for kernel
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> >   CHK     include/linux/version.h
+> >   CHK     include/linux/utsrelease.h
+> >   CHK     include/linux/compile.h
+> >   CC [M]  drivers/usb/core/usb.o
+> >   CC [M]  drivers/usb/core/hub.o
+> >   CC [M]  drivers/usb/core/hcd.o
+> >   CC [M]  drivers/usb/core/urb.o
+> >   CC [M]  drivers/usb/core/message.o
+> >   CC [M]  drivers/usb/core/driver.o
+> >   CC [M]  drivers/usb/core/config.o
+> >   CC [M]  drivers/usb/core/file.o
+> >   CC [M]  drivers/usb/core/buffer.o
+> >   CC [M]  drivers/usb/core/sysfs.o
+> >   CC [M]  drivers/usb/core/endpoint.o
+> >   CC [M]  drivers/usb/core/devio.o
+> >   CC [M]  drivers/usb/core/notify.o
+> >   CC [M]  drivers/usb/core/generic.o
+> >   CC [M]  drivers/usb/core/hcd-pci.o
+> >   CC [M]  drivers/usb/core/inode.o
+> >   CC [M]  drivers/usb/core/devices.o
+> >   LD [M]  drivers/usb/core/usbcore.o
+> >   CC      drivers/usb/host/pci-quirks.o
+> >   LD      drivers/usb/host/built-in.o
+> >
+> > Sorry? How comes it still compiles something into main kernel?
+>
+> It's just a quirk of the build machinery.
+> The built-in.o file should be 8 bytes or so, with nothing
+> really in it.
+>
 
-Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+yes, but it still costs extra vmlinuz build when just to rebuild of a single 
+module (or subsystem as was in this case) is needed. And this implies also 
+reboot - how should one know if this is safe to leave current kernel with new 
+modules?
 
+> >  {pts/0}% grep USB build/linux-2.6.19/.config | grep -v '^#'
+> > CONFIG_USB_ARCH_HAS_HCD=y
+> > CONFIG_USB_ARCH_HAS_OHCI=y
+> > CONFIG_USB_ARCH_HAS_EHCI=y
+> > CONFIG_USB=m
+> > CONFIG_USB_DEBUG=y
+> > CONFIG_USB_DEVICEFS=y
+> > CONFIG_USB_BANDWIDTH=y
+> > CONFIG_USB_DYNAMIC_MINORS=y
+> > CONFIG_USB_SUSPEND=y
+> > CONFIG_USB_OHCI_HCD=m
+> > CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+> > CONFIG_USB_ACM=m
+> > CONFIG_USB_PRINTER=m
+> > CONFIG_USB_STORAGE=m
+> > CONFIG_USB_STORAGE_DATAFAB=y
+> > CONFIG_USB_STORAGE_FREECOM=y
+> > CONFIG_USB_STORAGE_ISD200=y
+> > CONFIG_USB_STORAGE_DPCM=y
+> > CONFIG_USB_STORAGE_USBAT=y
+> > CONFIG_USB_STORAGE_SDDR09=y
+> > CONFIG_USB_STORAGE_SDDR55=y
+> > CONFIG_USB_STORAGE_JUMPSHOT=y
+> > CONFIG_USB_KBD=m
+> > CONFIG_USB_MOUSE=m
+> > CONFIG_USB_SERIAL=m
+> > CONFIG_USB_SERIAL_GENERIC=y
+> > CONFIG_USB_SERIAL_PL2303=m
+>
+> ---
+> ~Randy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+iD8DBQFFZKEsR6LMutpd94wRAugsAJ9aGrMgXmRXwSHPsg7CVPHXLUSc2QCdFoij
+akMXiiVn6VJJ653qvL8w0f8=
+=qvQ4
+-----END PGP SIGNATURE-----

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162051AbWKVK5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966949AbWKVK5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162051AbWKVK5n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 05:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967106AbWKVK5n
+	id S966949AbWKVK5N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 05:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967105AbWKVK5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 05:57:43 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:43437 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S967107AbWKVK5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 05:57:42 -0500
-Date: Wed, 22 Nov 2006 11:57:35 +0100
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: avl@logic.at, linux-kernel@vger.kernel.org
-Subject: Re: possible bug in ide-disk.c (2.6.18.2 but also older)
-Message-ID: <20061122105735.GV6851@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at> <20061120152505.5d0ba6c5@localhost.localdomain> <20061120165601.GS6851@gamma.logic.tuwien.ac.at> <20061120172812.64837a0a@localhost.localdomain> <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain>
+	Wed, 22 Nov 2006 05:57:13 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:19543 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S966949AbWKVK5M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 05:57:12 -0500
+Date: Wed, 22 Nov 2006 11:57:03 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Simple script that locks up my box with recent kernels
+Message-ID: <20061122105703.GZ8055@kernel.dk>
+References: <Pine.LNX.4.64.0610071408220.3952@g5.osdl.org> <9a8748490610081633k7bf011d1q131b2f9e06f2808d@mail.gmail.com> <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> <Pine.LNX.4.64.0610161554140.3962@g5.osdl.org> <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com> <9a8748490610231330y65f3e243pe1101d11a28dbbfa@mail.gmail.com> <9a8748490611211646o2c92564dmfe8d6ffdf66228ba@mail.gmail.com> <Pine.LNX.4.64.0611211827590.3338@woody.osdl.org> <20061122080312.GL8055@kernel.dk> <9a8748490611220255v53bc667y74b05e2b69281f25@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061121120614.06073ce8@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+In-Reply-To: <9a8748490611220255v53bc667y74b05e2b69281f25@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 12:06:14PM +0000, Alan wrote:
-> >      It would also do that, if I later accessed the last sector
-> >      (e.g. dd if=/dev/hda ..., or by accessing a file that happens
-> >      to be stored there per filesystem, if at all possible),
-> >      not just during the initial GPT-check.
-> Only ever seen during the partition check
+On Wed, Nov 22 2006, Jesper Juhl wrote:
+> On 22/11/06, Jens Axboe <jens.axboe@oracle.com> wrote:
+> >On Tue, Nov 21 2006, Linus Torvalds wrote:
+> >> I don't think we use any irq-disable locking in the VM itself, but I 
+> >could
+> >> imagine some nasty situation with the block device layer getting into a
+> >> deadlock with interrupts disabled when it runs out of queue entries and
+> >> cannot allocate more memory..
+> >
+> >Not likely. Request allocation is done with GFP_NOIO and backed by a
+> >memory pool, so as long the vm doesn't go totally nuts because
+> >__GFP_WAIT is set, we should be safe there. If it did go crazy, I
+> >suspect a sysrq-t would still work.
+> >
+> >If bouncing is involved for swap, we do have a potential deadlock issue
+> >that isn't fixed yet. I just whipped up this completely untested patch,
+> >it should shed some light on that issue.
+> >
+> Thanks Jens, I'll apply that later tonight and force a few lockups and
+> see if I get any extra details with that patch.
 
-Last evening I got my hands back on that machine,
-checked the kernel-config, and saw that GPT was 
-already *unselected*!
-Actually, the whole "Advanced partition..."-bundle
-was unchecked.
+Can you post a full dmesg too, as well as clarify which device holds the
+swap space?
 
-While I can't tell whether the disk has such a thing,
-(The kernel used at partitioning time might have had
-GPT enabled. the tool used was either fdisk or cfdisk,
-I don't remember exactly, but never use anything else.
-It's about 3 years since.)
+-- 
+Jens Axboe
 
-Turning off GPT in the current kernel obviously
-*does not* solve the problem. :-(
-
-Anything else I could do, short of patching ide-disk.c?

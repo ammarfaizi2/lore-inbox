@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756982AbWKVUJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756807AbWKVUKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756982AbWKVUJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 15:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756983AbWKVUJb
+	id S1756807AbWKVUKG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 15:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756990AbWKVUKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 15:09:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39913 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756981AbWKVUJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 15:09:30 -0500
-Message-ID: <4564AE7A.6070607@redhat.com>
-Date: Wed, 22 Nov 2006 14:09:30 -0600
-From: Eric Sandeen <sandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (Macintosh/20061025)
+	Wed, 22 Nov 2006 15:10:05 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:64929 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1756986AbWKVUKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 15:10:01 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4564AE86.2020905@s5r6.in-berlin.de>
+Date: Wed, 22 Nov 2006 21:09:42 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] reject corrupt swapfiles earlier
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [PATCH] ieee1394: nodemgr: fix deadlock in shutdown
+References: <Pine.LNX.4.44L0.0611212028160.5677-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0611212028160.5677-100000@netrider.rowland.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fsfuzzer found this; with a corrupt small swapfile that claims to have
-many pages:
+Alan Stern wrote:
+> On Tue, 21 Nov 2006, Stefan Richter wrote:
+>> There is now a /sys/bus/ieee1394/drivers/ieee1394,
 
-[root]# file swap.741.img 
-swap.741.img: Linux/i386 swap file (new style) 1 (4K pages) size 1040191487 pages
-[root]# ls -l swap.741.img 
--rw-r--r-- 1 root root 16777216 Nov 22 05:18 swap.741.img
+(I'll rename it to nodemgr when I commit this patch.)
 
-sys_swapon() will try to vmalloc all those pages, and -then- check to see if
-the file is actually that large:
+>> whose "bind" and "unbind" attributes are not welcome.  Is there a way
+>> to disable them?
+> 
+> You can always prevent "bind" from operating by returning an error code
+> from the driver's probe routine (although it's not clear why you would
+> want to do that).  I don't think there's any way to make the "unbind"
+> attribute stop working.
+> 
+> You could violate the layering and remove the attribute files directly.  
+> But that would be a race; there would remain a brief interval between the 
+> time the files were created and the time you removed them.
 
-                if (!(p->swap_map = vmalloc(maxpages * sizeof(short)))) {
-<snip>
-        if (swapfilesize && maxpages > swapfilesize) {
-                printk(KERN_WARNING
-                       "Swap area shorter than signature indicates\n");
+Does this matter if there is no device which can be unbound?
 
-It seems to me that it would make more sense to move this test up before the
-vmalloc, with the other checks, to avoid the OOM-killer in this situation...
+Anyway, I don't think I will go this route unless a real problem with
+the attributes turns up.
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+> Lastly, you could remove source of your deadlock by having the unbind 
+> routine for the new driver delete all the child device structures.
 
-Index: linux-2.6.18/mm/swapfile.c
-===================================================================
---- linux-2.6.18.orig/mm/swapfile.c
-+++ linux-2.6.18/mm/swapfile.c
-@@ -1544,6 +1544,11 @@ asmlinkage long sys_swapon(const char __
- 		error = -EINVAL;
- 		if (!maxpages)
- 			goto bad_swap;
-+		if (swapfilesize && maxpages > swapfilesize) {
-+			printk(KERN_WARNING
-+			       "Swap area shorter than signature indicates\n");
-+			goto bad_swap;
-+		}
- 		if (swap_header->info.nr_badpages && S_ISREG(inode->i_mode))
- 			goto bad_swap;
- 		if (swap_header->info.nr_badpages > MAX_SWAP_BADPAGES)
-@@ -1571,12 +1576,6 @@ asmlinkage long sys_swapon(const char __
- 			goto bad_swap;
- 	}
- 
--	if (swapfilesize && maxpages > swapfilesize) {
--		printk(KERN_WARNING
--		       "Swap area shorter than signature indicates\n");
--		error = -EINVAL;
--		goto bad_swap;
--	}
- 	if (nr_good_pages) {
- 		p->swap_map[0] = SWAP_MAP_BAD;
- 		p->max = maxpages;
+Hmm, I won't believe you until I actually try it. :-)
 
+> In fact, just to make things more symmetric and logical you could have 
+> the probe routine create those child devices in the first place!
+
+Sounds good. It's on my .plan now.
+-- 
+Stefan Richter
+-=====-=-==- =-== =-==-
+http://arcgraph.de/sr/

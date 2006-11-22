@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756664AbWKVTF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756604AbWKVTJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756664AbWKVTF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756663AbWKVTF1
+	id S1756604AbWKVTJX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756678AbWKVTJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:05:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32677 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756659AbWKVTFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:05:25 -0500
-Date: Wed, 22 Nov 2006 19:05:22 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       Jonathan E Brassow <jbrassow@redhat.com>
-Subject: [PATCH 11/11] dm: raid1: reset sync_search on resume
-Message-ID: <20061122190522.GB6993@agk.surrey.redhat.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-	Jonathan E Brassow <jbrassow@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 22 Nov 2006 14:09:22 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:64426 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1756604AbWKVTJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:09:22 -0500
+Date: Wed, 22 Nov 2006 14:09:20 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6.19-rc5: modular USB rebuilds vmlinux?
+In-Reply-To: <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
+Message-ID: <Pine.LNX.4.44L0.0611221407070.4272-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jonathan E Brassow <jbrassow@redhat.com>
+On Wed, 22 Nov 2006, Randy Dunlap wrote:
 
-Reset sync_search on resume.
-The effect is to retry syncing all out-of-sync regions when a mirror is resumed,
-including ones that previously failed.
+> On Wed, 22 Nov 2006 21:45:55 +0300 Andrey Borzenkov wrote:
+> 
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > I was under impression that I have fully modular USB. Still:
+> > 
+> > {pts/1}% make -C ~/src/linux-git O=$HOME/build/linux-2.6.19
+> > make: Entering directory `/home/bor/src/linux-git'
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> > scripts/kconfig/conf -s arch/i386/Kconfig
+> >   Using /home/bor/src/linux-git as source for kernel
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> >   CHK     include/linux/version.h
+> >   CHK     include/linux/utsrelease.h
+> >   CHK     include/linux/compile.h
+> >   CC [M]  drivers/usb/core/usb.o
+> >   CC [M]  drivers/usb/core/hub.o
+> >   CC [M]  drivers/usb/core/hcd.o
+> >   CC [M]  drivers/usb/core/urb.o
+> >   CC [M]  drivers/usb/core/message.o
+> >   CC [M]  drivers/usb/core/driver.o
+> >   CC [M]  drivers/usb/core/config.o
+> >   CC [M]  drivers/usb/core/file.o
+> >   CC [M]  drivers/usb/core/buffer.o
+> >   CC [M]  drivers/usb/core/sysfs.o
+> >   CC [M]  drivers/usb/core/endpoint.o
+> >   CC [M]  drivers/usb/core/devio.o
+> >   CC [M]  drivers/usb/core/notify.o
+> >   CC [M]  drivers/usb/core/generic.o
+> >   CC [M]  drivers/usb/core/hcd-pci.o
+> >   CC [M]  drivers/usb/core/inode.o
+> >   CC [M]  drivers/usb/core/devices.o
+> >   LD [M]  drivers/usb/core/usbcore.o
+> >   CC      drivers/usb/host/pci-quirks.o
+> >   LD      drivers/usb/host/built-in.o
+> >  
+> > Sorry? How comes it still compiles something into main kernel?
+> 
+> It's just a quirk of the build machinery.
+> The built-in.o file should be 8 bytes or so, with nothing
+> really in it.
 
-Signed-off-by: Jonathan E Brassow <jbrassow@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-Cc: dm-devel@redhat.com
+Not so.  Randy, you missed the line for pci-quirks.o.  It really is a 
+non-trivial object file and it really goes into the main kernel.
 
-Index: linux-2.6.19-rc6/drivers/md/dm-log.c
-===================================================================
---- linux-2.6.19-rc6.orig/drivers/md/dm-log.c	2006-11-22 17:27:01.000000000 +0000
-+++ linux-2.6.19-rc6/drivers/md/dm-log.c	2006-11-22 17:27:02.000000000 +0000
-@@ -466,6 +466,7 @@ static int disk_resume(struct dirty_log 
- 	/* copy clean across to sync */
- 	memcpy(lc->sync_bits, lc->clean_bits, size);
- 	lc->sync_count = count_bits32(lc->clean_bits, lc->bitset_uint32_count);
-+	lc->sync_search = 0;
- 
- 	/* set the correct number of regions in the header */
- 	lc->header.nr_regions = lc->region_count;
-@@ -480,6 +481,13 @@ static uint32_t core_get_region_size(str
- 	return lc->region_size;
- }
- 
-+static int core_resume(struct dirty_log *log)
-+{
-+	struct log_c *lc = (struct log_c *) log->context;
-+	lc->sync_search = 0;
-+	return 0;
-+}
-+
- static int core_is_clean(struct dirty_log *log, region_t region)
- {
- 	struct log_c *lc = (struct log_c *) log->context;
-@@ -621,6 +629,7 @@ static struct dirty_log_type _core_type 
- 	.module = THIS_MODULE,
- 	.ctr = core_ctr,
- 	.dtr = core_dtr,
-+	.resume = core_resume,
- 	.get_region_size = core_get_region_size,
- 	.is_clean = core_is_clean,
- 	.in_sync = core_in_sync,
+That's because it actually is a PCI driver, living in a USB source 
+directory.  It handles the quirks needed by various PCI-based USB host 
+controllers.
+
+Alan Stern
+

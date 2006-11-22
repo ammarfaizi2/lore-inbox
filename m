@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161748AbWKVFRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161741AbWKVFPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161748AbWKVFRt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 00:17:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756775AbWKVFRt
+	id S1161741AbWKVFPd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 00:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161764AbWKVFPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 00:17:49 -0500
-Received: from mo32.po.2iij.net ([210.128.50.17]:24640 "EHLO mo32.po.2iij.net")
-	by vger.kernel.org with ESMTP id S1756795AbWKVFRs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 00:17:48 -0500
-Message-Id: <200611220517.kAM5HXmQ033171@mbox31.po.2iij.net>
-Date: Wed, 22 Nov 2006 14:17:33 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yoichi_yuasa@tripeaks.co.jp, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add return value checking of get_user() in
- set_vesa_blanking()
-In-Reply-To: <20061121173115.6d258a5a.akpm@osdl.org>
-References: <20061121141528.234a9335.yoichi_yuasa@tripeaks.co.jp>
-	<20061121173115.6d258a5a.akpm@osdl.org>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 22 Nov 2006 00:15:33 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:63366 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161741AbWKVFPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 00:15:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wpa/Swy2sQH5j0O2J0cCv8YbEyucdPPaai2M8o7xkwpcUL4V1/ujHn0DMvjq5V7/QDz1xx9r9oCb13AUDSL5ZCNmzOMpy2PFHoLAES7WCrrCqpEbZ5m0M/Dp/30FAK3Bc3+WYUHNLiBoeBb/47qz7AT2M/IFzffuzF5D4yl34Zg=
+Message-ID: <e65b9ae80611212115r42dccbfcha51d9c1e52964e5e@mail.gmail.com>
+Date: Wed, 22 Nov 2006 11:15:31 +0600
+From: "Dilan Weerakkody" <dilan2005@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: MX21 keypad driver interrupt issue
+In-Reply-To: <e65b9ae80611212102x2836f2d3ycb38a90ece2c4364@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e65b9ae80611212102x2836f2d3ycb38a90ece2c4364@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 17:31:15 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+hi all,
+i writing keypad driver on
 
-> On Tue, 21 Nov 2006 14:15:28 +0900
-> Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> 
-> > Hi,
-> > 
-> > This patch has added return value checking of get_user() in set_vesa_blanking().
-> > 
-> > Yoichi
-> > 
-> > Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-> >  
-> > diff -pruN -X generic/Documentation/dontdiff generic-orig/drivers/char/vt.c generic/drivers/char/vt.c
-> > --- generic-orig/drivers/char/vt.c	2006-11-21 10:23:39.409667250 +0900
-> > +++ generic/drivers/char/vt.c	2006-11-21 10:11:48.037209250 +0900
-> > @@ -3318,9 +3318,10 @@ postcore_initcall(vtconsole_class_init);
-> >  
-> >  static void set_vesa_blanking(char __user *p)
-> >  {
-> > -    unsigned int mode;
-> > -    get_user(mode, p + 1);
-> > -    vesa_blank_mode = (mode < 4) ? mode : 0;
-> > +	unsigned int mode;
-> > +
-> > +	if (!get_user(mode, p + 1))
-> > +		vesa_blank_mode = (mode < 4) ? mode : 0;
-> >  }
-> >  
-> >  void do_blank_screen(int entering_gfx)
-> 
-> How about we go all the way?
+*mx21 ads board  for
+* kernel 2.6.14
 
-It's good for us.
+i got a problem on interrupt handling ,
 
-Thanks,
+the isr routine for kpp
 
-Yoichi
+1.when interrupt occur first i disable interrupt by clear KRIE and KDIE bit
+
+2.next i scan key pad matrix
+
+3.clear KPDK bit  (but when i read this bit i can see that KPDK flag
+bit is still not cleared)
+
+4.then i enable KDIE bit again
+
+all above 1,2,3,4 written within interrupt handler (is this a problem?);
+
+my problem is KPP interrupt handler run over and over again after once
+i touch a key and release it
+please help
+thanks
+
+dilan

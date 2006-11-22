@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753942AbWKVMLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753946AbWKVMMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753942AbWKVMLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753945AbWKVMLR
+	id S1753946AbWKVMMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 07:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754084AbWKVMMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:11:17 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:11463 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1753942AbWKVMLQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:11:16 -0500
-Date: Wed, 22 Nov 2006 15:09:34 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061122120933.GA32681@2ka.mipt.ru>
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Wed, 22 Nov 2006 07:12:14 -0500
+Received: from rubidium.solidboot.com ([81.22.244.175]:35766 "EHLO
+	mail.solidboot.com") by vger.kernel.org with ESMTP id S1753946AbWKVMMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 07:12:13 -0500
+Date: Wed, 22 Nov 2006 14:08:08 +0200
+From: Imre =?iso-8859-1?Q?De=E1k?= <imre.deak@solidboot.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Imre Deak <imre.deak@solidboot.com>,
+       Komal Shah <komal.shah802003@gmail.com>,
+       James Simmons <jsimmons@infradead.org>, Vladimir <vovan888@gmail.com>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: Siemens sx1: merge framebuffer support
+Message-ID: <20061122120808.GA28102@mammoth.research.nokia.com>
+References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <Pine.LNX.4.64.0611211503190.32103@pentafluge.infradead.org> <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com> <20061121164723.GB8193@atomide.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4563FD53.7030307@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 15:09:37 +0300 (MSK)
+In-Reply-To: <20061121164723.GB8193@atomide.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2006 at 11:33:39PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >Threads are parked in syscalls - which one should be interrupted?
-> 
-> It doesn't matter, use the same policy you use when waking a thread in 
-> case of an event.  This is not about waking a specific thread, it's 
-> about not dropping the event notification.
-> 
-> 
-> >And what if there were no threads waiting in syscalls?
-> 
-> This is fine, do nothing.  It means that the other threads are about to 
-> read the ring buffer and will pick up the event.
-> 
-> 
-> The case which must be avoided is that of all threads being in the 
-> kernel, one threads gets woken, and then is canceled.  Without notifying 
-> the kernel about the cancellation and in the absence of further events 
-> notifications the process is deadlocked.
-> 
-> A second case which should be avoided is that there is a thread waiting 
-> when a thread gets canceled and there are one or more addition threads 
-> around, but not in the kernel.  But those other threads might not get to 
-> the ring buffer anytime soon, so handling the event is unnecessarily 
-> delayed.
+Hi Tony and all,
 
-Ok, to solve the problem in the way which should be good for both I
-decided to implement additional syscall which will allow to mark any
-event as ready and thus wake up appropriate threads. If userspace will
-request zero events to be marked as ready, syscall will just
-interrupt/wakeup one of the listeners parked in syscall.
+On Tue, Nov 21, 2006 at 04:47:25PM +0000, Tony Lindgren wrote:
+> Hi,
+> 
+> * Komal Shah <komal.shah802003@gmail.com> [061121 15:35]:
+> > On 11/21/06, James Simmons <jsimmons@infradead.org> wrote:
+> > >
+> > >Can you post the framebufer driver to the framebuffer list. We like to do
+> > >peer review. Thank you :-)
+> 
+> It would be nice to get the framebuffer integrated. I think it would be
+> best if Imre submitted the patches as it's mostly his work.
+> 
+> Imre, do you have time to send the patches to framebuffer list? If not,
+> I can send them.
 
-Piece?
+Yes, I'm going to post it this week.
 
--- 
-	Evgeniy Polyakov
+--Imre
+
+> 
+> > >On Tue, 21 Nov 2006, Vladimir wrote:
+> > >
+> > >> 2006/11/20, Tony Lindgren <tony@atomide.com>:
+> > >> > * Pavel Machek <pavel@ucw.cz> [061118 18:16]:
+> > >> > > From: Vladimir Ananiev <vovan888@gmail.com>
+> > >> > >
+> > >> > > Framebuffer support for Siemens SX1; this is second big patch. (Third
+> > >> > > one will be mixer/sound support). Support is simple / pretty minimal,
+> > >> > > but seems to work okay (and is somehow important for a cell phone 
+> > >:-).
+> > >> >
+> > >> > Pushed to linux-omap. I guess you're planning to send the missing
+> > >> > Kconfig + Makefile patch for this?
+> > >> >
+> > >> > Also, it would be better to use omap_mcbsp_xmit_word() or
+> > >> > omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
+> > >> > it does not do any checking that it worked. The aic23 and tsc2101
+> > >> > audio in linux-omap tree in general has the same problem.
+> > >> >
+> > >> > Regards,
+> > >> >
+> > >> > Tony
+> > >> >
+> > >>
+> > >> Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
+> > >> so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
+> > >> -
+> > 
+> > Again, framebuffer support patch is based on the omap framebuffer
+> > driver, which is not yet submitted to upstream/fbdevel list. sx1
+> > framebuffer support just fill up the hooks required by -omap fb driver
+> > framework.
+> 
+> Yes, but the framebuffer code is in pretty much ready to be sent
+> upstream :)
+> 
+> Regards,
+> 
+> Tony

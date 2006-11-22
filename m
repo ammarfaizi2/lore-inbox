@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754416AbWKVO4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754075AbWKVO6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754416AbWKVO4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 09:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754411AbWKVO4Y
+	id S1754075AbWKVO6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 09:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754437AbWKVO6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 09:56:24 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:734 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1754009AbWKVO4X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 09:56:23 -0500
-Message-ID: <45646512.7070806@fr.ibm.com>
-Date: Wed, 22 Nov 2006 15:56:18 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 22 Nov 2006 09:58:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12292 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1754075AbWKVO6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 09:58:02 -0500
+Date: Wed, 22 Nov 2006 15:58:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: d binderman <dcb314@hotmail.com>, linux-kernel@vger.kernel.org,
+       mel@csn.ul.ie
+Subject: Re: arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was set but nev
+Message-ID: <20061122145801.GH5200@stusta.de>
+References: <BAY107-F11C5D88BF00FBB291F3FC09CE30@phx.gbl> <p73mz6j8xdv.fsf@bingen.suse.de>
 MIME-Version: 1.0
-To: devel@openvz.org
-CC: Herbert Poetzl <herbert@13thfloor.at>, containers@lists.osdl.org,
-       v4l-dvb-maintainer@linuxtv.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Devel] Re: [PATCH/RFC] kthread API conversion for dvb_frontend
- and	av7110
-References: <45019CC3.2030709@fr.ibm.com> <4509C4A5.5030600@fr.ibm.com>	<20060914221024.GB26916@MAIL.13thfloor.at> <200611170150.02207.adq_dvb@lidskialf.net>
-In-Reply-To: <200611170150.02207.adq_dvb@lidskialf.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73mz6j8xdv.fsf@bingen.suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew de Quincey wrote:
+On Wed, Nov 22, 2006 at 01:43:40PM +0100, Andi Kleen wrote:
+> "d binderman" <dcb314@hotmail.com> writes:
+> 
+> > Hello there,
+> > 
+> > I just tried to compile Linux kernel 2.6.18.3 with the Intel C
+> > C compiler.
+> > 
+> > The compiler said
+> > 
+> > arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was
+> > set but never used
+> 
+> Actually it looks like a real bug -- probably added recently with the
+> new bootmap code.
 
-> Hi - the conversion looks good to me.. I can't really offer any more 
-> constructive suggestions beyond what Cedric has already said. 
+No, this unused assignment is in all 2.6 kernels starting with 2.6.0 and 
+even in 2.4 .
 
-ok. so, should we just resend a refreshed version of the patch when 2.6.19
-comes out ?  
+> The bootmap should be reserved based on that size.
+> 
+> -Andi
 
-> Theres another thread in dvb_ca_en50221.c that could be converted as well 
-> though, hint hint ;)
+cu
+Adrian
 
-ok ok :) i'll look at it ...
- 
-> Apologies for the delay in this reply - I've been hibernating for a bit.
+-- 
 
-np.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-thanks,
-
-C.

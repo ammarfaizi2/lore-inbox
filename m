@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162033AbWKVKma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162030AbWKVKmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162033AbWKVKma (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 05:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162038AbWKVKma
+	id S1162030AbWKVKmK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 05:42:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162027AbWKVKmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 05:42:30 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:33959 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1162031AbWKVKm3 (ORCPT
+	Wed, 22 Nov 2006 05:42:10 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:51146 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1162022AbWKVKmJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 05:42:29 -0500
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Date: Wed, 22 Nov 2006 11:36:14 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>, gregkh@suse.de,
-       Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>,
-       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <200611151135.48306.dada1@cosmosbay.com> <200611221128.05769.dada1@cosmosbay.com>
-In-Reply-To: <200611221128.05769.dada1@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 05:42:09 -0500
+Date: Wed, 22 Nov 2006 13:41:17 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Ulrich Drepper <drepper@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061122104114.GC11480@2ka.mipt.ru>
+References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <45635B29.4000801@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200611221136.14565.ak@suse.de>
+In-Reply-To: <45635B29.4000801@garzik.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 13:41:24 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 November 2006 11:28, Eric Dumazet wrote:
-> On Wednesday 15 November 2006 11:35, Eric Dumazet wrote:
-> > On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
-> > > Subject    : x86_64: oprofile doesn't work
-> > > References : http://lkml.org/lkml/2006/10/27/3
-> > > Submitter  : Prakash Punnoor <prakash@punnoor.de>
-> > > Status     : unknown
-> >
-> 
-> I hit the same problem on i386 architecture too, if CONFIG_ACPI is not set.
+On Tue, Nov 21, 2006 at 03:01:45PM -0500, Jeff Garzik (jeff@garzik.org) wrote:
+> nitpick:  in ring_buffer.c (example app), I would use posix_memalign(3) 
+> rather than malloc(3)
 
-oprofile is still broken because it cannot deal with the lack of perfctr 0.
-You can disable the nmi watchdog as a workaround.
+Yes, it can be done.
 
--Andi
+> 	Jeff
+
+-- 
+	Evgeniy Polyakov

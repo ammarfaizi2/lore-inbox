@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757049AbWKVVpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757069AbWKVWLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757049AbWKVVpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 16:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757072AbWKVVpF
+	id S1757069AbWKVWLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 17:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757070AbWKVWLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 16:45:05 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:20909 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1757049AbWKVVoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 16:44:55 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4564C4C7.5060403@s5r6.in-berlin.de>
-Date: Wed, 22 Nov 2006 22:44:39 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Robert Crocombe <rcrocomb@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux1394-devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: ieee1394: host adapter disappears on 1394 bus reset
-References: <e6babb600611220731p67b15e51q95f524683070ae80@mail.gmail.com>
-In-Reply-To: <e6babb600611220731p67b15e51q95f524683070ae80@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 22 Nov 2006 17:11:22 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63405 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1757068AbWKVWLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 17:11:22 -0500
+Date: Wed, 22 Nov 2006 22:17:31 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Jordan Crouse" <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org, info-linux@ldcmail.amd.com
+Subject: Re: [RFC] char: Add MFGPT driver for the CS5535/CS5536
+Message-ID: <20061122221731.356939cb@localhost.localdomain>
+In-Reply-To: <20061122205736.GA588@cosmic.amd.com>
+References: <20061122205736.GA588@cosmic.amd.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Crocombe wrote:
-> I have an Opteron-based machine that has 1 Unibrain Fireboard 800 and
-> 1 Indigita IDT804 card (4 separate 1394 controllers).  Sometimes upon
-> bus reset, one of the controllers is lost.  By lost, I mean that
-> debugging printouts in /var/log/messages which are usually prefixed
-> "fw-hostXYZ" are gone.
-[...]
+On Wed, 22 Nov 2006 13:57:36 -0700
+"Jordan Crouse" <jordan.crouse@amd.com> wrote:
 
-IOW, ohci1394's bus reset handler is never called again.
+> The Geode CS5535 and CS5536 companion chips contain a block of timers
+> known as the Multi Function General Purpose Timers.  The primary use
+> for these timers is to control an output pin nominally connected to a
+> LED or other visual indicator.  They also can be configured to reset the
+> system, which is handy as a watchdog timer.  they _can_ be used to
+> fire software interrupts on timeout too, but this is less useful since the
+> timers are fairly low resolution and there are much better options available.
+> 
+> The attached driver provides a low-level interface to the block, and 
+> allows for other kernel drivers to use the timers. 
 
-Does this happen only if you reset all buses at once?
-Does it only happen on the Indigita card or also on the Unibrain card?
-Do the controllers share IRQs?
-Does it happen if there is no transmission or reception going on?
+Three comments
 
-It would be nice if you create an entry at bugzilla.kernel.org. If you
-do, also add a link to an archive of this discussion, e.g.
-http://lkml.org/lkml/2006/11/22/122 .
+1.	Use inlines not defines when you can - it means we get type
+checking
+2.	There is an RTC timer interface - could you use that interface
+for some of this so its compatible and consistent ?
+3.	Ditto for a watchdog use - although that would be a separate
+driver using the kernel hooks anyway.
 
-Maybe it's related to http://bugzilla.kernel.org/show_bug.cgi?id=6070
-(use of msleep busy-wait loops in ohci1394's interrupt handler's
-context). Whatever it is, the fact that you lose interrupt events only
-after a bus reset & selfID complete event strongly indicates that there
-is something wrong with the drivers' low-level bus reset handling. OTOH
-I don't remember a similar report.
-
-One thing you could try next is to add a debug logging macro which
-prints the contents of OHCI1394_IntEventClear, OHCI1394_IntEventSet, and
-OHCI1394_IntMaskSet, right after ohci1394's call to
-hpsb_selfid_complete. (I'm merely poking in the dark here.)
--- 
-Stefan Richter
--=====-=-==- =-== =-==-
-http://arcgraph.de/sr/
+Kernel side looks fairly sane

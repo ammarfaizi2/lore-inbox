@@ -1,53 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWKVTjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756535AbWKVTkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752249AbWKVTjG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756727AbWKVTjG
+	id S1756535AbWKVTkM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756727AbWKVTkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:39:06 -0500
-Received: from aa014msr.fastwebnet.it ([85.18.95.74]:5056 "EHLO
-	aa014msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1752249AbWKVTjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:39:03 -0500
-Date: Wed, 22 Nov 2006 20:38:59 +0100
-From: The Peach <smartart@tiscali.it>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug? VFAT copy problem
-Message-ID: <20061122203859.017d5723@localhost>
-In-Reply-To: <87r6vvs2k4.fsf@duaron.myhome.or.jp>
-References: <20061120164209.04417252@localhost>
-	<877ixqhvlw.fsf@duaron.myhome.or.jp>
-	<20061120184912.5e1b1cac@localhost>
-	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<20061122163001.0d291978@localhost>
-	<8764d7v4nh.fsf@duaron.myhome.or.jp>
-	<20061122201008.17072c89@localhost>
-	<87r6vvs2k4.fsf@duaron.myhome.or.jp>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
-X-Face: aWQ;)]T=TRHr<lws7%!n"V4D8C=^2]U'G>ZwK=Tde.eaxLu/iMa)ro#a*o5[K!4mKaP^74m
- !c#;yi;6a?i`K,R<{Y"),;f@t9e\p]Pl$$h@o%>zDsLL;/x|t{bKr;L'":ocL?&7X&q7%6<OTn}fw;
- PQ$>d"axD!#!12}&]OFn'YfVxe(>EyQDK?wne){aEu[,_o~30L}Anqdk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 14:40:12 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32264 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1756535AbWKVTkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:40:10 -0500
+Date: Wed, 22 Nov 2006 20:40:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.6.19-rc5: modular USB rebuilds vmlinux?
+Message-ID: <20061122194012.GA3516@stusta.de>
+References: <200611222145.59560.arvidjaar@mail.ru> <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 04:29:15 +0900
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+On Wed, Nov 22, 2006 at 10:54:54AM -0800, Randy Dunlap wrote:
+> On Wed, 22 Nov 2006 21:45:55 +0300 Andrey Borzenkov wrote:
+> 
+> > I was under impression that I have fully modular USB. Still:
+> > 
+> > {pts/1}% make -C ~/src/linux-git O=$HOME/build/linux-2.6.19
+> > make: Entering directory `/home/bor/src/linux-git'
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> > scripts/kconfig/conf -s arch/i386/Kconfig
+> >   Using /home/bor/src/linux-git as source for kernel
+> >   GEN     /home/bor/build/linux-2.6.19/Makefile
+> >   CHK     include/linux/version.h
+> >   CHK     include/linux/utsrelease.h
+> >   CHK     include/linux/compile.h
+> >   CC [M]  drivers/usb/core/usb.o
+> >   CC [M]  drivers/usb/core/hub.o
+> >   CC [M]  drivers/usb/core/hcd.o
+> >   CC [M]  drivers/usb/core/urb.o
+> >   CC [M]  drivers/usb/core/message.o
+> >   CC [M]  drivers/usb/core/driver.o
+> >   CC [M]  drivers/usb/core/config.o
+> >   CC [M]  drivers/usb/core/file.o
+> >   CC [M]  drivers/usb/core/buffer.o
+> >   CC [M]  drivers/usb/core/sysfs.o
+> >   CC [M]  drivers/usb/core/endpoint.o
+> >   CC [M]  drivers/usb/core/devio.o
+> >   CC [M]  drivers/usb/core/notify.o
+> >   CC [M]  drivers/usb/core/generic.o
+> >   CC [M]  drivers/usb/core/hcd-pci.o
+> >   CC [M]  drivers/usb/core/inode.o
+> >   CC [M]  drivers/usb/core/devices.o
+> >   LD [M]  drivers/usb/core/usbcore.o
+> >   CC      drivers/usb/host/pci-quirks.o
+> >   LD      drivers/usb/host/built-in.o
+> >  
+> > Sorry? How comes it still compiles something into main kernel?
+> 
+> It's just a quirk of the build machinery.
+> The built-in.o file should be 8 bytes or so, with nothing
+> really in it.
+>...
 
-> This is different thing. Please try "shortname=winnt" or "shortname=mixed"
-> mount option for shortname (default is shortname=lower).
+No, it's something different:
 
-finally it works (mounted with shortname=winnt).
-Did this patch really solve the issue or was just a "shortname" option problem? I didn't even know that option would made the difference.
-now I just should get rid of verbose output.
+Note that drivers/usb/host/pci-quirks.o is built non-modular since it 
+won't work modular.
+
+> ~Randy
+
+cu
+Adrian
 
 -- 
-Matteo 'Peach' Pescarin
 
-ICQ UIN = 71110111
-Jabber ID = smartart@unstable.nl
-Web Site = http://www.smartart.it
-GeCHI = http://www.gechi.it
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

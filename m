@@ -1,148 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161767AbWKVCLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967016AbWKVCPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161767AbWKVCLe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 21:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967012AbWKVCLe
+	id S967016AbWKVCPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 21:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967018AbWKVCPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 21:11:34 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:65196 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S967013AbWKVCLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 21:11:33 -0500
-Date: Tue, 21 Nov 2006 18:11:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@timesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Arjan <arjan@linux.intel.com>
-Subject: Re: [RFC][PATCH] Add do_not_call_when_idle option to timer and
- workqueue
-Message-Id: <20061121181114.b9d923bd.akpm@osdl.org>
-In-Reply-To: <20061121162845.A24791@unix-os.sc.intel.com>
-References: <20061121162845.A24791@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 21 Nov 2006 21:15:49 -0500
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:2429 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S967016AbWKVCPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 21:15:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=eX1qME3VqEThtLLLlvkq32IU4b0YIhKB47J1nh1mnyUxVxkBybC87HeJS0tZVZXlPmwisYVmrWgxVkrUx6MclGs0EuQ1qJJN0s00yDX7KuWEnomDcHJmjcTpAh2GgenMwtO9KLD4fRUf1nnzMIvwd297iSpzkPP36n2eIHqp6Hw=  ;
+X-YMail-OSG: Ns8bcO0VM1mMfFTT2co3n8WtZEtFj.atwqfBOvzQCoMOmOdE2Fv880vrHWcDOnZktuNLWrQayvFT.2csoUoFOMAi.P2hdUGkHA4x3z_XLFN7ZTu8JgalPA--
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.19-rc6 6/6] rtc-omap driver
+Date: Tue, 21 Nov 2006 18:15:42 -0800
+User-Agent: KMail/1.7.1
+Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Tony Lindgren <tony@atomide.com>
+References: <200611201014.41980.david-b@pacbell.net> <200611201028.48701.david-b@pacbell.net> <20061121171906.5eec32d6.akpm@osdl.org>
+In-Reply-To: <20061121171906.5eec32d6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611211815.43929.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006 16:28:45 -0800
-Venkatesh Pallipadi <venkatesh.pallipadi@intel.com> wrote:
+On Tuesday 21 November 2006 5:19 pm, Andrew Morton wrote:
+> On Mon, 20 Nov 2006 10:28:48 -0800
 
+> > +		/* sometimes the alarm wraps into tomorrow */
+> > +		if (then < now) {
 > 
-> Add a new flag to timers to allow "Do not call when Idle" mode.
-> Export this sort of soft timer over workqueues and use it in ondemand governor.
+> This isn't wraparound-safe.  If you have then=0xffffffff and now=0x00000001.
 > 
-> This patch avoids the periodic ondemand timer invocations in
-> Dynamic Tick kernels.
+> Perhaps that can't happen.
+
+Starting in 2037 or whenever, various things will be breaking...
+
+Probably the RTC lib routines should use a time_t, and when that gets
+changed to 64 bits then things like this will be fixed automagically.
+Right now they use "unsigned long".
+
+I suggest Alessandro handle those issues.
+
+
+> > +MODULE_AUTHOR("George G. Davis (and others)");
 > 
-> This can be used in various other kernel timers that end up setting up
-> unnecessary timers during idle.
-> 
-> Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-> 
-> Index: linux-2.6.19-rc-mm/include/linux/timer.h
-> ===================================================================
-> --- linux-2.6.19-rc-mm.orig/include/linux/timer.h	2006-11-13 15:06:26.000000000 -0800
-> +++ linux-2.6.19-rc-mm/include/linux/timer.h	2006-11-13 16:01:03.000000000 -0800
-> @@ -8,6 +8,8 @@
->  
->  struct tvec_t_base_s;
->  
-> +#define TIMER_FLAG_NOT_IN_IDLE	(0x1)
-> +
->  struct timer_list {
->  	struct list_head entry;
->  	unsigned long expires;
-> @@ -16,6 +18,7 @@
->  	unsigned long data;
->  
->  	struct tvec_t_base_s *base;
-> +	int	flags;
->  #ifdef CONFIG_TIMER_STATS
+> Maybe some additional signoffs would be appropirate?
 
-Adding a new field to the timer_list is somewhat of a hit - this is going
-to make an awful lot of data structures a bit larger.  Some of which we
-allocate a large number of.
+I pinged the MontaVista emails from the original driver; maybe
+they'll send signoffs.
 
-I think we could justfy getting nasty and using the LSB of
-timer_list.function for this..
-
->  	void *start_site;
->  	char start_comm[16];
-> @@ -30,6 +33,7 @@
->  		.expires = (_expires),				\
->  		.data = (_data),				\
->  		.base = &boot_tvec_bases,			\
-> +		.flags = 0,					\
->  	}
->  
->  #define DEFINE_TIMER(_name, _function, _expires, _data)		\
-> Index: linux-2.6.19-rc-mm/include/linux/workqueue.h
-> ===================================================================
-> --- linux-2.6.19-rc-mm.orig/include/linux/workqueue.h	2006-11-13 15:06:26.000000000 -0800
-> +++ linux-2.6.19-rc-mm/include/linux/workqueue.h	2006-11-13 16:01:03.000000000 -0800
-> @@ -65,6 +65,8 @@
->  extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
->  extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
->  	struct work_struct *work, unsigned long delay);
-> +extern int queue_soft_delayed_work_on(int cpu, struct workqueue_struct *wq,
-> +	struct work_struct *work, unsigned long delay);
-
-I don't think that's a well-chosen name.  What does the "soft" mean?
-
-Also, this is a new timer API capability, but it is only exposed via the
-workqueue API, and then only via a part of it.
-
-A complete implementation would expose the new capability via extensions to
-the timer API, and would then (in a separate patch) convert the workqueue
-API to use those extensions.  (And in fact the third patch would convert
-cpufreq to use the new workqueue capabilities...)
-
->  extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
->  
->  extern int FASTCALL(schedule_work(struct work_struct *work));
-> Index: linux-2.6.19-rc-mm/kernel/timer.c
-> ===================================================================
-> --- linux-2.6.19-rc-mm.orig/kernel/timer.c	2006-11-13 15:06:26.000000000 -0800
-> +++ linux-2.6.19-rc-mm/kernel/timer.c	2006-11-13 16:01:03.000000000 -0800
-> @@ -639,6 +639,8 @@
->  	j = base->timer_jiffies & TVR_MASK;
->  	do {
->  		list_for_each_entry(nte, base->tv1.vec + j, entry) {
-> +			if (nte->flags & TIMER_FLAG_NOT_IN_IDLE)
-> +				continue;
->  			expires = nte->expires;
->  			found = nte;
->  			if (j < (base->timer_jiffies & TVR_MASK))
-> Index: linux-2.6.19-rc-mm/kernel/workqueue.c
-> ===================================================================
-> --- linux-2.6.19-rc-mm.orig/kernel/workqueue.c	2006-11-13 15:06:26.000000000 -0800
-> +++ linux-2.6.19-rc-mm/kernel/workqueue.c	2006-11-13 16:01:03.000000000 -0800
-> @@ -196,6 +196,20 @@
->  }
->  EXPORT_SYMBOL_GPL(queue_delayed_work_on);
->  
-> +int queue_soft_delayed_work_on(int cpu, struct workqueue_struct *wq,
-> +			struct work_struct *work, unsigned long delay)
-> +{
-> +	int ret;
-> +	struct timer_list *timer = &work->timer;
-> +	ret = queue_delayed_work_on(cpu, wq, work, delay);
-> +	if (ret) {
-> +		timer->flags |= TIMER_FLAG_NOT_IN_IDLE;
-> +	}
-> +	return ret;
-> +}
-
-See, here we have workqueue code poking around in timer_list internals.
-
-Also, it's weird and conceivably racy to go altering the timer _after_
-scheduling the work.  What happens if the timer goes off before we set the
-bit?  And suppose the workqueue callback function frees the storage at
-*timer?
-
-All these problems will go away if the APIs are done fully, and correctly.
-
-
+- Dave
+ 

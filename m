@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757160AbWKVXPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757168AbWKVXRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757160AbWKVXPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 18:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757162AbWKVXPV
+	id S1757168AbWKVXRg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 18:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757162AbWKVXRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 18:15:21 -0500
-Received: from mga02.intel.com ([134.134.136.20]:36286 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1757160AbWKVXPU convert rfc822-to-8bit
+	Wed, 22 Nov 2006 18:17:36 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:33504 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1756011AbWKVXRf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 18:15:20 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,449,1157353200"; 
-   d="scan'208"; a="165613415:sNHT17984974"
-From: Jason Gaston <jason.d.gaston@intel.com>
-To: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, khali@linux-fr.org,
-       i2c@lm-sensors.nu, jason.d.gaston@intel.com
-Subject: [PATCH 2.6.19-rc6] irq: irq and pci_ids patch for Intel ICH9
-Date: Wed, 22 Nov 2006 15:15:08 -0800
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 22 Nov 2006 18:17:35 -0500
+Date: Thu, 23 Nov 2006 00:16:56 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: Lennert Buytenhek <buytenh@wantstofly.org>,
+       Riku Voipio <riku.voipio@iki.fi>, linux-kernel@vger.kernel.org
+Subject: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
+Message-ID: <20061122231656.GA9991@electric-eye.fr.zoreil.com>
+References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611221515.08246.jason.d.gaston@intel.com>
+In-Reply-To: <20061121204527.GA13549@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
+Francois Romieu <romieu@fr.zoreil.com> :
+[scrouitch]
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+You can apply the patch below and 'modprobe r8169 ignore_parity_err=1'.
 
---- linux-2.6.19-rc6/arch/i386/pci/irq.c.orig	2006-11-22 06:23:25.000000000 -0800
-+++ linux-2.6.19-rc6/arch/i386/pci/irq.c	2006-11-22 06:24:36.000000000 -0800
-@@ -543,6 +543,12 @@
- 		case PCI_DEVICE_ID_INTEL_ICH8_2:
- 		case PCI_DEVICE_ID_INTEL_ICH8_3:
- 		case PCI_DEVICE_ID_INTEL_ICH8_4:
-+		case PCI_DEVICE_ID_INTEL_ICH9_0:
-+		case PCI_DEVICE_ID_INTEL_ICH9_1:
-+		case PCI_DEVICE_ID_INTEL_ICH9_2:
-+		case PCI_DEVICE_ID_INTEL_ICH9_3:
-+		case PCI_DEVICE_ID_INTEL_ICH9_4:
-+		case PCI_DEVICE_ID_INTEL_ICH9_5:
- 			r->name = "PIIX/ICH";
- 			r->get = pirq_piix_get;
- 			r->set = pirq_piix_set;
---- linux-2.6.19-rc6/include/linux/pci_ids.h.orig	2006-11-22 06:19:57.000000000 -0800
-+++ linux-2.6.19-rc6/include/linux/pci_ids.h	2006-11-22 06:26:10.000000000 -0800
-@@ -2211,6 +2211,13 @@
- #define PCI_DEVICE_ID_INTEL_ICH8_4	0x2815
- #define PCI_DEVICE_ID_INTEL_ICH8_5	0x283e
- #define PCI_DEVICE_ID_INTEL_ICH8_6	0x2850
-+#define PCI_DEVICE_ID_INTEL_ICH9_0	0x2910
-+#define PCI_DEVICE_ID_INTEL_ICH9_1	0x2911
-+#define PCI_DEVICE_ID_INTEL_ICH9_2	0x2912
-+#define PCI_DEVICE_ID_INTEL_ICH9_3	0x2913
-+#define PCI_DEVICE_ID_INTEL_ICH9_4	0x2914
-+#define PCI_DEVICE_ID_INTEL_ICH9_5	0x2915
-+#define PCI_DEVICE_ID_INTEL_ICH9_6	0x2930
- #define PCI_DEVICE_ID_INTEL_82855PM_HB	0x3340
- #define PCI_DEVICE_ID_INTEL_82830_HB	0x3575
- #define PCI_DEVICE_ID_INTEL_82830_CGC	0x3577
+It apparently does the job and it is not much too intrusive.
+
+diff --git a/drivers/net/r8169.c b/drivers/net/r8169.c
+index 27f90b2..2b8c057 100644
+--- a/drivers/net/r8169.c
++++ b/drivers/net/r8169.c
+@@ -225,6 +225,7 @@ MODULE_DEVICE_TABLE(pci, rtl8169_pci_tbl
+ 
+ static int rx_copybreak = 200;
+ static int use_dac;
++static int ignore_parity_err;
+ static struct {
+ 	u32 msg_enable;
+ } debug = { -1 };
+@@ -469,6 +470,8 @@ module_param(use_dac, int, 0);
+ MODULE_PARM_DESC(use_dac, "Enable PCI DAC. Unsafe on 32 bit PCI slot.");
+ module_param_named(debug, debug.msg_enable, int, 0);
+ MODULE_PARM_DESC(debug, "Debug verbosity level (0=none, ..., 16=all)");
++module_param_named(ignore_parity_err, ignore_parity_err, bool, 0);
++MODULE_PARM_DESC(ignore_parity_err, "Ignore PCI parity error as target. Default: false");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(RTL8169_VERSION);
+ 
+@@ -2332,12 +2335,17 @@ static void rtl8169_pcierr_interrupt(str
+ 	/*
+ 	 * The recovery sequence below admits a very elaborated explanation:
+ 	 * - it seems to work;
+-	 * - I did not see what else could be done.
++	 * - I did not see what else could be done;
++	 * - it makes iop3xx happy.
+ 	 *
+ 	 * Feel free to adjust to your needs.
+ 	 */
+-	pci_write_config_word(pdev, PCI_COMMAND,
+-			      pci_cmd | PCI_COMMAND_SERR | PCI_COMMAND_PARITY);
++	if (ignore_parity_err)
++		pci_cmd &= ~PCI_COMMAND_PARITY;
++	else
++		pci_cmd |= PCI_COMMAND_SERR | PCI_COMMAND_PARITY;
++
++	pci_write_config_word(pdev, PCI_COMMAND, pci_cmd);
+ 
+ 	pci_write_config_word(pdev, PCI_STATUS,
+ 		pci_status & (PCI_STATUS_DETECTED_PARITY |
+@@ -2351,10 +2359,11 @@ static void rtl8169_pcierr_interrupt(str
+ 		tp->cp_cmd &= ~PCIDAC;
+ 		RTL_W16(CPlusCmd, tp->cp_cmd);
+ 		dev->features &= ~NETIF_F_HIGHDMA;
+-		rtl8169_schedule_work(dev, rtl8169_reinit_task);
+ 	}
+ 
+ 	rtl8169_hw_reset(ioaddr);
++
++	rtl8169_schedule_work(dev, rtl8169_reinit_task);
+ }
+ 
+ static void

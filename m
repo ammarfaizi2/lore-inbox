@@ -1,105 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756439AbWKVSzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756531AbWKVS4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756439AbWKVSzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756495AbWKVSzd
+	id S1756531AbWKVS4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756508AbWKVS4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:55:33 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:51769 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1756439AbWKVSzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:55:32 -0500
-Date: Wed, 22 Nov 2006 10:54:54 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] 2.6.19-rc5: modular USB rebuilds vmlinux?
-Message-Id: <20061122105454.aa5c0f3d.randy.dunlap@oracle.com>
-In-Reply-To: <200611222145.59560.arvidjaar@mail.ru>
-References: <200611222145.59560.arvidjaar@mail.ru>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 22 Nov 2006 13:56:50 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:36569 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1756531AbWKVS4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:56:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=mEAf0oeiizprj5Fyt/diovlD6dOCUu49Qki1QTH3EICcyRRhTak51fNzPDWfVfL9rCM2G9mLqcQCHpbOLTBET1GJCmDma4s8E0HiQLJLGFDDk0GGMzMUnN4XbVOtEjLcRxOswxVHGvAr53w8StExxyAd7mmy9CRFeLzDQyyyToE=
+Date: Thu, 23 Nov 2006 03:50:45 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@suse.cz>
+Subject: [PATCH] sound: initialize rawmidi substream list
+Message-ID: <20061122185045.GE2985@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+	Jaroslav Kysela <perex@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2006 21:45:55 +0300 Andrey Borzenkov wrote:
+If snd_rawmidi_new() failed to allocate substreams for input
+(snd_rawmidi_alloc_substreams() failed to populate a 
+&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]), it will try to
+free rawmidi instance by snd_rawmidi_free().
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I was under impression that I have fully modular USB. Still:
-> 
-> {pts/1}% make -C ~/src/linux-git O=$HOME/build/linux-2.6.19
-> make: Entering directory `/home/bor/src/linux-git'
->   GEN     /home/bor/build/linux-2.6.19/Makefile
-> scripts/kconfig/conf -s arch/i386/Kconfig
->   Using /home/bor/src/linux-git as source for kernel
->   GEN     /home/bor/build/linux-2.6.19/Makefile
->   CHK     include/linux/version.h
->   CHK     include/linux/utsrelease.h
->   CHK     include/linux/compile.h
->   CC [M]  drivers/usb/core/usb.o
->   CC [M]  drivers/usb/core/hub.o
->   CC [M]  drivers/usb/core/hcd.o
->   CC [M]  drivers/usb/core/urb.o
->   CC [M]  drivers/usb/core/message.o
->   CC [M]  drivers/usb/core/driver.o
->   CC [M]  drivers/usb/core/config.o
->   CC [M]  drivers/usb/core/file.o
->   CC [M]  drivers/usb/core/buffer.o
->   CC [M]  drivers/usb/core/sysfs.o
->   CC [M]  drivers/usb/core/endpoint.o
->   CC [M]  drivers/usb/core/devio.o
->   CC [M]  drivers/usb/core/notify.o
->   CC [M]  drivers/usb/core/generic.o
->   CC [M]  drivers/usb/core/hcd-pci.o
->   CC [M]  drivers/usb/core/inode.o
->   CC [M]  drivers/usb/core/devices.o
->   LD [M]  drivers/usb/core/usbcore.o
->   CC      drivers/usb/host/pci-quirks.o
->   LD      drivers/usb/host/built-in.o
->  
-> Sorry? How comes it still compiles something into main kernel?
+But it will cause oops because snd_rawmidi_free() tries to free
+both of substreams list but list for output
+(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]) is not initialized yet.
 
-It's just a quirk of the build machinery.
-The built-in.o file should be 8 bytes or so, with nothing
-really in it.
+Cc: Takashi Iwai <tiwai@suse.de>
+Cc: Jaroslav Kysela <perex@suse.cz>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
->  {pts/0}% grep USB build/linux-2.6.19/.config | grep -v '^#'
-> CONFIG_USB_ARCH_HAS_HCD=y
-> CONFIG_USB_ARCH_HAS_OHCI=y
-> CONFIG_USB_ARCH_HAS_EHCI=y
-> CONFIG_USB=m
-> CONFIG_USB_DEBUG=y
-> CONFIG_USB_DEVICEFS=y
-> CONFIG_USB_BANDWIDTH=y
-> CONFIG_USB_DYNAMIC_MINORS=y
-> CONFIG_USB_SUSPEND=y
-> CONFIG_USB_OHCI_HCD=m
-> CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-> CONFIG_USB_ACM=m
-> CONFIG_USB_PRINTER=m
-> CONFIG_USB_STORAGE=m
-> CONFIG_USB_STORAGE_DATAFAB=y
-> CONFIG_USB_STORAGE_FREECOM=y
-> CONFIG_USB_STORAGE_ISD200=y
-> CONFIG_USB_STORAGE_DPCM=y
-> CONFIG_USB_STORAGE_USBAT=y
-> CONFIG_USB_STORAGE_SDDR09=y
-> CONFIG_USB_STORAGE_SDDR55=y
-> CONFIG_USB_STORAGE_JUMPSHOT=y
-> CONFIG_USB_KBD=m
-> CONFIG_USB_MOUSE=m
-> CONFIG_USB_SERIAL=m
-> CONFIG_USB_SERIAL_GENERIC=y
-> CONFIG_USB_SERIAL_PL2303=m
+ sound/core/rawmidi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
----
-~Randy
+Index: work-fault-inject/sound/core/rawmidi.c
+===================================================================
+--- work-fault-inject.orig/sound/core/rawmidi.c
++++ work-fault-inject/sound/core/rawmidi.c
+@@ -1379,7 +1379,6 @@ static int snd_rawmidi_alloc_substreams(
+ 	struct snd_rawmidi_substream *substream;
+ 	int idx;
+ 
+-	INIT_LIST_HEAD(&stream->substreams);
+ 	for (idx = 0; idx < count; idx++) {
+ 		substream = kzalloc(sizeof(*substream), GFP_KERNEL);
+ 		if (substream == NULL) {
+@@ -1434,6 +1433,9 @@ int snd_rawmidi_new(struct snd_card *car
+ 	rmidi->device = device;
+ 	mutex_init(&rmidi->open_mutex);
+ 	init_waitqueue_head(&rmidi->open_wait);
++	INIT_LIST_HEAD(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT].substreams);
++	INIT_LIST_HEAD(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT].substreams);
++
+ 	if (id != NULL)
+ 		strlcpy(rmidi->id, id, sizeof(rmidi->id));
+ 	if ((err = snd_rawmidi_alloc_substreams(rmidi,

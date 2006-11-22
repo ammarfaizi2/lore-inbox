@@ -1,54 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756385AbWKVSmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756395AbWKVSqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756385AbWKVSmu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:42:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756389AbWKVSmu
+	id S1756395AbWKVSqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756398AbWKVSqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:42:50 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:39047 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1756384AbWKVSmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:42:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=UDxHiOh8piDjozjIb/Qn6eXRgQKaAstDUHuRoJyJ3dx7OfCDFg03R5hrSGj1fmTHSYFf0eDS21MwOg8kn1QKfH2v3nGi7zJRA4Ud5Yt0VVYLfUAcEgkl76geYUSIM4YjU5BGaRalivFQXJGOAEI0hTq2ENthPKK1O666JZITmMA=
-Date: Thu, 23 Nov 2006 03:36:54 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix copy_process() error check
-Message-ID: <20061122183654.GB2985@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Nov 2006 13:46:07 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:1855 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S1756395AbWKVSqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:46:04 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: 2.6.19-rc5: modular USB rebuilds vmlinux?
+Date: Wed, 22 Nov 2006 21:45:55 +0300
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200611222145.59560.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of copy_process() should be checked by IS_ERR().
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+I was under impression that I have fully modular USB. Still:
 
----
- kernel/fork.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-Index: work-fault-inject/kernel/fork.c
-===================================================================
---- work-fault-inject.orig/kernel/fork.c
-+++ work-fault-inject/kernel/fork.c
-@@ -1318,9 +1318,8 @@ struct task_struct * __devinit fork_idle
- 	struct pt_regs regs;
+{pts/1}% make -C ~/src/linux-git O=$HOME/build/linux-2.6.19
+make: Entering directory `/home/bor/src/linux-git'
+  GEN     /home/bor/build/linux-2.6.19/Makefile
+scripts/kconfig/conf -s arch/i386/Kconfig
+  Using /home/bor/src/linux-git as source for kernel
+  GEN     /home/bor/build/linux-2.6.19/Makefile
+  CHK     include/linux/version.h
+  CHK     include/linux/utsrelease.h
+  CHK     include/linux/compile.h
+  CC [M]  drivers/usb/core/usb.o
+  CC [M]  drivers/usb/core/hub.o
+  CC [M]  drivers/usb/core/hcd.o
+  CC [M]  drivers/usb/core/urb.o
+  CC [M]  drivers/usb/core/message.o
+  CC [M]  drivers/usb/core/driver.o
+  CC [M]  drivers/usb/core/config.o
+  CC [M]  drivers/usb/core/file.o
+  CC [M]  drivers/usb/core/buffer.o
+  CC [M]  drivers/usb/core/sysfs.o
+  CC [M]  drivers/usb/core/endpoint.o
+  CC [M]  drivers/usb/core/devio.o
+  CC [M]  drivers/usb/core/notify.o
+  CC [M]  drivers/usb/core/generic.o
+  CC [M]  drivers/usb/core/hcd-pci.o
+  CC [M]  drivers/usb/core/inode.o
+  CC [M]  drivers/usb/core/devices.o
+  LD [M]  drivers/usb/core/usbcore.o
+  CC      drivers/usb/host/pci-quirks.o
+  LD      drivers/usb/host/built-in.o
  
- 	task = copy_process(CLONE_VM, 0, idle_regs(&regs), 0, NULL, NULL, 0);
--	if (!task)
--		return ERR_PTR(-ENOMEM);
--	init_idle(task, cpu);
-+	if (!IS_ERR(task))
-+		init_idle(task, cpu);
- 
- 	return task;
- }
+Sorry? How comes it still compiles something into main kernel?
+
+ {pts/0}% grep USB build/linux-2.6.19/.config | grep -v '^#'
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_DYNAMIC_MINORS=y
+CONFIG_USB_SUSPEND=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_USBAT=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_PL2303=m
+
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFZJrnR6LMutpd94wRAh3DAJ97nMrIHG3pG4ZBaB8b6svZNm/39ACgt4Yd
+19FExn1dKtTtFtyriNpP9dU=
+=q9YV
+-----END PGP SIGNATURE-----

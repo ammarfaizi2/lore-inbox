@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756330AbWKVS0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756339AbWKVS1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756330AbWKVS0U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756337AbWKVS0U
+	id S1756339AbWKVS1g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756353AbWKVS1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:26:20 -0500
-Received: from mgw-ext13.nokia.com ([131.228.20.172]:61344 "EHLO
-	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP
-	id S1756329AbWKVS0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:26:19 -0500
-Message-ID: <4564648B.2020005@indt.org.br>
-Date: Wed, 22 Nov 2006 10:54:03 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
+	Wed, 22 Nov 2006 13:27:36 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:1463 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1756344AbWKVS1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:27:35 -0500
+Message-ID: <456424D7.7060204@oracle.com>
+Date: Wed, 22 Nov 2006 02:22:15 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Pierre Ossman <drzeus-list@drzeus.cx>, Tony Lindgren <tony@atomide.com>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       ext David Brownell <david-b@pacbell.net>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       linux-kernel@vger.kernel.org
-Subject: [patch 5/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_omap_dma.diff
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
+References: <20061120151700.4a4f9407@frecb000686>	<20061120152252.7e5a4229@frecb000686>	<4561C60B.5000106@oracle.com> <20061122104055.3d1c029a@frecb000686>
+In-Reply-To: <20061122104055.3d1c029a@frecb000686>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Nov 2006 14:50:12.0379 (UTC) FILETIME=[836C3EB0:01C70E45]
-X-Nokia-AV: Clean
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OMAP platform specific patch.
-- Adjust the frame size for DMA transfers.
 
-Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
+>   OK, looking at this, there's something bothering me: io_submit_one() needs
+> a pointer to the user iocb in order to push back the iocb->ki_key to userspace,
+> as well as storing the user_iocb pointer into iocb->ki_obj.
 
-Index: linux-omap-2.6.git/drivers/mmc/omap.c
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/omap.c	2006-11-22 09:07:25.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/omap.c	2006-11-22 09:19:03.000000000 -0400
-@@ -629,6 +629,14 @@ mmc_omap_prepare_dma(struct mmc_omap_hos
+Why can't it continue to do what it does today?  Both of those uses of
+the user_iocb pointer involve fixed-width fields and don't need compat help.
 
-  	data_addr = host->phys_base + OMAP_MMC_REG_DATA;
-  	frame = data->blksz;
-+
-+#ifdef CONFIG_MMC_PASSWORDS
-+	/* MMC LOCK/UNLOCK: Do frame size multiple of two. This is
-+	 * needed for DMA transfers to work properly, once
-+	 * the block size depends on MMC password length.
-+	 */
-+	frame += frame&0x1;
-+#endif
-  	count = sg_dma_len(sg);
+>   So I think that some of the logic in io_submit_one() must be moved up to
+> sys_io_submit(), including the aio_get_req() call.
 
-  	if ((data->blocks == 1) && (count > (data->blksz)))
+I don't see why that would be needed.
 
+- z

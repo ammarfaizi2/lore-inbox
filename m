@@ -1,115 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756678AbWKVTKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756681AbWKVTMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756678AbWKVTKW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756682AbWKVTKV
+	id S1756681AbWKVTMY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756682AbWKVTMY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:10:21 -0500
-Received: from aa012msr.fastwebnet.it ([85.18.95.72]:58282 "EHLO
-	aa012msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1756678AbWKVTKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:10:20 -0500
-Date: Wed, 22 Nov 2006 20:10:08 +0100
-From: The Peach <smartart@tiscali.it>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug? VFAT copy problem
-Message-ID: <20061122201008.17072c89@localhost>
-In-Reply-To: <8764d7v4nh.fsf@duaron.myhome.or.jp>
-References: <20061120164209.04417252@localhost>
-	<877ixqhvlw.fsf@duaron.myhome.or.jp>
-	<20061120184912.5e1b1cac@localhost>
-	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<20061122163001.0d291978@localhost>
-	<8764d7v4nh.fsf@duaron.myhome.or.jp>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
-X-Face: aWQ;)]T=TRHr<lws7%!n"V4D8C=^2]U'G>ZwK=Tde.eaxLu/iMa)ro#a*o5[K!4mKaP^74m
- !c#;yi;6a?i`K,R<{Y"),;f@t9e\p]Pl$$h@o%>zDsLL;/x|t{bKr;L'":ocL?&7X&q7%6<OTn}fw;
- PQ$>d"axD!#!12}&]OFn'YfVxe(>EyQDK?wne){aEu[,_o~30L}Anqdk
+	Wed, 22 Nov 2006 14:12:24 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:270 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1756681AbWKVTMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:12:23 -0500
+Date: Wed, 22 Nov 2006 19:12:17 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Burman Yan <yan_952@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 2.6.19-rc6] serial: replace kmalloc+memset with kzalloc
+Message-ID: <20061122191217.GB22601@flint.arm.linux.org.uk>
+Mail-Followup-To: Burman Yan <yan_952@hotmail.com>,
+	linux-kernel@vger.kernel.org, trivial@kernel.org
+References: <BAY20-F16EB95A16D5DB8549DE6A1D8E30@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BAY20-F16EB95A16D5DB8549DE6A1D8E30@phx.gbl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 01:15:46 +0900
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+On Wed, Nov 22, 2006 at 08:57:33PM +0200, Burman Yan wrote:
+> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/8250_acorn.c linux-2.6.19-rc5_kzalloc/drivers/serial/8250_acorn.c
+> --- linux-2.6.19-rc5_orig/drivers/serial/8250_acorn.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/8250_acorn.c	2006-11-11 22:44:04.000000000 +0200
+> @@ -47,11 +47,10 @@ serial_card_probe(struct expansion_card 
+>  	unsigned long bus_addr;
+>  	unsigned int i;
+>  
+> -	info = kmalloc(sizeof(struct serial_card_info), GFP_KERNEL);
+> +	info = kzalloc(sizeof(struct serial_card_info), GFP_KERNEL);
+>  	if (!info)
+>  		return -ENOMEM;
+>  
+> -	memset(info, 0, sizeof(struct serial_card_info));
+>  	info->num_ports = type->num_ports;
+>  
+>  	bus_addr = ecard_resource_start(ec, type->type);
+> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/8250_pci.c linux-2.6.19-rc5_kzalloc/drivers/serial/8250_pci.c
+> --- linux-2.6.19-rc5_orig/drivers/serial/8250_pci.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/8250_pci.c	2006-11-11 22:44:18.000000000 +0200
+> @@ -1614,7 +1614,7 @@ pciserial_init_ports(struct pci_dev *dev
+>  			nr_ports = rc;
+>  	}
+>  
+> -	priv = kmalloc(sizeof(struct serial_private) +
+> +	priv = kzalloc(sizeof(struct serial_private) +
+>  		       sizeof(unsigned int) * nr_ports,
+>  		       GFP_KERNEL);
+>  	if (!priv) {
+> @@ -1622,9 +1622,6 @@ pciserial_init_ports(struct pci_dev *dev
+>  		goto err_deinit;
+>  	}
+>  
+> -	memset(priv, 0, sizeof(struct serial_private) +
+> -			sizeof(unsigned int) * nr_ports);
+> -
+>  	priv->dev = dev;
+>  	priv->quirk = quirk;
+>  
+> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/serial_core.c linux-2.6.19-rc5_kzalloc/drivers/serial/serial_core.c
+> --- linux-2.6.19-rc5_orig/drivers/serial/serial_core.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/serial_core.c	2006-11-11 22:44:04.000000000 +0200
+> @@ -1523,9 +1523,8 @@ static struct uart_state *uart_get(struc
+>  	}
+>  
+>  	if (!state->info) {
+> -		state->info = kmalloc(sizeof(struct uart_info), GFP_KERNEL);
+> +		state->info = kzalloc(sizeof(struct uart_info), GFP_KERNEL);
+>  		if (state->info) {
+> -			memset(state->info, 0, sizeof(struct uart_info));
+>  			init_waitqueue_head(&state->info->open_wait);
+>  			init_waitqueue_head(&state->info->delta_msr_wait);
+>  
+> @@ -2167,13 +2166,11 @@ int uart_register_driver(struct uart_dri
+>  	 * Maybe we should be using a slab cache for this, especially if
+>  	 * we have a large number of ports to handle.
+>  	 */
+> -	drv->state = kmalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);
+> +	drv->state = kzalloc(sizeof(struct uart_state) * drv->nr, GFP_KERNEL);
+>  	retval = -ENOMEM;
+>  	if (!drv->state)
+>  		goto out;
+>  
+> -	memset(drv->state, 0, sizeof(struct uart_state) * drv->nr);
+> -
+>  	normal  = alloc_tty_driver(drv->nr);
+>  	if (!normal)
+>  		goto out;
+> diff -rubp linux-2.6.19-rc5_orig/drivers/serial/serial_cs.c linux-2.6.19-rc5_kzalloc/drivers/serial/serial_cs.c
+> --- linux-2.6.19-rc5_orig/drivers/serial/serial_cs.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/drivers/serial/serial_cs.c	2006-11-11 22:44:04.000000000 +0200
+> @@ -334,10 +334,9 @@ static int serial_probe(struct pcmcia_de
+>  	DEBUG(0, "serial_attach()\n");
+>  
+>  	/* Create new serial device */
+> -	info = kmalloc(sizeof (*info), GFP_KERNEL);
+> +	info = kzalloc(sizeof (*info), GFP_KERNEL);
+>  	if (!info)
+>  		return -ENOMEM;
+> -	memset(info, 0, sizeof (*info));
+>  	info->p_dev = link;
+>  	link->priv = info;
+>  
 
-> Thanks. Probably instead of some overheads, this patch will fix a problem.
+The above (and only the above 4 files):
 
-here it is, did the very same experiments than before.
-Normal file:
-# cp -v DSCN5970\(1\).JPG /mnt/loop/
-`DSCN5970(1).JPG' -> `/mnt/loop/DSCN5970(1).JPG'
-
-dmesg:
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name DSCN5970(1).JPG
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-vfat_revalidate: name DSCN5970(1).JPG, nd d65eaeec, flags 00000001
-vfat_lookup: name DSCN5970(1).JPG
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name DSCN5970(1).JPG
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-vfat_revalidate: name DSCN5970(1).JPG, nd d65eaf24, flags 00000300
-vfat_lookup: name DSCN5970(1).JPG
-vfat_create: name DSCN5970(1).JPG
-vfat_add_entry: 0: DSCN59~1, JPG
-vfat_add_entry: 1: DSCN5, 970(1), .J
-vfat_add_entry: 2: PG
-vfat_create: err 0
-
-Abnormal file:
-# cp -v DSCN5980.JPG /mnt/loop/
-`DSCN5980.JPG' -> `/mnt/loop/DSCN5980.JPG'
-
-dmesg:
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name DSCN5980.JPG
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a dscn5980.jpg, b DSCN5980.JPG
-vfat_revalidate: name dscn5980.jpg, nd d65eaeec, flags 00000001
-vfat_lookup: name DSCN5980.JPG
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name DSCN5980.JPG
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a DSCN5980.JPG, b DSCN5980.JPG
-vfat_revalidate: name DSCN5980.JPG, nd d65eaf24, flags 00000300
-vfat_lookup: name DSCN5980.JPG
-vfat_create: name DSCN5980.JPG
-vfat_add_entry: 0: DSCN5980, JPG
-vfat_create: err 0
-
-and:
-# ls -l /mnt/loop/
-totale 1363
--rwxr-xr-x 1 root root 695514 22 nov 20:04 DSCN5970(1).JPG
--rwxr-xr-x 1 root root 699770 22 nov 20:07 dscn5980.jpg
-
-dmesg:
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name DSCN5970(1).JPG
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-vfat_revalidate: name DSCN5970(1).JPG, nd d2512eec, flags 00000000
-vfat_lookup: name DSCN5970(1).JPG
-vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-vfat_hashi: parent /, name dscn5980.jpg
-vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-vfat_cmpi: a DSCN5980.JPG, b dscn5980.jpg
-vfat_revalidate: name DSCN5980.JPG, nd d2512eec, flags 00000000
-
-
-
-:(
+Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
 
 
 -- 
-Matteo 'Peach' Pescarin
-
-ICQ UIN = 71110111
-Jabber ID = smartart@unstable.nl
-Web Site = http://www.smartart.it
-GeCHI = http://www.gechi.it
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

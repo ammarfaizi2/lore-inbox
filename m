@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031444AbWKVESS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967088AbWKVERc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031444AbWKVESS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 23:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031199AbWKVESJ
+	id S967088AbWKVERc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 23:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967093AbWKVERb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 23:18:09 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19469 "HELO
+	Tue, 21 Nov 2006 23:17:31 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16653 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030683AbWKVERk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 23:17:40 -0500
-Date: Wed, 22 Nov 2006 05:17:40 +0100
+	id S967088AbWKVERR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 23:17:17 -0500
+Date: Wed, 22 Nov 2006 05:17:17 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fs/fscache/main.c: cleanups
-Message-ID: <20061122041740.GC5200@stusta.de>
-References: <20061114014125.dd315fff.akpm@osdl.org>
+To: paulus@samba.org
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/asm-powerpc/: "extern inline" -> "static inline"
+Message-ID: <20061122041717.GZ5200@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061114014125.dd315fff.akpm@osdl.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- remove the unused global variable fscache_debug
-- make the needlessly global struct fscache_kset static
+"extern inline" generates a warning with -Wmissing-prototypes and I'm
+currently working on getting the kernel cleaned up for adding this to
+the CFLAGS since it will help us to avoid a nasty class of runtime
+errors.
+
+If there are places that really need a forced inline, __always_inline
+would be the correct solution.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/fscache/main.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ include/asm-powerpc/io.h      |    4 ++--
+ include/asm-powerpc/tsi108.h  |    4 ++--
+ include/asm-powerpc/uaccess.h |    4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.19-rc5-mm2/fs/fscache/main.c.old	2006-11-22 03:08:53.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/fs/fscache/main.c	2006-11-22 03:09:23.000000000 +0100
-@@ -16,8 +16,6 @@
- #include <linux/slab.h>
- #include "fscache-int.h"
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/io.h.old	2006-11-22 01:46:28.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/io.h	2006-11-22 01:47:08.000000000 +0100
+@@ -304,7 +304,7 @@ do {									\
+ #ifdef CONFIG_PPC32
  
--int fscache_debug;
--
- static int fscache_init(void);
- static void fscache_exit(void);
+ #define __do_in_asm(name, op)				\
+-extern __inline__ unsigned int name(unsigned int port)	\
++static inline unsigned int name(unsigned int port)	\
+ {							\
+ 	unsigned int x;					\
+ 	__asm__ __volatile__(				\
+@@ -331,7 +331,7 @@ extern __inline__ unsigned int name(unsi
+ }
  
-@@ -41,14 +39,12 @@ static struct kobj_type fscache_ktype = 
- 	.default_attrs	= NULL,
- };
+ #define __do_out_asm(name, op)				\
+-extern __inline__ void name(unsigned int val, unsigned int port) \
++static inline void name(unsigned int val, unsigned int port) \
+ {							\
+ 	__asm__ __volatile__(				\
+ 		"sync\n"				\
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/tsi108.h.old	2006-11-22 01:47:17.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/tsi108.h	2006-11-22 01:47:26.000000000 +0100
+@@ -98,12 +98,12 @@ typedef struct {
+ extern u32 get_vir_csrbase(void);
+ extern u32 tsi108_csr_vir_base;
  
--struct kset fscache_kset = {
-+static struct kset fscache_kset = {
- 	.kobj.name	= "fscache",
- 	.kobj.kset	= &fs_subsys.kset,
- 	.ktype		= &fscache_ktype,
- };
+-extern inline u32 tsi108_read_reg(u32 reg_offset)
++static inline u32 tsi108_read_reg(u32 reg_offset)
+ {
+ 	return in_be32((volatile u32 *)(tsi108_csr_vir_base + reg_offset));
+ }
  
--EXPORT_SYMBOL(fscache_kset);
--
- /*****************************************************************************/
- /*
-  * initialise the fs caching module
+-extern inline void tsi108_write_reg(u32 reg_offset, u32 val)
++static inline void tsi108_write_reg(u32 reg_offset, u32 val)
+ {
+ 	out_be32((volatile u32 *)(tsi108_csr_vir_base + reg_offset), val);
+ }
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/uaccess.h.old	2006-11-22 01:47:33.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/uaccess.h	2006-11-22 01:47:38.000000000 +0100
+@@ -304,7 +304,7 @@ extern unsigned long __copy_tofrom_user(
+ 
+ #ifndef __powerpc64__
+ 
+-extern inline unsigned long copy_from_user(void *to,
++static inline unsigned long copy_from_user(void *to,
+ 		const void __user *from, unsigned long n)
+ {
+ 	unsigned long over;
+@@ -319,7 +319,7 @@ extern inline unsigned long copy_from_us
+ 	return n;
+ }
+ 
+-extern inline unsigned long copy_to_user(void __user *to,
++static inline unsigned long copy_to_user(void __user *to,
+ 		const void *from, unsigned long n)
+ {
+ 	unsigned long over;
 

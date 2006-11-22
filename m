@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161976AbWKVIyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031346AbWKVIzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161976AbWKVIyn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 03:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031346AbWKVIyn
+	id S1031346AbWKVIzl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 03:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031477AbWKVIzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 03:54:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6116 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1031238AbWKVIym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 03:54:42 -0500
-Subject: Re: [PATCH 1/5] Update Documentation/pci.txt
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>
-In-Reply-To: <456404E2.1060102@jp.fujitsu.com>
-References: <456404E2.1060102@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 22 Nov 2006 09:54:35 +0100
-Message-Id: <1164185675.31358.712.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Wed, 22 Nov 2006 03:55:41 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:23877 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1031346AbWKVIzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 03:55:39 -0500
+Message-ID: <45641E90.2000506@fr.ibm.com>
+Date: Wed, 22 Nov 2006 10:55:28 +0100
+From: Daniel Lezcano <dlezcano@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Dmitry Mishin <dim@openvz.org>
+CC: Kirill Korotaev <dev@sw.ru>, Cedric Le Goater <clg@fr.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, netdev@vger.kernel.org
+Subject: Re: [patch -mm] net namespace: empty framework
+References: <4563007B.9010202@fr.ibm.com> <4563046B.6040909@sw.ru>	<45633EDF.3050309@fr.ibm.com> <200611221121.59322.dim@openvz.org>
+In-Reply-To: <200611221121.59322.dim@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-22 at 17:05 +0900, Hidetoshi Seto wrote:
+Dmitry Mishin wrote:
+> This patch looks acceptable for us.
+> BTW, Daniel, we agreed to be based on the Andrey's patchset. I do not see a
+> reason, why Cedric force us to make some unnecessary work and move existent
+> patchset over his interface.
 
-> +11. MMIO Space and "Write Posting"
-> +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> +Converting a dri
+I still agree.
+Don't blame Cedric, he just wanted to help us. BTW, it is not "his" 
+interface but the namespace interface.
 
-hi,
+   -- Daniel
 
-thank you for explaining write posting this well!
 
-Greetings,
-   Arjan van de Ven
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

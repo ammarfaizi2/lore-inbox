@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756406AbWKVSrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756475AbWKVSr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756406AbWKVSrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756405AbWKVSrI
+	id S1756475AbWKVSr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756473AbWKVSr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:47:08 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:5217 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1756406AbWKVSrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:47:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=tkbyhwCzGwhe6YCcQyp/z06GsE6y49oCbzDwO3pzso2u8EM1E94vj4JBJXKAajt0AUGeCi0rT4udXe5S2G4nxgVloZwQTi9RQGgBlUFkxc1spJNwc1PorH6aFtxRDvICI40mg5FaB2JxMdkOQTS84ilPfGEF58kQztsTmyuaOq4=
-Date: Thu, 23 Nov 2006 03:41:11 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>, akpm@osdl.org
-Subject: [PATCH] tlclk: fix platform_device_register_simple() error check
-Message-ID: <20061122184111.GC2985@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>,
-	akpm@osdl.org
+	Wed, 22 Nov 2006 13:47:59 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41100 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1756472AbWKVSr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:47:58 -0500
+Date: Wed, 22 Nov 2006 10:42:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>, gregkh@suse.de,
+       Ingo Molnar <mingo@redhat.com>, Len Brown <len.brown@intel.com>,
+       phil.el@wanadoo.fr, oprofile-list@lists.sourceforge.net
+Subject: Re: 2.6.19-rc5: known regressions (v3)
+Message-Id: <20061122104245.3ce89487.akpm@osdl.org>
+In-Reply-To: <200611221136.14565.ak@suse.de>
+References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org>
+	<200611151135.48306.dada1@cosmosbay.com>
+	<200611221128.05769.dada1@cosmosbay.com>
+	<200611221136.14565.ak@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of platform_device_register_simple() should be
-checked by IS_ERR().
+On Wed, 22 Nov 2006 11:36:14 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-This patch also fix misc_register() error case. Because misc_register()
-returns error code.
+> On Wednesday 22 November 2006 11:28, Eric Dumazet wrote:
+> > On Wednesday 15 November 2006 11:35, Eric Dumazet wrote:
+> > > On Wednesday 15 November 2006 11:21, Adrian Bunk wrote:
+> > > > Subject    : x86_64: oprofile doesn't work
+> > > > References : http://lkml.org/lkml/2006/10/27/3
+> > > > Submitter  : Prakash Punnoor <prakash@punnoor.de>
+> > > > Status     : unknown
+> > >
+> > 
+> > I hit the same problem on i386 architecture too, if CONFIG_ACPI is not set.
+> 
+> oprofile is still broken because it cannot deal with the lack of perfctr 0.
 
-Cc: Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+The kernel is still broken because we changed the interface.
 
----
- drivers/char/tlclk.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+> You can disable the nmi watchdog as a workaround.
 
-Index: work-fault-inject/drivers/char/tlclk.c
-===================================================================
---- work-fault-inject.orig/drivers/char/tlclk.c
-+++ work-fault-inject/drivers/char/tlclk.c
-@@ -792,15 +792,14 @@ static int __init tlclk_init(void)
- 	ret = misc_register(&tlclk_miscdev);
- 	if (ret < 0) {
- 		printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
--		ret = -EBUSY;
- 		goto out3;
- 	}
- 
- 	tlclk_device = platform_device_register_simple("telco_clock",
- 				-1, NULL, 0);
--	if (!tlclk_device) {
-+	if (IS_ERR(tlclk_device)) {
- 		printk(KERN_ERR "tlclk: platform_device_register failed.\n");
--		ret = -EBUSY;
-+		ret = PTR_ERR(tlclk_device);
- 		goto out4;
- 	}
- 
+I don't understand why you think this is acceptable.

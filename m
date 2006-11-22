@@ -1,32 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161825AbWKVCgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031268AbWKVCnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161825AbWKVCgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 21:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161827AbWKVCgo
+	id S1031268AbWKVCnz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 21:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031449AbWKVCnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 21:36:44 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:4275 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161825AbWKVCgn (ORCPT
+	Tue, 21 Nov 2006 21:43:55 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:31924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031268AbWKVCny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 21:36:43 -0500
-Date: Tue, 21 Nov 2006 18:36:39 -0800 (PST)
+	Tue, 21 Nov 2006 21:43:54 -0500
+Date: Tue, 21 Nov 2006 18:42:25 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-In-Reply-To: <9a8748490611211646o2c92564dmfe8d6ffdf66228ba@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0611211827590.3338@woody.osdl.org>
-References: <9a8748490610061636r555f1be4x3c53813ceadc9fb2@mail.gmail.com> 
- <Pine.LNX.4.64.0610062000281.3952@g5.osdl.org> 
- <9a8748490610071402m4450365kedff5615d008fcd5@mail.gmail.com> 
- <Pine.LNX.4.64.0610071408220.3952@g5.osdl.org> 
- <9a8748490610081633k7bf011d1q131b2f9e06f2808d@mail.gmail.com> 
- <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> 
- <Pine.LNX.4.64.0610161554140.3962@g5.osdl.org> 
- <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com> 
- <9a8748490610231330y65f3e243pe1101d11a28dbbfa@mail.gmail.com>
- <9a8748490611211646o2c92564dmfe8d6ffdf66228ba@mail.gmail.com>
+To: Daniel Barkalow <barkalow@iabervon.org>
+cc: linux-kernel@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       David Miller <davem@davemloft.net>, Roland Dreier <rdreier@cisco.com>,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH] Disable INTx when enabling MSI in forcedeth
+In-Reply-To: <Pine.LNX.4.64.0611212118540.20138@iabervon.org>
+Message-ID: <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
+References: <Pine.LNX.4.64.0611212118540.20138@iabervon.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,39 +26,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 22 Nov 2006, Jesper Juhl wrote:
+On Tue, 21 Nov 2006, Daniel Barkalow wrote:
+>
+> My nVidia ethernet card doesn't disable its own INTx when MSI is
+> enabled. This causes a steady stream of spurious interrupts that
+> eventually kills my SATA IRQ if MSI is used with forcedeth, which is
+> true by default. Simply disabling the INTx interrupt takes care of it.
 > 
-> So it *seems* to be somehow related to running low on RAM and swap
-> starting to be used.
+> This is against -stable, and would be suitable once someone who knows the 
+> code verifies that it's correct.
 
-Does it happen if you just do some simple "use all memory" script, eg run 
-a few copies of
+I _really_ think that we should do this in pci_msi_enable().
 
-	#define SIZE (100<<20)
+Screw cards that are not PCI-2.3 compliant - just make the rule be that if 
+you use MSI, you _have_ to allow us to set the disable-INTx bit. It's then 
+up to the drivers to decide if they can use MSI or not.
 
-	char *buf = malloc(SIZE);
-	memset(buf, SIZE, 0);
-	sleep(100);
+(Even a number of cards that are not PCI-2.3 may simply not _implement_ 
+the disable-INTx bit, and in that case, they can use MSI if they disable 
+INTx automatically - the ).
 
-on your box?
-
-> The box has 2GB of RAM and 768MB swap.
-
-I wonder.. It _used_ to be true that we were pretty good at making swap be 
-"extra" memory. But maybe we've lost some of that, and we have trouble 
-with having more physical memory. We could end up in a situation where we 
-allocate it all very quickly (because we don't actually page it out, we 
-just allocate backing store for the pages), and we screw something up.
-
-But stupid bugs there should still leave us trivially able to do the SysRQ 
-things, so.. 
-
-Is it highmem-related? Some bounce-buffering problem while having to swap? 
-What block device driver do you use for the swap device?
-
-I don't think we use any irq-disable locking in the VM itself, but I could 
-imagine some nasty situation with the block device layer getting into a 
-deadlock with interrupts disabled when it runs out of queue entries and 
-cannot allocate more memory..
+Comments?
 
 		Linus
+

@@ -1,107 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756721AbWKVTaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756726AbWKVTek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756721AbWKVTaB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756722AbWKVTaA
+	id S1756726AbWKVTek (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756723AbWKVTek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:30:00 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:20437 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1756721AbWKVT37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:29:59 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: The Peach <smartart@tiscali.it>
+	Wed, 22 Nov 2006 14:34:40 -0500
+Received: from gilford.textdrive.com ([207.7.108.53]:52422 "EHLO
+	gilford.textdrive.com") by vger.kernel.org with ESMTP
+	id S1756726AbWKVTej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:34:39 -0500
+Date: Wed, 22 Nov 2006 11:34:08 -0800
+From: Ira Snyder <kernel@irasnyder.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug? VFAT copy problem
-References: <20061120164209.04417252@localhost>
-	<877ixqhvlw.fsf@duaron.myhome.or.jp>
-	<20061120184912.5e1b1cac@localhost>
-	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<20061122163001.0d291978@localhost>
-	<8764d7v4nh.fsf@duaron.myhome.or.jp>
-	<20061122201008.17072c89@localhost>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 Nov 2006 04:29:15 +0900
-In-Reply-To: <20061122201008.17072c89@localhost> (The Peach's message of "Wed\, 22 Nov 2006 20\:10\:08 +0100")
-Message-ID: <87r6vvs2k4.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] sparse fix: add many lock annotations
+Message-Id: <20061122113408.98310698.kernel@irasnyder.com>
+In-Reply-To: <20061122183306.GA4970@martell.zuzino.mipt.ru>
+References: <20061122001146.95a56c72.kernel@irasnyder.com>
+	<20061122183306.GA4970@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Peach <smartart@tiscali.it> writes:
+On Wed, 22 Nov 2006 21:33:07 +0300
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
 
-> On Thu, 23 Nov 2006 01:15:46 +0900
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
->> Thanks. Probably instead of some overheads, this patch will fix a problem.
->
-> here it is, did the very same experiments than before.
-> Normal file:
-> # cp -v DSCN5970\(1\).JPG /mnt/loop/
-> `DSCN5970(1).JPG' -> `/mnt/loop/DSCN5970(1).JPG'
->
-> dmesg:
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name DSCN5970(1).JPG
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-> vfat_revalidate: name DSCN5970(1).JPG, nd d65eaeec, flags 00000001
-> vfat_lookup: name DSCN5970(1).JPG
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name DSCN5970(1).JPG
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-> vfat_revalidate: name DSCN5970(1).JPG, nd d65eaf24, flags 00000300
-> vfat_lookup: name DSCN5970(1).JPG
-> vfat_create: name DSCN5970(1).JPG
-> vfat_add_entry: 0: DSCN59~1, JPG
-> vfat_add_entry: 1: DSCN5, 970(1), .J
-> vfat_add_entry: 2: PG
-> vfat_create: err 0
->
-> Abnormal file:
-> # cp -v DSCN5980.JPG /mnt/loop/
-> `DSCN5980.JPG' -> `/mnt/loop/DSCN5980.JPG'
->
-> dmesg:
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name DSCN5980.JPG
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a dscn5980.jpg, b DSCN5980.JPG
-> vfat_revalidate: name dscn5980.jpg, nd d65eaeec, flags 00000001
-> vfat_lookup: name DSCN5980.JPG
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name DSCN5980.JPG
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a DSCN5980.JPG, b DSCN5980.JPG
-> vfat_revalidate: name DSCN5980.JPG, nd d65eaf24, flags 00000300
-> vfat_lookup: name DSCN5980.JPG
-> vfat_create: name DSCN5980.JPG
-> vfat_add_entry: 0: DSCN5980, JPG
-> vfat_create: err 0
->
-> and:
-> # ls -l /mnt/loop/
-> totale 1363
-> -rwxr-xr-x 1 root root 695514 22 nov 20:04 DSCN5970(1).JPG
-> -rwxr-xr-x 1 root root 699770 22 nov 20:07 dscn5980.jpg
->
-> dmesg:
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name DSCN5970(1).JPG
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a DSCN5970(1).JPG, b DSCN5970(1).JPG
-> vfat_revalidate: name DSCN5970(1).JPG, nd d2512eec, flags 00000000
-> vfat_lookup: name DSCN5970(1).JPG
-> vfat_hashi: parent d1801e94, parent->d_op e0fbc620
-> vfat_hashi: parent /, name dscn5980.jpg
-> vfat_cmpi: parent d1801e94, parent->d_op e0fbc620
-> vfat_cmpi: a DSCN5980.JPG, b dscn5980.jpg
-> vfat_revalidate: name DSCN5980.JPG, nd d2512eec, flags 00000000
+> On Wed, Nov 22, 2006 at 12:11:46AM -0800, Ira Snyder wrote:
+> > This patch adds many lock annotations to the kernel source to quiet
+> > warnings from sparse. In almost every case, it quiets the warning caused
+> > by locks that are intentionally grabbed in one function and released in
+> > another.
+> >
+> > In the other cases, __acquire() and __release() are used to make sparse
+> > believe that a lock was grabbed (even though it was not), in order to
+> > make all exit points have equal lock counts. These follow the style in
+> > kernel/sched.c.
+> 
+> > --- a/arch/i386/kernel/smp.c
+> > +++ b/arch/i386/kernel/smp.c
+> > @@ -507,11 +507,13 @@ struct call_data_struct {
+> >  };
+> >
+> >  void lock_ipi_call_lock(void)
+> > +__acquires(call_lock)
+> >  {
+> >  	spin_lock_irq(&call_lock);
+> >  }
+> >
+> >  void unlock_ipi_call_lock(void)
+> > +__releases(call_lock)
+> >  {
+> >  	spin_unlock_irq(&call_lock);
+> >  }
+> 
+> Wrong place. Prototypes should be marked instead. How else would you
+> know about:
+> 
+> 	lock_ipi_call_lock();
+> 	if (foo)
+> 		return -E;
+> 	lock_ipi_call_lock();
+> 
+> on another compilation unit?
+> 
 
-This is different thing. Please try "shortname=winnt" or "shortname=mixed"
-mount option for shortname (default is shortname=lower).
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Are you saying I should use something like this instead?:
+diff --git a/include/asm-i386/smp.h b/include/asm-i386/smp.h
+index bd59c15..9489602 100644
+--- a/include/asm-i386/smp.h
++++ b/include/asm-i386/smp.h
+@@ -38,8 +38,8 @@ extern cpumask_t cpu_core_map[];
+ 
+ extern void (*mtrr_hook) (void);
+ extern void zap_low_mappings (void);
+-extern void lock_ipi_call_lock(void);
+-extern void unlock_ipi_call_lock(void);
++extern void lock_ipi_call_lock(void) __acquires(call_lock);
++extern void unlock_ipi_call_lock(void) __releases(call_lock);
+ 
+ #define MAX_APICID 256
+ extern u8 x86_cpu_to_apicid[];
+
+If so, it doesn't remove the warning from sparse, it still shows:
+  CHECK
+arch/i386/kernel/smp.c arch/i386/kernel/smp.c:509:6: warning: context
+imbalance in 'lock_ipi_call_lock' - wrong count at exit
+arch/i386/kernel/smp.c:514:6: warning: context imbalance in
+'unlock_ipi_call_lock' - unexpected unlock 
+
+Those go away with the original patch.
+
+I was following some examples currently in the source, such as in
+arch/i386/kernel/efi.c on function efi_call_phys_prelog(). Or
+expand_fdtable() in fs/file.c is another good example.
+
+> > --- a/drivers/acpi/osl.c
+> > +++ b/drivers/acpi/osl.c
+> > @@ -1004,6 +1004,7 @@ EXPORT_SYMBOL(max_cstate);
+> >   */
+> >
+> >  acpi_cpu_flags acpi_os_acquire_lock(acpi_spinlock lockp)
+> > +__acquires(lockp)
+> >  {
+> >  	acpi_cpu_flags flags;
+> >  	spin_lock_irqsave(lockp, flags);
+> > @@ -1015,6 +1016,7 @@ acpi_cpu_flags acpi_os_acquire_lock(acpi
+> >   */
+> >
+> >  void acpi_os_release_lock(acpi_spinlock lockp, acpi_cpu_flags flags)
+> > +__releases(lockp)
+> >  {
+> >  	spin_unlock_irqrestore(lockp, flags);
+> >  }
+> 
+> Again, wrong. IMO, sparse should deduce itself that lock is grabbed in such
+> trivial cases.
+> 
+
+I'm not sure that it can. See: http://lwn.net/Articles/109066/ where
+Linus talks about addings __acquires(lockname) and __releases(lockname)
+to functions whose purpose is to grab and hold a lock at exit.
+
+Anyway, this is my first patch on the LKML, so I'd like to try and get
+it right.
+
+Thanks,
+Ira

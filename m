@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162021AbWKVJXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755561AbWKVJZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162021AbWKVJXy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 04:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162022AbWKVJXy
+	id S1755561AbWKVJZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 04:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755563AbWKVJZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 04:23:54 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:42731 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1162021AbWKVJXx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 04:23:53 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/2] fix call to alloc_bootmem after bootmem has been freed
-Date: Wed, 22 Nov 2006 10:23:40 +0100
-User-Agent: KMail/1.9.5
-Cc: Christian Krafft <krafft@de.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-References: <20061115193049.3457b44c@localhost> <20061121190213.1700761b@localhost> <20061121102616.47d03ccc.akpm@osdl.org>
-In-Reply-To: <20061121102616.47d03ccc.akpm@osdl.org>
+	Wed, 22 Nov 2006 04:25:08 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:5529 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1755573AbWKVJZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 04:25:06 -0500
+From: Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>
+To: Roland Dreier <rdreier@cisco.com>
+Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address to determine pending work requests
+Date: Wed, 22 Nov 2006 10:29:09 +0100
+User-Agent: KMail/1.8.2
+Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openib-general@openib.org, raisch@de.ibm.com
+References: <200611202354.13030.hnguyen@linux.vnet.ibm.com> <adaslgcg30n.fsf@cisco.com>
+In-Reply-To: <adaslgcg30n.fsf@cisco.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611221023.41807.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Message-Id: <200611221029.10077.hnguyen@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 November 2006 19:26, Andrew Morton wrote:
-> slab is a very different thing from vmalloc.  One could easily envisage
-> situations (now or in the future) in which slab is ready, but vmalloc is
-> not (more likely vice versa).
-> 
-> It'd be better to add a new vmalloc_is_available.  (Just an int - no need
-> for a helper function).
-
-In the time line, we currently have
-
-start_kernel()
-   ...
-   setup_arch()
-      init_bootmem()              # alloc_bootmem starts working
-      ...
-      paging_init()               # needed for vmalloc
-   ...                            #
-   mem_init()
-      free_all_bootmem()          # alloc_bootmem stops working, alloc_pages
-				  # starts working
-   kmem_cache_init()              # kmalloc and vmalloc start working
-   ...
-   system_state = SYSTEM_RUNNING
-
-The one interesting point here is where you have to transition between
-calling alloc_bootmem and calling the regular allocator functions.
-Maybe calling it slab_is_available() was not the best choice for a name,
-but I don't see a point in having different names for essentially the
-same question, "bootmem or not bootmem". The powerpc platform has an
-integer variable called 'mem_init_done', which expresses this well
-IMHO, but it's currently not portable.
-
-Checking for SYSTEM_RUNNING is obviously the wrong choice, since it is
-set at a very late point in bootup, long after bootmem is gone.
-
-	Arnd <><
+(2nd try, since I forgot to post this on the mailing list)
+On Tuesday 21 November 2006 17:47, Roland Dreier wrote:
+> Umm, it's really late to merge things for 2.6.19.  How severe is this
+> bug?  Why has it not been found until now if it causing crashes?
+We found this bug actually through a code review by random. Since
+(un)fortunately the queue pages were layouted in order, we've not
+seen it earlier. It's certainly a bug and can cause kernel panic 
+if above observation is not met, probably in stress situation
+of system. That means the "former" code accesses next page that 
+it has not allocated.
+Thanks
+Nam

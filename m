@@ -1,52 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756014AbWKVXFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757149AbWKVXMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756014AbWKVXFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 18:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757130AbWKVXFS
+	id S1757149AbWKVXMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 18:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757155AbWKVXMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 18:05:18 -0500
-Received: from rtr.ca ([64.26.128.89]:45327 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1756014AbWKVXFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 18:05:17 -0500
-Message-ID: <4564D7AB.3000601@rtr.ca>
-Date: Wed, 22 Nov 2006 18:05:15 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [patch] PM: suspend/resume debugging should depend on  SOFTWARE_SUSPEND
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Nov 2006 18:12:19 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:24022 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1757149AbWKVXMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 18:12:18 -0500
+Date: Wed, 22 Nov 2006 15:12:19 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: dmitry.torokhov@gmail.com, akpm <akpm@osdl.org>
+Subject: [PATCH 2/2] input: add to kernel-api docbook
+Message-Id: <20061122151219.e2661828.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->
-> Sane people use suspend-to-ram, and that's when you need the suspend and 
-> resume debugging.
-> 
-> Software-suspend is silly. I want my machine back in three seconds, not 
-> waiting for minutes..
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-ALL of my notebooks here have always been capable of Suspend-to-RAM with Linux,
-and that's how I like it.  We've had six different models (IBM, Dell, Toshiba),
-and they have all worked fine with S2R.
+Add input subsystem to kernel-api docbook.
+Enhance some function and parameter comments.
 
-The older APM ones had zero issues, and just always worked.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ Documentation/DocBook/kernel-api.tmpl |    8 ++++++++
+ drivers/input/ff-core.c               |    4 ++--
+ drivers/input/ff-memless.c            |    2 +-
+ drivers/input/input.c                 |    2 +-
+ include/linux/input.h                 |   18 +++++++++---------
+ 5 files changed, 21 insertions(+), 13 deletions(-)
 
-The newer ACPI ones have required some tweaking to the sleep/wakeup scripts,
-but now work perfectly with suspend-to-ram.
+--- linux-2619-rc6g4.orig/include/linux/input.h
++++ linux-2619-rc6g4/include/linux/input.h
+@@ -663,7 +663,7 @@ struct input_absinfo {
+ #define BUS_GSC			0x1A
+ 
+ /*
+- * Values describing the status of an effect
++ * Values describing the status of a force-feedback effect
+  */
+ #define FF_STATUS_STOPPED	0x00
+ #define FF_STATUS_PLAYING	0x01
+@@ -680,7 +680,7 @@ struct input_absinfo {
+  */
+ 
+ /**
+- * struct ff_replay - defines scheduling of the effect
++ * struct ff_replay - defines scheduling of the force-feedback effect
+  * @length: duration of the effect
+  * @delay: delay before effect should start playing
+  */
+@@ -690,7 +690,7 @@ struct ff_replay {
+ };
+ 
+ /**
+- * struct ff_trigger - defines what triggers the effect
++ * struct ff_trigger - defines what triggers the force-feedback effect
+  * @button: number of the button triggering the effect
+  * @interval: controls how soon the effect can be re-triggered
+  */
+@@ -700,7 +700,7 @@ struct ff_trigger {
+ };
+ 
+ /**
+- * struct ff_envelope - generic effect envelope
++ * struct ff_envelope - generic force-feedback effect envelope
+  * @attack_length: duration of the attack (ms)
+  * @attack_level: level at the beginning of the attack
+  * @fade_length: duration of fade (ms)
+@@ -719,7 +719,7 @@ struct ff_envelope {
+ };
+ 
+ /**
+- * struct ff_constant_effect - defines parameters of a constant effect
++ * struct ff_constant_effect - defines parameters of a constant force-feedback effect
+  * @level: strength of the effect; may be negative
+  * @envelope: envelope data
+  */
+@@ -729,7 +729,7 @@ struct ff_constant_effect {
+ };
+ 
+ /**
+- * struct ff_ramp_effect - defines parameters of a ramp effect
++ * struct ff_ramp_effect - defines parameters of a ramp force-feedback effect
+  * @start_level: beginning strength of the effect; may be negative
+  * @end_level: final strength of the effect; may be negative
+  * @envelope: envelope data
+@@ -741,7 +741,7 @@ struct ff_ramp_effect {
+ };
+ 
+ /**
+- * struct ff_condition_effect - defines a spring or friction effect
++ * struct ff_condition_effect - defines a spring or friction force-feedback effect
+  * @right_saturation: maximum level when joystick moved all way to the right
+  * @left_saturation: same for the left side
+  * @right_coeff: controls how fast the force grows when the joystick moves
+@@ -762,7 +762,7 @@ struct ff_condition_effect {
+ };
+ 
+ /**
+- * struct ff_periodic_effect - defines parameters of a periodic effect
++ * struct ff_periodic_effect - defines parameters of a periodic force-feedback effect
+  * @waveform: kind of the effect (wave)
+  * @period: period of the wave (ms)
+  * @magnitude: peak value
+@@ -793,7 +793,7 @@ struct ff_periodic_effect {
+ };
+ 
+ /**
+- * struct ff_rumble_effect - defines parameters of a periodic effect
++ * struct ff_rumble_effect - defines parameters of a periodic force-feedback effect
+  * @strong_magnitude: magnitude of the heavy motor
+  * @weak_magnitude: magnitude of the light one
+  *
+--- linux-2619-rc6g4.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2619-rc6g4/Documentation/DocBook/kernel-api.tmpl
+@@ -559,4 +559,12 @@ X!Idrivers/video/console/fonts.c
+ -->
+      </sect1>
+   </chapter>
++
++  <chapter id="input_subsystem">
++     <title>Input Subsystem</title>
++!Iinclude/linux/input.h
++!Edrivers/input/input.c
++!Edrivers/input/ff-core.c
++!Edrivers/input/ff-memless.c
++  </chapter>
+ </book>
+--- linux-2619-rc6g4.orig/drivers/input/ff-core.c
++++ linux-2619-rc6g4/drivers/input/ff-core.c
+@@ -203,7 +203,7 @@ static int erase_effect(struct input_dev
+ }
+ 
+ /**
+- * input_ff_erase - erase an effect from device
++ * input_ff_erase - erase a force-feedback effect from device
+  * @dev: input device to erase effect from
+  * @effect_id: id of the ffect to be erased
+  * @file: purported owner of the request
+@@ -347,7 +347,7 @@ EXPORT_SYMBOL_GPL(input_ff_create);
+ 
+ /**
+  * input_ff_free() - frees force feedback portion of input device
+- * @dev: input device supporintg force feedback
++ * @dev: input device supporting force feedback
+  *
+  * This function is only needed in error path as input core will
+  * automatically free force feedback structures when device is
+--- linux-2619-rc6g4.orig/drivers/input/ff-memless.c
++++ linux-2619-rc6g4/drivers/input/ff-memless.c
+@@ -460,7 +460,7 @@ static void ml_ff_destroy(struct ff_devi
+ }
+ 
+ /**
+- * input_ff_create_memless() - create memoryless FF device
++ * input_ff_create_memless() - create memoryless force-feedback device
+  * @dev: input device supporting force-feedback
+  * @data: driver-specific data to be passed into @play_effect
+  * @play_effect: driver-specific method for playing FF effect
+--- linux-2619-rc6g4.orig/drivers/input/input.c
++++ linux-2619-rc6g4/drivers/input/input.c
+@@ -37,7 +37,7 @@ static struct input_handler *input_table
+ 
+ /**
+  * input_event() - report new input event
+- * @handle: device that generated the event
++ * @dev: device that generated the event
+  * @type: type of the event
+  * @code: event code
+  * @value: value of the event
 
-Suspend-to-disk (and resume from disk) are way too slow for regular use,
-except of course for the swsusp2 version, which is nearly as quick as S2R is.
 
-I do use S2D when travelling, as it's much easier on the batteries while
-the notebook is packed away on the red-eye flights.
-
-Cheers
+---

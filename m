@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753182AbWKVHgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755523AbWKVHiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753182AbWKVHgt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 02:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755522AbWKVHgt
+	id S1755523AbWKVHiy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 02:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755530AbWKVHiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 02:36:49 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:5365 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1753182AbWKVHgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 02:36:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=LQ5C8ydtVmR4dgoCeCXJYjpiYMRDQKMa1020UYC5K/D35AdCh/IQ401qr7NUYemeGGBHee7a07uh8+ag509Dm4/rnc4Jk480Kn2oyRnX/B+JpmXXRBoLnoEd1/K/bC1qLfj7Hi2YHYEbez8uRUro9PcGlZBVuIqHaGD67oQhPOM=
-Message-ID: <86802c440611212336n3a66a557mdf78ef0b6eac165a@mail.gmail.com>
-Date: Tue, 21 Nov 2006 23:36:46 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: [PATCH] Disable INTx when enabling MSI in forcedeth
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Daniel Barkalow" <barkalow@iabervon.org>, linux-kernel@vger.kernel.org,
-       "David Miller" <davem@davemloft.net>,
-       "Roland Dreier" <rdreier@cisco.com>,
-       "Ayaz Abdulla" <aabdulla@nvidia.com>
-In-Reply-To: <4563C775.8020004@garzik.org>
+	Wed, 22 Nov 2006 02:38:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64480 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1755523AbWKVHix (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 02:38:53 -0500
+Message-ID: <4563FE71.4040807@redhat.com>
+Date: Tue, 21 Nov 2006 23:38:25 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0611212118540.20138@iabervon.org>
-	 <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
-	 <4563C775.8020004@garzik.org>
-X-Google-Sender-Auth: 0374736b2df1e3b4
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru>
+In-Reply-To: <20061121184605.GA7787@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/06, Jeff Garzik <jeff@garzik.org> wrote:
-> I agree.  And it's just a simple matter of remove the PCI-Express
-> brackets AFAICS, like in the attached patch (untested).
+Evgeniy Polyakov wrote:
+> I've checked the code.
+> Since it will be a union, it is impossible to use _sigev_thread and it
+> becomes just SIGEV_SIGNAL case with different delivery mechanism.
+> Is it what you want?
 
-How about if the ioapic is not inited for that card?
+struct sigevent is defined like this:
 
-For example, I didn't initialize irq routing/ioapci for nvidia LAN.
+typedef struct sigevent {
+         sigval_t sigev_value;
+         int sigev_signo;
+         int sigev_notify;
+         union {
+                 int _pad[SIGEV_PAD_SIZE];
+                  int _tid;
 
-YH
+                 struct {
+                         void (*_function)(sigval_t);
+                         void *_attribute;       /* really pthread_attr_t */
+                 } _sigev_thread;
+         } _sigev_un;
+} sigevent_t;
+
+
+For the SIGEV_KEVENT case:
+
+   sigev_notify is set to SIGEV_KEVENT (obviously)
+
+   sigev_value can be used for the void* data passed along with the
+   signal, just like in the case of a signal delivery
+
+Now you need a way to specify the kevent descriptor.  Just add
+
+   int _kevent;
+
+inside the union and if you want
+
+   #define sigev_kevent_descr _sigev_un._kevent
+
+That should be all.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

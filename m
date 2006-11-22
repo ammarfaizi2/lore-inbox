@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756578AbWKVTBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756576AbWKVTAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756578AbWKVTBf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756580AbWKVTBf
+	id S1756576AbWKVTAz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756575AbWKVTAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:01:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48288 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756578AbWKVTBe (ORCPT
+	Wed, 22 Nov 2006 14:00:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6560 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1756576AbWKVTAx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:01:34 -0500
-Date: Wed, 22 Nov 2006 19:01:28 +0000
+	Wed, 22 Nov 2006 14:00:53 -0500
+Date: Wed, 22 Nov 2006 19:00:46 +0000
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com,
        "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
        Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
-Subject: [PATCH 04/11] dm: map and endio return code clarification
-Message-ID: <20061122190128.GU6993@agk.surrey.redhat.com>
+Subject: [PATCH 03/11] dm: suspend: parameter change
+Message-ID: <20061122190046.GT6993@agk.surrey.redhat.com>
 Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
 	Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
@@ -30,40 +30,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
 
-This patch tightens the use of return values from the target map and end_io
-functions.  Values of 2 and above are now explictly reserved for future use.
-There are no existing targets using such values.
+This patch changes the interface of dm_suspend() so that we can pass
+several options without increasing the number of parameters.
+The existing 'do_lockfs' integer parameter is replaced by a flag
+DM_SUSPEND_LOCKFS_FLAG.
 
-The patch has no effect on existing behaviour.
-
-
-o Reserve return values of 2 and above from target map functions.
-  Any positive value currently indicates "mapping complete", but all
-  existing drivers use the value 1.  We now make that a requirement
-  so we can assign new meaning to higher values in future.
-
-  The new definition of return values from target map functions is:
-      < 0 : error
-      = 0 : The target will handle the io (DM_MAPIO_SUBMITTED).
-      = 1 : Mapping completed (DM_MAPIO_REMAPPED).
-      > 1 : Reserved (undefined).  Previously this was the same as '= 1'.
-
-o Reserve return values of 2 and above from target end_io functions
-  for similar reasons.
-  DM_ENDIO_INCOMPLETE is introduced for a return value of 1.
-
+There is no functional change to the code.
 
 Test results:
-
-  I have tested by using the multipath target.
-
-  I/Os succeed when valid paths exist.
-
-  I/Os are queued in the multipath target when there are no valid paths and
-queue_if_no_path is set.
-
-  I/Os fail when there are no valid paths and queue_if_no_path is not set.
-
+I have tested 'dmsetup suspend' command with/without the '--nolockfs'
+option and confirmed the do_lockfs value is correctly set.
 
 Signed-off-by: Kiyoshi Ueda <k-ueda@ct.jp.nec.com>
 Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
@@ -72,75 +48,96 @@ Cc: dm-devel@redhat.com
 
 Index: linux-2.6.19-rc6/drivers/md/dm.c
 ===================================================================
---- linux-2.6.19-rc6.orig/drivers/md/dm.c	2006-11-22 17:26:57.000000000 +0000
-+++ linux-2.6.19-rc6/drivers/md/dm.c	2006-11-22 17:26:58.000000000 +0000
-@@ -482,9 +482,13 @@ static int clone_endio(struct bio *bio, 
- 		r = endio(tio->ti, bio, error, &tio->info);
- 		if (r < 0)
- 			error = r;
--		else if (r > 0)
--			/* the target wants another shot at the io */
-+		else if (r == DM_ENDIO_INCOMPLETE)
-+			/* The target will handle the io */
- 			return 1;
-+		else if (r) {
-+			DMWARN("unimplemented target endio return value: %d", r);
-+			BUG();
-+		}
- 	}
+--- linux-2.6.19-rc6.orig/drivers/md/dm.c	2006-11-22 17:26:56.000000000 +0000
++++ linux-2.6.19-rc6/drivers/md/dm.c	2006-11-22 17:26:57.000000000 +0000
+@@ -1272,12 +1272,13 @@ static void unlock_fs(struct mapped_devi
+  * dm_bind_table, dm_suspend must be called to flush any in
+  * flight bios and ensure that any further io gets deferred.
+  */
+-int dm_suspend(struct mapped_device *md, int do_lockfs)
++int dm_suspend(struct mapped_device *md, unsigned suspend_flags)
+ {
+ 	struct dm_table *map = NULL;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct bio *def;
+ 	int r = -EINVAL;
++	int do_lockfs = suspend_flags & DM_SUSPEND_LOCKFS_FLAG ? 1 : 0;
  
- 	dec_pending(tio->io, error);
-@@ -542,7 +546,7 @@ static void __map_bio(struct dm_target *
- 	atomic_inc(&tio->io->io_count);
- 	sector = clone->bi_sector;
- 	r = ti->type->map(ti, clone, &tio->info);
--	if (r > 0) {
-+	if (r == DM_MAPIO_REMAPPED) {
- 		/* the bio has been remapped so dispatch it */
- 
- 		blk_add_trace_remap(bdev_get_queue(clone->bi_bdev), clone,
-@@ -560,6 +564,9 @@ static void __map_bio(struct dm_target *
- 		clone->bi_private = md->bs;
- 		bio_put(clone);
- 		free_tio(md, tio);
-+	} else if (r) {
-+		DMWARN("unimplemented target map return value: %d", r);
-+		BUG();
- 	}
- }
+ 	down(&md->suspend_lock);
  
 Index: linux-2.6.19-rc6/drivers/md/dm.h
 ===================================================================
---- linux-2.6.19-rc6.orig/drivers/md/dm.h	2006-11-22 17:26:57.000000000 +0000
-+++ linux-2.6.19-rc6/drivers/md/dm.h	2006-11-22 17:26:58.000000000 +0000
-@@ -33,6 +33,17 @@
+--- linux-2.6.19-rc6.orig/drivers/md/dm.h	2006-11-22 17:26:46.000000000 +0000
++++ linux-2.6.19-rc6/drivers/md/dm.h	2006-11-22 17:26:57.000000000 +0000
+@@ -33,6 +33,11 @@
  #define SECTOR_SHIFT 9
  
  /*
-+ * Definitions of return values from target end_io function.
++ * Suspend feature flags
 + */
-+#define DM_ENDIO_INCOMPLETE	1
++#define DM_SUSPEND_LOCKFS_FLAG		(1 << 0)
 +
 +/*
-+ * Definitions of return values from target map function.
-+ */
-+#define DM_MAPIO_SUBMITTED	0
-+#define DM_MAPIO_REMAPPED	1
-+
-+/*
-  * Suspend feature flags
+  * List of devices that a metadevice uses and should open/close.
   */
- #define DM_SUSPEND_LOCKFS_FLAG		(1 << 0)
+ struct dm_dev {
+Index: linux-2.6.19-rc6/drivers/md/dm-ioctl.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/md/dm-ioctl.c	2006-11-22 17:26:46.000000000 +0000
++++ linux-2.6.19-rc6/drivers/md/dm-ioctl.c	2006-11-22 17:26:57.000000000 +0000
+@@ -765,7 +765,7 @@ out:
+ static int do_suspend(struct dm_ioctl *param)
+ {
+ 	int r = 0;
+-	int do_lockfs = 1;
++	unsigned suspend_flags = DM_SUSPEND_LOCKFS_FLAG;
+ 	struct mapped_device *md;
+ 
+ 	md = find_device(param);
+@@ -773,10 +773,10 @@ static int do_suspend(struct dm_ioctl *p
+ 		return -ENXIO;
+ 
+ 	if (param->flags & DM_SKIP_LOCKFS_FLAG)
+-		do_lockfs = 0;
++		suspend_flags &= ~DM_SUSPEND_LOCKFS_FLAG;
+ 
+ 	if (!dm_suspended(md))
+-		r = dm_suspend(md, do_lockfs);
++		r = dm_suspend(md, suspend_flags);
+ 
+ 	if (!r)
+ 		r = __dev_status(md, param);
+@@ -788,7 +788,7 @@ static int do_suspend(struct dm_ioctl *p
+ static int do_resume(struct dm_ioctl *param)
+ {
+ 	int r = 0;
+-	int do_lockfs = 1;
++	unsigned suspend_flags = DM_SUSPEND_LOCKFS_FLAG;
+ 	struct hash_cell *hc;
+ 	struct mapped_device *md;
+ 	struct dm_table *new_map;
+@@ -814,9 +814,9 @@ static int do_resume(struct dm_ioctl *pa
+ 	if (new_map) {
+ 		/* Suspend if it isn't already suspended */
+ 		if (param->flags & DM_SKIP_LOCKFS_FLAG)
+-			do_lockfs = 0;
++			suspend_flags &= ~DM_SUSPEND_LOCKFS_FLAG;
+ 		if (!dm_suspended(md))
+-			dm_suspend(md, do_lockfs);
++			dm_suspend(md, suspend_flags);
+ 
+ 		r = dm_swap_table(md, new_map);
+ 		if (r) {
 Index: linux-2.6.19-rc6/include/linux/device-mapper.h
 ===================================================================
---- linux-2.6.19-rc6.orig/include/linux/device-mapper.h	2006-11-22 17:26:57.000000000 +0000
-+++ linux-2.6.19-rc6/include/linux/device-mapper.h	2006-11-22 17:26:58.000000000 +0000
-@@ -39,7 +39,7 @@ typedef void (*dm_dtr_fn) (struct dm_tar
-  * The map function must return:
-  * < 0: error
-  * = 0: The target will handle the io by resubmitting it later
-- * > 0: simple remap complete
-+ * = 1: simple remap complete
+--- linux-2.6.19-rc6.orig/include/linux/device-mapper.h	2006-11-22 17:26:46.000000000 +0000
++++ linux-2.6.19-rc6/include/linux/device-mapper.h	2006-11-22 17:26:57.000000000 +0000
+@@ -173,7 +173,7 @@ void *dm_get_mdptr(struct mapped_device 
+ /*
+  * A device can still be used while suspended, but I/O is deferred.
   */
- typedef int (*dm_map_fn) (struct dm_target *ti, struct bio *bio,
- 			  union map_info *map_context);
+-int dm_suspend(struct mapped_device *md, int with_lockfs);
++int dm_suspend(struct mapped_device *md, unsigned suspend_flags);
+ int dm_resume(struct mapped_device *md);
+ 
+ /*

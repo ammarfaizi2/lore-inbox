@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756292AbWKVSJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756314AbWKVSSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756292AbWKVSJG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756237AbWKVSJF
+	id S1756314AbWKVSSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756337AbWKVSSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:09:05 -0500
-Received: from colo.lackof.org ([198.49.126.79]:13789 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1756290AbWKVSJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:09:04 -0500
-Date: Wed, 22 Nov 2006 11:09:01 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
-       linux-scsi@vger.kernel.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 2/5] PCI : Move pci_fixup_device and is_enabled
-Message-ID: <20061122180901.GD378@colo.lackof.org>
-References: <456404EF.3090902@jp.fujitsu.com>
+	Wed, 22 Nov 2006 13:18:34 -0500
+Received: from gilford.textdrive.com ([207.7.108.53]:6369 "EHLO
+	gilford.textdrive.com") by vger.kernel.org with ESMTP
+	id S1756295AbWKVSSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:18:33 -0500
+Date: Wed, 22 Nov 2006 10:18:02 -0800
+From: Ira Snyder <kernel@irasnyder.com>
+To: trivial@kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sparse fix: initializer entry defined twice in pata_rz1000
+Message-Id: <20061122101802.7b035434.kernel@irasnyder.com>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <456404EF.3090902@jp.fujitsu.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 05:06:07PM +0900, Hidetoshi Seto wrote:
-> --- linux-2.6.19-rc6.orig/drivers/pci/pci.c
-> +++ linux-2.6.19-rc6/drivers/pci/pci.c
-> @@ -558,12 +558,18 @@
->  {
->  	int err;
-> 
-> +	if (dev->is_enabled)
-> +		return 0;
+[PATCH] sparse fix: initializer entry defined twice in pata_rz1000
 
-This is unfortunately going to collide with the previous
-patch posted by inaky@linux.intel.com:
+This removes the extra definition of the .error_handler member
+in the pata_rz1000 driver.
 
-    Subject: [patch 0/2] pci: make pci_{enable,disable}_device() be nested
+Signed-off-by: Ira W. Snyder <kernel@irasnyder.com>
 
-grant
+---
+commit f84c313680a21fd6c487ac17f69c4c115472e257
+tree 6fbf62c0d7dff66229e1c5f48721acd704b4e07e
+parent e368d421bd8aef91af4013f1c289c6192f9a3e64
+author Ira W. Snyder <kernel@irasnyder.com> Sun, 19 Nov 2006 23:40:03 -0800
+committer Ira W. Snyder <kernel@irasnyder.com> Sun, 19 Nov 2006 23:40:03 -0800
+
+ drivers/ata/pata_rz1000.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/ata/pata_rz1000.c b/drivers/ata/pata_rz1000.c
+index 4533b63..4747e89 100644
+--- a/drivers/ata/pata_rz1000.c
++++ b/drivers/ata/pata_rz1000.c
+@@ -103,8 +103,6 @@ static struct ata_port_operations rz1000
+ 	.exec_command	= ata_exec_command,
+ 	.dev_select 	= ata_std_dev_select,
+ 
+-	.error_handler	= rz1000_error_handler,
+-
+ 	.bmdma_setup 	= ata_bmdma_setup,
+ 	.bmdma_start 	= ata_bmdma_start,
+ 	.bmdma_stop	= ata_bmdma_stop,

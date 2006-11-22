@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752809AbWKVLjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752942AbWKVLp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752809AbWKVLjA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 06:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752894AbWKVLjA
+	id S1752942AbWKVLp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 06:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753013AbWKVLp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 06:39:00 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:23120 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1752790AbWKVLi7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 06:38:59 -0500
-Message-ID: <456436CA.7050809@tls.msk.ru>
-Date: Wed, 22 Nov 2006 14:38:50 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060813)
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: Jeff Garzik <jeff@garzik.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-References: <11630606361046@2ka.mipt.ru> <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <45622228.80803@garzik.org> <456223AC.5080400@redhat.com>
-In-Reply-To: <456223AC.5080400@redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 06:45:29 -0500
+Received: from bay0-omc2-s16.bay0.hotmail.com ([65.54.246.152]:46089 "EHLO
+	bay0-omc2-s16.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1752942AbWKVLp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 06:45:29 -0500
+Message-ID: <BAY107-F16375715795A91CEA1E2D99CE30@phx.gbl>
+X-Originating-IP: [87.81.120.187]
+X-Originating-Email: [dcb314@hotmail.com]
+From: "d binderman" <dcb314@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: arch/x86_64/kernel/pci-calgary.c(600): remark #593: variable "bbar" was set but 
+Date: Wed, 22 Nov 2006 11:45:24 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 22 Nov 2006 11:45:28.0273 (UTC) FILETIME=[B4C7E410:01C70E2B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Jeff Garzik wrote:
->> I think we have lived with relative timeouts for so long, it would be
->> unusual to change now.  select(2), poll(2), epoll_wait(2) all take
->> relative timeouts.
-> 
-> I'm not talking about always using absolute timeouts.
-> 
-> I'm saying the timeout parameter should be a struct timespec* and then
-> the flags word could have a flag meaning "this is an absolute timeout".
->  I.e., enable both uses,, even make relative timeouts the default. This
-> is what the modern POSIX interfaces do, too, see clock_nanosleep.
 
+Hello there,
 
-Can't the argument be something like u64 instead of struct timespec,
-regardless of this discussion (relative vs absolute)?
+I just tried to compile Linux kernel 2.6.18.3 with the Intel C
+C compiler.
 
-Compare:
+The compiler said
 
- void mysleep(int msec) {
-   struct timeval tv;
-   tv.tv_sec = msec/1000;
-   tv.tv_usec = msec%1000;
-   select(0,0,0,0,&tv);
- }
+arch/x86_64/kernel/pci-calgary.c(600): remark #593: variable "bbar" was set 
+but never used
+arch/x86_64/kernel/pci-calgary.c(601): remark #593: variable "busnum" was 
+set but never used
 
-with
+The source code is
 
-  void mysleep(int msec) {
-    poll(0, 0, msec*SOME_TIME_SCALE_VALUE);
-  }
+    void __iomem *bbar;
+    unsigned char busnum;
 
-That to say: struct time{spec,val,whatever} is more difficult to use than
-plain numbers.
+I have checked the source code and I agree with the compiler.
+Suggest delete local variables.
 
-But yes... existing struct timespec has an advantage of being already existed.
-Oh well.
+Regards
 
-/mjt
+David Binderman
+
+_________________________________________________________________
+Be the first to hear what's new at MSN - sign up to our free newsletters! 
+http://www.msn.co.uk/newsletters
+

@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756748AbWKVTwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756753AbWKVTwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756748AbWKVTwF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 14:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756753AbWKVTwF
+	id S1756753AbWKVTwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 14:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756756AbWKVTwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 14:52:05 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:6408 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1756748AbWKVTwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 14:52:03 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: The Peach <smartart@tiscali.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug? VFAT copy problem
-References: <20061120164209.04417252@localhost>
-	<877ixqhvlw.fsf@duaron.myhome.or.jp>
-	<20061120184912.5e1b1cac@localhost>
-	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<20061122163001.0d291978@localhost>
-	<8764d7v4nh.fsf@duaron.myhome.or.jp>
-	<20061122201008.17072c89@localhost>
-	<87r6vvs2k4.fsf@duaron.myhome.or.jp>
-	<20061122203859.017d5723@localhost>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 Nov 2006 04:51:56 +0900
-In-Reply-To: <20061122203859.017d5723@localhost> (The Peach's message of "Wed\, 22 Nov 2006 20\:38\:59 +0100")
-Message-ID: <87zmaj1cpv.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 22 Nov 2006 14:52:12 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:5133 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1756753AbWKVTwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 14:52:10 -0500
+Date: Wed, 22 Nov 2006 19:51:53 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org,
+       Kumar Gala <galak@kernel.crashing.org>,
+       Kim Phillips <kim.phillips@freescale.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andi Kleen <ak@muc.de>, akpm@osdl.org, davem@davemloft.net,
+       kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
+       ralf@linux-mips.org
+Subject: Re: NTP time sync
+Message-ID: <20061122195153.GC22601@flint.arm.linux.org.uk>
+Mail-Followup-To: Alessandro Zummo <alessandro.zummo@towertech.it>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	David Brownell <david-b@pacbell.net>, linuxppc-dev@ozlabs.org,
+	Kumar Gala <galak@kernel.crashing.org>,
+	Kim Phillips <kim.phillips@freescale.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Andi Kleen <ak@muc.de>, akpm@osdl.org, davem@davemloft.net,
+	kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
+	ralf@linux-mips.org
+References: <20061122203633.611acaa8@inspiron>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061122203633.611acaa8@inspiron>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Peach <smartart@tiscali.it> writes:
+On Wed, Nov 22, 2006 at 08:36:33PM +0100, Alessandro Zummo wrote:
+> 
+> 
+>  wrto the in-kernel NTP synchronization,
+>  as discussed before [1], my opinion
+>  is that it should be done in userland.
+> 
+>  Keeping it in kernel implies subtle code
+>  in each of the supported architectures.
+> 
+>  So, if the arch maintainers agree, 
+>  I would suggest to schedule it for removal.
+> 
+> [1] http://lkml.org/lkml/2006/3/28/358
 
-> On Thu, 23 Nov 2006 04:29:15 +0900
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
->> This is different thing. Please try "shortname=winnt" or "shortname=mixed"
->> mount option for shortname (default is shortname=lower).
->
-> finally it works (mounted with shortname=winnt).
-> Did this patch really solve the issue or was just a "shortname" option problem? I didn't even know that option would made the difference.
-> now I just should get rid of verbose output.
+Fine, provided there's also a shell tool that can enquire whether the
+kernel is sync'd or not.  (Currently the 11-minute update does not
+occur when the kernel is desynced from a time source - the RTC itself
+might be more accurate in this case.)
 
-The both of patch and option should be needed. Because the following
-filename is not shortname, shortname option doesn't affect.
+Throwing hwclock commands into crontab such that they do not take
+note of the kernel's sync status is probably a very bad move in that
+respect.
 
-If you test shortname=winnt without patch, it should still show the
-problem of following filename, but it should be rare case though.
-
-Can you test it?
-
-> -rwxr-xr-x 1 b users 732903 Oct 27 16:55 dscn5981.jpg.rem.2006-10-27-1543 
-> -rwxr-xr-x 1 b users 622595 Oct 27 16:55 dscn5982.jpg.rem.2006-10-27-1543
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

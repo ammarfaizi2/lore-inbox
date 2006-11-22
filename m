@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755681AbWKVMvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754250AbWKVMy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755681AbWKVMvU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755693AbWKVMvT
+	id S1754250AbWKVMy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 07:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755695AbWKVMy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:51:19 -0500
-Received: from toxygen.net ([213.146.59.4]:40204 "EHLO toxygen.net")
-	by vger.kernel.org with ESMTP id S1755681AbWKVMvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:51:19 -0500
-Date: Wed, 22 Nov 2006 13:50:20 +0100 (CET)
-From: Wojtek Kaniewski <wojtekka@toxygen.net>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH take 2] Atmel MACB ethernet driver
-In-Reply-To: <20061117172258.51bec4a3@cad-250-152.norway.atmel.com>
-Message-ID: <Pine.LNX.4.58L.0611220918170.4718@toxygen.net>
-References: <20061109145117.577e3c61@cad-250-152.norway.atmel.com>
- <455C8FB4.8000200@toxygen.net> <20061117172258.51bec4a3@cad-250-152.norway.atmel.com>
+	Wed, 22 Nov 2006 07:54:58 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:44258 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S1754250AbWKVMy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 07:54:57 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Ram <vshrirama@gmail.com>
+Subject: Re: USB Mouse does not work, please advice
+Date: Wed, 22 Nov 2006 13:55:46 +0100
+User-Agent: KMail/1.8
+Cc: "Jiri Slaby" <jirislaby@gmail.com>, linux-kernel@vger.kernel.org
+References: <8bf247760611200316y761fa18dg4bdfc55e90b70309@mail.gmail.com> <45619678.5070400@gmail.com> <8bf247760611220419i1545352cvc3316562b8b53ce0@mail.gmail.com>
+In-Reply-To: <8bf247760611220419i1545352cvc3316562b8b53ce0@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611221355.46214.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2006, Haavard Skinnemoen wrote:
-> Hmm...underruns as in "eth0: TX underrun, resetting buffers"?
-
-Yes, that's the message.
-
-> (...)
+Am Mittwoch, 22. November 2006 13:19 schrieb Ram:
+> The Handler field has only event0, But my mouse is not working?.
 > 
-> If it's a problem with the descriptor, it would probably help to dump
-> out some information about the ring state, i.e. the value of
-> bp->tx_head and bp->tx_tail, and maybe dump all outstanding descriptors
-> in the ring to see if any of them look suspicious.
+> 
+> If i do cat /dev/input/event0. Im able to see characters when i move
+> the mouse, Im also getting interrupts.
+> 
+> However, When i run XfbDev and move the mouse, the 'X' mark at the
+> centre does not move.
+> 
+> 
+> Am i missing something?.
 
-I've added some printk()s in underrun handler. There's still some data
-in the ring (tail=29, head=32), so the driver seems okay. The list of
-descriptors:
+If you only got event as handler X must be set up to use input events.
+Which drivers have you loaded?
 
-  tx_ring[28].ctrl=0x8000850e (used=1 wrap=0 und=0 last=1)
-  tx_ring[29].ctrl=0x900085ea (used=1 wrap=0 und=1 last=1) TAIL
-  tx_ring[30].ctrl=0x000085ea (used=0 wrap=0 und=0 last=1)
-  tx_ring[31].ctrl=0x0000850e (used=0 wrap=0 und=0 last=1)
-  tx_ring[32].ctrl=0x800085ea (used=1 wrap=0 und=0 last=1) HEAD
-  tx_ring[33].ctrl=0x8000850e (used=1 wrap=0 und=0 last=1)
+	Regards
+		Oliver
 
-Buffer addresses look fine, tx_ring[29..32].addr don't differ much from
-the rest. 
-
-> If it's a bus latency issue, things start to get a bit
-> platform-specific, so we should probably involve some more experienced
-> ARM people.
-
-Looks like I'll have to wait for upstream support of 9260, because I'm
-new to ARM and I won't handle it by myself. Anyway thanks for your help.
-
-Regards,
-Wojtek

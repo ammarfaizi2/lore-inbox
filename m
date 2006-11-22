@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWKVLYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752255AbWKVLb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWKVLYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 06:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWKVLYn
+	id S1752255AbWKVLb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 06:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752153AbWKVLb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 06:24:43 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:12766 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750991AbWKVLYn (ORCPT
+	Wed, 22 Nov 2006 06:31:57 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:31400 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1752041AbWKVLb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 06:24:43 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: 2.6.19-rc5-mm2: suspend related BLOCK=n compile error
-Date: Wed, 22 Nov 2006 12:20:55 +0100
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Nigel Cunningham <nigel@suspend2.net>,
-       pavel@suse.cz, linux-pm@osdl.org
-References: <20061114014125.dd315fff.akpm@osdl.org> <20061122032341.GV5200@stusta.de> <20061121193454.728e1bbd.randy.dunlap@oracle.com>
-In-Reply-To: <20061121193454.728e1bbd.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Nov 2006 06:31:56 -0500
+Date: Wed, 22 Nov 2006 14:30:59 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 6/6] kevent: Pipe notifications.
+Message-ID: <20061122113057.GA28808@2ka.mipt.ru>
+References: <11641265981515@2ka.mipt.ru> <200611221220.50245.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200611221220.56618.rjw@sisk.pl>
+In-Reply-To: <200611221220.50245.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 14:31:00 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 22 November 2006 04:34, Randy Dunlap wrote:
-> On Wed, 22 Nov 2006 04:23:41 +0100 Adrian Bunk wrote:
+On Wed, Nov 22, 2006 at 12:20:50PM +0100, Eric Dumazet (dada1@cosmosbay.com) wrote:
+> On Tuesday 21 November 2006 17:29, Evgeniy Polyakov wrote:
+> > Pipe notifications.
 > 
-> > swsusp-freeze-filesystems-during-suspend-rev-2.patch causes the 
-> > following compile error with CONFIG_BLOCK=n:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      kernel/power/process.o
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c: In function 'freeze_processes':
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c:124: error: implicit declaration of function 'freeze_filesystems'
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c: In function 'thaw_processes':
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/kernel/power/process.c:189: error: implicit declaration of function 'thaw_filesystems'
-> > make[3]: *** [kernel/power/process.o] Error 1
+> > +int kevent_pipe_enqueue(struct kevent *k)
+> > +{
+> > +	struct file *pipe;
+> > +	int err = -EBADF;
+> > +	struct inode *inode;
+> > +
+> > +	pipe = fget(k->event.id.raw[0]);
+> > +	if (!pipe)
+> > +		goto err_out_exit;
+> > +
+> > +	inode = igrab(pipe->f_dentry->d_inode);
+> > +	if (!inode)
+> > +		goto err_out_fput;
+> > +
 > 
-> Yes, I sent a patch for that, but Pavel said that they will be
-> removing/dropping that code anyway.
+> Well...
+> 
+> How can you be sure 'pipe/inode' really refers to a pipe/fifo here ?
+> 
+> Hint : i_pipe <> NULL is not sufficient because i_pipe, i_bdev, i_cdev share 
+> the same location. (check pipe_info() in fs/splice.c)
+> 
+> So I guess you need :
+> 
+> err = -EINVAL;
+> if  (!S_ISFIFO(inode->i_mode))
+> 	goto err_out_iput;
+ 
+You are correct, I did not perform that check, since all pipe open
+functions do rely on the i_pipe, which can not be block device at that
+point, but with kevent file descriptor can be anything, so that check
+must be performed.
 
-AFAICT, the swsusp-freeze-filesystems-during-suspend-rev-2.patch has been
-dropped from -mm already.
-
-Greetings,
-Rafael
-
+I will put it into the tree, thanks Eric.
+ 
+> Eric
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+	Evgeniy Polyakov

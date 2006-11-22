@@ -1,74 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754451AbWKVO6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754306AbWKVPCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754451AbWKVO6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 09:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754457AbWKVO6s
+	id S1754306AbWKVPCO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 10:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754505AbWKVPCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 09:58:48 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:37270 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1754450AbWKVO6r (ORCPT
+	Wed, 22 Nov 2006 10:02:14 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:36810 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1754306AbWKVPCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 09:58:47 -0500
-Date: Wed, 22 Nov 2006 09:58:21 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Pavel Emelianov <xemul@openvz.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Morton Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-       Adrian Bunk <bunk@stusta.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>, dev@sw.ru
-Subject: Re: 2.6.19-rc6: known regressions (v4)
-Message-ID: <20061122145821.GB2502@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <20061121213335.GB30010@in.ibm.com> <Pine.LNX.4.64.0611211410460.3338@woody.osdl.org> <45641BEE.8060603@openvz.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45641BEE.8060603@openvz.org>
-User-Agent: Mutt/1.5.11
+	Wed, 22 Nov 2006 10:02:13 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [RCU] adds a prefetch() in rcu_do_batch()
+Date: Wed, 22 Nov 2006 16:02:29 +0100
+User-Agent: KMail/1.9.5
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org
+References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com> <20061121224613.548207f9.akpm@osdl.org>
+In-Reply-To: <20061121224613.548207f9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_FaGZF/iA3Ha+VaX"
+Message-Id: <200611221602.29597.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 12:44:14PM +0300, Pavel Emelianov wrote:
-> > I really think this is wrong.
-> >
-> > The original patch was wrong, and the _real_ problem is in __do_IRQ() that
-> > got the desc->lock too early.
-> >
-> > I _think_ the correct fix is to simply revert the broken commit, and fix
-> > the _one_ place that called "misnote_interrupt()" with the lock held.
-> >
-> > Something like this..
-> >
-> > I also think that the real fix will be to move the whole
-> >
-> > 	if (!noirqdebug)
-> > 		note_interrupt(irq, desc, action_ret);
-> >
-> >
-> > into handle_IRQ_event itself, since every caller (except for
-> > "misrouted_irq()" itself, and that should probably be done separately)
-> > should always do it. Right now we have a lot of people that just do
-> >
-> > 	action_ret = handle_IRQ_event(irq, action);
-> > 	if (!noirqdebug)
-> > 		note_interrupt(irq, desc, action_ret);
-> >
-> > explicitly.
-> >
-> > The only thing that keeps us from doing that is that we don't pass in
-> > "desc", but we should just do that.
-> >
-> > But in the meantime, this appears to be the minimal fix. Can people please
-> > test and verify?
-> 
-> This works for me, but is this normal that desc's fields are
-> modified non-atomically in note_interrupt()?
-> 
-> And one more thing - report_bad_irq() traverses desc->action
-> list without any locking either.
+--Boundary-00=_FaGZF/iA3Ha+VaX
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Works for me too. But Pavel's concern look genuine. May be we should take
-the lock again in note_interrupt()/report_bad_irq() whenever we are
-accessing/modifying desc.
+On some workloads, (for example when lot of close() syscalls are done), RCU 
+qlen can be quite large, and RCU heads are no longer in cpu cache when 
+rcu_do_batch() is called.
 
-Thanks
-Vivek
+This patches adds a prefetch() in rcu_do_batch() to give CPU a hint to bring 
+back cache lines containing 'struct rcu_head's.
+
+Most list manipulations macros include prefetch(), but not open coded ones (at 
+least with current C compilers :) )
+
+I got a nice speedup on a trivial benchmark  (3.48 us per iteration instead of 
+3.95 us on a 1.6 GHz Pentium-M)
+while (1) { pipe(p); close(fd[0]); close(fd[1]);}
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+--Boundary-00=_FaGZF/iA3Ha+VaX
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="rcu.prefetch.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="rcu.prefetch.patch"
+
+--- linux-2.6.19-rc6/kernel/rcupdate.c	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-ed/kernel/rcupdate.c	2006-11-22 15:12:09.000000000 +0100
+@@ -235,12 +235,14 @@ static void rcu_do_batch(struct rcu_data
+ 
+ 	list = rdp->donelist;
+ 	while (list) {
+-		next = rdp->donelist = list->next;
++		next = list->next;
++		prefetch(next);
+ 		list->func(list);
+ 		list = next;
+ 		if (++count >= rdp->blimit)
+ 			break;
+ 	}
++	rdp->donelist = list;
+ 
+ 	local_irq_disable();
+ 	rdp->qlen -= count;
+
+--Boundary-00=_FaGZF/iA3Ha+VaX--

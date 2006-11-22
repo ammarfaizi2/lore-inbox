@@ -1,144 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966920AbWKVAw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966972AbWKVAyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966920AbWKVAw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 19:52:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966922AbWKVAw6
+	id S966972AbWKVAyA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 19:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966971AbWKVAyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 19:52:58 -0500
-Received: from mga05.intel.com ([192.55.52.89]:44082 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S966920AbWKVAw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 19:52:57 -0500
+	Tue, 21 Nov 2006 19:54:00 -0500
+Received: from mga09.intel.com ([134.134.136.24]:8484 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S966922AbWKVAx7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 19:53:59 -0500
 X-ExtLoop1: 1
 X-IronPort-AV: i="4.09,445,1157353200"; 
-   d="scan'208"; a="18579287:sNHT20632590"
-Date: Tue, 21 Nov 2006 16:28:45 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@timesys.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Arjan <arjan@linux.intel.com>
-Subject: [RFC][PATCH] Add do_not_call_when_idle option to timer and workqueue
-Message-ID: <20061121162845.A24791@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+   d="scan'208"; a="165193666:sNHT20896925"
+From: Jason Gaston <jason.d.gaston@intel.com>
+To: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jason.d.gaston@intel.com
+Subject: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for Intel ICH9
+Date: Tue, 21 Nov 2006 16:53:51 -0800
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Message-Id: <200611211653.51596.jason.d.gaston@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds the Intel ICH9 IDE mode SATA controller DID's.
 
-Add a new flag to timers to allow "Do not call when Idle" mode.
-Export this sort of soft timer over workqueues and use it in ondemand governor.
+Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
 
-This patch avoids the periodic ondemand timer invocations in
-Dynamic Tick kernels.
-
-This can be used in various other kernel timers that end up setting up
-unnecessary timers during idle.
-
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-
-Index: linux-2.6.19-rc-mm/include/linux/timer.h
-===================================================================
---- linux-2.6.19-rc-mm.orig/include/linux/timer.h	2006-11-13 15:06:26.000000000 -0800
-+++ linux-2.6.19-rc-mm/include/linux/timer.h	2006-11-13 16:01:03.000000000 -0800
-@@ -8,6 +8,8 @@
+--- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20 04:58:48.000000000 -0800
++++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-20 06:15:12.000000000 -0800
+@@ -127,6 +127,7 @@
+ 	ich6_sata_ahci		= 8,
+ 	ich6m_sata_ahci		= 9,
+ 	ich8_sata_ahci		= 10,
++	ich9_sata_ahci		= 11,
  
- struct tvec_t_base_s;
+ 	/* constants for mapping table */
+ 	P0			= 0,  /* port 0 */
+@@ -227,14 +228,26 @@
+ 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+ 	/* 2801GBM/GHM (ICH7M, identical to ICH6M) */
+ 	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6m_sata_ahci },
+-	/* Enterprise Southbridge 2 (where's the datasheet?) */
++	/* Enterprise Southbridge 2 (631xESB/632xESB) */
+ 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
+-	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
++	/* SATA Controller 1 IDE (ICH8) */
+ 	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
+-	/* SATA Controller 2 IDE (ICH8, ditto) */
++	/* SATA Controller 2 IDE (ICH8) */
+ 	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
+-	/* Mobile SATA Controller IDE (ICH8M, ditto) */
++	/* Mobile SATA Controller IDE (ICH8M) */
+ 	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
++	/* SATA Controller 1 IDE (ICH9) */
++	{ 0x8086, 0x2920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
++	/* SATA Controller 1 IDE (ICH9) */
++	{ 0x8086, 0x2921, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
++	/* SATA Controller 2 IDE (ICH9) */
++	{ 0x8086, 0x2926, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
++	/* Mobile SATA Controller 1 IDE (ICH9M) */
++	{ 0x8086, 0x2928, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
++	/* Mobile SATA Controller 2 IDE (ICH9M) */
++	{ 0x8086, 0x292d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
++	/* Mobile SATA Controller 2 IDE (ICH9M) */
++	{ 0x8086, 0x292e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci },
  
-+#define TIMER_FLAG_NOT_IN_IDLE	(0x1)
+ 	{ }	/* terminate list */
+ };
+@@ -425,6 +438,19 @@
+ 	},
+ };
+ 
++static const struct piix_map_db ich9_map_db = {
++	.mask = 0x3,
++	.port_enable = 0x3,
++	.present_shift = 8,
++	.map = {
++		/* PM   PS   SM   SS       MAP */
++		{  P0,  P2,  P1,  P3 }, /* 00b (hardwired when in AHCI) */
++		{  RV,  RV,  RV,  RV },
++		{  IDE,  IDE,  NA,  NA }, /* 10b (IDE mode) */
++		{  RV,  RV,  RV,  RV },
++	},
++};
 +
- struct timer_list {
- 	struct list_head entry;
- 	unsigned long expires;
-@@ -16,6 +18,7 @@
- 	unsigned long data;
- 
- 	struct tvec_t_base_s *base;
-+	int	flags;
- #ifdef CONFIG_TIMER_STATS
- 	void *start_site;
- 	char start_comm[16];
-@@ -30,6 +33,7 @@
- 		.expires = (_expires),				\
- 		.data = (_data),				\
- 		.base = &boot_tvec_bases,			\
-+		.flags = 0,					\
- 	}
- 
- #define DEFINE_TIMER(_name, _function, _expires, _data)		\
-Index: linux-2.6.19-rc-mm/include/linux/workqueue.h
-===================================================================
---- linux-2.6.19-rc-mm.orig/include/linux/workqueue.h	2006-11-13 15:06:26.000000000 -0800
-+++ linux-2.6.19-rc-mm/include/linux/workqueue.h	2006-11-13 16:01:03.000000000 -0800
-@@ -65,6 +65,8 @@
- extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
- extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 	struct work_struct *work, unsigned long delay);
-+extern int queue_soft_delayed_work_on(int cpu, struct workqueue_struct *wq,
-+	struct work_struct *work, unsigned long delay);
- extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
- 
- extern int FASTCALL(schedule_work(struct work_struct *work));
-Index: linux-2.6.19-rc-mm/kernel/timer.c
-===================================================================
---- linux-2.6.19-rc-mm.orig/kernel/timer.c	2006-11-13 15:06:26.000000000 -0800
-+++ linux-2.6.19-rc-mm/kernel/timer.c	2006-11-13 16:01:03.000000000 -0800
-@@ -639,6 +639,8 @@
- 	j = base->timer_jiffies & TVR_MASK;
- 	do {
- 		list_for_each_entry(nte, base->tv1.vec + j, entry) {
-+			if (nte->flags & TIMER_FLAG_NOT_IN_IDLE)
-+				continue;
- 			expires = nte->expires;
- 			found = nte;
- 			if (j < (base->timer_jiffies & TVR_MASK))
-Index: linux-2.6.19-rc-mm/kernel/workqueue.c
-===================================================================
---- linux-2.6.19-rc-mm.orig/kernel/workqueue.c	2006-11-13 15:06:26.000000000 -0800
-+++ linux-2.6.19-rc-mm/kernel/workqueue.c	2006-11-13 16:01:03.000000000 -0800
-@@ -196,6 +196,20 @@
- }
- EXPORT_SYMBOL_GPL(queue_delayed_work_on);
- 
-+int queue_soft_delayed_work_on(int cpu, struct workqueue_struct *wq,
-+			struct work_struct *work, unsigned long delay)
-+{
-+	int ret;
-+	struct timer_list *timer = &work->timer;
-+	ret = queue_delayed_work_on(cpu, wq, work, delay);
-+	if (ret) {
-+		timer->flags |= TIMER_FLAG_NOT_IN_IDLE;
-+	}
-+	return ret;
-+}
+ static const struct piix_map_db *piix_map_db_table[] = {
+ 	[ich5_sata]		= &ich5_map_db,
+ 	[esb_sata]		= &ich5_map_db,
+@@ -432,6 +458,8 @@
+ 	[ich6_sata_ahci]	= &ich6_map_db,
+ 	[ich6m_sata_ahci]	= &ich6m_map_db,
+ 	[ich8_sata_ahci]	= &ich8_map_db,
++	[ich9_sata_ahci]	= &ich9_map_db,
 +
-+EXPORT_SYMBOL_GPL(queue_soft_delayed_work_on);
+ };
+ 
+ static struct ata_port_info piix_port_info[] = {
+@@ -553,6 +581,18 @@
+ 		.port_ops	= &piix_sata_ops,
+ 	},
+ 
++	/* ich9_sata_ahci: 11 */
++	{
++		.sht		= &piix_sht,
++		.flags		= ATA_FLAG_SATA |
++				  PIIX_FLAG_CHECKINTR | PIIX_FLAG_SCR |
++				  PIIX_FLAG_AHCI,
++		.pio_mask	= 0x1f,	/* pio0-4 */
++		.mwdma_mask	= 0x07, /* mwdma0-2 */
++		.udma_mask	= 0x7f,	/* udma0-6 */
++		.port_ops	= &piix_sata_ops,
++	},
 +
- static void run_workqueue(struct cpu_workqueue_struct *cwq)
- {
- 	unsigned long flags;
-Index: linux-2.6.19-rc-mm/drivers/cpufreq/cpufreq_ondemand.c
-===================================================================
---- linux-2.6.19-rc-mm.orig/drivers/cpufreq/cpufreq_ondemand.c	2006-11-13 15:58:04.000000000 -0800
-+++ linux-2.6.19-rc-mm/drivers/cpufreq/cpufreq_ondemand.c	2006-11-21 12:23:15.000000000 -0800
-@@ -446,7 +448,7 @@
- 	                        	dbs_info->freq_lo,
- 	                        	CPUFREQ_RELATION_H);
- 	}
--	queue_delayed_work_on(cpu, kondemand_wq, &dbs_info->work, delay);
-+	queue_soft_delayed_work_on(cpu, kondemand_wq, &dbs_info->work, delay);
- }
+ };
  
- static inline void dbs_timer_init(unsigned int cpu)
-@@ -456,9 +458,9 @@
- 	int delay = usecs_to_jiffies(dbs_tuners_ins.sampling_rate);
- 	delay -= jiffies % delay;
- 
- 	ondemand_powersave_bias_init();
- 	INIT_WORK(&dbs_info->work, do_dbs_timer, NULL);
--	queue_delayed_work_on(cpu, kondemand_wq, &dbs_info->work, delay);
-+	queue_soft_delayed_work_on(cpu, kondemand_wq, &dbs_info->work, delay);
- }
- 
- static inline void dbs_timer_exit(struct cpu_dbs_info_s *dbs_info)
+ static struct pci_bits piix_enable_bits[] = {

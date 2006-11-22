@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756884AbWKUXzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756896AbWKVAL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756884AbWKUXzT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 18:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756883AbWKUXzT
+	id S1756896AbWKVAL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 19:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756897AbWKVAL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 18:55:19 -0500
-Received: from nz-out-0102.google.com ([64.233.162.205]:4472 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1756884AbWKUXzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 18:55:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W54OdHj6Rxmd9ki4xbtFXWznuMm90QlzMU94guvKX8zSQzIxly142ZdqFHiB8AJi0XZVjTtf29bvnwJA6jz/xE0QlglMOCsKWWvFJHzJZ9ErKwjz19LG254f0b+9O8Qm57aeyTwmqv7f3C9haWTm7dsiGoGL5hLx8ANb88Y0wOA=
-Message-ID: <9a8748490611211555r8c51870q2f34892a806e9303@mail.gmail.com>
-Date: Wed, 22 Nov 2006 00:55:16 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Maarten Maathuis" <madman2003@gmail.com>
-Subject: Re: A curious user would like to know what anonpages are.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6d4bc9fc0611211530te8b9b6m84860c7aacdd1b01@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 21 Nov 2006 19:11:58 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:6317
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1756896AbWKVAL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 19:11:57 -0500
+Date: Tue, 21 Nov 2006 16:11:58 -0800 (PST)
+Message-Id: <20061121.161158.63124759.davem@davemloft.net>
+To: dev@openvz.org
+Cc: linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: Re: [SPARC64]: resumable error decoding
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <45630257.9070308@openvz.org>
+References: <45630257.9070308@openvz.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6d4bc9fc0611211530te8b9b6m84860c7aacdd1b01@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22/11/06, Maarten Maathuis <madman2003@gmail.com> wrote:
-> Recently i noticed an (in my eyes) unexplainable memory loss, I
-> couldn't trace it a specific process, the slab, buffers or any of the
-> usual places.
->
-> cat /proc/meminfo revealed something called anonpages, which seemed to
-> be around a 100 MiB large.
->
-> I have no idea what they are, searching the mailinglist archives or
-> using a conventional search engine didn't yield anything usefull.
->
-> Can anyone enlighten a curious user?
->
+From: Kirill Korotaev <dev@openvz.org>
+Date: Tue, 21 Nov 2006 16:42:47 +0300
 
-Hmm, wouldn't that be "anonymous pages"?  See http://lwn.net/Articles/77106/
+> Running stress tests on OpenVZ 2.6.18 sparc64 kernel we hit the following:
+> ------- cut --------
+> [285401.094964] RESUMABLE ERROR: Reporting on cpu 0
+> [285401.626736] RESUMABLE ERROR: err_handle[410000000000c6f] err_stick[103921ee2007c] err_type[00000004:warning resumable]
+> [285402.869015] RESUMABLE ERROR: err_attrs[00000020:       ]
+> [285403.491920] RESUMABLE ERROR: err_raddr[0000000000000000] err_size[0] err_cpu[0]
 
+This is a power-off request, did someone push the power-off button
+or give the power-off command from the System Controller console?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I should add proper support for this, this report is a good reminder
+:-)
+
+All resumable errors of type 0x4 are power-off requests.
+Unfortunately these encodings are not in any of the publicly published
+documents.

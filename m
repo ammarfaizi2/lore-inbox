@@ -1,157 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031232AbWKVAhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161441AbWKVAnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031232AbWKVAhU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 19:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031367AbWKVAhU
+	id S1161441AbWKVAnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 19:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031390AbWKVAnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 19:37:20 -0500
-Received: from mga09.intel.com ([134.134.136.24]:23220 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1031232AbWKVAhS convert rfc822-to-8bit
+	Tue, 21 Nov 2006 19:43:17 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:47810 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1031385AbWKVAnP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 19:37:18 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,445,1157353200"; 
-   d="scan'208"; a="165188253:sNHT35645953"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
-Date: Tue, 21 Nov 2006 16:37:15 -0800
-Message-ID: <39B20DF628532344BC7A2692CB6AEE07A5A310@orsmsx420.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
-Thread-Index: AccNv55oX4x0xdoJQFCYaw+7XLZFtAADoupg
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>, <jgarzik@pobox.com>,
-       <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Nov 2006 00:37:16.0153 (UTC) FILETIME=[5C03DE90:01C70DCE]
+	Tue, 21 Nov 2006 19:43:15 -0500
+Subject: Re: Boot failure with ext2 and initrds
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	 <20061114184919.GA16020@skynet.ie>
+	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
+	 <20061114113120.d4c22b02.akpm@osdl.org>
+	 <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
+	 <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com>
+	 <20061115232228.afaf42f2.akpm@osdl.org>
+	 <1163666960.4310.40.camel@localhost.localdomain>
+	 <20061116011351.1401a00f.akpm@osdl.org>
+	 <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+	 <20061116132724.1882b122.akpm@osdl.org>
+	 <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+	 <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Tue, 21 Nov 2006 16:43:12 -0800
+Message-Id: <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did this come through ok, using Evolution, or do I need to try a
-different email client and send again?
+On Mon, 2006-11-20 at 16:19 +0000, Hugh Dickins wrote:
+> After four days of running, the EM64T has at last reproduced the same
+> hang as it did in an hour before: stuck in
+> ext2_try_to_allocate_with_rsv,
+> repeatedly ext2_rsv_window_add, ext2_try_to_allocate,
+> rsv_window_remove
+> (perhaps not in that order).
+> 
 
-Thanks,
+Don't have much clue, still...:(
 
-Jason
+The logic of the while loop in ext2_try_to_allocate_with_rsv() looks
+like:
+
+while (1) {
+	/*make a new reservation window*/
+	ret = allocate_new_reservation();
+	if (ret < 0)
+		break /*fail*/
+	/*allocate a block from the reservation window */
+	ret = ext2_try_to_allocate_with_rsv()
+	if (ret > 0) {
+		...
+		break;	/*success*/
+	}
+}
+If it stucks in the loop, that means next two things have to be true: 
+
+1) ext2_try_to_allocate() keeps failing to allocate a bit from the
+window just reserved, every time.  
+
+2) we could endlessly create a new reservation window in this block
+group.
 
 
------Original Message-----
-From: Gaston, Jason D 
-Sent: Tuesday, November 21, 2006 2:52 PM
-To: jgarzik@pobox.com; linux-ide@vger.kernel.org;
-linux-kernel@vger.kernel.org; Gaston, Jason D
-Subject: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
+For (1), when create a new reservation window, we do make sure there are
+at least one free bit in the window, so that
+ext2_try_to_allocate_with_rsv() could claim that bit. I haven't found
+any thing wrong in that part yet;
 
-This patch adds the Intel ICH9 IDE mode SATA controller DID's.
+For (2)the search for the next reservation window should start from the
+end block of the old window, and should stop and fail if it reachs the
+last block of the block group. 
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+Will continue looking at the code, but so far everything looks just fine
+to me.:( 
 
---- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20
-04:58:48.000000000 -0800
-+++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-20
-06:15:12.000000000 -0800
-@@ -127,6 +127,7 @@
- 	ich6_sata_ahci		= 8,
- 	ich6m_sata_ahci		= 9,
- 	ich8_sata_ahci		= 10,
-+	ich9_sata_ahci		= 11,
- 
- 	/* constants for mapping table */
- 	P0			= 0,  /* port 0 */
-@@ -227,14 +228,26 @@
- 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci
-},
- 	/* 2801GBM/GHM (ICH7M, identical to ICH6M) */
- 	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6m_sata_ahci
-},
--	/* Enterprise Southbridge 2 (where's the datasheet?) */
-+	/* Enterprise Southbridge 2 (631xESB/632xESB) */
- 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci
-},
--	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
-+	/* SATA Controller 1 IDE (ICH8) */
- 	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci
-},
--	/* SATA Controller 2 IDE (ICH8, ditto) */
-+	/* SATA Controller 2 IDE (ICH8) */
- 	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci
-},
--	/* Mobile SATA Controller IDE (ICH8M, ditto) */
-+	/* Mobile SATA Controller IDE (ICH8M) */
- 	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci
-},
-+	/* SATA Controller 1 IDE (ICH9) */
-+	{ 0x8086, 0x2920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
-+	/* SATA Controller 1 IDE (ICH9) */
-+	{ 0x8086, 0x2921, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
-+	/* SATA Controller 2 IDE (ICH9) */
-+	{ 0x8086, 0x2926, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
-+	/* Mobile SATA Controller 1 IDE (ICH9M) */
-+	{ 0x8086, 0x2928, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
-+	/* Mobile SATA Controller 2 IDE (ICH9M) */
-+	{ 0x8086, 0x292d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
-+	/* Mobile SATA Controller 2 IDE (ICH9M) */
-+	{ 0x8086, 0x292e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich9_sata_ahci
-},
- 
- 	{ }	/* terminate list */
- };
-@@ -425,6 +438,19 @@
- 	},
- };
- 
-+static const struct piix_map_db ich9_map_db = {
-+	.mask = 0x3,
-+	.port_enable = 0x3,
-+	.present_shift = 8,
-+	.map = {
-+		/* PM   PS   SM   SS       MAP */
-+		{  P0,  P2,  P1,  P3 }, /* 00b (hardwired when in AHCI)
-*/
-+		{  RV,  RV,  RV,  RV },
-+		{  IDE,  IDE,  NA,  NA }, /* 10b (IDE mode) */
-+		{  RV,  RV,  RV,  RV },
-+	},
-+};
-+
- static const struct piix_map_db *piix_map_db_table[] = {
- 	[ich5_sata]		= &ich5_map_db,
- 	[esb_sata]		= &ich5_map_db,
-@@ -432,6 +458,8 @@
- 	[ich6_sata_ahci]	= &ich6_map_db,
- 	[ich6m_sata_ahci]	= &ich6m_map_db,
- 	[ich8_sata_ahci]	= &ich8_map_db,
-+	[ich9_sata_ahci]	= &ich9_map_db,
-+
- };
- 
- static struct ata_port_info piix_port_info[] = {
-@@ -553,6 +581,18 @@
- 		.port_ops	= &piix_sata_ops,
- 	},
- 
-+	/* ich9_sata_ahci: 11 */
-+	{
-+		.sht		= &piix_sht,
-+		.flags		= ATA_FLAG_SATA |
-+				  PIIX_FLAG_CHECKINTR | PIIX_FLAG_SCR |
-+				  PIIX_FLAG_AHCI,
-+		.pio_mask	= 0x1f,	/* pio0-4 */
-+		.mwdma_mask	= 0x07, /* mwdma0-2 */
-+		.udma_mask	= 0x7f,	/* udma0-6 */
-+		.port_ops	= &piix_sata_ops,
-+	},
-+
- };
- 
- static struct pci_bits piix_enable_bits[] = {
+
+On Tue, 2006-11-21 at 05:39 +0000, Hugh Dickins wrote:
+> On Mon, 20 Nov 2006, Mingming Cao wrote:
+> >
+> > So there is only one writer at the moment the hang was happening?
+> 
+> I expect there were multiple writers when the task which hangs
+> first entered its ext2_prepare_write (it's a make -j20 build on
+> that ext2 filesystem); but by the time I come to look at the hang,
+> there's only that one writer active - everything else would be waiting
+> on that part of the build to complete
+>  (well, your question makes me
+> realize that I didn't look down the whole "ps" listing to see what
+> was waiting; but the hanging task is the only one I see running on
+> on any cpu, each time I break in).
+> 
+A bit confused, did the whole system hang or just the "ld" writer hang
+in ext2 block allocation? And what other writers were waiting for? Were
+they trying to write to the same file?
+
+> >
+> > hmm, is the filesystem relatively all being used or reserved, i.e, the
+> > free bits are all being reserved?  There is one extreme case that may
+> > cause starvation. If filesystem free blocks are all being reserved, when
+> > a  new writer need a free block, it has to go through the entire
+> > filesystems, try to reserve a space, which will repeatly calling
+> > rsv_window_add and rsv_window_remove, since. Finally give up and fall
+> > back to allocation without reservation. But this is all theory, not sure
+> > fits your case here.
+> 
+> I can understand that there may be a worst case like that: but I hope
+> it wouldn't take 20 hours to find a free block on a default 340MB ext2
+> filesystem!  And unless something else has gone wrong, this build would
+> not be filling the filesystem to that extent: it's probably around 80%
+> full at this stage, and shouldn't get fuller than 98% in the end.
+> 
+> Any suggestions for what I might check, next time it happens?
+> 
+
+It might be helpful to check the return value of ext2_try_to_allocate(),
+to see if it fails. It would be nice if you could check if there any
+free bit inside the reservation window.
+
+And could you check the start and end block for every rsv_window_add and
+rsv_window_remove, to see if it was keep creating and removing the same
+window in the same block group?
+
+And it might be useful to dump the whole filesystem block reservation
+tree as well.
+
+Not sure if it worth the effort to test it on ext3.  The ext2 block
+reservation code in 2.6.19-rc5-mm2 looks pretty much the same as ext3/4,
+except the missing truncate_mutex. I understand this might take a few
+days to reproduce, so this might not needed now.
+
+
+Mingming
+> Hugh
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ext4" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

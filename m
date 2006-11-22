@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752893AbWKVOjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753189AbWKVOix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752893AbWKVOjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 09:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753357AbWKVOjD
+	id S1753189AbWKVOix (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 09:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753104AbWKVOiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 09:39:03 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:53152
+	Wed, 22 Nov 2006 09:38:52 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:52384
 	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1752893AbWKVOjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 09:39:01 -0500
-Date: Wed, 22 Nov 2006 14:38:51 +0000
+	id S1752694AbWKVOiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 09:38:52 -0500
+Date: Wed, 22 Nov 2006 14:38:35 +0000
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: [PATCH] silence unused pgdat warning from alloc_bootmem_node and friends
-Message-ID: <79c5d936eb213ae3169202f5f4c7e992@pinky>
+Subject: [PATCH] numa node ids are int, page_to_nid and zone_to_nid should return int
+Message-ID: <4ca02d5d043ebc00c0687ccb12d515c7@pinky>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,65 +22,101 @@ From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-silence unused pgdat warning from alloc_bootmem_node and friends
+numa node ids are int, page_to_nid and zone_to_nid should return int
 
-x86 NUMA systems only define bootmem for node 0.  alloc_bootmem_node()
-and friends therefore ignore the passed pgdat and use NODE_DATA(0)
-in all cases.  This leads to the following warnings as we are not
-using the passed parameter:
+NUMA node ids are passed as either int or unsigned int almost exclusivly
+page_to_nid and zone_to_nid both return unsigned long.  This is a
+throw back to when page_to_nid was a #define and was thus exposing
+the real type of the page flags field.
 
-  .../mm/page_alloc.c: In function 'zone_wait_table_init':
-  .../mm/page_alloc.c:2259: warning: unused variable 'pgdat'
+In addition to fixing up the definitions of page_to_nid and zone_to_nid
+I audited the users of these functions identifying the following
+incorrect uses:
 
-One option would be to define all variables used with these macros
-__attribute__ ((unused)), but this would leave us exposed should
-these become genuinely unused.
-
-The key here is that we _are_ using the value, we ignore it but that
-is a deliberate action.  This patch adds a nested local variable
-within the alloc_bootmem_node helper to which the pgdat parameter is
-assigned making it 'used'.  The nested local is marked __attribute__
-((unused)) to silence this same warning for it.
+1) mm/page_alloc.c show_node() -- printk dumping the node id,
+2) include/asm-ia64/pgalloc.h pgtable_quicklist_free() -- comparison
+   against numa_node_id() which returns an int from cpu_to_node(), and
+3) mm/mpolicy.c check_pte_range -- used as an index in node_isset which
+   uses bit_set which in generic code takes an int.
 
 Against 2.6.19-rc5-mm2.
 
 Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 ---
-diff --git a/include/asm-i386/mmzone.h b/include/asm-i386/mmzone.h
-index 61b0733..3503ad6 100644
---- a/include/asm-i386/mmzone.h
-+++ b/include/asm-i386/mmzone.h
-@@ -120,13 +120,26 @@ static inline int pfn_valid(int pfn)
- 	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
- #define alloc_bootmem_low_pages(x) \
- 	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
--#define alloc_bootmem_node(ignore, x) \
--	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES, __pa(MAX_DMA_ADDRESS))
--#define alloc_bootmem_pages_node(ignore, x) \
--	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, __pa(MAX_DMA_ADDRESS))
--#define alloc_bootmem_low_pages_node(ignore, x) \
--	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0)
--
-+#define alloc_bootmem_node(pgdat, x)					\
-+({									\
-+	struct pglist_data  __attribute__ ((unused))			\
-+				*__alloc_bootmem_node__pgdat = (pgdat);	\
-+	__alloc_bootmem_node(NODE_DATA(0), (x), SMP_CACHE_BYTES,	\
-+						__pa(MAX_DMA_ADDRESS));	\
-+})
-+#define alloc_bootmem_pages_node(pgdat, x)				\
-+({									\
-+	struct pglist_data  __attribute__ ((unused))			\
-+				*__alloc_bootmem_node__pgdat = (pgdat);	\
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE,		\
-+						__pa(MAX_DMA_ADDRESS))	\
-+})
-+#define alloc_bootmem_low_pages_node(pgdat, x)				\
-+({									\
-+	struct pglist_data  __attribute__ ((unused))			\
-+				*__alloc_bootmem_node__pgdat = (pgdat);	\
-+	__alloc_bootmem_node(NODE_DATA(0), (x), PAGE_SIZE, 0);		\
-+})
- #endif /* CONFIG_NEED_MULTIPLE_NODES */
+diff --git a/include/asm-ia64/pgalloc.h b/include/asm-ia64/pgalloc.h
+index 9cb68e9..393e04c 100644
+--- a/include/asm-ia64/pgalloc.h
++++ b/include/asm-ia64/pgalloc.h
+@@ -60,7 +60,7 @@ static inline void *pgtable_quicklist_al
+ static inline void pgtable_quicklist_free(void *pgtable_entry)
+ {
+ #ifdef CONFIG_NUMA
+-	unsigned long nid = page_to_nid(virt_to_page(pgtable_entry));
++	int nid = page_to_nid(virt_to_page(pgtable_entry));
  
- #endif /* _ASM_MMZONE_H_ */
+ 	if (unlikely(nid != numa_node_id())) {
+ 		free_page((unsigned long)pgtable_entry);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index d42985a..869042c 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -455,7 +455,7 @@ static inline int page_zone_id(struct pa
+ 	return (page->flags >> ZONEID_PGSHIFT) & ZONEID_MASK;
+ }
+ 
+-static inline unsigned long zone_to_nid(struct zone *zone)
++static inline int zone_to_nid(struct zone *zone)
+ {
+ #ifdef CONFIG_NUMA
+ 	return zone->node;
+@@ -465,9 +465,9 @@ static inline unsigned long zone_to_nid(
+ }
+ 
+ #ifdef NODE_NOT_IN_PAGE_FLAGS
+-extern unsigned long page_to_nid(struct page *page);
++extern int page_to_nid(struct page *page);
+ #else
+-static inline unsigned long page_to_nid(struct page *page)
++static inline int page_to_nid(struct page *page)
+ {
+ 	return (page->flags >> NODES_PGSHIFT) & NODES_MASK;
+ }
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index b3dfecd..f7c352f 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -221,7 +221,7 @@ static int check_pte_range(struct vm_are
+ 	orig_pte = pte = pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
+ 	do {
+ 		struct page *page;
+-		unsigned int nid;
++		int nid;
+ 
+ 		if (!pte_present(*pte))
+ 			continue;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 19ab611..a795f85 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1566,7 +1566,7 @@ unsigned int nr_free_pagecache_pages(voi
+ static inline void show_node(struct zone *zone)
+ {
+ 	if (NUMA_BUILD)
+-		printk("Node %ld ", zone_to_nid(zone));
++		printk("Node %d ", zone_to_nid(zone));
+ }
+ 
+ /*
+diff --git a/mm/sparse.c b/mm/sparse.c
+index 158d6a2..ac26eb0 100644
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -36,7 +36,7 @@ static u8 section_to_node_table[NR_MEM_S
+ static u16 section_to_node_table[NR_MEM_SECTIONS] __cacheline_aligned;
+ #endif
+ 
+-unsigned long page_to_nid(struct page *page)
++int page_to_nid(struct page *page)
+ {
+ 	return section_to_node_table[page_to_section(page)];
+ }

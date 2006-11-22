@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757202AbWKVXzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757207AbWKWAAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757202AbWKVXzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 18:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757203AbWKVXzy
+	id S1757207AbWKWAAj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 19:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757208AbWKWAAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 18:55:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6070 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757197AbWKVXzw (ORCPT
+	Wed, 22 Nov 2006 19:00:39 -0500
+Received: from main.gmane.org ([80.91.229.2]:8138 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1757207AbWKWAAi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 18:55:52 -0500
-Message-ID: <4564E2AB.1020202@redhat.com>
-Date: Wed, 22 Nov 2006 15:52:11 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-References: <11641265982190@2ka.mipt.ru>
-In-Reply-To: <11641265982190@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 22 Nov 2006 19:00:38 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Subject: Re: Entropy Pool Contents
+Date: Thu, 23 Nov 2006 00:59:51 +0100
+Message-ID: <ek2oa6$vgk$2@sea.gmane.org>
+References: <ek2nva$vgk$1@sea.gmane.org>
+Reply-To: G.Ohrner@post.rwth-aachen.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: e179241233.adsl.alicedsl.de
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> + struct kevent_ring
-> + {
-> +   unsigned int ring_kidx, ring_uidx, ring_over;
-> +   struct ukevent event[0];
-> + }
-> + [...]
-> +ring_uidx - index of the first entry userspace can start reading from
+Gunter Ohrner wrote:
+> I'm probably doing something dump.
+                               ^^^^
 
-Do we need this value in the structure?  Userlevel cannot and should not 
-be able to modify it.  So, userland has in any case to track the tail 
-pointer itself.  Why then have this value at all?
+Uh, yeah... It's getting late... The pool still is empty, tough...
 
-After kevent_init() the tail pointer is implicitly assumed to be 0. 
-Since the front pointer (well index) is also zero nothing is available 
-for reading.
+Greetings,
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+  Gunter
+

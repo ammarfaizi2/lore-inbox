@@ -1,90 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756481AbWKVSxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756486AbWKVSym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756481AbWKVSxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756485AbWKVSxw
+	id S1756486AbWKVSym (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756439AbWKVSym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:53:52 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:63609 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1756481AbWKVSxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:53:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=If99gonfRYn156CxxIYEJWmnYSeejON0Ajx3FIZsJGQf3zleEFf7kpKBMHdvQypUh1H1tfbDCKZUFXlmVYLdEbkG9iup0U40Ui678zRa5SnaX8rMFusob1fmW24phuo3uaU6OfRb2e8p3bUfQVMao08OoI0nY8y2njUBvsKAYYI=
-Date: Thu, 23 Nov 2006 03:47:55 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
+	Wed, 22 Nov 2006 13:54:42 -0500
+Received: from bay0-omc3-s4.bay0.hotmail.com ([65.54.246.204]:4402 "EHLO
+	bay0-omc3-s4.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1756484AbWKVSyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:54:41 -0500
+Message-ID: <BAY20-F24285FCF29BD150A986723D8E30@phx.gbl>
+X-Originating-IP: [80.178.108.101]
+X-Originating-Email: [yan_952@hotmail.com]
+From: "Burman Yan" <yan_952@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] ata: fix platform_device_register_simple() error check
-Message-ID: <20061122184755.GD2985@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-	Alan <alan@lxorguk.ukuu.org.uk>
+Cc: trivial@kernel.org, gregkh@suse.de
+Subject: [PATCH 2.6.19-rc5] USB serial: replace kmalloc+memset with kzalloc
+Date: Wed, 22 Nov 2006 20:54:38 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_6b9_4071_6b19"
+X-OriginalArrivalTime: 22 Nov 2006 18:54:41.0246 (UTC) FILETIME=[AABFB7E0:01C70E67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The return value of platform_device_register_simple() should be checked
-by IS_ERR().
+This is a multi-part message in MIME format.
 
-Cc: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+------=_NextPart_000_6b9_4071_6b19
+Content-Type: text/plain; format=flowed
 
----
- drivers/ata/pata_legacy.c  |    4 +++-
- drivers/ata/pata_qdi.c     |    4 ++--
- drivers/ata/pata_winbond.c |    4 ++--
- 3 files changed, 7 insertions(+), 5 deletions(-)
+Hi.
 
-Index: work-fault-inject/drivers/ata/pata_legacy.c
-===================================================================
---- work-fault-inject.orig/drivers/ata/pata_legacy.c
-+++ work-fault-inject/drivers/ata/pata_legacy.c
-@@ -698,8 +698,10 @@ static __init int legacy_init_one(int po
- 		goto fail_io;
- 
- 	pdev = platform_device_register_simple(DRV_NAME, nr_legacy_host, NULL, 0);
--	if (pdev == NULL)
-+	if (IS_ERR(pdev)) {
-+		ret = PTR_ERR(pdev);
- 		goto fail_dev;
-+	}
- 
- 	if (ht6560a & mask) {
- 		ops = &ht6560a_port_ops;
-Index: work-fault-inject/drivers/ata/pata_qdi.c
-===================================================================
---- work-fault-inject.orig/drivers/ata/pata_qdi.c
-+++ work-fault-inject/drivers/ata/pata_qdi.c
-@@ -247,8 +247,8 @@ static __init int qdi_init_one(unsigned 
- 	 */
- 
- 	pdev = platform_device_register_simple(DRV_NAME, nr_qdi_host, NULL, 0);
--	if (pdev == NULL)
--		return -ENOMEM;
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
- 
- 	memset(&ae, 0, sizeof(struct ata_probe_ent));
- 	INIT_LIST_HEAD(&ae.node);
-Index: work-fault-inject/drivers/ata/pata_winbond.c
-===================================================================
---- work-fault-inject.orig/drivers/ata/pata_winbond.c
-+++ work-fault-inject/drivers/ata/pata_winbond.c
-@@ -206,8 +206,8 @@ static __init int winbond_init_one(unsig
- 			 */
- 
- 			pdev = platform_device_register_simple(DRV_NAME, nr_winbond_host, NULL, 0);
--			if (pdev == NULL)
--				return -ENOMEM;
-+			if (IS_ERR(pdev))
-+				return PTR_ERR(pdev);
- 
- 			memset(&ae, 0, sizeof(struct ata_probe_ent));
- 			INIT_LIST_HEAD(&ae.node);
+This patch replaces kmalloc+memset with kzalloc
+
+Sorry for the previous post (forgot to attach the actual patch)
+
+Regards
+Yan Burman
+
+_________________________________________________________________
+Don't just search. Find. Check out the new MSN Search! 
+http://search.msn.click-url.com/go/onm00200636ave/direct/01/
+
+------=_NextPart_000_6b9_4071_6b19
+Content-Type: application/octet-stream; name="kzalloc_usb_serial.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="kzalloc_usb_serial.patch"
+
+UmVwbGFjZSBrbWFsbG9jK21lbXNldCB3aXRoIGt6YWxsb2MKClNpZ25lZC1v
+ZmYtYnk6IFlhbiBCdXJtYW4gPHlhbl85NTJAaG90bWFpbC5jb20+CgpkaWZm
+IC1ydWJwIGxpbnV4LTIuNi4xOS1yYzVfb3JpZy9kcml2ZXJzL3VzYi9zZXJp
+YWwvYXJrMzExNi5jIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxvYy9kcml2ZXJz
+L3VzYi9zZXJpYWwvYXJrMzExNi5jCi0tLSBsaW51eC0yLjYuMTktcmM1X29y
+aWcvZHJpdmVycy91c2Ivc2VyaWFsL2FyazMxMTYuYwkyMDA2LTExLTA5IDEy
+OjE2OjIxLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgtMi42LjE5LXJjNV9r
+emFsbG9jL2RyaXZlcnMvdXNiL3NlcmlhbC9hcmszMTE2LmMJMjAwNi0xMS0x
+MSAyMjo0NDowNC4wMDAwMDAwMDAgKzAyMDAKQEAgLTg1LDEwICs4NSw5IEBA
+IHN0YXRpYyBpbnQgYXJrMzExNl9hdHRhY2goc3RydWN0IHVzYl9zZXIKIAlp
+bnQgaTsKIAogCWZvciAoaSA9IDA7IGkgPCBzZXJpYWwtPm51bV9wb3J0czsg
+KytpKSB7Ci0JCXByaXYgPSBrbWFsbG9jKHNpemVvZiAoc3RydWN0IGFyazMx
+MTZfcHJpdmF0ZSksIEdGUF9LRVJORUwpOworCQlwcml2ID0ga3phbGxvYyhz
+aXplb2YgKHN0cnVjdCBhcmszMTE2X3ByaXZhdGUpLCBHRlBfS0VSTkVMKTsK
+IAkJaWYgKCFwcml2KQogCQkJZ290byBjbGVhbnVwOwotCQltZW1zZXQocHJp
+diwgMHgwMCwgc2l6ZW9mIChzdHJ1Y3QgYXJrMzExNl9wcml2YXRlKSk7CiAJ
+CXNwaW5fbG9ja19pbml0KCZwcml2LT5sb2NrKTsKIAogCQl1c2Jfc2V0X3Nl
+cmlhbF9wb3J0X2RhdGEoc2VyaWFsLT5wb3J0W2ldLCBwcml2KTsKZGlmZiAt
+cnVicCBsaW51eC0yLjYuMTktcmM1X29yaWcvZHJpdmVycy91c2Ivc2VyaWFs
+L2NvbnNvbGUuYyBsaW51eC0yLjYuMTktcmM1X2t6YWxsb2MvZHJpdmVycy91
+c2Ivc2VyaWFsL2NvbnNvbGUuYwotLS0gbGludXgtMi42LjE5LXJjNV9vcmln
+L2RyaXZlcnMvdXNiL3NlcmlhbC9jb25zb2xlLmMJMjAwNi0xMS0wOSAxMjox
+NjoyMS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOS1yYzVfa3ph
+bGxvYy9kcml2ZXJzL3VzYi9zZXJpYWwvY29uc29sZS5jCTIwMDYtMTEtMTEg
+MjI6NDQ6MDQuMDAwMDAwMDAwICswMjAwCkBAIC0xNjYsMTkgKzE2NiwxNyBA
+QCBzdGF0aWMgaW50IHVzYl9jb25zb2xlX3NldHVwKHN0cnVjdCBjb25zCiAJ
+aWYgKHNlcmlhbC0+dHlwZS0+c2V0X3Rlcm1pb3MpIHsKIAkJLyogYnVpbGQg
+dXAgYSBmYWtlIHR0eSBzdHJ1Y3R1cmUgc28gdGhhdCB0aGUgb3BlbiBjYWxs
+IGhhcyBzb21ldGhpbmcKIAkJICogdG8gbG9vayBhdCB0byBnZXQgdGhlIGNm
+bGFnIHZhbHVlICovCi0JCXR0eSA9IGttYWxsb2MgKHNpemVvZiAoKnR0eSks
+IEdGUF9LRVJORUwpOworCQl0dHkgPSBremFsbG9jIChzaXplb2YgKCp0dHkp
+LCBHRlBfS0VSTkVMKTsKIAkJaWYgKCF0dHkpIHsKIAkJCWVyciAoIm5vIG1v
+cmUgbWVtb3J5Iik7CiAJCQlyZXR1cm4gLUVOT01FTTsKIAkJfQotCQl0ZXJt
+aW9zID0ga21hbGxvYyAoc2l6ZW9mICgqdGVybWlvcyksIEdGUF9LRVJORUwp
+OworCQl0ZXJtaW9zID0ga3phbGxvYyAoc2l6ZW9mICgqdGVybWlvcyksIEdG
+UF9LRVJORUwpOwogCQlpZiAoIXRlcm1pb3MpIHsKIAkJCWVyciAoIm5vIG1v
+cmUgbWVtb3J5Iik7CiAJCQlrZnJlZSAodHR5KTsKIAkJCXJldHVybiAtRU5P
+TUVNOwogCQl9Ci0JCW1lbXNldCAodHR5LCAweDAwLCBzaXplb2YoKnR0eSkp
+OwotCQltZW1zZXQgKHRlcm1pb3MsIDB4MDAsIHNpemVvZigqdGVybWlvcykp
+OwogCQl0ZXJtaW9zLT5jX2NmbGFnID0gY2ZsYWc7CiAJCXR0eS0+dGVybWlv
+cyA9IHRlcm1pb3M7CiAJCXBvcnQtPnR0eSA9IHR0eTsKZGlmZiAtcnVicCBs
+aW51eC0yLjYuMTktcmM1X29yaWcvZHJpdmVycy91c2Ivc2VyaWFsL2dhcm1p
+bl9ncHMuYyBsaW51eC0yLjYuMTktcmM1X2t6YWxsb2MvZHJpdmVycy91c2Iv
+c2VyaWFsL2dhcm1pbl9ncHMuYwotLS0gbGludXgtMi42LjE5LXJjNV9vcmln
+L2RyaXZlcnMvdXNiL3NlcmlhbC9nYXJtaW5fZ3BzLmMJMjAwNi0xMS0wOSAx
+MjoxNjoyMS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOS1yYzVf
+a3phbGxvYy9kcml2ZXJzL3VzYi9zZXJpYWwvZ2FybWluX2dwcy5jCTIwMDYt
+MTEtMTEgMjI6NDQ6MDQuMDAwMDAwMDAwICswMjAwCkBAIC0xNTIzLDEyICsx
+NTIzLDExIEBAIHN0YXRpYyBpbnQgZ2FybWluX2F0dGFjaCAoc3RydWN0IHVz
+Yl9zZXIKIAogCWRiZygiJXMiLCBfX0ZVTkNUSU9OX18pOwogCi0JZ2FybWlu
+X2RhdGFfcCA9IGttYWxsb2MgKHNpemVvZihzdHJ1Y3QgZ2FybWluX2RhdGEp
+LCBHRlBfS0VSTkVMKTsKKwlnYXJtaW5fZGF0YV9wID0ga3phbGxvYyAoc2l6
+ZW9mKHN0cnVjdCBnYXJtaW5fZGF0YSksIEdGUF9LRVJORUwpOwogCWlmIChn
+YXJtaW5fZGF0YV9wID09IE5VTEwpIHsKIAkJZGV2X2VycigmcG9ydC0+ZGV2
+LCAiJXMgLSBPdXQgb2YgbWVtb3J5XG4iLCBfX0ZVTkNUSU9OX18pOwogCQly
+ZXR1cm4gLUVOT01FTTsKIAl9Ci0JbWVtc2V0IChnYXJtaW5fZGF0YV9wLCAw
+LCBzaXplb2Yoc3RydWN0IGdhcm1pbl9kYXRhKSk7CiAJaW5pdF90aW1lcigm
+Z2FybWluX2RhdGFfcC0+dGltZXIpOwogCXNwaW5fbG9ja19pbml0KCZnYXJt
+aW5fZGF0YV9wLT5sb2NrKTsKIAlJTklUX0xJU1RfSEVBRCgmZ2FybWluX2Rh
+dGFfcC0+cGt0bGlzdCk7CmRpZmYgLXJ1YnAgbGludXgtMi42LjE5LXJjNV9v
+cmlnL2RyaXZlcnMvdXNiL3NlcmlhbC9tb3M3ODQwLmMgbGludXgtMi42LjE5
+LXJjNV9remFsbG9jL2RyaXZlcnMvdXNiL3NlcmlhbC9tb3M3ODQwLmMKLS0t
+IGxpbnV4LTIuNi4xOS1yYzVfb3JpZy9kcml2ZXJzL3VzYi9zZXJpYWwvbW9z
+Nzg0MC5jCTIwMDYtMTEtMDkgMTI6MTY6MjEuMDAwMDAwMDAwICswMjAwCisr
+KyBsaW51eC0yLjYuMTktcmM1X2t6YWxsb2MvZHJpdmVycy91c2Ivc2VyaWFs
+L21vczc4NDAuYwkyMDA2LTExLTExIDIyOjQ0OjA0LjAwMDAwMDAwMCArMDIw
+MApAQCAtMjU5NiwxMiArMjU5NiwxMSBAQCBzdGF0aWMgaW50IG1vczc4NDBf
+c3RhcnR1cChzdHJ1Y3QgdXNiX3NlCiAKIAkvKiBzZXQgdXAgcG9ydCBwcml2
+YXRlIHN0cnVjdHVyZXMgKi8KIAlmb3IgKGkgPSAwOyBpIDwgc2VyaWFsLT5u
+dW1fcG9ydHM7ICsraSkgewotCQltb3M3ODQwX3BvcnQgPSBrbWFsbG9jKHNp
+emVvZihzdHJ1Y3QgbW9zY2hpcF9wb3J0KSwgR0ZQX0tFUk5FTCk7CisJCW1v
+czc4NDBfcG9ydCA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBtb3NjaGlwX3Bv
+cnQpLCBHRlBfS0VSTkVMKTsKIAkJaWYgKG1vczc4NDBfcG9ydCA9PSBOVUxM
+KSB7CiAJCQllcnIoIiVzIC0gT3V0IG9mIG1lbW9yeSIsIF9fRlVOQ1RJT05f
+Xyk7CiAJCQlyZXR1cm4gLUVOT01FTTsKIAkJfQotCQltZW1zZXQobW9zNzg0
+MF9wb3J0LCAwLCBzaXplb2Yoc3RydWN0IG1vc2NoaXBfcG9ydCkpOwogCiAJ
+CS8qIEluaXRpYWxpemUgYWxsIHBvcnQgaW50ZXJydXB0IGVuZCBwb2ludCB0
+byBwb3J0IDAgaW50IGVuZHBvaW50ICoKIAkJICogT3VyIGRldmljZSBoYXMg
+b25seSBvbmUgaW50ZXJydXB0IGVuZCBwb2ludCBjb21tYW4gdG8gYWxsIHBv
+cnQgKi8KZGlmZiAtcnVicCBsaW51eC0yLjYuMTktcmM1X29yaWcvZHJpdmVy
+cy91c2Ivc2VyaWFsL3RpX3VzYl8zNDEwXzUwNTIuYyBsaW51eC0yLjYuMTkt
+cmM1X2t6YWxsb2MvZHJpdmVycy91c2Ivc2VyaWFsL3RpX3VzYl8zNDEwXzUw
+NTIuYwotLS0gbGludXgtMi42LjE5LXJjNV9vcmlnL2RyaXZlcnMvdXNiL3Nl
+cmlhbC90aV91c2JfMzQxMF81MDUyLmMJMjAwNi0xMS0wOSAxMjoxNjoyMS4w
+MDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOS1yYzVfa3phbGxvYy9k
+cml2ZXJzL3VzYi9zZXJpYWwvdGlfdXNiXzM0MTBfNTA1Mi5jCTIwMDYtMTEt
+MTEgMjI6NDQ6MDQuMDAwMDAwMDAwICswMjAwCkBAIC00NTksMTMgKzQ1OSwx
+MiBAQCBzdGF0aWMgaW50IHRpX3N0YXJ0dXAoc3RydWN0IHVzYl9zZXJpYWwg
+CiAKIAkvKiBzZXQgdXAgcG9ydCBzdHJ1Y3R1cmVzICovCiAJZm9yIChpID0g
+MDsgaSA8IHNlcmlhbC0+bnVtX3BvcnRzOyArK2kpIHsKLQkJdHBvcnQgPSBr
+bWFsbG9jKHNpemVvZihzdHJ1Y3QgdGlfcG9ydCksIEdGUF9LRVJORUwpOwor
+CQl0cG9ydCA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCB0aV9wb3J0KSwgR0ZQ
+X0tFUk5FTCk7CiAJCWlmICh0cG9ydCA9PSBOVUxMKSB7CiAJCQlkZXZfZXJy
+KCZkZXYtPmRldiwgIiVzIC0gb3V0IG9mIG1lbW9yeVxuIiwgX19GVU5DVElP
+Tl9fKTsKIAkJCXN0YXR1cyA9IC1FTk9NRU07CiAJCQlnb3RvIGZyZWVfdHBv
+cnRzOwogCQl9Ci0JCW1lbXNldCh0cG9ydCwgMCwgc2l6ZW9mKHN0cnVjdCB0
+aV9wb3J0KSk7CiAJCXNwaW5fbG9ja19pbml0KCZ0cG9ydC0+dHBfbG9jayk7
+CiAJCXRwb3J0LT50cF91YXJ0X2Jhc2VfYWRkciA9IChpID09IDAgPyBUSV9V
+QVJUMV9CQVNFX0FERFIgOiBUSV9VQVJUMl9CQVNFX0FERFIpOwogCQl0cG9y
+dC0+dHBfZmxhZ3MgPSBsb3dfbGF0ZW5jeSA/IEFTWU5DX0xPV19MQVRFTkNZ
+IDogMDsK
+
+
+------=_NextPart_000_6b9_4071_6b19--

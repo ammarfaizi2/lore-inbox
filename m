@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757009AbWKVVE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757082AbWKVVFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757009AbWKVVE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 16:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757005AbWKVVE7
+	id S1757082AbWKVVFk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 16:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757033AbWKVVFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 16:04:59 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:9630 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1756663AbWKVVE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 16:04:58 -0500
-Date: Wed, 22 Nov 2006 21:04:50 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Franck Bui-Huu <vagabon.xyz@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome
- LCD ?
-In-Reply-To: <cda58cb80611220048p73bb54e3w414f1c0a5ce178d3@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0611222101220.14604@pentafluge.infradead.org>
-References: <45535C08.5020607@innova-card.com> 
- <Pine.LNX.4.64.0611131415270.25397@pentafluge.infradead.org> 
- <cda58cb80611131027h5052bf80va06003c23b844fe@mail.gmail.com> 
- <Pine.LNX.4.64.0611131850410.2366@pentafluge.infradead.org> 
- <cda58cb80611140144q79718798p40f2762955c1d91@mail.gmail.com> 
- <Pine.LNX.4.64.0611171825520.32200@pentafluge.infradead.org> 
- <cda58cb80611171242sb40a53bvd02145364551b5a2@mail.gmail.com> 
- <Pine.LNX.4.64.0611201636500.17639@pentafluge.infradead.org> 
- <cda58cb80611210145ic52001cr38aed6e38797e3a@mail.gmail.com> 
- <Pine.LNX.4.64.0611211507290.32103@pentafluge.infradead.org>
- <cda58cb80611220048p73bb54e3w414f1c0a5ce178d3@mail.gmail.com>
+	Wed, 22 Nov 2006 16:05:39 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49582 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757059AbWKVVFh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 16:05:37 -0500
+Message-ID: <4564BAC8.6020306@redhat.com>
+Date: Wed, 22 Nov 2006 13:02:00 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru>
+In-Reply-To: <20061122104416.GD11480@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Evgeniy Polyakov wrote:
+> But in this case it will be impossible to have SIGEV_THREAD and SIGEV_KEVENT
+> at the same time, it will be just the same as SIGEV_SIGNAL but with
+> different delivery mechanism. Is is what you expect for that?
 
-> James Simmons wrote:
-> > Lets look at the new code that I have done with your above parameters.
-> >
-> >        for (i = image->height; i--; ) {
-> >                shift = val = 0;
-> >                n = image->width;
-> >                dst = (u32 __iomem *) dst1;
-> >
-> > 		while (n--) {
-> > 			if (!s) { src++; s = 32; }
-> > 			s -= 1;
-> > 			color = (swapb32p(src) & (1 << s)) ? 1 : 0;
+Yes, that's expected.  The event if for the queue, not directed to a 
+specific thread.
 
-Replace the below line in my patch I sent 
+If in future we want to think about preferably waking a specific thread 
+we can then think about it.  But I doubt that'll be beneficial.  The 
+thread specific part in the signal handling is only used to implement 
+the SIGEV_THREAD notification.
 
-> > 			val |= color << shift;
-
-with
-			val <<= shift;
-			val |= color;
-
-> > 		       /* Did the bitshift spill bits to the next long? */
-> >                        if (shift >= 31) {
-> >                                FB_WRITEL(val, dst++);
-> >                                val = (shift == 31) ? 0 :(color >> (32 - shift));
-> >                        }
-> >                        shift += 1;
-> >                        shift &= (32 - 1);
-> >                }
-> >
-> >                [ ...]
-
-Let me know if that works.
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

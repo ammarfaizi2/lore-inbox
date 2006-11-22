@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967016AbWKVCPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161771AbWKVCSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967016AbWKVCPu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 21:15:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967018AbWKVCPt
+	id S1161771AbWKVCSD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 21:18:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967015AbWKVCSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 21:15:49 -0500
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:2429 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S967016AbWKVCPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 21:15:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=eX1qME3VqEThtLLLlvkq32IU4b0YIhKB47J1nh1mnyUxVxkBybC87HeJS0tZVZXlPmwisYVmrWgxVkrUx6MclGs0EuQ1qJJN0s00yDX7KuWEnomDcHJmjcTpAh2GgenMwtO9KLD4fRUf1nnzMIvwd297iSpzkPP36n2eIHqp6Hw=  ;
-X-YMail-OSG: Ns8bcO0VM1mMfFTT2co3n8WtZEtFj.atwqfBOvzQCoMOmOdE2Fv880vrHWcDOnZktuNLWrQayvFT.2csoUoFOMAi.P2hdUGkHA4x3z_XLFN7ZTu8JgalPA--
-From: David Brownell <david-b@pacbell.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 2.6.19-rc6 6/6] rtc-omap driver
-Date: Tue, 21 Nov 2006 18:15:42 -0800
-User-Agent: KMail/1.7.1
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Tony Lindgren <tony@atomide.com>
-References: <200611201014.41980.david-b@pacbell.net> <200611201028.48701.david-b@pacbell.net> <20061121171906.5eec32d6.akpm@osdl.org>
-In-Reply-To: <20061121171906.5eec32d6.akpm@osdl.org>
+	Tue, 21 Nov 2006 21:18:03 -0500
+Received: from firewall.rowland.harvard.edu ([140.247.233.35]:11329 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S967005AbWKVCSA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 21:18:00 -0500
+Date: Tue, 21 Nov 2006 21:17:59 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+cc: Oleg Nesterov <oleg@tv-sign.ru>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+In-Reply-To: <20061121230314.GH2013@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0611212116560.11777-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611211815.43929.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 November 2006 5:19 pm, Andrew Morton wrote:
-> On Mon, 20 Nov 2006 10:28:48 -0800
+On Tue, 21 Nov 2006, Paul E. McKenney wrote:
 
-> > +		/* sometimes the alarm wraps into tomorrow */
-> > +		if (then < now) {
+> > Things may not be quite as bad as they appear.  On many architectures the
+> > store-mb-load pattern will work as expected.  (In fact, I don't know which
+> > architectures it might fail on.)
 > 
-> This isn't wraparound-safe.  If you have then=0xffffffff and now=0x00000001.
-> 
-> Perhaps that can't happen.
+> Several weak-memory-ordering CPUs.  :-/
 
-Starting in 2037 or whenever, various things will be breaking...
+Of the CPUs supported by Linux, do you know which ones will work with
+store-mb-load and which ones won't?
 
-Probably the RTC lib routines should use a time_t, and when that gets
-changed to 64 bits then things like this will be fixed automagically.
-Right now they use "unsigned long".
+Alan
 
-I suggest Alessandro handle those issues.
-
-
-> > +MODULE_AUTHOR("George G. Davis (and others)");
-> 
-> Maybe some additional signoffs would be appropirate?
-
-I pinged the MontaVista emails from the original driver; maybe
-they'll send signoffs.
-
-- Dave
- 

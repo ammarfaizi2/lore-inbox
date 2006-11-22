@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752942AbWKVLp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753329AbWKVLst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752942AbWKVLp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 06:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753013AbWKVLp3
+	id S1753329AbWKVLst (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 06:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753506AbWKVLst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 06:45:29 -0500
-Received: from bay0-omc2-s16.bay0.hotmail.com ([65.54.246.152]:46089 "EHLO
-	bay0-omc2-s16.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1752942AbWKVLp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 06:45:29 -0500
-Message-ID: <BAY107-F16375715795A91CEA1E2D99CE30@phx.gbl>
+	Wed, 22 Nov 2006 06:48:49 -0500
+Received: from bay0-omc1-s31.bay0.hotmail.com ([65.54.246.103]:7099 "EHLO
+	bay0-omc1-s31.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1753329AbWKVLss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 06:48:48 -0500
+Message-ID: <BAY107-F11C5D88BF00FBB291F3FC09CE30@phx.gbl>
 X-Originating-IP: [87.81.120.187]
 X-Originating-Email: [dcb314@hotmail.com]
 From: "d binderman" <dcb314@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: arch/x86_64/kernel/pci-calgary.c(600): remark #593: variable "bbar" was set but 
-Date: Wed, 22 Nov 2006 11:45:24 +0000
+Subject: arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was set but nev
+Date: Wed, 22 Nov 2006 11:48:46 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 22 Nov 2006 11:45:28.0273 (UTC) FILETIME=[B4C7E410:01C70E2B]
+X-OriginalArrivalTime: 22 Nov 2006 11:48:48.0601 (UTC) FILETIME=[2C2F8490:01C70E2C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,24 +30,22 @@ C compiler.
 
 The compiler said
 
-arch/x86_64/kernel/pci-calgary.c(600): remark #593: variable "bbar" was set 
-but never used
-arch/x86_64/kernel/pci-calgary.c(601): remark #593: variable "busnum" was 
-set but never used
+arch/x86_64/mm/numa.c(124): remark #593: variable "bootmap_size" was set but 
+never used
 
 The source code is
 
-    void __iomem *bbar;
-    unsigned char busnum;
+    unsigned long start_pfn, end_pfn, bootmap_pages, bootmap_size, 
+bootmap_start;
 
 I have checked the source code and I agree with the compiler.
-Suggest delete local variables.
+Suggest delete local variable.
+
 
 Regards
 
 David Binderman
 
 _________________________________________________________________
-Be the first to hear what's new at MSN - sign up to our free newsletters! 
-http://www.msn.co.uk/newsletters
+Find Singles In Your Area Now With Match.com! msnuk.match.com
 

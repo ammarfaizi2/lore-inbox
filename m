@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161771AbWKVCSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161782AbWKVCZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161771AbWKVCSD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 21:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967015AbWKVCSD
+	id S1161782AbWKVCZY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 21:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161787AbWKVCZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 21:18:03 -0500
-Received: from firewall.rowland.harvard.edu ([140.247.233.35]:11329 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S967005AbWKVCSA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 21:18:00 -0500
-Date: Tue, 21 Nov 2006 21:17:59 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061121230314.GH2013@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0611212116560.11777-100000@netrider.rowland.org>
+	Tue, 21 Nov 2006 21:25:24 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10925 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1161782AbWKVCZW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 21:25:22 -0500
+Date: Tue, 21 Nov 2006 18:25:12 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Mel Gorman <mel@csn.ul.ie>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
+In-Reply-To: <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
+Message-ID: <Pine.LNX.4.64.0611211821030.588@schroedinger.engr.sgi.com>
+References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+ <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006, Paul E. McKenney wrote:
+On Tue, 21 Nov 2006, Mel Gorman wrote:
 
-> > Things may not be quite as bad as they appear.  On many architectures the
-> > store-mb-load pattern will work as expected.  (In fact, I don't know which
-> > architectures it might fail on.)
+> On Tue, 21 Nov 2006, Christoph Lameter wrote:
 > 
-> Several weak-memory-ordering CPUs.  :-/
+> > Are GFP_HIGHUSER allocations always movable? It would reduce the size of
+> > the patch if this would be added to GFP_HIGHUSER.
+> No, they aren't. Page tables allocated with HIGHPTE are currently not movable
+> for example. A number of drivers (infiniband for example) also use
+> __GFP_HIGHMEM that are not movable.
 
-Of the CPUs supported by Linux, do you know which ones will work with
-store-mb-load and which ones won't?
+HIGHPTE with __GFP_USER set? This is a page table page right? 
+pte_alloc_one does currently not set GFP_USER:
 
-Alan
+struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
+{
+        struct page *pte;
+
+#ifdef CONFIG_HIGHPTE
+        pte = 
+alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO, 0);
+#else
+        pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
+#endif
+        return pte;
+}
+
+How does infiniband insure that page migration does not move those pages?
 

@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755490AbWKVQpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755649AbWKVQtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755490AbWKVQpM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 11:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755498AbWKVQpM
+	id S1755649AbWKVQtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 11:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755714AbWKVQtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 11:45:12 -0500
-Received: from nz-out-0102.google.com ([64.233.162.206]:34870 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1755490AbWKVQpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 11:45:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lz1w0QxTwPHuNovfyiVWvN6nB6krCi4bhnN2cpIhaTS3Cyq5OIAJjUbxXI1bVt2DT8zp3tnetthOIkc1FMfS7L2xkdYSA22bBt0yq2TRRKa2A8Sn2tMUR71T/Xjvqkh0It4q9j4U267VDEbajMrbFzO5R5pQr0ltKVDWo/EkYBw=
-Message-ID: <9a8748490611220845g33afefceke191786fbb62adb@mail.gmail.com>
-Date: Wed, 22 Nov 2006 17:45:09 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: irda: allyesconfig build failure (2.6.19-rc6-git_HEAD)
-Cc: "Dag Brattli" <dagb@cs.uit.no>, "Jean Tourrilhes" <jt@hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 22 Nov 2006 11:49:08 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:46402 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1755649AbWKVQtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 11:49:06 -0500
+Date: Wed, 22 Nov 2006 17:49:39 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Kernel development list <linux-kernel@vger.kernel.org>
+Cc: Greg K-H <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [Patch -mm] driver core: Use klist_remove() in device_move().
+Message-ID: <20061122174939.64a10e31@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20061122174530.4efa1145@gondolin.boeblingen.de.ibm.com>
+References: <Pine.LNX.4.44L0.0611221024340.3038-100000@iolanthe.rowland.org>
+	<20061122174530.4efa1145@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just got this while building an allyesconfig kernel from current git HEAD :
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+As pointed out by Alan Stern, device_move needs to use klist_remove which waits
+until removal is complete.
 
-  LD      drivers/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `irlmp_slsap_inuse':
-net/irda/irlmp.c:1681: undefined reference to `spin_lock_irqsave_nested'
-make: *** [.tmp_vmlinux1] Error 1
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+---
+ drivers/base/core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6-CH.orig/drivers/base/core.c
++++ linux-2.6-CH/drivers/base/core.c
+@@ -1022,7 +1022,7 @@ int device_move(struct device *dev, stru
+ 	old_parent = dev->parent;
+ 	dev->parent = new_parent;
+ 	if (old_parent)
+-		klist_del(&dev->knode_parent);
++		klist_remove(&dev->knode_parent);
+ 	klist_add_tail(&dev->knode_parent, &new_parent->klist_children);
+ 	if (!dev->class)
+ 		goto out_put;
+@@ -1031,7 +1031,7 @@ int device_move(struct device *dev, stru
+ 		/* We ignore errors on cleanup since we're hosed anyway... */
+ 		device_move_class_links(dev, new_parent, old_parent);
+ 		if (!kobject_move(&dev->kobj, &old_parent->kobj)) {
+-			klist_del(&dev->knode_parent);
++			klist_remove(&dev->knode_parent);
+ 			if (old_parent)
+ 				klist_add_tail(&dev->knode_parent,
+ 					       &old_parent->klist_children);

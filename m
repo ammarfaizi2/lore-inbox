@@ -1,92 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753946AbWKVMMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754278AbWKVMQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753946AbWKVMMO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 07:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754084AbWKVMMO
+	id S1754278AbWKVMQs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 07:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754282AbWKVMQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 07:12:14 -0500
-Received: from rubidium.solidboot.com ([81.22.244.175]:35766 "EHLO
-	mail.solidboot.com") by vger.kernel.org with ESMTP id S1753946AbWKVMMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 07:12:13 -0500
-Date: Wed, 22 Nov 2006 14:08:08 +0200
-From: Imre =?iso-8859-1?Q?De=E1k?= <imre.deak@solidboot.com>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Imre Deak <imre.deak@solidboot.com>,
-       Komal Shah <komal.shah802003@gmail.com>,
-       James Simmons <jsimmons@infradead.org>, Vladimir <vovan888@gmail.com>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Siemens sx1: merge framebuffer support
-Message-ID: <20061122120808.GA28102@mammoth.research.nokia.com>
-References: <20061118181607.GA15275@elf.ucw.cz> <20061120190404.GD4597@atomide.com> <ce55079f0611202306l3cd57e48t68fe28e7e076d39a@mail.gmail.com> <Pine.LNX.4.64.0611211503190.32103@pentafluge.infradead.org> <3a5b1be00611210734k79c81305q7b229139c2b17ef6@mail.gmail.com> <20061121164723.GB8193@atomide.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Nov 2006 07:16:47 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:42908 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1754256AbWKVMQr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 07:16:47 -0500
+Date: Wed, 22 Nov 2006 15:15:16 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061122121516.GA7229@2ka.mipt.ru>
+References: <45564EA5.6020607@redhat.com> <20061113105458.GA8182@2ka.mipt.ru> <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20061121164723.GB8193@atomide.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061122120933.GA32681@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 22 Nov 2006 15:15:41 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tony and all,
+On Wed, Nov 22, 2006 at 03:09:34PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> Ok, to solve the problem in the way which should be good for both I
+> decided to implement additional syscall which will allow to mark any
+> event as ready and thus wake up appropriate threads. If userspace will
+> request zero events to be marked as ready, syscall will just
+> interrupt/wakeup one of the listeners parked in syscall.
 
-On Tue, Nov 21, 2006 at 04:47:25PM +0000, Tony Lindgren wrote:
-> Hi,
-> 
-> * Komal Shah <komal.shah802003@gmail.com> [061121 15:35]:
-> > On 11/21/06, James Simmons <jsimmons@infradead.org> wrote:
-> > >
-> > >Can you post the framebufer driver to the framebuffer list. We like to do
-> > >peer review. Thank you :-)
-> 
-> It would be nice to get the framebuffer integrated. I think it would be
-> best if Imre submitted the patches as it's mostly his work.
-> 
-> Imre, do you have time to send the patches to framebuffer list? If not,
-> I can send them.
+Btw, what about putting aditional multiplexer into add/remove/modify
+switch? There will be logical 'ready' addon?
 
-Yes, I'm going to post it this week.
-
---Imre
-
-> 
-> > >On Tue, 21 Nov 2006, Vladimir wrote:
-> > >
-> > >> 2006/11/20, Tony Lindgren <tony@atomide.com>:
-> > >> > * Pavel Machek <pavel@ucw.cz> [061118 18:16]:
-> > >> > > From: Vladimir Ananiev <vovan888@gmail.com>
-> > >> > >
-> > >> > > Framebuffer support for Siemens SX1; this is second big patch. (Third
-> > >> > > one will be mixer/sound support). Support is simple / pretty minimal,
-> > >> > > but seems to work okay (and is somehow important for a cell phone 
-> > >:-).
-> > >> >
-> > >> > Pushed to linux-omap. I guess you're planning to send the missing
-> > >> > Kconfig + Makefile patch for this?
-> > >> >
-> > >> > Also, it would be better to use omap_mcbsp_xmit_word() or
-> > >> > omap_mcsbsp_spi_master_xmit_word_poll() instead of OMAP_MCBSP_WRITE as
-> > >> > it does not do any checking that it worked. The aic23 and tsc2101
-> > >> > audio in linux-omap tree in general has the same problem.
-> > >> >
-> > >> > Regards,
-> > >> >
-> > >> > Tony
-> > >> >
-> > >>
-> > >> Hmm. McBSP3 in SX1 is used in "GPIO mode". The only line used is CLKX,
-> > >> so I think OMAP_MCBSP_WRITE would be enough. Am I wrong ?
-> > >> -
-> > 
-> > Again, framebuffer support patch is based on the omap framebuffer
-> > driver, which is not yet submitted to upstream/fbdevel list. sx1
-> > framebuffer support just fill up the hooks required by -omap fb driver
-> > framework.
-> 
-> Yes, but the framebuffer code is in pretty much ready to be sent
-> upstream :)
-> 
-> Regards,
-> 
-> Tony
+-- 
+	Evgeniy Polyakov

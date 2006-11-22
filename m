@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756329AbWKVS00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756330AbWKVS0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756329AbWKVS00 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 13:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756339AbWKVS00
+	id S1756330AbWKVS0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 13:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756337AbWKVS0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 13:26:26 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:15571 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1756329AbWKVS0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 13:26:25 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: William Cohen <wcohen@redhat.com>
-Subject: Re: 2.6.19-rc5: known regressions (v3)
-Date: Wed, 22 Nov 2006 19:26:42 +0100
-User-Agent: KMail/1.9.5
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Len Brown <len.brown@intel.com>, phil.el@wanadoo.fr, gregkh@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@redhat.com>,
-       oprofile-list@lists.sourceforge.net,
-       Stephen Hemminger <shemminger@osdl.org>
-References: <Pine.LNX.4.64.0611071829340.3667@g5.osdl.org> <200611221128.05769.dada1@cosmosbay.com> <45649166.8060209@redhat.com>
-In-Reply-To: <45649166.8060209@redhat.com>
+	Wed, 22 Nov 2006 13:26:20 -0500
+Received: from mgw-ext13.nokia.com ([131.228.20.172]:61344 "EHLO
+	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP
+	id S1756329AbWKVS0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 13:26:19 -0500
+Message-ID: <4564648B.2020005@indt.org.br>
+Date: Wed, 22 Nov 2006 10:54:03 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Pierre Ossman <drzeus-list@drzeus.cx>, Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       ext David Brownell <david-b@pacbell.net>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: [patch 5/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_omap_dma.diff
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611221926.43122.dada1@cosmosbay.com>
+X-OriginalArrivalTime: 22 Nov 2006 14:50:12.0379 (UTC) FILETIME=[836C3EB0:01C70E45]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 November 2006 19:05, William Cohen wrote:
+OMAP platform specific patch.
+- Adjust the frame size for DMA transfers.
 
-> You will also need another patch checked into the oprofile cvs last week
-> mentioned:
->
-> http://sourceforge.net/mailarchive/message.php?msg_id=35422937
->
-> -Will
+Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
+Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
 
-Thank you William.
+Index: linux-omap-2.6.git/drivers/mmc/omap.c
+===================================================================
+--- linux-omap-2.6.git.orig/drivers/mmc/omap.c	2006-11-22 09:07:25.000000000 -0400
++++ linux-omap-2.6.git/drivers/mmc/omap.c	2006-11-22 09:19:03.000000000 -0400
+@@ -629,6 +629,14 @@ mmc_omap_prepare_dma(struct mmc_omap_hos
 
-I confirm that CVS oprofile version + patches you gave here works with 
-linux-2.6.16-rc6 on i386, regardless of disabling nmi_watchdog  (adding or 
-not nmi_watchdog=0 in boot params)
+  	data_addr = host->phys_base + OMAP_MMC_REG_DATA;
+  	frame = data->blksz;
++
++#ifdef CONFIG_MMC_PASSWORDS
++	/* MMC LOCK/UNLOCK: Do frame size multiple of two. This is
++	 * needed for DMA transfers to work properly, once
++	 * the block size depends on MMC password length.
++	 */
++	frame += frame&0x1;
++#endif
+  	count = sg_dma_len(sg);
 
-Eric
+  	if ((data->blocks == 1) && (count > (data->blksz)))
+

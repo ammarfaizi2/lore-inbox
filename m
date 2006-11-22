@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756192AbWKVRz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756177AbWKVRz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756192AbWKVRz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 12:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756193AbWKVRz4
+	id S1756177AbWKVRz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 12:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756179AbWKVRz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 12:55:56 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23494 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1756192AbWKVRzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 12:55:55 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Daniel Lezcano <dlezcano@fr.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Dmitry Mishin <dim@sw.ru>,
-       netdev@vger.kernel.org
-Subject: Re: [patch -mm] net namespace: empty framework
-References: <4563007B.9010202@fr.ibm.com> <4563046B.6040909@sw.ru>
-	<45633EDF.3050309@fr.ibm.com>
-	<20061121181655.GA14656@MAIL.13thfloor.at>
-	<456454C4.5010803@fr.ibm.com>
-Date: Wed, 22 Nov 2006 10:53:57 -0700
-In-Reply-To: <456454C4.5010803@fr.ibm.com> (Cedric Le Goater's message of
-	"Wed, 22 Nov 2006 14:46:44 +0100")
-Message-ID: <m1ejrvtlje.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 22 Nov 2006 12:55:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49537 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1756177AbWKVRz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 12:55:28 -0500
+Date: Tue, 21 Nov 2006 21:27:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
+Subject: Re: Debugfs : inotify, multiple calls to debugfs_create_file, remove
+Message-ID: <20061122052730.GD20836@kroah.com>
+References: <20061120181838.GB7328@Krystal>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061120181838.GB7328@Krystal>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater <clg@fr.ibm.com> writes:
+On Mon, Nov 20, 2006 at 01:18:38PM -0500, Mathieu Desnoyers wrote:
+> Hi Greg,
+> 
+> I just had to add inotify support to my LTTng consumer so I could inform it
+> of the presence of new CPUs (for CPU hotplug). I noticed that no
+> notification event was being sent when a debugfs file is created from within
+> the kernel through debugfs_create. There are probably other notifications
+> missing, but here is the patch adding the one I care about. Should it be added
+> in libfs or in debugfs ?
 
->> no problem here, but I think we will need another one,
->> or some smart way to do the network isolation (layer 3)
->> for the network namespace (as alternative to the layer 2
->> approach) ...
->
-> My feeling (Dmitry and Daniel can correct me) is that it will be
-> addressed with an unshare-like flag : NETNS2 and NETNS3.
->  
->> as they are both complementary in some way, I'm not sure
->> a single space will suffice ...
->
-> hmm, so you think there could be a 2 differents namespaces
-> for network to handle layer 2 or 3. Couldn't that be just a sub part
-> of net_namespace.
+So does this fix the inotify issue?
 
-The justification is performance and a little on the simplicity side.
+> A second problem I noticed is when a caller calls debugfs_create_file more than
+> once : the result is that the debugfs_remove will fail. I guess the second call
+> to debugfs_create_file increments the reference counts (there is not fix for
+> this issue in my patch).
+> 
+> Third problem : a failing call to debugfs_remove keeps the filesystem pinned.
+> (fixed by calling simple_release_fs in the error path).
+> 
+> The third problem : When a process is in a directory, the call to simple_rmdir
+> will fail. Debugfs does not use its return value. I noticed that calling
+> simple_unlink on a directory when simple_rmdir fails removes the directory that
+> would otherwise be left there. I am not sure if this approach is correct
+> through.
+> 
+> This patch is against Linux 2.6.18.
 
-My personal feel is still that layer 3 is something easier done
-as a new kind of table in an iptables type infrastructure.  And in
-fact I believe if done that way would capture do what 90%+ of what
-all of the iptables rules do.  So it might be a nice firewalling speed up.
+Care to split this into 4 different patches (you seem to have 4 issues
+here), so that it's easier to see them, and it will follow the
+1-patch-per-issue rule?
 
-I don't think the layer 3 idea where you just do bind filter fits
-the namespace concept very well.
+thanks,
 
-Eric
+greg k-h

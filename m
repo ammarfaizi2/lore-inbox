@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756807AbWKVUKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756871AbWKVUX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756807AbWKVUKG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 15:10:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756990AbWKVUKF
+	id S1756871AbWKVUX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 15:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756906AbWKVUX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 15:10:05 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:64929 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1756986AbWKVUKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 15:10:01 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <4564AE86.2020905@s5r6.in-berlin.de>
-Date: Wed, 22 Nov 2006 21:09:42 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-CC: linux1394-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] ieee1394: nodemgr: fix deadlock in shutdown
-References: <Pine.LNX.4.44L0.0611212028160.5677-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0611212028160.5677-100000@netrider.rowland.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 22 Nov 2006 15:23:59 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:49289 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1756871AbWKVUX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 15:23:58 -0500
+Date: Wed, 22 Nov 2006 21:23:55 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev@ozlabs.org, Kumar Gala <galak@kernel.crashing.org>,
+       Kim Phillips <kim.phillips@freescale.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andi Kleen <ak@muc.de>, akpm@osdl.org, davem@davemloft.net,
+       kkojima@rr.iij4u.or.jp, lethal@linux-sh.org, paulus@samba.org,
+       ralf@linux-mips.org, rmk@arm.linux.org.uk, mills@udel.edu,
+       hackers@lists.ntp.isc.org
+Subject: Re: NTP time sync
+Message-ID: <20061122212355.046de470@inspiron>
+In-Reply-To: <200611221155.26686.david-b@pacbell.net>
+References: <20061122203633.611acaa8@inspiron>
+	<200611221155.26686.david-b@pacbell.net>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern wrote:
-> On Tue, 21 Nov 2006, Stefan Richter wrote:
->> There is now a /sys/bus/ieee1394/drivers/ieee1394,
+On Wed, 22 Nov 2006 11:55:23 -0800
+David Brownell <david-b@pacbell.net> wrote:
 
-(I'll rename it to nodemgr when I commit this patch.)
-
->> whose "bind" and "unbind" attributes are not welcome.  Is there a way
->> to disable them?
+> > 
+> >  So, if the arch maintainers agree, 
+> >  I would suggest to schedule it for removal.
+> > 
+> > [1] http://lkml.org/lkml/2006/3/28/358
 > 
-> You can always prevent "bind" from operating by returning an error code
-> from the driver's probe routine (although it's not clear why you would
-> want to do that).  I don't think there's any way to make the "unbind"
-> attribute stop working.
+> Suggested time of removal: one year after two relevant software
+> package releases get updated:
 > 
-> You could violate the layering and remove the attribute files directly.  
-> But that would be a race; there would remain a brief interval between the 
-> time the files were created and the time you removed them.
+>   - NTPD, to call hwclock specifying the relevant RTC;
 
-Does this matter if there is no device which can be unbound?
+ This might introduce delays. ntpd might open the device
+ and update the time itself.
 
-Anyway, I don't think I will go this route unless a real problem with
-the attributes turns up.
+>   - util-linux, updating hwclock to know about /dev/rtcN;
+>   - busybox, with its own hwclock implementation.
+> 
+> The util-linux hwclock update is already in the queue, I'm told.
 
-> Lastly, you could remove source of your deadlock by having the unbind 
-> routine for the new driver delete all the child device structures.
+ I suspect nobody would change NTPD if we don't
+ schedule that feature for removal :)
 
-Hmm, I won't believe you until I actually try it. :-)
 
-> In fact, just to make things more symmetric and logical you could have 
-> the probe routine create those child devices in the first place!
-
-Sounds good. It's on my .plan now.
 -- 
-Stefan Richter
--=====-=-==- =-== =-==-
-http://arcgraph.de/sr/
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

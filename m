@@ -1,68 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755961AbWKVRJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755967AbWKVRLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755961AbWKVRJK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 12:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755967AbWKVRJK
+	id S1755967AbWKVRLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 12:11:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755990AbWKVRLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 12:09:10 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:56716 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1755961AbWKVRJJ (ORCPT
+	Wed, 22 Nov 2006 12:11:43 -0500
+Received: from tapsys.com ([72.36.178.242]:8648 "EHLO tapsys.com")
+	by vger.kernel.org with ESMTP id S1755967AbWKVRLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 12:09:09 -0500
-Date: Wed, 22 Nov 2006 18:08:53 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andre Noll <maan@systemlinux.org>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Rientjes <rientjes@cs.washington.edu>, Mel Gorman <mel@skynet.ie>
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-Message-ID: <20061122170852.GA4982@bingen.suse.de>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de> <20061122160549.GD27761@skl-net.de>
+	Wed, 22 Nov 2006 12:11:43 -0500
+Message-ID: <456484C9.6080205@madrabbit.org>
+Date: Wed, 22 Nov 2006 09:11:37 -0800
+From: Ray Lee <ray-lk@madrabbit.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061122160549.GD27761@skl-net.de>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Johannes Berg <johannes@sipsolutions.net>, Dan Williams <dcbw@redhat.com>,
+       Broadcom Linux <bcm43xx-dev@lists.berlios.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFC/T: Trial fix for the bcm43xx - wpa_supplicant -	NetworkManager
+ deadlock
+References: <4561DBE0.2060908@lwfinger.net> <45628C05.405@madrabbit.org> <45633FF8.6010209@lwfinger.net> <1164133962.3631.14.camel@johannes.berg> <1164134201.3631.16.camel@johannes.berg> <45634A4A.1040909@lwfinger.net>
+In-Reply-To: <45634A4A.1040909@lwfinger.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 05:05:49PM +0100, Andre Noll wrote:
-> Unfortunately, yes. I tried rc6, current git, and currrent git + David
-> Rientjes' patch. They all show the same behaviour.
+Larry Finger wrote:
+> I'm going to install NM on my system to see if I can trigger the problem
+> with lockdep enabled.
 
-I must have missed that patch.
-> 
-> > It's probably another bug in the memmap parsing rewrite (Mel cc'ed) 
-> > but the debugging information in the standard kernel unfortunately
-> > doesn't give enough output to find out where it happens.
-> 
-> Feel free to send me a debugging patch..
+I have had lockdep enabled both times, and it didn't whinge about anything.
+I'm wondering if that's because events/0 is doing delayed work on behalf of
+bcm43xx (it was in both traces as well as NM and wpa_supplicant).
 
-Here's one. Please send output (unless Mel finds the problem first..)
-
--Andi
-
-Index: linux-2.6.19-rc6-hack/mm/page_alloc.c
-===================================================================
---- linux-2.6.19-rc6-hack/mm/page_alloc.c
-+++ linux-2.6.19-rc6-hack/mm/page_alloc.c
-@@ -188,6 +188,10 @@ static inline int bad_range(struct zone 
- 
- static void bad_page(struct page *page)
- {
-+	static int warned; 
-+	if (!warned) { 
-+	warned = 1;
-+	printk(KERN_EMERG "page address %lx\n", page_address(page));
- 	printk(KERN_EMERG "Bad page state in process '%s'\n"
- 		KERN_EMERG "page:%p flags:0x%0*lx mapping:%p mapcount:%d count:%d\n"
- 		KERN_EMERG "Trying to fix it up, but a reboot is needed\n"
-@@ -196,6 +200,7 @@ static void bad_page(struct page *page)
- 		(unsigned long)page->flags, page->mapping,
- 		page_mapcount(page), page_count(page));
- 	dump_stack();
-+	}
- 	page->flags &= ~(1 << PG_lru	|
- 			1 << PG_private |
- 			1 << PG_locked	|
-
+Ray

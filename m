@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030560AbWKVBDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031442AbWKVBEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030560AbWKVBDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Nov 2006 20:03:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966983AbWKVBDm
+	id S1031442AbWKVBEP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Nov 2006 20:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031431AbWKVBEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Nov 2006 20:03:42 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:14765 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S966982AbWKVBDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Nov 2006 20:03:40 -0500
+	Tue, 21 Nov 2006 20:04:14 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:37457 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1031425AbWKVBEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Nov 2006 20:04:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=E/oNw520QqZv37IKFR8TDkzl3cxxaJXYBDZcthoog3uAu18BXpjRlPSnrcPEh1ADy7EFa4fZwSE10DmEvaZ8lKJDr0rtNYkiuvRo33wmv8wh1a5iEjXSrfDOhZGmWLASqYiSgDWQi5Cz9z+rpMDvjufpCh+UKR32fYVYH1EQzdw=
-Message-ID: <4563A1E3.1030703@gmail.com>
-Date: Wed, 22 Nov 2006 10:03:31 +0900
+        b=RrNqhkyIAMLlBs0VaxObpHZi1SNw7sr0WVgOXi0Z/RTvIDtqdEiK8RlIy9F+UMpn157Eq+4byXRzzl/z3MpwHEQ7RsUjQaen6wCsWTgP+kv7Hb5lBfSLYgyjxTqwRniLSc83EkrBuHzlDbMIJzrQWyflJkNLWzHgFIBr5DZMNPM=
+Message-ID: <4563A203.1080707@gmail.com>
+Date: Wed, 22 Nov 2006 10:04:03 +0900
 From: Tejun Heo <htejun@gmail.com>
 User-Agent: Icedove 1.5.0.8 (X11/20061116)
 MIME-Version: 1.0
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: Jason Gaston <jason.d.gaston@intel.com>
 CC: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
-References: <39B20DF628532344BC7A2692CB6AEE07A5A310@orsmsx420.amr.corp.intel.com>
-In-Reply-To: <39B20DF628532344BC7A2692CB6AEE07A5A310@orsmsx420.amr.corp.intel.com>
+Subject: Re: [PATCH 2.6.19-rc6] ahci: AHCI mode SATA patch for Intel ICH9
+References: <1164149498.27730.17.camel@localhost.localdomain>
+In-Reply-To: <1164149498.27730.17.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gaston, Jason D wrote:
-> Did this come through ok, using Evolution, or do I need to try a
-> different email client and send again?
-
-It's wrapped and more comments below.
-
-> -----Original Message-----
-> From: Gaston, Jason D 
-> Sent: Tuesday, November 21, 2006 2:52 PM
-> To: jgarzik@pobox.com; linux-ide@vger.kernel.org;
-> linux-kernel@vger.kernel.org; Gaston, Jason D
-> Subject: [PATCH 2.6.19-rc6] ata_piix: IDE mode SATA patch for Intel ICH9
-> 
-> This patch adds the Intel ICH9 IDE mode SATA controller DID's.
+Jason Gaston wrote:
+> This patch adds the Intel ICH9 AHCI controller DID's for SATA support.
 > 
 > Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
 > 
-> --- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20
-> 04:58:48.000000000 -0800
-> +++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-20
-> 06:15:12.000000000 -0800
+> --- linux-2.6.19-rc6/drivers/ata/ahci.c.orig	2006-11-20
+> 04:56:51.000000000 -0800
+> +++ linux-2.6.19-rc6/drivers/ata/ahci.c	2006-11-20 04:58:30.000000000
+> -0800
 
-Above two lines are wrapped.
+Again, wrapped.
 
-> @@ -127,6 +127,7 @@
->  	ich6_sata_ahci		= 8,
->  	ich6m_sata_ahci		= 9,
->  	ich8_sata_ahci		= 10,
-> +	ich9_sata_ahci		= 11,
+> @@ -314,6 +314,17 @@
+>  	{ PCI_VDEVICE(INTEL, 0x2824), board_ahci }, /* ICH8 */
+>  	{ PCI_VDEVICE(INTEL, 0x2829), board_ahci }, /* ICH8M */
+>  	{ PCI_VDEVICE(INTEL, 0x282a), board_ahci }, /* ICH8M */
+> +	{ PCI_VDEVICE(INTEL, 0x2922), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x2923), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x2924), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x2925), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x2927), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x2929), board_ahci }, /* ICH9M */
+> +	{ PCI_VDEVICE(INTEL, 0x292a), board_ahci }, /* ICH9M */
+> +	{ PCI_VDEVICE(INTEL, 0x292b), board_ahci }, /* ICH9M */
+> +	{ PCI_VDEVICE(INTEL, 0x292f), board_ahci }, /* ICH9M */
+> +	{ PCI_VDEVICE(INTEL, 0x294d), board_ahci }, /* ICH9 */
+> +	{ PCI_VDEVICE(INTEL, 0x294e), board_ahci }, /* ICH9M */
+>  
+>  	/* JMicron */
+>  	{ PCI_VDEVICE(JMICRON, 0x2360), board_ahci }, /* JMicron JMB360 */
 
-AFAICS, ich9 isn't different from ich8.  Any reason not to simply use 
-ich8_sata_ahci?
-
-[--snip--]
-> +static const struct piix_map_db ich9_map_db = {
-> +	.mask = 0x3,
-> +	.port_enable = 0x3,
-> +	.present_shift = 8,
-
-I guess this patch is against libata-dev#upstream-fixes.  Just FYI 
-.present_shift is gone in libata-dev#upstream.
+Other than that, looks fine.
 
 -- 
 tejun

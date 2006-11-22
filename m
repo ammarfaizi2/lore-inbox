@@ -1,144 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755214AbWKVPwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755241AbWKVP6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755214AbWKVPwh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 10:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755217AbWKVPwh
+	id S1755241AbWKVP6z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 10:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755253AbWKVP6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 10:52:37 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:49883 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1755214AbWKVPwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 10:52:36 -0500
-Date: Wed, 22 Nov 2006 15:52:33 +0000
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Noll <maan@systemlinux.org>,
-       David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-Message-ID: <20061122155233.GA30607@skynet.ie>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <200611221142.21212.ak@suse.de>
-User-Agent: Mutt/1.5.9i
-From: mel@skynet.ie (Mel Gorman)
+	Wed, 22 Nov 2006 10:58:55 -0500
+Received: from mgw-ext11.nokia.com ([131.228.20.170]:59124 "EHLO
+	mgw-ext11.nokia.com") by vger.kernel.org with ESMTP
+	id S1755241AbWKVP6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 10:58:54 -0500
+Message-ID: <4564640B.1070004@indt.org.br>
+Date: Wed, 22 Nov 2006 10:51:55 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Pierre Ossman <drzeus-list@drzeus.cx>, Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       ext David Brownell <david-b@pacbell.net>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: [patch 3/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_lock_unlock.diff
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Nov 2006 14:48:04.0288 (UTC) FILETIME=[37131C00:01C70E45]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (22/11/06 11:42), Andi Kleen didst pronounce:
-> ject    : x86_64: Bad page state in process 'swapper'
-> > References : http://lkml.org/lkml/2006/11/10/135
-> >              http://lkml.org/lkml/2006/11/10/208
-> > Submitter  : Andre Noll <maan@systemlinux.org>
-> > Handled-By : David Rientjes <rientjes@cs.washington.edu>
-> > Status     : problem is being debugged
-> 
-> Does this still happen with -rc6? 
-> 
-> It's probably another bug in the memmap parsing rewrite (Mel cc'ed) 
-> but the debugging information in the standard kernel unfortunately
-> doesn't give enough output to find out where it happens.
-> 
+Implement card lock/unlock operation, using the MMC_LOCK_UNLOCK command.
 
-Right, so I took a closer look to see what the story was.
+Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
+Signed-off-by: Anderson Lizardo <anderson.lizardo <at> indt.org.br>
+Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
 
-According to the thread, this was the E820 map with the corresponding
-PFNs appended to the usable regions.
+Index: linux-omap-2.6.git/drivers/mmc/mmc.c
+===================================================================
+--- linux-omap-2.6.git.orig/drivers/mmc/mmc.c	2006-11-22 09:19:27.000000000 -0400
++++ linux-omap-2.6.git/drivers/mmc/mmc.c	2006-11-22 09:56:13.000000000 -0400
+@@ -4,6 +4,8 @@
+   *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
+   *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
+   *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
++ *  MMC password protection (C) 2006 Instituto Nokia de Tecnologia (INdT),
++ *     All Rights Reserved.
+   *
+   * This program is free software; you can redistribute it and/or modify
+   * it under the terms of the GNU General Public License version 2 as
+@@ -19,6 +21,7 @@
+  #include <linux/err.h>
+  #include <asm/scatterlist.h>
+  #include <linux/scatterlist.h>
++#include <linux/key.h>
 
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)    (  0-159)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)  
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)  
- BIOS-e820: 0000000000100000 - 00000000fbff0000 (usable)    (256-1032176)
- BIOS-e820: 00000000fbff0000 - 00000000fbfff000 (ACPI data) 
- BIOS-e820: 00000000fbfff000 - 00000000fc000000 (ACPI NVS)
- BIOS-e820: 00000000ff780000 - 0000000100000000 (reserved)
- BIOS-e820: 0000000100000000 - 0000000200000000 (usable)    (1048576-2097152)
+  #include <linux/mmc/card.h>
+  #include <linux/mmc/host.h>
+@@ -1159,6 +1162,122 @@ static void mmc_setup(struct mmc_host *h
+  		mmc_read_scrs(host);
+  }
 
-This is what the PFN ranges look like to arch-independent zone-sizing
-reading the map without node awareness
-
-Entering add_active_range(0, 0, 159) 0 entries of 3200 used
-Entering add_active_range(0, 256, 1032176) 1 entries of 3200 used
-Entering add_active_range(0, 1048576, 2097152) 2 entries of 3200 used
-
-That matches exactly. So far so good. Later with node awareness, we get
-
-SRAT: PXM 0 -> APIC 0 -> Node 0
-SRAT: PXM 1 -> APIC 1 -> Node 1
-SRAT: Node 0 PXM 0 100000-fc000000
-Entering add_active_range(0, 256, 1032176) 0 entries of 3200 used
-SRAT: Node 1 PXM 1 100000000-200000000
-Entering add_active_range(1, 1048576, 2097152) 1 entries of 3200 used
-SRAT: Node 0 PXM 0 0-fc000000
-Entering add_active_range(0, 0, 159) 2 entries of 3200 used
-Entering add_active_range(0, 256, 1032176) 3 entries of 3200 used
-
-Unusual ordering, but the information is still correct. The final sorted
-map looks like;
-
-early_node_map[3] active PFN ranges
-    0:        0 ->      159
-    0:      256 ->  1032176
-    1:  1048576 ->  2097152
-
-Again, everything there looks like what the E820 map reports so I don't
-believe this is the zone-sizings code fault although it may be exposing a
-bug from elsewhere. According to bootmap, things look like
-
-Bootmem setup node 0 0000000000000000-00000000fc000000
-Bootmem setup node 1 0000000100000000-0000000200000000
-
-That's node 0 PFN 0->1032192 and node 1 PFN 1048576->2097152.
-
-That is showing an additional 16 page frames that are not in the E820 map
-(although I have seen this before and it didn't show up as a bad page). I
-would be very interested in finding out what the bad_page PFNs are if this
-bug still exists to see if it is those 16 frames. I've included a patch
-below that might help.
-
-Andre, if the bug still exists for you, can you apply Andi's patch to
-reduce the log size and the following patch please and post us the
-output with loglevel=8 please? Thanks
-
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-clean/arch/x86_64/mm/numa.c linux-2.6.19-rc6-debug_bootmem_init_issues/arch/x86_64/mm/numa.c
---- linux-2.6.19-rc6-clean/arch/x86_64/mm/numa.c	2006-11-22 15:08:20.000000000 +0000
-+++ linux-2.6.19-rc6-debug_bootmem_init_issues/arch/x86_64/mm/numa.c	2006-11-22 15:07:47.000000000 +0000
-@@ -192,6 +192,9 @@ void __init setup_node_zones(int nodeid)
- 				memmapsize, SMP_CACHE_BYTES, 
- 				round_down(limit - memmapsize, PAGE_SIZE), 
- 				limit);
-+	printk(KERN_DEBUG "Node %d memmap at 0x%p size %lu first pfn 0x%p\n",
-+			nodeid, NODE_DATA(nodeid)->node_mem_map,
-+			memmapsize, NODE_DATA(nodeid)->node_mem_map);
- #endif
- } 
- 
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-clean/mm/page_alloc.c linux-2.6.19-rc6-debug_bootmem_init_issues/mm/page_alloc.c
---- linux-2.6.19-rc6-clean/mm/page_alloc.c	2006-11-16 04:03:40.000000000 +0000
-+++ linux-2.6.19-rc6-debug_bootmem_init_issues/mm/page_alloc.c	2006-11-22 14:16:46.000000000 +0000
-@@ -2453,6 +2453,9 @@ static void __init alloc_node_mem_map(st
- 		if (!map)
- 			map = alloc_bootmem_node(pgdat, size);
- 		pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
-+		printk(KERN_DEBUG
-+			"Node %d memmap at 0x%p size %lu first pfn 0x%p\n",
-+			pgdat->node_id, map, size, pgdat->node_mem_map);
- 	}
- #ifdef CONFIG_FLATMEM
- 	/*
-@@ -2683,6 +2686,9 @@ void __init free_area_init_nodes(unsigne
- 	/* Regions in the early_node_map can be in any order */
- 	sort_node_map();
- 
-+	/* Print out the page size for debugging meminit problems */
-+	printk(KERN_DEBUG "sizeof(struct page) = %d\n", sizeof(struct page));
++/**
++ *	mmc_lock_unlock - send LOCK_UNLOCK command to a specific card.
++ *	@card: card to which the LOCK_UNLOCK command should be sent
++ *	@key: key containing the MMC password
++ *	@mode: LOCK_UNLOCK mode
++ *
++ */
++int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode)
++{
++	struct mmc_request mrq;
++	struct mmc_command cmd;
++	struct mmc_data data;
++	struct scatterlist sg;
++	struct mmc_key_payload *mpayload;
++	unsigned long erase_timeout;
++	int err, data_size;
++	u8 *data_buf;
 +
- 	/* Print out the zone ranges */
- 	printk("Zone PFN ranges:\n");
- 	for (i = 0; i < MAX_NR_ZONES; i++)
++	mpayload = NULL;
++	data_size = 1;
++	if (mode != MMC_LOCK_MODE_ERASE) {
++		mpayload = rcu_dereference(key->payload.data);
++		data_size = 2 + mpayload->datalen;
++	}
++
++	data_buf = kmalloc(data_size, GFP_KERNEL);
++	if (!data_buf)
++		return -ENOMEM;
++	memset(data_buf, 0, data_size);
++
++	data_buf[0] = mode;
++	if (mode != MMC_LOCK_MODE_ERASE) {
++		data_buf[1] = mpayload->datalen;
++		memcpy(data_buf + 2, mpayload->data, mpayload->datalen);
++	}
++
++	err = mmc_card_claim_host(card);
++	if (err != MMC_ERR_NONE)
++		goto out;
++
++	memset(&cmd, 0, sizeof(struct mmc_command));
++
++	cmd.opcode = MMC_SET_BLOCKLEN;
++	cmd.arg = data_size;
++	cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
++	err = mmc_wait_for_cmd(card->host, &cmd, CMD_RETRIES);
++	if (err != MMC_ERR_NONE)
++		goto error;
++
++	memset(&cmd, 0, sizeof(struct mmc_command));
++
++	cmd.opcode = MMC_LOCK_UNLOCK;
++	cmd.arg = 0;
++	cmd.flags = MMC_RSP_R1B | MMC_CMD_ADTC;
++
++	memset(&data, 0, sizeof(struct mmc_data));
++
++	mmc_set_data_timeout(&data, card, 1);
++
++	data.blksz = data_size;
++	data.blocks = 1;
++	data.flags = MMC_DATA_WRITE;
++	data.sg = &sg;
++	data.sg_len = 1;
++
++	memset(&mrq, 0, sizeof(struct mmc_request));
++
++	mrq.cmd = &cmd;
++	mrq.data = &data;
++
++	sg_init_one(&sg, data_buf, data_size);
++	err = mmc_wait_for_req(card->host, &mrq);
++	if (err != MMC_ERR_NONE)
++		goto error;
++
++	memset(&cmd, 0, sizeof(struct mmc_command));
++
++	cmd.opcode = MMC_SEND_STATUS;
++	cmd.arg = card->rca << 16;
++	cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
++
++	/* set timeout for forced erase operation to 3 min. (see MMC spec) */
++	erase_timeout = jiffies + 180 * HZ;
++	do {
++		/* we cannot use "retries" here because the
++		 * R1_LOCK_UNLOCK_FAILED bit is cleared by subsequent reads to
++		 * the status register, hiding the error condition */
++		err = mmc_wait_for_cmd(card->host, &cmd, 0);
++		if (err != MMC_ERR_NONE)
++			break;
++		/* the other modes don't need timeout checking */
++		if (mode != MMC_LOCK_MODE_ERASE)
++			continue;
++		if (time_after(jiffies, erase_timeout)) {
++			dev_dbg(&card->dev, "forced erase timed out\n");
++			err = MMC_ERR_TIMEOUT;
++			break;
++		}
++	} while (!(cmd.resp[0] & R1_READY_FOR_DATA));
++	if (cmd.resp[0] & R1_LOCK_UNLOCK_FAILED) {
++		dev_dbg(&card->dev, "LOCK_UNLOCK operation failed\n");
++		err = MMC_ERR_FAILED;
++	}
++
++	if (cmd.resp[0] & R1_CARD_IS_LOCKED)
++		mmc_card_set_locked(card);
++	else
++		mmc_card_clear_locked(card);
++
++error:
++	mmc_card_release_host(card);
++out:
++	kfree(data_buf);
++
++	return err;
++}
+
+  /**
+   *	mmc_detect_change - process change of state on a MMC socket
+Index: linux-omap-2.6.git/drivers/mmc/mmc.h
+===================================================================
+--- linux-omap-2.6.git.orig/drivers/mmc/mmc.h	2006-11-22 09:19:27.000000000 -0400
++++ linux-omap-2.6.git/drivers/mmc/mmc.h	2006-11-22 09:19:27.000000000 -0400
+@@ -27,6 +27,10 @@ struct mmc_key_payload {
+  	char		data[0];	/* actual data */
+  };
+
++struct key;
++
++extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
++
+  int mmc_schedule_work(struct work_struct *work);
+  int mmc_schedule_delayed_work(struct work_struct *work, unsigned long delay);
+  void mmc_flush_scheduled_work(void);
+Index: linux-omap-2.6.git/include/linux/mmc/protocol.h
+===================================================================
+--- linux-omap-2.6.git.orig/include/linux/mmc/protocol.h	2006-11-22 09:19:13.000000000 -0400
++++ linux-omap-2.6.git/include/linux/mmc/protocol.h	2006-11-22 09:19:27.000000000 -0400
+@@ -244,5 +244,13 @@ struct _mmc_csd {
+  #define SD_BUS_WIDTH_1      0
+  #define SD_BUS_WIDTH_4      2
+
++/*
++ * MMC_LOCK_UNLOCK modes
++ */
++#define MMC_LOCK_MODE_ERASE	(1<<3)
++#define MMC_LOCK_MODE_UNLOCK	(0<<2)
++#define MMC_LOCK_MODE_CLR_PWD	(1<<1)
++#define MMC_LOCK_MODE_SET_PWD	(1<<0)
++
+  #endif  /* MMC_MMC_PROTOCOL_H */
+

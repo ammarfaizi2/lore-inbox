@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161995AbWKVLJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934424AbWKVLUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161995AbWKVLJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 06:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162063AbWKVLJo
+	id S934424AbWKVLUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 06:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162057AbWKVLUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 06:09:44 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:33693 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161995AbWKVLJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 06:09:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kXyzI7IG0V+Q9w+bYuDqQwM7UJK/tNrGMrO5mLpMB73qCAnYzKiqdjEG74YVaXDcL/IYc3VGH30XAax30uQ7TwGXVa8SniKpTEi/lfIx5Sq2ksBQ7bkm+5qXnuqZ4D8bCr6pxpBa+lAvRX4JUsKL1ejrLGbHJ7vQpGXPEti0xTA=
-Message-ID: <6d6a94c50611220309w3ef0fc3eh93492297e759eadd@mail.gmail.com>
-Date: Wed, 22 Nov 2006 19:09:41 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Subject: Re: The VFS cache is not freed when there is not enough free memory to allocate
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, mel <mel@csn.ul.ie>,
-       "Andy Whitcroft" <apw@shadowen.org>
-In-Reply-To: <1164192171.5968.186.camel@twins>
+	Wed, 22 Nov 2006 06:20:36 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:36792 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S934421AbWKVLUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 06:20:35 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [take25 6/6] kevent: Pipe notifications.
+Date: Wed, 22 Nov 2006 12:20:50 +0100
+User-Agent: KMail/1.9.5
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+References: <11641265981515@2ka.mipt.ru>
+In-Reply-To: <11641265981515@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <6d6a94c50611212351if1701ecx7b89b3fe79371554@mail.gmail.com>
-	 <1164185036.5968.179.camel@twins>
-	 <6d6a94c50611220202t1d076b4cye70dcdcc19f56e55@mail.gmail.com>
-	 <1164192171.5968.186.camel@twins>
+Message-Id: <200611221220.50245.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
->
-> Mel's patches alone aren't quite enough, you also need some reclaim
-> modifications, I'll ping Andy to see how far he's on that.
->
+On Tuesday 21 November 2006 17:29, Evgeniy Polyakov wrote:
+> Pipe notifications.
 
-I think so. A quick look at Mei's patch, I found the patch can't help our case.
-The current situation is  that the application need 8 M memory, but
-ther is only 5M free memory, cached memory eat almost 40Mbyte. When
-the application is requesting the memory, kernel just report failure,
-not attempt to release the VFS cache and try it again.
-==============================
-root:/mnt> cat /proc/meminfo
-MemTotal:        54196 kB
-MemFree:          5520 kB <== only 5M free
-Buffers:            76 kB
-Cached:          44696 kB <== cache eat 40MB
-SwapCached:          0 kB
-Active:          21092 kB
-Inactive:        23680 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        54196 kB
-LowFree:          5520 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-AnonPages:           0 kB
-Mapped:              0 kB
-Slab:             3720 kB
-PageTables:          0 kB
-NFS_Unstable:        0 kB
-Bounce:              0 kB
-CommitLimit:     27096 kB
-Committed_AS:        0 kB
-VmallocTotal:        0 kB
-VmallocUsed:         0 kB
-VmallocChunk:        0 kB
-==========================================
+> +int kevent_pipe_enqueue(struct kevent *k)
+> +{
+> +	struct file *pipe;
+> +	int err = -EBADF;
+> +	struct inode *inode;
+> +
+> +	pipe = fget(k->event.id.raw[0]);
+> +	if (!pipe)
+> +		goto err_out_exit;
+> +
+> +	inode = igrab(pipe->f_dentry->d_inode);
+> +	if (!inode)
+> +		goto err_out_fput;
+> +
 
--Aubrey
+Well...
+
+How can you be sure 'pipe/inode' really refers to a pipe/fifo here ?
+
+Hint : i_pipe <> NULL is not sufficient because i_pipe, i_bdev, i_cdev share 
+the same location. (check pipe_info() in fs/splice.c)
+
+So I guess you need :
+
+err = -EINVAL;
+if  (!S_ISFIFO(inode->i_mode))
+	goto err_out_iput;
+
+
+
+Eric

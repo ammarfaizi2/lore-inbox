@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756177AbWKVRz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756168AbWKVR7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756177AbWKVRz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 12:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756179AbWKVRz3
+	id S1756168AbWKVR7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 12:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756171AbWKVR7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 12:55:29 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49537 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1756177AbWKVRz2 (ORCPT
+	Wed, 22 Nov 2006 12:59:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48074 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1756168AbWKVR7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 12:55:28 -0500
-Date: Tue, 21 Nov 2006 21:27:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
-Subject: Re: Debugfs : inotify, multiple calls to debugfs_create_file, remove
-Message-ID: <20061122052730.GD20836@kroah.com>
-References: <20061120181838.GB7328@Krystal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Nov 2006 12:59:04 -0500
+Date: Wed, 22 Nov 2006 12:58:56 -0500
+From: Dave Jones <davej@redhat.com>
+To: =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Simple script that locks up my box with recent kernels
+Message-ID: <20061122175856.GH533@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	=?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Jesper Juhl <jesper.juhl@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> <Pine.LNX.4.64.0610161554140.3962@g5.osdl.org> <9a8748490610161613y7c314e64rfdfafb4046a33a02@mail.gmail.com> <9a8748490610231330y65f3e243pe1101d11a28dbbfa@mail.gmail.com> <9a8748490611211646o2c92564dmfe8d6ffdf66228ba@mail.gmail.com> <Pine.LNX.4.64.0611211827590.3338@woody.osdl.org> <20061122032512.GE533@redhat.com> <Pine.LNX.4.64.0611211944120.3352@woody.osdl.org> <20061122034928.GF533@redhat.com> <45642744.2080109@draigBrady.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20061120181838.GB7328@Krystal>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45642744.2080109@draigBrady.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2006 at 01:18:38PM -0500, Mathieu Desnoyers wrote:
-> Hi Greg,
-> 
-> I just had to add inotify support to my LTTng consumer so I could inform it
-> of the presence of new CPUs (for CPU hotplug). I noticed that no
-> notification event was being sent when a debugfs file is created from within
-> the kernel through debugfs_create. There are probably other notifications
-> missing, but here is the patch adding the one I care about. Should it be added
-> in libfs or in debugfs ?
+On Wed, Nov 22, 2006 at 10:32:36AM +0000, Pádraig Brady wrote:
 
-So does this fix the inotify issue?
+ > > Heh, it's amazing how commonplace that mistake is.
+ > > Come back bzero, all is forgiven..
+ > 
+ > It's interesting to do the following on google codesearch
+ > 
+ > lang:^(c|c\+\+)$ memset\ *\(.*,\ *0\ *\);
+ > http://tinyurl.com/y47qu4
+ > 
+ > lang:^(c|c\+\+)$ \sif\([^)]*\);
+ > http://tinyurl.com/y4mdbl
+ > 
+ > It would be interesting to build
+ > up a suite of these regular expressions.
 
-> A second problem I noticed is when a caller calls debugfs_create_file more than
-> once : the result is that the debugfs_remove will fail. I guess the second call
-> to debugfs_create_file increments the reference counts (there is not fix for
-> this issue in my patch).
-> 
-> Third problem : a failing call to debugfs_remove keeps the filesystem pinned.
-> (fixed by calling simple_release_fs in the error path).
-> 
-> The third problem : When a process is in a directory, the call to simple_rmdir
-> will fail. Debugfs does not use its return value. I noticed that calling
-> simple_unlink on a directory when simple_rmdir fails removes the directory that
-> would otherwise be left there. I am not sure if this approach is correct
-> through.
-> 
-> This patch is against Linux 2.6.18.
+A bunch of people already started gathering these a day
+or so after codesearch launched..
 
-Care to split this into 4 different patches (you seem to have 4 issues
-here), so that it's easier to see them, and it will follow the
-1-patch-per-issue rule?
+http://asert.arbornetworks.com/2006/10/static-code-analysis-using-google-code-search/
+is a good start.
+http://www.cipher.org.uk/index.php?p=projects/bugle.project
+is also somewhat interesting (but from a security bug standpoint only)
 
-thanks,
+I've got some crufty shell scripts that I grew that I use
+from time to time that just grep a bunch of patterns, I've had
+"put them all together and make one decent one" on my todo
+for a while. I'll see if I can get to it this week.
+I've used these occasionally not just to find bugs in the kernel
+but across a completely unpacked distro source tree.
+Amazing what turns up sometimes.
 
-greg k-h
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

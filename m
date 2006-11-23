@@ -1,108 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933875AbWKWUSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933572AbWKWUUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933875AbWKWUSr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWUSq
+	id S933572AbWKWUUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWUUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:18:46 -0500
-Received: from master.altlinux.org ([62.118.250.235]:32009 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP id S933875AbWKWUSp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:18:45 -0500
-Date: Thu, 23 Nov 2006 23:18:25 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Mathieu Fluhr <mfluhr@nero.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 'False' IO error when copying from cdrom drive
-Message-Id: <20061123231825.342a3237.vsu@altlinux.ru>
-In-Reply-To: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
-References: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; x86_64-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq"
+	Thu, 23 Nov 2006 15:20:45 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:33552 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S933572AbWKWUUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 15:20:44 -0500
+Message-ID: <45660298.3090003@shadowen.org>
+Date: Thu, 23 Nov 2006 20:20:40 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mariusz Kozlowski <m.kozlowski@tuxland.pl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm1
+References: <20061123021703.8550e37e.akpm@osdl.org>	<200611231223.48703.m.kozlowski@tuxland.pl> <20061123103607.af7ae8b0.akpm@osdl.org>
+In-Reply-To: <20061123103607.af7ae8b0.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: url=http://www.shadowen.org/~apw/public-key
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote:
+> On Thu, 23 Nov 2006 12:23:48 +0100
+> Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
+> 
+>> Hello,
+>>
+>> 	Hmmm ... didn't apply cleanly.
+>>
+>> patching file kernel/tsacct.c
+>> Hunk #1 FAILED at 97.
+>> 1 out of 1 hunk FAILED -- saving rejects to file kernel/tsacct.c.rej
+> 
+> I think your local tree is not clean.
 
-On Thu, 23 Nov 2006 20:48:25 +0100 Mathieu Fluhr wrote:
+I get this accross the board on my test system too.  All clean downloads.
 
-> I explain: First take this really simple program:
-> ----8<------------------------------------------------------------------
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
->
->
-> int main(int argc, char **argv)
-> {
->   if(argc < 2)
->     return 0;
->
->   int iFD = open(argv[1], O_RDONLY | O_NONBLOCK);
->   if(iFD == -1)
->     perror("open");
->
->   while(1)
->     sleep(1);
->
->   return 0;
-> }
-> ----8<-----------------------------------------------------------------
-[..]
-> Ok. Now take a full DVD (I tested DVD+R, +RW and -R), with more than
-> 4 300 000 000 bytes (very important :), and perform the following:
->
-> 0. Open the tray of your recorder
-> 1. Launch this small program above, passing the recorder device file as
->    argument and let it run in background.
+A quick look at the combo-patch and the broken-out patch seems to
+indicate they are not in sync with each other.  In the combo-patch we
+have this hunk (which is the one which fails):
 
-At this time the following code in drivers/ide/ide-cd.c:cdrom_read_toc()
-is executed:
+--- linux-2.6.19-rc6/kernel/tsacct.c    2006-11-16 23:19:32.000000000 -0800
++++ devel/kernel/tsacct.c       2006-11-23 01:12:17.000000000 -0800
+@@ -97,7 +97,14 @@ void xacct_add_tsk(struct taskstats *sta
+        stats->read_syscalls    = p->syscr;
+        stats->write_syscalls   = p->syscw;
+ #ifdef CONFIG_TASK_IO_ACCOUNTING
+-       stats->read_bytes       = p->ioac->read_bytes
++       stats->read_bytes       = p->ioac.read_bytes;
++       stats->write_bytes      = p->ioac.write_bytes;
++       stats->cancelled_write_bytes = p->ioac.cancelled_write_bytes;
++#else
++       stats->read_bytes       = 0;
++       stats->write_bytes      = 0;
++       stats->cancelled_write_bytes = 0;
++#endif
 
-	/* Try to get the total cdrom capacity and sector size. */
-	stat = cdrom_read_capacity(drive, &toc->capacity, &sectors_per_frame,
-				   sense);
-	if (stat)
-		toc->capacity = 0x1fffff;
+In the broken-out directory the only patch which references this file
+has the following different hunk:
 
-	set_capacity(info->disk, toc->capacity * sectors_per_frame);
+--- a/kernel/tsacct.c~io-accounting-via-taskstats
++++ a/kernel/tsacct.c
+@@ -96,6 +96,15 @@ void xacct_add_tsk(struct taskstats *sta
+        stats->write_char       = 0;
+        stats->read_syscalls    = p->syscr;
+        stats->write_syscalls   = p->syscw;
++#ifdef CONFIG_TASK_IO_ACCOUNTING
++       stats->read_bytes       = p->ioac.read_bytes;
++       stats->write_bytes      = p->ioac.write_bytes;
++       stats->cancelled_write_bytes = p->ioac.cancelled_write_bytes;
++#else
++       stats->read_bytes       = 0;
++       stats->write_bytes      = 0;
++       stats->cancelled_write_bytes = 0;
++#endif
+ }
+ #undef KB
+ #undef MB
 
-Obviously, with the tray open cdrom_read_capacity() won't succeed,
-therefore toc->capacity will be set to 0x1fffff.
+Looking at 2.6.19-rc6 this second version seems completely reasonable.
+The former does not.
 
-> 2. then put the disc in the device and mount it
-> 3. try to copy to whole content on the hard drive
->
-> -> You will get an error like the following:
->   > kernel: attempt to access beyond end of device
->   > kernel: hdb: rw=0, want=8388612, limit=8388604
+-apw
 
-0x1fffff * 2048/512 == 8388604
-
-Your background program is keeping the device open, which prevents
-revalidation of capacity and other media information on subsequent
-device opens.
-
-When HAL polls CD-ROM devices to detect newly inserted media, it does
-not keep the device open forever - instead, it opens and closes the
-device every time.  Your program should either do the same thing, or
-just depend on HAL events.
-
---Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFZgIUW82GfkQfsqIRAoAGAJ4r/K07ahHEYsrlIjvFWAXts0ouhwCgkfGY
-CeY99Wa3hdLQfhjc5Uvd9EQ=
-=z7Ps
------END PGP SIGNATURE-----
-
---Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq--

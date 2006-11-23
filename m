@@ -1,85 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757491AbWKWWsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757488AbWKWXXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757491AbWKWWsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 17:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757490AbWKWWsQ
+	id S1757488AbWKWXXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 18:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757485AbWKWXXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 17:48:16 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:37050 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1757489AbWKWWsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 17:48:14 -0500
-Message-ID: <45662522.9090101@garzik.org>
-Date: Thu, 23 Nov 2006 17:48:02 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
-Subject: Re: [take25 1/6] kevent: Description.
-References: <11641265982190@2ka.mipt.ru> <456621AC.7000009@redhat.com>
-In-Reply-To: <456621AC.7000009@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 23 Nov 2006 18:23:03 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:57293 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1757482AbWKWXXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 18:23:01 -0500
+Date: Fri, 24 Nov 2006 00:21:44 +0100
+From: Chris Friedhoff <chris@friedhoff.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Friedhoff <chris@friedhoff.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: security: introduce file caps
+Message-Id: <20061124002144.18231ae9.chris@friedhoff.org>
+In-Reply-To: <20061123214159.GA23800@sergelap.austin.ibm.com>
+References: <20061114030655.GB31893@sergelap>
+	<20061123001458.fe73f64a.akpm@osdl.org>
+	<20061123002207.5e18bade.akpm@osdl.org>
+	<20061123131203.f7b6972f.chris@friedhoff.org>
+	<20061123103920.8d908952.akpm@osdl.org>
+	<20061123214159.GA23800@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9d7f00276fac4b25ba506f26988c1e36
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Evgeniy Polyakov wrote:
->> + int kevent_commit(int ctl_fd, unsigned int start, +     unsigned int 
->> num, unsigned int over);
+I can confirm this behavior, but only in the interaction of xinit and X.
+ping and ntpdate behave with a patched kernel but
+CONFIG_SECURITY_FS_CAPABILITIES=n like expected, even with empty or
+wrong capabilities. Tested with 2.6.18.3 kernel
+
+Chris
+
+
+
+ On Thu, 23 Nov 2006 15:41:59 -0600
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+
+> Quoting Andrew Morton (akpm@osdl.org):
+> > On Thu, 23 Nov 2006 13:12:03 +0100
+> > Chris Friedhoff <chris@friedhoff.org> wrote:
+> > 
+> > > xinit respects capabilities (at least i guess), so when the system has
+> > > capability-support, the binary /usr/X11R6/bin/xinit neeeds the
+> > > capability cap_kill even when no capability extended attribute exists
+> > > for this binary.
+> > >
+> > > setfcaps cap_kill=ep /usr/X11R6/bin/xinit
+> > >
+> > > I documented this here:
+> > > http://www.friedhoff.org/fscaps.html#Xorg,%20xinit,%20xfce,%20kde
+> > >
+> > > and for more:
+> > > http://www.friedhoff.org/fscaps.html
+> > >
+> > 
+> > Even when CONFIG_SECURITY_FS_CAPABILITIES=n?
 > 
-> I think we can simplify this interface:
+> No, the patch shouldn't change behavior when
+> CONFIG_SECURITY_FS_CAPABILITIES=n, though of course I see why it did.  I
+> will send a fixed patch tomorrow or this weekend.
 > 
->    int kevent_commit(int ctl_fd, unsigned int new_tail,
->                      unsigned int over);
-> 
-> The kernel sets the ring_uidx value to the 'new_tail' value if the tail 
-> pointer would be incremented (module wrap around) and is not higher then 
-> the current front pointer.  The test will be a bit complicated but not 
-> more so than what the current code has to do to check for mistakes.
-> 
-> This approach has the advantage that the commit calls don't have to be 
-> synchronized.  If one thread sets the tail pointer to, say, 10 and 
-> another to 12, then it does not matter whether the first thread is 
-> delayed.  If it will eventually be executed the result is simply a no-op 
-> and since second thread's action supersedes it.
-> 
-> Maybe the current form is even impossible to use with explicit locking 
-> at userlevel.  What if one thread, which is about to call kevent_commit, 
-> if indefinitely delayed.  Then this commit request's value is never 
-> taken into account and the tail pointer is always short of what it 
-> should be.
-
-I'm really wondering is designing for N-threads-to-1-ring is the wisest 
-choice?
-
-Considering current designs, it seems more likely that a single thread 
-polls for socket activity, then dispatches work.  How often do you 
-really see in userland multiple threads polling the same set of fds, 
-then fighting to decide who will handle raised events?
-
-More likely, you will see "prefork" (start N threads, each with its own 
-ring) or a worker pool (single thread receives events, then dispatches 
-to multiple threads for execution) or even one-thread-per-fd (single 
-thread receives events, then starts new thread for handling).
-
-If you have multiple threads accessing the same ring -- a poor design 
-choice -- I would think the burden should be on the application, to 
-provide proper synchronization.
-
-If the desire is to have the kernel distributes events directly to 
-multiple threads, then the app should dup(2) the fd to be watched, and 
-create a ring buffer for each separate thread.
-
-	Jeff
+> sorry,
+> -serge
 
 
+--------------------
+Chris Friedhoff
+chris@friedhoff.org

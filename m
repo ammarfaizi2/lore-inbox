@@ -1,94 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757284AbWKWRHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757068AbWKWRMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757284AbWKWRHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 12:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757434AbWKWRHX
+	id S1757068AbWKWRMe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 12:12:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757435AbWKWRMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 12:07:23 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:22217
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1757284AbWKWRHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 12:07:23 -0500
-Date: Thu, 23 Nov 2006 17:06:43 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>,
-       Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] mm cleanup indentation on switch for CPU operations
-Message-ID: <d3834f4738558732cf0c495e42352955@pinky>
+	Thu, 23 Nov 2006 12:12:34 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59014 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1757068AbWKWRMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 12:12:33 -0500
+Date: Thu, 23 Nov 2006 09:11:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mel Gorman <mel@skynet.ie>
+cc: Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
+In-Reply-To: <20061123163613.GA25818@skynet.ie>
+Message-ID: <Pine.LNX.4.64.0611230906110.27596@woody.osdl.org>
+References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+ <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211637120.3338@woody.osdl.org> <20061123163613.GA25818@skynet.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Andy Whitcroft <apw@shadowen.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mm: cleanup indentation on switch for CPU operations
 
-These patches introduced new switch statements which are indented
-contrary to the concensus in mm/*.c.  Fix them up to match that
-concensus.
 
-    [PATCH] node local per-cpu-pages
-    [PATCH] ZVC: Scale thresholds depending on the size of the system
-    commit e7c8d5c9955a4d2e88e36b640563f5d6d5aba48a
-    commit df9ecaba3f152d1ea79f2a5e0b87505e03f47590
+On Thu, 23 Nov 2006, Mel Gorman wrote:
+>
+> There are a suprising number of GFP_HIGHUSER users. I've included an
+> untested patch below to give an idea of what the reworked patch would
+> look like.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 19ab611..21b0bfb 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -2220,16 +2220,16 @@ static int __cpuinit pageset_cpuup_callb
- 	int ret = NOTIFY_OK;
- 
- 	switch (action) {
--		case CPU_UP_PREPARE:
--			if (process_zones(cpu))
--				ret = NOTIFY_BAD;
--			break;
--		case CPU_UP_CANCELED:
--		case CPU_DEAD:
--			free_zone_pagesets(cpu);
--			break;
--		default:
--			break;
-+	case CPU_UP_PREPARE:
-+		if (process_zones(cpu))
-+			ret = NOTIFY_BAD;
-+		break;
-+	case CPU_UP_CANCELED:
-+	case CPU_DEAD:
-+		free_zone_pagesets(cpu);
-+		break;
-+	default:
-+		break;
- 	}
- 	return ret;
- }
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index 60dd793..696bc5c 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -685,13 +685,13 @@ static int __cpuinit vmstat_cpuup_callba
- 		void *hcpu)
- {
- 	switch (action) {
--		case CPU_UP_PREPARE:
--		case CPU_UP_CANCELED:
--		case CPU_DEAD:
--			refresh_zone_stat_thresholds();
--			break;
--		default:
--			break;
-+	case CPU_UP_PREPARE:
-+	case CPU_UP_CANCELED:
-+	case CPU_DEAD:
-+		refresh_zone_stat_thresholds();
-+		break;
-+	default:
-+		break;
- 	}
- 	return NOTIFY_OK;
- }
+Thanks. Seeing the patch actually was useful, because I think this isa 
+good idea quite regardless of anything else: it adds a certain amount of 
+"inherent documentation" when you see a line like
+
+	page = alloc_page(GFP_HIGHUNMOVABLE);
+
+because it makes it very obvious that something is going on.
+
+At the same time, I do get the feelign that maybe we should simply go the 
+other way: talk about allocating MOVABLE pages instead of talking about 
+allocating pages that are NOT movable.
+
+Because usually it's really that way you think about it: when you allocate 
+a _movable_ page, you need to add support for moving it some way (ie you 
+need to put it on the proper page-cache lists etc), while a page that you 
+don't think about is generally _not_ movable.
+
+So: I think this is the right direction, but I would actually prefer to 
+see
+
+	page = alloc_page(GFP_[HIGH_]MOVABLE);
+
+instead, and then just teach the routines that create movable pages 
+(whether they are movable because they are in the page cache, or for some 
+other reason) to use that flag instead of GFP_[HIGH]USER.
+
+And the assumption would be that if it's MOVABLE, then it's obviously a 
+USER allocation (it it can fail much more eagerly - that's really what the 
+whole USER bit ends up meaning internally).
+
+			Linus

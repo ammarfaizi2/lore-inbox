@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755091AbWKWDlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755519AbWKWDvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755091AbWKWDlT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 22:41:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755112AbWKWDlT
+	id S1755519AbWKWDvu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 22:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755532AbWKWDvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 22:41:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25571 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1755084AbWKWDlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 22:41:18 -0500
-Date: Wed, 22 Nov 2006 19:34:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
-       e1000-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 2/5] PCI : Move pci_fixup_device and is_enabled
-Message-ID: <20061123033451.GB15439@kroah.com>
-References: <456404EF.3090902@jp.fujitsu.com> <20061122180901.GD378@colo.lackof.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061122180901.GD378@colo.lackof.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 22 Nov 2006 22:51:50 -0500
+Received: from wx-out-0506.google.com ([66.249.82.225]:52283 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1755519AbWKWDvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 22:51:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding:from:message-id;
+        b=NogK5AksekRwym78FR18PhlCnMliviqdF4DRH4P8JhRqYForg71wMmpK5yJ248IBire3Gad9MjBKOITz8nbALOlWI2fQ8+SY/mW2K2Cr3H9Idsxvc8Ph8bAFytGhtNsf3Y0K72+eiQdFGjZOcDVsYCimqmkSb9eXdc90t7YUhBU=
+Date: Thu, 23 Nov 2006 12:50:47 +0900 (JST)
+To: hirofumi@mail.parknet.co.jp
+Cc: smartart@tiscali.it, linux-kernel@vger.kernel.org
+Subject: Re: bug? VFAT copy problem
+In-Reply-To: <87mz6kajks.fsf@duaron.myhome.or.jp>
+References: <877ixqhvlw.fsf@duaron.myhome.or.jp>
+	<20061120184912.5e1b1cac@localhost>
+	<87mz6kajks.fsf@duaron.myhome.or.jp>
+X-Mailer: Mew version 4.2 on Emacs 22.0.90 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: junjiec@gmail.com
+Message-ID: <45651ad4.562a64ed.0e8d.ffffd499@mx.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 11:09:01AM -0700, Grant Grundler wrote:
-> On Wed, Nov 22, 2006 at 05:06:07PM +0900, Hidetoshi Seto wrote:
-> > --- linux-2.6.19-rc6.orig/drivers/pci/pci.c
-> > +++ linux-2.6.19-rc6/drivers/pci/pci.c
-> > @@ -558,12 +558,18 @@
-> >  {
-> >  	int err;
-> > 
-> > +	if (dev->is_enabled)
-> > +		return 0;
+Hi,
+
+We encountered this problem before,it did being caused by dcache.
+When creating files, VFS would check the dcache first and pass the dentry
+it found there to vfat_create(). Instead of dentry , using the path info
+passed by user solved the problem.
+
+--- namei.c	2006-11-18 18:41:58.000000000 +0900
++++ namei.c.new	2006-11-23 12:45:34.000000000 +0900
+@@ -742,7 +742,7 @@
+ 	lock_kernel();
+ 
+ 	ts = CURRENT_TIME_SEC;
+-	err = vfat_add_entry(dir, &dentry->d_name, 0, 0, &ts, &sinfo);
++	err = vfat_add_entry(dir, &nd->last, 0, 0, &ts, &sinfo);
+ 	if (err)
+ 		goto out;
+ 	dir->i_version++;
+
+
+
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: bug? VFAT copy problem
+Date: Wed, 22 Nov 2006 00:46:43 +0900
+
+> The Peach <smartart@tiscali.it> writes:
 > 
-> This is unfortunately going to collide with the previous
-> patch posted by inaky@linux.intel.com:
+> > On Tue, 21 Nov 2006 02:32:43 +0900
+> > OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+> >
+> >> I couldn't reproduce this for now. Could you tell mount options which
+> >> you used? and after mount, "cat /proc/mounts", please.
+> >
+> > # mount | grep vfat 
+> > /dev/sdb1 on /mnt/iomega type vfat (rw,uid=1000,gid=100,codepage=850,iocharset=iso8859-15) 
+> >
+> > it seems only related to those kind of files, but I don't know how to inspect the "file properties" and why these files behave like this.
+> > As you can see and with a strace made on cp, the files _seems_ to be copied with the correct case, whilst it isn't, as seen with "ls". This and other things let me think is a vfat problem.
 > 
->     Subject: [patch 0/2] pci: make pci_{enable,disable}_device() be nested
-
-Not a problem, that's what I'm here for :)
-
-thanks,
-
-greg k-h
+> Hmm... This may be the dentry cache handling problem of fat.
+> 
+> Can you try the attached debug patch? And if you comment-in the
+> following parts, does this problem fix?
+> 
+> @@ -787,6 +830,9 @@ static int vfat_rmdir(struct inode *dir,
+>  	clear_nlink(inode);
+>  	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+>  	fat_detach(inode);
+> +	/* need to revalidate for next create */
+> +	table = (sbi->options.name_check == 's') ? 3 : 1;
+> +//	dentry->d_op = &vfat_dentry_ops[table];
+> @@ -811,6 +858,9 @@ static int vfat_unlink(struct inode *dir
+>  	clear_nlink(inode);
+>  	inode->i_mtime = inode->i_atime = CURRENT_TIME_SEC;
+>  	fat_detach(inode);
+> +	/* need to revalidate for next create */
+> +	table = (sbi->options.name_check == 's') ? 3 : 1;
+> +//	dentry->d_op = &vfat_dentry_ops[table];
+> -- 
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> 

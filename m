@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932929AbWKWC0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932832AbWKWCcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932929AbWKWC0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 21:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932932AbWKWC0Y
+	id S932832AbWKWCcH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 21:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933026AbWKWCcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 21:26:24 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:15778 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932929AbWKWC0Y (ORCPT
+	Wed, 22 Nov 2006 21:32:06 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:24995 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932832AbWKWCcE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 21:26:24 -0500
-Date: Wed, 22 Nov 2006 18:26:10 -0800
+	Wed, 22 Nov 2006 21:32:04 -0500
+Date: Wed, 22 Nov 2006 18:31:22 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: "Conke Hu" <conke.hu@amd.com>
-Cc: <linux-kernel@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>, Anatoli Antonovitch <antonovi@ati.com>,
+       Jeff Garzik <jeff@garzik.org>, Tejun Heo <htejun@gmail.com>
 Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
-Message-Id: <20061122182610.4d9f3d98.akpm@osdl.org>
+Message-Id: <20061122183122.1a137815.akpm@osdl.org>
 In-Reply-To: <FFECF24D2A7F6D418B9511AF6F3586020108CD36@shacnexch2.atitech.com>
 References: <FFECF24D2A7F6D418B9511AF6F3586020108CD36@shacnexch2.atitech.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
@@ -49,8 +50,43 @@ On Thu, 23 Nov 2006 06:23:50 +0800
 > +	{ PCI_VENDOR_ID_ATI, 0x4380, PCI_ANY_ID, PCI_ANY_ID, 0x010600, 0xffff00, 
 > +	  board_ahci },
 > +#endif
->  	{ PCI_VDEVICE(ATI, 0x4381), board_ahci }, /* ATI SB600 raid */
 
-I doubt if it's appropriate to do all this via ifdefs.  Users don't compile
-their kernels - others compile them for the users.  We need the one kernel
-binary to support both modes.   Possible?
+And your patch conflicts in mysterious ways with the below.
+
+I've been sitting on this patch for three months.  I don't know why.
+
+
+From: "Anatoli Antonovitch" <antonovi@ati.com>
+
+Automatically match the proper driver for different SATA/IDE modes of SB600
+SATA controller: ahci for SATA/Native IDE/RAID modes and ATIIXP_IDE for legacy
+mode.
+
+Signed-off-by: Anatoli Antonovitch <antonovi@ati.com>
+Cc: Jeff Garzik <jeff@garzik.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/ata/ahci.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff -puN drivers/ata/ahci.c~ahci-ati-sb600-sata-support-for-various-modes drivers/ata/ahci.c
+--- a/drivers/ata/ahci.c~ahci-ati-sb600-sata-support-for-various-modes
++++ a/drivers/ata/ahci.c
+@@ -323,7 +323,12 @@ static const struct pci_device_id ahci_p
+ 	{ PCI_VDEVICE(JMICRON, 0x2366), board_ahci }, /* JMicron JMB366 */
+ 
+ 	/* ATI */
+-	{ PCI_VDEVICE(ATI, 0x4380), board_ahci }, /* ATI SB600 non-raid */
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
++	  PCI_ANY_ID, 0x010600, 0xffff00, board_ahci }, /* ATI SB600 AHCI */
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
++	  PCI_ANY_ID, 0x010400, 0xffff00, board_ahci }, /* ATI SB600 raid */
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
++	  PCI_ANY_ID, (PCI_CLASS_STORAGE_IDE<<8)|0x8f, 0xffff05, board_ahci }, /* ATI SB600 native IDE */
+ 	{ PCI_VDEVICE(ATI, 0x4381), board_ahci }, /* ATI SB600 raid */
+ 
+ 	/* VIA */
+_
+

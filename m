@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757358AbWKWMZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933268AbWKWM0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757358AbWKWMZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 07:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757359AbWKWMZY
+	id S933268AbWKWM0H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 07:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933600AbWKWM0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 07:25:24 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:28838 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1757358AbWKWMZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 07:25:22 -0500
-Date: Thu, 23 Nov 2006 15:22:25 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061123122225.GD20294@2ka.mipt.ru>
-References: <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru> <20061122121516.GA7229@2ka.mipt.ru> <4564CE00.9030904@redhat.com>
+	Thu, 23 Nov 2006 07:26:06 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15806 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933268AbWKWM0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 07:26:05 -0500
+Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Jason Gaston <jason.d.gaston@intel.com>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, i2c@lm-sensors.org
+In-Reply-To: <20061123130938.5818ad16.khali@linux-fr.org>
+References: <200611221519.12373.jason.d.gaston@intel.com>
+	 <20061123130938.5818ad16.khali@linux-fr.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 23 Nov 2006 13:25:57 +0100
+Message-Id: <1164284758.31358.781.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4564CE00.9030904@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 23 Nov 2006 15:22:28 +0300 (MSK)
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 02:24:00PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >On Wed, Nov 22, 2006 at 03:09:34PM +0300, Evgeniy Polyakov 
-> >(johnpol@2ka.mipt.ru) wrote:
-> >>Ok, to solve the problem in the way which should be good for both I
-> >>decided to implement additional syscall which will allow to mark any
-> >>event as ready and thus wake up appropriate threads. If userspace will
-> >>request zero events to be marked as ready, syscall will just
-> >>interrupt/wakeup one of the listeners parked in syscall.
+On Thu, 2006-11-23 at 13:09 +0100, Jean Delvare wrote:
+> Hi Jason,
 > 
-> I'll wait for the new code drop to comment.
-
-I posted it.
- 
-> >Btw, what about putting aditional multiplexer into add/remove/modify
-> >switch? There will be logical 'ready' addon?
+> On Wed, 22 Nov 2006 15:19:12 -0800, Jason Gaston wrote:
+> > This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
+> > This patch relies on the irq ICH9 patch to pci_ids.h.
 > 
-> Is it needed?  Usually this is done with a *_wait call with a timeout of 
-> zero.  That code path might have to be optimized but it should already 
-> be there.
+> Looks good. Care to also update Documentation/i2c/busses/i2c-i801? I
+> see it misses at least the ICH8 and ESB2 as well.
+> 
+> I would also appreciate an update to lm_sensors' sensors-detect script,
+> if you could send a patch to the sensors list.
 
-It does not allow to mark events as ready.
-And current interfaces wake up when either timeout is zero (in this case
-thread itself does not sleep and can process events), or when there is
-_new_ work - since there is no _new_ work, when thread awakened to
-process it was killed, kernel does not think that something is wrong.
 
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
+hmmm couldn't the sensors-detect script just at runtime look at the pci
+tables in the modules? that way no need to duplicate/update all of this
+in multiple places...
 
 -- 
-	Evgeniy Polyakov
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

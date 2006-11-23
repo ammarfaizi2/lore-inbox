@@ -1,50 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757464AbWKWUkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933924AbWKWUnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757464AbWKWUkl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757465AbWKWUkl
+	id S933924AbWKWUnR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933930AbWKWUnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:40:41 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:3262 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1757464AbWKWUkk (ORCPT
+	Thu, 23 Nov 2006 15:43:17 -0500
+Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:60220
+	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
+	with ESMTP id S933924AbWKWUnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:40:40 -0500
-Date: Thu, 23 Nov 2006 13:40:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] WorkStruct: Shrink work_struct by two thirds
-Message-Id: <20061123134011.bfbe51a9.akpm@osdl.org>
-In-Reply-To: <20447.1164312071@redhat.com>
-References: <Pine.LNX.4.64.0611230920230.27596@woody.osdl.org>
-	<20061122132008.2691bd9d.akpm@osdl.org>
-	<20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com>
-	<10937.1164282273@redhat.com>
-	<20447.1164312071@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 23 Nov 2006 15:43:16 -0500
+Date: Thu, 23 Nov 2006 12:40:54 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061123204054.GA4533@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061119190027.GA3676@oleg> <20061123145910.GA145@oleg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061123145910.GA145@oleg>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 20:01:11 +0000
-David Howells <dhowells@redhat.com> wrote:
-
-> Linus Torvalds <torvalds@osdl.org> wrote:
+On Thu, Nov 23, 2006 at 05:59:10PM +0300, Oleg Nesterov wrote:
+> (Sorry, responding to the wrong message)
 > 
-> > I obviously didn't see how nasty the conflicts were, and I would want it 
-> > to be not too painful for Andrew. So I could either take it early after 
-> > 2.6.19 _or_ after Andrew has merged the bulk of his stuff, depending on 
-> > which way is easier.
+> Paul E. McKenney wrote:
+> >
+> > I am concerned about this as well, and am beginning to suspect that I
+> > need to make a special-purpose primitive specifically for Jens that he
+> > can include with his code.
 > 
-> Perhaps if Andrew gives me an estimate of what patches he's going to commit
-> this time around, I can use those as a base for my patch.
+> How about this?
+
+For Jens, it might be OK.  For general use, I believe that this has
+difficulties with the sequence of events I sent out on November 20th, see:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=116397154808901&w=2
+
+Might also be missing a few memory barriers, see below.
+
+> 	struct xxx_struct {
+> 		int completed;
+> 		atomic_t ctr[2];
+> 		struct mutex mutex;
+> 		wait_queue_head_t wq;
+> 	};
 > 
+> 	void init_xxx_struct(struct xxx_struct *sp)
+> 	{
+> 		sp->completed = 0;
+> 		atomic_set(sp->ctr + 0, 1);	// active
+> 		atomic_set(sp->ctr + 1, 0);	// inactive
+> 		mutex_init(&sp->mutex);
+> 		init_waitqueue_head(&sp->wq);
+> 	}
+> 
+> 	int xxx_read_lock(struct xxx_struct *sp)
+> 	{
+> 		for (;;) {
+> 			int idx = sp->completed & 0x1;
+> 			if (likely(atomic_inc_not_zero(sp->ctr + idx)))
 
-Most of the outstanding work is in git trees, so I don't know.
+Need an after-atomic-inc memory barrier here?
 
-Just merge it late in merge window - we'll work it out.
+> 				return idx;
+> 		}
+> 	}
+> 
+> 	void xxx_read_unlock(struct xxx_struct *sp, int idx)
+> 	{
 
-But please make sure it's all done this time.  ie: use grep.  Heaps of simple
-stuff got missed in the pt_regs conversion.  
+Need a before-atomic-dec memory barrier here?
+
+> 		if (unlikely(atomic_dec_and_test(sp->ctr + idx)))
+> 			wake_up(&sp->wq);
+> 	}
+> 
+> 	void synchronize_xxx(struct xxx_struct *sp)
+> 	{
+> 		int idx;
+> 
+> 		mutex_lock(&sp->mutex);
+> 
+> 		idx = ++sp->completed & 0x1;
+> 		smp_mb__before_atomic_inc();
+> 		atomic_inc(&sp->ctr + idx);
+> 
+> 		idx = !idx;
+> 		if (!atomic_dec_and_test(&sp->ctr + idx))
+> 			__wait_event(&sp->wq, !atomic_read(&sp->ctr + idx));
+
+I don't understand why an unlucky sequence of events mightn't be able
+to hang this __wait_event().  Suppose we did the atomic_dec_and_test(),
+then some other CPU executed xxx_read_unlock(), finding no one to awaken,
+then we execute the __wait_event()?  What am I missing here?
+
+> 
+> 		mutex_unlock(&sp->mutex);
+> 	}
+> 
+> Yes, cache thrashing... But I think this is hard to avoid if we want writer
+> to be fast.
+> 
+> I do not claim this is the best solution, but for some reason I'd like to
+> suggest something that doesn't need synchronize_sched(). What do you think
+> about correctness at least?
+
+The general approach seems reasonable, but I do have the concerns above.
+
+						Thanx, Paul

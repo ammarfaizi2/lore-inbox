@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757476AbWKWVeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757477AbWKWVfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757476AbWKWVeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 16:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757477AbWKWVeh
+	id S1757477AbWKWVfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 16:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757478AbWKWVfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 16:34:37 -0500
-Received: from mail.gmx.de ([213.165.64.20]:14249 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1757476AbWKWVeg (ORCPT
+	Thu, 23 Nov 2006 16:35:41 -0500
+Received: from main.gmane.org ([80.91.229.2]:9633 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1757477AbWKWVfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 16:34:36 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] PM: suspend/resume debugging should depend on
-	SOFTWARE_SUSPEND
-From: Mike Galbraith <efault@gmx.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20061123133904.GD5561@ucw.cz>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com>
-	 <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
-	 <1163958727.5977.15.camel@Homer.simpson.net>
-	 <200611191958.15152.rjw@sisk.pl>
-	 <1163966016.5744.8.camel@Homer.simpson.net>  <20061123133904.GD5561@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 23 Nov 2006 22:36:44 +0100
-Message-Id: <1164317804.6222.11.camel@Homer.simpson.net>
+	Thu, 23 Nov 2006 16:35:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Subject: Re: Entropy Pool Contents
+Date: Thu, 23 Nov 2006 22:34:43 +0100
+Message-ID: <ek546d$icj$1@sea.gmane.org>
+References: <ek2nva$vgk$1@sea.gmane.org> <20061123205436.GA16440@csclub.uwaterloo.ca>
+Reply-To: G.Ohrner@post.rwth-aachen.de
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: e179249004.adsl.alicedsl.de
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-23 at 13:39 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > Sane people use suspend-to-ram, and that's when you need the suspend and 
-> > > > > resume debugging.
-> > > > 
-> > > > Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
-> > > > AGP card, I have no choices except swsusp or reboot.
-> > > 
-> > > Have you tried s2ram (http://en.opensuse.org/S2ram)?
-> > 
-> > Cool.  That shows potential.  On an 2.6.19-rc6-rt4 kernel, it looked
-> > like it _might_ have eventually gotten past boot.  At one line of kernel
-> > output every ~10 seconds though, I gave up.  Virgin 2.6.19-rc6 went
-> > panic with a black screen... have options, will tinker.
-> 
-> Try that -rt kernel, but turn off dyntick/hires timers. Also try
-> hitting keyboard while resuming.
+Lennart Sorensen wrote:
+> Only some devices/drivers generate entropy data.  Some network drivers,
 
-Hmm, I'll try that.  Interesting (read odd from my perspective) that the
-rt kernel gets much further.  This is pretty hard to look at.
+Yes, I know, but block device operations should, and directly feeding data
+into /dev/*random, as I did, definitely should.
+
+This machine usually has only very limited entropy available, but the pool
+currently seeems to bee stuck at "0" - there's no way to get it to even
+display a slightly different number. That's what confused me pretty much...
+
+Normally doing disk IO helps a bit, but it currently does not at all.
+
+> pcnet32 and the 8250 driver to generate entropy since otherwise I tended
+> to run out very quickly.
+
+I guess I also should do that - as this machine has several network cards on
+different networks, that will be definiteely more seecure than running with
+a completely empty entropy pool stuck at zero bits for several days in a
+row...
+
+Greetings,
+
+  Gunter
 

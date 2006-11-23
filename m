@@ -1,298 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934205AbWKWWhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757491AbWKWWsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934205AbWKWWhA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 17:37:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934224AbWKWWhA
+	id S1757491AbWKWWsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 17:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757490AbWKWWsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 17:37:00 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:17567 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S934205AbWKWWg7 (ORCPT
+	Thu, 23 Nov 2006 17:48:16 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:37050 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1757489AbWKWWsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 17:36:59 -0500
-Date: Thu, 23 Nov 2006 23:36:49 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch 04/19] Add a framework to manage clock event devices.
-In-Reply-To: <20061109233034.526217000@cruncher.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.64.0611210159390.6242@scrub.home>
-References: <20061109233030.915859000@cruncher.tec.linutronix.de>
- <20061109233034.526217000@cruncher.tec.linutronix.de>
+	Thu, 23 Nov 2006 17:48:14 -0500
+Message-ID: <45662522.9090101@garzik.org>
+Date: Thu, 23 Nov 2006 17:48:02 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ulrich Drepper <drepper@redhat.com>
+CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Subject: Re: [take25 1/6] kevent: Description.
+References: <11641265982190@2ka.mipt.ru> <456621AC.7000009@redhat.com>
+In-Reply-To: <456621AC.7000009@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 9 Nov 2006, Thomas Gleixner wrote:
-
-> From: Thomas Gleixner <tglx@linutronix.de>
+Ulrich Drepper wrote:
+> Evgeniy Polyakov wrote:
+>> + int kevent_commit(int ctl_fd, unsigned int start, +     unsigned int 
+>> num, unsigned int over);
 > 
-> We have two types of clock event devices:
-> - global events (one device per system)
-> - local events (one device per cpu)
+> I think we can simplify this interface:
 > 
-> We assign the various time(r) related interrupts to those devices:
+>    int kevent_commit(int ctl_fd, unsigned int new_tail,
+>                      unsigned int over);
 > 
-> - global tick (advances jiffies)
-> - update process times (per cpu)
-> - profiling (per cpu)
-> - next timer events (per cpu)
+> The kernel sets the ring_uidx value to the 'new_tail' value if the tail 
+> pointer would be incremented (module wrap around) and is not higher then 
+> the current front pointer.  The test will be a bit complicated but not 
+> more so than what the current code has to do to check for mistakes.
 > 
-> Architectures register their clock event devices, with specific capability
-> bits set, and the framework code assigns the appropriate event handler to the
-> event device.  The functionality is assigned via an event handler to avoid
-> runtime evalutation of the assigned function bits.
+> This approach has the advantage that the commit calls don't have to be 
+> synchronized.  If one thread sets the tail pointer to, say, 10 and 
+> another to 12, then it does not matter whether the first thread is 
+> delayed.  If it will eventually be executed the result is simply a no-op 
+> and since second thread's action supersedes it.
 > 
-> This allows to control the clock event devices without the architectures
-> having to worry about the details of function assignment.  This is also a
-> preliminary for high resolution timers and dynamic ticks to allow the core
-> code to control the clock functionality without intrusive changes to the
-> architecture code.
+> Maybe the current form is even impossible to use with explicit locking 
+> at userlevel.  What if one thread, which is about to call kevent_commit, 
+> if indefinitely delayed.  Then this commit request's value is never 
+> taken into account and the tail pointer is always short of what it 
+> should be.
 
-I have a few problems with this code and I'd really prefer some more arch 
-maintainers would look at this (i.e. post it to the arch ml).
-It's basically limited to only one global and one per cpu timer, are you 
-sure this enough? Large systems may have several timer.
+I'm really wondering is designing for N-threads-to-1-ring is the wisest 
+choice?
 
-Even for cases I'm interested in I have no idea how to make use of it, 
-e.g. I have a somewhat limited timer, which can't be reprogrammed without 
-losing accuracy, but I have two (or maybe more) of them, so I can use one 
-as general tick timer and its interrupt can be disabled as needed and a 
-second timer can be used for dynamic timer events.
-Something else I want to use separate timer is for kernel profiling, 
-currently events started from the timer tick are basically invisible, so 
-I'd like to start profiling on a different timer with a different 
-frequency.
-Currently high resolution timer are used for quite a lot once enabled, but 
-I would like to see the option to limit them, i.e. use a low resolution 
-timer for standard tasks (e.g. itimer, nanosleep) and provide a separate 
-high resolution posix timer to user space.
+Considering current designs, it seems more likely that a single thread 
+polls for socket activity, then dispatches work.  How often do you 
+really see in userland multiple threads polling the same set of fds, 
+then fighting to decide who will handle raised events?
 
-This should give some idea of the background with which I'm looking at 
-this code and I'm trying to find an answer to the question, how generic 
-this really is and how usable this is beyond dynamic ticks.
+More likely, you will see "prefork" (start N threads, each with its own 
+ring) or a worker pool (single thread receives events, then dispatches 
+to multiple threads for execution) or even one-thread-per-fd (single 
+thread receives events, then starts new thread for handling).
 
-> +struct clock_event_device {
-> +	const char	*name;
-> +	unsigned int	capabilities;
-> +	unsigned long	max_delta_ns;
-> +	unsigned long	min_delta_ns;
-> +	unsigned long	mult;
-> +	int		shift;
-> +	void		(*set_next_event)(unsigned long evt,
-> +					  struct clock_event_device *);
-> +	void		(*set_mode)(enum clock_event_mode mode,
-> +				    struct clock_event_device *);
-> +	void		(*event_handler)(struct pt_regs *regs);
-> +};
-> +
-> +/*
-> + * Calculate a multiplication factor for scaled math, which is used to convert
-> + * nanoseconds based values to clock ticks:
-> + *
-> + * clock_ticks = (nanoseconds * factor) >> shift.
-> + *
-> + * div_sc is the rearranged equation to calculate a factor from a given clock
-> + * ticks / nanoseconds ratio:
-> + *
-> + * factor = (clock_ticks << shift) / nanoseconds
-> + */
-> +static inline unsigned long div_sc(unsigned long ticks, unsigned long nsec,
-> +				   int shift)
-> +{
-> +	uint64_t tmp = ((uint64_t)ticks) << shift;
-> +
-> +	do_div(tmp, nsec);
-> +	return (unsigned long) tmp;
-> +}
+If you have multiple threads accessing the same ring -- a poor design 
+choice -- I would think the burden should be on the application, to 
+provide proper synchronization.
 
-One possible problem in this area: the nsec2cycle multiplier is mostly
-constant AFAICT, where as the clock source cycle2nsec isn't (especially if 
-controlled via ntp). This means this could produce slightly wrong 
-results, the larger the longer the period is between timer interrupts.
+If the desire is to have the kernel distributes events directly to 
+multiple threads, then the app should dup(2) the fd to be watched, and 
+create a ring buffer for each separate thread.
+
+	Jeff
 
 
-> +
-> +#define MAX_CLOCK_EVENTS	4
-> +#define GLOBAL_CLOCK_EVENT	MAX_CLOCK_EVENTS
-> +
-> +struct event_descr {
-> +	struct clock_event_device *event;
-> +	unsigned int mode;
-> +	unsigned int real_caps;
-> +	struct irqaction action;
-> +};
-> +
-> +struct local_events {
-> +	int installed;
-> +	struct event_descr events[MAX_CLOCK_EVENTS];
-> +	struct clock_event_device *nextevt;
-> +	ktime_t	expires_next;
-> +};
-> +
-[...]
-> +static void handle_tick(struct pt_regs *regs)
-> +{
-> +	write_seqlock(&xtime_lock);
-> +	do_timer(1);
-> +	write_sequnlock(&xtime_lock);
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: ticks and update_process_times
-> + */
-> +static void handle_tick_update(struct pt_regs *regs)
-> +{
-> +	write_seqlock(&xtime_lock);
-> +	do_timer(1);
-> +	write_sequnlock(&xtime_lock);
-> +
-> +	update_process_times(user_mode(regs));
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: ticks and profileing
-> + */
-> +static void handle_tick_profile(struct pt_regs *regs)
-> +{
-> +	write_seqlock(&xtime_lock);
-> +	do_timer(1);
-> +	write_sequnlock(&xtime_lock);
-> +
-> +	profile_tick(CPU_PROFILING);
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: ticks, update_process_times and profiling
-> + */
-> +static void handle_tick_update_profile(struct pt_regs *regs)
-> +{
-> +	write_seqlock(&xtime_lock);
-> +	do_timer(1);
-> +	write_sequnlock(&xtime_lock);
-> +
-> +	update_process_times(user_mode(regs));
-> +	profile_tick(CPU_PROFILING);
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: update_process_times
-> + */
-> +static void handle_update(struct pt_regs *regs)
-> +{
-> +	update_process_times(user_mode(regs));
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: update_process_times and profiling
-> + */
-> +static void handle_update_profile(struct pt_regs *regs)
-> +{
-> +	update_process_times(user_mode(regs));
-> +	profile_tick(CPU_PROFILING);
-> +}
-> +
-> +/*
-> + * Bootup and lowres handler: profiling
-> + */
-> +static void handle_profile(struct pt_regs *regs)
-> +{
-> +	profile_tick(CPU_PROFILING);
-> +}
-> +
-> +/*
-> + * Noop handler when we shut down an event device
-> + */
-> +static void handle_noop(struct pt_regs *regs)
-> +{
-> +}
-> +
-> +/*
-> + * Lookup table for bootup and lowres event assignment
-> + *
-> + * The event handler is choosen by the capability flags of the clock event
-> + * device.
-> + */
-> +static void __read_mostly *event_handlers[] = {
-> +	handle_noop,			/* 0: No capability selected */
-> +	handle_tick,			/* 1: Tick only	*/
-> +	handle_update,			/* 2: Update process times */
-> +	handle_tick_update,		/* 3: Tick + update process times */
-> +	handle_profile,			/* 4: Profiling int */
-> +	handle_tick_profile,		/* 5: Tick + Profiling int */
-> +	handle_update_profile,		/* 6: Update process times +
-> +					      profiling */
-> +	handle_tick_update_profile,	/* 7: Tick + update process times +
-> +					      profiling */
-> +#ifdef CONFIG_HIGH_RES_TIMERS
-> +	hrtimer_interrupt,		/* 8: Reprogrammable event device */
-> +#endif
-> +};
-> +
-> [...]
-
-What's the point with all these little helper functions? This looks rather 
-inflexible to me. The generic code has to know about all timer events and 
-even provide helper to handle all variation between them?
-There might be a small performance benefit in doing this, usually I'm all 
-for it, but I don't think this one is really worth it. A simple list of 
-active events would be much simpler, e.g. something like this is what I 
-have in mind:
-
-	source->time = gettime();
-	source->timeout += MAX_TIMEOUT;
-	for_each_handler() {
-		if (source->time >= timer->timeout) {
-			...
-			source->timeout = min(source->timeout, timer->timeout);
-		}
-	}
-	reprogram_timer();
-
-The interrupt system already maintains a list of handler, so something 
-like this should be reasonably possible without any extra overhead. AFAICT 
-it could even simplify your hrtimer code by keeping realtime and 
-monotonic hrtimer separate. Right now you have one loop for 
-HRTIMER_MAX_CLOCK_BASES in the hrtimer code and another in the clock code 
-only to calculate the next timeout.
-
-The generic interrupt system already has a concept of per cpu interrupts, 
-IMO it's worth it to check out how it can be used for clock events. IMO 
-the core clock code should have almost no idea of per cpu clocks.
-
-Basically I have these problems with this code (maybe there is a reason 
-for all this, but I don't see it from the existing documentation):
-- generic code shouldn't care about the number of used hw timer
-- generic code shouldn't care about how these timers are used
-- the various clients shouldn't know about each other (e.g. the sched_tick 
-  code in the hrtimer source is just ugly).
-
-In this context I still don't understand why you insist on the strict 
-separation of clock events and sources, these _are_ related and separating 
-it like this prevents more flexible usage, e.g. to have multiple clock 
-sources and timer (and in many cases they are even the same).
-
-> +/*
-> + * Setup an event device. Assign an handler and start it up
-> + */
-> +static void setup_event(struct event_descr *descr,
-> +			struct clock_event_device *evt, unsigned int caps)
-> +{
-> +	void *handler = event_handlers[caps];
-
-These flags aren't really capabilities but intended usage. Every clock 
-event driver has already its possible usage hardcoded (sometimes even with 
-ugly ifdefs, e.g. lapic).
-Capabilities would be something like:
-- cpu local/global
-- reprogrammable/fixed timer
-Based on this the generic code should dynamically decide how to use and 
-attach the clients.
-
-bye, Roman

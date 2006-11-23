@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757078AbWKWIWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753211AbWKWIYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757078AbWKWIWt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757286AbWKWIWs
+	id S1753211AbWKWIYe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754887AbWKWIYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:22:48 -0500
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:63908 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1757078AbWKWIWr convert rfc822-to-8bit (ORCPT
+	Thu, 23 Nov 2006 03:24:33 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:61391 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1753211AbWKWIYc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:22:47 -0500
-Date: Thu, 23 Nov 2006 03:22:44 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Greg KH <greg@kroah.com>
-Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] libfs : file/directory removal fix, 2.6.18
-Message-ID: <20061123082244.GF1703@Krystal>
-References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Thu, 23 Nov 2006 03:24:32 -0500
+Date: Thu, 23 Nov 2006 09:24:33 +0100
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
+Message-ID: <20061123092433.1d2b9c95@frecb000686>
+In-Reply-To: <456424D7.7060204@oracle.com>
+References: <20061120151700.4a4f9407@frecb000686>
+	<20061120152252.7e5a4229@frecb000686>
+	<4561C60B.5000106@oracle.com>
+	<20061122104055.3d1c029a@frecb000686>
+	<456424D7.7060204@oracle.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/11/2006 09:31:35,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/11/2006 09:31:36,
+	Serialize complete at 23/11/2006 09:31:36
 Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20061122052730.GD20836@kroah.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 03:12:37 up 92 days,  5:20,  3 users,  load average: 0.05, 0.13, 0.17
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix file and directory removal in libfs. Add inotify support for file removal.
+On Wed, 22 Nov 2006 02:22:15 -0800
+Zach Brown <zach.brown@oracle.com> wrote:
 
-The following scenario :
-create dir a
-create dir a/b
+> >   OK, looking at this, there's something bothering me: io_submit_one() needs
+> > a pointer to the user iocb in order to push back the iocb->ki_key to userspace,
+> > as well as storing the user_iocb pointer into iocb->ki_obj.
+> 
+> Why can't it continue to do what it does today?  Both of those uses of
+> the user_iocb pointer involve fixed-width fields and don't need compat help.
 
-cd a/b (some process goes in cwd a/b)
+  Aah, right, thanks.
 
-rmdir a/b
-rmdir a
+> 
+> >   So I think that some of the logic in io_submit_one() must be moved up to
+> > sys_io_submit(), including the aio_get_req() call.
+> 
+> I don't see why that would be needed.
 
-fails due to the fact that "a" appears to be non empty. It is because the "b"
-dentry is not deleted from "a" and still in use. The same problem happens if
-"b" is a file. d_delete is nice enough to know when it needs to unhash and free
-the dentry if nothing else is using it or, if someone is using it, to remove it
-from the hash queues and wait for it to be deleted when it has no users.
-
-The nice side-effect of this fix is that it calls the file removal
-notification.
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+  Not anymore, indeed.
 
 
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -276,6 +276,7 @@ int simple_unlink(struct inode *dir, str
- 
- 	inode->i_ctime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
- 	inode->i_nlink--;
-+	d_delete(dentry);
- 	dput(dentry);
- 	return 0;
- }
+  Thanks,
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+  Sébastien.

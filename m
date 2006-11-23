@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757327AbWKWKMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755518AbWKWKOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757327AbWKWKMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 05:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757328AbWKWKMJ
+	id S1755518AbWKWKOU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 05:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757328AbWKWKOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 05:12:09 -0500
-Received: from bay0-omc2-s37.bay0.hotmail.com ([65.54.246.173]:20137 "EHLO
-	bay0-omc2-s37.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S1757327AbWKWKMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 05:12:06 -0500
-Message-ID: <BAY107-F28F506ED79A35F4FF31CF39CE20@phx.gbl>
-X-Originating-IP: [87.81.120.187]
-X-Originating-Email: [dcb314@hotmail.com]
-From: "d binderman" <dcb314@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel/hrtimer.c(511): remark #593: variable "base" was set but never used    
-Date: Thu, 23 Nov 2006 10:12:03 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 23 Nov 2006 10:12:06.0173 (UTC) FILETIME=[D41504D0:01C70EE7]
+	Thu, 23 Nov 2006 05:14:20 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:10188 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1755518AbWKWKOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 05:14:19 -0500
+Message-ID: <4565747A.5010208@s5r6.in-berlin.de>
+Date: Thu, 23 Nov 2006 11:14:18 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: Burman Yan <yan_952@hotmail.com>
+CC: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 2.6.19-rc5] i386: replace kmalloc+memset with kzalloc
+References: <BAY20-F2488E0B821BA4687F5F6FCD8E30@phx.gbl>
+In-Reply-To: <BAY20-F2488E0B821BA4687F5F6FCD8E30@phx.gbl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Burman Yan wrote:
+> This patch replaces kmalloc+memset with kzalloc in i386 arch files
 
-Hello there,
+Send patches inline. Or if you and only have access to a MUA which
+reformats inline text but have an urgent patch, send as attachment in
+7bit ASCII encoding, typed as text/plain or text/x-patch.
 
-I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-C compiler.
-
-The compiler said
-
-kernel/hrtimer.c(511): remark #593: variable "base" was set but never used
-
-The source code is
-
-    struct hrtimer_base *base;
-
-I have checked the source code and I agree with the compiler.
-Suggest delete local variable.
-
-Regards
-
-David Binderman
-
-_________________________________________________________________
-Be the first to hear what's new at MSN - sign up to our free newsletters! 
-http://www.msn.co.uk/newsletters
-
+All the patches you sent were encoded in base64 and typed as
+application/octet-stream, thus totally useless on a mailinglist.
+-- 
+Stefan Richter
+-=====-=-==- =-== =-===
+http://arcgraph.de/sr/

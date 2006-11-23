@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754256AbWKWLcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756199AbWKWLiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754256AbWKWLcq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 06:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755432AbWKWLcq
+	id S1756199AbWKWLiy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 06:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756284AbWKWLiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 06:32:46 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:22536 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1754256AbWKWLco (ORCPT
+	Thu, 23 Nov 2006 06:38:54 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:23048 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1756199AbWKWLix (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 06:32:44 -0500
+	Thu, 23 Nov 2006 06:38:53 -0500
 X-AuthUser: hirofumi@parknet.jp
-To: The Peach <smartart@tiscali.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug? VFAT copy problem
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Cc: The Peach <smartart@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: bug? VFAT copy problem
 References: <20061120164209.04417252@localhost>
 	<877ixqhvlw.fsf@duaron.myhome.or.jp>
 	<20061120184912.5e1b1cac@localhost>
 	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<20061122163001.0d291978@localhost>
-	<8764d7v4nh.fsf@duaron.myhome.or.jp>
-	<20061122201008.17072c89@localhost>
-	<87r6vvs2k4.fsf@duaron.myhome.or.jp>
-	<20061122203859.017d5723@localhost>
-	<87zmaj1cpv.fsf@duaron.myhome.or.jp>
-	<20061122232124.09695d57@localhost>
+	<1164204175.10427.1.camel@localhost.localdomain>
+	<20061122145344.GB18141@DervishD> <1164243385.3525.19.camel@monteirov>
+	<20061123091301.GC21908@DervishD>
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 Nov 2006 20:32:38 +0900
-In-Reply-To: <20061122232124.09695d57@localhost> (The Peach's message of "Wed\, 22 Nov 2006 23\:21\:24 +0100")
-Message-ID: <87lkm21jqh.fsf@duaron.myhome.or.jp>
+Date: Thu, 23 Nov 2006 20:38:48 +0900
+In-Reply-To: <20061123091301.GC21908@DervishD> (DervishD's message of "Thu\, 23 Nov 2006 10\:13\:01 +0100")
+Message-ID: <87hcwq1jg7.fsf@duaron.myhome.or.jp>
 User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Peach <smartart@tiscali.it> writes:
+DervishD <lkml@dervishd.net> writes:
 
-> anyway I didn't get why some files will copy with the right case and
-> other don't. Was it a problem with the dentry table randomly failing
-> in saving the filename?
+>  * Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> dixit:
+>> On Wed, 2006-11-22 at 15:53 +0100, DervishD wrote:
+>> >  * Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> dixit:
+>> > > Have vfat a limit of a file size when copy ? 
+>> > 
+>> >     2GB, if I recall correctly. FAT32 itself has a limit of 4GB-1 for
+>> > file size, but Linux restricts it even more (don't ask me why).
+>> 
+>> May I say that FAT32 have a bigger limit (at least on last Windows).
+>
+>     I really don't know, but from microsoft technical information
+> (the first or second hit when googling for "FAT32 size limit"), the
+> limit they specify in FAT32 is 2^32-1.
+>
+>     I may be wrong, but with 32 bits you cannot address more than
+> 2^32 bytes, I don't know how can you create a bigger-than-4Gb file in
+> a FAT32 filesystem without resorting to tricks like this:
+>
+>     forum.doom9.org/archive/index.php/t-20689.html
+>
+>     Looks like FAT-32 (don't ask me how because I don't know the
+> internals) can store a file bigger than 4GB, but you cannot *save*
+> it. So you won't be able to put the file you have back to any FAT32
+> filesystem, I'm afraid.
 
-If it's shortname (the detail of shortname is following), the
-"shortname=" option solves a problem. If it's longname (not
-shortname), the patch solves a problem. The your case seems to need both.
+Right. FAT's size field is 32bit, so *file* of FAT has limit of 4GB-1.
+(Since directory doesn't have size, in theoretically it can exceed 4GB-1)
 
- * 1) Valid characters for the 8.3 format alias are any combination of
- * letters, uppercase alphabets, digits, any of the
- * following special characters:
- *     $ % ' ` - @ { } ~ ! # ( ) & _ ^
- * In this case Longfilename is not stored in disk.
- *
- * WinNT's Extension:
- * File name and extension name is contain uppercase/lowercase
- * only. And it is expressed by CASE_LOWER_BASE and CASE_LOWER_EXT.
- *
- * 2) File name is 8.3 format, but it contain the uppercase and
- * lowercase char, muliti bytes char, etc. In this case numtail is not
- * added, but Longfilename is stored.
- *
- * 3) When the one except for the above, or the following special
- * character are contained:
- *        .   [ ] ; , + =
- * numtail is added, and Longfilename must be stored in disk .
+Hm.. Maybe MS added a new hack to FAT..?
 -- 
 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

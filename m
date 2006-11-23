@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933073AbWKWIAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933078AbWKWIGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933073AbWKWIAM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933078AbWKWIAM
+	id S933078AbWKWIGN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933118AbWKWIGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:00:12 -0500
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:61897 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S933073AbWKWIAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:00:10 -0500
-Date: Thu, 23 Nov 2006 03:00:09 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Greg KH <greg@kroah.com>
-Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] DebugFS : file/directory creation error handling, 2.6.18
-Message-ID: <20061123080009.GD1703@Krystal>
-References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com>
+	Thu, 23 Nov 2006 03:06:13 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52176 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933078AbWKWIGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 03:06:13 -0500
+Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+From: Arjan van de Ven <arjan@infradead.org>
+To: Conke Hu <conke.hu@amd.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>
+In-Reply-To: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
+References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 23 Nov 2006 09:05:59 +0100
+Message-Id: <1164269159.31358.769.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20061122052730.GD20836@kroah.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 02:52:57 up 92 days,  5:00,  3 users,  load average: 0.82, 0.40, 0.24
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix error handling of file and directory creation in DebugFS.
-
-The error path should release the file system because no _remove will be called
-for this erroneous creation.
-
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+On Thu, 2006-11-23 at 12:20 +0800, Conke Hu wrote:
+> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID. Legacy/Native IDE mode is designed for compatibility with some old OS without AHCI driver but looses SATAII/AHCI features such as NCQ. This patch will make SB600 SATA run in AHCI mode even if it was set as IDE mode by system BIOS.
 
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -198,13 +198,15 @@
- 
- 	pr_debug("debugfs: creating file '%s'\n",name);
- 
--	error = simple_pin_fs(&debug_fs_type, &debugfs_mount, &debugfs_mount_count);
-+	error = simple_pin_fs(&debug_fs_type, &debugfs_mount,
-+		&debugfs_mount_count);
- 	if (error)
- 		goto exit;
- 
- 	error = debugfs_create_by_name(name, mode, parent, &dentry);
- 	if (error) {
- 		dentry = NULL;
-+		simple_release_fs(&debugfs_mount, &debugfs_mount_count);
- 		goto exit;
- 	}
- 
+is this really the right thing? You're overriding a user chosen
+configuration here.... while that might be justifiable.. it's probably a
+good idea to at least provide a safety-valve for this one. The user
+might have made that selection very deliberately.
 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

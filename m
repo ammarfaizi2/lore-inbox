@@ -1,115 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757193AbWKWAFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWKWAKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757193AbWKWAFG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 19:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757201AbWKWAFG
+	id S932068AbWKWAKc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 19:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757209AbWKWAKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 19:05:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28683 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1757193AbWKWAFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 19:05:04 -0500
-Date: Thu, 23 Nov 2006 01:05:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.33
-Message-ID: <20061123000507.GC3557@stusta.de>
+	Wed, 22 Nov 2006 19:10:31 -0500
+Received: from emailer.gwdg.de ([134.76.10.24]:27795 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1757186AbWKWAKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 19:10:31 -0500
+Date: Thu, 23 Nov 2006 01:10:08 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+In-Reply-To: <ek2nva$vgk$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr>
+References: <ek2nva$vgk$1@sea.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.32:
-- CVE-2005-4352: security/seclvl.c: fix time wrap
+
+>Hi!
+>
+>(PEBKAC warning. I'm probably doing something dump. I just don't know
+>what...)
+>
+>I seem to have an entropy pool on a headless machine which is not nearly
+>empty (a common problem in this case, I know), but completely empty and
+>stuck in this state...
+>
+>Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
+>0
+
+You really must have bad luck with your entropy...
 
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+01:05 ichi:/home/k > cat /proc/sys/kernel/random/entropy_avail
+3596
+01:08 ichi:/home/k > dd if=/dev/urandom of=/dev/null bs=3596 count=1
+1+0 records in
+1+0 records out
+3596 bytes (3.6 kB) copied, 0.00115262 seconds, 3.1 MB/s
+01:08 ichi:/home/k > cat /proc/sys/kernel/random/entropy_avail
+157
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
-
-
-Changes since 2.6.16.32:
-
-Adrian Bunk (5):
-      security/seclvl.c: fix time wrap (CVE-2005-4352)
-      drivers/scsi/psi240i.c: fix an array overrun
-      V4L/DVB: Saa7134: rename dmasound_{init,exit}
-      Linux 2.6.16.33-rc1
-      Linux 2.6.16.33
-
-Alexey Dobriyan (1):
-      ipmi_si_intf.c: fix "&& 0xff" typos
-
-Andrew Morton (1):
-      disable debugging version of write_lock()
-
-Artur Skawina (1):
-      sis900 adm7001 PHY support
-
-Badari Pulavarty (1):
-      ext3 -nobh option causes oops
-
-Benjamin Herrenschmidt (1):
-      POWERPC: Make alignment exception always check exception table
-
-Bob Moore (1):
-      Reduce ACPI verbosity on null handle condition
-
-Daniel Drake (1):
-      sata_promise: Support FastTrak TX4300/TX4310
-
-Daniel Ritz (1):
-      fix via586 irq routing for pirq 5
-
-Daniele Venzano (1):
-      Add new PHY to sis900 supported list
-
-David Miller (1):
-      [RTNETLINK]: Fix IFLA_ADDRESS handling.
-
-Diego Calleja (1):
-      Fix BeFS slab corruption
-
-Dmitry Mishin (1):
-      Fix timer race in dst GC code
-
-Michael Chan (1):
-      [TG3]: Fix array overrun in tg3_read_partno().
-
-Michael-Luke Jones (1):
-      Old IDE, fix SATA detection for cabling
-
-Paul Fulghum (1):
-      synclink_gt fix receive tty error handling
+however that might be caused because I am in X, mouse moves, kernel 
+compiles, etc.
 
 
- Makefile                                   |    2 +-
- arch/i386/pci/irq.c                        |    4 ++--
- arch/powerpc/kernel/traps.c                |   18 ++++++++++--------
- arch/ppc/kernel/traps.c                    |   18 ++++++++++--------
- drivers/acpi/namespace/nsxfeval.c          |    5 +++--
- drivers/char/ipmi/ipmi_si_intf.c           |    6 +++---
- drivers/char/synclink_gt.c                 |   14 +++++++-------
- drivers/ide/ide-iops.c                     |    4 ++++
- drivers/media/video/saa7134/saa7134-alsa.c |   10 +++++-----
- drivers/media/video/saa7134/saa7134-core.c |   16 ++++++++--------
- drivers/media/video/saa7134/saa7134-oss.c  |   10 +++++-----
- drivers/media/video/saa7134/saa7134.h      |    4 ++--
- drivers/net/sis900.c                       |    2 ++
- drivers/net/tg3.c                          |   19 ++++++++++++-------
- drivers/scsi/psi240i.c                     |    2 +-
- drivers/scsi/sata_promise.c                |    2 ++
- fs/befs/linuxvfs.c                         |   11 +++++++++--
- fs/ext3/inode.c                            |    6 +++---
- lib/spinlock_debug.c                       |   10 ++++++----
- net/core/dst.c                             |    3 +--
- net/core/rtnetlink.c                       |   15 ++++++++++++++-
- security/seclvl.c                          |    2 ++
- 22 files changed, 112 insertions(+), 71 deletions(-)
+>Also causing disk activities doesn't help at all. (Two disks on a Promise
+>PDC20268 controller.)
+
+Disk activities are "somewhat predictable", like network traffic, and 
+hence are not (or should not - have not checked it) contribute to the 
+pool. Note that urandom is the device which _always_ gives you data, and 
+when the pool is exhausted, returns pseudorandom data.
+
+
+>The system runs a rather ancient Debian Sarge 2.4 kernel:
+>Linux Hornburg 2.4.27-3-386 #1 Thu Sep 14 08:44:58 UTC 2006 i486 GNU/Linux
+
+[I have] No memories about a kernel this old. :>
+
+>However as the machine itself is also ancient, the 2.4 seems like a good
+>match. And also 2.4 ought to have a refilling entropy pool, doesn't it?
+>
+>Maybe someone can shed some light on what's happening here...
+
+
+	-`J'
+-- 

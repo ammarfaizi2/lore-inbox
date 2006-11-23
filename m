@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756827AbWKWGEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756834AbWKWGQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756827AbWKWGEy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 01:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756833AbWKWGEy
+	id S1756834AbWKWGQL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 01:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755322AbWKWGQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 01:04:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10638 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1756827AbWKWGEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 01:04:53 -0500
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: Jeremy Fitzhardinge <jeremy@goop.org>, eranian@hpl.hp.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] i386 add Intel PEBS and BTS cpufeature bits and detection 
-In-reply-to: Your message of "Sat, 18 Nov 2006 09:24:01 BST."
-             <200611180924.01979.ak@suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Nov 2006 17:03:47 +1100
-Message-ID: <6428.1164261827@kao2.melbourne.sgi.com>
+	Thu, 23 Nov 2006 01:16:10 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:60795 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1756834AbWKWGQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 01:16:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=QjN9So6efhfOBKpH4+QpJXhiATRmOdnNwm8pUDGYzOf9k8EV6GVH83kKyPlxizy1ga1j5ipYDo3aVsFCkwOzcwQZ3JQPpfB5OEe5hqNZ6QckMg9tOIntf+iScaFqVzBmtk7dVrpAfRIhOB8YrRnbPm+NWKMv5vLH/wFKye33fqQ=
+Message-ID: <86802c440611222216u629835fepe2a39d4d34d9fefb@mail.gmail.com>
+Date: Wed, 22 Nov 2006 22:16:07 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Auke Kok" <auke-jan.h.kok@intel.com>
+Subject: Re: [PATCH 4/5] e1000 : Make Intel e1000 driver legacy I/O port free
+Cc: "Matthew Wilcox" <matthew@wil.cx>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Hidetoshi Seto" <seto.hidetoshi@jp.fujitsu.com>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, "Greg KH" <greg@kroah.com>,
+       "Grant Grundler" <grundler@parisc-linux.org>,
+       "Andrew Morton" <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org,
+       "Kenji Kaneshige" <kaneshige.kenji@jp.fujitsu.com>
+In-Reply-To: <456476B0.70705@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4564050C.70607@jp.fujitsu.com>
+	 <1164185809.31358.714.camel@laptopd505.fenrus.org>
+	 <20061122135423.GV18567@parisc-linux.org> <456476B0.70705@intel.com>
+X-Google-Sender-Auth: eab1d930b78e3d4f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen (on Sat, 18 Nov 2006 09:24:01 +0100) wrote:
->On Friday 17 November 2006 23:57, Jeremy Fitzhardinge wrote:
->> Andi Kleen wrote:
->> > I have had private patches for that myself, using the MSRs on AMD
->> > and Intel.
->> >   
->> 
->> Would they be something that could be cleaned up into something
->> mergeable?  
->
->Hmm maybe.
->
->> It would be nice to have something that could be left 
->> enabled all the time, 
->
->That would add considerable latency to all exceptions.
->
->And unfortunately we take more than 16 jumps before
->we figure out an oops, so all the previous data would be gone
->if it was only done in the error path.
->
->If the CPU had a "disable LBR on exceptions" bit that would
->work. Unfortunately it hasn't.
+On 11/22/06, Auke Kok <auke-jan.h.kok@intel.com> wrote:
+> I think we want to condense the USE_IOPORT flag together with the other hardware
 
-LBR is mainly useful on wild branches to random addresses.  As such,
-you really only need to disable LBR in the page fault handler.  For a
-long time, KDB had LBR support with this replacement for the i386 page
-fault handler.
+two cases
+1. the IO port is not allocated by firmware, but
+pci_assign_unassigned_resources will get that allocated.
+2. the IO port is allocated by firmware, the bar will be retrieved by
+pcibios_resource_survey.
 
-#if defined(CONFIG_KDB)
-ENTRY(page_fault_mca)
-       pushl %ecx
-       pushl %edx
-       pushl %eax
-       movl  $473,%ecx
-       rdmsr
-       andl  $0xfffffffe,%eax          /* Disable last branch recording */
-       wrmsr
-       popl  %eax
-       popl  %edx
-       popl  %ecx
-       pushl $do_page_fault
-       jmp error_code
-#endif
+so acctully the device already get the bar allocated in any case.
 
-Nobody was using the LBR feature of KDB so I removed it in 2.6.17.
+So what the purpose of this patch? the /poc/ioports hide ioport for the driver?
 
+It seems need to add some pci_quirk to clear the bar for 2, and skip
+the resource allocation for 1.
+
+YH

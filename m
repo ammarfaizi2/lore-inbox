@@ -1,93 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757335AbWKWKTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757326AbWKWKS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757335AbWKWKTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 05:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757336AbWKWKTJ
+	id S1757326AbWKWKS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 05:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757335AbWKWKS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 05:19:09 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41874 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1757335AbWKWKTH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 05:19:07 -0500
-Date: Thu, 23 Nov 2006 02:14:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?U+liYXN0aWVuIER1Z3Xp?= <sebastien.dugue@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
-Message-Id: <20061123021437.684d7c63.akpm@osdl.org>
-In-Reply-To: <20061123104755.68561c66@frecb000686>
-References: <20061120151700.4a4f9407@frecb000686>
-	<20061120152252.7e5a4229@frecb000686>
-	<20061121170228.4412b572.akpm@osdl.org>
-	<20061123092805.1408b0c6@frecb000686>
-	<20061123004053.76114a75.akpm@osdl.org>
-	<20061123104755.68561c66@frecb000686>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 23 Nov 2006 05:18:59 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:28690 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1757326AbWKWKS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 05:18:57 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=TG701y+2b+KITqHUTqQqug4ezjWiPNSYzATDE0+gM3RxO0zbq0SQc4qazCM0IO33q
+	STwtUtvKQYQbIhsh0FnVA==
+Message-ID: <6599ad830611230218w7a6c0c0el9479b497037b0be6@mail.gmail.com>
+Date: Thu, 23 Nov 2006 02:18:46 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Pavel Emelianov" <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
+Cc: "Kirill Korotaev" <dev@sw.ru>, "Andrew Morton" <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       matthltc@us.ibm.com, hch@infradead.org,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru,
+       devel@openvz.org
+In-Reply-To: <45657030.7050009@openvz.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>
+	 <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
+	 <45655D3E.5020702@openvz.org>
+	 <6599ad830611230053m7182698cu897abe5d19471aff@mail.gmail.com>
+	 <456567DD.6090703@openvz.org>
+	 <6599ad830611230131w1bf63dc1m1998b55b61579509@mail.gmail.com>
+	 <45657030.7050009@openvz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 10:47:55 +0100
-Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+On 11/23/06, Pavel Emelianov <xemul@openvz.org> wrote:
+> Paul Menage wrote:
+> > On 11/23/06, Pavel Emelianov <xemul@openvz.org> wrote:
+> >> You mean moving is like this:
+> >>
+> >> old_bc = task->real_bc;
+> >> task->real_bc = new_bc;
+> >> cmpxchg(&tsk->exec_bc, old_bc, new_bc);
+> >>
+> >> ? Then this won't work:
+> >>
+> >> Initialisation:
+> >> current->exec_bc = init_bc;
+> >> current->real_bc = init_bc;
+> >> ...
+> >> IRQ:
+> >> current->exec_bc = init_bc;
+> >> ...
+> >>                              old_bc = tsk->real_bc; /* init_bc */
+> >>                              tsk->real_bc = bc1;
+> >>                              cx(tsk->exec_bc, init_bc, bc1); /* ok */
+> >> ...
+> >> Here at the middle of an interrupt
+> >> we have bc1 set as exec_bc on task
+> >> which IS wrong!
+> >
+> > You could get round that by having a separate "irq_bc" that's never
+> > valid for a task not in an interrupt.
+>
+> No no no. This is not what is needed. You see, we do have to
+> set exec_bc as temporary (and atomic) context. Having temporary
+> context is 1. flexible 2. needed by beancounters' network accountig.
 
-> On Thu, 23 Nov 2006 00:40:53 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > On Thu, 23 Nov 2006 09:28:05 +0100
-> > Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-> > 
-> > > > > +	target = good_sigevent(&event);
-> > > > > +
-> > > > > +	if (unlikely(!target || (target->flags & PF_EXITING)))
-> > > > > +		goto out_unlock;
-> > > > > +
-> > > > > +	
-> > > > > +
-> > > > > +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
-> > > > > +		/*
-> > > > > +		 * This reference will be dropped in really_put_req() when
-> > > > > +		 * we're done with the request.
-> > > > > +		 */
-> > > > > +		get_task_struct(target);
-> > > > > +	}
-> > > > 
-> > > > It worries me that this function can save away a task_struct* without
-> > > > having taken a reference against it.
-> > > > 
-> > > 
-> > >   OK. Does moving 'notify->target = target;' after the get_task_struct() will
-> > > do, or am I missing something more subtle?
-> > 
-> > Well it's your code - you tell me ;)
-> > 
-> > It is unsafe (and rather pointless) to be saving the address of some structure
-> > which can be freed at any time.
-> 
->   Sorry, I expressed myself quite badly. What I wanted to know is whether you
-> are worried with the task been freed between saving its pointer and getting a
-> ref on it (which is trivial to fix) or you are thinking of something deeper.
-> 
+I don't see why having an irq_bc wouldn't solve this. At the start of
+the interrupt handler, set current->exec_bc to &irq_bc; at the end set
+it to current->real_bc; use the cmpxchg() that I suggested to ensure
+that you never update task->exec_bc from another task if it's not
+equal to task->real_bc; use RCU to ensure that a beancounter is never
+freed while someone might be accessing it.
 
-Look:
+>
+> Maybe we can make smth similar to wait_task_inactive and change
+> it's beancounter before unlocking the runqueue?
 
-> +	notify->target = target;
-> +
-> +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
-> +		/*
-> +		 * This reference will be dropped in really_put_req() when
-> +		 * we're done with the request.
-> +		 */
-> +		get_task_struct(target);
+That could work too.
 
-If that test fails, we've saved a pointer to the task_struct without having
-taken a refreence on it.
-
+Paul

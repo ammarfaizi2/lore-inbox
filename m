@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933275AbWKWImN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933283AbWKWIvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933275AbWKWImN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933271AbWKWImN
+	id S933283AbWKWIvA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933284AbWKWIvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:42:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:59371 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933269AbWKWImM convert rfc822-to-8bit
+	Thu, 23 Nov 2006 03:51:00 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16283 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S933283AbWKWIu7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:42:12 -0500
-Date: Thu, 23 Nov 2006 00:40:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?U+liYXN0aWVuIER1Z3Xp?= <sebastien.dugue@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
-Message-Id: <20061123004053.76114a75.akpm@osdl.org>
-In-Reply-To: <20061123092805.1408b0c6@frecb000686>
-References: <20061120151700.4a4f9407@frecb000686>
-	<20061120152252.7e5a4229@frecb000686>
-	<20061121170228.4412b572.akpm@osdl.org>
-	<20061123092805.1408b0c6@frecb000686>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 23 Nov 2006 03:50:59 -0500
+Date: Thu, 23 Nov 2006 08:50:56 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Greg KH <greg@kroah.com>, ltt-dev@shafik.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] libfs : file/directory removal fix, 2.6.18
+Message-ID: <20061123085056.GJ3078@ftp.linux.org.uk>
+References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com> <20061123082244.GF1703@Krystal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061123082244.GF1703@Krystal>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 09:28:05 +0100
-Sébastien Dugué <sebastien.dugue@bull.net> wrote:
-
-> > > +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
-> > > +		/*
-> > > +		 * This reference will be dropped in really_put_req() when
-> > > +		 * we're done with the request.
-> > > +		 */
-> > > +		get_task_struct(target);
-> > > +	}
-> > 
-> > It worries me that this function can save away a task_struct* without
-> > having taken a reference against it.
-> > 
+On Thu, Nov 23, 2006 at 03:22:44AM -0500, Mathieu Desnoyers wrote:
+> Fix file and directory removal in libfs. Add inotify support for file removal.
 > 
->   OK. Does moving 'notify->target = target;' after the get_task_struct() will
-> do, or am I missing something more subtle?
+> The following scenario :
+> create dir a
+> create dir a/b
+> 
+> cd a/b (some process goes in cwd a/b)
+> 
+> rmdir a/b
+> rmdir a
+>
+> fails due to the fact that "a" appears to be non empty.
 
-Well it's your code - you tell me ;)
+What?  Caller will do d_delete() itself.  Care to show a version where
+that would happen and post an strace of the second rmdir?
 
-It is unsafe (and rather pointless) to be saving the address of some structure
-which can be freed at any time.
+> It is because the "b"
+> dentry is not deleted from "a" and still in use. The same problem happens if
+> "b" is a file. d_delete is nice enough to know when it needs to unhash and free
+> the dentry if nothing else is using it or, if someone is using it, to remove it
+> from the hash queues and wait for it to be deleted when it has no users.
+> 
+> The nice side-effect of this fix is that it calls the file removal
+> notification.
+
+NAK.  First of all, I won't believe you without actual strace.
+
+What's more, WTF would fs _method_ call idiotify?  Keep that crap
+out of filesystems; caller will do it for us just fine.

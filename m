@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757050AbWKWL4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757100AbWKWL7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757050AbWKWL4W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 06:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757076AbWKWL4W
+	id S1757100AbWKWL7x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 06:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757175AbWKWL7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 06:56:22 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:32195 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1757028AbWKWL4V (ORCPT
+	Thu, 23 Nov 2006 06:59:53 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:32776 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1757100AbWKWL7w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 06:56:21 -0500
-Date: Thu, 23 Nov 2006 14:55:04 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061123115504.GB20294@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <4564E2AB.1020202@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4564E2AB.1020202@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 23 Nov 2006 14:55:05 +0300 (MSK)
+	Thu, 23 Nov 2006 06:59:52 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: "Renato S. Yamane" <renatoyamane@mandic.com.br>
+Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
+       The Peach <smartart@tiscali.it>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] bug? VFAT copy problem
+References: <20061120164209.04417252@localhost>
+	<877ixqhvlw.fsf@duaron.myhome.or.jp>
+	<20061120184912.5e1b1cac@localhost>
+	<87mz6kajks.fsf@duaron.myhome.or.jp>
+	<1164204175.10427.1.camel@localhost.localdomain>
+	<20061122145344.GB18141@DervishD> <1164243385.3525.19.camel@monteirov>
+	<20061123091301.GC21908@DervishD> <87hcwq1jg7.fsf@duaron.myhome.or.jp>
+	<45658B19.8010207@mandic.com.br>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 23 Nov 2006 20:59:41 +0900
+In-Reply-To: <45658B19.8010207@mandic.com.br> (Renato S. Yamane's message of "Thu\, 23 Nov 2006 09\:50\:49 -0200")
+Message-ID: <87ac2i1ihe.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 22, 2006 at 03:52:11PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >+ struct kevent_ring
-> >+ {
-> >+   unsigned int ring_kidx, ring_uidx, ring_over;
-> >+   struct ukevent event[0];
-> >+ }
-> >+ [...]
-> >+ring_uidx - index of the first entry userspace can start reading from
-> 
-> Do we need this value in the structure?  Userlevel cannot and should not 
-> be able to modify it.  So, userland has in any case to track the tail 
-> pointer itself.  Why then have this value at all?
-> 
-> After kevent_init() the tail pointer is implicitly assumed to be 0. 
-> Since the front pointer (well index) is also zero nothing is available 
-> for reading.
+"Renato S. Yamane" <renatoyamane@mandic.com.br> writes:
 
-uidx is an index, starting from which there are unread entries. It is
-updated by userspace when it commits entries, so it is 'consumer'
-pointer, while kidx is an index where kernel will put new entries, i.e.
-'producer' index. We definitely need them both.
-Userspace can only update (implicitly by calling kevent_commit()) uidx.
+> OGAWA Hirofumi escreveu:
+>> Right. FAT's size field is 32bit, so *file* of FAT has limit of 4GB-1.
+>> (Since directory doesn't have size, in theoretically it can exceed 4GB-1)
+>> 
+>> Hm.. Maybe MS added a new hack to FAT..?
+>
+> Ogawa, MS don't added a new hack to FAT32... This file system don't
+> support file size with more than 4Gb:
+> <http://msdn2.microsoft.com/en-us/library/aa365678.aspx>
 
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
-
+Thanks. Yes. However, Sergio's windows seems to handle file size more
+than 4GB-1...
 -- 
-	Evgeniy Polyakov
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

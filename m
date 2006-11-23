@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933880AbWKWT6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933890AbWKWUBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933880AbWKWT6K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 14:58:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWT6J
+	id S933890AbWKWUBy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWUBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 14:58:09 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:57872 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S933889AbWKWT6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 14:58:07 -0500
-Date: Thu, 23 Nov 2006 19:57:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Vitaly Wool <vitalywool@gmail.com>, drzeus-mmc@drzeus.cx,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix random SD/MMC card recognition failures on ARM Versatile
-Message-ID: <20061123195757.GA25794@flint.arm.linux.org.uk>
-Mail-Followup-To: Vitaly Wool <vitalywool@gmail.com>, drzeus-mmc@drzeus.cx,
-	linux-kernel@vger.kernel.org
-References: <20061123184606.bb203ae6.vitalywool@gmail.com> <20061123160335.GB8984@flint.arm.linux.org.uk> <acd2a5930611231129v3515022al931bec5b04ce27f@mail.gmail.com> <20061123194236.GD8984@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061123194236.GD8984@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Nov 2006 15:01:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7385 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933857AbWKWUBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 15:01:53 -0500
+Message-ID: <4565FDED.2050003@redhat.com>
+Date: Thu, 23 Nov 2006 12:00:45 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 1/6] kevent: Description.
+References: <11641265982190@2ka.mipt.ru> <4564E2AB.1020202@redhat.com> <20061123115504.GB20294@2ka.mipt.ru>
+In-Reply-To: <20061123115504.GB20294@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 07:42:36PM +0000, Russell King wrote:
-> On Thu, Nov 23, 2006 at 10:29:30PM +0300, Vitaly Wool wrote:
-> > On 11/23/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > >Doubtful.  mmci_stop_data() already does this, which will be called
-> > >immediately prior to mmci_request_end().  So you're doubling up the
-> > >writes to registers again.
-> > 
-> > There's the case (mmci_cmd_irq) where mmc_stop_data is not called
-> > prior to mmci_request_end(), so it's not that simple.
-> 
-> Ah, I see it.  In that case we need to call mmc_stop_data() when
-> we're ending the initial command due to an error.  IOW, like this:
+Evgeniy Polyakov wrote:
+> uidx is an index, starting from which there are unread entries. It is
+> updated by userspace when it commits entries, so it is 'consumer'
+> pointer, while kidx is an index where kernel will put new entries, i.e.
+> 'producer' index. We definitely need them both.
+> Userspace can only update (implicitly by calling kevent_commit()) uidx.
 
-I'll also add that with the way we handle the MMCI, it is highly likely
-that you _will_ see FIFO errors from time to time on this platform.
+Right, which is why exporting this entry is not needed.  Keep the 
+interface as small as possible.
 
-The problem is that we don't have DMA up and running on this platform,
-so we are entirely at the mercy of interrupt-driven PIO.  In addition,
-the MMCI FIFOs must be read _before_ they completely fill to avoid
-overrun errors.  Coupling these two facts together, it's easy to see
-that interrupt latency is _critical_ to avoiding FIFO overruns (error 3).
+Userlevel has to maintain its own index.  Just assume kevent_wait 
+returns 10 new entries and you have multiple threads.  In this case all 
+threads take their turns and pick an entry from the ring buffer.  This 
+basically has to be done with something like this (I ignore wrap-arounds 
+here to simplify the example):
 
-In general, if you do _anything_ with the board while it's trying to
-access MMC cards, you will probably get some FIFO overruns.
+   int getidx() {
+     while (uidx < kidx)
+        if (atomic_cmpxchg(uidx, uidx + 1, uidx) == 0)
+          return uidx;
+     return -1;
+   }
 
-There are three solutions:
+Very much simplified but it should show that we need a writable copy of 
+the uidx.  And this value at any time must be consistent with the index 
+the kernel assumes.
 
-1. Lower the maximum clock rate that the MMCI will allow, eg:
-   insmod mmci fmax=257816
+The current ring_uidx value can at best be used to reinitialize the 
+userlevel uidx value after each kevent_wait call but this is unnecessary 
+at best (since uidx must already have this value) and racy in problem 
+cases (what if more than one thread gets woken concurrently with uidx 
+having the same value and one thread stores the uidx value and 
+immediately increments it to get an index; the second store would 
+overwrite the increment).
 
-2. Avoid all other system activity while MMC is being accessed.
-
-3. Someone needs to _sanely_ implement DMA on this platform.
+I can assure you that any implementation I write would not use the 
+ring_uidx value.  Only trivial, single-threaded examples like you 
+ring_buffer.c could ever take advantage of this value.  It's not worth it.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

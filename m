@@ -1,116 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755604AbWKWEEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755786AbWKWEKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755604AbWKWEEh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 23:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755622AbWKWEEh
+	id S1755786AbWKWEKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 23:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755724AbWKWEKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 23:04:37 -0500
-Received: from mail-sin.bigfish.com ([207.46.51.74]:13654 "EHLO
-	mail98-sin-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1755573AbWKWEEg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 23:04:36 -0500
-X-BigFish: V
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Add IDE mode support for SB600 SATA
-Date: Thu, 23 Nov 2006 12:04:20 +0800
-Message-ID: <FFECF24D2A7F6D418B9511AF6F3586020108CE6F@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Add IDE mode support for SB600 SATA
-Thread-Index: AccOp6BajH/1qDm3QAeMtzkZOwLiUgACwGKw
-From: "Conke Hu" <conke.hu@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Anatoli Antonovitch" <anatoli.antonovitch@amd.com>,
-       "Jeff Garzik" <jeff@garzik.org>, "Tejun Heo" <htejun@gmail.com>
-X-OriginalArrivalTime: 23 Nov 2006 04:04:26.0801 (UTC) FILETIME=[77ABFA10:01C70EB4]
+	Wed, 22 Nov 2006 23:10:13 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:29855
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1755701AbWKWEKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 23:10:11 -0500
+Date: Wed, 22 Nov 2006 20:10:13 -0800 (PST)
+Message-Id: <20061122.201013.112290046.davem@davemloft.net>
+To: dgc@sgi.com
+Cc: jesper.juhl@gmail.com, chatz@melbourne.sgi.com,
+       linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       netdev@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to
+ implicate xfs, scsi, networking, SMP
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061123011809.GY37654165@melbourne.sgi.com>
+References: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com>
+	<9a8748490611220458w4d94d953v21f7a29a9f1bdb72@mail.gmail.com>
+	<20061123011809.GY37654165@melbourne.sgi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: David Chinner <dgc@sgi.com>
+Date: Thu, 23 Nov 2006 12:18:09 +1100
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Thursday, November 23, 2006 10:31 AM
-To: Conke Hu
-Cc: linux-kernel@vger.kernel.org; Anatoli Antonovitch; Jeff Garzik; Tejun Heo
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+> So, assuming the stacks less than 32 bytes are 32 bytes, we've got
+> 1380 bytes in the XFS stack there, 
 
-On Thu, 23 Nov 2006 06:23:50 +0800
-"Conke Hu" <conke.hu@amd.com> wrote:
+On sparc64 just the XFS parts of the backtrace would be a minimum of
+2816 bytes (each function has a minimum 8 * 16 byte stack frame, and
+there are about 22 calls in that trace).  It's probably a lot more
+with local variables and such.
 
-> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID. Legacy/Native IDE mode is designed for compatibility with some old OS without AHCI driver but looses SATAII/AHCI features such as NCQ. This patch provides users with two options when the SB600 SATA is set as IDE mode by BIOS:
-> 1. Setting the controller back to AHCI mode and using ahci as its driver.
-> 2. Using the controller as a normal IDE.
-> What's more, without this patch, ahci driver always tries to claim all 4 modes of SB600 SATA, but fails in legacy IDE mode.
-> 
-> Signed-off-by: conke.hu@amd.com
-> -------
-> diff -Nur linux-2.6.19-rc6-git4.orig/drivers/ata/ahci.c linux-2.6.19-rc6-git4/drivers/ata/ahci.c
-> --- linux-2.6.19-rc6-git4.orig/drivers/ata/ahci.c	2006-11-23 13:36:52.000000000 +0800
-> +++ linux-2.6.19-rc6-git4/drivers/ata/ahci.c	2006-11-23 13:50:13.000000000 +0800
-> @@ -323,7 +323,14 @@
->  	{ PCI_VDEVICE(JMICRON, 0x2366), board_ahci }, /* JMicron JMB366 */
->  
->  	/* ATI */
-> +#ifdef CONFIG_SB600_AHCI_IDE
->  	{ PCI_VDEVICE(ATI, 0x4380), board_ahci }, /* ATI SB600 non-raid */
-> +#else
-> +	{ PCI_VENDOR_ID_ATI, 0x4380, PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_RAID<<8, 0xffff00, 
-> +	  board_ahci },
-> +	{ PCI_VENDOR_ID_ATI, 0x4380, PCI_ANY_ID, PCI_ANY_ID, 0x010600, 0xffff00, 
-> +	  board_ahci },
-> +#endif
+It's way too much.  You guys have to fix this stuff.
 
-And your patch conflicts in mysterious ways with the below.
+If TCP's full send and receive path can be done in less function
+calls, XFS can allocate blocks in less too.
 
-I've been sitting on this patch for three months.  I don't know why.
-
-
-From: "Anatoli Antonovitch" <antonovi@ati.com>
-
-Automatically match the proper driver for different SATA/IDE modes of SB600 SATA controller: ahci for SATA/Native IDE/RAID modes and ATIIXP_IDE for legacy mode.
-
-Signed-off-by: Anatoli Antonovitch <antonovi@ati.com>
-Cc: Jeff Garzik <jeff@garzik.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/ata/ahci.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff -puN drivers/ata/ahci.c~ahci-ati-sb600-sata-support-for-various-modes drivers/ata/ahci.c
---- a/drivers/ata/ahci.c~ahci-ati-sb600-sata-support-for-various-modes
-+++ a/drivers/ata/ahci.c
-@@ -323,7 +323,12 @@ static const struct pci_device_id ahci_p
- 	{ PCI_VDEVICE(JMICRON, 0x2366), board_ahci }, /* JMicron JMB366 */
- 
- 	/* ATI */
--	{ PCI_VDEVICE(ATI, 0x4380), board_ahci }, /* ATI SB600 non-raid */
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
-+	  PCI_ANY_ID, 0x010600, 0xffff00, board_ahci }, /* ATI SB600 AHCI */
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
-+	  PCI_ANY_ID, 0x010400, 0xffff00, board_ahci }, /* ATI SB600 raid */
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
-+	  PCI_ANY_ID, (PCI_CLASS_STORAGE_IDE<<8)|0x8f, 0xffff05, board_ahci }, 
-+/* ATI SB600 native IDE */
- 	{ PCI_VDEVICE(ATI, 0x4381), board_ahci }, /* ATI SB600 raid */
- 
- 	/* VIA */
-_
-
-Hi Andrew,
-	Thank you! I will re-write the patch since you think it is not reasonable.
-	There were 3 patches for sb600 sata controller, including the one you listed, but none is accepted, so I will re-create the patch until it is accepted.
-	(btw, I am sorry for using MS Outlook to reply this maillist. It seems we use different mail format, and I will switch to another email client next time.)
-
-best regards,
-conke
-
-
-
+I would even say 10 function calls deep to allocate file blocks
+is overkill, but 22 it just astronomically bad.

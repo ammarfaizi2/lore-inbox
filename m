@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933689AbWKWN1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933692AbWKWN2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933689AbWKWN1L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933696AbWKWN1L
+	id S933692AbWKWN2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933705AbWKWN2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:27:11 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:56760 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S933689AbWKWN1K
+	Thu, 23 Nov 2006 08:28:16 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:62136 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S933692AbWKWN2M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:27:10 -0500
-Date: Thu, 23 Nov 2006 13:27:07 +0000
-To: ak@suse.de
-Cc: akpm@osdl.org, bunk@stusta.de, torvalds@osdl.org,
-       rientjes@cs.washington.edu, maan@systemlinux.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix bug where early_node_map[] is not sorted before use
-Message-ID: <20061123132707.GA22611@skynet.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: mel@skynet.ie (Mel Gorman)
+	Thu, 23 Nov 2006 08:28:12 -0500
+Date: Thu, 23 Nov 2006 13:28:11 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Andre Noll <maan@systemlinux.org>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>
+Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
+In-Reply-To: <20061123130817.GJ27761@skl-net.de>
+Message-ID: <Pine.LNX.4.64.0611231327140.22648@skynet.skynet.ie>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+ <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de>
+ <20061122155233.GA30607@skynet.ie> <20061122174223.GE27761@skl-net.de>
+ <20061123120141.GA20920@skynet.ie> <20061123130817.GJ27761@skl-net.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With reference to this bug;
+On Thu, 23 Nov 2006, Andre Noll wrote:
 
-> Subject    : x86_64: Bad page state in process 'swapper'
-> References : http://lkml.org/lkml/2006/11/10/135
->              http://lkml.org/lkml/2006/11/10/208
-> Submitter  : Andre Noll <maan@systemlinux.org>
-> Handled-By : David Rientjes <rientjes@cs.washington.edu>
-> Status     : problem is being debugged
+> On 12:01, Mel Gorman wrote:
+>
+>>>> Andre, if the bug still exists for you, can you apply Andi's patch to
+>>>> reduce the log size and the following patch please and post us the
+>>>> output with loglevel=8 please? Thanks
+>>>
+>>> Done. Here's the output of dmesg with your and Andi's patch applied.
+>>>
+>>
+>> ahhh, I believe I see the problem now. Please try out the following patch.
+>
+> [...]
+>
+>> This patch sorts the early_node_map in find_min_pfn_for_node(). It has
+>> been boot tested on x86, x86_64, ppc64 and ia64.
+>
+> That did the trick, you're the man!
+>
 
-The problem was within architecture-independent zone-sizing and exposed
-by a particular SRAT table on x86_64.
+heh, I was also the problem. Thanks a lot for reporting and testing.
 
-find_min_pfn_for_node() and find_min_pfn_with_active_regions() both
-depend on a sorted early_node_map[] to find the correct values. However,
-sort_node_map() is being called after find_min_pfn_with_active_regions()
-in free_area_init_nodes(). In most cases, this is ok, but on an x86_64,
-the SRAT table caused the E820 ranges to be registered out of order. This gave
-the wrong values for the min PFN range resulting in some pages not being
-initialised.
 
-This patch sorts the early_node_map in find_min_pfn_for_node(). It is a
-critical fix for 2.6.19.
-
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-
-diff -rup linux-2.6.19-rc6-clean/mm/page_alloc.c linux-2.6.19-rc6-sort_in_find_min/mm/page_alloc.c
---- linux-2.6.19-rc6-clean/mm/page_alloc.c	2006-11-15 20:03:40.000000000 -0800
-+++ linux-2.6.19-rc6-sort_in_find_min/mm/page_alloc.c	2006-11-23 02:23:57.000000000 -0800
-@@ -2612,6 +2612,9 @@ unsigned long __init find_min_pfn_for_no
- {
- 	int i;
- 
-+	/* Regions in the early_node_map can be in any order */
-+	sort_node_map();
-+
- 	/* Assuming a sorted map, the first range found has the starting pfn */
- 	for_each_active_range_index_in_nid(i, nid)
- 		return early_node_map[i].start_pfn;
-@@ -2680,9 +2683,6 @@ void __init free_area_init_nodes(unsigne
- 			max(max_zone_pfn[i], arch_zone_lowest_possible_pfn[i]);
- 	}
- 
--	/* Regions in the early_node_map can be in any order */
--	sort_node_map();
--
- 	/* Print out the zone ranges */
- 	printk("Zone PFN ranges:\n");
- 	for (i = 0; i < MAX_NR_ZONES; i++)
-
--- 
 -- 
 Mel Gorman
 Part-time Phd Student                          Linux Technology Center

@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757381AbWKWPAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757387AbWKWPCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757381AbWKWPAT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 10:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757385AbWKWPAT
+	id S1757387AbWKWPCd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 10:02:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757388AbWKWPCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 10:00:19 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:3522 "EHLO calculon.skynet.ie")
-	by vger.kernel.org with ESMTP id S1757381AbWKWPAS (ORCPT
+	Thu, 23 Nov 2006 10:02:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51589 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757387AbWKWPCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 10:00:18 -0500
-Date: Thu, 23 Nov 2006 15:00:16 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
-In-Reply-To: <Pine.LNX.4.64.0611211821030.588@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0611231457070.23409@skynet.skynet.ie>
-References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
- <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211821030.588@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 23 Nov 2006 10:02:32 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061122132008.2691bd9d.akpm@osdl.org> 
+References: <20061122132008.2691bd9d.akpm@osdl.org>  <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] WorkStruct: Shrink work_struct by two thirds 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 23 Nov 2006 14:59:32 +0000
+Message-ID: <10039.1164293972@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2006, Christoph Lameter wrote:
+Andrew Morton <akpm@osdl.org> wrote:
 
-> On Tue, 21 Nov 2006, Mel Gorman wrote:
->
->> On Tue, 21 Nov 2006, Christoph Lameter wrote:
->>
->>> Are GFP_HIGHUSER allocations always movable? It would reduce the size of
->>> the patch if this would be added to GFP_HIGHUSER.
->> No, they aren't. Page tables allocated with HIGHPTE are currently not movable
->> for example. A number of drivers (infiniband for example) also use
->> __GFP_HIGHMEM that are not movable.
->
-> HIGHPTE with __GFP_USER set? This is a page table page right?
-> pte_alloc_one does currently not set GFP_USER:
->
+> waaaaaaaay too many rejects for me, sorry.  This is quite the worst time in
+> the kernel cycle to be preparing patches like this.  Especially when they're
+> against mainline when everyone has so much material pending.
 
-What is __GFP_USER? The difference between GFP_USER and GFP_KERNEL is only 
-in the use of __GFP_HARDWALL. But HARDWALL on it's own is not enough to 
-distinguish movable and non-movable.
+Actually... there is a way to do this sort of incrementally, I think:
 
-> struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
-> {
->        struct page *pte;
->
-> #ifdef CONFIG_HIGHPTE
->        pte =
-> alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO, 0);
-> #else
->        pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
-> #endif
->        return pte;
-> }
->
-> How does infiniband insure that page migration does not move those pages?
->
+ (1) Turn this sort of thing:
 
-I have not looked closely at infiniband and how it uses it's pages.
+	do_work(struct x *x)
+	{
+		...
+	}
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+	queue_x(struct x *x)
+	{
+		INIT_WORK(&x->work, do_work, x);
+		schedule_work(&x->work)
+	}
+
+    Into this sort of thing:
+
+	#define DECLARE_IMMEDIATE_WORK(w, f) DECLARE_WORK((w), (f), (w))
+	#define DECLARE_DELAYED_WORK(w, f) DECLARE_WORK((w), (f), (w))
+	#define INIT_IMMEDIATE_WORK(w, f) INIT_WORK((w), (f), (w))
+	#define INIT_DELAYED_WORK(w, f) INIT_WORK((w), (f), (w))
+
+	do_work(struct work_struct *work)
+	{
+		struct x *x = container_of(work, struct x, work);
+		...
+	}
+
+	queue_x(struct x *x)
+	{
+		INIT_IMMEDIATE_WORK(&x->work, do_work); //or
+		INIT_DELAYED_WORK(&x->work, do_work);
+		schedule_work(&x->work)
+	}
+
+ (2) Make delayed_work equivalent to work_struct:
+
+	#define delayed_work work_struct
+
+ (3) Then apply the rest of the patches such that they remove the #defines as
+     appropriate.
+
+Might that help?
+
+David

@@ -1,65 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756199AbWKWLiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756284AbWKWLkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756199AbWKWLiy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 06:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756284AbWKWLiy
+	id S1756284AbWKWLkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 06:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756666AbWKWLkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 06:38:54 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:23048 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1756199AbWKWLix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 06:38:53 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: The Peach <smartart@tiscali.it>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: bug? VFAT copy problem
-References: <20061120164209.04417252@localhost>
-	<877ixqhvlw.fsf@duaron.myhome.or.jp>
-	<20061120184912.5e1b1cac@localhost>
-	<87mz6kajks.fsf@duaron.myhome.or.jp>
-	<1164204175.10427.1.camel@localhost.localdomain>
-	<20061122145344.GB18141@DervishD> <1164243385.3525.19.camel@monteirov>
-	<20061123091301.GC21908@DervishD>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Thu, 23 Nov 2006 20:38:48 +0900
-In-Reply-To: <20061123091301.GC21908@DervishD> (DervishD's message of "Thu\, 23 Nov 2006 10\:13\:01 +0100")
-Message-ID: <87hcwq1jg7.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
+	Thu, 23 Nov 2006 06:40:09 -0500
+Received: from nz-out-0102.google.com ([64.233.162.192]:50077 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1756284AbWKWLkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 06:40:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=D9a/dI6PVV4CI/50pn3wfh7VMNnhCY7x+e4q/tSjY7YktxXNlhPcWtunYRCsU5Lpzo2FQm6GX5RyoDNqjr0JD5dDD8DGGuIXqj2URVj/qIc9qGftfTbI98JW6pQCQQCWfDcfnVzJkJD6ZJ5tnJPVAZivR2n6daeM64B9Q0aaIgQ=
+Message-ID: <3ae72650611230340y750b7996s723a3f5a37a5755@mail.gmail.com>
+Date: Thu, 23 Nov 2006 12:40:04 +0100
+From: "Kay Sievers" <kay.sievers@vrfy.org>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [RFC] Pushing device/driver binding decisions to userspace
+Cc: "Ben Collins" <ben.collins@ubuntu.com>,
+       "Nicholas Miell" <nmiell@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061123102928.GA22118@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1163374762.5178.285.camel@gullible>
+	 <1163378981.2801.3.camel@entropy> <1163381067.5178.301.camel@gullible>
+	 <1163382425.2801.6.camel@entropy> <1163395364.5178.327.camel@gullible>
+	 <20061123102928.GA22118@kroah.com>
+X-Google-Sender-Auth: 60f79a77628eafc3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD <lkml@dervishd.net> writes:
+On 11/23/06, Greg KH <greg@kroah.com> wrote:
+> On Sun, Nov 12, 2006 at 09:22:44PM -0800, Ben Collins wrote:
+> > On Sun, 2006-11-12 at 17:47 -0800, Nicholas Miell wrote:
+> > > On Sun, 2006-11-12 at 17:24 -0800, Ben Collins wrote:
+> > > > On Sun, 2006-11-12 at 16:49 -0800, Nicholas Miell wrote:
+> > > > > On Sun, 2006-11-12 at 15:39 -0800, Ben Collins wrote:
+> > > > >
+> > > > > What's wrong with making udev or whatever unbind driver A and then bind
+> > > > > driver B if the driver bound by the kernel ends up being the wrong
+> > > > > choice? (Besides the inelegance of the kernel choosing one and then
+> > > > > userspace immediately choosing the other, of course.)
+> > > > >
+> > > > > I'd argue that having multiple drivers for the same hardware is a bit
+> > > > > strange to begin with, but that's another issue entirely.
+> > > >
+> > > > If two drivers are loaded for the same device, there's no way for udev
+> > > > to tell the kernel which driver to use for a device, that I know of.
+> > >
+> > > /sys/bus/*/drivers/*/{bind,unbind}
+> >
+> > "bind" does not tell the driver core to "bind this device with this
+> > driver", it tells it to "bind this driver to whatever devices we match
+> > that aren't already bound".
+>
+> No it does not, it tells the driver core to "bind this device with this
+> driver, _if_ the driver will accept it".
+>
+> > That doesn't solve my use case.
+>
+> Yes it does:
+>         echo -n BUS_ID > /sys/bus/foo_bus/drivers/foo_driver/unbind
+>         echo -n BUS_ID > /sys/bus/foo_bus/drivers/baz_driver/bind
+>
+> and you are set.  That's the way other distros use this functionality :)
 
->  * Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> dixit:
->> On Wed, 2006-11-22 at 15:53 +0100, DervishD wrote:
->> >  * Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> dixit:
->> > > Have vfat a limit of a file size when copy ? 
->> > 
->> >     2GB, if I recall correctly. FAT32 itself has a limit of 4GB-1 for
->> > file size, but Linux restricts it even more (don't ask me why).
->> 
->> May I say that FAT32 have a bigger limit (at least on last Windows).
->
->     I really don't know, but from microsoft technical information
-> (the first or second hit when googling for "FAT32 size limit"), the
-> limit they specify in FAT32 is 2^32-1.
->
->     I may be wrong, but with 32 bits you cannot address more than
-> 2^32 bytes, I don't know how can you create a bigger-than-4Gb file in
-> a FAT32 filesystem without resorting to tricks like this:
->
->     forum.doom9.org/archive/index.php/t-20689.html
->
->     Looks like FAT-32 (don't ask me how because I don't know the
-> internals) can store a file bigger than 4GB, but you cannot *save*
-> it. So you won't be able to put the file you have back to any FAT32
-> filesystem, I'm afraid.
+Right, I currently port that part of SUSE's sysconfig's per-device
+configuration to udev, and udev-rules will be able to specify what
+driver to use for a device, including driver-unbinding/binding.
 
-Right. FAT's size field is 32bit, so *file* of FAT has limit of 4GB-1.
-(Since directory doesn't have size, in theoretically it can exceed 4GB-1)
+Also modprobe will be built into udev to solve the
+performance-problems we see with parsing the modprobe-files for every
+device with a modalias.
 
-Hm.. Maybe MS added a new hack to FAT..?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Kay

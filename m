@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933600AbWKWTqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933709AbWKWTsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933600AbWKWTqv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 14:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933590AbWKWTqv
+	id S933709AbWKWTsw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 14:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933719AbWKWTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 14:46:51 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40401 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S933600AbWKWTqu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 14:46:50 -0500
-Message-ID: <4565FA60.9000402@redhat.com>
-Date: Thu, 23 Nov 2006 11:45:36 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-References: <11641265982190@2ka.mipt.ru> <4564E162.8040901@redhat.com> <20061123115240.GA20294@2ka.mipt.ru>
-In-Reply-To: <20061123115240.GA20294@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Nov 2006 14:48:52 -0500
+Received: from s1.mailresponder.info ([193.24.237.10]:12041 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S933709AbWKWTsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 14:48:51 -0500
+Subject: 'False' IO error when copying from cdrom drive
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Thu, 23 Nov 2006 20:48:25 +0100
+Message-Id: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> Kernel does not put there a new entry, it is only done inside
-> kevent_wait(). Entries are put into queue (in any context), where they can be obtained
-> from only kevent_wait() or kevent_get_events().
+Dear all,
 
-I know this is how it's done now.  But it is not where it has to end. 
-IMO we have to get to a solution where new events are posted to the ring 
-buffer asynchronously, i.e., without a thread calling kevent_wait.  And 
-then you need the extra parameter and verification.  Even if it's today 
-not needed we have to future-proof the interface since it cannot be 
-changed once in use.
+I am currently facing a really weird thing. It seems that it is related
+to the block driver (or whatever else related to block devices).
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+I explain: First take this really simple program:
+----8<------------------------------------------------------------------
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+
+int main(int argc, char **argv)
+{
+  if(argc < 2)
+    return 0;
+  
+  int iFD = open(argv[1], O_RDONLY | O_NONBLOCK);
+  if(iFD == -1)
+    perror("open");
+
+  while(1)
+    sleep(1);
+
+  return 0;
+}
+----8<-----------------------------------------------------------------
+
+Apparently, it just open a file in read only mode, and non-blocking. 
+If you use it for opening an IDE DVD recorder, it will just grab a file
+descriptor, without checking if the media is present or not.
+ -> This is normally how the /dev/hdXX device file should be open to 
+    use CDROM_SEND_PACKET ioctl.
+
+(Note: Feel free to correct me if I am wrong)
+
+
+Ok. Now take a full DVD (I tested DVD+R, +RW and -R), with more than 
+4 300 000 000 bytes (very important :), and perform the following:
+
+0. Open the tray of your recorder
+1. Launch this small program above, passing the recorder device file as 
+   argument and let it run in background.
+2. then put the disc in the device and mount it
+3. try to copy to whole content on the hard drive
+
+-> You will get an error like the following:
+  > kernel: attempt to access beyond end of device
+  > kernel: hdb: rw=0, want=8388612, limit=8388604
+
+If you do not launch this small program in background, everything works
+like a charm.
+
+What is really astonishing, is that no matter the media, no matter the
+device, this 'limit' is ALWAYS 8388604. Which - as far as I debugged -
+make exactly 4 294 965 248 bytes (that is where the 4 300 000 000 bytes
+come from).
+
+So am I think that there must be somehow a value corruption, as:
+1. the limit shown in the kernel error log is wrong
+2. whitout running this small prog, everything works fine.
+
+Regards,
+Mathieu
+

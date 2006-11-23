@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933053AbWKWHtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933066AbWKWHvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933053AbWKWHtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 02:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933064AbWKWHtJ
+	id S933066AbWKWHvv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 02:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933064AbWKWHvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 02:49:09 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:3821 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S933053AbWKWHtH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 02:49:07 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=w00u6hzMNmzfPQwLPAF5dACDtYo/c3KBda90jy7y0vDNpENmkK1Nm1Rh6b984e91w
-	4hr3cjDMnyUA87AuLs2Xw==
-Message-ID: <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
-Date: Wed, 22 Nov 2006 23:48:56 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Kirill Korotaev" <dev@sw.ru>
-Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
-Cc: "Andrew Morton" <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       matthltc@us.ibm.com, hch@infradead.org,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru,
-       devel@openvz.org, xemul@openvz.org
-In-Reply-To: <45535E11.20207@sw.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Nov 2006 02:51:50 -0500
+Received: from tomts22.bellnexxia.net ([209.226.175.184]:49604 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S933043AbWKWHvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 02:51:50 -0500
+Date: Thu, 23 Nov 2006 02:51:48 -0500
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Greg KH <greg@kroah.com>
+Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/5] DebugFS : inotify create/mkdir support
+Message-ID: <20061123075148.GB1703@Krystal>
+References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_Krystal-1850-1164268308-0001-2"
 Content-Disposition: inline
-References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>
+In-Reply-To: <20061122052730.GD20836@kroah.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 02:47:30 up 92 days,  4:55,  3 users,  load average: 0.37, 0.27, 0.18
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/9/06, Kirill Korotaev <dev@sw.ru> wrote:
-> +
-> +int bc_task_move(int pid, struct beancounter *bc, int whole)
-> +{
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-...
+--=_Krystal-1850-1164268308-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> +
-> +       down_write(&mm->mmap_sem);
-> +       err = stop_machine_run(do_set_bcid, &data, NR_CPUS);
-> +       up_write(&mm->mmap_sem);
+Add inotify create and mkdir events to DebugFS.
 
-Isn't this a little heavyweight for moving a task into/between beancounters?
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
-Paul
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+
+--=_Krystal-1850-1164268308-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch01-debugfs-inotify.diff"
+
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -23,6 +23,7 @@
+ #include <linux/init.h>
+ #include <linux/namei.h>
+ #include <linux/debugfs.h>
++#include <linux/fsnotify.h>
+ 
+ #define DEBUGFS_MAGIC	0x64626720
+ 
+@@ -87,15 +88,22 @@
+ 
+ 	mode = (mode & (S_IRWXUGO | S_ISVTX)) | S_IFDIR;
+ 	res = debugfs_mknod(dir, dentry, mode, 0);
+-	if (!res)
++	if (!res) {
+ 		dir->i_nlink++;
++		fsnotify_mkdir(dir, dentry);
++	}
+ 	return res;
+ }
+ 
+ static int debugfs_create(struct inode *dir, struct dentry *dentry, int mode)
+ {
++	int res;
++
+ 	mode = (mode & S_IALLUGO) | S_IFREG;
+-	return debugfs_mknod(dir, dentry, mode, 0);
++	res = debugfs_mknod(dir, dentry, mode, 0);
++	if (!res)
++		fsnotify_create(dir, dentry);
++	return res;
+ }
+ 
+ static inline int debugfs_positive(struct dentry *dentry)
+
+--=_Krystal-1850-1164268308-0001-2--

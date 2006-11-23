@@ -1,158 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756418AbWKWUQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933875AbWKWUSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756418AbWKWUQt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757453AbWKWUQt
+	id S933875AbWKWUSr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWUSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:16:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64478 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1756418AbWKWUQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:16:48 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
-       trond.myklebust@fys.uio.no
-Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
-       aviro@redhat.com, steved@redhat.com
-Subject: [PATCH 29/19] CacheFiles: Remove old obsolete cull function
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 23 Nov 2006 20:13:32 +0000
-Message-ID: <27093.1164312812@redhat.com>
+	Thu, 23 Nov 2006 15:18:46 -0500
+Received: from master.altlinux.org ([62.118.250.235]:32009 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP id S933875AbWKWUSp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 15:18:45 -0500
+Date: Thu, 23 Nov 2006 23:18:25 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Mathieu Fluhr <mfluhr@nero.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 'False' IO error when copying from cdrom drive
+Message-Id: <20061123231825.342a3237.vsu@altlinux.ru>
+In-Reply-To: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
+References: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; x86_64-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CacheFiles: Remove old obsolete cull function
+--Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-From: David Howells <dhowells@redhat.com>
+On Thu, 23 Nov 2006 20:48:25 +0100 Mathieu Fluhr wrote:
 
-Remove the old cachefiles_cull() function that was obsolete and #if'd out.
+> I explain: First take this really simple program:
+> ----8<------------------------------------------------------------------
+> #include <sys/types.h>
+> #include <sys/stat.h>
+> #include <fcntl.h>
+>
+>
+> int main(int argc, char **argv)
+> {
+>   if(argc < 2)
+>     return 0;
+>
+>   int iFD = open(argv[1], O_RDONLY | O_NONBLOCK);
+>   if(iFD == -1)
+>     perror("open");
+>
+>   while(1)
+>     sleep(1);
+>
+>   return 0;
+> }
+> ----8<-----------------------------------------------------------------
+[..]
+> Ok. Now take a full DVD (I tested DVD+R, +RW and -R), with more than
+> 4 300 000 000 bytes (very important :), and perform the following:
+>
+> 0. Open the tray of your recorder
+> 1. Launch this small program above, passing the recorder device file as
+>    argument and let it run in background.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+At this time the following code in drivers/ide/ide-cd.c:cdrom_read_toc()
+is executed:
 
- fs/cachefiles/cf-namei.c |  110 ----------------------------------------------
- 1 files changed, 0 insertions(+), 110 deletions(-)
+	/* Try to get the total cdrom capacity and sector size. */
+	stat = cdrom_read_capacity(drive, &toc->capacity, &sectors_per_frame,
+				   sense);
+	if (stat)
+		toc->capacity = 0x1fffff;
 
-diff --git a/fs/cachefiles/cf-namei.c b/fs/cachefiles/cf-namei.c
-index d0db9b3..9e6dd9f 100644
---- a/fs/cachefiles/cf-namei.c
-+++ b/fs/cachefiles/cf-namei.c
-@@ -524,116 +524,6 @@ nomem_d_alloc:
- 	return ERR_PTR(-ENOMEM);
- }
- 
--#if 0
--/*
-- * cull an object if it's not in use
-- * - called only by cache manager daemon
-- */
--int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
--		    char *filename)
--{
--	struct cachefiles_object *object;
--	struct rb_node *_n;
--	struct dentry *victim;
--	int ret;
--
--	_enter(",%*.*s/,%s",
--	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
--
--	/* look up the victim */
--	mutex_lock(&dir->d_inode->i_mutex);
--
--	victim = lookup_one_len(filename, dir, strlen(filename));
--	if (IS_ERR(victim))
--		goto lookup_error;
--
--	_debug("victim -> %p %s",
--	       victim, victim->d_inode ? "positive" : "negative");
--
--	/* if the object is no longer there then we probably retired the object
--	 * at the netfs's request whilst the cull was in progress
--	 */
--	if (!victim->d_inode) {
--		mutex_unlock(&dir->d_inode->i_mutex);
--		dput(victim);
--		_leave(" = -ENOENT [absent]");
--		return -ENOENT;
--	}
--
--	/* check to see if we're using this object */
--	read_lock(&cache->active_lock);
--
--	_n = cache->active_nodes.rb_node;
--
--	while (_n) {
--		object = rb_entry(_n, struct cachefiles_object, active_node);
--
--		if (object->dentry > victim)
--			_n = _n->rb_left;
--		else if (object->dentry < victim)
--			_n = _n->rb_right;
--		else
--			goto object_in_use;
--	}
--
--	read_unlock(&cache->active_lock);
--
--	/* okay... the victim is not being used so we can cull it
--	 * - start by marking it as stale
--	 */
--	_debug("victim is cullable");
--
--	ret = cachefiles_remove_object_xattr(cache, victim);
--	if (ret < 0)
--		goto error_unlock;
--
--	/*  actually remove the victim (drops the dir mutex) */
--	_debug("bury");
--
--	ret = cachefiles_bury_object(cache, dir, victim);
--	if (ret < 0)
--		goto error;
--
--	dput(victim);
--	_leave(" = 0");
--	return 0;
--
--
--object_in_use:
--	read_unlock(&cache->active_lock);
--	mutex_unlock(&dir->d_inode->i_mutex);
--	dput(victim);
--	_leave(" = -EBUSY [in use]");
--	return -EBUSY;
--
--lookup_error:
--	mutex_unlock(&dir->d_inode->i_mutex);
--	ret = PTR_ERR(victim);
--	if (ret == -EIO)
--		cachefiles_io_error(cache, "Lookup failed");
--	goto choose_error;
--
--error_unlock:
--	mutex_unlock(&dir->d_inode->i_mutex);
--error:
--	dput(victim);
--choose_error:
--	if (ret == -ENOENT) {
--		/* file or dir now absent - probably retired by netfs */
--		_leave(" = -ESTALE [absent]");
--		return -ESTALE;
--	}
--
--	if (ret != -ENOMEM) {
--		kerror("Internal error: %d", ret);
--		ret = -EIO;
--	}
--
--	_leave(" = %d", ret);
--	return ret;
--}
--#endif
--
- /*
-  * find out if an object is in use or not
-  * - if finds object and it's not in use:
+	set_capacity(info->disk, toc->capacity * sectors_per_frame);
+
+Obviously, with the tray open cdrom_read_capacity() won't succeed,
+therefore toc->capacity will be set to 0x1fffff.
+
+> 2. then put the disc in the device and mount it
+> 3. try to copy to whole content on the hard drive
+>
+> -> You will get an error like the following:
+>   > kernel: attempt to access beyond end of device
+>   > kernel: hdb: rw=0, want=8388612, limit=8388604
+
+0x1fffff * 2048/512 == 8388604
+
+Your background program is keeping the device open, which prevents
+revalidation of capacity and other media information on subsequent
+device opens.
+
+When HAL polls CD-ROM devices to detect newly inserted media, it does
+not keep the device open forever - instead, it opens and closes the
+device every time.  Your program should either do the same thing, or
+just depend on HAL events.
+
+--Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFZgIUW82GfkQfsqIRAoAGAJ4r/K07ahHEYsrlIjvFWAXts0ouhwCgkfGY
+CeY99Wa3hdLQfhjc5Uvd9EQ=
+=z7Ps
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__23_Nov_2006_23_18_25_+0300_O847AOK=zleGnTTq--

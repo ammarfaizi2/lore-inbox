@@ -1,41 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756883AbWKWIby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933043AbWKWIje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756883AbWKWIby (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757222AbWKWIby
+	id S933043AbWKWIje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933071AbWKWIje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:31:54 -0500
-Received: from main.gmane.org ([80.91.229.2]:56217 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1756883AbWKWIbx (ORCPT
+	Thu, 23 Nov 2006 03:39:34 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:2579 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S933043AbWKWIjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:31:53 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: nfs3: possible recursive locking (Re: BUG: soft lockup detected on CPU#0! (2.6.18.2))
-Date: Thu, 23 Nov 2006 08:31:45 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrneman7h.1er.olecom@deen.upol.cz.local>
-References: <867ixyvum6.fsf@gere.msconsult.dk> <slrnelofru.7lr.olecom@flower.upol.cz> <86odr6f55x.fsf@gere.msconsult.dk> <86ac2jekn2.fsf@sif.msconsult.dk> <20061122141233.GA2225@flower.upol.cz> <86odqzbcmy.fsf@sif.msconsult.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 158.194.180.30
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>, rasmus@msconsult.dk
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Thu, 23 Nov 2006 03:39:33 -0500
+Message-ID: <45655D3E.5020702@openvz.org>
+Date: Thu, 23 Nov 2006 11:35:10 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: Paul Menage <menage@google.com>
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       matthltc@us.ibm.com, hch@infradead.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru, devel@openvz.org,
+       xemul@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
+References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru> <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
+In-Reply-To: <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-11-22, Rasmus Bøg Hansen wrote:
-[]
->> Did this like "my server froze. It was entirely dead and had to be power
->> cycled."?
->
-> Sorry, I forgot. No it didn't freeze, it is still gladly running as if
-> nothing happened.
+Paul Menage wrote:
+> On 11/9/06, Kirill Korotaev <dev@sw.ru> wrote:
+>> +
+>> +int bc_task_move(int pid, struct beancounter *bc, int whole)
+>> +{
+> 
+> ...
+> 
+>> +
+>> +       down_write(&mm->mmap_sem);
+>> +       err = stop_machine_run(do_set_bcid, &data, NR_CPUS);
+>> +       up_write(&mm->mmap_sem);
+> 
+> Isn't this a little heavyweight for moving a task into/between
+> beancounters?
 
-If something really bad will happen with nfsd, try to find somebody in
-MAINTAINERS file to Cc to.
-____
+It's a main reason we were against moving arbitrary task.
+
+We need to track the situation when we change beancounter on
+task that is currently handles an interrupt and thus set a
+temporary BC as exec one. I see no other way that keeps pair
+set_exec_bc()/get_exec_bc() lock-less.
+
+The problem is even larger than I've described. set_exec_bc()
+is used widely in OpenVZ beancounters to set temporary context
+e.g. for skb handling. Thus we need some safe way to "catch"
+the task in a "safe" place. In OpenVZ we solve this by moving
+only current into beancounter. In this patch set we have to
+move arbitrary task and thus - such complication.
+
+I repeat - we can do this w/o stop_machine, but this would
+require locking in set_exec_bc()/get_exec_bc() but it's too
+bad. Moving tasks happens rarely but setting context is a
+very common operation (e.g. in each interrupt).
+
+We can do the following:
+
+  if (tsk == current)
+      /* fast way */
+      tsk->exec_bc = bc;
+  else
+      /* slow way */
+      stop_machine_run(...);
+
+What do you think?
+
+> Paul
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

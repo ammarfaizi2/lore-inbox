@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757422AbWKWQto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757419AbWKWQuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757422AbWKWQto (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 11:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757425AbWKWQtn
+	id S1757419AbWKWQuP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 11:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757432AbWKWQuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 11:49:43 -0500
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:36745
+	Thu, 23 Nov 2006 11:50:14 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:37769
 	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1757422AbWKWQtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 11:49:42 -0500
-Date: Thu, 23 Nov 2006 16:49:10 +0000
+	id S1757429AbWKWQuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 11:50:12 -0500
+Date: Thu, 23 Nov 2006 16:49:40 +0000
 To: linux-mm@kvack.org
 Cc: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Mel Gorman <mel@csn.ul.ie>, Andy Whitcroft <apw@shadowen.org>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] lumpy reclaim v2
-Message-ID: <5dd653f9f8e104d772109ee0c5146e19@pinky>
+Subject: [PATCH 2/4] lumpy cleanup a missplaced comment and simplify some code
+Message-ID: <b416b30c3ea48e4e97aa0ed1d89124cb@pinky>
 References: <exportbomb.1164300519@pinky>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,204 +26,140 @@ From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lumpy reclaim v2
+lumpy: cleanup a missplaced comment and simplify some code
 
-When trying to reclaim pages for a higher order allocation, make reclaim
-try to move lumps of pages (fitting the requested order) about, instead
-of single pages. This should significantly reduce the number of
-reclaimed pages for higher order allocations.
+Move the comment for isolate_lru_pages() back to its function
+and comment the new function.  Add some running commentry on the
+area scan.  Cleanup the indentation on switch to match the majority
+view in mm/*.  Finally, clarify the boundary pfn calculations.
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 ---
-diff --git a/fs/buffer.c b/fs/buffer.c
-index 64ea099..c73acb7 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -424,7 +424,7 @@ static void free_more_memory(void)
- 	for_each_online_pgdat(pgdat) {
- 		zones = pgdat->node_zonelists[gfp_zone(GFP_NOFS)].zones;
- 		if (*zones)
--			try_to_free_pages(zones, GFP_NOFS);
-+			try_to_free_pages(zones, 0, GFP_NOFS);
- 	}
- }
- 
-diff --git a/include/linux/swap.h b/include/linux/swap.h
-index 439f9a8..5c26736 100644
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -187,7 +187,7 @@ extern int rotate_reclaimable_page(struc
- extern void swap_setup(void);
- 
- /* linux/mm/vmscan.c */
--extern unsigned long try_to_free_pages(struct zone **, gfp_t);
-+extern unsigned long try_to_free_pages(struct zone **, int, gfp_t);
- extern unsigned long shrink_all_memory(unsigned long nr_pages);
- extern int vm_swappiness;
- extern int remove_mapping(struct address_space *mapping, struct page *page);
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 19ab611..39f48a8 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1368,7 +1368,7 @@ nofail_alloc:
- 	reclaim_state.reclaimed_slab = 0;
- 	p->reclaim_state = &reclaim_state;
- 
--	did_some_progress = try_to_free_pages(zonelist->zones, gfp_mask);
-+	did_some_progress = try_to_free_pages(zonelist->zones, order, gfp_mask);
- 
- 	p->reclaim_state = NULL;
- 	p->flags &= ~PF_MEMALLOC;
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 7e9caff..4645a3f 100644
+index 4645a3f..3b6ef79 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
-@@ -67,6 +67,8 @@ struct scan_control {
- 	int swappiness;
+@@ -609,21 +609,14 @@ keep:
+ }
  
- 	int all_unreclaimable;
-+
-+	int order;
- };
- 
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
-@@ -623,35 +625,86 @@ keep:
+ /*
+- * zone->lru_lock is heavily contended.  Some of the functions that
+- * shrink the lists perform better by taking out a batch of pages
+- * and working on them outside the LRU lock.
++ * Attempt to remove the specified page from its LRU.  Only take this
++ * page if it is of the appropriate PageActive status.  Pages which
++ * are being freed elsewhere are also ignored.
   *
-  * returns how many pages were moved onto *@dst.
+- * For pagecache intensive workloads, this function is the hottest
+- * spot in the kernel (apart from copy_*_user functions).
+- *
+- * Appropriate locks must be held before calling this function.
++ * @page:	page to consider
++ * @active:	active/inactive flag only take pages of this type
+  *
+- * @nr_to_scan:	The number of pages to look through on the list.
+- * @src:	The LRU list to pull pages off.
+- * @dst:	The temp list to put pages on to.
+- * @scanned:	The number of pages that were scanned.
+- *
+- * returns how many pages were moved onto *@dst.
++ * returns 0 on success, -ve errno on failure.
   */
-+int __isolate_lru_page(struct page *page, int active)
-+{
-+	int ret = -EINVAL;
-+
-+	if (PageLRU(page) && (PageActive(page) == active)) {
-+		ret = -EBUSY;
-+		if (likely(get_page_unless_zero(page))) {
-+			/*
-+			 * Be careful not to clear PageLRU until after we're
-+			 * sure the page is not being freed elsewhere -- the
-+			 * page release code relies on it.
-+			 */
-+			ClearPageLRU(page);
-+			ret = 0;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
+ int __isolate_lru_page(struct page *page, int active)
+ {
+@@ -645,6 +638,23 @@ int __isolate_lru_page(struct page *page
+ 	return ret;
+ }
+ 
++/*
++ * zone->lru_lock is heavily contended.  Some of the functions that
++ * shrink the lists perform better by taking out a batch of pages
++ * and working on them outside the LRU lock.
++ *
++ * For pagecache intensive workloads, this function is the hottest
++ * spot in the kernel (apart from copy_*_user functions).
++ *
++ * Appropriate locks must be held before calling this function.
++ *
++ * @nr_to_scan:	The number of pages to look through on the list.
++ * @src:	The LRU list to pull pages off.
++ * @dst:	The temp list to put pages on to.
++ * @scanned:	The number of pages that were scanned.
++ *
++ * returns how many pages were moved onto *@dst.
++ */
  static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
  		struct list_head *src, struct list_head *dst,
--		unsigned long *scanned)
-+		unsigned long *scanned, int order)
- {
- 	unsigned long nr_taken = 0;
--	struct page *page;
--	unsigned long scan;
-+	struct page *page, *tmp;
-+	unsigned long scan, pfn, end_pfn, page_pfn;
-+	int active;
+ 		unsigned long *scanned, int order)
+@@ -662,26 +672,31 @@ static unsigned long isolate_lru_pages(u
  
- 	for (scan = 0; scan < nr_to_scan && !list_empty(src); scan++) {
--		struct list_head *target;
- 		page = lru_to_page(src);
- 		prefetchw_prev_lru_page(page, src, flags);
+ 		active = PageActive(page);
+ 		switch (__isolate_lru_page(page, active)) {
+-			case 0:
+-				list_move(&page->lru, dst);
+-				nr_taken++;
+-				break;
++		case 0:
++			list_move(&page->lru, dst);
++			nr_taken++;
++			break;
  
- 		VM_BUG_ON(!PageLRU(page));
+-			case -EBUSY:
+-				/* else it is being freed elsewhere */
+-				list_move(&page->lru, src);
+-				continue;
++		case -EBUSY:
++			/* else it is being freed elsewhere */
++			list_move(&page->lru, src);
++			continue;
  
--		list_del(&page->lru);
--		target = src;
--		if (likely(get_page_unless_zero(page))) {
--			/*
--			 * Be careful not to clear PageLRU until after we're
--			 * sure the page is not being freed elsewhere -- the
--			 * page release code relies on it.
--			 */
--			ClearPageLRU(page);
--			target = dst;
--			nr_taken++;
--		} /* else it is being freed elsewhere */
-+		active = PageActive(page);
-+		switch (__isolate_lru_page(page, active)) {
+-			default:
+-				BUG();
++		default:
++			BUG();
+ 		}
+ 
+ 		if (!order)
+ 			continue;
+ 
+-		page_pfn = pfn = __page_to_pfn(page);
+-		end_pfn = pfn &= ~((1 << order) - 1);
+-		end_pfn += 1 << order;
++		/*
++		 * Attempt to take all pages in the order aligned region
++		 * surrounding the tag page.  Only take those pages of
++		 * the same active state as that tag page.
++		 */
++		page_pfn = __page_to_pfn(page);
++		pfn = page_pfn & ~((1 << order) - 1);
++		end_pfn = pfn + (1 << order);
+ 		for (; pfn < end_pfn; pfn++) {
+ 			if (unlikely(pfn == page_pfn))
+ 				continue;
+@@ -691,17 +706,16 @@ static unsigned long isolate_lru_pages(u
+ 			scan++;
+ 			tmp = __pfn_to_page(pfn);
+ 			switch (__isolate_lru_page(tmp, active)) {
+-				case 0:
+-					list_move(&tmp->lru, dst);
+-					nr_taken++;
+-					continue;
+-
+-				case -EBUSY:
+-					/* else it is being freed elsewhere */
+-					list_move(&tmp->lru, src);
+-				default:
+-					break;
 +			case 0:
-+				list_move(&page->lru, dst);
++				list_move(&tmp->lru, dst);
 +				nr_taken++;
-+				break;
-+
++				continue;
+ 
 +			case -EBUSY:
 +				/* else it is being freed elsewhere */
-+				list_move(&page->lru, src);
-+				continue;
-+
++				list_move(&tmp->lru, src);
 +			default:
-+				BUG();
-+		}
- 
--		list_add(&page->lru, target);
-+		if (!order)
-+			continue;
-+
-+		page_pfn = pfn = __page_to_pfn(page);
-+		end_pfn = pfn &= ~((1 << order) - 1);
-+		end_pfn += 1 << order;
-+		for (; pfn < end_pfn; pfn++) {
-+			if (unlikely(pfn == page_pfn))
-+				continue;
-+			if (unlikely(!pfn_valid(pfn)))
 +				break;
-+
-+			scan++;
-+			tmp = __pfn_to_page(pfn);
-+			switch (__isolate_lru_page(tmp, active)) {
-+				case 0:
-+					list_move(&tmp->lru, dst);
-+					nr_taken++;
-+					continue;
-+
-+				case -EBUSY:
-+					/* else it is being freed elsewhere */
-+					list_move(&tmp->lru, src);
-+				default:
-+					break;
-+
-+			}
-+			break;
-+		}
- 	}
- 
- 	*scanned = scan;
-@@ -682,7 +735,7 @@ static unsigned long shrink_inactive_lis
- 
- 		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
- 					     &zone->inactive_list,
--					     &page_list, &nr_scan);
-+					     &page_list, &nr_scan, sc->order);
- 		zone->nr_inactive -= nr_taken;
- 		zone->pages_scanned += nr_scan;
- 		zone->aging_total += nr_scan;
-@@ -828,7 +881,7 @@ force_reclaim_mapped:
- 	lru_add_drain();
- 	spin_lock_irq(&zone->lru_lock);
- 	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
--				    &l_hold, &pgscanned);
-+				    &l_hold, &pgscanned, sc->order);
- 	zone->pages_scanned += pgscanned;
- 	zone->nr_active -= pgmoved;
- 	spin_unlock_irq(&zone->lru_lock);
-@@ -1017,7 +1070,7 @@ static unsigned long shrink_zones(int pr
-  * holds filesystem locks which prevent writeout this might not work, and the
-  * allocation attempt will fail.
-  */
--unsigned long try_to_free_pages(struct zone **zones, gfp_t gfp_mask)
-+unsigned long try_to_free_pages(struct zone **zones, int order, gfp_t gfp_mask)
- {
- 	int priority;
- 	int ret = 0;
-@@ -1032,6 +1085,7 @@ unsigned long try_to_free_pages(struct z
- 		.swap_cluster_max = SWAP_CLUSTER_MAX,
- 		.may_swap = 1,
- 		.swappiness = vm_swappiness,
-+		.order = order,
- 	};
- 
- 	delay_swap_prefetch();
+ 			}
+ 			break;
+ 		}

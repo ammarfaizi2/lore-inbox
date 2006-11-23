@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933836AbWKWPms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757376AbWKWPqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933836AbWKWPms (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 10:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933835AbWKWPms
+	id S1757376AbWKWPqF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 10:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757396AbWKWPqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 10:42:48 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:31921 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S933832AbWKWPmr
+	Thu, 23 Nov 2006 10:46:04 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:14984 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1757376AbWKWPqD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 10:42:47 -0500
-Date: Thu, 23 Nov 2006 16:43:04 +0100
-From: DervishD <lkml@dervishd.net>
-To: The Peach <smartart@tiscali.it>
-Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: bug? VFAT copy problem
-Message-ID: <20061123154304.GC26900@DervishD>
-Mail-Followup-To: The Peach <smartart@tiscali.it>,
-	Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	linux-kernel@vger.kernel.org
-References: <20061120164209.04417252@localhost> <877ixqhvlw.fsf@duaron.myhome.or.jp> <20061120184912.5e1b1cac@localhost> <87mz6kajks.fsf@duaron.myhome.or.jp> <1164204175.10427.1.camel@localhost.localdomain> <20061122145344.GB18141@DervishD> <1164243385.3525.19.camel@monteirov> <20061123091301.GC21908@DervishD> <20061123122611.60a8fd7c@localhost>
+	Thu, 23 Nov 2006 10:46:03 -0500
+Date: Thu, 23 Nov 2006 18:46:06 +0300
+From: Vitaly Wool <vitalywool@gmail.com>
+To: drzeus-mmc@drzeus.cx
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix random SD/MMC card recognition failures on ARM
+ Versatile
+Message-Id: <20061123184606.bb203ae6.vitalywool@gmail.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.13; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061123122611.60a8fd7c@localhost>
-User-Agent: Mutt/1.4.2.2i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Matteo :)
+Hello Pierre,
 
- * The Peach <smartart@tiscali.it> dixit:
-> DervishD <lkml@dervishd.net> wrote:
-> 
-> > > Have you a solution for the case ? Now I have the file in ext3
-> > > and I couldn't copy to any vfat :)
-> > 
-> >     No, I don't have any idea about how to do it, sorry :(
-> > 
-> 
-> maybe using ntfs-3g driver with fuse or use the extX windows driver
-> (if the need was read from Windows). I'm feeling quite confortable
-> with the first solution, whilst the second is suggested by the
-> official linux ntfs support page
+currently sometimes the SD/MMC card inserted results in recognition failure on ARM Versatile board:
 
-    Of course, such options exist, but Sergio was asking to write to
-a FAT-32, so... Myself, I use ext2 for my external disks if I can,
-and I install the ext2-ifs driver for windows to read them. It works
-like a charm.
+   <<<Plug in MMC card>>>
 
-    Raúl Núñez de Arenas Coronado
+root@versatile:~# mmcblk0: mmc0:0001 SDMB-32 31360KiB
+ mmcblk0:<3>mmcblk0: error 3 transferring data
+end_request: I/O error, dev mmcblk0, sector 0
+Buffer I/O error on device mmcblk0, logical block 0
+mmcblk0: error 3 transferring data
+end_request: I/O error, dev mmcblk0, sector 0
+Buffer I/O error on device mmcblk0, logical block 0
+ unable to read partition table
 
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-It's my PC and I'll cry if I want to... RAmen!
+This patch fixes the problem.
+
+ drivers/mmc/mmci.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
+
+Index: linux-2.6.18/drivers/mmc/mmci.c
+===================================================================
+--- linux-2.6.18.orig/drivers/mmc/mmci.c
++++ linux-2.6.18/drivers/mmc/mmci.c
+@@ -41,6 +41,8 @@ static void
+ mmci_request_end(struct mmci_host *host, struct mmc_request *mrq)
+ {
+ 	writel(0, host->base + MMCICOMMAND);
++	writel(0, host->base + MMCIDATACTRL);
++	writel(0, host->base + MMCIMASK1);
+ 
+ 	host->mrq = NULL;
+ 	host->cmd = NULL;

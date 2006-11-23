@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933882AbWKWT5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933883AbWKWT5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933882AbWKWT5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 14:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933883AbWKWT53
+	id S933883AbWKWT5t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 14:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933888AbWKWT5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 14:57:29 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:17838
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S933882AbWKWT53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 14:57:29 -0500
-Date: Thu, 23 Nov 2006 11:57:34 -0800 (PST)
-Message-Id: <20061123.115734.77406441.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: spyro@f2s.com, linux-kernel@vger.kernel.org, a.p.zijlstra@chello.nl,
-       torvalds@osdl.org
-Subject: Re: BUG: 2.6.19-rc6 net/irda/irlmp.c
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <9a8748490611230513y258ab33cgf9733b2a8cd93f74@mail.gmail.com>
-References: <45657BD4.5040604@f2s.com>
-	<9a8748490611230513y258ab33cgf9733b2a8cd93f74@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 23 Nov 2006 14:57:49 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34772 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S933885AbWKWT5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 14:57:48 -0500
+Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the
+	945G/GZ/P/PL
+From: Arjan van de Ven <arjan@infradead.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20061123195137.GA35120@dspnet.fr.eu.org>
+References: <20061123195137.GA35120@dspnet.fr.eu.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 23 Nov 2006 20:57:41 +0100
+Message-Id: <1164311861.3147.5.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-Date: Thu, 23 Nov 2006 14:13:12 +0100
+On Thu, 2006-11-23 at 20:51 +0100, Olivier Galibert wrote:
+> It seems that the only way to reliably support mmconfig in the
+> presence of funky biosen is to detect the hostbridge and read where
+> the window is mapped from its registers.  Do that for the E7520 and
+> the 945G/GZ/P/PL on x86-64 for a start.
 
-> I reported this yesterday - http://lkml.org/lkml/2006/11/22/137 - It
-> is commit 700f9672c9a61c12334651a94d17ec04620e1976 that breaks the
-> build.
-> 
-> Linus: I think that commit should either be reverted or fixed in a
-> different way before 2.6.19. As it is right now we have a build
-> failure :
-> 
-> net/built-in.o: In function `irlmp_slsap_inuse':
-> net/irda/irlmp.c:1681: undefined reference to `spin_lock_irqsave_nested'
-> make: *** [.tmp_vmlinux1] Error 1
 
-Andrew will push the change which will fix this bug, please be
-patient.
+hi,
+
+while I like this approach a lot, I am wondering if this shouldn't be
+done as a PCI quirk instead.... it would make a lot of sense to use that
+shared infrastructure for this...
+
+

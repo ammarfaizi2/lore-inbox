@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933669AbWKWNNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933676AbWKWNOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933669AbWKWNNB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933670AbWKWNNB
+	id S933676AbWKWNOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933685AbWKWNOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:13:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:57800 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S933669AbWKWNNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:13:00 -0500
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Conke Hu <conke.hu@amd.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>
-In-Reply-To: <20061123112251.7976994c@localhost.localdomain>
-References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
-	 <1164269159.31358.769.camel@laptopd505.fenrus.org>
-	 <20061123112251.7976994c@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 23 Nov 2006 14:12:46 +0100
-Message-Id: <1164287566.31358.786.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 23 Nov 2006 08:14:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30877 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933683AbWKWNOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 08:14:01 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+       trond.myklebust@fys.uio.no
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+       aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 27/19] FS-Cache: Apply the PG_checked -> PG_fs_misc conversion to Ext4
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 23 Nov 2006 13:10:59 +0000
+Message-ID: <27699.1164287459@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-23 at 11:22 +0000, Alan wrote:
-> > is this really the right thing? You're overriding a user chosen
-> > configuration here.... while that might be justifiable.. it's probably a
-> > good idea to at least provide a safety-valve for this one. The user
-> > might have made that selection very deliberately.
-> 
-> Its what we do for other similar cases and I think its the right thing to
-> do in this situation. One reason for this is that with multi-boot boxes
-> you have to set the BIOS option to the dumbest one unless the smart OS's
-> reconfigure the device.
 
-while I can appreciate that.. it does assume things like SMM not
-assuming things about it; and on resume.. has to happen as again/well :)
+Apply the PG_checked -> PG_fs_misc conversion to Ext4 [patch 02/19].
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
+ fs/ext4/inode.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 0a60ec5..4846bb9 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1530,12 +1530,12 @@ static int ext4_journalled_writepage(str
+ 		goto no_write;
+ 	}
+ 
+-	if (!page_has_buffers(page) || PageChecked(page)) {
++	if (!page_has_buffers(page) || PageFsMisc(page)) {
+ 		/*
+ 		 * It's mmapped pagecache.  Add buffers and journal it.  There
+ 		 * doesn't seem much point in redirtying the page here.
+ 		 */
+-		ClearPageChecked(page);
++		ClearPageFsMisc(page);
+ 		ret = block_prepare_write(page, 0, PAGE_CACHE_SIZE,
+ 					ext4_get_block);
+ 		if (ret != 0) {
+@@ -1592,7 +1592,7 @@ static void ext4_invalidatepage(struct p
+ 	 * If it's a full truncate we just forget about the pending dirtying
+ 	 */
+ 	if (offset == 0)
+-		ClearPageChecked(page);
++		ClearPageFsMisc(page);
+ 
+ 	jbd2_journal_invalidatepage(journal, page, offset);
+ }
+@@ -1601,7 +1601,7 @@ static int ext4_releasepage(struct page 
+ {
+ 	journal_t *journal = EXT4_JOURNAL(page->mapping->host);
+ 
+-	WARN_ON(PageChecked(page));
++	WARN_ON(PageFsMisc(page));
+ 	if (!page_has_buffers(page))
+ 		return 0;
+ 	return jbd2_journal_try_to_free_buffers(journal, page, wait);
+@@ -1697,7 +1697,7 @@ out:
+  */
+ static int ext4_journalled_set_page_dirty(struct page *page)
+ {
+-	SetPageChecked(page);
++	SetPageFsMisc(page);
+ 	return __set_page_dirty_nobuffers(page);
+ }
+ 

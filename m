@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757448AbWKWR2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757093AbWKWRiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757448AbWKWR2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 12:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757444AbWKWR2e
+	id S1757093AbWKWRiz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 12:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757287AbWKWRiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 12:28:34 -0500
-Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:12012 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1757448AbWKWR2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 12:28:33 -0500
-Date: Thu, 23 Nov 2006 12:28:28 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, ltt-dev@shafik.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] libfs : file/directory removal fix, 2.6.18
-Message-ID: <20061123172828.GB14803@Krystal>
-References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com> <20061123082244.GF1703@Krystal> <20061123085056.GJ3078@ftp.linux.org.uk> <20061123090116.GK3078@ftp.linux.org.uk>
-Mime-Version: 1.0
+	Thu, 23 Nov 2006 12:38:55 -0500
+Received: from www.nabble.com ([72.21.53.35]:59873 "EHLO talk.nabble.com")
+	by vger.kernel.org with ESMTP id S1757093AbWKWRiy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 12:38:54 -0500
+Message-ID: <7511768.post@talk.nabble.com>
+Date: Thu, 23 Nov 2006 09:38:53 -0800 (PST)
+From: russell_i_brown <russell@lls.lls.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] atl1: Revised Attansic L1 ethernet driver
+In-Reply-To: <loom.20061122T232808-920@post.gmane.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20061123090116.GK3078@ftp.linux.org.uk>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 12:26:18 up 92 days, 14:34,  3 users,  load average: 1.83, 1.29, 1.25
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Nabble-From: russell@lls.lls.com
+References: <20061119202817.GA29736@osprey.hogchain.net> <20061121202541.GA23036@dreamland.darkstar.lan> <loom.20061122T232808-920@post.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Al Viro (viro@ftp.linux.org.uk) wrote:
-> On Thu, Nov 23, 2006 at 08:50:56AM +0000, Al Viro wrote:
-> > On Thu, Nov 23, 2006 at 03:22:44AM -0500, Mathieu Desnoyers wrote:
-> > > Fix file and directory removal in libfs. Add inotify support for file removal.
-> > > 
-> > > The following scenario :
-> > > create dir a
-> > > create dir a/b
-> > > 
-> > > cd a/b (some process goes in cwd a/b)
-> > > 
-> > > rmdir a/b
-> > > rmdir a
-> > >
-> > > fails due to the fact that "a" appears to be non empty.
-> > 
-> > What?  Caller will do d_delete() itself.  Care to show a version where
-> > that would happen and post an strace of the second rmdir?
-> > 
-> > > It is because the "b"
-> > > dentry is not deleted from "a" and still in use. The same problem happens if
-> > > "b" is a file. d_delete is nice enough to know when it needs to unhash and free
-> > > the dentry if nothing else is using it or, if someone is using it, to remove it
-> > > from the hash queues and wait for it to be deleted when it has no users.
-> > > 
-> > > The nice side-effect of this fix is that it calls the file removal
-> > > notification.
-> > 
-> > NAK.  First of all, I won't believe you without actual strace.
-> > 
-> > What's more, WTF would fs _method_ call idiotify?  Keep that crap
-> > out of filesystems; caller will do it for us just fine.
+
+
+
+Chris Ott wrote:
 > 
-> PS: debugfs, sysfs et sodding alia should take care to do things equivalent
-> to vfs_unlink(), etc.  _That_ is definitive user of fs methods, which, in
-> turn, sets the rules for library helpers used by such.
+> 
+>> Chris Snook <csnook <at> redhat.com> ha scritto:
+>> > 
+>> > We're currently 
+>> > quite short on actual testers, since the chip only seems to be on Asus 
+>> > M2V motherboards at present.  Please let me and Jay know if you have
+>> one 
+>> > of these boards and would like to test and/or have encountered bugs.
+> 
+> Asus V3-P5945G also uses the Attansic L1 Gigabit Ethernet Adapter. I've
+> tried the atl1 driver
+> supplied by ASUS with the m/b (v0.1.40.8) but it's horribly slow (50KB/s
+> on a 100Mb LAN!).
+> 
+> I'd also therefore be willing to test.
+> 
+> What would you like us to do Chris?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-Ok, I will tweak my modification so it sits in debugfs then.
+-- 
+View this message in context: http://www.nabble.com/-PATCH-0-4--atl1%3A-Revised-Attansic-L1-ethernet-driver-tf2665327.html#a7511768
+Sent from the linux-kernel mailing list archive at Nabble.com.
 
-Thanks,
-
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

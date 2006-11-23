@@ -1,33 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933278AbWKWIw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933284AbWKWIyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933278AbWKWIw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933284AbWKWIw7
+	id S933284AbWKWIyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933297AbWKWIyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:52:59 -0500
-Received: from cantor.suse.de ([195.135.220.2]:21646 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S933278AbWKWIw6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:52:58 -0500
-Date: Thu, 23 Nov 2006 09:52:54 +0100
-From: Andi Kleen <ak@suse.de>
-To: Keith Owens <kaos@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       eranian@hpl.hp.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] i386 add Intel PEBS and BTS cpufeature bits and detection
-Message-ID: <20061123085254.GA29738@bingen.suse.de>
-References: <200611180924.01979.ak@suse.de> <6428.1164261827@kao2.melbourne.sgi.com>
+	Thu, 23 Nov 2006 03:54:04 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:28406 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S933284AbWKWIyB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 03:54:01 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=cWUjD6H3gevL9RYbpKTIVjvFKU7MDqdjuCSZp0mBLZ5OBMGPzf4fatSaGgdQm3dm7
+	rDGI1UVETSpgZRMzcDhLQ==
+Message-ID: <6599ad830611230053m7182698cu897abe5d19471aff@mail.gmail.com>
+Date: Thu, 23 Nov 2006 00:53:51 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Pavel Emelianov" <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
+Cc: "Kirill Korotaev" <dev@sw.ru>, "Andrew Morton" <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       matthltc@us.ibm.com, hch@infradead.org,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru,
+       devel@openvz.org
+In-Reply-To: <45655D3E.5020702@openvz.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <6428.1164261827@kao2.melbourne.sgi.com>
+References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>
+	 <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
+	 <45655D3E.5020702@openvz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> LBR is mainly useful on wild branches to random addresses.  As such,
+On 11/23/06, Pavel Emelianov <xemul@openvz.org> wrote:
+>
+> We can do the following:
+>
+>   if (tsk == current)
+>       /* fast way */
+>       tsk->exec_bc = bc;
+>   else
+>       /* slow way */
+>       stop_machine_run(...);
+>
+> What do you think?
 
-The page fault handler is one of the most performance critical 
-exceptions.  And then on x86-64 a lot of stray pointers actually result in a 
-#GP, not a page fault.
+How about having two pointers per task:
 
--Andi
+- exec_bc, which is the one used for charging
+- real_bc, which is the task's actual beancounter
+
+at the start of irq, do
+
+current->exec_bc = &init_bc;
+
+at the end of irq, do
+
+current->exec_bc = current->real_bc;
+
+When moving a task to a different bc do:
+
+task->real_bc = new_bc;
+atomic_cmpxchg(&task->exec_bc, old_bc, new_bc);
+
+(with appropriate memory barriers). So if the task is in an irq with a
+modified exec_bc pointer, we do nothing, otherwise we update exec_bc
+to point to the new real_bc.
+
+Paul

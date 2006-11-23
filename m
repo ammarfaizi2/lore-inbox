@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756356AbWKWS00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932934AbWKWSgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756356AbWKWS00 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 13:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755783AbWKWS00
+	id S932934AbWKWSgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 13:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757373AbWKWSgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 13:26:26 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:3655 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1755210AbWKWS0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 13:26:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RiQpZk5pyf/gjtZBC0XWJ4hulYAGB2cNOS0fzL34FUkhOpu2Dlwfa12y1fLkiDnOctQXghbaUBlpUE90UfbHSHq3Zqu2TZ1zx/LkCPdyPMw++mhgAGX+khe4cXf2bJOi5W+5gcnBJr6Xk8KBqJnRKV4AVkEjtxacbjp6GbmMAEo=
-Message-ID: <41840b750611231026r790cd327q7e48ebd99f9b9350@mail.gmail.com>
-Date: Thu, 23 Nov 2006 20:26:24 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
-Cc: "Christoph Schmid" <chris@schlagmichtod.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061121205124.GB4199@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 23 Nov 2006 13:36:19 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:45468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1757359AbWKWSgS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 13:36:18 -0500
+Date: Thu, 23 Nov 2006 10:36:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm1
+Message-Id: <20061123103607.af7ae8b0.akpm@osdl.org>
+In-Reply-To: <200611231223.48703.m.kozlowski@tuxland.pl>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	<200611231223.48703.m.kozlowski@tuxland.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <455DAF74.1050203@schlagmichtod.de> <20061121205124.GB4199@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/21/06, Pavel Machek <pavel@ucw.cz> wrote:
-> I'm afraid we need your help with development here. Porting old patch
-> to 2.6.19-rc6 should be easy
+On Thu, 23 Nov 2006 12:23:48 +0100
+Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
 
-http://lkml.org/lkml/2006/10/9/84
-http://lkml.org/lkml/2006/10/10/275
+> 
+> Hello,
+> 
+> 	Hmmm ... didn't apply cleanly.
+> 
+> patching file kernel/tsacct.c
+> Hunk #1 FAILED at 97.
+> 1 out of 1 hunk FAILED -- saving rejects to file kernel/tsacct.c.rej
 
-> Does hdaps work for you, btw? It gave all zeros on my x60, iirc.
+I think your local tree is not clean.
 
-Yes, vanilla hdaps is broken. It blindly issues commands to the
-embedded controller without following the protocol or checking the
-status. The patched version in the tp_smapi package fixes it.
+> Anyway this is what I get on my laptop:
+> 
+> =================================
+> [ INFO: inconsistent lock state ]
+> 2.6.19-rc6-mm1 #1
+> ---------------------------------
+> inconsistent {hardirq-on-R} -> {in-hardirq-W} usage.
 
-  Shem
+hm, nested read_lock_irq()+read_unlock_irq() in the readahead code..
+
+--- a/mm/readahead.c~readahead-context-based-method-locking-fix
++++ a/mm/readahead.c
+@@ -1171,10 +1171,10 @@ static inline unsigned long inactive_pag
+ 
+ /*
+  * Count/estimate cache hits in range [begin, end).
+- * The estimation is simple and optimistic.
++ * The estimation is simple and optimistic.  The caller must hold tree_lock.
+  */
+ #define CACHE_HIT_HASH_KEY	29	/* some prime number */
+-static int count_cache_hit(struct address_space *mapping,
++static int __count_cache_hit(struct address_space *mapping,
+ 						pgoff_t begin, pgoff_t end)
+ {
+ 	int size = end - begin;
+@@ -1187,14 +1187,12 @@ static int count_cache_hit(struct addres
+ 	 * behavior guarantees a readahead when (size < ra_max) and
+ 	 * (readahead_hit_rate >= 8).
+ 	 */
+-	read_lock_irq(&mapping->tree_lock);
+ 	for (i = 0; i < 8;) {
+ 		struct page *page = radix_tree_lookup(&mapping->page_tree,
+ 			begin + size * ((i++ * CACHE_HIT_HASH_KEY) & 7) / 8);
+ 		if (inactive_page_refcnt(page) >= PAGE_REFCNT_1 && ++count >= 2)
+ 			break;
+ 	}
+-	read_unlock_irq(&mapping->tree_lock);
+ 
+ 	return size * count / i;
+ }
+_
+

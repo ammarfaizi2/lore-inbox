@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWKWAKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757223AbWKWA2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWKWAKc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 19:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757209AbWKWAKb
+	id S1757223AbWKWA2a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 19:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757225AbWKWA2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 19:10:31 -0500
-Received: from emailer.gwdg.de ([134.76.10.24]:27795 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1757186AbWKWAKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 19:10:31 -0500
-Date: Thu, 23 Nov 2006 01:10:08 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-In-Reply-To: <ek2nva$vgk$1@sea.gmane.org>
-Message-ID: <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr>
-References: <ek2nva$vgk$1@sea.gmane.org>
+	Wed, 22 Nov 2006 19:28:30 -0500
+Received: from wx-out-0506.google.com ([66.249.82.226]:50984 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1757223AbWKWA23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 19:28:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MgGkQV2TQ8Jr+V/gmGsPRo/9iwhVJNBd0rn0ido90Jv0/mWT3/ge/MQCTZoRzeOBl7OBQOFF34iTBsD21r004wzeVYEC7TMSB3BXQsNVoZiegOob/R3nJK2DdZ1evFqwYuxk9uS1pFMgPVO+dZPqTnhvkzxQvteVPPKD8KyQHgM=
+Message-ID: <e6babb600611221628nd9430c6pe3ab36e9862b3b6d@mail.gmail.com>
+Date: Wed, 22 Nov 2006 17:28:28 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Subject: Re: ieee1394: host adapter disappears on 1394 bus reset
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>
+In-Reply-To: <4564C4C7.5060403@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e6babb600611220731p67b15e51q95f524683070ae80@mail.gmail.com>
+	 <4564C4C7.5060403@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/22/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> It would be nice if you create an entry at bugzilla.kernel.org.
 
->Hi!
->
->(PEBKAC warning. I'm probably doing something dump. I just don't know
->what...)
->
->I seem to have an entropy pool on a headless machine which is not nearly
->empty (a common problem in this case, I know), but completely empty and
->stuck in this state...
->
->Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
->0
+Okay, bug # is 7569.
 
-You really must have bad luck with your entropy...
+> One thing you could try next is to add a debug logging macro which
+> prints the contents of OHCI1394_IntEventClear, OHCI1394_IntEventSet, and
+> OHCI1394_IntMaskSet, right after ohci1394's call to
+> hpsb_selfid_complete. (I'm merely poking in the dark here.)
 
+We're just entering a holiday weekend here (Thursday is Thanksgiving),
+but I will try when I return on Monday.
 
-01:05 ichi:/home/k > cat /proc/sys/kernel/random/entropy_avail
-3596
-01:08 ichi:/home/k > dd if=/dev/urandom of=/dev/null bs=3596 count=1
-1+0 records in
-1+0 records out
-3596 bytes (3.6 kB) copied, 0.00115262 seconds, 3.1 MB/s
-01:08 ichi:/home/k > cat /proc/sys/kernel/random/entropy_avail
-157
+Thanks.
 
-however that might be caused because I am in X, mouse moves, kernel 
-compiles, etc.
-
-
->Also causing disk activities doesn't help at all. (Two disks on a Promise
->PDC20268 controller.)
-
-Disk activities are "somewhat predictable", like network traffic, and 
-hence are not (or should not - have not checked it) contribute to the 
-pool. Note that urandom is the device which _always_ gives you data, and 
-when the pool is exhausted, returns pseudorandom data.
-
-
->The system runs a rather ancient Debian Sarge 2.4 kernel:
->Linux Hornburg 2.4.27-3-386 #1 Thu Sep 14 08:44:58 UTC 2006 i486 GNU/Linux
-
-[I have] No memories about a kernel this old. :>
-
->However as the machine itself is also ancient, the 2.4 seems like a good
->match. And also 2.4 ought to have a refilling entropy pool, doesn't it?
->
->Maybe someone can shed some light on what's happening here...
-
-
-	-`J'
 -- 
+Robert Crocombe
+rcrocomb@gmail.com

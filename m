@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756834AbWKWGQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756958AbWKWGre@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756834AbWKWGQL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 01:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755322AbWKWGQK
+	id S1756958AbWKWGre (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 01:47:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756928AbWKWGrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 01:16:10 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:60795 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1756834AbWKWGQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 01:16:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=QjN9So6efhfOBKpH4+QpJXhiATRmOdnNwm8pUDGYzOf9k8EV6GVH83kKyPlxizy1ga1j5ipYDo3aVsFCkwOzcwQZ3JQPpfB5OEe5hqNZ6QckMg9tOIntf+iScaFqVzBmtk7dVrpAfRIhOB8YrRnbPm+NWKMv5vLH/wFKye33fqQ=
-Message-ID: <86802c440611222216u629835fepe2a39d4d34d9fefb@mail.gmail.com>
-Date: Wed, 22 Nov 2006 22:16:07 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Auke Kok" <auke-jan.h.kok@intel.com>
-Subject: Re: [PATCH 4/5] e1000 : Make Intel e1000 driver legacy I/O port free
-Cc: "Matthew Wilcox" <matthew@wil.cx>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Hidetoshi Seto" <seto.hidetoshi@jp.fujitsu.com>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, "Greg KH" <greg@kroah.com>,
-       "Grant Grundler" <grundler@parisc-linux.org>,
-       "Andrew Morton" <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
-       linux-scsi@vger.kernel.org,
-       "Kenji Kaneshige" <kaneshige.kenji@jp.fujitsu.com>
-In-Reply-To: <456476B0.70705@intel.com>
+	Thu, 23 Nov 2006 01:47:33 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:33160 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1756169AbWKWGrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 01:47:32 -0500
+Date: Wed, 22 Nov 2006 23:47:31 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: David Miller <davem@davemloft.net>, dgc@sgi.com, jesper.juhl@gmail.com,
+       chatz@melbourne.sgi.com, linux-kernel@vger.kernel.org, xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com, netdev@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to implicate xfs, scsi, networking, SMP
+Message-ID: <20061123064731.GB18567@parisc-linux.org>
+References: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com> <9a8748490611220458w4d94d953v21f7a29a9f1bdb72@mail.gmail.com> <20061123011809.GY37654165@melbourne.sgi.com> <20061122.201013.112290046.davem@davemloft.net> <20061123043543.GI3078@ftp.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4564050C.70607@jp.fujitsu.com>
-	 <1164185809.31358.714.camel@laptopd505.fenrus.org>
-	 <20061122135423.GV18567@parisc-linux.org> <456476B0.70705@intel.com>
-X-Google-Sender-Auth: eab1d930b78e3d4f
+In-Reply-To: <20061123043543.GI3078@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/06, Auke Kok <auke-jan.h.kok@intel.com> wrote:
-> I think we want to condense the USE_IOPORT flag together with the other hardware
+On Thu, Nov 23, 2006 at 04:35:43AM +0000, Al Viro wrote:
+> On Wed, Nov 22, 2006 at 08:10:13PM -0800, David Miller wrote:
+> > I would even say 10 function calls deep to allocate file blocks
+> > is overkill, but 22 it just astronomically bad.
+> 
+> Especially since a large part is due to cxfs...
 
-two cases
-1. the IO port is not allocated by firmware, but
-pci_assign_unassigned_resources will get that allocated.
-2. the IO port is allocated by firmware, the bar will be retrieved by
-pcibios_resource_survey.
+... and patches sent in the past to remove layers from XFS have been
+NAKed due to CXFS
 
-so acctully the device already get the bar allocated in any case.
+http://oss.sgi.com/archives/xfs/2003-08/msg00166.html
+http://oss.sgi.com/archives/xfs/2003-08/msg00167.html
+http://oss.sgi.com/archives/xfs/2003-08/msg00168.html
+http://oss.sgi.com/archives/xfs/2003-08/msg00171.html
 
-So what the purpose of this patch? the /poc/ioports hide ioport for the driver?
-
-It seems need to add some pci_quirk to clear the bar for 2, and skip
-the resource allocation for 1.
-
-YH
+Maybe IRIX is now sufficiently dead that the last argument doesn't
+matter any more.

@@ -1,79 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933941AbWKWUyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933952AbWKWUzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933941AbWKWUyk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757364AbWKWUyj
+	id S933952AbWKWUzF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933951AbWKWUzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:54:39 -0500
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:29633 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1755256AbWKWUyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:54:39 -0500
-Date: Thu, 23 Nov 2006 15:54:37 -0500
-To: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-Message-ID: <20061123205436.GA16440@csclub.uwaterloo.ca>
-References: <ek2nva$vgk$1@sea.gmane.org>
+	Thu, 23 Nov 2006 15:55:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:19393 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933952AbWKWUzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 15:55:03 -0500
+Date: Thu, 23 Nov 2006 12:54:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ego@in.ibm.com
+Cc: vatsa@in.ibm.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       torvalds@osdl.org, dipankar@in.ibm.com
+Subject: Re: [PATCH] Handle per-subsystem mutexes for CONFIG_HOTPLUG_CPU not
+ set.
+Message-Id: <20061123125446.3cd9ff0f.akpm@osdl.org>
+In-Reply-To: <20061123131852.GA20313@in.ibm.com>
+References: <20061123131852.GA20313@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ek2nva$vgk$1@sea.gmane.org>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 12:54:03AM +0100, Gunter Ohrner wrote:
-> (PEBKAC warning. I'm probably doing something dump. I just don't know
-> what...)
-> 
-> I seem to have an entropy pool on a headless machine which is not nearly
-> empty (a common problem in this case, I know), but completely empty and
-> stuck in this state...
-> 
-> Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
-> 0
-> Hornburg:~# fuser /dev/urandom
-> Hornburg:~# lsof | grep random
-> Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
-> 0
-> Hornburg:~# dd if=/dev/hdf of=/dev/urandom bs=512 count=1
-> 1+0 records in
-> 1+0 records out
-> 512 bytes transferred in 0.016268 seconds (31473 bytes/sec)
-> Hornburg:~# dd if=/dev/hdf of=/dev/random bs=512 count=1
-> 1+0 records in
-> 1+0 records out
-> 512 bytes transferred in 0.031943 seconds (16029 bytes/sec)
-> Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
-> 0
-> Hornburg:~# fuser /dev/urandom
-> Hornburg:~# fuser /dev/random
-> Hornburg:~# lsof | grep random
-> Hornburg:~# cat /proc/sys/kernel/random/poolsize
-> 4096
-> Hornburg:~#
-> 
-> Also causing disk activities doesn't help at all. (Two disks on a Promise
-> PDC20268 controller.)
-> 
-> The system runs a rather ancient Debian Sarge 2.4 kernel:
-> Linux Hornburg 2.4.27-3-386 #1 Thu Sep 14 08:44:58 UTC 2006 i486 GNU/Linux
-> 
-> However as the machine itself is also ancient, the 2.4 seems like a good
-> match. And also 2.4 ought to have a refilling entropy pool, doesn't it?
-> 
-> Maybe someone can shed some light on what's happening here...
+On Thu, 23 Nov 2006 18:48:52 +0530
+Gautham R Shenoy <ego@in.ibm.com> wrote:
 
-Only some devices/drivers generate entropy data.  Some network drivers,
-mouse, keyboard.  None of the disk drivers are appear to do so.  Serial
-ports do not in general either.  On my headless systems I patched
-pcnet32 and the 8250 driver to generate entropy since otherwise I tended
-to run out very quickly.
+> When CONFIG_HOTPLUG_CPU is not set, lock_cpu_hotplug() and 
+> unlock_cpu_hotplug() default to no-ops.
+> 
+> However, in case of the proposed per-subsystem hotcpu mutex scheme, 
+> the hotcpu mutexes will be taken/released, even when
+> CONFIG_HOTPLUG_CPU is not set. This is an unnecessary overhead
+> both w.r.t space and time ;-)
 
---
-Len Sorensen
+hm.
+
+> This patch
+> 
+> * Provides a common interface for all the subsystems to lock and
+> unlock their per-subsystem hotcpu mutexes.
+> When CONFIG_HOTPLUG_CPU is not set, these operations would be no-ops.
+> 
+> Usage:
+> a) Each hotcpu aware subsystem defines the hotcpu_mutex as follows
+> #ifdef CONFIG_HOTPLUG_CPU
+> DEFINE_MUTEX(my_hotcpu_mutex);
+> #endif
+> 
+> b) The hotcpu aware subsystem uses
+> cpuhotplug_mutex_lock(&my_hotcpu_mutex)
+> and 
+> cpuhotplug_mutex_unlock(&my_hotcpu_mutex) 
+> instead of the usual mutex_lock/mutex_unlock.
+> 
+> Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
+> 
+> ---
+>  include/linux/cpu.h |   15 +++++++++++++++
+>  1 files changed, 15 insertions(+)
+> 
+> Index: hotplug/include/linux/cpu.h
+> ===================================================================
+> --- hotplug.orig/include/linux/cpu.h
+> +++ hotplug/include/linux/cpu.h
+> @@ -24,6 +24,7 @@
+>  #include <linux/compiler.h>
+>  #include <linux/cpumask.h>
+>  #include <asm/semaphore.h>
+> +#include <linux/mutex.h>
+>  
+>  struct cpu {
+>  	int node_id;		/* The node which contains the CPU */
+> @@ -74,6 +75,17 @@ extern struct sysdev_class cpu_sysdev_cl
+>  
+>  #ifdef CONFIG_HOTPLUG_CPU
+>  /* Stop CPUs going up and down. */
+> +
+> +static inline void cpuhotplug_mutex_lock(struct mutex *cpu_hp_mutex)
+> +{
+> +	mutex_lock(cpu_hp_mutex);
+> +}
+> +
+> +static inline void cpuhotplug_mutex_unlock(struct mutex *cpu_hp_mutex)
+> +{
+> +	mutex_unlock(cpu_hp_mutex);
+> +}
+> +
+>  extern void lock_cpu_hotplug(void);
+>  extern void unlock_cpu_hotplug(void);
+>  #define hotcpu_notifier(fn, pri) {				\
+> @@ -86,6 +98,9 @@ extern void unlock_cpu_hotplug(void);
+>  int cpu_down(unsigned int cpu);
+>  #define cpu_is_offline(cpu) unlikely(!cpu_online(cpu))
+>  #else
+> +#define cpuhotplug_mutex_lock(m)	do { } while (0)
+> +#define cpuhotplug_mutex_unlock(m)	do { } while (0)
+> +
+
+But what to do about the now-unneeded mutex?
+
+We can just leave it there if CONFIG_HOTPLUG_CPU=n but then we'll get
+unused variable warnings for statically-defined mutexes.
+
+To fix that would require either
+
+#ifdef CONFIG_HOTPLUG_CPU
+#define DEFINE_MUTEX_HOTPLUG_CPU(m) DEFINE_MUTEX(m)
+#else
+#define DEFINE_MUTEX_HOTPLUG_CPU(m)
+#endif
+
+or
+
+#define cpuhotplug_mutex_lock(m)	do { (void)(m); } while (0)
+
+
+Given that the former won't work, I'd suggest the latter ;)
+
+

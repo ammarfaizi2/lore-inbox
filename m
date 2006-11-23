@@ -1,73 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933890AbWKWUBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933889AbWKWUEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933890AbWKWUBy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933886AbWKWUBy
+	id S933889AbWKWUEK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933895AbWKWUEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:01:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7385 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S933857AbWKWUBx (ORCPT
+	Thu, 23 Nov 2006 15:04:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6874 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933889AbWKWUEI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:01:53 -0500
-Message-ID: <4565FDED.2050003@redhat.com>
-Date: Thu, 23 Nov 2006 12:00:45 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-References: <11641265982190@2ka.mipt.ru> <4564E2AB.1020202@redhat.com> <20061123115504.GB20294@2ka.mipt.ru>
-In-Reply-To: <20061123115504.GB20294@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 23 Nov 2006 15:04:08 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0611230920230.27596@woody.osdl.org> 
+References: <Pine.LNX.4.64.0611230920230.27596@woody.osdl.org>  <20061122132008.2691bd9d.akpm@osdl.org> <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com> <10937.1164282273@redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] WorkStruct: Shrink work_struct by two thirds 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 23 Nov 2006 20:01:11 +0000
+Message-ID: <20447.1164312071@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> uidx is an index, starting from which there are unread entries. It is
-> updated by userspace when it commits entries, so it is 'consumer'
-> pointer, while kidx is an index where kernel will put new entries, i.e.
-> 'producer' index. We definitely need them both.
-> Userspace can only update (implicitly by calling kevent_commit()) uidx.
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Right, which is why exporting this entry is not needed.  Keep the 
-interface as small as possible.
+> I obviously didn't see how nasty the conflicts were, and I would want it 
+> to be not too painful for Andrew. So I could either take it early after 
+> 2.6.19 _or_ after Andrew has merged the bulk of his stuff, depending on 
+> which way is easier.
 
-Userlevel has to maintain its own index.  Just assume kevent_wait 
-returns 10 new entries and you have multiple threads.  In this case all 
-threads take their turns and pick an entry from the ring buffer.  This 
-basically has to be done with something like this (I ignore wrap-arounds 
-here to simplify the example):
+Perhaps if Andrew gives me an estimate of what patches he's going to commit
+this time around, I can use those as a base for my patch.
 
-   int getidx() {
-     while (uidx < kidx)
-        if (atomic_cmpxchg(uidx, uidx + 1, uidx) == 0)
-          return uidx;
-     return -1;
-   }
-
-Very much simplified but it should show that we need a writable copy of 
-the uidx.  And this value at any time must be consistent with the index 
-the kernel assumes.
-
-The current ring_uidx value can at best be used to reinitialize the 
-userlevel uidx value after each kevent_wait call but this is unnecessary 
-at best (since uidx must already have this value) and racy in problem 
-cases (what if more than one thread gets woken concurrently with uidx 
-having the same value and one thread stores the uidx value and 
-immediately increments it to get an index; the second store would 
-overwrite the increment).
-
-I can assure you that any implementation I write would not use the 
-ring_uidx value.  Only trivial, single-threaded examples like you 
-ring_buffer.c could ever take advantage of this value.  It's not worth it.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+David

@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933692AbWKWN2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933696AbWKWN14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933692AbWKWN2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933705AbWKWN2Q
+	id S933696AbWKWN14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933692AbWKWN14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:28:16 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:62136 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S933692AbWKWN2M
+	Thu, 23 Nov 2006 08:27:56 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:52025 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S933696AbWKWN1z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:28:12 -0500
-Date: Thu, 23 Nov 2006 13:28:11 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andre Noll <maan@systemlinux.org>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
-In-Reply-To: <20061123130817.GJ27761@skl-net.de>
-Message-ID: <Pine.LNX.4.64.0611231327140.22648@skynet.skynet.ie>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
- <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de>
- <20061122155233.GA30607@skynet.ie> <20061122174223.GE27761@skl-net.de>
- <20061123120141.GA20920@skynet.ie> <20061123130817.GJ27761@skl-net.de>
+	Thu, 23 Nov 2006 08:27:55 -0500
+In-Reply-To: <adaslgbaxsu.fsf@cisco.com>
+Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address	to
+ determine pending work requests
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Christoph Raisch <raisch@de.ibm.com>,
+       Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       linuxppc-dev-bounces+hnguyen=de.ibm.com@ozlabs.org,
+       openib-general@openib.org
+X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
+Message-ID: <OFCFF36ACF.6FF07D9E-ONC125722F.00499C9C-C125722F.0049F685@de.ibm.com>
+From: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>
+Date: Thu, 23 Nov 2006 14:31:21 +0100
+X-MIMETrack: Serialize by Router on D12ML065/12/M/IBM(Release 6.5.5HF882 | September 26, 2006) at
+ 23/11/2006 14:31:22
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006, Andre Noll wrote:
+Hi Roland!
+> OK.  After thinking about this, I'm going to queue it for 2.6.20 --
+> we're _way_ too close to the 2.6.19 final release to put in patches
+> that aren't either small and obvious, or fix a problem someone hit in
+> real life.
+That's fair. I understand your decision. And thanks for queueing for
+2.6.20. Can you please brief me on patch procedures for post-2.6.19?
+Regards
+Nam
 
-> On 12:01, Mel Gorman wrote:
->
->>>> Andre, if the bug still exists for you, can you apply Andi's patch to
->>>> reduce the log size and the following patch please and post us the
->>>> output with loglevel=8 please? Thanks
->>>
->>> Done. Here's the output of dmesg with your and Andi's patch applied.
->>>
->>
->> ahhh, I believe I see the problem now. Please try out the following patch.
->
-> [...]
->
->> This patch sorts the early_node_map in find_min_pfn_for_node(). It has
->> been boot tested on x86, x86_64, ppc64 and ia64.
->
-> That did the trick, you're the man!
->
-
-heh, I was also the problem. Thanks a lot for reporting and testing.
-
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab

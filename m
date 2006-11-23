@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWKWAlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932693AbWKWAli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932615AbWKWAlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 19:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757240AbWKWAlN
+	id S932693AbWKWAli (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 19:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757243AbWKWAlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 19:41:13 -0500
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:22611 "HELO
+	Wed, 22 Nov 2006 19:41:18 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:30035 "HELO
 	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1757243AbWKWAlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 19:41:12 -0500
+	id S1757242AbWKWAlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 19:41:15 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ta6d/pnDjySHSjhb+EVSO2/7bqKBzycAgSq9pLm6HAqZhKFppT2dHW2U//O4vNNpAC3fMfy2h5B2Z6aj+yzelKcd3lu/amlNa35jEQVeDB0M9FT/HMmA9jC4sNvlBoEAdgjsxyzMaIKn4hR5t0vuXPpKoCCnj2iuGIwfI/C0n5E=  ;
-X-YMail-OSG: wfUmZLcVM1kowwUMQFqpIf6xOrIKeSXwzuk4fs5hHTzVrijT6CWrBwMQH8RrkN.IedZVtb.dmEQDXWZ1aOvmTnmqKR9uUgS.qlcR6VRvUEgLmV.M24JHWA--
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Message-Id:Content-Type:Content-Transfer-Encoding;
+  b=ZaKAhxCDbqXXl/HSI4u1D8BReAXvKS7BHndJAFqlorcqjIpuVOXplFCg/kkkpafqb7RdkVPRLuBvenrlDS0CLr9d/unS1fsq3wG01t3WELnUSYhpVwHpFwiRmpP14/oxdRVRW+863rGREJxG7LsCLNkZKMHH6Sdy1ahb2uIMaDk=  ;
+X-YMail-OSG: seQFCzEVM1mR1pfz_XXTRbH9vNmpI6ile4YRgF9Qa1zeTs3R.opn6kGBfPPlCnaRbwBWnURuRRrUzay3higpmBjpalDxud8I0Q5hzUXIwbhH5VZNZhma
 From: David Brownell <david-b@pacbell.net>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.19-rc6: known regressions (v4)
-Date: Wed, 22 Nov 2006 16:04:25 -0800
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [patch 2.6.19-rc6 1/6] rtc class /proc/driver/rtc update
+Date: Wed, 22 Nov 2006 16:39:33 -0800
 User-Agent: KMail/1.7.1
-Cc: Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-acpi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de>
-In-Reply-To: <20061121212424.GQ5200@stusta.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <200611201014.41980.david-b@pacbell.net> <200611201847.58135.david-b@pacbell.net> <20061122213724.51c3e591@inspiron>
+In-Reply-To: <20061122213724.51c3e591@inspiron>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200611221639.34377.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611221604.26982.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 November 2006 1:24 pm, Adrian Bunk wrote:
+On Wednesday 22 November 2006 12:37 pm, Alessandro Zummo wrote:
+> 
+>  given the experimental status, I'm inclined to remove the /proc
+>  driver right now.
 
-> Subject    : ACPI: AE_TIME errors
-> References : http://lkml.org/lkml/2006/11/15/12
-> Submitter  : David Brownell <david-b@pacbell.net>
-> Handled-By : Len Brown <len.brown@intel.com>
->              Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>
-> Status     : problem is being debugged
-
-I've not seen this in over 3 days now, and am willing to believe that
-the previous instance (after manually reverting the patch identified
-by Linus) was a fluke ... it's certainly not the critical/blocking kind
-of issue it had previously been.
+I actually prefer the /proc/driver/rtc* file to the sysfs stuff.
+Even though some people would call that "politically incorrect".
 
 - Dave

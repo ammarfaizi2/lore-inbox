@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933043AbWKWIje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933275AbWKWImN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933043AbWKWIje (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 03:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933071AbWKWIje
+	id S933275AbWKWImN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 03:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933271AbWKWImN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 03:39:34 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:2579 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S933043AbWKWIjd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 03:39:33 -0500
-Message-ID: <45655D3E.5020702@openvz.org>
-Date: Thu, 23 Nov 2006 11:35:10 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       matthltc@us.ibm.com, hch@infradead.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru, devel@openvz.org,
-       xemul@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
-References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru> <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
-In-Reply-To: <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
+	Thu, 23 Nov 2006 03:42:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59371 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933269AbWKWImM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 03:42:12 -0500
+Date: Thu, 23 Nov 2006 00:40:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?B?U+liYXN0aWVuIER1Z3Xp?= <sebastien.dugue@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH -mm 3/4][AIO] - AIO completion signal notification
+Message-Id: <20061123004053.76114a75.akpm@osdl.org>
+In-Reply-To: <20061123092805.1408b0c6@frecb000686>
+References: <20061120151700.4a4f9407@frecb000686>
+	<20061120152252.7e5a4229@frecb000686>
+	<20061121170228.4412b572.akpm@osdl.org>
+	<20061123092805.1408b0c6@frecb000686>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Menage wrote:
-> On 11/9/06, Kirill Korotaev <dev@sw.ru> wrote:
->> +
->> +int bc_task_move(int pid, struct beancounter *bc, int whole)
->> +{
+On Thu, 23 Nov 2006 09:28:05 +0100
+Sébastien Dugué <sebastien.dugue@bull.net> wrote:
+
+> > > +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
+> > > +		/*
+> > > +		 * This reference will be dropped in really_put_req() when
+> > > +		 * we're done with the request.
+> > > +		 */
+> > > +		get_task_struct(target);
+> > > +	}
+> > 
+> > It worries me that this function can save away a task_struct* without
+> > having taken a reference against it.
+> > 
 > 
-> ...
-> 
->> +
->> +       down_write(&mm->mmap_sem);
->> +       err = stop_machine_run(do_set_bcid, &data, NR_CPUS);
->> +       up_write(&mm->mmap_sem);
-> 
-> Isn't this a little heavyweight for moving a task into/between
-> beancounters?
+>   OK. Does moving 'notify->target = target;' after the get_task_struct() will
+> do, or am I missing something more subtle?
 
-It's a main reason we were against moving arbitrary task.
+Well it's your code - you tell me ;)
 
-We need to track the situation when we change beancounter on
-task that is currently handles an interrupt and thus set a
-temporary BC as exec one. I see no other way that keeps pair
-set_exec_bc()/get_exec_bc() lock-less.
-
-The problem is even larger than I've described. set_exec_bc()
-is used widely in OpenVZ beancounters to set temporary context
-e.g. for skb handling. Thus we need some safe way to "catch"
-the task in a "safe" place. In OpenVZ we solve this by moving
-only current into beancounter. In this patch set we have to
-move arbitrary task and thus - such complication.
-
-I repeat - we can do this w/o stop_machine, but this would
-require locking in set_exec_bc()/get_exec_bc() but it's too
-bad. Moving tasks happens rarely but setting context is a
-very common operation (e.g. in each interrupt).
-
-We can do the following:
-
-  if (tsk == current)
-      /* fast way */
-      tsk->exec_bc = bc;
-  else
-      /* slow way */
-      stop_machine_run(...);
-
-What do you think?
-
-> Paul
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+It is unsafe (and rather pointless) to be saving the address of some structure
+which can be freed at any time.

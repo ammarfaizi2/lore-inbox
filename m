@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757345AbWKWKdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933531AbWKWKgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757345AbWKWKdH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 05:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757347AbWKWKdH
+	id S933531AbWKWKgW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 05:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933539AbWKWKgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 05:33:07 -0500
-Received: from mx3.cs.washington.edu ([128.208.3.132]:41391 "EHLO
-	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1757345AbWKWKdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 05:33:03 -0500
-Date: Thu, 23 Nov 2006 02:33:02 -0800 (PST)
+	Thu, 23 Nov 2006 05:36:21 -0500
+Received: from mx2.cs.washington.edu ([128.208.2.105]:64656 "EHLO
+	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S933531AbWKWKgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 05:36:21 -0500
+Date: Thu, 23 Nov 2006 02:33:06 -0800 (PST)
 From: David Rientjes <rientjes@cs.washington.edu>
 To: d binderman <dcb314@hotmail.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fs: remove unused variable
-In-Reply-To: <BAY107-F2847307957C37B16EA55729CE20@phx.gbl>
-Message-ID: <Pine.LNX.4.64N.0611230231190.18515@attu4.cs.washington.edu>
-References: <BAY107-F2847307957C37B16EA55729CE20@phx.gbl>
+Subject: [PATCH] sys: remove unused variable
+In-Reply-To: <BAY107-F19D1CB64416CC4B0CDB2959CE20@phx.gbl>
+Message-ID: <Pine.LNX.4.64N.0611230231560.18515@attu4.cs.washington.edu>
+References: <BAY107-F19D1CB64416CC4B0CDB2959CE20@phx.gbl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removed unused 'have_pt_gnu_stack' variable.
+Remove unused 'new_ruid' variable.
 
-Reported by David Binderman <dcb314@hotmail.com>
+Reported by David Binderman <dcb314@hotmail.com>.
 
 Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
 ---
- fs/binfmt_elf.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ kernel/sys.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index 79b05a1..8bdefa2 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -545,7 +545,7 @@ static int load_elf_binary(struct linux_
- 	unsigned long reloc_func_desc = 0;
- 	char passed_fileno[6];
- 	struct files_struct *files;
--	int have_pt_gnu_stack, executable_stack = EXSTACK_DEFAULT;
-+	int executable_stack = EXSTACK_DEFAULT;
- 	unsigned long def_flags = 0;
- 	struct {
- 		struct elfhdr elf_ex;
-@@ -708,7 +708,6 @@ static int load_elf_binary(struct linux_
- 				executable_stack = EXSTACK_DISABLE_X;
- 			break;
- 		}
--	have_pt_gnu_stack = (i < loc->elf_ex.e_phnum);
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 98489d8..80f9f20 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1102,14 +1102,14 @@ asmlinkage long sys_setreuid(uid_t ruid,
+ asmlinkage long sys_setuid(uid_t uid)
+ {
+ 	int old_euid = current->euid;
+-	int old_ruid, old_suid, new_ruid, new_suid;
++	int old_ruid, old_suid, new_suid;
+ 	int retval;
  
- 	/* Some simple consistency checks for the interpreter */
- 	if (elf_interpreter) {
+ 	retval = security_task_setuid(uid, (uid_t)-1, (uid_t)-1, LSM_SETID_ID);
+ 	if (retval)
+ 		return retval;
+ 
+-	old_ruid = new_ruid = current->uid;
++	old_ruid = current->uid;
+ 	old_suid = current->suid;
+ 	new_suid = old_suid;
+ 	

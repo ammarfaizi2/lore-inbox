@@ -1,46 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757453AbWKWURX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756418AbWKWUQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757453AbWKWURX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 15:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757457AbWKWURX
+	id S1756418AbWKWUQt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 15:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757453AbWKWUQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 15:17:23 -0500
-Received: from wx-out-0506.google.com ([66.249.82.236]:61798 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1757453AbWKWURW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 15:17:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KfJoZxtwcLKOlmJcAHVA7DotqWe2kT7b+AGsX2RcUViBHlrcrjOXCc2j2KfrV9noogLLA7JfRYIlRMaDlPE1tVIDdC/hp91OAysatK147RmZbb1yz598RbG59GQhad/qFtWgi3U6JxYMeDJqGLofcHZ4WPxLLJVp2dfO2f46RhY=
-Message-ID: <a769871e0611231217w1a6a9d1ag7e708eaf5f991981@mail.gmail.com>
-Date: Thu, 23 Nov 2006 21:17:21 +0100
-From: wbrana@gmail.com
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH] snd-hda-intel: fix insufficient memory
-Cc: linux-kernel@vger.kernel.org, "Jaroslav Kysela" <perex@suse.cz>,
-       "Takashi Iwai" <tiwai@suse.de>
-In-Reply-To: <20061122120422.7f1f96fe.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com>
-	 <20061121224613.548207f9.akpm@osdl.org>
-	 <a769871e0611220919q62ccdb5k5548062300e35376@mail.gmail.com>
-	 <20061122120422.7f1f96fe.akpm@osdl.org>
+	Thu, 23 Nov 2006 15:16:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64478 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1756418AbWKWUQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 15:16:48 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+References: <20061114200621.12943.18023.stgit@warthog.cambridge.redhat.com> 
+To: torvalds@osdl.org, akpm@osdl.org, sds@tycho.nsa.gov,
+       trond.myklebust@fys.uio.no
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+       aviro@redhat.com, steved@redhat.com
+Subject: [PATCH 29/19] CacheFiles: Remove old obsolete cull function
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 23 Nov 2006 20:13:32 +0000
+Message-ID: <27093.1164312812@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/22/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> Are the new settings of 64kb and 1MB sufficient?  If not, by how much must
-> they be increased, and why?
->
->
-Default size should be increased to 256 kB to allow same buffer length
- ( 16384 frames )
-with 2 and 8 channels or same buffer time with 48 kHz/16 bit and 96 kHz/32 bit.
-Maximal size should be at least 4096 kB, which should't limit buffer
-time with any sound
-like 192 kHz/8 channels/32 bit.
+CacheFiles: Remove old obsolete cull function
+
+From: David Howells <dhowells@redhat.com>
+
+Remove the old cachefiles_cull() function that was obsolete and #if'd out.
+
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ fs/cachefiles/cf-namei.c |  110 ----------------------------------------------
+ 1 files changed, 0 insertions(+), 110 deletions(-)
+
+diff --git a/fs/cachefiles/cf-namei.c b/fs/cachefiles/cf-namei.c
+index d0db9b3..9e6dd9f 100644
+--- a/fs/cachefiles/cf-namei.c
++++ b/fs/cachefiles/cf-namei.c
+@@ -524,116 +524,6 @@ nomem_d_alloc:
+ 	return ERR_PTR(-ENOMEM);
+ }
+ 
+-#if 0
+-/*
+- * cull an object if it's not in use
+- * - called only by cache manager daemon
+- */
+-int cachefiles_cull(struct cachefiles_cache *cache, struct dentry *dir,
+-		    char *filename)
+-{
+-	struct cachefiles_object *object;
+-	struct rb_node *_n;
+-	struct dentry *victim;
+-	int ret;
+-
+-	_enter(",%*.*s/,%s",
+-	       dir->d_name.len, dir->d_name.len, dir->d_name.name, filename);
+-
+-	/* look up the victim */
+-	mutex_lock(&dir->d_inode->i_mutex);
+-
+-	victim = lookup_one_len(filename, dir, strlen(filename));
+-	if (IS_ERR(victim))
+-		goto lookup_error;
+-
+-	_debug("victim -> %p %s",
+-	       victim, victim->d_inode ? "positive" : "negative");
+-
+-	/* if the object is no longer there then we probably retired the object
+-	 * at the netfs's request whilst the cull was in progress
+-	 */
+-	if (!victim->d_inode) {
+-		mutex_unlock(&dir->d_inode->i_mutex);
+-		dput(victim);
+-		_leave(" = -ENOENT [absent]");
+-		return -ENOENT;
+-	}
+-
+-	/* check to see if we're using this object */
+-	read_lock(&cache->active_lock);
+-
+-	_n = cache->active_nodes.rb_node;
+-
+-	while (_n) {
+-		object = rb_entry(_n, struct cachefiles_object, active_node);
+-
+-		if (object->dentry > victim)
+-			_n = _n->rb_left;
+-		else if (object->dentry < victim)
+-			_n = _n->rb_right;
+-		else
+-			goto object_in_use;
+-	}
+-
+-	read_unlock(&cache->active_lock);
+-
+-	/* okay... the victim is not being used so we can cull it
+-	 * - start by marking it as stale
+-	 */
+-	_debug("victim is cullable");
+-
+-	ret = cachefiles_remove_object_xattr(cache, victim);
+-	if (ret < 0)
+-		goto error_unlock;
+-
+-	/*  actually remove the victim (drops the dir mutex) */
+-	_debug("bury");
+-
+-	ret = cachefiles_bury_object(cache, dir, victim);
+-	if (ret < 0)
+-		goto error;
+-
+-	dput(victim);
+-	_leave(" = 0");
+-	return 0;
+-
+-
+-object_in_use:
+-	read_unlock(&cache->active_lock);
+-	mutex_unlock(&dir->d_inode->i_mutex);
+-	dput(victim);
+-	_leave(" = -EBUSY [in use]");
+-	return -EBUSY;
+-
+-lookup_error:
+-	mutex_unlock(&dir->d_inode->i_mutex);
+-	ret = PTR_ERR(victim);
+-	if (ret == -EIO)
+-		cachefiles_io_error(cache, "Lookup failed");
+-	goto choose_error;
+-
+-error_unlock:
+-	mutex_unlock(&dir->d_inode->i_mutex);
+-error:
+-	dput(victim);
+-choose_error:
+-	if (ret == -ENOENT) {
+-		/* file or dir now absent - probably retired by netfs */
+-		_leave(" = -ESTALE [absent]");
+-		return -ESTALE;
+-	}
+-
+-	if (ret != -ENOMEM) {
+-		kerror("Internal error: %d", ret);
+-		ret = -EIO;
+-	}
+-
+-	_leave(" = %d", ret);
+-	return ret;
+-}
+-#endif
+-
+ /*
+  * find out if an object is in use or not
+  * - if finds object and it's not in use:

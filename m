@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934193AbWKWWeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934198AbWKWWfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934193AbWKWWeW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 17:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934198AbWKWWeW
+	id S934198AbWKWWfr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 17:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934205AbWKWWfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 17:34:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34222 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S934193AbWKWWeV (ORCPT
+	Thu, 23 Nov 2006 17:35:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13487 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S934198AbWKWWfo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 17:34:21 -0500
-Message-ID: <456621AC.7000009@redhat.com>
-Date: Thu, 23 Nov 2006 14:33:16 -0800
+	Thu, 23 Nov 2006 17:35:44 -0500
+Message-ID: <45662206.1070104@redhat.com>
+Date: Thu, 23 Nov 2006 14:34:46 -0800
 From: Ulrich Drepper <drepper@redhat.com>
 Organization: Red Hat, Inc.
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+To: Hans Henrik Happe <hhh@imada.sdu.dk>
+CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
        Christoph Hellwig <hch@infradead.org>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
 Subject: Re: [take25 1/6] kevent: Description.
-References: <11641265982190@2ka.mipt.ru>
-In-Reply-To: <11641265982190@2ka.mipt.ru>
+References: <11641265982190@2ka.mipt.ru> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com> <200611232249.56886.hhh@imada.sdu.dk>
+In-Reply-To: <200611232249.56886.hhh@imada.sdu.dk>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> + int kevent_commit(int ctl_fd, unsigned int start, 
-> + 	unsigned int num, unsigned int over);
+Hans Henrik Happe wrote:
+> I don't know if this falls under the simplification, but wouldn't there be a 
+> race when reading/copying the event data? I guess this could be solved with 
+> an extra user index. 
 
-I think we can simplify this interface:
-
-    int kevent_commit(int ctl_fd, unsigned int new_tail,
-                      unsigned int over);
-
-The kernel sets the ring_uidx value to the 'new_tail' value if the tail 
-pointer would be incremented (module wrap around) and is not higher then 
-the current front pointer.  The test will be a bit complicated but not 
-more so than what the current code has to do to check for mistakes.
-
-This approach has the advantage that the commit calls don't have to be 
-synchronized.  If one thread sets the tail pointer to, say, 10 and 
-another to 12, then it does not matter whether the first thread is 
-delayed.  If it will eventually be executed the result is simply a no-op 
-and since second thread's action supersedes it.
-
-Maybe the current form is even impossible to use with explicit locking 
-at userlevel.  What if one thread, which is about to call kevent_commit, 
-if indefinitely delayed.  Then this commit request's value is never 
-taken into account and the tail pointer is always short of what it 
-should be.
-
-
-There is one more thing to consider.  Oftentimes the commit request will 
-be immediately followed by a kevent_wait call.  It would be good to 
-merge this pair of calls.  The two parameters new_tail and over could 
-also be passed to the kevent_wait call and the commit can happen before 
-the thread looks for new events and eventually goes to sleep.  If this 
-can be implemented then the kevent_commit syscall by itself might not be 
-needed at all.  Instead you'd call kevent_wait() and make the maximum 
-number of events which can be returned zero.
+That's what I said, reading the value from the ring buffer structure's 
+head would be racy.  All this can only work for single threaded code.
 
 -- 
 ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,68 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933713AbWKWNma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933744AbWKWOCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933713AbWKWNma (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933715AbWKWNma
+	id S933744AbWKWOCT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 09:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933739AbWKWOCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:42:30 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:6919 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S933713AbWKWNma
+	Thu, 23 Nov 2006 09:02:19 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:2691 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S933744AbWKWOCS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:42:30 -0500
-Date: Thu, 23 Nov 2006 14:42:21 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jason Gaston <jason.d.gaston@intel.com>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, i2c@lm-sensors.org
-Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
-Message-Id: <20061123144221.866c07cb.khali@linux-fr.org>
-In-Reply-To: <1164284758.31358.781.camel@laptopd505.fenrus.org>
-References: <200611221519.12373.jason.d.gaston@intel.com>
-	<20061123130938.5818ad16.khali@linux-fr.org>
-	<1164284758.31358.781.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+	Thu, 23 Nov 2006 09:02:18 -0500
+Date: Thu, 23 Nov 2006 18:48:52 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: akpm@osdl.org, vatsa@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org,
+       dipankar@in.ibm.com
+Subject: [PATCH] Handle per-subsystem mutexes for CONFIG_HOTPLUG_CPU not set.
+Message-ID: <20061123131852.GA20313@in.ibm.com>
+Reply-To: ego@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan,
+When CONFIG_HOTPLUG_CPU is not set, lock_cpu_hotplug() and 
+unlock_cpu_hotplug() default to no-ops.
 
-On Thu, 23 Nov 2006 13:25:57 +0100, Arjan van de Ven wrote:
-> On Thu, 2006-11-23 at 13:09 +0100, Jean Delvare wrote:
-> > On Wed, 22 Nov 2006 15:19:12 -0800, Jason Gaston wrote:
-> > > This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
-> > > This patch relies on the irq ICH9 patch to pci_ids.h.
-> > 
-> > Looks good. Care to also update Documentation/i2c/busses/i2c-i801? I
-> > see it misses at least the ICH8 and ESB2 as well.
-> > 
-> > I would also appreciate an update to lm_sensors' sensors-detect script,
-> > if you could send a patch to the sensors list.
-> 
-> 
-> hmmm couldn't the sensors-detect script just at runtime look at the pci
-> tables in the modules? that way no need to duplicate/update all of this
-> in multiple places...
+However, in case of the proposed per-subsystem hotcpu mutex scheme, 
+the hotcpu mutexes will be taken/released, even when
+CONFIG_HOTPLUG_CPU is not set. This is an unnecessary overhead
+both w.r.t space and time ;-)
 
-Not really. It is important that sensors-detect knows about chips which
-are not supported by the running kernel. That way, we can tell the
-users to try the latest version of sensors-detect when they report that
-hardware monitoring doesn't work out of the box, and from the output,
-we can tell them which kernel they need to upgrade to. If
-sensors-detect reads the list of supported devices from the kernel,
-instead of having its own, it will no longer work, by definition.
+This patch
 
-Additionally, sensors-detect is still supposed to support 2.4 kernels,
-and I don't think 2.4 drivers advertise the list of devices they
-support.
+* Provides a common interface for all the subsystems to lock and
+unlock their per-subsystem hotcpu mutexes.
+When CONFIG_HOTPLUG_CPU is not set, these operations would be no-ops.
 
-What we could do, on the other hand, is check the detected device ID
-against the list the running kernel driver supports, to let the user
-know that his/her chip is not supported by his/her kernel. Care to
-provide a patch adding this functionality to sensors-detect?
+Usage:
+a) Each hotcpu aware subsystem defines the hotcpu_mutex as follows
+#ifdef CONFIG_HOTPLUG_CPU
+DEFINE_MUTEX(my_hotcpu_mutex);
+#endif
 
-Thanks,
+b) The hotcpu aware subsystem uses
+cpuhotplug_mutex_lock(&my_hotcpu_mutex)
+and 
+cpuhotplug_mutex_unlock(&my_hotcpu_mutex) 
+instead of the usual mutex_lock/mutex_unlock.
+
+Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
+
+---
+ include/linux/cpu.h |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+)
+
+Index: hotplug/include/linux/cpu.h
+===================================================================
+--- hotplug.orig/include/linux/cpu.h
++++ hotplug/include/linux/cpu.h
+@@ -24,6 +24,7 @@
+ #include <linux/compiler.h>
+ #include <linux/cpumask.h>
+ #include <asm/semaphore.h>
++#include <linux/mutex.h>
+ 
+ struct cpu {
+ 	int node_id;		/* The node which contains the CPU */
+@@ -74,6 +75,17 @@ extern struct sysdev_class cpu_sysdev_cl
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+ /* Stop CPUs going up and down. */
++
++static inline void cpuhotplug_mutex_lock(struct mutex *cpu_hp_mutex)
++{
++	mutex_lock(cpu_hp_mutex);
++}
++
++static inline void cpuhotplug_mutex_unlock(struct mutex *cpu_hp_mutex)
++{
++	mutex_unlock(cpu_hp_mutex);
++}
++
+ extern void lock_cpu_hotplug(void);
+ extern void unlock_cpu_hotplug(void);
+ #define hotcpu_notifier(fn, pri) {				\
+@@ -86,6 +98,9 @@ extern void unlock_cpu_hotplug(void);
+ int cpu_down(unsigned int cpu);
+ #define cpu_is_offline(cpu) unlikely(!cpu_online(cpu))
+ #else
++#define cpuhotplug_mutex_lock(m)	do { } while (0)
++#define cpuhotplug_mutex_unlock(m)	do { } while (0)
++
+ #define lock_cpu_hotplug()	do { } while (0)
+ #define unlock_cpu_hotplug()	do { } while (0)
+ #define lock_cpu_hotplug_interruptible() 0
 -- 
-Jean Delvare
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934061AbWKWVLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933718AbWKWVP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934061AbWKWVLs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 16:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934060AbWKWVLs
+	id S933718AbWKWVP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 16:15:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757471AbWKWVP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 16:11:48 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:50393 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S934061AbWKWVLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 16:11:47 -0500
-Date: Thu, 23 Nov 2006 22:11:35 +0100
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: Eduardo Valentin <edubezval@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-rt5
-Message-ID: <20061123211135.GY18636@pengutronix.de>
-References: <20061120220230.GA30835@elte.hu> <20061122113749.GY18636@pengutronix.de> <a0580c510611231243x318f3cbanc8fa2cbbedcec060@mail.gmail.com>
+	Thu, 23 Nov 2006 16:15:58 -0500
+Received: from 1wt.eu ([62.212.114.60]:29701 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1757470AbWKWVP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 16:15:58 -0500
+Date: Thu, 23 Nov 2006 22:15:50 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Patrick vd Lageweg <patrick@BitWizard.nl>
+Cc: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rio: typo in bitwise AND expression.
+Message-ID: <20061123211550.GB16182@1wt.eu>
+References: <20061122225856.GB10758@1wt.eu> <20061123141106.GA19143@abra2.bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a0580c510611231243x318f3cbanc8fa2cbbedcec060@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20061123141106.GA19143@abra2.bitwizard.nl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduardo,
+Applied to 2.4, thanks Patrick.
 
-On Thu, Nov 23, 2006 at 04:43:01PM -0400, Eduardo Valentin wrote:
-> However, I got a similar problem as reported by Robert:
+On Thu, Nov 23, 2006 at 03:11:06PM +0100, Patrick vd Lageweg wrote:
+> On Wed, Nov 22, 2006 at 11:58:56PM +0100, Willy Tarreau wrote:
 > 
-> 2.6.19-rc6:
-> T: 0 ( 4861) P:80 I:   10000 C:   10000 Min:    2592 Act:    4878 Avg:   6137 Max:   10652
-> 2.6.19-rc6-rt5:
-> T: 0 ( 3661) P:80 I:   10000 C:   10000 Min:     828 Act:    1698 Avg:   3291 Max:    7171
->
-> These results are quite different from what is reported at the wiki.
-
-Is this with -r or without? I didn't get fixed maxima at all on the
-celeron box. It also looks like you've changed the interval time to
-10ms; nevertheless: a delay of > 10 ms @ a cylce time of 10 ms means
-missing the deadlines.
-
-Do you have the possibility to switch off the SMI for your chipset? As
-tglx noted on irc recently this may be dangerous because thermal
-throtteling can be implemented via SMI, but to get an idea if the SMI is
-the reason for the delays, switching it off for a short time should do
-the job.
-
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
+> Seems ok.
+> 
+> Signed-off-by: Patrick vd Lageweg <patrick@BitWizard.nl>
+> 
+> 	Patrick
+> 
+> > Hi Rogier,
+> > 
+> > here's a patch to fix a typo in rio_linux which affects both
+> > kernel 2.4 and 2.6. It's not big deal it seems as it only
+> > affects the irq-less path.
+> > 
+> > I found this one like that :
+> > 
+> >  $ grep -r '[^&]&[^&]*![^=]' drivers/char/
+> > 
+> > I'm sure others will find more efficient rules to catch such
+> > errors.
+> > 
+> > Regards,
+> > Willy
+> > 
+> > From 4fb85842b76ad28893ea2aeaeb6dbc4e3f5a2dee Mon Sep 17 00:00:00 2001
+> > From: Willy Tarreau <w@1wt.eu>
+> > Date: Wed, 22 Nov 2006 23:54:48 +0100
+> > Subject: [PATCH] rio: typo in bitwise AND expression.
+> > 
+> > The line :
+> > 
+> >     hp->Mode &= !RIO_PCI_INT_ENABLE;
+> > 
+> > is obviously wrong as RIO_PCI_INT_ENABLE=0x04 and is used as a bitmask
+> > 2 lines before. Getting no IRQ would not disable RIO_PCI_INT_ENABLE
+> > but rather RIO_PCI_BOOT_FROM_RAM which equals 0x01.
+> > 
+> > Obvious fix is to change ! for ~.
+> > 
+> > Signed-off-by: Willy Tarreau <w@1wt.eu>
+> > ---
+> >  drivers/char/rio/rio_linux.c |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/char/rio/rio_linux.c b/drivers/char/rio/rio_linux.c
+> > index 7ac68cb..3228fad 100644
+> > --- a/drivers/char/rio/rio_linux.c
+> > +++ b/drivers/char/rio/rio_linux.c
+> > @@ -1143,7 +1143,7 @@ #endif				/* PCI */
+> >  				rio_dprintk(RIO_DEBUG_INIT, "Enabling interrupts on rio card.\n");
+> >  				hp->Mode |= RIO_PCI_INT_ENABLE;
+> >  			} else
+> > -				hp->Mode &= !RIO_PCI_INT_ENABLE;
+> > +				hp->Mode &= ~RIO_PCI_INT_ENABLE;
+> >  			rio_dprintk(RIO_DEBUG_INIT, "New Mode: %x\n", hp->Mode);
+> >  			rio_start_card_running(hp);
+> >  		}
+> > -- 
+> > 1.4.2.4
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 

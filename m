@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757478AbWKWVhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757486AbWKWVl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757478AbWKWVhS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 16:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757480AbWKWVhS
+	id S1757486AbWKWVl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 16:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757488AbWKWVl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 16:37:18 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8157 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1757478AbWKWVhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 16:37:16 -0500
-Date: Thu, 23 Nov 2006 21:42:48 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
-       linux-scsi@vger.kernel.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 3/5] PCI : Add selected_regions funcs
-Message-ID: <20061123214248.6251a4c0@localhost.localdomain>
-In-Reply-To: <200611232033.35280.ioe-lkml@rameria.de>
-References: <456404FE.1040708@jp.fujitsu.com>
-	<200611232033.35280.ioe-lkml@rameria.de>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Thu, 23 Nov 2006 16:41:27 -0500
+Received: from main.gmane.org ([80.91.229.2]:19852 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1757485AbWKWVl0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 16:41:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Subject: Re: Entropy Pool Contents
+Date: Thu, 23 Nov 2006 22:40:36 +0100
+Message-ID: <ek54hf$icj$2@sea.gmane.org>
+References: <ek2nva$vgk$1@sea.gmane.org> <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr>
+Reply-To: G.Ohrner@post.rwth-aachen.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: e179249004.adsl.alicedsl.de
+User-Agent: KNode/0.10.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 20:33:32 +0100
-Ingo Oeser <ioe-lkml@rameria.de> wrote:
+Jan Engelhardt wrote:
+>>Hornburg:~# cat /proc/sys/kernel/random/entropy_avail
+>>0
+> You really must have bad luck with your entropy...
 
-> Hi Hidetoshi Seto,
-> 
-> bitfields (and bitmask) should be unsigned and use machine word size,
-> which is usually "long". So please pass them in "unsigned long" instead of "int".
+IMHO something really fishy's going on there. If I explicitely write data
+into the pool, it shouldd not stay at "zero", from wwhat I understood about
+how /dev/*random work.
 
-There are a fixed number of BARs , besides which the interface already
-uses int for the mask in pci_enable_device_bars() so the use of int is
-fine and continues the existing API.
+> Disk activities are "somewhat predictable", like network traffic, and
+> hence are not (or should not - have not checked it) contribute to the
+> pool.
+
+Well, they do, block device operations do, using the function
+add_blkdev_randomness, as far as I know.
+
+> Note that urandom is the device which _always_ gives you data, and 
+> when the pool is exhausted, returns pseudorandom data.
+
+I know, and running on deterministically computed random values only for
+days in a row is no situation I'm paticularily happy about...
+
+I'm mainly wondering why writing stuff to /dev/*random does not change the
+entropy from zero to at least any low non-zero value...
+
+Greetings,
+
+  Gunter
 

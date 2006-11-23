@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933685AbWKWNZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933689AbWKWN1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933685AbWKWNZf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:25:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933696AbWKWNZf
+	id S933689AbWKWN1L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933696AbWKWN1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:25:35 -0500
-Received: from nz-out-0102.google.com ([64.233.162.193]:3633 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S933685AbWKWNZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:25:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tXA/49Ezy8anoe5F72Pq9IVpD0Ft8bCtnFA6cY3xx0nOO+E9cP6cstpZP1Hk53tAgF9p4Fkf9cTVgV1bbZwmQE3KwMdWMH2rAA5pnI0Y7LjO6OLXEs+hmtiOBw8mvSd8ozLFt1DS01nvQBWZKz4sOipndy/VJ55yIS33DeSzM7M=
-Message-ID: <9a8748490611230525v6516e070nf7fa990d46c6a87@mail.gmail.com>
-Date: Thu, 23 Nov 2006 14:25:33 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Subject: Re: BUG: 2.6.19-rc6 net/irda/irlmp.c
-Cc: "Ian Molton" <spyro@f2s.com>,
-       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <1164287745.5968.206.camel@twins>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Nov 2006 08:27:11 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:56760 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S933689AbWKWN1K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 08:27:10 -0500
+Date: Thu, 23 Nov 2006 13:27:07 +0000
+To: ak@suse.de
+Cc: akpm@osdl.org, bunk@stusta.de, torvalds@osdl.org,
+       rientjes@cs.washington.edu, maan@systemlinux.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix bug where early_node_map[] is not sorted before use
+Message-ID: <20061123132707.GA22611@skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <45657BD4.5040604@f2s.com>
-	 <9a8748490611230513y258ab33cgf9733b2a8cd93f74@mail.gmail.com>
-	 <1164287745.5968.206.camel@twins>
+User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23/11/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> On Thu, 2006-11-23 at 14:13 +0100, Jesper Juhl wrote:
->
-> > Linus: I think that commit should either be reverted or fixed in a
-> > different way before 2.6.19.
->
-> Andrew already said he'd push the required patches to Linus:
->
->   http://lkml.org/lkml/2006/11/22/283
->
-Ahh, OK, I had missed that. Thank you for pointing that out.
+With reference to this bug;
+
+> Subject    : x86_64: Bad page state in process 'swapper'
+> References : http://lkml.org/lkml/2006/11/10/135
+>              http://lkml.org/lkml/2006/11/10/208
+> Submitter  : Andre Noll <maan@systemlinux.org>
+> Handled-By : David Rientjes <rientjes@cs.washington.edu>
+> Status     : problem is being debugged
+
+The problem was within architecture-independent zone-sizing and exposed
+by a particular SRAT table on x86_64.
+
+find_min_pfn_for_node() and find_min_pfn_with_active_regions() both
+depend on a sorted early_node_map[] to find the correct values. However,
+sort_node_map() is being called after find_min_pfn_with_active_regions()
+in free_area_init_nodes(). In most cases, this is ok, but on an x86_64,
+the SRAT table caused the E820 ranges to be registered out of order. This gave
+the wrong values for the min PFN range resulting in some pages not being
+initialised.
+
+This patch sorts the early_node_map in find_min_pfn_for_node(). It is a
+critical fix for 2.6.19.
+
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+
+diff -rup linux-2.6.19-rc6-clean/mm/page_alloc.c linux-2.6.19-rc6-sort_in_find_min/mm/page_alloc.c
+--- linux-2.6.19-rc6-clean/mm/page_alloc.c	2006-11-15 20:03:40.000000000 -0800
++++ linux-2.6.19-rc6-sort_in_find_min/mm/page_alloc.c	2006-11-23 02:23:57.000000000 -0800
+@@ -2612,6 +2612,9 @@ unsigned long __init find_min_pfn_for_no
+ {
+ 	int i;
+ 
++	/* Regions in the early_node_map can be in any order */
++	sort_node_map();
++
+ 	/* Assuming a sorted map, the first range found has the starting pfn */
+ 	for_each_active_range_index_in_nid(i, nid)
+ 		return early_node_map[i].start_pfn;
+@@ -2680,9 +2683,6 @@ void __init free_area_init_nodes(unsigne
+ 			max(max_zone_pfn[i], arch_zone_lowest_possible_pfn[i]);
+ 	}
+ 
+-	/* Regions in the early_node_map can be in any order */
+-	sort_node_map();
+-
+ 	/* Print out the zone ranges */
+ 	printk("Zone PFN ranges:\n");
+ 	for (i = 0; i < MAX_NR_ZONES; i++)
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

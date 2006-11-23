@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757393AbWKWPRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933766AbWKWPXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757393AbWKWPRb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 10:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757394AbWKWPRb
+	id S933766AbWKWPXo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 10:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933774AbWKWPXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 10:17:31 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:25741 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1757393AbWKWPRa (ORCPT
+	Thu, 23 Nov 2006 10:23:44 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:19062 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S933766AbWKWPXn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 10:17:30 -0500
-Date: Thu, 23 Nov 2006 16:17:00 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-X-X-Sender: jikos@twin.jikos.cz
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org,
-       Reuben Farrelly <reuben-linuxkernel@reub.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64: fix build without HOTPLUG_CPU (was Re:
- 2.6.19-rc6-mm1)
-In-Reply-To: <p731wnu42vt.fsf@bingen.suse.de>
-Message-ID: <Pine.LNX.4.64.0611231611510.8069@twin.jikos.cz>
-References: <20061123021703.8550e37e.akpm@osdl.org> <45657A41.2040400@reub.net>
- <Pine.LNX.4.64.0611231503520.8069@twin.jikos.cz> <p731wnu42vt.fsf@bingen.suse.de>
+	Thu, 23 Nov 2006 10:23:43 -0500
+Message-ID: <4565BC7E.3020406@mail.ru>
+Date: Thu, 23 Nov 2006 18:21:34 +0300
+From: realales <realales@mail.ru>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Andrei <realales@mail.ru>
+Subject: Scenario passes on 2.6.15.26 but fails on 2.6.11.4-20a kernel
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006, Andi Kleen wrote:
+Dear experts,
 
-> > cpu_vsyscall_notifier() is defined only when CONFIG_HOTPLUG_CPU is 
-> > defined.
-> It's already long fixed in Linus' tree (in 
-> 6b3d1a95ba714bfb1cc81362f7f3e01b7654b4f3) I wonder why that didn't 
-> makeit into Andrew's. Andrew, time to update your linus-patch?
+a problem happen on Suse9.3 with 2.6.11.4-20a kernel.
+But  the same scenario perfectly works on Ubuntu with 2.6.15.26 kernel.
 
-Well, is it really? 6b3d1a95ba714bfb1cc81362f7f3e01b7654b4f3 adds the 
-ifdef around the cpu_vsyscall_notifier() declaration, but later it's 
-passed as parameter to hotcpu_notifier() unconditionally. This is fixed by 
-the patch I sent.
+I already asked this question on x.org (as it sounds bit closer to the 
+issue) but there is still no response.
 
--- 
-Jiri Kosina
-SUSE Labs
+Well, I'm trying to use XTestFakeButtonEvent(args) from XTEST extension 
+(it allows to emulate user input) and pass there buttons like 1, 2, 3, 
+4, 5, etc.
+
+The problem that only 1-5 buttons does work, 6 and 7 doesn't.
+Seem XTEST is just trying to go deeper through xorg into kernel.
+I tired to figure out what's the difference in kernel configuration 
+("make menuconfig") but seem they are the same or I missed something there.
+
+Also I analyzed XTEST sources without any success.
+I know that this is unlikely the right place to ask this but could 
+someone please point me on the right way to move further?! Or may it be 
+already a know problem for somebody?
+
+Interestingly that I may use all buttons 1-7 if use mouse by hand. The 
+only problem when using it in program.
+I wouldn't like to upgrade the kernel to check whether that solves the 
+problem. :)
+
+Thanks in advance,
+  --Andrei
 

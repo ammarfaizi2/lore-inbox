@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933670AbWKWNNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757365AbWKWNM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933670AbWKWNNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933673AbWKWNNP
+	id S1757365AbWKWNM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933670AbWKWNM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:13:15 -0500
-Received: from nz-out-0102.google.com ([64.233.162.196]:28564 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S933670AbWKWNNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:13:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p1higzym/njCSg5vCKaITPQiQQzZWQHjLGbGfmXzxU0LtDtHKfHnqp1YSR0pwQxiVMxUNn+9C+YZJF1mxWiUCNFsXjLO2hzFBVMU+PF1F6l3gUssA4OT9UUh/u6n0rVbEAzMzEK07TTeEPfdnFvYa0s31/Hgs/7B6t8qJ7z3V1c=
-Message-ID: <9a8748490611230513y258ab33cgf9733b2a8cd93f74@mail.gmail.com>
-Date: Thu, 23 Nov 2006 14:13:12 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Ian Molton" <spyro@f2s.com>
-Subject: Re: BUG: 2.6.19-rc6 net/irda/irlmp.c
-Cc: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <45657BD4.5040604@f2s.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Nov 2006 08:12:27 -0500
+Received: from systemlinux.org ([83.151.29.59]:64132 "EHLO m18s25.vlinux.de")
+	by vger.kernel.org with ESMTP id S933669AbWKWNMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 08:12:25 -0500
+Date: Thu, 23 Nov 2006 14:08:17 +0100
+From: Andre Noll <maan@systemlinux.org>
+To: Mel Gorman <mel@skynet.ie>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>
+Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
+Message-ID: <20061123130817.GJ27761@skl-net.de>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org> <20061121212424.GQ5200@stusta.de> <200611221142.21212.ak@suse.de> <20061122155233.GA30607@skynet.ie> <20061122174223.GE27761@skl-net.de> <20061123120141.GA20920@skynet.ie>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3bvv0EcKsvvYeex"
 Content-Disposition: inline
-References: <45657BD4.5040604@f2s.com>
+In-Reply-To: <20061123120141.GA20920@skynet.ie>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23/11/06, Ian Molton <spyro@f2s.com> wrote:
-> spin_lock_irqsave_nested is used in net/irda/irlmp.c
->
-> Im not sure what it _should_ be, but thought it worth reporting.
 
-I reported this yesterday - http://lkml.org/lkml/2006/11/22/137 - It
-is commit 700f9672c9a61c12334651a94d17ec04620e1976 that breaks the
-build.
+--u3bvv0EcKsvvYeex
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus: I think that commit should either be reverted or fixed in a
-different way before 2.6.19. As it is right now we have a build
-failure :
+On 12:01, Mel Gorman wrote:
 
-net/built-in.o: In function `irlmp_slsap_inuse':
-net/irda/irlmp.c:1681: undefined reference to `spin_lock_irqsave_nested'
-make: *** [.tmp_vmlinux1] Error 1
+> > > Andre, if the bug still exists for you, can you apply Andi's patch to
+> > > reduce the log size and the following patch please and post us the
+> > > output with loglevel=3D8 please? Thanks
+> >=20
+> > Done. Here's the output of dmesg with your and Andi's patch applied.
+> >
+>=20
+> ahhh, I believe I see the problem now. Please try out the following patch.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+[...]
+
+> This patch sorts the early_node_map in find_min_pfn_for_node(). It has
+> been boot tested on x86, x86_64, ppc64 and ia64.
+
+That did the trick, you're the man!
+
+Thanks a lot
+Andre
+
+--=20
+The only person who always got his work done by Friday was Robinson Crusoe
+
+--u3bvv0EcKsvvYeex
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFZZ1BWto1QDEAkw8RAi2tAJ9LW3VAI7ffFdeBivvv8JHII5xOzgCcCokz
+td+KFW7Lzvur1ij9HfkUW8k=
+=RxfS
+-----END PGP SIGNATURE-----
+
+--u3bvv0EcKsvvYeex--

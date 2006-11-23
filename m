@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933268AbWKWM0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933629AbWKWM02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933268AbWKWM0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 07:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933600AbWKWM0G
+	id S933629AbWKWM02 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 07:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933600AbWKWM02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 07:26:06 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15806 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S933268AbWKWM0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 07:26:05 -0500
-Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Jason Gaston <jason.d.gaston@intel.com>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, i2c@lm-sensors.org
-In-Reply-To: <20061123130938.5818ad16.khali@linux-fr.org>
-References: <200611221519.12373.jason.d.gaston@intel.com>
-	 <20061123130938.5818ad16.khali@linux-fr.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 23 Nov 2006 13:25:57 +0100
-Message-Id: <1164284758.31358.781.camel@laptopd505.fenrus.org>
+	Thu, 23 Nov 2006 07:26:28 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:30886 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S933617AbWKWM01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 07:26:27 -0500
+Date: Thu, 23 Nov 2006 15:23:36 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061123122335.GE20294@2ka.mipt.ru>
+References: <4560F07B.10608@redhat.com> <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru> <4564BAC8.6020306@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4564BAC8.6020306@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 23 Nov 2006 15:23:38 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-23 at 13:09 +0100, Jean Delvare wrote:
-> Hi Jason,
+On Wed, Nov 22, 2006 at 01:02:00PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >But in this case it will be impossible to have SIGEV_THREAD and 
+> >SIGEV_KEVENT
+> >at the same time, it will be just the same as SIGEV_SIGNAL but with
+> >different delivery mechanism. Is is what you expect for that?
 > 
-> On Wed, 22 Nov 2006 15:19:12 -0800, Jason Gaston wrote:
-> > This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
-> > This patch relies on the irq ICH9 patch to pci_ids.h.
+> Yes, that's expected.  The event if for the queue, not directed to a 
+> specific thread.
 > 
-> Looks good. Care to also update Documentation/i2c/busses/i2c-i801? I
-> see it misses at least the ICH8 and ESB2 as well.
-> 
-> I would also appreciate an update to lm_sensors' sensors-detect script,
-> if you could send a patch to the sensors list.
+> If in future we want to think about preferably waking a specific thread 
+> we can then think about it.  But I doubt that'll be beneficial.  The 
+> thread specific part in the signal handling is only used to implement 
+> the SIGEV_THREAD notification.
 
+Ok, so please review patch I sent, if it is ok from design point of
+view, I will run some tests here.
 
-hmmm couldn't the sensors-detect script just at runtime look at the pci
-tables in the modules? that way no need to duplicate/update all of this
-in multiple places...
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+	Evgeniy Polyakov

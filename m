@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755701AbWKWO7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757381AbWKWPAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755701AbWKWO7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 09:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757381AbWKWO7O
+	id S1757381AbWKWPAT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 10:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757385AbWKWPAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 09:59:14 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:64715 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1755701AbWKWO7O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 09:59:14 -0500
-Date: Thu, 23 Nov 2006 17:59:10 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061123145910.GA145@oleg>
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061119190027.GA3676@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061119190027.GA3676@oleg>
-User-Agent: Mutt/1.5.11
+	Thu, 23 Nov 2006 10:00:19 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:3522 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1757381AbWKWPAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 10:00:18 -0500
+Date: Thu, 23 Nov 2006 15:00:16 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
+In-Reply-To: <Pine.LNX.4.64.0611211821030.588@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0611231457070.23409@skynet.skynet.ie>
+References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+ <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211821030.588@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Sorry, responding to the wrong message)
+On Tue, 21 Nov 2006, Christoph Lameter wrote:
 
-Paul E. McKenney wrote:
+> On Tue, 21 Nov 2006, Mel Gorman wrote:
 >
-> I am concerned about this as well, and am beginning to suspect that I
-> need to make a special-purpose primitive specifically for Jens that he
-> can include with his code.
+>> On Tue, 21 Nov 2006, Christoph Lameter wrote:
+>>
+>>> Are GFP_HIGHUSER allocations always movable? It would reduce the size of
+>>> the patch if this would be added to GFP_HIGHUSER.
+>> No, they aren't. Page tables allocated with HIGHPTE are currently not movable
+>> for example. A number of drivers (infiniband for example) also use
+>> __GFP_HIGHMEM that are not movable.
+>
+> HIGHPTE with __GFP_USER set? This is a page table page right?
+> pte_alloc_one does currently not set GFP_USER:
+>
 
-How about this?
+What is __GFP_USER? The difference between GFP_USER and GFP_KERNEL is only 
+in the use of __GFP_HARDWALL. But HARDWALL on it's own is not enough to 
+distinguish movable and non-movable.
 
-	struct xxx_struct {
-		int completed;
-		atomic_t ctr[2];
-		struct mutex mutex;
-		wait_queue_head_t wq;
-	};
+> struct page *pte_alloc_one(struct mm_struct *mm, unsigned long address)
+> {
+>        struct page *pte;
+>
+> #ifdef CONFIG_HIGHPTE
+>        pte =
+> alloc_pages(GFP_KERNEL|__GFP_HIGHMEM|__GFP_REPEAT|__GFP_ZERO, 0);
+> #else
+>        pte = alloc_pages(GFP_KERNEL|__GFP_REPEAT|__GFP_ZERO, 0);
+> #endif
+>        return pte;
+> }
+>
+> How does infiniband insure that page migration does not move those pages?
+>
 
-	void init_xxx_struct(struct xxx_struct *sp)
-	{
-		sp->completed = 0;
-		atomic_set(sp->ctr + 0, 1);	// active
-		atomic_set(sp->ctr + 1, 0);	// inactive
-		mutex_init(&sp->mutex);
-		init_waitqueue_head(&sp->wq);
-	}
+I have not looked closely at infiniband and how it uses it's pages.
 
-	int xxx_read_lock(struct xxx_struct *sp)
-	{
-		for (;;) {
-			int idx = sp->completed & 0x1;
-			if (likely(atomic_inc_not_zero(sp->ctr + idx)))
-				return idx;
-		}
-	}
-
-	void xxx_read_unlock(struct xxx_struct *sp, int idx)
-	{
-		if (unlikely(atomic_dec_and_test(sp->ctr + idx)))
-			wake_up(&sp->wq);
-	}
-
-	void synchronize_xxx(struct xxx_struct *sp)
-	{
-		int idx;
-
-		mutex_lock(&sp->mutex);
-
-		idx = ++sp->completed & 0x1;
-		smp_mb__before_atomic_inc();
-		atomic_inc(&sp->ctr + idx);
-
-		idx = !idx;
-		if (!atomic_dec_and_test(&sp->ctr + idx))
-			__wait_event(&sp->wq, !atomic_read(&sp->ctr + idx));
-
-		mutex_unlock(&sp->mutex);
-	}
-
-Yes, cache thrashing... But I think this is hard to avoid if we want writer
-to be fast.
-
-I do not claim this is the best solution, but for some reason I'd like to
-suggest something that doesn't need synchronize_sched(). What do you think
-about correctness at least?
-
-Oleg.
-
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

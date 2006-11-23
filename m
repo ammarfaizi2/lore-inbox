@@ -1,50 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756378AbWKWT3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933156AbWKWTdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756378AbWKWT3d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 14:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756380AbWKWT3d
+	id S933156AbWKWTdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 14:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757454AbWKWTdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 14:29:33 -0500
-Received: from nf-out-0910.google.com ([64.233.182.184]:21901 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1756361AbWKWT3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 14:29:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M1xWY7gbdudBJqoBjpVWOXlsJVNTgcQA/oN/6jMi77b4IaX92JnDUbNLXp6NveARgUIta/gKiY6FSANwNRc3e0tMGBC3KH9NaoYeHm3nkJTEigrksmkZa3fD+r+hwYomamaGaebmvKuCsWuMFObClEp/c4iy9LWxau9FGy2Sqlc=
-Message-ID: <acd2a5930611231129v3515022al931bec5b04ce27f@mail.gmail.com>
-Date: Thu, 23 Nov 2006 22:29:30 +0300
-From: "Vitaly Wool" <vitalywool@gmail.com>
-To: "Vitaly Wool" <vitalywool@gmail.com>, drzeus-mmc@drzeus.cx,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix random SD/MMC card recognition failures on ARM Versatile
-In-Reply-To: <20061123160335.GB8984@flint.arm.linux.org.uk>
+	Thu, 23 Nov 2006 14:33:44 -0500
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:41856 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1757452AbWKWTdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 14:33:43 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: [PATCH 3/5] PCI : Add selected_regions funcs
+Date: Thu, 23 Nov 2006 20:33:32 +0100
+User-Agent: KMail/1.9.5
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+References: <456404FE.1040708@jp.fujitsu.com>
+In-Reply-To: <456404FE.1040708@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061123184606.bb203ae6.vitalywool@gmail.com>
-	 <20061123160335.GB8984@flint.arm.linux.org.uk>
+Message-Id: <200611232033.35280.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> Doubtful.  mmci_stop_data() already does this, which will be called
-> immediately prior to mmci_request_end().  So you're doubling up the
-> writes to registers again.
+Hi Hidetoshi Seto,
 
-There's the case (mmci_cmd_irq) where mmc_stop_data is not called
-prior to mmci_request_end(), so it's not that simple.
+bitfields (and bitmask) should be unsigned and use machine word size,
+which is usually "long". So please pass them in "unsigned long" instead of "int".
 
-> Since this is not the first occurance that you've had to do this with
-> your board (the other being the SIC) I suggest that your board is
-> faulty in some way, causing writes to registers to be occasionally
-> dropped.
+On Wednesday, 22. November 2006 09:06, Hidetoshi Seto wrote:
+> --- linux-2.6.19-rc6.orig/drivers/pci/pci.c
+> +++ linux-2.6.19-rc6/drivers/pci/pci.c
+> @@ -758,6 +758,47 @@
+>  	return -EBUSY;
+>  }
+> 
+> +/**
+> + * pci_release_selected_regions - Release selected PCI I/O and memory resources
+> + * @pdev: PCI device whose resources were previously reserved
+> + * @bars: Bitmask of BARs to be released
+> + *
+> + * Release selected PCI I/O and memory resources previously reserved.
+> + * Call this function only after all use of the PCI regions has ceased.
+> + */
+> +void pci_release_selected_regions(struct pci_dev *pdev, int bars)
 
-I can't 100% guarantee that it's not the case, but the problem has
-been reproduced by at least 2 people on 2 different boards and on 2
-different sides of the Atlantic. So I'd suspect there's either a SW
-problem or a HW revision problem, at least.
+"unsigned long bars" here 
 
-Vitaly
+> +{
+> +	int i;
+
+"unsigned long i" here
+
+> +
+> +	for (i = 0; i < 6; i++)
+> +		if (bars & (1 << i))
+> +			pci_release_region(pdev, i);
+> +}
+> +
+> +/**
+> + * pci_request_selected_regions - Reserve selected PCI I/O and memory resources
+> + * @pdev: PCI device whose resources are to be reserved
+> + * @bars: Bitmask of BARs to be requested
+> + * @res_name: Name to be associated with resource
+> + */
+> +int pci_request_selected_regions(struct pci_dev *pdev, int bars,
+> +				 const char *res_name)
+> +{
+
+"unsigned long bars" here
+
+> +	int i;
+
+"unsigned long i" here
+
+> @@ -975,6 +1002,22 @@
+>  }
+>  #endif
+> 
+> +/**
+> + * pci_select_bars - Make BAR mask from the type of resource
+> + * @pdev: the PCI device for which BAR mask is made
+> + * @flags: resource type mask to be selected
+> + *
+> + * This helper routine makes bar mask from the type of resource.
+> + */
+> +int pci_select_bars(struct pci_dev *dev, unsigned long flags)
+
+unsigned long pci_select_bars(struct pci_dev *dev, unsigned long flags)
+
+> +{
+> +	int i, bars = 0;
+
+"unsigned long i, bars" here
+
+> +	for (i = 0; i < PCI_NUM_RESOURCES; i++)
+> +		if (pci_resource_flags(dev, i) & flags)
+> +			bars |= (1 << i);
+> +	return bars;
+> +}
+> +
+>  static int __devinit pci_init(void)
+>  {
+>  	struct pci_dev *dev = NULL;
+> @@ -1023,6 +1066,8 @@
+>  EXPORT_SYMBOL(pci_request_regions);
+>  EXPORT_SYMBOL(pci_release_region);
+>  EXPORT_SYMBOL(pci_request_region);
+> +EXPORT_SYMBOL(pci_release_selected_regions);
+> +EXPORT_SYMBOL(pci_request_selected_regions);
+>  EXPORT_SYMBOL(pci_set_master);
+>  EXPORT_SYMBOL(pci_set_mwi);
+>  EXPORT_SYMBOL(pci_clear_mwi);
+> @@ -1031,6 +1076,7 @@
+>  EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+>  EXPORT_SYMBOL(pci_assign_resource);
+>  EXPORT_SYMBOL(pci_find_parent_resource);
+> +EXPORT_SYMBOL(pci_select_bars);
+> 
+>  EXPORT_SYMBOL(pci_set_power_state);
+>  EXPORT_SYMBOL(pci_save_state);
+> Index: linux-2.6.19-rc6/include/linux/pci.h
+> ===================================================================
+> --- linux-2.6.19-rc6.orig/include/linux/pci.h
+> +++ linux-2.6.19-rc6/include/linux/pci.h
+> @@ -514,6 +514,7 @@
+>  int __must_check pci_assign_resource(struct pci_dev *dev, int i);
+>  int __must_check pci_assign_resource_fixed(struct pci_dev *dev, int i);
+>  void pci_restore_bars(struct pci_dev *dev);
+> +int pci_select_bars(struct pci_dev *dev, unsigned long flags);
+
+unsigned long pci_select_bars(struct pci_dev *dev, unsigned long flags)
+
+> 
+>  /* ROM control related routines */
+>  void __iomem __must_check *pci_map_rom(struct pci_dev *pdev, size_t *size);
+> @@ -542,6 +543,8 @@
+>  void pci_release_regions(struct pci_dev *);
+>  int __must_check pci_request_region(struct pci_dev *, int, const char *);
+>  void pci_release_region(struct pci_dev *, int);
+> +int pci_request_selected_regions(struct pci_dev *, int, const char *);
+> +void pci_release_selected_regions(struct pci_dev *, int);
+
+int pci_request_selected_regions(struct pci_dev *, unsigned long, const char *); 
+void pci_release_selected_regions(struct pci_dev *, unsigned long);
+
+
+Regards
+
+Ingo Oeser

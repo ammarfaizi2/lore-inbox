@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933696AbWKWN14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933713AbWKWNma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933696AbWKWN14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 08:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933692AbWKWN14
+	id S933713AbWKWNma (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 08:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933715AbWKWNma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 08:27:56 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:52025 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S933696AbWKWN1z
+	Thu, 23 Nov 2006 08:42:30 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:6919 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S933713AbWKWNma
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 08:27:55 -0500
-In-Reply-To: <adaslgbaxsu.fsf@cisco.com>
-Subject: Re: [PATCH 2.6.19] ehca: bug fix: use wqe offset instead wqe address	to
- determine pending work requests
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Christoph Raisch <raisch@de.ibm.com>,
-       Hoang-Nam Nguyen <hnguyen@linux.vnet.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linuxppc-dev-bounces+hnguyen=de.ibm.com@ozlabs.org,
-       openib-general@openib.org
-X-Mailer: Lotus Notes Release 7.0 HF277 June 21, 2006
-Message-ID: <OFCFF36ACF.6FF07D9E-ONC125722F.00499C9C-C125722F.0049F685@de.ibm.com>
-From: Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>
-Date: Thu, 23 Nov 2006 14:31:21 +0100
-X-MIMETrack: Serialize by Router on D12ML065/12/M/IBM(Release 6.5.5HF882 | September 26, 2006) at
- 23/11/2006 14:31:22
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Thu, 23 Nov 2006 08:42:30 -0500
+Date: Thu, 23 Nov 2006 14:42:21 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jason Gaston <jason.d.gaston@intel.com>, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, i2c@lm-sensors.org
+Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
+Message-Id: <20061123144221.866c07cb.khali@linux-fr.org>
+In-Reply-To: <1164284758.31358.781.camel@laptopd505.fenrus.org>
+References: <200611221519.12373.jason.d.gaston@intel.com>
+	<20061123130938.5818ad16.khali@linux-fr.org>
+	<1164284758.31358.781.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roland!
-> OK.  After thinking about this, I'm going to queue it for 2.6.20 --
-> we're _way_ too close to the 2.6.19 final release to put in patches
-> that aren't either small and obvious, or fix a problem someone hit in
-> real life.
-That's fair. I understand your decision. And thanks for queueing for
-2.6.20. Can you please brief me on patch procedures for post-2.6.19?
-Regards
-Nam
+Hi Arjan,
 
+On Thu, 23 Nov 2006 13:25:57 +0100, Arjan van de Ven wrote:
+> On Thu, 2006-11-23 at 13:09 +0100, Jean Delvare wrote:
+> > On Wed, 22 Nov 2006 15:19:12 -0800, Jason Gaston wrote:
+> > > This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
+> > > This patch relies on the irq ICH9 patch to pci_ids.h.
+> > 
+> > Looks good. Care to also update Documentation/i2c/busses/i2c-i801? I
+> > see it misses at least the ICH8 and ESB2 as well.
+> > 
+> > I would also appreciate an update to lm_sensors' sensors-detect script,
+> > if you could send a patch to the sensors list.
+> 
+> 
+> hmmm couldn't the sensors-detect script just at runtime look at the pci
+> tables in the modules? that way no need to duplicate/update all of this
+> in multiple places...
+
+Not really. It is important that sensors-detect knows about chips which
+are not supported by the running kernel. That way, we can tell the
+users to try the latest version of sensors-detect when they report that
+hardware monitoring doesn't work out of the box, and from the output,
+we can tell them which kernel they need to upgrade to. If
+sensors-detect reads the list of supported devices from the kernel,
+instead of having its own, it will no longer work, by definition.
+
+Additionally, sensors-detect is still supposed to support 2.4 kernels,
+and I don't think 2.4 drivers advertise the list of devices they
+support.
+
+What we could do, on the other hand, is check the detected device ID
+against the list the running kernel driver supports, to let the user
+know that his/her chip is not supported by his/her kernel. Care to
+provide a patch adding this functionality to sensors-detect?
+
+Thanks,
+-- 
+Jean Delvare

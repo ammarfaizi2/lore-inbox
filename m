@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755874AbWKWEYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755886AbWKWEfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755874AbWKWEYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Nov 2006 23:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755886AbWKWEYa
+	id S1755886AbWKWEfu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Nov 2006 23:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755910AbWKWEfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Nov 2006 23:24:30 -0500
-Received: from outbound-red.frontbridge.com ([216.148.222.49]:11301 "EHLO
-	outbound3-red-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1755874AbWKWEY3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Nov 2006 23:24:29 -0500
-X-BigFish: V
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Add IDE mode support for SB600 SATA
-Date: Thu, 23 Nov 2006 12:24:24 +0800
-Message-ID: <FFECF24D2A7F6D418B9511AF6F3586020108CE7F@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Add IDE mode support for SB600 SATA
-Thread-Index: AccOp6BajH/1qDm3QAeMtzkZOwLiUgADV9WAAAB2AuA=
-From: "Conke Hu" <conke.hu@amd.com>
-To: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>,
-       "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jeff@garzik.org>
-X-OriginalArrivalTime: 23 Nov 2006 04:24:27.0316 (UTC) FILETIME=[433C0740:01C70EB7]
+	Wed, 22 Nov 2006 23:35:50 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53220 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1755626AbWKWEfs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Nov 2006 23:35:48 -0500
+Date: Thu, 23 Nov 2006 04:35:43 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: David Miller <davem@davemloft.net>
+Cc: dgc@sgi.com, jesper.juhl@gmail.com, chatz@melbourne.sgi.com,
+       linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       netdev@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to implicate xfs, scsi, networking, SMP
+Message-ID: <20061123043543.GI3078@ftp.linux.org.uk>
+References: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com> <9a8748490611220458w4d94d953v21f7a29a9f1bdb72@mail.gmail.com> <20061123011809.GY37654165@melbourne.sgi.com> <20061122.201013.112290046.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061122.201013.112290046.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 22, 2006 at 08:10:13PM -0800, David Miller wrote:
+> From: David Chinner <dgc@sgi.com>
+> Date: Thu, 23 Nov 2006 12:18:09 +1100
+> 
+> > So, assuming the stacks less than 32 bytes are 32 bytes, we've got
+> > 1380 bytes in the XFS stack there, 
+> 
+> On sparc64 just the XFS parts of the backtrace would be a minimum of
+> 2816 bytes (each function has a minimum 8 * 16 byte stack frame, and
+> there are about 22 calls in that trace).  It's probably a lot more
+> with local variables and such.
+> 
+> It's way too much.  You guys have to fix this stuff.
+> 
+> If TCP's full send and receive path can be done in less function
+> calls, XFS can allocate blocks in less too.
+> 
+> I would even say 10 function calls deep to allocate file blocks
+> is overkill, but 22 it just astronomically bad.
 
------Original Message-----
-From: Conke Hu 
-Sent: Thursday, November 23, 2006 12:21 PM
-To: linux-kernel@vger.kernel.org; 'alan@lxorguk.ukuu.org.uk'; 'Andrew Morton'; Jeff Garzik
-Subject: [PATCH] Add IDE mode support for SB600 SATA
-
-
-ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID. Legacy/Native IDE mode is designed for compatibility with some old OS without AHCI driver but looses SATAII/AHCI features such as NCQ. This patch will make SB600 SATA run in AHCI mode even if it was set as IDE mode by system BIOS.
-
-Signed-off-by: conke.hu@amd.com
----------
---- linux-2.6.19-rc6-git4/drivers/pci/quirks.c.orig	2006-11-23 19:45:49.000000000 +0800
-+++ linux-2.6.19-rc6-git4/drivers/pci/quirks.c	2006-11-23 19:34:23.000000000 +0800
-@@ -795,6 +795,25 @@ static void __init quirk_mediagx_master(
- 	}
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
-+ 
-+#if defined(CONFIG_SATA_AHCI) || defined(CONFIG_SATA_AHCI_MODULE) 
-+static void __devinit quirk_sb600_sata(struct pci_dev *pdev) {
-+	/* set sb600 sata to ahci mode */
-+	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
-+		u8 tmp;
-+
-+		pci_read_config_byte(pdev, 0x40, &tmp);
-+		pci_write_config_byte(pdev, 0x40, tmp|1);
-+		pci_write_config_byte(pdev, 0x9, 1);
-+		pci_write_config_byte(pdev, 0xa, 6);
-+		pci_write_config_byte(pdev, 0x40, tmp);
-+		
-+		pdev->class = 0x010601;
-+	}
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATI, 
-+PCI_DEVICE_ID_ATI_IXP600_SATA, quirk_sb600_sata); #endif
- 
- /*
-  * As per PCI spec, ignore base address registers 0-3 of the IDE controllers
-
----------------------
-
-This is the re-written patch, if still any unreasonable, please feel free to contact me. Thanks!
-
-Conke
-
-
+Especially since a large part is due to cxfs...

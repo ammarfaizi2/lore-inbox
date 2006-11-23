@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933791AbWKWQBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933832AbWKWQDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933791AbWKWQBY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 11:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933794AbWKWQBY
+	id S933832AbWKWQDq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 11:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933794AbWKWQDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 11:01:24 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:48848 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S933791AbWKWQBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 11:01:23 -0500
-Message-ID: <4565C5D2.3070104@s5r6.in-berlin.de>
-Date: Thu, 23 Nov 2006 17:01:22 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] WorkStruct: Shrink work_struct by two thirds
-References: <20061122132008.2691bd9d.akpm@osdl.org>  <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com> <10039.1164293972@redhat.com>
-In-Reply-To: <10039.1164293972@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Nov 2006 11:03:46 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:44811 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S933832AbWKWQDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 11:03:46 -0500
+Date: Thu, 23 Nov 2006 16:03:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Vitaly Wool <vitalywool@gmail.com>
+Cc: drzeus-mmc@drzeus.cx, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix random SD/MMC card recognition failures on ARM Versatile
+Message-ID: <20061123160335.GB8984@flint.arm.linux.org.uk>
+Mail-Followup-To: Vitaly Wool <vitalywool@gmail.com>, drzeus-mmc@drzeus.cx,
+	linux-kernel@vger.kernel.org
+References: <20061123184606.bb203ae6.vitalywool@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061123184606.bb203ae6.vitalywool@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
->> waaaaaaaay too many rejects for me, sorry.
-...
-> Actually... there is a way to do this sort of incrementally,
-...
-> Might that help?
+On Thu, Nov 23, 2006 at 06:46:06PM +0300, Vitaly Wool wrote:
+> Hello Pierre,
+> 
+> currently sometimes the SD/MMC card inserted results in recognition failure on ARM Versatile board:
+> 
+>    <<<Plug in MMC card>>>
+> 
+> root@versatile:~# mmcblk0: mmc0:0001 SDMB-32 31360KiB
+>  mmcblk0:<3>mmcblk0: error 3 transferring data
+> end_request: I/O error, dev mmcblk0, sector 0
+> Buffer I/O error on device mmcblk0, logical block 0
+> mmcblk0: error 3 transferring data
+> end_request: I/O error, dev mmcblk0, sector 0
+> Buffer I/O error on device mmcblk0, logical block 0
+>  unable to read partition table
+> 
+> This patch fixes the problem.
 
-I'd say, do it one step, as quickly as you can. And do it on top of
--rc1. For now you could test for yourself to rebase your current
-patchset onto -mm --- just to get an impression of the steps you will
-have to go through once you have an -rc1 to work with.
+Doubtful.  mmci_stop_data() already does this, which will be called
+immediately prior to mmci_request_end().  So you're doubling up the
+writes to registers again.
 
-Maybe it's a bit less trouble if you split the patchset per subsystem,
-in a similar manner as the various patch collections in -mm are divided
-per subsystem or subproject. This would also allow you to reuse parts of
-an -mm rebase from now for a -rc1 rebase later. I.e. go for more
-parallelism, not for more sequential steps. (...am I naively suggesting,
-without any own experience in such things.)
+Since this is not the first occurance that you've had to do this with
+your board (the other being the SIC) I suggest that your board is
+faulty in some way, causing writes to registers to be occasionally
+dropped.
+
 -- 
-Stefan Richter
--=====-=-==- =-== =-===
-http://arcgraph.de/sr/
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

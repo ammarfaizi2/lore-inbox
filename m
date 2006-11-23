@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757302AbWKWJuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933465AbWKWKAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757302AbWKWJuu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 04:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757303AbWKWJuu
+	id S933465AbWKWKAU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 05:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757307AbWKWKAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 04:50:50 -0500
-Received: from outbound-fra.frontbridge.com ([62.209.45.174]:18398 "EHLO
-	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1757302AbWKWJut convert rfc822-to-8bit (ORCPT
+	Thu, 23 Nov 2006 05:00:19 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:41663 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1757306AbWKWKAS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 04:50:49 -0500
-X-BigFish: V
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 23 Nov 2006 05:00:18 -0500
+Message-ID: <45657030.7050009@openvz.org>
+Date: Thu, 23 Nov 2006 12:56:00 +0300
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Add IDE mode support for SB600 SATA
-Date: Thu, 23 Nov 2006 17:50:31 +0800
-Message-ID: <FFECF24D2A7F6D418B9511AF6F3586020108CFF2@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Add IDE mode support for SB600 SATA
-Thread-Index: AccO1lRnokRB8fO+QlO5bzN7hdyksgAAZZTQ
-From: "Conke Hu" <conke.hu@amd.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>,
-       "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jeff@garzik.org>
-X-OriginalArrivalTime: 23 Nov 2006 09:50:37.0793 (UTC) FILETIME=[D425D510:01C70EE4]
+To: Paul Menage <menage@google.com>
+CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       matthltc@us.ibm.com, hch@infradead.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
+References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>	 <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>	 <45655D3E.5020702@openvz.org>	 <6599ad830611230053m7182698cu897abe5d19471aff@mail.gmail.com>	 <456567DD.6090703@openvz.org> <6599ad830611230131w1bf63dc1m1998b55b61579509@mail.gmail.com>
+In-Reply-To: <6599ad830611230131w1bf63dc1m1998b55b61579509@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Menage wrote:
+> On 11/23/06, Pavel Emelianov <xemul@openvz.org> wrote:
+>> You mean moving is like this:
+>>
+>> old_bc = task->real_bc;
+>> task->real_bc = new_bc;
+>> cmpxchg(&tsk->exec_bc, old_bc, new_bc);
+>>
+>> ? Then this won't work:
+>>
+>> Initialisation:
+>> current->exec_bc = init_bc;
+>> current->real_bc = init_bc;
+>> ...
+>> IRQ:
+>> current->exec_bc = init_bc;
+>> ...
+>>                              old_bc = tsk->real_bc; /* init_bc */
+>>                              tsk->real_bc = bc1;
+>>                              cx(tsk->exec_bc, init_bc, bc1); /* ok */
+>> ...
+>> Here at the middle of an interrupt
+>> we have bc1 set as exec_bc on task
+>> which IS wrong!
+> 
+> You could get round that by having a separate "irq_bc" that's never
+> valid for a task not in an interrupt.
 
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org] 
-Sent: Thursday, November 23, 2006 4:06 PM
-To: Conke Hu
-Cc: linux-kernel@vger.kernel.org; alan@lxorguk.ukuu.org.uk; Andrew Morton; Jeff Garzik
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+No no no. This is not what is needed. You see, we do have to
+set exec_bc as temporary (and atomic) context. Having temporary
+context is 1. flexible 2. needed by beancounters' network accountig.
+We have to track this particular scenario.
 
-On Thu, 2006-11-23 at 12:20 +0800, Conke Hu wrote:
-> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID. Legacy/Native IDE mode is designed for compatibility with some old OS without AHCI driver but looses SATAII/AHCI features such as NCQ. This patch will make SB600 SATA run in AHCI mode even if it was set as IDE mode by system BIOS.
+Moreover making get_exec_bc() as
+if (in_interrupt())
+	return &irq_bc;
+else
+	return current->exec_bc;
+is awful. It must me simple and stupid to allow us making temporary
+contexts in any place of code.
 
+Maybe we can make smth similar to wait_task_inactive and change
+it's beancounter before unlocking the runqueue?
 
-is this really the right thing? You're overriding a user chosen configuration here.... while that might be justifiable.. it's probably a good idea to at least provide a safety-valve for this one. The user might have made that selection very deliberately.
-
---
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
--------------------------------
-
-Hi Arjan,
-    In my preivious patch(with the same email title "[PATCH] Add IDE mode support for SB600 SATA"), I provided a config option and kernel users (the "users" here includes kernel developers and linux fans) can use the sata controller as IDE or AHCI, but Andrew did not think that was good idea.
-
-    [Quote from Andrew]
-    I doubt if it's appropriate to do all this via ifdefs.  Users don't compile their kernels - others compile them for the users.  We need the one kernel
-    binary to support both modes.   Possible?
-
-Andrew means only one mode (i.e. ahci) support is enough, so I've re-writen this patch according to Alan's adavice, see bellow:
-
-    [Quote from Alan Cox]
-    That seems fine to me. I would have thought putting the code you have into the quirks.c file as you proposed was the better way to do this, but with the addition of the 
-    #if defined (CONFIG_ATA_AHCI) || defined(CONFIG_ATA_AHCI_MODULE)
-   
-    #endif 
-    around it
-
-Hi Alan,
-    Today I've sent out 2 patches about the same issue. one patch/solution is providing a config option to support both IDE driver and AHCI driver; another is using ahci driver for all modes. The two patches respectively corresond to two mails with the same title "[PATCH] Add IDE mode support for SB600 SATA", please take a look at both patches for more details.
-    Which patch/solution do you think is acceptable? Or is there anything that needs to be improved?
-
-
-Thank you!
-Conke
-
-
-
-
+> Paul
+> 

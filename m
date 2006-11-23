@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757347AbWKWKdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757345AbWKWKdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757347AbWKWKdS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 05:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757349AbWKWKdS
+	id S1757345AbWKWKdH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 05:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757347AbWKWKdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 05:33:18 -0500
-Received: from mx2.cs.washington.edu ([128.208.2.105]:8399 "EHLO
-	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1757347AbWKWKdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 05:33:17 -0500
-Date: Thu, 23 Nov 2006 02:33:13 -0800 (PST)
+	Thu, 23 Nov 2006 05:33:07 -0500
+Received: from mx3.cs.washington.edu ([128.208.3.132]:41391 "EHLO
+	mx3.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S1757345AbWKWKdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 05:33:03 -0500
+Date: Thu, 23 Nov 2006 02:33:02 -0800 (PST)
 From: David Rientjes <rientjes@cs.washington.edu>
 To: d binderman <dcb314@hotmail.com>
-cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] hrtimer: remove unused variable
-In-Reply-To: <BAY107-F28F506ED79A35F4FF31CF39CE20@phx.gbl>
-Message-ID: <Pine.LNX.4.64N.0611230232160.18515@attu4.cs.washington.edu>
-References: <BAY107-F28F506ED79A35F4FF31CF39CE20@phx.gbl>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs: remove unused variable
+In-Reply-To: <BAY107-F2847307957C37B16EA55729CE20@phx.gbl>
+Message-ID: <Pine.LNX.4.64N.0611230231190.18515@attu4.cs.washington.edu>
+References: <BAY107-F2847307957C37B16EA55729CE20@phx.gbl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove unused 'base' variable.
+Removed unused 'have_pt_gnu_stack' variable.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Reported by David Binderman <dcb314@hotmail.com>
+
 Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
 ---
- kernel/hrtimer.c |    3 +--
+ fs/binfmt_elf.c |    3 +--
  1 files changed, 1 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
-index d0ba190..b55532f 100644
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -508,11 +508,10 @@ EXPORT_SYMBOL_GPL(hrtimer_cancel);
-  */
- ktime_t hrtimer_get_remaining(const struct hrtimer *timer)
- {
--	struct hrtimer_base *base;
- 	unsigned long flags;
- 	ktime_t rem;
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 79b05a1..8bdefa2 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -545,7 +545,7 @@ static int load_elf_binary(struct linux_
+ 	unsigned long reloc_func_desc = 0;
+ 	char passed_fileno[6];
+ 	struct files_struct *files;
+-	int have_pt_gnu_stack, executable_stack = EXSTACK_DEFAULT;
++	int executable_stack = EXSTACK_DEFAULT;
+ 	unsigned long def_flags = 0;
+ 	struct {
+ 		struct elfhdr elf_ex;
+@@ -708,7 +708,6 @@ static int load_elf_binary(struct linux_
+ 				executable_stack = EXSTACK_DISABLE_X;
+ 			break;
+ 		}
+-	have_pt_gnu_stack = (i < loc->elf_ex.e_phnum);
  
--	base = lock_hrtimer_base(timer, &flags);
-+	lock_hrtimer_base(timer, &flags);
- 	rem = ktime_sub(timer->expires, timer->base->get_time());
- 	unlock_hrtimer_base(timer, &flags);
- 
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {

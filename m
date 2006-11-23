@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757480AbWKWVtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933542AbWKWVuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757480AbWKWVtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 16:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757483AbWKWVtK
+	id S933542AbWKWVuI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 16:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757485AbWKWVuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 16:49:10 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:9383 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1757480AbWKWVtJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 16:49:09 -0500
-Date: Fri, 24 Nov 2006 00:49:08 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061123214908.GB106@oleg>
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061119190027.GA3676@oleg> <20061123145910.GA145@oleg> <20061123204054.GA4533@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Nov 2006 16:50:08 -0500
+Received: from berlioz.imada.sdu.dk ([130.225.128.12]:20461 "EHLO
+	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
+	id S1757483AbWKWVuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 16:50:01 -0500
+From: Hans Henrik Happe <hhh@imada.sdu.dk>
+To: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [take25 1/6] kevent: Description.
+Date: Thu, 23 Nov 2006 22:49:56 +0100
+User-Agent: KMail/1.9.5
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+References: <11641265982190@2ka.mipt.ru> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com>
+In-Reply-To: <4565FDED.2050003@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061123204054.GA4533@us.ibm.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611232249.56886.hhh@imada.sdu.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23, Paul E. McKenney wrote:
->
->                            For general use, I believe that this has
-> difficulties with the sequence of events I sent out on November 20th, see:
+On Thursday 23 November 2006 21:00, Ulrich Drepper wrote:
+> Evgeniy Polyakov wrote:
+> > uidx is an index, starting from which there are unread entries. It is
+> > updated by userspace when it commits entries, so it is 'consumer'
+> > pointer, while kidx is an index where kernel will put new entries, i.e.
+> > 'producer' index. We definitely need them both.
+> > Userspace can only update (implicitly by calling kevent_commit()) uidx.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=116397154808901&w=2
->
-> ...
->
-> I don't understand why an unlucky sequence of events mightn't be able
-> to hang this __wait_event().  Suppose we did the atomic_dec_and_test(),
-> then some other CPU executed xxx_read_unlock(), finding no one to awaken,
-> then we execute the __wait_event()?
+> Right, which is why exporting this entry is not needed.  Keep the 
+> interface as small as possible.
+> 
+> Userlevel has to maintain its own index.  Just assume kevent_wait 
+> returns 10 new entries and you have multiple threads.  In this case all 
+> threads take their turns and pick an entry from the ring buffer.  This 
+> basically has to be done with something like this (I ignore wrap-arounds 
+> here to simplify the example):
+> 
+>    int getidx() {
+>      while (uidx < kidx)
+>         if (atomic_cmpxchg(uidx, uidx + 1, uidx) == 0)
+>           return uidx;
+>      return -1;
+>    }
 
-Please note how ->ctr[] is initialized,
+I don't know if this falls under the simplification, but wouldn't there be a 
+race when reading/copying the event data? I guess this could be solved with 
+an extra user index. 
 
-	atomic_set(sp->ctr + 0, 1);	<---- 1, not 0
-	atomic_set(sp->ctr + 1, 0);
+--
 
-atomic_read(sp->ctr + idx) == 0 means that this counter is inactive,
-nobody use it.
-
-Oleg.
-
+Hans Henrik Happe 

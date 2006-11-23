@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933986AbWKWVLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934061AbWKWVLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933986AbWKWVLE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 16:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934038AbWKWVLE
+	id S934061AbWKWVLs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 16:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934060AbWKWVLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 16:11:04 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:3269 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933986AbWKWVLB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 16:11:01 -0500
-Date: Thu, 23 Nov 2006 13:10:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: wbrana@gmail.com
-Cc: linux-kernel@vger.kernel.org, "Jaroslav Kysela" <perex@suse.cz>,
-       "Takashi Iwai" <tiwai@suse.de>
-Subject: Re: [PATCH] snd-hda-intel: fix insufficient memory
-Message-Id: <20061123131048.8490287c.akpm@osdl.org>
-In-Reply-To: <a769871e0611231217w1a6a9d1ag7e708eaf5f991981@mail.gmail.com>
-References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com>
-	<20061121224613.548207f9.akpm@osdl.org>
-	<a769871e0611220919q62ccdb5k5548062300e35376@mail.gmail.com>
-	<20061122120422.7f1f96fe.akpm@osdl.org>
-	<a769871e0611231217w1a6a9d1ag7e708eaf5f991981@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 23 Nov 2006 16:11:48 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:50393 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S934061AbWKWVLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 16:11:47 -0500
+Date: Thu, 23 Nov 2006 22:11:35 +0100
+From: Robert Schwebel <r.schwebel@pengutronix.de>
+To: Eduardo Valentin <edubezval@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-rt5
+Message-ID: <20061123211135.GY18636@pengutronix.de>
+References: <20061120220230.GA30835@elte.hu> <20061122113749.GY18636@pengutronix.de> <a0580c510611231243x318f3cbanc8fa2cbbedcec060@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <a0580c510611231243x318f3cbanc8fa2cbbedcec060@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 21:17:21 +0100
-wbrana@gmail.com wrote:
+Eduardo,
 
-> On 11/22/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Are the new settings of 64kb and 1MB sufficient?  If not, by how much must
-> > they be increased, and why?
-> >
-> >
-> Default size should be increased to 256 kB to allow same buffer length
->  ( 16384 frames )
-> with 2 and 8 channels or same buffer time with 48 kHz/16 bit and 96 kHz/32 bit.
-> Maximal size should be at least 4096 kB, which should't limit buffer
-> time with any sound
-> like 192 kHz/8 channels/32 bit.
+On Thu, Nov 23, 2006 at 04:43:01PM -0400, Eduardo Valentin wrote:
+> However, I got a similar problem as reported by Robert:
+> 
+> 2.6.19-rc6:
+> T: 0 ( 4861) P:80 I:   10000 C:   10000 Min:    2592 Act:    4878 Avg:   6137 Max:   10652
+> 2.6.19-rc6-rt5:
+> T: 0 ( 3661) P:80 I:   10000 C:   10000 Min:     828 Act:    1698 Avg:   3291 Max:    7171
+>
+> These results are quite different from what is reported at the wiki.
 
-Please send a new patch, with a *full* changelog which completely describes
-the need for the change.
+Is this with -r or without? I didn't get fixed maxima at all on the
+celeron box. It also looks like you've changed the interval time to
+10ms; nevertheless: a delay of > 10 ms @ a cylce time of 10 ms means
+missing the deadlines.
+
+Do you have the possibility to switch off the SMI for your chipset? As
+tglx noted on irc recently this may be dangerous because thermal
+throtteling can be implemented via SMI, but to get an idea if the SMI is
+the reason for the delays, switching it off for a short time should do
+the job.
+
+Robert
+-- 
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hannoversche Str. 2, 31134 Hildesheim, Germany
+   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
 

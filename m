@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933605AbWKWLGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933598AbWKWLG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933605AbWKWLGw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 06:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933603AbWKWLGv
+	id S933598AbWKWLG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 06:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933600AbWKWLG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 06:06:51 -0500
-Received: from cantor.suse.de ([195.135.220.2]:58537 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S933601AbWKWLGv (ORCPT
+	Thu, 23 Nov 2006 06:06:29 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46529 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S933598AbWKWLG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 06:06:51 -0500
-Date: Thu, 23 Nov 2006 12:06:48 +0100
-Message-ID: <s5h8xi2h16f.wl%tiwai@suse.de>
+	Thu, 23 Nov 2006 06:06:28 -0500
+Date: Thu, 23 Nov 2006 12:06:26 +0100
+Message-ID: <s5hac2ih171.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
 To: Akinobu Mita <akinobu.mita@gmail.com>
 Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [PATCH] sound: fix PCM substream list
-In-Reply-To: <20061122185145.GF2985@APFDCB5C>
-References: <20061122185145.GF2985@APFDCB5C>
+Subject: Re: [PATCH] sound: initialize rawmidi substream list
+In-Reply-To: <20061122185045.GE2985@APFDCB5C>
+References: <20061122185045.GE2985@APFDCB5C>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta27)
  (fiddleheads) (+CVS-20060704) (i386-suse-linux)
@@ -25,44 +25,51 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Thu, 23 Nov 2006 03:51:45 +0900,
+At Thu, 23 Nov 2006 03:50:45 +0900,
 Akinobu Mita wrote:
 > 
-> If snd_pcm_new_stream() fails to initalize a substream (if
-> snd_pcm_substream_proc_init() returns error), snd_pcm_new_stream()
-> immediately return without unlinking that kfree()d substram.
+> If snd_rawmidi_new() failed to allocate substreams for input
+> (snd_rawmidi_alloc_substreams() failed to populate a 
+> &rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT]), it will try to
+> free rawmidi instance by snd_rawmidi_free().
 > 
-> It causes oops when snd_pcm_free() iterates the list of substream to
-> free them by invalid reference.
+> But it will cause oops because snd_rawmidi_free() tries to free
+> both of substreams list but list for output
+> (&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT]) is not initialized yet.
 > 
 > Cc: Takashi Iwai <tiwai@suse.de>
 > Cc: Jaroslav Kysela <perex@suse.cz>
 > Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-Merged this one to ALSA tree, too.
-Thanks.
+Thanks, merged to ALSA tree.
 
 
 Takashi
 
 > 
-> ---
->  sound/core/pcm.c |    4 ++++
->  1 file changed, 4 insertions(+)
+>  sound/core/rawmidi.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> Index: work-fault-inject/sound/core/pcm.c
+> Index: work-fault-inject/sound/core/rawmidi.c
 > ===================================================================
-> --- work-fault-inject.orig/sound/core/pcm.c
-> +++ work-fault-inject/sound/core/pcm.c
-> @@ -638,6 +638,10 @@ int snd_pcm_new_stream(struct snd_pcm *p
->  		err = snd_pcm_substream_proc_init(substream);
->  		if (err < 0) {
->  			snd_printk(KERN_ERR "Error in snd_pcm_stream_proc_init\n");
-> +			if (prev == NULL)
-> +				pstr->substream = NULL;
-> +			else
-> +				prev->next = NULL;
->  			kfree(substream);
->  			return err;
->  		}
+> --- work-fault-inject.orig/sound/core/rawmidi.c
+> +++ work-fault-inject/sound/core/rawmidi.c
+> @@ -1379,7 +1379,6 @@ static int snd_rawmidi_alloc_substreams(
+>  	struct snd_rawmidi_substream *substream;
+>  	int idx;
+>  
+> -	INIT_LIST_HEAD(&stream->substreams);
+>  	for (idx = 0; idx < count; idx++) {
+>  		substream = kzalloc(sizeof(*substream), GFP_KERNEL);
+>  		if (substream == NULL) {
+> @@ -1434,6 +1433,9 @@ int snd_rawmidi_new(struct snd_card *car
+>  	rmidi->device = device;
+>  	mutex_init(&rmidi->open_mutex);
+>  	init_waitqueue_head(&rmidi->open_wait);
+> +	INIT_LIST_HEAD(&rmidi->streams[SNDRV_RAWMIDI_STREAM_INPUT].substreams);
+> +	INIT_LIST_HEAD(&rmidi->streams[SNDRV_RAWMIDI_STREAM_OUTPUT].substreams);
+> +
+>  	if (id != NULL)
+>  		strlcpy(rmidi->id, id, sizeof(rmidi->id));
+>  	if ((err = snd_rawmidi_alloc_substreams(rmidi,
 > 

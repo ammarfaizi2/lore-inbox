@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934363AbWKXMBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934460AbWKXMFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934363AbWKXMBN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 07:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934378AbWKXMBN
+	id S934460AbWKXMFE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 07:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934457AbWKXMFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 07:01:13 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:46095 "EHLO
+	Fri, 24 Nov 2006 07:05:04 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:65310 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S934363AbWKXMBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 07:01:12 -0500
+	id S934429AbWKXMFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 07:05:01 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=g4Zx/QsQn7CDiadute+zP24jGYkTs/fNsWIfJA3zMerDSRnz68kf9aiPcjybl8XXzChyV6u7YuiGQcsXrBvD6vxjrAnzKDVFD5DTkD4bB3JOZIFE9Q03DO6ffYrHRJS26qDAhkaDOuoPPaczJ32NjUMb7pTy76XH4iHblZdheV8=
-Message-ID: <4566DE24.5070108@gmail.com>
-Date: Fri, 24 Nov 2006 13:57:24 +0200
+        b=rGDxKw4bLsOIBDjole2aauXfFUqWYFtBft6kmVdGmVNjyXvF2KiNsOM/30Df1d9iHMlNRIARrgT9/7pCz5pkENmMJOsd4e76FCNx7T3/HxaeoNhWwV1Op5mrMdc3pVt8A7twXjsDAu1cZN5/uHUYb9eMm3ec9sLEofVSJ6sxato=
+Message-ID: <4566DF0A.3050803@gmail.com>
+Date: Fri, 24 Nov 2006 14:01:14 +0200
 From: Yan Burman <burman.yan@gmail.com>
 User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-CC: jdike@karaya.com, trivial@kernel.org
-Subject: [PATCH 2.6.19-rc6] um: replace kmalloc+memset with kzalloc
+CC: trivial@kernel.org, wli@holomorphy.com
+Subject: [PATCH 2.6.19-rc6] sparc: replace kmalloc+memset with kzalloc
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,24 +30,77 @@ Replace kmalloc+memset with kzalloc
 
 Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-diff -rubp linux-2.6.19-rc5_orig/arch/um/drivers/net_kern.c linux-2.6.19-rc5_kzalloc/arch/um/drivers/net_kern.c
---- linux-2.6.19-rc5_orig/arch/um/drivers/net_kern.c	2006-11-09 12:16:22.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/arch/um/drivers/net_kern.c	2006-11-11 22:44:04.000000000 +0200
-@@ -333,13 +333,12 @@ static int eth_configure(int n, void *in
- 	size = transport->private_size + sizeof(struct uml_net_private) + 
- 		sizeof(((struct uml_net_private *) 0)->user);
+diff -rubp linux-2.6.19-rc5_orig/arch/sparc/kernel/ioport.c linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/ioport.c
+--- linux-2.6.19-rc5_orig/arch/sparc/kernel/ioport.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/ioport.c	2006-11-11 22:44:04.000000000 +0200
+@@ -317,9 +317,8 @@ void *sbus_alloc_consistent(struct sbus_
+ 	if ((va = __get_free_pages(GFP_KERNEL|__GFP_COMP, order)) == 0)
+ 		goto err_nopages;
  
--	device = kmalloc(sizeof(*device), GFP_KERNEL);
-+	device = kzalloc(sizeof(*device), GFP_KERNEL);
- 	if (device == NULL) {
- 		printk(KERN_ERR "eth_configure failed to allocate uml_net\n");
- 		return(1);
+-	if ((res = kmalloc(sizeof(struct resource), GFP_KERNEL)) == NULL)
++	if ((res = kzalloc(sizeof(struct resource), GFP_KERNEL)) == NULL)
+ 		goto err_nomem;
+-	memset((char*)res, 0, sizeof(struct resource));
+ 
+ 	if (allocate_resource(&_sparc_dvma, res, len_total,
+ 	    _sparc_dvma.start, _sparc_dvma.end, PAGE_SIZE, NULL, NULL) != 0) {
+@@ -589,12 +588,11 @@ void *pci_alloc_consistent(struct pci_de
+ 		return NULL;
  	}
  
--	memset(device, 0, sizeof(*device));
- 	INIT_LIST_HEAD(&device->list);
- 	device->index = n;
+-	if ((res = kmalloc(sizeof(struct resource), GFP_KERNEL)) == NULL) {
++	if ((res = kzalloc(sizeof(struct resource), GFP_KERNEL)) == NULL) {
+ 		free_pages(va, order);
+ 		printk("pci_alloc_consistent: no core\n");
+ 		return NULL;
+ 	}
+-	memset((char*)res, 0, sizeof(struct resource));
  
+ 	if (allocate_resource(&_sparc_dvma, res, len_total,
+ 	    _sparc_dvma.start, _sparc_dvma.end, PAGE_SIZE, NULL, NULL) != 0) {
+diff -rubp linux-2.6.19-rc5_orig/arch/sparc/kernel/of_device.c linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/of_device.c
+--- linux-2.6.19-rc5_orig/arch/sparc/kernel/of_device.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/of_device.c	2006-11-11 22:44:04.000000000 +0200
+@@ -793,10 +793,9 @@ struct of_device* of_platform_device_cre
+ {
+ 	struct of_device *dev;
+ 
+-	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+ 		return NULL;
+-	memset(dev, 0, sizeof(*dev));
+ 
+ 	dev->dev.parent = parent;
+ 	dev->dev.bus = bus;
+diff -rubp linux-2.6.19-rc5_orig/arch/sparc/kernel/sun4d_irq.c linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/sun4d_irq.c
+--- linux-2.6.19-rc5_orig/arch/sparc/kernel/sun4d_irq.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/sun4d_irq.c	2006-11-11 22:44:04.000000000 +0200
+@@ -545,8 +545,7 @@ void __init sun4d_init_sbi_irq(void)
+ 	nsbi = 0;
+ 	for_each_sbus(sbus)
+ 		nsbi++;
+-	sbus_actions = (struct sbus_action *)kmalloc (nsbi * 8 * 4 * sizeof(struct sbus_action), GFP_ATOMIC);
+-	memset (sbus_actions, 0, (nsbi * 8 * 4 * sizeof(struct sbus_action)));
++	sbus_actions = kzalloc (nsbi * 8 * 4 * sizeof(struct sbus_action), GFP_ATOMIC);
+ 	for_each_sbus(sbus) {
+ #ifdef CONFIG_SMP	
+ 		extern unsigned char boot_cpu_id;
+diff -rubp linux-2.6.19-rc5_orig/arch/sparc/mm/io-unit.c linux-2.6.19-rc5_kzalloc/arch/sparc/mm/io-unit.c
+--- linux-2.6.19-rc5_orig/arch/sparc/mm/io-unit.c	2006-11-09 12:16:21.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/arch/sparc/mm/io-unit.c	2006-11-11 22:44:04.000000000 +0200
+@@ -41,9 +41,8 @@ iounit_init(int sbi_node, int io_node, s
+ 	struct linux_prom_registers iommu_promregs[PROMREG_MAX];
+ 	struct resource r;
+ 
+-	iounit = kmalloc(sizeof(struct iounit_struct), GFP_ATOMIC);
++	iounit = kzalloc(sizeof(struct iounit_struct), GFP_ATOMIC);
+ 
+-	memset(iounit, 0, sizeof(*iounit));
+ 	iounit->limit[0] = IOUNIT_BMAP1_START;
+ 	iounit->limit[1] = IOUNIT_BMAP2_START;
+ 	iounit->limit[2] = IOUNIT_BMAPM_START;
+
 
 
 Regards

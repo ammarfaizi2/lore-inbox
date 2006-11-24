@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757660AbWKXJcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757568AbWKXJbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757660AbWKXJcY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 04:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757663AbWKXJcX
+	id S1757568AbWKXJbu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 04:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757651AbWKXJbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 04:32:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50900 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757651AbWKXJbx (ORCPT
+	Fri, 24 Nov 2006 04:31:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42708 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757568AbWKXJbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 04:31:53 -0500
-Subject: [DLM] do full recover_locks barrier [6/9]
+	Fri, 24 Nov 2006 04:31:40 -0500
+Subject: [DLM] fix stopping unstarted recovery [5/9]
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
 Cc: David Teigland <teigland@redhat.com>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Fri, 24 Nov 2006 09:34:28 +0000
-Message-Id: <1164360868.3392.143.camel@quoit.chygwyn.com>
+Date: Fri, 24 Nov 2006 09:34:24 +0000
+Message-Id: <1164360864.3392.141.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 7aa1c6ae53b16b07c3f31296929750f3187378b3 Mon Sep 17 00:00:00 2001
+>From 6db92a6b47fd3b9089de9f14e5143c459f86c78a Mon Sep 17 00:00:00 2001
 From: David Teigland <teigland@redhat.com>
-Date: Wed, 1 Nov 2006 09:31:48 -0600
-Subject: [PATCH] [DLM] do full recover_locks barrier
+Date: Tue, 31 Oct 2006 11:56:08 -0600
+Subject: [PATCH] [DLM] fix stopping unstarted recovery
 
 Red Hat BZ 211914
 
-The previous patch "[DLM] fix aborted recovery during
-node removal" was incomplete as discovered with further testing.  It set
-the bit for the RS_LOCKS barrier but did not then wait for the barrier.
-This is often ok, but sometimes it will cause yet another recovery hang.
-If it's a new node that also has the lowest nodeid that skips the barrier
-wait, then it misses the important step of collecting and reporting the
-barrier status from the other nodes (which is the job of the low nodeid in
-the barrier wait routine).
+When many nodes are joining a lockspace simultaneously, the dlm gets a
+quick sequence of stop/start events, a pair for adding each node.
+dlm_controld in user space sends dlm_recoverd in the kernel each stop and
+start event.  dlm_controld will sometimes send the stop before
+dlm_recoverd has had a chance to take up the previously queued start.  The
+stop aborts the processing of the previous start by setting the
+RECOVERY_STOP flag.  dlm_recoverd is erroneously clearing this flag and
+ignoring the stop/abort if it happens to take up the start after the stop
+meant to abort it.  The fix is to check the sequence number that's
+incremented for each stop/start before clearing the flag.
 
 Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 ---
- fs/dlm/recoverd.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+ fs/dlm/recoverd.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
 diff --git a/fs/dlm/recoverd.c b/fs/dlm/recoverd.c
-index 6e4ee94..8bb895f 100644
+index 4a1d602..6e4ee94 100644
 --- a/fs/dlm/recoverd.c
 +++ b/fs/dlm/recoverd.c
-@@ -168,9 +168,15 @@ static int ls_recover(struct dlm_ls *ls,
- 		/*
- 		 * Other lockspace members may be going through the "neg" steps
- 		 * while also adding us to the lockspace, in which case they'll
--		 * be looking for this status bit during dlm_recover_locks().
-+		 * be doing the recover_locks (RS_LOCKS) barrier.
- 		 */
- 		dlm_set_recover_status(ls, DLM_RS_LOCKS);
-+
-+		error = dlm_recover_locks_wait(ls);
-+		if (error) {
-+			log_error(ls, "recover_locks_wait failed %d", error);
-+			goto fail;
-+		}
- 	}
+@@ -219,6 +219,10 @@ static int ls_recover(struct dlm_ls *ls,
+ 	return error;
+ }
  
- 	dlm_release_root_list(ls);
++/* The dlm_ls_start() that created the rv we take here may already have been
++   stopped via dlm_ls_stop(); in that case we need to leave the RECOVERY_STOP
++   flag set. */
++
+ static void do_ls_recovery(struct dlm_ls *ls)
+ {
+ 	struct dlm_recover *rv = NULL;
+@@ -226,7 +230,8 @@ static void do_ls_recovery(struct dlm_ls
+ 	spin_lock(&ls->ls_recover_lock);
+ 	rv = ls->ls_recover_args;
+ 	ls->ls_recover_args = NULL;
+-	clear_bit(LSFL_RECOVERY_STOP, &ls->ls_flags);
++	if (rv && ls->ls_recover_seq == rv->seq)
++		clear_bit(LSFL_RECOVERY_STOP, &ls->ls_flags);
+ 	spin_unlock(&ls->ls_recover_lock);
+ 
+ 	if (rv) {
 -- 
 1.4.1
 

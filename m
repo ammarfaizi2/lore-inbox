@@ -1,84 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934957AbWKXQOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934962AbWKXQQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934957AbWKXQOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 11:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934956AbWKXQOx
+	id S934962AbWKXQQj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 11:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934961AbWKXQQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 11:14:53 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:50328 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S934505AbWKXQOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 11:14:52 -0500
-Date: Fri, 24 Nov 2006 19:14:06 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061124161406.GA5054@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <4564E162.8040901@redhat.com> <20061123115240.GA20294@2ka.mipt.ru> <4565FA60.9000402@redhat.com> <20061124110143.GF13600@2ka.mipt.ru> <456718A3.1070108@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 24 Nov 2006 11:16:39 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:64387 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S934959AbWKXQQi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 11:16:38 -0500
+Date: Fri, 24 Nov 2006 10:16:26 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Friedhoff <chris@friedhoff.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: file caps: permit unsafe signaling when CONFIG_FS_CAPS=n
+Message-ID: <20061124161626.GA22462@sergelap.austin.ibm.com>
+References: <20061114030655.GB31893@sergelap> <20061123001458.fe73f64a.akpm@osdl.org> <20061123002207.5e18bade.akpm@osdl.org> <20061123131203.f7b6972f.chris@friedhoff.org> <20061123103920.8d908952.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <456718A3.1070108@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 19:14:07 +0300 (MSK)
+In-Reply-To: <20061123103920.8d908952.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2006 at 08:06:59AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >>I know this is how it's done now.  But it is not where it has to end. 
-> >>IMO we have to get to a solution where new events are posted to the ring 
-> >>buffer asynchronously, i.e., without a thread calling kevent_wait.  And 
-> >>then you need the extra parameter and verification.  Even if it's today 
-> >>not needed we have to future-proof the interface since it cannot be 
-> >>changed once in use.
-> >
-> >There is a special flag in kevent_user to wake it if there are no ready
-> >events - kernel thread which has added new events will set it and thus
-> >subsequent kevent_wait() will return with updated indexes - userspace
-> >must check indexes after kevent_wait().
-> 
-> You misunderstand.  I don't want to return without waiting unconditionally.
-> 
-> There is a race which has to be closed.  It's exactly the same as in the 
-> futex syscall.  I've shown the interaction between the kernel and the 
-> thread in the previous mail.  There is inevitably a time difference 
-> between the thread checking whether the ring buffer is empty and the 
-> kernel putting the thread to sleep in the kevent_wait call.
-> 
-> This is no problem with the current kevent_wait implementation since the 
-> ring buffer is not filled asynchronously.  But if/when it will be the 
-> kernel might add something to the ring buffer _after_ the thread checks 
-> for an empty ring buffer and _before_ it enters the kernel in the 
-> kevent_wait syscall.
-> 
-> The kevent_wait syscall will only wake the thread when a new event is 
-> posted.  We do not in general want it to be woken when the ring buffer 
-> is non empty.  This would create far too many unnecessary wakeups it 
-> there is more than one thread working on the queue.
-> 
-> With the addition parameters for kevent_wait indicating when the calling 
-> thread last checked the ring buffer the kernel can find out whether the 
-> decision to call kevent_wait was made based on outdated information or 
-> not.  Outdated in the case a new event has been posted.  In this case 
-> the thread is not put to sleep but instead returns.
+Ok, the following patch restores the CONFIG_FS_CAPS=n signaling
+behavior, but I'm having a config problem.  When
+CONFIG_SECURITY_CAPABILITIES=n, and I toggle
+CONFIG_SECURITY_FS_CAPABILITIES between y and n, security/commoncap.o
+does not recompile.  However since capabilities are now the default
+security module, commoncap.o is in fact included in the kernel build,
+and therefore should be recompiled.
 
-Read my mail again.
+Looking into why, but maybe someone knows offhand what would be going
+wrong?
 
-If kernel has put data asynchronously it will setup special flag, thus 
-kevent_wait() will not sleep and will return, so thread will check new
-entries and process them.
+thanks,
+-serge
 
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 1/1] file caps: permit unsafe signaling when CONFIG_FS_CAPS=n
 
+In legacy behavior, when a user starts a setuid program, that user
+can send signals to the running program.  The file capabilities
+patch prevents that not only when file capabilities are enabled,
+but in all cases where capabilities are used.
+
+For instance, when starting the X server, which is setuid root, it
+is expected that the user who started it be able to kill it.
+
+Existing behavior should not be changed.  This patch should reenable
+signaling setuid processes started by the signaling user.
+
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ security/commoncap.c |   21 +++++++++++++++++++++
+ 1 files changed, 21 insertions(+), 0 deletions(-)
+
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 0e89f1b..04b277f 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -389,6 +389,7 @@ int cap_task_post_setuid (uid_t old_ruid
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_SECURITY_FS_CAPABILITIES
+ /*
+  * Rationale: code calling task_setscheduler, task_setioprio, and
+  * task_setnice, assumes that
+@@ -444,6 +445,26 @@ int cap_task_kill(struct task_struct *p,
+ 
+ 	return -EPERM;
+ }
++#else
++int cap_task_setscheduler (struct task_struct *p, int policy,
++			   struct sched_param *lp)
++{
++	return 0;
++}
++int cap_task_setioprio (struct task_struct *p, int ioprio)
++{
++	return 0;
++}
++int cap_task_setnice (struct task_struct *p, int nice)
++{
++	return 0;
++}
++int cap_task_kill(struct task_struct *p, struct siginfo *info,
++				int sig, u32 secid)
++{
++	return 0;
++}
++#endif
+ 
+ void cap_task_reparent_to_init (struct task_struct *p)
+ {
 -- 
-	Evgeniy Polyakov
+1.4.1
+

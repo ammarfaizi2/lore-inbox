@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934199AbWKXQcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934990AbWKXQga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934199AbWKXQcn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 11:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934989AbWKXQcn
+	id S934990AbWKXQga (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 11:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934988AbWKXQga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 11:32:43 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:60336 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S934199AbWKXQcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 11:32:42 -0500
-Date: Fri, 24 Nov 2006 19:31:00 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061124163100.GA21462@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <4564E162.8040901@redhat.com> <20061123115240.GA20294@2ka.mipt.ru> <4565FA60.9000402@redhat.com> <20061124110143.GF13600@2ka.mipt.ru> <456718A3.1070108@redhat.com> <20061124161406.GA5054@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 24 Nov 2006 11:36:30 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:54416 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S934990AbWKXQg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 11:36:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MJxawnkmsdFzqLe2w9ytsIsJCoXjQb6mcEhttZiFnHNfCHxo++zsRNJqU+GQwwXvr3ZIKtQKdk1N3xkYmqo3cH3Wi8BWG96AsGoEypcpz5/BoSzHPJZtRcxBHHaOQzdOjVk5bJDr1Ec4VmuwzGYaKlNzprVMP4/dLFJ0FE86zUo=
+Message-ID: <40f323d00611240836q6bcf7374gd47c7a97d1d4f8e3@mail.gmail.com>
+Date: Fri, 24 Nov 2006 17:36:27 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: "Larry Finger" <Larry.Finger@lwfinger.net>
+Subject: Re: 2.6.19-rc5-mm1 progression
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <456718F6.8040902@lwfinger.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061124161406.GA5054@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 19:31:01 +0300 (MSK)
+References: <456718F6.8040902@lwfinger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2006 at 07:14:06PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> If kernel has put data asynchronously it will setup special flag, thus 
-> kevent_wait() will not sleep and will return, so thread will check new
-> entries and process them.
+On 11/24/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+> Is there the equivalent of 'git bisect' for the -mmX kernels?
+>
+http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
 
-For the clarification - only kevent_wait() updates index, userspace
-will not detect that it has changed after thread has put there new
-data.
-In case kernel thread will updated index too, you are correct,
-kevent_wait() should get index as parameter.
+regards,
 
--- 
-	Evgeniy Polyakov
+Benoit

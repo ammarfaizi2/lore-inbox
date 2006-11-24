@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935067AbWKXVYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935072AbWKXVbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935067AbWKXVYB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 16:24:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935066AbWKXVYA
+	id S935072AbWKXVbd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 16:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935074AbWKXVbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 16:24:00 -0500
-Received: from 1wt.eu ([62.212.114.60]:18180 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S935063AbWKXVYA (ORCPT
+	Fri, 24 Nov 2006 16:31:33 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58566 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S935072AbWKXVbc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 16:24:00 -0500
-Date: Fri, 24 Nov 2006 22:23:06 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-       Andreas Koensgen <ajk@iehk.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 6pack: fix "&= !" typo
-Message-ID: <20061124212306.GA1736@1wt.eu>
-References: <20061122225856.GB10758@1wt.eu> <20061124185816.GB4973@martell.zuzino.mipt.ru> <20061124202153.GA11858@linux-mips.org>
+	Fri, 24 Nov 2006 16:31:32 -0500
+Date: Fri, 24 Nov 2006 13:30:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Andy Whitcroft <apw@shadowen.org>,
+       Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] efi_limit_regions triggers link failure when CONFIG_EFI
+ is not defined
+Message-Id: <20061124133013.c6435c02.akpm@osdl.org>
+In-Reply-To: <200611241833.47671.ak@suse.de>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	<200611241805.45621.ak@suse.de>
+	<45672AC8.2010303@shadowen.org>
+	<200611241833.47671.ak@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061124202153.GA11858@linux-mips.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2006 at 08:21:53PM +0000, Ralf Baechle wrote:
-> On Fri, Nov 24, 2006 at 09:58:16PM +0300, Alexey Dobriyan wrote:
+On Fri, 24 Nov 2006 18:33:47 +0100
+Andi Kleen <ak@suse.de> wrote:
+
+> > Can we 
+> > guarentee it will be inlined though?  I had the feeling that inline was
+> > advisory and if it does not inline then we will get the link failures.
 > 
-> > Andreas, is this correct?
-> > ---------------------------------
-> > SIXP_RX_DCD_MASK is 0x18, so the command below will make cmd 0 always.
-> > This is likely wrong.
-> > 
-> > Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> 
-> This one is already merged.
-> 
-> It's funny how long this bug survived - it's in the kernel since the 6pack
-> driver was first merged that is 2.1 or 2.2 ...
+> It's defined to __attribute__((always_inline)) inline
 
-One more reason to perform more code reviews helped with automated tools.
-We found this one and the rio's one while discussing with Jean Delvare
-about such bugs, and firing a random grep to illustrate how easy it could
-be to spot bugs similar to Alexey's "&&" instead of "&" ...
-
-I think that we should at least take a look at all lines in the pre-processed
-code having both '!' and '&' on the same line. There are a lot of them, but
-divided by a sufficient number of volunteers, we might catch a bunch of them.
-
-BTW, has anyone a good idea on how to make gcc dump the preprocessed files
-for everything it builds ? I mean, just by changing some variables in the
-Makefile.
-
->   Ralf
-
-Cheers,
-Willy
-
+That's an internal implementation detail.  Please use __always_inline

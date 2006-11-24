@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757551AbWKXBhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757498AbWKXBqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757551AbWKXBhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 20:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757552AbWKXBhK
+	id S1757498AbWKXBqm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 20:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757550AbWKXBqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 20:37:10 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:39642
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1757551AbWKXBhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 20:37:08 -0500
-Date: Thu, 23 Nov 2006 17:37:15 -0800 (PST)
-Message-Id: <20061123.173715.64809898.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.19-rc6-mm1: no help text for TCP_MD5SIG_DEBUG
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061123233030.GN3557@stusta.de>
+	Thu, 23 Nov 2006 20:46:19 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27145 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1755348AbWKXBqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 20:46:01 -0500
+Date: Fri, 24 Nov 2006 02:46:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] make proc_pid_io_accounting() static
+Message-ID: <20061124014604.GR3557@stusta.de>
 References: <20061123021703.8550e37e.akpm@osdl.org>
-	<20061123233030.GN3557@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061123021703.8550e37e.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Fri, 24 Nov 2006 00:30:30 +0100
+On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.19-rc5-mm2:
+>...
+> +io-accounting-report-in-procfs.patch
+>...
+>  per-task IO accounting
+>...
 
-> On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-rc5-mm2:
-> >...
-> >  git-net.patch
-> >...
-> >  git trees
-> >...
-> 
-> TCP_MD5SIG_DEBUG lacks a help text.
+proc_pid_io_accounting() can become static.
 
-Thanks for the report Adrian, I'll take care of this.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.19-rc6-mm1/fs/proc/base.c.old	2006-11-24 01:23:55.000000000 +0100
++++ linux-2.6.19-rc6-mm1/fs/proc/base.c	2006-11-24 01:24:06.000000000 +0100
+@@ -1805,7 +1805,7 @@
+ }
+ 
+ #ifdef CONFIG_TASK_IO_ACCOUNTING
+-int proc_pid_io_accounting(struct task_struct *task, char *buffer)
++static int proc_pid_io_accounting(struct task_struct *task, char *buffer)
+ {
+ 	return sprintf(buffer,
+ 			"read_bytes: %llu\n"
+

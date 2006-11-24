@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757537AbWKXA4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757541AbWKXBBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757537AbWKXA4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 19:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757535AbWKXA4H
+	id S1757541AbWKXBBv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 20:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757540AbWKXBBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 19:56:07 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62108 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1757531AbWKXA4E (ORCPT
+	Thu, 23 Nov 2006 20:01:51 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:61628 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1757541AbWKXBBu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 19:56:04 -0500
-Date: Fri, 24 Nov 2006 11:55:28 +1100
-From: David Chinner <dgc@sgi.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Oeser <netdev@axxeo.de>, David Chinner <dgc@sgi.com>,
-       David Miller <davem@davemloft.net>, jesper.juhl@gmail.com,
-       chatz@melbourne.sgi.com, linux-kernel@vger.kernel.org, xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, netdev@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to implicate xfs, scsi, networking, SMP
-Message-ID: <20061124005528.GF11034@melbourne.sgi.com>
-References: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com> <20061122.201013.112290046.davem@davemloft.net> <20061123070837.GV11034@melbourne.sgi.com> <200611231416.03387.netdev@axxeo.de> <1164307020.3147.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164307020.3147.3.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 23 Nov 2006 20:01:50 -0500
+Message-ID: <45664477.4030003@garzik.org>
+Date: Thu, 23 Nov 2006 20:01:43 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+References: <ek2nva$vgk$1@sea.gmane.org> <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr> <20061124004855.GA10937@thunk.org>
+In-Reply-To: <20061124004855.GA10937@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 07:37:00PM +0100, Arjan van de Ven wrote:
-> On Thu, 2006-11-23 at 14:16 +0100, Ingo Oeser wrote:
-> > Hi there,
-> > 
-> > David Chinner schrieb:
-> > > If the softirqs were run on a different stack, then a lot of these
+Theodore Tso wrote:
+> On Thu, Nov 23, 2006 at 01:10:08AM +0100, Jan Engelhardt wrote:
+>> Disk activities are "somewhat predictable", like network traffic, and 
+>> hence are not (or should not - have not checked it) contribute to the 
+>> pool. Note that urandom is the device which _always_ gives you data, and 
+>> when the pool is exhausted, returns pseudorandom data.
 > 
-> softirqs DO run on their own stack!
+> Plesae read the following article before making such assertions:
+> 
+> 	D. Davis, R. Ihaka, P.R. Fenstermacher, "Cryptographic
+> 	Randomness from Air Turbulence in Disk Drives", in Advances in
+> 	Cryptology -- CRYPTO '94 Conference Proceedings, edited by Yvo
+> 	G. Desmedt, pp.114--120. Lecture Notes in Computer Science
+> 	#839. Heidelberg: Springer-Verlag, 1994.
+> 	http://world.std.com/~dtd/random/forward.ps
 
-So they run on a separate stack for 4k stacks on x86?
+Note that the controller hardware in question plays a large role in 
+these things.  Most modern network controllers, and a few recent SATA or 
+SAS controllers, include hardware interrupt mitigation, which can cause 
+interrupts to fire on a timed basis in some load profiles.
 
-They don't run on a separate stack for 8k stacks on x86 -
-Jesper's traces show that - so this may indicate an issue
-with the methodology used to generate the stack overflow
-traces inteh first place. i.e. if 4k stacks use a separate
-stack, then most of the reported overflows are spurious
-and would not normally occur on 4k stack systems..
+Compounding that, both software and hardware interrupt mitigation lead 
+(intentionally) to a marked decrease in overall interrupts, which leads 
+to less entropy even if the interrupt handler is sampling randomness.
 
-Can you confirm this, Arjan?
+IMO there is an overall trend needing-more-entropy-than-you-have for 
+headless network servers.  If you have a hardware RNG, use that and rngd 
+to fill the entropy pool.  If you don't, look into various entropy 
+gathering daemons (audio-entropyd, video-entropyd, egd, and others). 
+You can gather entropy from system stats, open microphones, open video 
+channels, thermal diodes, ...
 
-Also, that means that while XFS is apparently only using <1500 bytes
-of stack through this path according to the static stack checker
-tool, there's more than 2k of extra stack usage that the tool is not
-telling me about. i.e. XFS and whatever is above/below it should
-have a full 4k to work with. I'd really like to know where that
-extra stack space is being used....
+	Jeff
 
-Cheers,
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+

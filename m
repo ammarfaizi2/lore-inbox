@@ -1,184 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934457AbWKXMGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934429AbWKXMGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934457AbWKXMGz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 07:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934469AbWKXMGz
+	id S934429AbWKXMGa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 07:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934457AbWKXMGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 07:06:55 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:61733 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S934457AbWKXMGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 07:06:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=VPFjxOxjUJbxsdlqOpaaSnhs3LWeAY55tlTB1+5AoXHvePUCZx9bwChD8ao/ZA3dolJ3KXeZim+zSod9n34H6y4BS9jbqH4+eQt31gYqfgfxSp063fe+NcBt58VQ/JmfgSQVOHKlr1U1uloERVSNeQchbPj+gfjIsQpvKTEW2I0=
-Message-ID: <4566DF79.6030004@gmail.com>
-Date: Fri, 24 Nov 2006 14:03:05 +0200
-From: Yan Burman <burman.yan@gmail.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, trivial@kernel.org, davem@davemloft.net
-Subject: [PATCH 2.6.19-rc6] sparc64: replace kmalloc+memset with kzalloc
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Nov 2006 07:06:30 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:13549 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S934429AbWKXMG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 07:06:29 -0500
+Date: Fri, 24 Nov 2006 15:05:31 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 1/6] kevent: Description.
+Message-ID: <20061124120531.GC32545@2ka.mipt.ru>
+References: <11641265982190@2ka.mipt.ru> <456621AC.7000009@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <456621AC.7000009@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 15:05:33 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace kmalloc+memset with kzalloc 
+On Thu, Nov 23, 2006 at 02:33:16PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >+ int kevent_commit(int ctl_fd, unsigned int start, 
+> >+ 	unsigned int num, unsigned int over);
+> 
+> I think we can simplify this interface:
+> 
+>    int kevent_commit(int ctl_fd, unsigned int new_tail,
+>                      unsigned int over);
+> 
+> The kernel sets the ring_uidx value to the 'new_tail' value if the tail 
+> pointer would be incremented (module wrap around) and is not higher then 
+> the current front pointer.  The test will be a bit complicated but not 
+> more so than what the current code has to do to check for mistakes.
+> 
+> This approach has the advantage that the commit calls don't have to be 
+> synchronized.  If one thread sets the tail pointer to, say, 10 and 
+> another to 12, then it does not matter whether the first thread is 
+> delayed.  If it will eventually be executed the result is simply a no-op 
+> and since second thread's action supersedes it.
+> 
+> Maybe the current form is even impossible to use with explicit locking 
+> at userlevel.  What if one thread, which is about to call kevent_commit, 
+> if indefinitely delayed.  Then this commit request's value is never 
+> taken into account and the tail pointer is always short of what it 
+> should be.
 
-Signed-off-by: Yan Burman <burman.yan@gmail.com>
+I like this interface, although current one does not allow special
+synchronization in userspace, since it calculates if new commit is in
+the area where previous commit was.
+Will change for the next release.
+ 
+> There is one more thing to consider.  Oftentimes the commit request will 
+> be immediately followed by a kevent_wait call.  It would be good to 
+> merge this pair of calls.  The two parameters new_tail and over could 
+> also be passed to the kevent_wait call and the commit can happen before 
+> the thread looks for new events and eventually goes to sleep.  If this 
+> can be implemented then the kevent_commit syscall by itself might not be 
+> needed at all.  Instead you'd call kevent_wait() and make the maximum 
+> number of events which can be returned zero.
 
-diff -rubp linux-2.6.19-rc5_orig/arch/sparc64/kernel/chmc.c linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/chmc.c
---- linux-2.6.19-rc5_orig/arch/sparc64/kernel/chmc.c	2006-11-09 12:16:22.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/chmc.c	2006-11-11 22:44:04.000000000 +0200
-@@ -341,7 +341,7 @@ static void fetch_decode_regs(struct mct
- 
- static int init_one_mctrl(struct device_node *dp)
- {
--	struct mctrl_info *mp = kmalloc(sizeof(*mp), GFP_KERNEL);
-+	struct mctrl_info *mp = kzalloc(sizeof(*mp), GFP_KERNEL);
- 	int portid = of_getintprop_default(dp, "portid", -1);
- 	struct linux_prom64_registers *regs;
- 	void *pval;
-@@ -349,7 +349,6 @@ static int init_one_mctrl(struct device_
- 
- 	if (!mp)
- 		return -1;
--	memset(mp, 0, sizeof(*mp));
- 	if (portid == -1)
- 		goto fail;
- 
-diff -rubp linux-2.6.19-rc5_orig/arch/sparc64/kernel/isa.c linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/isa.c
---- linux-2.6.19-rc5_orig/arch/sparc64/kernel/isa.c	2006-11-09 12:16:22.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/isa.c	2006-11-11 22:44:04.000000000 +0200
-@@ -72,14 +72,12 @@ static void __init isa_fill_children(str
- 		struct linux_prom_registers *regs;
- 		struct sparc_isa_device *isa_dev;
- 
--		isa_dev = kmalloc(sizeof(*isa_dev), GFP_KERNEL);
-+		isa_dev = kzalloc(sizeof(*isa_dev), GFP_KERNEL);
- 		if (!isa_dev) {
- 			fatal_err("cannot allocate child isa_dev");
- 			prom_halt();
- 		}
- 
--		memset(isa_dev, 0, sizeof(*isa_dev));
--
- 		/* Link it in to parent. */
- 		isa_dev->next = parent_isa_dev->child;
- 		parent_isa_dev->child = isa_dev;
-@@ -104,14 +102,12 @@ static void __init isa_fill_devices(stru
- 		struct linux_prom_registers *regs;
- 		struct sparc_isa_device *isa_dev;
- 
--		isa_dev = kmalloc(sizeof(*isa_dev), GFP_KERNEL);
-+		isa_dev = kzalloc(sizeof(*isa_dev), GFP_KERNEL);
- 		if (!isa_dev) {
- 			printk(KERN_DEBUG "ISA: cannot allocate isa_dev");
- 			return;
- 		}
- 
--		memset(isa_dev, 0, sizeof(*isa_dev));
--
- 		isa_dev->ofdev.node = dp;
- 		isa_dev->ofdev.dev.parent = &isa_br->ofdev.dev;
- 		isa_dev->ofdev.dev.bus = &isa_bus_type;
-@@ -180,14 +176,12 @@ void __init isa_init(void)
- 		pbm = pdev_cookie->pbm;
- 		dp = pdev_cookie->prom_node;
- 
--		isa_br = kmalloc(sizeof(*isa_br), GFP_KERNEL);
-+		isa_br = kzalloc(sizeof(*isa_br), GFP_KERNEL);
- 		if (!isa_br) {
- 			printk(KERN_DEBUG "isa: cannot allocate sparc_isa_bridge");
- 			return;
- 		}
- 
--		memset(isa_br, 0, sizeof(*isa_br));
--
- 		isa_br->ofdev.node = dp;
- 		isa_br->ofdev.dev.parent = &pdev->dev;
- 		isa_br->ofdev.dev.bus = &isa_bus_type;
-diff -rubp linux-2.6.19-rc5_orig/arch/sparc64/kernel/of_device.c linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/of_device.c
---- linux-2.6.19-rc5_orig/arch/sparc64/kernel/of_device.c	2006-11-09 12:16:22.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/of_device.c	2006-11-11 22:44:04.000000000 +0200
-@@ -1007,10 +1007,9 @@ struct of_device* of_platform_device_cre
- {
- 	struct of_device *dev;
- 
--	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return NULL;
--	memset(dev, 0, sizeof(*dev));
- 
- 	dev->dev.parent = parent;
- 	dev->dev.bus = bus;
-diff -rubp linux-2.6.19-rc5_orig/arch/sparc64/kernel/pci_sun4v.c linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/pci_sun4v.c
---- linux-2.6.19-rc5_orig/arch/sparc64/kernel/pci_sun4v.c	2006-11-09 12:16:22.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/arch/sparc64/kernel/pci_sun4v.c	2006-11-11 22:44:04.000000000 +0200
-@@ -798,7 +798,7 @@ static struct pci_ops pci_sun4v_ops = {
- static void pbm_scan_bus(struct pci_controller_info *p,
- 			 struct pci_pbm_info *pbm)
- {
--	struct pcidev_cookie *cookie = kmalloc(sizeof(*cookie), GFP_KERNEL);
-+	struct pcidev_cookie *cookie = kzalloc(sizeof(*cookie), GFP_KERNEL);
- 
- 	if (!cookie) {
- 		prom_printf("%s: Critical allocation failure.\n", pbm->name);
-@@ -806,7 +806,6 @@ static void pbm_scan_bus(struct pci_cont
- 	}
- 
- 	/* All we care about is the PBM. */
--	memset(cookie, 0, sizeof(*cookie));
- 	cookie->pbm = pbm;
- 
- 	pbm->pci_bus = pci_scan_bus(pbm->pci_first_busno, p->pci_ops, pbm);
-@@ -1048,12 +1047,11 @@ static void pci_sun4v_iommu_init(struct 
- 	/* Allocate and initialize the free area map.  */
- 	sz = num_tsb_entries / 8;
- 	sz = (sz + 7UL) & ~7UL;
--	iommu->arena.map = kmalloc(sz, GFP_KERNEL);
-+	iommu->arena.map = kzalloc(sz, GFP_KERNEL);
- 	if (!iommu->arena.map) {
- 		prom_printf("PCI_IOMMU: Error, kmalloc(arena.map) failed.\n");
- 		prom_halt();
- 	}
--	memset(iommu->arena.map, 0, sz);
- 	iommu->arena.limit = num_tsb_entries;
- 
- 	sz = probe_existing_entries(pbm, iommu);
-@@ -1164,24 +1162,20 @@ void sun4v_pci_init(struct device_node *
- 		per_cpu(pci_iommu_batch, i).pglist = (u64 *) page;
- 	}
- 
--	p = kmalloc(sizeof(struct pci_controller_info), GFP_ATOMIC);
-+	p = kzalloc(sizeof(struct pci_controller_info), GFP_ATOMIC);
- 	if (!p)
- 		goto fatal_memory_error;
- 
--	memset(p, 0, sizeof(*p));
--
--	iommu = kmalloc(sizeof(struct pci_iommu), GFP_ATOMIC);
-+	iommu = kzalloc(sizeof(struct pci_iommu), GFP_ATOMIC);
- 	if (!iommu)
- 		goto fatal_memory_error;
- 
--	memset(iommu, 0, sizeof(*iommu));
- 	p->pbm_A.iommu = iommu;
- 
--	iommu = kmalloc(sizeof(struct pci_iommu), GFP_ATOMIC);
-+	iommu = kzalloc(sizeof(struct pci_iommu), GFP_ATOMIC);
- 	if (!iommu)
- 		goto fatal_memory_error;
- 
--	memset(iommu, 0, sizeof(*iommu));
- 	p->pbm_B.iommu = iommu;
- 
- 	p->next = pci_controller_root;
+It _IS_ how previous interface worked.
 
+	EXACTLY!
 
+There was one syscall which committed requested number of events and
+waited when there are new ready events. The only thing it missed, was
+userspace index (it assumed that if userspace waits for something, then
+all previous work is done).
 
-Regards
-Yan Burman
+Ulrich, I'm not going to think for other people all over the world and
+blindly implementing ideas, which in a day or two will be commented as
+redundant, since flow of mind has changed, and they had not enough time
+to check previous version.
+
+I will wait for some time until you and other people made theirs comments 
+on interfaces and release final version in about a week, and now I will
+go to hack netchannels.
+
+	NO INTERFACE CHANGES AFTER THAT DAY. 
+		COMPLETELY.
+
+So, feel free to think about perfect interface anyone will be happy
+with. But please release your thoughts not in form of abstract words,
+but more precisely, at least like in this e-mail, so I could understand
+what _you_ want from _your_ interface.
+
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
+
+-- 
+	Evgeniy Polyakov

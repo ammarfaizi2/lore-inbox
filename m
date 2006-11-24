@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934297AbWKXGCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934438AbWKXGC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934297AbWKXGCD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 01:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934435AbWKXGCD
+	id S934438AbWKXGC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 01:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934437AbWKXGC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 01:02:03 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:65184 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S934297AbWKXGCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 01:02:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=sZ1EFvOLejI9oFqO1YsrqUSPflK0kxFaYQqpO27E1iWvbVbmzx4GpUIKLolPX/4oDbewEqLoMKGOH9iZEry+95orMsoqtVDkNwiaDqS9MRGfy8eAhdyD2RpxyPxq9CWcwNuoxxHrs/WD7hRWyY3fDOsfD+dUE6WTNK4tRPVP2QI=
-Message-ID: <45668ACF.1040101@gmail.com>
-Date: Fri, 24 Nov 2006 15:01:51 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Conke Hu <conke.hu@amd.com>
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
-References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
-In-Reply-To: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Nov 2006 01:02:26 -0500
+Received: from 1wt.eu ([62.212.114.60]:32517 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S934438AbWKXGCZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 01:02:25 -0500
+Date: Fri, 24 Nov 2006 07:02:17 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: atoka <atrockz@gmail.com>
+Cc: kernelnewbies@nl.linux.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel cross compilation error
+Message-ID: <20061124060217.GD577@1wt.eu>
+References: <db74e4d30611232150o36859417q78f688afa3709266@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <db74e4d30611232150o36859417q78f688afa3709266@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Conke Hu wrote:
-> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, AHCI and RAID. Legacy/Native IDE mode is designed for compatibility with some old OS without AHCI driver but looses SATAII/AHCI features such as NCQ. This patch will make SB600 SATA run in AHCI mode even if it was set as IDE mode by system BIOS.
+On Fri, Nov 24, 2006 at 11:20:17AM +0530, atoka wrote:
+> hi everyone,
+>        im a kernel newbie. im using a debian linux(ie ubuntu).i did
+> cross compilation for ia64 on my system which is ia32. Now im trying
+> to cross compile ia64 kernel but im getting some error. before
+> compiling kernel, i did made changes in Makefile to specify my
+> ia64-linux compiler and libraries .
+
+You should not have changed the contents of your makefile but just
+passed it some parameters.
+
+> when i gave make menuconfig command i got following errors
 > 
-> Signed-off-by: conke.hu@amd.com
-> ---------
-> --- linux-2.6.19-rc6-git4/drivers/pci/quirks.c.orig	2006-11-23 19:45:49.000000000 +0800
-> +++ linux-2.6.19-rc6-git4/drivers/pci/quirks.c	2006-11-23 19:34:23.000000000 +0800
-> @@ -795,6 +795,25 @@ static void __init quirk_mediagx_master(
->  	}
->  }
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
-> + 
-> +#if defined(CONFIG_SATA_AHCI) || defined(CONFIG_SATA_AHCI_MODULE)
-> +static void __devinit quirk_sb600_sata(struct pci_dev *pdev)
-> +{
-> +	/* set sb600 sata to ahci mode */
-> +	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
-> +		u8 tmp;
-> +
-> +		pci_read_config_byte(pdev, 0x40, &tmp);
-> +		pci_write_config_byte(pdev, 0x40, tmp|1);
-> +		pci_write_config_byte(pdev, 0x9, 1);
-> +		pci_write_config_byte(pdev, 0xa, 6);
-> +		pci_write_config_byte(pdev, 0x40, tmp);
-> +		
+> root@atoka-desktop:/linux-2.6.18# make ARCH=ia64 menuconfig
+>  HOSTCC  scripts/basic/fixdep
+> scripts/basic/fixdep.c: In function 'use_config':
+> scripts/basic/fixdep.c:204: error: 'PATH_MAX' undeclared (first use in
+> this function)
+> scripts/basic/fixdep.c:204: error: (Each undeclared identifier is
+> reported only once
+> scripts/basic/fixdep.c:204: error: for each function it appears in.)
+> scripts/basic/fixdep.c:204: warning: unused variable 's'
+> scripts/basic/fixdep.c: In function 'parse_dep_file':
+> scripts/basic/fixdep.c:300: error: 'PATH_MAX' undeclared (first use in
+> this function)
+> scripts/basic/fixdep.c:300: warning: unused variable 's'
+> make[1]: *** [scripts/basic/fixdep] Error 1
+> make: *** [scripts_basic] Error 2
 
-Two trailing tabs in the above line.  Please remove those.
+It is because you have changed HOSTCC which is the compiler for the
+host you're building from. Normally, you just have to do something
+like this :
 
-> +		pdev->class = 0x010601;
-> +	}
-> +}
-> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, quirk_sb600_sata);
-> +#endif
->  
->  /*
->   * As per PCI spec, ignore base address registers 0-3 of the IDE controllers
+$ make ARCH=ia64 CC=ia64-gcc menuconfig vmlinux ...
 
-Other than that, Acked-by: Tejun Heo <htejun@gmail.com>
+And BTW, don't build as root, one day you will regret it.
 
--- 
-tejun
+> i tried defining the PATH_MAX macro in fixdep.c to 100, but then it
+> gave error in some other file.
+> Can anyone help me out with this error?
+
+Regards,
+Willy
+

@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757633AbWKXHwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757636AbWKXHy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757633AbWKXHwr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 02:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757630AbWKXHwq
+	id S1757636AbWKXHy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 02:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757637AbWKXHy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 02:52:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16086 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1757628AbWKXHwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 02:52:45 -0500
-Subject: Re: 2.6.19-rc6 : Spontaneous reboots, stack overflows - seems to
-	implicate xfs, scsi, networking, SMP
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Chinner <dgc@sgi.com>
-Cc: Ingo Oeser <netdev@axxeo.de>, David Miller <davem@davemloft.net>,
-       jesper.juhl@gmail.com, chatz@melbourne.sgi.com,
-       linux-kernel@vger.kernel.org, xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       netdev@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20061124005528.GF11034@melbourne.sgi.com>
-References: <9a8748490611211551v2ebe88fel2bcf25af004c338a@mail.gmail.com>
-	 <20061122.201013.112290046.davem@davemloft.net>
-	 <20061123070837.GV11034@melbourne.sgi.com>
-	 <200611231416.03387.netdev@axxeo.de>
-	 <1164307020.3147.3.camel@laptopd505.fenrus.org>
-	 <20061124005528.GF11034@melbourne.sgi.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 24 Nov 2006 08:52:38 +0100
-Message-Id: <1164354759.3147.31.camel@laptopd505.fenrus.org>
+	Fri, 24 Nov 2006 02:54:29 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:63649 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1757634AbWKXHy3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 02:54:29 -0500
+Date: Fri, 24 Nov 2006 10:54:23 +0300
+From: Vitaly Wool <vitalywool@gmail.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: drzeus-mmc@drzeus.cx, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix random SD/MMC card recognition failures on ARM
+ Versatile
+Message-Id: <20061124105423.e799e73e.vitalywool@gmail.com>
+In-Reply-To: <20061123194236.GD8984@flint.arm.linux.org.uk>
+References: <20061123184606.bb203ae6.vitalywool@gmail.com>
+	<20061123160335.GB8984@flint.arm.linux.org.uk>
+	<acd2a5930611231129v3515022al931bec5b04ce27f@mail.gmail.com>
+	<20061123194236.GD8984@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.13; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-24 at 11:55 +1100, David Chinner wrote:
-> On Thu, Nov 23, 2006 at 07:37:00PM +0100, Arjan van de Ven wrote:
-> > On Thu, 2006-11-23 at 14:16 +0100, Ingo Oeser wrote:
-> > > Hi there,
-> > > 
-> > > David Chinner schrieb:
-> > > > If the softirqs were run on a different stack, then a lot of these
-> > 
-> > softirqs DO run on their own stack!
-> 
-> So they run on a separate stack for 4k stacks on x86?
-> 
-> They don't run on a separate stack for 8k stacks on x86 -
-> Jesper's traces show that - so this may indicate an issue
-> with the methodology used to generate the stack overflow
-> traces inteh first place. i.e. if 4k stacks use a separate
-> stack, then most of the reported overflows are spurious
-> and would not normally occur on 4k stack systems..
-> 
-> Can you confirm this, Arjan?
+On Thu, 23 Nov 2006 19:42:36 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-yes there are separate stacks for softirq and hardirq context with 4K
-stacks, but not for 8K stacks.
+> Ah, I see it.  In that case we need to call mmc_stop_data() when
+> we're ending the initial command due to an error.  IOW, like this:
+<snip> 
+
+I'd suggest arranging that in a bit different way. It looks like it works better when MMCIDATACTRL/MMCIMASK1 are cleared after MMCICOMMAND (and I think it makes more sense to clear the command register first, thus we have less change to get spurious interrupts after MMCIMASK1 is set).
+
+diff --git a/drivers/mmc/mmci.c b/drivers/mmc/mmci.c
+index 828503c..afbb63b 100644
+--- a/drivers/mmc/mmci.c
++++ b/drivers/mmc/mmci.c
+@@ -37,11 +37,21 @@ #define DBG(host,fmt,args...)	\
+ 
+ static unsigned int fmax = 515633;
+ 
++static void mmci_stop_data(struct mmci_host *host)
++{
++	writel(0, host->base + MMCIDATACTRL);
++	writel(0, host->base + MMCIMASK1);
++	host->data = NULL;
++}
++
+ static void
+ mmci_request_end(struct mmci_host *host, struct mmc_request *mrq)
+ {
+ 	writel(0, host->base + MMCICOMMAND);
+ 
++	if (host->data)
++		mmci_stop_data(host);
++
+ 	host->mrq = NULL;
+ 	host->cmd = NULL;
+ 
+@@ -57,13 +67,6 @@ mmci_request_end(struct mmci_host *host,
+ 	spin_lock(&host->lock);
+ }
+ 
+-static void mmci_stop_data(struct mmci_host *host)
+-{
+-	writel(0, host->base + MMCIDATACTRL);
+-	writel(0, host->base + MMCIMASK1);
+-	host->data = NULL;
+-}
+-
+ static void mmci_start_data(struct mmci_host *host, struct mmc_data *data)
+ {
+ 	unsigned int datactrl, timeout, irqmask;
+@@ -168,8 +171,6 @@ mmci_data_irq(struct mmci_host *host, st
+ 			flush_dcache_page(host->sg_ptr->page);
+ 	}
+ 	if (status & MCI_DATAEND) {
+-		mmci_stop_data(host);
+-
+ 		if (!data->stop) {
+ 			mmci_request_end(host, data->mrq);
+ 		} else {
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+Vitaly

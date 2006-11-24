@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934441AbWKXGMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934448AbWKXGhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934441AbWKXGMu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 01:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934444AbWKXGMt
+	id S934448AbWKXGhF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 01:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934447AbWKXGhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 01:12:49 -0500
-Received: from gateway.insightbb.com ([74.128.0.19]:57533 "EHLO
-	asav13.insightbb.com") by vger.kernel.org with ESMTP
-	id S934441AbWKXGMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 01:12:49 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AgoXAIYbZkVKhRUUVWdsb2JhbACBX4RBhjMBKw
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH 2/2] input: add to kernel-api docbook
-Date: Fri, 24 Nov 2006 01:12:45 -0500
-User-Agent: KMail/1.9.3
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-References: <20061122151219.e2661828.randy.dunlap@oracle.com>
-In-Reply-To: <20061122151219.e2661828.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 24 Nov 2006 01:37:05 -0500
+Received: from mail.gmx.de ([213.165.64.20]:20707 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S934448AbWKXGhD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 01:37:03 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch] PM: suspend/resume debugging should depend on
+	SOFTWARE_SUSPEND
+From: Mike Galbraith <efault@gmx.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200611232236.58444.rjw@sisk.pl>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	 <20061123133904.GD5561@ucw.cz> <1164317804.6222.11.camel@Homer.simpson.net>
+	 <200611232236.58444.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Fri, 24 Nov 2006 07:39:10 +0100
+Message-Id: <1164350350.6128.9.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611240112.46602.dtor@insightbb.com>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 22 November 2006 18:12, Randy Dunlap wrote:
-> From: Randy Dunlap <randy.dunlap@oracle.com>
+On Thu, 2006-11-23 at 22:36 +0100, Rafael J. Wysocki wrote:
+> On Thursday, 23 November 2006 22:36, Mike Galbraith wrote:
+> > On Thu, 2006-11-23 at 13:39 +0000, Pavel Machek wrote:
+> > > 
+> > > Try that -rt kernel, but turn off dyntick/hires timers. Also try
+> > > hitting keyboard while resuming.
+> > 
+> > Hmm, I'll try that.  Interesting (read odd from my perspective) that the
+> > rt kernel gets much further.  This is pretty hard to look at.
 > 
-> Add input subsystem to kernel-api docbook.
-> Enhance some function and parameter comments.
-> 
+> Is your system an i386?
 
-Applied, thank you Randy.
+Yeah, single P4/HT supermarket box.
 
--- 
-Dmitry
+I tried the dynticks/hires-timers/kbd suggestion, no difference.  It
+still boots in medicated snail mode, and emits a stream of IRQ9: nobody
+cared messages (fasteoi acpi, irqpoll = nogo) while doing so.
+
+	-Mike
+

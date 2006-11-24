@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966227AbWKXWEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966236AbWKXWFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966227AbWKXWEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 17:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966256AbWKXWEU
+	id S966236AbWKXWFG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 17:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966256AbWKXWFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 17:04:20 -0500
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:61121 "EHLO
+	Fri, 24 Nov 2006 17:05:06 -0500
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:26050 "EHLO
 	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S966257AbWKXWES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 17:04:18 -0500
-Date: Fri, 24 Nov 2006 17:04:13 -0500
+	id S966252AbWKXWFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 17:05:01 -0500
+Date: Fri, 24 Nov 2006 17:04:58 -0500
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
@@ -21,8 +21,8 @@ To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
        Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
        systemtap@sources.redhat.com
-Subject: [PATCH 15/16] LTTng 0.6.36 for 2.6.18 : Userspace tracing
-Message-ID: <20061124220413.GP25048@Krystal>
+Subject: [PATCH 16/16] LTTng 0.6.36 for 2.6.18 : Build
+Message-ID: <20061124220458.GQ25048@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -30,518 +30,558 @@ Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 17:03:36 up 93 days, 19:11,  3 users,  load average: 2.50, 1.14, 0.65
+X-Uptime: 17:04:15 up 93 days, 19:12,  3 users,  load average: 1.42, 1.04, 0.64
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Userspace tracing : facility registration and event logging through system
-call.
+Build (Makefile and Kconfig) for markers and LTTng.
 
-patch15-2.6.18-lttng-core-0.6.36-userspace-tracing.diff
+patch16-2.6.18-lttng-core-0.6.36-build.diff
 
 Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
-
 --BEGIN--
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -82,6 +82,7 @@ #include <linux/timer.h>
- #include <linux/hrtimer.h>
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 18
+-EXTRAVERSION =
++EXTRAVERSION =-lttng-0.6.36
+ NAME=Avast! A bilge rat!
  
- #include <asm/processor.h>
-+#include <linux/ltt-facilities.h>
+ # *DOCUMENTATION*
+@@ -303,7 +303,8 @@ # Use LINUXINCLUDE when you must referen
+ # Needed to be compatible with the O= option
+ LINUXINCLUDE    := -Iinclude \
+                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include) \
+-		   -include include/linux/autoconf.h
++		   -include include/linux/autoconf.h \
++		   -include linux/marker.h
  
- struct exec_domain;
- struct futex_pi_state;
-@@ -996,6 +997,9 @@ #endif
- #ifdef	CONFIG_TASK_DELAY_ACCT
- 	struct task_delay_info *delays;
- #endif
-+#ifdef CONFIG_LTT_USERSPACE_GENERIC
-+	ltt_facility_t ltt_facilities[LTT_FAC_PER_PROCESS];
-+#endif //CONFIG_LTT_USERSPACE_GENERIC
- };
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
  
- static inline pid_t process_group(struct task_struct *tsk)
---- a/kernel/sys_ni.c
-+++ b/kernel/sys_ni.c
-@@ -111,6 +111,8 @@ cond_syscall(sys_vm86old);
- cond_syscall(sys_vm86);
- cond_syscall(compat_sys_ipc);
- cond_syscall(compat_sys_sysctl);
-+cond_syscall(sys_ltt_trace_generic);
-+cond_syscall(sys_ltt_register_generic);
+@@ -552,7 +553,7 @@ export mod_strip_cmd
  
- /* arch-specific weak syscall entries */
- cond_syscall(sys_pciconfig_read);
+ 
+ ifeq ($(KBUILD_EXTMOD),)
+-core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
++core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/ ltt/
+ 
+ vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
 --- /dev/null
-+++ b/ltt/ltt-syscall.c
-@@ -0,0 +1,184 @@
-+/******************************************************************************
-+ * ltt-syscall.c
-+ *
-+ * Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ * March 2006
-+ *
-+ * LTT userspace tracing syscalls
-+ */
++++ b/ltt/Kconfig
+@@ -0,0 +1,123 @@
++config LTT
++	bool "Linux Trace Toolkit Instrumentation Support"
++	depends on EXPERIMENTAL
++	select LTT_HEARTBEAT if MIPS
++	select LTT_SYNTHETIC_TSC if MIPS
++	default n
++	help
++	  It is possible for the kernel to log important events to a trace
++	  facility. Doing so, enables the use of the generated traces in order
++	  to reconstruct the dynamic behavior of the kernel, and hence the
++	  whole system.
 +
-+#include <linux/errno.h>
-+#include <linux/syscalls.h>
-+#include <linux/sched.h>
-+#include <linux/ltt-facilities.h>
-+#include <ltt/ltt-tracer.h>
++	  The tracing process contains 4 parts :
++	      1) The logging of events by key parts of the kernel.
++	      2) The tracer that keeps the events in a data buffer (uses
++	         relayfs).
++	      3) A trace daemon that interacts with the tracer and is
++	         notified every time there is a certain quantity of data to
++	         read from the tracer.
++	      4) A trace event data decoder that reads the accumulated data
++	         and formats it in a human-readable format.
 +
-+#include <asm/uaccess.h>
++	  If you say Y, the first component will be built into the kernel.
 +
-+/* User event logging function */
-+static inline int trace_user_event(unsigned int facility_id,
-+		unsigned int event_id,
-+		void __user *data, size_t data_size, int blocking,
-+		int high_priority)
-+{
-+	int ret = 0;
-+	unsigned int index;
-+	struct ltt_channel_struct *channel;
-+	struct ltt_trace_struct *trace;
-+	void *transport_data;
-+	void *buffer = NULL;
-+	size_t real_to_base = 0; /* buffer allocated on arch_size alignment */
-+	size_t *to_base = &real_to_base;
-+	size_t real_to = 0;
-+	size_t *to = &real_to;
-+	size_t real_len = 0;
-+	size_t *len = &real_len;
-+	size_t reserve_size;
-+	size_t slot_size;
-+	u64 tsc;
-+	size_t before_hdr_pad, after_hdr_pad, header_size;
-+	struct user_dbg_data dbg;
++	  For more information on kernel tracing, the trace daemon or the event
++	  decoder, please check the following address :
++	       http://www.opersys.com/ltt
++	  See also the experimental page of the project :
++	       http://ltt.polymtl.ca
 +
-+	dbg.avail_size = 0;
-+	dbg.write = 0;
-+	dbg.read = 0;
++config LTT_TRACER
++	tristate "Linux Trace Toolkit Tracer"
++	depends on LTT
++	default y
++	help
++	  If you enable this option, the Linux Trace Toolkit Tracer will be
++	  either built in the kernel or as module.
 +
-+	if (ltt_traces.num_active_traces == 0)
-+		return 0;
++	  Critical parts of the kernel will call upon the kernel tracing
++	  function. The data is then recorded by the tracer if a trace daemon
++	  is running in user-space and has issued a "start" command.
 +
-+	/* Assume that the padding for alignment starts at a
-+	 * sizeof(void *) address. */
++	  For more information on kernel tracing, the trace daemon or the event
++	  decoder, please check the following address :
++	       http://www.opersys.com/ltt
++	  See also the experimental page of the project :
++	       http://ltt.polymtl.ca
 +
-+	reserve_size = data_size;
++config LTT_RELAY
++	tristate "Linux Trace Toolkit Relay+DebugFS Support"
++	select RELAY
++	select DEBUG_FS
++	depends on LTT
++	depends on LTT_TRACER
++	default y
++	help
++	  Support using relay and debugfs to log the data obtained through LTT.
 +
-+	if (high_priority)
-+		index = GET_CHANNEL_INDEX(processes);
-+	else
-+		index = GET_CHANNEL_INDEX(cpu);
++	  If you don't have special hardware, you almost certainly want
++	  to say Y here.
 +
-+	preempt_disable();
++config LTT_ALIGNMENT
++	bool "Align Linux Trace Toolkit Traces"
++	depends on LTT
++	default y
++	help
++	  This option enables dynamic alignment of data in buffers. The
++	  alignment is made on the smallest size between architecture size
++	  and the size of the value to be written.
 +
-+	if (blocking) {
-+		/* User space requested blocking mode :
-+		 * If one of the active traces has free space below a specific
-+		 * threshold value, we reenable preemption and block. */
-+block_test_begin:
-+		list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+			if (!trace->active)
-+  				continue;
++	  Dynamically calculating the offset of the data has a performance cost,
++	  but it is more efficient on some architectures (especially 64 bits) to
++	  align data than to write it unaligned.
 +
-+			if (trace->ops->user_blocking(trace, index, data_size,
-+							&dbg))
-+ 				goto block_test_begin;
-+		}
-+	}
-+	ltt_nesting[smp_processor_id()]++;
-+	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+		if (!trace->active)
-+			continue;
-+		channel = ltt_get_channel_from_index(trace, index);
-+		slot_size = 0;
-+		buffer = ltt_reserve_slot(trace, channel, &transport_data,
-+			reserve_size, &slot_size, &tsc,
-+			&before_hdr_pad, &after_hdr_pad, &header_size);
-+		if (!buffer) {
-+			if (blocking)
-+				trace->ops->user_errors(trace,
-+					index, data_size, &dbg);
-+			continue; /* buffer full */
-+		}
-+		*to_base = *to = *len = 0;
-+		ltt_write_event_header(trace, channel, buffer,
-+			facility_id, event_id,
-+			reserve_size, before_hdr_pad, tsc);
-+		*to_base += before_hdr_pad + after_hdr_pad + header_size;
-+		/* Hope the user pages are not swapped out. In the rare case
-+		 * where it is, the slot will be zeroed and EFAULT returned. */
-+		if (__copy_from_user_inatomic(buffer+*to_base+*to, data,
-+					data_size))
-+			ret = -EFAULT;	/* Data is garbage in the slot */
-+		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
-+		if (ret != 0)
-+			break;
-+	}
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable_no_resched();
-+	return ret;
-+}
++config LTT_HEARTBEAT
++	bool "Activate Linux Trace Toolkit Heartbeat Timer"
++	depends on LTT
++	default n
++	help
++	  The Linux Trace Toolkit Heartbeat Timer fires at an interval small
++	  enough to guarantee that the 32 bits truncated TSC won't overflow
++	  between two timer execution.
 +
-+asmlinkage long sys_ltt_trace_generic(unsigned int facility_id,
-+		unsigned int event_id,
-+		void __user *data,
-+		size_t data_size,
-+		int blocking,
-+		int high_priority)
-+{
-+	if (!ltt_facility_user_access_ok(facility_id))
-+		return -EPERM;
-+	if (!access_ok(VERIFY_READ, data, data_size))
-+			return -EFAULT;
-+	
-+	return trace_user_event(facility_id, event_id, data, data_size,
-+			blocking, high_priority);
-+}
++config LTT_HEARTBEAT_EVENT
++	bool "Write heartbeat event to shrink traces"
++	depends on LTT_HEARTBEAT
++	default y
++	help
++	  This option makes the heartbeat timer write an event in each tracefile
++	  at an interval that is one tenth of the time it takes to overflow 32
++	  bits at your CPU frequency.
 +
-+asmlinkage long sys_ltt_register_generic(unsigned int __user *facility_id,
-+		const struct user_facility_info __user *info)
-+{
-+	struct user_facility_info kinfo;
-+	int fac_id;
-+	unsigned int i;
++	  If this option is not enabled, 64 bits fields must be used in each
++	  event header to save the full TSC : it can make traces about 1/10
++	  bigger. It is suggested that you enable this option to make more
++	  compact traces.
 +
-+	/* Check if the process has already registered the maximum number of 
-+	 * allowed facilities */
-+	if (current->ltt_facilities[LTT_FAC_PER_PROCESS-1] != 0)
-+		return -EPERM;
-+	
-+	if (copy_from_user(&kinfo, info, sizeof(*info)))
-+		return -EFAULT;
++config LTT_SYNTHETIC_TSC
++	bool "Keep a synthetic cpu timestamp counter"
++	depends on LTT_HEARTBEAT
++	default n
++	help
++	  This option is only useful on archtecture lacking a 64 bits timestamp
++	  counter : it generates a "synthetic" 64 bits timestamp by updating
++	  the 32 MSB at each heartbeat atomically. See kernel/ltt-heartbeat.c
++	  for details.
 +
-+	/* Verify if facility is already registered */
-+	printk(KERN_DEBUG "LTT register generic for %s\n", kinfo.name);
-+	fac_id = ltt_facility_verify(LTT_FACILITY_TYPE_USER,
-+				kinfo.name,
-+				kinfo.num_events,
-+				kinfo.checksum,
-+				kinfo.int_size,
-+				kinfo.long_size,
-+				kinfo.pointer_size,
-+				kinfo.size_t_size,
-+				kinfo.alignment);
-+	
-+	printk(KERN_DEBUG "LTT verify return %d\n", fac_id);
-+	if (fac_id > 0)
-+		goto found;
-+	
-+	fac_id = ltt_facility_register(LTT_FACILITY_TYPE_USER,
-+				kinfo.name,
-+				kinfo.num_events,
-+				kinfo.checksum,
-+				kinfo.int_size,
-+				kinfo.long_size,
-+				kinfo.pointer_size,
-+				kinfo.size_t_size,
-+				kinfo.alignment);
++config LTT_USERSPACE_GENERIC
++	bool "Allow tracing from userspace"
++	depends on LTT_TRACER
++	default y
++	help
++	  This options allows processes to trace through the ltt_trace_generic
++	  system call after they have registered their facilities with
++	  ltt_register_generic.
 +
-+	printk(KERN_DEBUG "LTT register return %d\n", fac_id);
-+	if (fac_id == 0)
-+		return -EPERM;
-+	if (fac_id < 0)
-+		return fac_id;	/* Error */
-+found:
-+	get_task_struct(current->group_leader);
-+	for (i = 0; i < LTT_FAC_PER_PROCESS; i++) {
-+		if (current->group_leader->ltt_facilities[i] == 0) {
-+			current->group_leader->ltt_facilities[i] =
-+				(ltt_facility_t)fac_id;
-+			break;
-+		}
-+	}
-+	put_task_struct(current->group_leader);
-+	/* Write facility_id */
-+	put_user((unsigned int)fac_id, facility_id);
-+	return 0;
-+}
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -38,6 +38,7 @@ #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
- #include <linux/audit.h> /* for audit_free() */
- #include <linux/resource.h>
-+#include <linux/ltt-facilities.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -59,6 +60,17 @@ static void __unhash_process(struct task
- 
- 		list_del_rcu(&p->tasks);
- 		__get_cpu_var(process_counts)--;
-+#ifdef CONFIG_LTT_USERSPACE_GENERIC
-+		{
-+			int i;
-+			for (i = 0; i < LTT_FAC_PER_PROCESS; i++) {
-+				if (p->ltt_facilities[i] == 0)
-+					break;
-+				WARN_ON(ltt_facility_unregister(
-+							p->ltt_facilities[i]));
-+			}
-+		}
-+#endif //CONFIG_LTT_USERSPACE_GENERIC
- 	}
- 	list_del_rcu(&p->thread_group);
- 	remove_parent(p);
-@@ -170,6 +182,7 @@ repeat:
- 	write_unlock_irq(&tasklist_lock);
- 	proc_flush_task(p);
- 	release_thread(p);
-+	MARK(kernel_process_free, "%d", p->pid);
- 	call_rcu(&p->rcu, delayed_put_task_struct);
- 
- 	p = leader;
-@@ -913,6 +926,8 @@ #endif
- 
- 	if (group_dead)
- 		acct_process();
-+	MARK(kernel_process_exit, "%d", tsk->pid);
-+	
- 	exit_sem(tsk);
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
-@@ -1440,6 +1455,8 @@ static long do_wait(pid_t pid, int optio
- 	struct task_struct *tsk;
- 	int flag, retval;
- 
-+	MARK(kernel_process_wait, "%d", pid);
++config LTT_NETLINK_CONTROL
++	tristate "Linux Trace Toolkit Netlink Controller"
++	depends on LTT_TRACER
++	default m
++	help
++	  If you enable this option, the Linux Trace Toolkit Netlink Controller
++	  will be either built in the kernel of as module.
+--- /dev/null
++++ b/ltt/Makefile
+@@ -0,0 +1,12 @@
++#
++# Makefile for the LTT objects.
++#
++obj-$(CONFIG_LTT)			+= ltt-core.o
++obj-$(CONFIG_LTT)			+= ltt-facilities.o
++obj-$(CONFIG_LTT_USERSPACE_GENERIC)	+= ltt-syscall.o
++obj-$(CONFIG_LTT_HEARTBEAT)		+= ltt-heartbeat.o
++obj-$(CONFIG_LTT_TRACER)		+= ltt-tracer.o
++obj-$(CONFIG_LTT_RELAY)			+= ltt-relay.o
++obj-$(CONFIG_LTT_NETLINK_CONTROL)	+= ltt-control.o
 +
- 	add_wait_queue(&current->signal->wait_chldexit,&wait);
- repeat:
- 	/*
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -45,6 +45,7 @@ #include <linux/acct.h>
- #include <linux/cn_proc.h>
- #include <linux/delayacct.h>
- #include <linux/taskstats_kern.h>
-+#include <linux/ltt-facilities.h>
++obj-$(CONFIG_LTT)			+= facilities/
+--- a/arch/alpha/Kconfig
++++ b/arch/alpha/Kconfig
+@@ -630,6 +630,12 @@ source "fs/Kconfig"
  
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -64,6 +65,7 @@ int max_threads;		/* tunable limit on nr
- DEFINE_PER_CPU(unsigned long, process_counts) = 0;
+ source "arch/alpha/oprofile/Kconfig"
  
- __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
-+EXPORT_SYMBOL(tasklist_lock);
- 
- int nr_processes(void)
- {
-@@ -1133,6 +1135,13 @@ #endif
- 	 * of CLONE_PTRACE.
- 	 */
- 	clear_tsk_thread_flag(p, TIF_SYSCALL_TRACE);
-+#ifdef CONFIG_MARKERS
-+	/*
-+	 * Syscall tracing must always be turned on when markers are enabled.
-+	 * Use the syscall audit thread flag for now, as it is never cleared.
-+	 */
-+	set_tsk_thread_flag(p, TIF_SYSCALL_AUDIT);
-+#endif
- #ifdef TIF_SYSCALL_EMU
- 	clear_tsk_thread_flag(p, TIF_SYSCALL_EMU);
- #endif
-@@ -1142,6 +1151,20 @@ #endif
- 	   
- 	p->parent_exec_id = p->self_exec_id;
- 
-+#ifdef CONFIG_LTT_USERSPACE_GENERIC
-+	if (clone_flags & CLONE_THREAD)
-+		memset(p->ltt_facilities, 0, sizeof(p->ltt_facilities));
-+	else {
-+		int i;
-+		for (i = 0; i < LTT_FAC_PER_PROCESS; i++) {
-+			p->ltt_facilities[i] = current->ltt_facilities[i];
-+			if (p->ltt_facilities[i] != 0)
-+				ltt_facility_ref(p->ltt_facilities[i]);
-+		}
-+	}
++menu "Instrumentation Support"
 +
-+#endif //CONFIG_LTT_USERSPACE_GENERIC
-+	
- 	/* ok, now we should be set up.. */
- 	p->exit_signal = (clone_flags & CLONE_THREAD) ? -1 : (clone_flags & CSIGNAL);
- 	p->pdeath_signal = 0;
-@@ -1198,7 +1221,7 @@ #endif
- 		spin_unlock(&current->sighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
- 		retval = -ERESTARTNOINTR;
--		goto bad_fork_cleanup_namespace;
-+		goto bad_fork_cleanup_ltt_facilities;
- 	}
- 
- 	if (clone_flags & CLONE_THREAD) {
-@@ -1251,6 +1274,18 @@ #endif
- 	proc_fork_connector(p);
- 	return p;
- 
-+bad_fork_cleanup_ltt_facilities:
-+#ifdef CONFIG_LTT_USERSPACE_GENERIC
-+		{
-+			int i;
-+			for (i = 0; i < LTT_FAC_PER_PROCESS; i++) {
-+				if (p->ltt_facilities[i] == 0)
-+					break;
-+				WARN_ON(ltt_facility_unregister(
-+							p->ltt_facilities[i]));
-+			}
-+		}
-+#endif //CONFIG_LTT_USERSPACE_GENERIC
- bad_fork_cleanup_namespace:
- 	exit_namespace(p);
- bad_fork_cleanup_keys:
-@@ -1364,6 +1399,9 @@ long do_fork(unsigned long clone_flags,
- 	if (!IS_ERR(p)) {
- 		struct completion vfork;
- 
-+		MARK(kernel_process_fork, "%d %d %d",
-+			current->pid, p->pid, p->tgid);
++source "kernel/Kconfig.marker"
 +
- 		if (clone_flags & CLONE_VFORK) {
- 			p->vfork_done = &vfork;
- 			init_completion(&vfork);
---- a/include/asm-arm/unistd.h
-+++ b/include/asm-arm/unistd.h
-@@ -347,6 +347,8 @@ #define __NR_inotify_rm_watch		(__NR_SYS
- #define __NR_mbind			(__NR_SYSCALL_BASE+319)
- #define __NR_get_mempolicy		(__NR_SYSCALL_BASE+320)
- #define __NR_set_mempolicy		(__NR_SYSCALL_BASE+321)
-+#define	__NR_ltt_trace_generic		(__NR_SYSCALL_BASE+322)
-+#define	__NR_ltt_register_generic	(__NR_SYSCALL_BASE+323)
- 
- /*
-  * The following SWIs are ARM private.
---- a/include/asm-i386/unistd.h
-+++ b/include/asm-i386/unistd.h
-@@ -323,10 +323,12 @@ #define __NR_sync_file_range	314
- #define __NR_tee		315
- #define __NR_vmsplice		316
- #define __NR_move_pages		317
-+#define __NR_ltt_trace_generic	318
-+#define __NR_ltt_register_generic	319
- 
- #ifdef __KERNEL__
- 
--#define NR_syscalls 318
-+#define NR_syscalls 320
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
---- a/include/asm-mips/unistd.h
-+++ b/include/asm-mips/unistd.h
-@@ -329,16 +329,18 @@ #define __NR_sync_file_range		(__NR_Linu
- #define __NR_tee			(__NR_Linux + 306)
- #define __NR_vmsplice			(__NR_Linux + 307)
- #define __NR_move_pages			(__NR_Linux + 308)
-+#define	__NR_ltt_trace_generic		(__NR_Linux + 309)
-+#define	__NR_ltt_register_generic	(__NR_Linux + 310)
- 
- /*
-  * Offset of the last Linux o32 flavoured syscall
-  */
--#define __NR_Linux_syscalls		308
-+#define __NR_Linux_syscalls		310
- 
- #endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
- 
- #define __NR_O32_Linux			4000
--#define __NR_O32_Linux_syscalls		308
-+#define __NR_O32_Linux_syscalls		310
- 
- #if _MIPS_SIM == _MIPS_SIM_ABI64
- 
-@@ -614,16 +616,18 @@ #define __NR_sync_file_range		(__NR_Linu
- #define __NR_tee			(__NR_Linux + 265)
- #define __NR_vmsplice			(__NR_Linux + 266)
- #define __NR_move_pages			(__NR_Linux + 267)
-+#define	__NR_ltt_trace_generic		(__NR_Linux + 268)
-+#define	__NR_ltt_register_generic	(__NR_Linux + 269)
- 
- /*
-  * Offset of the last Linux 64-bit flavoured syscall
-  */
--#define __NR_Linux_syscalls		267
-+#define __NR_Linux_syscalls		269
- 
- #endif /* _MIPS_SIM == _MIPS_SIM_ABI64 */
- 
- #define __NR_64_Linux			5000
--#define __NR_64_Linux_syscalls		267
-+#define __NR_64_Linux_syscalls		269
- 
- #if _MIPS_SIM == _MIPS_SIM_NABI32
- 
-@@ -903,16 +907,19 @@ #define __NR_sync_file_range		(__NR_Linu
- #define __NR_tee			(__NR_Linux + 269)
- #define __NR_vmsplice			(__NR_Linux + 270)
- #define __NR_move_pages			(__NR_Linux + 271)
-+#define	__NR_ltt_trace_generic		(__NR_Linux + 272)
-+#define	__NR_ltt_register_generic	(__NR_Linux + 273)
++endmenu
 +
+ source "arch/alpha/Kconfig.debug"
  
- /*
-  * Offset of the last N32 flavoured syscall
-  */
--#define __NR_Linux_syscalls		271
-+#define __NR_Linux_syscalls		273
+ source "security/Kconfig"
+--- a/arch/cris/Kconfig
++++ b/arch/cris/Kconfig
+@@ -183,6 +183,12 @@ source "sound/Kconfig"
  
- #endif /* _MIPS_SIM == _MIPS_SIM_NABI32 */
+ source "drivers/usb/Kconfig"
  
- #define __NR_N32_Linux			6000
--#define __NR_N32_Linux_syscalls		271
-+#define __NR_N32_Linux_syscalls		273
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/cris/Kconfig.debug"
  
- #ifdef __KERNEL__
+ source "security/Kconfig"
+--- a/arch/frv/Kconfig
++++ b/arch/frv/Kconfig
+@@ -349,6 +349,12 @@ source "drivers/Kconfig"
  
---- a/include/asm-powerpc/unistd.h
-+++ b/include/asm-powerpc/unistd.h
-@@ -323,10 +323,12 @@ #define __NR_fchmodat		297
- #define __NR_faccessat		298
- #define __NR_get_robust_list	299
- #define __NR_set_robust_list	300
-+#define __NR_ltt_trace_generic	301
-+#define __NR_ltt_register_generic	302
+ source "fs/Kconfig"
  
- #ifdef __KERNEL__
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/frv/Kconfig.debug"
  
--#define __NR_syscalls		301
-+#define __NR_syscalls		303
+ source "security/Kconfig"
+--- a/arch/h8300/Kconfig
++++ b/arch/h8300/Kconfig
+@@ -197,6 +197,12 @@ endmenu
  
- #define __NR__exit __NR_exit
- #define NR_syscalls	__NR_syscalls
---- a/include/asm-powerpc/systbl.h
-+++ b/include/asm-powerpc/systbl.h
-@@ -304,3 +304,5 @@ SYSCALL_SPU(fchmodat)
- SYSCALL_SPU(faccessat)
- COMPAT_SYS_SPU(get_robust_list)
- COMPAT_SYS_SPU(set_robust_list)
-+SYSCALL(ltt_trace_generic)
-+SYSCALL(ltt_register_generic)
---- a/include/asm-x86_64/unistd.h
-+++ b/include/asm-x86_64/unistd.h
-@@ -619,10 +619,14 @@ #define __NR_vmsplice		278
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages		279
- __SYSCALL(__NR_move_pages, sys_move_pages)
-+#define __NR_ltt_trace_generic		280
-+__SYSCALL(__NR_ltt_trace_generic,	sys_ltt_trace_generic)
-+#define __NR_ltt_register_generic		281
-+__SYSCALL(__NR_ltt_register_generic,	sys_ltt_register_generic)
+ source "fs/Kconfig"
  
- #ifdef __KERNEL__
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/h8300/Kconfig.debug"
  
--#define __NR_syscall_max __NR_move_pages
-+#define __NR_syscall_max __NR_ltt_register_generic
+ source "security/Kconfig"
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -1138,6 +1138,11 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
++source "ltt/Kconfig"
++
+ endmenu
  
- #ifndef __NO_STUBS
+ source "arch/i386/Kconfig.debug"
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -521,6 +521,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
+ endmenu
  
+ source "arch/ia64/Kconfig.debug"
+--- a/arch/m32r/Kconfig
++++ b/arch/m32r/Kconfig
+@@ -386,6 +386,12 @@ source "fs/Kconfig"
+ 
+ source "arch/m32r/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/m32r/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/m68k/Kconfig
++++ b/arch/m68k/Kconfig
+@@ -652,6 +652,12 @@ endmenu
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/m68k/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/m68knommu/Kconfig
++++ b/arch/m68knommu/Kconfig
+@@ -661,6 +661,12 @@ source "drivers/Kconfig"
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/m68knommu/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/ppc/Kconfig
++++ b/arch/ppc/Kconfig
+@@ -1416,8 +1416,20 @@ source "lib/Kconfig"
+ 
+ source "arch/powerpc/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/ppc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+ 
+ source "crypto/Kconfig"
++
++menu "Instrumentation Support"
++
++source "ltt/Kconfig"
++
++endmenu
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -1065,6 +1065,11 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
++source "ltt/Kconfig"
++  
+ endmenu
+ 
+ source "arch/powerpc/Kconfig.debug"
+--- a/arch/parisc/Kconfig
++++ b/arch/parisc/Kconfig
+@@ -255,6 +255,12 @@ source "fs/Kconfig"
+ 
+ source "arch/parisc/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/parisc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -905,6 +905,14 @@ source "fs/Kconfig"
+ 
+ source "arch/arm/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++source "ltt/Kconfig"
++
++endmenu
++
+ source "arch/arm/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/arm26/Kconfig
++++ b/arch/arm26/Kconfig
+@@ -232,6 +232,12 @@ source "drivers/misc/Kconfig"
+ 
+ source "drivers/usb/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/arm26/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -2055,6 +2055,12 @@ source "fs/Kconfig"
+ 
+ source "arch/mips/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/mips/Kconfig.debug"
+ 
+ source "security/Kconfig"
+@@ -2062,3 +2068,9 @@ source "security/Kconfig"
+ source "crypto/Kconfig"
+ 
+ source "lib/Kconfig"
++
++menu "Instrumentation Support"
++
++source "ltt/Kconfig"
++
++endmenu
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -489,6 +489,12 @@ source "fs/Kconfig"
+ 
+ source "arch/s390/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/s390/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/sh64/Kconfig
++++ b/arch/sh64/Kconfig
+@@ -276,6 +276,12 @@ source "fs/Kconfig"
+ 
+ source "arch/sh64/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/sh64/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -644,6 +644,12 @@ source "fs/Kconfig"
+ 
+ source "arch/sh/oprofile/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/sh/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/sparc64/Kconfig
++++ b/arch/sparc64/Kconfig
+@@ -427,6 +427,9 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
+ endmenu
+ 
+ source "arch/sparc64/Kconfig.debug"
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -289,6 +289,12 @@ endmenu
+ 
+ source "fs/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/sparc/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/um/Kconfig
++++ b/arch/um/Kconfig
+@@ -312,4 +312,10 @@ config INPUT
+ 	bool
+ 	default n
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/um/Kconfig.debug"
+--- a/arch/v850/Kconfig
++++ b/arch/v850/Kconfig
+@@ -324,6 +324,12 @@ source "sound/Kconfig"
+ 
+ source "drivers/usb/Kconfig"
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/v850/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -251,6 +251,12 @@ config EMBEDDED_RAMDISK_IMAGE
+ 	  provide one yourself.
+ endmenu
+ 
++menu "Instrumentation Support"
++
++source "kernel/Kconfig.marker"
++
++endmenu
++
+ source "arch/xtensa/Kconfig.debug"
+ 
+ source "security/Kconfig"
+--- a/arch/x86_64/Kconfig
++++ b/arch/x86_64/Kconfig
+@@ -650,6 +650,11 @@ config KPROBES
+ 	  a probepoint and specifies the callback.  Kprobes is useful
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
++
++source "kernel/Kconfig.marker"
++
++source "ltt/Kconfig"
++
+ endmenu
+ 
+ source "arch/x86_64/Kconfig.debug"
 --END--
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg

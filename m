@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757677AbWKXLH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757679AbWKXLLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757677AbWKXLH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 06:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757676AbWKXLH1
+	id S1757679AbWKXLLM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 06:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757682AbWKXLLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 06:07:27 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11700 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1757589AbWKXLH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 06:07:26 -0500
-Date: Fri, 24 Nov 2006 11:13:13 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Conke Hu <conke.hu@amd.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       arjan@infradead.org
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
-Message-ID: <20061124111313.5ec0a599@localhost.localdomain>
-In-Reply-To: <456699CA.9060904@gmail.com>
-References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>
-	<45668ACF.1040101@gmail.com>
-	<456699CA.9060904@gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Nov 2006 06:11:12 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:22676 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S1757678AbWKXLLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 06:11:11 -0500
+Message-ID: <4566D349.8080004@scientia.net>
+Date: Fri, 24 Nov 2006 12:11:05 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: unexplainable read errors, copy/diff-issue
+References: <4553DD90.1090604@scientia.net> <20061110135649.16cccca0.vsu@altlinux.ru>
+In-Reply-To: <20061110135649.16cccca0.vsu@altlinux.ru>
+Content-Type: multipart/mixed;
+ boundary="------------060003030808060109070007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Unlike Jmicron's case, this doesn't affect PCI bus scan.  Actually, it 
-> does change class code but that's not as disruptive as Jmicron's case 
-> and as long as ahci ignores class code, it doesn't really matter. 
-> Driver can be chosen by changing loading order - this is both plus and 
-> minus.
+This is a multi-part message in MIME format.
+--------------060003030808060109070007
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The load order is basically undefined. You want AHCI so we should do
-this early. That means either putting the same gunk all over the kernel
-(drivers/ide, drivers/ata/*ati* drivers/ata/ahci) or in one place.
- 
-> * As Arjan pointed out, that unlock-modify-lock sequence should be done 
-> on resume too.  
+Hi again,...
+The issue still exists an until now I (or Tyan or Hitachi or Nvidia)
+hasn't found any solution.
 
-The infrastructure for this is already handled by the pci resume quirk
-patches I sent. 
+Could you please tell me if the sata_nv driver uses Native Command
+Queueing (NCQ)?
+This could perhaps help me to further trace the problem down, although
+this is not very likely as the issue appeard on IDE disks, too, which
+shouldn't use NCQ ;)
+
+Thanks,
+Chris.
+
+--------------060003030808060109070007
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------060003030808060109070007--

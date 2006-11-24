@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757636AbWKXHy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757646AbWKXIQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757636AbWKXHy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 02:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757637AbWKXHy3
+	id S1757646AbWKXIQV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 03:16:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757642AbWKXIQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 02:54:29 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:63649 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1757634AbWKXHy3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 02:54:29 -0500
-Date: Fri, 24 Nov 2006 10:54:23 +0300
-From: Vitaly Wool <vitalywool@gmail.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: drzeus-mmc@drzeus.cx, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix random SD/MMC card recognition failures on ARM
- Versatile
-Message-Id: <20061124105423.e799e73e.vitalywool@gmail.com>
-In-Reply-To: <20061123194236.GD8984@flint.arm.linux.org.uk>
-References: <20061123184606.bb203ae6.vitalywool@gmail.com>
-	<20061123160335.GB8984@flint.arm.linux.org.uk>
-	<acd2a5930611231129v3515022al931bec5b04ce27f@mail.gmail.com>
-	<20061123194236.GD8984@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.13; i486-pc-linux-gnu)
+	Fri, 24 Nov 2006 03:16:21 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:37092 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1755791AbWKXIQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 03:16:20 -0500
+Date: Fri, 24 Nov 2006 00:14:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, Jeff Garzik <jeff@garzik.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org
+Subject: Re: [take25 1/6] kevent: Description.
+Message-Id: <20061124001412.371ec4e7.akpm@osdl.org>
+In-Reply-To: <45664160.6060504@cosmosbay.com>
+References: <11641265982190@2ka.mipt.ru>
+	<456621AC.7000009@redhat.com>
+	<45662522.9090101@garzik.org>
+	<45663298.7000108@redhat.com>
+	<45664160.6060504@cosmosbay.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 19:42:36 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Fri, 24 Nov 2006 01:48:32 +0100
+Eric Dumazet <dada1@cosmosbay.com> wrote:
 
-> Ah, I see it.  In that case we need to call mmc_stop_data() when
-> we're ending the initial command due to an error.  IOW, like this:
-<snip> 
+> > The alternative is the sorry state we have now.  In nscd, for instance, 
+> > we have one single thread waiting for incoming connections and it then 
+> > has to wake up a worker thread to handle the processing.  This is done 
+> > because we cannot "park" all threads in the accept() call since when a 
+> > new connection is announced _all_ the threads are woken.  With the new 
+> > event handling this wouldn't be the case, one thread only is woken and 
+> > we don't have to wake worker threads.  All threads can be worker threads.
+> 
+> Having one specialized thread handling the distribution of work to worker 
+> threads is better most of the time.
 
-I'd suggest arranging that in a bit different way. It looks like it works better when MMCIDATACTRL/MMCIMASK1 are cleared after MMCICOMMAND (and I think it makes more sense to clear the command register first, thus we have less change to get spurious interrupts after MMCIMASK1 is set).
+It might be now.  Think "commodity 128-way".  Your single distribution thread
+will run out of steam.
 
-diff --git a/drivers/mmc/mmci.c b/drivers/mmc/mmci.c
-index 828503c..afbb63b 100644
---- a/drivers/mmc/mmci.c
-+++ b/drivers/mmc/mmci.c
-@@ -37,11 +37,21 @@ #define DBG(host,fmt,args...)	\
- 
- static unsigned int fmax = 515633;
- 
-+static void mmci_stop_data(struct mmci_host *host)
-+{
-+	writel(0, host->base + MMCIDATACTRL);
-+	writel(0, host->base + MMCIMASK1);
-+	host->data = NULL;
-+}
-+
- static void
- mmci_request_end(struct mmci_host *host, struct mmc_request *mrq)
- {
- 	writel(0, host->base + MMCICOMMAND);
- 
-+	if (host->data)
-+		mmci_stop_data(host);
-+
- 	host->mrq = NULL;
- 	host->cmd = NULL;
- 
-@@ -57,13 +67,6 @@ mmci_request_end(struct mmci_host *host,
- 	spin_lock(&host->lock);
- }
- 
--static void mmci_stop_data(struct mmci_host *host)
--{
--	writel(0, host->base + MMCIDATACTRL);
--	writel(0, host->base + MMCIMASK1);
--	host->data = NULL;
--}
--
- static void mmci_start_data(struct mmci_host *host, struct mmc_data *data)
- {
- 	unsigned int datactrl, timeout, irqmask;
-@@ -168,8 +171,6 @@ mmci_data_irq(struct mmci_host *host, st
- 			flush_dcache_page(host->sg_ptr->page);
- 	}
- 	if (status & MCI_DATAEND) {
--		mmci_stop_data(host);
--
- 		if (!data->stop) {
- 			mmci_request_end(host, data->mrq);
- 		} else {
+What Ulrich is proposing is faster.  This is a new interface.  Let's design
+it to be fast.
 
-
-Vitaly

@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757736AbWKXNJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757762AbWKXN3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757736AbWKXNJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 08:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757741AbWKXNJe
+	id S1757762AbWKXN3M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 08:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757764AbWKXN3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 08:09:34 -0500
-Received: from bill.weihenstephan.org ([82.135.35.21]:63714 "EHLO
-	bill.weihenstephan.org") by vger.kernel.org with ESMTP
-	id S1757735AbWKXNJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 08:09:33 -0500
-From: Juergen Beisert <juergen127@kreuzholzen.de>
-Organization: Privat
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH 001/001] i386/pci: fix nibble permutation and add Cyrix 5530 IRQ router
-Date: Fri, 24 Nov 2006 14:09:30 +0100
-User-Agent: KMail/1.9.4
+	Fri, 24 Nov 2006 08:29:12 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52165 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1757761AbWKXN3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 08:29:11 -0500
+Date: Fri, 24 Nov 2006 13:33:31 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Martin A. Fink" <fink@mpe.mpg.de>
 Cc: linux-kernel@vger.kernel.org
-References: <200611241144.06267.juergen127@kreuzholzen.de> <20061124114156.1b02cf2e@localhost.localdomain>
-In-Reply-To: <20061124114156.1b02cf2e@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: SATA Performance with Intel ICH6
+Message-ID: <20061124133331.6bf0d7cc@localhost.localdomain>
+In-Reply-To: <200611241407.01210.fink@mpe.mpg.de>
+References: <200611241407.01210.fink@mpe.mpg.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611241409.30546.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Fri, 24 Nov 2006 14:07:01 +0100
+"Martin A. Fink" <fink@mpe.mpg.de> wrote:
 
-On Friday 24 November 2006 12:41, Alan wrote:
-> On Fri, 24 Nov 2006 11:44:05 +0100
->
-> > Cyrix 5520 and Cyrix 5530 do interrupt routing in the same way. But the
-> > (pirq-1)^1 expression to set a route always sets the wrong nibble, so
-> > INTA/INTB and INTC/INTD are permuted and do not work as expected.
-> >
-> > Signed-off-by: Juergen Beisert <juergen.beisert@weihenstephan.org>
->
-> NAK
->
-> This will then break other boards. As far as I can tell there is no
-> "correct" answer here for 5530 based hardware. The existing setup makes
-> most random CS5520/30 based PC systems like the Palmax laptops work if the
-> irq router is used, your change will break them
+> If I understand the design of this chipset correctly, then I would have
+> expected, that the CPU needs to do only few work, instead I found out, that
+> writing to disk seems to be really hard work for the CPU.
 
-Hmmmm, as I understand the source, it let the routing register entries 
-unchanged if the BIOS did it before. This is why it (IMHO) works. But if this 
-routine tries to set a new route it fails due to it writes the wrong register 
-nibble. But maybe I'm wrong, I will read the source again (and try to get a 
-CS5520 datasheet).
+It has some work to do - the amount in question depends upon the file
+system and device drivers in use. For very high throughput read up on
+the O_DIRECT feature.
 
-> Given the choice between LinuxBIOS and the rest of the world then the
-> rest of the world needs to win.
+> My final aim is to get around 140MB/s of data from 3 different Gigabit
+> Ethernet cards and store it on 3 harddisk drives that perform 50MB/s.
+> >From the SATA bus side there should be no problem. Each of the 4 SATAs on
+> this ICH6 chipset are capable of 150MB/s.
 
-ACK. :-)
+I doubt an ICH6 has the total memory bandwidth to achieve that to be
+honest, but with PCI-E maybe you can.
+ 
+> So what makes my CPU that slow? Is it a hardware problem or a problem of
+> SATA driver of my operating system?
 
-Juergen
+You don't give anything like enough information to even guess this. What
+controller, what disks, what driver, what kernel version ?
+
+> By the way: I'm working with SuSE Linux 9.2 on a Dell Desktop PC, 1GB RAM
+
+For vendor kernels, especially older ones it is probably best to ask the
+vendor first.
+
+Alan
+

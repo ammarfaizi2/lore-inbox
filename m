@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934450AbWKXGwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934459AbWKXHFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934450AbWKXGwM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 01:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934451AbWKXGwM
+	id S934459AbWKXHFy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 02:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934460AbWKXHFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 01:52:12 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:58895 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S934450AbWKXGwL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 01:52:11 -0500
-Date: Fri, 24 Nov 2006 07:52:09 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Simple script that locks up my box with recent kernels
-Message-ID: <20061124065209.GX4999@kernel.dk>
-References: <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> <9a8748490611220304y5fc1b90ande7aec9a2e2b4997@mail.gmail.com> <20061122110740.GA8055@kernel.dk> <200611240052.13719.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611240052.13719.jesper.juhl@gmail.com>
+	Fri, 24 Nov 2006 02:05:54 -0500
+Received: from nz-out-0102.google.com ([64.233.162.204]:47675 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S934459AbWKXHFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 02:05:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=K1RYf9xyDDIBhqWfuqvFXaDq1kapHfSzVznfASKnRYslvV231DNkDNP8ZRpJFqRW42mvi653DLvMh1phob+FkxCTzBb+xlvoF1uOndbDbFBXPSCLpt35IaszcW00f861N+HLyScJPfUAutMv5SFQeO5kb+YZ/czgfKHkll6fl4Y=
+Message-ID: <456699CA.9060904@gmail.com>
+Date: Fri, 24 Nov 2006 16:05:46 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: Conke Hu <conke.hu@amd.com>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       arjan@infradead.org
+Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com> <45668ACF.1040101@gmail.com>
+In-Reply-To: <45668ACF.1040101@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24 2006, Jesper Juhl wrote:
-> > Does the box survive io intensive workloads? 
-> 
-> It seems to. It does get sluggish as hell when there is lots of disk I/O but
-> it seems to be able to survive.  
-> I'll try some more, with some IO benchmarks + various other stuff to see 
-> if I can get it to die that way.
+Tejun Heo wrote:
+> Conke Hu wrote:
+>> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, 
+>> AHCI and RAID. Legacy/Native IDE mode is designed for compatibility 
+>> with some old OS without AHCI driver but looses SATAII/AHCI features 
+>> such as NCQ. This patch will make SB600 SATA run in AHCI mode even if 
+>> it was set as IDE mode by system BIOS.
+[--snip--]
+> Other than that, Acked-by: Tejun Heo <htejun@gmail.com>
 
-Just wondering if you have a marginal powersupply, perhaps.
+At the second thought, I think this should be done in 
+ahci_init_controller().
 
-> > Have you tried using net or 
-> > serial console to see if it spits out any info before it crashes?
-> 
-> Lacking a second box at the moment, so that's not an option currently :(
+* Unlike Jmicron's case, this doesn't affect PCI bus scan.  Actually, it 
+does change class code but that's not as disruptive as Jmicron's case 
+and as long as ahci ignores class code, it doesn't really matter. 
+Driver can be chosen by changing loading order - this is both plus and 
+minus.
 
-It's likely a requirement to get any further with this issue, I'm
-afraid. Nobody can debug this thing blind folded.
+* As Arjan pointed out, that unlock-modify-lock sequence should be done 
+on resume too.  ahci_init_controller() is the right place for such 
+stuff.  This chip is going into notebooks, right?
 
 -- 
-Jens Axboe
-
+tejun

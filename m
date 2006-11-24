@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934448AbWKXGhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934450AbWKXGwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934448AbWKXGhF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 01:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934447AbWKXGhF
+	id S934450AbWKXGwM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 01:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934451AbWKXGwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 01:37:05 -0500
-Received: from mail.gmx.de ([213.165.64.20]:20707 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S934448AbWKXGhD (ORCPT
+	Fri, 24 Nov 2006 01:52:12 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:58895 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S934450AbWKXGwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 01:37:03 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] PM: suspend/resume debugging should depend on
-	SOFTWARE_SUSPEND
-From: Mike Galbraith <efault@gmx.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
+	Fri, 24 Nov 2006 01:52:11 -0500
+Date: Fri, 24 Nov 2006 07:52:09 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200611232236.58444.rjw@sisk.pl>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com>
-	 <20061123133904.GD5561@ucw.cz> <1164317804.6222.11.camel@Homer.simpson.net>
-	 <200611232236.58444.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Fri, 24 Nov 2006 07:39:10 +0100
-Message-Id: <1164350350.6128.9.camel@Homer.simpson.net>
+Subject: Re: Simple script that locks up my box with recent kernels
+Message-ID: <20061124065209.GX4999@kernel.dk>
+References: <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com> <9a8748490611220304y5fc1b90ande7aec9a2e2b4997@mail.gmail.com> <20061122110740.GA8055@kernel.dk> <200611240052.13719.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611240052.13719.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-23 at 22:36 +0100, Rafael J. Wysocki wrote:
-> On Thursday, 23 November 2006 22:36, Mike Galbraith wrote:
-> > On Thu, 2006-11-23 at 13:39 +0000, Pavel Machek wrote:
-> > > 
-> > > Try that -rt kernel, but turn off dyntick/hires timers. Also try
-> > > hitting keyboard while resuming.
-> > 
-> > Hmm, I'll try that.  Interesting (read odd from my perspective) that the
-> > rt kernel gets much further.  This is pretty hard to look at.
+On Fri, Nov 24 2006, Jesper Juhl wrote:
+> > Does the box survive io intensive workloads? 
 > 
-> Is your system an i386?
+> It seems to. It does get sluggish as hell when there is lots of disk I/O but
+> it seems to be able to survive.  
+> I'll try some more, with some IO benchmarks + various other stuff to see 
+> if I can get it to die that way.
 
-Yeah, single P4/HT supermarket box.
+Just wondering if you have a marginal powersupply, perhaps.
 
-I tried the dynticks/hires-timers/kbd suggestion, no difference.  It
-still boots in medicated snail mode, and emits a stream of IRQ9: nobody
-cared messages (fasteoi acpi, irqpoll = nogo) while doing so.
+> > Have you tried using net or 
+> > serial console to see if it spits out any info before it crashes?
+> 
+> Lacking a second box at the moment, so that's not an option currently :(
 
-	-Mike
+It's likely a requirement to get any further with this issue, I'm
+afraid. Nobody can debug this thing blind folded.
+
+-- 
+Jens Axboe
 

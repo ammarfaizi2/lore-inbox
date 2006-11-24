@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757641AbWKXJkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757631AbWKXJlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757641AbWKXJkP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 04:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757631AbWKXJkP
+	id S1757631AbWKXJlL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 04:41:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757661AbWKXJlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 04:40:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24283 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757630AbWKXJkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 04:40:12 -0500
-Subject: [GFS2 & DLM] Pull request
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 24 Nov 2006 09:42:56 +0000
-Message-Id: <1164361376.3392.148.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Fri, 24 Nov 2006 04:41:11 -0500
+Received: from nz-out-0102.google.com ([64.233.162.200]:56005 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1757643AbWKXJlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 04:41:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R23lKazIWanQbg5BPUYOdRbIWoagaYxriAEobwYAFN0A1cnhM+D2OZAAuOkIY7MRIiUskB7s/vvSx8TzqOKYrqaubFeUKYECHaxmKtnLvO+YnkUPIXHB4VQeF+vYgCPO38h4afjBxytdL2X+/Cq33zCaKMSIac2HIBr9v7fiKio=
+Message-ID: <9a8748490611240141o4d285317h3c1e2110f515e141@mail.gmail.com>
+Date: Fri, 24 Nov 2006 10:41:08 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Jens Axboe" <jens.axboe@oracle.com>
+Subject: Re: Simple script that locks up my box with recent kernels
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20061124065209.GX4999@kernel.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com>
+	 <9a8748490611220304y5fc1b90ande7aec9a2e2b4997@mail.gmail.com>
+	 <20061122110740.GA8055@kernel.dk>
+	 <200611240052.13719.jesper.juhl@gmail.com>
+	 <20061124065209.GX4999@kernel.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 24/11/06, Jens Axboe <jens.axboe@oracle.com> wrote:
+> On Fri, Nov 24 2006, Jesper Juhl wrote:
+> > > Does the box survive io intensive workloads?
+> >
+> > It seems to. It does get sluggish as hell when there is lots of disk I/O but
+> > it seems to be able to survive.
+> > I'll try some more, with some IO benchmarks + various other stuff to see
+> > if I can get it to die that way.
+>
+> Just wondering if you have a marginal powersupply, perhaps.
+>
+It is a possibility, but I doubt it, since if I use a 2.6.17.x kernel
+then things are rock solid and I can't cause a lockup even if I leave
+my box building kernels in the background for days.
 
-Please consider pulling the following GFS2 & DLM bug fixes. The DLM fixes have
-all been very well tested and in addition have been in -mm for some time. The
-GFS2 fixes are both trivial "one liners" and have also been in -mm for a little
-while,
+> > > Have you tried using net or
+> > > serial console to see if it spits out any info before it crashes?
+> >
+> > Lacking a second box at the moment, so that's not an option currently :(
+>
+> It's likely a requirement to get any further with this issue, I'm
+> afraid. Nobody can debug this thing blind folded.
+>
+I'll see if I can get my hands on a second box.
 
-Steve.
-
-The following changes since commit 1abbfb412b1610ec3a7ec0164108cee01191d9f5:
-  Mel Gorman:
-        x86_64: fix bad page state in process 'swapper'
-
-are found in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-fixes.git
-
-David Teigland:
-      [DLM] res_recover_locks_count not reset when recover_locks is aborted
-      [DLM] status messages ping-pong between unmounted nodes
-      [DLM] fix requestqueue race
-      [DLM] fix aborted recovery during node removal
-      [DLM] fix stopping unstarted recovery
-      [DLM] do full recover_locks barrier
-      [DLM] clear sbflags on lock master
-
-Steven Whitehouse:
-      [GFS2] Fix Kconfig wrt CRC32
-      [GFS2] Fix memory allocation in glock.c
-
- fs/dlm/lock.c         |   16 ++++++++++++----
- fs/dlm/member.c       |    8 ++++++++
- fs/dlm/rcom.c         |    7 ++++---
- fs/dlm/recover.c      |    1 +
- fs/dlm/recoverd.c     |   20 +++++++++++++++++++-
- fs/dlm/requestqueue.c |   21 +++++++++++++++++----
- fs/dlm/requestqueue.h |    2 +-
- fs/gfs2/Kconfig       |    1 +
- fs/gfs2/glock.c       |    2 +-
- 9 files changed, 64 insertions(+), 14 deletions(-)
-
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

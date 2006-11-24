@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757824AbWKXVFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935062AbWKXVNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757824AbWKXVFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 16:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934115AbWKXVFt
+	id S935062AbWKXVNN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 16:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935063AbWKXVNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 16:05:49 -0500
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:48330 "EHLO
-	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1757824AbWKXVFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 16:05:49 -0500
-X-AuditID: d80ac21c-a2798bb000001069-16-45675eaccf2f 
-Date: Fri, 24 Nov 2006 21:06:10 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Mel Gorman <mel@csn.ul.ie>
-cc: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
-In-Reply-To: <Pine.LNX.4.64.0611242004520.3938@skynet.skynet.ie>
-Message-ID: <Pine.LNX.4.64.0611242056260.20312@blonde.wat.veritas.com>
-References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
- <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211637120.3338@woody.osdl.org> <20061123163613.GA25818@skynet.ie>
- <Pine.LNX.4.64.0611230906110.27596@woody.osdl.org> <20061124104422.GA23426@skynet.ie>
- <Pine.LNX.4.64.0611241924110.17508@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0611242004520.3938@skynet.skynet.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Nov 2006 21:05:48.0187 (UTC) FILETIME=[50A326B0:01C7100C]
-X-Brightmail-Tracker: AAAAAA==
+	Fri, 24 Nov 2006 16:13:13 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:50152 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S935062AbWKXVNM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 16:13:12 -0500
+Date: Sat, 25 Nov 2006 00:13:00 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Jens Axboe <jens.axboe@oracle.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061124211300.GA102@oleg>
+References: <20061124182153.GA9868@oleg> <Pine.LNX.4.44L0.0611241545400.16422-100000@netrider.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0611241545400.16422-100000@netrider.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2006, Mel Gorman wrote:
+On 11/24, Alan Stern wrote:
+>
+> On Fri, 24 Nov 2006, Oleg Nesterov wrote:
 > 
-> Good catch. In the page clustering patches I work on, I am doing this;
+> > Ok, synchronize_xxx() passed 1 hour rcutorture test on dual P-III.
+> > 
+> > It behaves the same as srcu but optimized for writers. The fast path
+> > for synchronize_xxx() is mutex_lock() + atomic_read() + mutex_unlock().
+> > The slow path is __wait_event(), no polling. However, the reader does
+> > atomic inc/dec on lock/unlock, and the counters are not per-cpu.
+> > 
+> > Jens, is it ok for you? Alan, Paul, what is your opinion?
 > 
-> -       page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
-> +       page = alloc_page_vma(
-> +                       set_migrateflags(gfp | __GFP_ZERO, __GFP_RECLAIMABLE),
-> +                                                               &pvma, 0);
-> 
-> to get rid of the MOVABLE flag and replace it with __GFP_RECLAIMABLE. This
-> clustered the allocations together with allocations like inode cache. In
-> retrospect, this was not a good idea because it assumes that tmpfs and shmem
-> pages are short-lived. That may not be the case at all.
->... 
-> Thanks for that clarification. I suspected that something like this was the
-> case when I removed the MOVABLE flag and used RECLAIMABLE but I wasn't 100%
-> certain. In the tests I was running, tmpfs pages weren't a major problem so I
-> didn't chase it down.
+> Given that you aren't using per-cpu data, why not just rely on a spinlock?
 
-I'm fairly confused as to what MOVABLE versus RECLAIMABLE is supposed to
-be meaning, and understand it's in flux, so haven't tried too hard.  Just
-so long as you understand that tmpfs data pages go out to swap under memory
-pressure, whereas ramfs pages do not, and tmpfs swap vector pages do not.
+I thought about this too, and we can re-use sp->wq.lock,
 
-Hugh
+> Then everything will be simple and easy to verify,
+
+xxx_read_lock() will be simpler, but not too much. synchronize_xxx() needs
+some complication.
+
+>                                                     with no need to worry 
+> about atomic instructions or memory barriers.
+
+spin_lock() + spin_unlock() doesn't imply mb(), it allows subsequent loads
+to move into the the critical region.
+
+I personally prefer this way, but may be you are right.
+
+Oleg.
+

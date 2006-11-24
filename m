@@ -1,82 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935091AbWKXVwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966203AbWKXVxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935091AbWKXVwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 16:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935093AbWKXVwe
+	id S966203AbWKXVxp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 16:53:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966206AbWKXVxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 16:52:34 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:37075
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S935091AbWKXVwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 16:52:33 -0500
-Date: Fri, 24 Nov 2006 13:52:42 -0800 (PST)
-Message-Id: <20061124.135242.35354283.davem@davemloft.net>
-To: burman.yan@gmail.com
-Cc: stefanr@s5r6.in-berlin.de, linux-kernel@vger.kernel.org,
-       trivial@kernel.org, wli@holomorphy.com, sparclinux@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-rc6] sparc: replace kmalloc+memset with kzalloc
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <456741DD.6060103@gmail.com>
-References: <4566DF0A.3050803@gmail.com>
-	<45672D00.8060903@s5r6.in-berlin.de>
-	<456741DD.6060103@gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 24 Nov 2006 16:53:45 -0500
+Received: from tomts36.bellnexxia.net ([209.226.175.93]:38598 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S966203AbWKXVxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 16:53:44 -0500
+Date: Fri, 24 Nov 2006 16:48:31 -0500
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: [PATCH] LTTng 0.6.36 for 2.6.18 (now with markers)
+Message-ID: <20061124214831.GA25048@Krystal>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 16:45:04 up 93 days, 18:53,  4 users,  load average: 0.49, 0.38, 0.25
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Yan Burman <burman.yan@gmail.com>
-Date: Fri, 24 Nov 2006 21:02:53 +0200
+Hi,
 
-> Stefan Richter wrote:
-> > Yan Burman wrote:
-> > ...
-> >   
-> >> --- linux-2.6.19-rc5_orig/arch/sparc/kernel/sun4d_irq.c	2006-11-09 12:16:21.000000000 +0200
-> >> +++ linux-2.6.19-rc5_kzalloc/arch/sparc/kernel/sun4d_irq.c	2006-11-11 22:44:04.000000000 +0200
-> >> @@ -545,8 +545,7 @@ void __init sun4d_init_sbi_irq(void)
-> >>  	nsbi = 0;
-> >>  	for_each_sbus(sbus)
-> >>  		nsbi++;
-> >> -	sbus_actions = (struct sbus_action *)kmalloc (nsbi * 8 * 4 * sizeof(struct sbus_action), GFP_ATOMIC);
-> >> -	memset (sbus_actions, 0, (nsbi * 8 * 4 * sizeof(struct sbus_action)));
-> >> +	sbus_actions = kzalloc (nsbi * 8 * 4 * sizeof(struct sbus_action), GFP_ATOMIC);
-> >>  	for_each_sbus(sbus) {
-> >>  #ifdef CONFIG_SMP	
-> >>  		extern unsigned char boot_cpu_id;
-> >>     
-> >
-> > I'm not sure about this ^ hunk, but...
-> >
-> >   
-> >> diff -rubp linux-2.6.19-rc5_orig/arch/sparc/mm/io-unit.c linux-2.6.19-rc5_kzalloc/arch/sparc/mm/io-unit.c
-> >> --- linux-2.6.19-rc5_orig/arch/sparc/mm/io-unit.c	2006-11-09 12:16:21.000000000 +0200
-> >> +++ linux-2.6.19-rc5_kzalloc/arch/sparc/mm/io-unit.c	2006-11-11 22:44:04.000000000 +0200
-> >> @@ -41,9 +41,8 @@ iounit_init(int sbi_node, int io_node, s
-> >>  	struct linux_prom_registers iommu_promregs[PROMREG_MAX];
-> >>  	struct resource r;
-> >>  
-> >> -	iounit = kmalloc(sizeof(struct iounit_struct), GFP_ATOMIC);
-> >> +	iounit = kzalloc(sizeof(struct iounit_struct), GFP_ATOMIC);
-> >>  
-> >> -	memset(iounit, 0, sizeof(*iounit));
-> >>  	iounit->limit[0] = IOUNIT_BMAP1_START;
-> >>  	iounit->limit[1] = IOUNIT_BMAP2_START;
-> >>  	iounit->limit[2] = IOUNIT_BMAPM_START;
-> >>     
-> >
-> > ...in this ^, the old code and your update don't check for NULL return.
-> >   
-> 
-> Both of this parts are done at early stages, so it is probably:
-> a) Impossible to recover from failure
-> b) If you run out of memory at this stage, you are probably in very big 
-> trouble anyway
-> 
-> I could modify it to check and panic if the check fails.
-> Would that be better?
+I have, since a few weeks, moved LTTng to the markers infrastructure. I
+left the ltt-dev users and contributors test the markers and LTTng on various
+architectures (i386, x86_64, PowerPC, -ppc, ARM, MIPS) before posting it on
+LKML.
 
-Don't panic, call prom_printf() with a suitable message and then
-prom_halt() just like all other early-boot failures do on sparc.
+The most important new features since the my post :
+
+- Use DebugFS
+- Use the "Markers" infrastructure (updated since the last post on LKML).
+- Dynamically loadable "probes" that connects to the markers.
+- CPU Hotplug support (this piece seemed necessary for the Xen port I am
+  currently working on)
+- Use of per-CPU atomic operations even on SMP machines (no lock prefix, no
+  memory barriers) to update the per-cpu counters. An explicit smp_wmb()
+  is used at the one place where the subbuffers are tagged "full" and
+  smp_rmb() is used in the buffer consumer just after it reads this counter
+  indicating that the subbuffer is full.
+
+I am not submitting the probes themselves, as they can be provided as separate
+kernel modules.
+
+Comments and constructive criticism are, as always, welcome.
+
+The patches follow.
+
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

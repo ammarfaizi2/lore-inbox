@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934459AbWKXHFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934456AbWKXHVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934459AbWKXHFy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 02:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934460AbWKXHFy
+	id S934456AbWKXHVN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 02:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934511AbWKXHVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 02:05:54 -0500
-Received: from nz-out-0102.google.com ([64.233.162.204]:47675 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S934459AbWKXHFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 02:05:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=K1RYf9xyDDIBhqWfuqvFXaDq1kapHfSzVznfASKnRYslvV231DNkDNP8ZRpJFqRW42mvi653DLvMh1phob+FkxCTzBb+xlvoF1uOndbDbFBXPSCLpt35IaszcW00f861N+HLyScJPfUAutMv5SFQeO5kb+YZ/czgfKHkll6fl4Y=
-Message-ID: <456699CA.9060904@gmail.com>
-Date: Fri, 24 Nov 2006 16:05:46 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Conke Hu <conke.hu@amd.com>
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       arjan@infradead.org
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
-References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com> <45668ACF.1040101@gmail.com>
-In-Reply-To: <45668ACF.1040101@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Nov 2006 02:21:13 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:17976 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S934456AbWKXHVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 02:21:12 -0500
+Date: Fri, 24 Nov 2006 08:21:10 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Schmid <chris@schlagmichtod.de>, linux-kernel@vger.kernel.org
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Message-ID: <20061124072109.GY4999@kernel.dk>
+References: <455DAF74.1050203@schlagmichtod.de> <20061121205124.GB4199@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061121205124.GB4199@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Conke Hu wrote:
->> ATI SB600 SATA controller supports 4 modes: Legacy IDE, Native IDE, 
->> AHCI and RAID. Legacy/Native IDE mode is designed for compatibility 
->> with some old OS without AHCI driver but looses SATAII/AHCI features 
->> such as NCQ. This patch will make SB600 SATA run in AHCI mode even if 
->> it was set as IDE mode by system BIOS.
-[--snip--]
-> Other than that, Acked-by: Tejun Heo <htejun@gmail.com>
+On Tue, Nov 21 2006, Pavel Machek wrote:
+> Hi!
+> 
+> > Well, the actual question is the following,
+> > I read about HDAPS on thinkWiki. But there is no known-to-work patch for
+> > 2.6.18 and above to enable queue-freezing/harddisk parking.
+> > After some googeling and digging in gamne i read that someone said that
+> > there are plans for some generic support for HD-parking in the kernel
+> > and thus making such patches obsolete.
+> > My quesiotn just is if this is true and if there are any chances that
+> > the kernel will support that soonly.
+> ...
+> > So i hope this issue can be adressed soon. but i also know that most of
+> > you are very busy and i can not evaluate how difficult such a change
+> > would be. However if anyone wants to test some things or more
+> > information, i am ready. Just CC me :)
+> 
+> I'm afraid we need your help with development here. Porting old patch
+> to 2.6.19-rc6 should be easy, and then you can start 'how do I
+> makethis generic' debate.
 
-At the second thought, I think this should be done in 
-ahci_init_controller().
-
-* Unlike Jmicron's case, this doesn't affect PCI bus scan.  Actually, it 
-does change class code but that's not as disruptive as Jmicron's case 
-and as long as ahci ignores class code, it doesn't really matter. 
-Driver can be chosen by changing loading order - this is both plus and 
-minus.
-
-* As Arjan pointed out, that unlock-modify-lock sequence should be done 
-on resume too.  ahci_init_controller() is the right place for such 
-stuff.  This chip is going into notebooks, right?
+2.6.19 will finally have the generic block layer commands, so this can
+be implemented properly.
 
 -- 
-tejun
+Jens Axboe
+

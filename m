@@ -1,106 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934429AbWKXMGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934461AbWKXMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934429AbWKXMGa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 07:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934457AbWKXMGa
+	id S934461AbWKXMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 07:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934470AbWKXMJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 07:06:30 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:13549 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S934429AbWKXMG3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 07:06:29 -0500
-Date: Fri, 24 Nov 2006 15:05:31 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061124120531.GC32545@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <456621AC.7000009@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <456621AC.7000009@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 15:05:33 +0300 (MSK)
+	Fri, 24 Nov 2006 07:09:40 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:49197 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S934461AbWKXMJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 07:09:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=lF3FzvBphCaHP7JfFmmcvooavyxvkNCdyEuQxTF/fEftpL99r0oeonLhGbb6QwSiNQYGlsQF1lPAaY7U5bfy5KyP38hppO2E8pSSEmVAOHfpwVs/o76x+uoQyfvadxvXzE4VYDWG/umFzrQXHu6yg+gNkF2HJwmOG/5ZE8ezs5g=
+Message-ID: <4566E01E.2020201@gmail.com>
+Date: Fri, 24 Nov 2006 14:05:50 +0200
+From: Yan Burman <burman.yan@gmail.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: reiserfs-list@namesys.com, trivial@kernel.org
+Subject: [PATCH 2.6.19-rc6] reiser: replace kmalloc+memset with kzalloc
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 02:33:16PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >+ int kevent_commit(int ctl_fd, unsigned int start, 
-> >+ 	unsigned int num, unsigned int over);
-> 
-> I think we can simplify this interface:
-> 
->    int kevent_commit(int ctl_fd, unsigned int new_tail,
->                      unsigned int over);
-> 
-> The kernel sets the ring_uidx value to the 'new_tail' value if the tail 
-> pointer would be incremented (module wrap around) and is not higher then 
-> the current front pointer.  The test will be a bit complicated but not 
-> more so than what the current code has to do to check for mistakes.
-> 
-> This approach has the advantage that the commit calls don't have to be 
-> synchronized.  If one thread sets the tail pointer to, say, 10 and 
-> another to 12, then it does not matter whether the first thread is 
-> delayed.  If it will eventually be executed the result is simply a no-op 
-> and since second thread's action supersedes it.
-> 
-> Maybe the current form is even impossible to use with explicit locking 
-> at userlevel.  What if one thread, which is about to call kevent_commit, 
-> if indefinitely delayed.  Then this commit request's value is never 
-> taken into account and the tail pointer is always short of what it 
-> should be.
+Replace kmalloc+memset with kzalloc
 
-I like this interface, although current one does not allow special
-synchronization in userspace, since it calculates if new commit is in
-the area where previous commit was.
-Will change for the next release.
+Signed-off-by: Yan Burman <burman.yan@gmail.com>
+
+diff -rubp linux-2.6.19-rc5_orig/fs/reiserfs/file.c linux-2.6.19-rc5_kzalloc/fs/reiserfs/file.c
+--- linux-2.6.19-rc5_orig/fs/reiserfs/file.c	2006-11-09 12:16:20.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/fs/reiserfs/file.c	2006-11-11 22:44:04.000000000 +0200
+@@ -316,12 +316,11 @@ static int reiserfs_allocate_blocks_for_
+ 			/* area filled with zeroes, to supply as list of zero blocknumbers
+ 			   We allocate it outside of loop just in case loop would spin for
+ 			   several iterations. */
+-			char *zeros = kmalloc(to_paste * UNFM_P_SIZE, GFP_ATOMIC);	// We cannot insert more than MAX_ITEM_LEN bytes anyway.
++			char *zeros = kzalloc(to_paste * UNFM_P_SIZE, GFP_ATOMIC);	// We cannot insert more than MAX_ITEM_LEN bytes anyway.
+ 			if (!zeros) {
+ 				res = -ENOMEM;
+ 				goto error_exit_free_blocks;
+ 			}
+-			memset(zeros, 0, to_paste * UNFM_P_SIZE);
+ 			do {
+ 				to_paste =
+ 				    min_t(__u64, hole_size,
+diff -rubp linux-2.6.19-rc5_orig/fs/reiserfs/inode.c linux-2.6.19-rc5_kzalloc/fs/reiserfs/inode.c
+--- linux-2.6.19-rc5_orig/fs/reiserfs/inode.c	2006-11-09 12:16:20.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/fs/reiserfs/inode.c	2006-11-11 22:44:04.000000000 +0200
+@@ -928,15 +928,12 @@ int reiserfs_get_block(struct inode *ino
+ 			if (blocks_needed == 1) {
+ 				un = &unf_single;
+ 			} else {
+-				un = kmalloc(min(blocks_needed, max_to_insert) * UNFM_P_SIZE, GFP_ATOMIC);	// We need to avoid scheduling.
++				un = kzalloc(min(blocks_needed, max_to_insert) * UNFM_P_SIZE, GFP_ATOMIC);	// We need to avoid scheduling.
+ 				if (!un) {
+ 					un = &unf_single;
+ 					blocks_needed = 1;
+ 					max_to_insert = 0;
+-				} else
+-					memset(un, 0,
+-					       UNFM_P_SIZE * min(blocks_needed,
+-								 max_to_insert));
++				}
+ 			}
+ 			if (blocks_needed <= max_to_insert) {
+ 				/* we are going to add target block to the file. Use allocated
+diff -rubp linux-2.6.19-rc5_orig/fs/reiserfs/super.c linux-2.6.19-rc5_kzalloc/fs/reiserfs/super.c
+--- linux-2.6.19-rc5_orig/fs/reiserfs/super.c	2006-11-09 12:16:20.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/fs/reiserfs/super.c	2006-11-11 22:44:04.000000000 +0200
+@@ -1549,13 +1549,12 @@ static int reiserfs_fill_super(struct su
+ 	struct reiserfs_sb_info *sbi;
+ 	int errval = -EINVAL;
  
-> There is one more thing to consider.  Oftentimes the commit request will 
-> be immediately followed by a kevent_wait call.  It would be good to 
-> merge this pair of calls.  The two parameters new_tail and over could 
-> also be passed to the kevent_wait call and the commit can happen before 
-> the thread looks for new events and eventually goes to sleep.  If this 
-> can be implemented then the kevent_commit syscall by itself might not be 
-> needed at all.  Instead you'd call kevent_wait() and make the maximum 
-> number of events which can be returned zero.
+-	sbi = kmalloc(sizeof(struct reiserfs_sb_info), GFP_KERNEL);
++	sbi = kzalloc(sizeof(struct reiserfs_sb_info), GFP_KERNEL);
+ 	if (!sbi) {
+ 		errval = -ENOMEM;
+ 		goto error;
+ 	}
+ 	s->s_fs_info = sbi;
+-	memset(sbi, 0, sizeof(struct reiserfs_sb_info));
+ 	/* Set default values for options: non-aggressive tails, RO on errors */
+ 	REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_SMALLTAIL);
+ 	REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ERROR_RO);
 
-It _IS_ how previous interface worked.
 
-	EXACTLY!
-
-There was one syscall which committed requested number of events and
-waited when there are new ready events. The only thing it missed, was
-userspace index (it assumed that if userspace waits for something, then
-all previous work is done).
-
-Ulrich, I'm not going to think for other people all over the world and
-blindly implementing ideas, which in a day or two will be commented as
-redundant, since flow of mind has changed, and they had not enough time
-to check previous version.
-
-I will wait for some time until you and other people made theirs comments 
-on interfaces and release final version in about a week, and now I will
-go to hack netchannels.
-
-	NO INTERFACE CHANGES AFTER THAT DAY. 
-		COMPLETELY.
-
-So, feel free to think about perfect interface anyone will be happy
-with. But please release your thoughts not in form of abstract words,
-but more precisely, at least like in this e-mail, so I could understand
-what _you_ want from _your_ interface.
-
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
-
--- 
-	Evgeniy Polyakov
+Regards
+Yan Burman

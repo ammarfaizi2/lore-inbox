@@ -1,108 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965914AbWKXSQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965918AbWKXSR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965914AbWKXSQK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 13:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965916AbWKXSQK
+	id S965918AbWKXSR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 13:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965919AbWKXSR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 13:16:10 -0500
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:24202 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S965914AbWKXSQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 13:16:08 -0500
-X-Sasl-enc: c+B13ghoKxspGTHGb3G8oOrD67oeleSIVX3ABU/eEPw3 1164392168
-Message-ID: <45673798.1010808@imap.cc>
-Date: Fri, 24 Nov 2006 19:19:04 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6 Mnenhy/0.7.4.666
+	Fri, 24 Nov 2006 13:17:59 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:50155 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965916AbWKXSR5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 13:17:57 -0500
+Date: Fri, 24 Nov 2006 12:17:42 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Friedhoff <chris@friedhoff.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: file caps: permit unsafe signaling when CONFIG_FS_CAPS=n
+Message-ID: <20061124181742.GA32443@sergelap.austin.ibm.com>
+References: <20061114030655.GB31893@sergelap> <20061123001458.fe73f64a.akpm@osdl.org> <20061123002207.5e18bade.akpm@osdl.org> <20061123131203.f7b6972f.chris@friedhoff.org> <20061123103920.8d908952.akpm@osdl.org> <20061124161626.GA22462@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-CC: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH 4/33] usb: usb-gigaset free kill urb
- cleanup
-References: <200611062228.38937.m.kozlowski@tuxland.pl>	<200611071030.57152.m.kozlowski@tuxland.pl>	<20061107013702.46b5710f.akpm@osdl.org> <200611081534.18562.m.kozlowski@tuxland.pl>
-In-Reply-To: <200611081534.18562.m.kozlowski@tuxland.pl>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBB04CA0172CFD8CF6232598E"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061124161626.GA22462@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBB04CA0172CFD8CF6232598E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Quoting Serge E. Hallyn (serue@us.ibm.com):
+> Ok, the following patch restores the CONFIG_FS_CAPS=n signaling
+> behavior, but I'm having a config problem.  When
+> CONFIG_SECURITY_CAPABILITIES=n, and I toggle
+> CONFIG_SECURITY_FS_CAPABILITIES between y and n, security/commoncap.o
+> does not recompile.  However since capabilities are now the default
+> security module, commoncap.o is in fact included in the kernel build,
+> and therefore should be recompiled.
+> 
+> Looking into why, but maybe someone knows offhand what would be going
+> wrong?
 
-Sorry for the late reply. I had overlooked this.
+Uh, never mind.  It does the right thing.  CONFIG_SECURITY=n means we
+use capabilities, but CONFIG_SECURITY=y and CONFIG_SECURITY_CAPABILITIES=n 
+means we use dummy.  The following patch fixes the Kconfig accordingly.
 
-Am 08.11.2006 15:34 schrieb Mariusz Kozlowski:
-> Hello,
->=20
-> - usb_free_urb() cleanup
-> - usb_kill_urb() cleanup
->=20
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 1/1] file caps: don't show FILE_CAPABILITIES option when not relevant
 
-Acked-by: Tilman Schmidt <tilman@imap.cc>
+FILE_CAPABILITIES are relevant when CONFIG_SECURITY=n, but not when
+CONFIG_SECURITY=y && CONFIG_SECURITY_CAPABILITIES=n.  So make
+CONFIG_SECURITY_FS_CAPABILITIES depend on the right conditions.
 
-> --- linux-2.6.19-rc4-orig/drivers/isdn/gigaset/usb-gigaset.c	2006-11-06=
- 17:07:30.000000000 +0100
-> +++ linux-2.6.19-rc4/drivers/isdn/gigaset/usb-gigaset.c	2006-11-07 16:5=
-1:17.000000000 +0100
-> @@ -815,14 +815,11 @@ static int gigaset_probe(struct usb_inte
->  	return 0;
-> =20
->  error:
-> -	if (ucs->read_urb)
-> -		usb_kill_urb(ucs->read_urb);
-> +	usb_kill_urb(ucs->read_urb);
->  	kfree(ucs->bulk_out_buffer);
-> -	if (ucs->bulk_out_urb !=3D NULL)
-> -		usb_free_urb(ucs->bulk_out_urb);
-> +	usb_free_urb(ucs->bulk_out_urb);
->  	kfree(cs->inbuf[0].rcvbuf);
-> -	if (ucs->read_urb !=3D NULL)
-> -		usb_free_urb(ucs->read_urb);
-> +	usb_free_urb(ucs->read_urb);
->  	usb_set_intfdata(interface, NULL);
->  	ucs->read_urb =3D ucs->bulk_out_urb =3D NULL;
->  	cs->inbuf[0].rcvbuf =3D ucs->bulk_out_buffer =3D NULL;
-> @@ -850,11 +847,9 @@ static void gigaset_disconnect(struct us
->  	usb_kill_urb(ucs->bulk_out_urb);	/* FIXME: only if active? */
-> =20
->  	kfree(ucs->bulk_out_buffer);
-> -	if (ucs->bulk_out_urb !=3D NULL)
-> -		usb_free_urb(ucs->bulk_out_urb);
-> +	usb_free_urb(ucs->bulk_out_urb);
->  	kfree(cs->inbuf[0].rcvbuf);
-> -	if (ucs->read_urb !=3D NULL)
-> -		usb_free_urb(ucs->read_urb);
-> +	usb_free_urb(ucs->read_urb);
->  	ucs->read_urb =3D ucs->bulk_out_urb =3D NULL;
->  	cs->inbuf[0].rcvbuf =3D ucs->bulk_out_buffer =3D NULL;
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ security/Kconfig |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/security/Kconfig b/security/Kconfig
+index 6c9d69e..1b47f01 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -82,6 +82,7 @@ config SECURITY_CAPABILITIES
+ 
+ config SECURITY_FS_CAPABILITIES
+ 	bool "File POSIX Capabilities"
++	depends on SECURITY=n || SECURITY_CAPABILITIES=y
+ 	default n
+ 	help
+ 	  This enables filesystem capabilities, allowing you to give
+-- 
+1.4.1
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enigBB04CA0172CFD8CF6232598E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFZzeiMdB4Whm86/kRAiswAJsElVyffsmt9oMhkG+IO3GNqoCOTQCfYKnh
-4SpzqWReuq4VUejge4wTPjw=
-=zfWd
------END PGP SIGNATURE-----
-
---------------enigBB04CA0172CFD8CF6232598E--

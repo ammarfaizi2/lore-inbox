@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934444AbWKXSqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935001AbWKXSqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934444AbWKXSqG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 13:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935000AbWKXSqG
+	id S935001AbWKXSqd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 13:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935000AbWKXSqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 13:46:06 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:29957 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S934444AbWKXSqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 13:46:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=IJBcC7jo0lR3ecvdJzSO4OpA83pyaRorGAf9+rTEzdEExmN0gbLMDaYnsSxWwIW8HOhl0iMYtsuv/EGhxf0HgSQuk7BCc+si1nGmZgqo1EoQm8nmUZ8V+FHuPqtFu72Ectdz4Y0diUYtVL0sYMHH8GGGByP2xTwVvcEXZ0NW7KM=
-Message-ID: <86802c440611241046o5c8e0b88r8cc07489ebb28446@mail.gmail.com>
-Date: Fri, 24 Nov 2006 10:46:00 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Greg KH" <greg@kroah.com>
-Subject: Re: PCI: check szhi when sz is 0 when 64 bit iomem bigger than 4G
-Cc: "Greg KH" <gregkh@suse.de>, "Andi Kleen" <ak@suse.de>,
-       linux-kernel@vger.kernel.org, myles@mouselemur.cs.byu.edu
-In-Reply-To: <20061123083920.GA21211@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 24 Nov 2006 13:46:33 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:23539 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S935001AbWKXSqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 13:46:32 -0500
+Date: Fri, 24 Nov 2006 13:46:30 -0500
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Greg KH <greg@kroah.com>
+Cc: ltt-dev@shafik.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/5] DebugFS : coding style fixes, 2.6.19-rc6
+Message-ID: <20061124184630.GB8952@Krystal>
+References: <20061120181838.GB7328@Krystal> <20061122052730.GD20836@kroah.com> <20061123075256.GC1703@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA4130683@ssvlexmb2.amd.com>
-	 <20061123083920.GA21211@kroah.com>
-X-Google-Sender-Auth: fc38977524b6eb6e
+In-Reply-To: <20061123075256.GC1703@Krystal>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 13:45:41 up 93 days, 15:53,  4 users,  load average: 0.21, 0.25, 0.22
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/23/06, Greg KH <greg@kroah.com> wrote:
-> On Mon, Nov 06, 2006 at 07:29:24PM -0800, Lu, Yinghai wrote:
-> > [PATCH] PCI: check szhi when sz is 0 when 64 bit iomem bigger than 4G
-> I'm dropping this patch, as the compiler warnings show that something is
-> still wrong here.
+Minor coding style fixes along the way : 80 cols and a white space.
 
-Andrew,
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
-Can you send out that revised patch out to the list?
 
-Thanks
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -54,7 +54,8 @@ static struct inode *debugfs_get_inode(s
+ 			inode->i_op = &simple_dir_inode_operations;
+ 			inode->i_fop = &simple_dir_operations;
+ 
+-			/* directory inodes start off with i_nlink == 2 (for "." entry) */
++			/* directory inodes start off with i_nlink == 2
++			 * (for "." entry) */
+ 			inc_nlink(inode);
+ 			break;
+ 		}
+@@ -142,7 +143,7 @@ static int debugfs_create_by_name(const 
+ 	 * block. A pointer to that is in the struct vfsmount that we
+ 	 * have around.
+ 	 */
+-	if (!parent ) {
++	if (!parent) {
+ 		if (debugfs_mount && debugfs_mount->mnt_sb) {
+ 			parent = debugfs_mount->mnt_sb->s_root;
+ 		}
 
-YH
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

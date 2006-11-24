@@ -1,79 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934540AbWKXKO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934541AbWKXKQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934540AbWKXKO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 05:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934541AbWKXKO4
+	id S934541AbWKXKQK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 05:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934542AbWKXKQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 05:14:56 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:188 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S934540AbWKXKOz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 05:14:55 -0500
-Message-ID: <4566C519.1090902@openvz.org>
-Date: Fri, 24 Nov 2006 13:10:33 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Paul Menage <menage@google.com>
-CC: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       matthltc@us.ibm.com, hch@infradead.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
-References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>	 <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>	 <45655D3E.5020702@openvz.org>	 <6599ad830611230053m7182698cu897abe5d19471aff@mail.gmail.com>	 <456567DD.6090703@openvz.org>	 <6599ad830611230131w1bf63dc1m1998b55b61579509@mail.gmail.com>	 <45657030.7050009@openvz.org> <6599ad830611230218w7a6c0c0el9479b497037b0be6@mail.gmail.com>
-In-Reply-To: <6599ad830611230218w7a6c0c0el9479b497037b0be6@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 24 Nov 2006 05:16:09 -0500
+Received: from s1.mailresponder.info ([193.24.237.10]:2574 "EHLO
+	s1.mailresponder.info") by vger.kernel.org with ESMTP
+	id S934541AbWKXKQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 05:16:07 -0500
+Subject: Re: 'False' IO error when copying from cdrom drive
+From: Mathieu Fluhr <mfluhr@nero.com>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061123231825.342a3237.vsu@altlinux.ru>
+References: <1164311305.3013.25.camel@de-c-l-110.nero-de.internal>
+	 <20061123231825.342a3237.vsu@altlinux.ru>
+Content-Type: text/plain
+Organization: Nero AG
+Date: Fri, 24 Nov 2006 11:14:00 +0100
+Message-Id: <1164363240.3010.16.camel@de-c-l-110.nero-de.internal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got it! That's what will work:
+Okay, I understand the point. So this 0x1fffff is somehow a default
+value right? (Humm why 0x1fffff by the way?)
 
-struct task_struct {
-	...
-	struct beancounter *exec_bc;
-	struct beancounter *tmp_exec_bc; /* is set to NULL on
-                                          * tsk creation
-                                          */
-};
+But:
+- when I open /dev/hdxx with the O_NONBLOCK flag, this is specially to
+get a 'raw' access on the device. If I do not pass this flag, the open
+syscall will fail if no media is in the device.
 
-struct beancounter get_exec_bc(void)
-{
-	if (current->tmp_exec_bc)
-		return current->tmp_exec_bc;
-	return rcu_dereference(current->exec_bc);
-}
+- when that mount command is used, the mount will fail if no medium is
+inside. So wouldn't it be a good idea to recheck the toc at this time
+(something like calling the .revalidate_disk function I mean) 
 
+These are just suggestions... I am just really astonished that a single
+user program can disturb the mount command with optical disc devices :D
 
-struct beancounter set_tmp_exec_bc(struct beancounter *new)
-{
-	struct beancounter *old;
+Regards,
+Mathieu
 
-	old = current->tmp_exec_bc;
-	current->tmp_exec_bc = new;
-	return old;
-}
+On Thu, 2006-11-23 at 23:18 +0300, Sergey Vlasov wrote:
+> On Thu, 23 Nov 2006 20:48:25 +0100 Mathieu Fluhr wrote:
+> 
+> > I explain: First take this really simple program:
+> > ----8<------------------------------------------------------------------
+> > #include <sys/types.h>
+> > #include <sys/stat.h>
+> > #include <fcntl.h>
+> >
+> >
+> > int main(int argc, char **argv)
+> > {
+> >   if(argc < 2)
+> >     return 0;
+> >
+> >   int iFD = open(argv[1], O_RDONLY | O_NONBLOCK);
+> >   if(iFD == -1)
+> >     perror("open");
+> >
+> >   while(1)
+> >     sleep(1);
+> >
+> >   return 0;
+> > }
+> > ----8<-----------------------------------------------------------------
+> [..]
+> > Ok. Now take a full DVD (I tested DVD+R, +RW and -R), with more than
+> > 4 300 000 000 bytes (very important :), and perform the following:
+> >
+> > 0. Open the tray of your recorder
+> > 1. Launch this small program above, passing the recorder device file as
+> >    argument and let it run in background.
+> 
+> At this time the following code in drivers/ide/ide-cd.c:cdrom_read_toc()
+> is executed:
+> 
+> 	/* Try to get the total cdrom capacity and sector size. */
+> 	stat = cdrom_read_capacity(drive, &toc->capacity, &sectors_per_frame,
+> 				   sense);
+> 	if (stat)
+> 		toc->capacity = 0x1fffff;
+> 
+> 	set_capacity(info->disk, toc->capacity * sectors_per_frame);
+> 
+> Obviously, with the tray open cdrom_read_capacity() won't succeed,
+> therefore toc->capacity will be set to 0x1fffff.
+> 
+> > 2. then put the disc in the device and mount it
+> > 3. try to copy to whole content on the hard drive
+> >
+> > -> You will get an error like the following:
+> >   > kernel: attempt to access beyond end of device
+> >   > kernel: hdb: rw=0, want=8388612, limit=8388604
+> 
+> 0x1fffff * 2048/512 == 8388604
+> 
+> Your background program is keeping the device open, which prevents
+> revalidation of capacity and other media information on subsequent
+> device opens.
+> 
+> When HAL polls CD-ROM devices to detect newly inserted media, it does
+> not keep the device open forever - instead, it opens and closes the
+> device every time.  Your program should either do the same thing, or
+> just depend on HAL events.
 
-void reset_tmp_exec_bc(struct beancounter *expected_old)
-{
-	BUG_ON(current->tmp_exec_bc != expected_old);
-	current->tmp_exec_bc = NULL;
-}
-
-void move_task(struct task_struct *tsk, struct beancounter *bc)
-{
-	struct beancounter *old;
-
-	mutex_lock(&tsk_move_mutex);
-	old = tsk->exec_bc;
-	get_bc(bc);
-	rcu_assign_pointer(current->exec_bc, bc);
-	syncronize_rcu();
-	mutex_unlock(&tsk_move_mutex);
-
-	bc_put(old);
-}
-
-I will implement this in the next beancounter patches.
-Thanks for discussion :)

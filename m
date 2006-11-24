@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934178AbWKXLra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933879AbWKXLvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934178AbWKXLra (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 06:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934175AbWKXLra
+	id S933879AbWKXLvi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 06:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934276AbWKXLvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 06:47:30 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:28118 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S934115AbWKXLr3 (ORCPT
+	Fri, 24 Nov 2006 06:51:38 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:54913 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S933879AbWKXLvh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 06:47:29 -0500
-Date: Fri, 24 Nov 2006 14:46:15 +0300
+	Fri, 24 Nov 2006 06:51:37 -0500
+Date: Fri, 24 Nov 2006 14:50:04 +0300
 From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+Cc: Hans Henrik Happe <hhh@imada.sdu.dk>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
        Christoph Hellwig <hch@infradead.org>,
        Chase Venters <chase.venters@clientec.com>,
        Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
        Jeff Garzik <jeff@garzik.org>
 Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061124114614.GA32545@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <4564E2AB.1020202@redhat.com> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com>
+Message-ID: <20061124115004.GB32545@2ka.mipt.ru>
+References: <11641265982190@2ka.mipt.ru> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com> <200611232249.56886.hhh@imada.sdu.dk> <45662206.1070104@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <4565FDED.2050003@redhat.com>
+In-Reply-To: <45662206.1070104@redhat.com>
 User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 14:46:18 +0300 (MSK)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 14:50:05 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 12:00:45PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >uidx is an index, starting from which there are unread entries. It is
-> >updated by userspace when it commits entries, so it is 'consumer'
-> >pointer, while kidx is an index where kernel will put new entries, i.e.
-> >'producer' index. We definitely need them both.
-> >Userspace can only update (implicitly by calling kevent_commit()) uidx.
+On Thu, Nov 23, 2006 at 02:34:46PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Hans Henrik Happe wrote:
+> >I don't know if this falls under the simplification, but wouldn't there be 
+> >a race when reading/copying the event data? I guess this could be solved 
+> >with an extra user index. 
 > 
-> Right, which is why exporting this entry is not needed.  Keep the 
-> interface as small as possible.
+> That's what I said, reading the value from the ring buffer structure's 
+> head would be racy.  All this can only work for single threaded code.
 
-If there are several callers of kevent_commit(), uidx can be changed far
-than first user expects, so there should be possibility to check that
-value. It is thus exported into shared ring buffer structure.
+Value in the userspace ring is updated each time it is changed in kernel
+(when userspace calls kevent_commit()), when userspace has read its old
+value it is guaranteed that requested number of events _is_ there
+(although it is possible that there are more than that value).
 
-> Userlevel has to maintain its own index.  Just assume kevent_wait 
-> returns 10 new entries and you have multiple threads.  In this case all 
-> threads take their turns and pick an entry from the ring buffer.  This 
-> basically has to be done with something like this (I ignore wrap-arounds 
-> here to simplify the example):
-> 
->   int getidx() {
->     while (uidx < kidx)
->        if (atomic_cmpxchg(uidx, uidx + 1, uidx) == 0)
->          return uidx;
->     return -1;
->   }
-> 
-> Very much simplified but it should show that we need a writable copy of 
-> the uidx.  And this value at any time must be consistent with the index 
-> the kernel assumes.
-
-I seriously doubt it is simpler than having index provided by kernel.
-
-> The current ring_uidx value can at best be used to reinitialize the 
-> userlevel uidx value after each kevent_wait call but this is unnecessary 
-> at best (since uidx must already have this value) and racy in problem 
-> cases (what if more than one thread gets woken concurrently with uidx 
-> having the same value and one thread stores the uidx value and 
-> immediately increments it to get an index; the second store would 
-> overwrite the increment).
-> 
-> I can assure you that any implementation I write would not use the 
-> ring_uidx value.  Only trivial, single-threaded examples like you 
-> ring_buffer.c could ever take advantage of this value.  It's not worth it.
-
-You propose to make uidx shared local variable - it is doable, but it
-is not required - userspace can use kernel's variable, since it is
-updated exactly in the places where that index is changed.
+Ulrich, why didn't you comment on previous interface, which had exactly
+_one_ index exported to userspace - it is only required to add implicit
+uidx and (if you prefer that way) additional syscall, since in previous
+interface both waiting and commit was handled by kevent_wait() with
+different parameters.
 
 > -- 
 > ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
 > CA ❖
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 	Evgeniy Polyakov

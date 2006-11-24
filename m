@@ -1,41 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757510AbWKXCYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757574AbWKXCqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757510AbWKXCYB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 21:24:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757571AbWKXCYB
+	id S1757574AbWKXCqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 21:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757575AbWKXCqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 21:24:01 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47113 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1757510AbWKXCYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 21:24:00 -0500
-Date: Fri, 24 Nov 2006 03:24:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] build the appledisplay driver
-Message-ID: <20061124022403.GE28363@stusta.de>
+	Thu, 23 Nov 2006 21:46:25 -0500
+Received: from py-out-1112.google.com ([64.233.166.182]:41146 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1757574AbWKXCqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 21:46:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kOoqeDjEEVDywLFVIUBwq3saMbuDgavsq3uLj6ZHO9IhjK46drvBcirv/3/EJQY+xW8n2qsaVPMX2A15WTlipT+9trg3XQvK6QwD4x9BnXwhvuwfKzYMA6djmf4ONbgCITk4s3esxZQN4rWN7TK7YzapM1QuXx3vUSDXwbH9K6o=
+Message-ID: <f55850a70611231846p2109188by84283d0b64fc8853@mail.gmail.com>
+Date: Fri, 24 Nov 2006 10:46:23 +0800
+From: "Zhao Xiaoming" <xiaoming.nj@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: filp_open fail with ENOTDIR in kernel 2.6.16
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We do already have both the code and a config option, so why not build 
-this driver?  ;-)
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.19-rc6-mm1/drivers/usb/misc/Makefile.old	2006-11-24 03:19:31.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/drivers/usb/misc/Makefile	2006-11-24 03:20:13.000000000 +0100
-@@ -4,6 +4,7 @@
- #
- 
- obj-$(CONFIG_USB_ADUTUX)	+= adutux.o
-+obj-$(CONFIG_USB_APPLEDISPLAY)	+= appledisplay.o
- obj-$(CONFIG_USB_AUERSWALD)	+= auerswald.o
- obj-$(CONFIG_USB_CYPRESS_CY7C63)+= cypress_cy7c63.o
- obj-$(CONFIG_USB_CYTHERM)	+= cytherm.o
-
+I'm porting some kernel module codes from kernel 2.4 to 2.6. The codes
+used to work well under 2.4 kernel. In 2.6 environment, the problem is
+filp_open("/root/test.txt",O_RDONLY,0) always return -20 (ENOTDIR).
+But the regular file "/root/test.txt" does exist. What's wrong?

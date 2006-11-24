@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935042AbWKXUr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935059AbWKXUse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935042AbWKXUr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 15:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935056AbWKXUr6
+	id S935059AbWKXUse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 15:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935061AbWKXUsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 15:47:58 -0500
-Received: from firewall.rowland.harvard.edu ([140.247.233.35]:43201 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S935042AbWKXUr6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 15:47:58 -0500
-Date: Fri, 24 Nov 2006 15:47:56 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Jens Axboe <jens.axboe@oracle.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061124182153.GA9868@oleg>
-Message-ID: <Pine.LNX.4.44L0.0611241545400.16422-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Nov 2006 15:48:33 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43706 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S935058AbWKXUsb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 15:48:31 -0500
+Date: Fri, 24 Nov 2006 12:43:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Mel Gorman <mel@skynet.ie>, Andre Noll <maan@systemlinux.org>,
+       discuss@x86-64.org, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>
+Subject: Re: [discuss] 2.6.19-rc6: known regressions (v4)
+Message-Id: <20061124124339.9f04183c.akpm@osdl.org>
+In-Reply-To: <200611241058.55824.ak@suse.de>
+References: <Pine.LNX.4.64.0611152008450.3349@woody.osdl.org>
+	<20061123110930.abc4fd9a.akpm@osdl.org>
+	<20061123215545.GA9551@skynet.ie>
+	<200611241058.55824.ak@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2006, Oleg Nesterov wrote:
+On Fri, 24 Nov 2006 10:58:55 +0100
+Andi Kleen <ak@suse.de> wrote:
 
-> Ok, synchronize_xxx() passed 1 hour rcutorture test on dual P-III.
 > 
-> It behaves the same as srcu but optimized for writers. The fast path
-> for synchronize_xxx() is mutex_lock() + atomic_read() + mutex_unlock().
-> The slow path is __wait_event(), no polling. However, the reader does
-> atomic inc/dec on lock/unlock, and the counters are not per-cpu.
+> > A slightly smarter, but not quite as obviously correct, 
 > 
-> Jens, is it ok for you? Alan, Paul, what is your opinion?
+> I think it's better to go for the "obviously correct" approach right now
+> And sorting multiple times should be fine
+> 
 
-Given that you aren't using per-cpu data, why not just rely on a spinlock?  
-Then everything will be simple and easy to verify, with no need to worry 
-about atomic instructions or memory barriers.
-
-Alan
-
+yup, that's what I'd decided.

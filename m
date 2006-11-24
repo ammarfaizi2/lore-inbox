@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934438AbWKXGC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934435AbWKXGFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934438AbWKXGC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 01:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934437AbWKXGC0
+	id S934435AbWKXGFO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 01:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934436AbWKXGFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 01:02:26 -0500
-Received: from 1wt.eu ([62.212.114.60]:32517 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S934438AbWKXGCZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 01:02:25 -0500
-Date: Fri, 24 Nov 2006 07:02:17 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: atoka <atrockz@gmail.com>
-Cc: kernelnewbies@nl.linux.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel cross compilation error
-Message-ID: <20061124060217.GD577@1wt.eu>
-References: <db74e4d30611232150o36859417q78f688afa3709266@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <db74e4d30611232150o36859417q78f688afa3709266@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Fri, 24 Nov 2006 01:05:14 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:51663 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S934435AbWKXGFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 01:05:11 -0500
+Message-ID: <45668B9E.60008@jp.fujitsu.com>
+Date: Fri, 24 Nov 2006 15:05:18 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, e1000-devel@lists.sourceforge.net,
+       linux-scsi@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH 1/5] Update Documentation/pci.txt
+References: <456404E2.1060102@jp.fujitsu.com> <20061122182804.GE378@colo.lackof.org> <45663EE8.1080708@jp.fujitsu.com> <20061124051217.GB8202@colo.lackof.org>
+In-Reply-To: <20061124051217.GB8202@colo.lackof.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2006 at 11:20:17AM +0530, atoka wrote:
-> hi everyone,
->        im a kernel newbie. im using a debian linux(ie ubuntu).i did
-> cross compilation for ia64 on my system which is ia32. Now im trying
-> to cross compile ia64 kernel but im getting some error. before
-> compiling kernel, i did made changes in Makefile to specify my
-> ia64-linux compiler and libraries .
-
-You should not have changed the contents of your makefile but just
-passed it some parameters.
-
-> when i gave make menuconfig command i got following errors
+Grant Grundler wrote:
+> On Fri, Nov 24, 2006 at 09:38:00AM +0900, Hidetoshi Seto wrote:
+>> Grant Grundler wrote:
+>>> Hidetoshi,
+>>> I have a nearly finished rewrite of Documentation/pci.txt.
+>>> Can you drop this patch for now on my promise to integrate
+>>> your proposed text?
+>> No problem at all.
 > 
-> root@atoka-desktop:/linux-2.6.18# make ARCH=ia64 menuconfig
->  HOSTCC  scripts/basic/fixdep
-> scripts/basic/fixdep.c: In function 'use_config':
-> scripts/basic/fixdep.c:204: error: 'PATH_MAX' undeclared (first use in
-> this function)
-> scripts/basic/fixdep.c:204: error: (Each undeclared identifier is
-> reported only once
-> scripts/basic/fixdep.c:204: error: for each function it appears in.)
-> scripts/basic/fixdep.c:204: warning: unused variable 's'
-> scripts/basic/fixdep.c: In function 'parse_dep_file':
-> scripts/basic/fixdep.c:300: error: 'PATH_MAX' undeclared (first use in
-> this function)
-> scripts/basic/fixdep.c:300: warning: unused variable 's'
-> make[1]: *** [scripts/basic/fixdep] Error 1
-> make: *** [scripts_basic] Error 2
+> Thanks - I've posted pci.txt-05 on:
+> 	http://www.parisc-linux.org/~grundler/pci.txt-05
+> 
+> and appended it below.
+> 
+> pci.txt-03 is the last version I posted.
+> pci.txt-04 contains all feedback from Andi Kleen and Randi Dunlap
+>            (plus a few other minor changes)
+> pci.txt-05 reverts pci_enable_device/pci_request_resource ordering to
+> 	reflect current reality. But I've added a comment to remind us
+> 	about the issue. Also added Section 10/11 from Hidetoshi-san.
+> 	A few minor other changes as well.
+> 
+> If this looks good, I'll post a diff for gregkh.
+> 
+> thanks,
+> grant
 
-It is because you have changed HOSTCC which is the compiler for the
-host you're building from. Normally, you just have to do something
-like this :
+Thank you very much!
 
-$ make ARCH=ia64 CC=ia64-gcc menuconfig vmlinux ...
+I confirmed few minor fixes in section 10/11.
+I ACK them.
 
-And BTW, don't build as root, one day you will regret it.
+Yes, this looks good. Please take your turn, Greg.
 
-> i tried defining the PATH_MAX macro in fixdep.c to 100, but then it
-> gave error in some other file.
-> Can anyone help me out with this error?
-
-Regards,
-Willy
+Thanks,
+H.Seto
 

@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965919AbWKXTLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966031AbWKXTOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965919AbWKXTLf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 14:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935015AbWKXTLe
+	id S966031AbWKXTOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 14:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965934AbWKXTOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 14:11:34 -0500
-Received: from mail.suse.de ([195.135.220.2]:469 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S935014AbWKXTLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 14:11:34 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andy Whitcroft <apw@shadowen.org>
-Subject: Re: [PATCH] x86_64 vsyscall fails to compile when CONFIG_HOTPLUG_CPU is disabled
-Date: Fri, 24 Nov 2006 20:11:27 +0100
-User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20061123021703.8550e37e.akpm@osdl.org> <e605df1da2b2e35ab69e8167c2b71b7f@pinky>
-In-Reply-To: <e605df1da2b2e35ab69e8167c2b71b7f@pinky>
+	Fri, 24 Nov 2006 14:14:09 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:1461 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S935014AbWKXTOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 14:14:07 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45674453.9040108@s5r6.in-berlin.de>
+Date: Fri, 24 Nov 2006 20:13:23 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Yan Burman <burman.yan@gmail.com>
+CC: linux-kernel@vger.kernel.org, trivial@kernel.org, wli@holomorphy.com,
+       sparclinux@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc6] sparc: replace kmalloc+memset with kzalloc
+References: <4566DF0A.3050803@gmail.com> <45672D00.8060903@s5r6.in-berlin.de> <456741DD.6060103@gmail.com>
+In-Reply-To: <456741DD.6060103@gmail.com>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611242011.27917.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 November 2006 18:58, Andy Whitcroft wrote:
-> x86_64 vsyscall fails to compile when CONFIG_HOTPLUG_CPU is disabled
+Yan Burman wrote:
+> Stefan Richter wrote:
+>> ...in this ^, the old code and your update don't check for NULL return.
 > 
-> The following change attempted to fix up the notifier structure
-> when CONFIG_HOTPLUG_CPU is disabled:
+> Both of this parts are done at early stages, so it is probably:
+> a) Impossible to recover from failure
+> b) If you run out of memory at this stage, you are probably in very big
+> trouble anyway
 > 
->     [PATCH] x86-64: Fix vgetcpu when CONFIG_HOTPLUG_CPU is disabled
-> 
-> It seems to leave a reference to the cpu_vsyscall_notifier which is
-> not declared unles CONFIG_HOTPLUG_CPU is defined, leading to the following
-> compile time error:
+> I could modify it to check and panic if the check fails.
+> Would that be better?
 
-It's ok in mainline,  unfortunately mm has another independent patch that 
-broke it again.
-
--Andi
+I hope the domain experts answer this. (I have no recommendation but
+wanted to point out a potential, although unlikely, cause for trouble.)
+-- 
+Stefan Richter
+-=====-=-==- =-== ==---
+http://arcgraph.de/sr/

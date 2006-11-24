@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933879AbWKXLvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934363AbWKXMBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933879AbWKXLvi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 06:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934276AbWKXLvi
+	id S934363AbWKXMBN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 07:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934378AbWKXMBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 06:51:38 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:54913 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S933879AbWKXLvh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 06:51:37 -0500
-Date: Fri, 24 Nov 2006 14:50:04 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Hans Henrik Happe <hhh@imada.sdu.dk>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061124115004.GB32545@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com> <200611232249.56886.hhh@imada.sdu.dk> <45662206.1070104@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45662206.1070104@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 14:50:05 +0300 (MSK)
+	Fri, 24 Nov 2006 07:01:13 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:46095 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S934363AbWKXMBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 07:01:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=g4Zx/QsQn7CDiadute+zP24jGYkTs/fNsWIfJA3zMerDSRnz68kf9aiPcjybl8XXzChyV6u7YuiGQcsXrBvD6vxjrAnzKDVFD5DTkD4bB3JOZIFE9Q03DO6ffYrHRJS26qDAhkaDOuoPPaczJ32NjUMb7pTy76XH4iHblZdheV8=
+Message-ID: <4566DE24.5070108@gmail.com>
+Date: Fri, 24 Nov 2006 13:57:24 +0200
+From: Yan Burman <burman.yan@gmail.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: jdike@karaya.com, trivial@kernel.org
+Subject: [PATCH 2.6.19-rc6] um: replace kmalloc+memset with kzalloc
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 02:34:46PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Hans Henrik Happe wrote:
-> >I don't know if this falls under the simplification, but wouldn't there be 
-> >a race when reading/copying the event data? I guess this could be solved 
-> >with an extra user index. 
-> 
-> That's what I said, reading the value from the ring buffer structure's 
-> head would be racy.  All this can only work for single threaded code.
+Replace kmalloc+memset with kzalloc 
 
-Value in the userspace ring is updated each time it is changed in kernel
-(when userspace calls kevent_commit()), when userspace has read its old
-value it is guaranteed that requested number of events _is_ there
-(although it is possible that there are more than that value).
+Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-Ulrich, why didn't you comment on previous interface, which had exactly
-_one_ index exported to userspace - it is only required to add implicit
-uidx and (if you prefer that way) additional syscall, since in previous
-interface both waiting and commit was handled by kevent_wait() with
-different parameters.
+diff -rubp linux-2.6.19-rc5_orig/arch/um/drivers/net_kern.c linux-2.6.19-rc5_kzalloc/arch/um/drivers/net_kern.c
+--- linux-2.6.19-rc5_orig/arch/um/drivers/net_kern.c	2006-11-09 12:16:22.000000000 +0200
++++ linux-2.6.19-rc5_kzalloc/arch/um/drivers/net_kern.c	2006-11-11 22:44:04.000000000 +0200
+@@ -333,13 +333,12 @@ static int eth_configure(int n, void *in
+ 	size = transport->private_size + sizeof(struct uml_net_private) + 
+ 		sizeof(((struct uml_net_private *) 0)->user);
+ 
+-	device = kmalloc(sizeof(*device), GFP_KERNEL);
++	device = kzalloc(sizeof(*device), GFP_KERNEL);
+ 	if (device == NULL) {
+ 		printk(KERN_ERR "eth_configure failed to allocate uml_net\n");
+ 		return(1);
+ 	}
+ 
+-	memset(device, 0, sizeof(*device));
+ 	INIT_LIST_HEAD(&device->list);
+ 	device->index = n;
+ 
 
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
 
--- 
-	Evgeniy Polyakov
+Regards
+Yan Burman

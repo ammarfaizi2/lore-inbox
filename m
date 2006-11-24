@@ -1,233 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934338AbWKXFhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934432AbWKXFuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934338AbWKXFhn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 00:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934337AbWKXFhn
+	id S934432AbWKXFuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 00:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934433AbWKXFuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 00:37:43 -0500
-Received: from ns2.suse.de ([195.135.220.15]:20873 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S934336AbWKXFhm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 00:37:42 -0500
-Subject: patch usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch added to gregkh-2.6 tree
-To: daniel.ritz-ml@swissonline.ch, daniel.ritz@gmx.ch, gregkh@suse.de,
-       hs4233@mail.mn-solutions.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-From: <gregkh@suse.de>
-Date: Thu, 23 Nov 2006 21:37:31 -0800
-In-Reply-To: <200611172250.17159.daniel.ritz-ml@swissonline.ch>
-Message-Id: <20061124053726.BD6DBA169B6@imap.suse.de>
+	Fri, 24 Nov 2006 00:50:20 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:34843 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S934432AbWKXFuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 00:50:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=X5OkFm9hROyLjPf9cxOdEwqLG65QyuXxYnBjSPEWTpmex4ExxVAMIOBu9yyXkr3pK5qfyRFAImt0urf4xWWMTve8oNuYK2fi4agXm+JLwuz51rnIHC8lJRHTRa/JclF8yQPFH00ncVOppCeOkXmZTvkakl4tKKFm7i5tr7gGDQM=
+Message-ID: <db74e4d30611232150o36859417q78f688afa3709266@mail.gmail.com>
+Date: Fri, 24 Nov 2006 11:20:17 +0530
+From: atoka <atrockz@gmail.com>
+To: kernelnewbies@nl.linux.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Kernel cross compilation error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi everyone,
+        im a kernel newbie. im using a debian linux(ie ubuntu).i did
+cross compilation for ia64 on my system which is ia32. Now im trying
+to cross compile ia64 kernel but im getting some error. before
+compiling kernel, i did made changes in Makefile to specify my
+ia64-linux compiler and libraries .
 
-This is a note to let you know that I've just added the patch titled
+when i gave make menuconfig command i got following errors
 
-     Subject: USB: usbtouchscreen: add support for DMC TSC-10/25 devices
+root@atoka-desktop:/linux-2.6.18# make ARCH=ia64 menuconfig
+  HOSTCC  scripts/basic/fixdep
+scripts/basic/fixdep.c: In function 'use_config':
+scripts/basic/fixdep.c:204: error: 'PATH_MAX' undeclared (first use in
+this function)
+scripts/basic/fixdep.c:204: error: (Each undeclared identifier is
+reported only once
+scripts/basic/fixdep.c:204: error: for each function it appears in.)
+scripts/basic/fixdep.c:204: warning: unused variable 's'
+scripts/basic/fixdep.c: In function 'parse_dep_file':
+scripts/basic/fixdep.c:300: error: 'PATH_MAX' undeclared (first use in
+this function)
+scripts/basic/fixdep.c:300: warning: unused variable 's'
+make[1]: *** [scripts/basic/fixdep] Error 1
+make: *** [scripts_basic] Error 2
 
-to my gregkh-2.6 tree.  Its filename is
-
-     usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch
-
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-
->From daniel.ritz-ml@swissonline.ch Fri Nov 17 13:52:01 2006
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: Greg KH <gregkh@suse.de>
-Subject: USB: usbtouchscreen: add support for DMC TSC-10/25 devices
-Date: Fri, 17 Nov 2006 22:50:15 +0100
-Cc: "linux-usb" <linux-usb-devel@lists.sourceforge.net>, "linux-kernel" <linux-kernel@vger.kernel.org>, Holger Schurig <hs4233@mail.mn-solutions.de>
-Message-Id: <200611172250.17159.daniel.ritz-ml@swissonline.ch>
-
-[PATCH] usbtouchscreen: add support for DMC TSC-10/25 devices
-
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
-
-Adds support for the DMC TSC-10 and TSC-25 usb touchscreen controllers.
-
-Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
-
----
- drivers/usb/input/Kconfig          |    6 ++
- drivers/usb/input/usbtouchscreen.c |   96 ++++++++++++++++++++++++++++++++++++-
- 2 files changed, 101 insertions(+), 1 deletion(-)
-
---- gregkh-2.6.orig/drivers/usb/input/Kconfig
-+++ gregkh-2.6/drivers/usb/input/Kconfig
-@@ -221,6 +221,7 @@ config USB_TOUCHSCREEN
- 	  - ITM
- 	  - some other eTurboTouch
- 	  - Gunze AHL61
-+	  - DMC TSC-10/25
- 
- 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
- 	  a usage description and the required user-space stuff.
-@@ -258,6 +259,11 @@ config USB_TOUCHSCREEN_GUNZE
- 	bool "Gunze AHL61 device support" if EMBEDDED
- 	depends on USB_TOUCHSCREEN
- 
-+config USB_TOUCHSCREEN_DMC_TSC10
-+	default y
-+	bool "DMC TSC-10/25 device support" if EMBEDDED
-+	depends on USB_TOUCHSCREEN
-+
- config USB_YEALINK
- 	tristate "Yealink usb-p1k voip phone"
- 	depends on USB && INPUT && EXPERIMENTAL
---- gregkh-2.6.orig/drivers/usb/input/usbtouchscreen.c
-+++ gregkh-2.6/drivers/usb/input/usbtouchscreen.c
-@@ -8,6 +8,7 @@
-  *  - PanJit TouchSet
-  *  - eTurboTouch
-  *  - Gunze AHL61
-+ *  - DMC TSC-10/25
-  *
-  * Copyright (C) 2004-2006 by Daniel Ritz <daniel.ritz@gmx.ch>
-  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
-@@ -30,6 +31,8 @@
-  * - ITM parts are from itmtouch.c
-  * - 3M parts are from mtouchusb.c
-  * - PanJit parts are from an unmerged driver by Lanslott Gish
-+ * - DMC TSC 10/25 are from Holger Schurig, with ideas from an unmerged
-+ *   driver from Marius Vollmer
-  *
-  *****************************************************************************/
- 
-@@ -44,7 +47,7 @@
- #include <linux/usb/input.h>
- 
- 
--#define DRIVER_VERSION		"v0.4"
-+#define DRIVER_VERSION		"v0.5"
- #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
- #define DRIVER_DESC		"USB Touchscreen Driver"
- 
-@@ -103,6 +106,7 @@ enum {
- 	DEVTYPE_ITM,
- 	DEVTYPE_ETURBO,
- 	DEVTYPE_GUNZE,
-+	DEVTYPE_DMC_TSC10,
- };
- 
- static struct usb_device_id usbtouch_devices[] = {
-@@ -139,6 +143,10 @@ static struct usb_device_id usbtouch_dev
- 	{USB_DEVICE(0x0637, 0x0001), .driver_info = DEVTYPE_GUNZE},
- #endif
- 
-+#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
-+	{USB_DEVICE(0x0afa, 0x03e8), .driver_info = DEVTYPE_DMC_TSC10},
-+#endif
-+
- 	{}
- };
- 
-@@ -313,6 +321,80 @@ static int gunze_read_data(unsigned char
- #endif
- 
- /*****************************************************************************
-+ * DMC TSC-10/25 Part
-+ *
-+ * Documentation about the controller and it's protocol can be found at
-+ *   http://www.dmccoltd.com/files/controler/tsc10usb_pi_e.pdf
-+ *   http://www.dmccoltd.com/files/controler/tsc25_usb_e.pdf
-+ */
-+#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
-+
-+/* supported data rates. currently using 130 */
-+#define TSC10_RATE_POINT	0x50
-+#define TSC10_RATE_30		0x40
-+#define TSC10_RATE_50		0x41
-+#define TSC10_RATE_80		0x42
-+#define TSC10_RATE_100		0x43
-+#define TSC10_RATE_130		0x44
-+#define TSC10_RATE_150		0x45
-+
-+/* commands */
-+#define TSC10_CMD_RESET		0x55
-+#define TSC10_CMD_RATE		0x05
-+#define TSC10_CMD_DATA1		0x01
-+
-+static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
-+{
-+	struct usb_device *dev = usbtouch->udev;
-+	int ret;
-+	unsigned char buf[2];
-+
-+	/* reset */
-+	buf[0] = buf[1] = 0xFF;
-+	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
-+	                      TSC10_CMD_RESET,
-+	                      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+	                      0, 0, buf, 2, USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0)
-+		return ret;
-+	if (buf[0] != 0x06 || buf[1] != 0x00)
-+		return -ENODEV;
-+
-+	/* set coordinate output rate */
-+	buf[0] = buf[1] = 0xFF;
-+	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
-+	                      TSC10_CMD_RATE,
-+	                      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+	                      TSC10_RATE_150, 0, buf, 2, USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0)
-+		return ret;
-+	if (buf[0] != 0x06 || buf[1] != 0x00)
-+		return -ENODEV;
-+
-+	/* start sending data */
-+	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
-+	                      TSC10_CMD_DATA1,
-+	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+
-+static int dmc_tsc10_read_data(unsigned char *pkt, int *x, int *y, int *touch, int *press)
-+{
-+	*x = ((pkt[2] & 0x03) << 8) | pkt[1];
-+	*y = ((pkt[4] & 0x03) << 8) | pkt[3];
-+	*touch = pkt[0] & 0x01;
-+
-+	return 1;
-+}
-+#endif
-+
-+
-+/*****************************************************************************
-  * the different device descriptors
-  */
- static struct usbtouch_device_info usbtouch_dev_info[] = {
-@@ -389,6 +471,18 @@ static struct usbtouch_device_info usbto
- 		.read_data	= gunze_read_data,
- 	},
- #endif
-+
-+#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
-+	[DEVTYPE_DMC_TSC10] = {
-+		.min_xc		= 0x0,
-+		.max_xc		= 0x03ff,
-+		.min_yc		= 0x0,
-+		.max_yc		= 0x03ff,
-+		.rept_size	= 5,
-+		.init		= dmc_tsc10_init,
-+		.read_data	= dmc_tsc10_read_data,
-+	},
-+#endif
- };
- 
- 
-
-
-Patches currently in gregkh-2.6 which might be from daniel.ritz-ml@swissonline.ch are
-
-usb/usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch
+i tried defining the PATH_MAX macro in fixdep.c to 100, but then it
+gave error in some other file.
+Can anyone help me out with this error?

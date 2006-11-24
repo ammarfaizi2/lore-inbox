@@ -1,117 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755135AbWKXDVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755901AbWKXE1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755135AbWKXDVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Nov 2006 22:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757588AbWKXDVw
+	id S1755901AbWKXE1E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Nov 2006 23:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757411AbWKXE1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Nov 2006 22:21:52 -0500
-Received: from vms048pub.verizon.net ([206.46.252.48]:58784 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1755135AbWKXDVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Nov 2006 22:21:52 -0500
-Date: Thu, 23 Nov 2006 22:20:07 -0500
-From: linux-kernel@ttuttle.net
-Subject: [PATCH] Fixed acpi_video_get_next_level.
-To: linux-kernel@vger.kernel.org
-Mail-followup-to: linux-kernel@vger.kernel.org
-Message-id: <20061124032007.GA17400@lion>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary=EeQfGwPcQSOJBaQU
-Content-disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 23 Nov 2006 23:27:04 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:2034 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1755901AbWKXE1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Nov 2006 23:27:02 -0500
+Date: Fri, 24 Nov 2006 09:57:02 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ego@in.ibm.com, vatsa@in.ibm.com, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, torvalds@osdl.org, dipankar@in.ibm.com
+Subject: Re: [PATCH] Handle per-subsystem mutexes for CONFIG_HOTPLUG_CPU not set.
+Message-ID: <20061124042702.GA4666@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061123131852.GA20313@in.ibm.com> <20061123125446.3cd9ff0f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061123125446.3cd9ff0f.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> >
+> > Usage:
+> > a) Each hotcpu aware subsystem defines the hotcpu_mutex as follows
+> > #ifdef CONFIG_HOTPLUG_CPU
+> > DEFINE_MUTEX(my_hotcpu_mutex);
+> > #endif
+> >
+> > b) The hotcpu aware subsystem uses
+> > cpuhotplug_mutex_lock(&my_hotcpu_mutex)
+> > and
+> > cpuhotplug_mutex_unlock(&my_hotcpu_mutex)
+> > instead of the usual mutex_lock/mutex_unlock.
+> >
+> > Signed-off-by: Gautham R Shenoy <ego@in.ibm.com>
+> >
+> > ---
+> >  include/linux/cpu.h |   15 +++++++++++++++
+[snip]
+> >  extern void unlock_cpu_hotplug(void);
+> >  #define hotcpu_notifier(fn, pri) {				\
+> > @@ -86,6 +98,9 @@ extern void unlock_cpu_hotplug(void);
+> >  int cpu_down(unsigned int cpu);
+> >  #define cpu_is_offline(cpu) unlikely(!cpu_online(cpu))
+> >  #else
+> > +#define cpuhotplug_mutex_lock(m)	do { } while (0)
+> > +#define cpuhotplug_mutex_unlock(m)	do { } while (0)
+> > +
+> 
+> But what to do about the now-unneeded mutex?
+> 
+> We can just leave it there if CONFIG_HOTPLUG_CPU=n but then we'll get
+> unused variable warnings for statically-defined mutexes.
 
-I just upgraded the BIOS on my Dell Inspiron e1405 to the latest version
-(A05), and the LCD brightness hotkeys stopped working.  It turns out
-that the Dell ACPI code was actually sending video notify events to the
-kernel, but that the function acpi_video_get_next_level, which was
-supposed to choose the new video level, contained simply the phrase "Fix
-me" and "return level_current;".
+Why even leave it there?
 
-So I did.
+Can't we do something as follows, which has already been suggested in
+the patch description:
 
-Here's a patch that implements acpi_video_get_next_level properly, as
-far as I know.  I tried it on this laptop and it works.  It's against
-the current linus/linux-2.6.git tree.
+Each hotcpu aware subsystem defines the hotcpu_mutex as follows
+#ifdef CONFIG_HOTPLUG_CPU
+[static] DEFINE_MUTEX(my_hotcpu_mutex);
+#endif
 
-I'm a relatively new kernel hacker, so a few gentle whacks with a
-clue-by-four are probably necessary, and appreciated.
+That way, we won't be having any unneeded mutexes at all.
 
-Signed-off-by: Thomas Tuttle <linux-kernel@ttuttle.net>
+> To fix that would require either
+> 
+> #ifdef CONFIG_HOTPLUG_CPU
+> #define DEFINE_MUTEX_HOTPLUG_CPU(m) DEFINE_MUTEX(m)
+> #else
+> #define DEFINE_MUTEX_HOTPLUG_CPU(m)
+> #endif
+> 
 
-Thanks, and hope this helps.
+Yup, this won't work. Wish we could cook up something like this, but
+alas! Most of these mutexes are defined with the static keyword,
+which causes compile errors with CONFIG_HOTPLUG_CPU=n.
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="acpi_video_get_next_level-fix.patch"
+> or
+> 
+> #define cpuhotplug_mutex_lock(m)	do { (void)(m); } while (0)
+> 
+> 
+> Given that the former won't work, I'd suggest the latter ;)
+> 
 
-diff --git a/drivers/acpi/video.c b/drivers/acpi/video.c
-index 56666a9..2fc78ca 100644
---- a/drivers/acpi/video.c
-+++ b/drivers/acpi/video.c
-@@ -3,6 +3,7 @@
-  *
-  *  Copyright (C) 2004 Luming Yu <luming.yu@intel.com>
-  *  Copyright (C) 2004 Bruno Ducrot <ducrot@poupinou.org>
-+ *  Copyright (C) 2006 Thomas Tuttle <linux-kernel@ttuttle.net>
-  *
-  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  *
-@@ -47,11 +48,11 @@ #define ACPI_VIDEO_NOTIFY_CYCLE		0x82
- #define ACPI_VIDEO_NOTIFY_NEXT_OUTPUT	0x83
- #define ACPI_VIDEO_NOTIFY_PREV_OUTPUT	0x84
- 
--#define ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS	0x82
--#define	ACPI_VIDEO_NOTIFY_INC_BRIGHTNESS	0x83
--#define ACPI_VIDEO_NOTIFY_DEC_BRIGHTNESS	0x84
--#define ACPI_VIDEO_NOTIFY_ZERO_BRIGHTNESS	0x85
--#define ACPI_VIDEO_NOTIFY_DISPLAY_OFF		0x86
-+#define ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS	0x85
-+#define	ACPI_VIDEO_NOTIFY_INC_BRIGHTNESS	0x86
-+#define ACPI_VIDEO_NOTIFY_DEC_BRIGHTNESS	0x87
-+#define ACPI_VIDEO_NOTIFY_ZERO_BRIGHTNESS	0x88
-+#define ACPI_VIDEO_NOTIFY_DISPLAY_OFF		0x89
- 
- #define ACPI_VIDEO_HEAD_INVALID		(~0u - 1)
- #define ACPI_VIDEO_HEAD_END		(~0u)
-@@ -1509,8 +1510,30 @@ static int
- acpi_video_get_next_level(struct acpi_video_device *device,
- 			  u32 level_current, u32 event)
- {
--	/*Fix me */
--	return level_current;
-+	int min, max, min_above, max_below, i, l;
-+	max = max_below = 0;
-+	min = min_above = 255;
-+	for (i = 0; i < device->brightness->count; i++) {
-+		l = device->brightness->levels[i];
-+		if (l < min) min = l;
-+		if (l > max) max = l;
-+		if (l < min_above && l > level_current) min_above = l;
-+		if (l > max_below && l < level_current) max_below = l;
-+	}
-+
-+	switch (event) {
-+	case ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS:
-+		return (level_current < max) ? min_above : min;
-+	case ACPI_VIDEO_NOTIFY_INC_BRIGHTNESS:
-+		return (level_current < max) ? min_above : max;
-+	case ACPI_VIDEO_NOTIFY_DEC_BRIGHTNESS:
-+		return (level_current > min) ? max_below : min;
-+	case ACPI_VIDEO_NOTIFY_ZERO_BRIGHTNESS:
-+	case ACPI_VIDEO_NOTIFY_DISPLAY_OFF:
-+		return 0;
-+	default:
-+		return level_current;
-+	}
- }
- 
- static void
-
---EeQfGwPcQSOJBaQU--
+regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

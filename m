@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966468AbWKYMeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966481AbWKYMeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966468AbWKYMeA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 07:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966484AbWKYMeA
+	id S966481AbWKYMeG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 07:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966503AbWKYMeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 07:34:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65035 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S966468AbWKYMeA
+	Sat, 25 Nov 2006 07:34:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65291 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S966481AbWKYMeB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 07:34:00 -0500
-Date: Fri, 24 Nov 2006 23:40:15 +0000
+	Sat, 25 Nov 2006 07:34:01 -0500
+Date: Fri, 24 Nov 2006 22:41:30 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       seife@suse.de
-Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
-Message-ID: <20061124234015.GB4782@ucw.cz>
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org> <20061122152328.GI5200@stusta.de> <20061122154230.74889e3d@localhost.localdomain>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] PM: suspend/resume debugging should depend on
+Message-ID: <20061124224130.GA4782@ucw.cz>
+References: <200611192130.11542.a1426z@gawab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061122154230.74889e3d@localhost.localdomain>
+In-Reply-To: <200611192130.11542.a1426z@gawab.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This might not have been the original purpose of suspend, but it works 
-> > quite well, STR is obviously not an alternative, and it doesn't matter 
-> > much whether it takes a minute.
+On Sun 19-11-06 21:30:11, Al Boldi wrote:
+> Mike Galbraith wrote:
+> > On Sun, 2006-11-19 at 09:33 -0800, Linus Torvalds wrote:
+> > > On Sun, 19 Nov 2006, Chuck Ebbert wrote:
+> > > > When doing 'make oldconfig' we should ask about suspend/resume
+> > > > debug features when SOFTWARE_SUSPEND is not enabled.
+> > >
+> > > That's wrong.
+> > >
+> > > I never use SOFTWARE_SUSPEND, and I think the whole concept is totally
+> > > broken.
+> > >
+> > > Sane people use suspend-to-ram, and that's when you need the suspend and
+> > > resume debugging.
+> >
+> > Here I am wishing I had the _opportunity_ to be sane.  With my ATI X850
+> > AGP card, I have no choices except swsusp or reboot.
 > 
-> Suspend to ram at the moment is for the very very brave. Having added
-> resume quirks to the PCI resume code I've got basic resume behaving on at
-> two boxes where resume ate the disks. I've now found a third case in
-> testing where str/resume resumes when using Jmicron 365/366 your IDE disks
-> swapped over which makes a really nasty mess, and that controllers like
-> the SIL680 come back from resume misclocked and so on.
+> You make it sound like suspend-to-ram is dependent on a correct display 
+> adapter to work; it doesn't even work on a machine without a display 
+> adapter.
+> 
+> see http://bugzilla.kernel.org/show_bug.cgi?id=7037
 
-Hmm... how common are these machines? We are using unpatched kernel
-for suse10.2... OTOH we only support machines from the whitelist, all
-notebooks...
+Well, on 'normal' machines, video card is the most common problem.
+
 							Pavel
 
 -- 

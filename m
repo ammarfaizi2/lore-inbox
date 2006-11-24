@@ -1,89 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934298AbWKXFVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934338AbWKXFhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934298AbWKXFVg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 00:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934302AbWKXFVg
+	id S934338AbWKXFhn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 00:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934337AbWKXFhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 00:21:36 -0500
-Received: from outbound-dub.frontbridge.com ([213.199.154.16]:48954 "EHLO
-	outbound4-dub-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S934298AbWKXFVf convert rfc822-to-8bit (ORCPT
+	Fri, 24 Nov 2006 00:37:43 -0500
+Received: from ns2.suse.de ([195.135.220.15]:20873 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S934336AbWKXFhm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 00:21:35 -0500
-X-BigFish: V
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Add IDE mode support for SB600 SATA
-Date: Fri, 24 Nov 2006 13:21:17 +0800
-Message-ID: <FFECF24D2A7F6D418B9511AF6F3586020108D22C@shacnexch2.atitech.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Add IDE mode support for SB600 SATA
-Thread-Index: AccPHiwiKgPaNNIHTAWUdiO+kMc3SgAZg3Qg
-From: "Conke Hu" <conke.hu@amd.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Alan" <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 24 Nov 2006 05:21:20.0469 (UTC) FILETIME=[600B9850:01C70F88]
+	Fri, 24 Nov 2006 00:37:42 -0500
+Subject: patch usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch added to gregkh-2.6 tree
+To: daniel.ritz-ml@swissonline.ch, daniel.ritz@gmx.ch, gregkh@suse.de,
+       hs4233@mail.mn-solutions.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+From: <gregkh@suse.de>
+Date: Thu, 23 Nov 2006 21:37:31 -0800
+In-Reply-To: <200611172250.17159.daniel.ritz-ml@swissonline.ch>
+Message-Id: <20061124053726.BD6DBA169B6@imap.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alan
-Sent: Friday, November 24, 2006 12:46 AM
-To: Luugi Marsan
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+This is a note to let you know that I've just added the patch titled
 
-On Thu, 23 Nov 2006 11:35:47 -0500 (EST) luugi.marsan@amd.com (Luugi Marsan) wrote:
+     Subject: USB: usbtouchscreen: add support for DMC TSC-10/25 devices
 
-> From: Conke Hu <conke.hu@amd.com>
+to my gregkh-2.6 tree.  Its filename is
 
-NAK - Conke Hu's later patch is better and that should be the one applied
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in the body of a message to majordomo@vger.kernel.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+     usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch
 
------------------------------------------------------------
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
 
 
-Hi all,
-We've sent out more than one patch on the sb600 sata issue and one of them has been applied, so please just ignore others. 
-The applied patch is:
+>From daniel.ritz-ml@swissonline.ch Fri Nov 17 13:52:01 2006
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Greg KH <gregkh@suse.de>
+Subject: USB: usbtouchscreen: add support for DMC TSC-10/25 devices
+Date: Fri, 17 Nov 2006 22:50:15 +0100
+Cc: "linux-usb" <linux-usb-devel@lists.sourceforge.net>, "linux-kernel" <linux-kernel@vger.kernel.org>, Holger Schurig <hs4233@mail.mn-solutions.de>
+Message-Id: <200611172250.17159.daniel.ritz-ml@swissonline.ch>
 
---- linux-2.6.19-rc6-git4/drivers/pci/quirks.c.orig	2006-11-23 19:45:49.000000000 +0800
-+++ linux-2.6.19-rc6-git4/drivers/pci/quirks.c	2006-11-23 19:34:23.000000000 +0800
-@@ -795,6 +795,25 @@ static void __init quirk_mediagx_master(
- 	}
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
-+ 
-+#if defined(CONFIG_SATA_AHCI) || defined(CONFIG_SATA_AHCI_MODULE)
-+static void __devinit quirk_sb600_sata(struct pci_dev *pdev)
-+{
-+	/* set sb600 sata to ahci mode */
-+	if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
-+		u8 tmp;
-+
-+		pci_read_config_byte(pdev, 0x40, &tmp);
-+		pci_write_config_byte(pdev, 0x40, tmp|1);
-+		pci_write_config_byte(pdev, 0x9, 1);
-+		pci_write_config_byte(pdev, 0xa, 6);
-+		pci_write_config_byte(pdev, 0x40, tmp);
-+		
-+		pdev->class = 0x010601;
-+	}
-+}
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, quirk_sb600_sata);
-+#endif
+[PATCH] usbtouchscreen: add support for DMC TSC-10/25 devices
+
+From: Holger Schurig <hs4233@mail.mn-solutions.de>
+
+Adds support for the DMC TSC-10 and TSC-25 usb touchscreen controllers.
+
+Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+---
+ drivers/usb/input/Kconfig          |    6 ++
+ drivers/usb/input/usbtouchscreen.c |   96 ++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 101 insertions(+), 1 deletion(-)
+
+--- gregkh-2.6.orig/drivers/usb/input/Kconfig
++++ gregkh-2.6/drivers/usb/input/Kconfig
+@@ -221,6 +221,7 @@ config USB_TOUCHSCREEN
+ 	  - ITM
+ 	  - some other eTurboTouch
+ 	  - Gunze AHL61
++	  - DMC TSC-10/25
  
- /*
-  * As per PCI spec, ignore base address registers 0-3 of the IDE controllers
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -258,6 +259,11 @@ config USB_TOUCHSCREEN_GUNZE
+ 	bool "Gunze AHL61 device support" if EMBEDDED
+ 	depends on USB_TOUCHSCREEN
+ 
++config USB_TOUCHSCREEN_DMC_TSC10
++	default y
++	bool "DMC TSC-10/25 device support" if EMBEDDED
++	depends on USB_TOUCHSCREEN
++
+ config USB_YEALINK
+ 	tristate "Yealink usb-p1k voip phone"
+ 	depends on USB && INPUT && EXPERIMENTAL
+--- gregkh-2.6.orig/drivers/usb/input/usbtouchscreen.c
++++ gregkh-2.6/drivers/usb/input/usbtouchscreen.c
+@@ -8,6 +8,7 @@
+  *  - PanJit TouchSet
+  *  - eTurboTouch
+  *  - Gunze AHL61
++ *  - DMC TSC-10/25
+  *
+  * Copyright (C) 2004-2006 by Daniel Ritz <daniel.ritz@gmx.ch>
+  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
+@@ -30,6 +31,8 @@
+  * - ITM parts are from itmtouch.c
+  * - 3M parts are from mtouchusb.c
+  * - PanJit parts are from an unmerged driver by Lanslott Gish
++ * - DMC TSC 10/25 are from Holger Schurig, with ideas from an unmerged
++ *   driver from Marius Vollmer
+  *
+  *****************************************************************************/
+ 
+@@ -44,7 +47,7 @@
+ #include <linux/usb/input.h>
+ 
+ 
+-#define DRIVER_VERSION		"v0.4"
++#define DRIVER_VERSION		"v0.5"
+ #define DRIVER_AUTHOR		"Daniel Ritz <daniel.ritz@gmx.ch>"
+ #define DRIVER_DESC		"USB Touchscreen Driver"
+ 
+@@ -103,6 +106,7 @@ enum {
+ 	DEVTYPE_ITM,
+ 	DEVTYPE_ETURBO,
+ 	DEVTYPE_GUNZE,
++	DEVTYPE_DMC_TSC10,
+ };
+ 
+ static struct usb_device_id usbtouch_devices[] = {
+@@ -139,6 +143,10 @@ static struct usb_device_id usbtouch_dev
+ 	{USB_DEVICE(0x0637, 0x0001), .driver_info = DEVTYPE_GUNZE},
+ #endif
+ 
++#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
++	{USB_DEVICE(0x0afa, 0x03e8), .driver_info = DEVTYPE_DMC_TSC10},
++#endif
++
+ 	{}
+ };
+ 
+@@ -313,6 +321,80 @@ static int gunze_read_data(unsigned char
+ #endif
+ 
+ /*****************************************************************************
++ * DMC TSC-10/25 Part
++ *
++ * Documentation about the controller and it's protocol can be found at
++ *   http://www.dmccoltd.com/files/controler/tsc10usb_pi_e.pdf
++ *   http://www.dmccoltd.com/files/controler/tsc25_usb_e.pdf
++ */
++#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
++
++/* supported data rates. currently using 130 */
++#define TSC10_RATE_POINT	0x50
++#define TSC10_RATE_30		0x40
++#define TSC10_RATE_50		0x41
++#define TSC10_RATE_80		0x42
++#define TSC10_RATE_100		0x43
++#define TSC10_RATE_130		0x44
++#define TSC10_RATE_150		0x45
++
++/* commands */
++#define TSC10_CMD_RESET		0x55
++#define TSC10_CMD_RATE		0x05
++#define TSC10_CMD_DATA1		0x01
++
++static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
++{
++	struct usb_device *dev = usbtouch->udev;
++	int ret;
++	unsigned char buf[2];
++
++	/* reset */
++	buf[0] = buf[1] = 0xFF;
++	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	                      TSC10_CMD_RESET,
++	                      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
++	                      0, 0, buf, 2, USB_CTRL_SET_TIMEOUT);
++	if (ret < 0)
++		return ret;
++	if (buf[0] != 0x06 || buf[1] != 0x00)
++		return -ENODEV;
++
++	/* set coordinate output rate */
++	buf[0] = buf[1] = 0xFF;
++	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	                      TSC10_CMD_RATE,
++	                      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
++	                      TSC10_RATE_150, 0, buf, 2, USB_CTRL_SET_TIMEOUT);
++	if (ret < 0)
++		return ret;
++	if (buf[0] != 0x06 || buf[1] != 0x00)
++		return -ENODEV;
++
++	/* start sending data */
++	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	                      TSC10_CMD_DATA1,
++	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
++	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++
++static int dmc_tsc10_read_data(unsigned char *pkt, int *x, int *y, int *touch, int *press)
++{
++	*x = ((pkt[2] & 0x03) << 8) | pkt[1];
++	*y = ((pkt[4] & 0x03) << 8) | pkt[3];
++	*touch = pkt[0] & 0x01;
++
++	return 1;
++}
++#endif
++
++
++/*****************************************************************************
+  * the different device descriptors
+  */
+ static struct usbtouch_device_info usbtouch_dev_info[] = {
+@@ -389,6 +471,18 @@ static struct usbtouch_device_info usbto
+ 		.read_data	= gunze_read_data,
+ 	},
+ #endif
++
++#ifdef CONFIG_USB_TOUCHSCREEN_DMC_TSC10
++	[DEVTYPE_DMC_TSC10] = {
++		.min_xc		= 0x0,
++		.max_xc		= 0x03ff,
++		.min_yc		= 0x0,
++		.max_yc		= 0x03ff,
++		.rept_size	= 5,
++		.init		= dmc_tsc10_init,
++		.read_data	= dmc_tsc10_read_data,
++	},
++#endif
+ };
+ 
+ 
 
 
-Conke
+Patches currently in gregkh-2.6 which might be from daniel.ritz-ml@swissonline.ch are
 
-
+usb/usb-usbtouchscreen-add-support-for-dmc-tsc-10-25-devices.patch

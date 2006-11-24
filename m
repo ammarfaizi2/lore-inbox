@@ -1,72 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934527AbWKXJwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934526AbWKXJxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934527AbWKXJwF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 04:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934526AbWKXJwF
+	id S934526AbWKXJxK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 04:53:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934531AbWKXJxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 04:52:05 -0500
-Received: from nz-out-0102.google.com ([64.233.162.199]:10265 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S934528AbWKXJwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 04:52:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KIy28znwgdNzcrhMOiGBdeV4oSRMW5bulJ7DSYWnEP+TXLEZxOKs97dTtyILRCrJWJMH7ymLy0cdJIPxY+QS6M9W1aW3TjvFuL3RQV/SIkFTinji3bMwREelUi6V2rZ7oauJggAP93s1XGAOE9CbXX3paEl5NhGS+JLVKm0CH3c=
-Message-ID: <9a8748490611240152x3a24f96fx62cd311f52b5fafb@mail.gmail.com>
-Date: Fri, 24 Nov 2006 10:52:00 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Jens Axboe" <jens.axboe@oracle.com>
-Subject: Re: Simple script that locks up my box with recent kernels
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <20061124094648.GA5400@kernel.dk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Nov 2006 04:53:10 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:28034 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S934526AbWKXJxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 04:53:07 -0500
+Date: Fri, 24 Nov 2006 12:50:52 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: Kevent POSIX timers support.
+Message-ID: <20061124095052.GC13600@2ka.mipt.ru>
+References: <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru> <20061123085243.GA11575@2ka.mipt.ru> <456603E7.9090006@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <9a8748490610161545i309c416aja4f39edef8ea04e2@mail.gmail.com>
-	 <9a8748490611220304y5fc1b90ande7aec9a2e2b4997@mail.gmail.com>
-	 <20061122110740.GA8055@kernel.dk>
-	 <200611240052.13719.jesper.juhl@gmail.com>
-	 <20061124065209.GX4999@kernel.dk>
-	 <9a8748490611240141o4d285317h3c1e2110f515e141@mail.gmail.com>
-	 <20061124094648.GA5400@kernel.dk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <456603E7.9090006@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 24 Nov 2006 12:50:55 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24/11/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> On Fri, Nov 24 2006, Jesper Juhl wrote:
-> > On 24/11/06, Jens Axboe <jens.axboe@oracle.com> wrote:
-> > >On Fri, Nov 24 2006, Jesper Juhl wrote:
-> > >> > Does the box survive io intensive workloads?
-> > >>
-> > >> It seems to. It does get sluggish as hell when there is lots of disk I/O
-> > >but
-> > >> it seems to be able to survive.
-> > >> I'll try some more, with some IO benchmarks + various other stuff to see
-> > >> if I can get it to die that way.
-> > >
-> > >Just wondering if you have a marginal powersupply, perhaps.
-> > >
-> > It is a possibility, but I doubt it, since if I use a 2.6.17.x kernel
-> > then things are rock solid and I can't cause a lockup even if I leave
-> > my box building kernels in the background for days.
->
-> Since it triggers fairly quickly, any chance that you could try and
-> narrow it down to a specific version that breaks?
->
-I already tried doing a git bisect, but I somehow messed it up
-(probably by concluding that a bad kernel was good).
-The problem is that *usually* triggers fairly quickly (within 1hr),
-but sometimes it takes much longer to trigger, so it's hard to be 100%
-sure that a kernel is actually good - except if I leave it running for
-something like 24hrs for each step in the bisect. That is actually
-something I plan to do, but finding the time for that is not easy.
+On Thu, Nov 23, 2006 at 12:26:15PM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >+static int posix_kevent_init(void)
+> >+{
+> >+	struct kevent_callbacks tc = {
+> >+		.callback = &posix_kevent_callback,
+> >+		.enqueue = &posix_kevent_enqueue,
+> >+		.dequeue = &posix_kevent_dequeue};
+> 
+> How do we prevent that somebody tries to register a POSIX timer event 
+> source with kevent_ctl(KEVENT_CTL_ADD)?  This should only be possible 
+> from sys_timer_create and nowhere else.
+> 
+> Can you add a parameter to kevent_enqueue indicating this is a call from 
+> inside the kernel and then ignore certain enqueue callbacks?
 
+I think we need some set of flags for callbacks - where they can be
+called, maybe even from which context and so on. So userspace will not
+be allowed to create such timers through kevent API.
+Will do it for release.
+ 
+> >@@ -343,23 +439,27 @@ static int posix_timer_fn(struct hrtimer
+> > 
+> > 	timr = container_of(timer, struct k_itimer, it.real.timer);
+> > 	spin_lock_irqsave(&timr->it_lock, flags);
+> >+	
+> >+	if (timr->it_sigev_notify & SIGEV_KEVENT) {
+> >+		kevent_storage_ready(&timr->st, NULL, KEVENT_MASK_ALL);
+> >+	} else {
+> 
+> We need to pass the data in the sigev_value meember of the struct 
+> sigevent structure passed to timer_create to the caller.  I don't see it 
+> being done here nor when the timer is created.  Do I miss something? 
+> The sigev_value value should be stored in the user/ptr member of struct 
+> ukevent.
+
+sigev_value was stored in k_itimer structure, I just do not know where
+to put it in the ukevent provided to userspace - it can be placed in
+pointer value if you like.
+
+> >+		if (event.sigev_notify & SIGEV_KEVENT) {
+> 
+> Don't use a bit.  It makes no sense to combine SIGEV_SIGNAL with 
+> SIGEV_KEVENT etc.  Only SIGEV_THREAD_ID is a special case.
+> 
+> Just define SIGEV_KEVENT to 3 and replace the tests like the one cited 
+> above with
+> 
+>   if (timr->it_sigev_notify == SIGEV_KEVENT)
+
+Ok.
+
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+	Evgeniy Polyakov

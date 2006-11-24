@@ -1,110 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934519AbWKXI7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757663AbWKXJcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934519AbWKXI7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 03:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934521AbWKXI7S
+	id S1757663AbWKXJcc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 04:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757658AbWKXJca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 03:59:18 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26032 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S934519AbWKXI7R (ORCPT
+	Fri, 24 Nov 2006 04:32:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2517 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757614AbWKXJcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 03:59:17 -0500
-Date: Fri, 24 Nov 2006 09:59:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Linus Torvalds <torvalds@osdl.org>
-Subject: s2ram debugging documentation
-Message-ID: <20061124085900.GA5081@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 24 Nov 2006 04:32:11 -0500
+Subject: [GFS2] Fix memory allocation in glock.c [9/9]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 24 Nov 2006 09:34:54 +0000
+Message-Id: <1164360894.3392.147.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus posted quite nice TRACE_RESUME how-to, and I think it is too
-nice to be hidden in archives of mailing list, so I turned it into
-Documentation piece.
+>From 70411bdbedb9a2726cacd5c36879b78037153782 Mon Sep 17 00:00:00 2001
+From: Steven Whitehouse <swhiteho@redhat.com>
+Date: Wed, 15 Nov 2006 15:17:03 -0500
+Subject: [PATCH] [GFS2] Fix memory allocation in glock.c
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Change from GFP_KERNEL to GFP_NOFS as this was causing a
+slow down when trying to push inodes from cache.
 
-Add linus' how-to-get s2ram to work.
-
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 ---
-commit 10ef1d7d246e5d041eeb076f045dd21167311324
-tree a5deed96319360e4e1f4982d4a6574f23a4dfe23
-parent b6be65f0eb2ba9a7d2c8cef7a7af9ae481fe3ec9
-author Pavel <pavel@amd.ucw.cz> Fri, 24 Nov 2006 09:57:12 +0100
-committer Pavel <pavel@amd.ucw.cz> Fri, 24 Nov 2006 09:57:12 +0100
+ fs/gfs2/glock.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
- Documentation/power/s2ram.txt |   56 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 56 insertions(+), 0 deletions(-)
-
-diff --git a/Documentation/power/s2ram.txt b/Documentation/power/s2ram.txt
-new file mode 100644
-index 0000000..50dce18
---- /dev/null
-+++ b/Documentation/power/s2ram.txt
-@@ -0,0 +1,56 @@
-+			How to get s2ram working
-+			~~~~~~~~~~~~~~~~~~~~~~~~
-+			2006 Linus Torvalds
-+			2006 Pavel Machek
-+
-+1) Check suspend.sf.net, program s2ram there has long whitelist of
-+   "known ok" machines, along with tricks to use on each one.
-+
-+2) If that does not help, try reading tricks.txt and
-+   video.txt. Perhaps problem is as simple as broken module, and
-+   simple module unload can fix it.
-+
-+3) You can use Linus' TRACE_RESUME infrastructure, described below.
-+
-+		      Using TRACE_RESUME
-+		      ~~~~~~~~~~~~~~~~~~
-+
-+I've been working at making the machines I have able to STR, and almost 
-+always it's a driver that is buggy. Thank God for the suspend/resume 
-+debugging - the thing that Chuck tried to disable. That's often the _only_ 
-+way to debug these things, and it's actually pretty powerful (but 
-+time-consuming - having to insert TRACE_RESUME() markers into the device 
-+driver that doesn't resume and recompile and reboot).
-+
-+Anyway, the way to debug this for people who are interested (have a 
-+machine that doesn't boot) is:
-+
-+ - enable PM_DEBUG, and PM_TRACE
-+
-+ - use a script like this:
-+
-+	#!/bin/sh
-+	sync
-+	echo 1 > /sys/power/pm_trace
-+	echo mem > /sys/power/state
-+
-+   to suspend
-+
-+ - if it doesn't come back up (which is usually the problem), reboot by 
-+   holding the power button down, and look at the dmesg output for things 
-+   like
-+
-+	Magic number: 4:156:725
-+	hash matches drivers/base/power/resume.c:28
-+	hash matches device 0000:01:00.0
-+
-+   which means that the last trace event was just before trying to resume 
-+   device 0000:01:00.0. Then figure out what driver is controlling that 
-+   device (lspci and /sys/devices/pci* is your friend), and see if you can 
-+   fix it, disable it, or trace into its resume function.
-+
-+For example, the above happens to be the VGA device on my EVO, which I 
-+used to run with "radeonfb" (it's an ATI Radeon mobility). It turns out 
-+that "radeonfb" simply cannot resume that device - it tries to set the 
-+PLL's, and it just _hangs_. Using the regular VGA console and letting X 
-+resume it instead works fine.
-
-
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 78fe0fa..e94e7c9 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -769,7 +769,7 @@ restart:
+ 	} else {
+ 		spin_unlock(&gl->gl_spin);
+ 
+-		new_gh = gfs2_holder_get(gl, state, LM_FLAG_TRY, GFP_KERNEL);
++		new_gh = gfs2_holder_get(gl, state, LM_FLAG_TRY, GFP_NOFS);
+ 		if (!new_gh)
+ 			return;
+ 		set_bit(HIF_DEMOTE, &new_gh->gh_iflags);
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+1.4.1
+
+
+

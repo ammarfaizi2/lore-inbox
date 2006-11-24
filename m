@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934989AbWKXRYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965753AbWKXRd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934989AbWKXRYc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 12:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934992AbWKXRYc
+	id S965753AbWKXRd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 12:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934996AbWKXRdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 12:24:32 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:58130 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S934989AbWKXRYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 12:24:31 -0500
-Message-ID: <45672AC8.2010303@shadowen.org>
-Date: Fri, 24 Nov 2006 17:24:24 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>,
+	Fri, 24 Nov 2006 12:33:55 -0500
+Received: from ns.suse.de ([195.135.220.2]:54720 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S934998AbWKXRdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 12:33:53 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andy Whitcroft <apw@shadowen.org>
+Subject: Re: [PATCH] efi_limit_regions triggers link failure when CONFIG_EFI is not defined
+Date: Fri, 24 Nov 2006 18:33:47 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>,
        Artiom Myaskouvskey <artiom.myaskouvskey@intel.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] efi_limit_regions triggers link failure when CONFIG_EFI
- is not defined
-References: <20061123021703.8550e37e.akpm@osdl.org> <35d909969a9b883d8ee15ee1df497fd9@pinky> <200611241805.45621.ak@suse.de>
-In-Reply-To: <200611241805.45621.ak@suse.de>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: url=http://www.shadowen.org/~apw/public-key
-Content-Type: text/plain; charset=ISO-8859-1
+References: <20061123021703.8550e37e.akpm@osdl.org> <200611241805.45621.ak@suse.de> <45672AC8.2010303@shadowen.org>
+In-Reply-To: <45672AC8.2010303@shadowen.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611241833.47671.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Friday 24 November 2006 17:59, Andy Whitcroft wrote:
->> The following patch is needed to get 2.6.19-rc6-mm1 to compile with
->> CONFIG_EFI disabled.  This is the 'shortest' fix.  However, it does
->> appear that there is some overlap with EFI implmentation partly
->> being in e820.c and partly in efi.c.  It might make sense to move
->> everything efi related over to efi.c.
+
+> Compiler is as below:
 > 
-> It compiles here. And the ifdef status hasn't changed at all.
+>     gcc version 3.3.4 (Debian 1:3.3.4-3)
 
-Right, when it was in the function directly the optimiser seems to have
-lopped it off nice and early and got rid of the link failure.
+Ah, pre unit-at-a-time and some other quirks too. Hopefully
+at some point we can unsupport it.
 
-> Ah maybe your compiler failed to inline the function so the compiler
-> couldn't optimize it away. What compiler were you using? Does it
-> go away if you add a "inline" to efi_limit_regions()?
+> Yes, making efi_limit_regions() inline also seems to work. 
 
-Compiler is as below:
+Ok i will make it so.
 
-    gcc version 3.3.4 (Debian 1:3.3.4-3)
+> Can we 
+> guarentee it will be inlined though?  I had the feeling that inline was
+> advisory and if it does not inline then we will get the link failures.
 
-Yes, making efi_limit_regions() inline also seems to work.  Can we
-guarentee it will be inlined though?  I had the feeling that inline was
-advisory and if it does not inline then we will get the link failures.
+It's defined to __attribute__((always_inline)) inline
 
--apw
+-Andi
+

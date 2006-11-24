@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966216AbWKXV7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966210AbWKXWAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966216AbWKXV7M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 16:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966223AbWKXV7L
+	id S966210AbWKXWAq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 17:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966236AbWKXWAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 16:59:11 -0500
-Received: from tomts16.bellnexxia.net ([209.226.175.4]:40895 "EHLO
+	Fri, 24 Nov 2006 17:00:45 -0500
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:16320 "EHLO
 	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S966225AbWKXV7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 16:59:09 -0500
-Date: Fri, 24 Nov 2006 16:59:04 -0500
+	id S966210AbWKXWAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 17:00:42 -0500
+Date: Fri, 24 Nov 2006 16:55:18 -0500
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
@@ -21,8 +21,8 @@ To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
        Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
        systemtap@sources.redhat.com
-Subject: [PATCH 8/16] LTTng 0.6.36 for 2.6.18 : Timestamp
-Message-ID: <20061124215904.GI25048@Krystal>
+Subject: [PATCH 4/16] LTTng 0.6.36 for 2.6.18 : atomic UP operations on SMP
+Message-ID: <20061124215518.GE25048@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -30,920 +30,1433 @@ Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 16:58:06 up 93 days, 19:06,  4 users,  load average: 0.61, 0.62, 0.43
+X-Uptime: 16:54:02 up 93 days, 19:01,  4 users,  load average: 0.84, 0.48, 0.32
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Architecture specific timestamping primitives.
+This patch adds a UP flavor of SMP operations which is intended to provide
+atomic modification of per-cpu data without suffering from the LOCK of memory
+barrier performance cost. Note that extreme care must be taken when accessing
+this data from different CPUs : smp_wmb() and smp_rmb() must be used
+explicitely. As this last scenario happens very rarely in LTTng, it provides an
+interesting performance gain.
 
-patch08-2.6.18-lttng-core-0.6.36-timestamp.diff
+
+Some tests to see the speedup given by using atomic-up.h on per cpu variables.
+
+Non LOCKed atomic ops that I now use on SMP :
+
+A test ran on a 3GHz Pentium 4 shows that (20000 loops) :
+
+irq save/restore pair      210.60 ns
+
+cmpxchg                     49.46 ns
+    (76 % speedup)
+cmpxchg-up (no lock prefix)  9.00 ns
+    (95 % speedup)
+
+On my 3GHz Pentium 4, it takes 255.83ns to log a 4 bytes event when the LOCK
+prefix is used (without atomic-up). When I enable my modified version, it drops
+to 205.63ns. Therefore, the speedup is :
+
+(205.63-255.83)/255.83 * 100% = -19.62 %
+
+(Test : 3*20000 loops of 4 bytes event log in flight recorder mode)
+
+patch04-2.6.18-lttng-core-0.6.36-atomic_up.diff
 
 Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
 --BEGIN--
 --- /dev/null
-+++ b/include/asm-alpha/ltt.h
-@@ -0,0 +1,15 @@
-+#ifndef _ASM_ALPHA_LTT_H
-+#define _ASM_ALPHA_LTT_H
-+/*
-+ * linux/include/asm-alpha/ltt.h
-+ *
-+ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * alpha architecture specific definitions for ltt
-+ */
++++ b/include/asm-i386/atomic-up.h
+@@ -0,0 +1,229 @@
++#ifndef __ARCH_I386_ATOMIC_UP__
++#define __ARCH_I386_ATOMIC_UP__
 +
-+#define LTT_HAS_TSC
-+
-+#endif
---- /dev/null
-+++ b/include/asm-arm26/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_ARM26_LTT_H
-+#define _ASM_ARM26_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-arm/ltt.h
-@@ -0,0 +1,82 @@
-+/*
-+ * linux/include/asm-arm/ltt.h
-+ *
-+ * Copyright (C) 2005, Mathieu Desnoyers
-+ *
-+ * ARM definitions for tracing system
-+ */
-+
-+#ifndef _ASM_ARM_LTT_H
-+#define _ASM_ARM_LTT_H
-+
-+#include <linux/jiffies.h>
-+#include <linux/seqlock.h>
-+
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_ARM
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#undef LTT_HAS_TSC
-+
-+#define LTTNG_LOGICAL_SHIFT 13
-+
-+extern atomic_t lttng_logical_clock;
-+
-+static inline u32 ltt_get_timestamp32(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u32 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+
-+/* The shift overflow doesn't matter */
-+static inline u64 ltt_get_timestamp64(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u64 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+/* this has to be called with the write seqlock held */
-+static inline void ltt_reset_timestamp(void)
-+{
-+	atomic_set(&lttng_logical_clock, 0);
-+}
-+
-+
-+static inline unsigned int ltt_frequency(void)
-+{
-+  return HZ << LTTNG_LOGICAL_SHIFT;
-+}
-+
-+
-+static inline u32 ltt_freq_scale(void)
-+{
-+  return 1;
-+}
-+
-+
-+
-+#endif
---- /dev/null
-+++ b/include/asm-cris/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_CRIS_LTT_H
-+#define _ASM_CRIS_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-frv/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_FRV_LTT_H
-+#define _ASM_FRV_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-generic/ltt.h
-@@ -0,0 +1,12 @@
-+#ifndef _ASM_GENERIC_LTT_H
-+#define _ASM_GENERIC_LTT_H
-+/*
-+ * linux/include/asm-generic/ltt.h
-+ *
-+ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ *
-+ * Architecture dependent definitions for ltt
-+ * Architecture without TSC
-+ */
-+
-+#endif
---- /dev/null
-+++ b/include/asm-h8300/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_H8300_LTT_H
-+#define _ASM_H8300_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-i386/ltt.h
-@@ -0,0 +1,154 @@
-+#ifndef _ASM_I386_LTT_H
-+#define _ASM_I386_LTT_H
-+/*
-+ * linux/include/asm-i386/ltt.h
-+ *
-+ * Copyright (C) 2005,2006 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ *
-+ * i386 time and TSC definitions for ltt
-+ */
-+
-+#include <linux/jiffies.h>
-+#include <linux/seqlock.h>
-+
-+#include <asm/timex.h>
++#include <linux/compiler.h>
 +#include <asm/processor.h>
++#include <asm/atomic.h>
 +
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_I386
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#define LTTNG_LOGICAL_SHIFT 13
-+
-+extern atomic_t lttng_logical_clock;
-+
-+/* The shift overflow doesn't matter
-+ * We use the xtime seq_lock to protect 64 bits clock and
-+ * 32 bits ltt logical clock coherency.
-+ *
-+ * try 5 times. If it still fails, we are cleary in a NMI nested over
-+ * the seq_lock. Return 0 -> error.
-+ *
-+ * 0 is considered an erroneous value.
++/* 
++ * atomic_up variants insure operation atomicity only if the variable is not
++ * shared between cpus. This is useful to have per-cpu atomic operations to
++ * protect from contexts like non-maskable interrupts without the LOCK prefix
++ * performance cost.
 + */
 +
-+static inline u32 ltt_timestamp_no_tsc32(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u32 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+
-+static inline u64 ltt_timestamp_no_tsc64(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u64 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+#ifdef CONFIG_LTT_SYNTHETIC_TSC
-+u64 ltt_heartbeat_read_synthetic_tsc(void);
-+#endif //CONFIG_LTT_SYNTHETIC_TSC
-+
-+static inline u32 ltt_get_timestamp32(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+		return ltt_timestamp_no_tsc32();
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return get_cycles(); /* only need the 32 LSB */
-+#else
-+	return ltt_timestamp_no_tsc32();
-+#endif
-+}
-+
-+static inline u64 ltt_get_timestamp64(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+		return ltt_timestamp_no_tsc64();
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+#ifdef CONFIG_LTT_SYNTHETIC_TSC
-+	return ltt_heartbeat_read_synthetic_tsc();
-+#else
-+	return get_cycles();
-+#endif //CONFIG_LTT_SYNTHETIC_TSC
-+#else
-+	return ltt_timestamp_no_tsc64();
-+#endif
-+}
-+
-+/* this has to be called with the write seqlock held */
-+static inline void ltt_reset_timestamp(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc) {
-+		atomic_set(&lttng_logical_clock, 0);
-+		return;
-+	}
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return;
-+#else
-+	atomic_set(&lttng_logical_clock, 0);
-+	return;
-+#endif
-+}
-+
-+static inline unsigned int ltt_frequency(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+  	return HZ << LTTNG_LOGICAL_SHIFT;
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return cpu_khz;
-+#else
-+	return HZ << LTTNG_LOGICAL_SHIFT;
-+#endif
-+}
-+
-+static inline u32 ltt_freq_scale(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+  	return 1;
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return 1000;
-+#else
-+	return 1;
-+#endif
-+
-+}
-+
-+#endif //_ASM_I386_LTT_H
---- /dev/null
-+++ b/include/asm-ia64/ltt.h
-@@ -0,0 +1,6 @@
-+#ifndef _ASM_IA64_LTT_H
-+#define _ASM_IA64_LTT_H
-+
-+#define LTT_HAS_TSC
-+
-+#endif
---- /dev/null
-+++ b/include/asm-m32r/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_M32R_LTT_H
-+#define _ASM_M32R_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-m68k/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_M68K_LTT_H
-+#define _ASM_M68K_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-m68knommu/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_M68KNOMMU_LTT_H
-+#define _ASM_M68KNOMMU_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-mips/ltt.h
-@@ -0,0 +1,50 @@
-+/*
-+ * linux/include/asm-mips/ltt.h
-+ *
-+ * Copyright (C) 2005, Mathieu Desnoyers
-+ *
-+ * MIPS definitions for tracing system
++/**
++ * atomic_up_add - add integer to atomic variable
++ * @i: integer value to add
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically adds @i to @v.
 + */
-+
-+#ifndef _ASM_MIPS_LTT_H
-+#define _ASM_MIPS_LTT_H
-+
-+#define LTT_HAS_TSC
-+
-+/* Current arch type */
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_MIPS
-+
-+/* Current variant type */
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#include <linux/ltt-core.h>
-+#include <asm/timex.h>
-+#include <asm/processor.h>
-+
-+u64 ltt_heartbeat_read_synthetic_tsc(void);
-+
-+/* MIPS get_cycles only returns a 32 bits TSC (see timex.h). The assumption
-+ * there is that the reschedule is done every 8 seconds or so, so we must
-+ * make sure there is at least an event (heartbeat) between  each TSC wrap
-+ * around. We use the LTT synthetic TSC exactly for this. */
-+static inline u32 ltt_get_timestamp32(void)
++static __inline__ void atomic_up_add(int i, atomic_t *v)
 +{
-+	return get_cycles();
++	__asm__ __volatile__(
++		"addl %1,%0"
++		:"+m" (v->counter)
++		:"ir" (i));
 +}
 +
-+static inline u64 ltt_get_timestamp64(void)
++/**
++ * atomic_up_sub - subtract the atomic variable
++ * @i: integer value to subtract
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically subtracts @i from @v.
++ */
++static __inline__ void atomic_up_sub(int i, atomic_t *v)
 +{
-+	return ltt_heartbeat_read_synthetic_tsc();
++	__asm__ __volatile__(
++		"subl %1,%0"
++		:"+m" (v->counter)
++		:"ir" (i));
 +}
 +
-+static inline unsigned int ltt_frequency(void)
++/**
++ * atomic_up_sub_and_test - subtract value from variable and test result
++ * @i: integer value to subtract
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically subtracts @i from @v and returns
++ * true if the result is zero, or false for all
++ * other cases.
++ */
++static __inline__ int atomic_up_sub_and_test(int i, atomic_t *v)
 +{
-+	return mips_hpt_frequency;
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"subl %2,%0; sete %1"
++		:"+m" (v->counter), "=qm" (c)
++		:"ir" (i) : "memory");
++	return c;
 +}
 +
-+static inline u32 ltt_freq_scale(void)
++/**
++ * atomic_up_inc - increment atomic variable
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically increments @v by 1.
++ */ 
++static __inline__ void atomic_up_inc(atomic_t *v)
 +{
-+	return 1;
++	__asm__ __volatile__(
++		"incl %0"
++		:"+m" (v->counter));
 +}
 +
-+#endif //_ASM_MIPS_LTT_H
---- a/include/asm-mips/mipsregs.h
-+++ b/include/asm-mips/mipsregs.h
-@@ -383,6 +383,7 @@ #define ST0_XX			0x80000000	/* MIPS IV n
-  */
- #define  CAUSEB_EXCCODE		2
- #define  CAUSEF_EXCCODE		(_ULCAST_(31)  <<  2)
-+#define  CAUSE_EXCCODE(cause)	(((cause) & CAUSEF_EXCCODE) >> CAUSEB_EXCCODE)
- #define  CAUSEB_IP		8
- #define  CAUSEF_IP		(_ULCAST_(255) <<  8)
- #define  CAUSEB_IP0		8
---- a/include/asm-mips/timex.h
-+++ b/include/asm-mips/timex.h
-@@ -51,4 +51,6 @@ static inline cycles_t get_cycles (void)
- 	return read_c0_count();
++/**
++ * atomic_up_dec - decrement atomic variable
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically decrements @v by 1.
++ */ 
++static __inline__ void atomic_up_dec(atomic_t *v)
++{
++	__asm__ __volatile__(
++		"decl %0"
++		:"+m" (v->counter));
++}
++
++/**
++ * atomic_up_dec_and_test - decrement and test
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically decrements @v by 1 and
++ * returns true if the result is 0, or false for all other
++ * cases.
++ */ 
++static __inline__ int atomic_up_dec_and_test(atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"decl %0; sete %1"
++		:"+m" (v->counter), "=qm" (c)
++		: : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic_up_inc_and_test - increment and test 
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically increments @v by 1
++ * and returns true if the result is zero, or false for all
++ * other cases.
++ */ 
++static __inline__ int atomic_up_inc_and_test(atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"incl %0; sete %1"
++		:"+m" (v->counter), "=qm" (c)
++		: : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic_up_add_negative - add and test if negative
++ * @v: pointer of type atomic_t
++ * @i: integer value to add
++ * 
++ * Atomically adds @i to @v and returns true
++ * if the result is negative, or false when
++ * result is greater than or equal to zero.
++ */ 
++static __inline__ int atomic_up_add_negative(int i, atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"addl %2,%0; sets %1"
++		:"+m" (v->counter), "=qm" (c)
++		:"ir" (i) : "memory");
++	return c;
++}
++
++/**
++ * atomic_up_add_return - add and return
++ * @v: pointer of type atomic_t
++ * @i: integer value to add
++ *
++ * Atomically adds @i to @v and returns @i + @v
++ */
++static __inline__ int atomic_up_add_return(int i, atomic_t *v)
++{
++	int __i;
++#ifdef CONFIG_M386
++	unsigned long flags;
++	if(unlikely(boot_cpu_data.x86==3))
++		goto no_xadd;
++#endif
++	/* Modern 486+ processor */
++	__i = i;
++	__asm__ __volatile__(
++		"xaddl %0, %1;"
++		:"=r"(i)
++		:"m"(v->counter), "0"(i));
++	return i + __i;
++
++#ifdef CONFIG_M386
++no_xadd: /* Legacy 386 processor */
++	local_irq_save(flags);
++	__i = atomic_up_read(v);
++	atomic_up_set(v, i + __i);
++	local_irq_restore(flags);
++	return i + __i;
++#endif
++}
++
++static __inline__ int atomic_up_sub_return(int i, atomic_t *v)
++{
++	return atomic_up_add_return(-i,v);
++}
++
++#define atomic_up_cmpxchg(v, old, new) ((int)cmpxchg_up(&((v)->counter), \
++	old, new))
++/* xchg always has a LOCK prefix */
++#define atomic_up_xchg(v, new) (xchg(&((v)->counter), new))
++
++/**
++ * atomic_up_add_unless - add unless the number is a given value
++ * @v: pointer of type atomic_t
++ * @a: the amount to add to v...
++ * @u: ...unless v is equal to u.
++ *
++ * Atomically adds @a to @v, so long as it was not @u.
++ * Returns non-zero if @v was not @u, and zero otherwise.
++ */
++#define atomic_up_add_unless(v, a, u)				\
++({								\
++	int c, old;						\
++	c = atomic_read(v);					\
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_up_cmpxchg((v), c, c + (a));	\
++		if (likely(old == c))				\
++			break;					\
++		c = old;					\
++	}							\
++	c != (u);						\
++})
++#define atomic_up_inc_not_zero(v) atomic_up_add_unless((v), 1, 0)
++
++#define atomic_up_inc_return(v)  (atomic_up_add_return(1,v))
++#define atomic_up_dec_return(v)  (atomic_up_sub_return(1,v))
++
++/* These are x86-specific, used by some header files */
++#define atomic_up_clear_mask(mask, addr) \
++__asm__ __volatile__("andl %0,%1" \
++: : "r" (~(mask)),"m" (*addr) : "memory")
++
++#define atomic_up_set_mask(mask, addr) \
++__asm__ __volatile__("orl %0,%1" \
++: : "r" (mask),"m" (*(addr)) : "memory")
++
++#endif
+--- a/include/asm-i386/system.h
++++ b/include/asm-i386/system.h
+@@ -267,6 +267,9 @@ #define __HAVE_ARCH_CMPXCHG 1
+ #define cmpxchg(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+ 					(unsigned long)(n),sizeof(*(ptr))))
++#define cmpxchg_up(ptr,o,n)\
++	((__typeof__(*(ptr)))__cmpxchg_up((ptr),(unsigned long)(o),\
++					(unsigned long)(n),sizeof(*(ptr))))
+ #endif
+ 
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+@@ -296,6 +299,33 @@ static inline unsigned long __cmpxchg(vo
+ 	return old;
  }
  
-+extern unsigned int mips_hpt_frequency;
-+
- #endif /*  _ASM_TIMEX_H */
---- a/arch/mips/kernel/time.c
-+++ b/arch/mips/kernel/time.c
-@@ -771,6 +771,7 @@ EXPORT_SYMBOL(rtc_lock);
- EXPORT_SYMBOL(to_tm);
- EXPORT_SYMBOL(rtc_mips_set_time);
- EXPORT_SYMBOL(rtc_mips_get_time);
-+EXPORT_SYMBOL(mips_hpt_frequency);
- 
- unsigned long long sched_clock(void)
- {
---- /dev/null
-+++ b/include/asm-parisc/ltt.h
-@@ -0,0 +1,6 @@
-+#ifndef _ASM_PARISC_LTT_H
-+#define _ASM_PARISC_LTT_H
-+
-+#define LTT_HAS_TSC
-+
-+#endif
---- /dev/null
-+++ b/include/asm-powerpc/ltt.h
-@@ -0,0 +1,47 @@
-+/*
-+ * linux/include/asm-powerpc/ltt.h
-+ *
-+ * Copyright (C) 2005, Mathieu Desnoyers
-+ *
-+ * POWERPC definitions for tracing system
-+ */
-+
-+#ifndef _ASM_POWERPC_LTT_H
-+#define _ASM_POWERPC_LTT_H
-+
-+#define LTT_HAS_TSC
-+
-+/* Current arch type */
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_POWERPC
-+
-+/* Current variant type */
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#include <linux/ltt-core.h>
-+#include <asm/timex.h>
-+#include <asm/time.h>
-+#include <asm/processor.h>
-+
-+u64 ltt_heartbeat_read_synthetic_tsc(void);
-+
-+static inline u32 ltt_get_timestamp32(void)
++static inline unsigned long __cmpxchg_up(volatile void *ptr, unsigned long old,
++				      unsigned long new, int size)
 +{
-+	return get_tbl();
-+}
-+
-+static inline u64 ltt_get_timestamp64(void)
-+{
-+	return get_tb();
-+}
-+
-+static inline unsigned int ltt_frequency(void)
-+{
-+	return tb_ticks_per_sec;
-+}
-+
-+static inline u32 ltt_freq_scale(void)
-+{
-+	return 1;
-+}
-+
-+#endif //_ASM_POWERPC_LTT_H
---- /dev/null
-+++ b/include/asm-ppc/ltt.h
-@@ -0,0 +1,150 @@
-+/*
-+ * linux/include/asm-ppc/ltt.h
-+ *
-+ * Copyright (C)	2002, Karim Yaghmour
-+ *		 	2005, Mathieu Desnoyers
-+ *
-+ * PowerPC definitions for tracing system
-+ */
-+
-+#ifndef _ASM_PPC_LTT_H
-+#define _ASM_PPC_LTT_H
-+
-+#include <linux/config.h>
-+#include <linux/jiffies.h>
-+
-+/* Current arch type */
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_PPC
-+
-+/* PowerPC variants */
-+#define LTT_ARCH_VARIANT_PPC_4xx 1	/* 4xx systems (IBM embedded series) */
-+#define LTT_ARCH_VARIANT_PPC_6xx 2	/* 6xx/7xx/74xx/8260/POWER3 systems
-+					   (desktop flavor) */
-+#define LTT_ARCH_VARIANT_PPC_8xx 3	/* 8xx system (Motoral embedded series)
-+					 */
-+#define LTT_ARCH_VARIANT_PPC_ISERIES 4	/* 8xx system (iSeries) */
-+
-+/* Current variant type */
-+#if defined(CONFIG_4xx)
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_4xx
-+#elif defined(CONFIG_6xx)
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_6xx
-+#elif defined(CONFIG_8xx)
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_8xx
-+#elif defined(CONFIG_PPC_ISERIES)
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_ISERIES
-+#else
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+#endif
-+
-+#define LTTNG_LOGICAL_SHIFT 13
-+
-+extern atomic_t lttng_logical_clock;
-+
-+
-+/* The shift overflow doesn't matter */
-+static inline u32 _ltt_get_timestamp32(void)
-+{	
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u32 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+static inline _ltt_get_tb32(u32 *p)
-+{
-+	unsigned lo;
-+	asm volatile("mftb %0"
-+		 : "=r" (lo));
-+	p[0] = lo;
-+}
-+
-+static inline u32 ltt_get_timestamp32(void)
-+{
-+	u32 ret;
-+	if ((get_pvr() >> 16) == 1)
-+		ret = _ltt_get_timestamp32();
-+	else
-+		_ltt_get_tb32((u32*)&ret);
-+	return ret;
-+}
-+
-+/* The shift overflow doesn't matter */
-+static inline u64 _ltt_get_timestamp64(void)
-+{	
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u64 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+#ifdef SMP
-+#define pvr_ver (PVR_VER(current_cpu_data.pvr))
-+#else
-+#define pvr_ver (PVR_VER(mfspr(SPRN_PVR)))
-+#endif
-+
-+/* from arch/ppc/xmon/xmon.c */
-+static inline void _ltt_get_tb64(unsigned *p)
-+{
-+	unsigned hi, lo, hiagain;
-+
-+	do {
-+		asm volatile("mftbu %0; mftb %1; mftbu %2"
-+			 : "=r" (hi), "=r" (lo), "=r" (hiagain));
-+	} while (hi != hiagain);
-+	p[0] = hi;
-+	p[1] = lo;
-+}
-+
-+static inline u64 ltt_get_timestamp64(void)
-+{
-+	u64 ret;
-+	if (pvr_ver == 1)
-+  		ret = _ltt_get_timestamp64();
-+	else
-+		_ltt_get_tb64((unsigned*)&ret);
-+	return ret;
-+}
-+
-+/* this has to be called with the write seqlock held */
-+static inline void ltt_reset_timestamp(void)
-+{
-+	if (pvr_ver == 1)
-+		atomic_set(&lttng_logical_clock, 0);
-+}
-+
-+static inline unsigned int ltt_frequency(void)
-+{
-+	if (pvr_ver == 1)
-+		return HZ << LTTNG_LOGICAL_SHIFT;
-+	else
-+		return (tb_ticks_per_jiffy * HZ);
-+}
-+
-+static inline u32 ltt_freq_scale(void)
-+{
-+	return 1;
-+}
-+
-+#endif //_ASM_PPC_LTT_H
---- /dev/null
-+++ b/include/asm-s390/ltt.h
-@@ -0,0 +1,20 @@
-+/*
-+ * linux/include/asm-s390/ltt.h
-+ *
-+ * Copyright (C) 2002, Karim Yaghmour
-+ *
-+ * S/390 definitions for tracing system
-+ */
-+
-+#ifndef _ASM_S390_LTT_H
-+#define _ASM_S390_LTT_H
-+
-+#define LTT_HAS_TSC
-+
-+/* Current arch type */
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_S390
-+
-+/* Current variant type */
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#endif//_ASM_S390_LTT_H
---- /dev/null
-+++ b/include/asm-sh64/ltt.h
-@@ -0,0 +1,14 @@
-+/*
-+ * linux/include/asm-sh64/ltt.h
-+ *
-+ * Copyright (C) 2002, Karim Yaghmour
-+ *
-+ * SuperH definitions for tracing system
-+ */
-+
-+#ifndef _ASM_SH_LTT_H
-+#define _ASM_SH_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+
-+#endif
---- /dev/null
-+++ b/include/asm-sh/ltt.h
-@@ -0,0 +1,14 @@
-+/*
-+ * linux/include/asm-sh/ltt.h
-+ *
-+ * Copyright (C) 2002, Karim Yaghmour
-+ *
-+ * SuperH definitions for tracing system
-+ */
-+
-+#ifndef _ASM_SH_LTT_H
-+#define _ASM_SH_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+
-+#endif
---- /dev/null
-+++ b/include/asm-sparc64/ltt.h
-@@ -0,0 +1,15 @@
-+#ifndef _ASM_SPARC64_LTT_H
-+#define _ASM_SPARC64_LTT_H
-+/*
-+ * linux/include/asm-sparc64/ltt.h
-+ *
-+ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
-+ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
-+ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
-+ *
-+ * sparc64 time and TSC definitions for ltt
-+ */
-+
-+#define LTT_HAS_TSC
-+
-+#endif
---- /dev/null
-+++ b/include/asm-sparc/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_SPARC_LTT_H
-+#define _ASM_SPARC_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-um/ltt.h
-@@ -0,0 +1,13 @@
-+/*
-+ * linux/include/asm-um/ltt.h
-+ *
-+ * Copyright (C) 2002, Karim Yaghmour
-+ * 
-+ */
-+
-+#ifndef _ASM_SH_LTT_H
-+#define _ASM_SH_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+
-+#endif
---- /dev/null
-+++ b/include/asm-v850/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_V850_LTT_H
-+#define _ASM_V850_LTT_H
-+
-+#include <asm-generic/ltt.h>
-+#endif
---- /dev/null
-+++ b/include/asm-x86_64/ltt.h
-@@ -0,0 +1,149 @@
-+#ifndef _ASM_X86_64_LTT_H
-+#define _ASM_X86_64_LTT_H
-+/*
-++ * linux/include/asm-x86_64/ltt.h
-++ *
-++ * x86_64 time and TSC definitions for ltt
-++ */
-+
-+#include <asm/timex.h>
-+#include <asm/processor.h>
-+
-+#define LTT_ARCH_TYPE LTT_ARCH_TYPE_X86_64
-+#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
-+
-+#define LTTNG_LOGICAL_SHIFT 13
-+
-+extern atomic_t lttng_logical_clock;
-+
-+/* The shift overflow doesn't matter
-+ * We use the xtime seq_lock to protect 64 bits clock and
-+ * 32 bits ltt logical clock coherency.
-+ *
-+ * try 5 times. If it still fails, we are cleary in a NMI nested over
-+ * the seq_lock. Return 0 -> error.
-+ *
-+ * 0 is considered an erroneous value.
-+ */
-+
-+static inline u32 ltt_timestamp_no_tsc_32(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u32 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+
-+static inline u64 ltt_timestamp_no_tsc(void)
-+{
-+	unsigned long seq;
-+	unsigned long try = 5;
-+	u64 ret;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
-+			| (atomic_add_return(1, &lttng_logical_clock));
-+	} while (read_seqretry(&xtime_lock, seq) && (--try) > 0);
-+
-+	if (try == 0)
-+		return 0;
-+	else
-+		return ret;
-+}
-+
-+#ifdef CONFIG_LTT_SYNTHETIC_TSC
-+u64 ltt_heartbeat_read_synthetic_tsc(void);
-+#endif //CONFIG_LTT_SYNTHETIC_TSC
-+
-+static inline u32 ltt_get_timestamp32(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+		return ltt_timestamp_no_tsc32();
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return get_cycles(); /* only need the 32 LSB */
-+#else
-+	return ltt_timestamp_no_tsc32();
-+#endif
-+}
-+
-+static inline u64 ltt_get_timestamp64(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+		return ltt_timestamp_no_tsc64();
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+#ifdef CONFIG_LTT_SYNTHETIC_TSC
-+	return ltt_heartbeat_read_synthetic_tsc();
-+#else
-+	return get_cycles();
-+#endif //CONFIG_LTT_SYNTHETIC_TSC
-+#else
-+	return ltt_timestamp_no_tsc64();
-+#endif
-+}
-+
-+/* this has to be called with the write seqlock held */
-+static inline void ltt_reset_timestamp(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc) {
-+		atomic_set(&lttng_logical_clock, 0);
-+		return;
++	unsigned long prev;
++	switch (size) {
++	case 1:
++		__asm__ __volatile__("cmpxchgb %b1,%2"
++				     : "=a"(prev)
++				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 2:
++		__asm__ __volatile__("cmpxchgw %w1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 4:
++		__asm__ __volatile__("cmpxchgl %1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
 +	}
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return;
-+#else
-+	atomic_set(&lttng_logical_clock, 0);
-+	return;
-+#endif
++	return old;
 +}
 +
-+static inline unsigned int ltt_frequency(void)
+ #ifndef CONFIG_X86_CMPXCHG
+ /*
+  * Building a kernel capable running on 80386. It may be necessary to
+@@ -332,6 +362,17 @@ ({									\
+ 					(unsigned long)(n), sizeof(*(ptr))); \
+ 	__ret;								\
+ })
++#define cmpxchg_up(ptr,o,n)						\
++({									\
++	__typeof__(*(ptr)) __ret;					\
++	if (likely(boot_cpu_data.x86 > 3))				\
++		__ret = __cmpxchg_up((ptr), (unsigned long)(o),		\
++					(unsigned long)(n), sizeof(*(ptr))); \
++	else								\
++		__ret = cmpxchg_386((ptr), (unsigned long)(o),		\
++					(unsigned long)(n), sizeof(*(ptr))); \
++	__ret;								\
++})
+ #endif
+ 
+ #ifdef CONFIG_X86_CMPXCHG64
+@@ -350,10 +391,26 @@ static inline unsigned long long __cmpxc
+ 	return prev;
+ }
+ 
++static inline unsigned long long __cmpxchg64_up(volatile void *ptr, unsigned long long old,
++				      unsigned long long new)
 +{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+  	return HZ << LTTNG_LOGICAL_SHIFT;
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return cpu_khz;
-+#else
-+	return HZ << LTTNG_LOGICAL_SHIFT;
-+#endif
++	unsigned long long prev;
++	__asm__ __volatile__("cmpxchg8b %3"
++			     : "=A"(prev)
++			     : "b"((unsigned long)new),
++			       "c"((unsigned long)(new >> 32)),
++			       "m"(*__xg(ptr)),
++			       "0"(old)
++			     : "memory");
++	return prev;
 +}
 +
-+static inline u32 ltt_freq_scale(void)
-+{
-+#ifndef CONFIG_X86_TSC
-+	if (!cpu_has_tsc)
-+  	return 1;
-+#endif
-+
-+#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
-+	return 1000;
-+#else
-+	return 1;
-+#endif
-+
-+}
-+
-+#endif //_ASM_X86_64_LTT_H
+ #define cmpxchg64(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg64((ptr),(unsigned long long)(o),\
+ 					(unsigned long long)(n)))
+-
++#define cmpxchg64_up(ptr,o,n)\
++	((__typeof__(*(ptr)))__cmpxchg64_up((ptr),(unsigned long long)(o),\
++					(unsigned long long)(n)))
+ #endif
+     
+ /*
 --- /dev/null
-+++ b/include/asm-xtensa/ltt.h
-@@ -0,0 +1,5 @@
-+#ifndef _ASM_XTENSA_LTT_H
-+#define _ASM_XTENSA_LTT_H
++++ b/include/asm-x86_64/atomic-up.h
+@@ -0,0 +1,375 @@
++#ifndef __ARCH_X86_64_ATOMIC_UP__
++#define __ARCH_X86_64_ATOMIC_UP__
 +
-+#include <asm-generic/ltt.h>
++#include <asm/alternative.h>
++#include <asm/atomic.h>
++
++/* 
++ * atomic_up variants insure operation atomicity only if the variable is not
++ * shared between cpus. This is useful to have per-cpu atomic operations to
++ * protect from contexts like non-maskable interrupts without the LOCK prefix
++ * performance cost.
++ */
++
++/**
++ * atomic_up_add - add integer to atomic variable
++ * @i: integer value to add
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically adds @i to @v.
++ */
++static __inline__ void atomic_up_add(int i, atomic_t *v)
++{
++	__asm__ __volatile__(
++		"addl %1,%0"
++		:"=m" (v->counter)
++		:"ir" (i), "m" (v->counter));
++}
++
++/**
++ * atomic_up_sub - subtract the atomic variable
++ * @i: integer value to subtract
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically subtracts @i from @v.
++ */
++static __inline__ void atomic_up_sub(int i, atomic_t *v)
++{
++	__asm__ __volatile__(
++		"subl %1,%0"
++		:"=m" (v->counter)
++		:"ir" (i), "m" (v->counter));
++}
++
++/**
++ * atomic_up_sub_and_test - subtract value from variable and test result
++ * @i: integer value to subtract
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically subtracts @i from @v and returns
++ * true if the result is zero, or false for all
++ * other cases.
++ */
++static __inline__ int atomic_up_sub_and_test(int i, atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"subl %2,%0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"ir" (i), "m" (v->counter) : "memory");
++	return c;
++}
++
++/**
++ * atomic_up_inc - increment atomic variable
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically increments @v by 1.
++ */ 
++static __inline__ void atomic_up_inc(atomic_t *v)
++{
++	__asm__ __volatile__(
++		"incl %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
++
++/**
++ * atomic_up_dec - decrement atomic variable
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically decrements @v by 1.
++ */ 
++static __inline__ void atomic_up_dec(atomic_t *v)
++{
++	__asm__ __volatile__(
++		"decl %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
++
++/**
++ * atomic_up_dec_and_test - decrement and test
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically decrements @v by 1 and
++ * returns true if the result is 0, or false for all other
++ * cases.
++ */ 
++static __inline__ int atomic_up_dec_and_test(atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"decl %0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"m" (v->counter) : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic_up_inc_and_test - increment and test 
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically increments @v by 1
++ * and returns true if the result is zero, or false for all
++ * other cases.
++ */ 
++static __inline__ int atomic_up_inc_and_test(atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"incl %0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"m" (v->counter) : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic_up_add_negative - add and test if negative
++ * @i: integer value to add
++ * @v: pointer of type atomic_t
++ * 
++ * Atomically adds @i to @v and returns true
++ * if the result is negative, or false when
++ * result is greater than or equal to zero.
++ */ 
++static __inline__ int atomic_up_add_negative(int i, atomic_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"addl %2,%0; sets %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"ir" (i), "m" (v->counter) : "memory");
++	return c;
++}
++
++/**
++ * atomic_up_add_return - add and return
++ * @i: integer value to add
++ * @v: pointer of type atomic_t
++ *
++ * Atomically adds @i to @v and returns @i + @v
++ */
++static __inline__ int atomic_up_add_return(int i, atomic_t *v)
++{
++	int __i = i;
++	__asm__ __volatile__(
++		"xaddl %0, %1;"
++		:"=r"(i)
++		:"m"(v->counter), "0"(i));
++	return i + __i;
++}
++
++static __inline__ int atomic_up_sub_return(int i, atomic_t *v)
++{
++	return atomic_up_add_return(-i,v);
++}
++
++#define atomic_up_inc_return(v)  (atomic_up_add_return(1,v))
++#define atomic_up_dec_return(v)  (atomic_up_sub_return(1,v))
++
++/**
++ * atomic64_up_add - add integer to atomic64 variable
++ * @i: integer value to add
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically adds @i to @v.
++ */
++static __inline__ void atomic64_up_add(long i, atomic64_t *v)
++{
++	__asm__ __volatile__(
++		"addq %1,%0"
++		:"=m" (v->counter)
++		:"ir" (i), "m" (v->counter));
++}
++
++/**
++ * atomic64_up_sub - subtract the atomic64 variable
++ * @i: integer value to subtract
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically subtracts @i from @v.
++ */
++static __inline__ void atomic64_up_sub(long i, atomic64_t *v)
++{
++	__asm__ __volatile__(
++		"subq %1,%0"
++		:"=m" (v->counter)
++		:"ir" (i), "m" (v->counter));
++}
++
++/**
++ * atomic64_up_sub_and_test - subtract value from variable and test result
++ * @i: integer value to subtract
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically subtracts @i from @v and returns
++ * true if the result is zero, or false for all
++ * other cases.
++ */
++static __inline__ int atomic64_up_sub_and_test(long i, atomic64_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"subq %2,%0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"ir" (i), "m" (v->counter) : "memory");
++	return c;
++}
++
++/**
++ * atomic64_up_inc - increment atomic64 variable
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically increments @v by 1.
++ */
++static __inline__ void atomic64_up_inc(atomic64_t *v)
++{
++	__asm__ __volatile__(
++		"incq %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
++
++/**
++ * atomic64_up_dec - decrement atomic64 variable
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically decrements @v by 1.
++ */
++static __inline__ void atomic64_up_dec(atomic64_t *v)
++{
++	__asm__ __volatile__(
++		"decq %0"
++		:"=m" (v->counter)
++		:"m" (v->counter));
++}
++
++/**
++ * atomic64_up_dec_and_test - decrement and test
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically decrements @v by 1 and
++ * returns true if the result is 0, or false for all other
++ * cases.
++ */
++static __inline__ int atomic64_up_dec_and_test(atomic64_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"decq %0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"m" (v->counter) : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic64_up_inc_and_test - increment and test
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically increments @v by 1
++ * and returns true if the result is zero, or false for all
++ * other cases.
++ */
++static __inline__ int atomic64_up_inc_and_test(atomic64_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"incq %0; sete %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"m" (v->counter) : "memory");
++	return c != 0;
++}
++
++/**
++ * atomic64_up_add_negative - add and test if negative
++ * @i: integer value to add
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically adds @i to @v and returns true
++ * if the result is negative, or false when
++ * result is greater than or equal to zero.
++ */
++static __inline__ int atomic64_up_add_negative(long i, atomic64_t *v)
++{
++	unsigned char c;
++
++	__asm__ __volatile__(
++		"addq %2,%0; sets %1"
++		:"=m" (v->counter), "=qm" (c)
++		:"ir" (i), "m" (v->counter) : "memory");
++	return c;
++}
++
++/**
++ * atomic64_up_add_return - add and return
++ * @i: integer value to add
++ * @v: pointer to type atomic64_t
++ *
++ * Atomically adds @i to @v and returns @i + @v
++ */
++static __inline__ long atomic64_up_add_return(long i, atomic64_t *v)
++{
++	long __i = i;
++	__asm__ __volatile__(
++		"xaddq %0, %1;"
++		:"=r"(i)
++		:"m"(v->counter), "0"(i));
++	return i + __i;
++}
++
++static __inline__ long atomic64_up_sub_return(long i, atomic64_t *v)
++{
++	return atomic64_up_add_return(-i,v);
++}
++
++#define atomic64_up_inc_return(v)  (atomic64_up_add_return(1,v))
++#define atomic64_up_dec_return(v)  (atomic64_up_sub_return(1,v))
++
++#define atomic_up_cmpxchg(v, old, new) ((int)cmpxchg_up(&((v)->counter), \
++	old, new))
++/* Always has a lock prefix anyway */
++#define atomic_up_xchg(v, new) (xchg(&((v)->counter), new))
++
++/**
++ * atomic_up_add_unless - add unless the number is a given value
++ * @v: pointer of type atomic_t
++ * @a: the amount to add to v...
++ * @u: ...unless v is equal to u.
++ *
++ * Atomically adds @a to @v, so long as it was not @u.
++ * Returns non-zero if @v was not @u, and zero otherwise.
++ */
++#define atomic_up_add_unless(v, a, u)				\
++({								\
++	int c, old;						\
++	c = atomic_read(v);					\
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_up_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
++		c = old;					\
++	}							\
++	c != (u);						\
++})
++#define atomic_up_inc_not_zero(v) atomic_up_add_unless((v), 1, 0)
++
++/* These are x86-specific, used by some header files */
++#define atomic_up_clear_mask(mask, addr) \
++__asm__ __volatile__("andl %0,%1" \
++: : "r" (~(mask)),"m" (*addr) : "memory")
++
++#define atomic_up_set_mask(mask, addr) \
++__asm__ __volatile__("orl %0,%1" \
++: : "r" ((unsigned)mask),"m" (*(addr)) : "memory")
++
 +#endif
+--- a/include/asm-x86_64/system.h
++++ b/include/asm-x86_64/system.h
+@@ -208,9 +208,45 @@ static inline unsigned long __cmpxchg(vo
+ 	return old;
+ }
+ 
++static inline unsigned long __cmpxchg_up(volatile void *ptr, unsigned long old,
++				      unsigned long new, int size)
++{
++	unsigned long prev;
++	switch (size) {
++	case 1:
++		__asm__ __volatile__("cmpxchgb %b1,%2"
++				     : "=a"(prev)
++				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 2:
++		__asm__ __volatile__("cmpxchgw %w1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 4:
++		__asm__ __volatile__("cmpxchgl %k1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 8:
++		__asm__ __volatile__("cmpxchgq %1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	}
++	return old;
++}
++
+ #define cmpxchg(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+ 					(unsigned long)(n),sizeof(*(ptr))))
++#define cmpxchg_up(ptr,o,n)\
++	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
++					(unsigned long)(n),sizeof(*(ptr))))
+ 
+ #ifdef CONFIG_SMP
+ #define smp_mb()	mb()
+--- /dev/null
++++ b/include/asm-powerpc/atomic-up.h
+@@ -0,0 +1,380 @@
++#ifndef _ASM_POWERPC_ATOMIC_UP_H_
++#define _ASM_POWERPC_ATOMIC_UP_H_
++
++#ifdef __KERNEL__
++#include <linux/compiler.h>
++#include <asm/synch.h>
++#include <asm/asm-compat.h>
++#include <asm/atomic.h>
++
++/* 
++ * atomic_up variants insure operation atomicity only if the variable is not
++ * shared between cpus. This is useful to have per-cpu atomic operations to
++ * protect from contexts like non-maskable interrupts without the LOCK prefix
++ * performance cost.
++ */
++
++static __inline__ void atomic_up_add(int a, atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%3		# atomic_up_add\n\
++	add	%0,%2,%0\n"
++	PPC405_ERR77(0,%3)
++"	stwcx.	%0,0,%3 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (a), "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ int atomic_up_add_return(int a, atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%2		# atomic_up_add_return\n\
++	add	%0,%1,%0\n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (a), "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#define atomic_up_add_negative(a, v)	(atomic_up_add_return((a), (v)) < 0)
++
++static __inline__ void atomic_up_sub(int a, atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%3		# atomic_up_sub\n\
++	subf	%0,%2,%0\n"
++	PPC405_ERR77(0,%3)
++"	stwcx.	%0,0,%3 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (a), "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ int atomic_up_sub_return(int a, atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%2		# atomic_up_sub_return\n\
++	subf	%0,%1,%0\n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (a), "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++static __inline__ void atomic_up_inc(atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%2		# atomic_up_inc\n\
++	addic	%0,%0,1\n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ int atomic_up_inc_return(atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%1		# atomic_up_inc_return\n\
++	addic	%0,%0,1\n"
++	PPC405_ERR77(0,%1)
++"	stwcx.	%0,0,%1 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++/*
++ * atomic_up_inc_and_test - increment and test
++ * @v: pointer of type atomic_t
++ *
++ * Atomically increments @v by 1
++ * and returns true if the result is zero, or false for all
++ * other cases.
++ */
++#define atomic_up_inc_and_test(v) (atomic_up_inc_return(v) == 0)
++
++static __inline__ void atomic_up_dec(atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%2		# atomic_up_dec\n\
++	addic	%0,%0,-1\n"
++	PPC405_ERR77(0,%2)\
++"	stwcx.	%0,0,%2\n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ int atomic_up_dec_return(atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%1		# atomic_up_dec_return\n\
++	addic	%0,%0,-1\n"
++	PPC405_ERR77(0,%1)
++"	stwcx.	%0,0,%1\n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#define atomic_up_cmpxchg(v, o, n) ((int)cmpxchg_up(&((v)->counter), (o), (n)))
++#define atomic_up_xchg(v, new) (xchg_up(&((v)->counter), new))
++
++/**
++ * atomic_up_add_unless - add unless the number is a given value
++ * @v: pointer of type atomic_t
++ * @a: the amount to add to v...
++ * @u: ...unless v is equal to u.
++ *
++ * Atomically adds @a to @v, so long as it was not @u.
++ * Returns non-zero if @v was not @u, and zero otherwise.
++ */
++static __inline__ int atomic_up_add_unless(atomic_t *v, int a, int u)
++{
++	int t;
++
++	__asm__ __volatile__ (
++"1:	lwarx	%0,0,%1		# atomic_up_add_unless\n\
++	cmpw	0,%0,%3 \n\
++	beq-	2f \n\
++	add	%0,%2,%0 \n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%0,0,%1 \n\
++	bne-	1b \n"
++"	subf	%0,%2,%0 \n\
++2:"
++	: "=&r" (t)
++	: "r" (&v->counter), "r" (a), "r" (u)
++	: "cc", "memory");
++
++	return t != u;
++}
++
++#define atomic_up_inc_not_zero(v) atomic_up_add_unless((v), 1, 0)
++
++#define atomic_up_sub_and_test(a, v)	(atomic_up_sub_return((a), (v)) == 0)
++#define atomic_up_dec_and_test(v)	(atomic_up_dec_return((v)) == 0)
++
++/*
++ * Atomically test *v and decrement if it is greater than 0.
++ * The function returns the old value of *v minus 1.
++ */
++static __inline__ int atomic_up_dec_if_positive(atomic_t *v)
++{
++	int t;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%1		# atomic_up_dec_if_positive\n\
++	addic.	%0,%0,-1\n\
++	blt-	2f\n"
++	PPC405_ERR77(0,%1)
++"	stwcx.	%0,0,%1\n\
++	bne-	1b"
++	"\n\
++2:"	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#ifdef __powerpc64__
++
++static __inline__ void atomic64_up_add(long a, atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%3		# atomic64_up_add\n\
++	add	%0,%2,%0\n\
++	stdcx.	%0,0,%3 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (a), "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ long atomic64_up_add_return(long a, atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%2		# atomic64_up_add_return\n\
++	add	%0,%1,%0\n\
++	stdcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (a), "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#define atomic64_up_add_negative(a, v)	(atomic64_up_add_return((a), (v)) < 0)
++
++static __inline__ void atomic64_up_sub(long a, atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%3		# atomic64_up_sub\n\
++	subf	%0,%2,%0\n\
++	stdcx.	%0,0,%3 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (a), "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ long atomic64_up_sub_return(long a, atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%2		# atomic64_up_sub_return\n\
++	subf	%0,%1,%0\n\
++	stdcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (a), "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++static __inline__ void atomic64_up_inc(atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%2		# atomic64_up_inc\n\
++	addic	%0,%0,1\n\
++	stdcx.	%0,0,%2 \n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ long atomic64_up_inc_return(atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%1		# atomic64_up_inc_return\n\
++	addic	%0,%0,1\n\
++	stdcx.	%0,0,%1 \n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++/*
++ * atomic64_up_inc_and_test - increment and test
++ * @v: pointer of type atomic64_t
++ *
++ * Atomically increments @v by 1
++ * and returns true if the result is zero, or false for all
++ * other cases.
++ */
++#define atomic64_up_inc_and_test(v) (atomic64_up_inc_return(v) == 0)
++
++static __inline__ void atomic64_up_dec(atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%2		# atomic64_up_dec\n\
++	addic	%0,%0,-1\n\
++	stdcx.	%0,0,%2\n\
++	bne-	1b"
++	: "=&r" (t), "+m" (v->counter)
++	: "r" (&v->counter)
++	: "cc");
++}
++
++static __inline__ long atomic64_up_dec_return(atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%1		# atomic64_up_dec_return\n\
++	addic	%0,%0,-1\n\
++	stdcx.	%0,0,%1\n\
++	bne-	1b"
++	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#define atomic64_up_sub_and_test(a, v)	(atomic64_up_sub_return((a), (v)) == 0)
++#define atomic64_up_dec_and_test(v)	(atomic64_up_dec_return((v)) == 0)
++
++/*
++ * Atomically test *v and decrement if it is greater than 0.
++ * The function returns the old value of *v minus 1.
++ */
++static __inline__ long atomic64_up_dec_if_positive(atomic64_t *v)
++{
++	long t;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%1		# atomic64_up_dec_if_positive\n\
++	addic.	%0,%0,-1\n\
++	blt-	2f\n\
++	stdcx.	%0,0,%1\n\
++	bne-	1b"
++	"\n\
++2:"	: "=&r" (t)
++	: "r" (&v->counter)
++	: "cc", "memory");
++
++	return t;
++}
++
++#endif /* __powerpc64__ */
++
++#endif /* __KERNEL__ */
++#endif /* _ASM_POWERPC_ATOMIC_UP_H_ */
+--- a/include/asm-powerpc/system.h
++++ b/include/asm-powerpc/system.h
+@@ -235,6 +235,29 @@ __xchg_u32(volatile void *p, unsigned lo
+ 	return prev;
+ }
+ 
++/*
++ * Atomic exchange
++ *
++ * Changes the memory location '*ptr' to be val and returns
++ * the previous value stored there.
++ */
++static __inline__ unsigned long
++__xchg_u32_up(volatile void *p, unsigned long val)
++{
++	unsigned long prev;
++
++	__asm__ __volatile__(
++"1:	lwarx	%0,0,%2 \n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%3,0,%2 \n\
++	bne-	1b"
++	: "=&r" (prev), "+m" (*(volatile unsigned int *)p)
++	: "r" (p), "r" (val)
++	: "cc", "memory");
++
++	return prev;
++}
++
+ #ifdef CONFIG_PPC64
+ static __inline__ unsigned long
+ __xchg_u64(volatile void *p, unsigned long val)
+@@ -254,6 +277,23 @@ __xchg_u64(volatile void *p, unsigned lo
+ 
+ 	return prev;
+ }
++
++static __inline__ unsigned long
++__xchg_u64_up(volatile void *p, unsigned long val)
++{
++	unsigned long prev;
++
++	__asm__ __volatile__(
++"1:	ldarx	%0,0,%2 \n"
++	PPC405_ERR77(0,%2)
++"	stdcx.	%3,0,%2 \n\
++	bne-	1b"
++	: "=&r" (prev), "+m" (*(volatile unsigned long *)p)
++	: "r" (p), "r" (val)
++	: "cc", "memory");
++
++	return prev;
++}
+ #endif
+ 
+ /*
+@@ -277,12 +317,32 @@ #endif
+ 	return x;
+ }
+ 
++static __inline__ unsigned long
++__xchg_up(volatile void *ptr, unsigned long x, unsigned int size)
++{
++	switch (size) {
++	case 4:
++		return __xchg_u32_up(ptr, x);
++#ifdef CONFIG_PPC64
++	case 8:
++		return __xchg_u64_up(ptr, x);
++#endif
++	}
++	__xchg_called_with_bad_pointer();
++	return x;
++}
+ #define xchg(ptr,x)							     \
+   ({									     \
+      __typeof__(*(ptr)) _x_ = (x);					     \
+      (__typeof__(*(ptr))) __xchg((ptr), (unsigned long)_x_, sizeof(*(ptr))); \
+   })
+ 
++#define xchg_up(ptr,x)							     \
++  ({									     \
++     __typeof__(*(ptr)) _x_ = (x);					     \
++     (__typeof__(*(ptr))) __xchg_up((ptr), (unsigned long)_x_, sizeof(*(ptr))); \
++  })
++
+ #define tas(ptr) (xchg((ptr),1))
+ 
+ /*
+@@ -314,6 +374,27 @@ __cmpxchg_u32(volatile unsigned int *p, 
+ 	return prev;
+ }
+ 
++static __inline__ unsigned long
++__cmpxchg_u32_up(volatile unsigned int *p, unsigned long old, unsigned long new)
++{
++	unsigned int prev;
++
++	__asm__ __volatile__ (
++"1:	lwarx	%0,0,%2		# __cmpxchg_u32\n\
++	cmpw	0,%0,%3\n\
++	bne-	2f\n"
++	PPC405_ERR77(0,%2)
++"	stwcx.	%4,0,%2\n\
++	bne-	1b"
++	"\n\
++2:"
++	: "=&r" (prev), "+m" (*p)
++	: "r" (p), "r" (old), "r" (new)
++	: "cc", "memory");
++
++	return prev;
++}
++
+ #ifdef CONFIG_PPC64
+ static __inline__ unsigned long
+ __cmpxchg_u64(volatile unsigned long *p, unsigned long old, unsigned long new)
+@@ -336,6 +417,26 @@ __cmpxchg_u64(volatile unsigned long *p,
+ 
+ 	return prev;
+ }
++
++static __inline__ unsigned long
++__cmpxchg_u64_up(volatile unsigned long *p, unsigned long old, unsigned long new)
++{
++	unsigned long prev;
++
++	__asm__ __volatile__ (
++"1:	ldarx	%0,0,%2		# __cmpxchg_u64\n\
++	cmpd	0,%0,%3\n\
++	bne-	2f\n\
++	stdcx.	%4,0,%2\n\
++	bne-	1b"
++	"\n\
++2:"
++	: "=&r" (prev), "+m" (*p)
++	: "r" (p), "r" (old), "r" (new)
++	: "cc", "memory");
++
++	return prev;
++}
+ #endif
+ 
+ /* This function doesn't exist, so you'll get a linker error
+@@ -358,6 +459,22 @@ #endif
+ 	return old;
+ }
+ 
++static __inline__ unsigned long
++__cmpxchg_up(volatile void *ptr, unsigned long old, unsigned long new,
++	  unsigned int size)
++{
++	switch (size) {
++	case 4:
++		return __cmpxchg_u32_up(ptr, old, new);
++#ifdef CONFIG_PPC64
++	case 8:
++		return __cmpxchg_u64_up(ptr, old, new);
++#endif
++	}
++	__cmpxchg_called_with_bad_pointer();
++	return old;
++}
++
+ #define cmpxchg(ptr,o,n)						 \
+   ({									 \
+      __typeof__(*(ptr)) _o_ = (o);					 \
+@@ -366,6 +483,15 @@ #define cmpxchg(ptr,o,n)						 \
+ 				    (unsigned long)_n_, sizeof(*(ptr))); \
+   })
+ 
++
++#define cmpxchg_up(ptr,o,n)						 \
++  ({									 \
++     __typeof__(*(ptr)) _o_ = (o);					 \
++     __typeof__(*(ptr)) _n_ = (n);					 \
++     (__typeof__(*(ptr))) __cmpxchg_up((ptr), (unsigned long)_o_,	 \
++				    (unsigned long)_n_, sizeof(*(ptr))); \
++  })
++
+ #ifdef CONFIG_PPC64
+ /*
+  * We handle most unaligned accesses in hardware. On the other hand 
+--- /dev/null
++++ b/include/asm-arm/atomic-up.h
+@@ -0,0 +1,6 @@
++#ifndef _ASM_ATOMIC_UP_H
++#define _ASM_ATOMIC_UP_H
++
++#include <asm-generic/atomic-up.h>
++
++#endif
+--- /dev/null
++++ b/include/asm-mips/atomic-up.h
+@@ -0,0 +1,6 @@
++#ifndef _ASM_ATOMIC_UP_H
++#define _ASM_ATOMIC_UP_H
++
++#include <asm-generic/atomic-up.h>
++
++#endif
+--- /dev/null
++++ b/include/asm-generic/atomic-up.h
+@@ -0,0 +1,49 @@
++#ifndef _ASM_GENERIC_ATOMIC_UP_H
++#define _ASM_GENERIC_ATOMIC_UP_H
++
++/* Uniprocessor atomic operations.
++ *
++ * The generic version of up-only atomic ops falls back on atomic.h.
++ */
++
++#include <asm/atomic.h>
++
++#define atomic_up_add atomic_add
++#define atomic_up_sub atomic_sub
++#define atomic_up_add_return atomic_add_return
++#define atomic_up_sub_return atomic_sub_return
++#define atomic_up_sub_if_positive atomic_sub_if_positive
++#define atomic_up_cmpxchg atomic_cmpxchg
++#define atomic_up_xchg atomic_xchg
++#define atomic_up_add_unless atomic_add_unless
++#define atomic_up_inc_not_zero atomic_inc_not_zero
++#define atomic_up_dec_return atomic_dec_return
++#define atomic_up_inc_return atomic_inc_return
++#define atomic_up_sub_and_test atomic_sub_and_test
++#define atomic_up_inc_and_test atomic_inc_and_test
++#define atomic_up_dec_and_test atomic_dec_and_test
++#define atomic_up_dec_if_positive atomic_dec_if_positive
++#define atomic_up_inc atomic_inc
++#define atomic_up_dec atomic_dec
++#define atomic_up_add_negative atomic_add_negative
++
++#ifdef CONFIG_64BIT
++
++#define atomic64_up_add atomic64_add
++#define atomic64_up_sub atomic64_sub
++#define atomic64_up_add_return atomic64_add_return
++#define atomic64_up_sub_return atomic64_sub_return
++#define atomic64_up_sub_if_positive atomic64_sub_if_positive
++#define atomic64_up_dec_return atomic64_dec_return
++#define atomic64_up_inc_return atomic64_inc_return
++#define atomic64_up_sub_and_test atomic64_sub_and_test
++#define atomic64_up_inc_and_test atomic64_inc_and_test
++#define atomic64_up_dec_and_test atomic64_dec_and_test
++#define atomic64_up_dec_if_positive atomic64_dec_if_positive
++#define atomic64_up_inc atomic64_inc
++#define atomic64_up_dec atomic64_dec
++#define atomic64_up_add_negative atomic64_add_negative
++
++#endif /* CONFIG_64BIT */
++
++#endif /* _ASM_GENERIC_ATOMIC_UP_H */
 --END--
+
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

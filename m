@@ -1,45 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757857AbWKYG5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757858AbWKYG6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757857AbWKYG5L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 01:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757858AbWKYG5K
+	id S1757858AbWKYG6x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 01:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757767AbWKYG6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 01:57:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59046 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1757857AbWKYG5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 01:57:09 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Yinghai Lu" <yinghai.lu@amd.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] x86-64: calling clear_bss before set_intr_gate with early_idt_handler
-References: <86802c440611241730l55e81294u21944b528d95c15d@mail.gmail.com>
-Date: Fri, 24 Nov 2006 23:55:04 -0700
-In-Reply-To: <86802c440611241730l55e81294u21944b528d95c15d@mail.gmail.com>
-	(Yinghai Lu's message of "Fri, 24 Nov 2006 17:30:18 -0800")
-Message-ID: <m1u00oow1j.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 25 Nov 2006 01:58:53 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:14518 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1757858AbWKYG6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 01:58:52 -0500
+Message-ID: <4567E9A8.70209@us.ibm.com>
+Date: Fri, 24 Nov 2006 22:58:48 -0800
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexis Bruemmer <alexisb@us.ibm.com>
+Subject: [PATCH v2] libsas: Don't give scsi_cmnds to the EH if they never
+ made it to the SAS LLDD or have already returned
+References: <20061117210737.17052.67041.stgit@localhost.localdomain> <20061117210749.17052.56317.stgit@localhost.localdomain>
+In-Reply-To: <20061117210749.17052.56317.stgit@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Yinghai Lu" <yinghai.lu@amd.com> writes:
+On a system with many SAS targets, it appears possible that a scsi_cmnd
+can time out without ever making it to the SAS LLDD or at the same time
+that a completion is occurring.  In both of these cases, telling the
+LLDD to abort the sas_task makes no sense because the LLDD won't know
+about the sas_task; what we really want to do is to increase the timer.
+Note that this involves creating another sas_task bit to indicate
+whether or not the task has been sent to the LLDD; I could have
+implemented this by slightly redefining SAS_TASK_STATE_PENDING, but
+this way seems cleaner.
 
-> Please check the patch.
->
-> [PATCH] x86_64: clear_bss before set_intr_gate with early_idt_handler
-> idt_table is in the .bss section, so clear_bss need to called at first
->
-> Signed-off-by: Yinghai Lu <yinghai.lu@amd.com> 
+This second version amends the aic94xx portion to set the
+TASK_AT_INITIATOR flag for all sas_tasks that were passed to
+lldd_execute_task.
 
-Acked-by: Eric Biederman <ebiederm@xmission.com>
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+---
 
-The only problem I have might be the description would read more
-clearly as:
- [PATCH] x86_64: call clear_bss before set_intr_gate with early_idt_handler
+ drivers/scsi/aic94xx/aic94xx_task.c |    9 +++++++++
+ drivers/scsi/aic94xx/aic94xx_tmf.c  |    4 +++-
+ drivers/scsi/libsas/sas_scsi_host.c |    7 +++++++
+ include/scsi/libsas.h               |    1 +
+ 4 files changed, 20 insertions(+), 1 deletions(-)
 
- idt_table is in the .bss section, so clear_bss need to called first
-
-Eric
+diff --git a/drivers/scsi/aic94xx/aic94xx_task.c b/drivers/scsi/aic94xx/aic94xx_task.c
+index d202ed5..e2ad5be 100644
+--- a/drivers/scsi/aic94xx/aic94xx_task.c
++++ b/drivers/scsi/aic94xx/aic94xx_task.c
+@@ -349,6 +349,7 @@ Again:
+ 
+ 	spin_lock_irqsave(&task->task_state_lock, flags);
+ 	task->task_state_flags &= ~SAS_TASK_STATE_PENDING;
++	task->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
+ 	task->task_state_flags |= SAS_TASK_STATE_DONE;
+ 	if (unlikely((task->task_state_flags & SAS_TASK_STATE_ABORTED))) {
+ 		spin_unlock_irqrestore(&task->task_state_lock, flags);
+@@ -557,6 +558,7 @@ int asd_execute_task(struct sas_task *ta
+ 	struct sas_task *t = task;
+ 	struct asd_ascb *ascb = NULL, *a;
+ 	struct asd_ha_struct *asd_ha = task->dev->port->ha->lldd_ha;
++	unsigned long flags;
+ 
+ 	res = asd_can_queue(asd_ha, num);
+ 	if (res)
+@@ -599,6 +601,10 @@ int asd_execute_task(struct sas_task *ta
+ 		}
+ 		if (res)
+ 			goto out_err_unmap;
++
++		spin_lock_irqsave(&t->task_state_lock, flags);
++		t->task_state_flags |= SAS_TASK_AT_INITIATOR;
++		spin_unlock_irqrestore(&t->task_state_lock, flags);
+ 	}
+ 	list_del_init(&alist);
+ 
+@@ -617,6 +623,9 @@ out_err_unmap:
+ 			if (a == b)
+ 				break;
+ 			t = a->uldd_task;
++			spin_lock_irqsave(&t->task_state_lock, flags);
++			t->task_state_flags &= ~SAS_TASK_AT_INITIATOR;
++			spin_unlock_irqrestore(&t->task_state_lock, flags);
+ 			switch (t->task_proto) {
+ 			case SATA_PROTO:
+ 			case SAS_PROTO_STP:
+diff --git a/drivers/scsi/aic94xx/aic94xx_tmf.c b/drivers/scsi/aic94xx/aic94xx_tmf.c
+index 6123438..686cea1 100644
+--- a/drivers/scsi/aic94xx/aic94xx_tmf.c
++++ b/drivers/scsi/aic94xx/aic94xx_tmf.c
+@@ -345,7 +345,7 @@ static inline int asd_clear_nexus(struct
+ int asd_abort_task(struct sas_task *task)
+ {
+ 	struct asd_ascb *tascb = task->lldd_task;
+-	struct asd_ha_struct *asd_ha = tascb->ha;
++	struct asd_ha_struct *asd_ha;
+ 	int res = 1;
+ 	unsigned long flags;
+ 	struct asd_ascb *ascb = NULL;
+@@ -360,6 +360,8 @@ int asd_abort_task(struct sas_task *task
+ 	}
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 
++	asd_ha = tascb->ha;
++
+ 	ascb = asd_ascb_alloc_list(asd_ha, &res, GFP_KERNEL);
+ 	if (!ascb)
+ 		return -ENOMEM;
+diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
+index e064aac..c3fc8d6 100644
+--- a/drivers/scsi/libsas/sas_scsi_host.c
++++ b/drivers/scsi/libsas/sas_scsi_host.c
+@@ -542,6 +542,13 @@ enum scsi_eh_timer_return sas_scsi_timed
+ 			    cmd, task);
+ 		return EH_HANDLED;
+ 	}
++	if (!(task->task_state_flags & SAS_TASK_AT_INITIATOR)) {
++		spin_unlock_irqrestore(&task->task_state_lock, flags);
++		SAS_DPRINTK("command 0x%p, task 0x%p, not at initiator: "
++			    "EH_RESET_TIMER\n",
++			    cmd, task);
++		return EH_RESET_TIMER;
++	}
+ 	task->task_state_flags |= SAS_TASK_STATE_ABORTED;
+ 	spin_unlock_irqrestore(&task->task_state_lock, flags);
+ 
+diff --git a/include/scsi/libsas.h b/include/scsi/libsas.h
+index c4a8af1..33b72ae 100644
+--- a/include/scsi/libsas.h
++++ b/include/scsi/libsas.h
+@@ -538,6 +538,7 @@ #define SAS_TASK_STATE_PENDING      1
+ #define SAS_TASK_STATE_DONE         2
+ #define SAS_TASK_STATE_ABORTED      4
+ #define SAS_TASK_INITIATOR_ABORTED  8
++#define SAS_TASK_AT_INITIATOR       16
+ 
+ static inline struct sas_task *sas_alloc_task(gfp_t flags)
+ {

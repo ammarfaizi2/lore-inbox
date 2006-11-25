@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966637AbWKYW4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933958AbWKYXDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966637AbWKYW4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 17:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967284AbWKYW4Z
+	id S933958AbWKYXDD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 18:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934218AbWKYXDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 17:56:25 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:20403 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S966637AbWKYW4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 17:56:24 -0500
-To: David Miller <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org,
-       tom@opengridcomputing.com
-Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
-X-Message-Flag: Warning: May contain useful information
-References: <adazmag5bk1.fsf@cisco.com>
-	<20061124.220746.57445336.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Sat, 25 Nov 2006 14:56:22 -0800
-In-Reply-To: <20061124.220746.57445336.davem@davemloft.net> (David Miller's message of "Fri, 24 Nov 2006 22:07:46 -0800 (PST)")
-Message-ID: <adaodqv5e5l.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Nov 2006 22:56:23.0393 (UTC) FILETIME=[EDF0FD10:01C710E4]
-Authentication-Results: sj-dkim-6; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim6002 verified; ); 
+	Sat, 25 Nov 2006 18:03:03 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31975 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S933958AbWKYXDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 18:03:00 -0500
+Date: Sat, 25 Nov 2006 23:08:26 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: linux-kernel@vger.kernel.org,
+       Linux ARM Kernel list 
+	<linux-arm-kernel@lists.arm.linux.org.uk>,
+       kernel-discuss@handhelds.org
+Subject: Re: tty line discipline driver advice sought, to do a 1-byte header
+ and 2-byte CRC checksum on GSM data
+Message-ID: <20061125230826.22d69a35@localhost.localdomain>
+In-Reply-To: <20061125040614.GI16214@lkcl.net>
+References: <20061125040614.GI16214@lkcl.net>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Perhaps a better way to fix this is to use
- > typeof() like other similar macros do.
+> userspace, which would be a hell of a lot easier, but would make
+> applications a pain, because they would need to use a library instead of
+> just opening /dev/ttySN just like any other phone app, to transfer AT
+> commands.
 
-I tried doing
+Like gnokii for example ?
 
-#define ALIGN(x,a)				\
-	({					\
-		typeof(x) _a = (a);		\
-		((x) + _a - 1) & ~(_a - 1);	\
-	})
-
-but that won't compile because of <net/neighbour.h>:
-
-	unsigned char		ha[ALIGN(MAX_ADDR_LEN, sizeof(unsigned long))];
-
-gcc says:
-
-/scratch/Ksrc/linux-merge/include/net/neighbour.h:104: error: braced-group within expression allowed only inside a function
-
-I guess that could be fixed by changing that declaration but now this
-is starting to feel like early 2.6.20 material.
-
- - R.
+You can do both - use a pty/tty pair to front the daemon

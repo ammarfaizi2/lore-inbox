@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934284AbWKYIxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966279AbWKYI4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934284AbWKYIxX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934357AbWKYIxX
+	id S966279AbWKYI4q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 03:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934495AbWKYI4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:53:23 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:34455 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S934284AbWKYIxW
+	Sat, 25 Nov 2006 03:56:46 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:35735 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S934474AbWKYI4p
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:53:22 -0500
-Message-ID: <45680488.8030508@drzeus.cx>
-Date: Sat, 25 Nov 2006 09:53:28 +0100
+	Sat, 25 Nov 2006 03:56:45 -0500
+Message-ID: <45680555.1000406@drzeus.cx>
+Date: Sat, 25 Nov 2006 09:56:53 +0100
 From: Pierre Ossman <drzeus-list@drzeus.cx>
 User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
@@ -23,27 +23,17 @@ CC: "Linux-omap-open-source@linux.omap.com"
        ext David Brownell <david-b@pacbell.net>,
        "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_lock_unlock.diff
-References: <4564640B.1070004@indt.org.br>
-In-Reply-To: <4564640B.1070004@indt.org.br>
+Subject: Re: [patch 4/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_sysfs.diff
+References: <45646457.1060203@indt.org.br>
+In-Reply-To: <45646457.1060203@indt.org.br>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems I missed this...
-
-Anderson Briglia wrote:
-> +
-> +    err = mmc_card_claim_host(card);
-> +    if (err != MMC_ERR_NONE)
-> +        goto out;
-> +
-
-As I said before, no locking in the command abstractions. The host
-should be claimed somewhere further up the chain (in
-mmc_lockable_store() right now).
+Patch looks ok. But I never got an answer what the difference between
+"change" and "assign" is.
 
 Rgds
 

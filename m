@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967169AbWKYUfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967173AbWKYUjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967169AbWKYUfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967170AbWKYUfP
+	id S967173AbWKYUjx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967166AbWKYUjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:35:15 -0500
-Received: from mx1.aecom.yu.edu ([129.98.1.51]:1486 "EHLO mx1.aecom.yu.edu")
-	by vger.kernel.org with ESMTP id S967169AbWKYUfN (ORCPT
+	Sat, 25 Nov 2006 15:39:53 -0500
+Received: from 1wt.eu ([62.212.114.60]:43524 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S967173AbWKYUjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:35:13 -0500
-X-AuditID: 816201a0-accbebb0000059fa-1c-4568a74da3a2 
+	Sat, 25 Nov 2006 15:39:52 -0500
+Date: Sat, 25 Nov 2006 22:30:47 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
+Subject: [PATCH-2.4] arm: incorrect use of "&&" instead of "&"
+Message-ID: <20061125213047.GA5950@1wt.eu>
 Mime-Version: 1.0
-Message-Id: <a06240400c18e4b03eadf@[129.98.90.227]>
-Date: Sat, 25 Nov 2006 15:35:14 -0500
-To: support@areca.com.tw
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Pathetic write performance from Areca PCIe cards
-Cc: linux-kernel@vger.kernel.org, erich@areca.com.tw
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
-X-Brightmail-Tracker: AAAAAA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two systems with a serious I/O subsystem based on Areca PCIe 
-cards, but the results I am getting from simple write benchmarks are 
-extremely slow.
+Hi Russell,
 
-The details are two 64-bit Opteron systems, one with an Areca PCIe 
-1210 and the other a PCIe 1220 and both with Seagate SATA II 750 GB 
-drives. The motherboard is a Tyan S2891 (Thunder K8SRE). The 120 
-system has 1 GB of PC2700 RAM and the 1220 system has 2GB of PC3200 
-RAM. The Areca BIOS on both cards is version 1.17a and the firmware 
-is 1.41.
-I have tried two different kernels, 2.6.17 from Ubuntu, which had the 
-Areca driver added by Ubuntu and 2.6.18 from Gentoo with the Areca 
-driver added manually from 2.6.19-rc3.
+I'm about to merge this fix into 2.4. It's already been fixed in 2.6.
+Do you have any objection ?
 
-In the initial tests, both computers had a RAID 5/6 configuration, 
-but to confirm the result, I setup a single Seagate as a pass-through 
-drive and had the same results. The drive was set to SATA II with NCQ 
-and the cache was enabled to write-back.
+BTW, I have two email addresses for you, the one in the MAINTAINERS file
+and the one you use on LKML. Which one do you prefer ? Just in case, I've
+used both.
 
-dd if=/dev/zero of=output oflag=sync bs=100M count=1 gives an 
-excellent result, around 188 MB/sec.
-dd if=/dev/zero of=output oflag=sync bs=200M count=1 gives an 
-excellent result, around 167 MB/sec.
-dd if=/dev/zero of=output oflag=sync bs=300M count=1 gives an OK 
-result, around 117 MB/sec.
-dd if=/dev/zero of=output oflag=sync bs=400M count=1 gives a very 
-poor result, around 35 MB/sec.
-These very low numbers around 30 MB/sec persist as I increase the bs number.
+Thanks in advance,
+Willy
 
-As I continue to run the tests, the bs that gives a poor results goes 
-down to about 200 MB. The results are from the system with the 1220 
-card. The system with 1210 gives slightly lower numbers overall.
 
-I have also confirmed these low numbers using a benchmark called dm 
-from the network RAID package, drbd.
+>From f3779aa6e0b38c0dfdad4f98b6bcddcd570b6aa7 Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Sat, 25 Nov 2006 22:00:12 +0100
+Subject: [PATCH] arm: incorrect use of "&&" instead of "&"
 
-Reading from the drives (based on hdparm -tT testing) gives excellent results.
+In integrator_init_irq(), the use of "&&" in the following
+statement causes all interrupts to be marked valid regardless
+of INTEGRATOR_SC_VALID_INT, as long as it's non-zero :
 
-When I use the drive directly connected to the SATA on the 
-motherboard, all the write tests hover around 56 MB/second regardless 
-of bs value.
+     if (((1 << i) && INTEGRATOR_SC_VALID_INT) != 0)
 
-Since both systems are affected, my guess is there is bug in the 
-Areca driver or with the cards themselves.
+Obvious fix is to replace it with "&". This was already fixed
+in 2.6.
+
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+---
+ arch/arm/mach-integrator/irq.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-integrator/irq.c b/arch/arm/mach-integrator/irq.c
+index 69d2e67..cc56534 100644
+--- a/arch/arm/mach-integrator/irq.c
++++ b/arch/arm/mach-integrator/irq.c
+@@ -55,7 +55,7 @@ void __init integrator_init_irq(void)
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < NR_IRQS; i++) {
+-	        if (((1 << i) && INTEGRATOR_SC_VALID_INT) != 0) {
++	        if (((1 << i) & INTEGRATOR_SC_VALID_INT) != 0) {
+ 		        irq_desc[i].valid	= 1;
+ 			irq_desc[i].probe_ok	= 1;
+ 			irq_desc[i].mask_ack	= sc_mask_irq;
 -- 
+1.4.2.4
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University

@@ -1,258 +1,304 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757648AbWKYDll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934488AbWKYDz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757648AbWKYDll (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 22:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935135AbWKYDll
+	id S934488AbWKYDz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 22:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935138AbWKYDz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 22:41:41 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:51930 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1757642AbWKYDlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 22:41:40 -0500
-Message-ID: <4567BB70.6080907@comcast.net>
-Date: Fri, 24 Nov 2006 22:41:36 -0500
-From: Ed Sweetman <safemode2@comcast.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
+	Fri, 24 Nov 2006 22:55:29 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:34698 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S934488AbWKYDz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 22:55:28 -0500
+Date: Fri, 24 Nov 2006 20:55:27 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/2] Introduce mutex_lock_timeout
+Message-ID: <20061125035526.GF14076@parisc-linux.org>
+References: <20061109182721.GN16952@parisc-linux.org>
 MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: 2.6.19-rc5-mm2 : usb keeps resetting usb keyboard.
-Content-Type: multipart/mixed;
- boundary="------------090303040100060608050607"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061109182721.GN16952@parisc-linux.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090303040100060608050607
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
+No comment on this?
 
-
-I just upgraded from a ps2 keyboard to usb and have been getting these 
-messages seemingly randomly, which also corresponds to whatever key i'm 
-pressing at the time they occur to act like it's stuck down.  
-
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-usb 2-2: reset low speed USB device using ohci_hcd and address 3
-
-(repeated a few hundred times )
-
-
-The keyboard is detected as
-Bus 002 Device 002: ID 1267:0103 Logic3 / SpectraVideo plc
-
-
-Any further input needed?  
-
-
-
-
-below is my lspci output :   Attached is more verbose output.
-
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller 
-(rev a3)
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 
-Audio Controller (rev a2)
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
-(rev f3)
-00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller 
-(rev f3)
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
-HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
-Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
-DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] 
-Miscellaneous Control
-01:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 
-6600] (rev a2)
-05:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-Capture (rev 02)
-05:08.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
-(rev 02)
-
-
---------------090303040100060608050607
-Content-Type: text/plain;
- name="lspci_output.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lspci_output.txt"
-
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-	Subsystem: ASUSTeK Computer Inc. Unknown device 815a
-	Flags: bus master, 66MHz, fast devsel, latency 0
-	Capabilities: [44] HyperTransport: Slave or Primary Interface
-	Capabilities: [e0] HyperTransport: MSI Mapping
-
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0
-
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: 66MHz, fast devsel, IRQ 255
-	I/O ports at e400 [size=32]
-	I/O ports at 4c00 [size=64]
-	I/O ports at 4c40 [size=64]
-	Capabilities: [44] Power Management version 2
-
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2) (prog-if 10 [OHCI])
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 23
-	Memory at c8104000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3) (prog-if 20 [EHCI])
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 20
-	Memory at feb00000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [44] Debug port
-	Capabilities: [80] Power Management version 2
-
-00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 22
-	I/O ports at dc00 [size=256]
-	I/O ports at e000 [size=256]
-	Memory at c8103000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2) (prog-if 8a [Master SecP PriP])
-	Subsystem: Unknown device f043:815a
-	Flags: bus master, 66MHz, fast devsel, latency 0
-	[virtual] Memory at 000001f0 (32-bit, non-prefetchable) [disabled] [size=8]
-	[virtual] Memory at 000003f0 (type 3, non-prefetchable) [disabled] [size=1]
-	[virtual] Memory at 00000170 (32-bit, non-prefetchable) [disabled] [size=8]
-	[virtual] Memory at 00000370 (type 3, non-prefetchable) [disabled] [size=1]
-	I/O ports at f000 [size=16]
-	Capabilities: [44] Power Management version 2
-
-00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85 [Master SecO PriO])
-	Subsystem: ASUSTeK Computer Inc. Unknown device 815a
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 22
-	I/O ports at 09f0 [size=8]
-	I/O ports at 0bf0 [size=4]
-	I/O ports at 0970 [size=8]
-	I/O ports at 0b70 [size=4]
-	I/O ports at d800 [size=16]
-	Memory at c8102000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-
-00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85 [Master SecO PriO])
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 21
-	I/O ports at 09e0 [size=8]
-	I/O ports at 0be0 [size=4]
-	I/O ports at 0960 [size=8]
-	I/O ports at 0b60 [size=4]
-	I/O ports at c400 [size=16]
-	Memory at c8101000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [44] Power Management version 2
-
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2) (prog-if 01 [Subtractive decode])
-	Flags: bus master, 66MHz, fast devsel, latency 0
-	Bus: primary=00, secondary=05, subordinate=05, sec-latency=128
-	Prefetchable memory behind bridge: c8000000-c80fffff
-
-00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
-	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 23
-	Memory at c8100000 (32-bit, non-prefetchable) [size=4K]
-	I/O ports at b000 [size=8]
-	Capabilities: [44] Power Management version 2
-
-00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=04, subordinate=04, sec-latency=0
-	Capabilities: [40] Power Management version 2
-	Capabilities: [48] Message Signalled Interrupts: Mask- 64bit+ Queue=0/1 Enable+
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Virtual Channel
-
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=03, subordinate=03, sec-latency=0
-	Capabilities: [40] Power Management version 2
-	Capabilities: [48] Message Signalled Interrupts: Mask- 64bit+ Queue=0/1 Enable+
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Virtual Channel
-
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
-	Capabilities: [40] Power Management version 2
-	Capabilities: [48] Message Signalled Interrupts: Mask- 64bit+ Queue=0/1 Enable+
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Virtual Channel
-
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
-	Flags: bus master, fast devsel, latency 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: c0000000-c7ffffff
-	Prefetchable memory behind bridge: 00000000b0000000-00000000bfffffff
-	Capabilities: [40] Power Management version 2
-	Capabilities: [48] Message Signalled Interrupts: Mask- 64bit+ Queue=0/1 Enable+
-	Capabilities: [58] HyperTransport: MSI Mapping
-	Capabilities: [80] Express Root Port (Slot+) IRQ 0
-	Capabilities: [100] Virtual Channel
-
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-	Flags: fast devsel
-	Capabilities: [80] HyperTransport: Host or Secondary Interface
-
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-	Flags: fast devsel
-
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-	Flags: fast devsel
-
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-	Flags: fast devsel
-
-01:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 6600] (rev a2) (prog-if 00 [VGA])
-	Subsystem: ASUSTeK Computer Inc. Unknown device 81b0
-	Flags: bus master, fast devsel, latency 0, IRQ 18
-	Memory at c0000000 (32-bit, non-prefetchable) [size=64M]
-	Memory at b0000000 (64-bit, prefetchable) [size=256M]
-	Memory at c4000000 (64-bit, non-prefetchable) [size=16M]
-	[virtual] Expansion ROM at c5000000 [disabled] [size=128K]
-	Capabilities: [60] Power Management version 2
-	Capabilities: [68] Message Signalled Interrupts: Mask- 64bit+ Queue=0/0 Enable-
-	Capabilities: [78] Express Endpoint IRQ 0
-	Capabilities: [100] Virtual Channel
-	Capabilities: [128] Power Budgeting
-
-05:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 02)
-	Subsystem: Hauppauge computer works Inc. WinTV Series
-	Flags: bus master, medium devsel, latency 32, IRQ 255
-	Memory at c8000000 (32-bit, prefetchable) [size=4K]
-
-05:08.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 02)
-	Subsystem: Hauppauge computer works Inc. WinTV Series
-	Flags: bus master, medium devsel, latency 32, IRQ 255
-	Memory at c8001000 (32-bit, prefetchable) [size=4K]
-
-
---------------090303040100060608050607--
+On Thu, Nov 09, 2006 at 11:27:21AM -0700, Matthew Wilcox wrote:
+> 
+> We have a couple of places in the tree that really could do with a
+> down_timeout() function.  I noticed it in qla2xxx and ACPI, but maybe
+> there are others that don't have the courtesy of putting "I wish we had
+> a down_timeout" comment beside their implementation.
+> 
+> I don't really want to poke at 25 different implementations of
+> down_timeout, but doing a mutex_timeout() seems easy enough, and at
+> least qla2xxx can use it.
+> 
+> I mused on whether to put the timeout argument into the struct
+> mutex, but on the whole, I thought it better to somewhat penalise
+> mutex_lock_interruptible(), mutex_lock_nested and the mutex lock slowpaths
+> in time than it was to penalise all mutex users in space.
+> 
+> Here's the patch to add mutex_lock_timeout().  I booted the resulting
+> kernel on a parisc machine, but I wouldn't claim to have done any real
+> testing.  It's fairly mechanical though.
+> 
+> diff --git a/include/asm-arm/mutex.h b/include/asm-arm/mutex.h
+> index cb29d84..6fa4e5f 100644
+> --- a/include/asm-arm/mutex.h
+> +++ b/include/asm-arm/mutex.h
+> @@ -44,7 +44,8 @@ __mutex_fastpath_lock(atomic_t *count, f
+>  }
+>  
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count, fastcall int (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies,
+> +			fastcall int (*fail_fn)(atomic_t *, long jiffies))
+>  {
+>  	int __ex_flag, __res;
+>  
+> @@ -60,7 +61,7 @@ __mutex_fastpath_lock_retval(atomic_t *c
+>  
+>  	__res |= __ex_flag;
+>  	if (unlikely(__res != 0))
+> -		__res = fail_fn(count);
+> +		__res = fail_fn(count, jiffies);
+>  	return __res;
+>  }
+>  
+> diff --git a/include/asm-generic/mutex-dec.h b/include/asm-generic/mutex-dec.h
+> index 0134151..92a93df 100644
+> --- a/include/asm-generic/mutex-dec.h
+> +++ b/include/asm-generic/mutex-dec.h
+> @@ -37,10 +37,11 @@ __mutex_fastpath_lock(atomic_t *count, f
+>   * or anything the slow path function returns.
+>   */
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count, fastcall int (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies,
+> +				fastcall int (*fail_fn)(atomic_t *, long))
+>  {
+>  	if (unlikely(atomic_dec_return(count) < 0))
+> -		return fail_fn(count);
+> +		return fail_fn(count, jiffies);
+>  	else {
+>  		smp_mb();
+>  		return 0;
+> diff --git a/include/asm-generic/mutex-null.h b/include/asm-generic/mutex-null.h
+> index e1bbbc7..5a65210 100644
+> --- a/include/asm-generic/mutex-null.h
+> +++ b/include/asm-generic/mutex-null.h
+> @@ -11,7 +11,8 @@ #ifndef _ASM_GENERIC_MUTEX_NULL_H
+>  #define _ASM_GENERIC_MUTEX_NULL_H
+>  
+>  #define __mutex_fastpath_lock(count, fail_fn)		fail_fn(count)
+> -#define __mutex_fastpath_lock_retval(count, fail_fn)	fail_fn(count)
+> +#define __mutex_fastpath_lock_retval(count, jiffies, fail_fn)	\
+> +						fail_fn(count, jiffies)
+>  #define __mutex_fastpath_unlock(count, fail_fn)		fail_fn(count)
+>  #define __mutex_fastpath_trylock(count, fail_fn)	fail_fn(count)
+>  #define __mutex_slowpath_needs_to_unlock()		1
+> diff --git a/include/asm-generic/mutex-xchg.h b/include/asm-generic/mutex-xchg.h
+> index 6a7e8c1..b5eee4e 100644
+> --- a/include/asm-generic/mutex-xchg.h
+> +++ b/include/asm-generic/mutex-xchg.h
+> @@ -42,10 +42,11 @@ __mutex_fastpath_lock(atomic_t *count, f
+>   * or anything the slow path function returns
+>   */
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count, fastcall int (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies,
+> +			fastcall int (*fail_fn)(atomic_t *, long))
+>  {
+>  	if (unlikely(atomic_xchg(count, 0) != 1))
+> -		return fail_fn(count);
+> +		return fail_fn(count, jiffies);
+>  	else {
+>  		smp_mb();
+>  		return 0;
+> diff --git a/include/asm-i386/mutex.h b/include/asm-i386/mutex.h
+> index 7a17d9e..7e13ded 100644
+> --- a/include/asm-i386/mutex.h
+> +++ b/include/asm-i386/mutex.h
+> @@ -51,11 +51,11 @@ do {									\
+>   * or anything the slow path function returns
+>   */
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count,
+> -			     int fastcall (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies,
+> +			     int fastcall (*fail_fn)(atomic_t *, long))
+>  {
+>  	if (unlikely(atomic_dec_return(count) < 0))
+> -		return fail_fn(count);
+> +		return fail_fn(count, jiffies);
+>  	else
+>  		return 0;
+>  }
+> diff --git a/include/asm-ia64/mutex.h b/include/asm-ia64/mutex.h
+> index bed73a6..151f067 100644
+> --- a/include/asm-ia64/mutex.h
+> +++ b/include/asm-ia64/mutex.h
+> @@ -36,10 +36,11 @@ __mutex_fastpath_lock(atomic_t *count, v
+>   * or anything the slow path function returns.
+>   */
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count, int (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies,
+> +				int (*fail_fn)(atomic_t *, long))
+>  {
+>  	if (unlikely(ia64_fetchadd4_acq(count, -1) != 1))
+> -		return fail_fn(count);
+> +		return fail_fn(count, jiffies);
+>  	return 0;
+>  }
+>  
+> diff --git a/include/asm-x86_64/mutex.h b/include/asm-x86_64/mutex.h
+> index 16396b1..18668fa 100644
+> --- a/include/asm-x86_64/mutex.h
+> +++ b/include/asm-x86_64/mutex.h
+> @@ -46,11 +46,11 @@ do {									\
+>   * or anything the slow path function returns
+>   */
+>  static inline int
+> -__mutex_fastpath_lock_retval(atomic_t *count,
+> -			     int fastcall (*fail_fn)(atomic_t *))
+> +__mutex_fastpath_lock_retval(atomic_t *count, long jiffies
+> +			     int fastcall (*fail_fn)(atomic_t *, long))
+>  {
+>  	if (unlikely(atomic_dec_return(count) < 0))
+> -		return fail_fn(count);
+> +		return fail_fn(count, jiffies);
+>  	else
+>  		return 0;
+>  }
+> diff --git a/include/linux/mutex.h b/include/linux/mutex.h
+> index 27c48da..b70caf2 100644
+> --- a/include/linux/mutex.h
+> +++ b/include/linux/mutex.h
+> @@ -122,6 +122,7 @@ static inline int fastcall mutex_is_lock
+>   */
+>  extern void fastcall mutex_lock(struct mutex *lock);
+>  extern int fastcall mutex_lock_interruptible(struct mutex *lock);
+> +extern int fastcall mutex_lock_timeout(struct mutex *lock, long jiffies);
+>  
+>  #ifdef CONFIG_DEBUG_LOCK_ALLOC
+>  extern void mutex_lock_nested(struct mutex *lock, unsigned int subclass);
+> diff --git a/kernel/mutex.c b/kernel/mutex.c
+> index 8c71cf7..d2ec4d3 100644
+> --- a/kernel/mutex.c
+> +++ b/kernel/mutex.c
+> @@ -122,7 +122,8 @@ EXPORT_SYMBOL(mutex_unlock);
+>   * Lock a mutex (possibly interruptible), slowpath:
+>   */
+>  static inline int __sched
+> -__mutex_lock_common(struct mutex *lock, long state, unsigned int subclass)
+> +__mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+> +			long jiffies)
+>  {
+>  	struct task_struct *task = current;
+>  	struct mutex_waiter waiter;
+> @@ -158,19 +159,19 @@ __mutex_lock_common(struct mutex *lock, 
+>  		 * TASK_UNINTERRUPTIBLE case.)
+>  		 */
+>  		if (unlikely(state == TASK_INTERRUPTIBLE &&
+> -						signal_pending(task))) {
+> +				(signal_pending(task) || jiffies == 0))) {
+>  			mutex_remove_waiter(lock, &waiter, task->thread_info);
+>  			mutex_release(&lock->dep_map, 1, _RET_IP_);
+>  			spin_unlock_mutex(&lock->wait_lock, flags);
+>  
+>  			debug_mutex_free_waiter(&waiter);
+> -			return -EINTR;
+> +			return jiffies ? -EINTR : -ETIMEDOUT;
+>  		}
+>  		__set_task_state(task, state);
+>  
+>  		/* didnt get the lock, go to sleep: */
+>  		spin_unlock_mutex(&lock->wait_lock, flags);
+> -		schedule();
+> +		jiffies = schedule_timeout(jiffies);
+>  		spin_lock_mutex(&lock->wait_lock, flags);
+>  	}
+>  
+> @@ -194,7 +195,8 @@ __mutex_lock_slowpath(atomic_t *lock_cou
+>  {
+>  	struct mutex *lock = container_of(lock_count, struct mutex, count);
+>  
+> -	__mutex_lock_common(lock, TASK_UNINTERRUPTIBLE, 0);
+> +	__mutex_lock_common(lock, TASK_UNINTERRUPTIBLE, 0,
+> +						MAX_SCHEDULE_TIMEOUT);
+>  }
+>  
+>  #ifdef CONFIG_DEBUG_LOCK_ALLOC
+> @@ -202,7 +204,8 @@ void __sched
+>  mutex_lock_nested(struct mutex *lock, unsigned int subclass)
+>  {
+>  	might_sleep();
+> -	__mutex_lock_common(lock, TASK_UNINTERRUPTIBLE, subclass);
+> +	__mutex_lock_common(lock, TASK_UNINTERRUPTIBLE, subclass,
+> +						MAX_SCHEDULE_TIMEOUT);
+>  }
+>  
+>  EXPORT_SYMBOL_GPL(mutex_lock_nested);
+> @@ -256,10 +259,10 @@ __mutex_unlock_slowpath(atomic_t *lock_c
+>  
+>  /*
+>   * Here come the less common (and hence less performance-critical) APIs:
+> - * mutex_lock_interruptible() and mutex_trylock().
+> + * mutex_lock_interruptible(), mutex_lock_timeout and mutex_trylock().
+>   */
+>  static int fastcall noinline __sched
+> -__mutex_lock_interruptible_slowpath(atomic_t *lock_count);
+> +__mutex_lock_interruptible_slowpath(atomic_t *lock_count, long jiffies);
+>  
+>  /***
+>   * mutex_lock_interruptible - acquire the mutex, interruptable
+> @@ -275,18 +278,39 @@ __mutex_lock_interruptible_slowpath(atom
+>  int fastcall __sched mutex_lock_interruptible(struct mutex *lock)
+>  {
+>  	might_sleep();
+> -	return __mutex_fastpath_lock_retval
+> -			(&lock->count, __mutex_lock_interruptible_slowpath);
+> +	return __mutex_fastpath_lock_retval(&lock->count,
+> +		MAX_SCHEDULE_TIMEOUT, __mutex_lock_interruptible_slowpath);
+>  }
+>  
+>  EXPORT_SYMBOL(mutex_lock_interruptible);
+>  
+> +/**
+> + * mutex_lock_timeout - try to acquire the mutex and fail if it takes too long
+> + * @lock: the mutex to be acquired
+> + * @timeout: the number of jiffies to wait
+> + *
+> + * Lock the mutex like mutex_lock(), and return 0 if the mutex has
+> + * been acquired or sleep until the mutex becomes available. If a
+> + * signal arrives while waiting for the lock then this function
+> + * returns -EINTR.  If the timeout expires, it returns -ETIMEDOUT.
+> + *
+> + * This function is similar to (but not equivalent to) down_interruptible().
+> + */
+> +int fastcall __sched mutex_lock_timeout(struct mutex *lock, long jiffies)
+> +{
+> +	might_sleep();
+> +	return __mutex_fastpath_lock_retval(&lock->count, jiffies,
+> +					__mutex_lock_interruptible_slowpath);
+> +}
+> +
+> +EXPORT_SYMBOL(mutex_lock_timeout);
+> +
+>  static int fastcall noinline __sched
+> -__mutex_lock_interruptible_slowpath(atomic_t *lock_count)
+> +__mutex_lock_interruptible_slowpath(atomic_t *lock_count, long jiffies)
+>  {
+>  	struct mutex *lock = container_of(lock_count, struct mutex, count);
+>  
+> -	return __mutex_lock_common(lock, TASK_INTERRUPTIBLE, 0);
+> +	return __mutex_lock_common(lock, TASK_INTERRUPTIBLE, 0, jiffies);
+>  }
+>  
+>  /*

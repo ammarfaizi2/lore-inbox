@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967268AbWKYWYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967270AbWKYWbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967268AbWKYWYa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 17:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967269AbWKYWY3
+	id S967270AbWKYWbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 17:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967269AbWKYWbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 17:24:29 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:55193 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S967268AbWKYWY3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 17:24:29 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc5-mm2 (end earlier): WARNING at lib/kobject.c:172 kobject_init() on resume from disk
-Date: Sat, 25 Nov 2006 23:20:12 +0100
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-References: <200611222207.07143.rjw@sisk.pl> <20061122134406.f3a30fc4.akpm@osdl.org>
-In-Reply-To: <20061122134406.f3a30fc4.akpm@osdl.org>
+	Sat, 25 Nov 2006 17:31:41 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:11204 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S967264AbWKYWbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 17:31:40 -0500
+X-Sasl-enc: 57AwE1Bpd3iJpz/pVJPCLiznTpgzPTRjzqvRrVDh5kOn 1164493900
+Date: Sat, 25 Nov 2006 20:31:28 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       len.brown@intel.com, linux-acpi@vger.kernel.org
+Subject: Re: [2.6 patch] proper prototype for drivers/base/init.c:driver_init()
+Message-ID: <20061125223128.GN1537@khazad-dum.debian.net>
+References: <20061125191645.GI3702@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611252320.12498.rjw@sisk.pl>
+In-Reply-To: <20061125191645.GI3702@stusta.de>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 22 November 2006 22:44, Andrew Morton wrote:
-> On Wed, 22 Nov 2006 22:07:06 +0100
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Sat, 25 Nov 2006, Adrian Bunk wrote:
+> This patch adds a prototype for driver_init() in include/linux/device.h.
 > 
-> > Hi,
-> > 
-> > I get similar traces on every resume from disk on SMP systems:
-> > 
-> > WARNING at lib/kobject.c:172 kobject_init()
-> > 
-> > Call Trace:
-> >  [<ffffffff80265559>] dump_trace+0xaa/0x3fd
-> >  [<ffffffff802658e8>] show_trace+0x3c/0x52
-> >  [<ffffffff80265913>] dump_stack+0x15/0x17
-> >  [<ffffffff8031c1ad>] kobject_init+0x3f/0x8a
-> >  [<ffffffff8031c298>] kobject_register+0x1a/0x3e
-> >  [<ffffffff8038e5b4>] sysdev_register+0x5f/0xec
-> >  [<ffffffff8026af39>] mce_create_device+0x79/0x103
-> >  [<ffffffff8026afed>] mce_cpu_callback+0x2a/0xbd
-> >  [<ffffffff8026112f>] notifier_call_chain+0x29/0x3e
-> >  [<ffffffff8028e809>] raw_notifier_call_chain+0x9/0xb
-> >  [<ffffffff80299f18>] _cpu_up+0xc2/0xd5
-> >  [<ffffffff80299f56>] cpu_up+0x2b/0x42
-> >  [<ffffffff80299fbb>] enable_nonboot_cpus+0x4e/0x9b
-> >  [<ffffffff802a35da>] snapshot_ioctl+0x1a0/0x5d2
-> >  [<ffffffff8023d9cd>] do_ioctl+0x5e/0x77
-> >  [<ffffffff8022d785>] vfs_ioctl+0x256/0x273
-> >  [<ffffffff8024770b>] sys_ioctl+0x5f/0x82
-> >  [<ffffffff8025811e>] system_call+0x7e/0x83
-> > DWARF2 unwinder stuck at system_call+0x7e/0x83
-> > Leftover inexact backtrace:
-> > 
-> > False positive?
-> > 
+> It also removes a static function of the same name in 
+> drivers/acpi/ibm_acpi.c to ibm_acpi_driver_init() to fix the namespace 
+> collision.
 > 
-> Don't know.  The changelog in
-> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/kobject-warn.patch
-> is pretty pathetic.
-> 
-> Perhaps mce_remove_device() isn't being called.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I've added some debugging code into mce_remove_device() which shows that it is
-being called when the CPU is removed.
+ACK for the proposed ibm-acpi changes (I can't speak for driver_init).  A
+full namespace cleanup in ibm-acpi will touch pretty much every function in
+the ibm-acpi driver, so it will have to wait until a bunch of patches that I
+just submitted for acpi-test are either merged or rejected.
 
-Investigation continues.
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

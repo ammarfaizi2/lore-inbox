@@ -1,176 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966288AbWKYI7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966387AbWKYKMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966288AbWKYI7O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966285AbWKYI7O
+	id S966387AbWKYKMl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 05:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966386AbWKYKMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:59:14 -0500
-Received: from mta-2.ms.rz.RWTH-Aachen.DE ([134.130.7.73]:4014 "EHLO
-	mta-2.ms.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id S966284AbWKYI7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:59:13 -0500
-Date: Sat, 25 Nov 2006 09:58:19 +0100
-From: markus reichelt <ml@mareichelt.de>
-Subject: Re: kobject_add failed with -EEXIST
-In-reply-to: <4561E290.7060100@gmail.com>
-To: linux-kernel@vger.kernel.org
-Mail-followup-to: linux-kernel@vger.kernel.org
-Message-id: <20061125085819.GA3959@tatooine.rebelbase.local>
-Organization: still stuck in reorganization mode
-MIME-version: 1.0
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary=6c2NcOVqGQ03X4Wi
-Content-disposition: inline
-X-PGP-Key: 0xC2A3FEE4
-X-PGP-Fingerprint: FFB8 E22F D2BC 0488 3D56  F672 2CCC 933B C2A3 FEE4
-X-Request-PGP: http://mareichelt.de/keys/c2a3fee4.asc
-References: <4561E290.7060100@gmail.com>
-User-Agent: Mutt/1.5.11
+	Sat, 25 Nov 2006 05:12:41 -0500
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:44218 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S966377AbWKYKMk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 05:12:40 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git
+cc: linux-kernel@vger.kernel.org
+X-maint-at: f73da29fa2be2f4bbda86e006b743b8121bdbf19
+X-master-at: f64d7fd267c501f501e18a888e3e1e0c5b56458f
+Date: Sat, 25 Nov 2006 02:12:38 -0800
+Message-ID: <7vzmaf3kdl.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Executive Summary
+=================
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The 'maint' branch still has a handful more post v1.4.4.1
+fixes.
 
-* Jiri Slaby <jirislaby@gmail.com> wrote:
+Aside from the usual gitweb and git-svn updates, the 'master'
+branch has one notable change that everybody should hopefully
+welcome.  separate-remote layout is now the default for newly
+cloned repositories.  We would be needing documentation updates
+and probably some more minor fixes for fallout from this, but I
+do not expect anything majorly broken.
 
-> Does anybody have some clue, what's wrong with the attached module?
-> Kernel complains when the module is insmoded second time
-> (DRIVER_DEBUG enabled):
+Cooking in 'next' are handful topics:
 
-no idea, but I got the same error msg during boot with a monolithic
-2.6.18.3 (vanilla) when it comes to init of the sound hardware:
+ * "git shortlog bottom..top" can be used instead of a pipeline
+   "git log bottom..top | git shortlog".
 
+ * "git merge -m message <commit>" is another natural way to
+   perform a local merge, in addition to the traditional
+   "git pull . <localbranch>".  The former is more powerful in
+   that it can take arbitrary <committish>, not just a ref.
 
-lspci
+ * The new "--depth $n" parameter to git clone/fetch tries to
+   limit the commit ancestry depth to $n.  This still has known
+   issues (for example, shallowly cloning the git.git repository
+   and then deepening the result with large --depth parameter
+   later does not seem to make the resulting repository fully
+   connected, and fsck-objects reports corruption), so please
+   handle it with care.
 
-00:00.0 Host bridge: nVidia Corporation nForce3 250Gb Host Bridge
-(rev a1)
-00:01.0 ISA bridge: nVidia Corporation nForce3 250Gb LPC Bridge (rev
-a2)
-00:01.1 SMBus: nVidia Corporation nForce 250Gb PCI System Management
-(rev a1)
-00:02.0 USB Controller: nVidia Corporation CK8S USB Controller (rev
-a1)
-00:02.1 USB Controller: nVidia Corporation CK8S USB Controller (rev
-a1)
-00:02.2 USB Controller: nVidia Corporation nForce3 EHCI USB 2.0
-Controller (rev a2)
-00:05.0 Bridge: nVidia Corporation CK8S Ethernet Controller (rev a2)
-00:06.0 Multimedia audio controller: nVidia Corporation nForce3 250Gb
-AC'97 Audio Controller (rev a1)
-00:08.0 IDE interface: nVidia Corporation CK8S Parallel ATA
-Controller (v2.5) (rev a2)
-00:0b.0 PCI bridge: nVidia Corporation nForce3 250Gb AGP Host to PCI
-Bridge (rev a2)
-00:0e.0 PCI bridge: nVidia Corporation nForce3 250Gb PCI-to-PCI
-Bridge (rev a2)
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8
-[Athlon64/Opteron] HyperTransport Technology Configuration
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8
-[Athlon64/Opteron] Address Map
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8
-[Athlon64/Opteron] DRAM Controller
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8
-[Athlon64/Opteron] Miscellaneous Control
-02:06.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge
-(non-transparent mode) (rev 15)
-02:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139/8139C/8139C+ (rev 10)
-02:0a.0 Multimedia video controller: Brooktree Corporation Bt878
-Video Capture (rev 11)
-02:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio
-Capture (rev 11)
-03:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA
-G400/G450 (rev 85)
+ * "git show-ref", especially the "-d" variant, is much more
+   efficient when used in a repository with pack-pruned refs.
 
+ * "git fetch" can fetch from a repository with pack-pruned refs
+   over dumb protocol transports.
 
-dmesg-snip
+ * "git push $URL '':$ref" can be used to delete an existing ref
+   from the remote side.
 
-Advanced Linux Sound Architecture Driver Version 1.0.12rc1 (Thu Jun
-22 13:55:50 2006 UTC).
-PCI: Enabling device 0000:02:0a.1 (0100 -> 0102)
-ACPI: PCI Interrupt 0000:02:0a.1[A] -> Link [LNKA] -> GSI 19 (level,
-low) -> IRQ 16
-ACPI: PCI Interrupt Link [LAUI] enabled at IRQ 21
-ACPI: PCI Interrupt 0000:00:06.0[A] -> Link [LAUI] -> GSI 21 (level,
-low) -> IRQ 19
-PCI: Setting latency timer of device 0000:00:06.0 to 64
-intel8x0_measure_ac97_clock: measured 60000 usecs
-intel8x0: clocking to 55563
-kobject_add failed for audio with -EEXIST, don't try to register
-things with the same name in the same directory.
- [<c02bec1a>] kobject_add+0xf4/0xfa
- [<c039604d>] class_device_add+0x9d/0x286
- [<c03962bc>] class_device_create+0x76/0x8c
- [<c049c701>] sound_insert_unit+0xbd/0xd2
- [<c049c857>] register_sound_special_device+0xf8/0x100
- [<c02c1583>] vsnprintf+0x459/0x49a
- [<c04ae6cd>] snd_register_oss_device+0x107/0x15d
- [<c04c1e7e>] register_oss_dsp+0x35/0x57
- [<c02bf2d3>] kobject_uevent+0x348/0x350
- [<c04c1eca>] snd_pcm_oss_register_minor+0x2a/0xbe
- [<c04afa84>] snd_timer_dev_register+0xbe/0xc3
- [<c04ae1fb>] snd_device_register+0x32/0x53
- [<c04b91e1>] snd_pcm_timer_init+0xa9/0xdc
- [<c04b20a4>] snd_pcm_dev_register+0xf0/0x151
- [<c04b20ed>] snd_pcm_dev_register+0x139/0x151
- [<c04ae24a>] snd_device_register_all+0x2e/0x42
- [<c04ab5a6>] snd_card_register+0x9/0xaa
- [<c04c7dc4>] snd_intel8x0_probe+0x14e/0x171
- [<c0395455>] __driver_attach+0x0/0x59
- [<c02cc923>] pci_call_probe+0xa/0xc
- [<c02cc953>] __pci_device_probe+0x2e/0x3f
- [<c02cc982>] pci_device_probe+0x1e/0x30
- [<c03953b2>] driver_probe_device+0x44/0x95
- [<c039548b>] __driver_attach+0x36/0x59
- [<c0394b94>] bus_for_each_dev+0x35/0x59
- [<c03954bf>] driver_attach+0x11/0x13
- [<c0395455>] __driver_attach+0x0/0x59
- [<c0394f81>] bus_add_driver+0x52/0x81
- [<c02ccb07>] __pci_register_driver+0x37/0x47
- [<c04b22b5>] snd_pcm_notify+0x8c/0x91
- [<c077076b>] alsa_pcm_oss_init+0x61/0x6c
- [<c07506e4>] do_initcalls+0x53/0xe4
- [<c013e98b>] register_irq_proc+0x57/0x66
- [<c0184e68>] proc_mkdir_mode+0x37/0x49
- [<c0100295>] init+0x0/0x11f
- [<c01002cc>] init+0x37/0x11f
- [<c01012e1>] kernel_thread_helper+0x5/0xb
-PM: Adding info for ac97:0-0:ALC850
-ALSA device list:
-  #0: NVidia CK8S with ALC850 at 0xfebfb000, irq 19
-  #1: Brooktree Bt878 at 0xf57ff000, irq 16
+ * A glob pattern "Pull: refs/heads/*:refs/remotes/origin/*" is
+   allowed in the remotes file.  The fetch can be forced by
+   prefixing the specification with a '+'.
+
+Currently 'pu' does not have much to speak of.
+
+This update has rather large impact so the kernel list is CC'ed.
+
+----------------------------------------------------------------
+
+* The 'maint' branch has these fixes since the last announcement.
+
+   Andy Parkins (1):
+      Increase length of function name buffer
+
+   Eric Wong (3):
+      git-svn: error out from dcommit on a parent-less commit
+      git-svn: correctly handle revision 0 in SVN repositories
+      git-svn: preserve uncommitted changes after dcommit
+
+   René Scharfe (1):
+      archive-zip: don't use sizeof(struct ...)
 
 
- gcc -v
+* The 'master' branch has these since the last announcement.
 
-Reading specs from /usr/lib/gcc/i486-slackware-linux/3.4.6/specs
-Configured with: ../gcc-3.4.6/configure --prefix=3D/usr --enable-shared
---enable-threads=3Dposix --enable-__cxa_atexit --disable-checking
---with-gnu-ld --verbose --target=3Di486-slackware-linux
---host=3Di486-slackware-linux
-Thread model: posix
-gcc version 3.4.6
+   Andy Parkins (3):
+      Improve git-prune -n output
+      Add support to git-branch to show local and remote branches
+      Increase length of function name buffer
+
+   Eric Wong (6):
+      git-svn: error out from dcommit on a parent-less commit
+      git-svn: correctly handle revision 0 in SVN repositories
+      git-svn: preserve uncommitted changes after dcommit
+      git-svn: handle authentication without relying on cached tokens on disk
+      git-svn: correctly access repos when only given partial read permissions
+      git-svn: exit with status 1 for test failures
+
+   Iñaki Arenaza (1):
+      git-cvsimport: add support for CVS pserver method HTTP/1.x proxying
+
+   Jakub Narebski (8):
+      gitweb: Protect against possible warning in git_commitdiff
+      gitweb: Buffer diff header to deal with split patches + git_patchset_body refactoring
+      gitweb: Default to $hash_base or HEAD for $hash in "commit" and "commitdiff"
+      gitweb: New improved formatting of chunk header in diff
+      gitweb: Add an option to href() to return full URL
+      gitweb: Refactor feed generation, make output prettier, add Atom feed
+      gitweb: Finish restoring "blob" links in git_difftree_body
+      gitweb: Replace SPC with &nbsp; also in tag comment
+
+   Junio C Hamano (9):
+      upload-pack: stop the other side when they have more roots than we do.
+      apply --numstat: mark binary diffstat with - -, not 0 0
+      pack-objects: tweak "do not even attempt delta" heuristics
+      refs outside refs/{heads,tags} match less strongly.
+      Typefix builtin-prune.c::prune_object()
+      gitweb: (style) use chomp without parentheses consistently.
+      git-clone: stop dumb protocol from copying refs outside heads/ and tags/.
+      git-branch -D: make it work even when on a yet-to-be-born branch
+      git-fetch: exit with non-zero status when fast-forward check fails
+
+   Lars Hjemli (1):
+      Add -v and --abbrev options to git-branch
+
+   Peter Baumann (1):
+      config option log.showroot to show the diff of root commits
+
+   Petr Baudis (1):
+      Make git-clone --use-separate-remote the default
+
+   René Scharfe (1):
+      archive-zip: don't use sizeof(struct ...)
 
 
---=20
-left blank, right bald
+* The 'next' branch, in addition, has these.
 
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+   Alexandre Julliard (6):
+      Shallow clone: do not ignore shallowness when following tags
+      fetch-pack: Properly remove the shallow file when it becomes empty.
+      upload-pack: Check for NOT_SHALLOW flag before sending a shallow to the client.
+      git-fetch: Reset shallow_depth before auto-following tags.
+      get_shallow_commits: Avoid memory leak if a commit has been reached already.
+      fetch-pack: Do not fetch tags for shallow clones.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+   Jakub Narebski (1):
+      gitweb: Do not use esc_html in esc_path
 
-iD8DBQFFaAWrLMyTO8Kj/uQRApu0AJ9MaKtOxwSxTSX0eqgAGQXOR2fiqACff5Sl
-O/nrxDR0NTRJ4xw/YwdqQMI=
-=wibW
------END PGP SIGNATURE-----
+   Johannes Schindelin (10):
+      Build in shortlog
+      shortlog: do not crash on parsing "[PATCH"
+      shortlog: read mailmap from ./.mailmap again
+      shortlog: handle email addresses case-insensitively
+      shortlog: fix "-n"
+      upload-pack: no longer call rev-list
+      support fetching into a shallow repository
+      allow cloning a repository "shallowly"
+      allow deepening of a shallow repository
+      add tests for shallow stuff
 
---6c2NcOVqGQ03X4Wi--
+   Junio C Hamano (19):
+      Store peeled refs in packed-refs file.
+      remove merge-recursive-old
+      git-merge: make it usable as the first class UI
+      merge: allow merging into a yet-to-be-born branch.
+      git-diff/git-apply: make diff output a bit friendlier to GNU patch (part 2)
+      Store peeled refs in packed-refs (take 2).
+      git-fetch: reuse ls-remote result.
+      git-fetch: fix dumb protocol transport to fetch from pack-pruned ref
+      git-fetch: allow glob pattern in refspec
+      Allow git push to delete remote ref.
+      We should make sure that the protocol is still extensible.
+      Why does it mean we do not have to register shallow if we have one?
+      Why didn't we mark want_obj as ~UNINTERESTING in the old code?
+      shallow clone: unparse and reparse an unshallowed commit
+      git-shortlog: fix common repository prefix abbreviation.
+      git-shortlog: make common repository prefix configurable with .mailmap
+      git-commit: show --summary after successful commit.
+      git-fetch: allow forcing glob pattern in refspec
+      fetch-pack: do not barf when duplicate re patterns are given
+
+   Nicolas Pitre (1):
+      builtin git-shortlog is broken
+
+
+* The 'pu' branch, in addition, has these.
+
+   Junio C Hamano (4):
+      para-walk: walk n trees, index and working tree in parallel
+      rev-list --left-right
+      blame: --show-stats for easier optimization work.
+      gitweb: steal loadavg throttle from kernel.org
+
 

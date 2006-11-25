@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966280AbWKYI5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966284AbWKYI7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966280AbWKYI5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934495AbWKYI5R
+	id S966284AbWKYI7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 03:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966285AbWKYI7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:57:17 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17128 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S934514AbWKYI5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:57:16 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Yinghai Lu" <yinghai.lu@amd.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] x86-64: change the size for interrupt array to NR_VECTORS
-References: <86802c440611241736l545ddf33i3bb08f3cd6446b14@mail.gmail.com>
-	<m1psbcovwv.fsf@ebiederm.dsl.xmission.com>
-	<86802c440611250040t6c18272et495dd72e2eda7d7a@mail.gmail.com>
-Date: Sat, 25 Nov 2006 01:55:12 -0700
-In-Reply-To: <86802c440611250040t6c18272et495dd72e2eda7d7a@mail.gmail.com>
-	(Yinghai Lu's message of "Sat, 25 Nov 2006 00:40:45 -0800")
-Message-ID: <m1zmafoqhb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sat, 25 Nov 2006 03:59:24 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:36759 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S966284AbWKYI7X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 03:59:23 -0500
+Message-ID: <456805F3.1020407@drzeus.cx>
+Date: Sat, 25 Nov 2006 09:59:31 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+CC: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       ext David Brownell <david-b@pacbell.net>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_omap_dma.diff
+References: <4564648B.2020005@indt.org.br>
+In-Reply-To: <4564648B.2020005@indt.org.br>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Yinghai Lu" <yinghai.lu@amd.com> writes:
-
-> On 11/24/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->> "Yinghai Lu" <yinghai.lu@amd.com> writes:
->> YH.  Please place a newline between your subject and your description
->> in the body of your patches.
+Anderson Briglia wrote:
+> OMAP platform specific patch.
+> - Adjust the frame size for DMA transfers.
 >
-> Next time.
+> Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
+> Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
 >
->> Yep I missed this optimization opportunity :)
+
+This looks like a generic patch for OMAP and shouldn't be in this set.
+
+> Index: linux-omap-2.6.git/drivers/mmc/omap.c
+> ===================================================================
+> --- linux-omap-2.6.git.orig/drivers/mmc/omap.c    2006-11-22
+> 09:07:25.000000000 -0400
+> +++ linux-omap-2.6.git/drivers/mmc/omap.c    2006-11-22
+> 09:19:03.000000000 -0400
+> @@ -629,6 +629,14 @@ mmc_omap_prepare_dma(struct mmc_omap_hos
 >
-> You did a great job to clean up the irq_vector mapping.
+>      data_addr = host->phys_base + OMAP_MMC_REG_DATA;
+>      frame = data->blksz;
+> +
+> +#ifdef CONFIG_MMC_PASSWORDS
+> +    /* MMC LOCK/UNLOCK: Do frame size multiple of two. This is
+> +     * needed for DMA transfers to work properly, once
+> +     * the block size depends on MMC password length.
+> +     */
+> +    frame += frame&0x1;
+> +#endif
+>      count = sg_dma_len(sg);
+>
+>      if ((data->blocks == 1) && (count > (data->blksz)))
+>
 
-Yep and created many new optimization and clean up opportunities...
-Because I didn't take everything to it's full logical conclusion :)
+Now this you're going to have to explain to me. Especially the part
+where why this is specific to the lock commands.
 
-Just enough to make everything architecture specific.
+-- 
+     -- Pierre Ossman
 
-Eric
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 

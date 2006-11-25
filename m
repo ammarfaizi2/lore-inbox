@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967207AbWKYU5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967206AbWKYVAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967207AbWKYU5T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967206AbWKYU5T
+	id S967206AbWKYVAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 16:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967209AbWKYVAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:57:19 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:30900 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S967207AbWKYU5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:57:18 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Sat, 25 Nov 2006 15:54:18 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MPT:  make all Fusion MPT sub-choices singly selectable
-In-Reply-To: <20061125121210.52c66f55.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.64.0611251548530.24225@localhost.localdomain>
-References: <Pine.LNX.4.64.0611250627200.20370@localhost.localdomain>
- <20061125121210.52c66f55.randy.dunlap@oracle.com>
+	Sat, 25 Nov 2006 16:00:05 -0500
+Received: from ns.suse.de ([195.135.220.2]:48284 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S967206AbWKYVAE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 16:00:04 -0500
+From: Andi Kleen <ak@suse.de>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
+Date: Sat, 25 Nov 2006 21:59:59 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+References: <20061123195137.GA35120@dspnet.fr.eu.org> <200611252034.34378.ak@suse.de> <20061125205152.GA18964@dspnet.fr.eu.org>
+In-Reply-To: <20061125205152.GA18964@dspnet.fr.eu.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611252159.59414.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006, Randy Dunlap wrote:
+On Saturday 25 November 2006 21:51, Olivier Galibert wrote:
+> On Sat, Nov 25, 2006 at 08:34:34PM +0100, Andi Kleen wrote:
+> > On Thursday 23 November 2006 20:51, Olivier Galibert wrote:
+> > 
+> > > The detection and support should eventually be shared with i386 since
+> > > you can run a 32bits kernel on a 64bits chip.
+> > 
+> > Exactly. So please define a mmconfig-shared.c first
+> 
+> Ok.  On which side (i386 or x86-64)
 
-... snip ...
+What you prefer. And please move the already existing shared code in there
+too.
 
-> Here's another option.  What do you think of it?
+> and is there a standard way to 
+> include the object file on the other side?
 
-...
+See arch/x86_64/kernel/Makefile for a few examples
 
-> --- linux-2.6.19-rc6-git8.orig/drivers/message/fusion/Kconfig
-> +++ linux-2.6.19-rc6-git8/drivers/message/fusion/Kconfig
-> @@ -1,14 +1,12 @@
->
-> -menu "Fusion MPT device support"
-> +menuconfig FUSION
-> +	bool "Fusion MPT device support"
->
-> -config FUSION
-> -	bool
-> -	default n
-> +if FUSION
-
-... more snip ...
-
-  i suspect you already noticed that that's what i proposed in my
-followup posting.  :-)  my first suggestion explicitly didn't mess
-with the "Device Drivers" menu, only the underlying MPT submenu.
-
-  my second posting went that extra step and added selection boxes to
-the Device Drivers menu entries themselves, although your solution is
-nicer than mine, surrounding the MPT entries with a single "if FUSION"
-rather than my adding a dependency to every selection.
-
-  i'm willing to come up with some patches that match your suggestion,
-but what do others think of changing the fundamental layout of the
-Device Drivers menu (and perhaps other menus) to that extent by adding
-that extra selector?
-
-rday
+-Andi
+ 

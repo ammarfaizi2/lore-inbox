@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966059AbWKYQUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966675AbWKYQcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966059AbWKYQUL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 11:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966641AbWKYQUL
+	id S966675AbWKYQcr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 11:32:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966669AbWKYQcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 11:20:11 -0500
-Received: from mail.gmx.de ([213.165.64.20]:38803 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S966059AbWKYQUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 11:20:09 -0500
-X-Authenticated: #20450766
-Date: Sat, 25 Nov 2006 17:20:06 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: linux-kernel@vger.kernel.org, kernel-discuss@handhelds.org
-Subject: Re: tty line discipline driver advice sought, to do a 1-byte header
- and 2-byte CRC checksum on GSM data
-In-Reply-To: <20061125040614.GI16214@lkcl.net>
-Message-ID: <Pine.LNX.4.60.0611251715130.4069@poirot.grange>
-References: <20061125040614.GI16214@lkcl.net>
+	Sat, 25 Nov 2006 11:32:47 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:3500 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S966659AbWKYQcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 11:32:46 -0500
+Date: Sat, 25 Nov 2006 09:32:43 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 1/2] Introduce mutex_lock_timeout
+Message-ID: <20061125163242.GH14076@parisc-linux.org>
+References: <20061109182721.GN16952@parisc-linux.org> <20061125035526.GF14076@parisc-linux.org> <200611251700.39806.ioe-lkml@rameria.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611251700.39806.ioe-lkml@rameria.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(removed arm-linux because I am not subscribed to it from this address, 
-don't know about hh)
+On Sat, Nov 25, 2006 at 05:00:27PM +0100, Ingo Oeser wrote:
+> Ok, I will comment it. But I'll NOT comment on the implementation.
+> I'll prove you instead, that timout based locking is non-sense.
 
-On Sat, 25 Nov 2006, Luke Kenneth Casson Leighton wrote:
+Your proof misses a case and is thus invalid.
 
-> and having read harald's email, and basically gone 'cool!', and, having
-> then looked up 'tty line discipline' on google (_before_ writing
-> this...) and gone 'errr...' i was wondering:
+> What should the timout mutex_timeout() prevent? Usually the answer is 
+> "if sombody hangs on a mutex forever ...?" and people tell you "ok, that is
+> a deadlock -> fix your code not to deadlock instead."
+> Then they tell you "Ok, but if somebody takes a mutex too long?"
+> and people will answer "ok, then this is a livelock -> fix your code not to 
+> livelock."
 > 
-> could someone kindly advise me how to write a tty line discipline
-> driver?
+> Another answer is "I like to block until sth. happens wihin a specific time frame" 
+> -> fine, this is accomplished by wait_event_timout (which blocks only you and 
+> not every other user of the mutex).
 
-Well, this is what I came up with when I googled for it:
+In the qla case, the mutex can be acquired by a thread which then waits
+for the hardware to do something.  If the hardware locks up, it is
+preferable that the system not hang.
 
-http://www.eros-os.org/design-notes/LineDiscDesign.html
-http://www.linux.it/~rubini/docs/serial/serial.html
-http://lwn.net/Articles/87662/
+> I know why ACPI needs it (API requirement) and I think the qla???-driver
+> just needs to be fixed to work without it and nobody did it yet.
 
-That's all I can help you with - didn't actually write any ldisc as it 
-wasn't the right solution for my problem.
+Since Christoph is the one who has his name on it:
+/* XXX(hch): crude hack to emulate a down_timeout() */
 
-HTH
-Guennadi
----
-Guennadi Liakhovetski
+I assumed that he'd spent enough time thinking about it that fixing it
+really wasn't feasible.
+

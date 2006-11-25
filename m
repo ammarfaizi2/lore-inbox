@@ -1,110 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967259AbWKYWGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967265AbWKYWI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967259AbWKYWGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 17:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967264AbWKYWGH
+	id S967265AbWKYWI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 17:08:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967260AbWKYWI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 17:06:07 -0500
-Received: from firewall.rowland.harvard.edu ([140.247.233.35]:1657 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S967259AbWKYWGE
+	Sat, 25 Nov 2006 17:08:28 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:36805 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S967266AbWKYWI1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 17:06:04 -0500
-Date: Sat, 25 Nov 2006 17:06:02 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Jens Axboe <jens.axboe@oracle.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-In-Reply-To: <20061125171438.GA159@oleg>
-Message-ID: <Pine.LNX.4.44L0.0611251648380.28957-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Nov 2006 17:08:27 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:date:from:to:cc:subject:message-id:in-reply-to:
+	references:x-mailer:mime-version:content-type:content-transfer-encoding;
+	b=vMOetF6jzRe83dpLugJJ4oE46uOtFLp10JK6PHkRmB++Eh+64anBaf98Oui3gevGf
+	JxyWYbvr85wbZ/LO5fUrQ==
+Date: Sat, 25 Nov 2006 14:08:16 -0800
+From: Andrew Morton <akpm@google.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: OOM killer firing on 2.6.18 and later during LTP runs
+Message-Id: <20061125140816.903b7dc7.akpm@google.com>
+In-Reply-To: <4568B72C.1060801@mbligh.org>
+References: <4568AFB1.3050500@mbligh.org>
+	<20061125132828.16a01762.akpm@osdl.org>
+	<4568B72C.1060801@mbligh.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006, Oleg Nesterov wrote:
+On Sat, 25 Nov 2006 13:35:40 -0800
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
 
-> > void xxx_read_unlock(struct xxx_struct *sp, int idx)
-> > {
-> > 	spin_lock(&sp->lock);
+> > The traces are a bit confusing, but I don't actually see anything wrong
+> > there.  The machine has used up all swap, has used up all memory and has
+> > correctly gone and killed things.  After that, there's free memory again.
 > 
-> It is possible that the memory ops that occur before spin_lock() is not yet
-> completed,
-> 
-> > 	if (--sp->ctr[idx] == 0)
-> 
-> suppose that synchronize_xxx() just unlocked sp->lock. It sees sp->ctr[idx] == 0
-> and returns.
-> 
-> > 		wake_up(&sp->wq);
-> > 	spin_unlock(&sp->lock);
-> 
-> This is a one-way barrier, yes. But it is too late.
+> Yeah, it's just a bit odd that it's always in the IO path.
 
-Yes, you are right.  The corrected routine (including your little 
-optimization) looks like this:
+It's not.  It's in the main pagecache allocation path for reads.
 
-void synchronize_xxx(struct xxx_struct *sp)
-{
-	int idx;
+> Makes me
+> suspect there's actually a bunch of pagecache in the box as well,
 
-	mutex_lock(&sp->mutex);
-	spin_lock(&sp->lock);
-	idx = sp->completed & 0x1;
-	if (sp->ctr[idx] == 1)
-		goto done;
+show_free_areas() doesn't appear to dump the information which is needed to
+work out how much of that memory is pagecache and how much is swapcache.  I
+assume it's basically all swapcache.
 
-	++sp->completed;
-	--sp->ctr[idx];
-	sp->ctr[idx ^ 1] = 1;
+> but
+> maybe it's just coincidence, and the rest of the box really is full
+> of anon mem. I thought we dumped the alt-sysrq-m type stuff on an OOM
+> kill, but it seems not. maybe that's just not in mainline.
 
-	spin_unlock(&sp->lock);
-	__wait_event(sp->wq, sp->ctr[idx] == 0);
-	spin_lock(&sp->lock);
-
-done:
-	spin_unlock(&sp->lock);
-	mutex_unlock(&sp->mutex);
-}
-
-> Actually, synchronize_xxx() may sleep on sp->wq and we still have a race.
-> synchronize_xxx() can return before ->wake_up() unlocks sp->wq.lock (finish_wait()
-> doesn't take sp->wq.lock due to autoremove_wake_function()).
-
-The version above doesn't suffer from that race.
-
-> This is more or less equivalent to
-> 
-> 	void synchronize_xxx(struct xxx_struct *sp)
-> 	{
-> 		int idx;
-> 
-> 		mutex_lock(&sp->mutex);
-> 
-> 		idx = sp->completed & 0x1;
-> 		atomic_dec(sp->ctr + idx);
-> 		smp_mb__before_atomic_inc();
-> 		atomic_inc(sp->ctr + (idx ^ 0x1));
-> 		sp->completed++;
-> 
-> 		wait_event(sp->wq, !atomic_read(sp->ctr + idx));
-> 		mutex_unlock(&sp->mutex);
-> 	}
-
-It may indeed be equivalent.  But _proving_ it is equivalent is certainly 
-not easy.  The advantage of spinlocks is that they remove the necessity 
-for outrageous mental contortions to verify that all possible execution 
-paths will work correctly.
-
-> Honestly, I don't see why it is better, but may be this is just me.
-> In any case, spinlock based implementation shouldn't be faster, yes?
-
-It will generally be somewhat slower.  In addition to cache-line
-contention it suffers from lock contention.  The difference shouldn't be
-enough to matter unless a lot of threads are trying to acquire a read lock
-simultaneously.
-
-Alan Stern
-
+We do.  It's sitting there in your logs.

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967202AbWKYV2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967213AbWKYV2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967202AbWKYV2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 16:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967212AbWKYV2j
+	id S967213AbWKYV2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 16:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967214AbWKYV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 16:28:39 -0500
-Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:58356 "EHLO
-	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S967202AbWKYV2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 16:28:39 -0500
-Message-ID: <4568B56C.8080601@lwfinger.net>
-Date: Sat, 25 Nov 2006 15:28:12 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Sat, 25 Nov 2006 16:28:48 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:10989 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S967213AbWKYV2r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 16:28:47 -0500
+Date: Sat, 25 Nov 2006 13:26:51 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Miller <davem@davemloft.net>
+cc: samuel@sortiz.org, a.p.zijlstra@chello.nl,
+       irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, arvidjaar@mail.ru, akpm@osdl.org
+Subject: Re: [PATCH] Revert "[IRDA]: Lockdep fix."
+In-Reply-To: <20061125.130927.87744078.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0611251324260.3483@woody.osdl.org>
+References: <20061125152649.GA5698@sortiz.org> <20061125.130927.87744078.davem@davemloft.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Benoit Boissinot <bboissin@gmail.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc5-mm1 progression
-References: <456718F6.8040902@lwfinger.net> <40f323d00611240836q6bcf7374gd47c7a97d1d4f8e3@mail.gmail.com> <20061125112437.3d46eff4.akpm@osdl.org>
-In-Reply-To: <20061125112437.3d46eff4.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 24 Nov 2006 17:36:27 +0100
-> "Benoit Boissinot" <bboissin@gmail.com> wrote:
-> 
->> On 11/24/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
->>> Is there the equivalent of 'git bisect' for the -mmX kernels?
->>>
->> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
->>
-> 
-> Please take the time to do that.  Yours is an interesting report - I'm not
-> aware of anything in there which was expected to cause a change of this
-> mature.
-> 
 
-I am in the process of isolating the patch. I was already a user of quilt so that part of the 
-learning process was no problem.
 
-Larry
+On Sat, 25 Nov 2006, David Miller wrote:
+> 
+> Why is everyone so impatient about this issue?  Just wait for Andrew
+> to merge the fix and all will be well :-)
 
+No, I think this was a total failure. We should have reverted it 
+immediately rather than waiting for the fix. Especially as the damn thing 
+wasn't even all that important.
+
+I now (finally) have the patch from Andrew, but we should _not_ have had 
+this thing broken for three days. It should have gotten reverted on the 
+first report of trouble, instead of us telling people to just wait.
+
+Broken compiles are simply not acceptable. Patches that cause them should 
+be reverted _immediately_ unless a fix is available as quickly (which it 
+wasn't due to turkey-day).
+
+No excuses. People _should_ be impatient about idiotic failures like this.
+
+		Linus

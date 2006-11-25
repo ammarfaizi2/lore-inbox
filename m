@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757894AbWKYIco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757895AbWKYIi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757894AbWKYIco (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757891AbWKYIco
+	id S1757895AbWKYIi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 03:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757896AbWKYIi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:32:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:35534 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1757894AbWKYIco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:32:44 -0500
-Subject: Re: Overriding X on panic
-From: Arjan van de Ven <arjan@infradead.org>
-To: Casey Dahlin <cjdahlin@ncsu.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1164434093.10503.2.camel@localhost.localdomain>
-References: <1164434093.10503.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sat, 25 Nov 2006 09:32:41 +0100
-Message-Id: <1164443561.3147.54.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Sat, 25 Nov 2006 03:38:59 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:28567 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1757895AbWKYIi6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 03:38:58 -0500
+Message-ID: <45680128.5000506@drzeus.cx>
+Date: Sat, 25 Nov 2006 09:39:04 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+MIME-Version: 1.0
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+CC: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       ext David Brownell <david-b@pacbell.net>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_ignore_locked.diff
+References: <45646330.9010402@indt.org.br>
+In-Reply-To: <45646330.9010402@indt.org.br>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-11-25 at 00:54 -0500, Casey Dahlin wrote:
-> Linus did say that he would do anything within reason to help desktop
-> linux forward, and frankly a big step forward would be to get error
-> messages to the user. What might be some safe options for overriding,
-> switching away from, killing, or otherwise disposing of the X server
-> when an unrecoverable Oops is about to occur on the TTY?
+Anderson Briglia wrote:
+> When a card is locked, only commands from the "basic" and "lock card"
+> classes
+> are accepted. To be able to use the other commands, the card must be
+> unlocked
+> first.
+>
+> This patch prevents the device drivers from trying to run privileged
+> class
+> commands on locked MMC cards, which will fail anyway.
+>
 
-the "real" solution is to have a small video driver in the kernel that
-knows at least how to get back to text mode. It sounds obscene to some,
-but if you get down to it it's not all that bad; the policy of what
-modesettings to use can still be in userspace, the execution of the
-series of IO's would be in the kernel, and the kernel would store
-bundles of settings, including a "rescue" one, but also for
-suspend/resume...
+You still need to change the commit message, but otherwise the patch
+looks ok.
 
+Rgds
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org
 

@@ -1,43 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757841AbWKYGHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756540AbWKYGSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757841AbWKYGHf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 01:07:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757843AbWKYGHf
+	id S1756540AbWKYGSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 01:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757842AbWKYGSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 01:07:35 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:8855
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1757841AbWKYGHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 01:07:35 -0500
-Date: Fri, 24 Nov 2006 22:07:46 -0800 (PST)
-Message-Id: <20061124.220746.57445336.davem@davemloft.net>
-To: rdreier@cisco.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org,
-       tom@opengridcomputing.com
-Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <adazmag5bk1.fsf@cisco.com>
-References: <adazmag5bk1.fsf@cisco.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 25 Nov 2006 01:18:39 -0500
+Received: from mail.gmx.net ([213.165.64.20]:51425 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1756540AbWKYGSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 01:18:38 -0500
+X-Authenticated: #24879014
+Message-ID: <4567E03F.80700@gmx.net>
+Date: Fri, 24 Nov 2006 22:18:39 -0800
+From: Michael Kerrisk <mtk-manpages@gmx.net>
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: man-pages-2.42 is released
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 24 Nov 2006 21:40:14 -0800
+Gidday,
 
-> diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-> index 24b6111..cc542d3 100644
-> --- a/include/linux/kernel.h
-> +++ b/include/linux/kernel.h
-> @@ -31,7 +31,7 @@ #define ULLONG_MAX	(~0ULL)
->  #define STACK_MAGIC	0xdeadbeef
->  
->  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-> -#define ALIGN(x,a) (((x)+(a)-1UL)&~((a)-1UL))
-> +#define ALIGN(x,a) (((x)+(a)-1L)&~((a)-1L))
+I just released man-pages-2.41.
 
-Perhaps a better way to fix this is to use
-typeof() like other similar macros do.
+This release is now available for download at:
+
+    ftp://ftp.kernel.org/pub/linux/docs/manpages
+    or mirrors: ftp://ftp.XX.kernel.org/pub/linux/docs/manpages
+
+and soon at:
+
+    ftp://ftp.win.tue.nl/pub/linux-local/manpages
+
+Changes in this release that may be of interest to readers
+of this list include the following:
+
+Changes to individual pages
+---------------------------
+
+brk.2
+    Evan Teran / mtk
+        Add text describing behaviour of the Linux brk() system call
+        and point out that the glibc brk() wrapper provides different
+        behaviour.
+
+futex.2
+    mtk
+        FUTEX_FD is scheduled for removal in June 2007.
+
+getaddrinfo.3
+getnameinfo.3
+    Ulrich Drepper, with edits by mtk
+        Add text describing Internationalized Domain Name
+        extensions.
+
+ptrace.2
+    Chuck Ebbert
+        Since Linux 2.6.18, the PID of the new process is also available
+        for PTRACE_EVENT_VFORKDONE.
+
+core.5
+    mtk
+        Linux 2.4.21 added core_pattern (which was already in 2.6).
+        Noted a few more reasons why a core dump file might not
+        be produced.
+
+Many things remain to be fixed -- help is appreciated.  The list below
+notes outstanding FIXMEs from section 2 of the manual pages.
+
+Cheers,
+
+Michael
+
+==========
+man2/epoll_wait.2
+     FIXME 2.6.19-rc5 has epoll_pwait(); this should be documented
+     on this page.
+
+==========
+man2/execve.2
+     FIXME add some statement about the effect on record locks (fcntl()).
+
+==========
+man2/fcntl.2
+     FIXME According to POSIX.1-2001, O_SYNC should also be modifiable
+     via fcntl(2), but currently Linux does not permit this
+     See http://bugzilla.kernel.org/show_bug.cgi?id=5994
+
+     FIXME The statement that O_ASYNC can be used in open() does not
+     match reality; setting O_ASYNC via open() does not seem to be
+     effective.
+     See http://bugzilla.kernel.org/show_bug.cgi?id=5993
+
+     FIXME Dec 04: some limited testing on alpha and ia64 seems to
+     indicate that ANY negative PGID value will cause F_GETOWN
+     to misinterpret the return as an error. Some other architectures
+     seem to have the same range check as x86.  Must document
+     the reality on other architectures -- MTK
+
+==========
+man2/futex.2
+     FIXME
+     2.6.18 adds (Ingo Molnar) priority inheritance support:
+     FUTEX_LOCK_PI, FUTEX_UNLOCK_PI, and FUTEX_TRYLOCK_PI.  These need
+     to be documented in the manual page.  Probably there is sufficient
+     material in the kernel source file Documentation/pi-futex.txt.
+
+==========
+man2/get_mempolicy.2
+     FIXME writeme -- no errors are listed on this page
+
+==========
+man2/madvise.2
+     FIXME 2.6.16 added MADV_REMOVE, MADV_DONTFORK, and MADV_DOFORK.
+     These need to be documented.
+        MADV_DONTFORK       /* don't inherit across fork */
+        MADV_DOFORK         /* do inherit across fork */
+         A discussion of MADV_DONTFORK and MADV_DOFORK can be found
+        at http://lwn.net/Articles/171941/
+
+==========
+man2/mount.2
+     FIXME 2.6.15 added flags for "shared sub-tree" functionality:
+     MS_UNBINDABLE, MS_PRIVATE, MS_SHARED, MS_SLAVE
+     These need to be documented on this page.
+     See Documentation/sharedsubtree.txt
+
+     FIXME Say more about MS_MOVE
+
+     FIXME Document MS_REC, available since 2.4.11.
+     This flag has meaning in conjunction with MS_BIND and
+     also with the shared sub-tree flags.
+
+     FIXME Can MNT_FORCE result in data loss?  According to
+     the Solaris manual page it can cause data loss on Solaris.
+     If the same holds on Linux, then this should be documented.
+
+==========
+man2/mprotect.2
+     FIXME
+     Document MAP_GROWSUP and MAP_GROWSDOWN
+
+==========
+man2/open.2
+     FIXME? The O_NOATIME flag also affects the treatment of st_atime
+     by mmap() and readdir(2), MTK, Dec 04.
+
+     FIXME Check bugzilla report on open(O_ASYNC)
+     See http://bugzilla.kernel.org/show_bug.cgi?id=5993
+
+==========
+man2/path_resolution.2
+     FIXME say something about filesystem mounted read-only ?
+
+     FIXME say something about immutable files
+     FIXME say something about ACLs
+
+==========
+man2/quotactl.2
+     FIXME There is much that is missing and/or out of date in this page.
+     As things stand the page more or less documents Linux 2.2 reality:
+
+     Linux 2.2 has:
+
+        Q_GETQUOTA
+        Q_GETSTATS
+        Q_QUOTAOFF
+        Q_QUOTAON
+        Q_RSQUASH (not currently documented)
+        Q_SETQLIM
+        Q_SETQUOTA
+        Q_SETUSE
+        Q_SYNC
+
+     Linux 2.4 has:
+
+        Q_COMP_QUOTAOFF
+        Q_COMP_QUOTAON
+        Q_COMP_SYNC
+        Q_GETFMT
+        Q_GETINFO
+        Q_GETQUOTA
+        Q_QUOTAOFF
+        Q_QUOTAON
+        Q_SETINFO
+        Q_SETQUOTA
+        Q_SYNC
+        Q_V1_GETQUOTA Q_V1_GETSTATS Q_V1_RSQUASH Q_V1_SETQLIM
+        Q_V1_SETQUOTA Q_V1_SETUSE
+        Q_V2_GETINFO Q_V2_GETQUOTA Q_V2_SETFLAGS Q_V2_SETGRACE
+        Q_V2_SETINFO Q_V2_SETQUOTA Q_V2_SETUSE
+        Q_XGETQSTAT Q_XGETQUOTA Q_XQUOTAOFF Q_XQUOTAON Q_XQUOTARM
+        Q_XSETQLIM
+
+     Linux 2.6.16 has:
+
+        Q_GETFMT
+        Q_GETINFO
+        Q_GETQUOTA
+        Q_QUOTAOFF
+        Q_QUOTAON
+        Q_SETINFO
+        Q_SETQUOTA
+        Q_SYNC
+        Q_XGETQSTAT
+        Q_XGETQUOTA
+        Q_XQUOTAOFF
+        Q_XQUOTAON
+        Q_XQUOTARM
+        Q_XQUOTASYNC
+        Q_XSETQLIM
+
+==========
+man2/select.2
+     FIXME select() (and pselect()?) also modify the timeout
+     on an EINTR error return; POSIX.1-2001 doesn't permit this.
+
+==========
+man2/send.2
+     FIXME? document MSG_PROXY (which went away in 2.3.15)
+
+==========
+man2/set_mempolicy.2
+     FIXME writeme -- no errors are listed on this page
+
+==========
+man2/shmop.2
+     FIXME What does "failing attach at brk" mean?  (Is this phrase
+     just junk?)
+
+     FIXME A good explanation of the rationale for the existence
+     of SHMLBA would be useful here
+
+     FIXME That last sentence isn't true for all Linux
+     architectures (i.e., SHMLBA != PAGE_SIZE for some architectures)
+     -- MTK, Nov 04
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
+
+Want to help with man page maintenance?  Grab the latest tarball at
+http://www.kernel.org/pub/linux/docs/manpages/
+read the HOWTOHELP file and grep the source files for 'FIXME'.

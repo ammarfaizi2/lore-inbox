@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967141AbWKYUd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967169AbWKYUfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967141AbWKYUd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967167AbWKYUd4
+	id S967169AbWKYUfP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967170AbWKYUfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:33:56 -0500
-Received: from 1wt.eu ([62.212.114.60]:43012 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S967141AbWKYUd4 (ORCPT
+	Sat, 25 Nov 2006 15:35:15 -0500
+Received: from mx1.aecom.yu.edu ([129.98.1.51]:1486 "EHLO mx1.aecom.yu.edu")
+	by vger.kernel.org with ESMTP id S967169AbWKYUfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:33:56 -0500
-Date: Sat, 25 Nov 2006 22:24:40 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: shaggy@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.4] jfs: incorrect use of "&&" instead of "&"
-Message-ID: <20061125212440.GA5930@1wt.eu>
+	Sat, 25 Nov 2006 15:35:13 -0500
+X-AuditID: 816201a0-accbebb0000059fa-1c-4568a74da3a2 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <a06240400c18e4b03eadf@[129.98.90.227]>
+Date: Sat, 25 Nov 2006 15:35:14 -0500
+To: support@areca.com.tw
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Pathetic write performance from Areca PCIe cards
+Cc: linux-kernel@vger.kernel.org, erich@areca.com.tw
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+I have two systems with a serious I/O subsystem based on Areca PCIe 
+cards, but the results I am getting from simple write benchmarks are 
+extremely slow.
 
-I'm about to merge this fix in 2.4. It's already in 2.6 BTW.
-Do you have any objection ?
+The details are two 64-bit Opteron systems, one with an Areca PCIe 
+1210 and the other a PCIe 1220 and both with Seagate SATA II 750 GB 
+drives. The motherboard is a Tyan S2891 (Thunder K8SRE). The 120 
+system has 1 GB of PC2700 RAM and the 1220 system has 2GB of PC3200 
+RAM. The Areca BIOS on both cards is version 1.17a and the firmware 
+is 1.41.
+I have tried two different kernels, 2.6.17 from Ubuntu, which had the 
+Areca driver added by Ubuntu and 2.6.18 from Gentoo with the Areca 
+driver added manually from 2.6.19-rc3.
 
-Thanks in advance,
-Willy
+In the initial tests, both computers had a RAID 5/6 configuration, 
+but to confirm the result, I setup a single Seagate as a pass-through 
+drive and had the same results. The drive was set to SATA II with NCQ 
+and the cache was enabled to write-back.
 
->From b14cb91c6621908f8e957aad5a85d6c41b31dfea Mon Sep 17 00:00:00 2001
-From: Willy Tarreau <w@1wt.eu>
-Date: Sat, 25 Nov 2006 21:57:26 +0100
-Subject: [PATCH] jfs: incorrect use of "&&" instead of "&"
+dd if=/dev/zero of=output oflag=sync bs=100M count=1 gives an 
+excellent result, around 188 MB/sec.
+dd if=/dev/zero of=output oflag=sync bs=200M count=1 gives an 
+excellent result, around 167 MB/sec.
+dd if=/dev/zero of=output oflag=sync bs=300M count=1 gives an OK 
+result, around 117 MB/sec.
+dd if=/dev/zero of=output oflag=sync bs=400M count=1 gives a very 
+poor result, around 35 MB/sec.
+These very low numbers around 30 MB/sec persist as I increase the bs number.
 
-in jfs_txnmgr, the use of "tblk->flag && COMMIT_DELETE" in a
-if() condition is obviously wrong. This bug has already been
-fixed in 2.6.
+As I continue to run the tests, the bs that gives a poor results goes 
+down to about 200 MB. The results are from the system with the 1220 
+card. The system with 1210 gives slightly lower numbers overall.
 
-Signed-off-by: Willy Tarreau <w@1wt.eu>
----
- fs/jfs/jfs_txnmgr.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I have also confirmed these low numbers using a benchmark called dm 
+from the network RAID package, drbd.
 
-diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
-index 62e6493..4e6a280 100644
---- a/fs/jfs/jfs_txnmgr.c
-+++ b/fs/jfs/jfs_txnmgr.c
-@@ -1175,7 +1175,7 @@ int txCommit(tid_t tid,		/* transaction 
- 		jfs_ip = JFS_IP(ip);
- 
- 		if (test_and_clear_cflag(COMMIT_Syncdata, ip) &&
--		    ((tblk->flag && COMMIT_DELETE) == 0))
-+		    ((tblk->flag & COMMIT_DELETE) == 0))
- 			fsync_inode_data_buffers(ip);
- 
- 		/*
+Reading from the drives (based on hdparm -tT testing) gives excellent results.
+
+When I use the drive directly connected to the SATA on the 
+motherboard, all the write tests hover around 56 MB/second regardless 
+of bs value.
+
+Since both systems are affected, my guess is there is bug in the 
+Areca driver or with the cards themselves.
 -- 
-1.4.2.4
 
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

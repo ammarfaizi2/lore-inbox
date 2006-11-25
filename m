@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967131AbWKYTQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967134AbWKYTQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967131AbWKYTQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 14:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967135AbWKYTQL
+	id S967134AbWKYTQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 14:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967133AbWKYTP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 14:16:11 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59404 "HELO
+	Sat, 25 Nov 2006 14:15:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62220 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S967120AbWKYTPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 14:15:19 -0500
-Date: Sat, 25 Nov 2006 20:15:21 +0100
+	id S967127AbWKYTP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 14:15:29 -0500
+Date: Sat, 25 Nov 2006 20:15:31 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Simon Evans <spse@secret.org.uk>, dwmw2@infradead.org,
-       linux-mtd@lists.infradead.org, linux-pcmcia@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] remove the broken MTD_PCMCIA driver
-Message-ID: <20061125191521.GD3702@stusta.de>
+Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jejb@steeleye.com
+Subject: [RFC: 2.6 patch] remove the broken SKMC driver
+Message-ID: <20061125191531.GF3702@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,7 +23,7 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The MTD_PCMCIA driver has:
+The SKMC driver has:
 - already been marked as BROKEN in 2.6.0 three years ago and
 - is still marked as BROKEN.
 
@@ -39,869 +38,1459 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 ---
 
 This patch was already sent on:
-- 18 Nov 2006
+- 20 Nov 2006
 
- drivers/mtd/maps/Kconfig     |   17 
- drivers/mtd/maps/Makefile    |    1 
- drivers/mtd/maps/pcmciamtd.c |  819 -----------------------------------
- 3 files changed, 837 deletions(-)
+ drivers/net/Kconfig  |   15 
+ drivers/net/Makefile |    1 
+ drivers/net/Space.c  |    4 
+ drivers/net/sk_mca.c | 1216 -------------------------------------------
+ drivers/net/sk_mca.h |  170 ------
+ 5 files changed, 1406 deletions(-)
 
---- linux-2.6.19-rc5-mm2/drivers/mtd/maps/Kconfig.old	2006-11-18 21:42:54.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/mtd/maps/Kconfig	2006-11-18 21:43:07.000000000 +0100
-@@ -551,23 +551,6 @@
+--- linux-2.6.19-rc5-mm2/drivers/net/Kconfig.old	2006-11-17 19:19:48.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/net/Kconfig	2006-11-17 19:20:18.000000000 +0100
+@@ -1144,21 +1115,6 @@
+ 	  <file:Documentation/networking/net-modules.txt>. The module
+ 	  will be called seeq8005.
  
- 	  If you are not sure, say N.
- 
--config MTD_PCMCIA
--	tristate "PCMCIA MTD driver"
--	depends on MTD && PCMCIA && MTD_COMPLEX_MAPPINGS && BROKEN
--	help
--	  Map driver for accessing PCMCIA linear flash memory cards. These
--	  cards are usually around 4-16MiB in size. This does not include
--	  Compact Flash cards which are treated as IDE devices.
+-config SKMC
+-	tristate "SKnet MCA support"
+-	depends on NET_ETHERNET && MCA && BROKEN
+-	---help---
+-	  These are Micro Channel Ethernet adapters. You need to say Y to "MCA
+-	  support" in order to use this driver.  Supported cards are the SKnet
+-	  Junior MC2 and the SKnet MC2(+).  The driver automatically
+-	  distinguishes between the two cards. Note that using multiple boards
+-	  of different type hasn't been tested with this driver.  Say Y if you
+-	  have one of these Ethernet adapters.
 -
--config MTD_PCMCIA_ANONYMOUS
--	bool "Use PCMCIA MTD drivers for anonymous PCMCIA cards"
--	depends on MTD_PCMCIA
--	help
--	  If this option is enabled, PCMCIA cards which do not report
--	  anything about themselves are assumed to be MTD cards.
+-	  To compile this driver as a module, choose M here and read
+-	  <file:Documentation/networking/net-modules.txt>. The module
+-	  will be called sk_mca.
 -
--	  If unsure, say N.
--
- config MTD_UCLINUX
- 	tristate "Generic uClinux RAM/ROM filesystem support"
- 	depends on MTD_PARTITIONS && !MMU
---- linux-2.6.19-rc5-mm2/drivers/mtd/maps/Makefile.old	2006-11-18 21:43:15.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/drivers/mtd/maps/Makefile	2006-11-18 21:43:19.000000000 +0100
-@@ -27,7 +27,6 @@
- obj-$(CONFIG_MTD_OCTAGON)	+= octagon-5066.o
- obj-$(CONFIG_MTD_PHYSMAP)	+= physmap.o
- obj-$(CONFIG_MTD_PNC2000)	+= pnc2000.o
--obj-$(CONFIG_MTD_PCMCIA)	+= pcmciamtd.o
- obj-$(CONFIG_MTD_RPXLITE)	+= rpxlite.o
- obj-$(CONFIG_MTD_TQM8XXL)	+= tqm8xxl.o
- obj-$(CONFIG_MTD_SA1100)	+= sa1100-flash.o
---- linux-2.6.19-rc5-mm2/drivers/mtd/maps/pcmciamtd.c	2006-11-14 18:33:15.000000000 +0100
-+++ /dev/null	2006-09-19 00:45:31.000000000 +0200
-@@ -1,819 +0,0 @@
--/*
-- * $Id: pcmciamtd.c,v 1.55 2005/11/07 11:14:28 gleixner Exp $
-- *
-- * pcmciamtd.c - MTD driver for PCMCIA flash memory cards
-- *
-- * Author: Simon Evans <spse@secret.org.uk>
-- *
-- * Copyright (C) 2002 Simon Evans
-- *
-- * Licence: GPL
-- *
-- */
--
--#include <linux/module.h>
--#include <linux/slab.h>
--#include <linux/timer.h>
--#include <linux/init.h>
--#include <asm/io.h>
--#include <asm/system.h>
--
--#include <pcmcia/cs_types.h>
--#include <pcmcia/cs.h>
--#include <pcmcia/cistpl.h>
--#include <pcmcia/ds.h>
--
--#include <linux/mtd/map.h>
--#include <linux/mtd/mtd.h>
--
--#ifdef CONFIG_MTD_DEBUG
--static int debug = CONFIG_MTD_DEBUG_VERBOSE;
--module_param(debug, int, 0);
--MODULE_PARM_DESC(debug, "Set Debug Level 0=quiet, 5=noisy");
--#undef DEBUG
--#define DEBUG(n, format, arg...) \
--	if (n <= debug) {	 \
--		printk(KERN_DEBUG __FILE__ ":%s(): " format "\n", __FUNCTION__ , ## arg); \
--	}
--
--#else
--#undef DEBUG
--#define DEBUG(n, arg...)
--static const int debug = 0;
+ config NE2_MCA
+ 	tristate "NE/2 (ne2000 MCA version) support"
+ 	depends on NET_ETHERNET && MCA_LEGACY
+--- linux-2.6.19-rc5-mm2/drivers/net/Makefile.old	2006-11-17 19:20:47.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/net/Makefile	2006-11-17 19:24:57.000000000 +0100
+@@ -137,7 +137,6 @@
+ obj-$(CONFIG_EL1) += 3c501.o
+ obj-$(CONFIG_EL16) += 3c507.o
+ obj-$(CONFIG_ELMC) += 3c523.o
+-obj-$(CONFIG_SKMC) += sk_mca.o
+ obj-$(CONFIG_IBMLANA) += ibmlana.o
+ obj-$(CONFIG_ELMC_II) += 3c527.o
+ obj-$(CONFIG_EL3) += 3c509.o
+--- linux-2.6.19-rc5-mm2/drivers/net/Space.c.old	2006-11-17 19:21:00.000000000 +0100
++++ linux-2.6.19-rc5-mm2/drivers/net/Space.c	2006-11-17 19:25:06.000000000 +0100
+@@ -59,7 +59,6 @@
+ extern struct net_device *arlan_probe(int unit);
+ extern struct net_device *el16_probe(int unit);
+ extern struct net_device *elmc_probe(int unit);
+-extern struct net_device *skmca_probe(int unit);
+ extern struct net_device *elplus_probe(int unit);
+ extern struct net_device *ac3200_probe(int unit);
+ extern struct net_device *es_probe(int unit);
+@@ -153,9 +149,6 @@
+ #ifdef CONFIG_ELMC_II		/* 3c527 */
+ 	{mc32_probe, 0},
+ #endif
+-#ifdef CONFIG_SKMC              /* SKnet Microchannel */
+-        {skmca_probe, 0},
 -#endif
+ 	{NULL, 0},
+ };
+ 
+--- linux-2.6.19-rc5-mm2/drivers/net/sk_mca.h	2006-11-14 18:33:16.000000000 +0100
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,170 +0,0 @@
+-#ifndef _SK_MCA_INCLUDE_
+-#define _SK_MCA_INCLUDE_
 -
--#define err(format, arg...) printk(KERN_ERR "pcmciamtd: " format "\n" , ## arg)
--#define info(format, arg...) printk(KERN_INFO "pcmciamtd: " format "\n" , ## arg)
--#define warn(format, arg...) printk(KERN_WARNING "pcmciamtd: " format "\n" , ## arg)
+-#ifdef _SK_MCA_DRIVER_
 -
+-/* Adapter ID's */
+-#define SKNET_MCA_ID 0x6afd
+-#define SKNET_JUNIOR_MCA_ID 0x6be9
 -
--#define DRIVER_DESC	"PCMCIA Flash memory card driver"
--#define DRIVER_VERSION	"$Revision: 1.55 $"
+-/* media enumeration - defined in a way that it fits onto the MC2+'s
+-   POS registers... */
 -
--/* Size of the PCMCIA address space: 26 bits = 64 MB */
--#define MAX_PCMCIA_ADDR	0x4000000
+-typedef enum { Media_10Base2, Media_10BaseT,
+-	Media_10Base5, Media_Unknown, Media_Count
+-} skmca_medium;
 -
--struct pcmciamtd_dev {
--	struct pcmcia_device	*p_dev;
--	dev_node_t	node;		/* device node */
--	caddr_t		win_base;	/* ioremapped address of PCMCIA window */
--	unsigned int	win_size;	/* size of window */
--	unsigned int	offset;		/* offset into card the window currently points at */
--	struct map_info	pcmcia_map;
--	struct mtd_info	*mtd_info;
--	int		vpp;
--	char		mtd_name[sizeof(struct cistpl_vers_1_t)];
+-/* private structure */
+-typedef struct {
+-	unsigned int slot;	/* MCA-Slot-#                       */
+-	void __iomem *base;
+-	void __iomem *macbase;	/* base address of MAC address PROM */
+-	void __iomem *ioregaddr;/* address of I/O-register (Lo)     */
+-	void __iomem *ctrladdr;	/* address of control/stat register */
+-	void __iomem *cmdaddr;	/* address of I/O-command register  */
+-	int nextrx;		/* index of next RX descriptor to
+-				   be read                          */
+-	int nexttxput;		/* index of next free TX descriptor */
+-	int nexttxdone;		/* index of next TX descriptor to
+-				   be finished                      */
+-	int txbusy;		/* # of busy TX descriptors         */
+-	struct net_device_stats stat;	/* packet statistics            */
+-	int realirq;		/* memorizes actual IRQ, even when
+-				   currently not allocated          */
+-	skmca_medium medium;	/* physical cannector               */
+-	spinlock_t lock;
+-} skmca_priv;
+-
+-/* card registers: control/status register bits */
+-
+-#define CTRL_ADR_DATA      0	/* Bit 0 = 0 ->access data register  */
+-#define CTRL_ADR_RAP       1	/* Bit 0 = 1 ->access RAP register   */
+-#define CTRL_RW_WRITE      0	/* Bit 1 = 0 ->write register        */
+-#define CTRL_RW_READ       2	/* Bit 1 = 1 ->read register         */
+-#define CTRL_RESET_ON      0	/* Bit 3 = 0 ->reset board           */
+-#define CTRL_RESET_OFF     8	/* Bit 3 = 1 ->no reset of board     */
+-
+-#define STAT_ADR_DATA      0	/* Bit 0 of ctrl register read back  */
+-#define STAT_ADR_RAP       1
+-#define STAT_RW_WRITE      0	/* Bit 1 of ctrl register read back  */
+-#define STAT_RW_READ       2
+-#define STAT_RESET_ON      0	/* Bit 3 of ctrl register read back  */
+-#define STAT_RESET_OFF     8
+-#define STAT_IRQ_ACT       0	/* interrupt pending                 */
+-#define STAT_IRQ_NOACT     16	/* no interrupt pending              */
+-#define STAT_IO_NOBUSY     0	/* no transfer busy                  */
+-#define STAT_IO_BUSY       32	/* transfer busy                     */
+-
+-/* I/O command register bits */
+-
+-#define IOCMD_GO           128	/* Bit 7 = 1 -> start register xfer  */
+-
+-/* LANCE registers */
+-
+-#define LANCE_CSR0         0	/* Status/Control                    */
+-
+-#define CSR0_ERR           0x8000	/* general error flag                */
+-#define CSR0_BABL          0x4000	/* transmitter timeout               */
+-#define CSR0_CERR          0x2000	/* collision error                   */
+-#define CSR0_MISS          0x1000	/* lost Rx block                     */
+-#define CSR0_MERR          0x0800	/* memory access error               */
+-#define CSR0_RINT          0x0400	/* receiver interrupt                */
+-#define CSR0_TINT          0x0200	/* transmitter interrupt             */
+-#define CSR0_IDON          0x0100	/* initialization done               */
+-#define CSR0_INTR          0x0080	/* general interrupt flag            */
+-#define CSR0_INEA          0x0040	/* interrupt enable                  */
+-#define CSR0_RXON          0x0020	/* receiver enabled                  */
+-#define CSR0_TXON          0x0010	/* transmitter enabled               */
+-#define CSR0_TDMD          0x0008	/* force transmission now            */
+-#define CSR0_STOP          0x0004	/* stop LANCE                        */
+-#define CSR0_STRT          0x0002	/* start LANCE                       */
+-#define CSR0_INIT          0x0001	/* read initialization block         */
+-
+-#define LANCE_CSR1         1	/* addr bit 0..15 of initialization  */
+-#define LANCE_CSR2         2	/*          16..23 block             */
+-
+-#define LANCE_CSR3         3	/* Bus control                       */
+-#define CSR3_BCON_HOLD     0	/* Bit 0 = 0 -> BM1,BM0,HOLD         */
+-#define CSR3_BCON_BUSRQ    1	/* Bit 0 = 1 -> BUSAK0,BYTE,BUSRQ    */
+-#define CSR3_ALE_HIGH      0	/* Bit 1 = 0 -> ALE asserted high    */
+-#define CSR3_ALE_LOW       2	/* Bit 1 = 1 -> ALE asserted low     */
+-#define CSR3_BSWAP_OFF     0	/* Bit 2 = 0 -> no byte swap         */
+-#define CSR3_BSWAP_ON      4	/* Bit 2 = 1 -> byte swap            */
+-
+-/* LANCE structures */
+-
+-typedef struct {		/* LANCE initialization block        */
+-	u16 Mode;		/* mode flags                        */
+-	u8 PAdr[6];		/* MAC address                       */
+-	u8 LAdrF[8];		/* Multicast filter                  */
+-	u32 RdrP;		/* Receive descriptor                */
+-	u32 TdrP;		/* Transmit descriptor               */
+-} LANCE_InitBlock;
+-
+-/* Mode flags init block */
+-
+-#define LANCE_INIT_PROM    0x8000	/* enable promiscous mode            */
+-#define LANCE_INIT_INTL    0x0040	/* internal loopback                 */
+-#define LANCE_INIT_DRTY    0x0020	/* disable retry                     */
+-#define LANCE_INIT_COLL    0x0010	/* force collision                   */
+-#define LANCE_INIT_DTCR    0x0008	/* disable transmit CRC              */
+-#define LANCE_INIT_LOOP    0x0004	/* loopback                          */
+-#define LANCE_INIT_DTX     0x0002	/* disable transmitter               */
+-#define LANCE_INIT_DRX     0x0001	/* disable receiver                  */
+-
+-typedef struct {		/* LANCE Tx descriptor               */
+-	u16 LowAddr;		/* bit 0..15 of address              */
+-	u16 Flags;		/* bit 16..23 of address + Flags     */
+-	u16 Len;		/* 2s complement of packet length    */
+-	u16 Status;		/* Result of transmission            */
+-} LANCE_TxDescr;
+-
+-#define TXDSCR_FLAGS_OWN   0x8000	/* LANCE owns descriptor             */
+-#define TXDSCR_FLAGS_ERR   0x4000	/* summary error flag                */
+-#define TXDSCR_FLAGS_MORE  0x1000	/* more than one retry needed?       */
+-#define TXDSCR_FLAGS_ONE   0x0800	/* one retry?                        */
+-#define TXDSCR_FLAGS_DEF   0x0400	/* transmission deferred?            */
+-#define TXDSCR_FLAGS_STP   0x0200	/* first packet in chain?            */
+-#define TXDSCR_FLAGS_ENP   0x0100	/* last packet in chain?             */
+-
+-#define TXDSCR_STATUS_BUFF 0x8000	/* buffer error?                     */
+-#define TXDSCR_STATUS_UFLO 0x4000	/* silo underflow during transmit?   */
+-#define TXDSCR_STATUS_LCOL 0x1000	/* late collision?                   */
+-#define TXDSCR_STATUS_LCAR 0x0800	/* loss of carrier?                  */
+-#define TXDSCR_STATUS_RTRY 0x0400	/* retry error?                      */
+-
+-typedef struct {		/* LANCE Rx descriptor               */
+-	u16 LowAddr;		/* bit 0..15 of address              */
+-	u16 Flags;		/* bit 16..23 of address + Flags     */
+-	u16 MaxLen;		/* 2s complement of buffer length    */
+-	u16 Len;		/* packet length                     */
+-} LANCE_RxDescr;
+-
+-#define RXDSCR_FLAGS_OWN   0x8000	/* LANCE owns descriptor             */
+-#define RXDSCR_FLAGS_ERR   0x4000	/* summary error flag                */
+-#define RXDSCR_FLAGS_FRAM  0x2000	/* framing error flag                */
+-#define RXDSCR_FLAGS_OFLO  0x1000	/* FIFO overflow?                    */
+-#define RXDSCR_FLAGS_CRC   0x0800	/* CRC error?                        */
+-#define RXDSCR_FLAGS_BUFF  0x0400	/* buffer error?                     */
+-#define RXDSCR_FLAGS_STP   0x0200	/* first packet in chain?            */
+-#define RXDCSR_FLAGS_ENP   0x0100	/* last packet in chain?             */
+-
+-/* RAM layout */
+-
+-#define TXCOUNT            4	/* length of TX descriptor queue     */
+-#define LTXCOUNT           2	/* log2 of it                        */
+-#define RXCOUNT            4	/* length of RX descriptor queue     */
+-#define LRXCOUNT           2	/* log2 of it                        */
+-
+-#define RAM_INITBASE       0	/* LANCE init block                  */
+-#define RAM_TXBASE         24	/* Start of TX descriptor queue      */
+-#define RAM_RXBASE         \
+-(RAM_TXBASE + (TXCOUNT * 8))	/* Start of RX descriptor queue      */
+-#define RAM_DATABASE       \
+-(RAM_RXBASE + (RXCOUNT * 8))	/* Start of data area for frames     */
+-#define RAM_BUFSIZE        1580	/* max. frame size - should never be
+-				   reached                           */
+-
+-#endif				/* _SK_MCA_DRIVER_ */
+-
+-#endif	/* _SK_MCA_INCLUDE_ */
+--- linux-2.6.19-rc5-mm2/drivers/net/sk_mca.c	2006-11-14 18:33:16.000000000 +0100
++++ /dev/null	2006-09-19 00:45:31.000000000 +0200
+@@ -1,1216 +0,0 @@
+-/*
+-net-3-driver for the SKNET MCA-based cards
+-
+-This is an extension to the Linux operating system, and is covered by the
+-same GNU General Public License that covers that work.
+-
+-Copyright 1999 by Alfred Arnold (alfred@ccac.rwth-aachen.de,
+-                                 alfred.arnold@lancom.de)
+-
+-This driver is based both on the 3C523 driver and the SK_G16 driver.
+-
+-paper sources:
+-  'PC Hardware: Aufbau, Funktionsweise, Programmierung' by
+-  Hans-Peter Messmer for the basic Microchannel stuff
+-
+-  'Linux Geraetetreiber' by Allesandro Rubini, Kalle Dalheimer
+-  for help on Ethernet driver programming
+-
+-  'Ethernet/IEEE 802.3 Family 1992 World Network Data Book/Handbook' by AMD
+-  for documentation on the AM7990 LANCE
+-
+-  'SKNET Personal Technisches Manual', Version 1.2 by Schneider&Koch
+-  for documentation on the Junior board
+-
+-  'SK-NET MC2+ Technical Manual", Version 1.1 by Schneider&Koch for
+-  documentation on the MC2 bord
+-
+-  A big thank you to the S&K support for providing me so quickly with
+-  documentation!
+-
+-  Also see http://www.syskonnect.com/
+-
+-  Missing things:
+-
+-  -> set debug level via ioctl instead of compile-time switches
+-  -> I didn't follow the development of the 2.1.x kernels, so my
+-     assumptions about which things changed with which kernel version
+-     are probably nonsense
+-
+-History:
+-  May 16th, 1999
+-  	startup
+-  May 22st, 1999
+-	added private structure, methods
+-        begun building data structures in RAM
+-  May 23nd, 1999
+-	can receive frames, send frames
+-  May 24th, 1999
+-        modularized initialization of LANCE
+-        loadable as module
+-	still Tx problem :-(
+-  May 26th, 1999
+-  	MC2 works
+-  	support for multiple devices
+-  	display media type for MC2+
+-  May 28th, 1999
+-	fixed problem in GetLANCE leaving interrupts turned off
+-        increase TX queue to 4 packets to improve send performance
+-  May 29th, 1999
+-	a few corrections in statistics, caught rcvr overruns
+-        reinitialization of LANCE/board in critical situations
+-        MCA info implemented
+-	implemented LANCE multicast filter
+-  Jun 6th, 1999
+-	additions for Linux 2.2
+-  Dec 25th, 1999
+-  	unfortunately there seem to be newer MC2+ boards that react
+-  	on IRQ 3/5/9/10 instead of 3/5/10/11, so we have to autoprobe
+-  	in questionable cases...
+-  Dec 28th, 1999
+-	integrated patches from David Weinehall & Bill Wendling for 2.3
+-	kernels (isa_...functions).  Things are defined in a way that
+-        it still works with 2.0.x 8-)
+-  Dec 30th, 1999
+-	added handling of the remaining interrupt conditions.  That
+-        should cure the spurious hangs.
+-  Jan 30th, 2000
+-	newer kernels automatically probe more than one board, so the
+-	'startslot' as a variable is also needed here
+-  June 1st, 2000
+-	added changes for recent 2.3 kernels
+-
+- *************************************************************************/
+-
+-#include <linux/kernel.h>
+-#include <linux/string.h>
+-#include <linux/errno.h>
+-#include <linux/ioport.h>
+-#include <linux/slab.h>
+-#include <linux/interrupt.h>
+-#include <linux/delay.h>
+-#include <linux/time.h>
+-#include <linux/mca-legacy.h>
+-#include <linux/init.h>
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/etherdevice.h>
+-#include <linux/skbuff.h>
+-#include <linux/bitops.h>
+-
+-#include <asm/processor.h>
+-#include <asm/io.h>
+-
+-#define _SK_MCA_DRIVER_
+-#include "sk_mca.h"
+-
+-/* ------------------------------------------------------------------------
+- * global static data - not more since we can handle multiple boards and
+- * have to pack all state info into the device struct!
+- * ------------------------------------------------------------------------ */
+-
+-static char *MediaNames[Media_Count] =
+-    { "10Base2", "10BaseT", "10Base5", "Unknown" };
+-
+-static unsigned char poly[] =
+-    { 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+-	1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0
 -};
 -
+-/* ------------------------------------------------------------------------
+- * private subfunctions
+- * ------------------------------------------------------------------------ */
 -
--/* Module parameters */
+-/* dump parts of shared memory - only needed during debugging */
 -
--/* 2 = do 16-bit transfers, 1 = do 8-bit transfers */
--static int bankwidth = 2;
--
--/* Speed of memory accesses, in ns */
--static int mem_speed;
--
--/* Force the size of an SRAM card */
--static int force_size;
--
--/* Force Vpp */
--static int vpp;
--
--/* Set Vpp */
--static int setvpp;
--
--/* Force card to be treated as FLASH, ROM or RAM */
--static int mem_type;
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Simon Evans <spse@secret.org.uk>");
--MODULE_DESCRIPTION(DRIVER_DESC);
--module_param(bankwidth, int, 0);
--MODULE_PARM_DESC(bankwidth, "Set bankwidth (1=8 bit, 2=16 bit, default=2)");
--module_param(mem_speed, int, 0);
--MODULE_PARM_DESC(mem_speed, "Set memory access speed in ns");
--module_param(force_size, int, 0);
--MODULE_PARM_DESC(force_size, "Force size of card in MiB (1-64)");
--module_param(setvpp, int, 0);
--MODULE_PARM_DESC(setvpp, "Set Vpp (0=Never, 1=On writes, 2=Always on, default=0)");
--module_param(vpp, int, 0);
--MODULE_PARM_DESC(vpp, "Vpp value in 1/10ths eg 33=3.3V 120=12V (Dangerous)");
--module_param(mem_type, int, 0);
--MODULE_PARM_DESC(mem_type, "Set Memory type (0=Flash, 1=RAM, 2=ROM, default=0)");
--
--
--/* read/write{8,16} copy_{from,to} routines with window remapping to access whole card */
--static caddr_t remap_window(struct map_info *map, unsigned long to)
+-#ifdef DEBUG
+-static void dumpmem(struct net_device *dev, u32 start, u32 len)
 -{
--	struct pcmciamtd_dev *dev = (struct pcmciamtd_dev *)map->map_priv_1;
--	window_handle_t win = (window_handle_t)map->map_priv_2;
--	memreq_t mrq;
--	int ret;
+-	skmca_priv *priv = netdev_priv(dev);
+-	int z;
 -
--	if (!pcmcia_dev_present(dev->p_dev)) {
--		DEBUG(1, "device removed");
--		return 0;
--	}
--
--	mrq.CardOffset = to & ~(dev->win_size-1);
--	if(mrq.CardOffset != dev->offset) {
--		DEBUG(2, "Remapping window from 0x%8.8x to 0x%8.8x",
--		      dev->offset, mrq.CardOffset);
--		mrq.Page = 0;
--		if( (ret = pcmcia_map_mem_page(win, &mrq)) != CS_SUCCESS) {
--			cs_error(dev->p_dev, MapMemPage, ret);
--			return NULL;
--		}
--		dev->offset = mrq.CardOffset;
--	}
--	return dev->win_base + (to & (dev->win_size-1));
--}
--
--
--static map_word pcmcia_read8_remap(struct map_info *map, unsigned long ofs)
--{
--	caddr_t addr;
--	map_word d = {{0}};
--
--	addr = remap_window(map, ofs);
--	if(!addr)
--		return d;
--
--	d.x[0] = readb(addr);
--	DEBUG(3, "ofs = 0x%08lx (%p) data = 0x%02x", ofs, addr, d.x[0]);
--	return d;
--}
--
--
--static map_word pcmcia_read16_remap(struct map_info *map, unsigned long ofs)
--{
--	caddr_t addr;
--	map_word d = {{0}};
--
--	addr = remap_window(map, ofs);
--	if(!addr)
--		return d;
--
--	d.x[0] = readw(addr);
--	DEBUG(3, "ofs = 0x%08lx (%p) data = 0x%04x", ofs, addr, d.x[0]);
--	return d;
--}
--
--
--static void pcmcia_copy_from_remap(struct map_info *map, void *to, unsigned long from, ssize_t len)
--{
--	struct pcmciamtd_dev *dev = (struct pcmciamtd_dev *)map->map_priv_1;
--	unsigned long win_size = dev->win_size;
--
--	DEBUG(3, "to = %p from = %lu len = %u", to, from, len);
--	while(len) {
--		int toread = win_size - (from & (win_size-1));
--		caddr_t addr;
--
--		if(toread > len)
--			toread = len;
--
--		addr = remap_window(map, from);
--		if(!addr)
--			return;
--
--		DEBUG(4, "memcpy from %p to %p len = %d", addr, to, toread);
--		memcpy_fromio(to, addr, toread);
--		len -= toread;
--		to += toread;
--		from += toread;
+-	for (z = 0; z < len; z++) {
+-		if ((z & 15) == 0)
+-			printk("%04x:", z);
+-		printk(" %02x", readb(priv->base + start + z));
+-		if ((z & 15) == 15)
+-			printk("\n");
 -	}
 -}
 -
+-/* print exact time - ditto */
 -
--static void pcmcia_write8_remap(struct map_info *map, map_word d, unsigned long adr)
+-static void PrTime(void)
 -{
--	caddr_t addr = remap_window(map, adr);
+-	struct timeval tv;
 -
--	if(!addr)
--		return;
--
--	DEBUG(3, "adr = 0x%08lx (%p)  data = 0x%02x", adr, addr, d.x[0]);
--	writeb(d.x[0], addr);
+-	do_gettimeofday(&tv);
+-	printk("%9d:%06d: ", tv.tv_sec, tv.tv_usec);
 -}
+-#endif
 -
+-/* deduce resources out of POS registers */
 -
--static void pcmcia_write16_remap(struct map_info *map, map_word d, unsigned long adr)
+-static void __init getaddrs(int slot, int junior, int *base, int *irq,
+-		     skmca_medium * medium)
 -{
--	caddr_t addr = remap_window(map, adr);
--	if(!addr)
--		return;
--
--	DEBUG(3, "adr = 0x%08lx (%p)  data = 0x%04x", adr, addr, d.x[0]);
--	writew(d.x[0], addr);
--}
--
--
--static void pcmcia_copy_to_remap(struct map_info *map, unsigned long to, const void *from, ssize_t len)
--{
--	struct pcmciamtd_dev *dev = (struct pcmciamtd_dev *)map->map_priv_1;
--	unsigned long win_size = dev->win_size;
--
--	DEBUG(3, "to = %lu from = %p len = %u", to, from, len);
--	while(len) {
--		int towrite = win_size - (to & (win_size-1));
--		caddr_t addr;
--
--		if(towrite > len)
--			towrite = len;
--
--		addr = remap_window(map, to);
--		if(!addr)
--			return;
--
--		DEBUG(4, "memcpy from %p to %p len = %d", from, addr, towrite);
--		memcpy_toio(addr, from, towrite);
--		len -= towrite;
--		to += towrite;
--		from += towrite;
--	}
--}
--
--
--/* read/write{8,16} copy_{from,to} routines with direct access */
--
--#define DEV_REMOVED(x)  (!(pcmcia_dev_present(((struct pcmciamtd_dev *)map->map_priv_1)->p_dev)))
--
--static map_word pcmcia_read8(struct map_info *map, unsigned long ofs)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--	map_word d = {{0}};
--
--	if(DEV_REMOVED(map))
--		return d;
--
--	d.x[0] = readb(win_base + ofs);
--	DEBUG(3, "ofs = 0x%08lx (%p) data = 0x%02x", ofs, win_base + ofs, d.x[0]);
--	return d;
--}
--
--
--static map_word pcmcia_read16(struct map_info *map, unsigned long ofs)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--	map_word d = {{0}};
--
--	if(DEV_REMOVED(map))
--		return d;
--
--	d.x[0] = readw(win_base + ofs);
--	DEBUG(3, "ofs = 0x%08lx (%p) data = 0x%04x", ofs, win_base + ofs, d.x[0]);
--	return d;
--}
--
--
--static void pcmcia_copy_from(struct map_info *map, void *to, unsigned long from, ssize_t len)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--
--	if(DEV_REMOVED(map))
--		return;
--
--	DEBUG(3, "to = %p from = %lu len = %u", to, from, len);
--	memcpy_fromio(to, win_base + from, len);
--}
--
--
--static void pcmcia_write8(struct map_info *map, u8 d, unsigned long adr)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--
--	if(DEV_REMOVED(map))
--		return;
--
--	DEBUG(3, "adr = 0x%08lx (%p)  data = 0x%02x", adr, win_base + adr, d);
--	writeb(d, win_base + adr);
--}
--
--
--static void pcmcia_write16(struct map_info *map, u16 d, unsigned long adr)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--
--	if(DEV_REMOVED(map))
--		return;
--
--	DEBUG(3, "adr = 0x%08lx (%p)  data = 0x%04x", adr, win_base + adr, d);
--	writew(d, win_base + adr);
--}
--
--
--static void pcmcia_copy_to(struct map_info *map, unsigned long to, const void *from, ssize_t len)
--{
--	caddr_t win_base = (caddr_t)map->map_priv_2;
--
--	if(DEV_REMOVED(map))
--		return;
--
--	DEBUG(3, "to = %lu from = %p len = %u", to, from, len);
--	memcpy_toio(win_base + to, from, len);
--}
--
--
--static void pcmciamtd_set_vpp(struct map_info *map, int on)
--{
--	struct pcmciamtd_dev *dev = (struct pcmciamtd_dev *)map->map_priv_1;
--	struct pcmcia_device *link = dev->p_dev;
--	modconf_t mod;
--	int ret;
--
--	mod.Attributes = CONF_VPP1_CHANGE_VALID | CONF_VPP2_CHANGE_VALID;
--	mod.Vcc = 0;
--	mod.Vpp1 = mod.Vpp2 = on ? dev->vpp : 0;
--
--	DEBUG(2, "dev = %p on = %d vpp = %d\n", dev, on, dev->vpp);
--	ret = pcmcia_modify_configuration(link, &mod);
--	if(ret != CS_SUCCESS) {
--		cs_error(link, ModifyConfiguration, ret);
--	}
--}
--
--
--/* After a card is removed, pcmciamtd_release() will unregister the
-- * device, and release the PCMCIA configuration.  If the device is
-- * still open, this will be postponed until it is closed.
-- */
--
--static void pcmciamtd_release(struct pcmcia_device *link)
--{
--	struct pcmciamtd_dev *dev = link->priv;
--
--	DEBUG(3, "link = 0x%p", link);
--
--	if (link->win) {
--		if(dev->win_base) {
--			iounmap(dev->win_base);
--			dev->win_base = NULL;
--		}
--		pcmcia_release_window(link->win);
--	}
--	pcmcia_disable_device(link);
--}
--
--
--static void card_settings(struct pcmciamtd_dev *dev, struct pcmcia_device *link, int *new_name)
--{
--	int rc;
--	tuple_t tuple;
--	cisparse_t parse;
--	u_char buf[64];
--
--	tuple.Attributes = 0;
--	tuple.TupleData = (cisdata_t *)buf;
--	tuple.TupleDataMax = sizeof(buf);
--	tuple.TupleOffset = 0;
--	tuple.DesiredTuple = RETURN_FIRST_TUPLE;
--
--	rc = pcmcia_get_first_tuple(link, &tuple);
--	while(rc == CS_SUCCESS) {
--		rc = pcmcia_get_tuple_data(link, &tuple);
--		if(rc != CS_SUCCESS) {
--			cs_error(link, GetTupleData, rc);
--			break;
--		}
--		rc = pcmcia_parse_tuple(link, &tuple, &parse);
--		if(rc != CS_SUCCESS) {
--			cs_error(link, ParseTuple, rc);
--			break;
--		}
--
--		switch(tuple.TupleCode) {
--		case  CISTPL_FORMAT: {
--			cistpl_format_t *t = &parse.format;
--			(void)t; /* Shut up, gcc */
--			DEBUG(2, "Format type: %u, Error Detection: %u, offset = %u, length =%u",
--			      t->type, t->edc, t->offset, t->length);
--			break;
--
--		}
--
--		case CISTPL_DEVICE: {
--			cistpl_device_t *t = &parse.device;
--			int i;
--			DEBUG(2, "Common memory:");
--			dev->pcmcia_map.size = t->dev[0].size;
--			for(i = 0; i < t->ndev; i++) {
--				DEBUG(2, "Region %d, type = %u", i, t->dev[i].type);
--				DEBUG(2, "Region %d, wp = %u", i, t->dev[i].wp);
--				DEBUG(2, "Region %d, speed = %u ns", i, t->dev[i].speed);
--				DEBUG(2, "Region %d, size = %u bytes", i, t->dev[i].size);
--			}
--			break;
--		}
--
--		case CISTPL_VERS_1: {
--			cistpl_vers_1_t *t = &parse.version_1;
--			int i;
--			if(t->ns) {
--				dev->mtd_name[0] = '\0';
--				for(i = 0; i < t->ns; i++) {
--					if(i)
--						strcat(dev->mtd_name, " ");
--					strcat(dev->mtd_name, t->str+t->ofs[i]);
--				}
--			}
--			DEBUG(2, "Found name: %s", dev->mtd_name);
--			break;
--		}
--
--		case CISTPL_JEDEC_C: {
--			cistpl_jedec_t *t = &parse.jedec;
--			int i;
--			for(i = 0; i < t->nid; i++) {
--				DEBUG(2, "JEDEC: 0x%02x 0x%02x", t->id[i].mfr, t->id[i].info);
--			}
--			break;
--		}
--
--		case CISTPL_DEVICE_GEO: {
--			cistpl_device_geo_t *t = &parse.device_geo;
--			int i;
--			dev->pcmcia_map.bankwidth = t->geo[0].buswidth;
--			for(i = 0; i < t->ngeo; i++) {
--				DEBUG(2, "region: %d bankwidth = %u", i, t->geo[i].buswidth);
--				DEBUG(2, "region: %d erase_block = %u", i, t->geo[i].erase_block);
--				DEBUG(2, "region: %d read_block = %u", i, t->geo[i].read_block);
--				DEBUG(2, "region: %d write_block = %u", i, t->geo[i].write_block);
--				DEBUG(2, "region: %d partition = %u", i, t->geo[i].partition);
--				DEBUG(2, "region: %d interleave = %u", i, t->geo[i].interleave);
--			}
--			break;
--		}
--
--		default:
--			DEBUG(2, "Unknown tuple code %d", tuple.TupleCode);
--		}
--
--		rc = pcmcia_get_next_tuple(link, &tuple);
--	}
--	if(!dev->pcmcia_map.size)
--		dev->pcmcia_map.size = MAX_PCMCIA_ADDR;
--
--	if(!dev->pcmcia_map.bankwidth)
--		dev->pcmcia_map.bankwidth = 2;
--
--	if(force_size) {
--		dev->pcmcia_map.size = force_size << 20;
--		DEBUG(2, "size forced to %dM", force_size);
--	}
--
--	if(bankwidth) {
--		dev->pcmcia_map.bankwidth = bankwidth;
--		DEBUG(2, "bankwidth forced to %d", bankwidth);
--	}
--
--	dev->pcmcia_map.name = dev->mtd_name;
--	if(!dev->mtd_name[0]) {
--		strcpy(dev->mtd_name, "PCMCIA Memory card");
--		*new_name = 1;
--	}
--
--	DEBUG(1, "Device: Size: %lu Width:%d Name: %s",
--	      dev->pcmcia_map.size, dev->pcmcia_map.bankwidth << 3, dev->mtd_name);
--}
--
--
--/* pcmciamtd_config() is scheduled to run after a CARD_INSERTION event
-- * is received, to configure the PCMCIA socket, and to make the
-- * MTD device available to the system.
-- */
--
--#define CS_CHECK(fn, ret) \
--do { last_fn = (fn); if ((last_ret = (ret)) != 0) goto cs_failed; } while (0)
--
--static int pcmciamtd_config(struct pcmcia_device *link)
--{
--	struct pcmciamtd_dev *dev = link->priv;
--	struct mtd_info *mtd = NULL;
--	cs_status_t status;
--	win_req_t req;
--	int last_ret = 0, last_fn = 0;
--	int ret;
--	int i;
--	config_info_t t;
--	static char *probes[] = { "jedec_probe", "cfi_probe" };
--	cisinfo_t cisinfo;
--	int new_name = 0;
--
--	DEBUG(3, "link=0x%p", link);
--
--	DEBUG(2, "Validating CIS");
--	ret = pcmcia_validate_cis(link, &cisinfo);
--	if(ret != CS_SUCCESS) {
--		cs_error(link, GetTupleData, ret);
+-	u_char pos0, pos1, pos2;
+-
+-	if (junior) {
+-		pos0 = mca_read_stored_pos(slot, 2);
+-		*base = ((pos0 & 0x0e) << 13) + 0xc0000;
+-		*irq = ((pos0 & 0x10) >> 4) + 10;
+-		*medium = Media_Unknown;
 -	} else {
--		DEBUG(2, "ValidateCIS found %d chains", cisinfo.Chains);
+-		/* reset POS 104 Bits 0+1 so the shared memory region goes to the
+-		   configured area between 640K and 1M.  Afterwards, enable the MC2.
+-		   I really don't know what rode SK to do this... */
+-
+-		mca_write_pos(slot, 4,
+-			      mca_read_stored_pos(slot, 4) & 0xfc);
+-		mca_write_pos(slot, 2,
+-			      mca_read_stored_pos(slot, 2) | 0x01);
+-
+-		pos1 = mca_read_stored_pos(slot, 3);
+-		pos2 = mca_read_stored_pos(slot, 4);
+-		*base = ((pos1 & 0x07) << 14) + 0xc0000;
+-		switch (pos2 & 0x0c) {
+-		case 0:
+-			*irq = 3;
+-			break;
+-		case 4:
+-			*irq = 5;
+-			break;
+-		case 8:
+-			*irq = -10;
+-			break;
+-		case 12:
+-			*irq = -11;
+-			break;
+-		}
+-		*medium = (pos2 >> 6) & 3;
+-	}
+-}
+-
+-/* check for both cards:
+-   When the MC2 is turned off, it was configured for more than 15MB RAM,
+-   is disabled and won't get detected using the standard probe.  We
+-   therefore have to scan the slots manually :-( */
+-
+-static int __init dofind(int *junior, int firstslot)
+-{
+-	int slot;
+-	unsigned int id;
+-
+-	for (slot = firstslot; slot < MCA_MAX_SLOT_NR; slot++) {
+-		id = mca_read_stored_pos(slot, 0)
+-		    + (((unsigned int) mca_read_stored_pos(slot, 1)) << 8);
+-
+-		*junior = 0;
+-		if (id == SKNET_MCA_ID)
+-			return slot;
+-		*junior = 1;
+-		if (id == SKNET_JUNIOR_MCA_ID)
+-			return slot;
+-	}
+-	return MCA_NOTFOUND;
+-}
+-
+-/* reset the whole board */
+-
+-static void ResetBoard(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-
+-	writeb(CTRL_RESET_ON, priv->ctrladdr);
+-	udelay(10);
+-	writeb(CTRL_RESET_OFF, priv->ctrladdr);
+-}
+-
+-/* wait for LANCE interface to become not busy */
+-
+-static int WaitLANCE(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	int t = 0;
+-
+-	while ((readb(priv->ctrladdr) & STAT_IO_BUSY) ==
+-	       STAT_IO_BUSY) {
+-		udelay(1);
+-		if (++t > 1000) {
+-			printk("%s: LANCE access timeout", dev->name);
+-			return 0;
+-		}
 -	}
 -
--	card_settings(dev, link, &new_name);
+-	return 1;
+-}
 -
--	dev->pcmcia_map.phys = NO_XIP;
--	dev->pcmcia_map.copy_from = pcmcia_copy_from_remap;
--	dev->pcmcia_map.copy_to = pcmcia_copy_to_remap;
--	if (dev->pcmcia_map.bankwidth == 1) {
--		dev->pcmcia_map.read = pcmcia_read8_remap;
--		dev->pcmcia_map.write = pcmcia_write8_remap;
--	} else {
--		dev->pcmcia_map.read = pcmcia_read16_remap;
--		dev->pcmcia_map.write = pcmcia_write16_remap;
+-/* set LANCE register - must be atomic */
+-
+-static void SetLANCE(struct net_device *dev, u16 addr, u16 value)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	unsigned long flags;
+-
+-	/* disable interrupts */
+-
+-	spin_lock_irqsave(&priv->lock, flags);
+-
+-	/* wait until no transfer is pending */
+-
+-	WaitLANCE(dev);
+-
+-	/* transfer register address to RAP */
+-
+-	writeb(CTRL_RESET_OFF | CTRL_RW_WRITE | CTRL_ADR_RAP, priv->ctrladdr);
+-	writew(addr, priv->ioregaddr);
+-	writeb(IOCMD_GO, priv->cmdaddr);
+-	udelay(1);
+-	WaitLANCE(dev);
+-
+-	/* transfer data to register */
+-
+-	writeb(CTRL_RESET_OFF | CTRL_RW_WRITE | CTRL_ADR_DATA, priv->ctrladdr);
+-	writew(value, priv->ioregaddr);
+-	writeb(IOCMD_GO, priv->cmdaddr);
+-	udelay(1);
+-	WaitLANCE(dev);
+-
+-	/* reenable interrupts */
+-
+-	spin_unlock_irqrestore(&priv->lock, flags);
+-}
+-
+-/* get LANCE register */
+-
+-static u16 GetLANCE(struct net_device *dev, u16 addr)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	unsigned long flags;
+-	unsigned int res;
+-
+-	/* disable interrupts */
+-
+-	spin_lock_irqsave(&priv->lock, flags);
+-
+-	/* wait until no transfer is pending */
+-
+-	WaitLANCE(dev);
+-
+-	/* transfer register address to RAP */
+-
+-	writeb(CTRL_RESET_OFF | CTRL_RW_WRITE | CTRL_ADR_RAP, priv->ctrladdr);
+-	writew(addr, priv->ioregaddr);
+-	writeb(IOCMD_GO, priv->cmdaddr);
+-	udelay(1);
+-	WaitLANCE(dev);
+-
+-	/* transfer data from register */
+-
+-	writeb(CTRL_RESET_OFF | CTRL_RW_READ | CTRL_ADR_DATA, priv->ctrladdr);
+-	writeb(IOCMD_GO, priv->cmdaddr);
+-	udelay(1);
+-	WaitLANCE(dev);
+-	res = readw(priv->ioregaddr);
+-
+-	/* reenable interrupts */
+-
+-	spin_unlock_irqrestore(&priv->lock, flags);
+-
+-	return res;
+-}
+-
+-/* build up descriptors in shared RAM */
+-
+-static void InitDscrs(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	u32 bufaddr;
+-
+-	/* Set up Tx descriptors. The board has only 16K RAM so bits 16..23
+-	   are always 0. */
+-
+-	bufaddr = RAM_DATABASE;
+-	{
+-		LANCE_TxDescr descr;
+-		int z;
+-
+-		for (z = 0; z < TXCOUNT; z++) {
+-			descr.LowAddr = bufaddr;
+-			descr.Flags = 0;
+-			descr.Len = 0xf000;
+-			descr.Status = 0;
+-			memcpy_toio(priv->base + RAM_TXBASE +
+-				   (z * sizeof(LANCE_TxDescr)), &descr,
+-				   sizeof(LANCE_TxDescr));
+-			memset_io(priv->base + bufaddr, 0, RAM_BUFSIZE);
+-			bufaddr += RAM_BUFSIZE;
+-		}
 -	}
--	if(setvpp == 1)
--		dev->pcmcia_map.set_vpp = pcmciamtd_set_vpp;
 -
--	/* Request a memory window for PCMCIA. Some architeures can map windows upto the maximum
--	   that PCMCIA can support (64MiB) - this is ideal and we aim for a window the size of the
--	   whole card - otherwise we try smaller windows until we succeed */
+-	/* do the same for the Rx descriptors */
 -
--	req.Attributes =  WIN_MEMORY_TYPE_CM | WIN_ENABLE;
--	req.Attributes |= (dev->pcmcia_map.bankwidth == 1) ? WIN_DATA_WIDTH_8 : WIN_DATA_WIDTH_16;
--	req.Base = 0;
--	req.AccessSpeed = mem_speed;
--	link->win = (window_handle_t)link;
--	req.Size = (force_size) ? force_size << 20 : MAX_PCMCIA_ADDR;
--	dev->win_size = 0;
+-	{
+-		LANCE_RxDescr descr;
+-		int z;
+-
+-		for (z = 0; z < RXCOUNT; z++) {
+-			descr.LowAddr = bufaddr;
+-			descr.Flags = RXDSCR_FLAGS_OWN;
+-			descr.MaxLen = -RAM_BUFSIZE;
+-			descr.Len = 0;
+-			memcpy_toio(priv->base + RAM_RXBASE +
+-				   (z * sizeof(LANCE_RxDescr)), &descr,
+-				   sizeof(LANCE_RxDescr));
+-			memset_io(priv->base + bufaddr, 0, RAM_BUFSIZE);
+-			bufaddr += RAM_BUFSIZE;
+-		}
+-	}
+-}
+-
+-/* calculate the hash bit position for a given multicast address
+-   taken more or less directly from the AMD datasheet... */
+-
+-static void UpdateCRC(unsigned char *CRC, int bit)
+-{
+-	int j;
+-
+-	/* shift CRC one bit */
+-
+-	memmove(CRC + 1, CRC, 32 * sizeof(unsigned char));
+-	CRC[0] = 0;
+-
+-	/* if bit XOR controlbit = 1, set CRC = CRC XOR polynomial */
+-
+-	if (bit ^ CRC[32])
+-		for (j = 0; j < 32; j++)
+-			CRC[j] ^= poly[j];
+-}
+-
+-static unsigned int GetHash(char *address)
+-{
+-	unsigned char CRC[33];
+-	int i, byte, hashcode;
+-
+-	/* a multicast address has bit 0 in the first byte set */
+-
+-	if ((address[0] & 1) == 0)
+-		return -1;
+-
+-	/* initialize CRC */
+-
+-	memset(CRC, 1, sizeof(CRC));
+-
+-	/* loop through address bits */
+-
+-	for (byte = 0; byte < 6; byte++)
+-		for (i = 0; i < 8; i++)
+-			UpdateCRC(CRC, (address[byte] >> i) & 1);
+-
+-	/* hashcode is the 6 least significant bits of the CRC */
+-
+-	hashcode = 0;
+-	for (i = 0; i < 6; i++)
+-		hashcode = (hashcode << 1) + CRC[i];
+-	return hashcode;
+-}
+-
+-/* feed ready-built initialization block into LANCE */
+-
+-static void InitLANCE(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-
+-	/* build up descriptors. */
+-
+-	InitDscrs(dev);
+-
+-	/* next RX descriptor to be read is the first one.  Since the LANCE
+-	   will start from the beginning after initialization, we have to
+-	   reset out pointers too. */
+-
+-	priv->nextrx = 0;
+-
+-	/* no TX descriptors active */
+-
+-	priv->nexttxput = priv->nexttxdone = priv->txbusy = 0;
+-
+-	/* set up the LANCE bus control register - constant for SKnet boards */
+-
+-	SetLANCE(dev, LANCE_CSR3,
+-		 CSR3_BSWAP_OFF | CSR3_ALE_LOW | CSR3_BCON_HOLD);
+-
+-	/* write address of initialization block into LANCE */
+-
+-	SetLANCE(dev, LANCE_CSR1, RAM_INITBASE & 0xffff);
+-	SetLANCE(dev, LANCE_CSR2, (RAM_INITBASE >> 16) & 0xff);
+-
+-	/* we don't get ready until the LANCE has read the init block */
+-
+-	netif_stop_queue(dev);
+-
+-	/* let LANCE read the initialization block.  LANCE is ready
+-	   when we receive the corresponding interrupt. */
+-
+-	SetLANCE(dev, LANCE_CSR0, CSR0_INEA | CSR0_INIT);
+-}
+-
+-/* stop the LANCE so we can reinitialize it */
+-
+-static void StopLANCE(struct net_device *dev)
+-{
+-	/* can't take frames any more */
+-
+-	netif_stop_queue(dev);
+-
+-	/* disable interrupts, stop it */
+-
+-	SetLANCE(dev, LANCE_CSR0, CSR0_STOP);
+-}
+-
+-/* initialize card and LANCE for proper operation */
+-
+-static void InitBoard(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	LANCE_InitBlock block;
+-
+-	/* Lay out the shared RAM - first we create the init block for the LANCE.
+-	   We do not overwrite it later because we need it again when we switch
+-	   promiscous mode on/off. */
+-
+-	block.Mode = 0;
+-	if (dev->flags & IFF_PROMISC)
+-		block.Mode |= LANCE_INIT_PROM;
+-	memcpy(block.PAdr, dev->dev_addr, 6);
+-	memset(block.LAdrF, 0, sizeof(block.LAdrF));
+-	block.RdrP = (RAM_RXBASE & 0xffffff) | (LRXCOUNT << 29);
+-	block.TdrP = (RAM_TXBASE & 0xffffff) | (LTXCOUNT << 29);
+-
+-	memcpy_toio(priv->base + RAM_INITBASE, &block, sizeof(block));
+-
+-	/* initialize LANCE. Implicitly sets up other structures in RAM. */
+-
+-	InitLANCE(dev);
+-}
+-
+-/* deinitialize card and LANCE */
+-
+-static void DeinitBoard(struct net_device *dev)
+-{
+-	/* stop LANCE */
+-
+-	StopLANCE(dev);
+-
+-	/* reset board */
+-
+-	ResetBoard(dev);
+-}
+-
+-/* probe for device's irq */
+-
+-static int __init ProbeIRQ(struct net_device *dev)
+-{
+-	unsigned long imaskval, njiffies, irq;
+-	u16 csr0val;
+-
+-	/* enable all interrupts */
+-
+-	imaskval = probe_irq_on();
+-
+-	/* initialize the board. Wait for interrupt 'Initialization done'. */
+-
+-	ResetBoard(dev);
+-	InitBoard(dev);
+-
+-	njiffies = jiffies + HZ;
+-	do {
+-		csr0val = GetLANCE(dev, LANCE_CSR0);
+-	}
+-	while (((csr0val & CSR0_IDON) == 0) && (jiffies != njiffies));
+-
+-	/* turn of interrupts again */
+-
+-	irq = probe_irq_off(imaskval);
+-
+-	/* if we found something, ack the interrupt */
+-
+-	if (irq)
+-		SetLANCE(dev, LANCE_CSR0, csr0val | CSR0_IDON);
+-
+-	/* back to idle state */
+-
+-	DeinitBoard(dev);
+-
+-	return irq;
+-}
+-
+-/* ------------------------------------------------------------------------
+- * interrupt handler(s)
+- * ------------------------------------------------------------------------ */
+-
+-/* LANCE has read initialization block -> start it */
+-
+-static u16 irqstart_handler(struct net_device *dev, u16 oldcsr0)
+-{
+-	/* now we're ready to transmit */
+-
+-	netif_wake_queue(dev);
+-
+-	/* reset IDON bit, start LANCE */
+-
+-	SetLANCE(dev, LANCE_CSR0, oldcsr0 | CSR0_IDON | CSR0_STRT);
+-	return GetLANCE(dev, LANCE_CSR0);
+-}
+-
+-/* did we lose blocks due to a FIFO overrun ? */
+-
+-static u16 irqmiss_handler(struct net_device *dev, u16 oldcsr0)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-
+-	/* update statistics */
+-
+-	priv->stat.rx_fifo_errors++;
+-
+-	/* reset MISS bit */
+-
+-	SetLANCE(dev, LANCE_CSR0, oldcsr0 | CSR0_MISS);
+-	return GetLANCE(dev, LANCE_CSR0);
+-}
+-
+-/* receive interrupt */
+-
+-static u16 irqrx_handler(struct net_device *dev, u16 oldcsr0)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	LANCE_RxDescr descr;
+-	unsigned int descraddr;
+-
+-	/* run through queue until we reach a descriptor we do not own */
+-
+-	descraddr = RAM_RXBASE + (priv->nextrx * sizeof(LANCE_RxDescr));
+-	while (1) {
+-		/* read descriptor */
+-		memcpy_fromio(&descr, priv->base + descraddr,
+-			     sizeof(LANCE_RxDescr));
+-
+-		/* if we reach a descriptor we do not own, we're done */
+-		if ((descr.Flags & RXDSCR_FLAGS_OWN) != 0)
+-			break;
+-
+-#ifdef DEBUG
+-		PrTime();
+-		printk("Receive packet on descr %d len %d\n", priv->nextrx,
+-		       descr.Len);
+-#endif
+-
+-		/* erroneous packet ? */
+-		if ((descr.Flags & RXDSCR_FLAGS_ERR) != 0) {
+-			priv->stat.rx_errors++;
+-			if ((descr.Flags & RXDSCR_FLAGS_CRC) != 0)
+-				priv->stat.rx_crc_errors++;
+-			else if ((descr.Flags & RXDSCR_FLAGS_CRC) != 0)
+-				priv->stat.rx_frame_errors++;
+-			else if ((descr.Flags & RXDSCR_FLAGS_OFLO) != 0)
+-				priv->stat.rx_fifo_errors++;
+-		}
+-
+-		/* good packet ? */
+-		else {
+-			struct sk_buff *skb;
+-
+-			skb = dev_alloc_skb(descr.Len + 2);
+-			if (skb == NULL)
+-				priv->stat.rx_dropped++;
+-			else {
+-				memcpy_fromio(skb_put(skb, descr.Len),
+-					     priv->base +
+-					     descr.LowAddr, descr.Len);
+-				skb->dev = dev;
+-				skb->protocol = eth_type_trans(skb, dev);
+-				skb->ip_summed = CHECKSUM_NONE;
+-				priv->stat.rx_packets++;
+-				priv->stat.rx_bytes += descr.Len;
+-				netif_rx(skb);
+-				dev->last_rx = jiffies;
+-			}
+-		}
+-
+-		/* give descriptor back to LANCE */
+-		descr.Len = 0;
+-		descr.Flags |= RXDSCR_FLAGS_OWN;
+-
+-		/* update descriptor in shared RAM */
+-		memcpy_toio(priv->base + descraddr, &descr,
+-			   sizeof(LANCE_RxDescr));
+-
+-		/* go to next descriptor */
+-		priv->nextrx++;
+-		descraddr += sizeof(LANCE_RxDescr);
+-		if (priv->nextrx >= RXCOUNT) {
+-			priv->nextrx = 0;
+-			descraddr = RAM_RXBASE;
+-		}
+-	}
+-
+-	/* reset RINT bit */
+-
+-	SetLANCE(dev, LANCE_CSR0, oldcsr0 | CSR0_RINT);
+-	return GetLANCE(dev, LANCE_CSR0);
+-}
+-
+-/* transmit interrupt */
+-
+-static u16 irqtx_handler(struct net_device *dev, u16 oldcsr0)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	LANCE_TxDescr descr;
+-	unsigned int descraddr;
+-
+-	/* check descriptors at most until no busy one is left */
+-
+-	descraddr =
+-	    RAM_TXBASE + (priv->nexttxdone * sizeof(LANCE_TxDescr));
+-	while (priv->txbusy > 0) {
+-		/* read descriptor */
+-		memcpy_fromio(&descr, priv->base + descraddr,
+-			     sizeof(LANCE_TxDescr));
+-
+-		/* if the LANCE still owns this one, we've worked out all sent packets */
+-		if ((descr.Flags & TXDSCR_FLAGS_OWN) != 0)
+-			break;
+-
+-#ifdef DEBUG
+-		PrTime();
+-		printk("Send packet done on descr %d\n", priv->nexttxdone);
+-#endif
+-
+-		/* update statistics */
+-		if ((descr.Flags & TXDSCR_FLAGS_ERR) == 0) {
+-			priv->stat.tx_packets++;
+-			priv->stat.tx_bytes++;
+-		} else {
+-			priv->stat.tx_errors++;
+-			if ((descr.Status & TXDSCR_STATUS_UFLO) != 0) {
+-				priv->stat.tx_fifo_errors++;
+-				InitLANCE(dev);
+-			}
+-				else
+-			    if ((descr.Status & TXDSCR_STATUS_LCOL) !=
+-				0) priv->stat.tx_window_errors++;
+-			else if ((descr.Status & TXDSCR_STATUS_LCAR) != 0)
+-				priv->stat.tx_carrier_errors++;
+-			else if ((descr.Status & TXDSCR_STATUS_RTRY) != 0)
+-				priv->stat.tx_aborted_errors++;
+-		}
+-
+-		/* go to next descriptor */
+-		priv->nexttxdone++;
+-		descraddr += sizeof(LANCE_TxDescr);
+-		if (priv->nexttxdone >= TXCOUNT) {
+-			priv->nexttxdone = 0;
+-			descraddr = RAM_TXBASE;
+-		}
+-		priv->txbusy--;
+-	}
+-
+-	/* reset TX interrupt bit */
+-
+-	SetLANCE(dev, LANCE_CSR0, oldcsr0 | CSR0_TINT);
+-	oldcsr0 = GetLANCE(dev, LANCE_CSR0);
+-
+-	/* at least one descriptor is freed.  Therefore we can accept
+-	   a new one */
+-	/* inform upper layers we're in business again */
+-
+-	netif_wake_queue(dev);
+-
+-	return oldcsr0;
+-}
+-
+-/* general interrupt entry */
+-
+-static irqreturn_t irq_handler(int irq, void *device)
+-{
+-	struct net_device *dev = (struct net_device *) device;
+-	u16 csr0val;
+-
+-	/* read CSR0 to get interrupt cause */
+-
+-	csr0val = GetLANCE(dev, LANCE_CSR0);
+-
+-	/* in case we're not meant... */
+-
+-	if ((csr0val & CSR0_INTR) == 0)
+-		return IRQ_NONE;
+-
+-#if 0
+-	set_bit(LINK_STATE_RXSEM, &dev->state);
+-#endif
+-
+-	/* loop through the interrupt bits until everything is clear */
 -
 -	do {
--		int ret;
--		DEBUG(2, "requesting window with size = %dKiB memspeed = %d",
--		      req.Size >> 10, req.AccessSpeed);
--		ret = pcmcia_request_window(&link, &req, &link->win);
--		DEBUG(2, "ret = %d dev->win_size = %d", ret, dev->win_size);
--		if(ret) {
--			req.Size >>= 1;
--		} else {
--			DEBUG(2, "Got window of size %dKiB", req.Size >> 10);
--			dev->win_size = req.Size;
--			break;
+-		if ((csr0val & CSR0_IDON) != 0)
+-			csr0val = irqstart_handler(dev, csr0val);
+-		if ((csr0val & CSR0_RINT) != 0)
+-			csr0val = irqrx_handler(dev, csr0val);
+-		if ((csr0val & CSR0_MISS) != 0)
+-			csr0val = irqmiss_handler(dev, csr0val);
+-		if ((csr0val & CSR0_TINT) != 0)
+-			csr0val = irqtx_handler(dev, csr0val);
+-		if ((csr0val & CSR0_MERR) != 0) {
+-			SetLANCE(dev, LANCE_CSR0, csr0val | CSR0_MERR);
+-			csr0val = GetLANCE(dev, LANCE_CSR0);
 -		}
--	} while(req.Size >= 0x1000);
--
--	DEBUG(2, "dev->win_size = %d", dev->win_size);
--
--	if(!dev->win_size) {
--		err("Cant allocate memory window");
--		pcmciamtd_release(link);
--		return -ENODEV;
--	}
--	DEBUG(1, "Allocated a window of %dKiB", dev->win_size >> 10);
--
--	/* Get write protect status */
--	CS_CHECK(GetStatus, pcmcia_get_status(link, &status));
--	DEBUG(2, "status value: 0x%x window handle = 0x%8.8lx",
--	      status.CardState, (unsigned long)link->win);
--	dev->win_base = ioremap(req.Base, req.Size);
--	if(!dev->win_base) {
--		err("ioremap(%lu, %u) failed", req.Base, req.Size);
--		pcmciamtd_release(link);
--		return -ENODEV;
--	}
--	DEBUG(1, "mapped window dev = %p req.base = 0x%lx base = %p size = 0x%x",
--	      dev, req.Base, dev->win_base, req.Size);
--
--	dev->offset = 0;
--	dev->pcmcia_map.map_priv_1 = (unsigned long)dev;
--	dev->pcmcia_map.map_priv_2 = (unsigned long)link->win;
--
--	DEBUG(2, "Getting configuration");
--	CS_CHECK(GetConfigurationInfo, pcmcia_get_configuration_info(link, &t));
--	DEBUG(2, "Vcc = %d Vpp1 = %d Vpp2 = %d", t.Vcc, t.Vpp1, t.Vpp2);
--	dev->vpp = (vpp) ? vpp : t.Vpp1;
--	link->conf.Attributes = 0;
--	if(setvpp == 2) {
--		link->conf.Vpp = dev->vpp;
--	} else {
--		link->conf.Vpp = 0;
--	}
--
--	link->conf.IntType = INT_MEMORY;
--	link->conf.ConfigBase = t.ConfigBase;
--	link->conf.Status = t.Status;
--	link->conf.Pin = t.Pin;
--	link->conf.Copy = t.Copy;
--	link->conf.ExtStatus = t.ExtStatus;
--	link->conf.ConfigIndex = 0;
--	link->conf.Present = t.Present;
--	DEBUG(2, "Setting Configuration");
--	ret = pcmcia_request_configuration(link, &link->conf);
--	if(ret != CS_SUCCESS) {
--		cs_error(link, RequestConfiguration, ret);
--		if (dev->win_base) {
--			iounmap(dev->win_base);
--			dev->win_base = NULL;
--		}
--		return -ENODEV;
--	}
--
--	if(mem_type == 1) {
--		mtd = do_map_probe("map_ram", &dev->pcmcia_map);
--	} else if(mem_type == 2) {
--		mtd = do_map_probe("map_rom", &dev->pcmcia_map);
--	} else {
--		for(i = 0; i < ARRAY_SIZE(probes); i++) {
--			DEBUG(1, "Trying %s", probes[i]);
--			mtd = do_map_probe(probes[i], &dev->pcmcia_map);
--			if(mtd)
--				break;
--
--			DEBUG(1, "FAILED: %s", probes[i]);
+-		if ((csr0val & CSR0_BABL) != 0) {
+-			SetLANCE(dev, LANCE_CSR0, csr0val | CSR0_BABL);
+-			csr0val = GetLANCE(dev, LANCE_CSR0);
 -		}
 -	}
+-	while ((csr0val & CSR0_INTR) != 0);
 -
--	if(!mtd) {
--		DEBUG(1, "Cant find an MTD");
--		pcmciamtd_release(link);
--		return -ENODEV;
--	}
--
--	dev->mtd_info = mtd;
--	mtd->owner = THIS_MODULE;
--
--	if(new_name) {
--		int size = 0;
--		char unit = ' ';
--		/* Since we are using a default name, make it better by adding in the
--		   size */
--		if(mtd->size < 1048576) { /* <1MiB in size, show size in KiB */
--			size = mtd->size >> 10;
--			unit = 'K';
--		} else {
--			size = mtd->size >> 20;
--			unit = 'M';
--		}
--		snprintf(dev->mtd_name, sizeof(dev->mtd_name), "%d%ciB %s", size, unit, "PCMCIA Memory card");
--	}
--
--	/* If the memory found is fits completely into the mapped PCMCIA window,
--	   use the faster non-remapping read/write functions */
--	if(mtd->size <= dev->win_size) {
--		DEBUG(1, "Using non remapping memory functions");
--		dev->pcmcia_map.map_priv_2 = (unsigned long)dev->win_base;
--		if (dev->pcmcia_map.bankwidth == 1) {
--			dev->pcmcia_map.read = pcmcia_read8;
--			dev->pcmcia_map.write = pcmcia_write8;
--		} else {
--			dev->pcmcia_map.read = pcmcia_read16;
--			dev->pcmcia_map.write = pcmcia_write16;
--		}
--		dev->pcmcia_map.copy_from = pcmcia_copy_from;
--		dev->pcmcia_map.copy_to = pcmcia_copy_to;
--	}
--
--	if(add_mtd_device(mtd)) {
--		map_destroy(mtd);
--		dev->mtd_info = NULL;
--		err("Couldnt register MTD device");
--		pcmciamtd_release(link);
--		return -ENODEV;
--	}
--	snprintf(dev->node.dev_name, sizeof(dev->node.dev_name), "mtd%d", mtd->index);
--	info("mtd%d: %s", mtd->index, mtd->name);
--	link->dev_node = &dev->node;
--	return 0;
--
-- cs_failed:
--	cs_error(link, last_fn, last_ret);
--	err("CS Error, exiting");
--	pcmciamtd_release(link);
--	return -ENODEV;
--}
--
--
--static int pcmciamtd_suspend(struct pcmcia_device *dev)
--{
--	DEBUG(2, "EVENT_PM_RESUME");
--
--	/* get_lock(link); */
--
--	return 0;
--}
--
--static int pcmciamtd_resume(struct pcmcia_device *dev)
--{
--	DEBUG(2, "EVENT_PM_SUSPEND");
--
--	/* free_lock(link); */
--
--	return 0;
--}
--
--
--/* This deletes a driver "instance".  The device is de-registered
-- * with Card Services.  If it has been released, all local data
-- * structures are freed.  Otherwise, the structures will be freed
-- * when the device is released.
-- */
--
--static void pcmciamtd_detach(struct pcmcia_device *link)
--{
--	struct pcmciamtd_dev *dev = link->priv;
--
--	DEBUG(3, "link=0x%p", link);
--
--	if(dev->mtd_info) {
--		del_mtd_device(dev->mtd_info);
--		map_destroy(dev->mtd_info);
--		info("mtd%d: Removed", dev->mtd_info->index);
--	}
--
--	pcmciamtd_release(link);
--}
--
--
--/* pcmciamtd_attach() creates an "instance" of the driver, allocating
-- * local data structures for one device.  The device is registered
-- * with Card Services.
-- */
--
--static int pcmciamtd_probe(struct pcmcia_device *link)
--{
--	struct pcmciamtd_dev *dev;
--
--	/* Create new memory card device */
--	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
--	if (!dev) return -ENOMEM;
--	DEBUG(1, "dev=0x%p", dev);
--
--	memset(dev, 0, sizeof(*dev));
--	dev->p_dev = link;
--	link->priv = dev;
--
--	link->conf.Attributes = 0;
--	link->conf.IntType = INT_MEMORY;
--
--	return pcmciamtd_config(link);
--}
--
--static struct pcmcia_device_id pcmciamtd_ids[] = {
--	PCMCIA_DEVICE_FUNC_ID(1),
--	PCMCIA_DEVICE_PROD_ID123("IO DATA", "PCS-2M", "2MB SRAM", 0x547e66dc, 0x1fed36cd, 0x36eadd21),
--	PCMCIA_DEVICE_PROD_ID12("IBM", "2MB SRAM", 0xb569a6e5, 0x36eadd21),
--	PCMCIA_DEVICE_PROD_ID12("IBM", "4MB FLASH", 0xb569a6e5, 0x8bc54d2a),
--	PCMCIA_DEVICE_PROD_ID12("IBM", "8MB FLASH", 0xb569a6e5, 0x6df1be3e),
--	PCMCIA_DEVICE_PROD_ID12("Intel", "S2E20SW", 0x816cc815, 0xd14c9dcf),
--	PCMCIA_DEVICE_PROD_ID12("Intel", "S2E8 SW", 0x816cc815, 0xa2d7dedb),
--	PCMCIA_DEVICE_PROD_ID12("intel", "SERIES2-02 ", 0x40ade711, 0x145cea5c),
--	PCMCIA_DEVICE_PROD_ID12("intel", "SERIES2-04 ", 0x40ade711, 0x42064dda),
--	PCMCIA_DEVICE_PROD_ID12("intel", "SERIES2-20 ", 0x40ade711, 0x25ee5cb0),
--	PCMCIA_DEVICE_PROD_ID12("intel", "VALUE SERIES 100 ", 0x40ade711, 0xdf8506d8),
--	PCMCIA_DEVICE_PROD_ID12("KINGMAX TECHNOLOGY INC.", "SRAM 256K Bytes", 0x54d0c69c, 0xad12c29c),
--	PCMCIA_DEVICE_PROD_ID12("Maxtor", "MAXFL MobileMax Flash Memory Card", 0xb68968c8, 0x2dfb47b0),
--	PCMCIA_DEVICE_PROD_ID12("SEIKO EPSON", "WWB101EN20", 0xf9876baf, 0xad0b207b),
--	PCMCIA_DEVICE_PROD_ID12("SEIKO EPSON", "WWB513EN20", 0xf9876baf, 0xe8d884ad),
--	PCMCIA_DEVICE_PROD_ID12("Starfish, Inc.", "REX-3000", 0x05ddca47, 0xe7d67bca),
--	PCMCIA_DEVICE_PROD_ID12("Starfish, Inc.", "REX-4100", 0x05ddca47, 0x7bc32944),
--	/* the following was commented out in pcmcia-cs-3.2.7 */
--	/* PCMCIA_DEVICE_PROD_ID12("RATOC Systems,Inc.", "SmartMedia ADAPTER PC Card", 0xf4a2fefe, 0x5885b2ae), */
--#ifdef CONFIG_MTD_PCMCIA_ANONYMOUS
--	{ .match_flags = PCMCIA_DEV_ID_MATCH_ANONYMOUS, },
+-#if 0
+-	clear_bit(LINK_STATE_RXSEM, &dev->state);
 -#endif
--	PCMCIA_DEVICE_NULL
--};
--MODULE_DEVICE_TABLE(pcmcia, pcmciamtd_ids);
--
--static struct pcmcia_driver pcmciamtd_driver = {
--	.drv		= {
--		.name	= "pcmciamtd"
--	},
--	.probe		= pcmciamtd_probe,
--	.remove		= pcmciamtd_detach,
--	.owner		= THIS_MODULE,
--	.id_table	= pcmciamtd_ids,
--	.suspend	= pcmciamtd_suspend,
--	.resume		= pcmciamtd_resume,
--};
--
--
--static int __init init_pcmciamtd(void)
--{
--	info(DRIVER_DESC " " DRIVER_VERSION);
--
--	if(bankwidth && bankwidth != 1 && bankwidth != 2) {
--		info("bad bankwidth (%d), using default", bankwidth);
--		bankwidth = 2;
--	}
--	if(force_size && (force_size < 1 || force_size > 64)) {
--		info("bad force_size (%d), using default", force_size);
--		force_size = 0;
--	}
--	if(mem_type && mem_type != 1 && mem_type != 2) {
--		info("bad mem_type (%d), using default", mem_type);
--		mem_type = 0;
--	}
--	return pcmcia_register_driver(&pcmciamtd_driver);
+-	return IRQ_HANDLED;
 -}
 -
+-/* ------------------------------------------------------------------------
+- * driver methods
+- * ------------------------------------------------------------------------ */
 -
--static void __exit exit_pcmciamtd(void)
+-/* MCA info */
+-
+-static int skmca_getinfo(char *buf, int slot, void *d)
 -{
--	DEBUG(1, DRIVER_DESC " unloading");
--	pcmcia_unregister_driver(&pcmciamtd_driver);
+-	int len = 0, i;
+-	struct net_device *dev = (struct net_device *) d;
+-	skmca_priv *priv;
+-
+-	/* can't say anything about an uninitialized device... */
+-
+-	if (dev == NULL)
+-		return len;
+-	priv = netdev_priv(dev);
+-
+-	/* print info */
+-
+-	len += sprintf(buf + len, "IRQ: %d\n", priv->realirq);
+-	len += sprintf(buf + len, "Memory: %#lx-%#lx\n", dev->mem_start,
+-		       dev->mem_end - 1);
+-	len +=
+-	    sprintf(buf + len, "Transceiver: %s\n",
+-		    MediaNames[priv->medium]);
+-	len += sprintf(buf + len, "Device: %s\n", dev->name);
+-	len += sprintf(buf + len, "MAC address:");
+-	for (i = 0; i < 6; i++)
+-		len += sprintf(buf + len, " %02x", dev->dev_addr[i]);
+-	buf[len++] = '\n';
+-	buf[len] = 0;
+-
+-	return len;
 -}
 -
--module_init(init_pcmciamtd);
--module_exit(exit_pcmciamtd);
+-/* open driver.  Means also initialization and start of LANCE */
+-
+-static int skmca_open(struct net_device *dev)
+-{
+-	int result;
+-	skmca_priv *priv = netdev_priv(dev);
+-
+-	/* register resources - only necessary for IRQ */
+-	result =
+-	    request_irq(priv->realirq, irq_handler,
+-			IRQF_SHARED | IRQF_SAMPLE_RANDOM, "sk_mca", dev);
+-	if (result != 0) {
+-		printk("%s: failed to register irq %d\n", dev->name,
+-		       dev->irq);
+-		return result;
+-	}
+-	dev->irq = priv->realirq;
+-
+-	/* set up the card and LANCE */
+-
+-	InitBoard(dev);
+-
+-	/* set up flags */
+-
+-	netif_start_queue(dev);
+-
+-	return 0;
+-}
+-
+-/* close driver.  Shut down board and free allocated resources */
+-
+-static int skmca_close(struct net_device *dev)
+-{
+-	/* turn off board */
+-	DeinitBoard(dev);
+-
+-	/* release resources */
+-	if (dev->irq != 0)
+-		free_irq(dev->irq, dev);
+-	dev->irq = 0;
+-
+-	return 0;
+-}
+-
+-/* transmit a block. */
+-
+-static int skmca_tx(struct sk_buff *skb, struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	LANCE_TxDescr descr;
+-	unsigned int address;
+-	int tmplen, retval = 0;
+-	unsigned long flags;
+-
+-	/* if we get called with a NULL descriptor, the Ethernet layer thinks
+-	   our card is stuck an we should reset it.  We'll do this completely: */
+-
+-	if (skb == NULL) {
+-		DeinitBoard(dev);
+-		InitBoard(dev);
+-		return 0;	/* don't try to free the block here ;-) */
+-	}
+-
+-	/* is there space in the Tx queue ? If no, the upper layer gave us a
+-	   packet in spite of us not being ready and is really in trouble.
+-	   We'll do the dropping for him: */
+-	if (priv->txbusy >= TXCOUNT) {
+-		priv->stat.tx_dropped++;
+-		retval = -EIO;
+-		goto tx_done;
+-	}
+-
+-	/* get TX descriptor */
+-	address = RAM_TXBASE + (priv->nexttxput * sizeof(LANCE_TxDescr));
+-	memcpy_fromio(&descr, priv->base + address, sizeof(LANCE_TxDescr));
+-
+-	/* enter packet length as 2s complement - assure minimum length */
+-	tmplen = skb->len;
+-	if (tmplen < 60)
+-		tmplen = 60;
+-	descr.Len = 65536 - tmplen;
+-
+-	/* copy filler into RAM - in case we're filling up...
+-	   we're filling a bit more than necessary, but that doesn't harm
+-	   since the buffer is far larger... */
+-	if (tmplen > skb->len) {
+-		char *fill = "NetBSD is a nice OS too! ";
+-		unsigned int destoffs = 0, l = strlen(fill);
+-
+-		while (destoffs < tmplen) {
+-			memcpy_toio(priv->base + descr.LowAddr +
+-				   destoffs, fill, l);
+-			destoffs += l;
+-		}
+-	}
+-
+-	/* do the real data copying */
+-	memcpy_toio(priv->base + descr.LowAddr, skb->data, skb->len);
+-
+-	/* hand descriptor over to LANCE - this is the first and last chunk */
+-	descr.Flags =
+-	    TXDSCR_FLAGS_OWN | TXDSCR_FLAGS_STP | TXDSCR_FLAGS_ENP;
+-
+-#ifdef DEBUG
+-	PrTime();
+-	printk("Send packet on descr %d len %d\n", priv->nexttxput,
+-	       skb->len);
+-#endif
+-
+-	/* one more descriptor busy */
+-
+-	spin_lock_irqsave(&priv->lock, flags);
+-
+-	priv->nexttxput++;
+-	if (priv->nexttxput >= TXCOUNT)
+-		priv->nexttxput = 0;
+-	priv->txbusy++;
+-
+-	/* are we saturated ? */
+-
+-	if (priv->txbusy >= TXCOUNT)
+-		netif_stop_queue(dev);
+-
+-	/* write descriptor back to RAM */
+-	memcpy_toio(priv->base + address, &descr, sizeof(LANCE_TxDescr));
+-
+-	/* if no descriptors were active, give the LANCE a hint to read it
+-	   immediately */
+-
+-	if (priv->txbusy == 0)
+-		SetLANCE(dev, LANCE_CSR0, CSR0_INEA | CSR0_TDMD);
+-
+-	spin_unlock_irqrestore(&priv->lock, flags);
+-
+-      tx_done:
+-
+-	dev_kfree_skb(skb);
+-
+-	return retval;
+-}
+-
+-/* return pointer to Ethernet statistics */
+-
+-static struct net_device_stats *skmca_stats(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-
+-	return &(priv->stat);
+-}
+-
+-/* switch receiver mode.  We use the LANCE's multicast filter to prefilter
+-   multicast addresses. */
+-
+-static void skmca_set_multicast_list(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	LANCE_InitBlock block;
+-
+-	/* first stop the LANCE... */
+-	StopLANCE(dev);
+-
+-	/* ...then modify the initialization block... */
+-	memcpy_fromio(&block, priv->base + RAM_INITBASE, sizeof(block));
+-	if (dev->flags & IFF_PROMISC)
+-		block.Mode |= LANCE_INIT_PROM;
+-	else
+-		block.Mode &= ~LANCE_INIT_PROM;
+-
+-	if (dev->flags & IFF_ALLMULTI) {	/* get all multicasts */
+-		memset(block.LAdrF, 0xff, sizeof(block.LAdrF));
+-	} else {		/* get selected/no multicasts */
+-
+-		struct dev_mc_list *mptr;
+-		int code;
+-
+-		memset(block.LAdrF, 0, sizeof(block.LAdrF));
+-		for (mptr = dev->mc_list; mptr != NULL; mptr = mptr->next) {
+-			code = GetHash(mptr->dmi_addr);
+-			block.LAdrF[(code >> 3) & 7] |= 1 << (code & 7);
+-		}
+-	}
+-
+-	memcpy_toio(priv->base + RAM_INITBASE, &block, sizeof(block));
+-
+-	/* ...then reinit LANCE with the correct flags */
+-	InitLANCE(dev);
+-}
+-
+-/* ------------------------------------------------------------------------
+- * hardware check
+- * ------------------------------------------------------------------------ */
+-
+-static int startslot;		/* counts through slots when probing multiple devices */
+-
+-static void cleanup_card(struct net_device *dev)
+-{
+-	skmca_priv *priv = netdev_priv(dev);
+-	DeinitBoard(dev);
+-	if (dev->irq != 0)
+-		free_irq(dev->irq, dev);
+-	iounmap(priv->base);
+-	mca_mark_as_unused(priv->slot);
+-	mca_set_adapter_procfn(priv->slot, NULL, NULL);
+-}
+-
+-struct net_device * __init skmca_probe(int unit)
+-{
+-	struct net_device *dev;
+-	int force_detect = 0;
+-	int junior, slot, i;
+-	int base = 0, irq = 0;
+-	skmca_priv *priv;
+-	skmca_medium medium;
+-	int err;
+-
+-	/* can't work without an MCA bus ;-) */
+-
+-	if (MCA_bus == 0)
+-		return ERR_PTR(-ENODEV);
+-
+-	dev = alloc_etherdev(sizeof(skmca_priv));
+-	if (!dev)
+-		return ERR_PTR(-ENOMEM);
+-
+-	if (unit >= 0) {
+-		sprintf(dev->name, "eth%d", unit);
+-		netdev_boot_setup_check(dev);
+-	}
+-
+-	SET_MODULE_OWNER(dev);
+-
+-	/* start address of 1 --> forced detection */
+-
+-	if (dev->mem_start == 1)
+-		force_detect = 1;
+-
+-	/* search through slots */
+-
+-	base = dev->mem_start;
+-	irq = dev->base_addr;
+-	for (slot = startslot; (slot = dofind(&junior, slot)) != -1; slot++) {
+-		/* deduce card addresses */
+-
+-		getaddrs(slot, junior, &base, &irq, &medium);
+-
+-		/* slot already in use ? */
+-
+-		if (mca_is_adapter_used(slot))
+-			continue;
+-
+-		/* were we looking for something different ? */
+-
+-		if (dev->irq && dev->irq != irq)
+-			continue;
+-		if (dev->mem_start && dev->mem_start != base)
+-			continue;
+-
+-		/* found something that matches */
+-
+-		break;
+-	}
+-
+-	/* nothing found ? */
+-
+-	if (slot == -1) {
+-		free_netdev(dev);
+-		return (base || irq) ? ERR_PTR(-ENXIO) : ERR_PTR(-ENODEV);
+-	}
+-
+-	/* make procfs entries */
+-
+-	if (junior)
+-		mca_set_adapter_name(slot,
+-				     "SKNET junior MC2 Ethernet Adapter");
+-	else
+-		mca_set_adapter_name(slot, "SKNET MC2+ Ethernet Adapter");
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) skmca_getinfo, dev);
+-
+-	mca_mark_as_used(slot);
+-
+-	/* announce success */
+-	printk("%s: SKNet %s adapter found in slot %d\n", dev->name,
+-	       junior ? "Junior MC2" : "MC2+", slot + 1);
+-
+-	priv = netdev_priv(dev);
+-	priv->base = ioremap(base, 0x4000);
+-	if (!priv->base) {
+-		mca_set_adapter_procfn(slot, NULL, NULL);
+-		mca_mark_as_unused(slot);
+-		free_netdev(dev);
+-		return ERR_PTR(-ENOMEM);
+-	}
+-
+-	priv->slot = slot;
+-	priv->macbase = priv->base + 0x3fc0;
+-	priv->ioregaddr = priv->base + 0x3ff0;
+-	priv->ctrladdr = priv->base + 0x3ff2;
+-	priv->cmdaddr = priv->base + 0x3ff3;
+-	priv->medium = medium;
+-	memset(&priv->stat, 0, sizeof(struct net_device_stats));
+-	spin_lock_init(&priv->lock);
+-
+-	/* set base + irq for this device (irq not allocated so far) */
+-	dev->irq = 0;
+-	dev->mem_start = base;
+-	dev->mem_end = base + 0x4000;
+-
+-	/* autoprobe ? */
+-	if (irq < 0) {
+-		int nirq;
+-
+-		printk
+-		    ("%s: ambigous POS bit combination, must probe for IRQ...\n",
+-		     dev->name);
+-		nirq = ProbeIRQ(dev);
+-		if (nirq <= 0)
+-			printk("%s: IRQ probe failed, assuming IRQ %d",
+-			       dev->name, priv->realirq = -irq);
+-		else
+-			priv->realirq = nirq;
+-	} else
+-		priv->realirq = irq;
+-
+-	/* set methods */
+-	dev->open = skmca_open;
+-	dev->stop = skmca_close;
+-	dev->hard_start_xmit = skmca_tx;
+-	dev->do_ioctl = NULL;
+-	dev->get_stats = skmca_stats;
+-	dev->set_multicast_list = skmca_set_multicast_list;
+-	dev->flags |= IFF_MULTICAST;
+-
+-	/* copy out MAC address */
+-	for (i = 0; i < 6; i++)
+-		dev->dev_addr[i] = readb(priv->macbase + (i << 1));
+-
+-	/* print config */
+-	printk("%s: IRQ %d, memory %#lx-%#lx, "
+-	       "MAC address %02x:%02x:%02x:%02x:%02x:%02x.\n",
+-	       dev->name, priv->realirq, dev->mem_start, dev->mem_end - 1,
+-	       dev->dev_addr[0], dev->dev_addr[1], dev->dev_addr[2],
+-	       dev->dev_addr[3], dev->dev_addr[4], dev->dev_addr[5]);
+-	printk("%s: %s medium\n", dev->name, MediaNames[priv->medium]);
+-
+-	/* reset board */
+-
+-	ResetBoard(dev);
+-
+-	startslot = slot + 1;
+-
+-	err = register_netdev(dev);
+-	if (err) {
+-		cleanup_card(dev);
+-		free_netdev(dev);
+-		dev = ERR_PTR(err);
+-	}
+-	return dev;
+-}
+-
+-/* ------------------------------------------------------------------------
+- * modularization support
+- * ------------------------------------------------------------------------ */
+-
+-#ifdef MODULE
+-MODULE_LICENSE("GPL");
+-
+-#define DEVMAX 5
+-
+-static struct net_device *moddevs[DEVMAX];
+-
+-int init_module(void)
+-{
+-	int z;
+-
+-	startslot = 0;
+-	for (z = 0; z < DEVMAX; z++) {
+-		struct net_device *dev = skmca_probe(-1);
+-		if (IS_ERR(dev))
+-			break;
+-		moddevs[z] = dev;
+-	}
+-	if (!z)
+-		return -EIO;
+-	return 0;
+-}
+-
+-void cleanup_module(void)
+-{
+-	int z;
+-
+-	for (z = 0; z < DEVMAX; z++) {
+-		struct net_device *dev = moddevs[z];
+-		if (dev) {
+-			unregister_netdev(dev);
+-			cleanup_card(dev);
+-			free_netdev(dev);
+-		}
+-	}
+-}
+-#endif				/* MODULE */
 

@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966537AbWKYMqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966539AbWKYMvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966537AbWKYMqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 07:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966539AbWKYMqn
+	id S966539AbWKYMvA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 07:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966560AbWKYMu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 07:46:43 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57868 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S966537AbWKYMqm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 07:46:42 -0500
-Date: Sat, 25 Nov 2006 12:46:30 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6: oops on resume when plugged to AC on suspend
-Message-ID: <20061125124630.GD4782@ucw.cz>
-References: <20061124084734.GB621@gimli>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061124084734.GB621@gimli>
-User-Agent: Mutt/1.5.9i
+	Sat, 25 Nov 2006 07:50:59 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:39393 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S966539AbWKYMu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 07:50:59 -0500
+Message-ID: <45683C45.8020904@f2s.com>
+Date: Sat, 25 Nov 2006 12:51:17 +0000
+From: Ian Molton <spyro@f2s.com>
+Organization: The Dragon Roost
+User-Agent: Thunderbird 2.0a1 (X11/20061107)
+MIME-Version: 1.0
+To: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Kernel-discuss] RFC - platform device, IRQs and SoC devices
+References: <4563242D.9050901@f2s.com> <45682B0E.4060202@f2s.com> <20061125122910.GA12104@flint.arm.linux.org.uk>
+In-Reply-To: <20061125122910.GA12104@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Got it the second time now, so it's time to report:
-
-Is it regression?
-
-> When I suspen while plugged to AC and resume unplugged I get the following
-> OOPS:
+Russell King wrote:
+>
+> It's quite possible to have:
 > 
+> IRQ	chip
+> 0	irqchip_0
+> 1	irqchip_0
+> 2	irqchip_1
+> 3	irqchip_0
+> 4	irqchip_0
+> 5	irqchip_1
+> 6	irqchip_2
+> 7	irqchip_2
+> 8	irqchip_2
+> 9	irqchip_1
+> 
+> Where do you start '0' for each irqchip?  How do you split the irq_desc
+> array between the irqchips?
 
-> [152108.954000] CPU:    1
-> [152108.954000] EIP:    0060:[<c0182b3a>]    Tainted: P      VLI
+I see no reason why this couldnt continue to work 'as is' with the new 
+behaviour only applying to irqchips with their own non-NULL irq_desc array.
 
-Tainted :-(.
+The other problem is integration with /proc, specifically the irq usage 
+counter.
 
-> [152108.954000] EFLAGS: 00010212
-> (2.6.19-rc6+ieee80211-ipw3945-ch-46.6+1004-g8cdd79c8-dirty #1)
+The irq numbers in /proc wouldnt have to be 'real' they can be 
+synthesized from a base starting after the main system IRQs.
 
-ipw3945 is big patch... but does it have anything to do with mounting?
-sysfs?
-
-> [152108.955000] Process mount (pid: 10404, ti=ef940000 task=f1360030
-> task.ti=ef940000)
-
-What was the mount process trying to do at this point?
-
--- 
-Thanks for all the (sleeping) penguins.
+Im not sure how fixed the format of /proc/interrupts is, wether the IRQ 
+numbers are required to be sequential or not (some arent even numbers 
+like NMI on x86). if they dont have to be sequential then its simply a 
+matter of keeping a counter starting from BOARD_IRQ_END+1 and for each 
+IRQchip adding its individual irq numbers to it as they are displayed, 
+then incrementing the counter by the size of the irqdesc array for that 
+chip.

@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935132AbWKYBhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757639AbWKYBnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935132AbWKYBhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 20:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935133AbWKYBhE
+	id S1757639AbWKYBnq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 20:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757634AbWKYBnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 20:37:04 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:60582 "EHLO
+	Fri, 24 Nov 2006 20:43:46 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:23999 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S935132AbWKYBhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 20:37:01 -0500
+	id S1755447AbWKYBnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 20:43:45 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
-        b=Pl27n9t1FSWq6s7ksDJxNHFOFhd60kL9RH8Xf2WOIWlY+cKYXyxQnTSiIz988CPe9DZNcNlxJw3LhTqrvmaOyt7UV1MHM0o9Vj0pUYnv5VpjMT7aj4eHqQBzHAus91L6g4BBDO3OIj2D4ZtpM99G16fGyXU10fja4q1DrFZqslk=
-Message-ID: <86802c440611241736l545ddf33i3bb08f3cd6446b14@mail.gmail.com>
-Date: Fri, 24 Nov 2006 17:36:59 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 2/2] x86-64: change the size for interrupt array to NR_VECTORS
-Cc: linux-kernel@vger.kernel.org
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=HOVIsSE1O0beDOvkp87B/Y7TIvTiOaYrD7/jSaVBDjiNa/DaFMdj4OlkAHZMbv0gJ0PtbzoUN8XnaTP9MbwM6D2IoIA3I/AQlb3DE0OxroL86aTPOXjdXdg+wOBJ72xH/lyDVEVAyZPU6UTDmFctAVtwDAv/KiuBYamZViCyDEo=
+Message-ID: <45679FC5.8050304@gmail.com>
+Date: Sat, 25 Nov 2006 10:43:33 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_42375_8168133.1164418619854"
-X-Google-Sender-Auth: fd0a061026670b24
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Conke Hu <conke.hu@amd.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       arjan@infradead.org
+Subject: Re: [PATCH] Add IDE mode support for SB600 SATA
+References: <FFECF24D2A7F6D418B9511AF6F3586020108CE7D@shacnexch2.atitech.com>	<45668ACF.1040101@gmail.com>	<456699CA.9060904@gmail.com> <20061124111313.5ec0a599@localhost.localdomain>
+In-Reply-To: <20061124111313.5ec0a599@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_42375_8168133.1164418619854
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Alan wrote:
+>> * Unlike Jmicron's case, this doesn't affect PCI bus scan.  Actually, it 
+>> does change class code but that's not as disruptive as Jmicron's case 
+>> and as long as ahci ignores class code, it doesn't really matter. 
+>> Driver can be chosen by changing loading order - this is both plus and 
+>> minus.
+> 
+> The load order is basically undefined. You want AHCI so we should do
+> this early. That means either putting the same gunk all over the kernel
+> (drivers/ide, drivers/ata/*ati* drivers/ata/ahci) or in one place.
+>  
+>> * As Arjan pointed out, that unlock-modify-lock sequence should be done 
+>> on resume too.  
+> 
+> The infrastructure for this is already handled by the pci resume quirk
+> patches I sent. 
 
-Please check the patch.
+As long as resume is properly handled, no problem.
 
-------=_Part_42375_8168133.1164418619854
-Content-Type: text/x-patch; name=i8259.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_euxcl20n
-Content-Disposition: attachment; filename="i8259.patch"
+Thanks.
 
-W1BBVENIXSB4ODZfNjQ6IGludGVycnVwdCBhcnJheSBzaXplIHNob3VsZCBiZSBhbGlnbmVkIHRv
-IE5SX1ZFQ1RPUlMKaW50ZXJydXB0IGFycmF5IGlzIHJlZmVycmVkIGZvciBpZHQgdmVjdG9ycyBp
-bnN0ZWFkIG9mIE5SX0lSUVMsIHNvIGNoYW5nZSBzaXplCnRvIE5SX1ZFQ1RPUlMgLSBGSVJTVF9F
-WFRFUk5BTF9WRUNUT1IuIEFsc28gY2hhbmdlIHRvIHN0YXRpYy4KClNpZ25lZC1vZmYtYnk6IFlp
-bmdoYWkgTHUgPHlpbmdoYWlAYW1kLmNvbT4KCmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9rZXJu
-ZWwvaTgyNTkuYyBiL2FyY2gveDg2XzY0L2tlcm5lbC9pODI1OS5jCmluZGV4IGM0ZWY4MDEuLmQ3
-M2M3OWUgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L2tlcm5lbC9pODI1OS5jCisrKyBiL2FyY2gv
-eDg2XzY0L2tlcm5lbC9pODI1OS5jCkBAIC03Niw3ICs3Niw4IEBAICNkZWZpbmUgSVJRTElTVF8x
-Nih4KSBcCiAJSVJRKHgsOCksIElSUSh4LDkpLCBJUlEoeCxhKSwgSVJRKHgsYiksIFwKIAlJUlEo
-eCxjKSwgSVJRKHgsZCksIElSUSh4LGUpLCBJUlEoeCxmKQogCi12b2lkICgqaW50ZXJydXB0W05S
-X0lSUVNdKSh2b2lkKSA9IHsKKy8qIGZvciB0aGUgaXJxIHZlY3RvcnMgKi8KK3N0YXRpYyB2b2lk
-ICgqaW50ZXJydXB0W05SX1ZFQ1RPUlMgLSBGSVJTVF9FWFRFUk5BTF9WRUNUT1JdKSh2b2lkKSA9
-IHsKIAkJCQkJICBJUlFMSVNUXzE2KDB4MiksIElSUUxJU1RfMTYoMHgzKSwKIAlJUlFMSVNUXzE2
-KDB4NCksIElSUUxJU1RfMTYoMHg1KSwgSVJRTElTVF8xNigweDYpLCBJUlFMSVNUXzE2KDB4Nyks
-CiAJSVJRTElTVF8xNigweDgpLCBJUlFMSVNUXzE2KDB4OSksIElSUUxJU1RfMTYoMHhhKSwgSVJR
-TElTVF8xNigweGIpLAo=
-------=_Part_42375_8168133.1164418619854--
+-- 
+tejun

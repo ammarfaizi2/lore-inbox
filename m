@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933985AbWKYIq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934284AbWKYIxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933985AbWKYIq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934217AbWKYIq5
+	id S934284AbWKYIxX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 03:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934357AbWKYIxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:46:57 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:32407 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S933985AbWKYIq4
+	Sat, 25 Nov 2006 03:53:23 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:34455 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S934284AbWKYIxW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:46:56 -0500
-Message-ID: <45680308.4040809@drzeus.cx>
-Date: Sat, 25 Nov 2006 09:47:04 +0100
+	Sat, 25 Nov 2006 03:53:22 -0500
+Message-ID: <45680488.8030508@drzeus.cx>
+Date: Sat, 25 Nov 2006 09:53:28 +0100
 From: Pierre Ossman <drzeus-list@drzeus.cx>
 User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
@@ -32,23 +32,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anderson Briglia wrote:
-> @@ -244,5 +244,13 @@ struct _mmc_csd {
->  #define SD_BUS_WIDTH_1      0
->  #define SD_BUS_WIDTH_4      2
->
-> +/*
-> + * MMC_LOCK_UNLOCK modes
-> + */
-> +#define MMC_LOCK_MODE_ERASE    (1<<3)
-> +#define MMC_LOCK_MODE_UNLOCK    (0<<2)
-> +#define MMC_LOCK_MODE_CLR_PWD    (1<<1)
-> +#define MMC_LOCK_MODE_SET_PWD    (1<<0)
-> +
->  #endif  /* MMC_MMC_PROTOCOL_H */
->
+Seems I missed this...
 
-This definition makes them look like bits, which is not how they are used.
+Anderson Briglia wrote:
+> +
+> +    err = mmc_card_claim_host(card);
+> +    if (err != MMC_ERR_NONE)
+> +        goto out;
+> +
+
+As I said before, no locking in the command abstractions. The host
+should be claimed somewhere further up the chain (in
+mmc_lockable_store() right now).
 
 Rgds
 

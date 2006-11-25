@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966281AbWKYLrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966464AbWKYM3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966281AbWKYLrU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 06:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935155AbWKYLrU
+	id S966464AbWKYM3V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 07:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966465AbWKYM3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 06:47:20 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:45532 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S934045AbWKYLrT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 06:47:19 -0500
-Date: Sat, 25 Nov 2006 11:47:17 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
-In-Reply-To: <Pine.LNX.4.64.0611242056260.20312@blonde.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0611251143080.19594@skynet.skynet.ie>
-References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
- <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
- <Pine.LNX.4.64.0611211637120.3338@woody.osdl.org> <20061123163613.GA25818@skynet.ie>
- <Pine.LNX.4.64.0611230906110.27596@woody.osdl.org> <20061124104422.GA23426@skynet.ie>
- <Pine.LNX.4.64.0611241924110.17508@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0611242004520.3938@skynet.skynet.ie>
- <Pine.LNX.4.64.0611242056260.20312@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 25 Nov 2006 07:29:21 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:55304 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S966464AbWKYM3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 07:29:20 -0500
+Date: Sat, 25 Nov 2006 12:29:10 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ian Molton <spyro@f2s.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Kernel-discuss] RFC - platform device, IRQs and SoC devices
+Message-ID: <20061125122910.GA12104@flint.arm.linux.org.uk>
+Mail-Followup-To: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
+References: <4563242D.9050901@f2s.com> <45682B0E.4060202@f2s.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45682B0E.4060202@f2s.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2006, Hugh Dickins wrote:
+On Sat, Nov 25, 2006 at 11:37:50AM +0000, Ian Molton wrote:
+> Ian Molton wrote:
+> >Hi there.
+> >
+> >Im working on some SoC type devices attached to the system bus of my ARM 
+> >devboard in an isa-like way.
+> >
+> >The devices are small SoC (System On Chip) types, with one IRQ routed to 
+> >the half dozen (sub)devices on board the SoC.
+> 
+> I just thought of a 'third way'.
+> 
+> let IRQchips have their own struct irq_desc and have subdevice IRQs 
+> start from 0.
+> 
+> since those IRQs can only be raised by the parent chip I think this 
+> ought to work, and would eliminated the problem of a fixed size irq array...
 
-> On Fri, 24 Nov 2006, Mel Gorman wrote:
->>
->> Good catch. In the page clustering patches I work on, I am doing this;
->>
->> -       page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
->> +       page = alloc_page_vma(
->> +                       set_migrateflags(gfp | __GFP_ZERO, __GFP_RECLAIMABLE),
->> +                                                               &pvma, 0);
->>
->> to get rid of the MOVABLE flag and replace it with __GFP_RECLAIMABLE. This
->> clustered the allocations together with allocations like inode cache. In
->> retrospect, this was not a good idea because it assumes that tmpfs and shmem
->> pages are short-lived. That may not be the case at all.
->> ...
->> Thanks for that clarification. I suspected that something like this was the
->> case when I removed the MOVABLE flag and used RECLAIMABLE but I wasn't 100%
->> certain. In the tests I was running, tmpfs pages weren't a major problem so I
->> didn't chase it down.
->
-> I'm fairly confused as to what MOVABLE versus RECLAIMABLE is supposed to
-> be meaning, and understand it's in flux, so haven't tried too hard.
+It's quite possible to have:
 
-A MOVABLE allocation may be moved with page migration or paged out by 
-kswapd.
+IRQ	chip
+0	irqchip_0
+1	irqchip_0
+2	irqchip_1
+3	irqchip_0
+4	irqchip_0
+5	irqchip_1
+6	irqchip_2
+7	irqchip_2
+8	irqchip_2
+9	irqchip_1
 
-RECLAIMABLE on the other hand applies to short-lived allocations (like a 
-socket buffer) or allocations for slab caches that may be reaped such as 
-inode caches or dcache.
+Where do you start '0' for each irqchip?  How do you split the irq_desc
+array between the irqchips?
 
-> Just
-> so long as you understand that tmpfs data pages go out to swap under memory
-> pressure, whereas ramfs pages do not, and tmpfs swap vector pages do not.
->
-
-Right, I'll take a much closer look with this in mind and make the 
-distinction. Thanks
+(and yes there are platforms merged which do this.)
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

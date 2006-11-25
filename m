@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933793AbWKYAJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935053AbWKYA3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933793AbWKYAJO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 19:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935014AbWKYAJO
+	id S935053AbWKYA3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 19:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935097AbWKYA3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 19:09:14 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:22375 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S933793AbWKYAJN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 19:09:13 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=GJ8rAHSPD6BEYJzQvPNN4/XB3KKJLDQ3XZ1JKJmrd/mTYpECAtuXlUC9FkdBhgDmt
-	+zXolJi2LYsLeYLRMLzdA==
-Message-ID: <6599ad830611241609r24384d97ic6920f94bc735334@mail.gmail.com>
-Date: Fri, 24 Nov 2006 16:09:03 -0800
-From: "Paul Menage" <menage@google.com>
-To: "Pavel Emelianov" <xemul@openvz.org>
-Subject: Re: [ckrm-tech] [PATCH 4/13] BC: context handling
-Cc: "Kirill Korotaev" <dev@sw.ru>, "Andrew Morton" <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       matthltc@us.ibm.com, hch@infradead.org,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, oleg@tv-sign.ru,
-       devel@openvz.org
-In-Reply-To: <4566C519.1090902@openvz.org>
+	Fri, 24 Nov 2006 19:29:16 -0500
+Received: from nf-out-0910.google.com ([64.233.182.190]:27573 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S935053AbWKYA3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 19:29:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=uApF8gf7i/mIiXt9rhTVY62j8lDuv56N5xs04tR72AHuPhra0c6Vk7u9JSa3OB+fIbaWSYlf6Z89LxY/VfcxM/swHyWXni2hdprAyp/PqKEIIWehOrzvaR5dGPJfpiudoydXDWXjpuLFGKt9EI0w+pob/xr5Ddt8Jjc9H+WhCYk=
+Message-ID: <45678E76.7070106@gmail.com>
+Date: Sat, 25 Nov 2006 01:29:19 +0059
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <gregkh@suse.de>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: kobject_add failed with -EEXIST
+References: <4561E290.7060100@gmail.com> <20061120172733.GA26713@suse.de>	 <4561E68E.7040007@gmail.com> <20061120175209.GA27255@suse.de> <4af2d03a0611241620h657de9b8jfb9310e19f68f426@mail.gmail.com>
+In-Reply-To: <4af2d03a0611241620h657de9b8jfb9310e19f68f426@mail.gmail.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45535C18.4040000@sw.ru> <45535E11.20207@sw.ru>
-	 <6599ad830611222348o1203357tea64fff91edca4f3@mail.gmail.com>
-	 <45655D3E.5020702@openvz.org>
-	 <6599ad830611230053m7182698cu897abe5d19471aff@mail.gmail.com>
-	 <456567DD.6090703@openvz.org>
-	 <6599ad830611230131w1bf63dc1m1998b55b61579509@mail.gmail.com>
-	 <45657030.7050009@openvz.org>
-	 <6599ad830611230218w7a6c0c0el9479b497037b0be6@mail.gmail.com>
-	 <4566C519.1090902@openvz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/24/06, Pavel Emelianov <xemul@openvz.org> wrote:
-> I've got it! That's what will work:
->
-> struct task_struct {
->         ...
->         struct beancounter *exec_bc;
->         struct beancounter *tmp_exec_bc; /* is set to NULL on
->                                           * tsk creation
->                                           */
-> };
->
-> struct beancounter get_exec_bc(void)
-> {
->         if (current->tmp_exec_bc)
->                 return current->tmp_exec_bc;
->         return rcu_dereference(current->exec_bc);
-> }
+Greg KH wrote:
+> On Mon, Nov 20, 2006 at 06:31:58PM +0100, Jiri Slaby wrote:
+>> Greg KH wrote:
+>> > On Mon, Nov 20, 2006 at 06:14:56PM +0100, Jiri Slaby wrote:
+>> >> DEV: Unregistering device. ID = 'cls_device'
+>> >> PM: Removing info for No Bus:cls_device
+>> >> device_create_release called for cls_device
+>> >> device class 'cls_class': unregistering
+>> >> class 'cls_class': release.
+>> >> class_create_release called for cls_class
+>> >> cls_exit
+>> >
+>> > What does sysfs look like at this point in time?  Does
+>> > /sys/class/cls_class exist?
+>>
+>> No, there is no such dir (it disappears).
+>>
+>> > Also, which kernel version are you using here?
+>>
+>> 2.6.19-rc6, 2.6.19-rc5-mm2
+> 
+> I can't duplicate this here at all with your example code.  Check
+> userspace to see if HAL or your udev scripts are doing something
+> "odd"...
+> 
+> What distro is this, and what version of HAL and udev are you using?
 
-Don't forget that this means all callers need to be in an
-rcu_read_lock() section.
+2 x FC6 (2.6.19-rc6, 2.6.19-rc5-mm2) and some unstable debian (2.6.19-rc5).
+$ rpm -q udev hal
+udev-103-2
+hal-0.5.8.1-4.fc6
 
->
-> I will implement this in the next beancounter patches.
+$ dpkg-query -W udev hal
+udev    0.100-2.1
+hal     0.5.8.1-1
 
-This is looking remarkably like the mechanism in use for my generic
-containers patches (inherited from Paul Jackson's cpusets code). In
-the last set of patches that I posted on Wednesday night, I included
-the example of the beancounters core and numfiles counter implemented
-on top of the generic containers - basically pulling out the hash
-table, refcounting and most of the configfs code (since that's handled
-by the generic containers), and moving the attribute management
-configfs code to the use the containerfs filesystem interface instead.
-The rest is pretty much unchanged.
+Not even init=/bin/bash helps (userspace doesn't seem to be involved).
+Do you need some other info?
+I don't know, if you got my previous e-mail, could you confirm this one?
 
-I think you could continue to use the tmp_exec_bc idea with this, and
-have get_exec_bc() use the tmp_exec_bc if it existed, or else get the
-bc pointer via the container system.
-
-I'd appreciate any feedback you had on that approach.
-
-Paul
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

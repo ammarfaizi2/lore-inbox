@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967223AbWKYVkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967174AbWKYVon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967223AbWKYVkz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 16:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967224AbWKYVky
+	id S967174AbWKYVon (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 16:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967193AbWKYVon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 16:40:54 -0500
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:63440 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S967223AbWKYVkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 16:40:53 -0500
-X-Sasl-enc: OEX9kjeTdn8JKvAmcaNLxleK1IGXMQnS5sI7ZCd7kj8p 1164490854
-Date: Sat, 25 Nov 2006 19:40:45 -0200
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       ibm-acpi@hmh.eng.br, len.brown@intel.com, linux-acpi@vger.kernel.org
-Subject: Re: [2.6 patch] proper prototype for drivers/base/init.c:driver_init()
-Message-ID: <20061125214045.GJ1537@khazad-dum.debian.net>
-References: <20061125191645.GI3702@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061125191645.GI3702@stusta.de>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sat, 25 Nov 2006 16:44:43 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:52869 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S967187AbWKYVom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 16:44:42 -0500
+Date: Sat, 25 Nov 2006 13:44:58 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] MPT:  make all Fusion MPT sub-choices singly selectable
+Message-Id: <20061125134458.43cf3ee7.randy.dunlap@oracle.com>
+In-Reply-To: <Pine.LNX.4.64.0611251548530.24225@localhost.localdomain>
+References: <Pine.LNX.4.64.0611250627200.20370@localhost.localdomain>
+	<20061125121210.52c66f55.randy.dunlap@oracle.com>
+	<Pine.LNX.4.64.0611251548530.24225@localhost.localdomain>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006, Adrian Bunk wrote:
-> It also removes a static function of the same name in 
-> drivers/acpi/ibm_acpi.c to ibm_acpi_driver_init() to fix the namespace 
-> collision.
+On Sat, 25 Nov 2006 15:54:18 -0500 (EST) Robert P. J. Day wrote:
 
-I might as well fix the entire ibm-acpi driver so that it doesn't have any
-more issues like this in the future.
+> On Sat, 25 Nov 2006, Randy Dunlap wrote:
+> 
+> ... snip ...
+> 
+> > Here's another option.  What do you think of it?
+> 
+> ...
+> 
+> > --- linux-2.6.19-rc6-git8.orig/drivers/message/fusion/Kconfig
+> > +++ linux-2.6.19-rc6-git8/drivers/message/fusion/Kconfig
+> > @@ -1,14 +1,12 @@
+> >
+> > -menu "Fusion MPT device support"
+> > +menuconfig FUSION
+> > +	bool "Fusion MPT device support"
+> >
+> > -config FUSION
+> > -	bool
+> > -	default n
+> > +if FUSION
+> 
+> ... more snip ...
+> 
+>   i suspect you already noticed that that's what i proposed in my
+> followup posting.  :-)  my first suggestion explicitly didn't mess
+> with the "Device Drivers" menu, only the underlying MPT submenu.
 
-I will prepare a patch.  I never liked namespace-pollution-prone symbols,
-anyway.
+Actually I had not looked at that email yet -- have now.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+>   my second posting went that extra step and added selection boxes to
+> the Device Drivers menu entries themselves, although your solution is
+> nicer than mine, surrounding the MPT entries with a single "if FUSION"
+> rather than my adding a dependency to every selection.
+> 
+>   i'm willing to come up with some patches that match your suggestion,
+> but what do others think of changing the fundamental layout of the
+> Device Drivers menu (and perhaps other menus) to that extent by adding
+> that extra selector?
+
+I like it, but your question to "others" is good.
+I.e., it would help to have more comments/consensus on this IMO.
+
+---
+~Randy

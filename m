@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967242AbWKYXCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933758AbWKYXEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967242AbWKYXCf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 18:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967243AbWKYXCf
+	id S933758AbWKYXEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 18:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934218AbWKYXEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 18:02:35 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:40890
+	Sat, 25 Nov 2006 18:04:47 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:41658
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S967242AbWKYXCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 18:02:34 -0500
-Date: Sat, 25 Nov 2006 15:02:48 -0800 (PST)
-Message-Id: <20061125.150248.62667065.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: samuel@sortiz.org, a.p.zijlstra@chello.nl,
-       irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, arvidjaar@mail.ru, akpm@osdl.org
-Subject: Re: [PATCH] Revert "[IRDA]: Lockdep fix."
+	id S933758AbWKYXEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 18:04:47 -0500
+Date: Sat, 25 Nov 2006 15:05:00 -0800 (PST)
+Message-Id: <20061125.150500.14841768.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org,
+       tom@opengridcomputing.com
+Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
 From: David Miller <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0611251324260.3483@woody.osdl.org>
-References: <20061125152649.GA5698@sortiz.org>
-	<20061125.130927.87744078.davem@davemloft.net>
-	<Pine.LNX.4.64.0611251324260.3483@woody.osdl.org>
+In-Reply-To: <adaodqv5e5l.fsf@cisco.com>
+References: <adazmag5bk1.fsf@cisco.com>
+	<20061124.220746.57445336.davem@davemloft.net>
+	<adaodqv5e5l.fsf@cisco.com>
 X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -28,17 +27,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Sat, 25 Nov 2006 13:26:51 -0800 (PST)
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sat, 25 Nov 2006 14:56:22 -0800
 
-> I now (finally) have the patch from Andrew, but we should _not_ have had 
-> this thing broken for three days. It should have gotten reverted on the 
-> first report of trouble, instead of us telling people to just wait.
+>  > Perhaps a better way to fix this is to use
+>  > typeof() like other similar macros do.
 > 
-> Broken compiles are simply not acceptable. Patches that cause them should 
-> be reverted _immediately_ unless a fix is available as quickly (which it 
-> wasn't due to turkey-day).
+> I tried doing
 > 
-> No excuses. People _should_ be impatient about idiotic failures like this.
+> #define ALIGN(x,a)				\
+> 	({					\
+> 		typeof(x) _a = (a);		\
+> 		((x) + _a - 1) & ~(_a - 1);	\
+> 	})
+> 
+> but that won't compile because of <net/neighbour.h>:
 
-Ok, no problem.
+You would need to also cast the constants with typeof() to.
+
+But yes, given the array sizing case in the neighbour code,
+perhaps we can use your original patch for now.  Feel free
+to push that to Linus.
+

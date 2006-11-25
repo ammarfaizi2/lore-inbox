@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967267AbWKYWVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967268AbWKYWYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967267AbWKYWVW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 17:21:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967268AbWKYWVW
+	id S967268AbWKYWYa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 17:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967269AbWKYWY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 17:21:22 -0500
-Received: from mailfe05.tele2.fr ([212.247.154.140]:63443 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S967267AbWKYWVU (ORCPT
+	Sat, 25 Nov 2006 17:24:29 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:55193 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S967268AbWKYWY3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 17:21:20 -0500
-X-T2-Posting-ID: J1KNHSW+/rFocqmlXGhaxtmj/1u4l7ZyBcvNTfjRdVU=
-X-Cloudmark-Score: 0.000000 []
-Date: Sat, 25 Nov 2006 23:21:23 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: tori@unhappy.mine.nu, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sebastien.hinderer@loria.fr
-Subject: Re: Tulip dmfe carrier detection
-Message-ID: <20061125222123.GA9167@implementation.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	tori@unhappy.mine.nu, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	sebastien.hinderer@loria.fr
-References: <20061110144919.GI3411@implementation.labri.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 25 Nov 2006 17:24:29 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc5-mm2 (end earlier): WARNING at lib/kobject.c:172 kobject_init() on resume from disk
+Date: Sat, 25 Nov 2006 23:20:12 +0100
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <200611222207.07143.rjw@sisk.pl> <20061122134406.f3a30fc4.akpm@osdl.org>
+In-Reply-To: <20061122134406.f3a30fc4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061110144919.GI3411@implementation.labri.fr>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611252320.12498.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday, 22 November 2006 22:44, Andrew Morton wrote:
+> On Wed, 22 Nov 2006 22:07:06 +0100
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> 
+> > Hi,
+> > 
+> > I get similar traces on every resume from disk on SMP systems:
+> > 
+> > WARNING at lib/kobject.c:172 kobject_init()
+> > 
+> > Call Trace:
+> >  [<ffffffff80265559>] dump_trace+0xaa/0x3fd
+> >  [<ffffffff802658e8>] show_trace+0x3c/0x52
+> >  [<ffffffff80265913>] dump_stack+0x15/0x17
+> >  [<ffffffff8031c1ad>] kobject_init+0x3f/0x8a
+> >  [<ffffffff8031c298>] kobject_register+0x1a/0x3e
+> >  [<ffffffff8038e5b4>] sysdev_register+0x5f/0xec
+> >  [<ffffffff8026af39>] mce_create_device+0x79/0x103
+> >  [<ffffffff8026afed>] mce_cpu_callback+0x2a/0xbd
+> >  [<ffffffff8026112f>] notifier_call_chain+0x29/0x3e
+> >  [<ffffffff8028e809>] raw_notifier_call_chain+0x9/0xb
+> >  [<ffffffff80299f18>] _cpu_up+0xc2/0xd5
+> >  [<ffffffff80299f56>] cpu_up+0x2b/0x42
+> >  [<ffffffff80299fbb>] enable_nonboot_cpus+0x4e/0x9b
+> >  [<ffffffff802a35da>] snapshot_ioctl+0x1a0/0x5d2
+> >  [<ffffffff8023d9cd>] do_ioctl+0x5e/0x77
+> >  [<ffffffff8022d785>] vfs_ioctl+0x256/0x273
+> >  [<ffffffff8024770b>] sys_ioctl+0x5f/0x82
+> >  [<ffffffff8025811e>] system_call+0x7e/0x83
+> > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > Leftover inexact backtrace:
+> > 
+> > False positive?
+> > 
+> 
+> Don't know.  The changelog in
+> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/kobject-warn.patch
+> is pretty pathetic.
+> 
+> Perhaps mce_remove_device() isn't being called.
 
-Samuel Thibault, le Fri 10 Nov 2006 15:49:19 +0100, a écrit :
-> The dmfe module lacks netif stuff for carrier detection, while the board
-> does report carrier status. Here is a patch.
+I've added some debugging code into mce_remove_device() which shows that it is
+being called when the CPU is removed.
 
-Just an additional fixup: the default state should be carrier off.
-This fixes boot carrier detection.
-
-Samuel
-
---- drivers/net/tulip/dmfe-orig.c	2006-10-01 16:09:49.000000000 +0200
-+++ drivers/net/tulip/dmfe.c	2006-11-25 21:23:52.000000000 +0100
-@@ -426,6 +426,7 @@
- 	dev->poll_controller = &poll_dmfe;
- #endif
- 	dev->ethtool_ops = &netdev_ethtool_ops;
-+	netif_carrier_off(db->dev);
- 	spin_lock_init(&db->lock);
- 
- 	pci_read_config_dword(pdev, 0x50, &pci_pmr);
+Investigation continues.

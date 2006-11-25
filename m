@@ -1,97 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935120AbWKYBZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935121AbWKYBaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935120AbWKYBZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 20:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935119AbWKYBZN
+	id S935121AbWKYBaV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 20:30:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935122AbWKYBaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 20:25:13 -0500
-Received: from bizon.gios.gov.pl ([212.244.124.8]:4558 "EHLO bizon.gios.gov.pl")
-	by vger.kernel.org with ESMTP id S935120AbWKYBZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 20:25:12 -0500
-Date: Sat, 25 Nov 2006 02:25:08 +0100 (CET)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: pata_via in 2.6.19-rc6: UDMA/66 hdd downgraded to UDMA/33
-Message-ID: <Pine.LNX.4.64.0611250216550.26262@bizon.gios.gov.pl>
+	Fri, 24 Nov 2006 20:30:21 -0500
+Received: from nf-out-0910.google.com ([64.233.182.191]:65425 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S935121AbWKYBaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 20:30:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
+        b=Fj9WvAf1uezHmauaxlSRS6kdMom7z3PtkWgswd8xq/xGAyhsMMN+QYRVPlp9p1kYcVIpBe/8cMs22EAFU4nOmSp6Awq+Q3FU8D3Bhkj1tsrFVhsT/WN47MD9TALGjGzg1uG4ywIbPxM8SijbLym/ykB6qVo1SgAYw+/XviEcHYs=
+Message-ID: <86802c440611241730l55e81294u21944b528d95c15d@mail.gmail.com>
+Date: Fri, 24 Nov 2006 17:30:18 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 1/2] x86-64: calling clear_bss before set_intr_gate with early_idt_handler
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-742963814-1164417908=:26262"
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_42323_6339789.1164418218189"
+X-Google-Sender-Auth: 083ddd6c1c06576e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+------=_Part_42323_6339789.1164418218189
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
----187430788-742963814-1164417908=:26262
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Please check the patch.
 
-Hello,
+------=_Part_42323_6339789.1164418218189
+Content-Type: text/x-patch; name=head64.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_euxchrl5
+Content-Disposition: attachment; filename="head64.patch"
 
-After upgrading to 2.6.19-rc6 and enabling experimental support of=20
-pata_via noticed that my hdd was downgraded to UDMA/33:
-
-Before (2.6.18-rc & via82cxxx):
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override withidebus=3Dx=
-x
-VP_IDE: IDE controller at PCI slot 0000:00:07.1
-PCI: VIA IRQ fixup for 0000:00:07.1, from 255 to 0
-VP_IDE: chipset revision 16
-VP_IDE: not 100%% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:07.1
-     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-hda: max request size: 128KiB
-hda: 40031712 sectors (20496 MB) w/512KiB Cache, CHS=3D39714/16/63, UDMA(66=
-)
-hda: cache flushes not supported
-  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 >
-
-
-Now (2.6.16-rc6 & pata_via):
-
-pata_via 0000:00:07.1: version 0.1.14
-ata1: PATA max UDMA/66 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
-ata2: PATA max UDMA/66 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
-scsi0 : pata_via
-ata1.00: ATA-5, max UDMA/66, 40031712 sectors: LBA
-ata1.00: ata1: dev 0 multi count 16
-ata1.00: configured for UDMA/33
-scsi1 : pata_via
-ata2: port is slow to respond, please be patient (Status 0xff)
-ata2: port failed to respond (30 secs, Status 0xff)
-ata2: SRST failed (status 0xFF)
-ata2: SRST failed (err_mask=3D0x100)
-ata2: softreset failed, retrying in 5 secs
-ata2: SRST failed (status 0xFF)
-ata2: SRST failed (err_mask=3D0x100)
-ata2: softreset failed, retrying in 5 secs
-ata2: SRST failed (status 0xFF)
-ata2: SRST failed (err_mask=3D0x100)
-ata2: reset failed, giving up
-scsi 0:0:0:0: Direct-Access     ATA      FUJITSU MPF3204A 0031 PQ: 0 ANSI: =
-5
-SCSI device sda: 40031712 512-byte hdwr sectors (20496 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 40031712 512-byte hdwr sectors (20496 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 sda9 sda10 sda11 >
-sd 0:0:0:0: Attached scsi disk sda
-
-# hdparm -I /dev/sda|grep dma
-         DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
-
-BTW: is it possible to do something with this annoying long delay with=20
-the "port is slow to respond, please be patient" message? :)
-
-Best regards,
-
- =09=09=09=09Krzysztof Ol=EAdzki
----187430788-742963814-1164417908=:26262--
+W1BBVENIXSB4ODZfNjQ6IGNsZWFyX2JzcyBiZWZvcmUgc2V0X2ludHJfZ2F0ZSB3aXRoIGVhcmx5
+X2lkdF9oYW5kbGVyCmlkdF90YWJsZSBpcyBpbiB0aGUgLmJzcyBzZWN0aW9uLCBzbyBjbGVhcl9i
+c3MgbmVlZCB0byBjYWxsZWQgYXQgZmlyc3QKClNpZ25lZC1vZmYtYnk6IFlpbmdoYWkgTHUgPHlp
+bmdoYWkubHVAYW1kLmNvbT4gCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODZfNjQva2VybmVsL2hlYWQ2
+NC5jIGIvYXJjaC94ODZfNjQva2VybmVsL2hlYWQ2NC5jCmluZGV4IDk1NjFlYjMuLmNjMjMwYjkg
+MTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L2tlcm5lbC9oZWFkNjQuYworKysgYi9hcmNoL3g4Nl82
+NC9rZXJuZWwvaGVhZDY0LmMKQEAgLTU3LDEwICs1NywxMiBAQCB2b2lkIF9faW5pdCB4ODZfNjRf
+c3RhcnRfa2VybmVsKGNoYXIgKiByCiB7CiAJaW50IGk7CiAKLQlmb3IgKGkgPSAwOyBpIDwgMjU2
+OyBpKyspCisJLyogY2xlYXIgYnNzIGJlZm9yZSBzZXRfaW50cl9nYXRlIHdpdGggZWFybHlfaWR0
+X2hhbmRsZXIgKi8KKwljbGVhcl9ic3MoKTsKKworCWZvciAoaSA9IDA7IGkgPCBJRFRfRU5UUklF
+UzsgaSsrKQogCQlzZXRfaW50cl9nYXRlKGksIGVhcmx5X2lkdF9oYW5kbGVyKTsKIAlhc20gdm9s
+YXRpbGUoImxpZHQgJTAiIDo6ICJtIiAoaWR0X2Rlc2NyKSk7Ci0JY2xlYXJfYnNzKCk7CiAKIAll
+YXJseV9wcmludGsoIktlcm5lbCBhbGl2ZVxuIik7CiAK
+------=_Part_42323_6339789.1164418218189--

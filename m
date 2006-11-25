@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757839AbWKYFzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757841AbWKYGHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757839AbWKYFzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 00:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757840AbWKYFzA
+	id S1757841AbWKYGHf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 01:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757843AbWKYGHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 00:55:00 -0500
-Received: from uni21mr.unity.ncsu.edu ([152.1.2.137]:9899 "EHLO
-	uni21mr.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S1757839AbWKYFy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 00:54:59 -0500
-Subject: Overriding X on panic
-From: Casey Dahlin <cjdahlin@ncsu.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sat, 25 Nov 2006 00:54:53 -0500
-Message-Id: <1164434093.10503.2.camel@localhost.localdomain>
+	Sat, 25 Nov 2006 01:07:35 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:8855
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1757841AbWKYGHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 01:07:35 -0500
+Date: Fri, 24 Nov 2006 22:07:46 -0800 (PST)
+Message-Id: <20061124.220746.57445336.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org,
+       tom@opengridcomputing.com
+Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <adazmag5bk1.fsf@cisco.com>
+References: <adazmag5bk1.fsf@cisco.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 5.2.1.279297, Antispam-Engine: 2.5.0.283055, Antispam-Data: 2006.11.24.211432
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus did say that he would do anything within reason to help desktop
-linux forward, and frankly a big step forward would be to get error
-messages to the user. What might be some safe options for overriding,
-switching away from, killing, or otherwise disposing of the X server
-when an unrecoverable Oops is about to occur on the TTY?
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 24 Nov 2006 21:40:14 -0800
 
--Casey Dahlin
-cjdahlin@ncsu.edu
+> diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+> index 24b6111..cc542d3 100644
+> --- a/include/linux/kernel.h
+> +++ b/include/linux/kernel.h
+> @@ -31,7 +31,7 @@ #define ULLONG_MAX	(~0ULL)
+>  #define STACK_MAGIC	0xdeadbeef
+>  
+>  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+> -#define ALIGN(x,a) (((x)+(a)-1UL)&~((a)-1UL))
+> +#define ALIGN(x,a) (((x)+(a)-1L)&~((a)-1L))
 
+Perhaps a better way to fix this is to use
+typeof() like other similar macros do.

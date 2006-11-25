@@ -1,77 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967116AbWKYTDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967115AbWKYTEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967116AbWKYTDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 14:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967115AbWKYTDZ
+	id S967115AbWKYTEK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 14:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967117AbWKYTEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 14:03:25 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:25028 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S967113AbWKYTDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 14:03:24 -0500
-Subject: Re: [PATCH v2] libsas: Don't give scsi_cmnds to the EH if they
-	never made it to the SAS LLDD or have already returned
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-In-Reply-To: <4567E9A8.70209@us.ibm.com>
-References: <20061117210737.17052.67041.stgit@localhost.localdomain>
-	 <20061117210749.17052.56317.stgit@localhost.localdomain>
-	 <4567E9A8.70209@us.ibm.com>
-Content-Type: text/plain
-Date: Sat, 25 Nov 2006 13:02:20 -0600
-Message-Id: <1164481340.2804.17.camel@mulgrave.il.steeleye.com>
+	Sat, 25 Nov 2006 14:04:10 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:34000 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S967115AbWKYTEI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 14:04:08 -0500
+Date: Sat, 25 Nov 2006 11:03:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Raskin <a1d23ab4@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc1-mm1+ memory problem
+Message-Id: <20061125110331.10f2dd42.akpm@osdl.org>
+In-Reply-To: <45677B3F.60202@mail.ru>
+References: <45614A95.6090102@mail.ru>
+	<4566F26D.2010404@mail.ru>
+	<45677B3F.60202@mail.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-11-24 at 22:58 -0800, Darrick J. Wong wrote:
-> On a system with many SAS targets, it appears possible that a scsi_cmnd
-> can time out without ever making it to the SAS LLDD or at the same time
-> that a completion is occurring.  In both of these cases, telling the
-> LLDD to abort the sas_task makes no sense because the LLDD won't know
-> about the sas_task; what we really want to do is to increase the timer.
-> Note that this involves creating another sas_task bit to indicate
-> whether or not the task has been sent to the LLDD; I could have
-> implemented this by slightly redefining SAS_TASK_STATE_PENDING, but
-> this way seems cleaner.
+On Sat, 25 Nov 2006 02:07:43 +0300
+Michael Raskin <a1d23ab4@mail.ru> wrote:
+
+> Michael Raskin wrote:
+> > Also I have uploaded contents of /proc/page_owner after loosing more 
+> > than 100M. (220M used, 29M - on page_owner, lessthan 50M - for 
+> > processes). 
 > 
-> This second version amends the aic94xx portion to set the
-> TASK_AT_INITIATOR flag for all sas_tasks that were passed to
-> lldd_execute_task.
+> Top 3 entries:
+> 
+> 89361 times:
+> Page allocated via order 0, mask 0x280d2
+> [0xc0159f31] __handle_mm_fault+1809
+> [0xc011318a] do_page_fault+314
+> [0xc04111c4] error_code+116
+> Can be anything. But if I understand anything, this memory is used 
+> because someone has requested a page that is swapped out. So the memory 
+> must be used, but not reflected in meminfo, and not by a process?
+> 
+> 
+> 35560 times:
+> Page allocated via order 0, mask 0x201d2
+> [0xc0152ec2] __do_page_cache_readahead+450
+> [0xc015309a] do_page_cache_readahead+74
+> [0xc014d7b5] filemap_nopage+325
+> [0xc0159919] __handle_mm_fault+249
+> [0xc011318a] do_page_fault+314
+> [0xc04111c4] error_code+116
+> - is reflected in cache usage statistics, I guess..
+> 
+> 6185 times:
+> Page allocated via order 0, mask 0x200d2
+> [0xc014e069] generic_file_buffered_write+329
+> [0xc014e814] __generic_file_aio_write_nolock+612
+> [0xc014eb85] generic_file_aio_write+85
+> [0xc01b26ff] ext3_file_write+63
+> [0xc016b23c] do_sync_write+204
+> [0xc016b9a7] vfs_write+167
+> [0xc016c2a7] sys_write+71
+> [0xc010303a] sysenter_past_esp+95
+> - negligible, really..
 
-Actually, this patch causes my ATAPI device not to appear initially.  It
-looks like the libata IDENTIFY is failing.  It seems to be a problem
-with the initial reset the device needs to get the D2H FIS.  This is
-what I see:
+What you should do is to cause the system to free as many pages as possible
+before looking ad /proc/page_owner.  For example, build `usemem' from
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz, run
 
-sas: sas_ata_phy_reset: Found ATAPI device.
-ata1.00: ATAPI, max UDMA/66
-aic94xx: escb_tasklet_complete: phy5: BYTES_DMAED
-aic94xx: STP proto device-to-host FIS:
-aic94xx: 00: 34 00 50 01
-aic94xx: 04: 01 00 00 00
-aic94xx: 08: 01 00 00 00
-aic94xx: 0c: 01 00 00 00
-aic94xx: 10: 00 00 00 00
-aic94xx: asd_form_port: updating phy_mask 0x20 for phy5
-ata1.00: qc timeout (cmd 0xa1)
-sas: sas_ata_post_internal: Failure; reset phy!
-ata1.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-ata1.00: revalidation failed (errno=-5)
-sas: STUB sas_ata_scr_read
-ata1.00: limiting speed to UDMA/44
-sas: sas_ata_phy_reset: Found ATAPI device.
-ata1.00: qc timeout (cmd 0xa1)
-sas: sas_ata_post_internal: Failure; reset phy!
-ata1.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-sas: STUB sas_ata_scr_read
-sas: sas_ata_phy_reset: Found ATAPI device.
+	usemem -m N  (where N is the number of megabytes which the machine has)
 
+a couple of times.  Then check /proc/meminfo, and look to see which pages
+are left over in /proc/page_owner.
 
-James
-
-
+Thanks.

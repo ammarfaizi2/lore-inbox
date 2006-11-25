@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967174AbWKYVon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967232AbWKYVxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967174AbWKYVon (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 16:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967193AbWKYVon
+	id S967232AbWKYVxy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 16:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967233AbWKYVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 16:44:43 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:52869 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S967187AbWKYVom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 16:44:42 -0500
-Date: Sat, 25 Nov 2006 13:44:58 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MPT:  make all Fusion MPT sub-choices singly selectable
-Message-Id: <20061125134458.43cf3ee7.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0611251548530.24225@localhost.localdomain>
-References: <Pine.LNX.4.64.0611250627200.20370@localhost.localdomain>
-	<20061125121210.52c66f55.randy.dunlap@oracle.com>
-	<Pine.LNX.4.64.0611251548530.24225@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 25 Nov 2006 16:53:54 -0500
+Received: from relay.rinet.ru ([195.54.192.35]:35013 "EHLO relay.rinet.ru")
+	by vger.kernel.org with ESMTP id S967232AbWKYVxx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 16:53:53 -0500
+Message-ID: <4568BB4F.2070701@mail.ru>
+Date: Sun, 26 Nov 2006 00:53:19 +0300
+From: Michael Raskin <a1d23ab4@mail.ru>
+User-Agent: Thunderbird 2.0a1 (X11/20060809)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc1-mm1+ memory problem
+References: <45614A95.6090102@mail.ru>	<4566F26D.2010404@mail.ru>	<45677B3F.60202@mail.ru> <20061125110331.10f2dd42.akpm@osdl.org>
+In-Reply-To: <20061125110331.10f2dd42.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (relay.rinet.ru [195.54.192.35]); Sun, 26 Nov 2006 00:53:51 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006 15:54:18 -0500 (EST) Robert P. J. Day wrote:
+Andrew Morton wrote:
+>> 89361 times:
+>> Page allocated via order 0, mask 0x280d2
+>> [0xc0159f31] __handle_mm_fault+1809
+>> [0xc011318a] do_page_fault+314
+>> [0xc04111c4] error_code+116
+>> Can be anything. But if I understand anything, this memory is used 
+>> because someone has requested a page that is swapped out. So the memory 
+>> must be used, but not reflected in meminfo, and not by a process?
 
-> On Sat, 25 Nov 2006, Randy Dunlap wrote:
+> What you should do is to cause the system to free as many pages as possible
+> before looking ad /proc/page_owner.  For example, build `usemem' from
+> http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz, run
 > 
-> ... snip ...
+> 	usemem -m N  (where N is the number of megabytes which the machine has)
 > 
-> > Here's another option.  What do you think of it?
-> 
-> ...
-> 
-> > --- linux-2.6.19-rc6-git8.orig/drivers/message/fusion/Kconfig
-> > +++ linux-2.6.19-rc6-git8/drivers/message/fusion/Kconfig
-> > @@ -1,14 +1,12 @@
-> >
-> > -menu "Fusion MPT device support"
-> > +menuconfig FUSION
-> > +	bool "Fusion MPT device support"
-> >
-> > -config FUSION
-> > -	bool
-> > -	default n
-> > +if FUSION
-> 
-> ... more snip ...
-> 
->   i suspect you already noticed that that's what i proposed in my
-> followup posting.  :-)  my first suggestion explicitly didn't mess
-> with the "Device Drivers" menu, only the underlying MPT submenu.
+> a couple of times.  Then check /proc/meminfo, and look to see which pages
+> are left over in /proc/page_owner.
 
-Actually I had not looked at that email yet -- have now.
-
->   my second posting went that extra step and added selection boxes to
-> the Device Drivers menu entries themselves, although your solution is
-> nicer than mine, surrounding the MPT entries with a single "if FUSION"
-> rather than my adding a dependency to every selection.
-> 
->   i'm willing to come up with some patches that match your suggestion,
-> but what do others think of changing the fundamental layout of the
-> Device Drivers menu (and perhaps other menus) to that extent by adding
-> that extra selector?
-
-I like it, but your question to "others" is good.
-I.e., it would help to have more comments/consensus on this IMO.
-
----
-~Randy
+Well, I was too lazy to get this utility, used my own to allocate and 
+fill enough memory as to go some 50MB to deep swap (Did I understand 
+correctly what usemem does?). Top 3 did not change, except for exact 
+numbers.

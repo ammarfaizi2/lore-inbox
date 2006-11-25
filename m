@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757895AbWKYIi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757896AbWKYIks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757895AbWKYIi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 03:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757896AbWKYIi7
+	id S1757896AbWKYIks (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 03:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757897AbWKYIks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 03:38:59 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:28567 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1757895AbWKYIi6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 03:38:58 -0500
-Message-ID: <45680128.5000506@drzeus.cx>
-Date: Sat, 25 Nov 2006 09:39:04 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Anderson Briglia <anderson.briglia@indt.org.br>
-CC: "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       ext David Brownell <david-b@pacbell.net>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+	Sat, 25 Nov 2006 03:40:48 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:45351 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1757896AbWKYIkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 03:40:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=YcXBHM7Nx4d9MLgliItB4l+Sw/QT8Ae9mTuheJ/o+ODS8TeJl/6YP7lcp1wuolc28Kq2YQkQTN43DZFyESv/2r7eF2Piq+VxGrdqQMiKmIqd3/MXxZdLsamFAyjZ25vAj9DbaheaFBIsyYIpK1IKO6GeM4LogZ4jaNtzXNaudvk=
+Message-ID: <86802c440611250040t6c18272et495dd72e2eda7d7a@mail.gmail.com>
+Date: Sat, 25 Nov 2006 00:40:45 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 2/2] x86-64: change the size for interrupt array to NR_VECTORS
+Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_ignore_locked.diff
-References: <45646330.9010402@indt.org.br>
-In-Reply-To: <45646330.9010402@indt.org.br>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <m1psbcovwv.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <86802c440611241736l545ddf33i3bb08f3cd6446b14@mail.gmail.com>
+	 <m1psbcovwv.fsf@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: d9bcea3afb7bccee
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anderson Briglia wrote:
-> When a card is locked, only commands from the "basic" and "lock card"
-> classes
-> are accepted. To be able to use the other commands, the card must be
-> unlocked
-> first.
->
-> This patch prevents the device drivers from trying to run privileged
-> class
-> commands on locked MMC cards, which will fail anyway.
->
+On 11/24/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> "Yinghai Lu" <yinghai.lu@amd.com> writes:
+> YH.  Please place a newline between your subject and your description
+> in the body of your patches.
 
-You still need to change the commit message, but otherwise the patch
-looks ok.
+Next time.
 
-Rgds
+> Yep I missed this optimization opportunity :)
 
--- 
-     -- Pierre Ossman
+You did a great job to clean up the irq_vector mapping.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-
+YH

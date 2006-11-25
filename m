@@ -1,120 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967157AbWKYULz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967168AbWKYUej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967157AbWKYULz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967158AbWKYULy
+	id S967168AbWKYUej (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967171AbWKYUej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:11:54 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:52816 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S967157AbWKYULy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:11:54 -0500
-Date: Sat, 25 Nov 2006 12:12:10 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] MPT:  make all Fusion MPT sub-choices singly selectable
-Message-Id: <20061125121210.52c66f55.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0611250627200.20370@localhost.localdomain>
-References: <Pine.LNX.4.64.0611250627200.20370@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 25 Nov 2006 15:34:39 -0500
+Received: from 70-91-206-233-BusName-SFBA.hfc.comcastbusiness.net ([70.91.206.233]:54408
+	"EHLO saville.com") by vger.kernel.org with ESMTP id S967168AbWKYUei
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 15:34:38 -0500
+Message-ID: <4568A8E4.4020905@saville.com>
+Date: Sat, 25 Nov 2006 12:34:44 -0800
+From: Wink Saville <wink@saville.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
+References: <20061124170246.GA9956@elte.hu> <200611241813.13205.ak@suse.de>	 <20061124202514.GA7608@elte.hu>  <4567B0CC.4030802@saville.com>	 <1164443423.3147.51.camel@laptopd505.fenrus.org>	 <4568764B.7080505@saville.com> <1164476473.3147.59.camel@laptopd505.fenrus.org>
+In-Reply-To: <1164476473.3147.59.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006 06:34:55 -0500 (EST) Robert P. J. Day wrote:
-
+Arjan van de Ven wrote:
+>> Actually, we need to ask the CPU/System makers to provide a system wide
+>> timer that is independent of the given CPU. I would expect it quite simple
 > 
->   Put all of the Fusion MPT sub-choices under a single top-level
-> config entry.
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
->   Is there any reason that the sub-choices for Fusion MPT can't be
-> selected or deselected en masse, the way it's done for, say, MTD
-> support and other components?
-> 
->   There are other locations where this simplification could be used
-> but I thought I'd wait for some feedback on this example first.
+> they exist. They're called pmtimer and hpet.
+> pmtimer is port io. hpet is memory mapped io.
 
-It's an improvement over what is there now.
+Thanks for the info. I took a look at Documentation/hpet.txt and drivers/char/hpet.c
+and see that hpet_mmap is implemented in the driver but nothing hpet.txt indicates
+what is being mapped.
 
-Here's another option.  What do you think of it?
+Could you point me to any other documentation? I did find the following:
 
----
+http://www.intel.com/hardwaredesign/hpetspec_1.pdf
 
-  Put all of the Fusion MPT sub-choices under a single top-level
-config entry.
+Are you aware of any example user code that uses the mmap capability of hpet?
 
----
+Thanks,
 
-  Is there any reason that the sub-choices for Fusion MPT can't be
-selected or deselected en masse, the way it's done for, say, MTD
-support and other components?
-
-  There are other locations where this simplification could be used
-but I thought I'd wait for some feedback on this example first.
-
----
- drivers/message/fusion/Kconfig |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
-
---- linux-2.6.19-rc6-git8.orig/drivers/message/fusion/Kconfig
-+++ linux-2.6.19-rc6-git8/drivers/message/fusion/Kconfig
-@@ -1,14 +1,12 @@
- 
--menu "Fusion MPT device support"
-+menuconfig FUSION
-+	bool "Fusion MPT device support"
- 
--config FUSION
--	bool
--	default n
-+if FUSION
- 
- config FUSION_SPI
- 	tristate "Fusion MPT ScsiHost drivers for SPI"
- 	depends on PCI && SCSI
--	select FUSION
- 	select SCSI_SPI_ATTRS
- 	---help---
- 	  SCSI HOST support for a parallel SCSI host adapters.
-@@ -23,7 +21,6 @@ config FUSION_SPI
- config FUSION_FC
- 	tristate "Fusion MPT ScsiHost drivers for FC"
- 	depends on PCI && SCSI
--	select FUSION
- 	select SCSI_FC_ATTRS
- 	---help---
- 	  SCSI HOST support for a Fiber Channel host adapters.
-@@ -40,7 +37,6 @@ config FUSION_FC
- config FUSION_SAS
- 	tristate "Fusion MPT ScsiHost drivers for SAS"
- 	depends on PCI && SCSI
-- 	select FUSION
- 	select SCSI_SAS_ATTRS
- 	---help---
- 	  SCSI HOST support for a SAS host adapters.
-@@ -54,7 +50,6 @@ config FUSION_SAS
- 
- config FUSION_MAX_SGE
- 	int "Maximum number of scatter gather entries (16 - 128)"
--	depends on FUSION
- 	default "128"
- 	range 16 128
- 	help
-@@ -100,4 +95,4 @@ config FUSION_LAN
- 
- 	  If unsure whether you really want or need this, say N.
- 
--endmenu
-+endif
+Wink

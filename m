@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967220AbWKYVib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967223AbWKYVkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967220AbWKYVib (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 16:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967222AbWKYVib
+	id S967223AbWKYVkz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 16:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967224AbWKYVky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 16:38:31 -0500
-Received: from dvhart.com ([64.146.134.43]:47760 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S967220AbWKYVia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 16:38:30 -0500
-Message-ID: <4568B72C.1060801@mbligh.org>
-Date: Sat, 25 Nov 2006 13:35:40 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Sat, 25 Nov 2006 16:40:54 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:63440 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S967223AbWKYVkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 16:40:53 -0500
+X-Sasl-enc: OEX9kjeTdn8JKvAmcaNLxleK1IGXMQnS5sI7ZCd7kj8p 1164490854
+Date: Sat, 25 Nov 2006 19:40:45 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       ibm-acpi@hmh.eng.br, len.brown@intel.com, linux-acpi@vger.kernel.org
+Subject: Re: [2.6 patch] proper prototype for drivers/base/init.c:driver_init()
+Message-ID: <20061125214045.GJ1537@khazad-dum.debian.net>
+References: <20061125191645.GI3702@stusta.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: OOM killer firing on 2.6.18 and later during LTP runs
-References: <4568AFB1.3050500@mbligh.org> <20061125132828.16a01762.akpm@osdl.org>
-In-Reply-To: <20061125132828.16a01762.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061125191645.GI3702@stusta.de>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The traces are a bit confusing, but I don't actually see anything wrong
-> there.  The machine has used up all swap, has used up all memory and has
-> correctly gone and killed things.  After that, there's free memory again.
+On Sat, 25 Nov 2006, Adrian Bunk wrote:
+> It also removes a static function of the same name in 
+> drivers/acpi/ibm_acpi.c to ibm_acpi_driver_init() to fix the namespace 
+> collision.
 
-Yeah, it's just a bit odd that it's always in the IO path. Makes me
-suspect there's actually a bunch of pagecache in the box as well, but
-maybe it's just coincidence, and the rest of the box really is full
-of anon mem. I thought we dumped the alt-sysrq-m type stuff on an OOM
-kill, but it seems not. maybe that's just not in mainline.
+I might as well fix the entire ibm-acpi driver so that it doesn't have any
+more issues like this in the future.
 
->> This doesn't seem to happen every run, unfortnately, only
->> intermittently, and we don't have much data before that, so
->> hard to tell how long it's been going on.
->>
->> Still happening on latest kernels.
->> http://test.kernel.org/abat/62445/debug/console.log
-> 
-> The same appears to have happened there too.  Although it does seem to have
-> killed a lot more than it should have.
-> 
-> Has something changed in the configuration of that machine?  New LTP
-> version?  Less swapsapce?
+I will prepare a patch.  I never liked namespace-pollution-prone symbols,
+anyway.
 
-Difficult to tell, it's a fairly new box to the grid, so it seems to
-have been doing that intermittently forever.
-
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

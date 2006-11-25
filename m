@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966646AbWKYQFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757938AbWKYQIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966646AbWKYQFu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 11:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757940AbWKYQFt
+	id S1757938AbWKYQIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 11:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757940AbWKYQIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 11:05:49 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:45740 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1757938AbWKYQFt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 11:05:49 -0500
-Date: Sat, 25 Nov 2006 17:02:20 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: Lennert Buytenhek <buytenh@wantstofly.org>,
-       Riku Voipio <riku.voipio@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: r8169 on n2100 (was Re: r8169 mac address change (was Re: [0/3] 2.6.19-rc2: known regressions))
-Message-ID: <20061125160220.GA13480@electric-eye.fr.zoreil.com>
-References: <20061107115940.GA23954@unjust.cyrius.com> <20061108203546.GA32247@kos.to> <20061109221338.GA17722@electric-eye.fr.zoreil.com> <20061109231408.GB6611@xi.wantstofly.org> <20061110185937.GA9665@electric-eye.fr.zoreil.com> <20061121102458.GA7846@deprecation.cyrius.com> <20061121204527.GA13549@electric-eye.fr.zoreil.com> <20061122231656.GA9991@electric-eye.fr.zoreil.com> <20061125145226.GA526@deprecation.cyrius.com>
+	Sat, 25 Nov 2006 11:08:16 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5865 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1757938AbWKYQIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 11:08:15 -0500
+Date: Sat, 25 Nov 2006 16:08:21 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       seife@suse.de
+Subject: Re: [patch] PM: suspend/resume debugging should depend on
+ SOFTWARE_SUSPEND
+Message-ID: <20061125160821.1fd4f9c8@localhost.localdomain>
+In-Reply-To: <20061124234015.GB4782@ucw.cz>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	<Pine.LNX.4.64.0611190930370.3692@woody.osdl.org>
+	<20061122152328.GI5200@stusta.de>
+	<20061122154230.74889e3d@localhost.localdomain>
+	<20061124234015.GB4782@ucw.cz>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061125145226.GA526@deprecation.cyrius.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Michlmayr <tbm@cyrius.com> :
-[...]
-> Do you think there'll be a better fix in the future ?
+> Hmm... how common are these machines? We are using unpatched kernel
+> for suse10.2... OTOH we only support machines from the whitelist, all
 
-It's the best trade-off that I can figure but there are surely more
-knowledgeable people than me. The patch does not completely disable
-the reporting of serious PCI errors. If the user knows that it is
-otherwise safe, he can disable it: the error will then be reported
-only once. I must confess that the history of the 8169 PCI errors is
-not crystal clear.
+I've always said IDE and software suspend are unsafe. The more work I do
+the more clearly this is/was the case.
 
-> Do you believe that the boot loader on the N2100 doesn't
-> initialize Ethernet properly or that this is a generic problem on iop
-> or with this particular RTL chip?  We have fairly good contacts with
-> the company producing the N2100 so if it's the former it could
-> probably be fixed. (Altough I'm not sure this is the case given that
-> Realtek's driver works).
+The really nasty "resume eats your disk" cases I know about are
+thankfully for older systems - VIA KT133 and similar era chipsets.
+There is a recent nasty - Jmicron goes totally to **** on resume because
+of resume quirks not being run but it goes so spectacularly wrong it
+doesn't seem to get far enough to corrupt.
 
-Yes, switching from MM register accesses has been reported to fix/hide
-the issue but it's a sledgehammer which does not tell what is going on
-(side note: Realtek's driver does not enable the SYSErr irq).
+Lots of other controllers don't work correctly on resume but thats much
+less of a problem and with UDMA misclocking generally turns into a CRC
+error storm and stop.
 
-So far I can only tell that 1) the 8169 reports a data parity error on
-almost each received packet when it is not silenced 2) the error can
-be ignored. If there really is an error and the chipset automatically
-retries the transaction, one should expect some loss of efficiency but
-it will not necessarily be easy to notice through software.
+Andrew has about 2/3rds of the bits I've done now, will push the rest
+when I've done a little more testing/checking. At that point libata ought
+to be resume safe. Someone who cares about drivers/ide legacy support can
+then copy the work over.
 
-If I had unlimited resources/time/$$$, I would plug a PCI bus analyzer
-and check what is going on. :o)
-
--- 
-Ueimor
+Alan

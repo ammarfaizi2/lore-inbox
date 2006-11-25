@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935121AbWKYBaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935132AbWKYBhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935121AbWKYBaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 20:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935122AbWKYBaV
+	id S935132AbWKYBhE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 20:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935133AbWKYBhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 20:30:21 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:65425 "EHLO
+	Fri, 24 Nov 2006 20:37:04 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:60582 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S935121AbWKYBaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 20:30:20 -0500
+	id S935132AbWKYBhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Nov 2006 20:37:01 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
-        b=Fj9WvAf1uezHmauaxlSRS6kdMom7z3PtkWgswd8xq/xGAyhsMMN+QYRVPlp9p1kYcVIpBe/8cMs22EAFU4nOmSp6Awq+Q3FU8D3Bhkj1tsrFVhsT/WN47MD9TALGjGzg1uG4ywIbPxM8SijbLym/ykB6qVo1SgAYw+/XviEcHYs=
-Message-ID: <86802c440611241730l55e81294u21944b528d95c15d@mail.gmail.com>
-Date: Fri, 24 Nov 2006 17:30:18 -0800
+        b=Pl27n9t1FSWq6s7ksDJxNHFOFhd60kL9RH8Xf2WOIWlY+cKYXyxQnTSiIz988CPe9DZNcNlxJw3LhTqrvmaOyt7UV1MHM0o9Vj0pUYnv5VpjMT7aj4eHqQBzHAus91L6g4BBDO3OIj2D4ZtpM99G16fGyXU10fja4q1DrFZqslk=
+Message-ID: <86802c440611241736l545ddf33i3bb08f3cd6446b14@mail.gmail.com>
+Date: Fri, 24 Nov 2006 17:36:59 -0800
 From: "Yinghai Lu" <yinghai.lu@amd.com>
 To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 1/2] x86-64: calling clear_bss before set_intr_gate with early_idt_handler
+Subject: [PATCH 2/2] x86-64: change the size for interrupt array to NR_VECTORS
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_42323_6339789.1164418218189"
-X-Google-Sender-Auth: 083ddd6c1c06576e
+	boundary="----=_Part_42375_8168133.1164418619854"
+X-Google-Sender-Auth: fd0a061026670b24
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_42323_6339789.1164418218189
+------=_Part_42375_8168133.1164418619854
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Please check the patch.
 
-------=_Part_42323_6339789.1164418218189
-Content-Type: text/x-patch; name=head64.patch; charset=ANSI_X3.4-1968
+------=_Part_42375_8168133.1164418619854
+Content-Type: text/x-patch; name=i8259.patch; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: base64
-X-Attachment-Id: f_euxchrl5
-Content-Disposition: attachment; filename="head64.patch"
+X-Attachment-Id: f_euxcl20n
+Content-Disposition: attachment; filename="i8259.patch"
 
-W1BBVENIXSB4ODZfNjQ6IGNsZWFyX2JzcyBiZWZvcmUgc2V0X2ludHJfZ2F0ZSB3aXRoIGVhcmx5
-X2lkdF9oYW5kbGVyCmlkdF90YWJsZSBpcyBpbiB0aGUgLmJzcyBzZWN0aW9uLCBzbyBjbGVhcl9i
-c3MgbmVlZCB0byBjYWxsZWQgYXQgZmlyc3QKClNpZ25lZC1vZmYtYnk6IFlpbmdoYWkgTHUgPHlp
-bmdoYWkubHVAYW1kLmNvbT4gCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODZfNjQva2VybmVsL2hlYWQ2
-NC5jIGIvYXJjaC94ODZfNjQva2VybmVsL2hlYWQ2NC5jCmluZGV4IDk1NjFlYjMuLmNjMjMwYjkg
-MTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L2tlcm5lbC9oZWFkNjQuYworKysgYi9hcmNoL3g4Nl82
-NC9rZXJuZWwvaGVhZDY0LmMKQEAgLTU3LDEwICs1NywxMiBAQCB2b2lkIF9faW5pdCB4ODZfNjRf
-c3RhcnRfa2VybmVsKGNoYXIgKiByCiB7CiAJaW50IGk7CiAKLQlmb3IgKGkgPSAwOyBpIDwgMjU2
-OyBpKyspCisJLyogY2xlYXIgYnNzIGJlZm9yZSBzZXRfaW50cl9nYXRlIHdpdGggZWFybHlfaWR0
-X2hhbmRsZXIgKi8KKwljbGVhcl9ic3MoKTsKKworCWZvciAoaSA9IDA7IGkgPCBJRFRfRU5UUklF
-UzsgaSsrKQogCQlzZXRfaW50cl9nYXRlKGksIGVhcmx5X2lkdF9oYW5kbGVyKTsKIAlhc20gdm9s
-YXRpbGUoImxpZHQgJTAiIDo6ICJtIiAoaWR0X2Rlc2NyKSk7Ci0JY2xlYXJfYnNzKCk7CiAKIAll
-YXJseV9wcmludGsoIktlcm5lbCBhbGl2ZVxuIik7CiAK
-------=_Part_42323_6339789.1164418218189--
+W1BBVENIXSB4ODZfNjQ6IGludGVycnVwdCBhcnJheSBzaXplIHNob3VsZCBiZSBhbGlnbmVkIHRv
+IE5SX1ZFQ1RPUlMKaW50ZXJydXB0IGFycmF5IGlzIHJlZmVycmVkIGZvciBpZHQgdmVjdG9ycyBp
+bnN0ZWFkIG9mIE5SX0lSUVMsIHNvIGNoYW5nZSBzaXplCnRvIE5SX1ZFQ1RPUlMgLSBGSVJTVF9F
+WFRFUk5BTF9WRUNUT1IuIEFsc28gY2hhbmdlIHRvIHN0YXRpYy4KClNpZ25lZC1vZmYtYnk6IFlp
+bmdoYWkgTHUgPHlpbmdoYWlAYW1kLmNvbT4KCmRpZmYgLS1naXQgYS9hcmNoL3g4Nl82NC9rZXJu
+ZWwvaTgyNTkuYyBiL2FyY2gveDg2XzY0L2tlcm5lbC9pODI1OS5jCmluZGV4IGM0ZWY4MDEuLmQ3
+M2M3OWUgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2XzY0L2tlcm5lbC9pODI1OS5jCisrKyBiL2FyY2gv
+eDg2XzY0L2tlcm5lbC9pODI1OS5jCkBAIC03Niw3ICs3Niw4IEBAICNkZWZpbmUgSVJRTElTVF8x
+Nih4KSBcCiAJSVJRKHgsOCksIElSUSh4LDkpLCBJUlEoeCxhKSwgSVJRKHgsYiksIFwKIAlJUlEo
+eCxjKSwgSVJRKHgsZCksIElSUSh4LGUpLCBJUlEoeCxmKQogCi12b2lkICgqaW50ZXJydXB0W05S
+X0lSUVNdKSh2b2lkKSA9IHsKKy8qIGZvciB0aGUgaXJxIHZlY3RvcnMgKi8KK3N0YXRpYyB2b2lk
+ICgqaW50ZXJydXB0W05SX1ZFQ1RPUlMgLSBGSVJTVF9FWFRFUk5BTF9WRUNUT1JdKSh2b2lkKSA9
+IHsKIAkJCQkJICBJUlFMSVNUXzE2KDB4MiksIElSUUxJU1RfMTYoMHgzKSwKIAlJUlFMSVNUXzE2
+KDB4NCksIElSUUxJU1RfMTYoMHg1KSwgSVJRTElTVF8xNigweDYpLCBJUlFMSVNUXzE2KDB4Nyks
+CiAJSVJRTElTVF8xNigweDgpLCBJUlFMSVNUXzE2KDB4OSksIElSUUxJU1RfMTYoMHhhKSwgSVJR
+TElTVF8xNigweGIpLAo=
+------=_Part_42375_8168133.1164418619854--

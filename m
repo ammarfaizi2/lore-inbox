@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966680AbWKYQvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966654AbWKYQ6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966680AbWKYQvH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 11:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966691AbWKYQvG
+	id S966654AbWKYQ6q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 11:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966694AbWKYQ6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 11:51:06 -0500
-Received: from dslb-088-064-004-040.pools.arcor-ip.net ([88.64.4.40]:56705
-	"EHLO alatau.radix50.net") by vger.kernel.org with ESMTP
-	id S966680AbWKYQvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 11:51:05 -0500
-Date: Sat, 25 Nov 2006 17:50:54 +0100
-From: Baurzhan Ismagulov <ibr@radix50.net>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tty line discipline driver advice sought, to do a 1-byte header and 2-byte CRC checksum on GSM data
-Message-ID: <20061125165054.GA23585@radix50.net>
-Mail-Followup-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-	linux-kernel@vger.kernel.org
-References: <20061125040614.GI16214@lkcl.net>
+	Sat, 25 Nov 2006 11:58:45 -0500
+Received: from 70-91-206-233-BusName-SFBA.hfc.comcastbusiness.net ([70.91.206.233]:37841
+	"EHLO saville.com") by vger.kernel.org with ESMTP id S966654AbWKYQ6p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 11:58:45 -0500
+Message-ID: <4568764B.7080505@saville.com>
+Date: Sat, 25 Nov 2006 08:58:51 -0800
+From: Wink Saville <wink@saville.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061125040614.GI16214@lkcl.net>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: arjan@infradead.org
+CC: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
+References: <20061124170246.GA9956@elte.hu> <200611241813.13205.ak@suse.de>	 <20061124202514.GA7608@elte.hu>  <4567B0CC.4030802@saville.com> <1164443423.3147.51.camel@laptopd505.fenrus.org>
+In-Reply-To: <1164443423.3147.51.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Luke,
+Arjan van de Ven wrote:
 
-On Sat, Nov 25, 2006 at 04:06:14AM +0000, Luke Kenneth Casson Leighton wrote:
-> i've never encountered tty line discipline's before.  which one is the
-> best example that i should start with to cut/paste?
+<snip/>
 
-The second link by Guennadi is very good.
+> 
+> so you can live with an occasional jump of seconds/minutes between
+> threads? Or when a thread moves to another cpu?
+> (yes on many PCs you won't see minutes, but on others you will)
+> 
 
-You can think of ldiscs as a layer between the serial driver and the
-application. You fill struct tty_ldisc and call tty_register_ldisc. The
-app opens a tty device and calls the TIOCSETD ioctl on it. The app (the
-"above") sees the usual driver API -- read, write, etc. Your routines
-manipulate the data as you like; you call tty->driver.write to write to
-the serial driver (the "below"). The serial driver can call your
-routines to tell you that, e.g., it has data for you, etc. You may
-convert the data, buffer it till the app calls your read, etc.
+No that probably wouldn't be acceptable a few thousand ticks might be Ok.
+How hard would be it possible to detect post facto what corrections might be needed
+when? Maybe an event or FIFO that would provide correction information.
 
-You can find many examples if you search for tty_register_ldisc in the
-kernel tree. However, understanding how this works and reading
-include/linux/tty_ldisc.h should be enough.
+I would also assume we could request that a thread not migrate between CPU's
+if it was critical and that could be a solution.
 
-With kind regards,
-Baurzhan.
+Would another alternative be to allow the thread to indicate when it was
+ready to migrate and at these points the correction information could
+be supplied/retrieved if desired.
 
-P.S. I'm subscribed only to linux-arm-kernel.
+Actually, we need to ask the CPU/System makers to provide a system wide
+timer that is independent of the given CPU. I would expect it quite simple
+for the coming generations of multi-core CPU's to provide a shared TSC.
+For the multi-processor embedded work I have done we provided a memory
+mapped counter that all processors could read, that worked quite well:)
+
+Wink
+

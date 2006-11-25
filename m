@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967173AbWKYUjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967178AbWKYUm0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967173AbWKYUjx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967166AbWKYUjx
+	id S967178AbWKYUm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967177AbWKYUm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:39:53 -0500
-Received: from 1wt.eu ([62.212.114.60]:43524 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S967173AbWKYUjw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:39:52 -0500
-Date: Sat, 25 Nov 2006 22:30:47 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
-Subject: [PATCH-2.4] arm: incorrect use of "&&" instead of "&"
-Message-ID: <20061125213047.GA5950@1wt.eu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sat, 25 Nov 2006 15:42:26 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:39104 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S967178AbWKYUmZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 15:42:25 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:content-type:content-transfer-encoding;
+	b=HsHpDhICpj2bfQ/3G+x5y5YVNHjmpSvXnr5lwwpmUlptNbyQMx3sAT9fduNX0xPZS
+	KWjHcv+/dBzrBO1e7sZKA==
+Message-ID: <4568A992.6090404@google.com>
+Date: Sat, 25 Nov 2006 12:37:38 -0800
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Compile failure since 2.6.19-rc6-git5
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+-git4 was fine. -git5 and later are broken.
+AFAICS, it was this change: 700f9672c9a61c12334651a94d17ec04620e1976
 
-I'm about to merge this fix into 2.4. It's already been fixed in 2.6.
-Do you have any objection ?
+http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=700f9672c9a61c12334651a94d17ec04620e1976
 
-BTW, I have two email addresses for you, the one in the MAINTAINERS file
-and the one you use on LKML. Which one do you prefer ? Just in case, I've
-used both.
+This config on x86_64:
+http://test.kernel.org/abat/62550/build/dotconfig
 
-Thanks in advance,
-Willy
+results in this compile failure:
+http://test.kernel.org/abat/62550/debug/test.log.0
 
+last bits are:
 
->From f3779aa6e0b38c0dfdad4f98b6bcddcd570b6aa7 Mon Sep 17 00:00:00 2001
-From: Willy Tarreau <w@1wt.eu>
-Date: Sat, 25 Nov 2006 22:00:12 +0100
-Subject: [PATCH] arm: incorrect use of "&&" instead of "&"
-
-In integrator_init_irq(), the use of "&&" in the following
-statement causes all interrupts to be marked valid regardless
-of INTEGRATOR_SC_VALID_INT, as long as it's non-zero :
-
-     if (((1 << i) && INTEGRATOR_SC_VALID_INT) != 0)
-
-Obvious fix is to replace it with "&". This was already fixed
-in 2.6.
-
-Signed-off-by: Willy Tarreau <w@1wt.eu>
----
- arch/arm/mach-integrator/irq.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/arch/arm/mach-integrator/irq.c b/arch/arm/mach-integrator/irq.c
-index 69d2e67..cc56534 100644
---- a/arch/arm/mach-integrator/irq.c
-+++ b/arch/arm/mach-integrator/irq.c
-@@ -55,7 +55,7 @@ void __init integrator_init_irq(void)
- 	unsigned int i;
- 
- 	for (i = 0; i < NR_IRQS; i++) {
--	        if (((1 << i) && INTEGRATOR_SC_VALID_INT) != 0) {
-+	        if (((1 << i) & INTEGRATOR_SC_VALID_INT) != 0) {
- 		        irq_desc[i].valid	= 1;
- 			irq_desc[i].probe_ok	= 1;
- 			irq_desc[i].mask_ack	= sc_mask_irq;
--- 
-1.4.2.4
-
+Building modules, stage 2.
+   MODPOST 1139 modules
+WARNING: "spin_lock_irqsave_nested" [net/irda/irda.ko] undefined!
+make[1]: *** [__modpost] Error 1
+make: *** [modules] Error 2
+11/22/2006-06:30:50 Build the modules. Failed rc = 2
+11/22/2006-06:30:50 build: kernel build Failed rc = 1
+Failed and terminated the run
+11/22/2006-06:30:51 command complete: (1) rc=126 (TEST ABORT)
+  Fatal error, aborting autorun

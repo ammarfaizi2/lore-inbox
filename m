@@ -1,88 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935143AbWKYEGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935141AbWKYEVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935143AbWKYEGn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Nov 2006 23:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935142AbWKYEGn
+	id S935141AbWKYEVL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Nov 2006 23:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935142AbWKYEVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Nov 2006 23:06:43 -0500
-Received: from free.hands.com ([83.142.228.128]:52449 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S935143AbWKYEGm (ORCPT
+	Fri, 24 Nov 2006 23:21:10 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:56622 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S935141AbWKYEVJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Nov 2006 23:06:42 -0500
-Date: Sat, 25 Nov 2006 04:06:14 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>,
-       kernel-discuss@handhelds.org
-Subject: tty line discipline driver advice sought, to do a 1-byte header and 2-byte CRC checksum on GSM data
-Message-ID: <20061125040614.GI16214@lkcl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Fri, 24 Nov 2006 23:21:09 -0500
+Date: Fri, 24 Nov 2006 23:21:02 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.19-rc5-mm2 : usb keeps resetting usb keyboard.
+In-reply-to: <4567BB70.6080907@comcast.net>
+To: linux-kernel@vger.kernel.org
+Cc: Ed Sweetman <safemode2@comcast.net>, linux-usb-devel@lists.sourceforge.net
+Message-id: <200611242321.02776.gene.heskett@verizon.net>
+Organization: Not detectable
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+References: <4567BB70.6080907@comcast.net>
+User-Agent: KMail/1.9.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello darlings, please cc me because i am not subscribed to these lists.  ta.
-i am cross-posting because, whilst this is for a phone device, it's
-actually a request for help on tty line discipline driver writing.
+On Friday 24 November 2006 22:41, Ed Sweetman wrote:
+>I just upgraded from a ps2 keyboard to usb and have been getting these
+>messages seemingly randomly, which also corresponds to whatever key i'm
+>pressing at the time they occur to act like it's stuck down.
+>
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>usb 2-2: reset low speed USB device using ohci_hcd and address 3
+>
+>(repeated a few hundred times )
+>
+All the data below doesn't point to the culprit.  
 
+I also have this, and I'd bet the common point is going to be an M$ 
+wireless mouse like I have.  The mouse works ok as near as I can tell, so 
+I'm not sure of the exact cause.
 
-you may have heard of quite a bit of fuss over linux mobile phones,
-recently, with the introduction of the Neo1973 from www.fic.com.tw and
-the greenphone from www.trolltech.com - well, there are a few more
-devices around which are tantalisingly close to being useable: the
-htc universal, the htc sable (ipaq hw6915) and also the h6300 series i
-understand is _already_ actually useable - it even has a gsm management
-daemon (http://www.mulliner.org/h63xxlinux/feed/mplexd-0.1.tar.gz)
+To verify, unplug the receiver for that mouse, wait 5secs, and plug it 
+back in, which if thats it should move the mouse, and the log message to 
+a higher number on the usb tree.
 
-some of you may have also seen this:
+Also, FWIW dear lkml readers, my logs have been contaminated with this 
+since about a year ago, running kernel.org kernels on an FC2 system, but 
+using the latest FC6 non-xen kernel.
 
-	http://www.handhelds.org/hypermail/kernel-discuss/19/1961.html
+>From an lsusb -v:
+----------
+Bus 002 Device 003: ID 045e:008c Microsoft Corp. Wireless Intellimouse 
+Explorer 2.0
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x045e Microsoft Corp.
+  idProduct          0x008c Wireless Intellimouse Explorer 2.0
+  bcdDevice            0.57
+  iManufacturer           1 Microsoft
+  iProduct                2 Microsoft Wireless Optical Mouse 1.0A
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           34
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xa0
+      Remote Wakeup
+    MaxPower               50mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     209
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+-------------------
 
-that's the background.
+How close am I in this suposition?
 
-my question is this: having looked at the htc sable's K700 gsm module,
-which talks some weird proprietary but easily-reverse-engineered protocol:
-
-	http://wiki.xda-developers.com/index.php?pagename=SablePhone
-
-and having read harald's email, and basically gone 'cool!', and, having
-then looked up 'tty line discipline' on google (_before_ writing
-this...) and gone 'errr...' i was wondering:
-
-could someone kindly advise me how to write a tty line discipline
-driver?
-
-i need to add one byte to the front (0x2) then a 2-byte length field,
-then send the data that's written, then a 2-byte CRC-16 checksum, and, also,
-on a read, to check that the first byte is a 0x2, then read the length
-field, then that many bytes, and confirm the 2-byte CRC-16 checksum of
-the data just read.
-
-i've never encountered tty line discipline's before.  which one is the
-best example that i should start with to cut/paste?  has anyone else
-done this sort of thing before, such that i can start with their code
-and do a minimum amount of work to get this done - quickly?  can anyone
-point me at userspace test example source code?
-
-etc. etc.
-
-... alternatively, i just... don't do this at all - i leave it to
-userspace, which would be a hell of a lot easier, but would make
-applications a pain, because they would need to use a library instead of
-just opening /dev/ttySN just like any other phone app, to transfer AT
-commands.
-
-your kind assistance to further the free software community's standing
-by successfully owning their own mobile phone is greatfully appreciated.
-
-l.
-
---
-lkcl.net - mad free software computer person, visionary and poet.
---
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

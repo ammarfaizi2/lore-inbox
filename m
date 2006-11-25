@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967159AbWKYUmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967180AbWKYUns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967159AbWKYUmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967174AbWKYUmU
+	id S967180AbWKYUns (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967181AbWKYUns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:42:20 -0500
-Received: from nz-out-0102.google.com ([64.233.162.205]:6214 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S967159AbWKYUmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:42:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NvpQl78fIsF/t5fnZq/vdCPgzsWeR9IT01sOl0IHStlu5Z9xZRu4qqYn1sRAd4C1sl+UwcOTg4kC6B2nkQv8HvC7JSEaOiktddiKAAExe0u7JY/pil59lKBS/YtXeJomLqP0gTVk5+kDbH3vczUrWNfsfr4hysN+A6ajwy5vNN4=
-Message-ID: <234fa2210611251242g2497f9bby2a3bf867324b73b3@mail.gmail.com>
-Date: Sat, 25 Nov 2006 21:42:18 +0100
-From: "Ilyes Gouta" <ilyes.gouta@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [USB] urb->number_of_packets = 256 !
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 25 Nov 2006 15:43:48 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23264 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S967180AbWKYUnr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 15:43:47 -0500
+Subject: Re: [PATCH-2.4] jfs: incorrect use of "&&" instead of "&"
+From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
+To: Willy Tarreau <w@1wt.eu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061125212440.GA5930@1wt.eu>
+References: <20061125212440.GA5930@1wt.eu>
+Content-Type: text/plain
+Date: Sat, 25 Nov 2006 14:43:41 -0600
+Message-Id: <1164487421.16418.1.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2006-11-25 at 22:24 +0100, Willy Tarreau wrote:
+> Hi Dave,
+> 
+> I'm about to merge this fix in 2.4. It's already in 2.6 BTW.
+> Do you have any objection ?
 
-I'm working on a driver for my USB 2.0 high-speed webcam under Linux
-and I'm using a tool
-called usbsnoop, which was designed for Windows, to get an idea on the exchanged
-information between the host and the webcam. By examining the produced
-trace file, I found
-that my PC is sending a bunch of isochronous URBs to the webcam where
-each one contains
-256 isochronous packets and each packet is 3072 bytes wide. This means
-that every URB
-points to a 256 * 3072 bytes sized buffer.
+No objection.
 
-Here is an excerpt of the trace file:
+> 
+> Thanks in advance,
+> Willy
+> 
+> From b14cb91c6621908f8e957aad5a85d6c41b31dfea Mon Sep 17 00:00:00 2001
+> From: Willy Tarreau <w@1wt.eu>
+> Date: Sat, 25 Nov 2006 21:57:26 +0100
+> Subject: [PATCH] jfs: incorrect use of "&&" instead of "&"
+> 
+> in jfs_txnmgr, the use of "tblk->flag && COMMIT_DELETE" in a
+> if() condition is obviously wrong. This bug has already been
+> fixed in 2.6.
+> 
+> Signed-off-by: Willy Tarreau <w@1wt.eu>
+Acked-by: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
 
-[21303 ms]  >>>  URB 1640 going down  >>>
--- URB_FUNCTION_ISOCH_TRANSFER:
-  PipeHandle           = ff27dd8c [endpoint 0x00000081]
-  TransferFlags        = 00000005 (USBD_TRANSFER_DIRECTION_IN,
-~USBD_SHORT_TRANSFER_OK,
-USBD_START_ISO_TRANSFER_ASAP
-  TransferBufferLength = 000c0000
-  TransferBuffer       = fd319100
-  TransferBufferMDL    = 00000000
-  StartFrame           = 00000000
-  NumberOfPackets      = 00000100 // in hex
-  IsoPacket[0].Offset = 0
-  IsoPacket[0].Length = 0
-  IsoPacket[1].Offset = 3072
-  IsoPacket[1].Length = 0
-  IsoPacket[2].Offset = 6144
-  IsoPacket[2].Length = 0
+> ---
+>  fs/jfs/jfs_txnmgr.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
+> index 62e6493..4e6a280 100644
+> --- a/fs/jfs/jfs_txnmgr.c
+> +++ b/fs/jfs/jfs_txnmgr.c
+> @@ -1175,7 +1175,7 @@ int txCommit(tid_t tid,		/* transaction 
+>  		jfs_ip = JFS_IP(ip);
+>  
+>  		if (test_and_clear_cflag(COMMIT_Syncdata, ip) &&
+> -		    ((tblk->flag && COMMIT_DELETE) == 0))
+> +		    ((tblk->flag & COMMIT_DELETE) == 0))
+>  			fsync_inode_data_buffers(ip);
+>  
+>  		/*
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-I tried to program this behavior in my custom, alpha stage, kernel
-driver, however I was
-disappointed since Linux fails to allocate, using kmalloc(), such a
-huge buffer (which is
-quite normal actually) to associated to the URB through the
-transfer_buffer field. I also
-tried __get_free_pages(GFP_KERNEL, 10) without any success whatsoever.
-
-Splitting the transfer across multiple URB doesn't seem to work (I didn't really
-investigate in depth this possibility).
-
-Any ideas?
-
-Thanks for your time!
-
-P.S: Is it possible to CC me since I didn't subscribe to the mailing
-list? Thanks!
-
-Best regards,
-Ilyes Gouta.

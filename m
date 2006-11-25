@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966875AbWKYReT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966874AbWKYReS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966875AbWKYReT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 12:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966878AbWKYReT
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 12:34:19 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:50071 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S966875AbWKYReS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S966874AbWKYReS (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 25 Nov 2006 12:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966878AbWKYReS
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 25 Nov 2006 12:34:18 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:49559 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S966874AbWKYReR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 12:34:17 -0500
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan <alan@lxorguk.ukuu.org.uk>
+To: Mike Galbraith <efault@gmx.de>
 Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
-Date: Sat, 25 Nov 2006 18:18:03 +0100
+Date: Sat, 25 Nov 2006 18:12:52 +0100
 User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
+Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
        Chuck Ebbert <76306.1226@compuserve.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, seife@suse.de
-References: <200611190320_MC3-1-D21B-111C@compuserve.com> <20061124234015.GB4782@ucw.cz> <20061125160821.1fd4f9c8@localhost.localdomain>
-In-Reply-To: <20061125160821.1fd4f9c8@localhost.localdomain>
+       Andrew Morton <akpm@osdl.org>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611240959170.6991@woody.osdl.org> <1164463898.6221.24.camel@Homer.simpson.net>
+In-Reply-To: <1164463898.6221.24.camel@Homer.simpson.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611251818.04541.rjw@sisk.pl>
+Message-Id: <200611251812.53246.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 25 November 2006 17:08, Alan wrote:
-> > Hmm... how common are these machines? We are using unpatched kernel
-> > for suse10.2... OTOH we only support machines from the whitelist, all
-> 
-> I've always said IDE and software suspend are unsafe. The more work I do
-> the more clearly this is/was the case.
-> 
-> The really nasty "resume eats your disk" cases I know about are
-> thankfully for older systems - VIA KT133 and similar era chipsets.
-> There is a recent nasty - Jmicron goes totally to **** on resume because
-> of resume quirks not being run but it goes so spectacularly wrong it
-> doesn't seem to get far enough to corrupt.
-> 
-> Lots of other controllers don't work correctly on resume but thats much
-> less of a problem and with UDMA misclocking generally turns into a CRC
-> error storm and stop.
-> 
-> Andrew has about 2/3rds of the bits I've done now, will push the rest
-> when I've done a little more testing/checking. At that point libata ought
-> to be resume safe. Someone who cares about drivers/ide legacy support can
-> then copy the work over.
+Hi,
 
-So, it seems we should discourage people from suspending with the old IDE
-until someone fixes it.
+On Saturday, 25 November 2006 15:11, Mike Galbraith wrote:
+> On Fri, 2006-11-24 at 10:08 -0800, Linus Torvalds wrote:
+> > 
+> > On Fri, 24 Nov 2006, Mike Galbraith wrote:
+> > > 
+> > > I tried the dynticks/hires-timers/kbd suggestion, no difference.  It
+> > > still boots in medicated snail mode, and emits a stream of IRQ9: nobody
+> > > cared messages (fasteoi acpi, irqpoll = nogo) while doing so.
+> > 
+> > "medicated snail mode". Lol.
+> 
+> It turns out, that this is caused by console=ttyS0,115200n8.  Without
+> the problematic driver found by pm_trace for the old Pinacle SAT card...
+> 
+> 02:02.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+> 	Subsystem: Pinnacle Systems Inc. PCTV Sat (DBC receiver)
+> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Latency: 32 (4000ns min, 10000ns max)
+> 	Interrupt: pin A routed to IRQ 17
+> 	Region 0: Memory at f2100000 (32-bit, prefetchable) [size=4K]
+> 	Capabilities: [44] Vital Product Data
+> 	Capabilities: [4c] Power Management version 2
+> 		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> went boom here -->02:02.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+> 	Subsystem: Pinnacle Systems Inc. PCTV Sat (DBC receiver)
+> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Latency: 32 (1000ns min, 63750ns max)
+> 	Interrupt: pin A routed to IRQ 17
+> 	Region 0: Memory at f2101000 (32-bit, prefetchable) [size=4K]
+> 	Capabilities: [44] Vital Product Data
+> 	Capabilities: [4c] Power Management version 2
+> 		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> 02:03.0 Multimedia controller: Philips Semiconductors SAA7134 Video Broadcast Decoder (rev 01)
+> 	Subsystem: Creatix Polymedia GmbH Medion 7134
+> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Latency: 32 (2000ns min, 8000ns max)
+> 	Interrupt: pin A routed to IRQ 20
+> 	Region 0: Memory at f2002000 (32-bit, non-prefetchable) [size=1K]
+> 	Capabilities: [40] Power Management version 1
+> 		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+> 
+> ...and the serial console, I can now suspend to ram just fine with stock
+> 2.6.19-rc6.  As a serial port test, I set up a getty on ttyS0, and
+> logged in via minicom prior to suspend.  After resume, the serial port
+> isn't talking.  Kill -9 the shell though, and all is fine again.
 
-Perhaps we should update the documentation with this information (?)
+Hm, could you please file a bugzilla report regarding the serial console for
+the information of its maintainer(s)?
 
 Greetings,
 Rafael
 
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

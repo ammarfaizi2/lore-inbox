@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933722AbWKYPZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757795AbWKYPfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933722AbWKYPZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 10:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757389AbWKYPZ5
+	id S1757795AbWKYPfc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 10:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757893AbWKYPfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 10:25:57 -0500
-Received: from smtp12.orange.fr ([193.252.22.20]:50526 "EHLO
-	smtp-msa-out12.orange.fr") by vger.kernel.org with ESMTP
-	id S1757380AbWKYPZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 10:25:56 -0500
-X-ME-UUID: 20061125152555451.6E2DB1C00090@mwinf1203.orange.fr
-Date: Sat, 25 Nov 2006 17:26:49 +0200
-From: Samuel Ortiz <samuel@sortiz.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Revert "[IRDA]: Lockdep fix."
-Message-ID: <20061125152649.GA5698@sortiz.org>
-Reply-To: Samuel Ortiz <samuel@sortiz.org>
+	Sat, 25 Nov 2006 10:35:32 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:27573 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1757795AbWKYPfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 10:35:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UpqIR7MxBSlvupillgNzS1X1rKvbhyM08upsI7241QyPfTAaggzV2twsWhbuUY0M414feKaQRuxOoZFmCozQYx1cVvGnsMlMo3zAS0JoiuwSDb5sXL+Treh1YInzXxg80VDYRNTob/K+Wp+e0b4AbeR1EkwTARIjFdmJBMCVwSk=
+Message-ID: <5b5833aa0611250735h5bda01b5lc3ae8e2199f51215@mail.gmail.com>
+Date: Sat, 25 Nov 2006 11:35:29 -0400
+From: "Anderson Lizardo" <anderson.lizardo@gmail.com>
+To: "David Brownell" <david-b@pacbell.net>
+Subject: Re: [patch 0/6] [RFC] Add MMC Password Protection (lock/unlock) support V6
+Cc: "Pierre Ossman" <drzeus-list@drzeus.cx>,
+       "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org,
+       "Anderson Briglia" <anderson.briglia@indt.org.br>
+In-Reply-To: <200611181418.10675.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <455DB1FB.1060403@indt.org.br>
+	 <200611181117.54242.david-b@pacbell.net> <455F7E2A.60009@drzeus.cx>
+	 <200611181418.10675.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi David,
 
-commit 700f9672c9a61c12334651a94d17ec04620e1976 breaks IrDA as irlmp.c
-can no longer build. 
-This is due to the spin_lock_irqsave_nested() patches being in the -mm 
-tree and not yet in yours.
-I'll resend the patch once both trees are synchronized.
+On 11/18/06, David Brownell <david-b@pacbell.net> wrote:
+> On Saturday 18 November 2006 1:42 pm, Pierre Ossman wrote:
+> > David Brownell wrote:
+> > > I thought the MMC vendors expected to see the actual user-typed
+> > > password get SHA1-hashed into a value which would take up the whole
+> > > buffer?  In general that's a good idea, since it promotes use of
+> > > longer passphrases (more information) over short ones (easy2crack).
+> > >
+> >
+> > This sounds like policy though, so it is something user space should
+> > concern itself with. We should just provide the infrastructure.
+>
+> The kernel shouldn't hash, right.  But the userspace toos
+> probably should be doing that ... they're the other part of
+> the infrastructure. :)
 
-This reverts commit 700f9672c9a61c12334651a94d17ec04620e1976.
-Signed-off-by: Samuel Ortiz <samuel@sortiz.org>
+Interesting idea, indeed. We'll implement this in our reference UI
+(which currently is just a bunch of shell scripts) so we can test the
+feasibility of this approach. Additionally, I think it's a good idea
+to investigate how other vendors currently support password protection
+on their products (for now I've just seen Nokia cellphones with such
+support, maybe PDAs or other mobile devices support this?), so we can
+have compatible policies, allowing to lock/unlock cards across
+devices.
 
----
- net/irda/irlmp.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+Anyway, I also agree this is out of scope of the kernel support, but
+still it's very important for a complete support.
 
-diff --git a/net/irda/irlmp.c b/net/irda/irlmp.c
-index fede837..5073261 100644
---- a/net/irda/irlmp.c
-+++ b/net/irda/irlmp.c
-@@ -1678,8 +1678,7 @@ #endif /* CONFIG_IRDA_ULTRA */
- 	 *  every IrLAP connection and check every LSAP associated with each
- 	 *  the connection.
- 	 */
--	spin_lock_irqsave_nested(&irlmp->links->hb_spinlock, flags,
--			SINGLE_DEPTH_NESTING);
-+	spin_lock_irqsave(&irlmp->links->hb_spinlock, flags);
- 	lap = (struct lap_cb *) hashbin_get_first(irlmp->links);
- 	while (lap != NULL) {
- 		IRDA_ASSERT(lap->magic == LMP_LAP_MAGIC, goto errlap;);
+Regards,
 -- 
-1.4.2.3
+Anderson Lizardo
+Open Source Mobile Research Center - OSMRC
+Nokia Institute of Technology - INdT
+Manaus - Brazil

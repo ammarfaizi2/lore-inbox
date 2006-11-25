@@ -1,108 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967151AbWKYTpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967150AbWKYTqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967151AbWKYTpk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 14:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967150AbWKYTpk
+	id S967150AbWKYTqu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 14:46:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967149AbWKYTqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 14:45:40 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:34739 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S967151AbWKYTpk
+	Sat, 25 Nov 2006 14:46:50 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:19936 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S967150AbWKYTqt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 14:45:40 -0500
-Date: Sat, 25 Nov 2006 21:45:34 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc7: ide_cd problems
-Message-ID: <20061125194534.GE9995@vianova.fi>
-Reply-To: vherva@vianova.fi
+	Sat, 25 Nov 2006 14:46:49 -0500
+Date: Sat, 25 Nov 2006 20:47:13 +0100
+From: DervishD <lkml@dervishd.net>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: usb-storage data errors
+Message-ID: <20061125194713.GB30460@DervishD>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20061122105322.GA17351@DervishD> <Pine.LNX.4.61.0611231908090.8427@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0611231908090.8427@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.2i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When ripping a cd with grip, I noticed the drive was not in DMA mode. I did
-hdparm -d1 /dev/hdi. The grip process (it uses libcdda_paranoia.so and
-libcdda_interface.so) hung, and attempt to kill it with -KILL failed.
-Eventually it died but remained as zombie:
+    Hi Jan :)
 
-  PID TTY      STAT   TIME COMMAND
- 6392 pts/7    ZNl    1:54 [grip] <defunct>
+ * Jan Engelhardt <jengelh@linux01.gwdg.de> dixit:
+> On Nov 22 2006 11:53, DervishD wrote:
+> >    - Two different usb-storage adapters (an external USB box from an
+> >      unknown manufacturer and Conceptronic CIDE23U). Both are
+> >      USB-to-IDE adapters.
+> >
+> >    In addition to this, from time to time the usb-storage adapters
+> >(any of them, with any of the USB cards and any kernel) report a read
+> >error, telling that some sector could not be read. This is false
+> >because if I repeat the operation, the sector is correctly retrieved.
+> >This can be related to some kind of timing problem, I don't know.
+> 
+> Try with some real USB storage device instead of a USB-to-IDE converter.
 
-According to fuser, it no longer occupies /dev/hdi, but it seems to hold a
-reference to ide_cd.ko:
+    I did a couple of tests using a Kingstong Traveller USB key, with
+same results. I'm retesting with a rather shorter cable. I'll post
+here the results if the error doesn't dissappear. By now, no errors
+with the short cable.
 
-lsmod|grep cd
-ide_cd                 35936  1 
-cdrom                  32800  1 ide_cd
+    Thanks for the suggestion, Jan :)
 
-The drive works, I but only partly. I can't mount any iso9660 disks, nor
-rip anything with grip (it still finds the index, though). dd can only read
-~491MB from /dev/hdi (they come out without errors), no matter whether which
-~data cd or dvd I put there.
+    Raúl Núñez de Arenas Coronado
 
-This probably explains it:
-blockdev --getsize /dev/hdi
-946048
-
-The same reading for all disks I've tried.
-
-Incidentally, I was about two thirds done with ripping, when I did hdparm
--d1. My guess it that the grip zombie keeps ide_cd in a state where the same
-audio cd is still in drive and can't be read further. 
-
-As far as I can tell, the drive itself is not badly confused, and I was able
-to rip a whole disk with cdda2wav (it probably uses another interface). The
-mount/dd/grip problem remains. 
-
-hdparm -w /dev/hdi doesn't make difference.
-
-I admit doing hdparm -d1 in the middle of an operation is a bad idea, but
-perhaps kernel could handle it better?
-
-This the second (and hopefully last) time I made the same mistake; last time
-I was recording a DVD. I had to boot to get the drive working again.
-
-If I do hdparm -d1 when the drive is idle, it works just fine.
-
-
-05:01.0 Mass storage controller: Promise Technology, Inc. 20269 (rev 02)
-(prog-if 85)
-	Subsystem: Promise Technology, Inc. Ultra133TX2
-	Flags: bus master, 66MHz, slow devsel, latency 64, IRQ 19
-	I/O ports at cc00 [size=8]
-	I/O ports at c880 [size=4]
-	I/O ports at c800 [size=8]
-	I/O ports at c480 [size=4]
-	I/O ports at c400 [size=16]
-	Memory at feafc000 (32-bit, non-prefetchable) [size=16K]
-	Expansion ROM at 88000000 [size=16K]
-	Capabilities: [60] Power Management version 1
-
-/dev/hdi:
-
-ATAPI CD-ROM, with removable media
-	Model Number:       OPTORITEDVD RW DD0401                   
-	Serial Number:      
-	Firmware Revision:  150E    
-Standards:
-	Likely used CD-ROM ATAPI-1
-Configuration:
-	DRQ response: 3ms.
-	Packet size: 12 bytes
-Capabilities:
-	LBA, IORDY(can be disabled)
-	Buffer size: 1024.0kB
-	DMA: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2 
-	     Cycle time: min=120ns recommended=120ns
-	PIO: pio0 pio1 pio2 pio3 pio4 
-	     Cycle time: no flow control=383ns  IORDY flow control=120ns
-
-
-
--- v -- 
-
-v@iki.fi
-
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+It's my PC and I'll cry if I want to... RAmen!

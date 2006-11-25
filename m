@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967195AbWKYUvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967204AbWKYUy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967195AbWKYUvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 15:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967198AbWKYUvx
+	id S967204AbWKYUy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 15:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967205AbWKYUyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 15:51:53 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:27152 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S967195AbWKYUvx (ORCPT
+	Sat, 25 Nov 2006 15:54:55 -0500
+Received: from 1wt.eu ([62.212.114.60]:46084 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S967204AbWKYUyz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 15:51:53 -0500
-Date: Sat, 25 Nov 2006 21:51:52 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
-Message-ID: <20061125205152.GA18964@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20061123195137.GA35120@dspnet.fr.eu.org> <200611252034.34378.ak@suse.de>
+	Sat, 25 Nov 2006 15:54:55 -0500
+Date: Sat, 25 Nov 2006 22:45:54 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4] arm: incorrect use of "&&" instead of "&"
+Message-ID: <20061125214554.GA6155@1wt.eu>
+References: <20061125213047.GA5950@1wt.eu> <20061125204830.GC13089@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611252034.34378.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061125204830.GC13089@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2006 at 08:34:34PM +0100, Andi Kleen wrote:
-> On Thursday 23 November 2006 20:51, Olivier Galibert wrote:
+On Sat, Nov 25, 2006 at 08:48:30PM +0000, Russell King wrote:
+> On Sat, Nov 25, 2006 at 10:30:47PM +0100, Willy Tarreau wrote:
+> > I'm about to merge this fix into 2.4. It's already been fixed in 2.6.
+> > Do you have any objection ?
 > 
-> > The detection and support should eventually be shared with i386 since
-> > you can run a 32bits kernel on a 64bits chip.
+> No objection - please merge.
+
+done.
+
+> > BTW, I have two email addresses for you, the one in the MAINTAINERS file
+> > and the one you use on LKML. Which one do you prefer ? Just in case, I've
+> > used both.
 > 
-> Exactly. So please define a mmconfig-shared.c first
+> Both reach me, but I'd perfer rmk+kernel please.
 
-Ok.  On which side (i386 or x86-64) and is there a standard way to
-include the object file on the other side?
+OK, that's noted.
 
-  OG.
+Thanks !
+Willy
 

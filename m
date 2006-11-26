@@ -1,99 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935581AbWKZWZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935596AbWKZWmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935581AbWKZWZt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 17:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935588AbWKZWZt
+	id S935596AbWKZWmv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 17:42:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935597AbWKZWmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 17:25:49 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:45479 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S935581AbWKZWZs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 17:25:48 -0500
-Date: Mon, 27 Nov 2006 01:25:47 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061126222547.GB110@oleg>
-References: <20061119214315.GI4427@us.ibm.com> <Pine.LNX.4.44L0.0611201212040.3224-100000@iolanthe.rowland.org> <20061120185712.GA95@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Nov 2006 17:42:51 -0500
+Received: from mail.enter.net ([216.193.128.40]:19394 "EHLO mmail.enter.net")
+	by vger.kernel.org with ESMTP id S935596AbWKZWmu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 17:42:50 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Dave Airlie" <airlied@gmail.com>
+Subject: Re: Overriding X on panic
+Date: Sun, 26 Nov 2006 17:42:39 -0500
+User-Agent: KMail/1.9.5
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, "Adam Jackson" <ajax@nwnk.net>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Casey Dahlin" <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
+References: <1164434093.10503.2.camel@localhost.localdomain> <20061126142213.52c292d3@localhost.localdomain> <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
+In-Reply-To: <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061120185712.GA95@oleg>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611261742.39469.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/20, Oleg Nesterov wrote:
+On Sunday 26 November 2006 17:19, Dave Airlie wrote:
+> On 11/27/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Sun, 26 Nov 2006 09:18:41 +0100
+> >
+> > Arjan van de Ven <arjan@infradead.org> wrote:
+> > > > The mode switch sequences for modern cards are a bit more hairy than
+> > > > lists of I/O poking unfortunately.
+> > >
+> > > for the Intel hw Keith doesn't seem to think it's all that much of a
+> > > problem though...
+> >
+> > Including the TV out, odder LCD panels, non BIOS modes etc ? If so then
+> > it might be an interesting test case for intelfb to grow some kind of
+> > console helper interface
 >
-> So, if we have global A == B == 0,
+> It's non-trivial, I think you are better off going initially with just
+> using the current framebuffer that X is using, I know ajax was doing
+> some hacking on this with a "user"-framebuffer, until I disuaded him
+> due to I think the trouble caused by dual-head and something else I
+> can't remember..
 >
-> 	CPU_0		CPU_1
->
-> 	A = 1;		B = 2;
-> 	mb();		mb();
-> 	b = B;		a = A;
->
-> It could happen that a == b == 0, yes? Isn't this contradicts with definition
-> of mb?
+> I personally think we need to probably just bite the bullet and start
+> sticking graphics drivers into the kernel, the new randr-1.2 interface
+> for X is probably a good starting point for a generic mode setting
+> interface that isn't so X dependent and could replace fbdev with
+> something more sane wrt dualhead and multiple outputs... fbdev could
+> be implemented on top of that layer then.. also suspend/resume really
+> needs this sort of thing....
 
-I still can't relax, another attempt to "prove" this should not be
-possible on CPUs supported by Linux :)
+I've been working on this myself. Unfortunately the box I was using for devel 
+has died and the start I made on the work was lost several months ago when I 
+had a hard drive die on me. (I really need to go buy a UPS and a better surge 
+protector - the box I was doing devel on bought it in a lightning strike and 
+the hard drive I had used as a backup just died)
 
-Let's suppose it is possible, then it should also be possible if CPU_1
-does spin_lock() instead of mb() (spin_lock can't be "stronger"), yes?
+> My main worry with integrating graphics drivers into the kernel is
+> that when they don't work the user gets no screen, with network/sound
+> etc this isn't so bad, but if they can't see a screen debugging gets
+> to be a bit more difficult....
 
-Now,
+Yeah - this is why the work I was doing kept the old vgacon around and used 
+fbcon on those platforms that needed it (unchanged). My plan was to add a 
+graphics system that would "take over" from the boot console when it was 
+ready to take over.
 
-	int COND;
-	wait_queue_head_t wq;
-
-	my_wait()
-	{
-		add_wait_queue(&wq);
-		for (;;) {
-			set_current_state(TASK_UNINTERRUPTIBLE);
-
-			if (COND)
-				break;
-
-			schedule();
-		}
-		remove_wait_queue(&wq);
-	}
-
-	my_wake()
-	{
-		COND = 1;
-		wake_up(&wq);
-	}
-
-this should be correct, but it is not!
-
-my_wait:
-
-	task->state = TASK_UNINTERRUPTIBLE;		// STORE
-
-	mb();
-
-	if (COND) break;				// LOAD
-
-
-my_wake:
-
-	COND = 1;					// STORE
-
-	spin_lock(WQ.lock);
-	spin_lock(runqueue.lock);
-
-	// try_to_wake_up()
-	if (!(task->state & TASK_UNINTERRUPTIBLE))	// LOAD
-		goto out;
-
-
-So, my_wait() gets COND == 0, and goes to schedule in 'D' state.
-try_to_wake_up() reads ->state == TASK_RUNNING, and does nothing.
-
-Oleg.
-
+DRH

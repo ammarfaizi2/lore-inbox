@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967322AbWKZHUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967327AbWKZH0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967322AbWKZHUs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 02:20:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967326AbWKZHUs
+	id S967327AbWKZH0F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 02:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967329AbWKZH0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 02:20:48 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:53136 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S967322AbWKZHUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 02:20:47 -0500
-Date: Sun, 26 Nov 2006 01:20:46 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
-In-reply-to: <fa.n9vySiI9RS2MCl0DZPDzxZEPiFw@ifi.uio.no>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Wink Saville <wink@saville.com>, Arjan van de Ven <arjan@infradead.org>
-Message-id: <4569404E.20402@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa./NRPJg+JjfSQLUVwnX1GpHGIojQ@ifi.uio.no>
- <fa.Y0RKABHd+7qnbGQYBAGPvlJ0Qic@ifi.uio.no>
- <fa.fD3WSpNqEJ4736vYzEak5Gf3xTw@ifi.uio.no>
- <fa.A+gkQAO1DLThaxJxPLPl3yE1CGo@ifi.uio.no>
- <fa.INurNKWdUKAEULTHyfpSW65a/Ng@ifi.uio.no>
- <fa.n9vySiI9RS2MCl0DZPDzxZEPiFw@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Sun, 26 Nov 2006 02:26:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63950 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S967327AbWKZH0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 02:26:02 -0500
+Date: Sun, 26 Nov 2006 02:25:38 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>, Larry Woodman <lwoodman@redhat.com>
+Subject: Re: OOM killer firing on 2.6.18 and later during LTP runs
+Message-ID: <20061126072538.GA5223@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andy Whitcroft <apw@shadowen.org>,
+	Larry Woodman <lwoodman@redhat.com>
+References: <4568AFB1.3050500@mbligh.org> <20061125132828.16a01762.akpm@osdl.org> <20061126030045.GA29656@redhat.com> <20061125231153.5cbd4581.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061125231153.5cbd4581.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wink Saville wrote:
-> Arjan van de Ven wrote:
->>> Actually, we need to ask the CPU/System makers to provide a system wide
->>> timer that is independent of the given CPU. I would expect it quite 
->>> simple
->>
->> they exist. They're called pmtimer and hpet.
->> pmtimer is port io. hpet is memory mapped io.
-> 
-> Thanks for the info. I took a look at Documentation/hpet.txt and 
-> drivers/char/hpet.c
-> and see that hpet_mmap is implemented in the driver but nothing hpet.txt 
-> indicates
-> what is being mapped.
-> 
-> Could you point me to any other documentation? I did find the following:
-> 
-> http://www.intel.com/hardwaredesign/hpetspec_1.pdf
-> 
-> Are you aware of any example user code that uses the mmap capability of 
-> hpet?
+On Sat, Nov 25, 2006 at 11:11:53PM -0800, Andrew Morton wrote:
+ > On Sat, 25 Nov 2006 22:00:45 -0500
+ > Dave Jones <davej@redhat.com> wrote:
+ > 
+ > > On Sat, Nov 25, 2006 at 01:28:28PM -0800, Andrew Morton wrote:
+ > >  > On Sat, 25 Nov 2006 13:03:45 -0800
+ > >  > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+ > >  > 
+ > >  > > On 2.6.18-rc7 and later during LTP:
+ > >  > > http://test.kernel.org/abat/48393/debug/console.log
+ > >  > 
+ > >  > The traces are a bit confusing, but I don't actually see anything wrong
+ > >  > there.  The machine has used up all swap, has used up all memory and has
+ > >  > correctly gone and killed things.  After that, there's free memory again.
+ > > 
+ > > We covered this a month or two back.  For RHEL5, we've ended up
+ > > reintroducing the oom killer prevention logic that we had up until
+ > > circa 2.6.10.   It seemed that there exist circumstances where
+ > > given a little more time, some memory hogging apps will run to completion
+ > > allowing other allocators to succeed instead of being killed.
+ > 
+ > I _think_ what you're describing here is a false-positive oom-killing?  But
+ > Martin appears to be hitting a genuine oom.
+ 
+what we saw during the rhel5 testing was that yes, the machine _was_ OOM
+*temporarily*, but if instead of killing the task trying to allocate, we
+postponed the killing a few times, it would give other tasks the opportunity
+to complete writeout, or free up memory some other way, allowing the
+allocating process to succeed shortly afterwards.
 
-Generally user mode code should just be using gettimeofday. When the TSC 
-is usable as a sane time source, the kernel will use it. When it's not, 
-it will use something else like the HPET, ACPI PM Timer or (at last 
-resort) the PIT, in increasing degrees of slowness.
+ > But it does appear that some changes are needed, because lots of things got
+ > oom-killed.
+ >
+ > I think.  Maybe not - there's no timestamping in those logs and it is of
+ > course possible that we're seeing unrelated ooms which happened a long time
+ > apart.
+
+Maybe, but it does sound spookily familiar.
+The last time Larry's patch got floated to lkml it was met with
+"Ah!, but we have new oom killer changes in -git which might solve this".
+We tried them. They didn't.
+
+		Dave
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+http://www.codemonkey.org.uk

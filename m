@@ -1,142 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935330AbWKZLTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934349AbWKZLie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935330AbWKZLTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 06:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935342AbWKZLTs
+	id S934349AbWKZLie (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 06:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935344AbWKZLie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 06:19:48 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:2206 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S935330AbWKZLTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 06:19:47 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.19-rc5-mm2 (end earlier): WARNING at lib/kobject.c:172 kobject_init() on resume from disk
-Date: Sun, 26 Nov 2006 12:11:02 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-References: <200611222207.07143.rjw@sisk.pl> <200611260015.53710.rjw@sisk.pl> <20061125234342.GA31413@kroah.com>
-In-Reply-To: <20061125234342.GA31413@kroah.com>
+	Sun, 26 Nov 2006 06:38:34 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:53766 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S934349AbWKZLid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 06:38:33 -0500
+Message-ID: <45697CB3.7020903@shadowen.org>
+Date: Sun, 26 Nov 2006 11:38:27 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OOM killer firing on 2.6.18 and later during LTP runs
+References: <4568AFB1.3050500@mbligh.org> <20061125132828.16a01762.akpm@osdl.org>
+In-Reply-To: <20061125132828.16a01762.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: url=http://www.shadowen.org/~apw/public-key
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611261211.04044.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 26 November 2006 00:43, Greg KH wrote:
-> On Sun, Nov 26, 2006 at 12:15:52AM +0100, Rafael J. Wysocki wrote:
-> > On Saturday, 25 November 2006 23:20, Rafael J. Wysocki wrote:
-> > > On Wednesday, 22 November 2006 22:44, Andrew Morton wrote:
-> > > > On Wed, 22 Nov 2006 22:07:06 +0100
-> > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > > 
-> > > > > Hi,
-> > > > > 
-> > > > > I get similar traces on every resume from disk on SMP systems:
-> > > > > 
-> > > > > WARNING at lib/kobject.c:172 kobject_init()
-> > > > > 
-> > > > > Call Trace:
-> > > > >  [<ffffffff80265559>] dump_trace+0xaa/0x3fd
-> > > > >  [<ffffffff802658e8>] show_trace+0x3c/0x52
-> > > > >  [<ffffffff80265913>] dump_stack+0x15/0x17
-> > > > >  [<ffffffff8031c1ad>] kobject_init+0x3f/0x8a
-> > > > >  [<ffffffff8031c298>] kobject_register+0x1a/0x3e
-> > > > >  [<ffffffff8038e5b4>] sysdev_register+0x5f/0xec
-> > > > >  [<ffffffff8026af39>] mce_create_device+0x79/0x103
-> > > > >  [<ffffffff8026afed>] mce_cpu_callback+0x2a/0xbd
-> > > > >  [<ffffffff8026112f>] notifier_call_chain+0x29/0x3e
-> > > > >  [<ffffffff8028e809>] raw_notifier_call_chain+0x9/0xb
-> > > > >  [<ffffffff80299f18>] _cpu_up+0xc2/0xd5
-> > > > >  [<ffffffff80299f56>] cpu_up+0x2b/0x42
-> > > > >  [<ffffffff80299fbb>] enable_nonboot_cpus+0x4e/0x9b
-> > > > >  [<ffffffff802a35da>] snapshot_ioctl+0x1a0/0x5d2
-> > > > >  [<ffffffff8023d9cd>] do_ioctl+0x5e/0x77
-> > > > >  [<ffffffff8022d785>] vfs_ioctl+0x256/0x273
-> > > > >  [<ffffffff8024770b>] sys_ioctl+0x5f/0x82
-> > > > >  [<ffffffff8025811e>] system_call+0x7e/0x83
-> > > > > DWARF2 unwinder stuck at system_call+0x7e/0x83
-> > > > > Leftover inexact backtrace:
-> > > > > 
-> > > > > False positive?
-> > > > > 
-> > > > 
-> > > > Don't know.  The changelog in
-> > > > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/kobject-warn.patch
-> > > > is pretty pathetic.
-> > > > 
-> > > > Perhaps mce_remove_device() isn't being called.
-> > > 
-> > > I've added some debugging code into mce_remove_device() which shows that it is
-> > > being called when the CPU is removed.
-> > > 
-> > > Investigation continues.
-> > 
-> > Ah, I think the problem is that the last user of a kobject doesn't decrease
-> > the refcount in kref_put(), so if the same kobject is registered for the
-> > second time, the refcount is still one and the warning triggers.
+Andrew Morton wrote:
+> On Sat, 25 Nov 2006 13:03:45 -0800
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
 > 
-> But the last user of the kobject should cause the kobject to be freed
-> and disappear.  It should not hang around, right?
+>> On 2.6.18-rc7 and later during LTP:
+>> http://test.kernel.org/abat/48393/debug/console.log
 > 
-> Oh yuck, this is a static struct device, one per cpu :(
+> The traces are a bit confusing, but I don't actually see anything wrong
+> there.  The machine has used up all swap, has used up all memory and has
+> correctly gone and killed things.  After that, there's free memory again.
 > 
-> > So, it seems, this is a false positive and I think we can get rid of it in the
-> > following way (tested and works):
-> > 
-> > ---
-> > Make mce_remove_device() clean up the kobject in per_cpu(device_mce, cpu)
-> > after it has been unregistered.
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > ---
-> >  arch/x86_64/kernel/mce.c |    1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > Index: linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c
-> > ===================================================================
-> > --- linux-2.6.19-rc6-mm1.orig/arch/x86_64/kernel/mce.c	2006-11-25 23:56:08.000000000 +0100
-> > +++ linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c	2006-11-26 00:15:34.000000000 +0100
-> > @@ -651,6 +651,7 @@ static void mce_remove_device(unsigned i
-> >  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_tolerant);
-> >  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_check_interval);
-> >  	sysdev_unregister(&per_cpu(device_mce,cpu));
-> > +	per_cpu(device_mce, cpu).kobj = (struct kobject){ 0 };
+>> oom-killer: gfp_mask=0x201d2, order=0
+>>
+>> Call Trace:
+>>   [<ffffffff802638cb>] out_of_memory+0x33/0x220
+>>   [<ffffffff80265374>] __alloc_pages+0x23a/0x2c3
+>>   [<ffffffff802667d2>] __do_page_cache_readahead+0x99/0x212
+>>   [<ffffffff80260799>] sync_page+0x0/0x45
+>>   [<ffffffff804b304c>] io_schedule+0x28/0x33
+>>   [<ffffffff804b32b8>] __wait_on_bit_lock+0x5b/0x66
+>>   [<ffffffff8043d849>] dm_any_congested+0x3b/0x42
+>>   [<ffffffff80262e50>] filemap_nopage+0x14b/0x353
+>>   [<ffffffff8026cf9a>] __handle_mm_fault+0x387/0x93f
+>>   [<ffffffff804b6366>] do_page_fault+0x44b/0x7ba
+>>   [<ffffffff80245a4e>] autoremove_wake_function+0x0/0x2e
+>> oom-killer: gfp_mask=0x280d2, order=0
+>>
+>> Call Trace:
+>>   [<ffffffff802638cb>] out_of_memory+0x33/0x220
+>>   [<ffffffff80265374>] __alloc_pages+0x23a/0x2c3
+>>   [<ffffffff8026cde3>] __handle_mm_fault+0x1d0/0x93f
+>>   [<ffffffff804b6366>] do_page_fault+0x44b/0x7ba
+>>   [<ffffffff804b2854>] thread_return+0x0/0xe0
+>>   [<ffffffff8020a405>] error_exit+0x0/0x84
+>>
+>> --------------------------------------------------
+>>
+>> This doesn't seem to happen every run, unfortnately, only
+>> intermittently, and we don't have much data before that, so
+>> hard to tell how long it's been going on.
+>>
+>> Still happening on latest kernels.
+>> http://test.kernel.org/abat/62445/debug/console.log
 > 
-> memset the kobj instead perhaps?  Yeah, I guess this copy will work, as
-> the compiler turns it into a memset.
+> The same appears to have happened there too.  Although it does seem to have
+> killed a lot more than it should have.
+> 
+> Has something changed in the configuration of that machine?  New LTP
+> version?  Less swapsapce?
 
-Patch with the memset follows.
+As far as I know neither LTP has changed nor the machine configuration
+has changed.   This is one of the very few machines we run which uses
+LVM/dm etc perhaps that is a factor.
 
-BTW, it seems to me that the WARN_ON in kref_get will never trigger, will it?
+/dev/mapper/VolGroup00-LogVol01         partition       2031608 156     -1
 
-Greetings,
-Rafael
+We do know that the LTP tests add a bunch of swap and then rip them away
+again.  Its possible that something bad happens when that is occuring.
+It would change the level of deparation rather dramatically for sure.
 
+Perhaps it would make sense to try out the patch from RedHat.  Sadly its
+not really reproducible reliably ... so its hard to know how we tell if
+its worked.
 
----
-Make mce_remove_device() clean up the kobject in per_cpu(device_mce, cpu)
-after it has been unregistered.
+Sigh.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- arch/x86_64/kernel/mce.c |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c
-===================================================================
---- linux-2.6.19-rc6-mm1.orig/arch/x86_64/kernel/mce.c	2006-11-26 11:31:38.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c	2006-11-26 12:02:10.000000000 +0100
-@@ -651,6 +651,7 @@ static void mce_remove_device(unsigned i
- 	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_tolerant);
- 	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_check_interval);
- 	sysdev_unregister(&per_cpu(device_mce,cpu));
-+	memset(&per_cpu(device_mce, cpu).kobj, 0, sizeof(struct kobject));
- }
- 
- /* Get notified when a cpu comes on/off. Be hotplug friendly. */
+-apw
 

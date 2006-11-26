@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935306AbWKZJ6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935308AbWKZKBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935306AbWKZJ6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 04:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935307AbWKZJ6h
+	id S935308AbWKZKBK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 05:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935309AbWKZKBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 04:58:37 -0500
-Received: from mgw-ext12.nokia.com ([131.228.20.171]:44418 "EHLO
-	mgw-ext12.nokia.com") by vger.kernel.org with ESMTP id S935306AbWKZJ6h convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 04:58:37 -0500
-Subject: Re: [RFC: 2.6 patch] remove the broken MTD_PCMCIA driver
-From: Artem Bityutskiy <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Simon Evans <spse@secret.org.uk>,
-       linux-pcmcia@lists.infradead.org, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-In-Reply-To: <20061125191521.GD3702@stusta.de>
-References: <20061125191521.GD3702@stusta.de>
-Content-Type: text/plain; charset=utf-8
-Date: Sun, 26 Nov 2006 11:40:13 +0200
-Message-Id: <1164534013.576.24.camel@sauron>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 26 Nov 2006 09:40:38.0832 (UTC) FILETIME=[EE60E300:01C7113E]
-X-eXpurgate-Category: 1/0
-X-eXpurgate-ID: 149371::061126114123-1F261BB0-05057BA6/0-0/0-1
-X-Nokia-AV: Clean
+	Sun, 26 Nov 2006 05:01:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63912 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S935308AbWKZKBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 05:01:09 -0500
+Message-ID: <456965D5.1000302@redhat.com>
+Date: Sun, 26 Nov 2006 18:00:53 +0800
+From: Eugene Teo <eteo@redhat.com>
+Organization: Red Hat Asia Pacific
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: lksctp-developers@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org, Eugene Teo <eteo@redhat.com>
+Subject: [2.6 patch] net/sctp/socket.c: add missing sctp_spin_unlock_irqrestore
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-11-25 at 20:15 +0100, Adrian Bunk wrote:
-> The MTD_PCMCIA driver has:
-> - already been marked as BROKEN in 2.6.0 three years ago and
-> - is still marked as BROKEN.
-> 
-> Drivers that had been marked as BROKEN for such a long time seem to be
-> unlikely to be revived in the forseeable future.
-> 
-> But if anyone wants to ever revive this driver, the code is still
-> present in the older kernel releases.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This patch adds a missing sctp_spin_unlock_irqrestore when returning
+from "if(space_left<addrlen)" condition.
 
-I've committed both patches to my git trees so David won't miss them.
+Signed-off-by: Eugene Teo <eteo@redhat.com>
 
-http://git.infradead.org/?p=users/dedekind/dedekind-mtd-2.6.git;a=summary
+  net/sctp/socket.c |   19 +++++++++++--------
+  1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index 935bc91..a5d4d75 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -3955,7 +3955,7 @@ static int sctp_copy_laddrs_to_user(stru
+         struct sctp_sockaddr_entry *addr;
+         unsigned long flags;
+         union sctp_addr temp;
+-       int cnt = 0;
++       int cnt = 0, err = 0;
+         int addrlen;
+
+         sctp_spin_lock_irqsave(&sctp_local_addr_lock, flags);
+@@ -3968,21 +3968,24 @@ static int sctp_copy_laddrs_to_user(stru
+                 sctp_get_pf_specific(sk->sk_family)->addr_v4map(sctp_sk(sk),
+                                                                 &temp);
+                 addrlen = sctp_get_af_specific(temp.sa.sa_family)->sockaddr_len;
+-               if(space_left<addrlen)
+-                       return -ENOMEM;
++               if(space_left<addrlen) {
++                       err = -ENOMEM;
++                       goto unlock;
++               }
+                 temp.v4.sin_port = htons(port);
+                 if (copy_to_user(*to, &temp, addrlen)) {
+-                       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock,
+-                                                   flags);
+-                       return -EFAULT;
++                       err = -EFAULT;
++                       goto unlock;
+                 }
+                 *to += addrlen;
+                 cnt ++;
+                 space_left -= addrlen;
+         }
+-       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock, flags);
++       err = cnt;
+
+-       return cnt;
++unlock:
++       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock, flags);
++       return err;
+  }
+
+  /* Old API for getting list of local addresses. Does not work for 32-bit
 
 
 -- 
-Best regards,
-Artem Bityutskiy (Битюцкий Артём)
-
+eteo redhat.com  ph: +65 6490 4142  http://www.kernel.org/~eugeneteo
+gpg fingerprint:  47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823

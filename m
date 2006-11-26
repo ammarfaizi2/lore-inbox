@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935538AbWKZTJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935546AbWKZTK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935538AbWKZTJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 14:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935544AbWKZTJd
+	id S935546AbWKZTK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 14:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935549AbWKZTKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 14:09:33 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:64027 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S935538AbWKZTJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 14:09:32 -0500
+	Sun, 26 Nov 2006 14:10:25 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:52517 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S935546AbWKZTKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 14:10:24 -0500
 To: Andrew Morton <akpm@osdl.org>
 Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
        openib-general@openib.org, tom@opengridcomputing.com
@@ -20,53 +20,70 @@ References: <adazmag5bk1.fsf@cisco.com>
 	<20061125.150500.14841768.davem@davemloft.net>
 	<adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Sun, 26 Nov 2006 11:09:30 -0800
+Date: Sun, 26 Nov 2006 11:10:23 -0800
 In-Reply-To: <20061125164118.de53d1cf.akpm@osdl.org> (Andrew Morton's message of "Sat, 25 Nov 2006 16:41:18 -0800")
-Message-ID: <adaac2e3tzp.fsf@cisco.com>
+Message-ID: <ada64d23ty8.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 26 Nov 2006 19:09:31.0251 (UTC) FILETIME=[66E2B430:01C7118E]
-Authentication-Results: sj-dkim-3; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim3002 verified; ); 
+X-OriginalArrivalTime: 26 Nov 2006 19:10:24.0033 (UTC) FILETIME=[86589910:01C7118E]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Changes this late in the piece rather hurt.
+Commit 4c8bd7ee ("Do not truncate to 'int' in ALIGN() macro.") was
+merged to fix the case of code like the following:
 
-Fair enough.  This was a really close call to me but let's leave it
-for 2.6.19.  I'll ask Linus to merge the patch below to fix amso1100.
-I'm a little worried that other such uses might be lurking in the
-tree but I guess no one has complained...
+	unsigned long addr;
+	unsigned int alignment;
+	addr = ALIGN(addr, alignment);
 
- > Your proposed change is still wrong for long longs, isn't it?
+The original ALIGN macro calculated a mask as ~(alignment - 1), and
+when alignment is just an int, this creates an int mask.  If alignment
+is also unsigned, then this mask will not be sign extended when
+promoted to a long, which leads to the code above chopping off the top
+half of addr when long is 64 bits.
 
-Yes, it would fail for aligning long long with an unsigned long
-alignment on 32-bits.  But that's broken in the current tree too.
-I'll post a patch that should work for everything -- how about if you
-queue that for 2.6.20-early?
+However, the changed ALIGN macro, which computes the mask as
+~(alignment - 1UL) actually breaks code like the following when long
+is 32 bits:
 
- - R.
+	u64 addr;
+        int alignment;
+        addr = ALIGN(addr, alignment);
 
-diff --git a/drivers/infiniband/hw/amso1100/c2_provider.c b/drivers/infiniband/hw/amso1100/c2_provider.c
-index fef9727..d54b284 100644
---- a/drivers/infiniband/hw/amso1100/c2_provider.c
-+++ b/drivers/infiniband/hw/amso1100/c2_provider.c
-@@ -368,7 +368,7 @@ static struct ib_mr *c2_reg_phys_mr(stru
+The reason this breaks is pretty much the same as the original bug
+that the change was supposed to fix: ~(alignment - 1UL) creates a mask
+that is an unsigned long, which is not sign extended when promoted to
+u64 (if long is 32 bits).
+
+As suggested by Dave Miller and Al Viro, I fixed this by having the
+ALIGN macro make sure the alignment is promoted to the same type as
+the value being aligned before doing the negation.
+
+This second construct is actually used in the amso1100 driver, so that
+driver does not work on 32-bit architectures right now.  Unfortunately
+almost everyone using it runs 64-bit kernels, so this regression was
+not noticed until now.
+
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
+
+---
+Patch updated as suggested by Dave Miller and Al Viro...
+
+can we merge this for 2.6.20?
+
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 24b6111..80955b3 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -31,7 +31,7 @@ #define ULLONG_MAX	(~0ULL)
+ #define STACK_MAGIC	0xdeadbeef
  
- 		total_len += buffer_list[i].size;
- 		pbl_depth += ALIGN(buffer_list[i].size,
--				   (1 << page_shift)) >> page_shift;
-+				   (1ull << page_shift)) >> page_shift;
- 	}
- 
- 	page_list = vmalloc(sizeof(u64) * pbl_depth);
-@@ -383,7 +383,7 @@ static struct ib_mr *c2_reg_phys_mr(stru
- 		int naddrs;
- 
-  		naddrs = ALIGN(buffer_list[i].size,
--			       (1 << page_shift)) >> page_shift;
-+			       (1ull << page_shift)) >> page_shift;
- 		for (k = 0; k < naddrs; k++)
- 			page_list[j++] = (buffer_list[i].addr +
- 						     (k << page_shift));
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+-#define ALIGN(x,a) (((x)+(a)-1UL)&~((a)-1UL))
++#define ALIGN(x,a) ((typeof(x)) (((x) + (a) - 1) & ~((typeof(x)) (a) - 1)))
+ #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
+ #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+ #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))

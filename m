@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967306AbWKZGZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967318AbWKZGrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967306AbWKZGZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 01:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967307AbWKZGZH
+	id S967318AbWKZGrU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 01:47:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967319AbWKZGrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 01:25:07 -0500
-Received: from mail.gmx.net ([213.165.64.20]:62943 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S967306AbWKZGZG (ORCPT
+	Sun, 26 Nov 2006 01:47:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50877 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S967318AbWKZGrT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 01:25:06 -0500
-X-Authenticated: #14349625
-Subject: Re: 2.6.19-rc6-mm1 -- sched-improve-migration-accuracy.patch slows
-	boot
-From: Mike Galbraith <efault@gmx.de>
-To: Don Mullis <dwm@meer.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <1164484124.2894.50.camel@localhost.localdomain>
-References: <20061123021703.8550e37e.akpm@osdl.org>
-	 <1164484124.2894.50.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 26 Nov 2006 07:24:23 +0100
-Message-Id: <1164522263.5808.12.camel@Homer.simpson.net>
+	Sun, 26 Nov 2006 01:47:19 -0500
+Date: Sun, 26 Nov 2006 01:47:04 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: ak@suse.de
+Subject: touch softlockup during
+Message-ID: <20061126064704.GA5126@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-11-25 at 11:48 -0800, Don Mullis wrote:
-> > +sched-improve-migration-accuracy.patch
-> > +sched-improve-migration-accuracy-tidy.patch
-> 
-> Bisection shows that this pair of patches raises the boot time;
-> specifically, the delay from logging of
-> 
->         "INIT: version 2.86 booting"
->         
-> to
->         "                Welcome to Fedora Core"
->  
-> goes from 4s to 4m40s.  From there to
+Sometimes the soft watchdog fires after we're done oopsing.
+See http://projects.info-pull.com/mokb/MOKB-25-11-2006.html for an example.
 
-Wow.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
->  
-> 
->     "Setting clock  (utc): Sat Nov 25 10:18:11 PST 2006 [  OK  ]"
-> 
-> takes an additional 30s.
-
-This must be a bisection false positive.  The patch in question is
-essentially a no-op for a UP kernel.
-        
-	-Mike
-
+--- linux-2.6.18.noarch/arch/i386/kernel/traps.c~	2006-11-26 01:40:58.000000000 -0500
++++ linux-2.6.18.noarch/arch/i386/kernel/traps.c	2006-11-26 01:41:28.000000000 -0500
+@@ -243,6 +243,7 @@ void dump_trace(struct task_struct *task
+ 		stack = (unsigned long*)context->previous_esp;
+ 		if (!stack)
+ 			break;
++		touch_softlockup_watchdog();
+ 	}
+ }
+ EXPORT_SYMBOL(dump_trace);
+-- 
+http://www.codemonkey.org.uk

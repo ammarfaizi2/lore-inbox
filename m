@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935402AbWKZOjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935423AbWKZPTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935402AbWKZOjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 09:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935413AbWKZOjk
+	id S935423AbWKZPTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 10:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935425AbWKZPTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 09:39:40 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:44442 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S935402AbWKZOjj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 09:39:39 -0500
-From: Karsten Wiese <fzu@wemgehoertderstaat.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.19-rc6-rt5
-Date: Sun, 26 Nov 2006 15:39:47 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20061120220230.GA30835@elte.hu>
-In-Reply-To: <20061120220230.GA30835@elte.hu>
+	Sun, 26 Nov 2006 10:19:55 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:3794 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S935423AbWKZPTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 10:19:55 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Sun, 26 Nov 2006 10:16:40 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: more pedantry:  "depends on" versus "depends" versus "requires"
+Message-ID: <Pine.LNX.4.64.0611261013230.26218@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611261539.48105.fzu@wemgehoertderstaat.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i've released the 2.6.19-rc6-rt5 tree, which can be downloaded from the 
 
-Hi
+  i'm thinking that the kconfig structure doesn't really need to
+support all three of these dependency directives for Kconfig files.  a
+quick occurrence count:
 
-this fixes issues like rmmod hanging and inodes leaking.
+  "depends on":	4421
+  "depends":	45
+  "requires":	0
 
-      Karsten
+  under the circumstances, why not just standardize on "depends on"
+everywhere and remove the obvious redundancy from the scripts/kconfig/
+parser files?
 
---- fs/dcache.c~	2006-11-21 11:25:11.000000000 +0100
-+++ fs/dcache.c	2006-11-26 15:20:31.000000000 +0100
-@@ -150,7 +150,7 @@ void dput(struct dentry *dentry)
- repeat:
- 	if (atomic_read(&dentry->d_count) == 1)
- 		might_sleep();
--	if (atomic_dec_and_test(&dentry->d_count))
-+	if (!atomic_dec_and_test(&dentry->d_count))
- 		return;
- 
- 	spin_lock(&dentry->d_lock);
+rday

@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935334AbWKZLBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935336AbWKZLFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935334AbWKZLBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 06:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935335AbWKZLBE
+	id S935336AbWKZLFF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 06:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935338AbWKZLFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 06:01:04 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:40896 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S935334AbWKZLBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 06:01:02 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [PATCH 1/2] Introduce mutex_lock_timeout
-Date: Sun, 26 Nov 2006 12:00:50 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       hch@infradead.org, linux-driver@qlogic.com
-References: <20061109182721.GN16952@parisc-linux.org> <200611251700.39806.ioe-lkml@rameria.de> <20061125163242.GH14076@parisc-linux.org>
-In-Reply-To: <20061125163242.GH14076@parisc-linux.org>
+	Sun, 26 Nov 2006 06:05:05 -0500
+Received: from 147.175.241.83.in-addr.dgcsystems.net ([83.241.175.147]:35272
+	"EHLO tmnt04.transmode.se") by vger.kernel.org with ESMTP
+	id S935336AbWKZLFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 06:05:03 -0500
+From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+To: "'David Brownell'" <david-b@pacbell.net>,
+       "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
+Cc: <akpm@osdl.org>, "'Alessandro Zummo'" <alessandro.zummo@towertech.it>,
+       <linuxppc-dev@ozlabs.org>, <lethal@linux-sh.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       <ralf@linux-mips.org>, "'Andi Kleen'" <ak@muc.de>, <paulus@samba.org>,
+       <rmk@arm.linux.org.uk>, <davem@davemloft.net>, <kkojima@rr.iij4u.or.jp>
+Subject: RE: NTP time sync
+Date: Sun, 26 Nov 2006 12:04:54 +0100
+Message-ID: <009a01c7114a$b429f850$020120ac@Jocke>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611261200.52297.ioe-lkml@rameria.de>
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Thread-Index: AccQ6KFreZatZITbSra+1apY1bj2oQAYTVhA
+In-Reply-To: <200611251522.19900.david-b@pacbell.net>
+X-OriginalArrivalTime: 26 Nov 2006 11:04:57.0979 (UTC) FILETIME=[B5DD74B0:01C7114A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew,
+> -----Original Message-----
+> From: 
+> linuxppc-dev-bounces+joakim.tjernlund=transmode.se@ozlabs.org 
+> [mailto:linuxppc-dev-bounces+joakim.tjernlund=transmode.se@ozl
+> abs.org] On Behalf Of David Brownell
+> Sent: den 26 november 2006 00:22
+> To: Benjamin Herrenschmidt
+> Cc: akpm@osdl.org; Alessandro Zummo; linuxppc-dev@ozlabs.org; 
+> lethal@linux-sh.org; Linux Kernel Mailing List; 
+> ralf@linux-mips.org; Andi Kleen; paulus@samba.org; 
+> rmk@arm.linux.org.uk; davem@davemloft.net; kkojima@rr.iij4u.or.jp
+> Subject: Re: NTP time sync
+> 
+> On Thursday 23 November 2006 3:00 am, Benjamin Herrenschmidt wrote:
+> > 
+> > Couldn't we have a transition period by making the kernel 
+> not rely on
+> > interrupts ? if the NTP irq code just triggers a work 
+> queue, then all of
+> > a sudden, all of the RTC drivers can be used and the 
+> latency is small.
+> > That might well be a good enough solution and is very simple.
+> 
+> Good point.  Of course, one issue is that the NTP sync code all
+> seems to be platform-specific right now ... just like the code
+> to set the system time from an RTC at boot (except for the new
+> RTC framework stuff) and after resume.
+> 
+> - Dave
 
-On Saturday, 25. November 2006 17:32, Matthew Wilcox wrote:
-> In the qla case, the mutex can be acquired by a thread which then waits
-> for the hardware to do something.  If the hardware locks up, it is
-> preferable that the system not hang.
+Looking at rtc-dev.c I don't see a MARJOR number assigned to /dev/rtcN. Seems like
+it is dynamically allocated to whatever major number that is free.
+Is that the way it is supposed to be? How do I create a static /dev/rtcN in my /dev
+directory if the major number isn't fixed?
+Maybe I am just missing something, feel free to correct me :)
 
-Ok, I looked at it (drivers/scsi/qla2xxx/qla_mbx.c) 
-and the solution seems simple:
-- Introduce an busy flag, check that BEFORE this mutex_lock()
-  and don't protect it by that mutex.
-- return -EBUSY to the  upper layers, if mailbox still busy
-- upper layers can either queue the command or use a retry mechanism
+ Jocke
 
-There are many examples for this in the kernel. NICs have the same problems
-(transmitter busy or stuck) and have no problem handling that gracefully
-since ages.
-
-> I assumed that he'd spent enough time thinking about it that fixing it
-> really wasn't feasible.
-
-That doesn't depend on time, just whether you get the right idea or not.
-
-Anyway I CCed the current maintainers.
-
-So my point still stands: Timeout based locking is evil and hides bugs.
-
-In this case the bugs are: 
-1. That mutex protects a code path (mailbox command submission 
-    and retrieve) instead of data.
-2. "Mailbox is free" is an event, so you should use wait_event_timout() 
-    for that
-
-
-Regards
-
-Ingo Oeser

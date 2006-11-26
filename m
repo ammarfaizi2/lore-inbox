@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967325AbWKZHM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967320AbWKZHLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967325AbWKZHM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 02:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967324AbWKZHM6
+	id S967320AbWKZHLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 02:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967322AbWKZHLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 02:12:58 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:44253 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S967323AbWKZHM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 02:12:58 -0500
-Date: Sat, 25 Nov 2006 23:11:53 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>, Larry Woodman <lwoodman@redhat.com>
-Subject: Re: OOM killer firing on 2.6.18 and later during LTP runs
-Message-Id: <20061125231153.5cbd4581.akpm@osdl.org>
-In-Reply-To: <20061126030045.GA29656@redhat.com>
-References: <4568AFB1.3050500@mbligh.org>
-	<20061125132828.16a01762.akpm@osdl.org>
-	<20061126030045.GA29656@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Nov 2006 02:11:37 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38737 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S967320AbWKZHLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 02:11:36 -0500
+Date: Sun, 26 Nov 2006 01:11:33 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on
+ SOFTWARE_SUSPEND
+In-reply-to: <fa.bo0iOgKqELDD50VEZpxeUpzPsMg@ifi.uio.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>
+Message-id: <45693E25.9010504@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.U3NcOE+DHLOUMSq6HkaGglGl7hQ@ifi.uio.no>
+ <fa.YMVQ6sabKF/IkEHUCoiQoxoHWZA@ifi.uio.no>
+ <fa.c5fVj98hBgqoUumwbA9jymiSXr8@ifi.uio.no>
+ <fa.zMBHTAXYfXNe2TVX89s3qsC2HRk@ifi.uio.no>
+ <fa.yA6cvuiGulIRQfqY+E9joR2nWog@ifi.uio.no>
+ <fa.bo0iOgKqELDD50VEZpxeUpzPsMg@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2006 22:00:45 -0500
-Dave Jones <davej@redhat.com> wrote:
-
-> On Sat, Nov 25, 2006 at 01:28:28PM -0800, Andrew Morton wrote:
->  > On Sat, 25 Nov 2006 13:03:45 -0800
->  > "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->  > 
->  > > On 2.6.18-rc7 and later during LTP:
->  > > http://test.kernel.org/abat/48393/debug/console.log
->  > 
->  > The traces are a bit confusing, but I don't actually see anything wrong
->  > there.  The machine has used up all swap, has used up all memory and has
->  > correctly gone and killed things.  After that, there's free memory again.
+Alan wrote:
+> Lots of other controllers don't work correctly on resume but thats much
+> less of a problem and with UDMA misclocking generally turns into a CRC
+> error storm and stop.
 > 
-> We covered this a month or two back.  For RHEL5, we've ended up
-> reintroducing the oom killer prevention logic that we had up until
-> circa 2.6.10.   It seemed that there exist circumstances where
-> given a little more time, some memory hogging apps will run to completion
-> allowing other allocators to succeed instead of being killed.
+> Andrew has about 2/3rds of the bits I've done now, will push the rest
+> when I've done a little more testing/checking. At that point libata ought
+> to be resume safe. Someone who cares about drivers/ide legacy support can
+> then copy the work over.
 
-I _think_ what you're describing here is a false-positive oom-killing?  But
-Martin appears to be hitting a genuine oom.
+btw, I have some code almost ready for sata_nv to add proper 
+suspend/resume support. Unfortunately I have trouble testing it, since 
+STR doesn't work on my machine since, guess what - the video doesn't 
+come back! It doesn't even take the monitor out of standby mode. None of 
+the acpi_sleep options seem to work, and vbetool appears to helpfully 
+segfault on any operation so that's out. This is an NVIDIA SLI setup so 
+that probably makes things a bit more complicated.
 
-But it does appear that some changes are needed, because lots of things got
-oom-killed.
+In any case, it should be better than what we have right now for 
+suspend/resume support in sata_nv, namely the "do nothing, won't work 
+(at least not for CK804 and later)" implementation..
 
-I think.  Maybe not - there's no timestamping in those logs and it is of
-course possible that we're seeing unrelated ooms which happened a long time
-apart.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-> For reference, here's the patch that Larry Woodman came up with
-> for RHEL5.
-
-gulp.

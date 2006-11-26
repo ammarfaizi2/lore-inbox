@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967334AbWKZIYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967340AbWKZIdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967334AbWKZIYu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 03:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967336AbWKZIYu
+	id S967340AbWKZIdd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 03:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967341AbWKZIdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 03:24:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36230 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S967334AbWKZIYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 03:24:50 -0500
-Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
-From: Arjan van de Ven <arjan@infradead.org>
-To: Wink Saville <wink@saville.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <45694D6F.60100@saville.com>
-References: <fa./NRPJg+JjfSQLUVwnX1GpHGIojQ@ifi.uio.no>
-	 <fa.Y0RKABHd+7qnbGQYBAGPvlJ0Qic@ifi.uio.no>
-	 <fa.fD3WSpNqEJ4736vYzEak5Gf3xTw@ifi.uio.no>
-	 <fa.A+gkQAO1DLThaxJxPLPl3yE1CGo@ifi.uio.no>
-	 <fa.INurNKWdUKAEULTHyfpSW65a/Ng@ifi.uio.no>
-	 <fa.n9vySiI9RS2MCl0DZPDzxZEPiFw@ifi.uio.no> <4569404E.20402@shaw.ca>
-	 <45694D6F.60100@saville.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 26 Nov 2006 09:24:44 +0100
-Message-Id: <1164529484.3147.68.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 26 Nov 2006 03:33:33 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:19396 "EHLO
+	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
+	id S967340AbWKZIdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 03:33:32 -0500
+Date: Sun, 26 Nov 2006 09:33:30 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Willy Tarreau <w@1wt.eu>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-2.4] fbcon: incorrect use of "&&" instead of "&"
+In-Reply-To: <20061125212209.GA5918@1wt.eu>
+Message-ID: <Pine.LNX.4.62.0611260933160.4055@pademelon.sonytel.be>
+References: <20061125212209.GA5918@1wt.eu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-26 at 00:16 -0800, Wink Saville wrote:
-> Robert Hancock wrote:
-> >>>> Actually, we need to ask the CPU/System makers to provide a system wide
-> > Generally user mode code should just be using gettimeofday. When the TSC 
-> > is usable as a sane time source, the kernel will use it. When it's not, 
-> > it will use something else like the HPET, ACPI PM Timer or (at last 
-> > resort) the PIT, in increasing degrees of slowness.
-> > 
+On Sat, 25 Nov 2006, Willy Tarreau wrote:
+> I'm about to merge this in 2.4. Do you have any objection ?
+
+No.
+
+Acked-By: Geert Uytterhoeven <geert@linux-m68k.org>
+
+> >From c969fc8009aeb748368319cec463ae2516f6fb17 Mon Sep 17 00:00:00 2001
+> From: Willy Tarreau <w@1wt.eu>
+> Date: Sat, 25 Nov 2006 21:54:10 +0100
+> Subject: [PATCH] fbcon: incorrect use of "&&" instead of "&"
 > 
-> But gettimeofday is much too expensive compared to RDTSC.
+> The use of "&&" in the following statement causes unexpected
+> cases to be matched since __SCROLL_YMASK = 0x0f :
+> 
+>     switch (p->scrollmode && __SCROLL_YMASK)
+>         case __SCROLL_YWRAP: ...  /* 0x02 */
+>         case __SCROLL_YPAN: ...   /* 0x01 */
+> 
+> The YWRAP case can never be matched and the YPAN case may be
+> matched by mistake. Obvious fix is to replace && with &. This
+> bug is not present in 2.6.
+> 
+> Signed-off-by: Willy Tarreau <w@1wt.eu>
+> ---
+>  drivers/video/fbcon.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/video/fbcon.c b/drivers/video/fbcon.c
+> index 0fb40c5..1f66819 100644
+> --- a/drivers/video/fbcon.c
+> +++ b/drivers/video/fbcon.c
+> @@ -2102,7 +2102,7 @@ static int fbcon_scrolldelta(struct vc_d
+>  
+>      offset = p->yscroll-scrollback_current;
+>      limit = p->vrows;
+> -    switch (p->scrollmode && __SCROLL_YMASK) {
+> +    switch (p->scrollmode & __SCROLL_YMASK) {
+>  	case __SCROLL_YWRAP:
+>  	    p->var.vmode |= FB_VMODE_YWRAP;
+>  	    break;
+> -- 
+> 1.4.2.4
 
-it's the cost of a syscall (1000 cycles?) plus what it takes to get a
-reasonable time estimate. Assuming your kernel has enough time support
-AND your tsc is reasonably ok, it'll be using that. If it's NOT using
-that then that's a pretty good sign that you can't also use it in
-userspace....
+Gr{oetje,eeting}s,
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

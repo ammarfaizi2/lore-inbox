@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754282AbWKZXJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754347AbWKZXNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754282AbWKZXJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 18:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754306AbWKZXJ6
+	id S1754347AbWKZXNc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 18:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754411AbWKZXNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 18:09:58 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:52232 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1754278AbWKZXJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 18:09:58 -0500
-Date: Sun, 26 Nov 2006 23:09:51 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+	Sun, 26 Nov 2006 18:13:32 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:50105 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1754347AbWKZXNc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 18:13:32 -0500
+Date: Sun, 26 Nov 2006 15:12:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ralf Baechle <ralf@linux-mips.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexey Dobriyan <adobriyan@gmail.com>
 Subject: Re: Build breakage ...
-Message-ID: <20061126230951.GB30767@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>
-References: <20061126224928.GA22285@linux-mips.org> <20061126230515.GA30767@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061126230515.GA30767@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0611261509330.3483@woody.osdl.org>
+References: <20061126224928.GA22285@linux-mips.org>
+ <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2006 at 11:05:16PM +0000, Russell King wrote:
-> Ditto on ARM.  This level of breakage is simply not acceptable soo
-> close to a release, and needs the change reverting.
+
+
+On Sun, 26 Nov 2006, Linus Torvalds wrote:
 > 
-> Note that on ARM, "allmodconfig" is really meaningless since it only
-> tests one configuration.  Ditto for the other all*config options.
-> kautobuild (or building a range of defconfigs) is the only real way
-> to check for breakage on ARM.
+> Does the obvious fix (to include <linux/kernel.h> in irqflags.h) fix it 
+> for you?
 
-BTW, it should be pointed out that ARM has for the last I don't know
-how many months been checking the type of "flags" passed into
-local_irq_save() and friends...  If a generic solution is adopted
-(during the merge phase _only_ please) then the ARM specific version
-should probably be removed.
+Btw, Alexey, why did you do _both a BUILD_BUG_ON and a "typecheck()"?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+If there are any broken users, we shouldn't break the build, but a 
+_warning_ is certainly appropriate.
+
+I think I'll just commit this..
+
+Ralf, Russell, does this work for you guys?
+
+		Linus
+---
+diff --git a/include/linux/irqflags.h b/include/linux/irqflags.h
+index 4fe740b..8c5d9d1 100644
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -11,11 +11,10 @@
+ #ifndef _LINUX_TRACE_IRQFLAGS_H
+ #define _LINUX_TRACE_IRQFLAGS_H
+ 
+-#define BUILD_CHECK_IRQ_FLAGS(flags)					\
+-	do {								\
+-		BUILD_BUG_ON(sizeof(flags) != sizeof(unsigned long));	\
+-		typecheck(unsigned long, flags);			\
+-	} while (0)
++#include <linux/kernel.h>
++
++#define BUILD_CHECK_IRQ_FLAGS(flags) \
++	typecheck(unsigned long, flags)
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS
+   extern void trace_hardirqs_on(void);

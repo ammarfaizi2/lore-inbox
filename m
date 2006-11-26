@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935356AbWKZUiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935553AbWKZUtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935356AbWKZUiV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 15:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935552AbWKZUiV
+	id S935553AbWKZUtt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 15:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935561AbWKZUtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 15:38:21 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:39219 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S935356AbWKZUiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 15:38:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=uVoHpw74myzdR7ThTm9I2HfAFWze8a030Q6zrh6/IKBt3S+c8QP9LPwDSlpUAGlXIMPsC++km3GvMSivQe0ZOskNfP02Lq2XJ4wxBkNWW2C2M7vPlkUEWJzlujz6ZIF7+VeTt6+5kItkuOnfB2lb8IlQlXS1u4t1oOpugAidQ84=
-Date: Sun, 26 Nov 2006 23:38:16 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: David Johnson <dj@david-web.co.uk>
-Subject: Re: Changing sysctl values within the kernel?
-Message-ID: <20061126203816.GA5032@martell.zuzino.mipt.ru>
-References: <200611251911.48961.dj@david-web.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Nov 2006 15:49:49 -0500
+Received: from ns2.suse.de ([195.135.220.15]:15256 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S935540AbWKZUtr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 15:49:47 -0500
+From: Andi Kleen <ak@suse.de>
+To: Amul Shah <amul.shah@unisys.com>
+Subject: Re: [PATCH] x86_64: Make the NUMA hash function nodemap allocation dynamic and remove NODEMAPSIZE
+Date: Sun, 26 Nov 2006 21:49:36 +0100
+User-Agent: KMail/1.9.5
+Cc: LKML <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
+References: <1163627312.3553.199.camel@ustr-linux-shaha1.unisys.com>
+In-Reply-To: <1163627312.3553.199.camel@ustr-linux-shaha1.unisys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200611251911.48961.dj@david-web.co.uk>
-User-Agent: Mutt/1.5.11
+Message-Id: <200611262149.36529.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2006 at 07:11:48PM +0000, David Johnson wrote:
-> I'm working on a kernel module and want to change sysctl values (specifically
-> stop-a and printk) in response to a hardware event.
->
-> Is there an accepted way of setting sysctl values within the kernel (I can't
-> seem to find any other module doing this),
+On Wednesday 15 November 2006 22:48, Amul Shah wrote:
+> This patch removes the statically allocated memory to NUMA node hash map
+> in favor of a dynamically allocated memory to node hash map (it is cache
+> aligned).
+> 
+> This patch has the nice side effect in that it allows the hash map to
+> grow for systems with large amounts of memory (256GB - 1TB), but suffer
+> from having small PCI space tacked onto the boot node (which is
+> somewhere between 192MB to 512MB on the ES7000).
+> 
+> Signed-off-by: Amul Shah <amul.shah@unisys.com>
+> 
+> ---
+> Patch applies to 2.6.19-rc4 and has been tested.
+> This patch needs testing on a K8 NUMA platform.
+> Thanks to Eric Dumazet and Andi Kleen for their improvement suggestions.
 
-Yes. Next in-kernel module changing sysctls will do it via
+I had the patch in, but had to drop it again because it makes one of my
+test system triple fault. Haven't done much investigation yet.
 
-	stop_a_enabled = 1;
-	console_loglevel = 8;
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e6000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003ef30000 (usable)
+ BIOS-e820: 000000003ef30000 - 000000003ef40000 (ACPI data)
+ BIOS-e820: 000000003ef40000 - 000000003eff0000 (ACPI NVS)
+ BIOS-e820: 000000003eff0000 - 000000003f000000 (reserved)
+ BIOS-e820: 00000000fecf0000 - 00000000fecf1000 (reserved)
+ BIOS-e820: 00000000fed20000 - 00000000feda0000 (reserved)
+end_pfn_map = 1043872
+kernel direct mapping tables up to feda0000 @ 8000-d000
+DMI 2.3 present.
+No NUMA configuration found
+Faking a node at 0000000000000000-000000003ef30000
+<triple fault>
 
-(be sure, variables in question are EXPORT_SYMBOL'ed)
-
-> or is it a completely silly idea?
-
-Without more details it's hard to tell.
-
-> Would it perhaps be better to instead create a sysfs node and let a userspace
-> daemon worry about setting the sysctl values?
-
-Now _this_ is silly. sysctls already live in /proc/sys/, so you can open(2)
-/proc/sys/kernel/printk and write(2) to it.
-
+-Andi

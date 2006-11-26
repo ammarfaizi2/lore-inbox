@@ -1,170 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966889AbWKZAo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935217AbWKZAuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966889AbWKZAo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 19:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935217AbWKZAo5
+	id S935217AbWKZAuv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 19:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935218AbWKZAuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 19:44:57 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56846 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S935213AbWKZAo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 19:44:56 -0500
-Date: Sun, 26 Nov 2006 01:45:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: v4l-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove DVB_AV7110_FIRMWARE
-Message-ID: <20061126004500.GB15364@stusta.de>
+	Sat, 25 Nov 2006 19:50:51 -0500
+Received: from excu-mxob-2.symantec.com ([198.6.49.23]:19598 "EHLO
+	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
+	id S935217AbWKZAuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 19:50:50 -0500
+X-AuditID: c6063117-a39d5bb0000025c0-8f-4568e37298cc 
+Date: Sun, 26 Nov 2006 00:44:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Mel Gorman <mel@skynet.ie>, Christoph Lameter <clameter@sgi.com>,
+       linux-mm@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/11] Add __GFP_MOVABLE flag and update callers
+In-Reply-To: <Pine.LNX.4.64.0611251058350.6991@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0611260039070.27769@blonde.wat.veritas.com>
+References: <20061121225022.11710.72178.sendpatchset@skynet.skynet.ie>
+ <20061121225042.11710.15200.sendpatchset@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211529030.32283@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0611212340480.11982@skynet.skynet.ie>
+ <Pine.LNX.4.64.0611211637120.3338@woody.osdl.org> <20061123163613.GA25818@skynet.ie>
+ <Pine.LNX.4.64.0611230906110.27596@woody.osdl.org> <20061124104422.GA23426@skynet.ie>
+ <Pine.LNX.4.64.0611241924110.17508@blonde.wat.veritas.com>
+ <Pine.LNX.4.64.0611251058350.6991@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Nov 2006 00:44:34.0444 (UTC) FILETIME=[0AE8C4C0:01C710F4]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DVB_AV7110_FIRMWARE was (except for some OSS drivers) the only option 
-that was still compiling a binary-only user-supplied firmware file at 
-build-time into the kernel.
+On Sat, 25 Nov 2006, Linus Torvalds wrote:
+> On Fri, 24 Nov 2006, Hugh Dickins wrote:
+> > 
+> > You need to add in something like the patch below (mutatis mutandis
+> > for whichever approach you end up taking): tmpfs uses highmem pages
+> > for its swap vector blocks, noting where on swap the data pages are,
+> > and allocates them with mapping_gfp_mask(inode->i_mapping); but we
+> > don't have any mechanism in place for reclaiming or migrating those.
+> 
+> I think this really just points out that you should _not_ put MOVABLE into 
+> the "mapping_gfp_mask()" at all.
+> 
+> The mapping_gfp_mask() should really just contain the "constraints" on 
+> the allocation, not the "how the allocation is used". So things like "I 
+> need all my pages to be in the 32bit DMA'able region" is a constraint on 
+> the allocator, as is something like "I need the allocation to be atomic". 
+> 
+> But MOVABLE is really not a constraint on the allocator, it's a guarantee 
+> by the code _calling_ the allocator that it will then make sure that it 
+> _uses_ the allocation in a way that means that it is movable.
+> 
+> So it shouldn't be a property of the mapping itself, it should always be a 
+> property of the code that actually does the allocation.
+> 
+> Hmm?
 
-This patch changes the driver to always use the standard 
-request_firmware() way for firmware by removing DVB_AV7110_FIRMWARE.
+Not anything I feel strongly about, but I don't see it that way.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+mapping_gfp_mask() seems to me nothing more than a pragmatic way
+of getting the appropriate gfp_mask down to page_cache_alloc().
 
----
+alloc_inode() initializes it to whatever suits most filesystems
+(currently GFP_HIGHUSER), and those who differ adjust it (e.g.
+block_dev has good reason to avoid highmem so sets it to GFP_USER
+instead).  It used to be the case that several filesystems lacked
+kmap() where needed, and those too would set GFP_USER: what you call
+a constraint seems to me equally a property of the surrounding code.
 
- drivers/media/dvb/ttpci/Kconfig  |   20 --------------
- drivers/media/dvb/ttpci/Makefile |    8 -----
- drivers/media/dvb/ttpci/av7110.c |   15 ----------
- drivers/media/dvb/ttpci/fdump.c  |   44 -------------------------------
- 4 files changed, 1 insertion(+), 86 deletions(-)
+If __GFP_MOVABLE is coming in, and most fs's are indeed allocating
+movable pages, then I don't see why MOVABLE shouldn't be in the
+mapping_gfp_mask.  Specifying MOVABLE constrains both the caller's
+use of the pages, and the way they are allocated; as does HIGHMEM.
 
---- linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/Kconfig.old	2006-11-26 00:41:45.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/Kconfig	2006-11-26 00:42:06.000000000 +0100
-@@ -1,7 +1,7 @@
- config DVB_AV7110
- 	tristate "AV7110 cards"
- 	depends on DVB_CORE && PCI && I2C && VIDEO_V4L1
--	select FW_LOADER if !DVB_AV7110_FIRMWARE
-+	select FW_LOADER
- 	select VIDEO_SAA7146_VV
- 	select DVB_PLL
- 	select DVB_VES1820 if !DVB_FE_CUSTOMISE
-@@ -26,24 +26,6 @@
- 
- 	  Say Y if you own such a card and want to use it.
- 
--config DVB_AV7110_FIRMWARE
--	bool "Compile AV7110 firmware into the driver"
--	depends on DVB_AV7110 && !STANDALONE
--	default y if DVB_AV7110=y
--	help
--	  The AV7110 firmware is normally loaded by the firmware hotplug manager.
--	  If you want to compile the firmware into the driver you need to say
--	  Y here and provide the correct path of the firmware. You need this
--	  option if you want to compile the whole driver statically into the
--	  kernel.
--
--	  All other people say N.
--
--config DVB_AV7110_FIRMWARE_FILE
--	string "Full pathname of av7110 firmware file"
--	depends on DVB_AV7110_FIRMWARE
--	default "/usr/lib/hotplug/firmware/dvb-ttpci-01.fw"
--
- config DVB_AV7110_OSD
- 	bool "AV7110 OSD support"
- 	depends on DVB_AV7110
---- linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/Makefile.old	2006-11-26 00:42:15.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/Makefile	2006-11-26 00:42:28.000000000 +0100
-@@ -13,11 +13,3 @@
- 
- EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/ -Idrivers/media/dvb/frontends/
- 
--hostprogs-y	:= fdump
--
--ifeq ($(CONFIG_DVB_AV7110_FIRMWARE),y)
--$(obj)/av7110.o: $(obj)/av7110_firm.h
--
--$(obj)/av7110_firm.h: $(obj)/fdump
--	$(obj)/fdump $(CONFIG_DVB_AV7110_FIRMWARE_FILE) dvb_ttpci_fw $@
--endif
---- linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/av7110.c.old	2006-11-26 00:43:18.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/av7110.c	2006-11-26 00:43:58.000000000 +0100
-@@ -1484,20 +1484,6 @@
- 	return 0;
- }
- 
--#ifdef CONFIG_DVB_AV7110_FIRMWARE_FILE
--#include "av7110_firm.h"
--static void put_firmware(struct av7110* av7110)
--{
--	av7110->bin_fw = NULL;
--}
--
--static inline int get_firmware(struct av7110* av7110)
--{
--	av7110->bin_fw = dvb_ttpci_fw;
--	av7110->size_fw = sizeof(dvb_ttpci_fw);
--	return check_firmware(av7110);
--}
--#else
- static void put_firmware(struct av7110* av7110)
- {
- 	vfree(av7110->bin_fw);
-@@ -1546,7 +1532,6 @@
- 	release_firmware(fw);
- 	return ret;
- }
--#endif
- 
- 
- static int alps_bsrv2_tuner_set_params(struct dvb_frontend* fe, struct dvb_frontend_parameters *params)
---- linux-2.6.19-rc6-mm1/drivers/media/dvb/ttpci/fdump.c	2006-09-20 05:42:06.000000000 +0200
-+++ /dev/null	2006-09-19 00:45:31.000000000 +0200
-@@ -1,44 +0,0 @@
--#include <stdio.h>
--#include <sys/types.h>
--#include <sys/stat.h>
--#include <fcntl.h>
--#include <unistd.h>
--
--int main(int argc, char **argv)
--{
--    unsigned char buf[8];
--    unsigned int i, count, bytes = 0;
--    FILE *fd_in, *fd_out;
--
--    if (argc != 4) {
--	fprintf(stderr, "\n\tusage: %s <ucode.bin> <array_name> <output_name>\n\n", argv[0]);
--	return -1;
--    }
--
--    fd_in = fopen(argv[1], "rb");
--    if (fd_in == NULL) {
--	fprintf(stderr, "firmware file '%s' not found\n", argv[1]);
--	return -1;
--    }
--
--    fd_out = fopen(argv[3], "w+");
--    if (fd_out == NULL) {
--	fprintf(stderr, "cannot create output file '%s'\n", argv[3]);
--	return -1;
--    }
--
--    fprintf(fd_out, "\n#include <asm/types.h>\n\nu8 %s [] = {", argv[2]);
--
--    while ((count = fread(buf, 1, 8, fd_in)) > 0) {
--	fprintf(fd_out, "\n\t");
--	for (i = 0; i < count; i++, bytes++)
--	    fprintf(fd_out, "0x%02x, ", buf[i]);
--    }
--
--    fprintf(fd_out, "\n};\n\n");
--
--    fclose(fd_in);
--    fclose(fd_out);
--
--    return 0;
--}
+And we shouldn't be guided by the way tmpfs (ab?)uses that gfp_mask
+for its metadata allocations as well as its page_cache_alloc()s:
+that's just a special case.  Though the ramfs case is more telling
+(its pagecache pages being not at present movable).
 
+Hugh

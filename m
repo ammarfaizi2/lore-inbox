@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757957AbWKZUPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756970AbWKZURr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757957AbWKZUPb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 15:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757958AbWKZUPb
+	id S1756970AbWKZURr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 15:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757960AbWKZURr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 15:15:31 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:2452 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1757957AbWKZUPa (ORCPT
+	Sun, 26 Nov 2006 15:17:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1756970AbWKZURq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 15:15:30 -0500
-Date: Sun, 26 Nov 2006 12:11:29 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Roland Dreier <rdreier@cisco.com>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       tom@opengridcomputing.com, Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
-In-Reply-To: <20061126111703.33247a84.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0611261208550.3483@woody.osdl.org>
-References: <adazmag5bk1.fsf@cisco.com> <20061124.220746.57445336.davem@davemloft.net>
- <adaodqv5e5l.fsf@cisco.com> <20061125.150500.14841768.davem@davemloft.net>
- <adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org>
- <ada64d23ty8.fsf@cisco.com> <20061126111703.33247a84.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Nov 2006 15:17:46 -0500
+Date: Sun, 26 Nov 2006 15:17:37 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: touch softlockup during stack unwinding.
+Message-ID: <20061126201737.GA13650@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20061126064704.GA5126@redhat.com> <200611262026.57604.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611262026.57604.ak@suse.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sometimes the soft watchdog fires after we're done oopsing.
+See http://projects.info-pull.com/mokb/MOKB-25-11-2006.html for an example.
+The NMI watchdog could also fire, so tickle both watchdogs.
 
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-On Sun, 26 Nov 2006, Andrew Morton wrote:
-> 
-> I'd be inclined to merge it for 2.6.19.  Is everyone OK with it?
-
-I'd _much_ rather make it more readable while at it. Something like this 
-instead, which has just _one_ "typeof" cast, and at least to me makes it a 
-lot more obvious what is going on (aka "to align something, use a mask 
-that is of the same type as the thing to be aligned..").
-
-Maybe it's just me, but I prefer to separate out the actual "action" from 
-the "type fluff" around it.
-
-		Linus
-
----
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 24b6111..b9b5e4b 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -30,8 +30,10 @@ extern const char linux_banner[];
+--- linux-2.6/arch/i386/kernel/traps.c~	2006-11-26 01:44:58.000000000 -0500
++++ linux-2.6/arch/i386/kernel/traps.c	2006-11-26 01:45:32.000000000 -0500
+@@ -29,6 +29,7 @@
+ #include <linux/kexec.h>
+ #include <linux/unwind.h>
+ #include <linux/uaccess.h>
++#include <linux/nmi.h>
  
- #define STACK_MAGIC	0xdeadbeef
- 
-+#define ALIGN(x,a)		__ALIGN_MASK(x,(typeof(x))(a)-1)
-+#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
-+
- #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
--#define ALIGN(x,a) (((x)+(a)-1UL)&~((a)-1UL))
- #define FIELD_SIZEOF(t, f) (sizeof(((t*)0)->f))
- #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
- #define roundup(x, y) ((((x) + ((y) - 1)) / (y)) * (y))
+ #ifdef CONFIG_EISA
+ #include <linux/ioport.h>
+@@ -247,6 +247,7 @@ void dump_trace(struct task_struct *task
+ 		stack = (unsigned long*)context->previous_esp;
+ 		if (!stack)
+ 			break;
++		touch_nmi_watchdog();
+ 	}
+ }
+ EXPORT_SYMBOL(dump_trace);
+
+
+-- 
+http://www.codemonkey.org.uk

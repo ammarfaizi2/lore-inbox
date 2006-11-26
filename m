@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754347AbWKZXNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754424AbWKZXPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754347AbWKZXNc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 18:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754411AbWKZXNc
+	id S1754424AbWKZXPB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 18:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754451AbWKZXPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 18:13:32 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:50105 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1754347AbWKZXNc (ORCPT
+	Sun, 26 Nov 2006 18:15:01 -0500
+Received: from main.gmane.org ([80.91.229.2]:33444 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1754366AbWKZXPA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 18:13:32 -0500
-Date: Sun, 26 Nov 2006 15:12:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ralf Baechle <ralf@linux-mips.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: Build breakage ...
-In-Reply-To: <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0611261509330.3483@woody.osdl.org>
-References: <20061126224928.GA22285@linux-mips.org>
- <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Nov 2006 18:15:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jon Escombe <lists@dresco.co.uk>
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Date: Sun, 26 Nov 2006 23:14:51 +0000 (UTC)
+Message-ID: <loom.20061127T000355-778@post.gmane.org>
+References: <455DAF74.1050203@schlagmichtod.de> <20061121205124.GB4199@ucw.cz> <20061124072109.GY4999@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 82.68.23.174 (Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8.0.8) Gecko/20061108 Fedora/1.5.0.8-1.fc5 Firefox/1.5.0.8)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe <jens.axboe <at> oracle.com> writes:
 
-
-On Sun, 26 Nov 2006, Linus Torvalds wrote:
 > 
-> Does the obvious fix (to include <linux/kernel.h> in irqflags.h) fix it 
-> for you?
+> On Tue, Nov 21 2006, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > Well, the actual question is the following,
+> > > I read about HDAPS on thinkWiki. But there is no known-to-work patch for
+> > > 2.6.18 and above to enable queue-freezing/harddisk parking.
+> > > After some googeling and digging in gamne i read that someone said that
+> > > there are plans for some generic support for HD-parking in the kernel
+> > > and thus making such patches obsolete.
+> > > My quesiotn just is if this is true and if there are any chances that
+> > > the kernel will support that soonly.
+> > ...
+> > > So i hope this issue can be adressed soon. but i also know that most of
+> > > you are very busy and i can not evaluate how difficult such a change
+> > > would be. However if anyone wants to test some things or more
+> > > information, i am ready. Just CC me :)
+> > 
+> > I'm afraid we need your help with development here. Porting old patch
+> > to 2.6.19-rc6 should be easy, and then you can start 'how do I
+> > makethis generic' debate.
+> 
+> 2.6.19 will finally have the generic block layer commands, so this can
+> be implemented properly.
+> 
 
-Btw, Alexey, why did you do _both a BUILD_BUG_ON and a "typecheck()"?
+That's good to know. Sounds like we'll be able to have another attempt at
+getting this functionality upstream..
 
-If there are any broken users, we shouldn't break the build, but a 
-_warning_ is certainly appropriate.
+In the meantime, the current code has been cleaned up and updated to work with
+2.6.18. Patches are on the hdaps-devel list.
 
-I think I'll just commit this..
+http://sourceforge.net/mailarchive/forum.php?forum=hdaps-devel (or gmane for an
+easier view ;)
 
-Ralf, Russell, does this work for you guys?
+Regards,
+Jon.
 
-		Linus
----
-diff --git a/include/linux/irqflags.h b/include/linux/irqflags.h
-index 4fe740b..8c5d9d1 100644
---- a/include/linux/irqflags.h
-+++ b/include/linux/irqflags.h
-@@ -11,11 +11,10 @@
- #ifndef _LINUX_TRACE_IRQFLAGS_H
- #define _LINUX_TRACE_IRQFLAGS_H
- 
--#define BUILD_CHECK_IRQ_FLAGS(flags)					\
--	do {								\
--		BUILD_BUG_ON(sizeof(flags) != sizeof(unsigned long));	\
--		typecheck(unsigned long, flags);			\
--	} while (0)
-+#include <linux/kernel.h>
-+
-+#define BUILD_CHECK_IRQ_FLAGS(flags) \
-+	typecheck(unsigned long, flags)
- 
- #ifdef CONFIG_TRACE_IRQFLAGS
-   extern void trace_hardirqs_on(void);
+

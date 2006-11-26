@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753329AbWKZWxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752809AbWKZW4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753329AbWKZWxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 17:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753211AbWKZWxZ
+	id S1752809AbWKZW4v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 17:56:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752255AbWKZW4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 17:53:25 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:16852 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1753329AbWKZWxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 17:53:24 -0500
-Date: Sun, 26 Nov 2006 23:53:17 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
-Cc: "'David Brownell'" <david-b@pacbell.net>,
-       "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>, <akpm@osdl.org>,
-       <linuxppc-dev@ozlabs.org>, <lethal@linux-sh.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <ralf@linux-mips.org>, "'Andi Kleen'" <ak@muc.de>, <paulus@samba.org>,
-       <rmk@arm.linux.org.uk>, <davem@davemloft.net>, <kkojima@rr.iij4u.or.jp>
-Subject: Re: NTP time sync
-Message-ID: <20061126235317.5d40d22c@inspiron>
-In-Reply-To: <00b301c711a3$07cf3530$020120ac@Jocke>
-References: <20061126202148.190d5b4b@inspiron>
-	<00b301c711a3$07cf3530$020120ac@Jocke>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
+	Sun, 26 Nov 2006 17:56:50 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:8354 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751893AbWKZW4u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 17:56:50 -0500
+Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64| perhaps
+	duplicate bug report?
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200611261952.11063.s0348365@sms.ed.ac.uk>
+References: <1164205742.13434.4.camel@localhost>
+	 <20061122152559.72efd379.akpm@osdl.org>
+	 <1164564469.9291.17.camel@localhost>
+	 <200611261952.11063.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Sun, 26 Nov 2006 23:56:37 +0100
+Message-Id: <1164581797.9291.20.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2006 22:37:10 +0100
-"Joakim Tjernlund" <joakim.tjernlund@transmode.se> wrote:
-
-> >  the concept of static numbers is quite old...
+On Sun, 2006-11-26 at 19:52 +0000, Alistair John Strachan wrote:
+> On Sunday 26 November 2006 18:07, Kasper Sandberg wrote:
+> > On Wed, 2006-11-22 at 15:25 -0800, Andrew Morton wrote:
+> > > On Wed, 22 Nov 2006 15:29:02 +0100
+> > >
+> > > Kasper Sandberg <lkml@metanurb.dk> wrote:
+> > > > it appears some sort of bug has gotten into .19, in regards to x86
+> > > > emulation on x86_64.
+> > > >
+> > > > i have only tested with >=rc5, thw folling, as an example, appears in
+> > > > dmesg:
+> > > > ioctl32(regedit.exe:11801): Unknown cmd fd(9) cmd(82187201){02}
+> > > > arg(00221000) on /home/redeeman
+> > > > ioctl32(regedit.exe:11801): Unknown cmd fd(9) cmd(82187201){02}
+> > > > arg(00221000) on /home/redeeman/.wine/drive_c/windows/system32
+> > >
+> > > Try
+> > >
+> > > 	echo 0 > /proc/sys/kernel/compat-log
+> > >
+> > > I don't _think_ we did anything to change the logging in there.  Which
+> > > kernel version were you using previously (the one which didn't do this)?
+> >
+> > it just struck me, that this may be the same bug Jesper Juhl has
+> > discovered (atleast the hardlock part), as i read that thread, it strike
+> > me that whenever i have hardlocks from this, its when i in wine runs
+> > stuff that uses basically all my ram, and MAY even touch my swap.
 > 
-> Yes it is old, but is the old way unsupported now? I have an embedded target
-> which is using the old static /dev directory, do I need to make
-> it udev aware to use newer features like the rtc subsystem?
+> I see this same ioctl32 warning on a few apps running inside Wine, but I've 
+> not had any hard locks. On the contrary, everything works fine.
+thats why i have come to suspect it may not be the ioctl thing that
+causes the hardlocks, as i read that other thread
+> 
+> I guess it would be nice to know which ioctl it is that doesn't have a compat 
+> wrapper on x86-64, 82187201 is a bit cryptic.
+yes, it did not say these things on .18 :)
 
- That can be a good option. You can also do
- a symlink to /dev/rtc0 in your boot scripts or simply
- upgrade your hwclock to a version that accepts
- the device as a parameter.
-
- The old /dev/rtc name is not supported on the new rtc subsystem.
-
- 
-
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
+how do i get more verbose information on what exactly it is?
+> 
+> HTH.
+> 
 

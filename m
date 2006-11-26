@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935370AbWKZMiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935373AbWKZMk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935370AbWKZMiM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 07:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935371AbWKZMiM
+	id S935373AbWKZMk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 07:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935374AbWKZMk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 07:38:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60310 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S935370AbWKZMiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 07:38:11 -0500
-Message-ID: <45698AA3.1020601@redhat.com>
-Date: Sun, 26 Nov 2006 20:37:55 +0800
-From: Eugene Teo <eteo@redhat.com>
-Organization: Red Hat Asia Pacific
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sun, 26 Nov 2006 07:40:26 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:527 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S935373AbWKZMk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 07:40:26 -0500
+Message-ID: <45698B38.7040507@superbug.co.uk>
+Date: Sun, 26 Nov 2006 12:40:24 +0000
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/sctp/socket.c: add missing sctp_spin_unlock_irqrestore
-References: <456965D5.1000302@redhat.com> <20061126101254.GW3078@ftp.linux.org.uk>
-In-Reply-To: <20061126101254.GW3078@ftp.linux.org.uk>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Casey Dahlin <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Overriding X on panic
+References: <1164434093.10503.2.camel@localhost.localdomain> <20061125160954.239e0d7e@localhost.localdomain>
+In-Reply-To: <20061125160954.239e0d7e@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Sun, Nov 26, 2006 at 06:00:53PM +0800, Eugene Teo wrote:
->> This patch adds a missing sctp_spin_unlock_irqrestore when returning
->> from "if(space_left<addrlen)" condition.
->>                 if (copy_to_user(*to, &temp, addrlen)) {
->> -                       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock,
->> -                                                   flags);
->> -                       return -EFAULT;
->> +                       err = -EFAULT;
->> +                       goto unlock;
+Alan wrote:
+> On Sat, 25 Nov 2006 00:54:53 -0500
+> Casey Dahlin <cjdahlin@ncsu.edu> wrote:
 > 
->> +       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock, flags);
->> +       return err;
->>  }
+>> Linus did say that he would do anything within reason to help desktop
+>> linux forward, and frankly a big step forward would be to get error
+>> messages to the user. What might be some safe options for overriding,
+>> switching away from, killing, or otherwise disposing of the X server
+>> when an unrecoverable Oops is about to occur on the TTY?
 > 
-> You do realize that it's obviously still badly broken, don't you?
-> copy_to_user() under a spinlock is a recipe for deadlock, especially
-> if you've got interrupts disabled...
+> Assuming frame buffer support is present in the kernel you need an ioctl
+> that specifies the frame buffer depth/layout so the kernel can print
+> correctly on it. At that point most of the time you'll get the report out
+> - more than trying to mode switch probably.
+> 
+> Send patches
+> 
+> Alan
 
-Realized. Back to drawing board.
+I agree. Getting the kernel to write out to the current display mode, 
+instead of having to change display mode would be less risky.
+It does not have to be fast, and would only need a very simple font, 
+enough to display an oops.
 
-Eugene
--- 
-1024D/58DF8823 print 47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+Other options are enabling some sort of oops writing to some PCI cards.
+E.g. Some Creative sound cards remember some settings over a warm boot, 
+so one could write out the oops there, and have code to auto detect it 
+when the system is rebooted. I only noticed this when reverse 
+engineering some creative sound cards, and rebooting from windows to 
+linux made my test linux driver make sound, but would only work if one 
+booted into windows first, then warm boot to linux. How many bytes are 
+needed for an oops?
+
+James
+
+
+

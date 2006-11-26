@@ -1,72 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935336AbWKZLFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935330AbWKZLTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935336AbWKZLFF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 06:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935338AbWKZLFF
+	id S935330AbWKZLTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 06:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935342AbWKZLTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 06:05:05 -0500
-Received: from 147.175.241.83.in-addr.dgcsystems.net ([83.241.175.147]:35272
-	"EHLO tmnt04.transmode.se") by vger.kernel.org with ESMTP
-	id S935336AbWKZLFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 06:05:03 -0500
-From: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
-To: "'David Brownell'" <david-b@pacbell.net>,
-       "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>
-Cc: <akpm@osdl.org>, "'Alessandro Zummo'" <alessandro.zummo@towertech.it>,
-       <linuxppc-dev@ozlabs.org>, <lethal@linux-sh.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       <ralf@linux-mips.org>, "'Andi Kleen'" <ak@muc.de>, <paulus@samba.org>,
-       <rmk@arm.linux.org.uk>, <davem@davemloft.net>, <kkojima@rr.iij4u.or.jp>
-Subject: RE: NTP time sync
-Date: Sun, 26 Nov 2006 12:04:54 +0100
-Message-ID: <009a01c7114a$b429f850$020120ac@Jocke>
+	Sun, 26 Nov 2006 06:19:48 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:2206 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S935330AbWKZLTr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 06:19:47 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.19-rc5-mm2 (end earlier): WARNING at lib/kobject.c:172 kobject_init() on resume from disk
+Date: Sun, 26 Nov 2006 12:11:02 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+References: <200611222207.07143.rjw@sisk.pl> <200611260015.53710.rjw@sisk.pl> <20061125234342.GA31413@kroah.com>
+In-Reply-To: <20061125234342.GA31413@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Thread-Index: AccQ6KFreZatZITbSra+1apY1bj2oQAYTVhA
-In-Reply-To: <200611251522.19900.david-b@pacbell.net>
-X-OriginalArrivalTime: 26 Nov 2006 11:04:57.0979 (UTC) FILETIME=[B5DD74B0:01C7114A]
+Content-Disposition: inline
+Message-Id: <200611261211.04044.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: 
-> linuxppc-dev-bounces+joakim.tjernlund=transmode.se@ozlabs.org 
-> [mailto:linuxppc-dev-bounces+joakim.tjernlund=transmode.se@ozl
-> abs.org] On Behalf Of David Brownell
-> Sent: den 26 november 2006 00:22
-> To: Benjamin Herrenschmidt
-> Cc: akpm@osdl.org; Alessandro Zummo; linuxppc-dev@ozlabs.org; 
-> lethal@linux-sh.org; Linux Kernel Mailing List; 
-> ralf@linux-mips.org; Andi Kleen; paulus@samba.org; 
-> rmk@arm.linux.org.uk; davem@davemloft.net; kkojima@rr.iij4u.or.jp
-> Subject: Re: NTP time sync
-> 
-> On Thursday 23 November 2006 3:00 am, Benjamin Herrenschmidt wrote:
+On Sunday, 26 November 2006 00:43, Greg KH wrote:
+> On Sun, Nov 26, 2006 at 12:15:52AM +0100, Rafael J. Wysocki wrote:
+> > On Saturday, 25 November 2006 23:20, Rafael J. Wysocki wrote:
+> > > On Wednesday, 22 November 2006 22:44, Andrew Morton wrote:
+> > > > On Wed, 22 Nov 2006 22:07:06 +0100
+> > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > 
+> > > > > Hi,
+> > > > > 
+> > > > > I get similar traces on every resume from disk on SMP systems:
+> > > > > 
+> > > > > WARNING at lib/kobject.c:172 kobject_init()
+> > > > > 
+> > > > > Call Trace:
+> > > > >  [<ffffffff80265559>] dump_trace+0xaa/0x3fd
+> > > > >  [<ffffffff802658e8>] show_trace+0x3c/0x52
+> > > > >  [<ffffffff80265913>] dump_stack+0x15/0x17
+> > > > >  [<ffffffff8031c1ad>] kobject_init+0x3f/0x8a
+> > > > >  [<ffffffff8031c298>] kobject_register+0x1a/0x3e
+> > > > >  [<ffffffff8038e5b4>] sysdev_register+0x5f/0xec
+> > > > >  [<ffffffff8026af39>] mce_create_device+0x79/0x103
+> > > > >  [<ffffffff8026afed>] mce_cpu_callback+0x2a/0xbd
+> > > > >  [<ffffffff8026112f>] notifier_call_chain+0x29/0x3e
+> > > > >  [<ffffffff8028e809>] raw_notifier_call_chain+0x9/0xb
+> > > > >  [<ffffffff80299f18>] _cpu_up+0xc2/0xd5
+> > > > >  [<ffffffff80299f56>] cpu_up+0x2b/0x42
+> > > > >  [<ffffffff80299fbb>] enable_nonboot_cpus+0x4e/0x9b
+> > > > >  [<ffffffff802a35da>] snapshot_ioctl+0x1a0/0x5d2
+> > > > >  [<ffffffff8023d9cd>] do_ioctl+0x5e/0x77
+> > > > >  [<ffffffff8022d785>] vfs_ioctl+0x256/0x273
+> > > > >  [<ffffffff8024770b>] sys_ioctl+0x5f/0x82
+> > > > >  [<ffffffff8025811e>] system_call+0x7e/0x83
+> > > > > DWARF2 unwinder stuck at system_call+0x7e/0x83
+> > > > > Leftover inexact backtrace:
+> > > > > 
+> > > > > False positive?
+> > > > > 
+> > > > 
+> > > > Don't know.  The changelog in
+> > > > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/kobject-warn.patch
+> > > > is pretty pathetic.
+> > > > 
+> > > > Perhaps mce_remove_device() isn't being called.
+> > > 
+> > > I've added some debugging code into mce_remove_device() which shows that it is
+> > > being called when the CPU is removed.
+> > > 
+> > > Investigation continues.
 > > 
-> > Couldn't we have a transition period by making the kernel 
-> not rely on
-> > interrupts ? if the NTP irq code just triggers a work 
-> queue, then all of
-> > a sudden, all of the RTC drivers can be used and the 
-> latency is small.
-> > That might well be a good enough solution and is very simple.
+> > Ah, I think the problem is that the last user of a kobject doesn't decrease
+> > the refcount in kref_put(), so if the same kobject is registered for the
+> > second time, the refcount is still one and the warning triggers.
 > 
-> Good point.  Of course, one issue is that the NTP sync code all
-> seems to be platform-specific right now ... just like the code
-> to set the system time from an RTC at boot (except for the new
-> RTC framework stuff) and after resume.
+> But the last user of the kobject should cause the kobject to be freed
+> and disappear.  It should not hang around, right?
 > 
-> - Dave
+> Oh yuck, this is a static struct device, one per cpu :(
+> 
+> > So, it seems, this is a false positive and I think we can get rid of it in the
+> > following way (tested and works):
+> > 
+> > ---
+> > Make mce_remove_device() clean up the kobject in per_cpu(device_mce, cpu)
+> > after it has been unregistered.
+> > 
+> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> > ---
+> >  arch/x86_64/kernel/mce.c |    1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > Index: linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c
+> > ===================================================================
+> > --- linux-2.6.19-rc6-mm1.orig/arch/x86_64/kernel/mce.c	2006-11-25 23:56:08.000000000 +0100
+> > +++ linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c	2006-11-26 00:15:34.000000000 +0100
+> > @@ -651,6 +651,7 @@ static void mce_remove_device(unsigned i
+> >  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_tolerant);
+> >  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_check_interval);
+> >  	sysdev_unregister(&per_cpu(device_mce,cpu));
+> > +	per_cpu(device_mce, cpu).kobj = (struct kobject){ 0 };
+> 
+> memset the kobj instead perhaps?  Yeah, I guess this copy will work, as
+> the compiler turns it into a memset.
 
-Looking at rtc-dev.c I don't see a MARJOR number assigned to /dev/rtcN. Seems like
-it is dynamically allocated to whatever major number that is free.
-Is that the way it is supposed to be? How do I create a static /dev/rtcN in my /dev
-directory if the major number isn't fixed?
-Maybe I am just missing something, feel free to correct me :)
+Patch with the memset follows.
 
- Jocke
+BTW, it seems to me that the WARN_ON in kref_get will never trigger, will it?
+
+Greetings,
+Rafael
+
+
+---
+Make mce_remove_device() clean up the kobject in per_cpu(device_mce, cpu)
+after it has been unregistered.
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ arch/x86_64/kernel/mce.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c
+===================================================================
+--- linux-2.6.19-rc6-mm1.orig/arch/x86_64/kernel/mce.c	2006-11-26 11:31:38.000000000 +0100
++++ linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c	2006-11-26 12:02:10.000000000 +0100
+@@ -651,6 +651,7 @@ static void mce_remove_device(unsigned i
+ 	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_tolerant);
+ 	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_check_interval);
+ 	sysdev_unregister(&per_cpu(device_mce,cpu));
++	memset(&per_cpu(device_mce, cpu).kobj, 0, sizeof(struct kobject));
+ }
+ 
+ /* Get notified when a cpu comes on/off. Be hotplug friendly. */
 

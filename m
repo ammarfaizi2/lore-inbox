@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935409AbWKZOab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935402AbWKZOjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935409AbWKZOab (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 09:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935408AbWKZOab
+	id S935402AbWKZOjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 09:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935413AbWKZOjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 09:30:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37526 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S935409AbWKZOaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 09:30:30 -0500
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: V4L-DVB Maintainers <v4l-dvb-maintainer@linuxtv.org>,
-       Hans Verkuil <hverkuil@xs4all.nl>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 1/2] V4L/DVB (4885): Improve saa711x check
-Date: Sun, 26 Nov 2006 12:26:51 -0200
-Message-id: <20061126142651.PS1380670006@infradead.org>
-In-Reply-To: <20061126141928.PS6336290000@infradead.org>
-References: <20061126141928.PS6336290000@infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Sun, 26 Nov 2006 09:39:40 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:44442 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S935402AbWKZOjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 09:39:39 -0500
+From: Karsten Wiese <fzu@wemgehoertderstaat.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.19-rc6-rt5
+Date: Sun, 26 Nov 2006 15:39:47 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061120220230.GA30835@elte.hu>
+In-Reply-To: <20061120220230.GA30835@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200611261539.48105.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> i've released the 2.6.19-rc6-rt5 tree, which can be downloaded from the 
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+Hi
 
-The old code would accept any device on the same i2c address as the
-saa711x chips as an saa711x. However, this fails with saa717x chips,
-which use that same address and so are misdetected as a saa7111. Now
-check whether the chip is really a saa711x model.
+this fixes issues like rmmod hanging and inodes leaking.
 
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+      Karsten
 
- drivers/media/video/saa7115.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/media/video/saa7115.c b/drivers/media/video/saa7115.c
-index c5719f7..f28398d 100644
---- a/drivers/media/video/saa7115.c
-+++ b/drivers/media/video/saa7115.c
-@@ -1464,8 +1464,6 @@ static int saa711x_attach(struct i2c_ada
- 	client->driver = &i2c_driver_saa711x;
- 	snprintf(client->name, sizeof(client->name) - 1, "saa7115");
+--- fs/dcache.c~	2006-11-21 11:25:11.000000000 +0100
++++ fs/dcache.c	2006-11-26 15:20:31.000000000 +0100
+@@ -150,7 +150,7 @@ void dput(struct dentry *dentry)
+ repeat:
+ 	if (atomic_read(&dentry->d_count) == 1)
+ 		might_sleep();
+-	if (atomic_dec_and_test(&dentry->d_count))
++	if (!atomic_dec_and_test(&dentry->d_count))
+ 		return;
  
--	v4l_dbg(1, debug, client, "detecting saa7115 client on address 0x%x\n", address << 1);
--
- 	for (i=0;i<0x0f;i++) {
- 		saa711x_write(client, 0, i);
- 		name[i] = (saa711x_read(client, 0) &0x0f) +'0';
-@@ -1477,6 +1475,13 @@ static int saa711x_attach(struct i2c_ada
- 	saa711x_write(client, 0, 5);
- 	chip_id = saa711x_read(client, 0) & 0x0f;
- 
-+	/* Check whether this chip is part of the saa711x series */
-+	if (memcmp(name, "1f711", 5)) {
-+		v4l_dbg(1, debug, client, "chip found @ 0x%x (ID %s) does not match a known saa711x chip.\n",
-+			address << 1, name);
-+		return 0;
-+	}
-+
- 	snprintf(client->name, sizeof(client->name) - 1, "saa711%d",chip_id);
- 	v4l_info(client, "saa711%d found (%s) @ 0x%x (%s)\n", chip_id, name, address << 1, adapter->name);
- 
-
+ 	spin_lock(&dentry->d_lock);

@@ -1,120 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967249AbWKZDJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967257AbWKZDqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967249AbWKZDJS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 22:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967250AbWKZDJS
+	id S967257AbWKZDqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 22:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967284AbWKZDqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 22:09:18 -0500
-Received: from free.hands.com ([83.142.228.128]:36578 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S967249AbWKZDJR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 22:09:17 -0500
-Date: Sun, 26 Nov 2006 03:09:01 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org,
-       Linux ARM Kernel list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>,
-       kernel-discuss@handhelds.org
-Subject: Re: tty line discipline driver advice sought, to do a 1-byte header and 2-byte CRC checksum on GSM data
-Message-ID: <20061126030901.GB5207@lkcl.net>
-References: <20061125040614.GI16214@lkcl.net> <20061125230826.22d69a35@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061125230826.22d69a35@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Sat, 25 Nov 2006 22:46:47 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:33832 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S967257AbWKZDqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 22:46:46 -0500
+Date: Sat, 25 Nov 2006 19:46:54 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: zippel@linux-m68k.org, jejb <james.bottomley@steeleye.com>
+Subject: Re: how to handle indirect kconfig dependencies
+Message-Id: <20061125194654.2391db44.randy.dunlap@oracle.com>
+In-Reply-To: <20061116200741.fb607fe4.randy.dunlap@oracle.com>
+References: <20061116200741.fb607fe4.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2006 at 11:08:26PM +0000, Alan wrote:
-> > userspace, which would be a hell of a lot easier, but would make
-> > applications a pain, because they would need to use a library instead of
-> > just opening /dev/ttySN just like any other phone app, to transfer AT
-> > commands.
+On Thu, 16 Nov 2006 20:07:41 -0800 Randy Dunlap wrote:
+
+> Hi,
 > 
-> Like gnokii for example ?
+> I have a (randconfig) build of 2.6.19-rc5-mm2 with:
 > 
-> You can do both - use a pty/tty pair to front the daemon
+> CONFIG_DEBUG_READAHEAD=y
+> 
+> which selects DEBUG_FS, so DEBUG_FS=y, but DEBUG_FS depends on
+> SYSFS, and SYSFS is not set in the randconfig.
+> 
+> This randconfig causes this build error:
+> 
+> fs/built-in.o: In function `debugfs_init':
+> inode.c:(.init.text+0xdb2): undefined reference to `kernel_subsys'
+> 
+> so the question is:
+> (How) can kconfig follow the dependency chain and either
+> - prevent this odd config combination or
+> - see that 'select DEBUG_FS' implies 'select SYSFS' and then enable SYSFS
+> ?
+> 
+> I don't believe that the right answer is to add
+> 	depends on SYSFS
+> to DEBUG_READAHEAD.
+> 
+> 
+> .config is at http://oss.oracle.com/~rdunlap/configs/config-readahead-debugfs
 
- heya alan,
+Roman,
+Here's another one for your consideration.
 
- thanks for responding.
+USB_APPLEDISPLAY selects BACKLIGHT_LCD_SUPPORT & BACKLIGHT_CLASS_DEVICE;
+drivers/backlight/Kconfig depends on SYSFS (but SYSFS=n)
 
- what i was hoping was, like the motorola e680/a780 'mux_cli' driver,
- which is an abortion-and-a-half, to be able to run gnokii or anything
- like it _without_ having binary data in the /dev/ttySN datastream.
+http://oss.oracle.com/~rdunlap/configs/config-backlight-appledisplay
 
- the way that harald plans to do this is to have a userspace daemon which
- handles the actual serial data, and then hands it _back_ to kernelspace
- (via ioctls?) for it to hand out to the relevant _dummy_ serial device.
- one of these devices is what gnokii (or any other program) listens on, to
- handle phone calls (ATH, ATA, ATDTNNNNN etc.).  another is what you would
- start pppd on - even at the same time as making a call, if you had UTMS
- (i think that's right...) but you get the idea.
-
- both harald's plan - and motorola's abortional 'mux_cli' driver -
- achieve this.  in motorola's case, it's SIXTEEN separate dummy serial
- devices.
-
- also, trolltech have already implemented the same thing, entirely in
- userspace, and you connect to their daemon on TCP sockets on various
- different ports, to get the different data (battery life, signal
- strength, send/receive SMS etc.)
-
- so there are many approaches.  motorola went entirely kernelspace and
- the driver is a fxxxxxg mess - 6,000 lines of unmaintainable shit.
- trolltech (and, independently, the guys who did the h63xx port) went
- entirely user-space.  harald, for the openmoko neo1973 has gone for a
- mixed approach, with a 'helper' daemon which does the hard work in a
- sensible place - USERSPACE are you LISTENING motorola? :)
-
- i _could_ wait for harald's work to make its way out of FIC, which
- should be some time in january.  i'd like to roughly know what i'm
- doing before then :)
-
- not least because harald's code certainly won't have support for e.g. the
- htc universal's _awful_ audio management, part of which is done over
- the serial link to the UTMS radio module!  (there is device-switching
- to the four separate speakers (!), volume control, bluetooth enabling
- etc. it's horrendous)
-
- that would need to have its own 'audio management' demuxed dummy serial
- 'port'.
-
- plus, i don't believe that the eriksson k700 gsm radio module supports
- TS07.10 (which is what is used on the Neo1973, the Greenphone, the
- Motorola linux phones and many others).  it's an entirely different - and proprietary - multiplexing protocol.
-
- so i would have to do quite a bit of adaptation.
-
- alternatively, someone else can buy one of these damn good - expensive -
- pda/phones with gps built-in - and do it instead.
-
-	 http://wiki.xda-developers.com/index.php?pagename=Ipaq6915
-
- (i've about 90% finished the device-driver support: suspend/resume is
- the only significant big task).
-
- l.
-
- p.s. if the linux kernel design could be compiled up (optionally, of
- course, not as a total replacement redesign, of course, to avoid the
- polarised bun-fights about which way is better) with options based
- around the same principles that Gnu/Hurd was - message-passing and
- used IPC and an RPC compiler to help turn IDL files into drivers -
- then this would be an entirely moot point.
- 
- there would _be_ no awful/awkward kernelspace/userspace decisions like
- this to make, as it would be possible to write a userspace daemon that
- then 'republished' to the kernel the de-multiplexed serial ports.
-
- but, i am sure you would agree: that's another looong story :)
-
--- 
---
-lkcl.net - mad free software computer person, visionary and poet.
---
+---
+~Randy

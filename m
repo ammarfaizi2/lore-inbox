@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935373AbWKZMk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935384AbWKZNGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935373AbWKZMk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 07:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935374AbWKZMk0
+	id S935384AbWKZNGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 08:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935382AbWKZNGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 07:40:26 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:527 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S935373AbWKZMk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 07:40:26 -0500
-Message-ID: <45698B38.7040507@superbug.co.uk>
-Date: Sun, 26 Nov 2006 12:40:24 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
-MIME-Version: 1.0
-To: Alan <alan@lxorguk.ukuu.org.uk>
-CC: Casey Dahlin <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Overriding X on panic
-References: <1164434093.10503.2.camel@localhost.localdomain> <20061125160954.239e0d7e@localhost.localdomain>
-In-Reply-To: <20061125160954.239e0d7e@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Nov 2006 08:06:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:62859 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S935380AbWKZNGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 08:06:38 -0500
+Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061125191510.GB3702@stusta.de>
+References: <20061125191510.GB3702@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sun, 26 Nov 2006 11:06:25 -0200
+Message-Id: <1164546385.4045.25.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> On Sat, 25 Nov 2006 00:54:53 -0500
-> Casey Dahlin <cjdahlin@ncsu.edu> wrote:
+Em Sáb, 2006-11-25 às 20:15 +0100, Adrian Bunk escreveu:
+> The VIDEO_ZR36120 driver has:
+> - already been marked as BROKEN in 2.6.0 three years ago and
+> - is still marked as BROKEN.
 > 
->> Linus did say that he would do anything within reason to help desktop
->> linux forward, and frankly a big step forward would be to get error
->> messages to the user. What might be some safe options for overriding,
->> switching away from, killing, or otherwise disposing of the X server
->> when an unrecoverable Oops is about to occur on the TTY?
+> Drivers that had been marked as BROKEN for such a long time seem to be 
+> unlikely to be revived in the forseeable future.
 > 
-> Assuming frame buffer support is present in the kernel you need an ioctl
-> that specifies the frame buffer depth/layout so the kernel can print
-> correctly on it. At that point most of the time you'll get the report out
-> - more than trying to mode switch probably.
+> But if anyone wants to ever revive this driver, the code is still 
+> present in the older kernel releases.
 > 
-> Send patches
-> 
-> Alan
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Acked-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 
-I agree. Getting the kernel to write out to the current display mode, 
-instead of having to change display mode would be less risky.
-It does not have to be fast, and would only need a very simple font, 
-enough to display an oops.
+Ok, applied at my -git. 
 
-Other options are enabling some sort of oops writing to some PCI cards.
-E.g. Some Creative sound cards remember some settings over a warm boot, 
-so one could write out the oops there, and have code to auto detect it 
-when the system is rebooted. I only noticed this when reverse 
-engineering some creative sound cards, and rebooting from windows to 
-linux made my test linux driver make sound, but would only work if one 
-booted into windows first, then warm boot to linux. How many bytes are 
-needed for an oops?
-
-James
-
-
+Cheers, 
+Mauro.
 

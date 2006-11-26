@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935588AbWKZWtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753329AbWKZWxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935588AbWKZWtg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 17:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935599AbWKZWtf
+	id S1753329AbWKZWxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 17:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753211AbWKZWxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 17:49:35 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:3763 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S935588AbWKZWtf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 17:49:35 -0500
-Date: Sun, 26 Nov 2006 22:49:28 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Build breakage ...
-Message-ID: <20061126224928.GA22285@linux-mips.org>
+	Sun, 26 Nov 2006 17:53:25 -0500
+Received: from mx0.towertech.it ([213.215.222.73]:16852 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1753329AbWKZWxY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 17:53:24 -0500
+Date: Sun, 26 Nov 2006 23:53:17 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>
+Cc: "'David Brownell'" <david-b@pacbell.net>,
+       "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>, <akpm@osdl.org>,
+       <linuxppc-dev@ozlabs.org>, <lethal@linux-sh.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       <ralf@linux-mips.org>, "'Andi Kleen'" <ak@muc.de>, <paulus@samba.org>,
+       <rmk@arm.linux.org.uk>, <davem@davemloft.net>, <kkojima@rr.iij4u.or.jp>
+Subject: Re: NTP time sync
+Message-ID: <20061126235317.5d40d22c@inspiron>
+In-Reply-To: <00b301c711a3$07cf3530$020120ac@Jocke>
+References: <20061126202148.190d5b4b@inspiron>
+	<00b301c711a3$07cf3530$020120ac@Jocke>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ee3ce191e8eaa4cc15c51a28b34143b36404c4f5 breaks MIPS completely:
+On Sun, 26 Nov 2006 22:37:10 +0100
+"Joakim Tjernlund" <joakim.tjernlund@transmode.se> wrote:
 
-In file included from include/linux/bitops.h:9,
-                 from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/mips/kernel/asm-offsets.c:13:
-include/asm/bitops.h: In function ‘set_bit’:
-include/asm/bitops.h:100: warning: implicit declaration of function ‘BUILD_BUG_ON’
-include/asm/bitops.h:100: warning: implicit declaration of function ‘typecheck’
-include/asm/bitops.h:100: error: expected expression before ‘unsigned’
-include/asm/bitops.h:102: error: expected expression before ‘unsigned’
-include/asm/bitops.h: In function ‘clear_bit’:
-include/asm/bitops.h:148: error: expected expression before ‘unsigned’
-include/asm/bitops.h:150: error: expected expression before ‘unsigned’
-include/asm/bitops.h: In function ‘change_bit’:
-include/asm/bitops.h:198: error: expected expression before ‘unsigned’
-include/asm/bitops.h:200: error: expected expression before ‘unsigned’
+> >  the concept of static numbers is quite old...
+> 
+> Yes it is old, but is the old way unsupported now? I have an embedded target
+> which is using the old static /dev directory, do I need to make
+> it udev aware to use newer features like the rtc subsystem?
 
-That sort of patches really should go to /dev/null so short before a release.
+ That can be a good option. You can also do
+ a symlink to /dev/rtc0 in your boot scripts or simply
+ upgrade your hwclock to a version that accepts
+ the device as a parameter.
 
-  Ralf
+ The old /dev/rtc name is not supported on the new rtc subsystem.
+
+ 
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

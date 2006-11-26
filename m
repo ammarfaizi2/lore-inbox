@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756966AbWKZTwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757945AbWKZUGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756966AbWKZTwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 14:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756969AbWKZTwK
+	id S1757945AbWKZUGg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 15:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757946AbWKZUGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 14:52:10 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:4359 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1756966AbWKZTwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 14:52:08 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64| perhaps duplicate bug report?
-Date: Sun, 26 Nov 2006 19:52:11 +0000
-User-Agent: KMail/1.9.5
-Cc: Andrew Morton <akpm@osdl.org>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>
-References: <1164205742.13434.4.camel@localhost> <20061122152559.72efd379.akpm@osdl.org> <1164564469.9291.17.camel@localhost>
-In-Reply-To: <1164564469.9291.17.camel@localhost>
+	Sun, 26 Nov 2006 15:06:36 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:36152 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1757945AbWKZUGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 15:06:35 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, tom@opengridcomputing.com,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
+X-Message-Flag: Warning: May contain useful information
+References: <adazmag5bk1.fsf@cisco.com>
+	<20061124.220746.57445336.davem@davemloft.net>
+	<adaodqv5e5l.fsf@cisco.com>
+	<20061125.150500.14841768.davem@davemloft.net>
+	<adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org>
+	<ada64d23ty8.fsf@cisco.com> <20061126111703.33247a84.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 26 Nov 2006 12:06:33 -0800
+In-Reply-To: <20061126111703.33247a84.akpm@osdl.org> (Andrew Morton's message of "Sun, 26 Nov 2006 11:17:03 -0800")
+Message-ID: <adau00m2cs6.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611261952.11063.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 26 Nov 2006 20:06:33.0967 (UTC) FILETIME=[5EFBB7F0:01C71196]
+Authentication-Results: sj-dkim-1; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim1002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 November 2006 18:07, Kasper Sandberg wrote:
-> On Wed, 2006-11-22 at 15:25 -0800, Andrew Morton wrote:
-> > On Wed, 22 Nov 2006 15:29:02 +0100
-> >
-> > Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > > it appears some sort of bug has gotten into .19, in regards to x86
-> > > emulation on x86_64.
-> > >
-> > > i have only tested with >=rc5, thw folling, as an example, appears in
-> > > dmesg:
-> > > ioctl32(regedit.exe:11801): Unknown cmd fd(9) cmd(82187201){02}
-> > > arg(00221000) on /home/redeeman
-> > > ioctl32(regedit.exe:11801): Unknown cmd fd(9) cmd(82187201){02}
-> > > arg(00221000) on /home/redeeman/.wine/drive_c/windows/system32
-> >
-> > Try
-> >
-> > 	echo 0 > /proc/sys/kernel/compat-log
-> >
-> > I don't _think_ we did anything to change the logging in there.  Which
-> > kernel version were you using previously (the one which didn't do this)?
->
-> it just struck me, that this may be the same bug Jesper Juhl has
-> discovered (atleast the hardlock part), as i read that thread, it strike
-> me that whenever i have hardlocks from this, its when i in wine runs
-> stuff that uses basically all my ram, and MAY even touch my swap.
+ > I'd be inclined to merge it for 2.6.19.  Is everyone OK with it?
 
-I see this same ioctl32 warning on a few apps running inside Wine, but I've 
-not had any hard locks. On the contrary, everything works fine.
-
-I guess it would be nice to know which ioctl it is that doesn't have a compat 
-wrapper on x86-64, 82187201 is a bit cryptic.
-
-HTH.
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I'm OK with that -- your previous email made me thing you didn't want
+to, but I think the risks are rather low, and there's a least a chance
+that we'll fix some obscure regression.

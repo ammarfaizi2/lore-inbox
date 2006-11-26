@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935553AbWKZUtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935564AbWKZUw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935553AbWKZUtt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 15:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935561AbWKZUtt
+	id S935564AbWKZUw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 15:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935565AbWKZUw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 15:49:49 -0500
-Received: from ns2.suse.de ([195.135.220.15]:15256 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S935540AbWKZUtr (ORCPT
+	Sun, 26 Nov 2006 15:52:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19077 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S935564AbWKZUwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 15:49:47 -0500
-From: Andi Kleen <ak@suse.de>
-To: Amul Shah <amul.shah@unisys.com>
-Subject: Re: [PATCH] x86_64: Make the NUMA hash function nodemap allocation dynamic and remove NODEMAPSIZE
-Date: Sun, 26 Nov 2006 21:49:36 +0100
-User-Agent: KMail/1.9.5
-Cc: LKML <linux-kernel@vger.kernel.org>, Eric Dumazet <dada1@cosmosbay.com>
-References: <1163627312.3553.199.camel@ustr-linux-shaha1.unisys.com>
-In-Reply-To: <1163627312.3553.199.camel@ustr-linux-shaha1.unisys.com>
+	Sun, 26 Nov 2006 15:52:55 -0500
+Date: Sun, 26 Nov 2006 21:52:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       seife@suse.de
+Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
+Message-ID: <20061126205235.GA13647@elf.ucw.cz>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com> <Pine.LNX.4.64.0611190930370.3692@woody.osdl.org> <20061122152328.GI5200@stusta.de> <20061122154230.74889e3d@localhost.localdomain> <20061124234015.GB4782@ucw.cz> <20061125160821.1fd4f9c8@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611262149.36529.ak@suse.de>
+In-Reply-To: <20061125160821.1fd4f9c8@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2006 22:48, Amul Shah wrote:
-> This patch removes the statically allocated memory to NUMA node hash map
-> in favor of a dynamically allocated memory to node hash map (it is cache
-> aligned).
-> 
-> This patch has the nice side effect in that it allows the hash map to
-> grow for systems with large amounts of memory (256GB - 1TB), but suffer
-> from having small PCI space tacked onto the boot node (which is
-> somewhere between 192MB to 512MB on the ES7000).
-> 
-> Signed-off-by: Amul Shah <amul.shah@unisys.com>
-> 
-> ---
-> Patch applies to 2.6.19-rc4 and has been tested.
-> This patch needs testing on a K8 NUMA platform.
-> Thanks to Eric Dumazet and Andi Kleen for their improvement suggestions.
+Hi!
 
-I had the patch in, but had to drop it again because it makes one of my
-test system triple fault. Haven't done much investigation yet.
+> > Hmm... how common are these machines? We are using unpatched kernel
+> > for suse10.2... OTOH we only support machines from the whitelist, all
+> 
+> I've always said IDE and software suspend are unsafe. The more work I do
+> the more clearly this is/was the case.
 
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e6000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003ef30000 (usable)
- BIOS-e820: 000000003ef30000 - 000000003ef40000 (ACPI data)
- BIOS-e820: 000000003ef40000 - 000000003eff0000 (ACPI NVS)
- BIOS-e820: 000000003eff0000 - 000000003f000000 (reserved)
- BIOS-e820: 00000000fecf0000 - 00000000fecf1000 (reserved)
- BIOS-e820: 00000000fed20000 - 00000000feda0000 (reserved)
-end_pfn_map = 1043872
-kernel direct mapping tables up to feda0000 @ 8000-d000
-DMI 2.3 present.
-No NUMA configuration found
-Faking a node at 0000000000000000-000000003ef30000
-<triple fault>
+Well, there's unsafe as in  "crashes", and that's unsafe as in "eats
+disks".
 
--Andi
+> The really nasty "resume eats your disk" cases I know about are
+> thankfully for older systems - VIA KT133 and similar era chipsets.
+
+Aha, good. Hopefully noone has notebook with those.
+
+> There is a recent nasty - Jmicron goes totally to **** on resume because
+> of resume quirks not being run but it goes so spectacularly wrong it
+> doesn't seem to get far enough to corrupt.
+
+Good :-). Crashing is nasty, but we probably won't add that machine to
+whitelist.
+
+> Andrew has about 2/3rds of the bits I've done now, will push the rest
+> when I've done a little more testing/checking. At that point libata ought
+> to be resume safe. Someone who cares about drivers/ide legacy support can
+> then copy the work over.
+
+Thanks. I do not think we care about old mainboards enough to do
+2.6.16-stable backport.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

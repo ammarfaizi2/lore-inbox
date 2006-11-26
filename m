@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758009AbWKZWTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758012AbWKZWXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758009AbWKZWTf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 17:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758008AbWKZWTf
+	id S1758012AbWKZWXl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 17:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758013AbWKZWXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 17:19:35 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:39354 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1758009AbWKZWTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 17:19:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XXINd3nKmAz29v/x9eqk5Ry5yeQBvfMJoyzOPAMDW4Lfb5Scm8OMZTV3IX/rh/25c2VAp4OGN6ck//+ltMqK1W8NZ74UMBDrev0CfaEveWePZms/GDuDKFQq84DcY35QzTxTp1Grj/EG9uABpDI5qnm0D6kxaR03NvLl+BUdJEw=
-Message-ID: <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
-Date: Mon, 27 Nov 2006 09:19:32 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>, "Adam Jackson" <ajax@nwnk.net>
-Subject: Re: Overriding X on panic
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Casey Dahlin" <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061126142213.52c292d3@localhost.localdomain>
+	Sun, 26 Nov 2006 17:23:41 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38320 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1758012AbWKZWXk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 17:23:40 -0500
+Date: Sun, 26 Nov 2006 14:20:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
+cc: Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       tom@opengridcomputing.com, Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
+In-Reply-To: <adapsba2bvj.fsf@cisco.com>
+Message-ID: <Pine.LNX.4.64.0611261415530.3483@woody.osdl.org>
+References: <adazmag5bk1.fsf@cisco.com> <20061124.220746.57445336.davem@davemloft.net>
+ <adaodqv5e5l.fsf@cisco.com> <20061125.150500.14841768.davem@davemloft.net>
+ <adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org>
+ <ada64d23ty8.fsf@cisco.com> <20061126111703.33247a84.akpm@osdl.org>
+ <Pine.LNX.4.64.0611261208550.3483@woody.osdl.org> <adapsba2bvj.fsf@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1164434093.10503.2.camel@localhost.localdomain>
-	 <1164443561.3147.54.camel@laptopd505.fenrus.org>
-	 <20061125161043.18f1b68d@localhost.localdomain>
-	 <1164529121.3147.65.camel@laptopd505.fenrus.org>
-	 <20061126142213.52c292d3@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/27/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sun, 26 Nov 2006 09:18:41 +0100
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> > > The mode switch sequences for modern cards are a bit more hairy than
-> > > lists of I/O poking unfortunately.
-> >
-> > for the Intel hw Keith doesn't seem to think it's all that much of a
-> > problem though...
+
+
+On Sun, 26 Nov 2006, Roland Dreier wrote:
 >
-> Including the TV out, odder LCD panels, non BIOS modes etc ? If so then
-> it might be an interesting test case for intelfb to grow some kind of
-> console helper interface
->
+>  > +#define ALIGN(x,a)		__ALIGN_MASK(x,(typeof(x))(a)-1)
+>  > +#define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
+> 
+> Fine by me, but it loses the extra (typeof(x)) cast that Al wanted to
+> make sure that the result of ALIGN() is not wider than x.
 
-It's non-trivial, I think you are better off going initially with just
-using the current framebuffer that X is using, I know ajax was doing
-some hacking on this with a "user"-framebuffer, until I disuaded him
-due to I think the trouble caused by dual-head and something else I
-can't remember..
+Well, since "mask" is now made to be of the same type as "x", every 
+sub-expression actually has the same type, modulo the normal C behaviour 
+of "expand to at least "int".
 
-I personally think we need to probably just bite the bullet and start
-sticking graphics drivers into the kernel, the new randr-1.2 interface
-for X is probably a good starting point for a generic mode setting
-interface that isn't so X dependent and could replace fbdev with
-something more sane wrt dualhead and multiple outputs... fbdev could
-be implemented on top of that layer then.. also suspend/resume really
-needs this sort of thing....
+So arguably, the result is _more_ like a normal C operation this way. 
+Type-wise, the "ALIGN()" macro acts like any other C operation (ie if you 
+feed it an "unsigned char", the end result is an "int" due to the normal C 
+type widening that happens for all C operations).
 
-My main worry with integrating graphics drivers into the kernel is
-that when they don't work the user gets no screen, with network/sound
-etc this isn't so bad, but if they can't see a screen debugging gets
-to be a bit more difficult....
+But I don't care horribly much. Al may have some other reasons to _not_ 
+want the normal C type expansion to happen (ie maybe he does something 
+unnatural with sparse ;)
 
-Dave.
+			Linus

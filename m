@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935341AbWKZMJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935370AbWKZMiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935341AbWKZMJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 07:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935342AbWKZMJQ
+	id S935370AbWKZMiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 07:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935371AbWKZMiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 07:09:16 -0500
-Received: from highlandsun.propagation.net ([66.221.212.168]:19466 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S935341AbWKZMJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 07:09:16 -0500
-Message-ID: <456983E2.2060007@highlandsun.com>
-Date: Sun, 26 Nov 2006 04:09:06 -0800
-From: Howard Chu <hyc@highlandsun.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20061116 Netscape/7.2 (ax) Firefox/1.5 SeaMonkey/1.5a
+	Sun, 26 Nov 2006 07:38:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60310 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S935370AbWKZMiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 07:38:11 -0500
+Message-ID: <45698AA3.1020601@redhat.com>
+Date: Sun, 26 Nov 2006 20:37:55 +0800
+From: Eugene Teo <eteo@redhat.com>
+Organization: Red Hat Asia Pacific
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: re: skge error; hangs w/ hardware memory hole (was re: X86_64 + VIA
- + 4g problems)
-References: <S935347AbWKZLoQ/20061126114416Z+54@vger.kernel.org>
-In-Reply-To: <S935347AbWKZLoQ/20061126114416Z+54@vger.kernel.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/sctp/socket.c: add missing sctp_spin_unlock_irqrestore
+References: <456965D5.1000302@redhat.com> <20061126101254.GW3078@ftp.linux.org.uk>
+In-Reply-To: <20061126101254.GW3078@ftp.linux.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-References: <20060703205238.GA10851@deprecation.cyrius.com> 
-<p73bqyufo97.fsf@verdi.suse.de>
+Al Viro wrote:
+> On Sun, Nov 26, 2006 at 06:00:53PM +0800, Eugene Teo wrote:
+>> This patch adds a missing sctp_spin_unlock_irqrestore when returning
+>> from "if(space_left<addrlen)" condition.
+>>                 if (copy_to_user(*to, &temp, addrlen)) {
+>> -                       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock,
+>> -                                                   flags);
+>> -                       return -EFAULT;
+>> +                       err = -EFAULT;
+>> +                       goto unlock;
+> 
+>> +       sctp_spin_unlock_irqrestore(&sctp_local_addr_lock, flags);
+>> +       return err;
+>>  }
+> 
+> You do realize that it's obviously still badly broken, don't you?
+> copy_to_user() under a spinlock is a recipe for deadlock, especially
+> if you've got interrupts disabled...
 
-Just to tie up a loose end... I tested Andi Kleen's new patch for this 
-issue on 2.6.18.3. While the patch didn't automatically detect the VIA 
-chipset in my Asus A8V Deluxe, it allowed me to manually set a boot 
-option that fixes the problem (by disabling DMA to addresses over 4GB). 
-The fix is essentially the same as Andi posted here
+Realized. Back to drawing board.
 
-http://groups.google.com/group/linux.kernel/msg/b1e820ef0212ee5e
-
-although you have to patch pci-dma.c now, not pci-gart.c.
-
-As another note - with my AGP aperture set to only 64MB, 3904MB are 
-visible. With the aperture set to 256MB, the full 4096MB are visible.
-
+Eugene
 -- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
-
+1024D/58DF8823 print 47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }

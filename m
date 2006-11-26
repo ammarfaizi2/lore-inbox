@@ -1,114 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966364AbWKYXnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967021AbWKZAOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966364AbWKYXnz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Nov 2006 18:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935217AbWKYXnz
+	id S967021AbWKZAOM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Nov 2006 19:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935216AbWKZAOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Nov 2006 18:43:55 -0500
-Received: from cantor.suse.de ([195.135.220.2]:4791 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S935216AbWKYXny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Nov 2006 18:43:54 -0500
-Date: Sat, 25 Nov 2006 15:43:42 -0800
-From: Greg KH <greg@kroah.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.19-rc5-mm2 (end earlier): WARNING at lib/kobject.c:172 kobject_init() on resume from disk
-Message-ID: <20061125234342.GA31413@kroah.com>
-References: <200611222207.07143.rjw@sisk.pl> <20061122134406.f3a30fc4.akpm@osdl.org> <200611252320.12498.rjw@sisk.pl> <200611260015.53710.rjw@sisk.pl>
+	Sat, 25 Nov 2006 19:14:12 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47374 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S935213AbWKZAOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Nov 2006 19:14:10 -0500
+Date: Sun, 26 Nov 2006 01:14:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.34-rc1
+Message-ID: <20061126001413.GA15364@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611260015.53710.rjw@sisk.pl>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2006 at 12:15:52AM +0100, Rafael J. Wysocki wrote:
-> On Saturday, 25 November 2006 23:20, Rafael J. Wysocki wrote:
-> > On Wednesday, 22 November 2006 22:44, Andrew Morton wrote:
-> > > On Wed, 22 Nov 2006 22:07:06 +0100
-> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > I get similar traces on every resume from disk on SMP systems:
-> > > > 
-> > > > WARNING at lib/kobject.c:172 kobject_init()
-> > > > 
-> > > > Call Trace:
-> > > >  [<ffffffff80265559>] dump_trace+0xaa/0x3fd
-> > > >  [<ffffffff802658e8>] show_trace+0x3c/0x52
-> > > >  [<ffffffff80265913>] dump_stack+0x15/0x17
-> > > >  [<ffffffff8031c1ad>] kobject_init+0x3f/0x8a
-> > > >  [<ffffffff8031c298>] kobject_register+0x1a/0x3e
-> > > >  [<ffffffff8038e5b4>] sysdev_register+0x5f/0xec
-> > > >  [<ffffffff8026af39>] mce_create_device+0x79/0x103
-> > > >  [<ffffffff8026afed>] mce_cpu_callback+0x2a/0xbd
-> > > >  [<ffffffff8026112f>] notifier_call_chain+0x29/0x3e
-> > > >  [<ffffffff8028e809>] raw_notifier_call_chain+0x9/0xb
-> > > >  [<ffffffff80299f18>] _cpu_up+0xc2/0xd5
-> > > >  [<ffffffff80299f56>] cpu_up+0x2b/0x42
-> > > >  [<ffffffff80299fbb>] enable_nonboot_cpus+0x4e/0x9b
-> > > >  [<ffffffff802a35da>] snapshot_ioctl+0x1a0/0x5d2
-> > > >  [<ffffffff8023d9cd>] do_ioctl+0x5e/0x77
-> > > >  [<ffffffff8022d785>] vfs_ioctl+0x256/0x273
-> > > >  [<ffffffff8024770b>] sys_ioctl+0x5f/0x82
-> > > >  [<ffffffff8025811e>] system_call+0x7e/0x83
-> > > > DWARF2 unwinder stuck at system_call+0x7e/0x83
-> > > > Leftover inexact backtrace:
-> > > > 
-> > > > False positive?
-> > > > 
-> > > 
-> > > Don't know.  The changelog in
-> > > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-01-driver/kobject-warn.patch
-> > > is pretty pathetic.
-> > > 
-> > > Perhaps mce_remove_device() isn't being called.
-> > 
-> > I've added some debugging code into mce_remove_device() which shows that it is
-> > being called when the CPU is removed.
-> > 
-> > Investigation continues.
-> 
-> Ah, I think the problem is that the last user of a kobject doesn't decrease
-> the refcount in kref_put(), so if the same kobject is registered for the
-> second time, the refcount is still one and the warning triggers.
+New drivers since 2.6.16.33:
+- Echoaudio sound drivers
+- driver for HighPoint RocketRAID 3xxx Controllers
+- AdvanSys SCSI driver (actually the semi-working driver that was
+                        previously marked as broken)
 
-But the last user of the kobject should cause the kobject to be freed
-and disappear.  It should not hang around, right?
 
-Oh yuck, this is a static struct device, one per cpu :(
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-> So, it seems, this is a false positive and I think we can get rid of it in the
-> following way (tested and works):
-> 
-> ---
-> Make mce_remove_device() clean up the kobject in per_cpu(device_mce, cpu)
-> after it has been unregistered.
-> 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> ---
->  arch/x86_64/kernel/mce.c |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> Index: linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c
-> ===================================================================
-> --- linux-2.6.19-rc6-mm1.orig/arch/x86_64/kernel/mce.c	2006-11-25 23:56:08.000000000 +0100
-> +++ linux-2.6.19-rc6-mm1/arch/x86_64/kernel/mce.c	2006-11-26 00:15:34.000000000 +0100
-> @@ -651,6 +651,7 @@ static void mce_remove_device(unsigned i
->  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_tolerant);
->  	sysdev_remove_file(&per_cpu(device_mce,cpu), &attr_check_interval);
->  	sysdev_unregister(&per_cpu(device_mce,cpu));
-> +	per_cpu(device_mce, cpu).kobj = (struct kobject){ 0 };
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-memset the kobj instead perhaps?  Yeah, I guess this copy will work, as
-the compiler turns it into a memset.
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-But overall, ick :(
 
-thanks,
+Changes since 2.6.16.33:
 
-greg k-h
+Adrian Bunk (2):
+      update the OBSOLETE_OSS_DRIVER help text
+      Linux 2.6.16.34-rc1
+
+Al Viro (1):
+      [IPX]: Annotate and fix IPX checksum
+
+Alan Stern (1):
+      USB: UHCI: Increase port-reset completion delay for HP controllers
+
+Alexey Dobriyan (2):
+      i2c-ixp4xx: fix ") != 0))" typo
+      [IPX]: Correct return type of ipx_map_frame_type().
+
+Christoph Hellwig (1):
+      [SCSI] hptiop: backout ioctl mess
+
+Dave Jones (1):
+      [SCSI] advansys pci tweaks.
+
+David L Stevens (1):
+      [IGMP]: Fix IGMPV3_EXP() normalization bit shift value.
+
+David S. Miller (1):
+      [IPX]: Fix typo, ipxhdr() --> ipx_hdr()
+
+Giuliano Pochini pochini@shiny.it (1):
+      [ALSA] Add echoaudio sound drivers
+
+Hidetoshi Seto (1):
+      sysfs: remove duplicated dput in sysfs_update_file
+
+HighPoint Linux Team (3):
+      [SCSI] hptiop: HighPoint RocketRAID 3xxx controller driver
+      [SCSI] hptiop: HighPoint RocketRAID 3xxx controller driver
+      [SCSI] hptiop: wrong register used in hptiop_reset_hba()
+
+James Bottomley (1):
+      [SCSI] hptiop: don't use cmnd->bufflen
+
+Jean Delvare (1):
+      Fix i2c-ixp4xx compilation breakage
+
+Kirill Korotaev (1):
+      fix sys_getppid oopses on debug kernel
+
+Linus Torvalds (1):
+      [SCSI] advansys driver: limp along on x86
+
+Mark M. Hoffman (1):
+      i2c: Handle i2c_add_adapter failure in i2c algorithm drivers
+
+Randy Dunlap (1):
+      advansys section fixes
+
+Stephen Hemminger (2):
+      [IPX]: Header length validation needed
+      [IPX]: Another nonlinear receive fix
+
+Steve French (1):
+      CIFS: report rename failure when target file is locked by Windows
+
+Takashi Iwai (3):
+      [ALSA] Fix a typo in echoaudio/midi.c
+      [ALSA] echoaudio - Fix Makefile
+      [ALSA] echoaudio - Remove kfree_nocheck()
+
+
+ Documentation/scsi/hptiop.txt                   |   92 
+ Documentation/sound/alsa/ALSA-Configuration.txt |   96 
+ MAINTAINERS                                     |    6 
+ Makefile                                        |    2 
+ drivers/i2c/algos/i2c-algo-bit.c                |    3 
+ drivers/i2c/algos/i2c-algo-ite.c                |    4 
+ drivers/i2c/algos/i2c-algo-pca.c                |    6 
+ drivers/i2c/algos/i2c-algo-pcf.c                |    8 
+ drivers/i2c/algos/i2c-algo-sibyte.c             |    4 
+ drivers/i2c/busses/i2c-ixp4xx.c                 |    3 
+ drivers/scsi/Kconfig                            |   14 
+ drivers/scsi/Makefile                           |    1 
+ drivers/scsi/advansys.c                         |   98 
+ drivers/scsi/hptiop.c                           |  943 ++++++
+ drivers/scsi/hptiop.h                           |  465 +++
+ drivers/usb/host/uhci-hub.c                     |   21 
+ fs/cifs/inode.c                                 |   14 
+ fs/sysfs/file.c                                 |    5 
+ include/linux/igmp.h                            |    2 
+ include/net/ipx.h                               |    4 
+ kernel/timer.c                                  |   41 
+ net/ipx/af_ipx.c                                |   45 
+ net/ipx/ipx_route.c                             |    4 
+ sound/oss/Kconfig                               |    7 
+ sound/pci/Kconfig                               |  137 
+ sound/pci/Makefile                              |    1 
+ sound/pci/echoaudio/Makefile                    |   30 
+ sound/pci/echoaudio/darla20.c                   |   99 
+ sound/pci/echoaudio/darla20_dsp.c               |  125 
+ sound/pci/echoaudio/darla24.c                   |  106 
+ sound/pci/echoaudio/darla24_dsp.c               |  156 +
+ sound/pci/echoaudio/echo3g.c                    |  118 
+ sound/pci/echoaudio/echo3g_dsp.c                |  131 
+ sound/pci/echoaudio/echoaudio.c                 | 2196 ++++++++++++++++
+ sound/pci/echoaudio/echoaudio.h                 |  590 ++++
+ sound/pci/echoaudio/echoaudio_3g.c              |  431 +++
+ sound/pci/echoaudio/echoaudio_dsp.c             | 1125 ++++++++
+ sound/pci/echoaudio/echoaudio_dsp.h             |  694 +++++
+ sound/pci/echoaudio/echoaudio_gml.c             |  198 +
+ sound/pci/echoaudio/gina20.c                    |  103 
+ sound/pci/echoaudio/gina20_dsp.c                |  215 +
+ sound/pci/echoaudio/gina24.c                    |  123 
+ sound/pci/echoaudio/gina24_dsp.c                |  346 ++
+ sound/pci/echoaudio/indigo.c                    |  104 
+ sound/pci/echoaudio/indigo_dsp.c                |  170 +
+ sound/pci/echoaudio/indigodj.c                  |  104 
+ sound/pci/echoaudio/indigodj_dsp.c              |  170 +
+ sound/pci/echoaudio/indigoio.c                  |  105 
+ sound/pci/echoaudio/indigoio_dsp.c              |  141 +
+ sound/pci/echoaudio/layla20.c                   |  112 
+ sound/pci/echoaudio/layla20_dsp.c               |  290 ++
+ sound/pci/echoaudio/layla24.c                   |  121 
+ sound/pci/echoaudio/layla24_dsp.c               |  394 ++
+ sound/pci/echoaudio/mia.c                       |  117 
+ sound/pci/echoaudio/mia_dsp.c                   |  229 +
+ sound/pci/echoaudio/midi.c                      |  327 ++
+ sound/pci/echoaudio/mona.c                      |  129 
+ sound/pci/echoaudio/mona_dsp.c                  |  428 +++
+ 58 files changed, 11619 insertions(+), 134 deletions(-)

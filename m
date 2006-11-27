@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757857AbWK0TYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758536AbWK0T3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757857AbWK0TYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 14:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758524AbWK0TYd
+	id S1758536AbWK0T3f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 14:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758524AbWK0T3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 14:24:33 -0500
-Received: from mga03.intel.com ([143.182.124.21]:38557 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1757857AbWK0TYc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 14:24:32 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,464,1157353200"; 
-   d="scan'208"; a="150864812:sNHT2670473736"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 27 Nov 2006 14:29:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37848 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758529AbWK0T3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 14:29:34 -0500
+Message-ID: <456B3B2D.9040302@redhat.com>
+Date: Mon, 27 Nov 2006 11:23:25 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
-Date: Mon, 27 Nov 2006 11:20:39 -0800
-Message-ID: <39B20DF628532344BC7A2692CB6AEE07A5AB43@orsmsx420.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
-Thread-Index: AccO+EsMGA8lY0xYRwSVlWZYabVihQDYLEzw
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: "Jean Delvare" <khali@linux-fr.org>
-Cc: <linux-kernel@vger.kernel.org>, <gregkh@suse.de>, <i2c@lm-sensors.org>
-X-OriginalArrivalTime: 27 Nov 2006 19:24:21.0800 (UTC) FILETIME=[A41B7280:01C71259]
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 1/6] kevent: Description.
+References: <11641265982190@2ka.mipt.ru> <4564E2AB.1020202@redhat.com> <20061123115504.GB20294@2ka.mipt.ru> <4565FDED.2050003@redhat.com> <20061124114614.GA32545@2ka.mipt.ru> <45671E16.6060005@redhat.com> <20061124164916.GA4012@2ka.mipt.ru>
+In-Reply-To: <20061124164916.GA4012@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean,
+Evgeniy Polyakov wrote:
 
-I send the patches you requested.  Please let me know if you see anything that needs to change.
+> That index is provided by kernel for userspace so that userspace could
+> determine where indexes are - of course userspace can maintain it
+> itself, but it can also use provided by kernel.
 
-Thanks,
+Indeed.  That's what I said.  But I also pointed out that the field is 
+only useful in simple minded programs and certainly not in the wrappers 
+the runtime (glibc) will provide.
 
-Jason
+As you said yourself, there is no real need for the value being there, 
+userland can keep track of it by itself.  So, let's reduce the interface.
 
 
+> I do not care actually about that index, but as you have probably noticed, 
+> there was such an interface already, and I changed it. So, this will be the 
+> last change of the interface. You think it should not be exported -
+> fine, it will not be.
 
->-----Original Message-----
->From: Jean Delvare [mailto:khali@linux-fr.org]
->Sent: Thursday, November 23, 2006 4:10 AM
->To: Gaston, Jason D
->Cc: linux-kernel@vger.kernel.org; gregkh@suse.de; i2c@lm-sensors.org
->Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
->
->Hi Jason,
->
->On Wed, 22 Nov 2006 15:19:12 -0800, Jason Gaston wrote:
->> This updated patch adds the Intel ICH9 LPC and SMBus Controller DID's.
->> This patch relies on the irq ICH9 patch to pci_ids.h.
->
->Looks good. Care to also update Documentation/i2c/busses/i2c-i801? I
->see it misses at least the ICH8 and ESB2 as well.
->
->I would also appreciate an update to lm_sensors' sensors-detect script,
->if you could send a patch to the sensors list.
->
->> Signed-off-by: �Jason Gaston <jason.d.gaston@intel.com>
->>
->> --- linux-2.6.19-rc6/drivers/i2c/busses/i2c-i801.c.orig	2006-11-22
->06:17:20.000000000 -0800
->> +++ linux-2.6.19-rc6/drivers/i2c/busses/i2c-i801.c	2006-11-22
->06:27:12.000000000 -0800
->> @@ -33,6 +33,7 @@
->>      ICH7		27DA
->>      ESB2		269B
->>      ICH8		283E
->> +    ICH9		2930
->>      This driver supports several versions of Intel's I/O Controller Hubs
->(ICH).
->>      For SMBus support, they are similar to the PIIX4 and are part
->>      of Intel's '810' and other chipsets.
->> @@ -457,6 +458,7 @@
->>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_17) },
->>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_17) },
->>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH8_5) },
->> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH9_6) },
->>  	{ 0, }
->>  };
->>
->> --- linux-2.6.19-rc6/drivers/i2c/busses/Kconfig.orig	2006-11-22
->07:05:25.000000000 -0800
->> +++ linux-2.6.19-rc6/drivers/i2c/busses/Kconfig	2006-11-22
->07:05:36.000000000 -0800
->> @@ -125,6 +125,7 @@
->>  	    ICH7
->>  	    ESB2
->>  	    ICH8
->> +	    ICH9
->>
->>  	  This driver can also be built as a module.  If so, the module
->>  	  will be called i2c-i801.
->
->Thanks,
->--
->Jean Delvare
+Thanks.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

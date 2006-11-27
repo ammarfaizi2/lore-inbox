@@ -1,203 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756899AbWK0FGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756985AbWK0FHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756899AbWK0FGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 00:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756906AbWK0FGw
+	id S1756985AbWK0FHg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 00:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756958AbWK0FHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 00:06:52 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44961 "EHLO
+	Mon, 27 Nov 2006 00:07:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23447 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1756899AbWK0FGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 00:06:50 -0500
+	id S1756906AbWK0FGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 00:06:54 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>,
        Linux Containers <containers@lists.osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 1/4] sysctl: Simplify sysctl_uts_string
-Date: Sun, 26 Nov 2006 22:05:08 -0700
-Message-Id: <11646039111130-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 3/4] sysctl: Simplify ipc ns specific sysctls
+Date: Sun, 26 Nov 2006 22:05:10 -0700
+Message-Id: <11646039151062-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.g3cd4f
 In-Reply-To: <m1hcwlmqmp.fsf@ebiederm.dsl.xmission.com>
 References: <m1hcwlmqmp.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces get_uts and put_uts (used later)
-and removes most of the special cases for when UTS namespace is compiled in.
+This patch refactors the ipc sysctl support so that it is
+simpler, more readable, and prepares for fixing the bug
+with the wrong values being returned in the sys_sysctl interface.
+
+The function proc_do_ipc_string was misnamed as it never handled
+strings.  It's magic of when to work with strings and when to work
+with longs belonged in the sysctl table.  I couldn't tell if the
+code would work if you disabled the ipc namespace but it certainly
+looked like it would have problems.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- kernel/sysctl.c |  128 +++++++++++--------------------------------------------
- 1 files changed, 26 insertions(+), 102 deletions(-)
+ kernel/sysctl.c |  106 +++++++++++++++++++++++++------------------------------
+ 1 files changed, 49 insertions(+), 57 deletions(-)
 
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 09e569f..0521884 100644
+index 63db5a5..638aa14 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
-@@ -162,6 +162,28 @@ #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
- int sysctl_legacy_va_layout;
+@@ -91,7 +91,9 @@ #ifdef CONFIG_CHR_DEV_SG
+ extern int sg_big_buff;
+ #endif
+ #ifdef CONFIG_SYSVIPC
+-static int proc_do_ipc_string(ctl_table *table, int write, struct file *filp,
++static int proc_ipc_dointvec(ctl_table *table, int write, struct file *filp,
++		void __user *buffer, size_t *lenp, loff_t *ppos);
++static int proc_ipc_doulongvec_minmax(ctl_table *table, int write, struct file *filp,
+ 		void __user *buffer, size_t *lenp, loff_t *ppos);
  #endif
  
-+static void *get_uts(ctl_table *table, int write)
+@@ -188,6 +190,18 @@ static void put_uts(ctl_table *table, in
+ 		up_write(&uts_sem);
+ }
+ 
++#ifdef CONFIG_SYSVIPC
++static void *get_ipc(ctl_table *table, int write)
 +{
 +	char *which = table->data;
-+#ifdef CONFIG_UTS_NS
-+	struct uts_namespace *uts_ns = current->nsproxy->uts_ns;
-+	which = (which - (char *)&init_uts_ns) + (char *)uts_ns;
-+#endif
-+	if (!write)
-+		down_read(&uts_sem);
-+	else
-+		down_write(&uts_sem);
++	struct ipc_namespace *ipc_ns = current->nsproxy->ipc_ns;
++	which = (which - (char *)&init_ipc_ns) + (char *)ipc_ns;
 +	return which;
 +}
-+
-+static void put_uts(ctl_table *table, int write, void *which)
-+{
-+	if (!write)
-+		up_read(&uts_sem);
-+	else
-+		up_write(&uts_sem);
-+}
++#else
++#define get_ipc(T,W) ((T)->data)
++#endif
 +
  /* /proc declarations: */
  
  #ifdef CONFIG_PROC_SYSCTL
-@@ -228,7 +250,6 @@ #endif
- };
- 
- static ctl_table kern_table[] = {
--#ifndef CONFIG_UTS_NS
+@@ -457,58 +471,58 @@ #ifdef CONFIG_SYSVIPC
  	{
- 		.ctl_name	= KERN_OSTYPE,
- 		.procname	= "ostype",
-@@ -274,54 +295,6 @@ #ifndef CONFIG_UTS_NS
- 		.proc_handler	= &proc_do_uts_string,
- 		.strategy	= &sysctl_string,
+ 		.ctl_name	= KERN_SHMMAX,
+ 		.procname	= "shmmax",
+-		.data		= NULL,
+-		.maxlen		= sizeof (size_t),
++		.data		= &init_ipc_ns.shm_ctlmax,
++		.maxlen		= sizeof (init_ipc_ns.shm_ctlmax),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_doulongvec_minmax,
  	},
--#else  /* !CONFIG_UTS_NS */
--	{
--		.ctl_name	= KERN_OSTYPE,
--		.procname	= "ostype",
--		.data		= NULL,
--		/* could maybe use __NEW_UTS_LEN here? */
--		.maxlen		= FIELD_SIZEOF(struct new_utsname, sysname),
--		.mode		= 0444,
--		.proc_handler	= &proc_do_uts_string,
--		.strategy	= &sysctl_string,
--	},
--	{
--		.ctl_name	= KERN_OSRELEASE,
--		.procname	= "osrelease",
--		.data		= NULL,
--		.maxlen		= FIELD_SIZEOF(struct new_utsname, release),
--		.mode		= 0444,
--		.proc_handler	= &proc_do_uts_string,
--		.strategy	= &sysctl_string,
--	},
--	{
--		.ctl_name	= KERN_VERSION,
--		.procname	= "version",
--		.data		= NULL,
--		.maxlen		= FIELD_SIZEOF(struct new_utsname, version),
--		.mode		= 0444,
--		.proc_handler	= &proc_do_uts_string,
--		.strategy	= &sysctl_string,
--	},
--	{
--		.ctl_name	= KERN_NODENAME,
--		.procname	= "hostname",
--		.data		= NULL,
--		.maxlen		= FIELD_SIZEOF(struct new_utsname, nodename),
--		.mode		= 0644,
--		.proc_handler	= &proc_do_uts_string,
--		.strategy	= &sysctl_string,
--	},
--	{
--		.ctl_name	= KERN_DOMAINNAME,
--		.procname	= "domainname",
--		.data		= NULL,
--		.maxlen		= FIELD_SIZEOF(struct new_utsname, domainname),
--		.mode		= 0644,
--		.proc_handler	= &proc_do_uts_string,
--		.strategy	= &sysctl_string,
--	},
--#endif /* !CONFIG_UTS_NS */
  	{
- 		.ctl_name	= KERN_PANIC,
- 		.procname	= "panic",
-@@ -1755,66 +1728,17 @@ int proc_dostring(ctl_table *table, int 
-  *	Special case of dostring for the UTS structure. This has locks
-  *	to observe. Should this be in kernel/sys.c ????
-  */
-- 
--#ifndef CONFIG_UTS_NS
--static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
--		  void __user *buffer, size_t *lenp, loff_t *ppos)
--{
--	int r;
+ 		.ctl_name	= KERN_SHMALL,
+ 		.procname	= "shmall",
+-		.data		= NULL,
+-		.maxlen		= sizeof (size_t),
++		.data		= &init_ipc_ns.shm_ctlall,
++		.maxlen		= sizeof (init_ipc_ns.shm_ctlall),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_doulongvec_minmax,
+ 	},
+ 	{
+ 		.ctl_name	= KERN_SHMMNI,
+ 		.procname	= "shmmni",
+-		.data		= NULL,
+-		.maxlen		= sizeof (int),
++		.data		= &init_ipc_ns.shm_ctlmni,
++		.maxlen		= sizeof (init_ipc_ns.shm_ctlmni),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_dointvec,
+ 	},
+ 	{
+ 		.ctl_name	= KERN_MSGMAX,
+ 		.procname	= "msgmax",
+-		.data		= NULL,
+-		.maxlen		= sizeof (int),
++		.data		= &init_ipc_ns.msg_ctlmax,
++		.maxlen		= sizeof (init_ipc_ns.msg_ctlmax),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_dointvec,
+ 	},
+ 	{
+ 		.ctl_name	= KERN_MSGMNI,
+ 		.procname	= "msgmni",
+-		.data		= NULL,
+-		.maxlen		= sizeof (int),
++		.data		= &init_ipc_ns.msg_ctlmni,
++		.maxlen		= sizeof (init_ipc_ns.msg_ctlmni),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_dointvec,
+ 	},
+ 	{
+ 		.ctl_name	= KERN_MSGMNB,
+ 		.procname	=  "msgmnb",
+-		.data		= NULL,
+-		.maxlen		= sizeof (int),
++		.data		= &init_ipc_ns.msg_ctlmnb,
++		.maxlen		= sizeof (init_ipc_ns.msg_ctlmnb),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_dointvec,
+ 	},
+ 	{
+ 		.ctl_name	= KERN_SEM,
+ 		.procname	= "sem",
+-		.data		= NULL,
++		.data		= &init_ipc_ns.sem_ctls,
+ 		.maxlen		= 4*sizeof (int),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_ipc_string,
++		.proc_handler	= &proc_ipc_dointvec,
+ 	},
+ #endif
+ #ifdef CONFIG_MAGIC_SYSRQ
+@@ -2321,46 +2335,24 @@ int proc_dointvec_ms_jiffies(ctl_table *
+ }
  
--	if (!write) {
--		down_read(&uts_sem);
--		r=proc_dostring(table,0,filp,buffer,lenp, ppos);
--		up_read(&uts_sem);
--	} else {
--		down_write(&uts_sem);
--		r=proc_dostring(table,1,filp,buffer,lenp, ppos);
--		up_write(&uts_sem);
--	}
--	return r;
--}
--#else /* !CONFIG_UTS_NS */
- static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
- 		  void __user *buffer, size_t *lenp, loff_t *ppos)
+ #ifdef CONFIG_SYSVIPC
+-static int proc_do_ipc_string(ctl_table *table, int write, struct file *filp,
+-		void __user *buffer, size_t *lenp, loff_t *ppos)
++static int proc_ipc_dointvec(ctl_table *table, int write, struct file *filp,
++	void __user *buffer, size_t *lenp, loff_t *ppos)
  {
- 	int r;
--	struct uts_namespace* uts_ns = current->nsproxy->uts_ns;
--	char* which;
+-	void *data;
+-	struct ipc_namespace *ns;
+-
+-	ns = current->nsproxy->ipc_ns;
 -
 -	switch (table->ctl_name) {
--	case KERN_OSTYPE:
--		which = uts_ns->name.sysname;
+-	case KERN_SHMMAX:
+-		data = &ns->shm_ctlmax;
+-		goto proc_minmax;
+-	case KERN_SHMALL:
+-		data = &ns->shm_ctlall;
+-		goto proc_minmax;
+-	case KERN_SHMMNI:
+-		data = &ns->shm_ctlmni;
 -		break;
--	case KERN_NODENAME:
--		which = uts_ns->name.nodename;
+-	case KERN_MSGMAX:
+-		data = &ns->msg_ctlmax;
 -		break;
--	case KERN_OSRELEASE:
--		which = uts_ns->name.release;
+-	case KERN_MSGMNI:
+-		data = &ns->msg_ctlmni;
 -		break;
--	case KERN_VERSION:
--		which = uts_ns->name.version;
+-	case KERN_MSGMNB:
+-		data = &ns->msg_ctlmnb;
 -		break;
--	case KERN_DOMAINNAME:
--		which = uts_ns->name.domainname;
+-	case KERN_SEM:
+-		data = &ns->sem_ctls;
 -		break;
 -	default:
--		r = -EINVAL;
--		goto out;
+-		return -EINVAL;
 -	}
 -
--	if (!write) {
--		down_read(&uts_sem);
--		r=_proc_do_string(which,table->maxlen,0,filp,buffer,lenp, ppos);
--		up_read(&uts_sem);
--	} else {
--		down_write(&uts_sem);
--		r=_proc_do_string(which,table->maxlen,1,filp,buffer,lenp, ppos);
--		up_write(&uts_sem);
--	}
-- out:
+-	return __do_proc_dointvec(data, table, write, filp, buffer,
 +	void *which;
-+	which = get_uts(table, write);
-+	r = _proc_do_string(which, table->maxlen,write,filp,buffer,lenp, ppos);
-+	put_uts(table, write, which);
- 	return r;
++	which = get_ipc(table, write);
++	return __do_proc_dointvec(which, table, write, filp, buffer,
+ 			lenp, ppos, NULL, NULL);
+-proc_minmax:
+-	return __do_proc_doulongvec_minmax(data, table, write, filp, buffer,
++}
++
++static int proc_ipc_doulongvec_minmax(ctl_table *table, int write,
++	struct file *filp, void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	void *which;
++	which = get_ipc(table, write);
++	return __do_proc_doulongvec_minmax(which, table, write, filp, buffer,
+ 			lenp, ppos, 1l, 1l);
  }
--#endif /* !CONFIG_UTS_NS */
++
+ #endif
  
- static int do_proc_dointvec_conv(int *negp, unsigned long *lvalp,
- 				 int *valp,
+ static int proc_do_cad_pid(ctl_table *table, int write, struct file *filp,
 -- 
 1.4.2.rc3.g7e18e-dirty
 

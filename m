@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758344AbWK0QBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758347AbWK0QCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758344AbWK0QBS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758347AbWK0QBS
+	id S1758347AbWK0QCY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758349AbWK0QCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:01:18 -0500
-Received: from nz-out-0102.google.com ([64.233.162.201]:6499 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1758343AbWK0QBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:01:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=I6k+ddmzSd5hA76ag8d0R+a2q04LO5rU6y1fFzdMAZsPdHuavlJuLz14gHqG3IH87/h39cLDlKe9EA5SyVdD/s2aC0GEkefXDb4z7ZhRdVXzxX5ApzlzMTEKNspDo7alEPqVen3IZLJgfbCb3RvSvVnMGEwToPxxpEApE2RYbEg=
-Message-ID: <9a8748490611270801g38417047ybcf4304bad9ad673@mail.gmail.com>
-Date: Mon, 27 Nov 2006 17:01:16 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       stable@vger.kernel.org
-Subject: Re: [PATCH] IDE: typo in ide-io.c leads to faulty assignment
-In-Reply-To: <87k61h3pu2.fsf@denkblock.local>
+	Mon, 27 Nov 2006 11:02:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33472 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1758347AbWK0QCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 11:02:22 -0500
+Date: Mon, 27 Nov 2006 16:01:21 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Franck Bui-Huu <vagabon.xyz@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbmem: is bootup logo broken for monochrome
+ LCD ?
+In-Reply-To: <cda58cb80611230653x2951d9d8x41b193f0101f9fdf@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611271558550.11317@pentafluge.infradead.org>
+References: <45535C08.5020607@innova-card.com> 
+ <Pine.LNX.4.64.0611131850410.2366@pentafluge.infradead.org> 
+ <cda58cb80611140144q79718798p40f2762955c1d91@mail.gmail.com> 
+ <Pine.LNX.4.64.0611171825520.32200@pentafluge.infradead.org> 
+ <cda58cb80611171242sb40a53bvd02145364551b5a2@mail.gmail.com> 
+ <Pine.LNX.4.64.0611201636500.17639@pentafluge.infradead.org> 
+ <cda58cb80611210145ic52001cr38aed6e38797e3a@mail.gmail.com> 
+ <Pine.LNX.4.64.0611211507290.32103@pentafluge.infradead.org> 
+ <cda58cb80611220048p73bb54e3w414f1c0a5ce178d3@mail.gmail.com> 
+ <Pine.LNX.4.64.0611222101220.14604@pentafluge.infradead.org>
+ <cda58cb80611230653x2951d9d8x41b193f0101f9fdf@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <87k61h3pu2.fsf@denkblock.local>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/11/06, Elias Oltmanns <eo@nebensachen.de> wrote:
-> Due to a typo in ide_start_power_step, the result of a function rather
-> than its pointer is assigned to args->handler. The patch applies to
-> 2.6.19-rc6 but the problem exists in the stable branch as well.
->
 
-These two lines :
+> > Replace the below line in my patch I sent
+> > 
+> > > >                     val |= color << shift;
+> > 
+> > with
+> >                         val <<= shift;
+> >                         val |= color;
+> 
+> I think it can't work since shift is 0 to 31, you'll end up with 'val
+> <<= 31' which I don't think is what you want.
+ 
+> doing
+>                         val <<= 1;
+> 
+> make it works but it's still very fragile. Code which deals with
+> trailing bit seems bogus since new value of 'val' is simply discarded
+> here.
 
--		args->handler = task_no_data_intr;
-+		args->handler = &task_no_data_intr;
+I'm going to test the code in depth over the next few days. I managed to 
+fix most of the problems with fast_imageblit. Now to fix the slow image 
+blit code.
 
-do the same thing.
+> I'm wondering if working with 32 bits words really worth... I mean the
+> code is quite hard to follow because it needs to deal with endianess,
+> heading bits, trailings bits whereas working with 8 bits would be so
+> much easier, wouldn't it ? Are writings in video RAM very long ?
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yes. We need to minimize the writes over the PCI bus. Its really really 
+slow.

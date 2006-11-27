@@ -1,38 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755714AbWK0A7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755689AbWK0BV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755714AbWK0A7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 19:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755724AbWK0A7b
+	id S1755689AbWK0BV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 20:21:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755691AbWK0BV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 19:59:31 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59657 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1755706AbWK0A7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 19:59:30 -0500
-Date: Mon, 27 Nov 2006 01:59:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [2.6 patch] NET_SCH_ATM doesn't need ipcommon.o
-Message-ID: <20061127005934.GN15364@stusta.de>
+	Sun, 26 Nov 2006 20:21:29 -0500
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:58446 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1755681AbWK0BV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 20:21:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=wWLJXTO3cHv9PNYjixZkmGgcuddVPE0xdbYK7B+RW+0h0rC3nJPwdkrZNmYf0etH0UMlPUfzdkanL8pVg88w825yAI4ufXQdxZUMBnKgiUML1Kg21oUYDRQdMtf2Hf6TB4VhumdgpxUdaLjBqmFXfl+m4fT8vlHZssEhqUx39zo=  ;
+X-YMail-OSG: Lvmwyp8VM1mzt7Gr0HJTzdkLuAhpvGUgmqm4snv_Fo0NTlMHHVXP7BoxlA3mbL.q5PZ.rG4yG44IoSIhArqn9pKKbjpcpbn__N1TFJAqyUlBug9jOo5H7g--
+From: David Brownell <david-b@pacbell.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [Bulk] Re: NTP time sync
+Date: Sun, 26 Nov 2006 17:21:23 -0800
+User-Agent: KMail/1.7.1
+Cc: "Joakim Tjernlund" <joakim.tjernlund@transmode.se>,
+       "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>, akpm@osdl.org,
+       linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       ralf@linux-mips.org, "'Andi Kleen'" <ak@muc.de>, paulus@samba.org,
+       rmk@arm.linux.org.uk, davem@davemloft.net, kkojima@rr.iij4u.or.jp
+References: <20061126202148.190d5b4b@inspiron> <00b301c711a3$07cf3530$020120ac@Jocke> <20061126235317.5d40d22c@inspiron>
+In-Reply-To: <20061126235317.5d40d22c@inspiron>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611261721.25473.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NET_SCH_ATM doesn't need ipcommon.o
+On Sunday 26 November 2006 2:53 pm, Alessandro Zummo wrote:
+> On Sun, 26 Nov 2006 22:37:10 +0100
+> "Joakim Tjernlund" <joakim.tjernlund@transmode.se> wrote:
+> 
+> > >  the concept of static numbers is quite old...
+> > 
+> > Yes it is old, but is the old way unsupported now? I have an embedded target
+> > which is using the old static /dev directory, do I need to make
+> > it udev aware to use newer features like the rtc subsystem?
+> 
+>  That can be a good option. 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+And it's simple enough.  You might not even need to run "udevd"
+if you don't have hotpluggable devices ... just the startup stuff,
+which you might not need after the first boot.  (Since the set of
+devices will be stable, /dev/* won't change, and you can speed up
+system boot by that small delta.)
 
---- linux-2.6.19-rc6-mm1/net/atm/Makefile.old	2006-11-26 08:50:05.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/net/atm/Makefile	2006-11-26 08:56:29.000000000 +0100
-@@ -10,7 +10,6 @@
- atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
- obj-$(CONFIG_ATM_BR2684) += br2684.o
- atm-$(subst m,y,$(CONFIG_ATM_BR2684)) += ipcommon.o
--atm-$(subst m,y,$(CONFIG_NET_SCH_ATM)) += ipcommon.o
- atm-$(CONFIG_PROC_FS) += proc.o
- 
- obj-$(CONFIG_ATM_LANE) += lec.o
+I certainly run udev on some small systems, with /sbin/hotplug as
+appended.  Getting udev set up, and handling coldplug, is left as
+an exercise for the reader.  :)
+
+- Dave
+
+#!/bin/ash
+#
+# "hotplug" initializes devices ... hardware drivers get modprobed and
+# create class devices.  then later udev handles /dev node creation and
+# invokes programs that make userspace aware of the new device node.
+#
+# install as /sbin/hotplug
+
+if [ ! -d /sys ]
+then
+	exit 1
+fi
+cd /sys
+
+if [ "$ACTION" = "add" -a "$SUBSYSTEM" = "mmc" ]
+then
+	# MMC doesn't support modalias yet, but this is
+	# the only choice until we have SDIO support.
+	MODALIAS=mmc_block
+fi
+
+if [ "$ACTION" = "add" -a -n "$MODALIAS" -a ! -L $DEVPATH/driver ]
+then
+	# most important subsystems now have $MODALIAS support:
+	modprobe -q $MODALIAS
+fi
+
+if [ -n "$DEVPATH" ]
+then
+	/sbin/udevsend $1
+fi
+

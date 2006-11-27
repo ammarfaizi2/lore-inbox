@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758194AbWK0NYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758204AbWK0NkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758194AbWK0NYm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 08:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758196AbWK0NYm
+	id S1758204AbWK0NkT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 08:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758206AbWK0NkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 08:24:42 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:10424 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1758194AbWK0NYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 08:24:42 -0500
-Date: Mon, 27 Nov 2006 13:30:44 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: avl@logic.at
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hpa-problem in ide-disk.c - new insights.
-Message-ID: <20061127133044.28b8b4ed@localhost.localdomain>
-In-Reply-To: <20061127130953.GA2352@gamma.logic.tuwien.ac.at>
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at>
-	<20061120152505.5d0ba6c5@localhost.localdomain>
-	<20061120165601.GS6851@gamma.logic.tuwien.ac.at>
-	<20061120172812.64837a0a@localhost.localdomain>
-	<20061121115117.GU6851@gamma.logic.tuwien.ac.at>
-	<20061121120614.06073ce8@localhost.localdomain>
-	<20061122105735.GV6851@gamma.logic.tuwien.ac.at>
-	<20061123170557.GY6851@gamma.logic.tuwien.ac.at>
-	<20061127130953.GA2352@gamma.logic.tuwien.ac.at>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Mon, 27 Nov 2006 08:40:18 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23696 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1758204AbWK0NkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 08:40:17 -0500
+Date: Mon, 27 Nov 2006 13:39:44 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 19/38] KVM: Make __set_efer() an arch operation
+Message-ID: <20061127133944.GA4155@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Avi Kivity <avi@qumranet.com>, kvm-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <456AD5C6.1090406@qumranet.com> <20061127122938.0518325015E@cleopatra.q>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061127122938.0518325015E@cleopatra.q>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006 14:09:53 +0100
-Andreas Leitgeb <avl@logic.at> wrote:
+On Mon, Nov 27, 2006 at 12:29:38PM -0000, Avi Kivity wrote:
+>  #ifdef __x86_64__
+> -	__set_efer(vcpu, sregs->efer);
+> +	kvm_arch_ops->set_efer(vcpu, sregs->efer);
+>  #endif
 
-> It appears, as if the drive is really approaching breakdown, 
-> remapping bad sectors and is out of spare sectors. Thus
+I think it would be much better to make ->set_efer a noop for 32bit,
+and have different operation vectors for 32 vs 64 bit.
 
-HPA has nothign to do with sector remapping. HPA simply allows the BIOS
-(or disk by jumper option) to hide part of the drive early in boot so
-that it doesn't confuse/break old OS/BIOS code, or to use it to hide
-things like windows reinstall images.
+>  #ifdef __x86_64__
+> -	__set_efer(vcpu, 0);
+> +	vmx_set_efer(vcpu, 0);
+>  #endif
 
-Alan
+Similarly vmx_set_efer should just become a noop on 32bit.

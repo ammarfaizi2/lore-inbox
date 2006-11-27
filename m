@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758625AbWK0X4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758632AbWK1ADU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758625AbWK0X4k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 18:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758627AbWK0X4j
+	id S1758632AbWK1ADU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 19:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758636AbWK1ADU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 18:56:39 -0500
-Received: from imladris.surriel.com ([66.92.77.98]:20628 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S1758625AbWK0X4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 18:56:39 -0500
-Message-ID: <456B7B06.70709@surriel.com>
-Date: Mon, 27 Nov 2006 18:55:50 -0500
-From: Rik van Riel <riel@surriel.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Mon, 27 Nov 2006 19:03:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758632AbWK1ADT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 19:03:19 -0500
+Message-ID: <456B7A5A.1070202@redhat.com>
+Date: Mon, 27 Nov 2006 18:52:58 -0500
+From: Wendy Cheng <wcheng@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Apan Qasem <qasem@cs.rice.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Page coloring in linux
-References: <F17CDCEE-BD2F-458D-93A9-A7D1422598C9@cs.rice.edu>
-In-Reply-To: <F17CDCEE-BD2F-458D-93A9-A7D1422598C9@cs.rice.edu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] prune_icache_sb
+References: <4564C28B.30604@redhat.com> <20061122153603.33c2c24d.akpm@osdl.org>
+In-Reply-To: <20061122153603.33c2c24d.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apan Qasem wrote:
-> Does anyone know where I can find documentation on the page coloring 
-> algorithm?  I just need to find out the the basic heuristics used in 
-> coloring the pages.
-> 
-> Also, does the kernel source include the page coloring code or do I need 
-> to patch the kernel?
+Andrew Morton wrote:
+> This search is potentially inefficient.  It would be better walk
+> sb->s_inodes.
+>
+>   
+Not sure about walking thru sb->s_inodes for several reasons....
 
-The Linux kernel does not do page coloring.
+1. First, the changes made are mostly for file server setup with large 
+fs size - the entry count in sb->s_inodes may not be shorter then 
+inode_unused list.
+2. Different from calls such as drop_pagecache_sb() (that doesn't do 
+list entry removal), we're walking thru the list to dispose the entries. 
+This implies we are walking thru one list (sb->s_inodes) to remove the 
+other list's entries (inode_unused). This feels awkward.
+3. The new code will be very similar to current prune_icache() with few 
+differences - e.g., we really don't want to list_move() within the 
+sb->s_inodes list itself (as done in prune_icache() that moves the 
+examined entry to the tail of the inode_unused list). We have to either 
+duplicate the code or clutter the current prune_icache() routine.
 
-One reason for this is that the vast majority of processors
-has 4-way, 8-way or higher cache associativity, meaning that
-the gains that could be had from coloring are a lot smaller
-than they used to be.
+Pruning based on sb->s_inodes *does* have its advantage but a simple and 
+plain patch as shown in previous post (that has been well-tested out in 
+two large scale production systems) could be equally effective. Make 
+sense ?
 
-Cache coloring is not free, either.
+-- Wendy
 
--- 
-Politics is the struggle between those who want to make their country
-the best in the world, and those who believe it already is.  Each group
-calls the other unpatriotic.

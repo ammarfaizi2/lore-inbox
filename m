@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758157AbWK0NKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758152AbWK0NQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758157AbWK0NKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 08:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758181AbWK0NKK
+	id S1758152AbWK0NQk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 08:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758182AbWK0NQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 08:10:10 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:61100 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1758157AbWK0NKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 08:10:09 -0500
-Date: Mon, 27 Nov 2006 14:09:53 +0100
-To: Andreas Leitgeb <avl@logic.at>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: hpa-problem in ide-disk.c - new insights.
-Message-ID: <20061127130953.GA2352@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at> <20061120152505.5d0ba6c5@localhost.localdomain> <20061120165601.GS6851@gamma.logic.tuwien.ac.at> <20061120172812.64837a0a@localhost.localdomain> <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain> <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061123170557.GY6851@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+	Mon, 27 Nov 2006 08:16:40 -0500
+Received: from schokokeks.org ([87.106.4.7]:58829 "EHLO schokokeks.org")
+	by vger.kernel.org with ESMTP id S1758152AbWK0NQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 08:16:39 -0500
+From: "Hanno =?utf-8?q?B=C3=B6ck?=" <mail@hboeck.de>
+To: "YOSHIFUJI Hideaki / =?utf-8?q?=E5=90=89=E8=97=A4=E8=8B=B1=E6=98=8E?=" 
+	<yoshfuji@linux-ipv6.org>
+Subject: Re: kernel: Please report the result to linux-kernel to fix this permanently
+Date: Mon, 27 Nov 2006 14:16:03 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200611271242.59642.mail@hboeck.de> <20061127.205034.113977558.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20061127.205034.113977558.yoshfuji@linux-ipv6.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2193895.bLh3HJJj1V";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611271416.09001.mail@hboeck.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears, as if the drive is really approaching breakdown, 
-remapping bad sectors and is out of spare sectors. Thus
-reducing capacity.   The call to determine the native
-sectors seems to still count in those remapped sectors, 
-yielding an effectively bogus number.
+--nextPart2193895.bLh3HJJj1V
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Perhaps the drive had originally 78165361 sectors, and
-(speculating further) the problems only started to show
-up, when the "current" sectors dropped down to 78165360,
-while the "native" sectors remained at 78165361.
+Am Montag, 27. November 2006 12:50 schrieb YOSHIFUJI Hideaki / =E5=90=89=E8=
+=97=A4=E8=8B=B1=E6=98=8E:
+> In article <200611271242.59642.mail@hboeck.de> (at Mon, 27 Nov 2006 12:42=
+:56=20
++0100), "Hanno B=E6=97=A6ck" <mail@hboeck.de> says:
+> > My kernel says
+> > Oct  7 18:25:00 laverne kernel: Please report the result to linux-kernel
+> > to fix this permanently
+> >
+> > so I do this. Replys CC to me, cause I'm not on this list.
+>
+> Have you tried booting with "pci=3Dassign-busses"?
 
-Since I've got no precious data on that disk (anymore),
-I'll just watch it, until it suffers the final headcrash.
+No longer shows this error (full dmesg at=20
+http://schokokeks.org/~hanno/dmesg-with-pci-assign-busses )
 
-PS:
-It would still be good to be able to turn off hpa-checking
-with some module/boot-option to help with any drives that
-return effectively wrong "native" capacity (whether they're
-actually broken, or might just have a broken firmware).
+Anyway, it doesn't cause any problems, just the kernel message said I shoul=
+d=20
+report this, so I did it.
 
+=2D-=20
+Hanno B=C3=B6ck		Blog:   http://www.hboeck.de/
+GPG: 3DBD3B20		Jabber: jabber@hboeck.de
+
+--nextPart2193895.bLh3HJJj1V
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFauUYr2QksT29OyARAoHUAJ9Q4wtvCr5cBzt4sdDUktHlJUsZlACfcjYl
+59kPrG9x1/K/jRhDGy88MdY=
+=71vC
+-----END PGP SIGNATURE-----
+
+--nextPart2193895.bLh3HJJj1V--

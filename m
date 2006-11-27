@@ -1,78 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758013AbWK0WrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758596AbWK0XQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758013AbWK0WrU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 17:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758016AbWK0WrU
+	id S1758596AbWK0XQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 18:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758598AbWK0XQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 17:47:20 -0500
-Received: from smtp10.poczta.interia.pl ([80.48.65.10]:10369 "EHLO
-	smtp4.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S1758013AbWK0WrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 17:47:19 -0500
-Message-ID: <456B6B02.9060105@poczta.fm>
-Date: Mon, 27 Nov 2006 23:47:30 +0100
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: autoconf.h and auto.conf missing
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8B8E5A6D00C1286557D90E49"
-X-EMID: 639a3138
+	Mon, 27 Nov 2006 18:16:51 -0500
+Received: from junsun.net ([66.29.16.26]:13578 "EHLO junsun.net")
+	by vger.kernel.org with ESMTP id S1758596AbWK0XQu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 18:16:50 -0500
+Date: Mon, 27 Nov 2006 15:16:46 -0800
+From: Jun Sun <jsun@junsun.net>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: failed 'ljmp' in linear addressing mode
+Message-ID: <20061127231646.GA21627@srv.junsun.net>
+References: <20061122234111.GA8499@srv.junsun.net> <Pine.LNX.4.61.0611270843500.4092@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0611270843500.4092@chaos.analogic.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8B8E5A6D00C1286557D90E49
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Greetings.
+On Mon, Nov 27, 2006 at 08:58:57AM -0500, linux-os (Dick Johnson) wrote:
+> 
+> I think it probably resets the instant that you turn off paging. To
+> turn off paging, you need to copy some code (properly linked) to an
+> area where there is a 1:1 mapping between virtual and physical addresses.
+> A safe place is somewhere below 1 megabyte. Then you need to set up a
+> call descriptor so you can call that code (you can ljump if you never
+> plan to get back). You then need to clear interrupts on all CPUs (use a 
+> spin-lock). Once you are executing from the new area, you reset your
+> segments to the new area. The call descriptor would have already set
+> CS, as would have the long-jump. At this time you can turn off paging
+> and flush the TLB. You are now in linear-address protected mode.
+>
 
-It seems that someone has broken *conf programs in 2.6.18 because
-only "make silentoldconfig" recreates autoconf.h and auto.conf
-properly after configuration (.config) has changed.
+Thanks for the reply.  But I am pretty much sure I did above correctly.
+I use single-instruction infinite loop in the call path to verify
+that control does reach last 'ljmp' but not the jump destination.
 
-I do everything as I always have done.
-1. create an empty dir and put my current .config there
-2. make O=3Ddir oldconfig
-3. compile, everything seems to be OK here
-4. do some changes to .config and make oldconfig once again
-BZZZZZT
-5. auto.conf and autoconf.h don't change along with .config and when
- I build the kernel once again new settings don't take effect.
+Below is the hack I made to machine_kexec.c file.  As you can see, I
+managed to make the identical mapping between virtual and physical addresses.
 
-I discovered I have to make silentoldconfig to regenerate autoconf
-files. However, this *seems* to force rebuilding of all the objects
-instead of, what it has always done, only those that depend on
-altered configurations.
+Note I did not copy the code into the first 1M.  In fact the code
+is located at 0xc0477000 (0x00477000 in physical).  I thought that should be
+OK as I did not really go all the way back to real-address mode.
 
-Has anyone else seen something like this? Is it a bug or a feature?
+That last suspect I have now is the wrong value in CS descriptor.  Does kernel
+have a suitable CS descriptor for the last ljmep to 0x10000000 in linear
+addressing mode?  The CS descriptor seems to be a pretty dark magic to me ...
 
-Best regards,
+Cheers.
 
-Please CC, I am not a subscriber.
---=20
-By=C5=82o mi bardzo mi=C5=82o.               Czwarta pospolita kl=C4=99sk=
-a, [...]
->=C5=81ukasz<                 Ju=C5=BC nie katolicka lecz z=C5=82odziejsk=
-a.  (c)PP
+Jun
 
+-----------------
+diff -Nru linux-2.6.17.14-1st/arch/i386/kernel/machine_kexec.c.orig linux-2.6.17.14-1st/arch/i386/kernel/machine_kexec.c
+--- linux-2.6.17.14-1st/arch/i386/kernel/machine_kexec.c.orig   2006-10-13 11:55:04.000000000 -0700
++++ linux-2.6.17.14-1st/arch/i386/kernel/machine_kexec.c        2006-11-22 15:01:45.000000000 -0800
+@@ -212,3 +212,19 @@
+        rnk = (relocate_new_kernel_t) reboot_code_buffer;
+        (*rnk)(page_list, reboot_code_buffer, image->start, cpu_has_pae);
+ }
++
++extern void do_os_switching(void);
++void os_switch(void)
++{
++       void (*foo)(void);
++
++       /* absolutely no irq */
++       local_irq_disable();
++
++       /* create identity mapping */
++       foo=virt_to_phys(do_os_switching);
++       identity_map_page((unsigned long)foo);
++
++       /* jump to the real address */
++       foo();
++}
 
---------------enig8B8E5A6D00C1286557D90E49
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFa2sHNdzY8sm9K9wRAg8aAJ993BRfKRqV4leFPhFCYy/sQi8DDgCgm0y1
-n4/sjOaicEw8mjZKy9zwcDk=
-=bduG
------END PGP SIGNATURE-----
-
---------------enig8B8E5A6D00C1286557D90E49--

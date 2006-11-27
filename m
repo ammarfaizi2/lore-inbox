@@ -1,49 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758365AbWK0THz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933065AbWK0TIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758365AbWK0THz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 14:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758535AbWK0THz
+	id S933065AbWK0TIv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 14:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933186AbWK0TIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 14:07:55 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:17333 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1758365AbWK0THy (ORCPT
+	Mon, 27 Nov 2006 14:08:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14276 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933065AbWK0TIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 14:07:54 -0500
-Date: Mon, 27 Nov 2006 20:07:48 +0100
-From: Andi Kleen <ak@suse.de>
-To: Olivier Galibert <galibert@pobox.com>, Andi Kleen <ak@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
-Message-ID: <20061127190748.GA7015@bingen.suse.de>
-References: <20061123195137.GA35120@dspnet.fr.eu.org> <200611252159.59414.ak@suse.de> <20061126131532.GA41703@dspnet.fr.eu.org> <200611262028.04638.ak@suse.de> <20061127190301.GA75765@dspnet.fr.eu.org>
+	Mon, 27 Nov 2006 14:08:50 -0500
+Message-ID: <456B36EE.8000709@redhat.com>
+Date: Mon, 27 Nov 2006 14:05:18 -0500
+From: William Cohen <wcohen@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061127190301.GA75765@dspnet.fr.eu.org>
+To: eranian@hpl.hp.com
+CC: perfmon@napali.hpl.hp.com, perfctr-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [perfmon] 2.6.19-rc6-git10 new perfmon code base + libpfm + pfmon
+References: <20061127143705.GC24980@frankl.hpl.hp.com>
+In-Reply-To: <20061127143705.GC24980@frankl.hpl.hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------000407010508040203030606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 08:03:01PM +0100, Olivier Galibert wrote:
-> On Sun, Nov 26, 2006 at 08:28:04PM +0100, Andi Kleen wrote:
-> > On Sunday 26 November 2006 14:15, Olivier Galibert wrote:
-> > > Ok, here you go, what about that?  I'll be able to test it on i386 on
-> > > monday, not before.  It's hard to doa full 32bits install remotely :-)
-> > 
-> > Sorry, please don't put it all into a single patch. Do one patch
-> > that just moves code, then add new functionality later.
-> > Otherwise nobody can review it properly.
+This is a multi-part message in MIME format.
+--------------000407010508040203030606
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Stephane Eranian wrote:
+> Hello,
 > 
-> Ok, I have it split in 5 parts, but the testing on i386 failed simply
-> because the vanilla code there just does not work.  Symptom is the
-> SATA driver not seeing the disk somehow.
+> I have released another version of the perfmon new code base package.
+> This version of the kernel patch is relative to 2.6.19-rc6-git10.
+> 
+> This is a major update because it completes the changes requested 
+> during the code review on LKML. As a consequence, the kernel interface
+> is NOT backward compatible with previous v2.2 versions. This release has
+> the v2.3 version number. Backward compatibility with v2.0 is maintained
+> on Itanium processors.
 
-Weird. That shouldn't happen.
+Hi Stephane,
 
-Is that with just the code movement patch or your feature patch
-added too? If the later can you test it with only code movement
-(and compare against vanilla kernel). at least code movement
-only should behave exactly the same as unpatched kernel.
+I have built the kernel with the new patches and tried things out on x86_64 an 
+x88_64 machine with Fedora Core 4.  I attempted use the new libpfm and pfmon to 
+update the source RPMs and  I noticed that there were some return values from 
+read() and write() being ignored. When pfmon is being built as an RPM ignoring 
+the read and write return values cause the rpmbuild to fail. Attached is a 
+simple patch that stuffs the return values into dummy variable to avoid the 
+warnings. This patch allows libpfm and pfmon the source RPMs to compile on FC4 
+and Fedora Core rawhide.
 
--Andi
+-Will
+
+--------------000407010508040203030606
+Content-Type: text/x-patch;
+ name="pfmon-fortify.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pfmon-fortify.patch"
+
+--- pfmon-3.2-061127/pfmon/pfmon_util.c.fortify	2006-11-27 05:22:40.000000000 -0500
++++ pfmon-3.2-061127/pfmon/pfmon_util.c	2006-11-27 13:38:43.000000000 -0500
+@@ -1031,6 +1031,7 @@
+ 	int fd;
+ 	size_t max, used;
+ 	char number[32];
++	ssize_t dummy;
+ 
+ 	if (options.opt_is22 == 0)
+ 		return (size_t)-1;
+@@ -1042,7 +1043,7 @@
+ 	if (fd == -1)
+ 		return (size_t)-1;
+ 	memset(number, 0, sizeof(number));
+-	read(fd, number, sizeof(number));
++	dummy = read(fd, number, sizeof(number));
+ 
+ 	close(fd);
+ 
+@@ -1055,7 +1056,7 @@
+ 	if (fd == -1)
+ 		return (size_t)-1;
+ 	memset(number, 0, sizeof(number));
+-	read(fd, number, sizeof(number));
++	dummy = read(fd, number, sizeof(number));
+ 	close(fd);
+ 
+ 	max = strtoul(number, NULL, 0);
+--- pfmon-3.2-061127/pfmon/pfmon_task.c.fortify	2006-11-27 13:39:16.000000000 -0500
++++ pfmon-3.2-061127/pfmon/pfmon_task.c	2006-11-27 13:39:57.000000000 -0500
+@@ -1675,6 +1675,7 @@
+ 	int ctrl_fd;
+ 	int max_fd;
+ 	int ndesc, msg_type;
++	ssize_t dummy;
+ 
+ 	/*
+ 	 * POSIX threads: 
+@@ -1811,7 +1812,7 @@
+ 					/*
+ 					 * ack the removal
+ 					 */
+-					write(workers[mycpu].from_worker[1], &msg, sizeof(msg));
++					dummy = write(workers[mycpu].from_worker[1], &msg, sizeof(msg));
+ 					break;
+ 
+ 				case PFMON_TASK_MSG_QUIT:
+
+--------------000407010508040203030606--

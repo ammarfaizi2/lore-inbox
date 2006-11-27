@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758267AbWK0Ovm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758265AbWK0O46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758267AbWK0Ovm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 09:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758266AbWK0Ovm
+	id S1758265AbWK0O46 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 09:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758266AbWK0O45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 09:51:42 -0500
-Received: from nebensachen.de ([195.225.107.202]:53485 "EHLO nebensachen.de")
-	by vger.kernel.org with ESMTP id S1758250AbWK0Ovl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 09:51:41 -0500
-X-Hashcash: 1:20:061127:linux-ide@vger.kernel.org::paJtBF/EefTqCLoN:0000000000000000000000000000000000000EnS
-X-Hashcash: 1:20:061127:stable@vger.kernel.org::QF6115/YC01xqDEb:0000000000000000000000000000000000000000+1j
-From: Elias Oltmanns <eo@nebensachen.de>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] IDE: typo in ide-io.c leads to faulty assignment
-X-Hashcash: 1:20:061127:linux-kernel@vger.kernel.org::9VAZSrM+MkD2J1E3:0000000000000000000000000000000005XrG
-Mail-Copies-To: nobody
-Mail-Followup-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Date: Mon, 27 Nov 2006 15:51:33 +0100
-Message-ID: <87k61h3pu2.fsf@denkblock.local>
-User-Agent: Gnus/5.110006 (No Gnus v0.6)
+	Mon, 27 Nov 2006 09:56:57 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:54508 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1758265AbWK0O45
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 09:56:57 -0500
+Date: Mon, 27 Nov 2006 14:56:55 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add debugging aid for memory initialisation problems
+In-Reply-To: <200611271514.03612.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0611271437560.15577@skynet.skynet.ie>
+References: <20061127140804.GA15405@skynet.ie> <200611271514.03612.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, 27 Nov 2006, Andi Kleen wrote:
 
-Due to a typo in ide_start_power_step, the result of a function rather
-than its pointer is assigned to args->handler. The patch applies to
-2.6.19-rc6 but the problem exists in the stable branch as well.
+> On Monday 27 November 2006 15:08, Mel Gorman wrote:
+>> A number of bug reports have been submitted related to memory initialisation
+>> that would have been easier to debug if the PFN of page addresses were
+>> available. The dmesg output is often insufficient to find that information
+>> so debugging patches need to be sent to the reporting user.
+>
+> So how many new lines does that add overall?
 
-Signed-off-by: Elias Oltmanns <eo@nebensachen.de>
----
+I don't know for sure, but it's probably around the 150 LOC mark from 
+about 12 patches, mainly in page_alloc.c. A significant portion of the 
+patches were documentation, comments and providing debugging information. 
+As it is, any bug fix or improvement in that code will now apply to all 
+architectures using the API, not just one.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=ide-io.c.patch
+I expect the net code difference to drop as some of the mem= parsing 
+(which currently does not always work AFAIK) gets handled in generic 
+rather than arch-specific code. These type of cleanups will take a while. 
+I would also expect the net difference to drop if more architectures used 
+the API instead of arch-specific code but I couldn't test on all arches.
 
-diff --git a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
-index 2614f41..48a249d 100644
---- a/drivers/ide/ide-io.c
-+++ b/drivers/ide/ide-io.c
-@@ -213,7 +213,7 @@ static ide_startstop_t ide_start_power_s
- 	case idedisk_pm_idle:		/* Resume step 2 (idle) */
- 		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
--		args->handler = task_no_data_intr;
-+		args->handler = &task_no_data_intr;
- 		return do_rw_taskfile(drive, args);
- 
- 	case ide_pm_restore_dma:	/* Resume step 3 (restore DMA) */
+> Your memmap patches overall
+> were already one of the most noisy additions we had for a very long time.
+>
 
---=-=-=--
+The worst of the noise should be over now. The last patch I sent isn't 
+necessary. I only sent it on because it would have cut down on the time 
+needed to fix Andre's issue.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

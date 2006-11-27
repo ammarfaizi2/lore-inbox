@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758088AbWK0MOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758091AbWK0MPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758088AbWK0MOj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 07:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758087AbWK0MOj
+	id S1758091AbWK0MPj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 07:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758092AbWK0MPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 07:14:39 -0500
-Received: from il.qumranet.com ([62.219.232.206]:10194 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1758088AbWK0MOi (ORCPT
+	Mon, 27 Nov 2006 07:15:39 -0500
+Received: from il.qumranet.com ([62.219.232.206]:11218 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1758091AbWK0MPi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 07:14:38 -0500
-Subject: [PATCH 4/38] KVM: Make the per-cpu enable/disable functions arch
-	operations
+	Mon, 27 Nov 2006 07:15:38 -0500
+Subject: [PATCH 5/38] KVM: Make the hardware setup operations (non-percpu)
+	arch operations
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 27 Nov 2006 12:14:37 -0000
+Date: Mon, 27 Nov 2006 12:15:37 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 References: <456AD5C6.1090406@qumranet.com>
 In-Reply-To: <456AD5C6.1090406@qumranet.com>
-Message-Id: <20061127121437.187B125015E@cleopatra.q>
+Message-Id: <20061127121537.2542125015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -27,12 +27,12 @@ Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm.h
 +++ linux-2.6/drivers/kvm/kvm.h
-@@ -238,6 +238,8 @@ struct kvm_stat {
- struct kvm_arch_ops {
- 	int (*cpu_has_kvm_support)(void);          /* __init */
+@@ -240,6 +240,8 @@ struct kvm_arch_ops {
  	int (*disabled_by_bios)(void);             /* __init */
-+	void (*hardware_enable)(void *dummy);      /* __init */
-+	void (*hardware_disable)(void *dummy);
+ 	void (*hardware_enable)(void *dummy);      /* __init */
+ 	void (*hardware_disable)(void *dummy);
++	int (*hardware_setup)(void);               /* __init */
++	void (*hardware_unsetup)(void);            /* __exit */
  };
  
  extern struct kvm_stat kvm_stat;
@@ -40,153 +40,254 @@ Index: linux-2.6/drivers/kvm/kvm_main.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm_main.c
 +++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -135,7 +135,6 @@ static const u32 vmx_msr_index[] = {
- #define CR0_RESEVED_BITS 0xffffffff1ffaffc0ULL
- #define LMSW_GUEST_MASK 0x0eULL
- #define CR4_RESEVED_BITS (~((1ULL << 11) - 1))
--#define CR4_VMXE 0x2000
- #define CR8_RESEVED_BITS (~0x0fULL)
- #define EFER_RESERVED_BITS 0xfffffffffffff2fe
+@@ -124,7 +124,6 @@ static const u32 vmx_msr_index[] = {
  
-@@ -300,7 +299,8 @@ static void reload_tss(void)
- #endif
- }
- 
--static DEFINE_PER_CPU(struct vmcs *, vmxarea);
-+DEFINE_PER_CPU(struct vmcs *, vmxarea);
-+EXPORT_SYMBOL_GPL(per_cpu__vmxarea); /* temporary hack */
+ #define MSR_IA32_TIME_STAMP_COUNTER		0x010
+ #define MSR_IA32_FEATURE_CONTROL 		0x03a
+-#define MSR_IA32_VMX_BASIC_MSR   		0x480
+ #define MSR_IA32_VMX_PINBASED_CTLS_MSR		0x481
+ #define MSR_IA32_VMX_PROCBASED_CTLS_MSR		0x482
+ #define MSR_IA32_VMX_EXIT_CTLS_MSR		0x483
+@@ -303,11 +302,12 @@ DEFINE_PER_CPU(struct vmcs *, vmxarea);
+ EXPORT_SYMBOL_GPL(per_cpu__vmxarea); /* temporary hack */
  static DEFINE_PER_CPU(struct vmcs *, current_vmcs);
  
- static struct vmcs_descriptor {
-@@ -553,26 +553,6 @@ static __init int alloc_kvm_area(void)
- 	return 0;
+-static struct vmcs_descriptor {
++struct vmcs_descriptor {
+ 	int size;
+ 	int order;
+ 	u32 revision_id;
+ } vmcs_descriptor;
++EXPORT_SYMBOL_GPL(vmcs_descriptor);
+ 
+ #ifdef __x86_64__
+ static unsigned long read_msr(unsigned long msr)
+@@ -394,16 +394,6 @@ int kvm_write_guest(struct kvm_vcpu *vcp
+ 	return req_size - size;
  }
  
--static __init void kvm_enable(void *garbage)
+-static __init void setup_vmcs_descriptor(void)
 -{
--	int cpu = raw_smp_processor_id();
--	u64 phys_addr = __pa(per_cpu(vmxarea, cpu));
--	u64 old;
+-	u32 vmx_msr_low, vmx_msr_high;
 -
--	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
--	if ((old & 5) == 0)
--		/* enable and lock */
--		wrmsrl(MSR_IA32_FEATURE_CONTROL, old | 5);
--	write_cr4(read_cr4() | CR4_VMXE); /* FIXME: not cpu hotplug safe */
--	asm volatile (ASM_VMX_VMXON_RAX : : "a"(&phys_addr), "m"(phys_addr)
--		      : "memory", "cc");
+-	rdmsr(MSR_IA32_VMX_BASIC_MSR, vmx_msr_low, vmx_msr_high);
+-	vmcs_descriptor.size = vmx_msr_high & 0x1fff;
+-	vmcs_descriptor.order = get_order(vmcs_descriptor.size);
+-	vmcs_descriptor.revision_id = vmx_msr_low;
+-};
+-
+ static void vmcs_clear(struct vmcs *vmcs)
+ {
+ 	u64 phys_addr = __pa(vmcs);
+@@ -501,8 +491,7 @@ static void vcpu_put(struct kvm_vcpu *vc
+ 	mutex_unlock(&vcpu->mutex);
+ }
+ 
+-
+-static struct vmcs *alloc_vmcs_cpu(int cpu)
++struct vmcs *alloc_vmcs_cpu(int cpu)
+ {
+ 	int node = cpu_to_node(cpu);
+ 	struct page *pages;
+@@ -516,42 +505,18 @@ static struct vmcs *alloc_vmcs_cpu(int c
+ 	vmcs->revision_id = vmcs_descriptor.revision_id; /* vmcs revision id */
+ 	return vmcs;
+ }
++EXPORT_SYMBOL_GPL(alloc_vmcs_cpu);
+ 
+ static struct vmcs *alloc_vmcs(void)
+ {
+ 	return alloc_vmcs_cpu(smp_processor_id());
+ }
+ 
+-static void free_vmcs(struct vmcs *vmcs)
++void free_vmcs(struct vmcs *vmcs)
+ {
+ 	free_pages((unsigned long)vmcs, vmcs_descriptor.order);
+ }
+-
+-static __exit void free_kvm_area(void)
+-{
+-	int cpu;
+-
+-	for_each_online_cpu(cpu)
+-		free_vmcs(per_cpu(vmxarea, cpu));
 -}
 -
--static void kvm_disable(void *garbage)
+-static __init int alloc_kvm_area(void)
 -{
--	asm volatile (ASM_VMX_VMXOFF : : : "cc");
--}
+-	int cpu;
 -
+-	for_each_online_cpu(cpu) {
+-		struct vmcs *vmcs;
+-
+-		vmcs = alloc_vmcs_cpu(cpu);
+-		if (!vmcs) {
+-			free_kvm_area();
+-			return -ENOMEM;
+-		}
+-
+-		per_cpu(vmxarea, cpu) = vmcs;
+-	}
+-	return 0;
+-}
++EXPORT_SYMBOL_GPL(free_vmcs);
+ 
  static int kvm_dev_open(struct inode *inode, struct file *filp)
  {
- 	struct kvm *kvm = kzalloc(sizeof(struct kvm), GFP_KERNEL);
-@@ -3565,8 +3545,8 @@ static int kvm_reboot(struct notifier_bl
- 		 * Some (well, at least mine) BIOSes hang on reboot if
- 		 * in vmx root mode.
- 		 */
--		printk(KERN_INFO "kvm: exiting vmx mode\n");
--		on_each_cpu(kvm_disable, 0, 0, 1);
-+		printk(KERN_INFO "kvm: exiting hardware virtualization\n");
-+		on_each_cpu(kvm_arch_ops->hardware_disable, 0, 0, 1);
- 	}
- 	return NOTIFY_OK;
- }
-@@ -3612,6 +3592,9 @@ int kvm_init_arch(struct kvm_arch_ops *o
+@@ -3592,6 +3557,10 @@ int kvm_init_arch(struct kvm_arch_ops *o
  		return -EOPNOTSUPP;
  	}
  
-+	on_each_cpu(kvm_arch_ops->hardware_enable, 0, 0, 1);
-+	register_reboot_notifier(&kvm_reboot_notifier);
++	r = kvm_arch_ops->hardware_setup();
++	if (r < 0)
++	    return r;
 +
- 	kvm_chardev_ops.owner = module;
+ 	on_each_cpu(kvm_arch_ops->hardware_enable, 0, 0, 1);
+ 	register_reboot_notifier(&kvm_reboot_notifier);
  
- 	r = misc_register(&kvm_dev);
-@@ -3627,6 +3610,9 @@ out_free:
- void kvm_exit_arch(void)
- {
- 	misc_deregister(&kvm_dev);
+@@ -3603,7 +3572,12 @@ int kvm_init_arch(struct kvm_arch_ops *o
+ 		goto out_free;
+ 	}
+ 
++	return r;
 +
+ out_free:
 +	unregister_reboot_notifier(&kvm_reboot_notifier);
 +	on_each_cpu(kvm_arch_ops->hardware_disable, 0, 0, 1);
++	kvm_arch_ops->hardware_unsetup();
+ 	return r;
+ }
+ 
+@@ -3613,6 +3587,7 @@ void kvm_exit_arch(void)
+ 
+ 	unregister_reboot_notifier(&kvm_reboot_notifier);
+ 	on_each_cpu(kvm_arch_ops->hardware_disable, 0, 0, 1);
++	kvm_arch_ops->hardware_unsetup();
  }
  
  static __init int kvm_init(void)
-@@ -3640,8 +3626,6 @@ static __init int kvm_init(void)
- 	r = alloc_kvm_area();
- 	if (r)
- 		goto out;
--	on_each_cpu(kvm_enable, 0, 0, 1);
--	register_reboot_notifier(&kvm_reboot_notifier);
+@@ -3622,14 +3597,9 @@ static __init int kvm_init(void)
  
+ 	kvm_init_debug();
+ 
+-	setup_vmcs_descriptor();
+-	r = alloc_kvm_area();
+-	if (r)
+-		goto out;
+-
  	if ((bad_page = alloc_page(GFP_KERNEL)) == NULL) {
  		r = -ENOMEM;
-@@ -3663,8 +3647,6 @@ out:
+-		goto out_free;
++		goto out;
+ 	}
+ 
+ 	bad_page_address = page_to_pfn(bad_page) << PAGE_SHIFT;
+@@ -3637,8 +3607,6 @@ static __init int kvm_init(void)
+ 
+ 	return r;
+ 
+-out_free:
+-	free_kvm_area();
+ out:
+ 	kvm_exit_debug();
+ 	return r;
+@@ -3647,7 +3615,6 @@ out:
  static __exit void kvm_exit(void)
  {
  	kvm_exit_debug();
--	unregister_reboot_notifier(&kvm_reboot_notifier);
--	on_each_cpu(kvm_disable, 0, 0, 1);
- 	free_kvm_area();
+-	free_kvm_area();
  	__free_page(pfn_to_page(bad_page_address >> PAGE_SHIFT));
  }
+ 
 Index: linux-2.6/drivers/kvm/vmx.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/vmx.c
 +++ linux-2.6/drivers/kvm/vmx.c
-@@ -23,6 +23,8 @@
- MODULE_AUTHOR("Qumranet");
- MODULE_LICENSE("GPL");
+@@ -25,6 +25,12 @@ MODULE_LICENSE("GPL");
  
-+DECLARE_PER_CPU(struct vmcs *, vmxarea);
+ DECLARE_PER_CPU(struct vmcs *, vmxarea);
+ 
++extern struct vmcs_descriptor {
++	int size;
++	int order;
++	u32 revision_id;
++} vmcs_descriptor;
 +
  static __init int cpu_has_kvm_support(void)
  {
  	unsigned long ecx = cpuid_ecx(1);
-@@ -37,9 +39,31 @@ static __init int vmx_disabled_by_bios(v
- 	return (msr & 5) == 1; /* locked but not enabled */
+@@ -59,9 +65,62 @@ static void hardware_disable(void *garba
+ 	asm volatile (ASM_VMX_VMXOFF : : : "cc");
  }
  
-+static __init void hardware_enable(void *garbage)
++static __init void setup_vmcs_descriptor(void)
 +{
-+	int cpu = raw_smp_processor_id();
-+	u64 phys_addr = __pa(per_cpu(vmxarea, cpu));
-+	u64 old;
++	u32 vmx_msr_low, vmx_msr_high;
 +
-+	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
-+	if ((old & 5) == 0)
-+		/* enable and lock */
-+		wrmsrl(MSR_IA32_FEATURE_CONTROL, old | 5);
-+	write_cr4(read_cr4() | CR4_VMXE); /* FIXME: not cpu hotplug safe */
-+	asm volatile (ASM_VMX_VMXON_RAX : : "a"(&phys_addr), "m"(phys_addr)
-+		      : "memory", "cc");
++	rdmsr(MSR_IA32_VMX_BASIC_MSR, vmx_msr_low, vmx_msr_high);
++	vmcs_descriptor.size = vmx_msr_high & 0x1fff;
++	vmcs_descriptor.order = get_order(vmcs_descriptor.size);
++	vmcs_descriptor.revision_id = vmx_msr_low;
++};
++
++void free_vmcs(struct vmcs *vmcs);
++
++static __exit void free_kvm_area(void)
++{
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		free_vmcs(per_cpu(vmxarea, cpu));
 +}
 +
-+static void hardware_disable(void *garbage)
++extern struct vmcs *alloc_vmcs_cpu(int cpu);
++
++static __init int alloc_kvm_area(void)
 +{
-+	asm volatile (ASM_VMX_VMXOFF : : : "cc");
++	int cpu;
++
++	for_each_online_cpu(cpu) {
++		struct vmcs *vmcs;
++
++		vmcs = alloc_vmcs_cpu(cpu);
++		if (!vmcs) {
++			free_kvm_area();
++			return -ENOMEM;
++		}
++
++		per_cpu(vmxarea, cpu) = vmcs;
++	}
++	return 0;
++}
++
++static __init int hardware_setup(void)
++{
++	setup_vmcs_descriptor();
++	return alloc_kvm_area();
++}
++
++static __exit void hardware_unsetup(void)
++{
++	free_kvm_area();
 +}
 +
  static struct kvm_arch_ops vmx_arch_ops = {
  	.cpu_has_kvm_support = cpu_has_kvm_support,
  	.disabled_by_bios = vmx_disabled_by_bios,
-+	.hardware_enable = hardware_enable,
-+	.hardware_disable = hardware_disable,
++	.hardware_setup = hardware_setup,
++	.hardware_unsetup = hardware_unsetup,
+ 	.hardware_enable = hardware_enable,
+ 	.hardware_disable = hardware_disable,
  };
- 
- static int __init vmx_init(void)
 Index: linux-2.6/drivers/kvm/vmx.h
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/vmx.h
 +++ linux-2.6/drivers/kvm/vmx.h
-@@ -284,4 +284,6 @@ enum vmcs_field {
+@@ -286,4 +286,6 @@ enum vmcs_field {
  
- #define AR_RESERVD_MASK 0xfffe0f00
+ #define CR4_VMXE 0x2000
  
-+#define CR4_VMXE 0x2000
++#define MSR_IA32_VMX_BASIC_MSR   		0x480
 +
  #endif

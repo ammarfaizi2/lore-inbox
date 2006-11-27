@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758414AbWK0RWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758358AbWK0R2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758414AbWK0RWk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 12:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758443AbWK0RWk
+	id S1758358AbWK0R2X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 12:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758462AbWK0R2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 12:22:40 -0500
-Received: from avexch1.qlogic.com ([198.70.193.115]:33466 "EHLO
-	avexch1.qlogic.com") by vger.kernel.org with ESMTP id S1758411AbWK0RWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 12:22:39 -0500
-Date: Mon, 27 Nov 2006 09:22:38 -0800
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-driver@qlogic.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: [-mm patch] make qla2x00_reg_remote_port() static
-Message-ID: <20061127172238.GA21083@andrew-vasquezs-computer.local>
-References: <20061123021703.8550e37e.akpm@osdl.org> <20061124014601.GQ3557@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061124014601.GQ3557@stusta.de>
-Organization: QLogic Corporation
-User-Agent: Mutt/1.5.12-2006-07-14
-X-OriginalArrivalTime: 27 Nov 2006 17:22:39.0224 (UTC) FILETIME=[A36EC780:01C71248]
+	Mon, 27 Nov 2006 12:28:23 -0500
+Received: from lmailproxy02.edpnet.net ([212.71.1.195]:61135 "EHLO
+	lmailproxy02.edpnet.net") by vger.kernel.org with ESMTP
+	id S1758357AbWK0R2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 12:28:22 -0500
+Date: Mon, 27 Nov 2006 18:28:17 +0100
+From: Laurent Bigonville <l.bigonville@edpnet.be>
+To: linux-kernel@vger.kernel.org
+Subject: O2micro smartcard reader driver.
+Message-Id: <20061127182817.d52dfdf1.l.bigonville@edpnet.be>
+X-Mailer: Sylpheed version 2.3.0beta5 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2006, Adrian Bunk wrote:
+Hi,
 
-> On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-rc5-mm2:
-> >...
-> >  git-scsi-misc.patch
-> >...
-> >  git trees
-> >...
-> 
-> qla2x00_reg_remote_port() can now become static.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I found a thread (about one month old) about an OZ711Mx (O2micro mmc
+card reader) driver, but unfortunately it uses some closed-source
+code.[1] :(
 
-Acked-by: Andrew Vasquez <andrew.vasquez@qlogic.com>
+But I found no thread about the kernel driver for the O2micro PCMCIA
+smartcard reader. So I would like to know if there is any chance that
+this driver may be included in the mainline kernel.
+The source are LGPL'ed and available via the musclecard website[2]. And
+I found a patch to make it compile with kernel > 2.6.13 on the ubuntu
+support site[3]. AFAIK the module work, the only issue I have is a
+small hang when inserting a card in the reader.
+
+If some one could have a look at this.
+
+Regards
+
+Laurent Bigonville
+
+[1] http://lkml.org/lkml/2006/10/27/57
+[2]
+ftp://scrdriver:scrdriver@209.19.104.194/Linux/O2Micro_PCMCIA_SCR_203_Linux_Kernel26_OpenSource.tar.gz
+[3] https://answers.launchpad.net/distros/ubuntu/+ticket/2535

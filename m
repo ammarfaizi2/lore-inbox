@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758454AbWK0R4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758499AbWK0SAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758454AbWK0R4u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 12:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758499AbWK0R4u
+	id S1758499AbWK0SAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758501AbWK0SAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 12:56:50 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:39636 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1758450AbWK0R4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 12:56:49 -0500
-Date: Mon, 27 Nov 2006 18:56:47 +0100
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: avl@logic.at, linux-kernel@vger.kernel.org
-Subject: Re: Allow turning off hpa-checking.
-Message-ID: <20061127175647.GD2352@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061120165601.GS6851@gamma.logic.tuwien.ac.at> <20061120172812.64837a0a@localhost.localdomain> <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain> <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at> <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain> <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain>
+	Mon, 27 Nov 2006 13:00:12 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:13019 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1758499AbWK0SAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:00:10 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=C8WrPakn+2xctIHxBx4mJ4Xxr37AdBzUbQeJBpLKfTSKQtJB8efQ0ZbLDDSNgwPXX
+	4mh0N8FtYqJ5ucaLz4leQ==
+Subject: Re: [Patch3/4]: fake numa for x86_64 patches
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Andi Kleen <ak@suse.de>
+Cc: Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>,
+       Paul Menage <menage@google.com>
+In-Reply-To: <20061123090456.GD29738@bingen.suse.de>
+References: <1164245687.29844.153.camel@galaxy.corp.google.com>
+	 <20061123090456.GD29738@bingen.suse.de>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 27 Nov 2006 09:59:08 -0800
+Message-Id: <1164650348.6619.12.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061127163328.3f1c12eb@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 04:33:28PM +0000, Alan wrote:
-> > So after real remaining capacity has dropped
-> > below original capacity,  querying the "native" size still
-> > returns the original size, which is no longer physically
-> > backed.
-> This is incorrect.
+On Thu, 2006-11-23 at 10:04 +0100, Andi Kleen wrote:
+> On Wed, Nov 22, 2006 at 05:34:47PM -0800, Rohit Seth wrote:
+> > Fix the existing numa=fake so that ioholes are appropriately configured.
+> > Currently machines that have sizeable IO holes don't work with
+> > numa=fake>4.  This patch tries to equally partition the total available
+> > memory in equal size chunk.  The minimum size of the fake node is set to
+> > 32MB.
+> 
+> This patch seems to do far more than advertised in the change log? 
+> 
+> You're conflicting badly with Amul's numa hash function rewrite for example.
+> 
 
-Please, also give some hints, what actually falsifies my 
-observation-based speculations. I surely don't insist in them
-being accurate, but I try to understand what's really going on.
+Both of these patches are mucking with hash function and
+populate_memnodemap.  I like Amul's approach of doing dynamic allocation
+of numa hash map so that it can support >64GB of memory space.  I will
+resend the patches on top of his patch (incorporating your other
+feedback).
 
-What else (if not sector remapping) could make the "current"
-size gradually smaller between reboots. And why is "native"
-size still constant?  And why does now even access to the but-last
-native sector fail? The explanation with block-reads no longer
-works.
+-rohit
 
-> This is a matter for the partitioning tool. You don't know at boot time
-> what you wish to do with the HPA so a boot option is inappropriate.
 
-If I boot linux (e.g. from CD) on some precious windows-machine,
-I do know that at boot time. Ditto if I connect a foreign
-windows-disk in my machine (ata is afaik not yet hot-pluggable),
-I'm also bound to know that at boot time.
 
-There are also user-land tools (using ioctl) to manipulate 
-this, in case I change my mind lateron.
 
-How should the partitioning tool know, if I want to ignore the
-HPA, or respect it (knowing it contains stuff that I might need in
-future).  Does there exist any that asks me?

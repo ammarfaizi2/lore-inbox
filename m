@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758510AbWK0SVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758507AbWK0SX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758510AbWK0SVy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:21:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758507AbWK0SVx
+	id S1758507AbWK0SX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757841AbWK0SX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:21:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62866 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757861AbWK0SVw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:21:52 -0500
-Message-ID: <456B2C82.7040700@redhat.com>
-Date: Mon, 27 Nov 2006 10:20:50 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: Kevent POSIX timers support.
-References: <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru> <20061123085243.GA11575@2ka.mipt.ru> <456603E7.9090006@redhat.com> <20061124095052.GC13600@2ka.mipt.ru>
-In-Reply-To: <20061124095052.GC13600@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 27 Nov 2006 13:23:29 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:42465 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1758508AbWK0SX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:23:28 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=PpcZERQQ36pm9Uc8iY2jT5xMHoe7oofG8hh/6ywnSkLxh1E0/nsjkvv9s78QkMiId
+	DhQKawBu/pCFfAsdRpbOQ==
+Subject: Re: [Patch1/4]: fake numa for x86_64 patch
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>,
+       Paul Menage <menage@google.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611271310200.11949@skynet.skynet.ie>
+References: <1164245649.29844.148.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0611271310200.11949@skynet.skynet.ie>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Mon, 27 Nov 2006 10:22:41 -0800
+Message-Id: <1164651761.6619.33.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
->> We need to pass the data in the sigev_value meember of the struct 
->> sigevent structure passed to timer_create to the caller.  I don't see it 
->> being done here nor when the timer is created.  Do I miss something? 
->> The sigev_value value should be stored in the user/ptr member of struct 
->> ukevent.
+Hi Mel, 
+
+On Mon, 2006-11-27 at 13:18 +0000, Mel Gorman wrote:
+> On Wed, 22 Nov 2006, Rohit Seth wrote:
 > 
-> sigev_value was stored in k_itimer structure, I just do not know where
-> to put it in the ukevent provided to userspace - it can be placed in
-> pointer value if you like.
+> > This patch provides a IO hole size in a given address range.
+> >
+> 
+> Hi,
+> 
+> This patch reintroduces a function that doubles up what 
+> absent_pages_in_range(start_pfn, end_pfn). I recognise you do this because 
+> you are interested in hole sizes before add_active_range() is called.
 
-sigev_value is a union and the largest element is a pointer.  So, 
-transporting the pointer value is sufficient and it should be passed up 
-to the user in the ptr member of struct ukevent.
+Right.
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+>  
+> However, what is not clear is why these patches are so specific to x86_64.
+> 
+
+Specifically in the fake numa case, we want to make sure that we don't
+carve fake nodes that only have IO holes in it.  Unlike the real NUMA
+case, here we don't have SRAT etc. to know the memory layout beforehand.
+
+ 
+> It looks possible to do the work of functions like split_nodes_equal() in 
+> an architecture-independent manner using early_node_map rather than 
+> dealing with the arch-specific nodes array. That would open the 
+> possibility of providing fake nodes on more than one architecture in the 
+> future.
+
+The functions like splti_nodes_equal etc. can be abstracted out to arch
+independent part.  I think the only API it needs from arch dependent
+part is to find out how much real RAM is present in range without have
+to first do add_active_range.
+
+Though as a first step, let us fix the x86_64 (as it doesn't boot when
+you have sizeable chunk of IO hole and nodes > 4).
+
+I'm also not sure if other archs actually want to have this
+functionality.
+
+> What I think can be done is that you register memory as normal and then 
+> split up the nodes into fake nodes. This would remove the need for having 
+> e820_hole_size() reintroduced.
+
+Are you saying first let the system find out real numa topology and then
+build fake numa on top of it?
+
+-rohit
+

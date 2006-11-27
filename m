@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757272AbWK0Hv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757290AbWK0IAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757272AbWK0Hv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 02:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757271AbWK0Hv6
+	id S1757290AbWK0IAg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757297AbWK0IAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 02:51:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51340 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1757269AbWK0Hv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 02:51:58 -0500
-Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
-From: Arjan van de Ven <arjan@infradead.org>
-To: Wink Saville <wink@saville.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4569EF9D.7010802@saville.com>
-References: <fa./NRPJg+JjfSQLUVwnX1GpHGIojQ@ifi.uio.no>
-	 <fa.Y0RKABHd+7qnbGQYBAGPvlJ0Qic@ifi.uio.no>
-	 <fa.fD3WSpNqEJ4736vYzEak5Gf3xTw@ifi.uio.no>
-	 <fa.A+gkQAO1DLThaxJxPLPl3yE1CGo@ifi.uio.no>
-	 <fa.INurNKWdUKAEULTHyfpSW65a/Ng@ifi.uio.no>
-	 <fa.n9vySiI9RS2MCl0DZPDzxZEPiFw@ifi.uio.no> <4569404E.20402@shaw.ca>
-	 <45694D6F.60100@saville.com>
-	 <1164529484.3147.68.camel@laptopd505.fenrus.org>
-	 <4569EF9D.7010802@saville.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 27 Nov 2006 08:51:54 +0100
-Message-Id: <1164613914.3276.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Nov 2006 03:00:35 -0500
+Received: from n1.cetrtapot.si ([89.212.80.162]:45257 "EHLO n1.cetrtapot.si")
+	by vger.kernel.org with ESMTP id S1757290AbWK0IAf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:00:35 -0500
+Message-ID: <456A9B1C.8060800@cetrtapot.si>
+Date: Mon, 27 Nov 2006 09:00:28 +0100
+From: "hinko.kocevar@cetrtapot.si" <hinko.kocevar@cetrtapot.si>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [irda-users] Is ircomm possible with smsc_ircc2?
+References: <200611191116.47738.arvidjaar@mail.ru>
+In-Reply-To: <200611191116.47738.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-26 at 11:48 -0800, Wink Saville wrote:
-> Arjan van de Ven wrote:
-> > it's the cost of a syscall (1000 cycles?) plus what it takes to get a
-> > reasonable time estimate. Assuming your kernel has enough time support
-> > AND your tsc is reasonably ok, it'll be using that. If it's NOT using
-> > that then that's a pretty good sign that you can't also use it in
-> > userspace....
-> > 
+Andrey Borzenkov wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I wrote a quick and dirty program that I've attached to test the cost
-> difference between RDTSC and gettimeofday (gtod), the results:
+> I have Toshiba Portege 4000, which apparently needs smsc_ircc2 driver. Driver 
+> seems to load OK:
 > 
-> wink@winkc2d1:~/linux/linux-2.6/test/rdtsc-pref$ time ./rdtsc-pref 100000000
-> rdtsc:   average ticks=  65
-> gtod:    average ticks= 222
-> gtod_us: average ticks= 232
+> Detected unconfigured Toshiba laptop with ALi ISA bridge SMSC IrDA chip, 
+> pre-configuring device.
+> Activated ALi 1533 ISA bridge port 0x02e8.
+> Activated ALi 1533 ISA bridge port 0x02f8.
+> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
+> smsc_superio_flat(): IrDA not enabled
+> smsc_superio_flat(): fir: 0x2f8, sir: 0x2e8, dma: 03, irq: 7, mode: 0x02
+> SMsC IrDA Controller found
+>  IrCC version 2.0, firport 0x2f8, sirport 0x2e8 dma=3, irq=7
+> No transceiver found. Defaulting to Fast pin select
+> 
+> and it registers irda0 interface but no /dev/ircomm* ever appears. I need them 
+> (or at least I /think/ I need them) for SynCE (for installing programs in my 
+> Pocket LOOX).
+> 
+> What is missing? Do I need additional driver? How can I access ircomm on this 
+> HW?
 
-just to make sure, you do realize that when you write "ticks" that rdtsc
-doesn't measure cpu clock ticks or cpu cycles anymore, right? (At least
-not on your machine)
+You probably need to load the ircomm-tty and ircomm modules on top of 
+irda stack for /dev/ircomm*.
 
-
-> But, there are other uses that it wouldn't be acceptable. For instance, I
-> have used a memory mapped time stamp counter in an embedded ARM based
-
-ARM is a different animal; generally on such embedded system you know a
-lot better if you have a reliable and userspace-useful tick counter like
-this....
+Best regards,
+hinko
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+ČETRTA POT, d.o.o., Kranj
+Planina 3
+4000 Kranj
+Slovenija
+Tel. +386 (0) 4 280 66 37
+E-mail: hinko.kocevar@cetrtapot.si
+Http: www.cetrtapot.si
 

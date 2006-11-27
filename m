@@ -1,20 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756834AbWK0QVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758366AbWK0Q11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756834AbWK0QVS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:21:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758356AbWK0QVS
+	id S1758366AbWK0Q11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758365AbWK0Q11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:21:18 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52874 "EHLO
+	Mon, 27 Nov 2006 11:27:27 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63646 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1757150AbWK0QVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:21:17 -0500
-Date: Mon, 27 Nov 2006 16:27:20 +0000
+	id S1758364AbWK0Q10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 11:27:26 -0500
+Date: Mon, 27 Nov 2006 16:33:28 +0000
 From: Alan <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: [PATCH] pata : more drivers that need only standard suspend and
- resume
-Message-ID: <20061127162720.3eb72478@localhost.localdomain>
+To: avl@logic.at
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Allow turning off hpa-checking.
+Message-ID: <20061127163328.3f1c12eb@localhost.localdomain>
+In-Reply-To: <20061127160144.GB2352@gamma.logic.tuwien.ac.at>
+References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at>
+	<20061120152505.5d0ba6c5@localhost.localdomain>
+	<20061120165601.GS6851@gamma.logic.tuwien.ac.at>
+	<20061120172812.64837a0a@localhost.localdomain>
+	<20061121115117.GU6851@gamma.logic.tuwien.ac.at>
+	<20061121120614.06073ce8@localhost.localdomain>
+	<20061122105735.GV6851@gamma.logic.tuwien.ac.at>
+	<20061123170557.GY6851@gamma.logic.tuwien.ac.at>
+	<20061127130953.GA2352@gamma.logic.tuwien.ac.at>
+	<20061127133044.28b8b4ed@localhost.localdomain>
+	<20061127160144.GB2352@gamma.logic.tuwien.ac.at>
 X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,67 +34,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> What the drive reports as "native" capacity indeed does
+> *not* take into (negative-)account those sectors, that have
+> been remapped.   So after real remaining capacity has dropped
+> below original capacity,  querying the "native" size still
+> returns the original size, which is no longer physically
+> backed.
 
-diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c linux-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c
---- linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c	2006-11-24 13:58:28.000000000 +0000
-+++ linux-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c	2006-11-24 14:24:38.000000000 +0000
-@@ -21,7 +21,7 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME "pata_pdc202xx_old"
--#define DRV_VERSION "0.2.2"
-+#define DRV_VERSION "0.2.3"
- 
- /**
-  *	pdc2024x_pre_reset		-	probe begin
-@@ -270,6 +270,8 @@
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
-+	.resume			= ata_scsi_device_resume,
-+	.suspend		= ata_scsi_device_suspend,
- };
- 
- static struct ata_port_operations pdc2024x_port_ops = {
-@@ -399,7 +401,9 @@
- 	.name 		= DRV_NAME,
- 	.id_table	= pdc202xx,
- 	.probe 		= pdc202xx_init_one,
--	.remove		= ata_pci_remove_one
-+	.remove		= ata_pci_remove_one,
-+	.suspend	= ata_pci_device_suspend,
-+	.resume		= ata_pci_device_resume,
- };
- 
- static int __init pdc202xx_init(void)
-diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_sis.c linux-2.6.19-rc6-mm1/drivers/ata/pata_sis.c
---- linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_sis.c	2006-11-24 13:58:05.000000000 +0000
-+++ linux-2.6.19-rc6-mm1/drivers/ata/pata_sis.c	2006-11-24 14:25:15.000000000 +0000
-@@ -34,7 +34,7 @@
- #include <linux/ata.h>
- 
- #define DRV_NAME	"pata_sis"
--#define DRV_VERSION	"0.4.4"
-+#define DRV_VERSION	"0.4.5"
- 
- struct sis_chipset {
- 	u16 device;			/* PCI host ID */
-@@ -546,6 +546,8 @@
- 	.dma_boundary		= ATA_DMA_BOUNDARY,
- 	.slave_configure	= ata_scsi_slave_config,
- 	.bios_param		= ata_std_bios_param,
-+	.resume			= ata_scsi_device_resume,
-+	.suspend		= ata_scsi_device_suspend,
- };
- 
- static const struct ata_port_operations sis_133_ops = {
-@@ -999,6 +1001,8 @@
- 	.id_table		= sis_pci_tbl,
- 	.probe			= sis_init_one,
- 	.remove			= ata_pci_remove_one,
-+	.suspend		= ata_pci_device_suspend,
-+	.resume			= ata_pci_device_resume,
- };
- 
- static int __init sis_init(void)
+This is incorrect.
+
+> I ask for a module/boot-option to allow to skip hpa-checks
+> generally, or even for specific drives - to be used, if one
+> needs to be sure that these reserved sectors of a connected
+> drive are not going to be touched, even when re-partitioning
+> the disk.   Afterall that's why they are reserved in the
+> first place.
+
+This is a matter for the partitioning tool. You don't know at boot time
+what you wish to do with the HPA so a boot option is inappropriate.
+
+Alan

@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757373AbWK0I3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757385AbWK0Icj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757373AbWK0I3X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 03:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757377AbWK0I3X
+	id S1757385AbWK0Icj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757386AbWK0Icj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 03:29:23 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:11957
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1757373AbWK0I3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 03:29:22 -0500
-Message-Id: <456AB03F.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Mon, 27 Nov 2006 08:30:39 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Dave Jones" <davej@redhat.com>
-Cc: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "Michael Buesch" <mb@bu3sch.de>,
-       "Metathronius Galabant" <m.galabant@googlemail.com>,
-       <stable@kernel.org>, "Michael Krufky" <mkrufky@linuxtv.org>,
-       "Justin Forbes" <jmforbes@linuxtx.org>, <alan@lxorguk.ukuu.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       "Chris Wedgwood" <reviews@ml.cw.f00f.org>, <akpm@osdl.org>,
-       <torvalds@osdl.org>, "Chuck Wolber" <chuckw@quantumlinux.com>,
-       "Chris Wright" <chrisw@sous-sol.org>,
-       "Greg Kroah-Hartman" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
-       "Randy Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
-References: <20061101053340.305569000@sous-sol.org>
- <20061101054343.623157000@sous-sol.org>
- <20061120234535.GD17736@redhat.com>
- <20061121022109.GF1397@sequoia.sous-sol.org>
- <4562D5DA.76E4.0078.0@novell.com>
- <20061122015046.GI1397@sequoia.sous-sol.org>
- <45640FF4.76E4.0078.0@novell.com> <20061124202729.GC29264@redhat.com>
-In-Reply-To: <20061124202729.GC29264@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Nov 2006 03:32:39 -0500
+Received: from smtp4-g19.free.fr ([212.27.42.30]:42148 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1757385AbWK0Ici (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:32:38 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: "Ilyes Gouta" <ilyes.gouta@gmail.com>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [USB] urb->number_of_packets = 256 !
+Date: Mon, 27 Nov 2006 09:32:30 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <234fa2210611251242g2497f9bby2a3bf867324b73b3@mail.gmail.com>
+In-Reply-To: <234fa2210611251242g2497f9bby2a3bf867324b73b3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200611270932.30564.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Dave Jones <davej@redhat.com> 24.11.06 21:27 >>>
->On Wed, Nov 22, 2006 at 08:53:08AM +0100, Jan Beulich wrote:
-> > >It does appear to work w/out the patch.  I've asked for a small bit
-> > >of diagnostics (below), perhaps you've got something you'd rather see?
-> > >I expect this to be a 24C0 LPC Bridge.
-> > 
-> > Yes, that's what I'd have asked for. If it works, I expect the device
-> > code to be different, or both manufacturer and device code to be
-> > invalid. Depending on the outcome, perhaps we'll need an override
-> > option so that this test can be partially (i.e. just the device code
-> > part) or entirely (all the FWH detection) skipped.
-> > The base problem is the vague documentation of the whole
-> > detection mechanism - a lot of this I had to read between the lines.
->
->The bug report I referenced came back with this from that debug patch..
->
->intel_rng: no version for "struct_module" found: kernel tainted.
->intel_rng: pci vendor:device 8086:24c0 fwh_dec_en1 80 bios_cntl_val 2 mfc cb dvc 88
->intel_rng: FWH not detected
+Hi Ilyes, you won't be able to allocate that much *contiguous* memory,
+but you should be able to allocate enough non-contiguous memory (e.g.
+by calling __get_free_page 256 times; not the same as calling
+__get_free_pages(8) !).  To use that memory, you can try using the usb
+scatter/gather support (see usb.h); I don't know if it works with
+isochronous urbs though.  I've CC'd the usb development list - maybe
+someone there can help.
 
-Okay, this means the lock is being set by the BIOS, which disallows
-disabling BIOS (and thus accessing the FWH). By default, I think it
-is correct to consider the RNG not present in this case, however as
-previously indicated I think we should provide a way to force
-skipping the FWH test (with three levels - carry out, skip always, or
-skip if BIOS locked).
-I'll prepare a patch as soon as I can, but it might take a few days
-until I get to it.
+Ciao,
 
-Jan
+Duncan.
+
+On Saturday 25 November 2006 21:42, Ilyes Gouta wrote:
+> Hi!
+> 
+> I'm working on a driver for my USB 2.0 high-speed webcam under Linux
+> and I'm using a tool
+> called usbsnoop, which was designed for Windows, to get an idea on the exchanged
+> information between the host and the webcam. By examining the produced
+> trace file, I found
+> that my PC is sending a bunch of isochronous URBs to the webcam where
+> each one contains
+> 256 isochronous packets and each packet is 3072 bytes wide. This means
+> that every URB
+> points to a 256 * 3072 bytes sized buffer.
+> 
+> Here is an excerpt of the trace file:
+> 
+> [21303 ms]  >>>  URB 1640 going down  >>>
+> -- URB_FUNCTION_ISOCH_TRANSFER:
+>   PipeHandle           = ff27dd8c [endpoint 0x00000081]
+>   TransferFlags        = 00000005 (USBD_TRANSFER_DIRECTION_IN,
+> ~USBD_SHORT_TRANSFER_OK,
+> USBD_START_ISO_TRANSFER_ASAP
+>   TransferBufferLength = 000c0000
+>   TransferBuffer       = fd319100
+>   TransferBufferMDL    = 00000000
+>   StartFrame           = 00000000
+>   NumberOfPackets      = 00000100 // in hex
+>   IsoPacket[0].Offset = 0
+>   IsoPacket[0].Length = 0
+>   IsoPacket[1].Offset = 3072
+>   IsoPacket[1].Length = 0
+>   IsoPacket[2].Offset = 6144
+>   IsoPacket[2].Length = 0
+> 
+> I tried to program this behavior in my custom, alpha stage, kernel
+> driver, however I was
+> disappointed since Linux fails to allocate, using kmalloc(), such a
+> huge buffer (which is
+> quite normal actually) to associated to the URB through the
+> transfer_buffer field. I also
+> tried __get_free_pages(GFP_KERNEL, 10) without any success whatsoever.
+> 
+> Splitting the transfer across multiple URB doesn't seem to work (I didn't really
+> investigate in depth this possibility).
+> 
+> Any ideas?
+> 
+> Thanks for your time!
+> 
+> P.S: Is it possible to CC me since I didn't subscribe to the mailing
+> list? Thanks!
+> 
+> Best regards,
+> Ilyes Gouta.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

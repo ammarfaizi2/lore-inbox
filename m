@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757290AbWK0IAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757342AbWK0IHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757290AbWK0IAg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 03:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757297AbWK0IAf
+	id S1757342AbWK0IHF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757343AbWK0IHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 03:00:35 -0500
-Received: from n1.cetrtapot.si ([89.212.80.162]:45257 "EHLO n1.cetrtapot.si")
-	by vger.kernel.org with ESMTP id S1757290AbWK0IAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 03:00:35 -0500
-Message-ID: <456A9B1C.8060800@cetrtapot.si>
-Date: Mon, 27 Nov 2006 09:00:28 +0100
-From: "hinko.kocevar@cetrtapot.si" <hinko.kocevar@cetrtapot.si>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 27 Nov 2006 03:07:05 -0500
+Received: from arroyo.ext.ti.com ([192.94.94.40]:57756 "EHLO arroyo.ext.ti.com")
+	by vger.kernel.org with ESMTP id S1757342AbWK0IHC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:07:02 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: irda-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [irda-users] Is ircomm possible with smsc_ircc2?
-References: <200611191116.47738.arvidjaar@mail.ru>
-In-Reply-To: <200611191116.47738.arvidjaar@mail.ru>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [2.6 PATCH] sysctl: String length calculated is wrong if it contains negative numbers
+Date: Mon, 27 Nov 2006 13:36:54 +0530
+Message-ID: <B2EAB41A1AF603458C6A01E3CC809C4402A65361@dbde01.ent.ti.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 PATCH] sysctl: String length calculated is wrong if it contains negative numbers
+Thread-Index: AccR+wCkoQkrqx+aR8WmNKowofxyiw==
+From: "BP, Praveen" <praveenbp@ti.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I have Toshiba Portege 4000, which apparently needs smsc_ircc2 driver. Driver 
-> seems to load OK:
-> 
-> Detected unconfigured Toshiba laptop with ALi ISA bridge SMSC IrDA chip, 
-> pre-configuring device.
-> Activated ALi 1533 ISA bridge port 0x02e8.
-> Activated ALi 1533 ISA bridge port 0x02f8.
-> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-> smsc_superio_flat(): IrDA not enabled
-> smsc_superio_flat(): fir: 0x2f8, sir: 0x2e8, dma: 03, irq: 7, mode: 0x02
-> SMsC IrDA Controller found
->  IrCC version 2.0, firport 0x2f8, sirport 0x2e8 dma=3, irq=7
-> No transceiver found. Defaulting to Fast pin select
-> 
-> and it registers irda0 interface but no /dev/ircomm* ever appears. I need them 
-> (or at least I /think/ I need them) for SynCE (for installing programs in my 
-> Pocket LOOX).
-> 
-> What is missing? Do I need additional driver? How can I access ircomm on this 
-> HW?
+Hi All,
 
-You probably need to load the ircomm-tty and ircomm modules on top of 
-irda stack for /dev/ircomm*.
+In the functions do_proc_dointvec() and do_proc_doulongvec_minmax(),
+there seems to be a bug in string length calculation if string contains
+negative integer.
 
-Best regards,
-hinko
+The console log given below explains the bug. Setting negative values
+may not be a right thing to do for "console log level" but then the test
+(given below) can be used to demonstrate the bug in the code. 
 
--- 
-ČETRTA POT, d.o.o., Kranj
-Planina 3
-4000 Kranj
-Slovenija
-Tel. +386 (0) 4 280 66 37
-E-mail: hinko.kocevar@cetrtapot.si
-Http: www.cetrtapot.si
+# echo "-1 -1 -1 -123456" > /proc/sys/kernel/printk
+# cat /proc/sys/kernel/printk
+-1      -1      -1      -1234
+#
+# echo "-1 -1 -1 123456" > /proc/sys/kernel/printk
+# cat /proc/sys/kernel/printk
+-1      -1      -1      1234
+#
 
+It works as expected if string contains all +ve integers
+
+# echo "1 2 3 4" > /proc/sys/kernel/printk
+# cat /proc/sys/kernel/printk
+1       2       3       4
+#
+
+The patch given below fixes the issue.
+Patch is generated against linux-2.6.18.3
+
+Signed-off-by: Praveen BP <praveenbp@ti.com>
+
+sysctl.c |    4 ++--
+1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/kernel/sysctl.c	2006-11-19 08:58:22.000000000 +0530
++++ b/kernel/sysctl.c	2006-11-24 17:33:23.000000000 +0530
+@@ -1748,7 +1748,7 @@
+ 			p = buf;
+ 			if (*p == '-' && left > 1) {
+ 				neg = 1;
+-				left--, p++;
++				p++;
+ 			}
+ 			if (*p < '0' || *p > '9')
+ 				break;
+@@ -1989,7 +1989,7 @@
+ 			p = buf;
+ 			if (*p == '-' && left > 1) {
+ 				neg = 1;
+-				left--, p++;
++				p++;
+ 			}
+ 			if (*p < '0' || *p > '9')
+ 				break;
+
+
+
+Thanks,
+Praveen.

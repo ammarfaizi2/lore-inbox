@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758543AbWK0T41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758541AbWK0T4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758543AbWK0T41 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 14:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758544AbWK0T41
+	id S1758541AbWK0T4E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 14:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758542AbWK0T4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 14:56:27 -0500
+	Mon, 27 Nov 2006 14:56:03 -0500
 Received: from nf-out-0910.google.com ([64.233.182.190]:30279 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1758543AbWK0T4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 14:56:25 -0500
+	id S1758541AbWK0T4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 14:56:01 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=pVACEpfNOMCbXlf8A5CTOQm/t2aVGSM2sva5r+6EZ/hVt8tpfC7Q4rozl3wwrKPDQiqElg5S5PLZSty/yZPJqvxHEBeIErOEduukciHHFOF0dTzn2FZKOMRfDg5+OmLMggOVgPHbHN1e8iqijPASCU+dNKHN7C0vR/OnjOuYW3U=
-Date: Mon, 27 Nov 2006 22:56:16 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kyle McMartin <kyle@parisc-linux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Build breakage ...
-Message-ID: <20061127195616.GA5038@martell.zuzino.mipt.ru>
-References: <20061126224928.GA22285@linux-mips.org> <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org> <Pine.LNX.4.64.0611261509330.3483@woody.osdl.org> <20061126232128.GC30767@flint.arm.linux.org.uk> <Pine.LNX.4.64.0611261627260.30076@woody.osdl.org> <20061127164332.GA26389@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W+vdXng5VTwmhzmCW4eRuSeiteaCD476Zpb2eRb/yVt/A3x1lQsOYS2IDA7R6dgotFLUhVSeHXPraKSdBKEcbG0m4chcFrptE4KSBNTyGIjhxLrlEF5qSOvRpa5AA5+8CdkeUXIlBtH/JVG1gtsrAbSf7uJDcUeR8IA9SA0cvw0=
+Message-ID: <a4e6962a0611271155q55adf6fftd489de84d6ae7e88@mail.gmail.com>
+Date: Mon, 27 Nov 2006 13:55:58 -0600
+From: "Eric Van Hensbergen" <ericvh@gmail.com>
+To: "bert hubert" <bert.hubert@netherlabs.nl>, dm-devel@redhat.com,
+       ming@acis.ufl.edu, "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] dm-cache: block level disk cache target for device mapper
+In-Reply-To: <20061127184748.GA11219@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061127164332.GA26389@linux-mips.org>
-User-Agent: Mutt/1.5.11
+References: <200611271826.kARIQYRi032717@hera.kernel.org>
+	 <20061127184748.GA11219@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 04:43:32PM +0000, Ralf Baechle wrote:
-> On Sun, Nov 26, 2006 at 04:29:00PM -0800, Linus Torvalds wrote:
-> > > > Ralf, Russell, does this work for you guys?
-> > >
-> > > Not at all.  It creates even more problems for me, with this circular
-> > > dependency:
-> >
-> > Ok. I just reverted it then.
-> >
-> > Pls verify that this is all good, and I didn't mess anything up due to the
-> > manual conflict resolution.
+On 11/27/06, bert hubert <bert.hubert@netherlabs.nl> wrote:
+> On Mon, Nov 27, 2006 at 06:26:34PM +0000, Eric Van Hensbergen wrote:
+> > This is the first cut of a device-mapper target which provides a write-back
+> > or write-through block cache.  It is intended to be used in conjunction with
+> > remote block devices such as iSCSI or ATA-over-Ethernet, particularly in
+> > cluster situations.
 >
-> Thanks, 2ea5814472c3c910aed5c5b60f1f3b1000e353f1 builds again for MIPS.
+> How does this work in practice? In other words, what is a typical actual
+> configuration?
 >
-> If you deciede to put the patch back in after 2.6.19 I'm considering to
-> replace the local_irq_{save,restore} calls in the various atomic operations
-> in <asm/{atomic,bitops,system}.h with their raw_* equivalents.
+> There is a remote block device, and a local one, and these are kept into
+> sync in some way?
 >
-> What I dislike about Alexey's patch is that is finally tries to cast
-> unsigned long as the data type for the flags into stone.  The natural
-> data type to use on MIPS and several other architectures is a 32-bit
-> integer - or just a single bit on a stingy day ;-).  Time for flags_t
-> maybe?
 
-Hey, I've even posted RFC about that! IMO, flags_t is way too generic.
+That's the basic idea.  In our testbed, we had a single iSCSI server
+exporting block devices to several clients -- each maintaining their
+own local disk cache of the server exported block devices.  You can
+configured either write-through or write-back policies -- write-back
+has better performance, but somewhat obvious consistency issues in
+failure cases.
 
-I can do
+The original intent was to combine this with the dm-cow target (which
+I posted a few hours before the dm-cache patch) to provide a scalable
+cluster deployment system based on back-end iSCSI or ATA-over-Ethernet
+storage.
 
-1) typedef unsigned long __bitwise__ irq_flags_t;
-2) very core locking functions switched to irq_flags_t +
-   additional small patch to keep level of compiler warnings the same
-2) conversion to irq_flags_t: can be done slowly, only sparse sees new
-   warnigns
-3) irq_flags_t forked and became arch specific type
-4) arch maintatiners choose better than "unsigned long" type if they want
-
+          -eric

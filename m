@@ -1,38 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758444AbWK0RRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758445AbWK0RXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758444AbWK0RRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 12:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758449AbWK0RRz
+	id S1758445AbWK0RXU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 12:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758455AbWK0RXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 12:17:55 -0500
-Received: from outbound0.mx.meer.net ([209.157.153.23]:12809 "EHLO
-	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
-	id S1758444AbWK0RRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 12:17:54 -0500
-Subject: Re: [patch] Re: 2.6.19-rc6-mm1 --
-	sched-improve-migration-accuracy.patch slows boot
-From: Don Mullis <dwm@meer.net>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <1164624611.5892.27.camel@Homer.simpson.net>
-References: <20061123021703.8550e37e.akpm@osdl.org>
-	 <1164484124.2894.50.camel@localhost.localdomain>
-	 <1164522263.5808.12.camel@Homer.simpson.net>
-	 <1164591509.2894.76.camel@localhost.localdomain>
-	 <1164624611.5892.27.camel@Homer.simpson.net>
-Content-Type: text/plain
-Date: Mon, 27 Nov 2006 09:17:32 -0800
-Message-Id: <1164647852.2894.79.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Nov 2006 12:23:20 -0500
+Received: from wx-out-0506.google.com ([66.249.82.226]:16486 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1758443AbWK0RXT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 12:23:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=pfg79C39wUqOe0V+aloBh5Z7NebzEqCMp2wSkdq0o5eey45M88SJ5hfjy4IeYQaOEP8SGNtlbOto1Gb95UKRkp8zdDbGdXJcRIwB2IF/jSU4RLOhDX/rlnXeQJsKm8hfmkPvOH5t4nJP22GY1nDZSuxos0OPLb7ALLXawWh71lU=
+Message-ID: <e6babb600611270923h139a59ecr82af786f3aedf607@mail.gmail.com>
+Date: Mon, 27 Nov 2006 10:23:17 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_16000_17110430.1164648197624"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The below should fix it, can you confirm?
+------=_Part_16000_17110430.1164648197624
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Brings boot speed back to normal.
+The difference that Wink reports is tiny compared to that measured on
+my Opteron machines:
 
-Acked-by: Don Mullis <dwm@meer.net>
+dual (2.6.17):
 
+rcrocomb@netfires-aptest:cyclecounter_test$ ./rdtsc-pref 1000000
+rdtsc:   average ticks=  10
+gtod:    average ticks=4296
+gtod_us: average ticks=4328
 
+quad (2.6.16-rt29):
+
+rcrocomb@spanky:wink_saville_test$ ./rdtsc-pref 1000000
+rdtsc:   average ticks=  10
+gtod:    average ticks=5688
+gtod_us: average ticks=5711
+
+I have my own little test that I'll attach, but it gives a similar
+result.  Here are the results from the 2x box:
+
+rcrocomb@netfires-aptest:cyclecounter_test$ ./timing
+Using the cycle counter
+Calibrated timer as 2593081969.758825 Hz
+4194304 iterations in 0.016 seconds is 0.004 useconds per iteration.
+
+rcrocomb@netfires-aptest:cyclecounter_test$ ./timing_gettimeofday
+Using gettimeofday
+4194304 iterations in 6.793 seconds is 1.620 useconds per iteration.
+
+I have used the pthread affinity and/or cpuset, etc. mechanisms to try
+and inject some reliability into the measurement.
+
+Using gtod() can amount to a substantial disturbance of the thing to
+be measured.  Using rdtsc, things seem reliable so far, and we have an
+FPGA (accessed through the PCI bus) that has been programmed to give
+access to an 8MHz clock and we do some checks against that.
+
+-- 
+Robert Crocombe
+rcrocomb@gmail.com
+
+------=_Part_16000_17110430.1164648197624
+Content-Type: text/x-c++src; name=timing.cpp; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ev15agbj
+Content-Disposition: attachment; filename="timing.cpp"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8vIHBy
+aW50ZigpCiNpbmNsdWRlIDxzdGRpbnQuaD4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAvLyB1aW50NjRfdAojaW5jbHVkZSA8c3RkbGliLmg+ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgLy8gZHJhbmQ0OCgpCiNpbmNsdWRlIDxzeXMvc2VsZWN0Lmg+ICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAvLyBzZWxlY3QoKQojaW5jbHVkZSA8c3lzL3RpbWUuaD4gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgLy8gZ2V0dGltZW9mZGF5CiNpbmNsdWRlIDx0aW1lLmg+
+CiNpbmNsdWRlIDxhc20teDg2XzY0L21zci5oPiAgICAgICAgICAgICAgICAgICAgICAgICAvLyBy
+ZHRzY2xsKCkKCgovLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLwovLyBHbG9iYWxzCi8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vCgplbnVtCnsKICAgIElURVJBVElPTlMgID0gMSA8PCAyMgp9OwoKc3RhdGlj
+IGRvdWJsZSBzZWNvbmRzX3Blcl90aWNrOwoKLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8KLy8gUHJv
+dG90eXBlcwovLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLwoKZG91YmxlIGdpbW1lX3RpbWVvZmRheSh2
+b2lkKTsKZG91YmxlIGdldF90aW1lKHZvaWQpOwoKdm9pZCBzZWxlY3RzbGVlcCh1bnNpZ25lZCB1
+cyk7CnZvaWQgaW5pdCh2b2lkKTsKCi8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCi8vIERlZmluaXRp
+b25zCi8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCgpkb3VibGUKZ2ltbWVfdGltZW9mZGF5KHZvaWQp
+CnsKICAgIHN0cnVjdCB0aW1ldmFsIHR2OwogICAgZ2V0dGltZW9mZGF5KCZ0diwgMCk7CiAgICBy
+ZXR1cm4gdHYudHZfc2VjICsgMWUtNiAqIHR2LnR2X3VzZWM7Cn0KCgpkb3VibGUKZ2V0X3RpbWUo
+dm9pZCkKewogICAgdWludDY0X3QgdDsKICAgIHJkdHNjbGwodCk7CiAgICByZXR1cm4gdCAqIHNl
+Y29uZHNfcGVyX3RpY2s7Cn0KCgovKioKICAgIEEgZ29vZCB3YXkgdG8gc2ltcGx5IGhhbmcgYXJv
+dW5kIGRvaW5nIG5vdGhpbmcgZm9yIGF3aGlsZS4KKi8KCnZvaWQKc2VsZWN0c2xlZXAodW5zaWdu
+ZWQgdXMpCnsKCXN0cnVjdCB0aW1ldmFsIHR2OwoJdHYudHZfc2VjID0gMDsKCXR2LnR2X3VzZWMg
+PSB1czsKCXNlbGVjdCgwLDAsMCwwLCZ0dik7Cn0KCi8qKgogICAgRmlndXJlIG91dCBob3cgZmFz
+dCByZHRzY2xsKCkgdGlja3MuICBUaGlzIHNob3VsZCBiZSBlcXVhbCB0byB0aGUKICAgIGZyZXF1
+ZW5jeSBvZiB0aGUgY2xvY2sgb24gdGhlIHByb2Nlc3Nvci4gIEhlcmUncyB0aGUgYmFkIG5ld3M6
+IEkgZG9uJ3QKICAgIGtub3cgaWYgcmR0c2NsbCgpIGFsd2F5cyB1c2VzIHRoZSBzYW1lIHByb2Nl
+c3NvciBzbyBpdCBtYXkgdmVyeSB3ZWxsIGJlCiAgICBuZWNlc3NhcnkgdG8gc2V0IGEgcHJvY2Vz
+c29yIGFmZmluaXR5IHRvIGdldCByZWFsbHkgZ29vZCByZXN1bHRzIG92ZXIKICAgIHRpbWUuCgog
+ICAgVGhpcyBwaWVjZSBvZiBjb2RlIGJ5IE1hcmsgSGFobiBmcm9tIGJyYWluLm1jbWFzdGVyLmNh
+L35oYWhuLy4KKi8KCnZvaWQKaW5pdCh2b2lkKQp7Cglkb3VibGUgc3VteCA9IDA7Cglkb3VibGUg
+c3VteSA9IDA7Cglkb3VibGUgc3VteHggPSAwOwoJZG91YmxlIHN1bXh5ID0gMDsKCWRvdWJsZSBz
+bG9wZTsKCgkvLyBsZWFzdCBzcXVhcmVzIGxpbmVhciByZWdyZXNzaW9uIG9mIHRpY2tzIG9udG8g
+cmVhbCB0aW1lCgkvLyBhcyByZXR1cm5lZCBieSBnZXR0aW1lb2ZkYXkuCgoJY29uc3QgdW5zaWdu
+ZWQgbiA9IDMwOwoJdW5zaWduZWQgaTsKCglmb3IgKCB1bnNpZ25lZCBpbnQgaSA9IDA7IGkgPCBu
+OyArK2kpCiAgICAgICAgewoJCWRvdWJsZSBicmVhbCxyZWFsLHRpY2tzOwoJCXVpbnQ2NF90IGF0
+aWNrcywgYnRpY2tzOwoJCgkJYnJlYWwgPSBnaW1tZV90aW1lb2ZkYXkoKTsKCQlyZHRzY2xsKGJ0
+aWNrcyk7CgoJCXNlbGVjdHNsZWVwKCh1bnNpZ25lZCkoMTAwMDAgKyBkcmFuZDQ4KCkgKiAyMDAw
+MDApKTsKCiAgICAgICAgICAgICAgICByZHRzY2xsKGF0aWNrcyk7CgkJdGlja3MgPSBhdGlja3Mg
+LSBidGlja3M7CgkJcmVhbCA9IGdpbW1lX3RpbWVvZmRheSgpIC0gYnJlYWw7CgoJCXN1bXggKz0g
+cmVhbDsKCQlzdW14eCArPSByZWFsICogcmVhbDsKCQlzdW14eSArPSByZWFsICogdGlja3M7CgkJ
+c3VteSArPSB0aWNrczsKCX0KCglzbG9wZSA9ICgoc3VteHkgLSAoc3VteCpzdW15KSAvIG4pIC8g
+KHN1bXh4IC0gKHN1bXgqc3VteCkgLyBuKSk7CglzZWNvbmRzX3Blcl90aWNrID0gMS4wIC8gc2xv
+cGU7CgogICAgICAgIHByaW50ZigiQ2FsaWJyYXRlZCB0aW1lciBhcyAlLjZmIEh6XG4iLCBzbG9w
+ZSk7Cn0KCmludAptYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCnsKICAgIHByaW50ZigiRG9p
+bmcgc3R1ZmZcbiIpOwoKI2lmIDAgICAvLyBVc2luZyByZHRzY2xsKCkKICAgIHByaW50ZigiVXNp
+bmcgdGhlIGN5Y2xlIGNvdW50ZXJcbiIpOwogICAgaW5pdCgpOwogICAgZG91YmxlIHRpbWVfc3Rh
+cnQgPSBnaW1tZV90aW1lb2ZkYXkoKTsKICAgIGZvciAodW5zaWduZWQgaW50IGkgPSAwOyBpIDwg
+SVRFUkFUSU9OUzsgKytpKQogICAgewogICAgICAgIGRvdWJsZSB0aGVfdGltZTsKICAgICAgICB0
+aGVfdGltZSA9IGdldF90aW1lKCk7CiAgICB9CiAgICBkb3VibGUgdGltZV9lbmQgPSBnaW1tZV90
+aW1lb2ZkYXkoKTsKI2Vsc2UgICAvLyB1c2luZyBnZXR0aW1lb2ZkYXkoKQogICAgcHJpbnRmKCJV
+c2luZyBnZXR0aW1lb2ZkYXlcbiIpOwogICAgZG91YmxlIHRpbWVfc3RhcnQgPSBnaW1tZV90aW1l
+b2ZkYXkoKTsKICAgIGZvciAodW5zaWduZWQgaW50IGkgPSAwOyBpIDwgSVRFUkFUSU9OUzsgKytp
+KQogICAgewogICAgICAgIGRvdWJsZSB0aGVfdGltZTsKICAgICAgICB0aGVfdGltZSA9IGdpbW1l
+X3RpbWVvZmRheSgpOwogICAgfQogICAgZG91YmxlIHRpbWVfZW5kID0gZ2ltbWVfdGltZW9mZGF5
+KCk7CiNlbmRpZgoKICAgIGRvdWJsZSBkaWZmID0gdGltZV9lbmQgLSB0aW1lX3N0YXJ0OwoKICAg
+IGRvdWJsZSB1c2Vjb25kcyA9IChkaWZmIC8gSVRFUkFUSU9OUykgKiAxZTY7CgogICAgcHJpbnRm
+KCIldSBpdGVyYXRpb25zIGluICUuM2Ygc2Vjb25kcyBpcyAlLjNmIHVzZWNvbmRzIHBlciBpdGVy
+YXRpb24uXG4iLAogICAgICAgICAgSVRFUkFUSU9OUywgZGlmZiwgdXNlY29uZHMpOwoKICAgIHBy
+aW50ZigiRG9uZVxuIik7CiAgICByZXR1cm4gMDsKfQo=
+------=_Part_16000_17110430.1164648197624--

@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758413AbWK0TGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758365AbWK0THz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758413AbWK0TGn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 14:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758394AbWK0TGm
+	id S1758365AbWK0THz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 14:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758535AbWK0THz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 14:06:42 -0500
-Received: from l8r.net ([206.248.172.29]:31186 "EHLO l8r.net")
-	by vger.kernel.org with ESMTP id S1757894AbWK0TGm (ORCPT
+	Mon, 27 Nov 2006 14:07:55 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:17333 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1758365AbWK0THy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 14:06:42 -0500
-Date: Mon, 27 Nov 2006 14:06:43 -0500
-From: Brad Barnett <lists@l8r.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: root NFS causes solid lockup, serial console no help, watchdog
- NMI won't function on Dual AMD system
-Message-ID: <20061127140643.4da77aa4@be.back.l8r.net>
-In-Reply-To: <20061113164507.5a6430e9@be.back.l8r.net>
-References: <20061113164507.5a6430e9@be.back.l8r.net>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 27 Nov 2006 14:07:54 -0500
+Date: Mon, 27 Nov 2006 20:07:48 +0100
+From: Andi Kleen <ak@suse.de>
+To: Olivier Galibert <galibert@pobox.com>, Andi Kleen <ak@suse.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
+Message-ID: <20061127190748.GA7015@bingen.suse.de>
+References: <20061123195137.GA35120@dspnet.fr.eu.org> <200611252159.59414.ak@suse.de> <20061126131532.GA41703@dspnet.fr.eu.org> <200611262028.04638.ak@suse.de> <20061127190301.GA75765@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061127190301.GA75765@dspnet.fr.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2006 16:45:07 -0500
-Brad Barnett <lists@l8r.net> wrote:
+On Mon, Nov 27, 2006 at 08:03:01PM +0100, Olivier Galibert wrote:
+> On Sun, Nov 26, 2006 at 08:28:04PM +0100, Andi Kleen wrote:
+> > On Sunday 26 November 2006 14:15, Olivier Galibert wrote:
+> > > Ok, here you go, what about that?  I'll be able to test it on i386 on
+> > > monday, not before.  It's hard to doa full 32bits install remotely :-)
+> > 
+> > Sorry, please don't put it all into a single patch. Do one patch
+> > that just moves code, then add new functionality later.
+> > Otherwise nobody can review it properly.
+> 
+> Ok, I have it split in 5 parts, but the testing on i386 failed simply
+> because the vanilla code there just does not work.  Symptom is the
+> SATA driver not seeing the disk somehow.
 
-> 
-> 
-> Hello,
-> 
-> I have a couple of dual AMD Opteron system with differing motherboards. 
-> On both of these differing pieces of hardware, I can not enable the NMI
-> watchdog timer, with nmi_watchdog=1.  I constantly get:
-> 
-> testing NMI watchdog ... CPU#0: NMI appears to be stuck (0->0)!
-> 
-> This happens when booting with both Debian's packaged kernels, 2.6.17-2
-> and 2.6.18-2.  According to this page:
-> 
-> http://www.mjmwired.net/kernel/Documentation/nmi_watchdog.txt
-> 
-> nmi_watchdog=2 does not work with AMD systems at this time.
-> 
-> Both boxes, aside from this, boot fine.  They use nfsroot, booting the
-> kernel off of a local drive, and switching to nfsroot during the bootup.
-> 
-> They work flawlessly for anywhere from a week to a few days, then lock
-> up solid.  I can not seem to reproduce this problem unless I am using
-> nfsroot, and the above kernels seem fine without issue when booting and
-> running off of a local drive.
-> 
-> I can not get any information from a serial console, and just for fun I
-> redirected syslog to another box, yet I did not see anything about the
-> impending doom to come.  The console itself is simply a blank screen,
-> and the keyboard is dead... 
-> 
-> Does anyone have any suggestions for tracking this bug down?
-> 
-> Thanks
-> 
+Weird. That shouldn't happen.
 
+Is that with just the code movement patch or your feature patch
+added too? If the later can you test it with only code movement
+(and compare against vanilla kernel). at least code movement
+only should behave exactly the same as unpatched kernel.
 
-An update.
-
-I just had a reoccurrence of this bug, without using NFS root.  This is
-under Debian's packaged 2.6.17-2, and the same issue occurred with
-2.6.18-2.  Total and complete system lockup.  Serial console is fruitless.
-
-I have been forced to downgrade to 2.6.9.  Does anyone out there, have any
-ideas for debugging this complete lockup in 2.6.17/2.6.18?  It seems to be
-NFS activity related, but I can not verify this at this point in time.
-
-
-
-
+-Andi

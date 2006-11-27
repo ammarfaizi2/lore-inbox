@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757349AbWK0IY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757373AbWK0I3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757349AbWK0IY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 03:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757381AbWK0IY1
+	id S1757373AbWK0I3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757377AbWK0I3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 03:24:27 -0500
-Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:10677 "EHLO
-	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S1757349AbWK0IY0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 03:24:26 -0500
-DomainKey-Signature: s=s768; d=fujitsu-siemens.com; c=nofws; q=dns; b=qrO9W2rjb+w6HyDtrSsyqcv4AbcLbaHRB3cFzcqNvEfd1Zex/CxD0swyiT1x1ErFbQDD/xO57F1myDBnWasr3TEK53mvFiCwCy2cFq5c0KoQsmpCtzdp2D9sGaaMgdhl;
-X-SBRSScore: None
-X-IronPort-AV: i="4.09,462,1157320800"; 
-   d="scan'208"; a="49002989:sNHT24238672"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Mon, 27 Nov 2006 03:29:23 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:11957
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1757373AbWK0I3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:29:22 -0500
+Message-Id: <456AB03F.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Mon, 27 Nov 2006 08:30:39 +0000
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Dave Jones" <davej@redhat.com>
+Cc: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Michael Buesch" <mb@bu3sch.de>,
+       "Metathronius Galabant" <m.galabant@googlemail.com>,
+       <stable@kernel.org>, "Michael Krufky" <mkrufky@linuxtv.org>,
+       "Justin Forbes" <jmforbes@linuxtx.org>, <alan@lxorguk.ukuu.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>,
+       "Chris Wedgwood" <reviews@ml.cw.f00f.org>, <akpm@osdl.org>,
+       <torvalds@osdl.org>, "Chuck Wolber" <chuckw@quantumlinux.com>,
+       "Chris Wright" <chrisw@sous-sol.org>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>, <linux-kernel@vger.kernel.org>,
+       "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [stable] [PATCH 46/61] fix Intel RNG detection
+References: <20061101053340.305569000@sous-sol.org>
+ <20061101054343.623157000@sous-sol.org>
+ <20061120234535.GD17736@redhat.com>
+ <20061121022109.GF1397@sequoia.sous-sol.org>
+ <4562D5DA.76E4.0078.0@novell.com>
+ <20061122015046.GI1397@sequoia.sous-sol.org>
+ <45640FF4.76E4.0078.0@novell.com> <20061124202729.GC29264@redhat.com>
+In-Reply-To: <20061124202729.GC29264@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Weird wasting of time between ioctl() and ioctl dispatcher
-Date: Mon, 27 Nov 2006 09:24:24 +0100
-Message-ID: <F7F9B0BE3E9BD449B110D0B1CEF6CAEF03FA5863@ABGEX01E.abg.fsc.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Weird wasting of time between ioctl() and ioctl dispatcher
-Thread-Index: AccR/XOCFX6eql9NRr2YYNdjExoA2A==
-From: "Cestonaro, Thilo \(external\)" 
-	<Thilo.Cestonaro.external@fujitsu-siemens.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Nov 2006 08:24:24.0582 (UTC) FILETIME=[72537A60:01C711FD]
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+>>> Dave Jones <davej@redhat.com> 24.11.06 21:27 >>>
+>On Wed, Nov 22, 2006 at 08:53:08AM +0100, Jan Beulich wrote:
+> > >It does appear to work w/out the patch.  I've asked for a small bit
+> > >of diagnostics (below), perhaps you've got something you'd rather see?
+> > >I expect this to be a 24C0 LPC Bridge.
+> > 
+> > Yes, that's what I'd have asked for. If it works, I expect the device
+> > code to be different, or both manufacturer and device code to be
+> > invalid. Depending on the outcome, perhaps we'll need an override
+> > option so that this test can be partially (i.e. just the device code
+> > part) or entirely (all the FWH detection) skipped.
+> > The base problem is the vague documentation of the whole
+> > detection mechanism - a lot of this I had to read between the lines.
+>
+>The bug report I referenced came back with this from that debug patch..
+>
+>intel_rng: no version for "struct_module" found: kernel tainted.
+>intel_rng: pci vendor:device 8086:24c0 fwh_dec_en1 80 bios_cntl_val 2 mfc cb dvc 88
+>intel_rng: FWH not detected
 
-I'm a developer for Fujitsu Siemens Computers, working on a program which has it's own kernel modules and userland components.
-Now cause the program should be released we have done some testing and during this testphase a wierd wasting of time occured
-during the call of the ioctl() in the userland component and the actuall entering of the dispatcher function in the module.
-It takes 3 min. until the call at last enters my dispatcher. (Debugging output with printf on line before ioctl() and printk as first line in the 
-dispatch function points that out). The dispatch function is the ioctl part of the fileoperations struct which defines the module stuff.
+Okay, this means the lock is being set by the BIOS, which disallows
+disabling BIOS (and thus accessing the FWH). By default, I think it
+is correct to consider the RNG not present in this case, however as
+previously indicated I think we should provide a way to force
+skipping the FWH test (with three levels - carry out, skip always, or
+skip if BIOS locked).
+I'll prepare a patch as soon as I can, but it might take a few days
+until I get to it.
 
-The kernel I'm running is the 2.6.16.21-0.8-default of SLED10 (32Bit), but installed on a 64Bit machine.
-Can anyone point me to, where I can have a look where the waste of time comes from?
-
-The ioctl itself works fine afterwards, but the whole process is time-critical so the 3 min. do hurt :(.
-
-Ciao Thilo 
+Jan

@@ -1,62 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933718AbWK0ViD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933753AbWK0Vl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933718AbWK0ViD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 16:38:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933744AbWK0ViD
+	id S933753AbWK0Vl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 16:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933759AbWK0Vl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 16:38:03 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:32713 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933718AbWK0ViB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 16:38:01 -0500
-Date: Mon, 27 Nov 2006 13:37:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Daniel McNeil <daniel@osdl.org>
-Subject: Re: [PATCH] fs : reorder some 'struct inode' fields to speedup
- i_size manipulations
-Message-Id: <20061127133748.4ebcd6b3.akpm@osdl.org>
-In-Reply-To: <200611231157.30056.dada1@cosmosbay.com>
-References: <20061120151700.4a4f9407@frecb000686>
-	<20061123092805.1408b0c6@frecb000686>
-	<20061123004053.76114a75.akpm@osdl.org>
-	<200611231157.30056.dada1@cosmosbay.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Nov 2006 16:41:27 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:29417 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S933753AbWK0Vl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 16:41:26 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Mon, 27 Nov 2006 16:37:35 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: trivial@kernel.org
+Subject: [PATCH] kconfig:  Remove obsolete CONFIG_DMA_IS_DMA32 entries from
+ ia64 config files
+Message-ID: <Pine.LNX.4.64.0611271631480.4759@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, UPPERCASE_25_50 0.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2006 11:57:29 +0100
-Eric Dumazet <dada1@cosmosbay.com> wrote:
 
-> On 32bits SMP platforms, 64bits i_size is protected by a seqcount 
-> (i_size_seqcount).
-> 
-> When i_size is read or written, i_size_seqcount is read/written as well, so it 
-> make sense to group these two fields together in the same cache line.
-> 
-> Before this patch, accessing i_size needed 3 cache lines (2 for i_size, one 
-> for i_size_seqcount). After, only one cache line is needed/ (dirtied on a 
-> i_size change).
+  Remove the obsolete CONFIG_DMA_IS_DMA32 entries from the various
+"defconfig" files under arch/ia64.
 
-I didn't understand that paragraph at all, really, so I took it out.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-At present an i_size change will dirty one, two or three cachelines, most
-likely one or two.
+---
 
-After your patch an i_size change will dirty one or two cachelines, most
-likely one.
+ arch/ia64/configs/bigsur_defconfig    |    1 -
+ arch/ia64/configs/gensparse_defconfig |    1 -
+ arch/ia64/configs/sim_defconfig       |    1 -
+ arch/ia64/configs/tiger_defconfig     |    1 -
+ arch/ia64/configs/zx1_defconfig       |    1 -
+ arch/ia64/defconfig                   |    1 -
+ 6 files changed, 6 deletions(-)
 
-yes?
-
-> This patch moves i_size_seqcount next to i_size, and also moves i_version to 
-> let offsetof(struct inode, i_size) being 0x40 instead of 0x3c (for 32bits 
-> platforms). 
-> 
-> For 64 bits platforms, i_size_seqcount doesnt exist, and the move of a 'long 
-> i_version' should not introduce a new hole because of padding.
-> 
-> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+diff --git a/arch/ia64/configs/bigsur_defconfig b/arch/ia64/configs/bigsur_defconfig
+index 90e9c2e..deab374 100644
+--- a/arch/ia64/configs/bigsur_defconfig
++++ b/arch/ia64/configs/bigsur_defconfig
+@@ -89,7 +89,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ # CONFIG_IA64_GENERIC is not set
+ CONFIG_IA64_DIG=y
+ # CONFIG_IA64_HP_ZX1 is not set
+diff --git a/arch/ia64/configs/gensparse_defconfig b/arch/ia64/configs/gensparse_defconfig
+index 0d29aa2..77f528b 100644
+--- a/arch/ia64/configs/gensparse_defconfig
++++ b/arch/ia64/configs/gensparse_defconfig
+@@ -90,7 +90,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ CONFIG_IA64_GENERIC=y
+ # CONFIG_IA64_DIG is not set
+ # CONFIG_IA64_HP_ZX1 is not set
+diff --git a/arch/ia64/configs/sim_defconfig b/arch/ia64/configs/sim_defconfig
+index d9146c3..cb023c4 100644
+--- a/arch/ia64/configs/sim_defconfig
++++ b/arch/ia64/configs/sim_defconfig
+@@ -90,7 +90,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ # CONFIG_IA64_GENERIC is not set
+ # CONFIG_IA64_DIG is not set
+ # CONFIG_IA64_HP_ZX1 is not set
+diff --git a/arch/ia64/configs/tiger_defconfig b/arch/ia64/configs/tiger_defconfig
+index 9d1cffb..5fbc241 100644
+--- a/arch/ia64/configs/tiger_defconfig
++++ b/arch/ia64/configs/tiger_defconfig
+@@ -90,7 +90,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ # CONFIG_IA64_GENERIC is not set
+ CONFIG_IA64_DIG=y
+ # CONFIG_IA64_HP_ZX1 is not set
+diff --git a/arch/ia64/configs/zx1_defconfig b/arch/ia64/configs/zx1_defconfig
+index 949dc46..ffa5c02 100644
+--- a/arch/ia64/configs/zx1_defconfig
++++ b/arch/ia64/configs/zx1_defconfig
+@@ -88,7 +88,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ # CONFIG_IA64_GENERIC is not set
+ # CONFIG_IA64_DIG is not set
+ CONFIG_IA64_HP_ZX1=y
+diff --git a/arch/ia64/defconfig b/arch/ia64/defconfig
+index 9001b3f..04789ae 100644
+--- a/arch/ia64/defconfig
++++ b/arch/ia64/defconfig
+@@ -90,7 +90,6 @@ CONFIG_TIME_INTERPOLATION=y
+ CONFIG_EFI=y
+ CONFIG_GENERIC_IOMAP=y
+ CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+-CONFIG_DMA_IS_DMA32=y
+ CONFIG_IA64_GENERIC=y
+ # CONFIG_IA64_DIG is not set
+ # CONFIG_IA64_HP_ZX1 is not set

@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755314AbWK0AIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755467AbWK0AVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755314AbWK0AIv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 19:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755328AbWK0AIv
+	id S1755467AbWK0AVA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 19:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755485AbWK0AVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 19:08:51 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:12264 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1755314AbWK0AIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 19:08:51 -0500
-Date: Mon, 27 Nov 2006 00:08:45 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: Build breakage ...
-Message-ID: <20061127000845.GA23899@linux-mips.org>
-References: <20061126224928.GA22285@linux-mips.org> <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org>
-User-Agent: Mutt/1.4.2.2i
+	Sun, 26 Nov 2006 19:21:00 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:50884 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1755467AbWK0AU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 19:20:59 -0500
+Date: Sun, 26 Nov 2006 19:18:50 -0500
+From: Thomas Tuttle <linux-kernel@ttuttle.net>
+Subject: ACPI patch submission (was: [PATCH] Implementation of
+ acpi_video_get_next_level)
+In-reply-to: <20061124193650.GB22622@lion>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mail-followup-to: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <20061127001850.GA10381@lion>
+MIME-version: 1.0
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary=mYCpIKhGyMATD0i+
+Content-disposition: inline
+References: <20061124193347.GA22622@lion> <20061124193650.GB22622@lion>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2006 at 03:06:10PM -0800, Linus Torvalds wrote:
 
-> That said, Alexey did check it more than most patches like this get 
-> checked (ie checking allmodconfig on i386, x86_64, alpha, arm), so it's a 
-> bit unlucky that MIPS got bitten by this - it was not a badly tested 
-> patch per se.
-> 
-> Does the obvious fix (to include <linux/kernel.h> in irqflags.h) fix it 
-> for you?
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-It changes the sympthoms:
+I've got a patch that fixes acpi_video_get_next_level in the ACPI video
+driver.  I sent it to linux-kernel, linux-acpi, and some people at
+Intel.  It's a very short and simple patch that fixes the brightness
+hotkeys on my laptop, and probably others.  (The function it fixes had
+/* Fix me */ written in it.)
 
-  CC      arch/mips/kernel/asm-offsets.s
-In file included from include/linux/irqflags.h:14,
-                 from include/asm/bitops.h:34,
-                 from include/linux/bitops.h:9,
-                 from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/mips/kernel/asm-offsets.c:13:
-include/linux/kernel.h: In function ‘roundup_pow_of_two’:
-include/linux/kernel.h:169: warning: implicit declaration of function ‘fls_long’
-In file included from include/linux/thread_info.h:20,
-                 from include/linux/preempt.h:9,
-                 from include/linux/spinlock.h:49,
-                 from include/linux/capability.h:45,
-                 from include/linux/sched.h:46,
-                 from arch/mips/kernel/asm-offsets.c:13:
-include/linux/bitops.h: At top level:
-include/linux/bitops.h:57: error: conflicting types for ‘fls_long’
-include/linux/kernel.h:169: error: previous implicit declaration of ‘fls_long’ was here
+Where or how should I send this patch so that it can be included in the
+mainline kernel?
 
-So the new problem is circular includes:
+Thanks,
 
-   ... <linux/bitops.h> -> <asm/bitops.h> -> <linux/irqflags.h> ->
-  <linux/kernel.h> -> <linux/bitops.h> ...
+Thomas Tuttle
 
-include/asm-mips/bitops.h needs to include irqflags because some older
-MIPS variants do not have any atomic instructions.  So the fix needs to
-to break that loop.
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-  Ralf
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFai7qgPpxLpYWreERAjbHAJ9CkW+oes2Febc5lcAA5nIkZpHH9ACeKQv3
+vwWNJTRhz4HM6c8Pq/N/lMY=
+=jvOm
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--

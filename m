@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756498AbWK0EC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756548AbWK0EVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756498AbWK0EC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 23:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756499AbWK0EC6
+	id S1756548AbWK0EVx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 23:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756576AbWK0EVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 23:02:58 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:56229 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1756498AbWK0EC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 23:02:58 -0500
-Message-ID: <456A73DA.7040601@wolfmountaingroup.com>
-Date: Sun, 26 Nov 2006 22:12:58 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Sun, 26 Nov 2006 23:21:53 -0500
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:60092
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1756548AbWK0EVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 23:21:53 -0500
+Date: Mon, 27 Nov 2006 04:21:14 +0000
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: [PATCH] paravirt reorder functions to avoid unspecified behaviour
+Message-ID: <6388835f69fc4a69839a132636da7188@pinky>
+References: <20061123021703.8550e37e.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.18 Memory Error (mapping)/Reboot with 8GB of memory 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+InReply-To: <20061123021703.8550e37e.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+paravirt: reorder functions to avoid unspecified behaviour
 
-Running with 8GB of memory, dual Xeon system on a 2.6.18 kernel, the 
-following error occurs when the system finally exhausts
-physical memory prior to using swap space (results in a reboot of the 
-system) :
+The paravirt ops introduce a 'weak' attribute onto memory_setup().
+Code ordering leads to the following warnings on x86:
 
-Nov 26 04:10:00 gadugi syslogd 1.4.1: restart.
-Nov 26 10:33:24 gadugi kernel: Non-Fatal Error DRAM Controler
-Nov 26 10:33:24 gadugi kernel: Test row 1 Table 0 255 2 255 4 255 6 255
-Nov 26 10:33:24 gadugi kernel: Test computed row 8
-Nov 26 10:33:24 gadugi kernel: MC0: row 1 not found in remap table
-Nov 26 10:33:24 gadugi kernel: EDAC MC0: CE page 0x17d8eb, offset 0x0, 
-grain 0, syndrome 0x7804, row 1, channel 1, label "": e752x CE
-Nov 26 16:20:09 gadugi dhclient: DHCPREQUEST on eth0 to 68.87.66.13 port 67
-Nov 26 16:20:09 gadugi dhclient: DHCPACK from 68.87.66.13
-Nov 26 16:20:09 gadugi dhclient: bound to 67.177.44.96 -- renewal in 
-94902 seconds
+    arch/i386/kernel/setup.c:651: warning: weak declaration of
+		`memory_setup' after first use results in unspecified behavior
 
-Jeff
+Move memory_setup() to avoid this.
+
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+index 8be04da..79df6e6 100644
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -494,6 +494,12 @@ static void set_mca_bus(int x)
+ static void set_mca_bus(int x) { }
+ #endif
+ 
++/* Overridden in paravirt.c if CONFIG_PARAVIRT */
++char * __attribute__((weak)) memory_setup(void)
++{
++	return machine_specific_memory_setup();
++}
++
+ /*
+  * Determine if we were loaded by an EFI loader.  If so, then we have also been
+  * passed the efi memmap, systab, etc., so we should use these data structures
+@@ -646,12 +652,6 @@ void __init setup_arch(char **cmdline_p)
+ 	tsc_init();
+ }
+ 
+-/* Overridden in paravirt.c if CONFIG_PARAVIRT */
+-char * __attribute__((weak)) memory_setup(void)
+-{
+-	return machine_specific_memory_setup();
+-}
+-
+ static __init int add_pcspkr(void)
+ {
+ 	struct platform_device *pd;

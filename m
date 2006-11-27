@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758356AbWK0QbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758370AbWK0QbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758356AbWK0QbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758369AbWK0QbY
+	id S1758370AbWK0QbU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758368AbWK0QbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:31:24 -0500
-Received: from mail2.keyvoice.com ([12.153.69.53]:22607 "EHLO
-	outbound.comdial.com") by vger.kernel.org with ESMTP
-	id S1758356AbWK0QbX convert rfc822-to-8bit (ORCPT
+	Mon, 27 Nov 2006 11:31:20 -0500
+Received: from nebensachen.de ([195.225.107.202]:58855 "EHLO nebensachen.de")
+	by vger.kernel.org with ESMTP id S1758356AbWK0QbT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:31:23 -0500
-Content-class: urn:content-classes:message
+	Mon, 27 Nov 2006 11:31:19 -0500
+X-Hashcash: 1:20:061127:linux-kernel@vger.kernel.org::bU9Nx5K0/oX8S2wV:0000000000000000000000000000000003bBL
+From: Elias Oltmanns <eo@nebensachen.de>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE: typo in ide-io.c leads to faulty assignment
+References: <87k61h3pu2.fsf@denkblock.local>
+	<9a8748490611270801g38417047ybcf4304bad9ad673@mail.gmail.com>
+X-Hashcash: 1:20:061127:linux-ide@vger.kernel.org::T2xUjalHcYQnIQe3:0000000000000000000000000000000000007Mp4
+Mail-Copies-To: nobody
+Mail-Followup-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 27 Nov 2006 17:31:10 +0100
+In-Reply-To: <9a8748490611270801g38417047ybcf4304bad9ad673@mail.gmail.com>
+	(Jesper Juhl's message of "Mon\, 27 Nov 2006 17\:01\:16 +0100")
+Message-ID: <87ac2c4zsh.fsf@denkblock.local>
+User-Agent: Gnus/5.110006 (No Gnus v0.6)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: Reserving a fixed physical address page of RAM.
-Date: Mon, 27 Nov 2006 11:31:21 -0500
-Message-ID: <22170ADB26112F478A4E293FF9D449F44D0EBD@secure.comdial.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Reserving a fixed physical address page of RAM.
-Thread-Index: AccSQXjO1oZzi3ydRe2bFSA9GW/DVg==
-From: "Jon Ringle" <JRingle@vertical.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+> These two lines :
+>
+> -		args->handler = task_no_data_intr;
+> +		args->handler = &task_no_data_intr;
+>
+> do the same thing.
 
-I need to reserve a page of memory at a specific area of RAM that will
-be used as a "shared memory" with another processor over PCI. How can I
-ensure that the this area of RAM gets reseved so that the Linux's memory
-management (kmalloc() and friends) don't use it?
+Thanks for explaining, obviously I got a bit confused.
 
-Some things that I've considered are iotable_init() and ioremap().
-However, I've seen these used for memory mapped IO devices which are
-outside of the RAM memory. Can I use them for reseving RAM too?
+Sorry for the noise.
 
-I appreciate any advice in this regard.
-
-Thanks,
-
-Jon
+Elias

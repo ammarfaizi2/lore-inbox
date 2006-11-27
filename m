@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757453AbWK0It1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757457AbWK0Iud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757453AbWK0It1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 03:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757457AbWK0It0
+	id S1757457AbWK0Iud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757465AbWK0Iud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 03:49:26 -0500
-Received: from il.qumranet.com ([62.219.232.206]:58061 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1757453AbWK0It0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 03:49:26 -0500
-Subject: [PATCH 2/2] KVM: Make enum values in userspace interface explicit
-From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 27 Nov 2006 08:49:24 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <456AA620.4000201@qumranet.com>
-In-Reply-To: <456AA620.4000201@qumranet.com>
-Message-Id: <20061127084924.D0A7125015E@cleopatra.q>
+	Mon, 27 Nov 2006 03:50:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43473 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1757457AbWK0Iuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:50:32 -0500
+Subject: Re: Weird wasting of time between ioctl() and ioctl dispatcher
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Cestonaro, Thilo (external)" 
+	<Thilo.Cestonaro.external@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F7F9B0BE3E9BD449B110D0B1CEF6CAEF03FA5863@ABGEX01E.abg.fsc.net>
+References: <F7F9B0BE3E9BD449B110D0B1CEF6CAEF03FA5863@ABGEX01E.abg.fsc.net>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 27 Nov 2006 09:50:29 +0100
+Message-Id: <1164617429.3276.18.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+On Mon, 2006-11-27 at 09:24 +0100, Cestonaro, Thilo (external) wrote:
+> Hey,
+> 
+> I'm a developer for Fujitsu Siemens Computers, working on a program which has it's own kernel modules and userland components.
+> Now cause the program should be released we have done some testing and during this testphase a wierd wasting of time occured
+> during the call of the ioctl() in the userland component and the actuall entering of the dispatcher function in the module.
+> It takes 3 min. until the call at last enters my dispatcher. (Debugging output with printf on line before ioctl() and printk as first line in the 
+> dispatch function points that out). The dispatch function is the ioctl part of the fileoperations struct which defines the module stuff.
+> 
+> The kernel I'm running is the 2.6.16.21-0.8-default of SLED10 (32Bit), but installed on a 64Bit machine.
+> Can anyone point me to, where I can have a look where the waste of time comes from?
+> 
+> The ioctl itself works fine afterwards, but the whole process is time-critical so the 3 min. do hurt :(.
 
---- linux-2.6/include/linux/kvm.h	2006-11-27 10:31:40.000000000 +0200
-+++ linux-2.6/include/linux/kvm.h	2006-11-19 12:25:35.000000000 +0200
-@@ -36,13 +36,13 @@
- #define KVM_EXIT_TYPE_VM_EXIT    2
- 
- enum kvm_exit_reason {
--	KVM_EXIT_UNKNOWN,
--	KVM_EXIT_EXCEPTION,
--	KVM_EXIT_IO,
--	KVM_EXIT_CPUID,
--	KVM_EXIT_DEBUG,
--	KVM_EXIT_HLT,
--	KVM_EXIT_MMIO,
-+	KVM_EXIT_UNKNOWN          = 0,
-+	KVM_EXIT_EXCEPTION        = 1,
-+	KVM_EXIT_IO               = 2,
-+	KVM_EXIT_CPUID            = 3,
-+	KVM_EXIT_DEBUG            = 4,
-+	KVM_EXIT_HLT              = 5,
-+	KVM_EXIT_MMIO             = 6,
- };
- 
- /* for KVM_RUN */
+
+Hi,
+
+unfortunately you did not post the source code of at least your kernel
+driver, nor did you provide an URL to the source, so it's really hard
+for us to help you. Would you mind correcting this oversight?
+
+Greetings,
+   Arjan van de Ven
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

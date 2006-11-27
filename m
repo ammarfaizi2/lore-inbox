@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWK0S20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933043AbWK0S3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWK0S20 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbWK0S20
+	id S933043AbWK0S3r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933026AbWK0S3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:28:26 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:48775 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932313AbWK0S2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:28:25 -0500
-Date: Mon, 27 Nov 2006 10:24:55 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org
-Subject: Re: 2.6.19-rc6-mm1: drivers/net/chelsio/: unused code
-Message-ID: <20061127102455.362fe88f@dxpl.pdx.osdl.net>
-In-Reply-To: <20061124001731.GO3557@stusta.de>
-References: <20061123021703.8550e37e.akpm@osdl.org>
-	<20061124001731.GO3557@stusta.de>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.4; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Mon, 27 Nov 2006 13:29:47 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:21467 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S932875AbWK0S3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:29:45 -0500
+Date: Mon, 27 Nov 2006 19:29:43 +0100
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: avl@logic.at, linux-kernel@vger.kernel.org
+Subject: Re: Allow turning off hpa-checking.
+Message-ID: <20061127182943.GE2352@gamma.logic.tuwien.ac.at>
+Reply-To: avl@logic.at
+References: <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain> <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at> <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain> <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain> <20061127175647.GD2352@gamma.logic.tuwien.ac.at> <20061127181033.58e72d9a@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061127181033.58e72d9a@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+From: Andreas Leitgeb <avl@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2006 01:17:31 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+On Mon, Nov 27, 2006 at 06:10:33PM +0000, Alan wrote:
+> > What else (if not sector remapping) could make the "current"
+> > size gradually smaller between reboots. And why is "native"
+> > size still constant?  And why does now even access to the but-last
+> > native sector fail? The explanation with block-reads no longer
+> > works.
+> The presented size of an ATA disk is constant. It keeps additional space
+> for error blocks. The HPA merely tells the disk to lie about its size.
 
-> On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.19-rc5-mm2:
-> >...
-> > +chelsio-22-driver.patch
-> >...
-> >  netdev updates
-> 
-> It is suspicious that the following newly added code is completely unused:
->   drivers/net/chelsio/ixf1010.o
->     t1_ixf1010_ops
->   drivers/net/chelsio/mac.o
->     t1_chelsio_mac_ops
->   drivers/net/chelsio/vsc8244.o
->     t1_vsc8244_ops
-> 
-> cu
-> Adrian
-> 
+I was speaking about a disk, whose "additional space" appeared to 
+be already exhausted.  After that, it appears as if the native
+size remains still constant, and the exceeding damaged sectors are 
+auto-"hidden" by the drive by means of HPA.
 
-All that is gone in later version. I reposted new patches
-after -mm2 was done.
+Still incorrect?
+
+Then I'm also speaking about not-broken disks, where I just want
+to be able to tell the driver to believe the drive's "HPA-lie"
+for whatever reason :-)
+
+> > How should the partitioning tool know, if I want to ignore the
+> > HPA, or respect it (knowing it contains stuff that I might need in
+> > future).  Does there exist any that asks me?
+> I have no idea. If not perhaps one should be written.
+Till that happens ... ;-)
+

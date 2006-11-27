@@ -1,43 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758359AbWK0QUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756834AbWK0QVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758359AbWK0QUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758363AbWK0QUF
+	id S1756834AbWK0QVS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758356AbWK0QVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:20:05 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:43923 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP
-	id S1758359AbWK0QUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:20:03 -0500
-Message-ID: <456B101D.3040803@nortel.com>
-Date: Mon, 27 Nov 2006 10:19:41 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-CC: G.Ohrner@post.rwth-aachen.de, linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-References: <ek2nva$vgk$1@sea.gmane.org> <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr> <ek54hf$icj$2@sea.gmane.org> <456B0F53.90209@cfl.rr.com>
-In-Reply-To: <456B0F53.90209@cfl.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 27 Nov 2006 11:21:18 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52874 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1757150AbWK0QVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 11:21:17 -0500
+Date: Mon, 27 Nov 2006 16:27:20 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: [PATCH] pata : more drivers that need only standard suspend and
+ resume
+Message-ID: <20061127162720.3eb72478@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2006 16:19:48.0281 (UTC) FILETIME=[DBC68A90:01C7123F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-> I ran into this the other day myself and when I investigated the kernel 
-> code, I found that writes to /dev/random do accept the data into the 
-> entropy pool, but do NOT update the entropy estimate.  In order to do 
-> that, you have to use a root only ioctl to add the data and update the 
-> estimate.  I am not sure why this is, or if there is a tool already 
-> written somewhere to use this ioctl, maybe someone else can comment?
-
-I believe the idea was that you don't want random users being able to 
-artificially inflate your entropy count.  So the kernel tries to make 
-use of entropy entered by regular users (by stirring it into the pool) 
-but it doesn't increase the entropy estimate unless root says its okay.
-
-Chris
+diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c linux-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c
+--- linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c	2006-11-24 13:58:28.000000000 +0000
++++ linux-2.6.19-rc6-mm1/drivers/ata/pata_pdc202xx_old.c	2006-11-24 14:24:38.000000000 +0000
+@@ -21,7 +21,7 @@
+ #include <linux/libata.h>
+ 
+ #define DRV_NAME "pata_pdc202xx_old"
+-#define DRV_VERSION "0.2.2"
++#define DRV_VERSION "0.2.3"
+ 
+ /**
+  *	pdc2024x_pre_reset		-	probe begin
+@@ -270,6 +270,8 @@
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
++	.resume			= ata_scsi_device_resume,
++	.suspend		= ata_scsi_device_suspend,
+ };
+ 
+ static struct ata_port_operations pdc2024x_port_ops = {
+@@ -399,7 +401,9 @@
+ 	.name 		= DRV_NAME,
+ 	.id_table	= pdc202xx,
+ 	.probe 		= pdc202xx_init_one,
+-	.remove		= ata_pci_remove_one
++	.remove		= ata_pci_remove_one,
++	.suspend	= ata_pci_device_suspend,
++	.resume		= ata_pci_device_resume,
+ };
+ 
+ static int __init pdc202xx_init(void)
+diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_sis.c linux-2.6.19-rc6-mm1/drivers/ata/pata_sis.c
+--- linux.vanilla-2.6.19-rc6-mm1/drivers/ata/pata_sis.c	2006-11-24 13:58:05.000000000 +0000
++++ linux-2.6.19-rc6-mm1/drivers/ata/pata_sis.c	2006-11-24 14:25:15.000000000 +0000
+@@ -34,7 +34,7 @@
+ #include <linux/ata.h>
+ 
+ #define DRV_NAME	"pata_sis"
+-#define DRV_VERSION	"0.4.4"
++#define DRV_VERSION	"0.4.5"
+ 
+ struct sis_chipset {
+ 	u16 device;			/* PCI host ID */
+@@ -546,6 +546,8 @@
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
++	.resume			= ata_scsi_device_resume,
++	.suspend		= ata_scsi_device_suspend,
+ };
+ 
+ static const struct ata_port_operations sis_133_ops = {
+@@ -999,6 +1001,8 @@
+ 	.id_table		= sis_pci_tbl,
+ 	.probe			= sis_init_one,
+ 	.remove			= ata_pci_remove_one,
++	.suspend		= ata_pci_device_suspend,
++	.resume			= ata_pci_device_resume,
+ };
+ 
+ static int __init sis_init(void)

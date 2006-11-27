@@ -1,24 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758105AbWK0MWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758107AbWK0MXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758105AbWK0MWk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 07:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758107AbWK0MWk
+	id S1758107AbWK0MXk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 07:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758108AbWK0MXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 07:22:40 -0500
-Received: from il.qumranet.com ([62.219.232.206]:4274 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1758105AbWK0MWj (ORCPT
+	Mon, 27 Nov 2006 07:23:40 -0500
+Received: from il.qumranet.com ([62.219.232.206]:5298 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1758107AbWK0MXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 07:22:39 -0500
-Subject: [PATCH 12/38] KVM: Add idt and gdt descriptor accessors
+	Mon, 27 Nov 2006 07:23:39 -0500
+Subject: [PATCH 13/38] KVM: Make syncing the register file to the vcpu
+	structure an arch operation
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 27 Nov 2006 12:22:37 -0000
+Date: Mon, 27 Nov 2006 12:23:37 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 References: <456AD5C6.1090406@qumranet.com>
 In-Reply-To: <456AD5C6.1090406@qumranet.com>
-Message-Id: <20061127122237.9034625015E@cleopatra.q>
+Message-Id: <20061127122337.9C25125015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+This copies any general purpose guest registers maintained by the hardware
+to the vcpu structure (and back).
 
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
@@ -26,26 +30,12 @@ Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm.h
 +++ linux-2.6/drivers/kvm/kvm.h
-@@ -236,6 +236,11 @@ struct kvm_stat {
- 	u32 irq_exits;
- };
- 
-+struct descriptor_table {
-+	u16 limit;
-+	unsigned long base;
-+} __attribute__((packed));
-+
- struct kvm_arch_ops {
- 	int (*cpu_has_kvm_support)(void);          /* __init */
- 	int (*disabled_by_bios)(void);             /* __init */
-@@ -253,6 +258,10 @@ struct kvm_arch_ops {
- 			    struct kvm_segment *var, int seg);
- 	void (*set_segment)(struct kvm_vcpu *vcpu,
- 			    struct kvm_segment *var, int seg);
-+	void (*get_idt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
-+	void (*set_idt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
-+	void (*get_gdt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
-+	void (*set_gdt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
+@@ -262,6 +262,8 @@ struct kvm_arch_ops {
+ 	void (*set_idt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
+ 	void (*get_gdt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
+ 	void (*set_gdt)(struct kvm_vcpu *vcpu, struct descriptor_table *dt);
++	void (*cache_regs)(struct kvm_vcpu *vcpu);
++	void (*decache_regs)(struct kvm_vcpu *vcpu);
  };
  
  extern struct kvm_stat kvm_stat;
@@ -53,117 +43,155 @@ Index: linux-2.6/drivers/kvm/kvm_main.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm_main.c
 +++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -155,11 +155,6 @@ struct vmx_msr_entry *find_msr_entry(str
+@@ -1327,26 +1327,6 @@ out:
  }
- EXPORT_SYMBOL_GPL(find_msr_entry);
  
--struct descriptor_table {
--	u16 limit;
--	unsigned long base;
--} __attribute__((packed));
+ /*
+- * Sync the rsp and rip registers into the vcpu structure.  This allows
+- * registers to be accessed by indexing vcpu->regs.
+- */
+-static void vcpu_load_rsp_rip(struct kvm_vcpu *vcpu)
+-{
+-	vcpu->regs[VCPU_REGS_RSP] = vmcs_readl(GUEST_RSP);
+-	vcpu->rip = vmcs_readl(GUEST_RIP);
+-}
 -
- static void get_gdt(struct descriptor_table *table)
- {
- 	asm ("sgdt %0" : "=m"(*table));
-@@ -2827,6 +2822,7 @@ static void get_segment(struct kvm_vcpu 
- static int kvm_dev_ioctl_get_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
- {
- 	struct kvm_vcpu *vcpu;
-+	struct descriptor_table dt;
- 
- 	if (sregs->vcpu < 0 || sregs->vcpu >= KVM_MAX_VCPUS)
- 		return -EINVAL;
-@@ -2844,13 +2840,12 @@ static int kvm_dev_ioctl_get_sregs(struc
- 	get_segment(vcpu, &sregs->tr, VCPU_SREG_TR);
- 	get_segment(vcpu, &sregs->ldt, VCPU_SREG_LDTR);
- 
--#define get_dtable(var, table) \
--	sregs->var.limit = vmcs_read32(GUEST_##table##_LIMIT), \
--		sregs->var.base = vmcs_readl(GUEST_##table##_BASE)
+-/*
+- * Syncs rsp and rip back into the vmcs.  Should be called after possible
+- * modification.
+- */
+-static void vcpu_put_rsp_rip(struct kvm_vcpu *vcpu)
+-{
+-	vmcs_writel(GUEST_RSP, vcpu->regs[VCPU_REGS_RSP]);
+-	vmcs_writel(GUEST_RIP, vcpu->rip);
+-}
 -
--	get_dtable(idt, IDTR);
--	get_dtable(gdt, GDTR);
--#undef get_dtable
-+	kvm_arch_ops->get_idt(vcpu, &dt);
-+	sregs->idt.limit = dt.limit;
-+	sregs->idt.base = dt.base;
-+	kvm_arch_ops->get_gdt(vcpu, &dt);
-+	sregs->gdt.limit = dt.limit;
-+	sregs->gdt.base = dt.base;
+-/*
+  * Creates some virtual cpus.  Good luck creating more than one.
+  */
+ static int kvm_dev_ioctl_create_vcpu(struct kvm *kvm, int n)
+@@ -1819,7 +1799,7 @@ static int emulate_instruction(struct kv
+ 	int r;
+ 	u32 cs_ar;
  
- 	sregs->cr0 = vcpu->cr0;
- 	sregs->cr2 = vcpu->cr2;
-@@ -2879,6 +2874,7 @@ static int kvm_dev_ioctl_set_sregs(struc
- 	struct kvm_vcpu *vcpu;
- 	int mmu_reset_needed = 0;
- 	int i;
-+	struct descriptor_table dt;
+-	vcpu_load_rsp_rip(vcpu);
++	kvm_arch_ops->cache_regs(vcpu);
  
- 	if (sregs->vcpu < 0 || sregs->vcpu >= KVM_MAX_VCPUS)
- 		return -EINVAL;
-@@ -2896,13 +2892,12 @@ static int kvm_dev_ioctl_set_sregs(struc
- 	set_segment(vcpu, &sregs->tr, VCPU_SREG_TR);
- 	set_segment(vcpu, &sregs->ldt, VCPU_SREG_LDTR);
+ 	cs_ar = vmcs_read32(GUEST_CS_AR_BYTES);
  
--#define set_dtable(var, table) \
--	vmcs_write32(GUEST_##table##_LIMIT, sregs->var.limit), \
--	vmcs_writel(GUEST_##table##_BASE, sregs->var.base)
--
--	set_dtable(idt, IDTR);
--	set_dtable(gdt, GDTR);
--#undef set_dtable
-+	dt.limit = sregs->idt.limit;
-+	dt.base = sregs->idt.base;
-+	kvm_arch_ops->set_idt(vcpu, &dt);
-+	dt.limit = sregs->gdt.limit;
-+	dt.base = sregs->gdt.base;
-+	kvm_arch_ops->set_gdt(vcpu, &dt);
+@@ -1864,7 +1844,7 @@ static int emulate_instruction(struct kv
+ 		return EMULATE_DO_MMIO;
+ 	}
  
- 	vcpu->cr2 = sregs->cr2;
- 	mmu_reset_needed |= vcpu->cr3 != sregs->cr3;
+-	vcpu_put_rsp_rip(vcpu);
++	kvm_arch_ops->decache_regs(vcpu);
+ 	vmcs_writel(GUEST_RFLAGS, emulate_ctxt.eflags);
+ 
+ 	if (vcpu->mmio_is_write)
+@@ -2134,22 +2114,22 @@ static int handle_cr(struct kvm_vcpu *vc
+ 	case 0: /* mov to cr */
+ 		switch (cr) {
+ 		case 0:
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			set_cr0(vcpu, vcpu->regs[reg]);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+ 		case 3:
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			set_cr3(vcpu, vcpu->regs[reg]);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+ 		case 4:
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			set_cr4(vcpu, vcpu->regs[reg]);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+ 		case 8:
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			set_cr8(vcpu, vcpu->regs[reg]);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+@@ -2158,17 +2138,17 @@ static int handle_cr(struct kvm_vcpu *vc
+ 	case 1: /*mov from cr*/
+ 		switch (cr) {
+ 		case 3:
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			vcpu->regs[reg] = vcpu->cr3;
+-			vcpu_put_rsp_rip(vcpu);
++			kvm_arch_ops->decache_regs(vcpu);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+ 		case 8:
+ 			printk(KERN_DEBUG "handle_cr: read CR8 "
+ 			       "cpu erratum AA15\n");
+-			vcpu_load_rsp_rip(vcpu);
++			kvm_arch_ops->cache_regs(vcpu);
+ 			vcpu->regs[reg] = vcpu->cr8;
+-			vcpu_put_rsp_rip(vcpu);
++			kvm_arch_ops->decache_regs(vcpu);
+ 			skip_emulated_instruction(vcpu);
+ 			return 1;
+ 		}
+@@ -2200,7 +2180,7 @@ static int handle_dr(struct kvm_vcpu *vc
+ 	exit_qualification = vmcs_read64(EXIT_QUALIFICATION);
+ 	dr = exit_qualification & 7;
+ 	reg = (exit_qualification >> 8) & 15;
+-	vcpu_load_rsp_rip(vcpu);
++	kvm_arch_ops->cache_regs(vcpu);
+ 	if (exit_qualification & 16) {
+ 		/* mov from dr */
+ 		switch (dr) {
+@@ -2217,7 +2197,7 @@ static int handle_dr(struct kvm_vcpu *vc
+ 	} else {
+ 		/* mov to dr */
+ 	}
+-	vcpu_put_rsp_rip(vcpu);
++	kvm_arch_ops->decache_regs(vcpu);
+ 	skip_emulated_instruction(vcpu);
+ 	return 1;
+ }
 Index: linux-2.6/drivers/kvm/vmx.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/vmx.c
 +++ linux-2.6/drivers/kvm/vmx.c
-@@ -363,6 +363,30 @@ static void vmx_set_segment(struct kvm_v
- 	vmcs_write32(sf->ar_bytes, ar);
+@@ -180,6 +180,26 @@ static int vmx_set_msr(struct kvm_vcpu *
+ 	return 0;
  }
  
-+static void vmx_get_idt(struct kvm_vcpu *vcpu, struct descriptor_table *dt)
++/*
++ * Sync the rsp and rip registers into the vcpu structure.  This allows
++ * registers to be accessed by indexing vcpu->regs.
++ */
++static void vcpu_load_rsp_rip(struct kvm_vcpu *vcpu)
 +{
-+	dt->limit = vmcs_read32(GUEST_IDTR_LIMIT);
-+	dt->base = vmcs_readl(GUEST_IDTR_BASE);
++	vcpu->regs[VCPU_REGS_RSP] = vmcs_readl(GUEST_RSP);
++	vcpu->rip = vmcs_readl(GUEST_RIP);
 +}
 +
-+static void vmx_set_idt(struct kvm_vcpu *vcpu, struct descriptor_table *dt)
++/*
++ * Syncs rsp and rip back into the vmcs.  Should be called after possible
++ * modification.
++ */
++static void vcpu_put_rsp_rip(struct kvm_vcpu *vcpu)
 +{
-+	vmcs_write32(GUEST_IDTR_LIMIT, dt->limit);
-+	vmcs_writel(GUEST_IDTR_BASE, dt->base);
++	vmcs_writel(GUEST_RSP, vcpu->regs[VCPU_REGS_RSP]);
++	vmcs_writel(GUEST_RIP, vcpu->rip);
 +}
 +
-+static void vmx_get_gdt(struct kvm_vcpu *vcpu, struct descriptor_table *dt)
-+{
-+	dt->limit = vmcs_read32(GUEST_GDTR_LIMIT);
-+	dt->base = vmcs_readl(GUEST_GDTR_BASE);
-+}
-+
-+static void vmx_set_gdt(struct kvm_vcpu *vcpu, struct descriptor_table *dt)
-+{
-+	vmcs_write32(GUEST_GDTR_LIMIT, dt->limit);
-+	vmcs_writel(GUEST_GDTR_BASE, dt->base);
-+}
-+
- static struct kvm_arch_ops vmx_arch_ops = {
- 	.cpu_has_kvm_support = cpu_has_kvm_support,
- 	.disabled_by_bios = vmx_disabled_by_bios,
-@@ -377,6 +401,10 @@ static struct kvm_arch_ops vmx_arch_ops 
- 	.get_segment_base = vmx_get_segment_base,
- 	.get_segment = vmx_get_segment,
- 	.set_segment = vmx_set_segment,
-+	.get_idt = vmx_get_idt,
-+	.set_idt = vmx_set_idt,
-+	.get_gdt = vmx_get_gdt,
-+	.set_gdt = vmx_set_gdt,
+ static int set_guest_debug(struct kvm_vcpu *vcpu, struct kvm_debug_guest *dbg)
+ {
+ 	unsigned long dr7 = 0x400;
+@@ -405,6 +425,8 @@ static struct kvm_arch_ops vmx_arch_ops 
+ 	.set_idt = vmx_set_idt,
+ 	.get_gdt = vmx_get_gdt,
+ 	.set_gdt = vmx_set_gdt,
++	.cache_regs = vcpu_load_rsp_rip,
++	.decache_regs = vcpu_put_rsp_rip,
  };
  
  static int __init vmx_init(void)

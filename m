@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758153AbWK0Msl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758158AbWK0MzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758153AbWK0Msl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 07:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758157AbWK0Msl
+	id S1758158AbWK0MzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 07:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758164AbWK0MzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 07:48:41 -0500
-Received: from il.qumranet.com ([62.219.232.206]:35203 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1758153AbWK0Msk (ORCPT
+	Mon, 27 Nov 2006 07:55:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34774 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758158AbWK0MzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 07:48:40 -0500
-Subject: [PATCH 38/38] KVM: Remove vmx includes from arch independent code
-From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 27 Nov 2006 12:48:39 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <456AD5C6.1090406@qumranet.com>
-In-Reply-To: <456AD5C6.1090406@qumranet.com>
-Message-Id: <20061127124839.2377425015E@cleopatra.q>
+	Mon, 27 Nov 2006 07:55:16 -0500
+Subject: Re: [2.6 patch] arch/i386/kernel/: remove remaining pc98 code
+From: Ingo Molnar <mingo@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061122041745.GD5200@stusta.de>
+References: <20061122041745.GD5200@stusta.de>
+Content-Type: text/plain
+Date: Mon, 27 Nov 2006 13:52:57 +0100
+Message-Id: <1164631977.22536.102.camel@earth>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+On Wed, 2006-11-22 at 05:17 +0100, Adrian Bunk wrote:
+> This patch removes the remaining code of the removed pc98 support.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de> 
 
-Index: linux-2.6/drivers/kvm/kvm_main.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/kvm_main.c
-+++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -35,8 +35,6 @@
- #include <linux/file.h>
- #include <asm/desc.h>
- 
--#include "vmx.h"
--#include "kvm_vmx.h"
- #include "x86_emulate.h"
- 
- MODULE_AUTHOR("Qumranet");
-Index: linux-2.6/drivers/kvm/vmx.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/vmx.c
-+++ linux-2.6/drivers/kvm/vmx.c
-@@ -16,9 +16,9 @@
-  */
- 
- #include "kvm.h"
--#include <linux/module.h>
- #include "vmx.h"
- #include "kvm_vmx.h"
-+#include <linux/module.h>
- #include <linux/mm.h>
- #include <linux/highmem.h>
- #include <asm/io.h>
+looks good to me,
+
+Acked-by: Ingo Molnar <mingo@redhat.com>
+
+	Ingo
+

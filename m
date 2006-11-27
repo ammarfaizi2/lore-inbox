@@ -1,127 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757642AbWK0SPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758510AbWK0SVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757642AbWK0SPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758504AbWK0SPb
+	id S1758510AbWK0SVy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758507AbWK0SVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:15:31 -0500
-Received: from smtp.cesky-hosting.cz ([89.235.3.16]:45054 "EHLO
-	smtp.cesky-hosting.cz") by vger.kernel.org with ESMTP
-	id S1757642AbWK0SPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:15:30 -0500
-Message-ID: <456B2B4B.4050605@thinline.cz>
-Date: Mon, 27 Nov 2006 19:15:39 +0100
-From: Martin Korous <korous@thinline.cz>
-User-Agent: Mail/News 1.5.0.7 (X11/20060925)
+	Mon, 27 Nov 2006 13:21:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62866 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1757861AbWK0SVw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:21:52 -0500
+Message-ID: <456B2C82.7040700@redhat.com>
+Date: Mon, 27 Nov 2006 10:20:50 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sky2, tx timeout
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: Kevent POSIX timers support.
+References: <20061120082500.GA25467@2ka.mipt.ru> <4562102B.5010503@redhat.com> <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru> <20061123085243.GA11575@2ka.mipt.ru> <456603E7.9090006@redhat.com> <20061124095052.GC13600@2ka.mipt.ru>
+In-Reply-To: <20061124095052.GC13600@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Evgeniy Polyakov wrote:
+>> We need to pass the data in the sigev_value meember of the struct 
+>> sigevent structure passed to timer_create to the caller.  I don't see it 
+>> being done here nor when the timer is created.  Do I miss something? 
+>> The sigev_value value should be stored in the user/ptr member of struct 
+>> ukevent.
+> 
+> sigev_value was stored in k_itimer structure, I just do not know where
+> to put it in the ukevent provided to userspace - it can be placed in
+> pointer value if you like.
 
-I want report a bug in sky2 driver. Sky2 will shutdown every 5-6 days.
-Result is reboot or "rmmod sky2 && modprobe sky2"
-I have changed eth0 for eth1 (sky2 is on intranet now) because there is 
-smaller traffic, but
-sky2 will shutdown again in 5-6 days.
-follow some info from logs and about network card
+sigev_value is a union and the largest element is a pointer.  So, 
+transporting the pointer value is sufficient and it should be passed up 
+to the user in the ptr member of struct ukevent.
 
-NOTICE: I dont have subscribe LKML, if you want more info from me, 
-answer to my e-mail.
-
-regards
-Martin Korous
-
-uname -a
-Linux archie 2.6.18.2 #1 SMP Tue Nov 14 11:07:47 CET 2006 i686 pentium4 
-i386 GNU/Linux
-
-/var/log/syslog
-Nov 27 17:25:46 archie kernel: sky2 eth1: tx timeout
-Nov 27 17:31:11 archie kernel: sky2 eth1: tx timeout
-Nov 27 17:31:31 archie kernel: sky2 eth1: tx timeout
-Nov 27 17:34:08 archie kernel: OUTPUT packet died: IN= OUT=eth0 
-SRC=10.0.0.18 DST=10.0.0.8 LEN=60 TOS=0x10 PREC=0x00 TTL=64 ID=41315 DF 
-PROTO=TCP SPT=43946 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0
-Nov 27 17:34:09 archie kernel: OUTPUT packet died: IN= OUT=eth0 
-SRC=10.0.0.18 DST=10.0.0.5 LEN=60 TOS=0x10 PREC=0x00 TTL=64 ID=16666 DF 
-PROTO=TCP SPT=55772 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0
-Nov 27 17:34:14 archie kernel: OUTPUT packet died: IN= OUT=eth0 
-SRC=10.0.0.18 DST=10.0.0.8 LEN=60 TOS=0x10 PREC=0x00 TTL=64 ID=41316 DF 
-PROTO=TCP SPT=43946 DPT=22 WINDOW=5840 RES=0x00 SYN URGP=0
-
-dmesg (time is around shutdown eth1, perhaps)
-
-sky2 eth1: disabling interface
-e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
-sky2 eth1: enabling interface
-sky2 eth1: Link is up at 1000 Mbps, full duplex, flow control none
-NETDEV WATCHDOG: eth1: transmit timed out
-sky2 eth1: tx timeout
-sky2 eth1: transmit ring 507 .. 484 report=507 done=507
-sky2 hardware hung? flushing
-NETDEV WATCHDOG: eth1: transmit timed out
-sky2 eth1: tx timeout
-sky2 eth1: transmit ring 484 .. 461 report=507 done=507
-sky2 status report lost?
-NETDEV WATCHDOG: eth1: transmit timed out
-sky2 eth1: tx timeout
-sky2 eth1: transmit ring 507 .. 484 report=507 done=507
-sky2 hardware hung? flushing
-sky2 eth1: disabling interface
-OUTPUT packet died: IN= OUT=eth0 SRC=10.0.0.18 DST=10.0.0.8 LEN=60 
-TOS=0x10 PREC=0x00 TTL=64 ID=41315 DF PROTO=TCP SPT=43946 DPT=22 
-WINDOW=5840 RES=0x00 SYN URGP=0
-OUTPUT packet died: IN= OUT=eth0 SRC=10.0.0.18 DST=10.0.0.5 LEN=60 
-TOS=0x10 PREC=0x00 TTL=64 ID=16666 DF PROTO=TCP SPT=55772 DPT=22 
-WINDOW=5840 RES=0x00 SYN URGP=0
-OUTPUT packet died: IN= OUT=eth0 SRC=10.0.0.18 DST=10.0.0.8 LEN=60 
-TOS=0x10 PREC=0x00 TTL=64 ID=41316 DF PROTO=TCP SPT=43946 DPT=22 
-WINDOW=5840 RES=0x00 SYN URGP=0
-ACPI: PCI interrupt for device 0000:02:00.0 disabled
-PCI: Enabling device 0000:02:00.0 (0140 -> 0143)
-ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:02:00.0 to 64
-sky2 v1.5 addr 0xdedfc000 irq 16 Yukon-EC (0xb6) rev 2
-sky2 eth1: addr 00:0e:0c:6a:c3:64
-sky2 eth1: enabling interface
-sky2 eth1: Link is up at 1000 Mbps, full duplex, flow control none
-
-lspci -vvv
-02:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8050 PCI-E 
-ASF Gigabit Ethernet Controller (rev 18)
-        Subsystem: Intel Corporation Unknown device 3466
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr+ Stepping- SERR+ FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0, Cache Line Size: 64 bytes
-        Interrupt: pin A routed to IRQ 16
-        Region 0: Memory at dedfc000 (64-bit, non-prefetchable) [size=16K]
-        Region 2: I/O ports at cf00 [size=256]
-        Expansion ROM at dedc0000 [disabled] [size=128K]
-        Capabilities: [48] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
-        Capabilities: [50] Vital Product Data
-        Capabilities: [5c] Message Signalled Interrupts: 64bit+ 
-Queue=0/1 Enable-
-                Address: 0000000000000000  Data: 0000
-        Capabilities: [e0] Express Legacy Endpoint IRQ 0
-                Device: Supported: MaxPayload 128 bytes, PhantFunc 0, 
-ExtTag-
-                Device: Latency L0s unlimited, L1 unlimited
-                Device: AtnBtn- AtnInd- PwrInd-
-                Device: Errors: Correctable+ Non-Fatal+ Fatal+ Unsupported-
-                Device: RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
-                Device: MaxPayload 128 bytes, MaxReadReq 512 bytes
-                Link: Supported Speed 2.5Gb/s, Width x1, ASPM L0s, Port 3
-                Link: Latency L0s <256ns, L1 unlimited
-                Link: ASPM Disabled RCB 128 bytes CommClk- ExtSynch-
-                Link: Speed 2.5Gb/s, Width x1
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

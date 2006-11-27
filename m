@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758210AbWK0Nqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758211AbWK0Nrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758210AbWK0Nqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 08:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758211AbWK0Nqq
+	id S1758211AbWK0Nrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 08:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758213AbWK0Nrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 08:46:46 -0500
-Received: from il.qumranet.com ([62.219.232.206]:23002 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1758210AbWK0Nqq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 08:46:46 -0500
-Message-ID: <456AEC43.40307@qumranet.com>
-Date: Mon, 27 Nov 2006 15:46:43 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 27 Nov 2006 08:47:39 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:53911 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1758211AbWK0Nrj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 08:47:39 -0500
+Message-ID: <456AEC80.2030901@drzeus.cx>
+Date: Mon, 27 Nov 2006 14:47:44 +0100
+From: Pierre Ossman <drzeus-mmc@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Avi Kivity <avi@qumranet.com>,
-       kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 19/38] KVM: Make __set_efer() an arch operation
-References: <456AD5C6.1090406@qumranet.com> <20061127122938.0518325015E@cleopatra.q> <20061127133944.GA4155@infradead.org>
-In-Reply-To: <20061127133944.GA4155@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Vitaly Wool <vitalywool@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix "prev->state: 2 != TASK_RUNNING??" problem on SD/MMC
+ card removal
+References: <20061123184217.a971d267.vitalywool@gmail.com>	 <4569F82E.1040207@drzeus.cx> <acd2a5930611270113t266602dax49ef671aca99d4c8@mail.gmail.com>
+In-Reply-To: <acd2a5930611270113t266602dax49ef671aca99d4c8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Nov 27, 2006 at 12:29:38PM -0000, Avi Kivity wrote:
->   
->>  #ifdef __x86_64__
->> -	__set_efer(vcpu, sregs->efer);
->> +	kvm_arch_ops->set_efer(vcpu, sregs->efer);
->>  #endif
->>     
->
-> I think it would be much better to make ->set_efer a noop for 32bit,
-> and have different operation vectors for 32 vs 64 bit.
->
->   
+Vitaly Wool wrote:
+> On 11/26/06, Pierre Ossman <drzeus-mmc@drzeus.cx> wrote:
+>> Hmm... I can't find any such requirement in HEAD, or 2.6.18. What kernel
+>> are you running?
+> 
+> 2.6.18 + -rt patches by Ingo.
+> 
 
-Okay.  I'll submit an incremental patch as part of a larger cleanup I'm 
-planning.
+I guess the check is in the rt set somewhere then.
 
+Anyway, the mmc queue thread has undergone some changes so your patch
+needs a bit of a tweak. But I'll put it on my todo and make sure it gets
+in during the next merge window.
 
->>  #ifdef __x86_64__
->> -	__set_efer(vcpu, 0);
->> +	vmx_set_efer(vcpu, 0);
->>  #endif
->>     
->
-> Similarly vmx_set_efer should just become a noop on 32bit.
->   
-
-Ok.
-
+Rgds
 -- 
-error compiling committee.c: too many arguments to function
+     -- Pierre Ossman
 
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

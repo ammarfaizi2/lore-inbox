@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756677AbWK0Eha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756681AbWK0Els@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756677AbWK0Eha (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 23:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756681AbWK0Eha
+	id S1756681AbWK0Els (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 23:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756689AbWK0Els
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 23:37:30 -0500
-Received: from pool-71-111-72-250.ptldor.dsl-w.verizon.net ([71.111.72.250]:13655
-	"EHLO IBM-8EC8B5596CA.beaverton.ibm.com") by vger.kernel.org
-	with ESMTP id S1756677AbWK0Eh3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 23:37:29 -0500
-Date: Sun, 26 Nov 2006 20:33:23 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
-Message-ID: <20061127043323.GB5021@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061119190027.GA3676@oleg> <20061123145910.GA145@oleg> <20061123204054.GA4533@us.ibm.com> <20061123214908.GB106@oleg>
+	Sun, 26 Nov 2006 23:41:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:28094 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1756681AbWK0Elr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 23:41:47 -0500
+Date: Mon, 27 Nov 2006 04:41:39 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, tom@opengridcomputing.com,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
+Message-ID: <20061127044138.GA3078@ftp.linux.org.uk>
+References: <20061124.220746.57445336.davem@davemloft.net> <adaodqv5e5l.fsf@cisco.com> <20061125.150500.14841768.davem@davemloft.net> <adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org> <ada64d23ty8.fsf@cisco.com> <20061126111703.33247a84.akpm@osdl.org> <Pine.LNX.4.64.0611261208550.3483@woody.osdl.org> <adapsba2bvj.fsf@cisco.com> <Pine.LNX.4.64.0611261415530.3483@woody.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061123214908.GB106@oleg>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0611261415530.3483@woody.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2006 at 12:49:08AM +0300, Oleg Nesterov wrote:
-> On 11/23, Paul E. McKenney wrote:
-> >
-> >                            For general use, I believe that this has
-> > difficulties with the sequence of events I sent out on November 20th, see:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=116397154808901&w=2
-> >
-> > ...
-> >
-> > I don't understand why an unlucky sequence of events mightn't be able
-> > to hang this __wait_event().  Suppose we did the atomic_dec_and_test(),
-> > then some other CPU executed xxx_read_unlock(), finding no one to awaken,
-> > then we execute the __wait_event()?
+On Sun, Nov 26, 2006 at 02:20:10PM -0800, Linus Torvalds wrote:
+> So arguably, the result is _more_ like a normal C operation this way. 
+> Type-wise, the "ALIGN()" macro acts like any other C operation (ie if you 
+> feed it an "unsigned char", the end result is an "int" due to the normal C 
+> type widening that happens for all C operations).
 > 
-> Please note how ->ctr[] is initialized,
-> 
-> 	atomic_set(sp->ctr + 0, 1);	<---- 1, not 0
-> 	atomic_set(sp->ctr + 1, 0);
-> 
-> atomic_read(sp->ctr + idx) == 0 means that this counter is inactive,
-> nobody use it.
+> But I don't care horribly much. Al may have some other reasons to _not_ 
+> want the normal C type expansion to happen (ie maybe he does something 
+> unnatural with sparse ;)
 
-I definitely should have slept before commenting on the earlier version,
-it would appear.  ;-)  Please accept my apologies for my confusion!
+Type expansion will happen as soon as you do any arithmetics (or passing
+as argument) anyway.
 
-I will take a look at your later patch.
+It's actually more of "typeof() has interesting interactions with
+other gccisms" kind of thing and general dislike of using that beast
+more than absolutely necessary.
 
-							Thanx, Paul
+Not the #1 on my list of the worst gccisms we are using (that would be
+({...}) with its insane semantics and interesting ways to get gcc puke
+its guts out), but still pretty high there...
+
+ObFun: what's the type of ({struct {int x,y;} a = {1,2}; a;}) and
+how comes that we can say
+	({struct {int x,y;} a = {1,2}; a;}).y
+and get gcc eat it up and evaluate that to 2?  Note that we are doing
+a very obvious violation of scope rules - WTF _is_ .y in scope where
+we have no visible declaration of any structure with field that would
+have such name?
+
+IOW, gcc allows type to leak out of scope it's been defined in (and
+typeof adds even more fun to the picture).  It not only goes against
+a _lot_ in C, it's actually not thought through by gcc folks.  Just
+try to mix that with variable-length arrays and watch it blow up
+in interesting ways...

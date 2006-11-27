@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758593AbWK0XOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758595AbWK0XQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758593AbWK0XOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 18:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758594AbWK0XOI
+	id S1758595AbWK0XQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 18:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758598AbWK0XQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 18:14:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43525 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1758593AbWK0XOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 18:14:06 -0500
-Date: Tue, 28 Nov 2006 00:14:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] kconfig:  Remove obsolete CONFIG_DMA_IS_DMA32 entries from ia64 config files
-Message-ID: <20061127231409.GQ15364@stusta.de>
-References: <Pine.LNX.4.64.0611271631480.4759@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611271631480.4759@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 27 Nov 2006 18:16:44 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:40675 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1758594AbWK0XQn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 18:16:43 -0500
+Date: Mon, 27 Nov 2006 15:15:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Nicolas.Mailhot@LaPoste.net
+Subject: Re: [PATCH -mm] sata_nv: fix ATAPI in ADMA mode
+Message-Id: <20061127151541.16a93d49.akpm@osdl.org>
+In-Reply-To: <4569F703.8010209@shaw.ca>
+References: <4569F703.8010209@shaw.ca>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 04:37:35PM -0500, Robert P. J. Day wrote:
-> 
->   Remove the obsolete CONFIG_DMA_IS_DMA32 entries from the various
-> "defconfig" files under arch/ia64.
->...
+On Sun, 26 Nov 2006 14:20:19 -0600
+Robert Hancock <hancockr@shaw.ca> wrote:
 
-I do not like this manual editing of defconfigs:
-- obsolete options in defconfigs don't cause any harm
-- the next time someone refreshes the defconfigs they will 
-  automatically go away
-- if it became common to manually patch defconfigs, we'd soon get
-  many patch conflicts
+>  static irqreturn_t nv_adma_interrupt(int irq, void *dev_instance)
+>  {
+>  	struct ata_host *host = dev_instance;
+>  	int i, handled = 0;
+> +	u32 notifier_clears[2];
+>  
+>  	spin_lock(&host->lock);
+>  
+>  	for (i = 0; i < host->n_ports; i++) {
+>  		struct ata_port *ap = host->ports[i];
+> +		notifier_clears[i] = 0;
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Promise us that n_ports will never exceed 2?

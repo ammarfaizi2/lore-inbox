@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758531AbWK0SxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758534AbWK0SyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758531AbWK0SxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758534AbWK0SxV
+	id S1758534AbWK0SyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758535AbWK0SyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:53:21 -0500
-Received: from mga02.intel.com ([134.134.136.20]:2961 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1758531AbWK0SxU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:53:20 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,464,1157353200"; 
-   d="scan'208"; a="166979524:sNHT289888193"
-From: Jason Gaston <jason.d.gaston@intel.com>
-To: khali@linux-fr.org, linux-kernel@vger.kernel.org, gregkh@suse.de,
-       jason.d.gaston@intel.com, i2c@lm-sensors.org
-Subject: [PATCH 2.6.19-rc6] i2c-i801: Documentation patch for Intel ICH9/ICH8/ESB2
-Date: Mon, 27 Nov 2006 10:53:11 -0800
-User-Agent: KMail/1.9.1
+	Mon, 27 Nov 2006 13:54:25 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:63041 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1758534AbWK0SyY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:54:24 -0500
+Message-ID: <456B3483.4010704@cfl.rr.com>
+Date: Mon, 27 Nov 2006 13:54:59 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200611271053.11904.jason.d.gaston@intel.com>
+To: Chris Friesen <cfriesen@nortel.com>
+CC: G.Ohrner@post.rwth-aachen.de, linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+References: <ek2nva$vgk$1@sea.gmane.org> <Pine.LNX.4.61.0611230107240.26845@yvahk01.tjqt.qr> <ek54hf$icj$2@sea.gmane.org> <456B0F53.90209@cfl.rr.com> <456B101D.3040803@nortel.com>
+In-Reply-To: <456B101D.3040803@nortel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Nov 2006 18:54:36.0046 (UTC) FILETIME=[7BB702E0:01C71255]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14838.003
+X-TM-AS-Result: No--12.850900-5.000000-4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the Intel ICH9/ICH8/ESB2 SMBus Controller text to i2c-i801 documentation.
+Chris Friesen wrote:
+> I believe the idea was that you don't want random users being able to 
+> artificially inflate your entropy count.  So the kernel tries to make 
+> use of entropy entered by regular users (by stirring it into the pool) 
+> but it doesn't increase the entropy estimate unless root says its okay.
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+Why are non root users allowed write access in the first place?  Can't 
+the pollute the entropy pool and thus actually REDUCE the amount of good 
+entropy?  It seems to me that only root should have write access in the 
+first place because of this, and thus, anything root writes should 
+increase the entropy count since one can assume that root is supplying 
+good random data for the purpose of increasing the entropy count.
 
---- linux-2.6.19-rc6/Documentation/i2c/busses/i2c-i801.orig	2006-11-27 10:36:37.000000000 -0800
-+++ linux-2.6.19-rc6/Documentation/i2c/busses/i2c-i801	2006-11-27 10:43:02.000000000 -0800
-@@ -9,7 +9,10 @@
-   * Intel 82801EB/ER (ICH5) (HW PEC supported, 32 byte buffer not supported)
-   * Intel 6300ESB
-   * Intel 82801FB/FR/FW/FRW (ICH6)
--  * Intel ICH7
-+  * Intel 82801G (ICH7)
-+  * Intel 631xESB/632xESB (ESB2)
-+  * Intel 82801H (ICH8)
-+  * Intel ICH9
-     Datasheets: Publicly available at the Intel website
- 
- Authors: 
+I was planning on just setting up a little root cron script to pull some 
+random data from another machine on the network to add to the local 
+pool, then push some random data back to the other machine to increase 
+its pool, but found that this doesn't work due to this restriction.
+

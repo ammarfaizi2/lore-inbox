@@ -1,92 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757054AbWK0Kun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757802AbWK0LKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757054AbWK0Kun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 05:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757057AbWK0Kun
+	id S1757802AbWK0LKi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 06:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758039AbWK0LKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 05:50:43 -0500
-Received: from mail.gmx.de ([213.165.64.20]:12014 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1757041AbWK0Kum (ORCPT
+	Mon, 27 Nov 2006 06:10:38 -0500
+Received: from ns.suse.de ([195.135.220.2]:17332 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1757802AbWK0LKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 05:50:42 -0500
-X-Authenticated: #14349625
-Subject: [patch] Re: 2.6.19-rc6-mm1 --
-	sched-improve-migration-accuracy.patch slows boot
-From: Mike Galbraith <efault@gmx.de>
-To: Don Mullis <dwm@meer.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <1164591509.2894.76.camel@localhost.localdomain>
-References: <20061123021703.8550e37e.akpm@osdl.org>
-	 <1164484124.2894.50.camel@localhost.localdomain>
-	 <1164522263.5808.12.camel@Homer.simpson.net>
-	 <1164591509.2894.76.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 27 Nov 2006 11:50:11 +0100
-Message-Id: <1164624611.5892.27.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 27 Nov 2006 06:10:37 -0500
+To: "Cestonaro, Thilo (external)" 
+	<Thilo.Cestonaro.external@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weird wasting of time between ioctl() and ioctl dispatcher
+References: <F7F9B0BE3E9BD449B110D0B1CEF6CAEF03FA5863@ABGEX01E.abg.fsc.net>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Nov 2006 12:10:33 +0100
+In-Reply-To: <F7F9B0BE3E9BD449B110D0B1CEF6CAEF03FA5863@ABGEX01E.abg.fsc.net>
+Message-ID: <p73r6vpdu1i.fsf@bingen.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-11-26 at 17:38 -0800, Don Mullis wrote: 
-> > This must be a bisection false positive.  The patch in question is
-> > essentially a no-op for a UP kernel.
+"Cestonaro, Thilo \(external\)"    <Thilo.Cestonaro.external@fujitsu-siemens.com> writes:
 
-Duh!  Except for the bug, which doesn't care either way.
+> I'm a developer for Fujitsu Siemens Computers, working on a program which has it's own kernel modules and userland components.
+> Now cause the program should be released we have done some testing and during this testphase a wierd wasting of time occured
+> during the call of the ioctl() in the userland component and the actuall entering of the dispatcher function in the module.
+> It takes 3 min. until the call at last enters my dispatcher. 
 
-> Testing alternately with 
-> 	1) all -mm1 patches applied, and 
-> 	2) all except sched-improve-migration-accuracy*.path applied,
-> confirms the misbehavior.
+Something else is holding the big kernel lock for that long. Most likely
+it's your own code. Consider using a ->unlocked_ioctl
 
-While fixing a sched_time accounting buglet, I stupidly broke sleep_avg
-accounting, and quite thoroughly for cpu hogs.  Since I updated a task's
-timestamp at tick time, but sleep_avg adjustment only takes place at
-schedule time, every tick a task took without scheduling resulted in a
-tick of run time lost for sleep_avg accounting.  The below should fix
-it, can you confirm?
-
-Fix sleep_avg breakage induced by sched-improve-migration-accuracy.path
-Use p->last_ran to fix sched_time buglet instead of p->timestamp.
-
-Signed-off-by: Mike Galbraith <efault@gmx.de>
-
---- linux-2.6.19-rc6-mm1/kernel/sched.c.org	2006-11-27 10:24:07.000000000 +0100
-+++ linux-2.6.19-rc6-mm1/kernel/sched.c	2006-11-27 10:28:59.000000000 +0100
-@@ -3024,8 +3024,8 @@ EXPORT_PER_CPU_SYMBOL(kstat);
- static inline void
- update_cpu_clock(struct task_struct *p, struct rq *rq, unsigned long long now)
- {
--	p->sched_time += now - p->timestamp;
--	p->timestamp = rq->most_recent_timestamp = now;
-+	p->sched_time += now - p->last_ran;
-+	p->last_ran = rq->most_recent_timestamp = now;
- }
- 
- /*
-@@ -3038,7 +3038,7 @@ unsigned long long current_sched_time(co
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
--	ns = p->sched_time + sched_clock() - p->timestamp;
-+	ns = p->sched_time + sched_clock() - p->last_ran;
- 	local_irq_restore(flags);
- 
- 	return ns;
-@@ -3553,10 +3553,11 @@ switch_tasks:
- 	prev->sleep_avg -= run_time;
- 	if ((long)prev->sleep_avg <= 0)
- 		prev->sleep_avg = 0;
-+	prev->timestamp = prev->last_ran = now;
- 
- 	sched_info_switch(prev, next);
- 	if (likely(prev != next)) {
--		next->timestamp = prev->last_ran = now;
-+		next->timestamp = now;
- 		rq->nr_switches++;
- 		rq->curr = next;
- 		++*switch_count;
-
-
+-Andi

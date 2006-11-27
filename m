@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758209AbWK0Nul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758214AbWK0Nv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758209AbWK0Nul (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 08:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758214AbWK0Nul
+	id S1758214AbWK0Nv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 08:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758218AbWK0Nv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 08:50:41 -0500
-Received: from mgw-ext11.nokia.com ([131.228.20.170]:4787 "EHLO
-	mgw-ext11.nokia.com") by vger.kernel.org with ESMTP
-	id S1758209AbWK0Nuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 08:50:40 -0500
-Message-ID: <456AEC16.3010009@indt.org.br>
-Date: Mon, 27 Nov 2006 09:45:58 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Icedove 1.5.0.7 (X11/20061013)
-MIME-Version: 1.0
-To: ext Pierre Ossman <drzeus-list@drzeus.cx>
-CC: "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       ext David Brownell <david-b@pacbell.net>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_lock_unlock.diff
-References: <4564640B.1070004@indt.org.br> <45680308.4040809@drzeus.cx>
-In-Reply-To: <45680308.4040809@drzeus.cx>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Nov 2006 13:41:57.0510 (UTC) FILETIME=[CEC19260:01C71229]
-X-Nokia-AV: Clean
+	Mon, 27 Nov 2006 08:51:57 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:43919 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1758216AbWK0Nv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 08:51:57 -0500
+Date: Mon, 27 Nov 2006 13:51:37 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
+Message-ID: <20061127135136.GA13597@srcf.ucam.org>
+References: <fa.U3NcOE+DHLOUMSq6HkaGglGl7hQ@ifi.uio.no> <fa.bo0iOgKqELDD50VEZpxeUpzPsMg@ifi.uio.no> <45693E25.9010504@shaw.ca> <200611261113.12826.rjw@sisk.pl> <4569F957.4090100@shaw.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4569F957.4090100@shaw.ca>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext Pierre Ossman wrote:
-> Anderson Briglia wrote:
->> @@ -244,5 +244,13 @@ struct _mmc_csd {
->>  #define SD_BUS_WIDTH_1      0
->>  #define SD_BUS_WIDTH_4      2
->>
->> +/*
->> + * MMC_LOCK_UNLOCK modes
->> + */
->> +#define MMC_LOCK_MODE_ERASE    (1<<3)
->> +#define MMC_LOCK_MODE_UNLOCK    (0<<2)
->> +#define MMC_LOCK_MODE_CLR_PWD    (1<<1)
->> +#define MMC_LOCK_MODE_SET_PWD    (1<<0)
->> +
->>  #endif  /* MMC_MMC_PROTOCOL_H */
->>
-> 
-> This definition makes them look like bits, which is not how they are used.
+On Sun, Nov 26, 2006 at 02:30:15PM -0600, Robert Hancock wrote:
 
-How can I improve this? Defining using integers directly?
+> Yes, it's x86-64, with whatever version of vbetool comes with Fedora Core 5.
 
-> 
-> Rgds
-> 
+Ought to be fixed in the next release of vbetool. The x86emu code in the 
+current version is a touch broken, and nvidia bioses seem to trip it 
+quite well.
 

@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935711AbWK1InR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935708AbWK1Iof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935711AbWK1InR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 03:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935692AbWK1Imz
+	id S935708AbWK1Iof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 03:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935696AbWK1Ims
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 03:42:55 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47547 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S935704AbWK1Imm (ORCPT
+	Tue, 28 Nov 2006 03:42:48 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38331 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S935698AbWK1ImW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 03:42:42 -0500
-Date: Mon, 27 Nov 2006 10:49:27 +0100
+	Tue, 28 Nov 2006 03:42:22 -0500
+Date: Mon, 27 Nov 2006 13:36:06 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Karsten Wiese <fzu@wemgehoertderstaat.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: 2.6.19-rc6-rt8
-Message-ID: <20061127094927.GA7339@elte.hu>
+To: Avi Kivity <avi@qumranet.com>
+Cc: kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/38] KVM: Create kvm-intel.ko module
+Message-ID: <20061127123606.GA11825@elte.hu>
+References: <456AD5C6.1090406@qumranet.com> <20061127121136.DC69A25015E@cleopatra.q>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061127121136.DC69A25015E@cleopatra.q>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-SpamScore: -4.1
 X-ELTE-SpamLevel: 
@@ -34,39 +36,17 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.19-rc6-rt8 tree, which can be downloaded from 
-the usual place:
 
-    http://redhat.com/~mingo/realtime-preempt/
+* Avi Kivity <avi@qumranet.com> wrote:
 
-lots of fixes are included in -rt8. In particular the inode/dentry leak 
-found and fixed by Karsten Wiese (and the related OOMs reported by 
-others) should be fixed.
+> --- linux-2.6.orig/drivers/kvm/kvm.h
+> +++ linux-2.6/drivers/kvm/kvm.h
 
-I also started tracking Linus' latest -git tree, so all upstream 
-stabilization fixes since -rc6 are included in -rt8 as well.
+please move this from drivers/kvm/ to kernel/kvm/ [or even into a 
+toplevel kvm/ directory] - KVM is not a "driver", KVM enhances the core 
+Linux kernel with hypervisor functionality.
 
-[ the latest KVM patchqueue is now included in -rt too. KVM should not
-  impact anyone unless enabled. The YUM rpms have KVM enabled on both
-  i686 and x86_64. ]
-
-to build a 2.6.19-rc6-rt8 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.18.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.19-rc6.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rc6-rt8
-
-the -rt YUM repository for Fedora Core 6 and 5, for architectures x86_64 
-and i686 can be activated via:
-
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
-
-   yum install kernel-rt.x86_64   # on x86_64
-   yum install kernel-rt          # on i686
-
-   yum update kernel-rt           # refresh - or enable yum-updatesd
-
-as usual, bugreports, fixes and suggestions are welcome,
+Guest paravirtualization drivers (once KVM implements them) can go into 
+drivers/kvm/.
 
 	Ingo

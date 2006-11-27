@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757017AbWK0FRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757046AbWK0FfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757017AbWK0FRf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 00:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757019AbWK0FRf
+	id S1757046AbWK0FfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 00:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757050AbWK0FfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 00:17:35 -0500
-Received: from nz-out-0102.google.com ([64.233.162.195]:4223 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1757005AbWK0FRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 00:17:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=JD5TX5NubZe9XmAMehp8O4Ujy4T7Z/ybDIr6K52/QqRtYYwshCWIAsBTNPBzUix4N2Woca85iRgoXL5P0ozOXMgahEJi9Ge/etPQmyqVz6oF1imoNeAjan0qOstfoxDrPCev3ijuawvznaLpjDOgbVdwmp49GqWJ/KK5nJTsQ+E=
-Date: Mon, 27 Nov 2006 14:10:26 +0900
-From: Akinobu Mita <akinobu.mita@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] synclink_gt: fix init error handling
-Message-ID: <20061127051026.GI1231@APFDCB5C>
-Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Nov 2006 00:35:11 -0500
+Received: from hera.kernel.org ([140.211.167.34]:27311 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1757046AbWK0FfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 00:35:09 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: "Yinghai Lu" <yinghai.lu@amd.com>
+Subject: Re: [PATCH 3/3] x86: when acpi_noirq is set, use mptable instead of MADT
+Date: Mon, 27 Nov 2006 00:37:53 -0500
+User-Agent: KMail/1.8.2
+Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+References: <86802c440611261524p6b170f50rf7db3eafd4f7602e@mail.gmail.com>
+In-Reply-To: <86802c440611261524p6b170f50rf7db3eafd4f7602e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200611270037.53964.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Initialization synclink_gt forgot to unregister pci driver on error path.
+"acpi=noirq" and "pci=noacpi" are not reliable in IOAPIC mode --
+as, by definition, they skip the processing of the ACPI interrupt itself.
+On some systems this happens to work, and on some systems it doesn't --
+depends on if there was an override for the SCI or if it appears as
+a standard PCI interrupt.
 
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+So the bigger question is why you need these workarounds in the first place.
 
----
- drivers/char/synclink_gt.c |    1 +
- 1 file changed, 1 insertion(+)
+-Len
 
-Index: work-fault-inject/drivers/char/synclink_gt.c
-===================================================================
---- work-fault-inject.orig/drivers/char/synclink_gt.c
-+++ work-fault-inject/drivers/char/synclink_gt.c
-@@ -3522,6 +3522,7 @@ static int __init slgt_init(void)
- 
- 	if (!slgt_device_list) {
- 		printk("%s no devices found\n",driver_name);
-+		pci_unregister_driver(&pci_driver);
- 		return -ENODEV;
- 	}
- 
+
+

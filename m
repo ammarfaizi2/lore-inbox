@@ -1,59 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758265AbWK0O46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757854AbWK0PCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758265AbWK0O46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 09:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758266AbWK0O45
+	id S1757854AbWK0PCE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 10:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758268AbWK0PCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 09:56:57 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:54508 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1758265AbWK0O45
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 09:56:57 -0500
-Date: Mon, 27 Nov 2006 14:56:55 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add debugging aid for memory initialisation problems
-In-Reply-To: <200611271514.03612.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0611271437560.15577@skynet.skynet.ie>
-References: <20061127140804.GA15405@skynet.ie> <200611271514.03612.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 27 Nov 2006 10:02:04 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43200 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1757648AbWK0PCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 10:02:01 -0500
+Date: Mon, 27 Nov 2006 15:08:37 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Elias Oltmanns <eo@nebensachen.de>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       stable@vger.kernel.org
+Subject: Re: [PATCH] IDE: typo in ide-io.c leads to faulty assignment
+Message-ID: <20061127150837.336f5541@localhost.localdomain>
+In-Reply-To: <87k61h3pu2.fsf@denkblock.local>
+References: <87k61h3pu2.fsf@denkblock.local>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006, Andi Kleen wrote:
+On Mon, 27 Nov 2006 15:51:33 +0100
+Elias Oltmanns <eo@nebensachen.de> wrote:
 
-> On Monday 27 November 2006 15:08, Mel Gorman wrote:
->> A number of bug reports have been submitted related to memory initialisation
->> that would have been easier to debug if the PFN of page addresses were
->> available. The dmesg output is often insufficient to find that information
->> so debugging patches need to be sent to the reporting user.
->
-> So how many new lines does that add overall?
+> Due to a typo in ide_start_power_step, the result of a function rather
+> than its pointer is assigned to args->handler.
 
-I don't know for sure, but it's probably around the 150 LOC mark from 
-about 12 patches, mainly in page_alloc.c. A significant portion of the 
-patches were documentation, comments and providing debugging information. 
-As it is, any bug fix or improvement in that code will now apply to all 
-architectures using the API, not just one.
+NAK
 
-I expect the net code difference to drop as some of the mem= parsing 
-(which currently does not always work AFAIK) gets handled in generic 
-rather than arch-specific code. These type of cleanups will take a while. 
-I would also expect the net difference to drop if more architectures used 
-the API instead of arch-specific code but I couldn't test on all arches.
+If it was the result of the function it would end with (arguments);
 
-> Your memmap patches overall
-> were already one of the most noisy additions we had for a very long time.
->
-
-The worst of the noise should be over now. The last patch I sent isn't 
-necessary. I only sent it on because it would have cut down on the time 
-needed to fix Andre's issue.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Alan

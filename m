@@ -1,111 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758189AbWK0NSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758190AbWK0NUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758189AbWK0NSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 08:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758190AbWK0NSk
+	id S1758190AbWK0NUc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 08:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758191AbWK0NUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 08:18:40 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:55778 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1758189AbWK0NSk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 08:18:40 -0500
-Date: Mon, 27 Nov 2006 13:18:37 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Rohit Seth <rohitseth@google.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       David Rientjes <rientjes@cs.washington.edu>,
-       Paul Menage <menage@google.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Patch1/4]: fake numa for x86_64 patch
-In-Reply-To: <1164245649.29844.148.camel@galaxy.corp.google.com>
-Message-ID: <Pine.LNX.4.64.0611271310200.11949@skynet.skynet.ie>
-References: <1164245649.29844.148.camel@galaxy.corp.google.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 27 Nov 2006 08:20:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52617 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758190AbWK0NUb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 08:20:31 -0500
+Subject: Re: [GFS2] Fix Kconfig wrt CRC32 [8/9]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com,
+       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
+In-Reply-To: <20061124214338.0e4d0510.randy.dunlap@oracle.com>
+References: <1164360889.3392.146.camel@quoit.chygwyn.com>
+	 <20061124214338.0e4d0510.randy.dunlap@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: Red Hat (UK) Ltd
+Date: Mon, 27 Nov 2006 13:24:14 +0000
+Message-Id: <1164633855.3392.167.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2006, Rohit Seth wrote:
-
-> This patch provides a IO hole size in a given address range.
->
-
 Hi,
 
-This patch reintroduces a function that doubles up what 
-absent_pages_in_range(start_pfn, end_pfn). I recognise you do this because 
-you are interested in hole sizes before add_active_range() is called. 
-However, what is not clear is why these patches are so specific to x86_64.
+On Fri, 2006-11-24 at 21:43 -0800, Randy Dunlap wrote:
+> On Fri, 24 Nov 2006 09:34:49 +0000 Steven Whitehouse wrote:
+> 
+> > >From 6f788fd00c82533d4cd5587a9706f8468658a24d Mon Sep 17 00:00:00 2001
+> > From: Steven Whitehouse <swhiteho@redhat.com>
+> > Date: Mon, 20 Nov 2006 10:04:49 -0500
+> > Subject: [PATCH] [GFS2] Fix Kconfig wrt CRC32
+> > Content-Type: text/plain; charset=UTF-8
+> > Content-Transfer-Encoding: 8bit
+> > 
+> > GFS2 requires the CRC32 library function. This was reported by
+> > Toralf Förster.
+> > 
+> > Cc: Toralf Förster <toralf.foerster@gmx.de>
+> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+> > ---
+> >  fs/gfs2/Kconfig |    1 +
+> >  1 files changed, 1 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
+> > index 8c27de8..c0791cb 100644
+> > --- a/fs/gfs2/Kconfig
+> > +++ b/fs/gfs2/Kconfig
+> > @@ -2,6 +2,7 @@ config GFS2_FS
+> >  	tristate "GFS2 file system support"
+> >  	depends on EXPERIMENTAL
+> >  	select FS_POSIX_ACL
+> > +	select CRC32
+> >  	help
+> >  	A cluster filesystem.
+> 
+> Hi,
+> 
+> Do you also have Kconfig patches for DLM needing SYSFS
+> and DLM needing CONFIG_NET ?
+> 
+> ---
+> ~Randy
 
-It looks possible to do the work of functions like split_nodes_equal() in 
-an architecture-independent manner using early_node_map rather than 
-dealing with the arch-specific nodes array. That would open the 
-possibility of providing fake nodes on more than one architecture in the 
-future.
+My original reply to this seemed to disappear into my email system
+somewhere, so apologies if this is the second copy you get.
 
-What I think can be done is that you register memory as normal and then 
-split up the nodes into fake nodes. This would remove the need for having 
-e820_hole_size() reintroduced.
+The DLM shouldn't depend upon SYSFS at all. I believe that its perfectly
+ok whether or not thats compiled in. There is a patch relating to the
+Kconfig for DLM which is in my -nmw tree:
 
-> Signed-off-by: David Rientjes <reintjes@google.com>
-> Signed-off-by: Paul Menage <menage@google.com>
-> Signed-off-by: Rohit Seth <rohitseth@google.com>
->
-> --- linux-2.6.19-rc5-mm2.org/include/asm-x86_64/e820.h	2006-11-22 12:20:39.000000000 -0800
-> +++ linux-2.6.19-rc5-mm2/include/asm-x86_64/e820.h	2006-11-22 12:17:25.000000000 -0800
-> @@ -46,6 +46,7 @@ extern void e820_mark_nosave_regions(voi
-> extern void e820_print_map(char *who);
-> extern int e820_any_mapped(unsigned long start, unsigned long end, unsigned type);
-> extern int e820_all_mapped(unsigned long start, unsigned long end, unsigned type);
-> +extern unsigned long e820_hole_size(unsigned long start, unsigned long end);
->
-> extern void e820_setup_gap(void);
-> extern void e820_register_active_regions(int nid,
-> --- linux-2.6.19-rc5-mm2.org/arch/x86_64/kernel/e820.c	2006-11-22 12:20:55.000000000 -0800
-> +++ linux-2.6.19-rc5-mm2/arch/x86_64/kernel/e820.c	2006-11-21 18:48:15.000000000 -0800
-> @@ -184,6 +184,38 @@ unsigned long __init e820_end_of_ram(voi
-> }
->
-> /*
-> + * Find the hole size in the range.
-> + */
-> +unsigned long __init e820_hole_size(unsigned long start, unsigned long end)
-> +{
-> +	unsigned long ram = 0;
-> +	int i;
-> +
-> +	for (i = 0; i < e820.nr_map; i++) {
-> +		struct e820entry *ei = &e820.map[i];
-> +		unsigned long last, addr;
-> +
-> +		if (ei->type != E820_RAM ||
-> +		    ei->addr+ei->size <= start ||
-> +		    ei->addr >= end)
-> +			continue;
-> +
-> +		addr = round_up(ei->addr, PAGE_SIZE);
-> +		if (addr < start)
-> +			addr = start;
-> +
-> +		last = round_down(ei->addr + ei->size, PAGE_SIZE);
-> +		if (last >= end)
-> +			last = end;
-> +
-> +		if (last > addr)
-> +			ram += last - addr;
-> +	}
-> +	return ((end - start) - ram);
-> +}
-> +
-> +
-> +/*
->  * Mark e820 reserved areas as busy for the resource manager.
->  */
-> void __init e820_reserve_resources(void)
->
->
+http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=8758fbc8724c2da8a6a062f2b61d79c8f2a55c5f
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+This applies after the patch adding the TCP communications layer to DLM
+which is also in -nmw. The patches in -nmw (next merge window) are a
+superset of the ones I just requested that Linus pull since it contains
+the newer features and more involved bug fixes and clean ups.
+
+I believe that the Kconfig in -nmw is correct for DLM, though I'm
+willing to be proved wrong. I'm also copying in Patrick in case he wants
+to comment further as its more his area than mine,
+
+Steve.
+
+

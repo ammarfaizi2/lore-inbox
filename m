@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756681AbWK0Els@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756807AbWK0FBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756681AbWK0Els (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 23:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756689AbWK0Els
+	id S1756807AbWK0FBU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 00:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756821AbWK0FBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 23:41:48 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:28094 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1756681AbWK0Elr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 23:41:47 -0500
-Date: Mon, 27 Nov 2006 04:41:39 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, tom@opengridcomputing.com,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH] Avoid truncating to 'long' in ALIGN() macro
-Message-ID: <20061127044138.GA3078@ftp.linux.org.uk>
-References: <20061124.220746.57445336.davem@davemloft.net> <adaodqv5e5l.fsf@cisco.com> <20061125.150500.14841768.davem@davemloft.net> <adak61j5djh.fsf@cisco.com> <20061125164118.de53d1cf.akpm@osdl.org> <ada64d23ty8.fsf@cisco.com> <20061126111703.33247a84.akpm@osdl.org> <Pine.LNX.4.64.0611261208550.3483@woody.osdl.org> <adapsba2bvj.fsf@cisco.com> <Pine.LNX.4.64.0611261415530.3483@woody.osdl.org>
+	Mon, 27 Nov 2006 00:01:20 -0500
+Received: from ug-out-1314.google.com ([66.249.92.174]:57363 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1756807AbWK0FBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 00:01:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=OU65xoOEnWmONMdS+m3jDt+8VfMp+cZXgJdA1bQDPpNxKuoQAxVu+KtbQToU9tUtkOxKSkH3Tu+/DzUCaU6FeYSrN/AknfKjGN34LB3NmUIJknXGbD/e5ia/NmKYN8/Zq7YcpGI4COppyeC2gtulfWEjk88wdWALkIBKKIwUeoE=
+Date: Mon, 27 Nov 2006 13:54:07 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>
+Subject: [PATCH] audit: fix kstrdup() error check
+Message-ID: <20061127045407.GA1231@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611261415530.3483@woody.osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2006 at 02:20:10PM -0800, Linus Torvalds wrote:
-> So arguably, the result is _more_ like a normal C operation this way. 
-> Type-wise, the "ALIGN()" macro acts like any other C operation (ie if you 
-> feed it an "unsigned char", the end result is an "int" due to the normal C 
-> type widening that happens for all C operations).
-> 
-> But I don't care horribly much. Al may have some other reasons to _not_ 
-> want the normal C type expansion to happen (ie maybe he does something 
-> unnatural with sparse ;)
+kstrdup() returns NULL on error.
 
-Type expansion will happen as soon as you do any arithmetics (or passing
-as argument) anyway.
+Cc: David Woodhouse <dwmw2@infradead.org>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-It's actually more of "typeof() has interesting interactions with
-other gccisms" kind of thing and general dislike of using that beast
-more than absolutely necessary.
+---
+ kernel/auditfilter.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Not the #1 on my list of the worst gccisms we are using (that would be
-({...}) with its insane semantics and interesting ways to get gcc puke
-its guts out), but still pretty high there...
-
-ObFun: what's the type of ({struct {int x,y;} a = {1,2}; a;}) and
-how comes that we can say
-	({struct {int x,y;} a = {1,2}; a;}).y
-and get gcc eat it up and evaluate that to 2?  Note that we are doing
-a very obvious violation of scope rules - WTF _is_ .y in scope where
-we have no visible declaration of any structure with field that would
-have such name?
-
-IOW, gcc allows type to leak out of scope it's been defined in (and
-typeof adds even more fun to the picture).  It not only goes against
-a _lot_ in C, it's actually not thought through by gcc folks.  Just
-try to mix that with variable-length arrays and watch it blow up
-in interesting ways...
+Index: work-fault-inject/kernel/auditfilter.c
+===================================================================
+--- work-fault-inject.orig/kernel/auditfilter.c
++++ work-fault-inject/kernel/auditfilter.c
+@@ -800,8 +800,8 @@ static inline int audit_dupe_selinux_fie
+ 
+ 	/* our own copy of se_str */
+ 	se_str = kstrdup(sf->se_str, GFP_KERNEL);
+-	if (unlikely(IS_ERR(se_str)))
+-	    return -ENOMEM;
++	if (unlikely(!se_str))
++		return -ENOMEM;
+ 	df->se_str = se_str;
+ 
+ 	/* our own (refreshed) copy of se_rule */

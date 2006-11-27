@@ -1,137 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758053AbWK0L2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758062AbWK0LfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758053AbWK0L2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 06:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758056AbWK0L2m
+	id S1758062AbWK0LfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 06:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758063AbWK0LfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 06:28:42 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:12989 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1758053AbWK0L2l (ORCPT
+	Mon, 27 Nov 2006 06:35:20 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47583 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1758062AbWK0LfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 06:28:41 -0500
-Date: Mon, 27 Nov 2006 12:28:51 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove the broken HISAX_AMD7930 option
-Message-ID: <20061127112851.GA23577@pingi.kke.suse.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, kai.germaschewski@gmx.de,
-	isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org,
-	sparclinux@vger.kernel.org
-References: <20061125191504.GA3702@stusta.de>
-Mime-Version: 1.0
+	Mon, 27 Nov 2006 06:35:19 -0500
+Date: Mon, 27 Nov 2006 12:35:01 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Eric Sandall <eric@sandall.us>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: suspend broken in 2.6.18.1
+Message-ID: <20061127113501.GC14416@elf.ucw.cz>
+References: <45144C61.5020104@sandall.us> <20060923110954.GD20778@elf.ucw.cz> <453406F0.5020803@sandall.us>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061125191504.GA3702@stusta.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <453406F0.5020803@sandall.us>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2006 at 08:15:04PM +0100, Adrian Bunk wrote:
-> HISAX_AMD7930 was never anywhere near to being working, and this doesn't 
-> seem to change in the forseeable future.
+On Mon 2006-10-16 15:25:52, Eric Sandall wrote:
+> Pavel Machek wrote:
+> > Hi!
+> > 
+> >> After updating from 2.6.17.13 to 2.6.18 (using `make oldconfig`),
+> >> suspend no longer suspends my laptop (Dell Inspiron 5100).
+> >>
+> >> # s2ram -f
+> >> Switching from vt7 to vt1
+> >> s2ram_do: Invalid argument
+> >> switching back to vt7
+> >>
+> >> The screen blanks, but then comes back up after a few seconds. This
+> >> happens both with and without X running.
+> >>
+> >> I've attached the output of `lspci -vvv` and my
+> >> /usr/src/linux-2.6.18/.config for more information. Please let me know
+> >> if there are any patches to try or if more information is required.
+> > 
+> > Relevant part of dmesg after failed attempt is neccessary... and you
+> > can probably read it yourself and figure what is wrong. I'd guess some
+> > device just failed to suspend... rmmod it.
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> (This is now with 2.6.18.1)
 > 
+> Stopping tasks: =====================================================|
+> ACPI: PCI interrupt for device 0000:02:04.0 disabled
+> ACPI: PCI interrupt for device 0000:00:1f.5 disabled
+> ACPI: PCI interrupt for device 0000:00:1d.7 disabled
+> ACPI: PCI interrupt for device 0000:00:1d.2 disabled
+> ACPI: PCI interrupt for device 0000:00:1d.1 disabled
+> ACPI: PCI interrupt for device 0000:00:1d.0 disabled
+> Class driver suspend failed for cpu0
+> Could not power down device firmware: error -22
+> Some devices failed to power down
+> 
+> I've attached my entire dmesg as well.
+Try with 2.6.19-rcX.
+								Pavel
 
-Acked-by: Karsten Keil <kkeil@suse.de>
-
-> ---
-> 
-> Thgis patch was already sent on:
-> - 18 Nov 2006
-> 
->  drivers/isdn/hisax/Kconfig  |    7 -------
->  drivers/isdn/hisax/config.c |   18 ------------------
->  drivers/isdn/hisax/hisax.h  |    6 ------
->  3 files changed, 31 deletions(-)
-> 
-> --- linux-2.6.19-rc5-mm2/drivers/isdn/hisax/Kconfig.old	2006-11-17 19:41:07.000000000 +0100
-> +++ linux-2.6.19-rc5-mm2/drivers/isdn/hisax/Kconfig	2006-11-17 19:41:15.000000000 +0100
-> @@ -349,13 +349,6 @@ config HISAX_ENTERNOW_PCI
->  	  This enables HiSax support for the Formula-n enter:now PCI
->  	  ISDN card.
->  
-> -config HISAX_AMD7930
-> -	bool "Am7930 (EXPERIMENTAL)"
-> -	depends on EXPERIMENTAL && SPARC && BROKEN
-> -	help
-> -	  This enables HiSax support for the AMD7930 chips on some SPARCs.
-> -	  This code is not finished yet.
-> -
->  endif
->  
->  if ISDN_DRV_HISAX
-> --- linux-2.6.19-rc5-mm2/drivers/isdn/hisax/hisax.h.old	2006-11-17 19:41:33.000000000 +0100
-> +++ linux-2.6.19-rc5-mm2/drivers/isdn/hisax/hisax.h	2006-11-17 19:41:44.000000000 +0100
-> @@ -1139,12 +1139,6 @@ struct IsdnCardState {
->  #define  CARD_HFC_SX 0
->  #endif
->  
-> -#ifdef  CONFIG_HISAX_AMD7930
-> -#define CARD_AMD7930 1
-> -#else
-> -#define CARD_AMD7930 0
-> -#endif
-> -
->  #ifdef	CONFIG_HISAX_NICCY
->  #define	CARD_NICCY 1
->  #ifndef ISDN_CHIP_ISAC
-> --- linux-2.6.19-rc5-mm2/drivers/isdn/hisax/config.c.old	2006-11-17 19:41:57.000000000 +0100
-> +++ linux-2.6.19-rc5-mm2/drivers/isdn/hisax/config.c	2006-11-17 19:43:03.000000000 +0100
-> @@ -227,14 +227,6 @@ const char *CardType[] = {
->  #define DEFAULT_CFG {5,0x2E0,0,0}
->  #endif
->  
-> -
-> -#ifdef CONFIG_HISAX_AMD7930
-> -#undef DEFAULT_CARD
-> -#undef DEFAULT_CFG
-> -#define DEFAULT_CARD ISDN_CTYPE_AMD7930
-> -#define DEFAULT_CFG {12,0x3e0,0,0}
-> -#endif
-> -
->  #ifdef CONFIG_HISAX_NICCY
->  #undef DEFAULT_CARD
->  #undef DEFAULT_CFG
-> @@ -545,10 +537,6 @@ extern int setup_hfcpci(struct IsdnCard 
->  extern int setup_hfcsx(struct IsdnCard *card);
->  #endif
->  
-> -#if CARD_AMD7930
-> -extern int setup_amd7930(struct IsdnCard *card);
-> -#endif
-> -
->  #if CARD_NICCY
->  extern int setup_niccy(struct IsdnCard *card);
->  #endif
-> @@ -1064,11 +1052,6 @@ static int checkcard(int cardnr, char *i
->  		ret = setup_niccy(card);
->  		break;
->  #endif
-> -#if CARD_AMD7930
-> -	case ISDN_CTYPE_AMD7930:
-> -		ret = setup_amd7930(card);
-> -		break;
-> -#endif
->  #if CARD_ISURF
->  	case ISDN_CTYPE_ISURF:
->  		ret = setup_isurf(card);
-> @@ -1438,7 +1421,6 @@ static int __init HiSax_init(void)
->  			break;
->  		case ISDN_CTYPE_ELSA_PCI:
->  		case ISDN_CTYPE_NETJET_S:
-> -		case ISDN_CTYPE_AMD7930:
->  		case ISDN_CTYPE_TELESPCI:
->  		case ISDN_CTYPE_W6692:
->  		case ISDN_CTYPE_NETJET_U:
 
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

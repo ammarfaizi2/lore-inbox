@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933356AbWK0Ujv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933575AbWK0Uq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933356AbWK0Ujv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 15:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933390AbWK0Ujv
+	id S933575AbWK0Uq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 15:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933627AbWK0Uq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 15:39:51 -0500
-Received: from mga09.intel.com ([134.134.136.24]:32588 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S933356AbWK0Uju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 15:39:50 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,464,1157353200"; 
-   d="scan'208"; a="20268599:sNHT19494432"
-Date: Mon, 27 Nov 2006 12:34:52 -0800
-From: Mark Gross <mgross@linux.intel.com>
-To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org,
-       Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>, akpm@osdl.org
-Subject: Re: [PATCH] tlclk: fix platform_device_register_simple() error check
-Message-ID: <20061127203452.GA12279@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <20061122184111.GC2985@APFDCB5C>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061122184111.GC2985@APFDCB5C>
-User-Agent: Mutt/1.5.11
+	Mon, 27 Nov 2006 15:46:58 -0500
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:31179 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S933575AbWK0Uq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 15:46:57 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: Entropy Pool Contents
+Date: Mon, 27 Nov 2006 20:40:16 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ekfifg$n41$1@taverner.cs.berkeley.edu>
+References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1164660016 23681 128.32.168.222 (27 Nov 2006 20:40:16 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Mon, 27 Nov 2006 20:40:16 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2006 at 03:41:11AM +0900, Akinobu Mita wrote:
-> The return value of platform_device_register_simple() should be
-> checked by IS_ERR().
-> 
-> This patch also fix misc_register() error case. Because misc_register()
-> returns error code.
-> 
-> Cc: Sebastien Bouchard <sebastien.bouchard@ca.kontron.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> 
-> ---
->  drivers/char/tlclk.c |    5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> Index: work-fault-inject/drivers/char/tlclk.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/char/tlclk.c
-> +++ work-fault-inject/drivers/char/tlclk.c
-> @@ -792,15 +792,14 @@ static int __init tlclk_init(void)
->  	ret = misc_register(&tlclk_miscdev);
->  	if (ret < 0) {
->  		printk(KERN_ERR "tlclk: misc_register returns %d.\n", ret);
-> -		ret = -EBUSY;
+Phillip Susi  wrote:
+>David Wagner wrote:
+>> Nope, I don't think so.  If they could, that would be a security hole,
+>> but /dev/{,u}random was designed to try to make this impossible, assuming
+>> the cryptographic algorithms are secure.
+>> 
+>> After all, some of the entropy sources come from untrusted sources and
+>> could be manipulated by an external adversary who doesn't have any
+>> account on your machine (root or non-root), so the scheme has to be
+>> secure against introduction of maliciously chosen samples in any event.
+>
+>Assuming it works because it would be a bug if it didn't is a logical 
+>fallacy.  Either the new entropy pool is guaranteed to be improved by 
+>injecting data or it isn't.  If it is, then only root should be allowed 
+>to inject data.  If it isn't, then the entropy estimate should increase 
+>when the pool is stirred.
 
-results in an non-error return when there this device isn't on the
-system.
+Sorry, but I disagree with just about everything you wrote in this
+message.  I'm not committing any logical fallacies.  I'm not assuming
+it works because it would be a bug if it didn't; I'm just trying to
+help you understand the intuition.  I have looked at the algorithm
+used by /dev/{,u}random, and I am satisfied that it is safe to feed in
+entropy samples from malicious sources, as long as you don't bump up the
+entropy counter when you do so.  Doing so can't do any harm, and cannot
+reduce the entropy in the pool.  However, there is no guarantee that
+it will increase the entropy.  If the adversary knows what bytes you
+are feeding into the pool, then it doesn't increase the entropy count,
+and the entropy estimate should not be increased.
 
-* NAK *
->  		goto out3;
->  	}
->  
->  	tlclk_device = platform_device_register_simple("telco_clock",
->  				-1, NULL, 0);
-> -	if (!tlclk_device) {
-> +	if (IS_ERR(tlclk_device)) {
-ok
+Therefore:
+  - It is safe to allow non-root users to inject data into the pool
+    by writing to /dev/random, as long as you don't bump up the entropy
+    estimate.  Doing so cannot decrease the amount of entropy in the
+    pool.
+  - It is not a good idea to bump up the entropy estimate when non-root
+    users write to /dev/random.  If a malicious non-root user writes
+    the first one million digits of pi to /dev/random, then this hasn't
+    increased the uncertainty that this attacker has in the pool, so
+    you shouldn't increase the entropy estimate.
+  - Whether you automatically bump up the entropy estimate when
+    root users write to /dev/random is a design choice where you could
+    reasonably go either way.  On the one hand, you might want to ensure
+    that root has to take some explicit action to allege that it is
+    providing a certain degree of entropy, and you might want to insist
+    that root tell /dev/random how much entropy it added (since root
+    knows best where the data came from and how much entropy it is likely
+    to contain).  On the other hand, you might want to make it easier
+    for shell scripts to add entropy that will count towards the overall
+    entropy estimate, without requiring them to go through weird
+    contortions to call various ioctl()s.  I can see arguments both
+    ways, but the current behavior seems reasonable and defensible.
 
->  		printk(KERN_ERR "tlclk: platform_device_register failed.\n");
-> -		ret = -EBUSY;
-> +		ret = PTR_ERR(tlclk_device);
-
-I don't know about this but I could be wrong.  Please convince me.
-
->  		goto out4;
->  	}
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Note that, in any event, the vast majority of applications should be
+using /dev/urandom (not /dev/random!), so in an ideal world, most of
+these issues should be pretty much irrelevant to the vast majority of
+applications.  Sadly, in practice many applications wrongly use
+/dev/random when they really should be using /dev/urandom, either out
+of ignorance, or because of serious flaws in the /dev/random man page.

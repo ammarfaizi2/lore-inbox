@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758397AbWK0QyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758400AbWK0QzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758397AbWK0QyD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758399AbWK0QyD
+	id S1758400AbWK0QzR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758404AbWK0QzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:54:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61924 "EHLO
+	Mon, 27 Nov 2006 11:55:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1765 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1758398AbWK0QyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:54:01 -0500
-Date: Mon, 27 Nov 2006 16:53:48 +0000
+	id S1758400AbWK0QzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 11:55:15 -0500
+Date: Mon, 27 Nov 2006 16:55:13 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
@@ -22,8 +22,8 @@ Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
        Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
        systemtap@sources.redhat.com
-Subject: Re: [PATCH] LTTng 0.6.36 for 2.6.18 (now with markers)
-Message-ID: <20061127165348.GA5348@infradead.org>
+Subject: Re: [PATCH 2/16] LTTng 0.6.36 for 2.6.18 : relay hotplug support
+Message-ID: <20061127165513.GC5348@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
 	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
@@ -37,20 +37,19 @@ Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Michel Dagenais <michel.dagenais@polymtl.ca>,
 	Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
 	systemtap@sources.redhat.com
-References: <20061124214831.GA25048@Krystal>
+References: <20061124215239.GC25048@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061124214831.GA25048@Krystal>
+In-Reply-To: <20061124215239.GC25048@Krystal>
 User-Agent: Mutt/1.4.2.2i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're mail suject lines are really bad, they make it totally impossible
-to figure out what each patch is about on the mail view folder.
+On Fri, Nov 24, 2006 at 04:52:39PM -0500, Mathieu Desnoyers wrote:
+> Patch submitted to Tom Zanussi to add hotplug support to relay.
 
-IT should be simply:
+I think Tom handed over relay channels maintainership to someone else.
 
-Subject: [PATCH n/m] lttng: description

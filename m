@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756797AbWK0FBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756821AbWK0FDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756797AbWK0FBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 00:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756807AbWK0FBI
+	id S1756821AbWK0FDe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 00:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756834AbWK0FDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 00:01:08 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1449 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1756797AbWK0FBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 00:01:07 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Containers <containers@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/4] Fix the binary ipc and uts namespace sysctls.
-Date: Sun, 26 Nov 2006 21:59:26 -0700
-Message-ID: <m1hcwlmqmp.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 27 Nov 2006 00:03:34 -0500
+Received: from nz-out-0102.google.com ([64.233.162.199]:46228 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1756821AbWK0FDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 00:03:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=QJQ+8SzS/y862qbXIkc3uz+kvkj75Rpv+/CLsftuRstgXoPrG1B79H43IuRbYtVTjrHgUp0abhvPvfyLzMziA10l52Z5YUAzv3Xl1vD9Xg6YKoB3Tzx2Ui75hDuRUsn47SdAgNZlEUHEfd8fm/oSOJ7FCpszmbzS/iceHfhxTAw=
+Date: Mon, 27 Nov 2006 13:56:24 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Subject: [PATCH] futex: init error ckeck
+Message-ID: <20061127045624.GB1231@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch checks register_filesystem() and kern_mount() return
+values.
 
-The binary interface to the namespace sysctls was never implemented
-resulting in some really weird things if you attempted to use
-sys_sysctl to read your hostname for example.
+Cc: Ingo Molnar <mingo@redhat.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-This patch series simples the code a little and implements the binary
-sysctl interface.
+---
+ kernel/futex.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-In testing this patch series I discovered that our 32bit compatibility
-for the binary  sysctl interface is imperfect.  In particular
-KERN_SHMMAX and KERN_SMMALL are size_t sized quantities and are
-returned as 8 bytes on to 32bit binaries using a x86_64 kernel.  
-However this has existing for a long time so it is not a new
-regression with the namespace work.
-
-Gads the whole sysctl thing needs work before it stops being easy
-to shoot yourself in the foot.
-
-Looking forward a little bit we need a better way to handle sysctls
-and namespaces as our current technique will not work for the network
-namespace.  I think something based on the current overlapping sysctl
-trees will work but the proc side needs to be redone before we can
-use it.
-
-Eric
-
-
-
+Index: work-fault-inject/kernel/futex.c
+===================================================================
+--- work-fault-inject.orig/kernel/futex.c
++++ work-fault-inject/kernel/futex.c
+@@ -1857,10 +1857,16 @@ static struct file_system_type futex_fs_
+ 
+ static int __init init(void)
+ {
+-	unsigned int i;
++	int i = register_filesystem(&futex_fs_type);
++
++	if (i)
++		return i;
+ 
+-	register_filesystem(&futex_fs_type);
+ 	futex_mnt = kern_mount(&futex_fs_type);
++	if (IS_ERR(futex_mnt)) {
++		unregister_filesystem(&futex_fs_type);
++		return PTR_ERR(futex_mnt);
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(futex_queues); i++) {
+ 		INIT_LIST_HEAD(&futex_queues[i].chain);

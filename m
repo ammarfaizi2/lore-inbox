@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757471AbWK0Ith@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757453AbWK0It1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757471AbWK0Ith (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 03:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757465AbWK0Itg
+	id S1757453AbWK0It1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 03:49:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757457AbWK0It0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 03:49:36 -0500
-Received: from lemon.ertos.nicta.com.au ([203.143.174.143]:46297 "EHLO
-	lemon.gelato.unsw.edu.au") by vger.kernel.org with ESMTP
-	id S1757457AbWK0Itf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 03:49:35 -0500
-Date: Mon, 27 Nov 2006 19:48:45 +1100
-Message-ID: <87ejrpjmvm.wl%peterc@chubb.wattle.id.au>
-From: Peter Chubb <peter@chubb.wattle.id.au>
-To: "sudhnesh adapawar" <sudhnesh@gmail.com>
-Cc: lia64-sim@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-In-Reply-To: <9b33a9230611252149m4da2634akbd355f026759ac70@mail.gmail.com>
-References: <9b33a9230611252149m4da2634akbd355f026759ac70@mail.gmail.com>
-User-Agent: Wanderlust/2.14.0 (Africa) SEMI/1.14.6 (Maruoka) FLIM/1.14.8 (Shij~) APEL/10.6 MULE XEmacs/21.4 (patch 19) (Constant Variable) (x86_64-linux-gnu)
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
-X-SA-Exim-Connect-IP: 220.237.8.57
-X-SA-Exim-Mail-From: peterc@gelato.unsw.edu.au
-Subject: Re: How to boot 2.6 kernel using hp ski simulator ???
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:39:27 +0000)
-X-SA-Exim-Scanned: Yes (on lemon.gelato.unsw.edu.au)
+	Mon, 27 Nov 2006 03:49:26 -0500
+Received: from il.qumranet.com ([62.219.232.206]:58061 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1757453AbWK0It0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 03:49:26 -0500
+Subject: [PATCH 2/2] KVM: Make enum values in userspace interface explicit
+From: Avi Kivity <avi@qumranet.com>
+Date: Mon, 27 Nov 2006 08:49:24 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <456AA620.4000201@qumranet.com>
+In-Reply-To: <456AA620.4000201@qumranet.com>
+Message-Id: <20061127084924.D0A7125015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Please check out http://www.gelato.unsw.edu.au/IA64wiki/SkiSimulator
-for lots of info on Ski.
-
-It works fine with Linux 2.6; and hugepage work too.
-
-> 1) I used 'make ARCH=ia64 menuconfig' to configure and followed the
-> steps to get kernel image of version 2.6 ! I also selected the generic
-> type as Ski-simulator and also selected the HP-ski drivers something
-> simscsi,etc.etc.
-
-I suggest you start with
-	make sim_defconfig
-
-Your symptoms look like a misconigured or misbuilt vmlinux.  The sim_defconfig
-
-If you're running on IA32, then you need something like:
-	make CROSS_COMPILE=ia64-linux-gnu ARCH=ia64 boot 
-to build kernel and bootloader.
-
-You need to get or build yourself a disk image.  Instructions for
-building at http://www.gelato.unsw.edu.au/IA64wiki/skidiskimage 
-
-
-
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia
+--- linux-2.6/include/linux/kvm.h	2006-11-27 10:31:40.000000000 +0200
++++ linux-2.6/include/linux/kvm.h	2006-11-19 12:25:35.000000000 +0200
+@@ -36,13 +36,13 @@
+ #define KVM_EXIT_TYPE_VM_EXIT    2
+ 
+ enum kvm_exit_reason {
+-	KVM_EXIT_UNKNOWN,
+-	KVM_EXIT_EXCEPTION,
+-	KVM_EXIT_IO,
+-	KVM_EXIT_CPUID,
+-	KVM_EXIT_DEBUG,
+-	KVM_EXIT_HLT,
+-	KVM_EXIT_MMIO,
++	KVM_EXIT_UNKNOWN          = 0,
++	KVM_EXIT_EXCEPTION        = 1,
++	KVM_EXIT_IO               = 2,
++	KVM_EXIT_CPUID            = 3,
++	KVM_EXIT_DEBUG            = 4,
++	KVM_EXIT_HLT              = 5,
++	KVM_EXIT_MMIO             = 6,
+ };
+ 
+ /* for KVM_RUN */

@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755620AbWK0AlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755714AbWK0A7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755620AbWK0AlY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 19:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755622AbWK0AlY
+	id S1755714AbWK0A7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 19:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755724AbWK0A7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 19:41:24 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:19986 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1755604AbWK0AlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 19:41:23 -0500
-Date: Mon, 27 Nov 2006 00:41:13 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kyle McMartin <kyle@parisc-linux.org>, Ralf Baechle <ralf@linux-mips.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: Build breakage ...
-Message-ID: <20061127004112.GD30767@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kyle McMartin <kyle@parisc-linux.org>,
-	Ralf Baechle <ralf@linux-mips.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alexey Dobriyan <adobriyan@gmail.com>
-References: <20061126224928.GA22285@linux-mips.org> <Pine.LNX.4.64.0611261459010.3483@woody.osdl.org> <Pine.LNX.4.64.0611261509330.3483@woody.osdl.org> <20061126232128.GC30767@flint.arm.linux.org.uk> <Pine.LNX.4.64.0611261627260.30076@woody.osdl.org>
-Mime-Version: 1.0
+	Sun, 26 Nov 2006 19:59:31 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59657 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1755706AbWK0A7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 19:59:30 -0500
+Date: Mon, 27 Nov 2006 01:59:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: chas@cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [2.6 patch] NET_SCH_ATM doesn't need ipcommon.o
+Message-ID: <20061127005934.GN15364@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611261627260.30076@woody.osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2006 at 04:29:00PM -0800, Linus Torvalds wrote:
-> On Sun, 26 Nov 2006, Russell King wrote:
-> > > 
-> > > Ralf, Russell, does this work for you guys?
-> > 
-> > Not at all.  It creates even more problems for me, with this circular
-> > dependency:
-> 
-> Ok. I just reverted it then. 
-> 
-> Pls verify that this is all good, and I didn't mess anything up due to the 
-> manual conflict resolution.
+NET_SCH_ATM doesn't need ipcommon.o
 
-That fixes the ARM assabet build, which should mean the other ARM builds
-are also fixed.  Thanks.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+--- linux-2.6.19-rc6-mm1/net/atm/Makefile.old	2006-11-26 08:50:05.000000000 +0100
++++ linux-2.6.19-rc6-mm1/net/atm/Makefile	2006-11-26 08:56:29.000000000 +0100
+@@ -10,7 +10,6 @@
+ atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
+ obj-$(CONFIG_ATM_BR2684) += br2684.o
+ atm-$(subst m,y,$(CONFIG_ATM_BR2684)) += ipcommon.o
+-atm-$(subst m,y,$(CONFIG_NET_SCH_ATM)) += ipcommon.o
+ atm-$(CONFIG_PROC_FS) += proc.o
+ 
+ obj-$(CONFIG_ATM_LANE) += lec.o

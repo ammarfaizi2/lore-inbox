@@ -1,112 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756360AbWK0Dea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756367AbWK0Df7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756360AbWK0Dea (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Nov 2006 22:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756367AbWK0Dea
+	id S1756367AbWK0Df7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Nov 2006 22:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756411AbWK0Df7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Nov 2006 22:34:30 -0500
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:16362
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1756358AbWK0Dea
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Nov 2006 22:34:30 -0500
-Message-ID: <00f501c711d4$f04c7530$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "Maurice Volaski" <mvolaski@aecom.yu.edu>
-Cc: =?UTF-8?B?KOW7o+WuieenkeaKgCnomIfojonltZA=?= <lusa@areca.com.tw>,
-       =?UTF-8?B?KOW7o+WuieenkeaKgCnnvoXku7vlgYk=?= 
-	<robert.lo@areca.com.tw>,
-       =?UTF-8?B?KOW7o+WuieenkeaKgCnnjovlrrbku7I=?= <kevin34@areca.com.tw>,
-       <support@areca.com.tw>, <linux-kernel@vger.kernel.org>
-References: <a06240400c18e4b03eadf@[129.98.90.227]>
-Subject: Re: Pathetic write performance from Areca PCIe cards
-Date: Mon, 27 Nov 2006 11:34:23 +0800
+	Sun, 26 Nov 2006 22:35:59 -0500
+Received: from nz-out-0102.google.com ([64.233.162.197]:25318 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1756378AbWK0Df6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Nov 2006 22:35:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=E0zwxmZSIiPBhXUfuY4rW6uJBvZI/rNef00mI2lX1F0Tt7MWcJ3CZQ9Qy+KyemWxo4pDWGCDtON3PqZlml4jjAP788z8E7E25prY2t8vLrtGAmWMQbZH0NheuqwogpdwZ6o5NDG1vVJsZVKqnKIHlB2o8NPVc3tv4Ug1lRcbzKk=
+Date: Mon, 27 Nov 2006 12:35:50 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: "Berck E. Nash" <flyboy@gmail.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18 - AHCI detection pauses excessively
+Message-ID: <20061127033550.GB11250@htj.dyndns.org>
+References: <4557B7D2.2050004@gmail.com> <455B0BD7.20108@gmail.com> <455B5ADF.2040503@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="UTF-8";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.2663
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2757
-X-OriginalArrivalTime: 27 Nov 2006 03:24:47.0875 (UTC) FILETIME=[975FAD30:01C711D3]
+Content-Type: multipart/mixed; boundary="5vNYLRcllDrimb99"
+Content-Disposition: inline
+In-Reply-To: <455B5ADF.2040503@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Maurice Volaski,
 
-Please update Areca Firmware version into 1.42.
-Areca's firmware team found some problems on high capacity transfer.
-Hope the weird  phenomenon should disappear.
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Areca had some experiences from its subsystem producers about vibration.
-The vibration issue can lower your transfer rate.
-The vibration factor always comes from system's power supply and cooling 
-fans.
+On Wed, Nov 15, 2006 at 11:22:23AM -0700, Berck E. Nash wrote:
+> Tejun Heo wrote:
+> >Hmmm.. Can you try with the attached patch applied?  Also, please turn 
+> >on kernel config 'Kernel Hacking -> Show timing info on printks' and 
+> >report boot dmesg.
+> 
+> Looks like you forgot to attach the patch, so I couldn't test it:) 
+> Here's the section with the annoying hang with timing info.  I noticed 
+> that there are similar messages repeated later, but without as much 
+> hang, so I've attached the entire dmesg as well, in case it's of any help.
 
-In Areca Lab. will research if there were any compatibility issue with these 
-type disks of you used.
+Yeah, I did and forgot about this thread too.  Sorry.  This is on the
+top of my to-do list now.  I'm attaching the patch.  TIA.
 
-Best Regards
-Erich Chen
+-- 
+tejun
 
+--5vNYLRcllDrimb99
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch
 
------ Original Message ----- 
-From: "Maurice Volaski" <mvolaski@aecom.yu.edu>
-To: <support@areca.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <erich@areca.com.tw>
-Sent: Sunday, November 26, 2006 4:35 AM
-Subject: Pathetic write performance from Areca PCIe cards
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 3fd7c79..89aa449 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2669,20 +2669,26 @@ int sata_phy_debounce(struct ata_port *a
+ 
+ 		/* DET stable? */
+ 		if (cur == last) {
++			printk("SATA PHY: stable DET=%x\n", cur);
+ 			if (cur == 1 && time_before(jiffies, timeout))
+ 				continue;
+-			if (time_after(jiffies, last_jiffies + duration))
++			if (time_after(jiffies, last_jiffies + duration)) {
++				printk("SATA PHY: debounced\n");
+ 				return 0;
++			}
+ 			continue;
+ 		}
+ 
++		printk("SATA PHY: unstable DET=%x->%x\n", last, cur);
+ 		/* unstable, start over */
+ 		last = cur;
+ 		last_jiffies = jiffies;
+ 
+ 		/* check timeout */
+-		if (time_after(jiffies, timeout))
++		if (time_after(jiffies, timeout)) {
++			printk("SATA PHY: failed to debounce\n");
+ 			return -EBUSY;
++		}
+ 	}
+ }
+ 
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 9080789..8220ca3 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -689,10 +689,11 @@ extern const struct ata_port_operations
+ static inline const unsigned long *
+ sata_ehc_deb_timing(struct ata_eh_context *ehc)
+ {
+-	if (ehc->i.flags & ATA_EHI_HOTPLUGGED)
++/*	if (ehc->i.flags & ATA_EHI_HOTPLUGGED)
+ 		return sata_deb_timing_hotplug;
+ 	else
+-		return sata_deb_timing_normal;
++		return sata_deb_timing_normal;*/
++	return sata_deb_timing_long;
+ }
+ 
+ static inline int ata_port_is_dummy(struct ata_port *ap)
 
-
->I have two systems with a serious I/O subsystem based on Areca PCIe cards, 
->but the results I am getting from simple write benchmarks are extremely 
->slow.
->
-> The details are two 64-bit Opteron systems, one with an Areca PCIe 1210 
-> and the other a PCIe 1220 and both with Seagate SATA II 750 GB drives. The 
-> motherboard is a Tyan S2891 (Thunder K8SRE). The 120 system has 1 GB of 
-> PC2700 RAM and the 1220 system has 2GB of PC3200 RAM. The Areca BIOS on 
-> both cards is version 1.17a and the firmware is 1.41.
-> I have tried two different kernels, 2.6.17 from Ubuntu, which had the 
-> Areca driver added by Ubuntu and 2.6.18 from Gentoo with the Areca driver 
-> added manually from 2.6.19-rc3.
->
-> In the initial tests, both computers had a RAID 5/6 configuration, but to 
-> confirm the result, I setup a single Seagate as a pass-through drive and 
-> had the same results. The drive was set to SATA II with NCQ and the cache 
-> was enabled to write-back.
->
-> dd if=/dev/zero of=output oflag=sync bs=100M count=1 gives an excellent 
-> result, around 188 MB/sec.
-> dd if=/dev/zero of=output oflag=sync bs=200M count=1 gives an excellent 
-> result, around 167 MB/sec.
-> dd if=/dev/zero of=output oflag=sync bs=300M count=1 gives an OK result, 
-> around 117 MB/sec.
-> dd if=/dev/zero of=output oflag=sync bs=400M count=1 gives a very poor 
-> result, around 35 MB/sec.
-> These very low numbers around 30 MB/sec persist as I increase the bs 
-> number.
->
-> As I continue to run the tests, the bs that gives a poor results goes down 
-> to about 200 MB. The results are from the system with the 1220 card. The 
-> system with 1210 gives slightly lower numbers overall.
->
-> I have also confirmed these low numbers using a benchmark called dm from 
-> the network RAID package, drbd.
->
-> Reading from the drives (based on hdparm -tT testing) gives excellent 
-> results.
->
-> When I use the drive directly connected to the SATA on the motherboard, 
-> all the write tests hover around 56 MB/second regardless of bs value.
->
-> Since both systems are affected, my guess is there is bug in the Areca 
-> driver or with the cards themselves.
-> -- 
->
-> Maurice Volaski, mvolaski@aecom.yu.edu
-> Computing Support, Rose F. Kennedy Center
-> Albert Einstein College of Medicine of Yeshiva University 
-
+--5vNYLRcllDrimb99--

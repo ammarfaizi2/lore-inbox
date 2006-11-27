@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758609AbWK0Xbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758612AbWK0XcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758609AbWK0Xbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 18:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758608AbWK0Xbz
+	id S1758612AbWK0XcH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 18:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758607AbWK0XcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 18:31:55 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:54441 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1758606AbWK0Xbz (ORCPT
+	Mon, 27 Nov 2006 18:32:07 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:57001 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1758608AbWK0XcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 18:31:55 -0500
-Message-ID: <456B7560.2020301@garzik.org>
-Date: Mon, 27 Nov 2006 18:31:44 -0500
+	Mon, 27 Nov 2006 18:32:05 -0500
+Message-ID: <456B7573.1050200@garzik.org>
+Date: Mon, 27 Nov 2006 18:32:03 -0500
 From: Jeff Garzik <jeff@garzik.org>
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0

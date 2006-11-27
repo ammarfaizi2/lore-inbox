@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933043AbWK0S3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWK0S33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933043AbWK0S3r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933026AbWK0S3r
+	id S932164AbWK0S33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbWK0S33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:29:47 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:21467 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S932875AbWK0S3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:29:45 -0500
-Date: Mon, 27 Nov 2006 19:29:43 +0100
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: avl@logic.at, linux-kernel@vger.kernel.org
-Subject: Re: Allow turning off hpa-checking.
-Message-ID: <20061127182943.GE2352@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain> <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at> <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain> <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain> <20061127175647.GD2352@gamma.logic.tuwien.ac.at> <20061127181033.58e72d9a@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061127181033.58e72d9a@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+	Mon, 27 Nov 2006 13:29:29 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:32920 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932164AbWK0S32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:29:28 -0500
+Message-ID: <456B2E87.5000800@s5r6.in-berlin.de>
+Date: Mon, 27 Nov 2006 19:29:27 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Robert Crocombe <rcrocomb@gmail.com>,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>
+Subject: MMIO write ordering (was Re: ieee1394: host adapter disappears on
+ 1394 bus reset)
+References: <e6babb600611220731p67b15e51q95f524683070ae80@mail.gmail.com>	 <4564C4C7.5060403@s5r6.in-berlin.de>	 <e6babb600611221628nd9430c6pe3ab36e9862b3b6d@mail.gmail.com> <e6babb600611270739k27e1ed51va3cd82ccfa0b77ff@mail.gmail.com> <456B1C52.4040305@s5r6.in-berlin.de>
+In-Reply-To: <456B1C52.4040305@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 06:10:33PM +0000, Alan wrote:
-> > What else (if not sector remapping) could make the "current"
-> > size gradually smaller between reboots. And why is "native"
-> > size still constant?  And why does now even access to the but-last
-> > native sector fail? The explanation with block-reads no longer
-> > works.
-> The presented size of an ATA disk is constant. It keeps additional space
-> for error blocks. The HPA merely tells the disk to lie about its size.
+I wrote:
+> Question to others:
+> 
+> ohci1394.c::ohci_irq_handler() is taking a per-host spinlock around some
+> register reads and writes, particularly:
+> ...
+> 	spin_lock_irqsave(&ohci->event_lock, flags);
+> 	event = reg_read(ohci, OHCI1394_IntEventClear);
+> 	reg_write(ohci, OHCI1394_IntEventClear, event &
+> 						~OHCI1394_busReset);
+> 	spin_unlock_irqrestore(&ohci->event_lock, flags);
+> ...
+> 	spin_lock_irqsave(&ohci->event_lock, flags);
+> 	reg_write(ohci, OHCI1394_IntMaskClear, OHCI1394_busReset);
+> 	run_an_insane_loop_as_an_alleged_fix_for_dorky_hardware;
+> 	spin_unlock_irqrestore(&ohci->event_lock, flags);
+> ...
+> 	spin_lock_irqsave(&ohci->event_lock, flags);
+> 	reg_write(ohci, OHCI1394_IntEventClear, OHCI1394_busReset);
+> 	reg_write(ohci, OHCI1394_IntMaskSet, OHCI1394_busReset);
+> 	spin_unlock_irqrestore(&ohci->event_lock, flags);
+> 
+> I think these spinlocks are totally useless 1. because
+> ohci_irq_handler() is only called as the hardware interrupt servicing
+> routine and 2. because they don't flush the register write operations.
+> Right? Wrong? [Ohci1394's reg_write() is a writel().]
 
-I was speaking about a disk, whose "additional space" appeared to 
-be already exhausted.  After that, it appears as if the native
-size remains still constant, and the exceeding damaged sectors are 
-auto-"hidden" by the drive by means of HPA.
-
-Still incorrect?
-
-Then I'm also speaking about not-broken disks, where I just want
-to be able to tell the driver to believe the drive's "HPA-lie"
-for whatever reason :-)
-
-> > How should the partitioning tool know, if I want to ignore the
-> > HPA, or respect it (knowing it contains stuff that I might need in
-> > future).  Does there exist any that asks me?
-> I have no idea. If not perhaps one should be written.
-Till that happens ... ;-)
-
+Also, what is the status of ordering guarantees --- or lack thereof ---
+for writel() under Linux 2.6.16 and 2.6.18? Especially in presence of a
+PCI-X to PCI bridge...
+-- 
+Stefan Richter
+-=====-=-==- =-== ==-==
+http://arcgraph.de/sr/

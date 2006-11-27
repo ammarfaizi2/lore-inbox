@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758062AbWK0LfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758067AbWK0Lna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758062AbWK0LfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 06:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758063AbWK0LfU
+	id S1758067AbWK0Lna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 06:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758068AbWK0Lna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 06:35:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47583 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1758062AbWK0LfT (ORCPT
+	Mon, 27 Nov 2006 06:43:30 -0500
+Received: from schokokeks.org ([87.106.4.7]:10669 "EHLO schokokeks.org")
+	by vger.kernel.org with ESMTP id S1758067AbWK0Ln3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 06:35:19 -0500
-Date: Mon, 27 Nov 2006 12:35:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Eric Sandall <eric@sandall.us>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: suspend broken in 2.6.18.1
-Message-ID: <20061127113501.GC14416@elf.ucw.cz>
-References: <45144C61.5020104@sandall.us> <20060923110954.GD20778@elf.ucw.cz> <453406F0.5020803@sandall.us>
+	Mon, 27 Nov 2006 06:43:29 -0500
+From: "Hanno =?utf-8?q?B=C3=B6ck?=" <mail@hboeck.de>
+To: linux-kernel@vger.kernel.org
+Subject: kernel: Please report the result to linux-kernel to fix this permanently
+Date: Mon, 27 Nov 2006 12:42:56 +0100
+User-Agent: KMail/1.9.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <453406F0.5020803@sandall.us>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart7022373.o3rhWu2sfv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611271242.59642.mail@hboeck.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-10-16 15:25:52, Eric Sandall wrote:
-> Pavel Machek wrote:
-> > Hi!
-> > 
-> >> After updating from 2.6.17.13 to 2.6.18 (using `make oldconfig`),
-> >> suspend no longer suspends my laptop (Dell Inspiron 5100).
-> >>
-> >> # s2ram -f
-> >> Switching from vt7 to vt1
-> >> s2ram_do: Invalid argument
-> >> switching back to vt7
-> >>
-> >> The screen blanks, but then comes back up after a few seconds. This
-> >> happens both with and without X running.
-> >>
-> >> I've attached the output of `lspci -vvv` and my
-> >> /usr/src/linux-2.6.18/.config for more information. Please let me know
-> >> if there are any patches to try or if more information is required.
-> > 
-> > Relevant part of dmesg after failed attempt is neccessary... and you
-> > can probably read it yourself and figure what is wrong. I'd guess some
-> > device just failed to suspend... rmmod it.
-> 
-> (This is now with 2.6.18.1)
-> 
-> Stopping tasks: =====================================================|
-> ACPI: PCI interrupt for device 0000:02:04.0 disabled
-> ACPI: PCI interrupt for device 0000:00:1f.5 disabled
-> ACPI: PCI interrupt for device 0000:00:1d.7 disabled
-> ACPI: PCI interrupt for device 0000:00:1d.2 disabled
-> ACPI: PCI interrupt for device 0000:00:1d.1 disabled
-> ACPI: PCI interrupt for device 0000:00:1d.0 disabled
-> Class driver suspend failed for cpu0
-> Could not power down device firmware: error -22
-> Some devices failed to power down
-> 
-> I've attached my entire dmesg as well.
-Try with 2.6.19-rcX.
-								Pavel
+--nextPart7022373.o3rhWu2sfv
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+My kernel says
+Oct  7 18:25:00 laverne kernel: Please report the result to linux-kernel to=
+=20
+fix this permanently
+
+so I do this. Replys CC to me, cause I'm not on this list.
+
+It's a Samsung P35 notebook.
 
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Oct  7 18:25:00 laverne kernel: CPU: Intel(R) Pentium(R) M processor 1500MH=
+z=20
+stepping 05
+Oct  7 18:25:00 laverne kernel: Checking 'hlt' instruction... OK.
+Oct  7 18:25:00 laverne kernel: ACPI: Core revision 20060707
+Oct  7 18:25:00 laverne kernel: ACPI: setting ELCR to 0200 (from 0820)
+Oct  7 18:25:00 laverne kernel: NET: Registered protocol family 16
+Oct  7 18:25:00 laverne kernel: ACPI: bus type pci registered
+Oct  7 18:25:00 laverne kernel: PCI: PCI BIOS revision 2.10 entry at 0xfd9d=
+3,=20
+last bus=3D4
+Oct  7 18:25:00 laverne kernel: PCI: Using configuration type 1
+Oct  7 18:25:00 laverne kernel: Setting up standard PCI resources
+Oct  7 18:25:00 laverne kernel: ACPI: Interpreter enabled
+Oct  7 18:25:00 laverne kernel: ACPI: Using PIC for interrupt routing
+Oct  7 18:25:00 laverne kernel: ACPI: PCI Root Bridge [PCI0] (0000:00)
+Oct  7 18:25:00 laverne kernel: PCI quirk: region 1000-107f claimed by ICH4=
+=20
+ACPI/GPIO/TCO
+Oct  7 18:25:00 laverne kernel: PCI quirk: region 1180-11bf claimed by ICH4=
+=20
+GPIO
+Oct  7 18:25:00 laverne kernel: PCI: Ignoring BAR0-3 of IDE controller=20
+0000:00:1f.1
+Oct  7 18:25:00 laverne kernel: PCI: Transparent bridge - 0000:00:1e.0
+Oct  7 18:25:00 laverne kernel: PCI: Bus #04 (-#07) is hidden behind=20
+transparent bridge #02 (-#04) (try 'pci=3Dassign-busses')
+Oct  7 18:25:00 laverne kernel: Please report the result to linux-kernel to=
+=20
+fix this permanently
+
+=2D-=20
+Hanno B=C3=B6ck		Blog:   http://www.hboeck.de/
+GPG: 3DBD3B20		Jabber: jabber@hboeck.de
+
+--nextPart7022373.o3rhWu2sfv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFas9Dr2QksT29OyARAlo9AKCM4Bcjtruimukoup0uEPWeeB2DgQCfcny+
+8je31TqlUCmxD1c+M8sLEdM=
+=8Oqs
+-----END PGP SIGNATURE-----
+
+--nextPart7022373.o3rhWu2sfv--

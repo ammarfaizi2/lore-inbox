@@ -1,67 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757125AbWK0QCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755713AbWK0QL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757125AbWK0QCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 11:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758341AbWK0QCI
+	id S1755713AbWK0QL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 11:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756644AbWK0QL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 11:02:08 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:1731 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1757125AbWK0QCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 11:02:07 -0500
-Date: Mon, 27 Nov 2006 17:01:44 +0100
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: avl@logic.at, linux-kernel@vger.kernel.org
-Subject: Allow turning off hpa-checking.
-Message-ID: <20061127160144.GB2352@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061120145148.GQ6851@gamma.logic.tuwien.ac.at> <20061120152505.5d0ba6c5@localhost.localdomain> <20061120165601.GS6851@gamma.logic.tuwien.ac.at> <20061120172812.64837a0a@localhost.localdomain> <20061121115117.GU6851@gamma.logic.tuwien.ac.at> <20061121120614.06073ce8@localhost.localdomain> <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at> <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain>
+	Mon, 27 Nov 2006 11:11:27 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:39851 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1755713AbWK0QL0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 11:11:26 -0500
+Date: Mon, 27 Nov 2006 19:11:06 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jens Axboe <jens.axboe@oracle.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] cpufreq: mark cpufreq_tsc() as core_initcall_sync
+Message-ID: <20061127161106.GA279@oleg>
+References: <Pine.LNX.4.64.0611161414580.3349@woody.osdl.org> <Pine.LNX.4.44L0.0611162148360.24994-100000@netrider.rowland.org> <20061117065128.GA5452@us.ibm.com> <20061117092925.GT7164@kernel.dk> <20061119190027.GA3676@oleg> <20061123145910.GA145@oleg> <20061124182153.GA9868@oleg> <20061127050247.GC5021@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061127133044.28b8b4ed@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+In-Reply-To: <20061127050247.GC5021@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 01:30:44PM +0000, Alan wrote:
-> HPA has nothign to do with sector remapping.
+On 11/26, Paul E. McKenney wrote:
+>
+> Looks pretty good, actually.  A few quibbles below.  I need to review
+> again after sleeping on it.
 
-What the drive reports as "native" capacity indeed does
-*not* take into (negative-)account those sectors, that have
-been remapped.   So after real remaining capacity has dropped
-below original capacity,  querying the "native" size still
-returns the original size, which is no longer physically
-backed.
+Thanks! Please also look at spinlock-based implementation,
 
-This is, I admit, practically irrelevant, because such 
-drives should really be dumped before doing any harm 
-to one's precious data, but please read further...
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=116457701231964
 
-> HPA simply allows the BIOS (or disk by jumper option)
-> to hide part of the drive early in boot so that it doesn't
-> confuse/break old OS/BIOS code,
+I must admit, Alan was right: it really looks simpler and the perfomance
+penalty should be very low. I personally hate this additional spinlock
+per se as a "unneeded complication", but probably you will like it more.
 
-This pattern is probably of vanishing importance with modern
-BIOS's (caring less and less about too large disks) and old
-old OS's (being less and less runnable on modern hardware despite
-these kinds of hacks).
+> > +int xxx_read_lock(struct xxx_struct *sp)
+> > +{
+> > +	for (;;) {
+> > +		int idx = sp->completed & 0x1;
+> 
+> Might need a comment saying why no rcu_dereference() needed on the
+> preceding line.  The reason (as I understand it) is that we are
+> only doing atomic operations on the element being indexed.
 
+My understanding is the same. Actually, smp_read_barrier_depends() can't
+help because 'atomic_inc' and '->completed++' in synchronize_xxx() could
+be re-ordered anyway, so we should rely on correctness of atomic_t.
 
-> or to use it to hide things like windows reinstall images.
+> 
+> > +		if (likely(atomic_inc_not_zero(sp->ctr + idx)))
+> > +			return idx;
+> > +	}
+> > +}
+> 
+> The loop seems absolutely necessary if one wishes to avoid a
+> synchronize_sched() in synchronize_xxx() below (and was one of the things
+> I was missing earlier).  However, isn't there a possibility that a pile
+> of synchronize_xxx() calls might indefinitely delay an unlucky reader?
 
-I see it as a rational wish to not interfere with *these*
-reserved sectors (e.g. when installing linux parallel to
-windows), even for correctly working drives.
+Note that synchronize_xxx() does nothing when there are no readers under
+xxx_read_lock(), so
 
-I ask for a module/boot-option to allow to skip hpa-checks
-generally, or even for specific drives - to be used, if one
-needs to be sure that these reserved sectors of a connected
-drive are not going to be touched, even when re-partitioning
-the disk.   Afterall that's why they are reserved in the
-first place.
+	for (;;)
+		synchronize_xxx();
 
-That said, it's surely good to be able to access them, if one
-desires so.
+can't suspend xxx_read_lock(). atomic_inc_not_zero() fails when something like
+the events below happen between 'idx = sp->completed' and 'atomic_inc_not_zero'
+
+	- another reader does xxx_read_lock(), increments ->ctr.
+
+	- synchronize_xxx() notices it, goes to __wait_event()
+
+	- both the reader and writer manage to do atomic_dec()
+
+This is possible in theory, but indefinite delay... Look, we have the same
+"problem" with spinlocks: in theory synchronize_xxx() calls might indefinitely
+delay an unlucky reader because synchronize_xxx() always wins spin_lock(&sp->lock);
+
+> > +
+> > +void xxx_read_unlock(struct xxx_struct *sp, int idx)
+> > +{
+> > +	if (unlikely(atomic_dec_and_test(sp->ctr + idx)))
+> > +		wake_up(&sp->wq);
+> > +}
+> > +
+> > +void synchronize_xxx(struct xxx_struct *sp)
+> > +{
+> > +	int idx;
+> > +
+> > +	mutex_lock(&sp->mutex);
+> > +
+> > +	idx = sp->completed & 0x1;
+> > +	if (!atomic_add_unless(sp->ctr + idx, -1, 1))
+> > +		goto out;
+> > +
+> > +	atomic_inc(sp->ctr + (idx ^ 0x1));
+> > +	sp->completed++;
+> > +
+> > +	__wait_event(sp->wq, !atomic_read(sp->ctr + idx));
+> > +out:
+> > +	mutex_unlock(&sp->mutex);
+> > +}
+> 
+> Test code!!!  Very good!!!  (This is added to rcutorture, right?)
+
+Yes, the whole patch goes to kernel/rcutorture.c, it is only for
+testing/review.
+
+Note: I suspect that Documentation/ lies about atomic_add_unless(), see
+
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=116448966030359
+
+so synchronize_xxx() should be
+
+	void synchronize_xxx(struct xxx_struct *sp)
+	{
+		int idx;
+
+		smp_mb();
+		mutex_lock(&sp->mutex);
+
+		idx = sp->completed & 0x1;
+		if (atomic_read(sp->ctr + idx) == 1)
+			goto out;
+
+		atomic_inc(sp->ctr + (idx ^ 0x1));
+		sp->completed++;
+
+		atomic_dec(sp->ctr + idx);
+		wait_event(sp->wq, !atomic_read(sp->ctr + idx));
+	out:
+		mutex_unlock(&sp->mutex);
+	}
+
+Yes, Alan was right, spinlock_t makes the code simpler.
+
+Oleg.
 

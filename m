@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758439AbWK0RO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758444AbWK0RRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758439AbWK0RO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 12:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758441AbWK0RO5
+	id S1758444AbWK0RRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 12:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758449AbWK0RRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 12:14:57 -0500
-Received: from mail.cs.rice.edu ([128.42.1.31]:2998 "EHLO mail.cs.rice.edu")
-	by vger.kernel.org with ESMTP id S1758439AbWK0RO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 12:14:57 -0500
-Mime-Version: 1.0 (Apple Message framework v752.2)
+	Mon, 27 Nov 2006 12:17:55 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:12809 "EHLO
+	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
+	id S1758444AbWK0RRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 12:17:54 -0500
+Subject: Re: [patch] Re: 2.6.19-rc6-mm1 --
+	sched-improve-migration-accuracy.patch slows boot
+From: Don Mullis <dwm@meer.net>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <1164624611.5892.27.camel@Homer.simpson.net>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	 <1164484124.2894.50.camel@localhost.localdomain>
+	 <1164522263.5808.12.camel@Homer.simpson.net>
+	 <1164591509.2894.76.camel@localhost.localdomain>
+	 <1164624611.5892.27.camel@Homer.simpson.net>
+Content-Type: text/plain
+Date: Mon, 27 Nov 2006 09:17:32 -0800
+Message-Id: <1164647852.2894.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <F17CDCEE-BD2F-458D-93A9-A7D1422598C9@cs.rice.edu>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Apan Qasem <qasem@cs.rice.edu>
-Subject: Page coloring in linux
-Date: Mon, 27 Nov 2006 11:15:28 -0600
-X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know where I can find documentation on the page coloring  
-algorithm?  I just need to find out the the basic heuristics used in  
-coloring the pages.
+> The below should fix it, can you confirm?
 
-Also, does the kernel source include the page coloring code or do I  
-need to patch the kernel?
+Brings boot speed back to normal.
 
-I would appreciate being CC'ed on any response/comments related to  
-this post.
-
-Thanks.
-
-- Apan
+Acked-by: Don Mullis <dwm@meer.net>
 
 

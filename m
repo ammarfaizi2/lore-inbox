@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758072AbWK0Lr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758071AbWK0MA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758072AbWK0Lr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 06:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758070AbWK0Lr1
+	id S1758071AbWK0MA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 07:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758076AbWK0MA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 06:47:27 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:2995 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1758071AbWK0Lr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 06:47:27 -0500
-Date: Mon, 27 Nov 2006 12:48:01 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Greg K-H <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/7] driver core fixes: device_register() retval check
- in platform.c
-Message-ID: <20061127124801.0248e3f6@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20061127112447.GA28761@flint.arm.linux.org.uk>
-References: <20061127103508.36d36539@gondolin.boeblingen.de.ibm.com>
-	<20061127112447.GA28761@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Nov 2006 07:00:29 -0500
+Received: from nz-out-0102.google.com ([64.233.162.206]:38678 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1758071AbWK0MA2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 07:00:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nH1yKSmuG19V9oCqQRGdhDqLV90bdpr+9kxkKStXfhoZIXrIKCZ3MjUJv6TULggCyOoM/Ih0puapAN2KyIda7u9xMpxhgj4YuT/L5fIQmj/+t4MoCqnxu/YMVN23ZrAiezJG0pFULbM4R0U76dyug4q7Ap9H0fWthOYurejws8k=
+Message-ID: <9a8748490611270400t1ac8e1eesed9be5a0d308e829@mail.gmail.com>
+Date: Mon, 27 Nov 2006 13:00:27 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "=?ISO-8859-1?Q?Hanno_B=F6ck?=" <mail@hboeck.de>
+Subject: Re: kernel: Please report the result to linux-kernel to fix this permanently
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200611271242.59642.mail@hboeck.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200611271242.59642.mail@hboeck.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006 11:24:47 +0000,
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On 27/11/06, Hanno Böck <mail@hboeck.de> wrote:
+> My kernel says
+> Oct  7 18:25:00 laverne kernel: Please report the result to linux-kernel to
+> fix this permanently
+>
+> so I do this. Replys CC to me, cause I'm not on this list.
+>
+...
+> Oct  7 18:25:00 laverne kernel: PCI: Bus #04 (-#07) is hidden behind
+> transparent bridge #02 (-#04) (try 'pci=assign-busses')
+> Oct  7 18:25:00 laverne kernel: Please report the result to linux-kernel to
+> fix this permanently
+>
 
-> I still say this is absolutely crazy.  If a bus does not get registered,
-> what happens to all the devices and drivers which are registered against
-> that bus?
+And what are the results when you use "pci=assign-busses" as your
+kernel asks you to do ?
 
-This is a generic problem. Does any driver check if the bus it is
-registering against is really present? Or should the driver core check
-whether a bus is registered when someone tries to register a
-device/driver?
-
-> I suspect that if this bus_register doesn't work, you'll see an oops
-> sooner or later.  So it might as well be a BUG_ON here.
-
-What we need to do here is to make sure we get to know that something
-went really wrong here. If a BUG_ON is considered preferrable to oopses
-on platform device registering, I can roll a patch.
 
 -- 
-Cornelia Huck
-Linux for zSeries Developer
-Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

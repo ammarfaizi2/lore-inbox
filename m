@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757214AbWK0Hhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757272AbWK0Hv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757214AbWK0Hhu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 02:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757265AbWK0Hhu
+	id S1757272AbWK0Hv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 02:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757271AbWK0Hv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 02:37:50 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:42140 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1757214AbWK0Hht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 02:37:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=pzzuPXf8bgtBAEj/zKtxc9FyNWCWuq4JOxxLefqLkU2FECFh4sP9ZvfJQxF0myNY/pEjFuoRDD8edccZ/Z4qvLcw8DHFvhLaNIH6v+5DGKM5SuMOrXi6gGzfXi8G1yqFZ/xbRXfWaTyniKBJ18k990DSO+kWws3vSKAOfqI65XE=
-Message-ID: <86802c440611262337o76e5a90cye42602f6295d74a1@mail.gmail.com>
-Date: Sun, 26 Nov 2006 23:37:47 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Len Brown" <lenb@kernel.org>
-Subject: Re: [PATCH 3/3] x86: when acpi_noirq is set, use mptable instead of MADT
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200611270037.53964.len.brown@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Nov 2006 02:51:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:51340 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1757269AbWK0Hv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 02:51:58 -0500
+Subject: Re: [patch] x86: unify/rewrite SMP TSC sync code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Wink Saville <wink@saville.com>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4569EF9D.7010802@saville.com>
+References: <fa./NRPJg+JjfSQLUVwnX1GpHGIojQ@ifi.uio.no>
+	 <fa.Y0RKABHd+7qnbGQYBAGPvlJ0Qic@ifi.uio.no>
+	 <fa.fD3WSpNqEJ4736vYzEak5Gf3xTw@ifi.uio.no>
+	 <fa.A+gkQAO1DLThaxJxPLPl3yE1CGo@ifi.uio.no>
+	 <fa.INurNKWdUKAEULTHyfpSW65a/Ng@ifi.uio.no>
+	 <fa.n9vySiI9RS2MCl0DZPDzxZEPiFw@ifi.uio.no> <4569404E.20402@shaw.ca>
+	 <45694D6F.60100@saville.com>
+	 <1164529484.3147.68.camel@laptopd505.fenrus.org>
+	 <4569EF9D.7010802@saville.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 27 Nov 2006 08:51:54 +0100
+Message-Id: <1164613914.3276.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <86802c440611261524p6b170f50rf7db3eafd4f7602e@mail.gmail.com>
-	 <200611270037.53964.len.brown@intel.com>
-X-Google-Sender-Auth: 13a534d8f870a8fe
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/26/06, Len Brown <len.brown@intel.com> wrote:
->
-> So the bigger question is why you need these workarounds in the first place.
+On Sun, 2006-11-26 at 11:48 -0800, Wink Saville wrote:
+> Arjan van de Ven wrote:
+> > it's the cost of a syscall (1000 cycles?) plus what it takes to get a
+> > reasonable time estimate. Assuming your kernel has enough time support
+> > AND your tsc is reasonably ok, it'll be using that. If it's NOT using
+> > that then that's a pretty good sign that you can't also use it in
+> > userspace....
+> > 
+> 
+> I wrote a quick and dirty program that I've attached to test the cost
+> difference between RDTSC and gettimeofday (gtod), the results:
+> 
+> wink@winkc2d1:~/linux/linux-2.6/test/rdtsc-pref$ time ./rdtsc-pref 100000000
+> rdtsc:   average ticks=  65
+> gtod:    average ticks= 222
+> gtod_us: average ticks= 232
 
-in the LinuxBIOS, acpi support is there including acpi tables and dsdt
-for amd chipset.
-but for other chipset, I can not put dsdt there. becase we need one
-clean room implementation for dsdt with those chipset.
+just to make sure, you do realize that when you write "ticks" that rdtsc
+doesn't measure cpu clock ticks or cpu cycles anymore, right? (At least
+not on your machine)
 
-So I have all acpi tables (SRAT, SLIT, ...) but no dsdt.
-We need to use mptable instead of MADT + dsdt for io apic irq routing.
 
-I forget to remove MADT in one test, the kernel will skip the mptable.
+> But, there are other uses that it wouldn't be acceptable. For instance, I
+> have used a memory mapped time stamp counter in an embedded ARM based
 
-After look at the kernel acpi code, it turns out that
-acpi_process_madt will set acpi_lapic, and acpi_ioapic.  So
-get_smp_config will skip the mptable.
+ARM is a different animal; generally on such embedded system you know a
+lot better if you have a reliable and userspace-useful tick counter like
+this....
 
-With normal BIOS, if there is problem with DSDT, and you are trying
-acpi=noirq, it means you are going to PIC mode instead of APIC mode if
-you are skipping mptable.
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-YH

@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757618AbWK0Jfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757651AbWK0Jkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757618AbWK0Jfh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 04:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757577AbWK0JfB
+	id S1757651AbWK0Jkr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 04:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757652AbWK0Jkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 04:35:01 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:47313 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1757569AbWK0Jed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 04:34:33 -0500
-Date: Mon, 27 Nov 2006 10:35:10 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Greg K-H <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Patch 4/7] driver core: Don't stop probing on ->probe errors.
-Message-ID: <20061127103510.0fc9d002@gondolin.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Nov 2006 04:40:47 -0500
+Received: from rutherford.zen.co.uk ([212.23.3.142]:57793 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1757636AbWK0Jkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 04:40:46 -0500
+From: David Johnson <dj@david-web.co.uk>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: Changing sysctl values within the kernel?
+Date: Mon, 27 Nov 2006 09:40:40 +0000
+User-Agent: KMail/1.9.5
+References: <200611251911.48961.dj@david-web.co.uk> <20061126203816.GA5032@martell.zuzino.mipt.ru>
+In-Reply-To: <20061126203816.GA5032@martell.zuzino.mipt.ru>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611270940.40792.dj@david-web.co.uk>
+X-Originating-Rutherford-IP: [82.69.29.67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Sunday 26 November 2006 20:38, you wrote:
+> On Sat, Nov 25, 2006 at 07:11:48PM +0000, David Johnson wrote:
+> >
+> > Is there an accepted way of setting sysctl values within the kernel (I
+> > can't seem to find any other module doing this),
+>
+> Yes. Next in-kernel module changing sysctls will do it via
+>
+> 	stop_a_enabled = 1;
+> 	console_loglevel = 8;
+>
+> (be sure, variables in question are EXPORT_SYMBOL'ed)
+>
 
-Don't stop on the first ->probe error that is not -ENODEV/-ENXIO.
+Bah, I never thought it would be that simple!
 
-There might be a driver registered returning an unresonable return code, and
-this stops probing completely even though it may make sense to try the next
-possible driver. At worst, we may end up with an unbound device.
+>
+> > Would it perhaps be better to instead create a sysfs node and let a
+> > userspace daemon worry about setting the sysctl values?
+>
+> Now _this_ is silly. sysctls already live in /proc/sys/, so you can open(2)
+> /proc/sys/kernel/printk and write(2) to it.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+OK, I'll give that a miss then ;-)
 
----
- drivers/base/dd.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+Thanks for your help!
 
---- linux-2.6-CH.orig/drivers/base/dd.c
-+++ linux-2.6-CH/drivers/base/dd.c
-@@ -136,18 +136,17 @@ probe_failed:
- 	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
- 
--	if (ret == -ENODEV || ret == -ENXIO) {
--		/* Driver matched, but didn't support device
--		 * or device not found.
--		 * Not an error; keep going.
--		 */
--		ret = 0;
--	} else {
-+	if (ret != -ENODEV && ret != -ENXIO) {
- 		/* driver matched but the probe failed */
- 		printk(KERN_WARNING
- 		       "%s: probe of %s failed with error %d\n",
- 		       drv->name, dev->bus_id, ret);
- 	}
-+	/*
-+	 * Ignore errors returned by ->probe so that the next driver can try
-+	 * its luck.
-+	 */
-+	ret = 0;
- done:
- 	kfree(data);
- 	atomic_dec(&probe_count);
+David.

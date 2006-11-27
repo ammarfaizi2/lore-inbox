@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933336AbWK0TTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933340AbWK0TVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933336AbWK0TTE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 14:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933340AbWK0TTD
+	id S933340AbWK0TVB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 14:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933351AbWK0TVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 14:19:03 -0500
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:34134 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S933336AbWK0TTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 14:19:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=28Qj88/o39zw5b5kub9vs3u8OXZTX+rm+R5eYQv2ru/sX5KFPp1Nan3FVIRTXedsXYXOcvpp8YPVS3xH3wVkGnq0RzVWQWC+l6rtmRc6dkH+hhMXCnvuVe/k3lfXVf38GH/WHChb/PEHok2mURiw+0xen6gpzh1qbUBM3nJtd7M=  ;
-X-YMail-OSG: Vf8b6vQVM1nDzG3WmLb6b9DBQhe5IvFQgN6itZwrsixx546deqk1dZyBf92N2aD7p09lk0iir6rzBfLSaeod8FRs2tMBmdhWmt146D6DT33VIRO1XG3v
-From: David Brownell <david-b@pacbell.net>
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: Re: [PATCH] spi: check platform_device_register_simple() error
-Date: Mon, 27 Nov 2006 10:28:38 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <20061127050915.GH1231@APFDCB5C>
-In-Reply-To: <20061127050915.GH1231@APFDCB5C>
+	Mon, 27 Nov 2006 14:21:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25040 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933340AbWK0TVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 14:21:00 -0500
+Message-ID: <456B3A7C.20301@redhat.com>
+Date: Mon, 27 Nov 2006 11:20:28 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611271028.39173.david-b@pacbell.net>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [take25 1/6] kevent: Description.
+References: <11641265982190@2ka.mipt.ru> <4564E162.8040901@redhat.com> <20061123115240.GA20294@2ka.mipt.ru> <4565FA60.9000402@redhat.com> <20061124110143.GF13600@2ka.mipt.ru> <456718A3.1070108@redhat.com> <20061124161406.GA5054@2ka.mipt.ru>
+In-Reply-To: <20061124161406.GA5054@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 November 2006 9:09 pm, Akinobu Mita wrote:
-> This patch checks the return value of platform_device_register_simple().
-> 
-> Cc: David Brownell <dbrownell@users.sourceforge.net>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Evgeniy Polyakov wrote:
 
-Acked-by: David Brownell <dbrownell@users.sourceforge.net>
+> If kernel has put data asynchronously it will setup special flag, thus 
+> kevent_wait() will not sleep and will return, so thread will check new
+> entries and process them.
 
-... thanks, good catch.
+This is not sufficient.
 
+The userlevel code does not commit the events until they are processed. 
+  So assume two threads at userlevel, one event is asynchronously 
+posted.  The first thread picks it up, the second call kevent_wait.
 
-> 
-> ---
->  drivers/spi/spi_butterfly.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> Index: work-fault-inject/drivers/spi/spi_butterfly.c
-> ===================================================================
-> --- work-fault-inject.orig/drivers/spi/spi_butterfly.c
-> +++ work-fault-inject/drivers/spi/spi_butterfly.c
-> @@ -250,6 +250,8 @@ static void butterfly_attach(struct parp
->  	 * setting up a platform device like this is an ugly kluge...
->  	 */
->  	pdev = platform_device_register_simple("butterfly", -1, NULL, 0);
-> +	if (IS_ERR(pdev))
-> +		return;
->  
->  	master = spi_alloc_master(&pdev->dev, sizeof *pp);
->  	if (!master) {
-> 
+With your scheme it will not be put to sleep and unnecessarily returns 
+to userlevel.
+
+What I propose and what has been proven to work in many situations is to 
+have part of the kevent_wait syscall the information about "I am aware 
+of all events up to XX; wake me only if anything beyond that is added".
+
+Please take a look at how futexes work, it's really the same concept. 
+And it's really also simpler for the implementation.  Having such a flag 
+is much more complicated than adding a simple index comparison before 
+going to sleep.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

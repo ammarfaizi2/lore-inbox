@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758600AbWK1IlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935689AbWK1ImQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758600AbWK1IlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 03:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758590AbWK1IlQ
+	id S935689AbWK1ImQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 03:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935693AbWK1ImQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 03:41:16 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:1666 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1756890AbWK1IlP (ORCPT
+	Tue, 28 Nov 2006 03:42:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26811 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S935689AbWK1ImP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 03:41:15 -0500
-Message-ID: <456BF628.5030100@pobox.com>
-Date: Tue, 28 Nov 2006 03:41:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Jason Gaston <jason.d.gaston@intel.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, htejun@gmail.com
-Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for
- Intel ICH9
-References: <200611221236.16561.jason.d.gaston@intel.com>
-In-Reply-To: <200611221236.16561.jason.d.gaston@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 28 Nov 2006 03:42:15 -0500
+Date: Mon, 27 Nov 2006 13:47:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Akinobu Mita <akinobu.mita@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] futex: init error ckeck
+Message-ID: <20061127124737.GA14308@elte.hu>
+References: <20061127045624.GB1231@APFDCB5C>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061127045624.GB1231@APFDCB5C>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50,DATE_IN_PAST_12_24 autolearn=no SpamAssassin version=3.0.3
+	0.7 DATE_IN_PAST_12_24     Date: is 12 to 24 hours before Received: date
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4698]
+	-0.5 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-did I see a resend of this floating around?
 
-I can't apply this one...
+* Akinobu Mita <akinobu.mita@gmail.com> wrote:
 
-Looks OK though
+> This patch checks register_filesystem() and kern_mount() return
+> values.
+> 
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
+thanks.
 
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

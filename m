@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758518AbWK0S1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWK0S2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758518AbWK0S1l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 13:27:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758527AbWK0S1l
+	id S932068AbWK0S2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 13:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbWK0S2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 13:27:41 -0500
-Received: from mail.gmx.net ([213.165.64.20]:41183 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1758518AbWK0S1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 13:27:40 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch] Re: 2.6.19-rc6-mm1 --
-	sched-improve-migration-accuracy.patch slows boot
-From: Mike Galbraith <efault@gmx.de>
-To: Don Mullis <dwm@meer.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <1164647852.2894.79.camel@localhost.localdomain>
-References: <20061123021703.8550e37e.akpm@osdl.org>
-	 <1164484124.2894.50.camel@localhost.localdomain>
-	 <1164522263.5808.12.camel@Homer.simpson.net>
-	 <1164591509.2894.76.camel@localhost.localdomain>
-	 <1164624611.5892.27.camel@Homer.simpson.net>
-	 <1164647852.2894.79.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 27 Nov 2006 19:27:06 +0100
-Message-Id: <1164652026.6105.1.camel@Homer.simpson.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Mon, 27 Nov 2006 13:28:40 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:3524 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S932068AbWK0S2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 13:28:39 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Mon, 27 Nov 2006 13:25:34 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: what is the purpose of "CONFIG_DMA_IS_DMA32"?
+Message-ID: <Pine.LNX.4.64.0611271314280.3419@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-27 at 09:17 -0800, Don Mullis wrote:
-> > The below should fix it, can you confirm?
-> 
-> Brings boot speed back to normal.
-> 
-> Acked-by: Don Mullis <dwm@meer.net>
 
-Great.  Off to the brown paper bag store.
+  perhaps a silly question, but:
 
-	-Mike
+$ grep -r "DMA_IS_DMA32" *
+arch/ia64/defconfig:CONFIG_DMA_IS_DMA32=y
+arch/ia64/configs/sim_defconfig:CONFIG_DMA_IS_DMA32=y
+arch/ia64/configs/zx1_defconfig:CONFIG_DMA_IS_DMA32=y
+arch/ia64/configs/tiger_defconfig:CONFIG_DMA_IS_DMA32=y
+arch/ia64/configs/bigsur_defconfig:CONFIG_DMA_IS_DMA32=y
+arch/ia64/configs/gensparse_defconfig:CONFIG_DMA_IS_DMA32=y
+$
 
+what is the purpose of a configuration symbol that is set but never
+involved in a conditional check?
+
+  i'm guessing that used to be a config setting in the ia64/Kconfig
+file that has since vanished.
+
+rday

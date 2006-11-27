@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758093AbWK0MRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758087AbWK0MSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758093AbWK0MRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 07:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758087AbWK0MRj
+	id S1758087AbWK0MSk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 07:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758095AbWK0MSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 07:17:39 -0500
-Received: from il.qumranet.com ([62.219.232.206]:32693 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1758093AbWK0MRi (ORCPT
+	Mon, 27 Nov 2006 07:18:40 -0500
+Received: from il.qumranet.com ([62.219.232.206]:33717 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1758087AbWK0MSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 07:17:38 -0500
-Subject: [PATCH 7/38] KVM: Make msr accessors arch operations
+	Mon, 27 Nov 2006 07:18:39 -0500
+Subject: [PATCH 8/38] KVM: Make the segment accessors arch operations
 From: Avi Kivity <avi@qumranet.com>
-Date: Mon, 27 Nov 2006 12:17:37 -0000
+Date: Mon, 27 Nov 2006 12:18:37 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 References: <456AD5C6.1090406@qumranet.com>
 In-Reply-To: <456AD5C6.1090406@qumranet.com>
-Message-Id: <20061127121737.4984F25015E@cleopatra.q>
+Message-Id: <20061127121837.527A725015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -26,389 +26,265 @@ Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm.h
 +++ linux-2.6/drivers/kvm/kvm.h
-@@ -245,6 +245,8 @@ struct kvm_arch_ops {
- 
- 	int (*set_guest_debug)(struct kvm_vcpu *vcpu,
+@@ -247,6 +247,10 @@ struct kvm_arch_ops {
  			       struct kvm_debug_guest *dbg);
-+	int (*get_msr)(struct kvm_vcpu *vcpu, u32 msr_index, u64 *pdata);
-+	int (*set_msr)(struct kvm_vcpu *vcpu, u32 msr_index, u64 data);
+ 	int (*get_msr)(struct kvm_vcpu *vcpu, u32 msr_index, u64 *pdata);
+ 	int (*set_msr)(struct kvm_vcpu *vcpu, u32 msr_index, u64 data);
++	void (*get_segment)(struct kvm_vcpu *vcpu,
++			    struct kvm_segment *var, int seg);
++	void (*set_segment)(struct kvm_vcpu *vcpu,
++			    struct kvm_segment *var, int seg);
  };
  
  extern struct kvm_stat kvm_stat;
-@@ -401,6 +403,8 @@ static inline struct kvm_mmu_page *page_
- #define ASM_VMX_VMXOFF            ".byte 0x0f, 0x01, 0xc4"
- #define ASM_VMX_VMXON_RAX         ".byte 0xf3, 0x0f, 0xc7, 0x30"
- 
-+#define MSR_IA32_TIME_STAMP_COUNTER		0x010
-+
- #ifdef __x86_64__
- 
- /*
 Index: linux-2.6/drivers/kvm/kvm_main.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/kvm_main.c
 +++ linux-2.6/drivers/kvm/kvm_main.c
-@@ -122,7 +122,6 @@ static const u32 vmx_msr_index[] = {
- #define TSS_REDIRECTION_SIZE (256 / 8)
- #define RMODE_TSS_SIZE (TSS_BASE_SIZE + TSS_REDIRECTION_SIZE + TSS_IOPB_SIZE + 1)
+@@ -36,6 +36,7 @@
+ #include <asm/desc.h>
  
--#define MSR_IA32_TIME_STAMP_COUNTER		0x010
- #define MSR_IA32_FEATURE_CONTROL 		0x03a
- #define MSR_IA32_VMX_PINBASED_CTLS_MSR		0x481
- #define MSR_IA32_VMX_PROCBASED_CTLS_MSR		0x482
-@@ -143,7 +142,7 @@ static const u32 vmx_msr_index[] = {
- #define HOST_IS_64 0
- #endif
+ #include "vmx.h"
++#include "kvm_vmx.h"
+ #include "x86_emulate.h"
  
--static struct vmx_msr_entry *find_msr_entry(struct kvm_vcpu *vcpu, u32 msr)
-+struct vmx_msr_entry *find_msr_entry(struct kvm_vcpu *vcpu, u32 msr)
+ MODULE_AUTHOR("Qumranet");
+@@ -82,7 +83,7 @@ enum {
+ 		GUEST_##seg##_AR_BYTES,			   	\
+ 	}
+ 
+-static struct kvm_vmx_segment_field {
++struct kvm_vmx_segment_field {
+ 	unsigned selector;
+ 	unsigned base;
+ 	unsigned limit;
+@@ -97,6 +98,7 @@ static struct kvm_vmx_segment_field {
+ 	VMX_SEGMENT_FIELD(TR),
+ 	VMX_SEGMENT_FIELD(LDTR),
+ };
++EXPORT_SYMBOL_GPL(kvm_vmx_segment_fields);
+ 
+ static const u32 vmx_msr_index[] = {
+ #ifdef __x86_64__
+@@ -625,22 +627,6 @@ void vmcs_writel(unsigned long field, un
+ }
+ EXPORT_SYMBOL_GPL(vmcs_writel);
+ 
+-static void vmcs_write16(unsigned long field, u16 value)
+-{
+-	vmcs_writel(field, value);
+-}
+-
+-static void vmcs_write64(unsigned long field, u64 value)
+-{
+-#ifdef __x86_64__
+-	vmcs_writel(field, value);
+-#else
+-	vmcs_writel(field, value);
+-	asm volatile ("");
+-	vmcs_writel(field+1, value >> 32);
+-#endif
+-}
+-
+ static void inject_gp(struct kvm_vcpu *vcpu)
  {
- 	int i;
- 
-@@ -152,6 +151,7 @@ static struct vmx_msr_entry *find_msr_en
- 			return &vcpu->guest_msrs[i];
+ 	printk(KERN_DEBUG "inject_general_protection: rip 0x%lx\n",
+@@ -2821,26 +2807,10 @@ static int kvm_dev_ioctl_set_regs(struct
  	return 0;
  }
-+EXPORT_SYMBOL_GPL(find_msr_entry);
  
- struct descriptor_table {
- 	u16 limit;
-@@ -657,7 +657,7 @@ static void inject_gp(struct kvm_vcpu *v
-  * reads and returns guest's timestamp counter "register"
-  * guest_tsc = host_tsc + tsc_offset    -- 21.3
-  */
--static u64 guest_read_tsc(void)
-+u64 guest_read_tsc(void)
+-static void get_segment(struct kvm_segment *var, int seg)
++static void get_segment(struct kvm_vcpu *vcpu,
++			struct kvm_segment *var, int seg)
  {
- 	u64 host_tsc, tsc_offset;
- 
-@@ -665,18 +665,20 @@ static u64 guest_read_tsc(void)
- 	tsc_offset = vmcs_read64(TSC_OFFSET);
- 	return host_tsc + tsc_offset;
- }
-+EXPORT_SYMBOL_GPL(guest_read_tsc);
- 
- /*
-  * writes 'guest_tsc' into guest's timestamp counter "register"
-  * guest_tsc = host_tsc + tsc_offset ==> tsc_offset = guest_tsc - host_tsc
-  */
--static void guest_write_tsc(u64 guest_tsc)
-+void guest_write_tsc(u64 guest_tsc)
- {
- 	u64 host_tsc;
- 
- 	rdtscll(host_tsc);
- 	vmcs_write64(TSC_OFFSET, guest_tsc - host_tsc);
- }
-+EXPORT_SYMBOL_GPL(guest_write_tsc);
- 
- static void update_exception_bitmap(struct kvm_vcpu *vcpu)
- {
-@@ -2242,67 +2244,7 @@ static int handle_cpuid(struct kvm_vcpu 
-  */
- static int get_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 *pdata)
- {
--	u64 data;
--	struct vmx_msr_entry *msr;
+-	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
+-	u32 ar;
 -
--	if (!pdata) {
--		printk(KERN_ERR "BUG: get_msr called with NULL pdata\n");
--		return -EINVAL;
+-	var->base = vmcs_readl(sf->base);
+-	var->limit = vmcs_read32(sf->limit);
+-	var->selector = vmcs_read16(sf->selector);
+-	ar = vmcs_read32(sf->ar_bytes);
+-	if (ar & AR_UNUSABLE_MASK)
+-		ar = 0;
+-	var->type = ar & 15;
+-	var->s = (ar >> 4) & 1;
+-	var->dpl = (ar >> 5) & 3;
+-	var->present = (ar >> 7) & 1;
+-	var->avl = (ar >> 12) & 1;
+-	var->l = (ar >> 13) & 1;
+-	var->db = (ar >> 14) & 1;
+-	var->g = (ar >> 15) & 1;
+-	var->unusable = (ar >> 16) & 1;
++	return kvm_arch_ops->get_segment(vcpu, var, seg);
+ }
+ 
+ static int kvm_dev_ioctl_get_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
+@@ -2853,15 +2823,15 @@ static int kvm_dev_ioctl_get_sregs(struc
+ 	if (!vcpu)
+ 		return -ENOENT;
+ 
+-	get_segment(&sregs->cs, VCPU_SREG_CS);
+-	get_segment(&sregs->ds, VCPU_SREG_DS);
+-	get_segment(&sregs->es, VCPU_SREG_ES);
+-	get_segment(&sregs->fs, VCPU_SREG_FS);
+-	get_segment(&sregs->gs, VCPU_SREG_GS);
+-	get_segment(&sregs->ss, VCPU_SREG_SS);
++	get_segment(vcpu, &sregs->cs, VCPU_SREG_CS);
++	get_segment(vcpu, &sregs->ds, VCPU_SREG_DS);
++	get_segment(vcpu, &sregs->es, VCPU_SREG_ES);
++	get_segment(vcpu, &sregs->fs, VCPU_SREG_FS);
++	get_segment(vcpu, &sregs->gs, VCPU_SREG_GS);
++	get_segment(vcpu, &sregs->ss, VCPU_SREG_SS);
+ 
+-	get_segment(&sregs->tr, VCPU_SREG_TR);
+-	get_segment(&sregs->ldt, VCPU_SREG_LDTR);
++	get_segment(vcpu, &sregs->tr, VCPU_SREG_TR);
++	get_segment(vcpu, &sregs->ldt, VCPU_SREG_LDTR);
+ 
+ #define get_dtable(var, table) \
+ 	sregs->var.limit = vmcs_read32(GUEST_##table##_LIMIT), \
+@@ -2887,27 +2857,10 @@ static int kvm_dev_ioctl_get_sregs(struc
+ 	return 0;
+ }
+ 
+-static void set_segment(struct kvm_segment *var, int seg)
++static void set_segment(struct kvm_vcpu *vcpu,
++			struct kvm_segment *var, int seg)
+ {
+-	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
+-	u32 ar;
+-
+-	vmcs_writel(sf->base, var->base);
+-	vmcs_write32(sf->limit, var->limit);
+-	vmcs_write16(sf->selector, var->selector);
+-	if (var->unusable)
+-		ar = 1 << 16;
+-	else {
+-		ar = var->type & 15;
+-		ar |= (var->s & 1) << 4;
+-		ar |= (var->dpl & 3) << 5;
+-		ar |= (var->present & 1) << 7;
+-		ar |= (var->avl & 1) << 12;
+-		ar |= (var->l & 1) << 13;
+-		ar |= (var->db & 1) << 14;
+-		ar |= (var->g & 1) << 15;
 -	}
--
--	switch (msr_index) {
--#ifdef __x86_64__
--	case MSR_FS_BASE:
--		data = vmcs_readl(GUEST_FS_BASE);
--		break;
--	case MSR_GS_BASE:
--		data = vmcs_readl(GUEST_GS_BASE);
--		break;
--	case MSR_EFER:
--		data = vcpu->shadow_efer;
--		break;
--#endif
--	case MSR_IA32_TIME_STAMP_COUNTER:
--		data = guest_read_tsc();
--		break;
--	case MSR_IA32_SYSENTER_CS:
--		data = vmcs_read32(GUEST_SYSENTER_CS);
--		break;
--	case MSR_IA32_SYSENTER_EIP:
--		data = vmcs_read32(GUEST_SYSENTER_EIP);
--		break;
--	case MSR_IA32_SYSENTER_ESP:
--		data = vmcs_read32(GUEST_SYSENTER_ESP);
--		break;
--	case MSR_IA32_MC0_CTL:
--	case MSR_IA32_MCG_STATUS:
--	case MSR_IA32_MCG_CAP:
--	case MSR_IA32_MC0_MISC:
--	case MSR_IA32_MC0_MISC+4:
--	case MSR_IA32_MC0_MISC+8:
--	case MSR_IA32_MC0_MISC+12:
--	case MSR_IA32_MC0_MISC+16:
--	case MSR_IA32_UCODE_REV:
--		/* MTRR registers */
--	case 0xfe:
--	case 0x200 ... 0x2ff:
--		data = 0;
--		break;
--	case MSR_IA32_APICBASE:
--		data = vcpu->apic_base;
--		break;
--	default:
--		msr = find_msr_entry(vcpu, msr_index);
--		if (!msr) {
--			printk(KERN_ERR "kvm: unhandled rdmsr: %x\n", msr_index);
--			return 1;
--		}
--		data = msr->data;
--		break;
--	}
--
--	*pdata = data;
--	return 0;
-+	return kvm_arch_ops->get_msr(vcpu, msr_index, pdata);
+-	vmcs_write32(sf->ar_bytes, ar);
++	return kvm_arch_ops->set_segment(vcpu, var, seg);
  }
  
- static int handle_rdmsr(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-@@ -2324,7 +2266,7 @@ static int handle_rdmsr(struct kvm_vcpu 
+ static int kvm_dev_ioctl_set_sregs(struct kvm *kvm, struct kvm_sregs *sregs)
+@@ -2922,15 +2875,15 @@ static int kvm_dev_ioctl_set_sregs(struc
+ 	if (!vcpu)
+ 		return -ENOENT;
  
- #ifdef __x86_64__
+-	set_segment(&sregs->cs, VCPU_SREG_CS);
+-	set_segment(&sregs->ds, VCPU_SREG_DS);
+-	set_segment(&sregs->es, VCPU_SREG_ES);
+-	set_segment(&sregs->fs, VCPU_SREG_FS);
+-	set_segment(&sregs->gs, VCPU_SREG_GS);
+-	set_segment(&sregs->ss, VCPU_SREG_SS);
++	set_segment(vcpu, &sregs->cs, VCPU_SREG_CS);
++	set_segment(vcpu, &sregs->ds, VCPU_SREG_DS);
++	set_segment(vcpu, &sregs->es, VCPU_SREG_ES);
++	set_segment(vcpu, &sregs->fs, VCPU_SREG_FS);
++	set_segment(vcpu, &sregs->gs, VCPU_SREG_GS);
++	set_segment(vcpu, &sregs->ss, VCPU_SREG_SS);
  
--static void set_efer(struct kvm_vcpu *vcpu, u64 efer)
-+void set_efer(struct kvm_vcpu *vcpu, u64 efer)
- {
- 	struct vmx_msr_entry *msr;
+-	set_segment(&sregs->tr, VCPU_SREG_TR);
+-	set_segment(&sregs->ldt, VCPU_SREG_LDTR);
++	set_segment(vcpu, &sregs->tr, VCPU_SREG_TR);
++	set_segment(vcpu, &sregs->ldt, VCPU_SREG_LDTR);
  
-@@ -2353,10 +2295,10 @@ static void set_efer(struct kvm_vcpu *vc
- 	msr->data = efer;
- 	skip_emulated_instruction(vcpu);
- }
-+EXPORT_SYMBOL_GPL(set_efer);
- 
- #endif
- 
--
- /*
-  * Writes msr value into into the appropriate "register".
-  * Returns 0 on success, non-0 otherwise.
-@@ -2364,56 +2306,7 @@ static void set_efer(struct kvm_vcpu *vc
-  */
- static int set_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 data)
- {
--	struct vmx_msr_entry *msr;
--	switch (msr_index) {
--#ifdef __x86_64__
--	case MSR_FS_BASE:
--		vmcs_writel(GUEST_FS_BASE, data);
--		break;
--	case MSR_GS_BASE:
--		vmcs_writel(GUEST_GS_BASE, data);
--		break;
--#endif
--	case MSR_IA32_SYSENTER_CS:
--		vmcs_write32(GUEST_SYSENTER_CS, data);
--		break;
--	case MSR_IA32_SYSENTER_EIP:
--		vmcs_write32(GUEST_SYSENTER_EIP, data);
--		break;
--	case MSR_IA32_SYSENTER_ESP:
--		vmcs_write32(GUEST_SYSENTER_ESP, data);
--		break;
--#ifdef __x86_64
--	case MSR_EFER:
--		set_efer(vcpu, data);
--		break;
--	case MSR_IA32_MC0_STATUS:
--		printk(KERN_WARNING "%s: MSR_IA32_MC0_STATUS 0x%llx, nop\n"
--			    , __FUNCTION__, data);
--		break;
--#endif
--	case MSR_IA32_TIME_STAMP_COUNTER: {
--		guest_write_tsc(data);
--		break;
--	}
--	case MSR_IA32_UCODE_REV:
--	case MSR_IA32_UCODE_WRITE:
--	case 0x200 ... 0x2ff: /* MTRRs */
--		break;
--	case MSR_IA32_APICBASE:
--		vcpu->apic_base = data;
--		break;
--	default:
--		msr = find_msr_entry(vcpu, msr_index);
--		if (!msr) {
--			printk(KERN_ERR "kvm: unhandled wrmsr: 0x%x\n", msr_index);
--			return 1;
--		}
--		msr->data = data;
--		break;
--	}
--
--	return 0;
-+	return kvm_arch_ops->set_msr(vcpu, msr_index, data);
- }
- 
- static int handle_wrmsr(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ #define set_dtable(var, table) \
+ 	vmcs_write32(GUEST_##table##_LIMIT, sregs->var.limit), \
 Index: linux-2.6/drivers/kvm/vmx.c
 ===================================================================
 --- linux-2.6.orig/drivers/kvm/vmx.c
 +++ linux-2.6/drivers/kvm/vmx.c
-@@ -31,6 +31,146 @@ extern struct vmcs_descriptor {
+@@ -17,6 +17,8 @@
+ 
+ #include "kvm.h"
+ #include <linux/module.h>
++#include "vmx.h"
++#include "kvm_vmx.h"
+ 
+ #define MSR_IA32_FEATURE_CONTROL 		0x03a
+ 
+@@ -31,6 +33,13 @@ extern struct vmcs_descriptor {
  	u32 revision_id;
  } vmcs_descriptor;
  
-+u64 guest_read_tsc(void);
-+void guest_write_tsc(u64 guest_tsc);
-+struct vmx_msr_entry *find_msr_entry(struct kvm_vcpu *vcpu, u32 msr);
++extern struct kvm_vmx_segment_field {
++	unsigned selector;
++	unsigned base;
++	unsigned limit;
++	unsigned ar_bytes;
++} kvm_vmx_segment_fields[];
 +
-+#ifdef __x86_64__
-+
-+void set_efer(struct kvm_vcpu *vcpu, u64 efer);
-+
-+#endif
-+
-+
-+/*
-+ * Reads an msr value (of 'msr_index') into 'pdata'.
-+ * Returns 0 on success, non-0 otherwise.
-+ * Assumes vcpu_load() was already called.
-+ */
-+static int vmx_get_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 *pdata)
-+{
-+	u64 data;
-+	struct vmx_msr_entry *msr;
-+
-+	if (!pdata) {
-+		printk(KERN_ERR "BUG: get_msr called with NULL pdata\n");
-+		return -EINVAL;
-+	}
-+
-+	switch (msr_index) {
-+#ifdef __x86_64__
-+	case MSR_FS_BASE:
-+		data = vmcs_readl(GUEST_FS_BASE);
-+		break;
-+	case MSR_GS_BASE:
-+		data = vmcs_readl(GUEST_GS_BASE);
-+		break;
-+	case MSR_EFER:
-+		data = vcpu->shadow_efer;
-+		break;
-+#endif
-+	case MSR_IA32_TIME_STAMP_COUNTER:
-+		data = guest_read_tsc();
-+		break;
-+	case MSR_IA32_SYSENTER_CS:
-+		data = vmcs_read32(GUEST_SYSENTER_CS);
-+		break;
-+	case MSR_IA32_SYSENTER_EIP:
-+		data = vmcs_read32(GUEST_SYSENTER_EIP);
-+		break;
-+	case MSR_IA32_SYSENTER_ESP:
-+		data = vmcs_read32(GUEST_SYSENTER_ESP);
-+		break;
-+	case MSR_IA32_MC0_CTL:
-+	case MSR_IA32_MCG_STATUS:
-+	case MSR_IA32_MCG_CAP:
-+	case MSR_IA32_MC0_MISC:
-+	case MSR_IA32_MC0_MISC+4:
-+	case MSR_IA32_MC0_MISC+8:
-+	case MSR_IA32_MC0_MISC+12:
-+	case MSR_IA32_MC0_MISC+16:
-+	case MSR_IA32_UCODE_REV:
-+		/* MTRR registers */
-+	case 0xfe:
-+	case 0x200 ... 0x2ff:
-+		data = 0;
-+		break;
-+	case MSR_IA32_APICBASE:
-+		data = vcpu->apic_base;
-+		break;
-+	default:
-+		msr = find_msr_entry(vcpu, msr_index);
-+		if (!msr) {
-+			printk(KERN_ERR "kvm: unhandled rdmsr: %x\n", msr_index);
-+			return 1;
-+		}
-+		data = msr->data;
-+		break;
-+	}
-+
-+	*pdata = data;
-+	return 0;
-+}
-+
-+/*
-+ * Writes msr value into into the appropriate "register".
-+ * Returns 0 on success, non-0 otherwise.
-+ * Assumes vcpu_load() was already called.
-+ */
-+static int vmx_set_msr(struct kvm_vcpu *vcpu, u32 msr_index, u64 data)
-+{
-+	struct vmx_msr_entry *msr;
-+	switch (msr_index) {
-+#ifdef __x86_64__
-+	case MSR_FS_BASE:
-+		vmcs_writel(GUEST_FS_BASE, data);
-+		break;
-+	case MSR_GS_BASE:
-+		vmcs_writel(GUEST_GS_BASE, data);
-+		break;
-+#endif
-+	case MSR_IA32_SYSENTER_CS:
-+		vmcs_write32(GUEST_SYSENTER_CS, data);
-+		break;
-+	case MSR_IA32_SYSENTER_EIP:
-+		vmcs_write32(GUEST_SYSENTER_EIP, data);
-+		break;
-+	case MSR_IA32_SYSENTER_ESP:
-+		vmcs_write32(GUEST_SYSENTER_ESP, data);
-+		break;
-+#ifdef __x86_64
-+	case MSR_EFER:
-+		set_efer(vcpu, data);
-+		break;
-+	case MSR_IA32_MC0_STATUS:
-+		printk(KERN_WARNING "%s: MSR_IA32_MC0_STATUS 0x%llx, nop\n"
-+			    , __FUNCTION__, data);
-+		break;
-+#endif
-+	case MSR_IA32_TIME_STAMP_COUNTER: {
-+		guest_write_tsc(data);
-+		break;
-+	}
-+	case MSR_IA32_UCODE_REV:
-+	case MSR_IA32_UCODE_WRITE:
-+	case 0x200 ... 0x2ff: /* MTRRs */
-+		break;
-+	case MSR_IA32_APICBASE:
-+		vcpu->apic_base = data;
-+		break;
-+	default:
-+		msr = find_msr_entry(vcpu, msr_index);
-+		if (!msr) {
-+			printk(KERN_ERR "kvm: unhandled wrmsr: 0x%x\n", msr_index);
-+			return 1;
-+		}
-+		msr->data = data;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static int set_guest_debug(struct kvm_vcpu *vcpu, struct kvm_debug_guest *dbg)
- {
- 	unsigned long dr7 = 0x400;
-@@ -169,6 +309,8 @@ static struct kvm_arch_ops vmx_arch_ops 
- 	.hardware_disable = hardware_disable,
+ u64 guest_read_tsc(void);
+ void guest_write_tsc(u64 guest_tsc);
+ struct vmx_msr_entry *find_msr_entry(struct kvm_vcpu *vcpu, u32 msr);
+@@ -300,6 +309,53 @@ static __exit void hardware_unsetup(void
+ 	free_kvm_area();
+ }
  
++static void vmx_get_segment(struct kvm_vcpu *vcpu,
++			    struct kvm_segment *var, int seg)
++{
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++	u32 ar;
++
++	var->base = vmcs_readl(sf->base);
++	var->limit = vmcs_read32(sf->limit);
++	var->selector = vmcs_read16(sf->selector);
++	ar = vmcs_read32(sf->ar_bytes);
++	if (ar & AR_UNUSABLE_MASK)
++		ar = 0;
++	var->type = ar & 15;
++	var->s = (ar >> 4) & 1;
++	var->dpl = (ar >> 5) & 3;
++	var->present = (ar >> 7) & 1;
++	var->avl = (ar >> 12) & 1;
++	var->l = (ar >> 13) & 1;
++	var->db = (ar >> 14) & 1;
++	var->g = (ar >> 15) & 1;
++	var->unusable = (ar >> 16) & 1;
++}
++
++static void vmx_set_segment(struct kvm_vcpu *vcpu,
++			    struct kvm_segment *var, int seg)
++{
++	struct kvm_vmx_segment_field *sf = &kvm_vmx_segment_fields[seg];
++	u32 ar;
++
++	vmcs_writel(sf->base, var->base);
++	vmcs_write32(sf->limit, var->limit);
++	vmcs_write16(sf->selector, var->selector);
++	if (var->unusable)
++		ar = 1 << 16;
++	else {
++		ar = var->type & 15;
++		ar |= (var->s & 1) << 4;
++		ar |= (var->dpl & 3) << 5;
++		ar |= (var->present & 1) << 7;
++		ar |= (var->avl & 1) << 12;
++		ar |= (var->l & 1) << 13;
++		ar |= (var->db & 1) << 14;
++		ar |= (var->g & 1) << 15;
++	}
++	vmcs_write32(sf->ar_bytes, ar);
++}
++
+ static struct kvm_arch_ops vmx_arch_ops = {
+ 	.cpu_has_kvm_support = cpu_has_kvm_support,
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+@@ -311,6 +367,8 @@ static struct kvm_arch_ops vmx_arch_ops 
  	.set_guest_debug = set_guest_debug,
-+	.get_msr = vmx_get_msr,
-+	.set_msr = vmx_set_msr,
+ 	.get_msr = vmx_get_msr,
+ 	.set_msr = vmx_set_msr,
++	.get_segment = vmx_get_segment,
++	.set_segment = vmx_set_segment,
  };
  
  static int __init vmx_init(void)

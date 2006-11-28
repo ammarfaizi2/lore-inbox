@@ -1,36 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755701AbWK1VGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755691AbWK1VFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755701AbWK1VGI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 16:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755735AbWK1VGH
+	id S1755691AbWK1VFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 16:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755681AbWK1VFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 16:06:07 -0500
-Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:28314 "EHLO
-	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1755706AbWK1VGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 16:06:04 -0500
-Date: Tue, 28 Nov 2006 13:06:02 -0800 (PST)
-From: Trent Piepho <xyzzy@speakeasy.org>
-X-X-Sender: xyzzy@shell3.speakeasy.net
-To: Adrian Bunk <bunk@stusta.de>
-cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] remove DVB_AV7110_FIRMWARE
-In-Reply-To: <20061126004500.GB15364@stusta.de>
-Message-ID: <Pine.LNX.4.58.0611281304180.5546@shell3.speakeasy.net>
-References: <20061126004500.GB15364@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Nov 2006 16:05:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20450 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1755691AbWK1VFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 16:05:33 -0500
+Date: Tue, 28 Nov 2006 22:05:33 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+Message-ID: <mj+md-20061128.210510.8000.atrey@ucw.cz>
+References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <mj+md-20061128.131233.3594.atrey@ucw.cz> <456C704F.3050008@cfl.rr.com> <mj+md-20061128.174904.27577.atrey@ucw.cz> <456C82AE.6030505@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <456C82AE.6030505@cfl.rr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2006, Adrian Bunk wrote:
-> DVB_AV7110_FIRMWARE was (except for some OSS drivers) the only option
-> that was still compiling a binary-only user-supplied firmware file at
-> build-time into the kernel.
->
-> This patch changes the driver to always use the standard
-> request_firmware() way for firmware by removing DVB_AV7110_FIRMWARE.
+Hello!
 
-Doesn't this also prevent the AV7110 module from getting compiled
-into the kernel?  Shouldn't the Kconfig file be adjusted so
-that 'y' can't be selected anymore and it depends on MODULES?
+> That is exactly my point.  Since you can not tell how much randomness is 
+> in the data you provide, you can not tell the kernel how much to add to 
+> its entropy estimate.  Instead it just has to estimate based on the 
+> amount of data you provide.
+
+No, the only safe thing the kernel can do is to add NO entropy,
+unless explicitly told otherwise.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+"All that is necessary for the triumph of evil is that good men do nothing." -- E. Burke

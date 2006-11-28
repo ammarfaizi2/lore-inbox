@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752629AbWK1WkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757051AbWK1Wu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752629AbWK1WkB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754368AbWK1WkB
+	id S1757051AbWK1Wu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 17:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757101AbWK1Wu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:40:01 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:9347 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S1752629AbWK1WkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:40:00 -0500
-From: Karsten Wiese <fzu@wemgehoertderstaat.de>
-To: Ingo Molnar <mingo@elte.hu>,
-       "Fernando Lopez-Lezcano" <nando@ccrma.stanford.edu>
-Subject: Re: 2.6.19-rc6-rt8
-Date: Tue, 28 Nov 2006 23:40:21 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-References: <20061127094927.GA7339@elte.hu>
-In-Reply-To: <20061127094927.GA7339@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 28 Nov 2006 17:50:56 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:3080 "EHLO
+	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
+	id S1757051AbWK1Wuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 17:50:55 -0500
+Subject: Re: [PATCH 1/2 -mm] fault-injection: safer defaults, trivial
+	optimization, cleanup
+From: Don Mullis <dwm@meer.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Akinobu Mita <mita@miraclelinux.com>
+In-Reply-To: <20061128133754.bad99ddb.akpm@osdl.org>
+References: <1164699866.2894.88.camel@localhost.localdomain>
+	 <20061128133754.bad99ddb.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 28 Nov 2006 14:50:45 -0800
+Message-Id: <1164754245.2894.144.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611282340.21317.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 27. November 2006 10:49 schrieb Ingo Molnar:
-> i have released the 2.6.19-rc6-rt8 tree, which can be downloaded from 
+On Tue, 2006-11-28 at 13:37 -0800, Andrew Morton wrote:
 
-I saw usb transport errors here before rebooting with
-	nmi_watchdog=0
-contained in kernel command line.
+> We'd prefer one-patch-per-concept, please. This all sounds like about
+> six patches.
 
-Testcase stalled within 2 minutes before change,
-ticks happily after change for 15 minutes now.
-.config is a "release" type, no debugging options.
+Understood.
 
-      Karsten
+> We _could_ merge this patch as-is, but it means that when this stuff
+> finally hits mainline it would go in as a nice sequence of logical patches,
+> followed by a random thing which is splattered all over all the preceding
+> patches.
+
+Does this argue for a respin of the original patches, folding in
+content from this one, rather than splitting it into an additional six to
+be appended to the series?
+

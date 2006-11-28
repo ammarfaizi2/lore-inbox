@@ -1,140 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936016AbWK1SdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758734AbWK1SkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936016AbWK1SdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936015AbWK1SdW
+	id S1758734AbWK1SkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:40:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758737AbWK1SkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:33:22 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:57509 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1758739AbWK1SdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:33:21 -0500
-Message-ID: <456C80FE.7090902@oracle.com>
-Date: Tue, 28 Nov 2006 10:33:34 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 28 Nov 2006 13:40:16 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:25980 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1758734AbWK1SkO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 13:40:14 -0500
+Message-ID: <456C82AE.6030505@cfl.rr.com>
+Date: Tue, 28 Nov 2006 13:40:46 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-To: Steven Whitehouse <swhiteho@redhat.com>
-CC: Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org,
-       cluster-devel@redhat.com,
-       =?windows-1252?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>
-Subject: Re: [GFS2] Fix Kconfig wrt CRC32 [8/9]
-References: <1164360889.3392.146.camel@quoit.chygwyn.com>	 <20061124214338.0e4d0510.randy.dunlap@oracle.com>	 <1164633855.3392.167.camel@quoit.chygwyn.com> <456B149C.4050605@oracle.com> <1164736932.3752.28.camel@quoit.chygwyn.com>
-In-Reply-To: <1164736932.3752.28.camel@quoit.chygwyn.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+To: Martin Mares <mj@ucw.cz>
+CC: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <mj+md-20061128.131233.3594.atrey@ucw.cz> <456C704F.3050008@cfl.rr.com> <mj+md-200611 <mj+md-20061128.174904.27577.atrey@ucw.cz>
+In-Reply-To: <mj+md-20061128.174904.27577.atrey@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Nov 2006 18:40:24.0030 (UTC) FILETIME=[AA496FE0:01C7131C]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14840.003
+X-TM-AS-Result: No--8.357800-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Whitehouse wrote:
-> Hi,
-> 
-> On Mon, 2006-11-27 at 08:38 -0800, Randy Dunlap wrote:
->> Steven Whitehouse wrote:
->>> Hi,
->>>
->>> On Fri, 2006-11-24 at 21:43 -0800, Randy Dunlap wrote:
->>>> On Fri, 24 Nov 2006 09:34:49 +0000 Steven Whitehouse wrote:
->>>>
->>>>> >From 6f788fd00c82533d4cd5587a9706f8468658a24d Mon Sep 17 00:00:00 2001
->>>>> From: Steven Whitehouse <swhiteho@redhat.com>
->>>>> Date: Mon, 20 Nov 2006 10:04:49 -0500
->>>>> Subject: [PATCH] [GFS2] Fix Kconfig wrt CRC32
->>>>> Content-Type: text/plain; charset=UTF-8
->>>>> Content-Transfer-Encoding: 8bit
->>>>>
->>>>> GFS2 requires the CRC32 library function. This was reported by
->>>>> Toralf Förster.
->>>>>
->>>>> Cc: Toralf Förster <toralf.foerster@gmx.de>
->>>>> Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
->>>>> ---
->>>>>  fs/gfs2/Kconfig |    1 +
->>>>>  1 files changed, 1 insertions(+), 0 deletions(-)
->>>>>
->>>>> diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
->>>>> index 8c27de8..c0791cb 100644
->>>>> --- a/fs/gfs2/Kconfig
->>>>> +++ b/fs/gfs2/Kconfig
->>>>> @@ -2,6 +2,7 @@ config GFS2_FS
->>>>>  	tristate "GFS2 file system support"
->>>>>  	depends on EXPERIMENTAL
->>>>>  	select FS_POSIX_ACL
->>>>> +	select CRC32
->>>>>  	help
->>>>>  	A cluster filesystem.
->>>> Hi,
->>>>
->>>> Do you also have Kconfig patches for DLM needing SYSFS
->>>> and DLM needing CONFIG_NET ?
->>>>
->>>> ---
->>>> ~Randy
->>> My original reply to this seemed to disappear into my email system
->>> somewhere, so apologies if this is the second copy you get.
->>>
->>> The DLM shouldn't depend upon SYSFS at all. I believe that its perfectly
->>> ok whether or not thats compiled in. There is a patch relating to the
->>> Kconfig for DLM which is in my -nmw tree:
->> Hm, OK.  Apparently I meant CONFIGFS instead of SYSFS.
->>
-> The Kconfig for DLM in Linus' current tree says:
-> 	select CONFIGFS_FS
-> 
-> so I don't know what else is needed.... its the same in -nmw as that bit
-> hasn't changed.
-> 
->>> http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=8758fbc8724c2da8a6a062f2b61d79c8f2a55c5f
->>>
->>> This applies after the patch adding the TCP communications layer to DLM
->>> which is also in -nmw. The patches in -nmw (next merge window) are a
->>> superset of the ones I just requested that Linus pull since it contains
->>> the newer features and more involved bug fixes and clean ups.
->>>
->>> I believe that the Kconfig in -nmw is correct for DLM, though I'm
->>> willing to be proved wrong. I'm also copying in Patrick in case he wants
->>> to comment further as its more his area than mine,
->> I applied just that one patch to 2.6.19-rc6-git10 (which may or may not
->> be sufficient -- please say) and built with my previously failing config file.
-> You'll need the patch:
-> http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=4a28fda50d864ede7d2724723949407e0e4043b8
-> as well. I'm also slightly surprised that you managed to get the errors
-> that you did, since most of those symbols appear to be networking
-> related and the DLM depends on INET which is clearly not set since NET
-> is not set.
+Martin Mares wrote:
+> Yes, but the point is that you cannot tell how much randomness is in the
+> data you provide.
 
-Thanks, I'll apply that patch also and test again.
+That is exactly my point.  Since you can not tell how much randomness is 
+in the data you provide, you can not tell the kernel how much to add to 
+its entropy estimate.  Instead it just has to estimate based on the 
+amount of data you provide.
 
-Part of the problem (IMO) is that kconfig s/w doesn't follow dependency
-chains when applying "select"s.
-
->> It still fails with:
->>
->> WARNING: "kernel_sendmsg" [fs/dlm/dlm.ko] undefined!
->> WARNING: "sock_release" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_item_put" [fs/dlm/dlm.ko] undefined!
->> WARNING: "sock_create_kern" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_item_init_type_name" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_group_init_type_name" [fs/dlm/dlm.ko] undefined!
->> WARNING: "configfs_register_subsystem" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_group_find_obj" [fs/dlm/dlm.ko] undefined!
->> WARNING: "configfs_unregister_subsystem" [fs/dlm/dlm.ko] undefined!
->> WARNING: "kernel_recvmsg" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_item_get" [fs/dlm/dlm.ko] undefined!
->> WARNING: "config_group_init" [fs/dlm/dlm.ko] undefined!
->>   CC      arch/x86_64/boot/compressed/misc.o
->>   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
->> make[1]: *** [__modpost] Error 1
->> make: *** [modules] Error 2
->>
-> Which of the various methods (oldconfig, xconfig, menuconfig, etc) did
-> you use to generate this config?
-
-make randconfig
-
--- 
-~Randy

@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935203AbWK1OLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935138AbWK1OK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935203AbWK1OLW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 09:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935219AbWK1OLW
+	id S935138AbWK1OK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 09:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935217AbWK1OK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 09:11:22 -0500
-Received: from gate.perex.cz ([212.20.107.50]:57561 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S935203AbWK1OLV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 09:11:21 -0500
-Date: Tue, 28 Nov 2006 15:11:19 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: [ALSA PATCH] alsa-git merge request
-Message-ID: <Pine.LNX.4.61.0611281509030.29580@tm8103.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Nov 2006 09:10:57 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:51761
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S935138AbWK1OK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 09:10:56 -0500
+Message-Id: <456C51D8.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Tue, 28 Nov 2006 14:12:24 +0000
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] work around gcc4 issue with -Os in Dwarf2 stack unwind
+	code
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please do an update from:
+This fixes a problem with gcc4 mis-compiling the stack unwind code under
+-Os, which resulted in 'stuck' messages whenever an assembly routine was
+encountered.
 
-  http://www.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
-  (linus branch)
+(The second hunk is trivial cleanup.)
 
-The GNU patch is available at:
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-11-28.patch.gz
-
-Additional notes:
-
-  This update contains only serious fixes.
-
-
-The following files will be updated:
-
- include/sound/version.h              |    2 +-
- sound/aoa/codecs/snd-aoa-codec-tas.c |   13 +++++++++----
- sound/core/oss/pcm_oss.c             |    3 ++-
- sound/core/pcm_native.c              |    6 ++++--
- sound/core/rtctimer.c                |   20 ++++++++++++++------
- sound/pci/emu10k1/emu10k1_main.c     |    1 +
- sound/pci/hda/patch_realtek.c        |    2 +-
- sound/pci/hda/patch_sigmatel.c       |   14 +++++++-------
- sound/usb/usbaudio.c                 |    3 ++-
- 9 files changed, 41 insertions(+), 23 deletions(-)
-
-
-The following things were done:
-
-Clemens Ladisch:
-      [ALSA] rtctimer: handle RTC interrupts with a tasklet
-
-James Courtier-Dutton:
-      [ALSA] snd-emu10k1: Fix capture for one variant.
-
-Jaroslav Kysela:
-      [ALSA] version 1.0.13
-
-John W. Linville:
-      [ALSA] hda: fix typo for xw4400 PCI sub-ID
-
-Matt Porter:
-      [ALSA] hda: fix sigmatel dell system detection
-
-Paul Mackerras:
-      [ALSA] Enable stereo line input for TAS codec
-
-Takashi Iwai:
-      [ALSA] Fix hang-up at disconnection of usb-audio
+--- linux-2.6.19-rc6/kernel/unwind.c	2006-11-22 14:54:10.000000000 +0100
++++ 2.6.19-rc6-unwind-stuck/kernel/unwind.c	2006-11-28 15:02:15.000000000 +0100
+@@ -938,8 +938,11 @@ int unwind(struct unwind_frame_info *fra
+ 		else {
+ 			retAddrReg = state.version <= 1 ? *ptr++ : get_uleb128(&ptr, end);
+ 			/* skip augmentation */
+-			if (((const char *)(cie + 2))[1] == 'z')
+-				ptr += get_uleb128(&ptr, end);
++			if (((const char *)(cie + 2))[1] == 'z') {
++				uleb128_t augSize = get_uleb128(&ptr, end);
++
++				ptr += augSize;
++			}
+ 			if (ptr > end
+ 			   || retAddrReg >= ARRAY_SIZE(reg_info)
+ 			   || REG_INVALID(retAddrReg)
+@@ -963,9 +966,7 @@ int unwind(struct unwind_frame_info *fra
+ 	if (cie == NULL || fde == NULL) {
+ #ifdef CONFIG_FRAME_POINTER
+ 		unsigned long top, bottom;
+-#endif
+ 
+-#ifdef CONFIG_FRAME_POINTER
+ 		top = STACK_TOP(frame->task);
+ 		bottom = STACK_BOTTOM(frame->task);
+ # if FRAME_RETADDR_OFFSET < 0
 
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs

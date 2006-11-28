@@ -1,79 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935728AbWK1QVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935732AbWK1QX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935728AbWK1QVT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 11:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935729AbWK1QVT
+	id S935732AbWK1QX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 11:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935748AbWK1QX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 11:21:19 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:11949 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S935728AbWK1QVS (ORCPT
+	Tue, 28 Nov 2006 11:23:28 -0500
+Received: from cantor.suse.de ([195.135.220.2]:22185 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S935732AbWK1QX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 11:21:18 -0500
-Message-ID: <456C63FB.40604@openvz.org>
-Date: Tue, 28 Nov 2006 19:29:47 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Tue, 28 Nov 2006 11:23:27 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [PATCH] work around gcc4 issue with -Os in Dwarf2 stack unwind code
+Date: Tue, 28 Nov 2006 17:23:23 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <456C51D8.76E4.0078.0@novell.com>
+In-Reply-To: <456C51D8.76E4.0078.0@novell.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       linux-kernel@vger.kernel.org, saw@sw.ru, adilger@clusterfs.com,
-       devel@openvz.org
-Subject: [PATCH] ext3: small fix for previous retries patch in ext3_prepare_write()
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611281723.23594.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch from Dmitry Monakhov:
-Previous fix for retries in ext3_prepare_write() violation
-was a bit errorneuos:
-- it missed return of error code from ext3_journal_stop()
-- it missed do_journal_get_write_access() before commit_write
+On Tuesday 28 November 2006 15:12, Jan Beulich wrote:
+> This fixes a problem with gcc4 mis-compiling the stack unwind code under
+> -Os, which resulted in 'stuck' messages whenever an assembly routine was
+> encountered.
+> 
+> (The second hunk is trivial cleanup.)
 
-a few comments added also.
+Thanks for finally nailing that bug.
 
-Signed-Off-By: Dmitry Monakhov <dmonakhov@openvz.org>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
-
-
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index a48ada9..1acb528 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1162,13 +1162,14 @@ static int ext3_prepare_failure(struct f
- 	struct buffer_head *bh, *head, *next;
- 	unsigned block_start, block_end;
- 	unsigned blocksize;
-+	int ret;
-+	handle_t *handle = ext3_journal_current_handle();
- 
- 	mapping = page->mapping;
- 	if (ext3_should_writeback_data(mapping->host)) {
- 		/* optimization: no constraints about data */
- skip:
--		ext3_journal_stop(ext3_journal_current_handle());
--		return 0;
-+		return ext3_journal_stop(handle);
- 	}
- 
- 	head = page_buffers(page);
-@@ -1186,7 +1187,19 @@ skip:
- 			break;
- 		}
- 		if (!buffer_mapped(bh))
-+		/* prepare_write failed on this bh */
- 			break;
-+		if (ext3_should_journal_data(mapping->host)) {
-+			ret = do_journal_get_write_access(handle, bh);
-+			if (ret) {
-+				ext3_journal_stop(handle);
-+				return ret;
-+			}
-+		}
-+	/*
-+	 * block_start here becomes the first block where the current iteration
-+	 * of prepare_write failed.
-+	 */
- 	}
- 	if (block_start <= from)
- 		goto skip;
+-Andi

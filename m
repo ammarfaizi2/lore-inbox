@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756336AbWK1WbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755492AbWK1WeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756336AbWK1WbP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756325AbWK1WbP
+	id S1755492AbWK1WeP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 17:34:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755795AbWK1WeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:31:15 -0500
-Received: from ns2.suse.de ([195.135.220.15]:17040 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1755492AbWK1WbP (ORCPT
+	Tue, 28 Nov 2006 17:34:15 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:4017 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1755492AbWK1WeO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:31:15 -0500
-Date: Tue, 28 Nov 2006 14:30:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-mm2
-Message-ID: <20061128223058.GC16152@kroah.com>
-References: <20061128020246.47e481eb.akpm@osdl.org> <200611281235.45087.m.kozlowski@tuxland.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611281235.45087.m.kozlowski@tuxland.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 28 Nov 2006 17:34:14 -0500
+Date: Tue, 28 Nov 2006 14:33:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: Hugh Dickins <hugh@veritas.com>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+Message-Id: <20061128143321.2abf40b5.akpm@osdl.org>
+In-Reply-To: <1164747894.3769.77.camel@dyn9047017103.beaverton.ibm.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>
+	<20061114184919.GA16020@skynet.ie>
+	<Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
+	<20061114113120.d4c22b02.akpm@osdl.org>
+	<Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+	<Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
+	<20061115214534.72e6f2e8.akpm@osdl.org>
+	<455C0B6F.7000201@us.ibm.com>
+	<20061115232228.afaf42f2.akpm@osdl.org>
+	<1163666960.4310.40.camel@localhost.localdomain>
+	<20061116011351.1401a00f.akpm@osdl.org>
+	<1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+	<20061116132724.1882b122.akpm@osdl.org>
+	<Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+	<1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
+	<Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+	<1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
+	<Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
+	<1164747894.3769.77.camel@dyn9047017103.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2006 at 12:35:43PM +0100, Mariusz Kozlowski wrote:
-> Hello,
-> 
-> 	When CONFIG_MODULE_UNLOAD is not set then this happens:
-> 
->   CC      kernel/module.o
-> kernel/module.c:852: error: `initstate' undeclared here (not in a function)
-> kernel/module.c:852: error: initializer element is not constant
-> kernel/module.c:852: error: (near initialization for `modinfo_attrs[2]')
-> make[1]: *** [kernel/module.o] Error 1
-> make: *** [kernel] Error 2
-> 
-> Reference to 'initstate' should stay under #ifdef CONFIG_MODULE_UNLOAD
-> as its definition I guess.
-> 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> 
-> --- linux-2.6.19-rc6-mm2-a/kernel/module.c      2006-11-28 12:17:09.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2-b/kernel/module.c      2006-11-28 12:05:01.000000000 +0100
-> @@ -849,8 +849,8 @@ static inline void module_unload_init(st
->  static struct module_attribute *modinfo_attrs[] = {
->         &modinfo_version,
->         &modinfo_srcversion,
-> -       &initstate,
->  #ifdef CONFIG_MODULE_UNLOAD
-> +       &initstate,
->         &refcnt,
->  #endif
+On Tue, 28 Nov 2006 13:04:53 -0800
+Mingming Cao <cmm@us.ibm.com> wrote:
 
-Kay, is this correct?  I think we still need this information exported
-to userspace, even if we can't unload modules, right?
+> Thanks, I have acked most of them, and will port them to ext3/4 soon.
 
-thanks,
-
-greg k-h
+You've acked #2 and #3.  #4, #5 and #6 remain un-commented-upon and #1 is
+unclear?

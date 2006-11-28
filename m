@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935964AbWK1SYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758731AbWK1Sar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935964AbWK1SYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936013AbWK1SYg
+	id S1758731AbWK1Sar (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758730AbWK1Sar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:24:36 -0500
-Received: from hera.kernel.org ([140.211.167.34]:26758 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S935964AbWK1SYg (ORCPT
+	Tue, 28 Nov 2006 13:30:47 -0500
+Received: from khc.piap.pl ([195.187.100.11]:11475 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1758728AbWK1Saq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:24:36 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: A Big bug with ethernet card
-Date: Tue, 28 Nov 2006 10:23:59 -0800
-Organization: OSDL
-Message-ID: <20061128102359.572a83f1@freekitty>
-References: <20061128142950.67A461BF297@ws1-1.us4.outblaze.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1164738240 22058 10.8.0.54 (28 Nov 2006 18:24:00 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 28 Nov 2006 18:24:00 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+	Tue, 28 Nov 2006 13:30:46 -0500
+To: Patrick McHardy <kaber@trash.net>
+Cc: David Miller <davem@davemloft.net>, lkml <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>
+Subject: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 28 Nov 2006 19:30:43 +0100
+Message-ID: <m3fyc3e84s.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2006 11:29:50 -0300
-spynet@usa.com wrote:
+Hi,
 
-> I find a bug in kernel 2.6.18.3
-> 
-> with ethernet card:
-> 4.1 Ethernet card
->     -- Networking support
->         Networking options -->
->             Ethernet (1000 Mbit) -->
->                  Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller 
-> 
-> There are problems with ethernet card when booting to different system, e.g. from linux to M$ win - system is not able to connect to network. instead of re-boot you have to shutdown box and after that turn on. 
-> 
-> I running slackware 11 with kernel 2.6.18.3
-> 
-> root@segfault:/home/buzz# uname -a
-> Linux segfault 2.6.18.3 #2 Tue Nov 28 08:10:19 BRST 2006 i686 athlon-4 i386 GNU/Linux
-> 
-> this problem have someone patch?
-> 
-> 
-> 
-> 
-> 
+The following commit breaks ipt_REJECT on my machine. Tested with latest
+2.6.19rc*, found with git-bisect. i386, gcc-4.1.1, the usual stuff.
+All details available on request, of course.
 
-The problem is that Linux leaves PHY powered off on shutdown, and windows is
-too stupid to power it up.  This may be related to Wake On Lan, being default
-off.
+commit 9d02002d2dc2c7423e5891b97727fde4d667adf1
+Author: Patrick McHardy <kaber@trash.net>
+Date:   Mon Oct 2 16:12:20 2006 -0700
 
-	http://bugzilla.kernel.org/show_bug.cgi?id=5204
+    [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
+    
+    Use ip_route_me_harder instead, which now allows to specify how we wish
+    the packet to be routed.
+    
+    Based on patch by Simon Horman <horms@verge.net.au>.
+    
+    Signed-off-by: Patrick McHardy <kaber@trash.net>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
 
+The results are:
+
+Last user: [<c015f82b>](alloc_pipe_info+0x1b/0x50)
+000: 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+010: ad 4e ad de ff ff ff ff ff ff ff ff dc c4 45 c0
+Next obj: start=c476fb58, len=512
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c02b5998>](kfree_skbmem+0x8/0x80)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Slab corruption: start=c476fd64, len=512
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c02b5998>](kfree_skbmem+0x8/0x80)
+040: 6b 6b 6b 6b f5 1b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=c476fb58, len=512
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c01f76c7>](acpi_ps_parse_aml+0x1b7/0x1f2)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Slab corruption: start=c476fd64, len=512
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c02b5998>](kfree_skbmem+0x8/0x80)
+
+and so on.
 -- 
-Stephen Hemminger <shemminger@osdl.org>
+Krzysztof Halasa

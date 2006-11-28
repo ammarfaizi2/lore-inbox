@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935622AbWK1Fkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935634AbWK1GHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935622AbWK1Fkq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 00:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935624AbWK1Fkp
+	id S935634AbWK1GHV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 01:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935642AbWK1GHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 00:40:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:12522 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S935622AbWK1Fko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 00:40:44 -0500
-Date: Tue, 28 Nov 2006 05:40:36 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH 3/16] LTTng 0.6.36 for 2.6.18 : Linux Kernel Markers
-Message-ID: <20061128054036.GA29273@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-	"Frank Ch. Eigler" <fche@redhat.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Tom Zanussi <zanussi@us.ibm.com>,
-	Karim Yaghmour <karim@opersys.com>,
-	Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-	Richard J Moore <richardj_moore@uk.ibm.com>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	Michel Dagenais <michel.dagenais@polymtl.ca>,
-	Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
-	systemtap@sources.redhat.com
-References: <20061124215401.GD25048@Krystal> <y0mu00kpawa.fsf@ton.toronto.redhat.com> <20061128023349.GA2964@Krystal>
-Mime-Version: 1.0
+	Tue, 28 Nov 2006 01:07:21 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17928 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S935634AbWK1GHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 01:07:20 -0500
+Date: Tue, 28 Nov 2006 07:07:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Joe Feise <jfeise@feise.com>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
+Message-ID: <20061128060723.GA15364@stusta.de>
+References: <20061125191510.GB3702@stusta.de> <456BC973.1050309@feise.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061128023349.GA2964@Krystal>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <456BC973.1050309@feise.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 09:33:50PM -0500, Mathieu Desnoyers wrote:
-> * Frank Ch. Eigler (fche@redhat.com) wrote:
-> > One question:
+On Mon, Nov 27, 2006 at 09:30:27PM -0800, Joe Feise wrote:
+> Adrian Bunk wrote on 11/25/06 11:15:
+> 
+> > The VIDEO_ZR36120 driver has:
+> > - already been marked as BROKEN in 2.6.0 three years ago and
+> > - is still marked as BROKEN.
 > > 
-> > > [...]
-> > > +	/* Markers in modules. */ 
-> > > +	list_for_each_entry(mod, &modules, list) {
-> > > +		if (mod->license_gplok)
-> > > +			found += marker_set_probe_range(name, format, probe,
-> > > +				mod->markers, mod->markers+mod->num_markers);
-> > > +	}
-> > > [...]
-> > > +EXPORT_SYMBOL(marker_set_probe);
+> > Drivers that had been marked as BROKEN for such a long time seem to be 
+> > unlikely to be revived in the forseeable future.
 > > 
-> > Are you sure the license_gplok check is necessary here?  We should
-> > consider encouraging non-gpl module writers to instrument their code,
-> > to give users a slightly better chance of debugging problems.
-> > 
+> > But if anyone wants to ever revive this driver, the code is still 
+> > present in the older kernel releases.
 > 
-> Hi Frank,
-> 
-> I was kind of expecting this question. Well, it turns out that my markers module
-> modifies the struct module in module.h to add a few fields. Some drivers that I
-> won't name (ok, ok I will : clearcase) have the funny habit of distributing
-> their kernel modules as ".ko" files instead of sending a proper ".o" and later
-> link it against a wrapper.
-> 
-> The result is, I must say, quite bad : when I want to add a probe, I iterate on
-> each modules, verifying if there are any markers in the object. Things gets
-> really messy when the structure is corrupted.
-> 
-> The simplest way to work around this non-GPL problem is to completely disable
-> access to the marker infrastructure to non-GPL modules. I am not against
-> instrumentation of binary-only modules, but I don't think it is kernel
-> developer's job to support their broken binary blob distribution.
-> 
-> I thought that we might use the crc checksum as another criterion. As long as
-> the machines do not crash when adding markers when such modules are loaded.
+> Hmm, there are people out there (like me) who still use it and have patched it
+> to get it working on 2.6.x.
 
-Please don't add hacks like that for non-GPL modules.  But neither
-should we export any tracing functionality for them.  They;re not the
-kind of people we want to help at all, and Frank just shows once again that
-he should rather stay away from kernel stuff and keep on writing C++.
+If you anyway have to patch your kernel, you can as well patch the 
+complete driver into the kernel.
+
+Three years after 2.6.0 the in-kernel driver is still marked as BROKEN, 
+and e.g. the current Video4Linux API change might leave this driver 
+unfixed and even more broken.
+
+Is anyone working on getting this driver into shape NOW?
+If not, it will still be at any time possible to submit a fixed version 
+of this driver for re-inclusion.
+
+> -Joe
+
+cu
+Adrian
+
+BTW: Please don't drop people from the Cc.
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757516AbWK1WIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757549AbWK1WPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757516AbWK1WIu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757484AbWK1WIt
+	id S1757549AbWK1WPV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 17:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757574AbWK1WPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:08:49 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:20203 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1757516AbWK1WIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:08:48 -0500
-Date: Tue, 28 Nov 2006 14:09:05 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, dmitry.torokhov@gmail.com
-Subject: [PATCH 2/2] joystick/analog: force HWEIGHT for module
-Message-Id: <20061128140905.6a9cbb07.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Nov 2006 17:15:21 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:41226 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1757565AbWK1WPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 17:15:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=kqyk0g+BPr7Xgna75tY8/5xDaCOJqWfLAvc0IEI/XsAJwKNvU7t3tVTQPwMzYYZjUr2GbYoZyDuKpCinvl3OOJk3PE512ZAv2OAwSVn1hKR2b8j3qRJlYmrgBhOfEWY2QKJ5mZHfHXte3CYX/Fk07F51i7/iPu50bksurXGAYFM=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
+Date: Tue, 28 Nov 2006 23:17:13 +0100
+User-Agent: KMail/1.9.4
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       trivial@kernel.org, Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+Message-Id: <200611282317.14020.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
 
-input/joystick/analog (=m) uses hweight*(), but those functions are
-only linked into the kernel image if it is used inside the kernel image,
-not in loadable modules.  Let modules force HWEIGHT to be
-built into the kernel image.  Otherwise build fails:
+In kernel/sys.c::sys_prctl() the argument named 'arg2' is very clearly 
+of type 'unsigned long', and when compiling with "gcc -W" gcc also warns :
+  kernel/sys.c:2089: warning: comparison of unsigned expression < 0 is always false
 
-  Building modules, stage 2.
-  MODPOST 94 modules
-WARNING: "hweight16" [drivers/input/joystick/analog.ko] undefined!
-WARNING: "hweight8" [drivers/input/joystick/analog.ko] undefined!
+So this patch removes the test of "arg2 < 0".
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+For those of us who compile their kernels with "-W" this gets rid of an 
+annoying warning. For the rest of you it saves a few bytes of source code ;-)
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
- drivers/input/joystick/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
 
---- linux-2.6.19-rc6-git10.orig/drivers/input/joystick/Kconfig
-+++ linux-2.6.19-rc6-git10/drivers/input/joystick/Kconfig
-@@ -17,6 +17,7 @@ if INPUT_JOYSTICK
- config JOYSTICK_ANALOG
- 	tristate "Classic PC analog joysticks and gamepads"
- 	select GAMEPORT
-+	select FORCE_HWEIGHT
- 	---help---
- 	  Say Y here if you have a joystick that connects to the PC
- 	  gameport. In addition to the usual PC analog joystick, this driver
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 98489d8..086ea37 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -2086,7 +2086,7 @@ asmlinkage long sys_prctl(int option, un
+ 			error = current->mm->dumpable;
+ 			break;
+ 		case PR_SET_DUMPABLE:
+-			if (arg2 < 0 || arg2 > 1) {
++			if (arg2 > 1) {
+ 				error = -EINVAL;
+ 				break;
+ 			}
 
 
----

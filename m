@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935833AbWK1KjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935841AbWK1Kl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935833AbWK1KjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935834AbWK1KjJ
+	id S935841AbWK1Kl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935839AbWK1Kl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:39:09 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64471 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S935833AbWK1KjH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 05:39:07 -0500
-Date: Tue, 28 Nov 2006 10:43:51 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Martin A. Fink" <fink@mpe.mpg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SATA Performance with Intel ICH6
-Message-ID: <20061128104351.1bc34eee@localhost.localdomain>
-In-Reply-To: <200611281109.47438.fink@mpe.mpg.de>
-References: <200611281109.47438.fink@mpe.mpg.de>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Nov 2006 05:41:57 -0500
+Received: from mx1.suse.de ([195.135.220.2]:185 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S935841AbWK1Kl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:41:56 -0500
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [patch] Mark rdtsc as sync only for netburst, not for core2
+Date: Tue, 28 Nov 2006 11:36:28 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1164709708.3276.72.camel@laptopd505.fenrus.org>
+In-Reply-To: <1164709708.3276.72.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611281136.29066.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2006 11:09:47 +0100
-"Martin A. Fink" <fink@mpe.mpg.de> wrote:
-
-> Dear Alan,
+On Tuesday 28 November 2006 11:28, Arjan van de Ven wrote:
+> Hi,
 > 
-> You wrote
-> > The PIIX interface needs CPU intervention each command, so in practice
-> > about every 64K or so, and the CPU gets stalled waiting for the disk
-> > during the setup of each I/O. The newer kernels support AHCI which does
-> > not have this overhead, but it is only present on the newest intel
-> > controllers.
+> On the Core2 cpus, the rdtsc instruction is not serializing (as defined
+> in the architecture reference since rdtsc exists) and due to the deep
+> speculation of these cores, it's possible that you can observe time go
+> backwards between cores due to this speculation. Since the kernel
+> already deals with this with the SYNC_RDTSC flag, the solution is
+> simple, only assume that the instruction is serializing on family 15...
 > 
-> Can you tell me the name of these newest controllers? Is it ICH7 or 8 ?
-> What kernel versions? dmesg only shows ACPI and u/e/o hci_* host controller.
-> (kernel version is 2.6.8-24.25-smp). How can I switch to AHCI ?
+> The price one pays for this is a slightly slower gettimeofday (by a
+> dozen or two cycles), but that increase is quite small to pay for a
+> really-going-forward tsc counter.
 
-According to the docs
+Added thanks
 
-	ICH6
-	ICH6M
-	ICH7
-	ICH7M
-	ICH7R
-	ESB2
-	ICH7-M DH
-	ICH8
-	ICH8M
-
-These devices support both "legacy" and "ahci" modes of operation,
-usually controlled by a BIOS setting.
+-Andi

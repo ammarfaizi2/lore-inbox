@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935710AbWK1InU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935693AbWK1Ip7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935710AbWK1InU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 03:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935707AbWK1Imu
+	id S935693AbWK1Ip7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 03:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935698AbWK1Ip6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 03:42:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:35515 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S935695AbWK1ImR (ORCPT
+	Tue, 28 Nov 2006 03:45:58 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:21378 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S935693AbWK1Ip5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 03:42:17 -0500
-Date: Mon, 27 Nov 2006 11:16:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Don Mullis <dwm@meer.net>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19-rc6-mm1 -- sched-improve-migration-accuracy.patch slows boot
-Message-ID: <20061127101600.GB5812@elte.hu>
-References: <20061123021703.8550e37e.akpm@osdl.org> <1164484124.2894.50.camel@localhost.localdomain> <1164522263.5808.12.camel@Homer.simpson.net> <1164591509.2894.76.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164591509.2894.76.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00,DATE_IN_PAST_12_24 autolearn=no SpamAssassin version=3.0.3
-	0.7 DATE_IN_PAST_12_24     Date: is 12 to 24 hours before Received: date
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 28 Nov 2006 03:45:57 -0500
+Message-ID: <456BF743.5030005@pobox.com>
+Date: Tue, 28 Nov 2006 03:45:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Jason Gaston <jason.d.gaston@intel.com>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19-rc6][RESEND] ahci: AHCI mode SATA patch for Intel
+ ICH9
+References: <200611211655.58451.jason.d.gaston@intel.com>
+In-Reply-To: <200611211655.58451.jason.d.gaston@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Don Mullis <dwm@meer.net> wrote:
-
-> > This must be a bisection false positive.  The patch in question is
-> > essentially a no-op for a UP kernel.
+Jason Gaston wrote:
+> This patch adds the Intel ICH9 AHCI controller DID's for SATA support.
 > 
-> Testing alternately with 
-> 	1) all -mm1 patches applied, and 
-> 	2) all except sched-improve-migration-accuracy*.path applied,
-> confirms the misbehavior.
+> Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
 
-could you run this utility:
+applied to #upstream-fixes
 
-  http://people.redhat.com/mingo/time-warp-test/time-warp-test.c
 
-on your box for a while (10 minutes or so) - what does it print?
-
-	Ingo

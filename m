@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935664AbWK1GgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935650AbWK1Gjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935664AbWK1GgY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 01:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935665AbWK1GgY
+	id S935650AbWK1Gjl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 01:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935661AbWK1Gjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 01:36:24 -0500
-Received: from pv105234.reshsg.uci.edu ([128.195.105.234]:41857 "HELO
-	pv105234.reshsg.uci.edu") by vger.kernel.org with SMTP
-	id S935664AbWK1GgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 01:36:23 -0500
-Message-ID: <456BD8E4.6010003@feise.com>
-Date: Mon, 27 Nov 2006 22:36:20 -0800
-From: Joe Feise <jfeise@feise.com>
-Reply-To: jfeise@feise.com
-Organization: feise.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061025 Thunderbird/1.5.0.8 Mnenhy/0.7.4.0
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Mauro Carvalho Chehab <mchehab@infradead.org>,
-       Pauline Middelink <middelink@polyware.nl>
-Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
-References: <20061125191510.GB3702@stusta.de> <456BC973.1050309@feise.com> <20061128060723.GA15364@stusta.de>
-In-Reply-To: <20061128060723.GA15364@stusta.de>
-X-Enigmail-Version: 0.94.1.2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 01:39:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12727 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S935650AbWK1Gjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 01:39:40 -0500
+Date: Tue, 28 Nov 2006 01:38:19 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Jiri Kosina <jikos@jikos.cz>, Keith Mannthey <kmannth@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: i686 apicid_to_node compile failure.
+Message-ID: <20061128063818.GB30889@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Jiri Kosina <jikos@jikos.cz>, Keith Mannthey <kmannth@us.ibm.com>,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061128062746.GA30889@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote on 11/27/06 22:07:
+On Tue, Nov 28, 2006 at 01:27:47AM -0500, Dave Jones wrote:
+ > arch/i386/mach-generic/built-in.o: In function `apicid_to_node':
+ > include/asm/mach-summit/mach_apic.h:90: undefined reference to `apicid_2_node'
+ > 
+ > config is at http://people.redhat.com/davej/.config
 
-> On Mon, Nov 27, 2006 at 09:30:27PM -0800, Joe Feise wrote:
->> Adrian Bunk wrote on 11/25/06 11:15:
->>
->>> The VIDEO_ZR36120 driver has:
->>> - already been marked as BROKEN in 2.6.0 three years ago and
->>> - is still marked as BROKEN.
->>>
->>> Drivers that had been marked as BROKEN for such a long time seem to be 
->>> unlikely to be revived in the forseeable future.
->>>
->>> But if anyone wants to ever revive this driver, the code is still 
->>> present in the older kernel releases.
->> Hmm, there are people out there (like me) who still use it and have patched it
->> to get it working on 2.6.x.
-> 
-> If you anyway have to patch your kernel, you can as well patch the 
-> complete driver into the kernel.
+Hmm, odd. It looks like this was fixed a few weeks back in
+commit 815a965b0e6d925646e1f6012175830ef21e0d21
+but somehow, I still see it broken with rc6-git10.
 
+		Dave
 
-Well, there are other things outside the actual driver code that may change, and
-that would make it harder to keep my patch in sync.
-And actually, I submitted my patch some time ago to the maintainer of the driver
-(Pauline Middelink.) Unfortunately, it never made it into the kernel, nor did I
-get any feedback from her. I have no idea if she is still active (she is listed
-as maintainer at least until 2.6.17.) I cc'ed her on this mail.
-
--Joe
-
-
+-- 
+http://www.codemonkey.org.uk

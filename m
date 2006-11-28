@@ -1,102 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936001AbWK1TsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935997AbWK1TxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936001AbWK1TsF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 14:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936019AbWK1TsF
+	id S935997AbWK1TxM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 14:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936076AbWK1TxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 14:48:05 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:49596 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S936001AbWK1TsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 14:48:02 -0500
-Date: Tue, 28 Nov 2006 11:47:57 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
-       sam@ravnborg.org
-Subject: Re: reiserfs NET=n build error
-Message-Id: <20061128114757.8b027341.randy.dunlap@oracle.com>
-In-Reply-To: <4560DB6B.9020601@suse.com>
-References: <20061118202206.01bdc0e0.randy.dunlap@oracle.com>
-	<200611190650.49282.ak@suse.de>
-	<45608FC2.5040406@suse.com>
-	<200611191959.55969.ak@suse.de>
-	<4560AAC1.3000800@oracle.com>
-	<20061119205711.GE3078@ftp.linux.org.uk>
-	<4560DB6B.9020601@suse.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Nov 2006 14:53:12 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:37393 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S936077AbWK1TxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 14:53:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BcXu80SwkkF7CrS9uxn44NfkSREnkU6OlW0Reekjx/wC62YIWacaq79RrBusiK/OgkIrUpsMK5Y3pqwRfTQIRjLBSC5cPKxDNOkjY+5Yao7+UX+3oCsKCuDaHMZYn16egO9dGmwOPT+NtSJC1yIymtQtSVyjbdnSK4HFq6nLj6U=
+Message-ID: <5bdc1c8b0611281153l17c2a8f9y28185420f137d0fa@mail.gmail.com>
+Date: Tue, 28 Nov 2006 11:53:08 -0800
+From: "Mark Knecht" <markknecht@gmail.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Subject: Re: 2.6.19-rc6-rt5
+Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1164735207.1701.19.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+References: <20061120220230.GA30835@elte.hu>
+	 <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com>
+	 <1164735207.1701.19.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2006 17:32:11 -0500 Jeff Mahoney wrote:
+On 11/28/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Wed, 2006-11-22 at 06:06 -0800, Mark Knecht wrote:
+> > Ingo,
+> >    I started building the new kernels a few days ago with your
+> > 2.6.19-rc6-rt0 announcement. The kernels have built fine but so far I
+> > am unable to build the realtime-lsm package against them so no reason
+> > to reboot.
+> >
+> >    I know there were some comments awhile back about being required to
+> > switch to PAM. Has that occurred?
+> >
+> >    If not then there is a regression issue for realtime-lsm.
+>
+> As Realtime LSM is an out of tree module and there's no stable kernel
+> module API it's impossible to prevent regressions.
+>
+> That being said, the realtime LSM patch is so simple that it should work
+> - how exactly does it fail?
+>
+> Lee
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Al Viro wrote:
-> > On Sun, Nov 19, 2006 at 11:04:33AM -0800, Randy Dunlap wrote:
-> >> Andi Kleen wrote:
-> >>>>> I would copy a relatively simple C implementation, like 
-> >>>>> arch/h8300/lib/checksum.c
-> >>>> As long as the h8300 version has the same output as the x86 version.
-> >>> The trouble is that the different architecture have different output 
-> >>> for csum_partial. So you already got a bug when someone wants to move
-> >>> file systems.
-> >>>
-> >>> -Andi
-> >> That argues for having only one version of it (in a lib.; my preference)
-> >> -or- Every module having its own local copy/version of it.  :(
-> > 
-> > Wrong.  csum_partial() result is defined modulo 0xffff and it's basically
-> > "whatever's convenient as intermediate for this architecture".
-> > 
-> > reiserfs use of it is just plain broken.  net/* is fine, since all
-> > final uses are via csum_fold() or equivalents.
-> > 
-> > Note that reiserfs use is broken in another way: it takes fixed-endian value
-> > and feeds it to cpu_to_le32().  IOW, even if everything had literally the
-> > same csum_partial(), the value it shits on disk would be endian-dependent.
-> 
-> Oh great. Even better. :(
+Hi Lee,
+   The failure is a Gentoo sandbax failure. On the surface of it I
+didn't really think it was a kernel problem but I know you've pushed
+me to move to PAM telling me realtime-lsm wasn't going to work in the
+future. I really just wanted to know that PAM was now a requirement
+instead of only best practice.
 
-Even more:  MD/raid (=m) is broken in this way also.
-It uses csum_partial(), which isn't present (CONFIG_NET=n).
-
-Kernel: arch/x86_64/boot/bzImage is ready  (#9)
-  Building modules, stage 2.
-  MODPOST 101 modules
-WARNING: "csum_partial" [drivers/md/md-mod.ko] undefined!
-make[1]: *** [__modpost] Error 1
-make: *** [modules] Error 2
-
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=m
-CONFIG_MD_LINEAR=m
-# CONFIG_MD_RAID0 is not set
-CONFIG_MD_RAID1=m
-# CONFIG_MD_RAID10 is not set
-# CONFIG_MD_RAID456 is not set
-CONFIG_MD_MULTIPATH=m
-# CONFIG_MD_FAULTY is not set
-CONFIG_BLK_DEV_DM=y
-CONFIG_DM_DEBUG=y
-CONFIG_DM_CRYPT=m
-CONFIG_DM_SNAPSHOT=y
-CONFIG_DM_MIRROR=y
-CONFIG_DM_ZERO=m
-CONFIG_DM_MULTIPATH=y
-CONFIG_DM_MULTIPATH_EMC=m
-
----
-~Randy
-full broken config for MD:
-http://oss.oracle.com/~rdunlap/configs/config-md-csum
+Thanks,
+Mark

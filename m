@@ -1,66 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758037AbWK1Xic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758016AbWK1Xjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758037AbWK1Xic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 18:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758016AbWK1Xic
+	id S1758016AbWK1Xjj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 18:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758042AbWK1Xjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 18:38:32 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38611 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1758007AbWK1Xib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 18:38:31 -0500
-Subject: Re: Boot failure with ext2 and initrds
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
+	Tue, 28 Nov 2006 18:39:39 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:15772 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1758016AbWK1Xji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 18:39:38 -0500
+Date: Tue, 28 Nov 2006 15:36:35 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Mel Gorman <mel@skynet.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-In-Reply-To: <20061128143321.2abf40b5.akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>,
+       "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>,
+       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
+Message-Id: <20061128153635.abaeb1fc.randy.dunlap@oracle.com>
+In-Reply-To: <20061115153614.a71f944d.akpm@osdl.org>
 References: <20061114014125.dd315fff.akpm@osdl.org>
-	 <20061114184919.GA16020@skynet.ie>
-	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
-	 <20061114113120.d4c22b02.akpm@osdl.org>
-	 <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-	 <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com>
-	 <20061115232228.afaf42f2.akpm@osdl.org>
-	 <1163666960.4310.40.camel@localhost.localdomain>
-	 <20061116011351.1401a00f.akpm@osdl.org>
-	 <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
-	 <20061116132724.1882b122.akpm@osdl.org>
-	 <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
-	 <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
-	 <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
-	 <1164747894.3769.77.camel@dyn9047017103.beaverton.ibm.com>
-	 <20061128143321.2abf40b5.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Tue, 28 Nov 2006 15:38:25 -0800
-Message-Id: <1164757106.6538.17.camel@dyn9047017103.beaverton.ibm.com>
+	<20061115231626.GC31879@stusta.de>
+	<20061115153614.a71f944d.akpm@osdl.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-28 at 14:33 -0800, Andrew Morton wrote: 
-> On Tue, 28 Nov 2006 13:04:53 -0800
-> Mingming Cao <cmm@us.ibm.com> wrote:
+On Wed, 15 Nov 2006 15:36:14 -0800 Andrew Morton wrote:
+
+> On Thu, 16 Nov 2006 00:16:26 +0100
+> Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> > Thanks, I have acked most of them, and will port them to ext3/4 soon.
+> > Paravirt breaks CONFIG_X86_PAE=y compilation:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   CC      init/main.o
+> > In file included from include2/asm/pgtable.h:245,
+> >                  from 
+> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/mm.h:40,
+> >                  from 
+> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/poll.h:11,
+> >                  from 
+> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/rtc.h:113,
+> >                  from 
+> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/efi.h:19,
+> >                  from 
+> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/init/main.c:43:
+> > include2/asm/pgtable-3level.h:108: error: redefinition of 'pte_clear'
+> > include2/asm/paravirt.h:365: error: previous definition of 'pte_clear' was here
+> > include2/asm/pgtable-3level.h:115: error: redefinition of 'pmd_clear'
+> > include2/asm/paravirt.h:370: error: previous definition of 'pmd_clear' was here
+> > make[2]: *** [init/main.o] Error 1
+> > 
 > 
-> You've acked #2 and #3.  #4, #5 and #6 remain un-commented-upon and #1 is
-> unclear?
+> So it does.  Zach will save us.
+> 
+> How come allmodconfig doesn't select highmem?
 
-sorry, just acked #4, #5 and #6. I mean to do that before I said so but
-they did not go out of my outbox till now ( I was out for a few hours).
+Must be because of "choice" and its default:
 
-#1 looks correct to me now, just thought there are other issues. I will
-comment on that one in that thread.
+choice
+	prompt "High Memory Support"
+	default NOHIGHMEM
 
+Changing the default fixes it.  I suppose conf.c could be
+hacked to do something different on choices, but it's not
+clear how/what to do there as a general rule.
 
-Mingming
+---
+From: Randy Dunlap <randy.dunlap@oracle.com>
+
+Make ix86 default to HIGHMEM4G instead of NOHIGHMEM.
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ arch/i386/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2.6.19-rc6-git10.orig/arch/i386/Kconfig
++++ linux-2.6.19-rc6-git10/arch/i386/Kconfig
+@@ -443,7 +443,8 @@ source "drivers/firmware/Kconfig"
+ 
+ choice
+ 	prompt "High Memory Support"
+-	default NOHIGHMEM
++	default HIGHMEM4G if !X86_NUMAQ
++	default HIGHMEM64G if X86_NUMAQ
+ 
+ config NOHIGHMEM
+ 	bool "off"
 

@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935793AbWK1KGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935784AbWK1KKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935793AbWK1KGs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935796AbWK1KGs
+	id S935784AbWK1KKA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935789AbWK1KJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:06:48 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:28907 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S935793AbWK1KGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 05:06:47 -0500
-X-Originating-Ip: 72.57.81.197
-Date: Tue, 28 Nov 2006 05:02:41 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: mismatch between default and defconfig LOG_BUF_SHIFT values
-Message-ID: <Pine.LNX.4.64.0611280451010.13481@localhost.localdomain>
+	Tue, 28 Nov 2006 05:09:59 -0500
+Received: from mpemail.mpe-garching.mpg.de ([130.183.137.110]:43238 "EHLO
+	mpemail.mpe.mpg.de") by vger.kernel.org with ESMTP id S935784AbWK1KJ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:09:58 -0500
+From: "Martin A. Fink" <fink@mpe.mpg.de>
+Organization: MPE
+To: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: SATA Performance with Intel ICH6
+Date: Tue, 28 Nov 2006 11:09:47 +0100
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, ALL_TRUSTED -1.80, BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611281109.47438.fink@mpe.mpg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Alan,
 
-  not like it's a big deal, but there's a minor incongruity between
-the default values for LOG_BUF_SHIFT for IA64 depending on whether
-you're configuring for the first time or not.
+You wrote
+> The PIIX interface needs CPU intervention each command, so in practice
+> about every 64K or so, and the CPU gets stalled waiting for the disk
+> during the setup of each I/O. The newer kernels support AHCI which does
+> not have this overhead, but it is only present on the newest intel
+> controllers.
 
-  if i'm configuring with a fresh tree for the first time (so that
-there's no .config file) and i run:
+Can you tell me the name of these newest controllers? Is it ICH7 or 8 ?
+What kernel versions? dmesg only shows ACPI and u/e/o hci_* host controller.
+(kernel version is 2.6.8-24.25-smp). How can I switch to AHCI ?
 
-  $ make ARCH=ia64 menuconfig    (on my x86 system, just for fun)
+Thank you very much,
 
-then the initial value for LOG_BUF_SHIFT is obtained from
-arch/ia64/defconfig:
-
-  CONFIG_LOG_BUF_SHIFT=20
-
-however, once i do that initial config, if i deselect "Kernel
-debugging" and later reselect it, the new default value of 16 for that
-config option comes from lib/Kconfig.debug:
-
-...
-config LOG_BUF_SHIFT
-        int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
-        range 12 21
-        default 17 if S390 || LOCKDEP
-        default 16 if X86_NUMAQ || IA64     <-- 16, not 20
-...
-
-  is it worth trying to bring the Kconfig.debug default values into
-line with the defconfig file values, to avoid any possible confusion?
-
-rday
-
-
-
+Martin

@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935798AbWK1KPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935796AbWK1KOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935798AbWK1KPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935806AbWK1KPn
+	id S935796AbWK1KOu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935801AbWK1KOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:15:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58843 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S935798AbWK1KPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 05:15:43 -0500
-Subject: Re: mismatch between default and defconfig LOG_BUF_SHIFT values
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611280451010.13481@localhost.localdomain>
-References: <Pine.LNX.4.64.0611280451010.13481@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 28 Nov 2006 11:15:38 +0100
-Message-Id: <1164708938.3276.65.camel@laptopd505.fenrus.org>
+	Tue, 28 Nov 2006 05:14:50 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:30376 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S935796AbWK1KOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:14:45 -0500
+Date: Tue, 28 Nov 2006 13:13:27 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
+Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
+Message-ID: <20061128101327.GE15083@2ka.mipt.ru>
+References: <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru> <20061122121516.GA7229@2ka.mipt.ru> <4564CE00.9030904@redhat.com> <20061123122225.GD20294@2ka.mipt.ru> <456605EA.5060601@redhat.com> <20061124105856.GE13600@2ka.mipt.ru> <456B2D2B.9080502@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <456B2D2B.9080502@redhat.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 28 Nov 2006 13:13:28 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ...
+On Mon, Nov 27, 2006 at 10:23:39AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
+> Evgeniy Polyakov wrote:
+> >
+> >With provided patch it is possible to wakeup 'for-free' - just call
+> >kevent_ctl(ready) with zero number of ready events, so thread will be
+> >awakened if it was in poll(kevent_fd), kevent_wait() or
+> >kevent_get_events().
 > 
->   is it worth trying to bring the Kconfig.debug default values into
-> line with the defconfig file values, to avoid any possible confusion?
+> Yes, I realize that.  But I wrote something else:
+> 
+> >> Rather than mark an existing entry as ready, how about a call to
+> >> inject a new ready event?
+> >>
+> >> This would be useful to implement functionality at userlevel and
+> >> still use an event queue to announce the availability.  Without this
+> >> type of functionality we'd need to use indirect notification via
+> >> signal or pipe or something like that.
+> 
+> This is still something which is wanted.
 
-I don't think so. 
-defconfig is just there to get some working system. You should really
-pay attention to the config options you care about, and select the value
-YOU want. Neither defconfig nor the "default value" matter in that.
-Of course especially the "default value" should be a sane one, but it is
-in this case.. your system boots and works fine.
+Why do we want to inject _ready_ event, when it is possible to mark
+event as ready and wakeup thread parked in syscall?
 
-defconfig also tends to be the config used by the arch maintainer, eg
-the one he uses for his system. He might very well have different
-preferences than you have...
-
+> -- 
+> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
+> CA ❖
 
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
-
+	Evgeniy Polyakov

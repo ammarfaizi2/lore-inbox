@@ -1,60 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935606AbWK1Feb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935622AbWK1Fkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935606AbWK1Feb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 00:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935613AbWK1Feb
+	id S935622AbWK1Fkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 00:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935624AbWK1Fkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 00:34:31 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:23861 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S935606AbWK1Fe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 00:34:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rVXKCU4UJsWcEQjVN7fZNmlS2sg46FUToOhAmER4baMxgzMYxbvwp3Agb5OOsIpQCDhdQamdyTZfBhKHLp5cgnRlds5BGT/4BvzU+3155LIPXIcgtS/0VSUyj7CS3GW9YC1R7nJ0ZMtsJpTcFRYOeAubuI+jggm728EL9pqwU7A=
-Message-ID: <21d7e9970611272134g72044fa8u5c5e47842e994fe3@mail.gmail.com>
-Date: Tue, 28 Nov 2006 16:34:28 +1100
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Jon Ringle" <jringle@vertical.com>
-Subject: Re: Reserving a fixed physical address page of RAM.
-Cc: "Robert Hancock" <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <456BAEB0.5030800@vertical.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 00:40:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:12522 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S935622AbWK1Fko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 00:40:44 -0500
+Date: Tue, 28 Nov 2006 05:40:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: "Frank Ch. Eigler" <fche@redhat.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 3/16] LTTng 0.6.36 for 2.6.18 : Linux Kernel Markers
+Message-ID: <20061128054036.GA29273@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+	"Frank Ch. Eigler" <fche@redhat.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Tom Zanussi <zanussi@us.ibm.com>,
+	Karim Yaghmour <karim@opersys.com>,
+	Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+	Richard J Moore <richardj_moore@uk.ibm.com>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	Michel Dagenais <michel.dagenais@polymtl.ca>,
+	Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+	systemtap@sources.redhat.com
+References: <20061124215401.GD25048@Krystal> <y0mu00kpawa.fsf@ton.toronto.redhat.com> <20061128023349.GA2964@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
-	 <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
+In-Reply-To: <20061128023349.GA2964@Krystal>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/28/06, Jon Ringle <jringle@vertical.com> wrote:
-> Robert Hancock wrote:
-> > Jon Ringle wrote:
-> >> Hi,
-> >>
-> >> I need to reserve a page of memory at a specific area of RAM that will
-> >> be used as a "shared memory" with another processor over PCI. How can I
-> >> ensure that the this area of RAM gets reseved so that the Linux's memory
-> >> management (kmalloc() and friends) don't use it?
-> >>
-> >> Some things that I've considered are iotable_init() and ioremap().
-> >> However, I've seen these used for memory mapped IO devices which are
-> >> outside of the RAM memory. Can I use them for reseving RAM too?
-> >>
-> >> I appreciate any advice in this regard.
-> >
-> > Sounds to me like dma_alloc_coherent is what you want..
-> >
-> It looks promising, however, I need to reserve a physical address area
-> that is well known (so that the code running on the other processor
-> knows where in PCI memory to write to). It appears that
-> dma_alloc_coherent returns the address that it allocated. Instead I need
-> something where I can tell it what physical address and range I want to use.
->
+On Mon, Nov 27, 2006 at 09:33:50PM -0500, Mathieu Desnoyers wrote:
+> * Frank Ch. Eigler (fche@redhat.com) wrote:
+> > One question:
+> > 
+> > > [...]
+> > > +	/* Markers in modules. */ 
+> > > +	list_for_each_entry(mod, &modules, list) {
+> > > +		if (mod->license_gplok)
+> > > +			found += marker_set_probe_range(name, format, probe,
+> > > +				mod->markers, mod->markers+mod->num_markers);
+> > > +	}
+> > > [...]
+> > > +EXPORT_SYMBOL(marker_set_probe);
+> > 
+> > Are you sure the license_gplok check is necessary here?  We should
+> > consider encouraging non-gpl module writers to instrument their code,
+> > to give users a slightly better chance of debugging problems.
+> > 
+> 
+> Hi Frank,
+> 
+> I was kind of expecting this question. Well, it turns out that my markers module
+> modifies the struct module in module.h to add a few fields. Some drivers that I
+> won't name (ok, ok I will : clearcase) have the funny habit of distributing
+> their kernel modules as ".ko" files instead of sending a proper ".o" and later
+> link it against a wrapper.
+> 
+> The result is, I must say, quite bad : when I want to add a probe, I iterate on
+> each modules, verifying if there are any markers in the object. Things gets
+> really messy when the structure is corrupted.
+> 
+> The simplest way to work around this non-GPL problem is to completely disable
+> access to the marker infrastructure to non-GPL modules. I am not against
+> instrumentation of binary-only modules, but I don't think it is kernel
+> developer's job to support their broken binary blob distribution.
+> 
+> I thought that we might use the crc checksum as another criterion. As long as
+> the machines do not crash when adding markers when such modules are loaded.
 
-I've seen other projects just boot a 128M board with mem=120M and just
-use the 8MB at 120 to talk to the other processor..
-
-Dave.
+Please don't add hacks like that for non-GPL modules.  But neither
+should we export any tracing functionality for them.  They;re not the
+kind of people we want to help at all, and Frank just shows once again that
+he should rather stay away from kernel stuff and keep on writing C++.

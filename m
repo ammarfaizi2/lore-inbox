@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756297AbWK1W2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756336AbWK1WbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756297AbWK1W2a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756314AbWK1W2a
+	id S1756336AbWK1WbP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 17:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756325AbWK1WbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:28:30 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:48046 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1756297AbWK1W23 (ORCPT
+	Tue, 28 Nov 2006 17:31:15 -0500
+Received: from ns2.suse.de ([195.135.220.15]:17040 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1755492AbWK1WbP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:28:29 -0500
-Date: Tue, 28 Nov 2006 14:27:51 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       trivial@kernel.org
-Subject: Re: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
-In-Reply-To: <200611282317.14020.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64.0611281425220.4244@woody.osdl.org>
-References: <200611282317.14020.jesper.juhl@gmail.com>
+	Tue, 28 Nov 2006 17:31:15 -0500
+Date: Tue, 28 Nov 2006 14:30:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm2
+Message-ID: <20061128223058.GC16152@kroah.com>
+References: <20061128020246.47e481eb.akpm@osdl.org> <200611281235.45087.m.kozlowski@tuxland.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611281235.45087.m.kozlowski@tuxland.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 28 Nov 2006, Jesper Juhl wrote:
+On Tue, Nov 28, 2006 at 12:35:43PM +0100, Mariusz Kozlowski wrote:
+> Hello,
 > 
-> In kernel/sys.c::sys_prctl() the argument named 'arg2' is very clearly 
-> of type 'unsigned long', and when compiling with "gcc -W" gcc also warns :
->   kernel/sys.c:2089: warning: comparison of unsigned expression < 0 is always false
+> 	When CONFIG_MODULE_UNLOAD is not set then this happens:
 > 
-> So this patch removes the test of "arg2 < 0".
+>   CC      kernel/module.o
+> kernel/module.c:852: error: `initstate' undeclared here (not in a function)
+> kernel/module.c:852: error: initializer element is not constant
+> kernel/module.c:852: error: (near initialization for `modinfo_attrs[2]')
+> make[1]: *** [kernel/module.o] Error 1
+> make: *** [kernel] Error 2
+> 
+> Reference to 'initstate' should stay under #ifdef CONFIG_MODULE_UNLOAD
+> as its definition I guess.
+> 
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> 
+> --- linux-2.6.19-rc6-mm2-a/kernel/module.c      2006-11-28 12:17:09.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2-b/kernel/module.c      2006-11-28 12:05:01.000000000 +0100
+> @@ -849,8 +849,8 @@ static inline void module_unload_init(st
+>  static struct module_attribute *modinfo_attrs[] = {
+>         &modinfo_version,
+>         &modinfo_srcversion,
+> -       &initstate,
+>  #ifdef CONFIG_MODULE_UNLOAD
+> +       &initstate,
+>         &refcnt,
+>  #endif
 
-No, we don't do this. 
+Kay, is this correct?  I think we still need this information exported
+to userspace, even if we can't unload modules, right?
 
-This is why we don't compile with "-W". Gcc is crap.
+thanks,
 
-The fact is, if it's unsigned, it's not something that the programmer 
-should have to care about. We should write our code to be readable and 
-obviously safe, and that means that
-
-	if (x < 0 || x > MAX) 
-		return -ERROR;
-
-is the _right_ way to do things, without having to carry stupid context 
-around in our heads.
-
-If the compiler (whose _job_ it is to carry all that context and use it to 
-generate good code) notices that the fact that "x" is unsignes means that 
-one of the tests is unnecessary, that does not make it wrong.
-
-Gcc warns for a lot of wrong things. This is one of them. 
-
-Friends don't let friends use "-W".
-
-		Linus
+greg k-h

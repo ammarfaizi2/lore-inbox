@@ -1,116 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757928AbWK1MLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757938AbWK1MNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757928AbWK1MLR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 07:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757931AbWK1MLR
+	id S1757938AbWK1MNE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 07:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757934AbWK1MND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 07:11:17 -0500
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:59891
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1757928AbWK1MLQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 07:11:16 -0500
-Message-ID: <007501c712e7$7a418c90$2900a8c0@arecakevin>
-From: "Areca Support" <support@areca.com.tw>
-To: "erich" <erich@areca.com.tw>, "Bron Gondwana" <brong@fastmail.fm>
-Cc: <linux-kernel@vger.kernel.org>, "Maurice Volaski" <mvolaski@aecom.yu.edu>
-References: <a06240400c18e4b03eadf@[129.98.90.227]> <00f501c711d4$f04c7530$b100a8c0@erich2003> <20061127130518.GC7610@brong.net>
-Subject: Re: Pathetic write performance from Areca PCIe cards
-Date: Tue, 28 Nov 2006 20:19:32 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
-X-OriginalArrivalTime: 28 Nov 2006 12:01:06.0812 (UTC) FILETIME=[E2AC13C0:01C712E4]
+	Tue, 28 Nov 2006 07:13:03 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:5920 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1757932AbWK1MNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 07:13:00 -0500
+Subject: [PATCH] lockdep: fix sk->sk_callback_lock locking
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Martin Josefsson <gandalf@wlug.westbo.se>
+In-Reply-To: <1164660685.30244.36.camel@localhost.localdomain>
+References: <1164547971.30244.22.camel@localhost.localdomain>
+	 <1164635760.6588.27.camel@twins>
+	 <1164660685.30244.36.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 28 Nov 2006 13:07:22 +0100
+Message-Id: <1164715642.6588.58.camel@twins>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
 
-This is Kevin Wang from Areca Technology, Tech-Support Team.
-as you recommend, we will updated driver/firmware to our ftp/website once it
-released.
+=========================================================
+[ INFO: possible irq lock inversion dependency detected ]
+2.6.19-rc6 #4
+---------------------------------------------------------
+nc/1854 just changed the state of lock:
+ (af_callback_keys + sk->sk_family#2){-.-?}, at: [<c0268a7f>] sock_def_error_report+0x1f/0x90
+but this lock was taken by another, soft-irq-safe lock in the past:
+ (slock-AF_INET){-+..}
 
-the firmware V1.42 sent by erich is a beta version and not released yet, it
-is certifying still.
-so you can not find it in our ftp site or website now.
+and interrupts could create inverse lock ordering between them.
 
-and could you please inform me more detail about the two releases V1.41 ?
-as i remember, the V1.41 should released once only, a second V1.41 could be
-a bug fixed version and a bug fixed version should not public for customer
-download. please inform me more detail about it, i will ask ftp releated
-person check it.
-sorry for the inconvenience.
+stack backtrace:
+ [<c0103f36>] show_trace_log_lvl+0x26/0x40
+ [<c010406b>] show_trace+0x1b/0x20
+ [<c01049e4>] dump_stack+0x24/0x30
+ [<c013738c>] print_irq_inversion_bug+0x10c/0x130
+ [<c01374f2>] check_usage_backwards+0x42/0x50
+ [<c0137912>] mark_lock+0x312/0x620
+ [<c0138925>] __lock_acquire+0x4c5/0xcb0
+ [<c0139499>] lock_acquire+0x69/0x90
+ [<c02ddc49>] _read_lock+0x39/0x50
+ [<c026778c>] sock_def_wakeup+0x1c/0x60
+ [<c02b7d73>] inet_shutdown+0x93/0xf0
+ [<c02648d2>] sys_shutdown+0x32/0x60
+ [<c0266284>] sys_socketcall+0x1d4/0x260
+ [<c01031f3>] syscall_call+0x7/0xb
+ =======================
 
+stack backtrace:
+ [<c0103f36>] show_trace_log_lvl+0x26/0x40
+ [<c010406b>] show_trace+0x1b/0x20
+ [<c01049e4>] dump_stack+0x24/0x30
+ [<c013738c>] print_irq_inversion_bug+0x10c/0x130
+ [<c01374f2>] check_usage_backwards+0x42/0x50
+ [<c0137912>] mark_lock+0x312/0x620
+ [<c0138925>] __lock_acquire+0x4c5/0xcb0
+ [<c0139499>] lock_acquire+0x69/0x90
+ [<c02ddc59>] _read_lock+0x39/0x50
+ [<c0268a7f>] sock_def_error_report+0x1f/0x90
+ [<c029b968>] tcp_disconnect+0x318/0x490
+ [<c02b9110>] inet_stream_connect+0x220/0x260
+ [<c0264adb>] sys_connect+0x6b/0x90
+ [<c026614f>] sys_socketcall+0x9f/0x260
+ [<c01031f3>] syscall_call+0x7/0xb
+ =======================
 
-Best Regards,
+sk->sk_callback_lock is usually only read locked from softirq context
+however it seems lockdep found two spots that are reachable from process
+context, thus creating the possibility of a deadlock.
 
+For now fix these two call sites with manual disabling of softirqs; if
+more of these sites are found we might consider changing the read_lock() to
+read_lock_bh().
 
-Kevin Wang
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Martin Josefsson <gandalf@wlug.westbo.se>
+---
+ net/ipv4/af_inet.c |    2 ++
+ net/ipv4/tcp.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
-Areca Technology Tech-support Division
-Tel : 886-2-87974060 Ext. 223
-Fax : 886-2-87975970
-Http://www.areca.com.tw
-Ftp://ftp.areca.com.tw
+Index: linux-2.6-netdev/net/ipv4/af_inet.c
+===================================================================
+--- linux-2.6-netdev.orig/net/ipv4/af_inet.c	2006-11-27 14:41:51.000000000 +0100
++++ linux-2.6-netdev/net/ipv4/af_inet.c	2006-11-28 07:06:23.000000000 +0100
+@@ -731,7 +731,9 @@ int inet_shutdown(struct socket *sock, i
+ 	}
+ 
+ 	/* Wake up anyone sleeping in poll. */
++	local_bh_disable();
+ 	sk->sk_state_change(sk);
++	local_bh_enable();
+ 	release_sock(sk);
+ 	return err;
+ }
+Index: linux-2.6-netdev/net/ipv4/tcp.c
+===================================================================
+--- linux-2.6-netdev.orig/net/ipv4/tcp.c	2006-11-28 07:06:16.000000000 +0100
++++ linux-2.6-netdev/net/ipv4/tcp.c	2006-11-28 07:06:20.000000000 +0100
+@@ -1765,7 +1765,9 @@ int tcp_disconnect(struct sock *sk, int 
+ 
+ 	BUG_TRAP(!inet->num || icsk->icsk_bind_hash);
+ 
++	local_bh_disable();
+ 	sk->sk_error_report(sk);
++	local_bh_enable();
+ 	return err;
+ }
+ 
 
------ Original Message ----- 
-From: "Bron Gondwana" <brong@fastmail.fm>
-To: "erich" <erich@areca.com.tw>
-Cc: "Maurice Volaski" <mvolaski@aecom.yu.edu>; "å»£å®‰ç§‘æŠ€ è˜‡èŽ‰åµ"
-<lusa@areca.com.tw>; "å»£å®‰ç§‘æŠ€ ç¾…ä»»å‰" <robert.lo@areca.com.tw>;
-"å»£å®‰ç§‘æŠ€ çŽ‹å®¶ä»²" <kevin34@areca.com.tw>; <support@areca.com.tw>;
-<linux-kernel@vger.kernel.org>
-Sent: Monday, November 27, 2006 9:05 PM
-Subject: Re: Pathetic write performance from Areca PCIe cards
-
-
-> On Mon, Nov 27, 2006 at 11:34:23AM +0800, erich wrote:
-> > Dear Maurice Volaski,
-> >
-> > Please update Areca Firmware version into 1.42.
-> > Areca's firmware team found some problems on high capacity transfer.
-> > Hope the weird  phenomenon should disappear.
->
-> Erich, is there anyone at Areca that you can pass on the message to
->
->        +--------------------------------------------+
->        | Please update your ftp server/website when |
->        | there is a new firmware or driver release! |
->        +--------------------------------------------+
->
-> that would be great.  I followed the links from www.areca.us to the
-> firmware at:
->
-> ftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware/ARC1130/
->
-> for our cards, but the 1210 and 1220 that Maurice was speaking about
-> suffer from the same problem - there is no mention of a 1.42 firmware
-> anywhere, just the 1.41 that's been out for ages.
->
-> ...
->
->
-> And speaking of 1.41, there appear to have been two releases on two
-> different dates both called 1.41, as well as two different versions
-> of the driver that both call themselves version 1.41 despite the
-> second one fixing a major bug we suffered from.
->
-> Please also avoid that behaviour and label each new version of
-> the driver with a new number if you're using version numbers.
->
-> Numbers are cheap, but identifying if a machine is running the patches
-> it needs to not crash every few weeks under the loads we run them at
-> is not (well, not until it crashes anyway!)
->
->
-> Thanks for listening, and hopefully thanks in advance for making your
-> drivers and firmware easier to find and identify in future.
->
-> Regards,
->
-> Bron.
 

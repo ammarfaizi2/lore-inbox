@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935900AbWK1RYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935934AbWK1RdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935900AbWK1RYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 12:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935901AbWK1RYN
+	id S935934AbWK1RdF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 12:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935939AbWK1RdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 12:24:13 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57794 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S935900AbWK1RYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 12:24:12 -0500
-Date: Tue, 28 Nov 2006 18:24:09 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-Message-ID: <mj+md-20061128.172328.19498.atrey@ucw.cz>
-References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <mj+md-20061128.131233.3594.atrey@ucw.cz> <456C704F.3050008@cfl.rr.com>
+	Tue, 28 Nov 2006 12:33:05 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:41891 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S935934AbWK1RdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 12:33:02 -0500
+Subject: Re: 2.6.19-rc6-rt5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com>
+References: <20061120220230.GA30835@elte.hu>
+	 <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 28 Nov 2006 12:33:25 -0500
+Message-Id: <1164735207.1701.19.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <456C704F.3050008@cfl.rr.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 2006-11-22 at 06:06 -0800, Mark Knecht wrote:
+> Ingo,
+>    I started building the new kernels a few days ago with your
+> 2.6.19-rc6-rt0 announcement. The kernels have built fine but so far I
+> am unable to build the realtime-lsm package against them so no reason
+> to reboot.
+> 
+>    I know there were some comments awhile back about being required to
+> switch to PAM. Has that occurred?
+> 
+>    If not then there is a regression issue for realtime-lsm. 
 
-> After a reboot the entropy estimate starts at zero, so if you are adding 
-> data to the pool from the previous boot, you DO want the estimate to 
-> increase because you are, in fact, adding entropy.
+As Realtime LSM is an out of tree module and there's no stable kernel
+module API it's impossible to prevent regressions.
 
-I'm adding entropy, but unless I record the exact amount of entropy when
-dumping the pool, I don't know how much I am adding, so using any fixed
-number is obviously wrong.
+That being said, the realtime LSM patch is so simple that it should work
+- how exactly does it fail?
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"Object orientation is in the mind, not in the compiler." -- Alan Cox
+Lee
+

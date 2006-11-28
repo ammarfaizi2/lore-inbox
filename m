@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935762AbWK1Jqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935746AbWK1JvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935762AbWK1Jqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 04:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935767AbWK1Jqb
+	id S935746AbWK1JvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 04:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935769AbWK1JvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 04:46:31 -0500
-Received: from nz-out-0506.google.com ([64.233.162.225]:48773 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S935762AbWK1Jqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 04:46:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JmNwZMnK2u2f3mcsH1oOuVPi5UTUA1vljZmqhVhD1vwsgjL4bw9j+aZxsF/xMm6lYwiVFAIUOxneRwjMF+owH9S3TXk7VimOYwnOwT/OM2tg6Oc1eUM/mUN621bxYQ6Ov7v0NqgzXKkKsCpJcWKtFdG/qLQO+a+J4AVtYnWWFZc=
-Message-ID: <456C056D.2070008@gmail.com>
-Date: Tue, 28 Nov 2006 18:46:21 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
+	Tue, 28 Nov 2006 04:51:25 -0500
+Received: from mx1.suse.de ([195.135.220.2]:27563 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S935746AbWK1JvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 04:51:24 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Zhao Forrest" <forrest.zhao@gmail.com>
+Subject: Re: Which patch fix the 8G memory problem on x64 platform?
+Date: Tue, 28 Nov 2006 10:45:54 +0100
+User-Agent: KMail/1.9.5
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+References: <ac8af0be0611270202i54e376b5jedf91fd7cba35434@mail.gmail.com> <200611271115.55899.ak@suse.de> <ac8af0be0611272133s6a209a53j4c493ec872570a08@mail.gmail.com>
+In-Reply-To: <ac8af0be0611272133s6a209a53j4c493ec872570a08@mail.gmail.com>
 MIME-Version: 1.0
-To: avl@logic.at
-CC: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Allow turning off hpa-checking.
-References: <20061122105735.GV6851@gamma.logic.tuwien.ac.at> <20061123170557.GY6851@gamma.logic.tuwien.ac.at> <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain> <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain> <20061127175647.GD2352@gamma.logic.tuwien.ac.at> <20061127181033.58e72d9a@localhost.localdomain> <20061127182943.GE2352@gamma.logic.tuwien.ac.at> <20061127195940.1b90a897@localhost.localdomain> <20061128092930.GF2352@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20061128092930.GF2352@gamma.logic.tuwien.ac.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Message-Id: <200611281045.54165.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Leitgeb wrote:
-> On Mon, Nov 27, 2006 at 07:59:40PM +0000, Alan wrote:
->>> size remains still constant, and the exceeding damaged sectors are 
->>> auto-"hidden" by the drive by means of HPA.
->>> Still incorrect?
->> Still incorrect. HPA has nothing to do with damaged sectors. The damaged
->> sectors are replaced from a pool of sectors that are reserved for this
->> purpose.
-> 
-> Please re-read my previous mail.   I *explicitly* wrote that
-> I'm talking about drives, whose "reserved pool of extra/spare
-> sectors" was already exhausted. 
-> 
-> Considering that: still incorrect?
 
-Yeap, if the drive has run out of spare sectors, bad sectors will no 
-longer get better after being written to.  The drive will *never* *ever* 
-get shorter.
+> I first need to contact the author of test case if we could send the
+> test case to open source. The test case is called "crashme", 
 
--- 
-tejun
+Is that the classical crashme as found in LTP or an enhanced one?
+Do you run it in a special way? Is the crash reproducible?
+
+We normally run crashme regularly as part of LTP, Cerberus etc.
+so at least any obvious bugs should in theory be caught. 
+
+-Andi

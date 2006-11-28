@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936090AbWK1UIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936087AbWK1UHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936090AbWK1UIL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:08:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936092AbWK1UIK
+	id S936087AbWK1UHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936083AbWK1UHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:08:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:27541 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S936090AbWK1UIJ (ORCPT
+	Tue, 28 Nov 2006 15:07:22 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:65428 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S936087AbWK1UHU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:08:09 -0500
-Date: Tue, 28 Nov 2006 21:06:11 +0100
+	Tue, 28 Nov 2006 15:07:20 -0500
+Date: Tue, 28 Nov 2006 21:05:19 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
 Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.19-rc6-rt7: Kernel BUG at kernel/rtmutex.c:672
-Message-ID: <20061128200611.GB25364@elte.hu>
+Message-ID: <20061128200519.GA25364@elte.hu>
 References: <1164737474.15887.10.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -37,13 +37,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-> (a normal non-root user was left logged in and was running jackd with 
-> realtime privileges, irqs' priority reordered with the rtirq script - 
-> I was getting, and still are under -rt8, lots of audio xruns but 
-> that's for another thread).
+> Nov 28 03:26:39 localhost kernel: Kernel BUG at kernel/rtmutex.c:672
 
-do you get those xruns even with maxcpus=1? I.e. is it an SMP-only 
-regression - or is UP affected too? [if it's UP then it would be simpler 
-to trace that xrun]
+hm, this means the lock was taken twice by the same task: enabling 
+CONFIG_PROVE_LOCKING ought to tell us the precise locking info and 
+backtraces that causes this situation. I looked at the code and it wasnt 
+obvious at first sight. (we should only be holding cache_chain_mutex 
+here, and l3->list_lock should not be taken at this point.)
 
 	Ingo

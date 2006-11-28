@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935059AbWK1DjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935086AbWK1DpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935059AbWK1DjL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 22:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935069AbWK1DjL
+	id S935086AbWK1DpT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 22:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935088AbWK1DpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 22:39:11 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:14266 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S935059AbWK1DjK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 22:39:10 -0500
-Date: Mon, 27 Nov 2006 19:38:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Alexander V. Lukyanov" <lav@netis.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6.18: memory leak(?)
-Message-Id: <20061127193834.b5ca80db.akpm@osdl.org>
-In-Reply-To: <20061127124443.GA11569@night.netis.ru>
-References: <20061127124443.GA11569@night.netis.ru>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Nov 2006 22:45:18 -0500
+Received: from gateway.insightbb.com ([74.128.0.19]:24381 "EHLO
+	asav06.insightbb.com") by vger.kernel.org with ESMTP
+	id S935086AbWK1DpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 22:45:17 -0500
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AgoXAIo/a0VKhRUUVWdsb2JhbACBZoRDhjsBKw
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Subject: Re: [RFC/PATCH] Uncap max number of evdev devices [was: Re: need more events]
+Date: Mon, 27 Nov 2006 22:45:19 -0500
+User-Agent: KMail/1.9.3
+Cc: juanslayton@dslextreme.com, linux-hotplug-devel@lists.sourceforge.net,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <7c50a14e8ca157b0abe20a.20061124170952.whnafynlgba@www.dslextreme.com> <20061127185651.GC10879@austin.ibm.com>
+In-Reply-To: <20061127185651.GC10879@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611272245.21645.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006 15:44:44 +0300
-"Alexander V. Lukyanov" <lav@netis.ru> wrote:
-
-> After a while, a loaded http proxy gets many errors like below. It is
-> reproducible and happens again after reboot (in some time). It did not
-> happen with 2.6.17. I have also tested 2.6.18.3, the leak is there too.
+On Monday 27 November 2006 13:56, Linas Vepstas wrote:
+> On Fri, Nov 24, 2006 at 05:09:52PM -0800, juanslayton@dslextreme.com wrote:
+> > 
+> >      The object is to poll 20 usb keyboards in an elementary school
+> > classroom, each of which generates 2
+> > events (one keyboard and one mouse).  The stock kernel maxes out at event
+> > 31, leaving me 4
+> > keyboards short.
+> >      I thought to fix this by changing the definition of EVDEV_MINORS
+> > (line 12, evdev.c) from 32 to 64.  It almost worked.  The extra
+> > events showed up in /dev/input/* and /proc/bus/input/devices.
+> > However, attempting to access the new events in the application
+> > program only yields a segmentation fault.  Obviously I've got to change
+> > something else.
 > 
-> swapper: page allocation failure. order:1, mode:0x20
->  [<c012bc40>] __alloc_pages+0x253/0x267
->  [<c013b12e>] cache_alloc_refill+0x243/0x3e7
->  [<c013b317>] __kmalloc+0x45/0x51
->  [<c01c11b8>] __alloc_skb+0x49/0xf4
->  [<c01e2feb>] tcp_collapse+0x10f/0x2ca
->  [<c01e32f5>] tcp_prune_queue+0x14f/0x20b
->  [<c01e3550>] tcp_data_queue+0x19f/0x9e9
->  [<c01ff7ea>] ipt_do_table+0x296/0x2c0
->  [<c01e52ef>] tcp_rcv_established+0x533/0x5c4
->  [<c01e9e2c>] tcp_v4_do_rcv+0x22/0x267
->  [<c01ff88a>] ipt_hook+0x17/0x1d
->  [<c01d04ad>] nf_iterate+0x30/0x61
->  [<c01ebe08>] tcp_v4_rcv+0x751/0x7a5
->  [<c01dd215>] tcp_prequeue_process+0x30/0x56
->  [<c01d59a8>] ip_local_deliver+0x12f/0x1ab
->  [<c01d5850>] ip_rcv+0x33f/0x368
->  [<c01c4991>] netif_receive_skb+0x135/0x176
->  [<c01c5da5>] process_backlog+0x6d/0xd2
->  [<c01c5e5c>] net_rx_action+0x52/0xcb
->  [<c0110463>] __do_softirq+0x35/0x75
->  [<c01104c5>] do_softirq+0x22/0x26
->  [<c0103b7f>] do_IRQ+0x45/0x4d
->  [<c010266a>] common_interrupt+0x1a/0x20
->  [<c0101506>] mwait_idle+0x20/0x33
->  [<c01014d1>] cpu_idle+0x39/0x4e
->  [<c02765f9>] start_kernel+0x275/0x277
+> The problem is in input_register_handler() in drivers/input/input.c
+> which does things like 
+> if (input_table[handler->minor >> 5])
+>  and 
+> input_table[handler->minor >> 5] = handler;
+> 
+> which implicitly makes 32 the max. 
+> 
+> The kernel path below removes this limitation. Does it fix your problem?
+> 
 
-It's not necessarily a leak.  Networking tried to allocate two
-physically-contiguous pages from atomic context, but no such two pages were
-available.  The packet will be dropped and things should recover.
+This makes /dev/input/js32-63 take over /dev/input/mouse0-31 which is
+contrary to what Documentation/devices.txt says and therefore not a good
+idea for the mainline.
 
-Increasing /proc/sys/vm/min_free_kbytes will reduce the frequency somewhat.
-If it's actually a problem, which I doubt?
+I am planning to convert input core to cdevs and that table will go away
+completely and then it can be discussed how to extend range of input
+devices (probably by going beyond 256 minors?).
+
+-- 
+Dmitry

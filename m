@@ -1,94 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934487AbWK1CUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934524AbWK1CZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934487AbWK1CUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 21:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934492AbWK1CUm
+	id S934524AbWK1CZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 21:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934526AbWK1CZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 21:20:42 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:29863 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S934488AbWK1CUl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 21:20:41 -0500
-Date: Mon, 27 Nov 2006 18:09:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: John <me@privacy.net>
-Cc: linux-kernel@vger.kernel.org, tglx@timesys.com, mingo@elte.hu,
-       johnstul@us.ibm.com
-Subject: Re: Incorrect behavior of timer_settime() for absolute dates in the
- past
-Message-Id: <20061127180945.15b37668.akpm@osdl.org>
-In-Reply-To: <456AF6F5.7050201@privacy.net>
-References: <455D7CDD.9000202@privacy.net>
-	<456AF6F5.7050201@privacy.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 27 Nov 2006 21:25:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62897 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S934524AbWK1CZ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 21:25:56 -0500
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 3/16] LTTng 0.6.36 for 2.6.18 : Linux Kernel Markers
+References: <20061124215401.GD25048@Krystal>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 27 Nov 2006 21:23:17 -0500
+In-Reply-To: <20061124215401.GD25048@Krystal>
+Message-ID: <y0mu00kpawa.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006 15:32:21 +0100
-John <me@privacy.net> wrote:
+Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> writes:
 
-> John wrote:
-> 
-> > I'm playing with the POSIX timers API. My platform is x86 running Linux 
-> > 2.6.18.1 patched with the high-resolution timer subsystem.
-> > 
-> > http://www.tglx.de/hrtimers.html
-> > 
-> > I'm seeing unexpected behavior from timer_settime().
-> > 
-> > int timer_settime(timer_t timerid, int flags,
-> >   const struct itimerspec *value, struct itimerspec *ovalue);
-> > 
-> > timer_settime() is used to arm a timer. If the TIMER_ABSTIME flag is 
-> > set, then the timer should fire when the appropriate clock reaches the 
-> > date specified by value. If that date is in the past, the timer should 
-> > fire immediately.
-> > 
-> > The Open Group Base Specifications Issue 6 states:
-> > http://www.opengroup.org/onlinepubs/009695399/functions/timer_getoverrun.html 
-> > 
-> > 
-> > "If the flag TIMER_ABSTIME is set in the argument flags, timer_settime() 
-> > shall behave as if the time until next expiration is set to be equal to 
-> > the difference between the absolute time specified by the it_value 
-> > member of value and the current value of the clock associated with 
-> > timerid. That is, the timer shall expire when the clock reaches the 
-> > value specified by the it_value member of value. If the specified time 
-> > has already passed, the function shall succeed and the expiration 
-> > notification shall be made."
-> > 
-> > In my tests, when timer_settime() is called with an expiration date in 
-> > the past, the timer still takes some time to fire.
-> > 
-> > Here's a run-down of the code provided as an attachment:
-> > 
-> > I switch to a SCHED_RR scheduling policy. In other words, whenever my 
-> > process wants the CPU, it gets it. (No other SCHED_RR or SCHED_FIFO 
-> > processes on the system.) I mask the signal that will be delivered on 
-> > timer expiration. I then arm a timer with an expiration date in the 
-> > past, check whether the signal is pending, and block waiting for the 
-> > signal. I then print how long I've had to wait.
-> > 
-> > # ./a.out
-> > RESOLUTION=1 ns
-> > NOW=969.735545919
-> > SLEEPING 1 SECOND...
-> > NOW=970.735581398
-> > NOW=970.735613525
-> > NOW=970.735749017
-> > nsdiff=135492 ns i.e. 135.5 µs
-> > 
-> > Any ideas?
-> 
-> Is there a better forum to discuss this matter?
-> 
+> This patch adds the Linux Kernel Markers [...]
+> Signed-off-by : Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 
-It hasn't been forgotten about.
+If it helps,
+Acked-by: Frank Ch. Eigler <fche@redhat.com>
 
-This problem, plus the dynticks-makes-us-disable-the-TSC problem, plus
-dynticks-breaks-teunis@wintersgift.com's-synaptics driver are all (IMO)
-blocking a merge.
 
+One question:
+
+> [...]
+> +	/* Markers in modules. */ 
+> +	list_for_each_entry(mod, &modules, list) {
+> +		if (mod->license_gplok)
+> +			found += marker_set_probe_range(name, format, probe,
+> +				mod->markers, mod->markers+mod->num_markers);
+> +	}
+> [...]
+> +EXPORT_SYMBOL(marker_set_probe);
+
+Are you sure the license_gplok check is necessary here?  We should
+consider encouraging non-gpl module writers to instrument their code,
+to give users a slightly better chance of debugging problems.
+
+
+- FChE

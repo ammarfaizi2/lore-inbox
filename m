@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935959AbWK1Rhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935967AbWK1Rjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935959AbWK1Rhd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 12:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935956AbWK1Rhd
+	id S935967AbWK1Rjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 12:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935966AbWK1Rjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 12:37:33 -0500
-Received: from ribosome.natur.cuni.cz ([195.113.57.20]:44295 "EHLO
-	ribosome.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id S935957AbWK1Rhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 12:37:31 -0500
-Message-ID: <456C73D8.50907@ribosome.natur.cuni.cz>
-Date: Tue, 28 Nov 2006 18:37:28 +0100
-From: =?UTF-8?B?TWFydGluIE1PS1JFSsWg?= <mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060426
-X-Accept-Language: cs
+	Tue, 28 Nov 2006 12:39:47 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:57753 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S935965AbWK1Rjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 12:39:45 -0500
+X-AuditID: d80ac21c-a0d6fbb00000557e-c1-456c7461a791 
+Date: Tue, 28 Nov 2006 17:40:05 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Mingming Cao <cmm@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: [PATCH 1/6] ext2 balloc: fix _with_rsv freeze
+In-Reply-To: <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
+Message-ID: <Pine.LNX.4.64.0611281739140.29701@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>  <20061114184919.GA16020@skynet.ie>
+  <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> 
+ <20061114113120.d4c22b02.akpm@osdl.org>  <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+  <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> 
+ <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> 
+ <20061115232228.afaf42f2.akpm@osdl.org>  <1163666960.4310.40.camel@localhost.localdomain>
+  <20061116011351.1401a00f.akpm@osdl.org>  <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+  <20061116132724.1882b122.akpm@osdl.org>  <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+  <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com> 
+ <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+ <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
+ <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: XFS: possible recursive locking detected in 2.6.18 to 2.6.19-rc6-git10
- but not 2.6.17.11
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 28 Nov 2006 17:39:44.0936 (UTC) FILETIME=[3137C280:01C71314]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I have a looong time opened a bugreport on XFS at
-http://bugzilla.kernel.org/show_bug.cgi?id=7287 and I see it still
-appear in my kernel output during bootup. I guess this is one of the
-relatively new kernel self-testing features introduced recently. I
-just wanted to let you know about that.
+After several days of testing ext2 with reservations, it got caught inside
+ext2_try_to_allocate_with_rsv: alloc_new_reservation repeatedly succeeding
+on the window [12cff,12d0e], ext2_try_to_allocate repeatedly failing to
+find the free block guaranteed to be included (unless there's contention).
 
+Fix the range to find_next_usable_block's memscan: the scan from "here"
+(0xcfe) up to (but excluding) "maxblocks" (0xd0e) needs to scan 3 bytes
+not 2 (the relevant bytes of bitmap in this case being f7 df ff - none
+00, but the premature cutoff implying that the last was found 00).
 
-=============================================
-[ INFO: possible recursive locking detected ]
-2.6.19-rc6-git10 #1
----------------------------------------------
-mount/3439 is trying to acquire lock:
- (&(&ip->i_lock)->mr_lock){----}, at: [<c11136fc>] xfs_ilock+0x4a/0x68
+Is this a problem for mainline ext2?  No, because the "size" in its memscan
+is always EXT2_BLOCKS_PER_GROUP(sb), which mkfs.ext2 requires to be a
+multiple of 8.  Is this a problem for ext3 or ext4?  No, because they have
+an additional extN_test_allocatable test which rescues them from the error.
 
-but task is already holding lock:
- (&(&ip->i_lock)->mr_lock){----}, at: [<c11136fc>] xfs_ilock+0x4a/0x68
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+But the bigger question is, why does the my_rsv case come here to
+find_next_usable_block at all?  Doesn't its 64-bit boundary limit, and its
+memscan, blithely ignore what the reservation prepared?  It's messy too,
+the complement of the memscan being that "i < 7" loop over in
+ext2_try_to_allocate.  I think this ought to be cleaned up,
+in ext2+reservations and ext3 and ext4.
 
-other info that might help us debug this:
-2 locks held by mount/3439:
- #0:  (&inode->i_mutex){--..}, at: [<c12f138d>] mutex_lock+0x8/0xa
- #1:  (&(&ip->i_lock)->mr_lock){----}, at: [<c11136fc>]
-xfs_ilock+0x4a/0x68
+ fs/ext2/balloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-stack backtrace:
- [<c1003107>] show_trace_log_lvl+0x1a/0x2f
- [<c1003202>] show_trace+0x12/0x14
- [<c10039c5>] dump_stack+0x19/0x1b
- [<c10307da>] __lock_acquire+0x106/0x94e
- [<c10315d7>] lock_acquire+0x5c/0x79
- [<c102d5da>] down_write+0x2b/0x44
- [<c11136fc>] xfs_ilock+0x4a/0x68
- [<c1113fd2>] xfs_iget+0x2a0/0x5de
- [<c112a239>] xfs_trans_iget+0xd6/0x135
- [<c1117e95>] xfs_ialloc+0xa7/0x41f
- [<c112abde>] xfs_dir_ialloc+0x6d/0x267
- [<c11314d8>] xfs_create+0x2f4/0x5ae
- [<c113981d>] xfs_vn_mknod+0x127/0x242
- [<c1139961>] xfs_vn_create+0x12/0x14
- [<c105d615>] vfs_create+0x6a/0xb4
- [<c105fbe1>] open_namei+0x179/0x57a
- [<c1055b79>] do_filp_open+0x26/0x3b
- [<c1055bd1>] do_sys_open+0x43/0xc7
- [<c1055c8d>] sys_open+0x1c/0x1e
- [<c1002cc5>] sysenter_past_esp+0x56/0x8d
- =======================
-
-I can provide more details upon request. Please Cc: me in replies.
-Thanks.
-Martin
+--- 2.6.19-rc6-mm2/fs/ext2/balloc.c	2006-11-24 08:18:02.000000000 +0000
++++ linux/fs/ext2/balloc.c	2006-11-27 19:28:41.000000000 +0000
+@@ -570,7 +570,7 @@ find_next_usable_block(int start, struct
+ 		here = 0;
+ 
+ 	p = ((char *)bh->b_data) + (here >> 3);
+-	r = memscan(p, 0, (maxblocks - here + 7) >> 3);
++	r = memscan(p, 0, ((maxblocks + 7) >> 3) - (here >> 3));
+ 	next = (r - ((char *)bh->b_data)) << 3;
+ 
+ 	if (next < maxblocks && next >= here)

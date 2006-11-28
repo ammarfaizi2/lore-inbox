@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758760AbWK1S4Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936021AbWK1S5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758760AbWK1S4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:56:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758761AbWK1S4Q
+	id S936021AbWK1S5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936020AbWK1S5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:56:16 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:17626 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1758760AbWK1S4P (ORCPT
+	Tue, 28 Nov 2006 13:57:13 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:62681 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S936021AbWK1S5L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:56:15 -0500
-Date: Tue, 28 Nov 2006 10:56:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
+	Tue, 28 Nov 2006 13:57:11 -0500
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
 Subject: Re: [patch] x86_64: fix earlyprintk=...,keep regression
-In-Reply-To: <Pine.LNX.4.64.0611281048170.4244@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0611281054330.4244@woody.osdl.org>
+Date: Tue, 28 Nov 2006 19:57:07 +0100
+User-Agent: KMail/1.9.5
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 References: <20061128081405.GA9031@elte.hu> <Pine.LNX.4.64.0611281048170.4244@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611281048170.4244@woody.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611281957.07362.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Tue, 28 Nov 2006, Linus Torvalds wrote:
 > 
 > Or is there some reason you really _want_ "keep" to be different? If so, 
 > it should probably be commented on.
 
-Hmm. Looking at the commit that broke, the "strstr()" was there 
-originally, so in that sense your patch is obviously the minimal and safe 
-one. So I'll apply it as-is after all, but I'd be even happier if somebody 
-cleaned this up a bit and sent a patch after I do 2.6.19 (which may well 
-be later today, I think the time has come).
+It's just that keep is the only option that can only be at the end, all
+others can be followed by more, so it
+made minor sense to use strcmp() to match the \0 too. But using strncmp
+everywhere is fine too since the syntax checking on these things is always
+quite weak and it probably doesn't make much difference either way. 
 
-		Linus
+I would have gone with Ingo's fix, but if you prefer strncmp..? 
+
+-Andi

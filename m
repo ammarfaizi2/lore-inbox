@@ -1,193 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756298AbWK1VWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753513AbWK1VYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756298AbWK1VWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 16:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756297AbWK1VWh
+	id S1753513AbWK1VYm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 16:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755492AbWK1VYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 16:22:37 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:56557 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1756200AbWK1VWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 16:22:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JbSVl2cbAXNUSQ57YimtMT8E/86YC2Yan5aD1tXJOt0Q2cfmxDbd2g6T3IoxfGJ+BR5jOUF9WU9yMfa2cPMkeglMZQ7xVSgD7XSis07DSmwNfgTXdhDRqg1ZeWZEKqvOokYUzkNDCNx6bBZE5uSawUGyKdwxcPa9GFEMZohm8sM=
-Message-ID: <a44ae5cd0611281322re4041dfha12a11e8f9486bf6@mail.gmail.com>
-Date: Tue, 28 Nov 2006 13:22:34 -0800
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.19-rc6-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061128020246.47e481eb.akpm@osdl.org>
+	Tue, 28 Nov 2006 16:24:42 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:12162 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1753513AbWK1VYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 16:24:42 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Tue, 28 Nov 2006 22:24:11 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [rfc PATCH] ieee1394: ohci1394: delete bogus spinlock, flush MMIO
+ writes
+To: linux1394-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Message-ID: <tkrat.9660c0c3e547e1fd@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061128020246.47e481eb.akpm@osdl.org>
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I decided to try building a relocatable kernel.  I don't know if this
-is why I got so many section mismatch errors.
+Remove a per-host spinlock which was only taken by the IRQ handler,
+i.e. where no concurrency was involved.
 
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:boot_params from .text between '_text' (at offset
-0xc0100036) and 'checkCPUtype'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:boot_params from .text between '_text' (at offset
-0xc0100044) and 'checkCPUtype'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:init_pg_tables_end from .text between '_text' (at offset
-0xc01000a6) and 'checkCPUtype'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc01000d5) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc01000df) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc01000fe) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc010010f) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc0100115) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc010011b) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc0100121) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc0100137) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc0100141) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc010014a) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'checkCPUtype' (at offset
-0xc0100150) and 'is486'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'check_x87' (at offset
-0xc01001b4) and 'setup_pda'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:new_cpu_data from .text between 'check_x87' (at offset
-0xc01001d2) and 'setup_pda'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:start_kernel from .text between 'is386' (at offset
-0xc01001ae) and 'check_x87'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:spawn_ksoftirqd from .text between 'init' (at offset
-0xc0100397) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:spawn_softlockup_task from .text between 'init' (at offset
-0xc010039c) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:APIC_init_uniprocessor from .text between 'init' (at offset
-0xc01003a1) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:sched_init_smp from .text between 'init' (at offset
-0xc01003a6) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:populate_rootfs from .text between 'init' (at offset
-0xc01003ab) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:usermodehelper_init from .text between 'init' (at offset
-0xc01003b5) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:driver_init from .text between 'init' (at offset
-0xc01003ba) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:sysctl_init from .text between 'init' (at offset
-0xc01003bf) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to .init.data: from
-.text between 'init' (at offset 0xc01003d4) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to .init.data: from
-.text between 'init' (at offset 0xc0100412) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:prepare_namespace from .text between 'init' (at offset
-0xc01004ea) and 'rest_init'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:machine_specific_memory_setup from .text between
-'init_new_context' (at offset 0xc0106c90) and 'i8259A_suspend'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:acpi_sci_flags from .text between 'acpi_sci_ioapic_setup'
-(at offset 0xc010c056) and '__acpi_map_table'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:acpi_sci_flags from .text between 'acpi_sci_ioapic_setup'
-(at offset 0xc010c07b) and '__acpi_map_table'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:mp_override_legacy_irq from .text between
-'acpi_sci_ioapic_setup' (at offset 0xc010c095) and '__acpi_map_table'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:acpi_sci_override_gsi from .text between
-'acpi_sci_ioapic_setup' (at offset 0xc010c09b) and '__acpi_map_table'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:num_processors from .text between 'MP_processor_info' (at
-offset 0xc010e881) and 'mp_register_lapic'
-WARNING: vmlinux - Section mismatch: reference to .init.data:maxcpus
-from .text between 'MP_processor_info' (at offset 0xc010e89b) and
-'mp_register_lapic'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:num_processors from .text between 'MP_processor_info' (at
-offset 0xc010e8c8) and 'mp_register_lapic'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:__init_begin from .text between 'free_initmem' (at offset
-0xc0113396) and 'mark_rodata_ro'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from
-.text between 'online_page' (at offset 0xc0113486) and '__set_fixmap'
-WARNING: vmlinux - Section mismatch: reference to .init.text:init_idle
-from .text between 'fork_idle' (at offset 0xc01188b8) and
-'get_task_mm'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:_sinittext from .text between 'core_kernel_text' (at offset
-0xc0128ced) and 'kernel_text_address'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:_einittext from .text between 'core_kernel_text' (at offset
-0xc0128cf6) and 'kernel_text_address'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:lockdep_init from .text between 'lockdep_init_map' (at
-offset 0xc0130437) and 'save_trace'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:lockdep_init from .text between 'lockdep_reset_lock' (at
-offset 0xc0131c4d) and 'print_circular_bug_header'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:lockdep_init from .text between '__lock_acquire' (at offset
-0xc0131fa0) and 'lock_release_non_nested'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:_sinittext from .text between 'get_symbol_pos' (at offset
-0xc01397e5) and 'reset_iter'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:_einittext from .text between 'get_symbol_pos' (at offset
-0xc01397ec) and 'reset_iter'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:initkmem_list3 from .text between 'set_up_list3s' (at
-offset 0xc016373c) and 'poison_obj'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:__alloc_bootmem from .text between 'vgacon_startup' (at
-offset 0xc020b5e2) and 'vgacon_switch'
-WARNING: vmlinux - Section mismatch: reference to
-.init.data:logo_linux_clut224 from .text between 'fb_find_logo' (at
-offset 0xc020b968) and 'cfb_fillrect'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:uart_parse_options from .text between
-'serial8250_console_setup' (at offset 0xc0246b77) and
-'serial8250_request_rsa_resource'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:uart_set_options from .text between
-'serial8250_console_setup' (at offset 0xc0246b97) and
-'serial8250_request_rsa_resource'
-WARNING: vmlinux - Section mismatch: reference to .init.text: from
-.text between 'iret_exc' (at offset 0xc0321977) and '_etext'
-WARNING: vmlinux - Section mismatch: reference to .init.data: from
-.data between 'this_cpu' (at offset 0xc03abb10) and 'cpuinfo_op'
-WARNING: vmlinux - Section mismatch: reference to
-.init.text:start_kernel from .paravirtprobe between
-'__start_paravirtprobe' (at offset 0xc0437488) and
-'__stop_paravirtprobe'
+All MMIO writes which were surrounded by the spinlock as well as the
+very last MMIO write of the IRQ handler are now explicitly flushed by
+MMIO reads of the respective register.
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+
+Some of the flushes may be unnecessary. Comments?
+
+
+ drivers/ieee1394/ohci1394.c |   24 ++++++++++--------------
+ drivers/ieee1394/ohci1394.h |    1 -
+ 2 files changed, 10 insertions(+), 15 deletions(-)
+
+Index: linux-2.6.19-rc6/drivers/ieee1394/ohci1394.h
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/ieee1394/ohci1394.h
++++ linux-2.6.19-rc6/drivers/ieee1394/ohci1394.h
+@@ -215,7 +215,6 @@ struct ti_ohci {
+         int phyid, isroot;
+ 
+         spinlock_t phy_reg_lock;
+-	spinlock_t event_lock;
+ 
+ 	int self_id_errors;
+ 
+Index: linux-2.6.19-rc6/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/ieee1394/ohci1394.c
++++ linux-2.6.19-rc6/drivers/ieee1394/ohci1394.c
+@@ -2307,17 +2307,15 @@ static irqreturn_t ohci_irq_handler(int 
+ 	int phyid = -1, isroot = 0;
+ 	unsigned long flags;
+ 
+-	/* Read and clear the interrupt event register.  Don't clear
+-	 * the busReset event, though. This is done when we get the
+-	 * selfIDComplete interrupt. */
+-	spin_lock_irqsave(&ohci->event_lock, flags);
+ 	event = reg_read(ohci, OHCI1394_IntEventClear);
+-	reg_write(ohci, OHCI1394_IntEventClear, event & ~OHCI1394_busReset);
+-	spin_unlock_irqrestore(&ohci->event_lock, flags);
+-
+ 	if (!event)
+ 		return IRQ_NONE;
+ 
++	/* Clear the interrupt event register except for the busReset event.
++	 * This is done when we handle the selfIDComplete event. */
++	reg_write(ohci, OHCI1394_IntEventClear, event & ~OHCI1394_busReset);
++	reg_read(ohci, OHCI1394_IntEventClear); /* flush */
++
+ 	/* If event is ~(u32)0 cardbus card was ejected.  In this case
+ 	 * we just return, and clean up in the ohci1394_pci_remove
+ 	 * function. */
+@@ -2399,8 +2397,8 @@ static irqreturn_t ohci_irq_handler(int 
+ 		/* The busReset event bit can't be cleared during the
+ 		 * selfID phase, so we disable busReset interrupts, to
+ 		 * avoid burying the cpu in interrupt requests. */
+-		spin_lock_irqsave(&ohci->event_lock, flags);
+ 		reg_write(ohci, OHCI1394_IntMaskClear, OHCI1394_busReset);
++		reg_read(ohci, OHCI1394_IntMaskClear); /* flush */
+ 
+ 		if (ohci->check_busreset) {
+ 			int loop_count = 0;
+@@ -2409,10 +2407,9 @@ static irqreturn_t ohci_irq_handler(int 
+ 
+ 			while (reg_read(ohci, OHCI1394_IntEventSet) & OHCI1394_busReset) {
+ 				reg_write(ohci, OHCI1394_IntEventClear, OHCI1394_busReset);
++				reg_read(ohci, OHCI1394_IntEventClear); /* flush */
+ 
+-				spin_unlock_irqrestore(&ohci->event_lock, flags);
+ 				udelay(10);
+-				spin_lock_irqsave(&ohci->event_lock, flags);
+ 
+ 				/* The loop counter check is to prevent the driver
+ 				 * from remaining in this state forever. For the
+@@ -2429,7 +2426,7 @@ static irqreturn_t ohci_irq_handler(int 
+ 				loop_count++;
+ 			}
+ 		}
+-		spin_unlock_irqrestore(&ohci->event_lock, flags);
++
+ 		if (!host->in_bus_reset) {
+ 			DBGMSG("irq_handler: Bus reset requested");
+ 
+@@ -2520,10 +2517,10 @@ static irqreturn_t ohci_irq_handler(int 
+ 
+ 			/* Clear the bus reset event and re-enable the
+ 			 * busReset interrupt.  */
+-			spin_lock_irqsave(&ohci->event_lock, flags);
+ 			reg_write(ohci, OHCI1394_IntEventClear, OHCI1394_busReset);
++			reg_read(ohci, OHCI1394_IntEventClear); /* flush */
+ 			reg_write(ohci, OHCI1394_IntMaskSet, OHCI1394_busReset);
+-			spin_unlock_irqrestore(&ohci->event_lock, flags);
++			reg_read(ohci, OHCI1394_IntMaskSet); /* flush */
+ 
+ 			/* Turn on phys dma reception.
+ 			 *
+@@ -3398,7 +3395,6 @@ static int __devinit ohci1394_pci_probe(
+ 	/* We hopefully don't have to pre-allocate IT DMA like we did
+ 	 * for IR DMA above. Allocate it on-demand and mark inactive. */
+ 	ohci->it_legacy_context.ohci = NULL;
+-	spin_lock_init(&ohci->event_lock);
+ 
+ 	/*
+ 	 * interrupts are disabled, all right, but... due to IRQF_SHARED we
+
+
+-- 
+Stefan Richter
+-=====-=-==- =-== ===--
+http://arcgraph.de/sr/
+

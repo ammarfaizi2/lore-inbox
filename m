@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935605AbWK1Fd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935606AbWK1Feb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935605AbWK1Fd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 00:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935606AbWK1Fd5
+	id S935606AbWK1Feb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 00:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935613AbWK1Feb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 00:33:57 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:39475 "EHLO
+	Tue, 28 Nov 2006 00:34:31 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:23861 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S935605AbWK1Fd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 00:33:56 -0500
+	id S935606AbWK1Fe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 00:34:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pmVX5HKvM8dUktKyQ+BO22pRn1V2ilNGk/3eYnJVyFeHqKw9owThP04vc5R8r23PsVRXnyrOgf5ik7Olz//5Sa5yDdGBP3vUDxWuEO4/Td4UBsPgopNrC56S+Id57L0bquC8HN2+A1Hb7kiZo2IwKhLx1VCid5ydOeV0jaJSn5c=
-Message-ID: <ac8af0be0611272133s6a209a53j4c493ec872570a08@mail.gmail.com>
-Date: Mon, 27 Nov 2006 21:33:55 -0800
-From: "Zhao Forrest" <forrest.zhao@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: Which patch fix the 8G memory problem on x64 platform?
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200611271115.55899.ak@suse.de>
+        b=rVXKCU4UJsWcEQjVN7fZNmlS2sg46FUToOhAmER4baMxgzMYxbvwp3Agb5OOsIpQCDhdQamdyTZfBhKHLp5cgnRlds5BGT/4BvzU+3155LIPXIcgtS/0VSUyj7CS3GW9YC1R7nJ0ZMtsJpTcFRYOeAubuI+jggm728EL9pqwU7A=
+Message-ID: <21d7e9970611272134g72044fa8u5c5e47842e994fe3@mail.gmail.com>
+Date: Tue, 28 Nov 2006 16:34:28 +1100
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Jon Ringle" <jringle@vertical.com>
+Subject: Re: Reserving a fixed physical address page of RAM.
+Cc: "Robert Hancock" <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <456BAEB0.5030800@vertical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <ac8af0be0611270202i54e376b5jedf91fd7cba35434@mail.gmail.com>
-	 <200611271115.55899.ak@suse.de>
+References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
+	 <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/27/06, Andi Kleen <ak@suse.de> wrote:
-> On Monday 27 November 2006 11:02, Zhao Forrest wrote:
-> > Hi Andi,
+On 11/28/06, Jon Ringle <jringle@vertical.com> wrote:
+> Robert Hancock wrote:
+> > Jon Ringle wrote:
+> >> Hi,
+> >>
+> >> I need to reserve a page of memory at a specific area of RAM that will
+> >> be used as a "shared memory" with another processor over PCI. How can I
+> >> ensure that the this area of RAM gets reseved so that the Linux's memory
+> >> management (kmalloc() and friends) don't use it?
+> >>
+> >> Some things that I've considered are iotable_init() and ioremap().
+> >> However, I've seen these used for memory mapped IO devices which are
+> >> outside of the RAM memory. Can I use them for reseving RAM too?
+> >>
+> >> I appreciate any advice in this regard.
 > >
-> > The kernel 2.6.18.3 runs very well on my x64 server with 2 CPU's and
-> > 8G memory; however kernel 2.6.16.32 kernel panic(Kernel panic - not
-> > syncing: Attempted to kill init) under the stress test. After I use
-> > mem=4000M for kernel 2.6.16.32, the kernel panic doesn't happen under
-> > stress test.
->
-> I'm not aware of a "8G memory problem"
->
-> Best you write a full bug report and possibly git bisect it.
+> > Sounds to me like dma_alloc_coherent is what you want..
+> >
+> It looks promising, however, I need to reserve a physical address area
+> that is well known (so that the code running on the other processor
+> knows where in PCI memory to write to). It appears that
+> dma_alloc_coherent returns the address that it allocated. Instead I need
+> something where I can tell it what physical address and range I want to use.
 >
 
-Hi Andy,
+I've seen other projects just boot a 128M board with mem=120M and just
+use the 8MB at 120 to talk to the other processor..
 
-My bad. After the further testing, we found this bug is not related to
-the volumn of physical memory. During the stress test, when the system
-halt, there's only "Kernel panic - not
- syncing: Attempted to kill init" on the screen, no stack call trace
-is printed out. Also we found the content in the address pointed by
-rSP is all 0xff, so don't know how to debug it.
-This bug is reproduced with kernel 2.6.16.32 on both IBM and SUN MP servers.
-
-I first need to contact the author of test case if we could send the
-test case to open source. The test case is called "crashme", and the
-main idea of test case is:
-A signal handler is set up so that in most cases the machine exception
-generated by the illegal instructions, bad operands, etc in the procedure
-made up of random data are caught; and another round of randomness may
-be tried. Eventually a random instruction may corrupt the program or
-the machine state in such a way that the program must halt. This is
-a test of the robustness of the hardware/software for instruction
-fault handling.
-
-Now we are doing git-bisect, which will take some time......
-
-Thanks,
-Forrest
+Dave.

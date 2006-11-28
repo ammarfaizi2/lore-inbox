@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935225AbWK1O3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935312AbWK1Oc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935225AbWK1O3t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 09:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935221AbWK1O3t
+	id S935312AbWK1Oc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 09:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935314AbWK1Oc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 09:29:49 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:9393 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S935225AbWK1O3t convert rfc822-to-8bit (ORCPT
+	Tue, 28 Nov 2006 09:32:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51891 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S935312AbWK1Ocz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 09:29:49 -0500
-X-OB-Received: from unknown (205.158.62.49)
-  by wfilter.us4.outblaze.com; 28 Nov 2006 14:29:48 -0000
+	Tue, 28 Nov 2006 09:32:55 -0500
+Date: Tue, 28 Nov 2006 09:32:14 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] work around gcc4 issue with -Os in Dwarf2 stack unwind code
+Message-ID: <20061128143214.GD6570@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <456C51D8.76E4.0078.0@novell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: spynet@usa.com
-To: linux-kernel@vger.kernel.org
-Date: Tue, 28 Nov 2006 11:29:50 -0300
-Subject: A Big bug with ethernet card
-X-Originating-Ip: 201.24.175.152
-X-Originating-Server: ws1-1.us4.outblaze.com
-Message-Id: <20061128142950.67A461BF297@ws1-1.us4.outblaze.com>
+In-Reply-To: <456C51D8.76E4.0078.0@novell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I find a bug in kernel 2.6.18.3
+On Tue, Nov 28, 2006 at 02:12:24PM +0000, Jan Beulich wrote:
+> This fixes a problem with gcc4 mis-compiling the stack unwind code under
+> -Os, which resulted in 'stuck' messages whenever an assembly routine was
+> encountered.
 
-with ethernet card:
-4.1 Ethernet card
-    -- Networking support
-        Networking options -->
-            Ethernet (1000 Mbit) -->
-                 Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller 
+"mis-compiling" and "work around" are wrong words, the code had undefined
+behavior (there is no sequence point between evaluation of ptr and
+get_uleb128(&ptr, end) and ptr is modified twice, so the compiler can
+evaluate it e.g. as:
+temp = ptr;
+temp = temp + get_uleb128(&ptr, end);
+ptr = temp;
+or
+temp = get_uleb128(&ptr, end);
+ptr += temp;
+While gcc has some warnings for sequence point semantics violations
+(-Wsequence-point), this can't be one of the cases at least until IPA moves
+much further, because get_uleb128 might very well not modify the variable
+and at that point the code would be ok).
 
-There are problems with ethernet card when booting to different system, e.g. from linux to M$ win - system is not able to connect to network. instead of re-boot you have to shutdown box and after that turn on. 
+> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> 
+> --- linux-2.6.19-rc6/kernel/unwind.c	2006-11-22 14:54:10.000000000 +0100
+> +++ 2.6.19-rc6-unwind-stuck/kernel/unwind.c	2006-11-28 15:02:15.000000000 +0100
+> @@ -938,8 +938,11 @@ int unwind(struct unwind_frame_info *fra
+>  		else {
+>  			retAddrReg = state.version <= 1 ? *ptr++ : get_uleb128(&ptr, end);
+>  			/* skip augmentation */
+> -			if (((const char *)(cie + 2))[1] == 'z')
+> -				ptr += get_uleb128(&ptr, end);
+> +			if (((const char *)(cie + 2))[1] == 'z') {
+> +				uleb128_t augSize = get_uleb128(&ptr, end);
+> +
+> +				ptr += augSize;
+> +			}
+>  			if (ptr > end
+>  			   || retAddrReg >= ARRAY_SIZE(reg_info)
+>  			   || REG_INVALID(retAddrReg)
 
-I running slackware 11 with kernel 2.6.18.3
-
-root@segfault:/home/buzz# uname -a
-Linux segfault 2.6.18.3 #2 Tue Nov 28 08:10:19 BRST 2006 i686 athlon-4 i386 GNU/Linux
-
-this problem have someone patch?
-
-
-
-
-
--- 
-
-Search for products and services at: 
-http://search.mail.com
-
+	Jakub

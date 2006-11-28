@@ -1,70 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758738AbWK1Scr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936016AbWK1SdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758738AbWK1Scr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758737AbWK1Scr
+	id S936016AbWK1SdW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936015AbWK1SdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:32:47 -0500
-Received: from mga02.intel.com ([134.134.136.20]:62554 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1758735AbWK1Scq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:32:46 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,470,1157353200"; 
-   d="scan'208"; a="167469918:sNHT30923011"
-From: Jason Gaston <jason.d.gaston@intel.com>
-To: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jason.d.gaston@intel.com, htejun@gmail.com
-Subject: [PATCH 2.6.19-rc6][reRESEND] ata_piix: IDE mode SATA patch for Intel ICH9
-User-Agent: KMail/1.9.1
+	Tue, 28 Nov 2006 13:33:22 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:57509 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1758739AbWK1SdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 13:33:21 -0500
+Message-ID: <456C80FE.7090902@oracle.com>
+Date: Tue, 28 Nov 2006 10:33:34 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Tue, 28 Nov 2006 10:32:38 -0800
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200611281032.39214.jason.d.gaston@intel.com>
+To: Steven Whitehouse <swhiteho@redhat.com>
+CC: Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com,
+       =?windows-1252?Q?Toralf_F=F6rster?= <toralf.foerster@gmx.de>
+Subject: Re: [GFS2] Fix Kconfig wrt CRC32 [8/9]
+References: <1164360889.3392.146.camel@quoit.chygwyn.com>	 <20061124214338.0e4d0510.randy.dunlap@oracle.com>	 <1164633855.3392.167.camel@quoit.chygwyn.com> <456B149C.4050605@oracle.com> <1164736932.3752.28.camel@quoit.chygwyn.com>
+In-Reply-To: <1164736932.3752.28.camel@quoit.chygwyn.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updated patch adds the Intel ICH9 IDE mode SATA controller DID's.
+Steven Whitehouse wrote:
+> Hi,
+> 
+> On Mon, 2006-11-27 at 08:38 -0800, Randy Dunlap wrote:
+>> Steven Whitehouse wrote:
+>>> Hi,
+>>>
+>>> On Fri, 2006-11-24 at 21:43 -0800, Randy Dunlap wrote:
+>>>> On Fri, 24 Nov 2006 09:34:49 +0000 Steven Whitehouse wrote:
+>>>>
+>>>>> >From 6f788fd00c82533d4cd5587a9706f8468658a24d Mon Sep 17 00:00:00 2001
+>>>>> From: Steven Whitehouse <swhiteho@redhat.com>
+>>>>> Date: Mon, 20 Nov 2006 10:04:49 -0500
+>>>>> Subject: [PATCH] [GFS2] Fix Kconfig wrt CRC32
+>>>>> Content-Type: text/plain; charset=UTF-8
+>>>>> Content-Transfer-Encoding: 8bit
+>>>>>
+>>>>> GFS2 requires the CRC32 library function. This was reported by
+>>>>> Toralf Förster.
+>>>>>
+>>>>> Cc: Toralf Förster <toralf.foerster@gmx.de>
+>>>>> Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+>>>>> ---
+>>>>>  fs/gfs2/Kconfig |    1 +
+>>>>>  1 files changed, 1 insertions(+), 0 deletions(-)
+>>>>>
+>>>>> diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
+>>>>> index 8c27de8..c0791cb 100644
+>>>>> --- a/fs/gfs2/Kconfig
+>>>>> +++ b/fs/gfs2/Kconfig
+>>>>> @@ -2,6 +2,7 @@ config GFS2_FS
+>>>>>  	tristate "GFS2 file system support"
+>>>>>  	depends on EXPERIMENTAL
+>>>>>  	select FS_POSIX_ACL
+>>>>> +	select CRC32
+>>>>>  	help
+>>>>>  	A cluster filesystem.
+>>>> Hi,
+>>>>
+>>>> Do you also have Kconfig patches for DLM needing SYSFS
+>>>> and DLM needing CONFIG_NET ?
+>>>>
+>>>> ---
+>>>> ~Randy
+>>> My original reply to this seemed to disappear into my email system
+>>> somewhere, so apologies if this is the second copy you get.
+>>>
+>>> The DLM shouldn't depend upon SYSFS at all. I believe that its perfectly
+>>> ok whether or not thats compiled in. There is a patch relating to the
+>>> Kconfig for DLM which is in my -nmw tree:
+>> Hm, OK.  Apparently I meant CONFIGFS instead of SYSFS.
+>>
+> The Kconfig for DLM in Linus' current tree says:
+> 	select CONFIGFS_FS
+> 
+> so I don't know what else is needed.... its the same in -nmw as that bit
+> hasn't changed.
+> 
+>>> http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=8758fbc8724c2da8a6a062f2b61d79c8f2a55c5f
+>>>
+>>> This applies after the patch adding the TCP communications layer to DLM
+>>> which is also in -nmw. The patches in -nmw (next merge window) are a
+>>> superset of the ones I just requested that Linus pull since it contains
+>>> the newer features and more involved bug fixes and clean ups.
+>>>
+>>> I believe that the Kconfig in -nmw is correct for DLM, though I'm
+>>> willing to be proved wrong. I'm also copying in Patrick in case he wants
+>>> to comment further as its more his area than mine,
+>> I applied just that one patch to 2.6.19-rc6-git10 (which may or may not
+>> be sufficient -- please say) and built with my previously failing config file.
+> You'll need the patch:
+> http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=4a28fda50d864ede7d2724723949407e0e4043b8
+> as well. I'm also slightly surprised that you managed to get the errors
+> that you did, since most of those symbols appear to be networking
+> related and the DLM depends on INET which is clearly not set since NET
+> is not set.
 
-Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+Thanks, I'll apply that patch also and test again.
 
---- linux-2.6.19-rc6/drivers/ata/ata_piix.c.orig	2006-11-20 04:58:48.000000000 
--0800
-+++ linux-2.6.19-rc6/drivers/ata/ata_piix.c	2006-11-22 02:59:05.000000000 
--0800
-@@ -227,15 +227,27 @@
- 	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
- 	/* 2801GBM/GHM (ICH7M, identical to ICH6M) */
- 	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6m_sata_ahci },
--	/* Enterprise Southbridge 2 (where's the datasheet?) */
-+	/* Enterprise Southbridge 2 (631xESB/632xESB) */
- 	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
--	/* SATA Controller 1 IDE (ICH8, no datasheet yet) */
-+	/* SATA Controller 1 IDE (ICH8) */
- 	{ 0x8086, 0x2820, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--	/* SATA Controller 2 IDE (ICH8, ditto) */
-+	/* SATA Controller 2 IDE (ICH8) */
- 	{ 0x8086, 0x2825, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--	/* Mobile SATA Controller IDE (ICH8M, ditto) */
-+	/* Mobile SATA Controller IDE (ICH8M) */
- 	{ 0x8086, 0x2828, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
--
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2920, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2921, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9) */
-+	{ 0x8086, 0x2926, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x2928, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x292d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	/* SATA Controller IDE (ICH9M) */
-+	{ 0x8086, 0x292e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich8_sata_ahci },
-+	
- 	{ }	/* terminate list */
- };
- 
+Part of the problem (IMO) is that kconfig s/w doesn't follow dependency
+chains when applying "select"s.
+
+>> It still fails with:
+>>
+>> WARNING: "kernel_sendmsg" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "sock_release" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_item_put" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "sock_create_kern" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_item_init_type_name" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_group_init_type_name" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "configfs_register_subsystem" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_group_find_obj" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "configfs_unregister_subsystem" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "kernel_recvmsg" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_item_get" [fs/dlm/dlm.ko] undefined!
+>> WARNING: "config_group_init" [fs/dlm/dlm.ko] undefined!
+>>   CC      arch/x86_64/boot/compressed/misc.o
+>>   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
+>> make[1]: *** [__modpost] Error 1
+>> make: *** [modules] Error 2
+>>
+> Which of the various methods (oldconfig, xconfig, menuconfig, etc) did
+> you use to generate this config?
+
+make randconfig
+
+-- 
+~Randy

@@ -1,391 +1,325 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935757AbWK1Hoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935763AbWK1Hvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935757AbWK1Hoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 02:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935762AbWK1Hoj
+	id S935763AbWK1Hvk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 02:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935764AbWK1Hvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 02:44:39 -0500
-Received: from outbound0.mx.meer.net ([209.157.153.23]:27910 "EHLO
+	Tue, 28 Nov 2006 02:51:40 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:16903 "EHLO
 	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
-	id S935757AbWK1Hoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 02:44:38 -0500
-Subject: [PATCH 1/2 -mm] fault-injection: safer defaults, trivial
-	optimization, cleanup
+	id S935763AbWK1Hvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 02:51:39 -0500
+Subject: [PATCH 2/2 -mm] fault-injection: lightweight code-coverage
+	maximizer
 From: Don Mullis <dwm@meer.net>
 To: akpm <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>, Akinobu Mita <mita@miraclelinux.com>
+In-Reply-To: <1164699866.2894.88.camel@localhost.localdomain>
+References: <1164699866.2894.88.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 27 Nov 2006 23:44:26 -0800
-Message-Id: <1164699866.2894.88.camel@localhost.localdomain>
+Date: Mon, 27 Nov 2006 23:51:30 -0800
+Message-Id: <1164700290.2894.93.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Set /debug/fail*/* defaults supposed most likely to please a new user.
-Clamp /debug/fail*/stacktrace-depth to MAX_STACK_TRACE_DEPTH.
+Allow all non-unique call stacks, as judged by pushed sequence of EIPs,
+to be to be ignored as failure candidates.
 
-In should_fail(), move stack-unwinding test past cheaper tests (performance
-gain not quantified).  Simplify logic; eliminate goto.
-Use bool/true/false consistently.
+Upon keying in
+	echo 1 >probability
+	echo 3 >verbose
+	echo -1 >times
+a few dozen stacks are printk'ed, then system responsiveness
+recovers to normal.  Similarly, starting a non-trivial program
+will print a few stacks before responsiveness recovers.
 
-Correct and disambiguate documentation.
+Intent is to make code-coverage-maximizing test lightweight, perhaps
+light enough to remain enabled during the course of the developer's
+interactive testing of new code.
+
+Enabled by default. (/debug/fail*/stacktrace-depth > 0)
 
 Signed-off-by: Don Mullis <dwm@meer.net>
 Cc: Akinobu Mita <akinobu.mita@gmail.com>
 ---
- Documentation/fault-injection/failmodule.sh       |    4 -
- Documentation/fault-injection/fault-injection.txt |   39 +++++------
- include/linux/fault-inject.h                      |    3 
- lib/fault-inject.c                                |   74 +++++++++++++---------
- mm/page_alloc.c                                   |    2 
- mm/slab.c                                         |    1 
- 6 files changed, 71 insertions(+), 52 deletions(-)
+ Documentation/fault-injection/fault-injection.txt |    7 +
+ include/linux/fault-inject.h                      |    4 
+ lib/fault-inject.c                                |  123 +++++++++++++++++++---
+ 3 files changed, 120 insertions(+), 14 deletions(-)
 
-Index: linux-2.6.18/mm/slab.c
-===================================================================
---- linux-2.6.18.orig/mm/slab.c
-+++ linux-2.6.18/mm/slab.c
-@@ -3111,6 +3111,7 @@ static struct failslab_attr {
- 
- } failslab = {
- 	.attr = FAULT_ATTR_INITIALIZER,
-+	.ignore_gfp_wait = 1,
- };
- 
- static int __init setup_failslab(char *str)
 Index: linux-2.6.18/include/linux/fault-inject.h
 ===================================================================
 --- linux-2.6.18.orig/include/linux/fault-inject.h
 +++ linux-2.6.18/include/linux/fault-inject.h
-@@ -52,12 +52,13 @@ struct fault_attr {
- 		.times = ATOMIC_INIT(1),			\
+@@ -23,6 +23,8 @@ struct fault_attr {
+ 	unsigned long require_end;
+ 	unsigned long reject_start;
+ 	unsigned long reject_end;
++	unsigned long uniquestack_depth;
++	atomic_t uniquestack_hash_table[256];
+ 
+ 	unsigned long count;
+ 
+@@ -42,6 +44,7 @@ struct fault_attr {
+ 		struct dentry *require_end_file;
+ 		struct dentry *reject_start_file;
+ 		struct dentry *reject_end_file;
++		struct dentry *uniquestack_depth_file;
+ 	} dentries;
+ 
+ #endif
+@@ -53,6 +56,7 @@ struct fault_attr {
  		.require_end = ULONG_MAX,			\
  		.stacktrace_depth = 32,				\
-+		.verbose = 2,					\
+ 		.verbose = 2,					\
++		.uniquestack_depth = 32,			\
  	}
  
  #define DECLARE_FAULT_ATTR(name) struct fault_attr name = FAULT_ATTR_INITIALIZER
- int setup_fault_attr(struct fault_attr *attr, char *str);
- void should_fail_srandom(unsigned long entropy);
--int should_fail(struct fault_attr *attr, ssize_t size);
-+bool should_fail(struct fault_attr *attr, ssize_t size);
- 
- #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
- 
 Index: linux-2.6.18/lib/fault-inject.c
 ===================================================================
 --- linux-2.6.18.orig/lib/fault-inject.c
 +++ linux-2.6.18/lib/fault-inject.c
-@@ -48,11 +48,13 @@ static void fail_dump(struct fault_attr 
- 
- #define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
- 
--static int fail_task(struct fault_attr *attr, struct task_struct *task)
-+static bool fail_task(struct fault_attr *attr, struct task_struct *task)
- {
- 	return !in_interrupt() && task->make_it_fail;
- }
+@@ -1,3 +1,4 @@
++
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/random.h>
+@@ -9,8 +10,12 @@
+ #include <linux/unwind.h>
+ #include <linux/stacktrace.h>
+ #include <linux/kallsyms.h>
++#include <linux/jhash.h>
++#include <linux/syscalls.h>
+ #include <linux/fault-inject.h>
  
 +#define MAX_STACK_TRACE_DEPTH 32
 +
- #ifdef CONFIG_STACK_UNWIND
+ /*
+  * setup_fault_attr() is a helper function for various __setup handlers, so it
+  * returns 0 on error, because that is what __setup handlers do.
+@@ -21,10 +26,11 @@ int __init setup_fault_attr(struct fault
+ 	unsigned long interval;
+ 	int times;
+ 	int space;
++ 	unsigned long uniquestack_depth;
  
- static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
-@@ -68,15 +70,15 @@ static asmlinkage int fail_stacktrace_ca
- 			break;
- 		if (attr->reject_start <= UNW_PC(info) &&
- 			       UNW_PC(info) < attr->reject_end)
--			return 0;
-+			return false;
- 		if (attr->require_start <= UNW_PC(info) &&
- 			       UNW_PC(info) < attr->require_end)
--			found = 1;
-+			found = true;
- 	}
- 	return found;
+-	/* "<interval>,<probability>,<space>,<times>" */
+-	if (sscanf(str, "%lu,%lu,%d,%d",
+-			&interval, &probability, &space, &times) < 4) {
++	/* "<interval>,<probability>,<space>,<times>,<uniquestack_depth>" */
++	if (sscanf(str, "%lu,%lu,%d,%d,%lu", &interval,
++		   &probability, &space, &times, &uniquestack_depth) < 5) {
+ 		printk(KERN_WARNING
+ 			"FAULT_INJECTION: failed to parse arguments\n");
+ 		return 0;
+@@ -34,6 +40,8 @@ int __init setup_fault_attr(struct fault
+ 	attr->interval = interval;
+ 	atomic_set(&attr->times, times);
+ 	atomic_set(&attr->space, space);
++	attr->uniquestack_depth = (uniquestack_depth <= MAX_STACK_TRACE_DEPTH) ?
++		uniquestack_depth : MAX_STACK_TRACE_DEPTH;
+ 
+ 	return 1;
  }
- 
--static int fail_stacktrace(struct fault_attr *attr)
-+static bool fail_stacktrace(struct fault_attr *attr)
- {
- 	struct unwind_frame_info info;
- 
-@@ -85,9 +87,7 @@ static int fail_stacktrace(struct fault_
- 
- #elif defined(CONFIG_STACKTRACE)
+@@ -53,8 +61,6 @@ static bool fail_task(struct fault_attr 
+ 	return !in_interrupt() && task->make_it_fail;
+ }
  
 -#define MAX_STACK_TRACE_DEPTH 32
 -
--static int fail_stacktrace(struct fault_attr *attr)
-+static bool fail_stacktrace(struct fault_attr *attr)
+ #ifdef CONFIG_STACK_UNWIND
+ 
+ static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
+@@ -85,26 +91,54 @@ static bool fail_stacktrace(struct fault
+ 	return unwind_init_running(&info, fail_stacktrace_callback, attr);
+ }
+ 
++static asmlinkage int unique_stack_callback(struct unwind_frame_info *info,
++						void *arg)
++{
++	u32 entries[MAX_STACK_TRACE_DEPTH];
++	int depth;
++	struct fault_attr *attr = arg;
++
++	for (depth = 0; depth < attr->uniquestack_depth
++			&& unwind(info) == 0 && UNW_PC(info); depth++) {
++		if (arch_unw_user_mode(info))
++			break;
++	}
++	if (attr->verbose > 8)
++		printk("%s: depth=%d, jhash=%x\n",
++		       __FUNCTION__, depth,
++		       jhash( entries, depth*sizeof(entries[0]), 0));
++	return jhash( entries, depth*sizeof(entries[0]), 0/*initval*/);
++}
++
++static int unique_stack_p(struct fault_attr *attr)
++{
++	struct unwind_frame_info info;
++
++	return unwind_init_running(&info, unique_stack_callback, attr);
++}
++
+ #elif defined(CONFIG_STACKTRACE)
+ 
++static void stack_trace(struct stack_trace *trace, int depth)
++{
++	trace->nr_entries = 0;
++	trace->max_entries = depth;
++	trace->skip = 1;
++	trace->all_contexts = 0;
++
++	save_stack_trace(trace, NULL);
++}
++
+ static bool fail_stacktrace(struct fault_attr *attr)
  {
  	struct stack_trace trace;
- 	int depth = attr->stacktrace_depth;
-@@ -100,8 +100,7 @@ static int fail_stacktrace(struct fault_
+-	int depth = attr->stacktrace_depth;
+ 	unsigned long entries[MAX_STACK_TRACE_DEPTH];
+ 	int n;
+ 	bool found = (attr->require_start == 0 && attr->require_end == ULONG_MAX);
  
- 	trace.nr_entries = 0;
+-	if (depth == 0)
+-		return found;
+-
+-	trace.nr_entries = 0;
  	trace.entries = entries;
--	trace.max_entries = (depth < MAX_STACK_TRACE_DEPTH) ?
--				depth : MAX_STACK_TRACE_DEPTH;
-+	trace.max_entries = depth;
- 	trace.skip = 1;
- 	trace.all_contexts = 0;
+-	trace.max_entries = depth;
+-	trace.skip = 1;
+-	trace.all_contexts = 0;
  
-@@ -109,26 +108,26 @@ static int fail_stacktrace(struct fault_
+-	save_stack_trace(&trace, NULL);
++	stack_trace(&trace, attr->stacktrace_depth);
  	for (n = 0; n < trace.nr_entries; n++) {
  		if (attr->reject_start <= entries[n] &&
  			       entries[n] < attr->reject_end)
--			return 0;
-+			return false;
- 		if (attr->require_start <= entries[n] &&
- 			       entries[n] < attr->require_end)
--			found = 1;
-+			found = true;
- 	}
+@@ -116,6 +150,23 @@ static bool fail_stacktrace(struct fault
  	return found;
  }
  
++static int unique_stack_p(struct fault_attr *attr)
++{
++	struct stack_trace trace;
++	unsigned long entries[MAX_STACK_TRACE_DEPTH];
++
++	trace.entries = entries;
++	stack_trace(&trace, attr->uniquestack_depth);
++
++	if (attr->verbose > 8)
++		printk("%s: trace.nr_entries=%d jhash=%x\n",
++		       __FUNCTION__, trace.nr_entries,
++		       jhash( trace.entries,
++			      trace.nr_entries*sizeof(trace.entries[0]), 0));
++	return jhash( trace.entries,
++		      trace.nr_entries*sizeof(trace.entries[0]), 0/*initval*/);
++}
++
  #else
  
--static inline int fail_stacktrace(struct fault_attr *attr)
-+static inline bool fail_stacktrace(struct fault_attr *attr)
- {
--	static int firsttime = 1;
-+	static bool firsttime = true;
- 
- 	if (firsttime) {
- 		printk(KERN_WARNING
- 		"This architecture does not implement save_stack_trace()\n");
--		firsttime = 0;
-+		firsttime = false;
- 	}
--	return 0;
-+	return false;
+ static inline bool fail_stacktrace(struct fault_attr *attr)
+@@ -130,8 +181,42 @@ static inline bool fail_stacktrace(struc
+ 	return false;
  }
  
++static int unique_stack_p(struct fault_attr *attr)
++{
++	(void) fail_stacktrace(attr);
++	return 0;
++}
  #endif
-@@ -138,40 +137,37 @@ static inline int fail_stacktrace(struct
-  * http://www.nongnu.org/failmalloc/
-  */
  
--int should_fail(struct fault_attr *attr, ssize_t size)
-+bool should_fail(struct fault_attr *attr, ssize_t size)
- {
- 	if (attr->task_filter && !fail_task(attr, current))
--		return 0;
--
--	if (!fail_stacktrace(attr))
--		return 0;
-+		return false;
- 
- 	if (atomic_read(&attr->times) == 0)
--		return 0;
-+		return false;
- 
- 	if (atomic_read(&attr->space) > size) {
- 		atomic_sub(size, &attr->space);
--		return 0;
-+		return false;
- 	}
- 
- 	if (attr->interval > 1) {
- 		attr->count++;
- 		if (attr->count % attr->interval)
--			return 0;
++static bool fail_uniquestack(struct fault_attr *attr)
++{
++	u32 oldhash;
++	u32 newhash;
++	uint offset = 0;
++
++	newhash = unique_stack_p(attr);
++
++	for ( oldhash = newhash; oldhash != 0; offset++) {
++		oldhash = atomic_xchg(
++			&attr->uniquestack_hash_table[
++				(newhash+offset)%ARRAY_SIZE(attr->uniquestack_hash_table)],
++			oldhash);
++		if (oldhash == newhash)
 +			return false;
- 	}
++		if (offset >= ARRAY_SIZE(attr->uniquestack_hash_table)) {
++			printk(KERN_NOTICE
++			       "FAULT_INJECTION: table overflow -- "
++			       "fault injection disabled\n");
++			return false;
++		}
++	}
++
++	if (attr->verbose > 8)
++		printk(KERN_NOTICE "FAULT_INJECTION: newhash=%x offset==%d\n",
++		       newhash, offset-1);
++	return true;
++}
++
+ /*
+  * This code is stolen from failmalloc-1.0
+  * http://www.nongnu.org/failmalloc/
+@@ -162,6 +247,9 @@ bool should_fail(struct fault_attr *attr
+ 	if (!fail_stacktrace(attr))
+ 		return false;
  
--	if (attr->probability > random32() % 100)
--		goto fail;
-+	if (attr->probability <= random32() % 100)
++	if (!fail_uniquestack(attr))
 +		return false;
- 
--	return 0;
-+	if (!fail_stacktrace(attr))
-+		return false;
- 
--fail:
++
  	fail_dump(attr);
  
  	if (atomic_read(&attr->times) != -1)
- 		atomic_dec_not_zero(&attr->times);
+@@ -262,6 +350,9 @@ void cleanup_fault_attr_dentries(struct 
+ 	debugfs_remove(attr->dentries.reject_end_file);
+ 	attr->dentries.reject_end_file = NULL;
  
--	return 1;
-+	return true;
- }
- 
- #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
-@@ -181,6 +177,13 @@ static void debugfs_ul_set(void *data, u
- 	*(unsigned long *)data = val;
- }
- 
-+static void debugfs_ul_set_MAX_STACK_TRACE_DEPTH(void *data, u64 val)
-+{
-+	*(unsigned long *)data =
-+		val < MAX_STACK_TRACE_DEPTH ?
-+		val : MAX_STACK_TRACE_DEPTH;
-+}
++	debugfs_remove(attr->dentries.uniquestack_depth_file);
++	attr->dentries.uniquestack_depth_file = NULL;
 +
- static u64 debugfs_ul_get(void *data)
- {
- 	return *(unsigned long *)data;
-@@ -194,6 +197,17 @@ static struct dentry *debugfs_create_ul(
- 	return debugfs_create_file(name, mode, parent, value, &fops_ul);
- }
+ 	if (attr->dentries.dir)
+ 		WARN_ON(!simple_empty(attr->dentries.dir));
  
-+DEFINE_SIMPLE_ATTRIBUTE(fops_ul_MAX_STACK_TRACE_DEPTH, debugfs_ul_get,
-+			debugfs_ul_set_MAX_STACK_TRACE_DEPTH, "%llu\n");
-+
-+static struct dentry *debugfs_create_ul_MAX_STACK_TRACE_DEPTH(
-+	const char *name, mode_t mode,
-+	struct dentry *parent, unsigned long *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value,
-+				   &fops_ul_MAX_STACK_TRACE_DEPTH);
-+}
-+
- static void debugfs_atomic_t_set(void *data, u64 val)
- {
- 	atomic_set((atomic_t *)data, val);
-@@ -286,8 +300,8 @@ int init_fault_attr_dentries(struct faul
- 						mode, dir, &attr->task_filter);
+@@ -315,6 +406,9 @@ int init_fault_attr_dentries(struct faul
+ 	attr->dentries.reject_end_file =
+ 		debugfs_create_ul("reject-end", mode, dir, &attr->reject_end);
  
- 	attr->dentries.stacktrace_depth_file =
--		debugfs_create_ul("stacktrace-depth", mode, dir,
--				  &attr->stacktrace_depth);
++	attr->dentries.uniquestack_depth_file =
 +		debugfs_create_ul_MAX_STACK_TRACE_DEPTH(
-+			"stacktrace-depth", mode, dir, &attr->stacktrace_depth);
++			"uniquestack-depth", mode, dir, &attr->uniquestack_depth);
  
- 	attr->dentries.require_start_file =
- 		debugfs_create_ul("require-start", mode, dir, &attr->require_start);
-Index: linux-2.6.18/mm/page_alloc.c
-===================================================================
---- linux-2.6.18.orig/mm/page_alloc.c
-+++ linux-2.6.18/mm/page_alloc.c
-@@ -929,6 +929,8 @@ static struct fail_page_alloc_attr {
+ 	if (!attr->dentries.probability_file || !attr->dentries.interval_file
+ 	    || !attr->dentries.times_file || !attr->dentries.space_file
+@@ -324,6 +418,7 @@ int init_fault_attr_dentries(struct faul
+ 	    || !attr->dentries.require_end_file
+ 	    || !attr->dentries.reject_start_file
+ 	    || !attr->dentries.reject_end_file
++	    || !attr->dentries.uniquestack_depth_file
+ 	    )
+ 		goto fail;
  
- } fail_page_alloc = {
- 	.attr = FAULT_ATTR_INITIALIZER,
-+	.ignore_gfp_wait = 1,
-+	.ignore_gfp_highmem = 1,
- };
- 
- static int __init setup_fail_page_alloc(char *str)
-Index: linux-2.6.18/Documentation/fault-injection/failmodule.sh
-===================================================================
---- linux-2.6.18.orig/Documentation/fault-injection/failmodule.sh
-+++ linux-2.6.18/Documentation/fault-injection/failmodule.sh
-@@ -26,6 +26,6 @@ fi
- # Disable any fault injection
- echo 0 > /debug/$1/stacktrace-depth
- 
--echo `cat /sys/module/$2/sections/.text` > /debug/$1/address-start
--echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/address-end
-+echo `cat /sys/module/$2/sections/.text` > /debug/$1/require-start
-+echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/require-end
- echo $STACKTRACE_DEPTH > /debug/$1/stacktrace-depth
 Index: linux-2.6.18/Documentation/fault-injection/fault-injection.txt
 ===================================================================
 --- linux-2.6.18.orig/Documentation/fault-injection/fault-injection.txt
 +++ linux-2.6.18/Documentation/fault-injection/fault-injection.txt
-@@ -29,16 +29,16 @@ o debugfs entries
- fault-inject-debugfs kernel module provides some debugfs entries for runtime
- configuration of fault-injection capabilities.
+@@ -91,6 +91,13 @@ configuration of fault-injection capabil
+ 	for a caller within [require-start,require-end) OR
+ 	[reject-start,reject-end).
  
--- /debug/*/probability:
-+- /debug/fail*/probability:
- 
- 	likelihood of failure injection, in percent.
- 	Format: <percent>
- 
- 	Note that one-failure-per-handred is a very high error rate
- 	for some testcases. Please set probably=100 and configure
--	/debug/*/interval for such testcases.
-+	/debug/fail*/interval for such testcases.
- 
--- /debug/*/interval:
-+- /debug/fail*/interval:
- 
- 	specifies the interval between failures, for calls to
- 	should_fail() that pass all the other tests.
-@@ -46,18 +46,18 @@ configuration of fault-injection capabil
- 	Note that if you enable this, by setting interval>1, you will
- 	probably want to set probability=100.
- 
--- /debug/*/times:
-+- /debug/fail*/times:
- 
- 	specifies how many times failures may happen at most.
- 	A value of -1 means "no limit".
- 
--- /debug/*/space:
-+- /debug/fail*/space:
- 
- 	specifies an initial resource "budget", decremented by "size"
- 	on each call to should_fail(,size).  Failure injection is
- 	suppressed until "space" reaches zero.
- 
--- /debug/*/verbose
-+- /debug/fail*/verbose
- 
- 	Format: { 0 | 1 | 2 }
- 	specifies the verbosity of the messages when failure is injected.
-@@ -66,17 +66,17 @@ configuration of fault-injection capabil
- 	it is useful to debug the problems revealed by fault injection
- 	capabilities.
- 
--- /debug/*/task-filter:
-+- /debug/fail*/task-filter:
- 
--	Format: { 0 | 1 }
--	A value of '0' disables filtering by process (default).
-+	Format: { 'Y' | 'N' }
-+	A value of 'N' disables filtering by process (default).
- 	Any positive value limits failures to only processes indicated by
- 	/proc/<pid>/make-it-fail==1.
- 
--- /debug/*/require-start:
--- /debug/*/require-end:
--- /debug/*/reject-start:
--- /debug/*/reject-end:
-+- /debug/fail*/require-start:
-+- /debug/fail*/require-end:
-+- /debug/fail*/reject-start:
-+- /debug/fail*/reject-end:
- 
- 	specifies the range of virtual addresses tested during
- 	stacktrace walking.  Failure is injected only if some caller
-@@ -85,22 +85,23 @@ configuration of fault-injection capabil
- 	Default required range is [0,ULONG_MAX) (whole of virtual address space).
- 	Default rejected range is [0,0).
- 
--- /debug/*/stacktrace-depth:
-+- /debug/fail*/stacktrace-depth:
- 
- 	specifies the maximum stacktrace depth walked during search
--	for a caller within [address-start,address-end).
-+	for a caller within [require-start,require-end) OR
-+	[reject-start,reject-end).
- 
++- /debug/fail*/uniquestack-depth:
++
++	specifies the stacktrace depth walked during calculation of a
++	hash of caller's EIPs.  Hash is compared against a record of
++	those already seen since boot; if duplicate, no failure is injected.
++	'0' disables the test.
++
  - /debug/fail_page_alloc/ignore-gfp-highmem:
  
--	Format: { 0 | 1 }
--	default is 0, setting it to '1' won't inject failures into
-+	Format: { 'Y' | 'N' }
-+	default is 'N', setting it to 'Y' won't inject failures into
- 	highmem/user allocations.
- 
- - /debug/failslab/ignore-gfp-wait:
- - /debug/fail_page_alloc/ignore-gfp-wait:
- 
--	Format: { 0 | 1 }
--	default is 0, setting it to '1' will inject failures
-+	Format: { 'Y' | 'N' }
-+	default is 'N', setting it to 'Y' will inject failures
- 	only into non-sleep allocations (GFP_ATOMIC allocations).
- 
- o Boot option
+ 	Format: { 'Y' | 'N' }
 
 

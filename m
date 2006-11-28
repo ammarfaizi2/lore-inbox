@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752809AbWK1UwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754347AbWK1Uxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752809AbWK1UwI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753513AbWK1UwI
+	id S1754347AbWK1Uxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754250AbWK1Uxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:52:08 -0500
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:46608 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1752809AbWK1UwF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:52:05 -0500
-Date: Tue, 28 Nov 2006 21:52:09 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <gregkh@suse.de>, <i2c@lm-sensors.org>
-Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: SMBus patch for Intel ICH9
-Message-Id: <20061128215209.f6cdf121.khali@linux-fr.org>
-In-Reply-To: <39B20DF628532344BC7A2692CB6AEE07A5AB43@orsmsx420.amr.corp.intel.com>
-References: <39B20DF628532344BC7A2692CB6AEE07A5AB43@orsmsx420.amr.corp.intel.com>
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Nov 2006 15:53:47 -0500
+Received: from wr-out-0506.google.com ([64.233.184.237]:9366 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1754075AbWK1Uxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 15:53:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=te0xh1pK5AiKdGBs+RlJkjuk7pMZZb92oqVg+zAJKb/dQbyC7iej37MvlBGnAXJdi872DCz9THzbrEk03Gsv78GiJY3NB9ljGhwEW/wOpDrm6Nd3+fTZHZvOloSKxfnB95fYxYiVX29oq6u9id+hgdtJDlbRU6SOZqfC8/3qsfI=
+Message-ID: <9a8748490611281253m788d917gac62127f36da4c11@mail.gmail.com>
+Date: Tue, 28 Nov 2006 21:53:45 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Randy Dunlap" <randy.dunlap@oracle.com>
+Subject: Re: [PATCH] REPORTING-BUGS: request .config file
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20061128113522.432889b7.randy.dunlap@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061128113522.432889b7.randy.dunlap@oracle.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2006 11:20:39 -0800, Gaston, Jason D wrote:
-> Jean,
-> 
-> I send the patches you requested.  Please let me know if you
-> see anything that needs to change.
+On 28/11/06, Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+>
+> Add kernel .config file to REPORTING-BUGS.
+>
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
 
-Looks all OK, thanks!
+Given how often people ask for the config, it makes good sense to have
+that in the document.
 
 -- 
-Jean Delvare
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

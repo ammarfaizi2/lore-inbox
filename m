@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935672AbWK1Gn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935680AbWK1Gvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935672AbWK1Gn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 01:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935671AbWK1Gn2
+	id S935680AbWK1Gvo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 01:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935681AbWK1Gvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 01:43:28 -0500
-Received: from fire.yars.free.net ([193.233.48.99]:15515 "EHLO fire.netis.ru")
-	by vger.kernel.org with ESMTP id S935673AbWK1Gn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 01:43:27 -0500
-Date: Tue, 28 Nov 2006 09:42:36 +0300
-From: "Alexander V. Lukyanov" <lav@netis.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6.18: memory leak(?)
-Message-ID: <20061128064236.GA19797@night.netis.ru>
-References: <20061127124443.GA11569@night.netis.ru> <20061127193834.b5ca80db.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Nov 2006 01:51:43 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:9889 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S935680AbWK1Gvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 01:51:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RwzUhed+O3xrwNRL4OQnQqu6Pw78bS5jM4l3okzEKHJCDXAqufQLmSaoaiT5nNXoBewrVuP1rLZXMc2kyh5ZbKpCRuzEQywxm/uoPTWWxE61QfI9ghhrFKfkrsHTCqCZwg3vSbDzxrvQyaW7HWVZTPGD80p4IcIOmIxZ6HZp91U=
+Message-ID: <1e62d1370611272251r6cb797el26bc4f96e0958092@mail.gmail.com>
+Date: Tue, 28 Nov 2006 11:51:42 +0500
+From: "Fawad Lateef" <fawadlateef@gmail.com>
+To: "Dave Airlie" <airlied@gmail.com>
+Subject: Re: Reserving a fixed physical address page of RAM.
+Cc: "Jon Ringle" <jringle@vertical.com>, "Robert Hancock" <hancockr@shaw.ca>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e9970611272134g72044fa8u5c5e47842e994fe3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061127193834.b5ca80db.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-X-NETIS-MailScanner-Information: Please contact NETIS Telecom for more information <info@netis.ru> (+7 0852 797709)
-X-NETIS-MailScanner: Found to be clean
-X-NETIS-MailScanner-SpamCheck: not spam, SpamAssassin (not cached, score=-1,
-	required 6, autolearn=disabled, ALL_TRUSTED -1.00)
-X-NETIS-MailScanner-From: lav@netis.ru
-X-NETIS-MailScanner-To: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
+	 <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
+	 <21d7e9970611272134g72044fa8u5c5e47842e994fe3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 07:38:34PM -0800, Andrew Morton wrote:
-> It's not necessarily a leak.  Networking tried to allocate two
+On 11/28/06, Dave Airlie <airlied@gmail.com> wrote:
+> On 11/28/06, Jon Ringle <jringle@vertical.com> wrote:
+<snip>
+> > It looks promising, however, I need to reserve a physical address area
+> > that is well known (so that the code running on the other processor
+> > knows where in PCI memory to write to). It appears that
+> > dma_alloc_coherent returns the address that it allocated. Instead I need
+> > something where I can tell it what physical address and range I want to use.
+> >
+>
+> I've seen other projects just boot a 128M board with mem=120M and just
+> use the 8MB at 120 to talk to the other processor..
+>
 
-You are right, it is not a leak. Probably the memory usage increased for some
-other reason.
+Yes, this can be used if required physical-memory exists in the last
+part of RAM as if you use mem=<xxxM> then kernel will only use memory
+less than or equal-to <xxxM> and above can be used by drivers (or any
+kernel module) might be through ioremap which takes physical-address.
 
-> physically-contiguous pages from atomic context, but no such two pages were
-> available.  The packet will be dropped and things should recover.
-> 
-> Increasing /proc/sys/vm/min_free_kbytes will reduce the frequency somewhat.
-> If it's actually a problem, which I doubt?
+But if lets say we need only 1MB portion of specific physical-memory
+region then AFAIK it must be done by hacking in kernel code during
+memory-initialization (mem_init function) where it is marking/checking
+pages as/are reserved; you can simply mark you required pages as
+reserved too and set their count to some-value if you want to know
+later which pages are reserved by you. (can do this reservation work
+here: http://lxr.free-electrons.com/source/arch/i386/mm/init.c#605).
+CMIIW
 
-It is a problem. The messages load syslog and thus disk, network performance
-decreases due to lost packets. I'll try to increase min_free_kbytes and
-see if it helps.
 
 -- 
-   Alexander.
+Fawad Lateef

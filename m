@@ -1,122 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757938AbWK1MNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757961AbWK1MNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757938AbWK1MNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 07:13:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757934AbWK1MND
+	id S1757961AbWK1MNw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 07:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758250AbWK1MNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 07:13:03 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:5920 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1757932AbWK1MNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 07:13:00 -0500
-Subject: [PATCH] lockdep: fix sk->sk_callback_lock locking
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Cc: Martin Josefsson <gandalf@wlug.westbo.se>
-In-Reply-To: <1164660685.30244.36.camel@localhost.localdomain>
-References: <1164547971.30244.22.camel@localhost.localdomain>
-	 <1164635760.6588.27.camel@twins>
-	 <1164660685.30244.36.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 28 Nov 2006 13:07:22 +0100
-Message-Id: <1164715642.6588.58.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 07:13:52 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:19175 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1757961AbWK1MNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 07:13:51 -0500
+X-Sasl-enc: 6sP2HBuEQH6QDLMtVo+ILPsKp1BhheXWqkXb/5BFPeJE 1164716031
+Date: Tue, 28 Nov 2006 10:13:46 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Ben Pfaff <blp@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Entropy Pool Contents
+Message-ID: <20061128121346.GB8499@khazad-dum.debian.net>
+References: <ek2nva$vgk$1@sea.gmane.org> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <EB3E5F09-6529-4AB9-B7EF-DFCACC6D445E@mac.com> <ekgd7u$6gp$1@taverner.cs.berkeley.edu> <878xhw5esn.fsf@blp.benpfaff.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878xhw5esn.fsf@blp.benpfaff.org>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Nov 2006, Ben Pfaff wrote:
+> daw@cs.berkeley.edu (David Wagner) writes:
+> > Well, if you want to talk about really high-value keys like the scenarios
+> > you mention, you probably shouldn't be using /dev/random, either; you
+> > should be using a hardware security module with a built-in FIPS certified
+> > hardware random number source.  
+> 
+> Is there such a thing?  "Annex C: Approved Random Number
+> Generators for FIPS PUB 140-2, Security Requirements for
+> Cryptographic Modules", or at least the version of it I was able
+> to find with Google in a few seconds, simply states:
+> 
+>         There are no FIPS Approved nondeterministic random number
+>         generators.
 
-=========================================================
-[ INFO: possible irq lock inversion dependency detected ]
-2.6.19-rc6 #4
----------------------------------------------------------
-nc/1854 just changed the state of lock:
- (af_callback_keys + sk->sk_family#2){-.-?}, at: [<c0268a7f>] sock_def_error_report+0x1f/0x90
-but this lock was taken by another, soft-irq-safe lock in the past:
- (slock-AF_INET){-+..}
+There used to exist a battery of tests for this, but a FIPS revision removed
+them. You cannot really easily define a True RNG as secure or not with
+simple tests.
 
-and interrupts could create inverse lock ordering between them.
+I'd suggest googling after the papers validating the Intel and VIA Padlog
+hardware RNGs, they are much better reading than FIPS for this.
 
-stack backtrace:
- [<c0103f36>] show_trace_log_lvl+0x26/0x40
- [<c010406b>] show_trace+0x1b/0x20
- [<c01049e4>] dump_stack+0x24/0x30
- [<c013738c>] print_irq_inversion_bug+0x10c/0x130
- [<c01374f2>] check_usage_backwards+0x42/0x50
- [<c0137912>] mark_lock+0x312/0x620
- [<c0138925>] __lock_acquire+0x4c5/0xcb0
- [<c0139499>] lock_acquire+0x69/0x90
- [<c02ddc49>] _read_lock+0x39/0x50
- [<c026778c>] sock_def_wakeup+0x1c/0x60
- [<c02b7d73>] inet_shutdown+0x93/0xf0
- [<c02648d2>] sys_shutdown+0x32/0x60
- [<c0266284>] sys_socketcall+0x1d4/0x260
- [<c01031f3>] syscall_call+0x7/0xb
- =======================
+If you want a software implementation of all the former FIPS tests, please
+get the Debian fork of rng-tools, or Jeff's upstream rng-tools (Debian's has
+a lot more stuff, but I don't recall if it has any extra FIPS
+functionality).
 
-stack backtrace:
- [<c0103f36>] show_trace_log_lvl+0x26/0x40
- [<c010406b>] show_trace+0x1b/0x20
- [<c01049e4>] dump_stack+0x24/0x30
- [<c013738c>] print_irq_inversion_bug+0x10c/0x130
- [<c01374f2>] check_usage_backwards+0x42/0x50
- [<c0137912>] mark_lock+0x312/0x620
- [<c0138925>] __lock_acquire+0x4c5/0xcb0
- [<c0139499>] lock_acquire+0x69/0x90
- [<c02ddc59>] _read_lock+0x39/0x50
- [<c0268a7f>] sock_def_error_report+0x1f/0x90
- [<c029b968>] tcp_disconnect+0x318/0x490
- [<c02b9110>] inet_stream_connect+0x220/0x260
- [<c0264adb>] sys_connect+0x6b/0x90
- [<c026614f>] sys_socketcall+0x9f/0x260
- [<c01031f3>] syscall_call+0x7/0xb
- =======================
+I should get around to submit patches to Jeff one of these years.  It is
+about a week-man-hours of tedious work, though.
 
-sk->sk_callback_lock is usually only read locked from softirq context
-however it seems lockdep found two spots that are reachable from process
-context, thus creating the possibility of a deadlock.
-
-For now fix these two call sites with manual disabling of softirqs; if
-more of these sites are found we might consider changing the read_lock() to
-read_lock_bh().
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Martin Josefsson <gandalf@wlug.westbo.se>
----
- net/ipv4/af_inet.c |    2 ++
- net/ipv4/tcp.c     |    2 ++
- 2 files changed, 4 insertions(+)
-
-Index: linux-2.6-netdev/net/ipv4/af_inet.c
-===================================================================
---- linux-2.6-netdev.orig/net/ipv4/af_inet.c	2006-11-27 14:41:51.000000000 +0100
-+++ linux-2.6-netdev/net/ipv4/af_inet.c	2006-11-28 07:06:23.000000000 +0100
-@@ -731,7 +731,9 @@ int inet_shutdown(struct socket *sock, i
- 	}
- 
- 	/* Wake up anyone sleeping in poll. */
-+	local_bh_disable();
- 	sk->sk_state_change(sk);
-+	local_bh_enable();
- 	release_sock(sk);
- 	return err;
- }
-Index: linux-2.6-netdev/net/ipv4/tcp.c
-===================================================================
---- linux-2.6-netdev.orig/net/ipv4/tcp.c	2006-11-28 07:06:16.000000000 +0100
-+++ linux-2.6-netdev/net/ipv4/tcp.c	2006-11-28 07:06:20.000000000 +0100
-@@ -1765,7 +1765,9 @@ int tcp_disconnect(struct sock *sk, int 
- 
- 	BUG_TRAP(!inet->num || icsk->icsk_bind_hash);
- 
-+	local_bh_disable();
- 	sk->sk_error_report(sk);
-+	local_bh_enable();
- 	return err;
- }
- 
-
-
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

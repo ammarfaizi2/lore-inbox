@@ -1,85 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934540AbWK1CjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934632AbWK1C5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934540AbWK1CjF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 21:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934541AbWK1CjF
+	id S934632AbWK1C5m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 21:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934633AbWK1C5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 21:39:05 -0500
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:54521 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S934540AbWK1CjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 21:39:02 -0500
-Date: Mon, 27 Nov 2006 21:33:50 -0500
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH 3/16] LTTng 0.6.36 for 2.6.18 : Linux Kernel Markers
-Message-ID: <20061128023349.GA2964@Krystal>
-References: <20061124215401.GD25048@Krystal> <y0mu00kpawa.fsf@ton.toronto.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Nov 2006 21:57:42 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:17322 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S934632AbWK1C5l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 21:57:41 -0500
+Message-ID: <456BA59D.3060208@linux.vnet.ibm.com>
+Date: Mon, 27 Nov 2006 18:57:33 -0800
+From: suzuki <suzuki@linux.vnet.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: amitarora@in.ibm.com, "Vladimir V. Saveliev" <vs@namesys.com>,
+       reiserfs-list@namesys.com, reiserfs-dev@namesys.com,
+       lkml <linux-kernel@vger.kernel.org>, rdunlap@xenotime.net
+Subject: Re: [BUG] Reiserfs panic while running fsstress due to multiple	truncate
+ "safe links" for a file.
+References: <445F2C95.4000604@in.ibm.com>	<20060730161348.94ecc5e0.akpm@osdl.org> <456B76CD.5000600@in.ibm.com> <20061127172646.0d6c4dd1.akpm@osdl.org>
+In-Reply-To: <20061127172646.0d6c4dd1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <y0mu00kpawa.fsf@ton.toronto.redhat.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 21:26:45 up 96 days, 23:34,  3 users,  load average: 0.42, 0.25, 0.14
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Frank Ch. Eigler (fche@redhat.com) wrote:
-> One question:
+Andrew Morton wrote:
+> On Mon, 27 Nov 2006 15:37:49 -0800
+> Suzuki <suzuki@in.ibm.com> wrote:
 > 
-> > [...]
-> > +	/* Markers in modules. */ 
-> > +	list_for_each_entry(mod, &modules, list) {
-> > +		if (mod->license_gplok)
-> > +			found += marker_set_probe_range(name, format, probe,
-> > +				mod->markers, mod->markers+mod->num_markers);
-> > +	}
-> > [...]
-> > +EXPORT_SYMBOL(marker_set_probe);
 > 
-> Are you sure the license_gplok check is necessary here?  We should
-> consider encouraging non-gpl module writers to instrument their code,
-> to give users a slightly better chance of debugging problems.
+>>* Do not add save links for O_DIRECT writes.
+>>
+>>We add a save link for O_DIRECT writes to protect the i_size against the crashes before we actually finish the I/O. If we hit an -ENOSPC in aops->prepare_write(), we would do a truncate() to release the blocks which might have got initialized. Now the truncate would add another save link for the same inode causing a reiserfs panic for having multiple save links for the same inode.
+>>
+>>
 > 
+> 
+> OK...
+> 
+> But how does this patch fix it?  It removes a lot of code - how come we
+> don't need it any more?
 
-Hi Frank,
+We were adding save links for appending writes only. The links were 
+removed once we finish the write operation successfully.
 
-I was kind of expecting this question. Well, it turns out that my markers module
-modifies the struct module in module.h to add a few fields. Some drivers that I
-won't name (ok, ok I will : clearcase) have the funny habit of distributing
-their kernel modules as ".ko" files instead of sending a proper ".o" and later
-link it against a wrapper.
+Now we don't add the save links at all.
 
-The result is, I must say, quite bad : when I want to add a probe, I iterate on
-each modules, verifying if there are any markers in the object. Things gets
-really messy when the structure is corrupted.
+May be Valdimir has better answers for this.
 
-The simplest way to work around this non-GPL problem is to completely disable
-access to the marker infrastructure to non-GPL modules. I am not against
-instrumentation of binary-only modules, but I don't think it is kernel
-developer's job to support their broken binary blob distribution.
+Thanks,
 
-I thought that we might use the crc checksum as another criterion. As long as
-the machines do not crash when adding markers when such modules are loaded.
+Suzuki
 
-Regards,
+> 
+> 
+>>
+>>Index: linux-2.6.19-rc1/fs/reiserfs/file.c
+>>===================================================================
+>>--- linux-2.6.19-rc1.orig/fs/reiserfs/file.c	2006-10-10 05:54:30.000000000 -0700
+>>+++ linux-2.6.19-rc1/fs/reiserfs/file.c	2006-11-21 17:17:36.000000000 -0800
+>>@@ -1306,56 +1306,8 @@
+>> 			count = MAX_NON_LFS - (unsigned long)*ppos;
+>> 	}
+>>
+>>-	if (file->f_flags & O_DIRECT) {	// Direct IO needs treatment
+>>-		ssize_t result, after_file_end = 0;
+>>-		if ((*ppos + count >= inode->i_size)
+>>-		    || (file->f_flags & O_APPEND)) {
+>>-			/* If we are appending a file, we need to put this savelink in here.
+>>-			   If we will crash while doing direct io, finish_unfinished will
+>>-			   cut the garbage from the file end. */
+>>-			reiserfs_write_lock(inode->i_sb);
+>>-			err =
+>>-			    journal_begin(&th, inode->i_sb,
+>>-					  JOURNAL_PER_BALANCE_CNT);
+>>-			if (err) {
+>>-				reiserfs_write_unlock(inode->i_sb);
+>>-				return err;
+>>-			}
+>>-			reiserfs_update_inode_transaction(inode);
+>>-			add_save_link(&th, inode, 1 /* Truncate */ );
+>>-			after_file_end = 1;
+>>-			err =
+>>-			    journal_end(&th, inode->i_sb,
+>>-					JOURNAL_PER_BALANCE_CNT);
+>>-			reiserfs_write_unlock(inode->i_sb);
+>>-			if (err)
+>>-				return err;
+>>-		}
+>>-		result = do_sync_write(file, buf, count, ppos);
+>>-
+>>-		if (after_file_end) {	/* Now update i_size and remove the savelink */
+>>-			struct reiserfs_transaction_handle th;
+>>-			reiserfs_write_lock(inode->i_sb);
+>>-			err = journal_begin(&th, inode->i_sb, 1);
+>>-			if (err) {
+>>-				reiserfs_write_unlock(inode->i_sb);
+>>-				return err;
+>>-			}
+>>-			reiserfs_update_inode_transaction(inode);
+>>-			mark_inode_dirty(inode);
+>>-			err = journal_end(&th, inode->i_sb, 1);
+>>-			if (err) {
+>>-				reiserfs_write_unlock(inode->i_sb);
+>>-				return err;
+>>-			}
+>>-			err = remove_save_link(inode, 1 /* truncate */ );
+>>-			reiserfs_write_unlock(inode->i_sb);
+>>-			if (err)
+>>-				return err;
+>>-		}
+>>-
+>>-		return result;
+>>-	}
+>>+	if (file->f_flags & O_DIRECT)
+>>+		return do_sync_write(file, buf, count, ppos);
+>>
+>> 	if (unlikely((ssize_t) count < 0))
+>> 		return -EINVAL;
 
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

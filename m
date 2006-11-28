@@ -1,59 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758657AbWK1NFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756992AbWK1NEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758657AbWK1NFB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 08:05:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758655AbWK1NFA
+	id S1756992AbWK1NEe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 08:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758411AbWK1NEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 08:05:00 -0500
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:22159 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S1758654AbWK1NE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 08:04:59 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: Entropy Pool Contents
-Date: Tue, 28 Nov 2006 12:58:05 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <ekhbot$ofm$1@taverner.cs.berkeley.edu>
-References: <ek2nva$vgk$1@sea.gmane.org> <ekgd7u$6gp$1@taverner.cs.berkeley.edu> <878xhw5esn.fsf@blp.benpfaff.org> <20061128121346.GB8499@khazad-dum.debian.net>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1164718685 25078 128.32.168.222 (28 Nov 2006 12:58:05 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Tue, 28 Nov 2006 12:58:05 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Tue, 28 Nov 2006 08:04:33 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:59402 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1756992AbWK1NEd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 08:04:33 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 28 Nov 2006 13:04:24.0785 (UTC) FILETIME=[BA70C410:01C712ED]
+Content-class: urn:content-classes:message
+Subject: Re: Reserving a fixed physical address page of RAM.
+Date: Tue, 28 Nov 2006 08:04:24 -0500
+Message-ID: <Pine.LNX.4.61.0611280750250.7035@chaos.analogic.com>
+In-Reply-To: <456BAEB0.5030800@vertical.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Reserving a fixed physical address page of RAM.
+thread-index: AccS7bp4G4cOC7F6T9a98AlMRhLiPQ==
+References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no> <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jon Ringle" <jringle@vertical.com>
+Cc: "Robert Hancock" <hancockr@shaw.ca>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Continuing the tangent:
 
-Henrique de Moraes Holschuh  wrote:
->On Mon, 27 Nov 2006, Ben Pfaff wrote:
->> daw@cs.berkeley.edu (David Wagner) writes:
->> > Well, if you want to talk about really high-value keys like the scenarios
->> > you mention, you probably shouldn't be using /dev/random, either; you
->> > should be using a hardware security module with a built-in FIPS certified
->> > hardware random number source.  
->> 
->> Is there such a thing?  [...]
+On Mon, 27 Nov 2006, Jon Ringle wrote:
+
+> Robert Hancock wrote:
+>> Jon Ringle wrote:
+>>> Hi,
+>>>
+>>> I need to reserve a page of memory at a specific area of RAM that will
+>>> be used as a "shared memory" with another processor over PCI. How can I
+>>> ensure that the this area of RAM gets reseved so that the Linux's memory
+>>> management (kmalloc() and friends) don't use it?
+>>>
+>>> Some things that I've considered are iotable_init() and ioremap().
+>>> However, I've seen these used for memory mapped IO devices which are
+>>> outside of the RAM memory. Can I use them for reseving RAM too?
+>>>
+>>> I appreciate any advice in this regard.
+>>
+>> Sounds to me like dma_alloc_coherent is what you want..
+>>
+> It looks promising, however, I need to reserve a physical address area
+> that is well known (so that the code running on the other processor
+> knows where in PCI memory to write to). It appears that
+> dma_alloc_coherent returns the address that it allocated. Instead I need
+> something where I can tell it what physical address and range I want to use.
 >
->There used to exist a battery of tests for this, but a FIPS revision removed
->them. [...]
+> Jon
 
-The point I was making in my email was not about the use of FIPS
-randomness tests.  The FIPS randomness tests are not very important.
-The point I was making was about the use of a hardware security module
-to store really high-value keys.  If you have a really high-value key,
-that key should never be stored on a Linux server: standard advice is
-that it should be generated on a hardware security module (HSM) and never
-leave the HSM.  If you are in charge of Verisign's root cert private key,
-you should never let this private key escape onto any general-purpose
-computer (including any Linux machine).  The reason for this advice is
-that it's probably much harder to hack a HSM remotely than to hack a
-general-purpose computer (such as a Linux machine).
+First, "PCI memory" is some memory inside a board that is addressed through the 
+PCI bus. This address is allocated upon machine start and is available though 
+the PCI interface (check any of the PCI card drivers). If you want to access 
+this memory, you need to follow the same procedures that other boards use.
 
-Again, this is probably a tangent from anything related to Linux kernel
-development.
+However, perhaps you don't mean "PCI memory". Perhaps you mean real memory
+in the address-space, and you need to reserve it and give its physical address 
+to something inside a PCI-bus card, perhaps for DMA. In that case, you can 
+either memory-map some physical memory (get_dma_pages()) or you can tell the 
+kernel you have less memory than you really have, and use the memory the kernel 
+doesn't know about for your own private purposes. To access this private memory 
+you use ioremap() and friends. This can be memory-mapped to user-space as well 
+so you can perform DMA directly to user-space buffers. You can find the highest 
+address that the kernel uses by reading kernel variable num_physpages. This 
+tells the number of pages the kernel uses. The kernel does write to the next one 
+so you need to start using pages that are two higher than num_physpages.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

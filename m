@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935734AbWK1QV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935728AbWK1QVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935734AbWK1QV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 11:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935739AbWK1QV6
+	id S935728AbWK1QVT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 11:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935729AbWK1QVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 11:21:58 -0500
-Received: from MAIL.13thfloor.at ([213.145.232.33]:23746 "EHLO
-	MAIL.13thfloor.at") by vger.kernel.org with ESMTP id S935734AbWK1QV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 11:21:57 -0500
-Date: Tue, 28 Nov 2006 17:21:56 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Containers <containers@lists.osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] Fix the binary ipc and uts namespace sysctls.
-Message-ID: <20061128162156.GF23131@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Containers <containers@lists.osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <m1hcwlmqmp.fsf@ebiederm.dsl.xmission.com> <20061127202211.GB26108@MAIL.13thfloor.at> <m1y7pwldi4.fsf@ebiederm.dsl.xmission.com> <20061128143250.GA23131@MAIL.13thfloor.at> <m1y7pvinta.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
+	Tue, 28 Nov 2006 11:21:19 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:11949 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S935728AbWK1QVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 11:21:18 -0500
+Message-ID: <456C63FB.40604@openvz.org>
+Date: Tue, 28 Nov 2006 19:29:47 +0300
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
+       linux-kernel@vger.kernel.org, saw@sw.ru, adilger@clusterfs.com,
+       devel@openvz.org
+Subject: [PATCH] ext3: small fix for previous retries patch in ext3_prepare_write()
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1y7pvinta.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2006 at 08:38:25AM -0700, Eric W. Biederman wrote:
-> Herbert Poetzl <herbert@13thfloor.at> writes:
-> 
-> > On Mon, Nov 27, 2006 at 03:40:35PM -0700, Eric W. Biederman wrote:
-> >> Herbert Poetzl <herbert@13thfloor.at> writes:
-> >> 
-> >> > the linux banner needs some attention too, when I get
-> >> > around, I'll send a patch for that ...
-> >> 
-> >> In what sense?
-> >> 
-> >> I have trouble seeing the banner printed at bootup as being problematic.
-> >
-> > was it removed from procfs after 2.6.19-rc6
-> > (/proc/version  sorry, haven't checked yet)
-> 
-> I see where you are coming from. Yes that is a potential issue,
-> because ultimately that information is utsname information. 
-> Given that we don't allow any of that information to be changed
-> currently that isn't a 2.6.19 issue.
-> 
-> Given that it is a don't care as long as we generate the same string
-> I don't see a problem with a patch to modify it, to track changes in
-> the current uts namespace.
+Patch from Dmitry Monakhov:
+Previous fix for retries in ext3_prepare_write() violation
+was a bit errorneuos:
+- it missed return of error code from ext3_journal_stop()
+- it missed do_journal_get_write_access() before commit_write
 
-thank you very much,
-Herbert
+a few comments added also.
 
-> Eric
+Signed-Off-By: Dmitry Monakhov <dmonakhov@openvz.org>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+
+
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index a48ada9..1acb528 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1162,13 +1162,14 @@ static int ext3_prepare_failure(struct f
+ 	struct buffer_head *bh, *head, *next;
+ 	unsigned block_start, block_end;
+ 	unsigned blocksize;
++	int ret;
++	handle_t *handle = ext3_journal_current_handle();
+ 
+ 	mapping = page->mapping;
+ 	if (ext3_should_writeback_data(mapping->host)) {
+ 		/* optimization: no constraints about data */
+ skip:
+-		ext3_journal_stop(ext3_journal_current_handle());
+-		return 0;
++		return ext3_journal_stop(handle);
+ 	}
+ 
+ 	head = page_buffers(page);
+@@ -1186,7 +1187,19 @@ skip:
+ 			break;
+ 		}
+ 		if (!buffer_mapped(bh))
++		/* prepare_write failed on this bh */
+ 			break;
++		if (ext3_should_journal_data(mapping->host)) {
++			ret = do_journal_get_write_access(handle, bh);
++			if (ret) {
++				ext3_journal_stop(handle);
++				return ret;
++			}
++		}
++	/*
++	 * block_start here becomes the first block where the current iteration
++	 * of prepare_write failed.
++	 */
+ 	}
+ 	if (block_start <= from)
+ 		goto skip;

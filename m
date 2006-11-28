@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755495AbWK1UtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWK1Uuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755495AbWK1UtO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755492AbWK1UtO
+	id S1751893AbWK1Uuv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754075AbWK1Uuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:49:14 -0500
-Received: from khc.piap.pl ([195.187.100.11]:50623 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1754665AbWK1UtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:49:13 -0500
-To: Patrick McHardy <kaber@trash.net>
-Cc: David Miller <davem@davemloft.net>, lkml <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
-References: <m3fyc3e84s.fsf@defiant.localdomain> <456C94D2.9000602@trash.net>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 28 Nov 2006 21:48:40 +0100
-In-Reply-To: <456C94D2.9000602@trash.net> (Patrick McHardy's message of "Tue, 28 Nov 2006 20:58:10 +0100")
-Message-ID: <m3wt5fb8lz.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Nov 2006 15:50:51 -0500
+Received: from lmailproxy02.edpnet.net ([212.71.1.195]:13019 "EHLO
+	lmailproxy02.edpnet.net") by vger.kernel.org with ESMTP
+	id S1751893AbWK1Uuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 15:50:50 -0500
+Date: Tue, 28 Nov 2006 21:50:45 +0100
+From: Laurent Bigonville <l.bigonville@edpnet.be>
+To: Andreas Jellinghaus <aj@ciphirelabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O2micro smartcard reader driver.
+Message-Id: <20061128215045.ccccab06.l.bigonville@edpnet.be>
+In-Reply-To: <456C294E.4060006@ciphirelabs.com>
+References: <20061127182817.d52dfdf1.l.bigonville@edpnet.be>
+	<456C294E.4060006@ciphirelabs.com>
+X-Mailer: Sylpheed version 2.3.0beta5 (GTK+ 2.10.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy <kaber@trash.net> writes:
+On Tue, 28 Nov 2006 13:19:26 +0100
+Andreas Jellinghaus <aj@ciphirelabs.com> wrote:
 
->> The following commit breaks ipt_REJECT on my machine. Tested with latest
->> 2.6.19rc*, found with git-bisect. i386, gcc-4.1.1, the usual stuff.
->> All details available on request, of course.
->> 
->> commit 9d02002d2dc2c7423e5891b97727fde4d667adf1
->
-> How sure are you about this? I can see nothing wrong with that
-> commit and can't reproduce the slab corruption. Please post
-> the rule that triggers this.
+> maybe post once more, and make clear whether you are looking for:
 
-99% sure. Past this commit I get corruptions after 5 minutes at most
-(that's ADSL with USB Thomson/Alcatel Speedtouch -> PPP over ATM,
-with a GRE tunnel over that PPP).
-I'm now running 901eaf6c8f997f18ebc8fcbb85411c79161ab3b2 (i.e. the
-last commit before the one in question) for 4 hours and nothing like
-that.
+Yep it's about a smartcard reader. This reader need a kernel module to
+be acceded by pcscd.
 
-Not sure about the exact rule, but the most probable candidates are:
--A INPUT -p tcp --tcp-flags SYN,RST,ACK SYN -j REJECT --reject-with tcp-reset
--A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+> 
+> also o2micro might also create pcmcia card readers for either.
+> maybe let us know what kind of device you exactly have and how
+> it is connected (if build in... lspci / lsusb would see pci or
+> usb devices, pcmcia devices are found by the kernel I think).
 
-Other "REJECT" rules haven't fired yet.
+bigon@imladris:~$ lspcmcia -vvvv
+Socket 0 Bridge:        [yenta_cardbus]         (bus ID: 0000:02:06.0)
+        Configuration:  state: on       ready: unknown
+--none--
+--none--
+Socket 1 Bridge:        [yenta_cardbus]         (bus ID: 0000:02:06.1)
+        Configuration:  state: on       ready: unknown
+                        Voltage: 5.0V Vcc: 5.0V Vpp: 5.0V
+--none--
+--none--
+Socket 1 Device 0:      [-- no driver --]       (bus ID: 1.0)
+        Configuration:  state: on
+        Product Name:   O2Micro SmartCardBus Reader V1.0 
+        Identification: manf_id: 0xffff card_id: 0x0001
+                        prod_id(1): "O2Micro" (0x97299583)
+                        prod_id(2): "SmartCardBus Reader" (0xb8501ba9)
+                        prod_id(3): "V1.0" (0xe611e659)
+                        prod_id(4): --- (---)
+Socket 2 Bridge:        [yenta_cardbus]         (bus ID: 0000:02:06.3)
+        Configuration:  state: on       ready: unknown
+                        Voltage: 5.0V Vcc: 5.0V Vpp: 5.0V
+--none--
+--none--
+Socket 2 Device 0:      [-- no driver --]       (bus ID: 2.0)
+        Configuration:  state: on
+        Product Name:   O2Micro SmartCardBus Reader V1.0 
+        Identification: manf_id: 0xffff card_id: 0x0001
+                        prod_id(1): "O2Micro" (0x97299583)
+                        prod_id(2): "SmartCardBus Reader" (0xb8501ba9)
+                        prod_id(3): "V1.0" (0xe611e659)
+                        prod_id(4): --- (---)
 
-Could be some obscure problem with GRE/Speedtouch/PPP over ATM,
-triggered by this patch, though.
+02:06.0 CardBus bridge: O2 Micro, Inc. OZ711M3/MC3 4-in-1 MemoryCardBus
+Controller 
+02:06.1 CardBus bridge: O2 Micro, Inc. OZ711M3/MC3 4-in-1 MemoryCardBus
+Controller 
+02:06.2 System peripheral: O2 Micro, Inc. OZ711Mx 4-in-1 MemoryCardBus
+Accelerator 
+02:06.3 CardBus bridge: O2 Micro, Inc. OZ711M3/MC3 4-in-1
+MemoryCardBus Controller
 
-Perhaps I can do some experiments - just say a word.
---
-Krzysztof Halasa

@@ -1,49 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933061AbWK1Mlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758350AbWK1Mmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933061AbWK1Mlv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 07:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933256AbWK1Mlv
+	id S1758350AbWK1Mmv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 07:42:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758363AbWK1Mmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 07:41:51 -0500
-Received: from il.qumranet.com ([62.219.232.206]:19910 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S933061AbWK1Mlu (ORCPT
+	Tue, 28 Nov 2006 07:42:51 -0500
+Received: from il.qumranet.com ([62.219.232.206]:21446 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1758350AbWK1Mmu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 07:41:50 -0500
-Subject: [PATCH 3/6] KVM: AMD SVM: Add missing tlb flushes to the guest mmu
+	Tue, 28 Nov 2006 07:42:50 -0500
+Subject: [PATCH 4/6] KVM: AMD SVM: Add data structures
 From: Avi Kivity <avi@qumranet.com>
-Date: Tue, 28 Nov 2006 12:41:49 -0000
+Date: Tue, 28 Nov 2006 12:42:49 -0000
 To: kvm-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, yaniv.kamay@qumranet.com,
        mingo@elte.hu
 References: <456C2D89.4050508@qumranet.com>
 In-Reply-To: <456C2D89.4050508@qumranet.com>
-Message-Id: <20061128124149.5F5D825015E@cleopatra.q>
+Message-Id: <20061128124249.6B74325015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a couple of missing mmu flushes.  The Intel tlb is too coarse to be
-affected, but they are necessary for AMD.
+This adds the AMD specific vcpu structure.
 
 Signed-off-by: Yaniv Kamay <yaniv@qumranet.com>
 Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-Index: linux-2.6/drivers/kvm/mmu.c
+Index: linux-2.6/drivers/kvm/kvm.h
 ===================================================================
---- linux-2.6.orig/drivers/kvm/mmu.c
-+++ linux-2.6/drivers/kvm/mmu.c
-@@ -324,6 +324,7 @@ static void nonpaging_flush(struct kvm_v
- 	if (is_paging(vcpu))
- 		root |= (vcpu->cr3 & (CR3_PCD_MASK | CR3_WPT_MASK));
- 	kvm_arch_ops->set_cr3(vcpu, root);
-+	kvm_arch_ops->flush_tlb(vcpu);
- }
+--- linux-2.6.orig/drivers/kvm/kvm.h
++++ linux-2.6/drivers/kvm/kvm.h
+@@ -166,7 +166,10 @@ enum {
  
- static gpa_t nonpaging_gva_to_gpa(struct kvm_vcpu *vcpu, gva_t vaddr)
-@@ -407,6 +408,7 @@ static void kvm_mmu_flush_tlb(struct kvm
- 		release_pt_page_64(vcpu, page->page_hpa, 1);
- 	}
- 	++kvm_stat.tlb_flush;
-+	kvm_arch_ops->flush_tlb(vcpu);
- }
- 
- static void paging_new_cr3(struct kvm_vcpu *vcpu)
+ struct kvm_vcpu {
+ 	struct kvm *kvm;
+-	struct vmcs *vmcs;
++	union {
++		struct vmcs *vmcs;
++		struct vcpu_svm *svm;
++	};
+ 	struct mutex mutex;
+ 	int   cpu;
+ 	int   launched;
+Index: linux-2.6/drivers/kvm/kvm_svm.h
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/kvm/kvm_svm.h
+@@ -0,0 +1,42 @@
++#ifndef __KVM_SVM_H
++#define __KVM_SVM_H
++
++#include <linux/types.h>
++#include <linux/list.h>
++#include <asm/msr.h>
++
++#include "svm.h"
++#include "kvm.h"
++
++static const u32 host_save_msrs[] = {
++	MSR_STAR, MSR_LSTAR, MSR_CSTAR, MSR_SYSCALL_MASK, MSR_KERNEL_GS_BASE,
++	MSR_IA32_SYSENTER_CS, MSR_IA32_SYSENTER_ESP, MSR_IA32_SYSENTER_EIP,
++	MSR_IA32_DEBUGCTLMSR, /*MSR_IA32_LASTBRANCHFROMIP,
++	MSR_IA32_LASTBRANCHTOIP, MSR_IA32_LASTINTFROMIP,MSR_IA32_LASTINTTOIP,*/
++	MSR_FS_BASE, MSR_GS_BASE,
++};
++
++#define NR_HOST_SAVE_MSRS (sizeof(host_save_msrs) / sizeof(*host_save_msrs))
++#define NUM_DB_REGS 4
++
++struct vcpu_svm {
++	struct vmcb *vmcb;
++	unsigned long vmcb_pa;
++	struct svm_cpu_data *svm_data;
++	uint64_t asid_generation;
++
++	unsigned long cr0;
++	unsigned long cr4;
++	unsigned long db_regs[NUM_DB_REGS];
++
++	u64 next_rip;
++
++	u64 host_msrs[NR_HOST_SAVE_MSRS];
++	unsigned long host_cr2;
++	unsigned long host_db_regs[NUM_DB_REGS];
++	unsigned long host_dr6;
++	unsigned long host_dr7;
++};
++
++#endif
++

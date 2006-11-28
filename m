@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757214AbWK1WwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757386AbWK1Wwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757214AbWK1WwR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757349AbWK1WwR
+	id S1757386AbWK1Wwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 17:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757377AbWK1WwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:52:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:35251 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1757214AbWK1WwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:52:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lje6TtPUUmhjnFYvBx2oIJ3VhxOWGwmZrOhp2DWZkTWAPKj2QuFJFPk6gXR7UGtdxsUQV1QSGmEn/V6mwrgsdIrZvs+HoWjUHK3k6tNXp2dUtw/4XAlsG7+U6Ozb8X8rbWuE2d6t9r1TVY2N9xqKUjDkmeM2LICOLHrdXX5ZBF8=
-Message-ID: <5bdc1c8b0611281452w49b6a3c3rb35ab055fc0b2660@mail.gmail.com>
-Date: Tue, 28 Nov 2006 14:52:14 -0800
-From: "Mark Knecht" <markknecht@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: 2.6.19-rc6-rt5
-Cc: "Lee Revell" <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061128201549.GC26934@elte.hu>
+	Tue, 28 Nov 2006 17:52:25 -0500
+Received: from line108-16.adsl.actcom.co.il ([192.117.108.16]:22144 "EHLO
+	lucian.tromer.org") by vger.kernel.org with ESMTP id S1757349AbWK1WwW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 17:52:22 -0500
+Message-ID: <456CBD50.70200@tromer.org>
+Date: Wed, 29 Nov 2006 00:50:56 +0200
+From: Eran Tromer <eran@tromer.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061107 Fedora/1.5.0.8-1.fc5 Thunderbird/1.5.0.8 Mnenhy/0.7.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Phillip Susi <psusi@cfl.rr.com>
+CC: linux-kernel@vger.kernel.org, David Wagner <daw@cs.berkeley.edu>
+Subject: Re: Entropy Pool Contents
+References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <456C74F7.3060902@cfl.rr.com>
+In-Reply-To: <456C74F7.3060902@cfl.rr.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061120220230.GA30835@elte.hu>
-	 <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com>
-	 <1164735207.1701.19.camel@mindpipe> <20061128201549.GC26934@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forwarding it off list.
+On 2006-11-28 19:42, Phillip Susi wrote:
 
-Thanks Ingo. I'm very interested if it works for you to do this.
+> what good does a non root user do by writing to random?  If it
+> does not increase the entropy estimate, and it may not actually increase
+> the entropy, why bother allowing it?
 
-Cheers,
-Mark
+It is not guaranteed to actually increase the entropy, but it might. And
+in case the entropy was previously overestimated, you will have gained
+security.
 
-On 11/28/06, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Lee Revell <rlrevell@joe-job.com> wrote:
->
-> > >    I know there were some comments awhile back about being required
-> > > to switch to PAM. Has that occurred?
-> > >
-> > >    If not then there is a regression issue for realtime-lsm.
-> >
-> > As Realtime LSM is an out of tree module and there's no stable kernel
-> > module API it's impossible to prevent regressions.
-> >
-> > That being said, the realtime LSM patch is so simple that it should
-> > work - how exactly does it fail?
->
-> i can include it in -rt if it's simple enough - if someone's interested
-> then please send me a patch.
->
->         Ingo
->
+Think of it this way: you can have several users feeding the entropy
+pool, and it suffices that *any* of them is feeding strings with nonzero
+entropy (with respect to the adversary) in order to get that gain.
+
+
+That said, I don't feel comfortable about allowing untrusted users to
+directly feed the entropy pool, as it can aggravate some failure modes.
+To take an extreme example, suppose the adversary has somehow learned
+the full state of the pool, i.e., the real entropy is 0, contrary to the
+kernel's estimate.
+
+Can things get any worse? Sure they can:
+
+Thus far the adversary can mount attacks that require *known*
+randomness. However, if he can now feed his own strings into the pool
+mixer as an untrusted user, then he can achieve a *chosen* randomness,
+and this undoubtedly enables a wider class of attacks (e.g., covert
+channels).
+
+Fully chosen randomness is unlikely here due to the SHA-1
+postprocessing, but numerous bits in the next /dev/random read can be
+fixed simply by exhaustive search. Worse yet, if the injected string is
+mixed directly into the pool without cryptographic preprocessing, then
+the exhaustive search can be done via off-line preprocessing: once the
+primary pool is estimated to have full entropy, the /dev/random
+algorithm lets you linearly manipulate the /dev/random pool into any
+state. That's a nasty design flaw, BTW (see Gutterman et al., section 3).
+
+Of course, in principle the same is possible by manipulating the
+existing /dev/random event sources. But it's much harder to produce
+bit-exact inputs through such indirect means.
+
+  Eran

@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935796AbWK1KOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935802AbWK1KOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935796AbWK1KOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935801AbWK1KOu
+	id S935802AbWK1KOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935800AbWK1KOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:14:50 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:30376 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S935796AbWK1KOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:14:46 -0500
+Received: from wx-out-0506.google.com ([66.249.82.237]:18653 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S935802AbWK1KOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Nov 2006 05:14:45 -0500
-Date: Tue, 28 Nov 2006 13:13:27 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: [take24 0/6] kevent: Generic event handling mechanism.
-Message-ID: <20061128101327.GE15083@2ka.mipt.ru>
-References: <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <4563FD53.7030307@redhat.com> <20061122120933.GA32681@2ka.mipt.ru> <20061122121516.GA7229@2ka.mipt.ru> <4564CE00.9030904@redhat.com> <20061123122225.GD20294@2ka.mipt.ru> <456605EA.5060601@redhat.com> <20061124105856.GE13600@2ka.mipt.ru> <456B2D2B.9080502@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W16v1uZeaxWZFGezozqUVAjM9A0+6IPbJ5sFx4M8+qNKnhk1LH4X52P8e/NntA8cGeeyj1zsT2ecDSMTGrbzKS3ZU1DGihvQeJa3Q6eYZY00PsdhOrEBfUcODdywsdwlh+s5/Xv1TiZ/3qqQbWcmUaJ/KWG8/jUbPc8lfdGX+vE=
+Message-ID: <9a8748490611280214s711d4f6eq6100a574af22f8a7@mail.gmail.com>
+Date: Tue, 28 Nov 2006 11:14:44 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Fawad Lateef" <fawadlateef@gmail.com>
+Subject: Re: Reserving a fixed physical address page of RAM.
+Cc: "Dave Airlie" <airlied@gmail.com>, "Jon Ringle" <jringle@vertical.com>,
+       "Robert Hancock" <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <1e62d1370611272251r6cb797el26bc4f96e0958092@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <456B2D2B.9080502@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 28 Nov 2006 13:13:28 +0300 (MSK)
+References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
+	 <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
+	 <21d7e9970611272134g72044fa8u5c5e47842e994fe3@mail.gmail.com>
+	 <1e62d1370611272251r6cb797el26bc4f96e0958092@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 10:23:39AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
+On 28/11/06, Fawad Lateef <fawadlateef@gmail.com> wrote:
+> On 11/28/06, Dave Airlie <airlied@gmail.com> wrote:
+> > On 11/28/06, Jon Ringle <jringle@vertical.com> wrote:
+> <snip>
+> > > It looks promising, however, I need to reserve a physical address area
+> > > that is well known (so that the code running on the other processor
+> > > knows where in PCI memory to write to). It appears that
+> > > dma_alloc_coherent returns the address that it allocated. Instead I need
+> > > something where I can tell it what physical address and range I want to use.
+> > >
 > >
-> >With provided patch it is possible to wakeup 'for-free' - just call
-> >kevent_ctl(ready) with zero number of ready events, so thread will be
-> >awakened if it was in poll(kevent_fd), kevent_wait() or
-> >kevent_get_events().
-> 
-> Yes, I realize that.  But I wrote something else:
-> 
-> >> Rather than mark an existing entry as ready, how about a call to
-> >> inject a new ready event?
-> >>
-> >> This would be useful to implement functionality at userlevel and
-> >> still use an event queue to announce the availability.  Without this
-> >> type of functionality we'd need to use indirect notification via
-> >> signal or pipe or something like that.
-> 
-> This is still something which is wanted.
+> > I've seen other projects just boot a 128M board with mem=120M and just
+> > use the 8MB at 120 to talk to the other processor..
+> >
+>
+> Yes, this can be used if required physical-memory exists in the last
+> part of RAM as if you use mem=<xxxM> then kernel will only use memory
+> less than or equal-to <xxxM> and above can be used by drivers (or any
+> kernel module) might be through ioremap which takes physical-address.
+>
+> But if lets say we need only 1MB portion of specific physical-memory
+> region then AFAIK it must be done by hacking in kernel code during
+> memory-initialization (mem_init function) where it is marking/checking
+> pages as/are reserved; you can simply mark you required pages as
+> reserved too and set their count to some-value if you want to know
+> later which pages are reserved by you. (can do this reservation work
+> here: http://lxr.free-electrons.com/source/arch/i386/mm/init.c#605).
+> CMIIW
+>
 
-Why do we want to inject _ready_ event, when it is possible to mark
-event as ready and wakeup thread parked in syscall?
-
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
+Can you not use the 'memmap=' kernel option to reserve the specific
+area you need?
+(See Documentation/kernel-parameters.txt for details)
 
 -- 
-	Evgeniy Polyakov
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

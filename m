@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935962AbWK1Rjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935970AbWK1RlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935962AbWK1Rjb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 12:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935963AbWK1Rjb
+	id S935970AbWK1RlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 12:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935968AbWK1RlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 12:39:31 -0500
-Received: from smtp-01.mandic.com.br ([200.225.81.132]:20145 "EHLO
-	smtp-01.mandic.com.br") by vger.kernel.org with ESMTP
-	id S935962AbWK1Rja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 12:39:30 -0500
-Message-ID: <456C744D.3080901@mandic.com.br>
-Date: Tue, 28 Nov 2006 15:39:25 -0200
-From: "Renato S. Yamane" <renatoyamane@mandic.com.br>
-User-Agent: Thunderbird 1.5.0.8 (X11/20060911)
+	Tue, 28 Nov 2006 12:41:21 -0500
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:17308 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S935963AbWK1RlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 12:41:19 -0500
+X-AuditID: d80ac21c-a0d6fbb00000557e-76-456c74bee74c 
+Date: Tue, 28 Nov 2006 17:41:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Mingming Cao <cmm@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: [PATCH 3/6] ext2 balloc: fix off-by-one against rsv_end
+In-Reply-To: <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
+Message-ID: <Pine.LNX.4.64.0611281740560.29701@blonde.wat.veritas.com>
+References: <20061114014125.dd315fff.akpm@osdl.org>  <20061114184919.GA16020@skynet.ie>
+  <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com> 
+ <20061114113120.d4c22b02.akpm@osdl.org>  <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
+  <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> 
+ <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> 
+ <20061115232228.afaf42f2.akpm@osdl.org>  <1163666960.4310.40.camel@localhost.localdomain>
+  <20061116011351.1401a00f.akpm@osdl.org>  <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
+  <20061116132724.1882b122.akpm@osdl.org>  <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
+  <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com> 
+ <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
+ <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
+ <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: =?ISO-8859-1?Q?Hanno_B=F6ck?= <mail@hboeck.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel: Please report the result to linux-kernel to fix this
- permanently
-References: <200611271242.59642.mail@hboeck.de> <9a8748490611270400t1ac8e1eesed9be5a0d308e829@mail.gmail.com>
-In-Reply-To: <9a8748490611270400t1ac8e1eesed9be5a0d308e829@mail.gmail.com>
-X-Enigmail-Version: 0.94.1.0
-OpenPGP: id=D420515A;
-	url=http://pgp.mit.edu
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 28 Nov 2006 17:41:18.0717 (UTC) FILETIME=[691D9AD0:01C71314]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+rsv_end is the last block within the reservation,
+so alloc_new_reservation should accept start_block == rsv_end as success.
 
-Jesper Juhl escreveu:
->> Oct  7 18:25:00 laverne kernel: PCI: Bus #04 (-#07) is hidden behind
->> transparent bridge #02 (-#04) (try 'pci=assign-busses')
->> Oct  7 18:25:00 laverne kernel: Please report the result to
->> linux-kernel to
->> fix this permanently
-> 
-> And what are the results when you use "pci=assign-busses" as your
-> kernel asks you to do ?
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-I have the same error message with Kernel 2.6.18.3, shown to report
-this, but when I use this option (pci=assign-busses), my laptop Toshiba
-M45-S355 don't turn-off monitor when idle:
+ fs/ext2/balloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-kernel: PCI: PCI BIOS revision 2.10 entry at 0xea7d4, last bus=5
-kernel: PCI: Using configuration type 1
-kernel: Setting up standard PCI resources
-kernel: ACPI: Interpreter enabled
-kernel: ACPI: Using PIC for interrupt routing
-kernel: ACPI: PCI Root Bridge [PCI0] (0000:00)
-kernel: PCI: Probing PCI hardware (bus 00)
-kernel: Boot video device is 0000:00:02.0
-kernel: PCI quirk: region 1000-107f claimed by ICH6 ACPI/GPIO/TCO
-kernel: PCI quirk: region 1300-133f claimed by ICH6 GPIO
-kernel: PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.2
-kernel: PCI: Transparent bridge - 0000:00:1e.0
-kernel: PCI: Bus #06 (-#09) is hidden behind transparent bridge #05
-(-#05) (try 'pci=assign-busses')
-kernel: Please report the result to linux-kernel to fix this permanently
-kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP01._PRT]
-kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP02._PRT]
-kernel: ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIB._PRT]
-kernel: ACPI: PCI Interrupt Link [LNKA] (IRQs 5 *11)
-kernel: ACPI: PCI Interrupt Link [LNKB] (IRQs 5 *10 11)
-SuSEfirewall2: Warning: ip6tables does not support state matching.
-Extended IPv6 support disabled.
-kernel: ACPI: PCI Interrupt Link [LNKC] (IRQs 5 *11)
-SuSEfirewall2: Setting up rules from /etc/sysconfig/SuSEfirewall2 ...
-kernel: ACPI: PCI Interrupt Link [LNKD] (IRQs 5 10 *11)
-kernel: ACPI: PCI Interrupt Link [LNKE] (IRQs *5 11)
-kernel: ACPI: PCI Interrupt Link [LNKF] (IRQs 5 10) *0, disabled.
-kernel: ACPI: PCI Interrupt Link [LNKG] (IRQs 6) *11
-kernel: ACPI: PCI Interrupt Link [LNKH] (IRQs 5 10) *11
-kernel: ACPI: Embedded Controller [EC0] (gpe 16) interrupt mode.
-kernel: ACPI: Power Resource [PFA1] (off)
-kernel: Linux Plug and Play Support v0.97 (c) Adam Belay
-
-Best regards,
-- --
-Renato S. Yamane
-Fingerprint: 68AE A381 938A F4B9 8A23  D11A E351 5030 D420 515A
-PGP Server: http://pgp.mit.edu/ --> KeyID: 0xD420515A
-<http://www.renatoyamane.com>
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
-
-iD8DBQFFbHRN41FQMNQgUVoRAtawAJ4l0MQr8wHxchN0JVPFAgp+aQPl8wCeIfm+
-OSfpO77HKw5Z3UfRK1KdZfI=
-=JXEi
------END PGP SIGNATURE-----
+--- 2.6.19-rc6-mm2/fs/ext2/balloc.c	2006-11-24 08:18:02.000000000 +0000
++++ linux/fs/ext2/balloc.c	2006-11-27 19:28:41.000000000 +0000
+@@ -950,7 +950,7 @@ retry:
+ 	 * check if the first free block is within the
+ 	 * free space we just reserved
+ 	 */
+-	if (start_block >= my_rsv->rsv_start && start_block < my_rsv->rsv_end)
++	if (start_block >= my_rsv->rsv_start && start_block <= my_rsv->rsv_end)
+ 		return 0;		/* success */
+ 	/*
+ 	 * if the first free bit we found is out of the reservable space

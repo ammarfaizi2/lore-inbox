@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1753942AbWK1UhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755495AbWK1UtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1753942AbWK1UhL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:37:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1754347AbWK1UhL
+	id S1755495AbWK1UtO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755492AbWK1UtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:37:11 -0500
-Received: from smtp3.Stanford.EDU ([171.67.20.26]:2795 "EHLO
-	smtp3.stanford.edu") by vger.kernel.org with ESMTP id S1753942AbWK1UhJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:37:09 -0500
-Subject: Re: 2.6.19-rc6-rt8: alsa xruns
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, "Linux-Kernel," <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061128200927.GA26934@elte.hu>
-References: <1164743931.15887.34.camel@cmn3.stanford.edu>
-	 <20061128200927.GA26934@elte.hu>
-Content-Type: text/plain
-Date: Tue, 28 Nov 2006 12:37:04 -0800
-Message-Id: <1164746224.15887.40.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 15:49:14 -0500
+Received: from khc.piap.pl ([195.187.100.11]:50623 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1754665AbWK1UtN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 15:49:13 -0500
+To: Patrick McHardy <kaber@trash.net>
+Cc: David Miller <davem@davemloft.net>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
+References: <m3fyc3e84s.fsf@defiant.localdomain> <456C94D2.9000602@trash.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 28 Nov 2006 21:48:40 +0100
+In-Reply-To: <456C94D2.9000602@trash.net> (Patrick McHardy's message of "Tue, 28 Nov 2006 20:58:10 +0100")
+Message-ID: <m3wt5fb8lz.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-11-28 at 21:09 +0100, Ingo Molnar wrote:
-> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> 
-> > Hi, I'm trying out the latest -rt patch and getting alsa xruns when 
-> > using jackd and jack clients. This is a sample from the output of 
-> > qjackctl / jackd (jack 0.102.25, qjackctl 0.2.21):
-> 
-> > (            japa-4096 |#0): new 17 us maximum-latency wakeup.
-> > (         beagled-3412 |#1): new 19 us maximum-latency wakeup.
-> > (          IRQ 18-1081 |#1): new 26 us maximum-latency wakeup.
-> > (             snd-4040 |#1): new 1107 us maximum-latency wakeup.
-> > (            japa-4096 |#0): new 1445 us maximum-latency wakeup.
-> > (            japa-4096 |#0): new 2110 us maximum-latency wakeup.
-> > (        qjackctl-4038 |#1): new 2328 us maximum-latency wakeup.
-> > (            japa-4096 |#0): new 2548 us maximum-latency wakeup.
-> > (          IRQ 18-1081 |#0): new 10291 us maximum-latency wakeup.
-> 
-> hm, lets fix this. Could you enable tracing (on the yum rpm) via:
-> 
-> 	echo 1 > /proc/sys/kernel/trace_enabled
-> 
-> does /proc/latency_trace have any meaningful events included for such a 
-> long delay? If not then it would be nice to rebuild the kernel with 
-> CONFIG_LATENCY_TRACING - and in any case my previous suggestion holds 
-> too: booting with maxcpus=1 to reproduce the latencies will give easier 
-> to interpret latency traces. 
+Patrick McHardy <kaber@trash.net> writes:
 
-Sorry, it looks like it is an smp issue. Booting with maxcpus=1 reduces
-the xrun reports significantly (only three so far but very short, in the
-range of 0.029 to 0.041 ms). The long ones seem to have gone away, so
-far...
+>> The following commit breaks ipt_REJECT on my machine. Tested with latest
+>> 2.6.19rc*, found with git-bisect. i386, gcc-4.1.1, the usual stuff.
+>> All details available on request, of course.
+>> 
+>> commit 9d02002d2dc2c7423e5891b97727fde4d667adf1
+>
+> How sure are you about this? I can see nothing wrong with that
+> commit and can't reproduce the slab corruption. Please post
+> the rule that triggers this.
 
-> (but if it's SMP-only then no problem, the 
-> latency traces are still valuable)
+99% sure. Past this commit I get corruptions after 5 minutes at most
+(that's ADSL with USB Thomson/Alcatel Speedtouch -> PPP over ATM,
+with a GRE tunnel over that PPP).
+I'm now running 901eaf6c8f997f18ebc8fcbb85411c79161ab3b2 (i.e. the
+last commit before the one in question) for 4 hours and nothing like
+that.
 
--- Fernando
+Not sure about the exact rule, but the most probable candidates are:
+-A INPUT -p tcp --tcp-flags SYN,RST,ACK SYN -j REJECT --reject-with tcp-reset
+-A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
 
+Other "REJECT" rules haven't fired yet.
 
+Could be some obscure problem with GRE/Speedtouch/PPP over ATM,
+triggered by this patch, though.
+
+Perhaps I can do some experiments - just say a word.
+--
+Krzysztof Halasa

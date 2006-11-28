@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935057AbWK1DgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935062AbWK1DhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935057AbWK1DgV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Nov 2006 22:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935059AbWK1DgV
+	id S935062AbWK1DhF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Nov 2006 22:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935067AbWK1DhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Nov 2006 22:36:21 -0500
-Received: from mta9.adelphia.net ([68.168.78.199]:21432 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP id S935057AbWK1DgU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Nov 2006 22:36:20 -0500
-Message-ID: <456BAEB0.5030800@vertical.com>
-Date: Mon, 27 Nov 2006 22:36:16 -0500
-From: Jon Ringle <jringle@vertical.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reserving a fixed physical address page of RAM.
-References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no> <456B8517.7040502@shaw.ca>
-In-Reply-To: <456B8517.7040502@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Nov 2006 22:37:04 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S935062AbWK1DhB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Nov 2006 22:37:01 -0500
+Date: Mon, 27 Nov 2006 19:33:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Adrian Bunk <bunk@stusta.de>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill net/rxrpc/rxrpc_syms.c
+Message-Id: <20061127193313.d59f61f0.akpm@osdl.org>
+In-Reply-To: <30354.1164626485@redhat.com>
+References: <20061126040416.GH15364@stusta.de>
+	<30354.1164626485@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Jon Ringle wrote:
->> Hi,
->>
->> I need to reserve a page of memory at a specific area of RAM that will
->> be used as a "shared memory" with another processor over PCI. How can I
->> ensure that the this area of RAM gets reseved so that the Linux's memory
->> management (kmalloc() and friends) don't use it?
->>
->> Some things that I've considered are iotable_init() and ioremap().
->> However, I've seen these used for memory mapped IO devices which are
->> outside of the RAM memory. Can I use them for reseving RAM too?
->>
->> I appreciate any advice in this regard.
->
-> Sounds to me like dma_alloc_coherent is what you want..
->
-It looks promising, however, I need to reserve a physical address area 
-that is well known (so that the code running on the other processor 
-knows where in PCI memory to write to). It appears that 
-dma_alloc_coherent returns the address that it allocated. Instead I need 
-something where I can tell it what physical address and range I want to use.
+On Mon, 27 Nov 2006 11:21:25 +0000
+David Howells <dhowells@redhat.com> wrote:
 
-Jon
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > This patch moves the EXPORT_SYMBOL's from net/rxrpc/rxrpc_syms.c to the 
+> > files with the actual functions.
+> 
+> You can if you like.  Can you slap a blank line before each EXPORT_SYMBOL()
+> though please?
+
+We have a mixture of both styles and given that they waste space in return
+for no added value, people have been gradually removing these blank lines
+in many places.  Please don't add more.
+

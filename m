@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758734AbWK1SkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758751AbWK1SrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758734AbWK1SkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758737AbWK1SkQ
+	id S1758751AbWK1SrX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936009AbWK1SrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:40:16 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:25980 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1758734AbWK1SkO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:40:14 -0500
-Message-ID: <456C82AE.6030505@cfl.rr.com>
-Date: Tue, 28 Nov 2006 13:40:46 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+	Tue, 28 Nov 2006 13:47:23 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:28684 "EHLO
+	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
+	id S1758751AbWK1SrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 13:47:22 -0500
+Subject: Re: 2.6.19-rc6-mm1 -- sched-improve-migration-accuracy.patch slows
+	boot
+From: Don Mullis <dwm@meer.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu> <mj+md-20061128.131233.3594.atrey@ucw.cz> <456C704F.3050008@cfl.rr.com> <mj+md-200611 <mj+md-20061128.174904.27577.atrey@ucw.cz>
-In-Reply-To: <mj+md-20061128.174904.27577.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20061127101600.GB5812@elte.hu>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	 <1164484124.2894.50.camel@localhost.localdomain>
+	 <1164522263.5808.12.camel@Homer.simpson.net>
+	 <1164591509.2894.76.camel@localhost.localdomain>
+	 <20061127101600.GB5812@elte.hu>
+Content-Type: text/plain
+Date: Tue, 28 Nov 2006 10:47:02 -0800
+Message-Id: <1164739622.2894.116.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Nov 2006 18:40:24.0030 (UTC) FILETIME=[AA496FE0:01C7131C]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14840.003
-X-TM-AS-Result: No--8.357800-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Yes, but the point is that you cannot tell how much randomness is in the
-> data you provide.
+On Mon, 2006-11-27 at 11:16 +0100, Ingo Molnar wrote:
+> could you run this utility:
+> 
+>   http://people.redhat.com/mingo/time-warp-test/time-warp-test.c
+> 
+> on your box for a while (10 minutes or so) - what does it print?
+> 
+> 	Ingo
 
-That is exactly my point.  Since you can not tell how much randomness is 
-in the data you provide, you can not tell the kernel how much to add to 
-its entropy estimate.  Instead it just has to estimate based on the 
-amount of data you provide.
+1 CPUs, running 1 parallel test-tasks.
+checking for time-warps via:
+- read time stamp counter (RDTSC) instruction (cycle resolution)
+- gettimeofday (TOD) syscall (usec resolution)
+- clock_gettime(CLOCK_MONOTONIC) syscall (nsec resolution)
+
+new TOD-warp maximum:   -442709 usecs,  00042352e214e2f8 ->
+00042352e20e21a3
+ | 0.69 us, TSC-warps:0 | 6.89 us, TOD-warps:1 | 6.89 us, CLOCK-warps:0
+|
+
 

@@ -1,41 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935736AbWK1JU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758601AbWK1JZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935736AbWK1JU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 04:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935767AbWK1JU5
+	id S1758601AbWK1JZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 04:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758591AbWK1JZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 04:20:57 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:20961 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S935736AbWK1JU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 04:20:56 -0500
-Date: Tue, 28 Nov 2006 12:16:58 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>, Alexander Viro <aviro@redhat.com>
-Subject: Re: Kevent POSIX timers support.
-Message-ID: <20061128091656.GD15083@2ka.mipt.ru>
-References: <20061121095302.GA15210@2ka.mipt.ru> <45633049.2000209@redhat.com> <20061121174334.GA25518@2ka.mipt.ru> <20061121184605.GA7787@2ka.mipt.ru> <4563FE71.4040807@redhat.com> <20061122104416.GD11480@2ka.mipt.ru> <20061123085243.GA11575@2ka.mipt.ru> <456603E7.9090006@redhat.com> <20061124095052.GC13600@2ka.mipt.ru> <456B2C82.7040700@redhat.com>
+	Tue, 28 Nov 2006 04:25:27 -0500
+Received: from nz-out-0506.google.com ([64.233.162.239]:36974 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1758601AbWK1JZ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 04:25:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=GxyGn/ONIWIYjpvt/DHpfgxd5/gqlaR/5FUelPXe+tlvWLF0hhLlkvBP6F+B/a5T7Fyuv12IeBaqsaF4yWfGVS4j6u+dDcrjh1AjbnXJCNpedEvCkSfJ71wsGgt/6dNnwcHkUnbrhT9/aPnDrkvzbi+/Sb6681sbVhA35MTJJho=
+Date: Tue, 28 Nov 2006 18:18:11 +0900
+From: Akinobu Mita <akinobu.mita@gmail.com>
+To: Don Mullis <dwm@meer.net>
+Cc: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2 -mm] fault-injection: lightweight code-coverage maximizer
+Message-ID: <20061128091811.GA2004@APFDCB5C>
+Mail-Followup-To: Akinobu Mita <akinobu.mita@gmail.com>,
+	Don Mullis <dwm@meer.net>, akpm <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1164699866.2894.88.camel@localhost.localdomain> <1164700290.2894.93.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <456B2C82.7040700@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 28 Nov 2006 12:17:03 +0300 (MSK)
+In-Reply-To: <1164700290.2894.93.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 10:20:50AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> sigev_value is a union and the largest element is a pointer.  So, 
-> transporting the pointer value is sufficient and it should be passed up 
-> to the user in the ptr member of struct ukevent.
+On Mon, Nov 27, 2006 at 11:51:30PM -0800, Don Mullis wrote:
+> Allow all non-unique call stacks, as judged by pushed sequence of EIPs,
+> to be to be ignored as failure candidates.
+> 
+> Upon keying in
+> 	echo 1 >probability
+> 	echo 3 >verbose
+> 	echo -1 >times
+> a few dozen stacks are printk'ed, then system responsiveness
+> recovers to normal.  Similarly, starting a non-trivial program
+> will print a few stacks before responsiveness recovers.
 
-That is where I've put it in current version.
+What kind of test did you do?
 
--- 
-	Evgeniy Polyakov
+> Intent is to make code-coverage-maximizing test lightweight, perhaps
+> light enough to remain enabled during the course of the developer's
+> interactive testing of new code.
+> 
+> Enabled by default. (/debug/fail*/stacktrace-depth > 0)
+
+This doesn't maximize code coverage. It makes fault-injector reject
+any failures which have same stacktrace before.
+
+So it should not be default.
+
+> +static bool fail_uniquestack(struct fault_attr *attr)
+> +{
+> +	u32 oldhash;
+> +	u32 newhash;
+> +	uint offset = 0;
+> +
+> +	newhash = unique_stack_p(attr);
+> +
+> +	for ( oldhash = newhash; oldhash != 0; offset++) {
+> +		oldhash = atomic_xchg(
+> +			&attr->uniquestack_hash_table[
+> +				(newhash+offset)%ARRAY_SIZE(attr->uniquestack_hash_table)],
+> +			oldhash);
+> +		if (oldhash == newhash)
+> +			return false;
+> +		if (offset >= ARRAY_SIZE(attr->uniquestack_hash_table)) {
+> +			printk(KERN_NOTICE
+> +			       "FAULT_INJECTION: table overflow -- "
+> +			       "fault injection disabled\n");
+> +			return false;
+> +		}
+> +	}
+
+Updating array in this way is not safe (SMP or interrupt).
+

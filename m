@@ -1,83 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757674AbWK1MJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757928AbWK1MLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757674AbWK1MJU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 07:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757795AbWK1MJU
+	id S1757928AbWK1MLR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 07:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757931AbWK1MLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 07:09:20 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:20876 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S1757659AbWK1MJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 07:09:19 -0500
-Date: Tue, 28 Nov 2006 13:09:16 +0100
-To: Tejun Heo <htejun@gmail.com>
-Cc: avl@logic.at, Alan <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Allow turning off hpa-checking.
-Message-ID: <20061128120916.GG2352@gamma.logic.tuwien.ac.at>
-Reply-To: avl@logic.at
-References: <20061127130953.GA2352@gamma.logic.tuwien.ac.at> <20061127133044.28b8b4ed@localhost.localdomain> <20061127160144.GB2352@gamma.logic.tuwien.ac.at> <20061127163328.3f1c12eb@localhost.localdomain> <20061127175647.GD2352@gamma.logic.tuwien.ac.at> <20061127181033.58e72d9a@localhost.localdomain> <20061127182943.GE2352@gamma.logic.tuwien.ac.at> <20061127195940.1b90a897@localhost.localdomain> <20061128092930.GF2352@gamma.logic.tuwien.ac.at> <456C056D.2070008@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <456C056D.2070008@gmail.com>
-User-Agent: Mutt/1.3.28i
-From: Andreas Leitgeb <avl@logic.at>
+	Tue, 28 Nov 2006 07:11:17 -0500
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:59891
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1757928AbWK1MLQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 07:11:16 -0500
+Message-ID: <007501c712e7$7a418c90$2900a8c0@arecakevin>
+From: "Areca Support" <support@areca.com.tw>
+To: "erich" <erich@areca.com.tw>, "Bron Gondwana" <brong@fastmail.fm>
+Cc: <linux-kernel@vger.kernel.org>, "Maurice Volaski" <mvolaski@aecom.yu.edu>
+References: <a06240400c18e4b03eadf@[129.98.90.227]> <00f501c711d4$f04c7530$b100a8c0@erich2003> <20061127130518.GC7610@brong.net>
+Subject: Re: Pathetic write performance from Areca PCIe cards
+Date: Tue, 28 Nov 2006 20:19:32 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+X-OriginalArrivalTime: 28 Nov 2006 12:01:06.0812 (UTC) FILETIME=[E2AC13C0:01C712E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems I was too eagerly deleting context from my mails.
-This made people misunderstand my questions or answer
-details that have been clarified in previous mails already.
+Dear Sir,
 
-I did learn quite a lot already about harddisks during this thread.
-"Thank you" to Alan.  In particular, about the quantities involved:
+This is Kevin Wang from Areca Technology, Tech-Support Team.
+as you recommend, we will updated driver/firmware to our ftp/website once it
+released.
 
-                         1                      2
-+---------------------------------------------+---+
-                                   ^-3
-There is
-   1) the "native" size of the disk: strictly constant
-   2) the spare sectors for remapping bad ones. (not included in 1)
-   3) An arbitrary quantity, being what the drive advertises as size.
+the firmware V1.42 sent by erich is a beta version and not released yet, it
+is certifying still.
+so you can not find it in our ftp site or website now.
 
-Bios thinks 3) is the disks total size. So does Linux before the
-hpa-check.  During that "hpa-check", Linux queries the quantity "1)",
-which is indeed the disks (constant) size. 
+and could you please inform me more detail about the two releases V1.41 ?
+as i remember, the V1.41 should released once only, a second V1.41 could be
+a bug fixed version and a bug fixed version should not public for customer
+download. please inform me more detail about it, i will ask ftp releated
+person check it.
+sorry for the inconvenience.
 
-There seem to be many (in some way conflicting) uses for "3)":
-  - fool the BIOS: because bioses might get upset for too large disks.
-  - fool some old OS: because the OS might get upset ---"---
-  - reserve some sectors for some non-volatile data hidden to 
-      certain systems e.g. for "nanny the user"-purposes.
 
-This thread is (for one part) about another appearant use of "3)",
-namely by the drive to tell that "2)" is exhausted, and less than
-"1)" sectors are left usable.  So quantity "3)" is set to the number
-of actually physically remaining sectors.
+Best Regards,
 
-This theory is backed by my observation of a nearly-broken disk,
-that the quantity "3)" gradually goes down one step after some time.
-The first such step was, when I noticed the problem about half a
-year ago, and just recently it stepped down by another one.
 
-Linux queries the real size "1)", gets read errors on the last two
-sectors and consequencially turns off dma making the machine awfully
-slow.  But this is not a kernel's problem, because really the disk
-should be replaced (it doesn't contain precious data, so I keep
-watching its degrade, till it no longer does anything).
+Kevin Wang
 
-The point I'm really trying to make is, that there should be a
-boot option, to disable the query for "1)".  This *must* be a
-boot option, because the querying that I want to be able to
-prevent happens at boot time.
-My broken drive surely doesn't justify the option (or even this
-thread), but the third one of the "uses for 3)" mentioned above
-does. Once the native size is read, I no longer know how many
-sectors were previously "hidden away" by HPA, except by checking
-the kernel-log.
+Areca Technology Tech-support Division
+Tel : 886-2-87974060 Ext. 223
+Fax : 886-2-87975970
+Http://www.areca.com.tw
+Ftp://ftp.areca.com.tw
 
-While Alan has already said, why he thought that this was the
-wrong approach, the reasoning was based on a misunderstanding
-of my question, which I here tried to clear up.
+----- Original Message ----- 
+From: "Bron Gondwana" <brong@fastmail.fm>
+To: "erich" <erich@areca.com.tw>
+Cc: "Maurice Volaski" <mvolaski@aecom.yu.edu>; "å»£å®‰ç§‘æŠ€ è˜‡èŽ‰åµ"
+<lusa@areca.com.tw>; "å»£å®‰ç§‘æŠ€ ç¾…ä»»å‰" <robert.lo@areca.com.tw>;
+"å»£å®‰ç§‘æŠ€ çŽ‹å®¶ä»²" <kevin34@areca.com.tw>; <support@areca.com.tw>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, November 27, 2006 9:05 PM
+Subject: Re: Pathetic write performance from Areca PCIe cards
+
+
+> On Mon, Nov 27, 2006 at 11:34:23AM +0800, erich wrote:
+> > Dear Maurice Volaski,
+> >
+> > Please update Areca Firmware version into 1.42.
+> > Areca's firmware team found some problems on high capacity transfer.
+> > Hope the weird  phenomenon should disappear.
+>
+> Erich, is there anyone at Areca that you can pass on the message to
+>
+>        +--------------------------------------------+
+>        | Please update your ftp server/website when |
+>        | there is a new firmware or driver release! |
+>        +--------------------------------------------+
+>
+> that would be great.  I followed the links from www.areca.us to the
+> firmware at:
+>
+> ftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware/ARC1130/
+>
+> for our cards, but the 1210 and 1220 that Maurice was speaking about
+> suffer from the same problem - there is no mention of a 1.42 firmware
+> anywhere, just the 1.41 that's been out for ages.
+>
+> ...
+>
+>
+> And speaking of 1.41, there appear to have been two releases on two
+> different dates both called 1.41, as well as two different versions
+> of the driver that both call themselves version 1.41 despite the
+> second one fixing a major bug we suffered from.
+>
+> Please also avoid that behaviour and label each new version of
+> the driver with a new number if you're using version numbers.
+>
+> Numbers are cheap, but identifying if a machine is running the patches
+> it needs to not crash every few weeks under the loads we run them at
+> is not (well, not until it crashes anyway!)
+>
+>
+> Thanks for listening, and hopefully thanks in advance for making your
+> drivers and firmware easier to find and identify in future.
+>
+> Regards,
+>
+> Bron.
 

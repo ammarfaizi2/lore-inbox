@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935600AbWK1FTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935607AbWK1FVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935600AbWK1FTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 00:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935603AbWK1FTc
+	id S935607AbWK1FVF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 00:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935609AbWK1FVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 00:19:32 -0500
-Received: from main.gmane.org ([80.91.229.2]:31109 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S935600AbWK1FTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 00:19:31 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ben Pfaff <blp@cs.stanford.edu>
-Subject: Re: Entropy Pool Contents
-Date: Mon, 27 Nov 2006 21:19:20 -0800
-Message-ID: <878xhw5esn.fsf@blp.benpfaff.org>
-References: <ek2nva$vgk$1@sea.gmane.org> <456B4CD2.7090208@cfl.rr.com>
-	<ekfifg$n41$1@taverner.cs.berkeley.edu>
-	<EB3E5F09-6529-4AB9-B7EF-DFCACC6D445E@mac.com>
-	<ekgd7u$6gp$1@taverner.cs.berkeley.edu>
-Reply-To: blp@cs.stanford.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-7-50-23.hsd1.ca.comcast.net
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:ELZZN2Ru0oqApHM2hffXOpx5AoE=
+	Tue, 28 Nov 2006 00:21:04 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:48703 "EHLO
+	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S935607AbWK1FVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 00:21:02 -0500
+Date: Mon, 27 Nov 2006 23:19:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Reserving a fixed physical address page of RAM.
+In-reply-to: <456BAEB0.5030800@vertical.com>
+To: Jon Ringle <jringle@vertical.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <456BC6D4.9080109@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
+ <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-daw@cs.berkeley.edu (David Wagner) writes:
+Jon Ringle wrote:
+> Robert Hancock wrote:
+>> Jon Ringle wrote:
+>>> Hi,
+>>>
+>>> I need to reserve a page of memory at a specific area of RAM that will
+>>> be used as a "shared memory" with another processor over PCI. How can I
+>>> ensure that the this area of RAM gets reseved so that the Linux's memory
+>>> management (kmalloc() and friends) don't use it?
+>>>
+>>> Some things that I've considered are iotable_init() and ioremap().
+>>> However, I've seen these used for memory mapped IO devices which are
+>>> outside of the RAM memory. Can I use them for reseving RAM too?
+>>>
+>>> I appreciate any advice in this regard.
+>>
+>> Sounds to me like dma_alloc_coherent is what you want..
+>>
+> It looks promising, however, I need to reserve a physical address area 
+> that is well known (so that the code running on the other processor 
+> knows where in PCI memory to write to). It appears that 
+> dma_alloc_coherent returns the address that it allocated. Instead I need 
+> something where I can tell it what physical address and range I want to 
+> use.
 
-> Well, if you want to talk about really high-value keys like the scenarios
-> you mention, you probably shouldn't be using /dev/random, either; you
-> should be using a hardware security module with a built-in FIPS certified
-> hardware random number source.  
+I don't think this is possible in the general case, as there's no 
+mechanism for moving things out of the way if they might be in use. Your 
+best solution is likely to use dma_alloc_coherent and pass the bus 
+address returned into the other processor to tell it where to write..
 
-Is there such a thing?  "Annex C: Approved Random Number
-Generators for FIPS PUB 140-2, Security Requirements for
-Cryptographic Modules", or at least the version of it I was able
-to find with Google in a few seconds, simply states:
-
-        There are no FIPS Approved nondeterministic random number
-        generators.
 -- 
-"Welcome to the Slippery Slope. Here is your handbasket.
- Say, can you work 70 hours this week?"
---Ron Mansolino
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+
 

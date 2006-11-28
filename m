@@ -1,57 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936004AbWK1SFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936003AbWK1SHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936004AbWK1SFb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936003AbWK1SFb
+	id S936003AbWK1SHe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 13:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936005AbWK1SHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:05:31 -0500
-Received: from mga02.intel.com ([134.134.136.20]:3198 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S936000AbWK1SFa convert rfc822-to-8bit
+	Tue, 28 Nov 2006 13:07:34 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:808 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S936003AbWK1SHd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:05:30 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,470,1157353200"; 
-   d="scan'208"; a="167458166:sNHT25067133"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for Intel ICH9
-Date: Tue, 28 Nov 2006 10:05:12 -0800
-Message-ID: <39B20DF628532344BC7A2692CB6AEE07AA158F@orsmsx420.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch for Intel ICH9
-Thread-Index: AccSyPkH3TNYszXvSeu0PGaDP84mrgATqvJA
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <htejun@gmail.com>
-X-OriginalArrivalTime: 28 Nov 2006 18:05:28.0679 (UTC) FILETIME=[C95C3F70:01C71317]
+	Tue, 28 Nov 2006 13:07:33 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=SrkskM1CSUP128n4B+h2nmQzUrhrnKq/XqpdqGaGs9VoO3jxPu4FpZcERAZDSTQZQ
+	/n/O3jvhWDq7IYm2WLKig==
+Subject: Re: [Patch1/4]: fake numa for x86_64 patch
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       David Rientjes <rientjes@cs.washington.edu>,
+       Paul Menage <menage@google.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0611281321020.7436@skynet.skynet.ie>
+References: <1164245649.29844.148.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0611271310200.11949@skynet.skynet.ie>
+	 <1164651761.6619.33.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0611281321020.7436@skynet.skynet.ie>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Tue, 28 Nov 2006 10:06:47 -0800
+Message-Id: <1164737207.14257.7.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I sent an updated patch that uses the ICH8 structures.
+On Tue, 2006-11-28 at 13:24 +0000, Mel Gorman wrote:
+> On Mon, 27 Nov 2006, Rohit Seth wrote:
+> 
+> > Hi Mel,
+> >
+> > On Mon, 2006-11-27 at 13:18 +0000, Mel Gorman wrote:
+> >> On Wed, 22 Nov 2006, Rohit Seth wrote:
+> >>
+> >>> This patch provides a IO hole size in a given address range.
+> >>>
+> >>
+> >> Hi,
+> >>
+> >> This patch reintroduces a function that doubles up what
+> >> absent_pages_in_range(start_pfn, end_pfn). I recognise you do this because
+> >> you are interested in hole sizes before add_active_range() is called.
+> >
+> > Right.
+> >
+> >>
+> >> However, what is not clear is why these patches are so specific to x86_64.
+> >>
+> >
+> > Specifically in the fake numa case, we want to make sure that we don't
+> > carve fake nodes that only have IO holes in it.  Unlike the real NUMA
+> > case, here we don't have SRAT etc. to know the memory layout beforehand.
+> >
+> >
+> >> It looks possible to do the work of functions like split_nodes_equal() in
+> >> an architecture-independent manner using early_node_map rather than
+> >> dealing with the arch-specific nodes array. That would open the
+> >> possibility of providing fake nodes on more than one architecture in the
+> >> future.
+> >
+> > The functions like splti_nodes_equal etc. can be abstracted out to arch
+> > independent part.  I think the only API it needs from arch dependent
+> > part is to find out how much real RAM is present in range without have
+> > to first do add_active_range.
+> >
+> 
+> That is a problem because the ranges must be registered with 
+> add_active_range() to work out how much real RAM is present.
+> 
 
-Do you need me to send this again.
+Right.  And that is why I need e820_hole_size functionality. BTW, what
+is the concern in having that function?
 
-Jason
+> > Though as a first step, let us fix the x86_64 (as it doesn't boot when
+> > you have sizeable chunk of IO hole and nodes > 4).
+> >
+> 
+> Ok.
+> 
+> > I'm also not sure if other archs actually want to have this
+> > functionality.
+> >
+> 
+> It's possible that the containers people are interested in the possibility 
+> of setting up fake nodes as part of a memory controller.
+> 
+That is precisely why I'm doing it :-)
 
+> >> What I think can be done is that you register memory as normal and then
+> >> split up the nodes into fake nodes. This would remove the need for having
+> >> e820_hole_size() reintroduced.
+> >
+> > Are you saying first let the system find out real numa topology and then
+> > build fake numa on top of it?
+> >
+> 
+> Yes, there is nothing stopping you altering the early_node_map[] before 
+> free_area_init_node() initialises the node_mem_map. If you do hit a 
+> problem, it'll be because x86_64 allocates it's own node_mem_map with 
+> CONFIG_FLAT_NODE_MEM_MAP is set. Is that set when setting up fake nodes?
+> 
 
->-----Original Message-----
->From: Jeff Garzik [mailto:jgarzik@pobox.com]
->Sent: Tuesday, November 28, 2006 12:41 AM
->To: Gaston, Jason D
->Cc: linux-ide@vger.kernel.org; linux-kernel@vger.kernel.org;
->htejun@gmail.com
->Subject: Re: [PATCH 2.6.19-rc6][RESEND] ata_piix: IDE mode SATA patch
-for
->Intel ICH9
->
->did I see a resend of this floating around?
->
->I can't apply this one...
->
->Looks OK though
+I thought they both (real numa + fake numa) operate on same data
+structures. I'll have to double check.
+
+-rohit
+

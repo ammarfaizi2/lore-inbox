@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936021AbWK1S5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936030AbWK1TFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936021AbWK1S5N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 13:57:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936020AbWK1S5N
+	id S936030AbWK1TFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 14:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936031AbWK1TFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 13:57:13 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:62681 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S936021AbWK1S5L (ORCPT
+	Tue, 28 Nov 2006 14:05:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18361 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936030AbWK1TF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 13:57:11 -0500
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] x86_64: fix earlyprintk=...,keep regression
-Date: Tue, 28 Nov 2006 19:57:07 +0100
-User-Agent: KMail/1.9.5
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20061128081405.GA9031@elte.hu> <Pine.LNX.4.64.0611281048170.4244@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0611281048170.4244@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 14:05:29 -0500
+Date: Tue, 28 Nov 2006 14:01:32 -0500
+From: Dave Jones <davej@redhat.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@jikos.cz>,
+       Keith Mannthey <kmannth@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       ak@suse.de
+Subject: Re: i686 apicid_to_node compile failure.
+Message-ID: <20061128190131.GD17111@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Randy Dunlap <randy.dunlap@oracle.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Jiri Kosina <jikos@jikos.cz>, Keith Mannthey <kmannth@us.ibm.com>,
+	Linus Torvalds <torvalds@osdl.org>, ak@suse.de
+References: <20061128062746.GA30889@redhat.com> <20061128063818.GB30889@redhat.com> <20061128091841.5fde6ffa.randy.dunlap@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611281957.07362.ak@suse.de>
+In-Reply-To: <20061128091841.5fde6ffa.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 28, 2006 at 09:18:41AM -0800, Randy Dunlap wrote:
+ > On Tue, 28 Nov 2006 01:38:19 -0500 Dave Jones wrote:
+ > 
+ > > On Tue, Nov 28, 2006 at 01:27:47AM -0500, Dave Jones wrote:
+ > >  > arch/i386/mach-generic/built-in.o: In function `apicid_to_node':
+ > >  > include/asm/mach-summit/mach_apic.h:90: undefined reference to `apicid_2_node'
+ > >  > 
+ > >  > config is at http://people.redhat.com/davej/.config
+ > > 
+ > > Hmm, odd. It looks like this was fixed a few weeks back in
+ > > commit 815a965b0e6d925646e1f6012175830ef21e0d21
+ > > but somehow, I still see it broken with rc6-git10.
+ > 
+ > I reported that one too.  Andi replied that he had a fix for it
+ > in his quilt tree...
 
-> 
-> Or is there some reason you really _want_ "keep" to be different? If so, 
-> it should probably be commented on.
+That's worth pushing to 2.6.19 IMO.  Andi ?
 
-It's just that keep is the only option that can only be at the end, all
-others can be followed by more, so it
-made minor sense to use strcmp() to match the \0 too. But using strncmp
-everywhere is fine too since the syntax checking on these things is always
-quite weak and it probably doesn't make much difference either way. 
+		Dave
 
-I would have gone with Ingo's fix, but if you prefer strncmp..? 
-
--Andi
+-- 
+http://www.codemonkey.org.uk

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933268AbWK1NPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758656AbWK1NOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933268AbWK1NPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 08:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933568AbWK1NPa
+	id S1758656AbWK1NOK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 08:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758659AbWK1NOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 08:15:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50074 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S933268AbWK1NP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 08:15:29 -0500
-Date: Tue, 28 Nov 2006 14:15:28 +0100
-From: Martin Mares <mj@ucw.cz>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Entropy Pool Contents
-Message-ID: <mj+md-20061128.131233.3594.atrey@ucw.cz>
-References: <ek2nva$vgk$1@sea.gmane.org> <456B3483.4010704@cfl.rr.com> <ekfehh$kbu$1@taverner.cs.berkeley.edu> <456B4CD2.7090208@cfl.rr.com> <ekfifg$n41$1@taverner.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ekfifg$n41$1@taverner.cs.berkeley.edu>
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Nov 2006 08:14:10 -0500
+Received: from il.qumranet.com ([62.219.232.206]:13247 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S1758656AbWK1NOJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 08:14:09 -0500
+Subject: [PATCH] KVM: AMD SVM: Avoid three more new instructions
+From: Avi Kivity <avi@qumranet.com>
+Date: Tue, 28 Nov 2006 13:13:45 -0000
+To: kvm-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@elte.hu
+Message-Id: <20061128131345.2356525015E@cleopatra.q>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+The clgi, stgi, and invlpga instructions are all too new to unleash on
+the world's assemblers.  Replace them with the opcode sequences.
 
->   - Whether you automatically bump up the entropy estimate when
->     root users write to /dev/random is a design choice where you could
->     reasonably go either way.  On the one hand, you might want to ensure
->     that root has to take some explicit action to allege that it is
->     providing a certain degree of entropy, and you might want to insist
->     that root tell /dev/random how much entropy it added (since root
->     knows best where the data came from and how much entropy it is likely
->     to contain).
+Signed-off-by: Avi Kivity <avi@qumranet.com>
 
-More importantly, it should be possible for root to write to /dev/random
-_without_ increasing the entropy count, for example when restoring random
-pool contents after reboot. In such cases you want the pool to contain
-at least some unpredictable data before real entropy arrives, so that
-/dev/urandom cannot be guessed, but you unless you remember the entropy
-counter as well, you should not add any entropy.
-
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Q: How to start hacking Linux?  A: vi /boot/vmlinuz
+diff -X /home/avi/kvm/linux-2.6/Documentation/dontdiff --exclude=Makefile -ru /home/avi/kvm/linux-2.6/drivers/kvm/svm.c /home/avi/kvm-release/kernel/svm.c
+--- linux-2.6/drivers/kvm/svm.c	2006-11-28 14:31:03.000000000 +0200
++++ linux-2.6/drivers/kvm/svm.c	2006-11-28 15:08:19.000000000 +0200
+@@ -102,17 +102,17 @@
+ 
+ static inline void clgi(void)
+ {
+-	asm volatile ("clgi");
++	asm volatile (SVM_CLGI);
+ }
+ 
+ static inline void stgi(void)
+ {
+-	asm volatile ("stgi");
++	asm volatile (SVM_STGI);
+ }
+ 
+ static inline void invlpga(unsigned long addr, u32 asid)
+ {
+-	asm volatile ("invlpga" :: "a"(addr), "c"(asid));
++	asm volatile (SVM_INVLPGA :: "a"(addr), "c"(asid));
+ }
+ 
+ static inline unsigned long read_cr2(void)
+diff -X /home/avi/kvm/linux-2.6/Documentation/dontdiff --exclude=Makefile -ru /home/avi/kvm/linux-2.6/drivers/kvm/svm.h /home/avi/kvm-release/kernel/svm.h
+--- linux-2.6/drivers/kvm/svm.h	2006-11-28 14:14:17.000000000 +0200
++++ linux-2.6/drivers/kvm/svm.h	2006-11-28 15:09:17.000000000 +0200
+@@ -307,6 +307,9 @@
+ #define SVM_VMLOAD ".byte 0x0f, 0x01, 0xda"
+ #define SVM_VMRUN  ".byte 0x0f, 0x01, 0xd8"
+ #define SVM_VMSAVE ".byte 0x0f, 0x01, 0xdb"
++#define SVM_CLGI   ".byte 0x0f, 0x01, 0xdd"
++#define SVM_STGI   ".byte 0x0f, 0x01, 0xdc"
++#define SVM_INVLPGA ".byte 0x0f, 0x01, 0xdf"
+ 
+ #endif
+ 

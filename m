@@ -1,112 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756871AbWK1Vmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756986AbWK1Vpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756871AbWK1Vmg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 16:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756883AbWK1Vmg
+	id S1756986AbWK1Vpz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 16:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757005AbWK1Vpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 16:42:36 -0500
-Received: from nathan.polyware.nl ([80.89.239.2]:42941 "EHLO nathan.iaf.local")
-	by vger.kernel.org with ESMTP id S1756871AbWK1Vmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 16:42:35 -0500
-Date: Tue, 28 Nov 2006 22:38:08 +0100
-From: Pauline Middelink <middelink@polyware.nl>
-To: Peter Schlaf <peter.schlaf@web.de>
-Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
-Message-ID: <20061128213808.GA25754@polyware.nl>
-Mail-Followup-To: Pauline Middelink <middelink@polyware.nl>,
-	Peter Schlaf <peter.schlaf@web.de>,
-	Linux and Kernel Video <video4linux-list@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061125191510.GB3702@stusta.de> <456BC973.1050309@feise.com> <20061128060723.GA15364@stusta.de> <456BD8E4.6010003@feise.com> <1164707859.12613.7.camel@localhost> <456C89E7.9010507@web.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature";
-	micalg=sha1; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-In-Reply-To: <456C89E7.9010507@web.de>
-User-Agent: Mutt/1.5.4i
-X-Polyware-MailScanner: Found to be clean
-X-Polyware-MailScanner-From: middelin@nathan.iaf.local
+	Tue, 28 Nov 2006 16:45:55 -0500
+Received: from stinky.trash.net ([213.144.137.162]:39084 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1756985AbWK1Vpy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 16:45:54 -0500
+Message-ID: <456CAE0D.2080209@trash.net>
+Date: Tue, 28 Nov 2006 22:45:49 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: David Miller <davem@davemloft.net>, lkml <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate
+ route_reverse function
+References: <m3fyc3e84s.fsf@defiant.localdomain> <456C94D2.9000602@trash.net> <m3wt5fb8lz.fsf@defiant.localdomain>
+In-Reply-To: <m3wt5fb8lz.fsf@defiant.localdomain>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------020901050501040105090504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020901050501040105090504
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Krzysztof Halasa wrote:
+> Patrick McHardy <kaber@trash.net> writes:
+> 
+>>How sure are you about this? I can see nothing wrong with that
+>>commit and can't reproduce the slab corruption. Please post
+>>the rule that triggers this.
+> 
+> 
+> 99% sure. Past this commit I get corruptions after 5 minutes at most
+> (that's ADSL with USB Thomson/Alcatel Speedtouch -> PPP over ATM,
+> with a GRE tunnel over that PPP).
 
-On Tue, 28 Nov 2006 around 20:11:35 +0100, Peter Schlaf wrote:
-> Hello,
->=20
-> I would like to see this driver fixed and remaining in the kernel and
-> would give any support I can to achive this goal.
->=20
-> I have a zr36120 based tv card and wrote a driver on my own based on
-> this kernel driver from Pauline Middelink. Maybe it could be helpful.
+It might be the case that your network device has a
+hard_header_len > LL_MAX_HEADER, which could trigger
+a corruption.
 
-I would have no problem Peter taking over the maintainance of the driver.
-Due to timeconstrains I no longer have the time to upgrade the driver
-to v4l2 (which is a bigger problem than getting the current driver to=20
-run under 2.6)
+> I'm now running 901eaf6c8f997f18ebc8fcbb85411c79161ab3b2 (i.e. the
+> last commit before the one in question) for 4 hours and nothing like
+> that.
+> 
+> Not sure about the exact rule, but the most probable candidates are:
+> -A INPUT -p tcp --tcp-flags SYN,RST,ACK SYN -j REJECT --reject-with tcp-reset
+> -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+> 
+> Other "REJECT" rules haven't fired yet.
+> 
+> Could be some obscure problem with GRE/Speedtouch/PPP over ATM,
+> triggered by this patch, though.
+> 
+> Perhaps I can do some experiments - just say a word.
 
-    Met vriendelijke groet,
-        Pauline Middelink
---=20
-GPG Key fingerprint =3D 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
-For more details look at my website http://www.polyware.nl/~middelink
+Please try this patch on top of the REJECT patch (ideally after
+verifying that the REJECT patch is really introducing the
+corruption).
 
---RnlQjJ0d97Da+TV1
-Content-Type: application/x-pkcs7-signature
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
 
-MIII+gYJKoZIhvcNAQcCoIII6zCCCOcCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
-BnEwggMqMIICk6ADAgECAhARJYbRn+UWirvXaiWEbaOAMA0GCSqGSIb3DQEBBAUAMGIxCzAJ
-BgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYD
-VQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAeFw0wNjAyMjcxNjAz
-MDNaFw0wNzAyMjcxNjAzMDNaMIGMMRIwEAYDVQQEEwlNaWRkZWxpbmsxIjAgBgNVBCoTGUpl
-YW5ldHRlIFBhdWxpbmUgTWljaGVsbGUxLDAqBgNVBAMTI0plYW5ldHRlIFBhdWxpbmUgTWlj
-aGVsbGUgTWlkZGVsaW5rMSQwIgYJKoZIhvcNAQkBFhVtaWRkZWxpbmtAcG9seXdhcmUubmww
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDuqneHunNSROl9ndDw8AcjA2hf9YfC
-sUbpoNjbR5tOEdnEGGztilkZMxB7IYnGZAhqqdRtUKkbBykvso61MtR9yMYjs7f9jvGLuXpG
-qqghVXyWjwNUVKwDif5VUn5lsNO6GEeaCa3TM2TINQuqPFeY9RHn0KobPgkZsNpoW7sGlXdy
-1unIa76rHZD2QcLUcwjqJK40inIlxpofQeTpG5RsX0yf4GlFcfAaDn8ecLXn410VskegyfK4
-0gNlKFzInjjwyUv488dq5vArM0VSqelngksM4hJnJSxvC9CVHCTl/prnkjJaMcK1GtsutkVw
-u+5UHN7WF7jUrwds3qP46ULrAgMBAAGjMjAwMCAGA1UdEQQZMBeBFW1pZGRlbGlua0Bwb2x5
-d2FyZS5ubDAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBAUAA4GBAH5XO9XEGBDQXPJzmUxi
-a4ONbov/6o5HHkMNbVSLtl427kv5ZraSiimshEUCw5jkH6ZTPiLeslSKZhfchhB5G1PTJEil
-biHTN9z2CmPLQjmcB0fzRMSzVN3orsfIxfChDvumt1QpDec6YeMa8viMDDtpfrvnKQEJu4eK
-vOYKDkCQMIIDPzCCAqigAwIBAgIBDTANBgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkEx
-FTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFU
-aGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZp
-c2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcN
-AQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEz
-MDcxNjIzNTk1OVowYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5n
-IChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5n
-IENBMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/
-ox7svc31W/Iadr1/DDph8r9RzgHU5VAKMNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2
-JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTXp6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wID
-AQABo4GUMIGRMBIGA1UdEwEB/wQIMAYBAf8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDov
-L2NybC50aGF3dGUuY29tL1RoYXd0ZVBlcnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQD
-AgEGMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG
-9w0BAQUFAAOBgQBIjNFQg+oLLswNo2asZw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAg
-k3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSeJVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghO
-rvbqNOUQGls1TXfjViF4gtwhGTXeJLHTHUb/XV9lTzGCAlEwggJNAgEBMHYwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAhARJYbRn+UWirvXaiWEbaOA
-MAkGBSsOAwIaBQCggbEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUx
-DxcNMDYxMTI4MjEzODA4WjAjBgkqhkiG9w0BCQQxFgQUt1IMQRFLvhHQU8DKQlN1RbIuG1Uw
-UgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcN
-AwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwDQYJKoZIhvcNAQEBBQAEggEAdRc8jmx/
-DgPko6COxRndow8cAG5Xpjrp5cJxLNNE2ViVY4BAZ36FscC/Flwvfupc61DKd8ijr9+ApaVr
-FS+CLdWmSAipVdKZhOAi+r+ZKbWOR4ra4rJ5cxVqmwcQexPY7FXZ97hRJ7iw5pWbpp78V7FY
-o9+/53zc0xegwb2r+0oIvjLR6jd7mEgEZPJvMoc4/lPcNjGCL3SWqIUfT2SGfn0tlOhG8Wt9
-EmQiVDUsDnr5VwN9nxObmqrl8wURiR0kz4EjyyU9xVZa88sik2MtFLvLpBvb7gZiTYiNeH6U
-BSzHLnvxJjDDXSTzqQiyE2/qK7fNFuOlmEhsL+UtsJ1Nmg==
+--------------020901050501040105090504
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
 
---RnlQjJ0d97Da+TV1--
+diff --git a/net/ipv4/netfilter/ipt_REJECT.c b/net/ipv4/netfilter/ipt_REJECT.c
+index ad0312d..264763a 100644
+--- a/net/ipv4/netfilter/ipt_REJECT.c
++++ b/net/ipv4/netfilter/ipt_REJECT.c
+@@ -114,6 +114,14 @@ static void send_reset(struct sk_buff *o
+ 	tcph->window = 0;
+ 	tcph->urg_ptr = 0;
+ 
++	/* Adjust TCP checksum */
++	tcph->check = 0;
++	tcph->check = tcp_v4_check(tcph, sizeof(struct tcphdr),
++				   nskb->nh.iph->saddr,
++				   nskb->nh.iph->daddr,
++				   csum_partial((char *)tcph,
++						sizeof(struct tcphdr), 0));
++
+ 	/* Set DF, id = 0 */
+ 	nskb->nh.iph->frag_off = htons(IP_DF);
+ 	nskb->nh.iph->id = 0;
+@@ -129,14 +137,8 @@ #endif
+ 	if (ip_route_me_harder(&nskb, addr_type))
+ 		goto free_nskb;
+ 
+-	/* Adjust TCP checksum */
+ 	nskb->ip_summed = CHECKSUM_NONE;
+-	tcph->check = 0;
+-	tcph->check = tcp_v4_check(tcph, sizeof(struct tcphdr),
+-				   nskb->nh.iph->saddr,
+-				   nskb->nh.iph->daddr,
+-				   csum_partial((char *)tcph,
+-						sizeof(struct tcphdr), 0));
++
+ 	/* Adjust IP TTL */
+ 	nskb->nh.iph->ttl = dst_metric(nskb->dst, RTAX_HOPLIMIT);
+ 
+
+--------------020901050501040105090504--

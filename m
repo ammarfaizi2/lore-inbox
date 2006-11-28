@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936106AbWK1UZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965914AbWK1U0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936106AbWK1UZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936104AbWK1UZZ
+	id S965914AbWK1U0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965978AbWK1U0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:25:25 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14735 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S936099AbWK1UZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:25:24 -0500
-Date: Tue, 28 Nov 2006 21:23:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: mm-commits@vger.kernel.org, ak@suse.de, ashok.raj@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [patch] genapic: default to physical mode on hotplug CPU kernels
-Message-ID: <20061128202322.GA29334@elte.hu>
-References: <200611140109.kAE19f5e014490@shell0.pdx.osdl.net> <20061127141849.A9978@unix-os.sc.intel.com> <20061128063345.GA19523@elte.hu> <20061128111414.A16460@unix-os.sc.intel.com>
+	Tue, 28 Nov 2006 15:26:34 -0500
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:50183 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S965914AbWK1U0d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 15:26:33 -0500
+Date: Tue, 28 Nov 2006 21:26:37 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Jason Gaston <jason.d.gaston@intel.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, i2c@lm-sensors.org
+Subject: Re: [PATCH 2.6.19-rc6] i2c-i801: Documentation patch for Intel
+ ICH9/ICH8/ESB2
+Message-Id: <20061128212637.d541674a.khali@linux-fr.org>
+In-Reply-To: <200611271053.11904.jason.d.gaston@intel.com>
+References: <200611271053.11904.jason.d.gaston@intel.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061128111414.A16460@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-SpamScore: -4.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.4 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
-
-> On Tue, Nov 28, 2006 at 07:33:46AM +0100, Ingo Molnar wrote:
-> > -	if (clusters <= 1 && max_cluster <= 8 && cluster_cnt[0] == max_cluster)
-> > +	if (max_apic < 8)
+On Mon, 27 Nov 2006 10:53:11 -0800, Jason Gaston wrote:
+> This patch adds the Intel ICH9/ICH8/ESB2 SMBus Controller text to i2c-i801 documentation.
 > 
-> Patch mostly looks good.  Instead of checking for max_apic, can we use
-> 	cpus_weight(cpu_possible_map) <= 8
+> Signed-off-by:  Jason Gaston <jason.d.gaston@intel.com>
+> 
+> --- linux-2.6.19-rc6/Documentation/i2c/busses/i2c-i801.orig	2006-11-27 10:36:37.000000000 -0800
+> +++ linux-2.6.19-rc6/Documentation/i2c/busses/i2c-i801	2006-11-27 10:43:02.000000000 -0800
+> @@ -9,7 +9,10 @@
+>    * Intel 82801EB/ER (ICH5) (HW PEC supported, 32 byte buffer not supported)
+>    * Intel 6300ESB
+>    * Intel 82801FB/FR/FW/FRW (ICH6)
+> -  * Intel ICH7
+> +  * Intel 82801G (ICH7)
+> +  * Intel 631xESB/632xESB (ESB2)
+> +  * Intel 82801H (ICH8)
+> +  * Intel ICH9
+>      Datasheets: Publicly available at the Intel website
+>  
+>  Authors: 
 
-ok - but i think it's still possible the BIOS tells us APIC IDs that are 
-larger than 7, even if there are fewer CPUs. So i think the patch below 
-should cover it. Agreed?
+Applied, thanks.
 
-	Ingo
-
--------------------->
-From: Ingo Molnar <mingo@elte.hu>
-Subject: [patch] genapic: default to physical mode on hotplug CPU kernels
-
-default to physical mode on hotplug CPU kernels.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-Index: linux/arch/x86_64/kernel/genapic.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/genapic.c
-+++ linux/arch/x86_64/kernel/genapic.c
-@@ -51,7 +51,7 @@ void __init clustered_apic_check(void)
- 			max_apic = id;
- 	}
- 
--	if (max_apic < 8)
-+	if (max_apic < 8 && cpus_weight(cpu_possible_map) <= 8)
- 		genapic = &apic_flat;
- 	else
- 		genapic = &apic_physflat;
+-- 
+Jean Delvare

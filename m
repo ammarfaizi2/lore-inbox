@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935841AbWK1Kl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935851AbWK1K7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935841AbWK1Kl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935839AbWK1Kl5
+	id S935851AbWK1K7U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935852AbWK1K7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:41:57 -0500
-Received: from mx1.suse.de ([195.135.220.2]:185 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S935841AbWK1Kl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 05:41:56 -0500
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: [patch] Mark rdtsc as sync only for netburst, not for core2
-Date: Tue, 28 Nov 2006 11:36:28 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <1164709708.3276.72.camel@laptopd505.fenrus.org>
-In-Reply-To: <1164709708.3276.72.camel@laptopd505.fenrus.org>
+	Tue, 28 Nov 2006 05:59:20 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:61101 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S935851AbWK1K7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:59:20 -0500
+X-Originating-Ip: 72.57.81.197
+Date: Tue, 28 Nov 2006 05:55:42 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: mismatch between default and defconfig LOG_BUF_SHIFT values
+In-Reply-To: <1164708938.3276.65.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0611280554430.15533@localhost.localdomain>
+References: <Pine.LNX.4.64.0611280451010.13481@localhost.localdomain>
+ <1164708938.3276.65.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611281136.29066.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 November 2006 11:28, Arjan van de Ven wrote:
-> Hi,
-> 
-> On the Core2 cpus, the rdtsc instruction is not serializing (as defined
-> in the architecture reference since rdtsc exists) and due to the deep
-> speculation of these cores, it's possible that you can observe time go
-> backwards between cores due to this speculation. Since the kernel
-> already deals with this with the SYNC_RDTSC flag, the solution is
-> simple, only assume that the instruction is serializing on family 15...
-> 
-> The price one pays for this is a slightly slower gettimeofday (by a
-> dozen or two cycles), but that increase is quite small to pay for a
-> really-going-forward tsc counter.
+On Tue, 28 Nov 2006, Arjan van de Ven wrote:
 
-Added thanks
+> > ...
+> >
+> >   is it worth trying to bring the Kconfig.debug default values into
+> > line with the defconfig file values, to avoid any possible confusion?
+>
+> I don't think so. defconfig is just there to get some working
+> system. You should really pay attention to the config options you
+> care about, and select the value YOU want. Neither defconfig nor the
+> "default value" matter in that. Of course especially the "default
+> value" should be a sane one, but it is in this case.. your system
+> boots and works fine.
+>
+> defconfig also tends to be the config used by the arch maintainer,
+> eg the one he uses for his system. He might very well have different
+> preferences than you have...
 
--Andi
+fair enough.  i didn't *think* there was any technical reason why
+those values had to match, i just thought i'd ask.
+
+rday

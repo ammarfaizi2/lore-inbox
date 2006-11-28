@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965818AbWK1UQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936106AbWK1UZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965818AbWK1UQo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 15:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936098AbWK1UQo
+	id S936106AbWK1UZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 15:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936104AbWK1UZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 15:16:44 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16289 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S936095AbWK1UQn (ORCPT
+	Tue, 28 Nov 2006 15:25:25 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14735 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S936099AbWK1UZY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 15:16:43 -0500
-Date: Tue, 28 Nov 2006 21:14:44 +0100
+	Tue, 28 Nov 2006 15:25:24 -0500
+Date: Tue, 28 Nov 2006 21:23:22 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc6-rt8: alsa xruns
-Message-ID: <20061128201444.GB26934@elte.hu>
-References: <1164743931.15887.34.camel@cmn3.stanford.edu> <1164744757.1701.58.camel@mindpipe>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: mm-commits@vger.kernel.org, ak@suse.de, ashok.raj@intel.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: [patch] genapic: default to physical mode on hotplug CPU kernels
+Message-ID: <20061128202322.GA29334@elte.hu>
+References: <200611140109.kAE19f5e014490@shell0.pdx.osdl.net> <20061127141849.A9978@unix-os.sc.intel.com> <20061128063345.GA19523@elte.hu> <20061128111414.A16460@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1164744757.1701.58.camel@mindpipe>
+In-Reply-To: <20061128111414.A16460@unix-os.sc.intel.com>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-SpamScore: -4.5
 X-ELTE-SpamLevel: 
@@ -36,20 +36,39 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+* Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
 
-> On Tue, 2006-11-28 at 11:58 -0800, Fernando Lopez-Lezcano wrote:
-> > Hi, I'm trying out the latest -rt patch and getting alsa xruns when
-> > using jackd and jack clients. This is a sample from the output of
-> > qjackctl / jackd (jack 0.102.25, qjackctl 0.2.21):
+> On Tue, Nov 28, 2006 at 07:33:46AM +0100, Ingo Molnar wrote:
+> > -	if (clusters <= 1 && max_cluster <= 8 && cluster_cnt[0] == max_cluster)
+> > +	if (max_apic < 8)
 > 
-> Any improvement if you disable high res timers?
-> 
-> Also, the latency tracer does not work on dual core AMD machines due 
-> to the TSC drift.  Might as well disable it.
+> Patch mostly looks good.  Instead of checking for max_apic, can we use
+> 	cpus_weight(cpu_possible_map) <= 8
 
-i fixed this in -rt8: the latency tracer now uses the time of day 
-clocksource - pmtimer in this case. (that means function tracing is 
-slower than with the TSC, but latency figures are more reliable.)
+ok - but i think it's still possible the BIOS tells us APIC IDs that are 
+larger than 7, even if there are fewer CPUs. So i think the patch below 
+should cover it. Agreed?
 
 	Ingo
+
+-------------------->
+From: Ingo Molnar <mingo@elte.hu>
+Subject: [patch] genapic: default to physical mode on hotplug CPU kernels
+
+default to physical mode on hotplug CPU kernels.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+Index: linux/arch/x86_64/kernel/genapic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/genapic.c
++++ linux/arch/x86_64/kernel/genapic.c
+@@ -51,7 +51,7 @@ void __init clustered_apic_check(void)
+ 			max_apic = id;
+ 	}
+ 
+-	if (max_apic < 8)
++	if (max_apic < 8 && cpus_weight(cpu_possible_map) <= 8)
+ 		genapic = &apic_flat;
+ 	else
+ 		genapic = &apic_physflat;

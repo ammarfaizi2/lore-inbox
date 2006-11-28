@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935817AbWK1K2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935814AbWK1K3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935817AbWK1K2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 05:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935815AbWK1K2N
+	id S935814AbWK1K3K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 05:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935815AbWK1K3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 05:28:13 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:62899 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S935813AbWK1K2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 05:28:12 -0500
-Date: Tue, 28 Nov 2006 13:26:49 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [take25 1/6] kevent: Description.
-Message-ID: <20061128102649.GF15083@2ka.mipt.ru>
-References: <11641265982190@2ka.mipt.ru> <456621AC.7000009@redhat.com> <20061124120531.GC32545@2ka.mipt.ru> <456B3FF2.3010908@redhat.com>
+	Tue, 28 Nov 2006 05:29:09 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:27327 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S935814AbWK1K3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 05:29:08 -0500
+Subject: [patch] Mark rdtsc as sync only for netburst, not for core2
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Nov 2006 11:28:28 +0100
+Message-Id: <1164709708.3276.72.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <456B3FF2.3010908@redhat.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 28 Nov 2006 13:26:54 +0300 (MSK)
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 11:43:46AM -0800, Ulrich Drepper (drepper@redhat.com) wrote:
-> Evgeniy Polyakov wrote:
-> >It _IS_ how previous interface worked.
-> >
-> >	EXACTLY!
-> 
-> No, the old interface committed everything not only up to a given index. 
->  This is the huge difference which makes or breaks it.
+Hi,
 
-Interface was the same - logic behind it was differnet, the only thing
-required was to add consumer's index - that is all, no need to change a
-lot of declarations, userspace and so on - just use existing interface
-and extend its functionality. 
+On the Core2 cpus, the rdtsc instruction is not serializing (as defined
+in the architecture reference since rdtsc exists) and due to the deep
+speculation of these cores, it's possible that you can observe time go
+backwards between cores due to this speculation. Since the kernel
+already deals with this with the SYNC_RDTSC flag, the solution is
+simple, only assume that the instruction is serializing on family 15...
 
-But it does not matter anymore, later this week I will collect all
-proposed changes and implement (hopefully) last release, which will
-close most of the questions regarding userspace interfaces (except
-signal mask, it is in fluent state), so we could concentrate on
-internals and/or new kernel users.
+The price one pays for this is a slightly slower gettimeofday (by a
+dozen or two cycles), but that increase is quite small to pay for a
+really-going-forward tsc counter.
 
-> -- 
-> ➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, 
-> CA ❖
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
--- 
-	Evgeniy Polyakov
+--- linux-2.6.18/arch/x86_64/kernel/setup.c.org	2006-11-28 11:22:08.000000000 +0100
++++ linux-2.6.18/arch/x86_64/kernel/setup.c	2006-11-28 11:22:50.000000000 +0100
+@@ -854,7 +854,10 @@ static void __cpuinit init_intel(struct 
+ 		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
+ 	if (c->x86 == 6)
+ 		set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
+-	set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
++	if (c->x86 == 15)
++		set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
++	else
++		clear_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
+  	c->x86_max_cores = intel_num_cpu_cores(c);
+ 
+ 	srat_detect_node();
+

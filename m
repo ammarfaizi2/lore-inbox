@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755518AbWK1W7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757385AbWK1XHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1755518AbWK1W7I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 17:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757477AbWK1W7I
+	id S1757385AbWK1XHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 18:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757761AbWK1XHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 17:59:08 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:50399 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1755518AbWK1W7F (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 17:59:05 -0500
-Message-Id: <200611282258.kASMwW2f025365@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+	Tue, 28 Nov 2006 18:07:15 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35261 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1757385AbWK1XHO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 18:07:14 -0500
+Date: Tue, 28 Nov 2006 15:06:35 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, trivial@kernel.org
-Subject: Friends dont let friends use GCC -W (was Re: [PATCH] Don't compare unsigned
-In-Reply-To: Your message of "Tue, 28 Nov 2006 23:17:13 +0100."
-             <200611282317.14020.jesper.juhl@gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200611282317.14020.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1164754712_2995P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Nov 2006 17:58:32 -0500
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       trivial@kernel.org
+Subject: Re: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
+In-Reply-To: <9a8748490611281434g3741045v5e7f952f633e08d3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611281459331.4244@woody.osdl.org>
+References: <200611282317.14020.jesper.juhl@gmail.com> 
+ <Pine.LNX.4.64.0611281425220.4244@woody.osdl.org>
+ <9a8748490611281434g3741045v5e7f952f633e08d3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1164754712_2995P
-Content-Type: text/plain; charset=us-ascii
 
-On Tue, 28 Nov 2006 23:17:13 +0100, Jesper Juhl said:
-> In kernel/sys.c::sys_prctl() the argument named 'arg2' is very clearly
-> of type 'unsigned long', and when compiling with "gcc -W" gcc also warns :
->   kernel/sys.c:2089: warning: comparison of unsigned expression < 0 is always false
+
+On Tue, 28 Nov 2006, Jesper Juhl wrote:
 >
-> So this patch removes the test of "arg2 < 0".
+> > Friends don't let friends use "-W".
+> 
+> Hehe, ok, I'll stop cleaning this stuff up then.
+> Nice little hobby out the window there ;)
 
-For those playing along at home - often the bug (not here though) is it should
-have been a *signed* long, because arg2 could be passed from some other
-function that returns negative numbers on error?  Remember that papering over
-a bug is a bad idea...
+You might want to look at some of the other warnings gcc spits out, but 
+this class isn't one of them.
 
-On Tue, 28 Nov 2006 14:27:51 PST, Linus Torvalds said:
-> The fact is, if it's unsigned, it's not something that the programmer 
-> should have to care about. We should write our code to be readable and 
-> obviously safe, and that means that
+Other warnings we have added over the years (and that really _are_ good 
+warnings) have included the "-Wstrict-prototypes", and some other ones.
 
-Unfortunately, it's *easy* for GCC to determine that Something Odd has
-happened. Either the variable was made unsigned in error, or the test is in
-error. However, there's no real way for the compiler to know which was
-intended.  And let's face it - we've had enough of our share of bugs *both*
-ways, which is why GCC emits a warning.
+If you can pinpoint _which_ gcc warning flag it is that causes gcc to emit 
+the bogus ones, you _could_ try "-W -Wno-xyz-warning", which should cause 
+gcc to enable all the "other" warnings, but then not the "xyz-warning" 
+that causes problems.
 
+Of course, there is often a reason why a warning is in "-W" but not in 
+"-Wall". Most of the time it's sign that the warning is bogus. Not always, 
+though - we do tend to want to be fairly strict, and Wstrict-prototypes is 
+an example of a _good_ warning that is not in -Wall.
 
-
---==_Exmh_1164754712_2995P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFbL8YcC3lWbTT17ARAq9oAKCHci4CzKIqiiaP6L3PQ2Bsr2IcvwCfeRE2
-dJl62tZdYqA4/tKA0rZ2AuU=
-=NwTR
------END PGP SIGNATURE-----
-
---==_Exmh_1164754712_2995P--
+		Linus

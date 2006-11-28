@@ -1,101 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758016AbWK1Xjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756883AbWK1Xm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758016AbWK1Xjj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 18:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758042AbWK1Xjj
+	id S1756883AbWK1Xm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 18:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757958AbWK1Xm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 18:39:39 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:15772 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1758016AbWK1Xji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 18:39:38 -0500
-Date: Tue, 28 Nov 2006 15:36:35 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>,
-       linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: 2.6.19-rc5-mm2: paravirt X86_PAE=y compile error
-Message-Id: <20061128153635.abaeb1fc.randy.dunlap@oracle.com>
-In-Reply-To: <20061115153614.a71f944d.akpm@osdl.org>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	<20061115231626.GC31879@stusta.de>
-	<20061115153614.a71f944d.akpm@osdl.org>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Nov 2006 18:42:29 -0500
+Received: from wr-out-0506.google.com ([64.233.184.238]:29333 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1756883AbWK1Xm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 18:42:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JAL/mcQxrb24lMPmLwPYeJtY+dJdnuK1RcbbmPe9hkbs4gBJxcuGZcEVOVOr6H3jwfNHWrm7/tCwSX2F5GIeCEe5oUuyflmas6PLOqvTwgW9hpxw/o3D2jrzhlkqkGmcNYk/lS837GagVE8QkKQu9qlanzjuq/bSDYJJBt4IjmE=
+Message-ID: <9a8748490611281542l2b05ab78kef8247b04f8c5389@mail.gmail.com>
+Date: Wed, 29 Nov 2006 00:42:28 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       trivial@kernel.org
+In-Reply-To: <Pine.LNX.4.64.0611281459331.4244@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+References: <200611282317.14020.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0611281425220.4244@woody.osdl.org>
+	 <9a8748490611281434g3741045v5e7f952f633e08d3@mail.gmail.com>
+	 <Pine.LNX.4.64.0611281459331.4244@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2006 15:36:14 -0800 Andrew Morton wrote:
+On 29/11/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Tue, 28 Nov 2006, Jesper Juhl wrote:
+> >
+> > > Friends don't let friends use "-W".
+> >
+> > Hehe, ok, I'll stop cleaning this stuff up then.
+> > Nice little hobby out the window there ;)
+>
+> You might want to look at some of the other warnings gcc spits out, but
+> this class isn't one of them.
+>
+> Other warnings we have added over the years (and that really _are_ good
+> warnings) have included the "-Wstrict-prototypes", and some other ones.
+>
+> If you can pinpoint _which_ gcc warning flag it is that causes gcc to emit
+> the bogus ones, you _could_ try "-W -Wno-xyz-warning", which should cause
+> gcc to enable all the "other" warnings, but then not the "xyz-warning"
+> that causes problems.
+>
+> Of course, there is often a reason why a warning is in "-W" but not in
+> "-Wall". Most of the time it's sign that the warning is bogus. Not always,
+> though - we do tend to want to be fairly strict, and Wstrict-prototypes is
+> an example of a _good_ warning that is not in -Wall.
+>
 
-> On Thu, 16 Nov 2006 00:16:26 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > Paravirt breaks CONFIG_X86_PAE=y compilation:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      init/main.o
-> > In file included from include2/asm/pgtable.h:245,
-> >                  from 
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/mm.h:40,
-> >                  from 
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/poll.h:11,
-> >                  from 
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/rtc.h:113,
-> >                  from 
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/include/linux/efi.h:19,
-> >                  from 
-> > /home/bunk/linux/kernel-2.6/linux-2.6.19-rc5-mm2/init/main.c:43:
-> > include2/asm/pgtable-3level.h:108: error: redefinition of 'pte_clear'
-> > include2/asm/paravirt.h:365: error: previous definition of 'pte_clear' was here
-> > include2/asm/pgtable-3level.h:115: error: redefinition of 'pmd_clear'
-> > include2/asm/paravirt.h:370: error: previous definition of 'pmd_clear' was here
-> > make[2]: *** [init/main.o] Error 1
-> > 
-> 
-> So it does.  Zach will save us.
-> 
-> How come allmodconfig doesn't select highmem?
+I would venture that "-Wshadow" is another one of those.  I've, in the
+past, submitted quite a few patches to clean up shadow warnings (some
+accepted, some not) and I'll probably try going down that path again
+in the near future.  It's a class of warnings that have the potential
+to uncover real bugs (even if we don't currently have any) and it
+would be a nice one to be able to enable by default in the Makefile.
 
-Must be because of "choice" and its default:
+I agree with you though that the "expression always false|true due to
+unsigned" type of warnings are usually bogus - although there have
+actually been real bugs hiding behind some of those warnings in the
+past.  But, I'll make sure to only submit patches for that type of
+warnings in the future if I can prove that the warning actually
+uncovered a real bug.
 
-choice
-	prompt "High Memory Support"
-	default NOHIGHMEM
-
-Changing the default fixes it.  I suppose conf.c could be
-hacked to do something different on choices, but it's not
-clear how/what to do there as a general rule.
-
----
-From: Randy Dunlap <randy.dunlap@oracle.com>
-
-Make ix86 default to HIGHMEM4G instead of NOHIGHMEM.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- arch/i386/Kconfig |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2.6.19-rc6-git10.orig/arch/i386/Kconfig
-+++ linux-2.6.19-rc6-git10/arch/i386/Kconfig
-@@ -443,7 +443,8 @@ source "drivers/firmware/Kconfig"
- 
- choice
- 	prompt "High Memory Support"
--	default NOHIGHMEM
-+	default HIGHMEM4G if !X86_NUMAQ
-+	default HIGHMEM64G if X86_NUMAQ
- 
- config NOHIGHMEM
- 	bool "off"
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

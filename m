@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935607AbWK1FVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935611AbWK1Faj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935607AbWK1FVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 00:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935609AbWK1FVE
+	id S935611AbWK1Faj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 00:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935613AbWK1Faj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 00:21:04 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:48703 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S935607AbWK1FVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 00:21:02 -0500
-Date: Mon, 27 Nov 2006 23:19:16 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Reserving a fixed physical address page of RAM.
-In-reply-to: <456BAEB0.5030800@vertical.com>
-To: Jon Ringle <jringle@vertical.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <456BC6D4.9080109@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.LC2HgQx8572p2lwOKfUm6cxg95s@ifi.uio.no>
- <456B8517.7040502@shaw.ca> <456BAEB0.5030800@vertical.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Tue, 28 Nov 2006 00:30:39 -0500
+Received: from pv105234.reshsg.uci.edu ([128.195.105.234]:61401 "HELO
+	pv105234.reshsg.uci.edu") by vger.kernel.org with SMTP
+	id S935611AbWK1Faj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 00:30:39 -0500
+Message-ID: <456BC973.1050309@feise.com>
+Date: Mon, 27 Nov 2006 21:30:27 -0800
+From: Joe Feise <jfeise@feise.com>
+Reply-To: jfeise@feise.com
+Organization: feise.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061025 Thunderbird/1.5.0.8 Mnenhy/0.7.4.0
+MIME-Version: 1.0
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
+References: <20061125191510.GB3702@stusta.de>
+In-Reply-To: <20061125191510.GB3702@stusta.de>
+X-Enigmail-Version: 0.94.1.2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Ringle wrote:
-> Robert Hancock wrote:
->> Jon Ringle wrote:
->>> Hi,
->>>
->>> I need to reserve a page of memory at a specific area of RAM that will
->>> be used as a "shared memory" with another processor over PCI. How can I
->>> ensure that the this area of RAM gets reseved so that the Linux's memory
->>> management (kmalloc() and friends) don't use it?
->>>
->>> Some things that I've considered are iotable_init() and ioremap().
->>> However, I've seen these used for memory mapped IO devices which are
->>> outside of the RAM memory. Can I use them for reseving RAM too?
->>>
->>> I appreciate any advice in this regard.
->>
->> Sounds to me like dma_alloc_coherent is what you want..
->>
-> It looks promising, however, I need to reserve a physical address area 
-> that is well known (so that the code running on the other processor 
-> knows where in PCI memory to write to). It appears that 
-> dma_alloc_coherent returns the address that it allocated. Instead I need 
-> something where I can tell it what physical address and range I want to 
-> use.
+Adrian Bunk wrote on 11/25/06 11:15:
 
-I don't think this is possible in the general case, as there's no 
-mechanism for moving things out of the way if they might be in use. Your 
-best solution is likely to use dma_alloc_coherent and pass the bus 
-address returned into the other processor to tell it where to write..
+> The VIDEO_ZR36120 driver has:
+> - already been marked as BROKEN in 2.6.0 three years ago and
+> - is still marked as BROKEN.
+> 
+> Drivers that had been marked as BROKEN for such a long time seem to be 
+> unlikely to be revived in the forseeable future.
+> 
+> But if anyone wants to ever revive this driver, the code is still 
+> present in the older kernel releases.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Hmm, there are people out there (like me) who still use it and have patched it
+to get it working on 2.6.x.
 
+-Joe
 

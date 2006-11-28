@@ -1,62 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935997AbWK1TxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936058AbWK1Twp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935997AbWK1TxM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 14:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936076AbWK1TxM
+	id S936058AbWK1Twp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 14:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936075AbWK1Twp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 14:53:12 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:37393 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S936077AbWK1TxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 14:53:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BcXu80SwkkF7CrS9uxn44NfkSREnkU6OlW0Reekjx/wC62YIWacaq79RrBusiK/OgkIrUpsMK5Y3pqwRfTQIRjLBSC5cPKxDNOkjY+5Yao7+UX+3oCsKCuDaHMZYn16egO9dGmwOPT+NtSJC1yIymtQtSVyjbdnSK4HFq6nLj6U=
-Message-ID: <5bdc1c8b0611281153l17c2a8f9y28185420f137d0fa@mail.gmail.com>
-Date: Tue, 28 Nov 2006 11:53:08 -0800
-From: "Mark Knecht" <markknecht@gmail.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: 2.6.19-rc6-rt5
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1164735207.1701.19.camel@mindpipe>
+	Tue, 28 Nov 2006 14:52:45 -0500
+Received: from isaowa.keyvoice.com ([12.153.69.53]:38078 "EHLO
+	outbound.comdial.com") by vger.kernel.org with ESMTP
+	id S936058AbWK1Two convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 14:52:44 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061120220230.GA30835@elte.hu>
-	 <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com>
-	 <1164735207.1701.19.camel@mindpipe>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Reserving a fixed physical address page of RAM.
+Date: Tue, 28 Nov 2006 14:52:42 -0500
+Message-ID: <22170ADB26112F478A4E293FF9D449F44D0F89@secure.comdial.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Reserving a fixed physical address page of RAM.
+Thread-Index: AccS7bp4G4cOC7F6T9a98AlMRhLiPQANwVQA
+From: "Jon Ringle" <JRingle@vertical.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Robert Hancock" <hancockr@shaw.ca>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/28/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Wed, 2006-11-22 at 06:06 -0800, Mark Knecht wrote:
-> > Ingo,
-> >    I started building the new kernels a few days ago with your
-> > 2.6.19-rc6-rt0 announcement. The kernels have built fine but so far I
-> > am unable to build the realtime-lsm package against them so no reason
-> > to reboot.
+linux-os (Dick Johnson) wrote:
+> On Mon, 27 Nov 2006, Jon Ringle wrote:
+> 
+> > Robert Hancock wrote:
+> >> Jon Ringle wrote:
+> >>> Hi,
+> >>>
+> >>> I need to reserve a page of memory at a specific area of RAM that 
+> >>> will be used as a "shared memory" with another processor 
+> over PCI. 
+> >>> How can I ensure that the this area of RAM gets reseved 
+> so that the 
+> >>> Linux's memory management (kmalloc() and friends) don't use it?
+> >>>
+> >>> Some things that I've considered are iotable_init() and ioremap().
+> >>> However, I've seen these used for memory mapped IO 
+> devices which are 
+> >>> outside of the RAM memory. Can I use them for reseving RAM too?
+> >>>
+> >>> I appreciate any advice in this regard.
+> >>
+> >> Sounds to me like dma_alloc_coherent is what you want..
+> >>
+> > It looks promising, however, I need to reserve a physical 
+> address area 
+> > that is well known (so that the code running on the other processor 
+> > knows where in PCI memory to write to). It appears that 
+> > dma_alloc_coherent returns the address that it allocated. Instead I 
+> > need something where I can tell it what physical address 
+> and range I want to use.
 > >
-> >    I know there were some comments awhile back about being required to
-> > switch to PAM. Has that occurred?
-> >
-> >    If not then there is a regression issue for realtime-lsm.
->
-> As Realtime LSM is an out of tree module and there's no stable kernel
-> module API it's impossible to prevent regressions.
->
-> That being said, the realtime LSM patch is so simple that it should work
-> - how exactly does it fail?
->
-> Lee
+> > Jon
+> 
+> First, "PCI memory" is some memory inside a board that is 
+> addressed through the PCI bus. This address is allocated upon 
+> machine start and is available though the PCI interface 
+> (check any of the PCI card drivers). If you want to access 
+> this memory, you need to follow the same procedures that 
+> other boards use.
 
-Hi Lee,
-   The failure is a Gentoo sandbax failure. On the surface of it I
-didn't really think it was a kernel problem but I know you've pushed
-me to move to PAM telling me realtime-lsm wasn't going to work in the
-future. I really just wanted to know that PAM was now a requirement
-instead of only best practice.
+In my hardware setup, Linux is running in PCI option mode on a IXP455
+processor and it exposes a segment of the IXP455's memory so that it is
+available on the PCI bus. The other processor (a pentium M running
+Windows OS) sees this exposed IXP455 memory as PCI memory from it's
+perspective.
+
+> 
+> However, perhaps you don't mean "PCI memory". Perhaps you 
+> mean real memory in the address-space, and you need to 
+> reserve it and give its physical address to something inside 
+> a PCI-bus card, perhaps for DMA. In that case, you can either 
+> memory-map some physical memory (get_dma_pages()) or you can 
+> tell the kernel you have less memory than you really have, 
+> and use the memory the kernel doesn't know about for your own 
+> private purposes. To access this private memory you use 
+> ioremap() and friends. This can be memory-mapped to 
+> user-space as well so you can perform DMA directly to 
+> user-space buffers. You can find the highest address that the 
+> kernel uses by reading kernel variable num_physpages. This 
+> tells the number of pages the kernel uses. The kernel does 
+> write to the next one so you need to start using pages that 
+> are two higher than num_physpages.
+
+I'll take a look telling the kernel it has less memory that there
+physically exists and use ioremap() to map it in.
 
 Thanks,
-Mark
+Jon 

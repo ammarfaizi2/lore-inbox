@@ -1,86 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966602AbWK2Jbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966629AbWK2JcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966602AbWK2Jbk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966606AbWK2Jbk
+	id S966629AbWK2JcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966640AbWK2JcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:31:40 -0500
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:52851 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966602AbWK2Jbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:31:39 -0500
+	Wed, 29 Nov 2006 04:32:25 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:8754 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966629AbWK2JcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 04:32:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=deVq3apWKR8iDAJhtWQRQo86yFfYtYbJHjDxSvRSZtBum+yKohz1uHftU5ZPtd8wyMy/BZkLgMjlRYIIE9MJJdw2OmUlbAX1Zr9+ryR3Lh0/KG29IWlnwz3XoJ4O0onOcPUwYrnpFOfWfxhzVkas8jEJRC/T8imbM7rLGj4pEdU=  ;
-X-YMail-OSG: r9cfyOgVM1nXZlV9mVh3DUDvufZNiko5W0ttSO.H2lTg5OLNfxVJFhAo4zrZXd6YwQp5.bV7gPDw1ELfMRSttcYczLgIRb9gQYc.AaqvtPsfR7iTrgKpnNvS72839Wu3X2U7D7gA15xtvlA-
-Message-ID: <456D5347.3000208@yahoo.com.au>
-Date: Wed, 29 Nov 2006 20:30:47 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MZx6l2at8TNXooe9+HoP2lHjFXVGb87YgFEP1ZX3QGgO9ea4fXqfgNfqHSnNOpn8oIdz6KBVxhreThY5lCzqH280TJAgkZbOvBclCS+D19jzwot8gowD+660gXjq/C+rtwEj6cYFaFppivq7T7luP97XnlpXc/50LveGHONp5VA=
+Message-ID: <ac8af0be0611290132h2369b6b3m9592537c98489feb@mail.gmail.com>
+Date: Wed, 29 Nov 2006 01:32:22 -0800
+From: "Zhao Forrest" <forrest.zhao@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: A commit between 2.6.16.4 and 2.6.16.5 failed crashme
+Cc: "Andi Kleen" <ak@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061129083310.GC11084@stusta.de>
 MIME-Version: 1.0
-To: Aubrey <aubreylee@gmail.com>
-CC: Sonic Zhang <sonic.adi@gmail.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, vapier.adi@gmail.com
-Subject: Re: The VFS cache is not freed when there is not enough free memory
- to allocate
-References: <6d6a94c50611212351if1701ecx7b89b3fe79371554@mail.gmail.com>	 <1164185036.5968.179.camel@twins>	 <6d6a94c50611220202t1d076b4cye70dcdcc19f56e55@mail.gmail.com>	 <456A964D.2050004@yahoo.com.au>	 <4e5ebad50611282317r55c22228qa5333306ccfff28e@mail.gmail.com> <6d6a94c50611290127u2b26976en1100217a69d651c0@mail.gmail.com>
-In-Reply-To: <6d6a94c50611290127u2b26976en1100217a69d651c0@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <ac8af0be0611290018y70c68a66r5a3199f08e6417d5@mail.gmail.com>
+	 <20061129083310.GC11084@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aubrey wrote:
-> On 11/29/06, Sonic Zhang <sonic.adi@gmail.com> wrote:
-> 
->> Forward to the mailing list.
->>
->> > On 11/27/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->>
->>
->> >> I haven't actually written any nommu userspace code, but it is obvious
->> >> that you must try to keep malloc to <= PAGE_SIZE (although order 2 and
->> >> even 3 allocations seem to be reasonable, from process context)... 
->> Then
->> >> you would use something a bit more advanced than a linear array to 
->> store
->> >> data (a pagetable-like radix tree would be a nice, easy idea).
->> >>
->> >
->> > But, even we split the 8M memory into 2048 x 4k blocks, we still face
->> > this failure. The key problem is that available memory is small than
->> > 2048 x 4k, while there are still a lot of VFS cache. The VFS cache can
->> > be freed, but kernel allocation function ignores it. See the new test
->> > application.
->>
->>
->> Which kernel allocation function? If you can provide more details I'd
->> like to get to the bottom of this.
-> 
-> 
-> I posted it here, I think you missed it. So forwarded it to you.
+On 11/29/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Wed, Nov 29, 2006 at 12:18:18AM -0800, Zhao Forrest wrote:
+> > On 11/28/06, Andi Kleen <ak@suse.de> wrote:
+> > >
+> > >> I first need to contact the author of test case if we could send the
+> > >> test case to open source. The test case is called "crashme",
+> > >
+> > >Is that the classical crashme as found in LTP or an enhanced one?
+> > >Do you run it in a special way? Is the crash reproducible?
+> > >
+> > >We normally run crashme regularly as part of LTP, Cerberus etc.
+> > >so at least any obvious bugs should in theory be caught.
+> > >
+> >
+> > Let me change the subject of this thread.
+> > I just read our private version of crashme. It's based on crashme
+> > version 2.4 and add some logging capability, no other enhancement. So
+> > it should be the same as crashme in LTP.
+> >
+> > It is solidly reproducible within 3 minutes of running crashme.
+> >
+> > The current status is: we know it's a commit between 2.6.16.4 and
+> > 2.6.16.5 that introduce this bug.
+> >
+> > Our network is very slow(only 5-6K/second). So we'll start the
+> > git-bisect tomorrow after finishing downloading the 2.6.16 stable git
+> > tree.
+>
+> Thanks for your report.
+>
+> A git-bisect might be a bit of overkill considering that there were only
+> two patches applied beween 2.6.16.4 and 2.6.16.5:
+>
+> Andi Kleen (2):
+>       x86_64: Clean up execve
+>       x86_64: When user could have changed RIP always force IRET (CVE-2006-0744)
+>
+> I've attached both patches.
+>
+> Could you manually bisect first applying "x86_64: Clean up execve"
+> (patch-2.6.16.4-5-1) against 2.6.16.4?
+>
 
-That was the order-9 allocation failure. Which is not going to be
-solved properly by just dropping caches.
+Hi Adrian
 
-But Sonic apparently saw failures with 4K allocations, where the
-caches weren't getting shrunk properly. This would be more interesting
-because it would indicate a real problem with the kernel.
+It's the second patch(x86_64: When user could have changed RIP always
+force IRET (CVE-2006-0744)) that trigger this bug.
+We have run crashme on a IBM server with 2 Intel dual-core CPU, a SUN
+server with 2 AMD Opteron single-core CPU and a SUN server with 8 AMD
+Opteron dual-core CPU.
+Running crashme can trigger kernel panic on all platforms after the
+second patch is applied to 2.6.16.4. And when kernel panic happens,
+there's only "Kernel panic - not syncing: Attempted to kill init" on
+the screen.
 
->>
->> Also, do you happen to know of a reasonable toolchain + emulator setup
->> that I could test the nommu kernel with?
-> 
-> 
-> A project named skyeye.
-> http://www.skyeye.org/index.shtml
+Please let me know if you need any further information.
 
-Thanks, I'll give that one a try.
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Thanks,
+Forrest

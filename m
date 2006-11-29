@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967597AbWK2Tr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967598AbWK2TtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967597AbWK2Tr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 14:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967599AbWK2Tr7
+	id S967598AbWK2TtX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 14:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967599AbWK2TtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 14:47:59 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50063 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S967597AbWK2Tr6
+	Wed, 29 Nov 2006 14:49:23 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52111 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S967598AbWK2TtW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 14:47:58 -0500
-Date: Wed, 29 Nov 2006 11:51:03 -0800
+	Wed, 29 Nov 2006 14:49:22 -0500
+Date: Wed, 29 Nov 2006 11:52:30 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
-Subject: Linux 2.6.18.4
-Message-ID: <20061129195103.GB1397@sequoia.sous-sol.org>
+Subject: Re: Linux 2.6.18.4
+Message-ID: <20061129195230.GC1397@sequoia.sous-sol.org>
+References: <20061129195103.GB1397@sequoia.sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061129195103.GB1397@sequoia.sous-sol.org>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.18.4 kernel.
-This has just a single security fix (CVE-2006-5751) for the network
-bridge code in it.  An unprivileged local user could potentially write
-to kernel memory without this fix.
-
-The diffstat and short summary of the fixes are below.
-
-I'll also be replying to this message with a copy of the patch between
-2.6.18.3 and 2.6.18.4, as it is small enough to do so.
-                                                                                
-The updated 2.6.18.y git tree can be found at:                                  
-        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.18.y.git 
-and can be browsed at the normal kernel.org git web browser:                    
-        www.kernel.org/git/                                                     
-
-thanks,
--chris
-
---------
-
- Makefile              |    2 +-
- net/bridge/br_ioctl.c |    9 +++++----
- 2 files changed, 6 insertions(+), 5 deletions(-)
-
-Summary of changes from v2.6.18.3 to v2.6.18.4
-============================================
-
-Chris Wright:
-      bridge: fix possible overflow in get_fdb_entries (CVE-2006-5751)
-      Linux 2.6.18.4
+diff --git a/Makefile b/Makefile
+index 9eda185..d026088 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 18
+-EXTRAVERSION = .3
++EXTRAVERSION = .4
+ NAME=Avast! A bilge rat!
+ 
+ # *DOCUMENTATION*
+diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+index 4e4119a..4c61a7e 100644
+--- a/net/bridge/br_ioctl.c
++++ b/net/bridge/br_ioctl.c
+@@ -58,12 +58,13 @@ static int get_fdb_entries(struct net_br
+ {
+ 	int num;
+ 	void *buf;
+-	size_t size = maxnum * sizeof(struct __fdb_entry);
++	size_t size;
+ 
+-	if (size > PAGE_SIZE) {
+-		size = PAGE_SIZE;
++	/* Clamp size to PAGE_SIZE, test maxnum to avoid overflow */
++	if (maxnum > PAGE_SIZE/sizeof(struct __fdb_entry))
+ 		maxnum = PAGE_SIZE/sizeof(struct __fdb_entry);
+-	}
++
++	size = maxnum * sizeof(struct __fdb_entry);
+ 
+ 	buf = kmalloc(size, GFP_USER);
+ 	if (!buf)

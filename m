@@ -1,86 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967139AbWK2LM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967134AbWK2LQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967139AbWK2LM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 06:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967149AbWK2LM7
+	id S967134AbWK2LQv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 06:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967141AbWK2LQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 06:12:59 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25878
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S967139AbWK2LM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 06:12:58 -0500
-Message-Id: <456D79AB.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 29 Nov 2006 11:14:35 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] use probe_kernel_address in Dwarf2 unwinder
+	Wed, 29 Nov 2006 06:16:51 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60127 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S967134AbWK2LQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 06:16:50 -0500
+Date: Wed, 29 Nov 2006 12:16:49 +0100
+From: Jan Kara <jack@suse.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] proper prototype for remove_inode_dquot_ref()
+Message-ID: <20061129111649.GF16630@atrey.karlin.mff.cuni.cz>
+References: <20061129100408.GJ11084@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061129100408.GJ11084@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use probe_kernel_address() instead of __get_user() in Dwarf2 unwinder.
+> This patch adds a proer prototype for remove_inode_dquot_ref() in 
+> include/linux/quotaops.h
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+  Fine with me, if you find it better this way (but that function is not
+really supposed to be called from anywhere else).
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+  Signed-off-by: Jan Kara <jack@suse.cz>
 
---- linux-2.6.19-rc6/kernel/unwind.c	2006-11-29 10:04:11.000000000 +0100
-+++ 2.6.19-rc6-unwind-probe_kernel_address/kernel/unwind.c	2006-11-29 10:22:16.000000000 +0100
-@@ -14,8 +14,8 @@
- #include <linux/bootmem.h>
- #include <linux/sort.h>
- #include <linux/stop_machine.h>
-+#include <linux/uaccess.h>
- #include <asm/sections.h>
--#include <asm/uaccess.h>
- #include <asm/unaligned.h>
- 
- extern char __start_unwind[], __end_unwind[];
-@@ -550,7 +550,7 @@ static unsigned long read_pointer(const 
- 		return 0;
- 	}
- 	if ((ptrType & DW_EH_PE_indirect)
--	    && __get_user(value, (unsigned long *)value))
-+	    && probe_kernel_address((unsigned long *)value, value))
- 		return 0;
- 	*pLoc = ptr.p8;
- 
-@@ -981,18 +981,18 @@ int unwind(struct unwind_frame_info *fra
- 		        & (sizeof(unsigned long) - 1))) {
- 			unsigned long link;
- 
--			if (!__get_user(link,
--			                (unsigned long *)(UNW_FP(frame)
--			                                  + FRAME_LINK_OFFSET))
-+			if (!probe_kernel_address((unsigned long *)(UNW_FP(frame)
-+			                                            + FRAME_LINK_OFFSET),
-+			                          link)
- # if FRAME_RETADDR_OFFSET < 0
- 			   && link > bottom && link < UNW_FP(frame)
- # else
- 			   && link > UNW_FP(frame) && link < bottom
- # endif
- 			   && !(link & (sizeof(link) - 1))
--			   && !__get_user(UNW_PC(frame),
--			                  (unsigned long *)(UNW_FP(frame)
--			                                    + FRAME_RETADDR_OFFSET))) {
-+			   && !probe_kernel_address((unsigned long *)(UNW_FP(frame)
-+			                                              + FRAME_RETADDR_OFFSET))
-+			                            UNW_PC(frame)) {
- 				UNW_SP(frame) = UNW_FP(frame) + FRAME_RETADDR_OFFSET
- # if FRAME_RETADDR_OFFSET < 0
- 					-
-@@ -1103,7 +1103,7 @@ int unwind(struct unwind_frame_info *fra
- 					return -EIO;
- 				switch(reg_info[i].width) {
- #define CASE(n)     case sizeof(u##n): \
--					__get_user(FRAME_REG(i, u##n), (u##n *)addr); \
-+					probe_kernel_address((u##n *)addr, FRAME_REG(i, u##n)); \
- 					break
- 				CASES;
- #undef CASE
+								Honza
 
-
+> ---
+> 
+>  fs/inode.c               |    3 ---
+>  include/linux/quotaops.h |    3 +++
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> --- linux-2.6.19-rc6-mm2/include/linux/quotaops.h.old	2006-11-29 09:43:03.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2/include/linux/quotaops.h	2006-11-29 09:43:21.000000000 +0100
+> @@ -37,6 +37,9 @@
+>  extern int dquot_commit_info(struct super_block *sb, int type);
+>  extern int dquot_mark_dquot_dirty(struct dquot *dquot);
+>  
+> +int remove_inode_dquot_ref(struct inode *inode, int type,
+> +			   struct list_head *tofree_head);
+> +
+>  extern int vfs_quota_on(struct super_block *sb, int type, int format_id, char *path);
+>  extern int vfs_quota_on_mount(struct super_block *sb, char *qf_name,
+>  		int format_id, int type);
+> --- linux-2.6.19-rc6-mm2/fs/inode.c.old	2006-11-29 09:43:40.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2/fs/inode.c	2006-11-29 09:43:50.000000000 +0100
+> @@ -1249,9 +1249,6 @@
+>   */
+>  #ifdef CONFIG_QUOTA
+>  
+> -/* Function back in dquot.c */
+> -int remove_inode_dquot_ref(struct inode *, int, struct list_head *);
+> -
+>  void remove_dquot_ref(struct super_block *sb, int type,
+>  			struct list_head *tofree_head)
+>  {
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

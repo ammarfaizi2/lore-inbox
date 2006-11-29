@@ -1,67 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935285AbWK2GwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935244AbWK2Gx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935285AbWK2GwS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 01:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935244AbWK2GwS
+	id S935244AbWK2Gx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 01:53:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935292AbWK2Gx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 01:52:18 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:15121 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S935214AbWK2GwR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 01:52:17 -0500
-Date: Wed, 29 Nov 2006 17:51:46 +1100
-To: David Miller <davem@davemloft.net>
-Cc: kaber@trash.net, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
-Message-ID: <20061129065146.GA20681@gondor.apana.org.au>
-References: <20061128.204440.39160464.davem@davemloft.net> <E1GpHVB-0005CB-00@gondolin.me.apana.org.au> <20061128.210416.59658806.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061128.210416.59658806.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Wed, 29 Nov 2006 01:53:27 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:45720 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S935244AbWK2Gx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 01:53:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
+        b=ZrJiz7aZ1JcB4C9UmIzmu9vmyt4sSEyzxJI+7MilgON0kGL4VpMEpuJGTZoIEk4oq7pnufOZ2fo4J9Rlpwi7JIwxxFmaFosfobUdgJiTLCucuwIhbv6HZYeeou2EnCvnoxlfpmTwBXdwvDQAPT0+3TWH+NpdnAd7MazmIpul3Dk=
+Message-ID: <86802c440611282253n4b5ce226oefb42986df3356b2@mail.gmail.com>
+Date: Tue, 28 Nov 2006 22:53:24 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH] x86_64: check vector in setup_ioapic_dest to verify if need setup_IO_APIC_irq
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_24979_3891036.1164783204101"
+X-Google-Sender-Auth: efba793a32a7f0f3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2006 at 09:04:16PM -0800, David Miller wrote:
->
-> > Definitely.  I'm not sure whether 48 is enough even for recursive
-> > tunnels.  This should really just be a hint.  It's OK to spend a
-> > bit of time reallocating skb's if it's too small, but it's not OK
-> > to die.
-> 
-> The recursive tunnel case is handled by the PMTU reductions
-> in the route, isn't it?
+------=_Part_24979_3891036.1164783204101
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Oh I wasn't suggesting that the current code is broken.
+plesae check the patch
 
-I'm just emphasising that LL_MAX_HEADER is by no means the *maximum*
-header size in a Linux system.  Anybody should be able to load a
-new NIC module with a hard header size exceeding what LL_MAX_HEADER
-is and the system should still function (albeit slower since every
-packet sent down that device has to be reallocated).
+------=_Part_24979_3891036.1164783204101
+Content-Type: text/x-patch; name=set_IO_APIC_irq.patch; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_ev3dobu1
+Content-Disposition: attachment; filename="set_IO_APIC_irq.patch"
 
-In particular, nested tunnels is one such device which anybody can
-construct without writing a kernel module.
-
-As to getting rid of those ifdefs, here is one idea.  We keep a
-read-mostly global variable that represents the actual current
-maximum LL header size.  Everytime a new device appears (or if
-its hard header size changes) we update this variable if needed.
-
-Hmm, we don't actually update the hard header size should the
-underlying device change for tunnels.  Good thing the tunnels
-only use that as a hint and reallocate if necessary :)
-
-This is not optimal in that it never decreases, but it's certainly
-better than a compile-time constant (e.g., people using distribution
-kernels don't necessarily use tunnels).
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+W1BBVENIXSB4ODZfNjQ6IGNoZWNrIHZlY3RvciBpbiBzZXR1cF9pb2FwaWNfZGVzdCB0byB2ZXJp
+ZnkgaWYgbmVlZCBzZXR1cF9JT19BUElDX2lycQoKc2V0dXBfSU9fQVBJQ19pcnFzIGNvdWxkIGZh
+aWwgdG8gZ2V0IHZlY3RvciBmb3Igc29tZSBkZXZpY2UgCndoZW4geW91IGhhdmUgdG9vIG1hbnkg
+ZGV2aWNlcywgYmVjYXVzZSBhdCB0aGF0IHRpbWUgb25seSBib290CmNwdSBpcyBvbmxpbmUuIFNv
+IGNoZWNrIHZlY3RvciBmb3IgaXJxIGluIHNldHVwX2lvYXBpY19kZXN0IGFuZCAKY2FsbCBzZXR1
+cF9JT19BUElDX2lycSB0byBtYWtlIHN1cmUgSU8tQVBJQyBpcnEtcm91dGluZyB0YWJsZSBpcwpp
+bml0aWFsaXplZC4KCkFsc28gc2VwZXJhdGUgc2V0dXBfSU9fQVBJQ19pcnEgZnJvbSBzZXR1cF9J
+T19BUElDX2lycXMuCgpTaWduZWQtb2ZmLWJ5OiBZaW5naGFpIEx1IDx5aW5naGFpLmx1QGFtZC5j
+b20+CgoKZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMgYi9hcmNoL3g4
+Nl82NC9rZXJuZWwvaW9fYXBpYy5jCmluZGV4IDE0NjU0ZTYuLjQ5NmJhNGUgMTAwNjQ0Ci0tLSBh
+L2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL2lv
+X2FwaWMuYwpAQCAtNzk2LDI3ICs4NDUsNjUgQEAgc3RhdGljIHZvaWQgaW9hcGljX3JlZ2lzdGVy
+X2ludHIoaW50IGlycQogCQkJCQkgICAgICBoYW5kbGVfZWRnZV9pcnEsICJlZGdlIik7CiAJfQog
+fQotCi1zdGF0aWMgdm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnFzKHZvaWQpCitzdGF0aWMg
+dm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnEoaW50IGFwaWMsIGludCBwaW4sIGludCBpZHgs
+IGludCBpcnEpCiB7CiAJc3RydWN0IElPX0FQSUNfcm91dGVfZW50cnkgZW50cnk7Ci0JaW50IGFw
+aWMsIHBpbiwgaWR4LCBpcnEsIGZpcnN0X25vdGNvbiA9IDEsIHZlY3RvcjsKKwlpbnQgdmVjdG9y
+OwogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAKLQlhcGljX3ByaW50ayhBUElDX1ZFUkJPU0UsIEtF
+Uk5fREVCVUcgImluaXQgSU9fQVBJQyBJUlFzXG4iKTsKIAotCWZvciAoYXBpYyA9IDA7IGFwaWMg
+PCBucl9pb2FwaWNzOyBhcGljKyspIHsKLQlmb3IgKHBpbiA9IDA7IHBpbiA8IG5yX2lvYXBpY19y
+ZWdpc3RlcnNbYXBpY107IHBpbisrKSB7CisJLyoKKwkgKiBhZGQgaXQgdG8gdGhlIElPLUFQSUMg
+aXJxLXJvdXRpbmcgdGFibGU6CisJICovCisJbWVtc2V0KCZlbnRyeSwwLHNpemVvZihlbnRyeSkp
+OwogCi0JCS8qCi0JCSAqIGFkZCBpdCB0byB0aGUgSU8tQVBJQyBpcnEtcm91dGluZyB0YWJsZToK
+LQkJICovCi0JCW1lbXNldCgmZW50cnksMCxzaXplb2YoZW50cnkpKTsKKwllbnRyeS5kZWxpdmVy
+eV9tb2RlID0gSU5UX0RFTElWRVJZX01PREU7CisJZW50cnkuZGVzdF9tb2RlID0gSU5UX0RFU1Rf
+TU9ERTsKKwllbnRyeS5tYXNrID0gMDsJCQkJLyogZW5hYmxlIElSUSAqLworCWVudHJ5LmRlc3Qu
+bG9naWNhbC5sb2dpY2FsX2Rlc3QgPSBjcHVfbWFza190b19hcGljaWQoVEFSR0VUX0NQVVMpOwor
+CisJZW50cnkudHJpZ2dlciA9IGlycV90cmlnZ2VyKGlkeCk7CisJZW50cnkucG9sYXJpdHkgPSBp
+cnFfcG9sYXJpdHkoaWR4KTsKIAotCQllbnRyeS5kZWxpdmVyeV9tb2RlID0gSU5UX0RFTElWRVJZ
+X01PREU7Ci0JCWVudHJ5LmRlc3RfbW9kZSA9IElOVF9ERVNUX01PREU7Ci0JCWVudHJ5Lm1hc2sg
+PSAwOwkJCQkvKiBlbmFibGUgSVJRICovCisJaWYgKGlycV90cmlnZ2VyKGlkeCkpIHsKKwkJZW50
+cnkudHJpZ2dlciA9IDE7CisJCWVudHJ5Lm1hc2sgPSAxOwogCQllbnRyeS5kZXN0LmxvZ2ljYWwu
+bG9naWNhbF9kZXN0ID0gY3B1X21hc2tfdG9fYXBpY2lkKFRBUkdFVF9DUFVTKTsKKwl9CisKKwlp
+ZiAoIWFwaWMgJiYgIUlPX0FQSUNfSVJRKGlycSkpCisJCXJldHVybjsKKworCWlmIChJT19BUElD
+X0lSUShpcnEpKSB7CisJCWNwdW1hc2tfdCBtYXNrOworCQl2ZWN0b3IgPSBhc3NpZ25faXJxX3Zl
+Y3RvcihpcnEsIFRBUkdFVF9DUFVTLCAmbWFzayk7CisJCWlmICh2ZWN0b3IgPCAwKQorCQkJcmV0
+dXJuOworCisJCWVudHJ5LmRlc3QubG9naWNhbC5sb2dpY2FsX2Rlc3QgPSBjcHVfbWFza190b19h
+cGljaWQobWFzayk7CisJCWVudHJ5LnZlY3RvciA9IHZlY3RvcjsKKworCQlpb2FwaWNfcmVnaXN0
+ZXJfaW50cihpcnEsIHZlY3RvciwgSU9BUElDX0FVVE8pOworCQlpZiAoIWFwaWMgJiYgKGlycSA8
+IDE2KSkKKwkJCWRpc2FibGVfODI1OUFfaXJxKGlycSk7CisJfQorCisJaW9hcGljX3dyaXRlX2Vu
+dHJ5KGFwaWMsIHBpbiwgZW50cnkpOworCisJc3Bpbl9sb2NrX2lycXNhdmUoJmlvYXBpY19sb2Nr
+LCBmbGFncyk7CisJc2V0X25hdGl2ZV9pcnFfaW5mbyhpcnEsIFRBUkdFVF9DUFVTKTsKKwlzcGlu
+X3VubG9ja19pcnFyZXN0b3JlKCZpb2FwaWNfbG9jaywgZmxhZ3MpOworCit9CisKK3N0YXRpYyB2
+b2lkIF9faW5pdCBzZXR1cF9JT19BUElDX2lycXModm9pZCkKK3sKKwlpbnQgYXBpYywgcGluLCBp
+ZHgsIGlycSwgZmlyc3Rfbm90Y29uID0gMTsKKworCWFwaWNfcHJpbnRrKEFQSUNfVkVSQk9TRSwg
+S0VSTl9ERUJVRyAiaW5pdCBJT19BUElDIElSUXNcbiIpOworCisJZm9yIChhcGljID0gMDsgYXBp
+YyA8IG5yX2lvYXBpY3M7IGFwaWMrKykgeworCWZvciAocGluID0gMDsgcGluIDwgbnJfaW9hcGlj
+X3JlZ2lzdGVyc1thcGljXTsgcGluKyspIHsKIAogCQlpZHggPSBmaW5kX2lycV9lbnRyeShhcGlj
+LHBpbixtcF9JTlQpOwogCQlpZiAoaWR4ID09IC0xKSB7CkBAIC04MjgsMzkgKzkxNSwxMSBAQCBz
+dGF0aWMgdm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnFzKHZvCiAJCQljb250aW51ZTsKIAkJ
+fQogCi0JCWVudHJ5LnRyaWdnZXIgPSBpcnFfdHJpZ2dlcihpZHgpOwotCQllbnRyeS5wb2xhcml0
+eSA9IGlycV9wb2xhcml0eShpZHgpOwotCi0JCWlmIChpcnFfdHJpZ2dlcihpZHgpKSB7Ci0JCQll
+bnRyeS50cmlnZ2VyID0gMTsKLQkJCWVudHJ5Lm1hc2sgPSAxOwotCQkJZW50cnkuZGVzdC5sb2dp
+Y2FsLmxvZ2ljYWxfZGVzdCA9IGNwdV9tYXNrX3RvX2FwaWNpZChUQVJHRVRfQ1BVUyk7Ci0JCX0K
+LQogCQlpcnEgPSBwaW5fMl9pcnEoaWR4LCBhcGljLCBwaW4pOwogCQlhZGRfcGluX3RvX2lycShp
+cnEsIGFwaWMsIHBpbik7CiAKLQkJaWYgKCFhcGljICYmICFJT19BUElDX0lSUShpcnEpKQotCQkJ
+Y29udGludWU7Ci0KLQkJaWYgKElPX0FQSUNfSVJRKGlycSkpIHsKLQkJCWNwdW1hc2tfdCBtYXNr
+OwotCQkJdmVjdG9yID0gYXNzaWduX2lycV92ZWN0b3IoaXJxLCBUQVJHRVRfQ1BVUywgJm1hc2sp
+OwotCQkJaWYgKHZlY3RvciA8IDApCi0JCQkJY29udGludWU7CisJCXNldHVwX0lPX0FQSUNfaXJx
+KGFwaWMsIHBpbiwgaWR4LCBpcnEpOwogCi0JCQllbnRyeS5kZXN0LmxvZ2ljYWwubG9naWNhbF9k
+ZXN0ID0gY3B1X21hc2tfdG9fYXBpY2lkKG1hc2spOwotCQkJZW50cnkudmVjdG9yID0gdmVjdG9y
+OwotCi0JCQlpb2FwaWNfcmVnaXN0ZXJfaW50cihpcnEsIHZlY3RvciwgSU9BUElDX0FVVE8pOwot
+CQkJaWYgKCFhcGljICYmIChpcnEgPCAxNikpCi0JCQkJZGlzYWJsZV84MjU5QV9pcnEoaXJxKTsK
+LQkJfQotCQlpb2FwaWNfd3JpdGVfZW50cnkoYXBpYywgcGluLCBlbnRyeSk7Ci0KLQkJc3Bpbl9s
+b2NrX2lycXNhdmUoJmlvYXBpY19sb2NrLCBmbGFncyk7Ci0JCXNldF9uYXRpdmVfaXJxX2luZm8o
+aXJxLCBUQVJHRVRfQ1BVUyk7Ci0JCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmlvYXBpY19sb2Nr
+LCBmbGFncyk7CiAJfQogCX0KIApAQCAtMjE0MSw3ICsyMjAwLDE1IEBAIHZvaWQgX19pbml0IHNl
+dHVwX2lvYXBpY19kZXN0KHZvaWQpCiAJCQlpZiAoaXJxX2VudHJ5ID09IC0xKQogCQkJCWNvbnRp
+bnVlOwogCQkJaXJxID0gcGluXzJfaXJxKGlycV9lbnRyeSwgaW9hcGljLCBwaW4pOwotCQkJc2V0
+X2lvYXBpY19hZmZpbml0eV9pcnEoaXJxLCBUQVJHRVRfQ1BVUyk7CisKKwkJCS8qIHNldHVwX0lP
+X0FQSUNfaXJxcyBjb3VsZCBmYWlsIHRvIGdldCB2ZWN0b3IgZm9yIHNvbWUgZGV2aWNlIAorCQkJ
+ICogd2hlbiB5b3UgaGF2ZSB0b28gbWFueSBkZXZpY2VzLCBiZWNhdXNlIGF0IHRoYXQgdGltZSBv
+bmx5IGJvb3QKKwkJCSAqIGNwdSBpcyBvbmxpbmUuCisJCQkgKi8KKwkJCWlmKCFpcnFfdmVjdG9y
+W2lycV0pCisJCQkJc2V0dXBfSU9fQVBJQ19pcnEoaW9hcGljLCBwaW4sIGlycV9lbnRyeSwgaXJx
+KTsKKwkJCWVsc2UKKwkJCQlzZXRfaW9hcGljX2FmZmluaXR5X2lycShpcnEsIFRBUkdFVF9DUFVT
+KTsKIAkJfQogCiAJfQo=
+------=_Part_24979_3891036.1164783204101--

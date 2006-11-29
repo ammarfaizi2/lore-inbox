@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758763AbWK2EQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758795AbWK2ERL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758763AbWK2EQp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758785AbWK2EQB
+	id S1758795AbWK2ERL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758783AbWK2EQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:16:01 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:60564 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1758763AbWK2EPL (ORCPT
+	Tue, 28 Nov 2006 23:16:00 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:41950 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1758785AbWK2EPV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:15:11 -0500
-Subject: [PATCH 8/12] ext4 balloc: fix off-by-one against grp_goal
+	Tue, 28 Nov 2006 23:15:21 -0500
+Subject: [PATCH 9/12] ext4 balloc: fix off-by-one against rsv_end
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
+Cc: Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org,
        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611281740110.29701@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0611281741490.29701@blonde.wat.veritas.com>
 References: <20061114014125.dd315fff.akpm@osdl.org>
 	 <20061114184919.GA16020@skynet.ie>
 	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
@@ -34,11 +34,11 @@ References: <20061114014125.dd315fff.akpm@osdl.org>
 	 <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
 	 <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
 	 <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0611281740110.29701@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0611281741490.29701@blonde.wat.veritas.com>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Tue, 28 Nov 2006 20:15:06 -0800
-Message-Id: <1164773706.4341.42.camel@localhost.localdomain>
+Date: Tue, 28 Nov 2006 20:15:15 -0800
+Message-Id: <1164773715.4341.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
@@ -46,43 +46,34 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Subject: ext2 balloc: fix off-by-one against grp_goal
+------------------------------------------------------
+Subject: ext2 balloc: fix off-by-one against rsv_end
 From: Hugh Dickins <hugh@veritas.com>
 
-grp_goal 0 is a genuine goal (unlike -1), so ext2_try_to_allocate_with_rsv
-should treat it as such.
+rsv_end is the last block within the reservation, so alloc_new_reservation
+should accept start_block == rsv_end as success.
 ------------------------------------------------------
-Sync up with ext2 reservation fix  in ext4
-Signed-off-by: Mingming Cao <cmm@us.ibm.com>
----
+Sync up  a ext2 reservation fix in ext4
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
 
 
 ---
 
- linux-2.6.19-rc5-cmm/fs/ext4/balloc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ linux-2.6.19-rc5-cmm/fs/ext4/balloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN fs/ext4/balloc.c~ext4-balloc-fix-off-by-one-against-grp_goal fs/ext4/balloc.c
---- linux-2.6.19-rc5/fs/ext4/balloc.c~ext4-balloc-fix-off-by-one-against-grp_goal	2006-11-28 19:37:05.000000000 -0800
-+++ linux-2.6.19-rc5-cmm/fs/ext4/balloc.c	2006-11-28 19:37:05.000000000 -0800
-@@ -1288,7 +1288,7 @@ ext4_try_to_allocate_with_rsv(struct sup
- 	}
- 	/*
- 	 * grp_goal is a group relative block number (if there is a goal)
--	 * 0 < grp_goal < EXT4_BLOCKS_PER_GROUP(sb)
-+	 * 0 <= grp_goal < EXT4_BLOCKS_PER_GROUP(sb)
- 	 * first block is a filesystem wide block number
- 	 * first block is the block number of the first block in this group
+diff -puN fs/ext4/balloc.c~ext4-balloc-fix-off-by-one-against-rsv_end fs/ext4/balloc.c
+--- linux-2.6.19-rc5/fs/ext4/balloc.c~ext4-balloc-fix-off-by-one-against-rsv_end	2006-11-28 19:37:15.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext4/balloc.c	2006-11-28 19:37:15.000000000 -0800
+@@ -1165,7 +1165,7 @@ retry:
+ 	 * check if the first free block is within the
+ 	 * free space we just reserved
  	 */
-@@ -1324,7 +1324,7 @@ ext4_try_to_allocate_with_rsv(struct sup
- 			if (!goal_in_my_reservation(&my_rsv->rsv_window,
- 							grp_goal, group, sb))
- 				grp_goal = -1;
--		} else if (grp_goal > 0) {
-+		} else if (grp_goal >= 0) {
- 			int curr = my_rsv->rsv_end -
- 					(grp_goal + group_first_block) + 1;
- 
+-	if (start_block >= my_rsv->rsv_start && start_block < my_rsv->rsv_end)
++	if (start_block >= my_rsv->rsv_start && start_block <= my_rsv->rsv_end)
+ 		return 0;		/* success */
+ 	/*
+ 	 * if the first free bit we found is out of the reservable space
 
 _
 

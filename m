@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935540AbWK2MnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757667AbWK2Ms5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935540AbWK2MnS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 07:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935546AbWK2MnS
+	id S1757667AbWK2Ms5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 07:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757681AbWK2Ms5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 07:43:18 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:53952 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S935540AbWK2MnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 07:43:17 -0500
-Date: Wed, 29 Nov 2006 13:42:28 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-X-X-Sender: jikos@twin.jikos.cz
+	Wed, 29 Nov 2006 07:48:57 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:52668 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1757667AbWK2Ms4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 07:48:56 -0500
+Date: Wed, 29 Nov 2006 13:49:26 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] compile fix on x86 without X86_LOCAL_APIC (was 2.6.19-rc6-mm2)
-In-Reply-To: <20061128020246.47e481eb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0611291222240.28502@twin.jikos.cz>
-References: <20061128020246.47e481eb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Patch -mm 1/2] s390: Use dev->groups for subchannel attributes.
+Message-ID: <20061129134926.4c8472a2@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2006, Andrew Morton wrote:
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+Use dev->groups for adding/removing the subchannel attribute group.
 
-When i386 kernel is compiled without CONFIG_X86_LOCAL_APIC, this happens:
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-In file included from arch/i386/kernel/traps.c:51:
-include/asm/nmi.h:46:1: warning: "trigger_all_cpu_backtrace" redefined
-In file included from arch/i386/kernel/traps.c:32:
-include/linux/nmi.h:25:1: warning: this is the location of the previous definition
-In file included from arch/i386/kernel/traps.c:51:
-include/asm/nmi.h:46:1: warning: "trigger_all_cpu_backtrace" redefined
-In file included from arch/i386/kernel/traps.c:32:
-include/linux/nmi.h:25:1: warning: this is the location of the previous definition
+---
+ drivers/s390/cio/css.c    |    5 +----
+ drivers/s390/cio/css.h    |    1 +
+ drivers/s390/cio/device.c |   16 +++++++++-------
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
-This is because x86_64-mm-all-cpu-backtrace.patch makes 
-trigger_all_cpu_backtrace to be defined twice in such case. This fixes it.
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
---- 
-
- include/asm-i386/nmi.h   |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
-diff --git a/include/asm-i386/nmi.h b/include/asm-i386/nmi.h
-index 571a32c..02a3f7f 100644
---- a/include/asm-i386/nmi.h
-+++ b/include/asm-i386/nmi.h
-@@ -42,7 +42,9 @@ extern int proc_nmi_enabled(struct ctl_t
- 			void __user *, size_t *, loff_t *);
- extern int unknown_nmi_panic;
+--- linux-2.6-CH.orig/drivers/s390/cio/css.c
++++ linux-2.6-CH/drivers/s390/cio/css.c
+@@ -137,6 +137,7 @@ css_register_subchannel(struct subchanne
+ 	sch->dev.parent = &css[0]->device;
+ 	sch->dev.bus = &css_bus_type;
+ 	sch->dev.release = &css_subchannel_release;
++	sch->dev.groups = subch_attr_groups;
  
-+#ifdef ARCH_HAS_NMI_WATCHDOG
- void __trigger_all_cpu_backtrace(void);
- #define trigger_all_cpu_backtrace() __trigger_all_cpu_backtrace()
-+#endif
+ 	/* make it known to the system */
+ 	ret = css_sch_device_register(sch);
+@@ -146,10 +147,6 @@ css_register_subchannel(struct subchanne
+ 		return ret;
+ 	}
+ 	css_get_ssd_info(sch);
+-	ret = subchannel_add_files(&sch->dev);
+-	if (ret)
+-		printk(KERN_WARNING "%s: could not add attributes to %s\n",
+-		       __func__, sch->dev.bus_id);
+ 	return ret;
+ }
  
- #endif /* ASM_NMI_H */
-
+--- linux-2.6-CH.orig/drivers/s390/cio/css.h
++++ linux-2.6-CH/drivers/s390/cio/css.h
+@@ -190,4 +190,5 @@ extern struct workqueue_struct *slow_pat
+ extern struct work_struct slow_path_work;
+ 
+ int subchannel_add_files (struct device *);
++extern struct attribute_group *subch_attr_groups[];
+ #endif
+--- linux-2.6-CH.orig/drivers/s390/cio/device.c
++++ linux-2.6-CH/drivers/s390/cio/device.c
+@@ -235,9 +235,11 @@ chpids_show (struct device * dev, struct
+ 	ssize_t ret = 0;
+ 	int chp;
+ 
+-	for (chp = 0; chp < 8; chp++)
+-		ret += sprintf (buf+ret, "%02x ", ssd->chpid[chp]);
+-
++	if (ssd)
++		for (chp = 0; chp < 8; chp++)
++			ret += sprintf (buf+ret, "%02x ", ssd->chpid[chp]);
++	else
++		ret += sprintf (buf, "n/a");
+ 	ret += sprintf (buf+ret, "\n");
+ 	return min((ssize_t)PAGE_SIZE, ret);
+ }
+@@ -529,10 +531,10 @@ static struct attribute_group subch_attr
+ 	.attrs = subch_attrs,
+ };
+ 
+-int subchannel_add_files (struct device *dev)
+-{
+-	return sysfs_create_group(&dev->kobj, &subch_attr_group);
+-}
++struct attribute_group *subch_attr_groups[] = {
++	&subch_attr_group,
++	NULL,
++};
+ 
+ static struct attribute * ccwdev_attrs[] = {
+ 	&dev_attr_devtype.attr,

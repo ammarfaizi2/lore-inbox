@@ -1,54 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967119AbWK2K6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966913AbWK2LFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967119AbWK2K6p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 05:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967122AbWK2K6p
+	id S966913AbWK2LFO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 06:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967120AbWK2LFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 05:58:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50919 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S967119AbWK2K6o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 05:58:44 -0500
-Date: Wed, 29 Nov 2006 11:03:36 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: rbrito@ime.usp.br, rbrito@gmail.com
-Cc: rbrito@ime.usp.br, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rbrito@gmail.com
-Subject: Re: The return of the dreaded "nobody cared" message with a Promise
- Card
-Message-ID: <20061129110336.22e2ca18@localhost.localdomain>
-In-Reply-To: <20061129060130.GA2913@ime.usp.br>
-References: <20061129060130.GA2913@ime.usp.br>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Wed, 29 Nov 2006 06:05:14 -0500
+Received: from mail.gmx.net ([213.165.64.20]:60386 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S966913AbWK2LFM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 06:05:12 -0500
+X-Authenticated: #14349625
+Subject: [rfc patch] Re: [patch] PM: suspend/resume debugging should depend
+	on SOFTWARE_SUSPEND
+From: Mike Galbraith <efault@gmx.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1164795696.6147.2.camel@Homer.simpson.net>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	 <Pine.LNX.4.64.0611240959170.6991@woody.osdl.org>
+	 <1164463898.6221.24.camel@Homer.simpson.net>
+	 <200611251812.53246.rjw@sisk.pl>
+	 <1164516833.6543.0.camel@Homer.simpson.net>
+	 <1164708110.6021.12.camel@Homer.simpson.net>
+	 <1164795696.6147.2.camel@Homer.simpson.net>
+Content-Type: text/plain
+Date: Wed, 29 Nov 2006 11:30:31 +0100
+Message-Id: <1164796231.6147.12.camel@Homer.simpson.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 04:01:30 -0200
-Rogério Brito <rbrito@ime.usp.br> wrote:
+On Wed, 2006-11-29 at 11:21 +0100, Mike Galbraith wrote:
+> > The serial console appears to be innocent.  The suspend/resume methods
+> > for my 16550A serial port aren't even being _called_, apparently because
+> > pnp swiped ttyS0.
 
->> The problem is that whenever I plug the Quantum drive, I get stack
-> traces like this one (with a bit of context, so that you can get sense of
-> what I am talking about):
+(ahem, bad aim with mouse, resuming)
 
-Ok IRQ routing problem on what seems to be an external IRQ.
+Well, after further rummaging, the suspend/resume methods aren't being
+called because we're using 8250_pnp.c when CONFIG_PNP is set, and it
+doesn't have any :)  The below works for me, though I'm not sure it's
+sufficient.  If it is deemed sufficient, I'll submit it to Andrew.
+
+Add suspend/resume methods to 8250_pnp driver.
+
+--- linux-2.6.19-rc6-mm2/drivers/serial/8250_pnp.c.org	2006-11-29 07:14:15.000000000 +0100
++++ linux-2.6.19-rc6-mm2/drivers/serial/8250_pnp.c	2006-11-29 10:55:17.000000000 +0100
+@@ -464,11 +464,38 @@ static void __devexit serial_pnp_remove(
+ 		serial8250_unregister_port(line - 1);
+ }
  
-> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
-> PCI: setting IRQ 10 as level-triggered
-> ACPI: PCI Interrupt 0000:00:11.0[A] -> Link [LNKB] -> GSI 10 (level, low) -> IRQ 10
++#ifdef CONFIG_PM
++static int serial_pnp_suspend(struct pnp_dev *dev, pm_message_t state)
++{
++	long line = (long)pnp_get_drvdata(dev);
++
++	if (!line)
++		return -ENODEV;
++	serial8250_suspend_port(line - 1);
++	return 0;
++}
++
++static int serial_pnp_resume(struct pnp_dev *dev)
++{
++	long line = (long)pnp_get_drvdata(dev);
++
++	if (!line)
++		return -ENODEV;
++	serial8250_resume_port(line - 1);
++	return 0;
++}
++
++#endif /* CONFIG_PM */
++
+ static struct pnp_driver serial_pnp_driver = {
+ 	.name		= "serial",
+-	.id_table	= pnp_dev_table,
+ 	.probe		= serial_pnp_probe,
+ 	.remove		= __devexit_p(serial_pnp_remove),
++#ifdef CONFIG_PM
++	.suspend	= serial_pnp_suspend,
++	.resume		= serial_pnp_resume,
++#endif
++	.id_table	= pnp_dev_table,
+ };
+ 
+ static int __init serial8250_pnp_init(void)
 
-Do your working kernels also have ACPI enabled and what do they say here ?
 
-> I am willing to do a git bisect to see which may be a problematic patch
-> or not, but the "irq 10: nobody cared (try booting with the "irqpoll"
-> option)" is one that I reported to Andrew quite some time ago (I thought
-> that it had gone away), and it didn't manifest itself until I had to
-> reuse this extra drive, since I am doing a work that is producing a lot
-> of data.
 
-Ok I have a guess here - what does 2.6.19-rc6-mm2 do ? I've been working
-on fixing up the VIA IRQ routing bugs as it happens. full dmesg of the
-work/fail cases and an lspci -vxxx would be useful so I can see how the
-hardware thinks it is configured.
+
+

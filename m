@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758267AbWK2WDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758244AbWK2WCC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758267AbWK2WDz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758287AbWK2WDv
+	id S1758244AbWK2WCC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:02:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758231AbWK2WBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:03:51 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57556 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758275AbWK2WDo
+	Wed, 29 Nov 2006 17:01:40 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46001 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758239AbWK2WBg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:03:44 -0500
-Message-Id: <20061129220430.360678000@sous-sol.org>
+	Wed, 29 Nov 2006 17:01:36 -0500
+Message-Id: <20061129220308.793603000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:21 -0800
+Date: Wed, 29 Nov 2006 14:00:13 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,65 +21,53 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Larry Finger <Larry.Finger@lwfinger.net>,
-       netdev@vger.kernel.org, mb@bu3sch.de, greg@kroah.com,
-       "John W. Linville" <linville@tuxdriver.com>
-Subject: [patch 10/23] bcm43xx: Drain TX status before starting IRQs
-Content-Disposition: inline; filename=bcm43xx-drain-tx-status-before-starting-irqs.patch
+       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
+       davem@davemloft.net,
+       =?ISO-8859-15?q?Bj=C3=B6rn=20Steinbrink?= <B.Steinbrink@gmx.de>
+Subject: [patch 02/23] NETFILTER: Missing check for CAP_NET_ADMIN in iptables compat layer 
+Content-Disposition: inline; filename=netfilter-missing-check-for-cap_net_admin-in-iptables-compat-layer.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Michael Buesch <mb@bu3sch.de>
+From: Patrick McHardy <kaber@trash.net>
 
-Drain the Microcode TX-status-FIFO before we enable IRQs.
-This is required, because the FIFO may still have entries left
-from a previous run. Those would immediately fire after enabling
-IRQs and would lead to an oops in the DMA TXstatus handling code.
+The 32bit compatibility layer has no CAP_NET_ADMIN check in
+compat_do_ipt_get_ctl, which for example allows to list the current
+iptables rules even without having that capability (the non-compat
+version requires it). Other capabilities might be required to exploit
+the bug (eg. CAP_NET_RAW to get the nfnetlink socket?), so a plain user
+can't exploit it, but a setup actually using the posix capability system
+might very well hit such a constellation of granted capabilities.
 
-Cc: "John W. Linville" <linville@tuxdriver.com>
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Björn Steinbrink <B.Steinbrink@gmx.de>
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- drivers/net/wireless/bcm43xx/bcm43xx_main.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
 
---- linux-2.6.18.4.orig/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-+++ linux-2.6.18.4/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-@@ -1463,6 +1463,23 @@ static void handle_irq_transmit_status(s
- 	}
- }
- 
-+static void drain_txstatus_queue(struct bcm43xx_private *bcm)
-+{
-+	u32 dummy;
-+
-+	if (bcm->current_core->rev < 5)
-+		return;
-+	/* Read all entries from the microcode TXstatus FIFO
-+	 * and throw them away.
-+	 */
-+	while (1) {
-+		dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_0);
-+		if (!dummy)
-+			break;
-+		dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_1);
-+	}
-+}
-+
- static void bcm43xx_generate_noise_sample(struct bcm43xx_private *bcm)
+---
+commit 4410392a8258fd972fc08a336278b14c82b2774f
+tree 567261d003b2a8fb08c2d89d0d708dd06f357f49
+parent b4d854665eafe32b48e0eecadb91a73f6eea0055
+author Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:22:07 +0100
+committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:22:07 +0100
+
+ net/ipv4/netfilter/ip_tables.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- linux-2.6.18.4.orig/net/ipv4/netfilter/ip_tables.c
++++ linux-2.6.18.4/net/ipv4/netfilter/ip_tables.c
+@@ -1994,6 +1994,9 @@ compat_do_ipt_get_ctl(struct sock *sk, i
  {
- 	bcm43xx_shm_write16(bcm, BCM43xx_SHM_SHARED, 0x408, 0x7F7F);
-@@ -3517,6 +3534,7 @@ int bcm43xx_select_wireless_core(struct 
- 	bcm43xx_macfilter_clear(bcm, BCM43xx_MACFILTER_ASSOC);
- 	bcm43xx_macfilter_set(bcm, BCM43xx_MACFILTER_SELF, (u8 *)(bcm->net_dev->dev_addr));
- 	bcm43xx_security_init(bcm);
-+	drain_txstatus_queue(bcm);
- 	ieee80211softmac_start(bcm->net_dev);
+ 	int ret;
  
- 	/* Let's go! Be careful after enabling the IRQs.
++	if (!capable(CAP_NET_ADMIN))
++		return -EPERM;
++
+ 	switch (cmd) {
+ 	case IPT_SO_GET_INFO:
+ 		ret = get_info(user, len, 1);
 
 --

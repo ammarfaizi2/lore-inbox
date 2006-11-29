@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966209AbWK2IGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966210AbWK2IJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966209AbWK2IGa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 03:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966210AbWK2IGa
+	id S966210AbWK2IJh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 03:09:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966222AbWK2IJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 03:06:30 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:48228 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S966209AbWK2IG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 03:06:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ssA/D+f03nRah4LeGirZF3t6vAd9h70kVlM/uYTYsj6X8HEFr6vLN3APlN+OjNzOSWkDv+Z/NYISKwfZvkb7POm7HhU7DXGEnnrbS5pe9vGsehsGTZQn/YXTSeQTlGHtsRFaZ0ZKyGBHCQsvtINVtSF/KxkwrYX7KfzuR2fToqE=  ;
-X-YMail-OSG: CWEAHVMVM1koEpYjHad0L.8MCuNZ4UaVsTSRsk1WPuVj.u4eHe44MjHVqTJfhvTTHBwtBU.ua4sxLdOezy9ulGoOz6gLFC_znm05wpiWi9Anv97zGIvTvsyrT6qyIYZIviUuRUBL5o2tvro-
-Message-ID: <456D3F52.6040308@yahoo.com.au>
-Date: Wed, 29 Nov 2006 19:05:38 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 29 Nov 2006 03:09:37 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:38306 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S966210AbWK2IJg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 03:09:36 -0500
+Message-ID: <456D4033.5000202@gmail.com>
+Date: Wed, 29 Nov 2006 09:09:23 +0100
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@linux.intel.com>
-CC: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] Mark rdtsc as sync only for netburst, not for core2
-References: <1164709708.3276.72.camel@laptopd505.fenrus.org>	 <200611281136.29066.ak@suse.de> <1164774239.15257.5.camel@ymzhang> <456D372C.9080800@linux.intel.com>
-In-Reply-To: <456D372C.9080800@linux.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Randy Dunlap <randy.dunlap@oracle.com>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH -mm] char: drivers use/need PCI
+References: <20061128211203.fa197b15.randy.dunlap@oracle.com>
+In-Reply-To: <20061128211203.fa197b15.randy.dunlap@oracle.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Muni-Spam-TestIP: 147.251.48.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> Zhang, Yanmin wrote:
+Randy Dunlap wrote:
+> From: Randy Dunlap <randy.dunlap@oracle.com>
 > 
->> If it's a single processor, the go backwards issue doesn't exist. 
->> Below is
->> my patch based on Arjan's. It's against 2.6.19-rc5-mm2.
+> With CONFIG_PCI=n:
+> drivers/char/mxser_new.c: In function 'mxser_release_res':
+> drivers/char/mxser_new.c:2383: warning: implicit declaration of function 'pci_release_region'
+> drivers/char/mxser_new.c: In function 'mxser_probe':
+> drivers/char/mxser_new.c:2578: warning: implicit declaration of function 'pci_request_region'
+> drivers/built-in.o: In function `sx_remove_card':
+> sx.c:(.text.sx_remove_card+0x65): undefined reference to `pci_release_region'
+> drivers/char/isicom.c: In function 'isicom_probe':
+> drivers/char/isicom.c:1793: warning: implicit declaration of function 'pci_request_region'
+> drivers/char/isicom.c:1827: warning: implicit declaration of function 'pci_release_region'
 > 
-> Hi,
+> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> ---
+>  drivers/char/Kconfig |    6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> this patch is incorrect
-> 
->> --- linux-2.6.19-rc5-mm2_arjan/arch/x86_64/kernel/setup.c    
->> 2006-11-29 10:41:21.000000000 +0800
->> +++ linux-2.6.19-rc5-mm2_arjan_fix/arch/x86_64/kernel/setup.c    
->> 2006-11-29 10:42:28.000000000 +0800
->> @@ -861,7 +861,7 @@ static void __cpuinit init_intel(struct          
->> set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
->>      if (c->x86 == 6)
->>          set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
->> -    if (c->x86 == 15)
->> +    if (c->x86 == 15 && num_possible_cpus() != 1)
->>          set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
-> 
-> 
-> first of all, you probably meant "|| num_possible_cpus() == 1"
-> 
-> but second of all, the core2 cpus are dual core so.. .what does it bring 
-> you at all?
+> --- linux-2.6.19-rc6-mm2.orig/drivers/char/Kconfig
+> +++ linux-2.6.19-rc6-mm2/drivers/char/Kconfig
+> @@ -203,7 +203,7 @@ config MOXA_SMARTIO
+>  
+>  config MOXA_SMARTIO_NEW
+>  	tristate "Moxa SmartIO support v. 2.0 (EXPERIMENTAL)"
+> -	depends on SERIAL_NONSTANDARD
+> +	depends on SERIAL_NONSTANDARD && PCI
+>  	help
+>  	  Say Y here if you have a Moxa SmartIO multiport serial card and/or
+>  	  want to help develop a new version of this driver.
+> @@ -218,7 +218,7 @@ config MOXA_SMARTIO_NEW
+>  
+>  config ISI
+>  	tristate "Multi-Tech multiport card support (EXPERIMENTAL)"
+> -	depends on SERIAL_NONSTANDARD
+> +	depends on SERIAL_NONSTANDARD && PCI
+>  	select FW_LOADER
+>  	help
+>  	  This is a driver for the Multi-Tech cards which provide several
+> @@ -312,7 +312,7 @@ config SPECIALIX_RTSCTS
+>  
+>  config SX
+>  	tristate "Specialix SX (and SI) card support"
+> -	depends on SERIAL_NONSTANDARD
+> +	depends on SERIAL_NONSTANDARD && PCI
+>  	help
+>  	  This is a driver for the SX and SI multiport serial cards.
+>  	  Please read the file <file:Documentation/sx.txt> for details.
 
-I guess you could boot with a UP kernel or maxcpus=1?
-
+Nack. I have to correct the mxser and sx code. Thanks,
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

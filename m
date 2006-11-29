@@ -1,67 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758570AbWK2Dy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758557AbWK2D4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758570AbWK2Dy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 22:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758285AbWK2Dy1
+	id S1758557AbWK2D4h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 22:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758644AbWK2D4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 22:54:27 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:27878 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1758274AbWK2Dy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 22:54:26 -0500
-Date: Tue, 28 Nov 2006 19:54:45 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, linux-arch@vger.kernel.org
-Subject: [PATCH] lib functions: always build hweight for loadable modules
-Message-Id: <20061128195445.20ada433.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 28 Nov 2006 22:56:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24260 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1758274AbWK2D4g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 22:56:36 -0500
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Nicholas Miell <nmiell@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away 
+In-reply-to: Your message of "Tue, 28 Nov 2006 19:08:25 -0800."
+             <1164769705.2825.4.camel@entropy> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 29 Nov 2006 14:56:20 +1100
+Message-ID: <21982.1164772580@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
+Nicholas Miell (on Tue, 28 Nov 2006 19:08:25 -0800) wrote:
+>On Wed, 2006-11-29 at 13:22 +1100, Keith Owens wrote:
+>> Compiling 2.6.19-rc6 with gcc version 4.1.0 (SUSE Linux),
+>> wait_hpet_tick is optimized away to a never ending loop and the kernel
+>> hangs on boot in timer setup.
+>> 
+>> 0000001a <wait_hpet_tick>:
+>>   1a:   55                      push   %ebp
+>>   1b:   89 e5                   mov    %esp,%ebp
+>>   1d:   eb fe                   jmp    1d <wait_hpet_tick+0x3>
+>> 
+>> This is not a problem with gcc 3.3.5.  Adding barrier() calls to
+>> wait_hpet_tick does not help, making the variables volatile does.
+>> 
+>> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+>> 
+>> ---
+>>  arch/i386/kernel/time_hpet.c |    2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>> 
+>> Index: linux-2.6/arch/i386/kernel/time_hpet.c
+>> ===================================================================
+>> --- linux-2.6.orig/arch/i386/kernel/time_hpet.c
+>> +++ linux-2.6/arch/i386/kernel/time_hpet.c
+>> @@ -51,7 +51,7 @@ static void hpet_writel(unsigned long d,
+>>   */
+>>  static void __devinit wait_hpet_tick(void)
+>>  {
+>> -	unsigned int start_cmp_val, end_cmp_val;
+>> +	unsigned volatile int start_cmp_val, end_cmp_val;
+>>  
+>>  	start_cmp_val = hpet_readl(HPET_T0_CMP);
+>>  	do {
+>
+>When you examine the inlined functions involved, this looks an awful lot
+>like http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278
+>
+>Perhaps SUSE should fix their gcc instead of working around compiler
+>problems in the kernel?
 
-Always build hweight8/16/32/64() functions into the kernel so that
-loadable modules may use them.
+Firstly, the fix for 22278 is included in gcc 4.1.0.
 
-I didn't remove GENERIC_HWEIGHT since ALPHA_EV67, ia64, and some
-variants of UltraSparc(64) provide their own hweight functions.
+Secondly, I believe that this is a separate problem from bug 22278.
+hpet_readl() is correctly using volatile internally, but its result is
+being assigned to a pair of normal integers (not declared as volatile).
+In the context of wait_hpet_tick, all the variables are unqualified so
+gcc is allowed to optimize the comparison away.
 
-Fixes config/build problems with NTFS=m and JOYSTICK_ANALOG=m.
+The same problem may exist in other parts of arch/i386/kernel/time_hpet.c,
+where the return value from hpet_readl() is assigned to a normal
+variable.  Nothing in the C standard says that those unqualified
+variables should be magically treated as volatile, just because the
+original code that extracted the value used volatile.  IOW, time_hpet.c
+needs to declare any variables that hold the result of hpet_readl() as
+being volatile variables.
 
-Kernel: arch/x86_64/boot/bzImage is ready  (#19)
-  Building modules, stage 2.
-  MODPOST 94 modules
-WARNING: "hweight32" [fs/ntfs/ntfs.ko] undefined!
-WARNING: "hweight16" [drivers/input/joystick/analog.ko] undefined!
-WARNING: "hweight8" [drivers/input/joystick/analog.ko] undefined!
-make[1]: *** [__modpost] Error 1
-make: *** [modules] Error 2
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- lib/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.19-rc6-git10.orig/lib/Makefile
-+++ linux-2.6.19-rc6-git10/lib/Makefile
-@@ -25,7 +25,7 @@ lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += 
- lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
- lib-$(CONFIG_SEMAPHORE_SLEEPERS) += semaphore-sleepers.o
- lib-$(CONFIG_GENERIC_FIND_NEXT_BIT) += find_next_bit.o
--lib-$(CONFIG_GENERIC_HWEIGHT) += hweight.o
-+obj-$(CONFIG_GENERIC_HWEIGHT) += hweight.o
- obj-$(CONFIG_LOCK_KERNEL) += kernel_lock.o
- obj-$(CONFIG_PLIST) += plist.o
- obj-$(CONFIG_DEBUG_PREEMPT) += smp_processor_id.o
-
-
----

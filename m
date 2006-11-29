@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758900AbWK2WmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758892AbWK2Wna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758900AbWK2WmP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758902AbWK2WmO
+	id S1758892AbWK2Wna (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758902AbWK2Wna
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:42:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40104 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1758900AbWK2WmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:42:14 -0500
-Date: Wed, 29 Nov 2006 17:40:37 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 00/23] -stable review
-Message-ID: <20061129224037.GB27148@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-	Chuck Wolber <chuckw@quantumlinux.com>,
-	Chris Wedgwood <reviews@ml.cw.f00f.org>,
-	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
-	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-References: <20061129220111.137430000@sous-sol.org>
+	Wed, 29 Nov 2006 17:43:30 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:64218 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1758892AbWK2Wn3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 17:43:29 -0500
+Date: Wed, 29 Nov 2006 14:44:52 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rt] 2.6.19-4c6-rt9 build problem
+Message-ID: <20061129224451.GC2335@us.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <20061129194821.GA2895@us.ibm.com> <20061129200307.GA11591@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061129220111.137430000@sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061129200307.GA11591@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 02:00:11PM -0800, Chris Wright wrote:
- > This is the start of the stable review cycle for the 2.6.18.5 release.
- > There are 23 patches in this series, all will be posted as a response
- > to this one.  If anyone has any issues with these being applied, please
- > let us know.  If anyone is a maintainer of the proper subsystem, and
- > wants to add a Signed-off-by: line to the patch, please respond with it.
- > 
- > These patches are sent out with a number of different people on the
- > Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
- > to add your name to the list.  If you want to be off the reviewer list,
- > also email us.
- > 
- > Responses should be made by Fri Dec 01 22:00 UTC.  Anything received
- > after that time might be too late.
+On Wed, Nov 29, 2006 at 09:03:07PM +0100, Ingo Molnar wrote:
+> 
+> * Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
+> 
+> > Hello!
+> >
+> > Got a compiler error building 1.6.19-rc6-rt9 on NUMA-Q, admittedly
+> > with unusual config.  The patch below solves it, though I cannot say
+> > that I am an ACPI expert.
+> 
+> thanks, applied. Have you tried to boot the resulting kernel as well?
 
-*cough* rc1.gz ?
+Hit another build error.  :-/
 
-		Dave
+The following combined (crude) patch makes the build succeed.  Rebooting now,
+with fingers firmly crossed...
 
--- 
-http://www.codemonkey.org.uk
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+
+ include/linux/acpi_pmtmr.h |    2 ++
+ mm/page_alloc.c            |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -urpNa -X dontdiff linux-2.6.19-rc6-rt9/include/linux/acpi_pmtmr.h linux-2.6.19-rc6-rt9.tscbug/include/linux/acpi_pmtmr.h
+--- linux-2.6.19-rc6-rt9/include/linux/acpi_pmtmr.h	2006-11-28 17:21:55.000000000 -0800
++++ linux-2.6.19-rc6-rt9.tscbug/include/linux/acpi_pmtmr.h	2006-11-29 08:09:07.000000000 -0800
+@@ -27,6 +27,8 @@ static inline u32 acpi_pm_read_early(voi
+ 
+ #else
+ 
++#define pmtmr_ioport 0
++
+ static inline u32 acpi_pm_read_early(void)
+ {
+ 	return 0;
+diff -urpNa -X dontdiff linux-2.6.19-rc6-rt9/mm/page_alloc.c linux-2.6.19-rc6-rt9.tscbug/mm/page_alloc.c
+--- linux-2.6.19-rc6-rt9/mm/page_alloc.c	2006-11-28 17:21:56.000000000 -0800
++++ linux-2.6.19-rc6-rt9.tscbug/mm/page_alloc.c	2006-11-29 14:14:09.000000000 -0800
+@@ -2790,7 +2790,9 @@ static int page_alloc_cpu_notify(struct 
+ 		__lock_cpu_pcp(&flags, cpu);
+ 		WARN_ON_ONCE(cpu == raw_smp_processor_id());
+ 
++#ifdef CONFIG_PM
+ 		__drain_pages(cpu);
++#endif /* #ifdef CONFIG_PM */
+ 		vm_events_fold_cpu(cpu);
+ 		refresh_cpu_vm_stats(cpu);
+ 		unlock_cpu_pcp(flags, cpu);

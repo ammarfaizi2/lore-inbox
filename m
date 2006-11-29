@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758839AbWK2WHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758364AbWK2WFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758839AbWK2WHS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758270AbWK2WEa
+	id S1758364AbWK2WFV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758294AbWK2WFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:04:30 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2517 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758344AbWK2WEU
+	Wed, 29 Nov 2006 17:05:07 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:12245 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758295AbWK2WEy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:04:20 -0500
-Message-Id: <20061129220606.993069000@sous-sol.org>
+	Wed, 29 Nov 2006 17:04:54 -0500
+Message-Id: <20061129220639.359593000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:29 -0800
+Date: Wed, 29 Nov 2006 14:00:32 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,76 +21,68 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, maks@sternwelten.at,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>,
-       David S Miller <davem@davemloft.net>
-Subject: [patch 18/23] IPV6: Fix address/interface handling in UDP and DCCP, according to the scoping architecture.
-Content-Disposition: inline; filename=ipv6-fix-address-interface-handling-in-udp-and-dccp-according-to-the-scoping-architecture.patch
+       alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
+       Eric Anholt <eric@anholt.net>, Keith Packard <keithp@keithp.com>
+Subject: [patch 21/23] AGP: Allocate AGP pages with GFP_DMA32 by default
+Content-Disposition: inline; filename=agp-allocate-agp-pages-with-gfp_dma32-by-default.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+From: Linus Torvalds <torvalds@osdl.org>
 
-TCP and RAW do not have this issue.  Closes Bug #7432.
+Not all graphic page remappers support physical addresses over the 4GB
+mark for remapping, so while some do (the AMD64 GART always did, and I
+just fixed the i965 to do so properly), we're safest off just forcing
+GFP_DMA32 allocations to make sure graphics pages get allocated in the
+low 32-bit address space by default.
 
-Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+AGP sub-drivers that really care, and can do better, could just choose
+to implement their own allocator (or we could add another "64-bit safe"
+default allocator for their use), but quite frankly, you're not likely
+to care in practice.
+
+So for now, this trivial change means that we won't be allocating pages
+that we can't map correctly by mistake on x86-64.
+
+[ On traditional 32-bit x86, this could never happen, because GFP_KERNEL
+  would never allocate any highmem memory anyway ]
+
+Acked-by: Andi Kleen <ak@suse.de>
+Acked-by: Dave Jones <davej@redhat.com>
+Cc: Eric Anholt <eric@anholt.net>
+Cc: Keith Packard <keithp@keithp.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- net/dccp/ipv6.c |    2 +-
- net/ipv6/udp.c  |    7 +++----
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/char/agp/generic.c   |    2 +-
+ drivers/char/agp/intel-agp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.18.4.orig/net/dccp/ipv6.c
-+++ linux-2.6.18.4/net/dccp/ipv6.c
-@@ -276,7 +276,7 @@ static void dccp_v6_err(struct sk_buff *
- 	__u64 seq;
- 
- 	sk = inet6_lookup(&dccp_hashinfo, &hdr->daddr, dh->dccph_dport,
--			  &hdr->saddr, dh->dccph_sport, skb->dev->ifindex);
-+			  &hdr->saddr, dh->dccph_sport, inet6_iif(skb));
- 
- 	if (sk == NULL) {
- 		ICMP6_INC_STATS_BH(__in6_dev_get(skb->dev), ICMP6_MIB_INERRORS);
---- linux-2.6.18.4.orig/net/ipv6/udp.c
-+++ linux-2.6.18.4/net/ipv6/udp.c
-@@ -314,14 +314,13 @@ static void udpv6_err(struct sk_buff *sk
+--- linux-2.6.18.4.orig/drivers/char/agp/generic.c
++++ linux-2.6.18.4/drivers/char/agp/generic.c
+@@ -1042,7 +1042,7 @@ void *agp_generic_alloc_page(struct agp_
  {
- 	struct ipv6_pinfo *np;
- 	struct ipv6hdr *hdr = (struct ipv6hdr*)skb->data;
--	struct net_device *dev = skb->dev;
- 	struct in6_addr *saddr = &hdr->saddr;
- 	struct in6_addr *daddr = &hdr->daddr;
- 	struct udphdr *uh = (struct udphdr*)(skb->data+offset);
- 	struct sock *sk;
- 	int err;
+ 	struct page * page;
  
--	sk = udp_v6_lookup(daddr, uh->dest, saddr, uh->source, dev->ifindex);
-+	sk = udp_v6_lookup(daddr, uh->dest, saddr, uh->source, inet6_iif(skb));
-    
- 	if (sk == NULL)
- 		return;
-@@ -415,7 +414,7 @@ static void udpv6_mcast_deliver(struct u
+-	page = alloc_page(GFP_KERNEL);
++	page = alloc_page(GFP_KERNEL | GFP_DMA32);
+ 	if (page == NULL)
+ 		return NULL;
  
- 	read_lock(&udp_hash_lock);
- 	sk = sk_head(&udp_hash[ntohs(uh->dest) & (UDP_HTABLE_SIZE - 1)]);
--	dif = skb->dev->ifindex;
-+	dif = inet6_iif(skb);
- 	sk = udp_v6_mcast_next(sk, uh->dest, daddr, uh->source, saddr, dif);
- 	if (!sk) {
- 		kfree_skb(skb);
-@@ -496,7 +495,7 @@ static int udpv6_rcv(struct sk_buff **ps
- 	 * check socket cache ... must talk to Alan about his plans
- 	 * for sock caches... i'll skip this for now.
- 	 */
--	sk = udp_v6_lookup(saddr, uh->source, daddr, uh->dest, dev->ifindex);
-+	sk = udp_v6_lookup(saddr, uh->source, daddr, uh->dest, inet6_iif(skb));
+--- linux-2.6.18.4.orig/drivers/char/agp/intel-agp.c
++++ linux-2.6.18.4/drivers/char/agp/intel-agp.c
+@@ -160,7 +160,7 @@ static void *i8xx_alloc_pages(void)
+ {
+ 	struct page * page;
  
- 	if (sk == NULL) {
- 		if (!xfrm6_policy_check(NULL, XFRM_POLICY_IN, skb))
+-	page = alloc_pages(GFP_KERNEL, 2);
++	page = alloc_pages(GFP_KERNEL | GFP_DMA32, 2);
+ 	if (page == NULL)
+ 		return NULL;
+ 
 
 --

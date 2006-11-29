@@ -1,120 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935244AbWK2Gx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935292AbWK2G5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935244AbWK2Gx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 01:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935292AbWK2Gx1
+	id S935292AbWK2G5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 01:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935293AbWK2G5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 01:53:27 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:45720 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S935244AbWK2Gx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 01:53:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
-        b=ZrJiz7aZ1JcB4C9UmIzmu9vmyt4sSEyzxJI+7MilgON0kGL4VpMEpuJGTZoIEk4oq7pnufOZ2fo4J9Rlpwi7JIwxxFmaFosfobUdgJiTLCucuwIhbv6HZYeeou2EnCvnoxlfpmTwBXdwvDQAPT0+3TWH+NpdnAd7MazmIpul3Dk=
-Message-ID: <86802c440611282253n4b5ce226oefb42986df3356b2@mail.gmail.com>
-Date: Tue, 28 Nov 2006 22:53:24 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@muc.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH] x86_64: check vector in setup_ioapic_dest to verify if need setup_IO_APIC_irq
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_24979_3891036.1164783204101"
-X-Google-Sender-Auth: efba793a32a7f0f3
+	Wed, 29 Nov 2006 01:57:32 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42195 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S935292AbWK2G5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 01:57:31 -0500
+Date: Wed, 29 Nov 2006 07:54:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-rt5
+Message-ID: <20061129065430.GA28258@elte.hu>
+References: <20061120220230.GA30835@elte.hu> <5bdc1c8b0611220606m31c397d1ubafae3460d36db09@mail.gmail.com> <1164735207.1701.19.camel@mindpipe> <20061128201549.GC26934@elte.hu> <5bdc1c8b0611281452w49b6a3c3rb35ab055fc0b2660@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="YZ5djTAD1cGYuMQK"
+Content-Disposition: inline
+In-Reply-To: <5bdc1c8b0611281452w49b6a3c3rb35ab055fc0b2660@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_24979_3891036.1164783204101
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-plesae check the patch
 
-------=_Part_24979_3891036.1164783204101
-Content-Type: text/x-patch; name=set_IO_APIC_irq.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ev3dobu1
-Content-Disposition: attachment; filename="set_IO_APIC_irq.patch"
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-W1BBVENIXSB4ODZfNjQ6IGNoZWNrIHZlY3RvciBpbiBzZXR1cF9pb2FwaWNfZGVzdCB0byB2ZXJp
-ZnkgaWYgbmVlZCBzZXR1cF9JT19BUElDX2lycQoKc2V0dXBfSU9fQVBJQ19pcnFzIGNvdWxkIGZh
-aWwgdG8gZ2V0IHZlY3RvciBmb3Igc29tZSBkZXZpY2UgCndoZW4geW91IGhhdmUgdG9vIG1hbnkg
-ZGV2aWNlcywgYmVjYXVzZSBhdCB0aGF0IHRpbWUgb25seSBib290CmNwdSBpcyBvbmxpbmUuIFNv
-IGNoZWNrIHZlY3RvciBmb3IgaXJxIGluIHNldHVwX2lvYXBpY19kZXN0IGFuZCAKY2FsbCBzZXR1
-cF9JT19BUElDX2lycSB0byBtYWtlIHN1cmUgSU8tQVBJQyBpcnEtcm91dGluZyB0YWJsZSBpcwpp
-bml0aWFsaXplZC4KCkFsc28gc2VwZXJhdGUgc2V0dXBfSU9fQVBJQ19pcnEgZnJvbSBzZXR1cF9J
-T19BUElDX2lycXMuCgpTaWduZWQtb2ZmLWJ5OiBZaW5naGFpIEx1IDx5aW5naGFpLmx1QGFtZC5j
-b20+CgoKZGlmZiAtLWdpdCBhL2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMgYi9hcmNoL3g4
-Nl82NC9rZXJuZWwvaW9fYXBpYy5jCmluZGV4IDE0NjU0ZTYuLjQ5NmJhNGUgMTAwNjQ0Ci0tLSBh
-L2FyY2gveDg2XzY0L2tlcm5lbC9pb19hcGljLmMKKysrIGIvYXJjaC94ODZfNjQva2VybmVsL2lv
-X2FwaWMuYwpAQCAtNzk2LDI3ICs4NDUsNjUgQEAgc3RhdGljIHZvaWQgaW9hcGljX3JlZ2lzdGVy
-X2ludHIoaW50IGlycQogCQkJCQkgICAgICBoYW5kbGVfZWRnZV9pcnEsICJlZGdlIik7CiAJfQog
-fQotCi1zdGF0aWMgdm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnFzKHZvaWQpCitzdGF0aWMg
-dm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnEoaW50IGFwaWMsIGludCBwaW4sIGludCBpZHgs
-IGludCBpcnEpCiB7CiAJc3RydWN0IElPX0FQSUNfcm91dGVfZW50cnkgZW50cnk7Ci0JaW50IGFw
-aWMsIHBpbiwgaWR4LCBpcnEsIGZpcnN0X25vdGNvbiA9IDEsIHZlY3RvcjsKKwlpbnQgdmVjdG9y
-OwogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAKLQlhcGljX3ByaW50ayhBUElDX1ZFUkJPU0UsIEtF
-Uk5fREVCVUcgImluaXQgSU9fQVBJQyBJUlFzXG4iKTsKIAotCWZvciAoYXBpYyA9IDA7IGFwaWMg
-PCBucl9pb2FwaWNzOyBhcGljKyspIHsKLQlmb3IgKHBpbiA9IDA7IHBpbiA8IG5yX2lvYXBpY19y
-ZWdpc3RlcnNbYXBpY107IHBpbisrKSB7CisJLyoKKwkgKiBhZGQgaXQgdG8gdGhlIElPLUFQSUMg
-aXJxLXJvdXRpbmcgdGFibGU6CisJICovCisJbWVtc2V0KCZlbnRyeSwwLHNpemVvZihlbnRyeSkp
-OwogCi0JCS8qCi0JCSAqIGFkZCBpdCB0byB0aGUgSU8tQVBJQyBpcnEtcm91dGluZyB0YWJsZToK
-LQkJICovCi0JCW1lbXNldCgmZW50cnksMCxzaXplb2YoZW50cnkpKTsKKwllbnRyeS5kZWxpdmVy
-eV9tb2RlID0gSU5UX0RFTElWRVJZX01PREU7CisJZW50cnkuZGVzdF9tb2RlID0gSU5UX0RFU1Rf
-TU9ERTsKKwllbnRyeS5tYXNrID0gMDsJCQkJLyogZW5hYmxlIElSUSAqLworCWVudHJ5LmRlc3Qu
-bG9naWNhbC5sb2dpY2FsX2Rlc3QgPSBjcHVfbWFza190b19hcGljaWQoVEFSR0VUX0NQVVMpOwor
-CisJZW50cnkudHJpZ2dlciA9IGlycV90cmlnZ2VyKGlkeCk7CisJZW50cnkucG9sYXJpdHkgPSBp
-cnFfcG9sYXJpdHkoaWR4KTsKIAotCQllbnRyeS5kZWxpdmVyeV9tb2RlID0gSU5UX0RFTElWRVJZ
-X01PREU7Ci0JCWVudHJ5LmRlc3RfbW9kZSA9IElOVF9ERVNUX01PREU7Ci0JCWVudHJ5Lm1hc2sg
-PSAwOwkJCQkvKiBlbmFibGUgSVJRICovCisJaWYgKGlycV90cmlnZ2VyKGlkeCkpIHsKKwkJZW50
-cnkudHJpZ2dlciA9IDE7CisJCWVudHJ5Lm1hc2sgPSAxOwogCQllbnRyeS5kZXN0LmxvZ2ljYWwu
-bG9naWNhbF9kZXN0ID0gY3B1X21hc2tfdG9fYXBpY2lkKFRBUkdFVF9DUFVTKTsKKwl9CisKKwlp
-ZiAoIWFwaWMgJiYgIUlPX0FQSUNfSVJRKGlycSkpCisJCXJldHVybjsKKworCWlmIChJT19BUElD
-X0lSUShpcnEpKSB7CisJCWNwdW1hc2tfdCBtYXNrOworCQl2ZWN0b3IgPSBhc3NpZ25faXJxX3Zl
-Y3RvcihpcnEsIFRBUkdFVF9DUFVTLCAmbWFzayk7CisJCWlmICh2ZWN0b3IgPCAwKQorCQkJcmV0
-dXJuOworCisJCWVudHJ5LmRlc3QubG9naWNhbC5sb2dpY2FsX2Rlc3QgPSBjcHVfbWFza190b19h
-cGljaWQobWFzayk7CisJCWVudHJ5LnZlY3RvciA9IHZlY3RvcjsKKworCQlpb2FwaWNfcmVnaXN0
-ZXJfaW50cihpcnEsIHZlY3RvciwgSU9BUElDX0FVVE8pOworCQlpZiAoIWFwaWMgJiYgKGlycSA8
-IDE2KSkKKwkJCWRpc2FibGVfODI1OUFfaXJxKGlycSk7CisJfQorCisJaW9hcGljX3dyaXRlX2Vu
-dHJ5KGFwaWMsIHBpbiwgZW50cnkpOworCisJc3Bpbl9sb2NrX2lycXNhdmUoJmlvYXBpY19sb2Nr
-LCBmbGFncyk7CisJc2V0X25hdGl2ZV9pcnFfaW5mbyhpcnEsIFRBUkdFVF9DUFVTKTsKKwlzcGlu
-X3VubG9ja19pcnFyZXN0b3JlKCZpb2FwaWNfbG9jaywgZmxhZ3MpOworCit9CisKK3N0YXRpYyB2
-b2lkIF9faW5pdCBzZXR1cF9JT19BUElDX2lycXModm9pZCkKK3sKKwlpbnQgYXBpYywgcGluLCBp
-ZHgsIGlycSwgZmlyc3Rfbm90Y29uID0gMTsKKworCWFwaWNfcHJpbnRrKEFQSUNfVkVSQk9TRSwg
-S0VSTl9ERUJVRyAiaW5pdCBJT19BUElDIElSUXNcbiIpOworCisJZm9yIChhcGljID0gMDsgYXBp
-YyA8IG5yX2lvYXBpY3M7IGFwaWMrKykgeworCWZvciAocGluID0gMDsgcGluIDwgbnJfaW9hcGlj
-X3JlZ2lzdGVyc1thcGljXTsgcGluKyspIHsKIAogCQlpZHggPSBmaW5kX2lycV9lbnRyeShhcGlj
-LHBpbixtcF9JTlQpOwogCQlpZiAoaWR4ID09IC0xKSB7CkBAIC04MjgsMzkgKzkxNSwxMSBAQCBz
-dGF0aWMgdm9pZCBfX2luaXQgc2V0dXBfSU9fQVBJQ19pcnFzKHZvCiAJCQljb250aW51ZTsKIAkJ
-fQogCi0JCWVudHJ5LnRyaWdnZXIgPSBpcnFfdHJpZ2dlcihpZHgpOwotCQllbnRyeS5wb2xhcml0
-eSA9IGlycV9wb2xhcml0eShpZHgpOwotCi0JCWlmIChpcnFfdHJpZ2dlcihpZHgpKSB7Ci0JCQll
-bnRyeS50cmlnZ2VyID0gMTsKLQkJCWVudHJ5Lm1hc2sgPSAxOwotCQkJZW50cnkuZGVzdC5sb2dp
-Y2FsLmxvZ2ljYWxfZGVzdCA9IGNwdV9tYXNrX3RvX2FwaWNpZChUQVJHRVRfQ1BVUyk7Ci0JCX0K
-LQogCQlpcnEgPSBwaW5fMl9pcnEoaWR4LCBhcGljLCBwaW4pOwogCQlhZGRfcGluX3RvX2lycShp
-cnEsIGFwaWMsIHBpbik7CiAKLQkJaWYgKCFhcGljICYmICFJT19BUElDX0lSUShpcnEpKQotCQkJ
-Y29udGludWU7Ci0KLQkJaWYgKElPX0FQSUNfSVJRKGlycSkpIHsKLQkJCWNwdW1hc2tfdCBtYXNr
-OwotCQkJdmVjdG9yID0gYXNzaWduX2lycV92ZWN0b3IoaXJxLCBUQVJHRVRfQ1BVUywgJm1hc2sp
-OwotCQkJaWYgKHZlY3RvciA8IDApCi0JCQkJY29udGludWU7CisJCXNldHVwX0lPX0FQSUNfaXJx
-KGFwaWMsIHBpbiwgaWR4LCBpcnEpOwogCi0JCQllbnRyeS5kZXN0LmxvZ2ljYWwubG9naWNhbF9k
-ZXN0ID0gY3B1X21hc2tfdG9fYXBpY2lkKG1hc2spOwotCQkJZW50cnkudmVjdG9yID0gdmVjdG9y
-OwotCi0JCQlpb2FwaWNfcmVnaXN0ZXJfaW50cihpcnEsIHZlY3RvciwgSU9BUElDX0FVVE8pOwot
-CQkJaWYgKCFhcGljICYmIChpcnEgPCAxNikpCi0JCQkJZGlzYWJsZV84MjU5QV9pcnEoaXJxKTsK
-LQkJfQotCQlpb2FwaWNfd3JpdGVfZW50cnkoYXBpYywgcGluLCBlbnRyeSk7Ci0KLQkJc3Bpbl9s
-b2NrX2lycXNhdmUoJmlvYXBpY19sb2NrLCBmbGFncyk7Ci0JCXNldF9uYXRpdmVfaXJxX2luZm8o
-aXJxLCBUQVJHRVRfQ1BVUyk7Ci0JCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmlvYXBpY19sb2Nr
-LCBmbGFncyk7CiAJfQogCX0KIApAQCAtMjE0MSw3ICsyMjAwLDE1IEBAIHZvaWQgX19pbml0IHNl
-dHVwX2lvYXBpY19kZXN0KHZvaWQpCiAJCQlpZiAoaXJxX2VudHJ5ID09IC0xKQogCQkJCWNvbnRp
-bnVlOwogCQkJaXJxID0gcGluXzJfaXJxKGlycV9lbnRyeSwgaW9hcGljLCBwaW4pOwotCQkJc2V0
-X2lvYXBpY19hZmZpbml0eV9pcnEoaXJxLCBUQVJHRVRfQ1BVUyk7CisKKwkJCS8qIHNldHVwX0lP
-X0FQSUNfaXJxcyBjb3VsZCBmYWlsIHRvIGdldCB2ZWN0b3IgZm9yIHNvbWUgZGV2aWNlIAorCQkJ
-ICogd2hlbiB5b3UgaGF2ZSB0b28gbWFueSBkZXZpY2VzLCBiZWNhdXNlIGF0IHRoYXQgdGltZSBv
-bmx5IGJvb3QKKwkJCSAqIGNwdSBpcyBvbmxpbmUuCisJCQkgKi8KKwkJCWlmKCFpcnFfdmVjdG9y
-W2lycV0pCisJCQkJc2V0dXBfSU9fQVBJQ19pcnEoaW9hcGljLCBwaW4sIGlycV9lbnRyeSwgaXJx
-KTsKKwkJCWVsc2UKKwkJCQlzZXRfaW9hcGljX2FmZmluaXR5X2lycShpcnEsIFRBUkdFVF9DUFVT
-KTsKIAkJfQogCiAJfQo=
-------=_Part_24979_3891036.1164783204101--
+> Forwarding it off list.
+> 
+> Thanks Ingo. I'm very interested if it works for you to do this.
+
+i've integrated it into -rt (see the patch below), but i marked it 
+obsolete and i might not be able to carry it for long - we'll see. The 
+preferred solution is to use newer PAM and its rt-limits features. But 
+to ease migration i'll keep the realtime-lsm for a while.
+
+	Ingo
+
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="realtime-lsm.patch"
+
+---
+ security/Kconfig   |    9 +++
+ security/Makefile  |    1 
+ security/realcap.c |  147 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+)
+
+Index: linux/security/Kconfig
+===================================================================
+--- linux.orig/security/Kconfig
++++ linux/security/Kconfig
+@@ -80,6 +80,15 @@ config SECURITY_CAPABILITIES
+ 	  This enables the "default" Linux capabilities functionality.
+ 	  If you are unsure how to answer this question, answer Y.
+ 
++config REALTIME_CAPABILITIES
++	tristate "Real-Time LSM (Obsolete)"
++	depends on SECURITY && EXPERIMENTAL
++	help
++	  This is an obsolete LSM - use newer PAM and rt-limites
++	  to manage your real-time apps.
++
++	  If you are unsure how to answer this question, answer N.
++
+ config SECURITY_ROOTPLUG
+ 	tristate "Root Plug Support"
+ 	depends on USB && SECURITY
+Index: linux/security/Makefile
+===================================================================
+--- linux.orig/security/Makefile
++++ linux/security/Makefile
+@@ -15,4 +15,5 @@ obj-$(CONFIG_SECURITY)			+= security.o d
+ # Must precede capability.o in order to stack properly.
+ obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
+ obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
++obj-$(COMMON_REALTIME_CAPABILITIES)	+= commoncap.o realcap.o
+ obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
+Index: linux/security/realcap.c
+===================================================================
+--- /dev/null
++++ linux/security/realcap.c
+@@ -0,0 +1,147 @@
++/*
++ * Realtime Capabilities Linux Security Module
++ *
++ *  Copyright (C) 2003 Torben Hohn
++ *  Copyright (C) 2003, 2004 Jack O'Quin
++ *
++ *	This program is free software; you can redistribute it and/or modify
++ *	it under the terms of the GNU General Public License as published by
++ *	the Free Software Foundation; either version 2 of the License, or
++ *	(at your option) any later version.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/security.h>
++
++#define RT_LSM "Realtime LSM "		/* syslog module name prefix */
++#define RT_ERR "Realtime: "		/* syslog error message prefix */
++
++#include <linux/vermagic.h>
++MODULE_INFO(vermagic,VERMAGIC_STRING);
++
++/* module parameters
++ *
++ *  These values could change at any time due to some process writing
++ *  a new value in /sys/module/realtime/parameters.  This is OK,
++ *  because each is referenced only once in each function call.
++ *  Nothing depends on parameters having the same value every time.
++ */
++
++/* if TRUE, any process is realtime */
++static int rt_any;
++module_param_named(any, rt_any, int, 0644);
++MODULE_PARM_DESC(any, " grant realtime privileges to any process.");
++
++/* realtime group id, or NO_GROUP */
++static int rt_gid = -1;
++module_param_named(gid, rt_gid, int, 0644);
++MODULE_PARM_DESC(gid, " the group ID with access to realtime privileges.");
++
++/* enable mlock() privileges */
++static int rt_mlock = 1;
++module_param_named(mlock, rt_mlock, int, 0644);
++MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
++
++/* helper function for testing group membership */
++static inline int gid_ok(int gid)
++{
++	if (gid == -1)
++		return 0;
++
++	if (gid == current->gid)
++		return 1;
++
++	return in_egroup_p(gid);
++}
++
++static void realtime_bprm_apply_creds(struct linux_binprm *bprm, int unsafe)
++{
++	cap_bprm_apply_creds(bprm, unsafe);
++
++	/*  If a non-zero `any' parameter was specified, we grant
++	 *  realtime privileges to every process.  If the `gid'
++	 *  parameter was specified and it matches the group id of the
++	 *  executable, of the current process or any supplementary
++	 *  groups, we grant realtime capabilites.
++	 */
++
++	if (rt_any || gid_ok(rt_gid)) {
++		cap_raise(current->cap_effective, CAP_SYS_NICE);
++		if (rt_mlock) {
++			cap_raise(current->cap_effective, CAP_IPC_LOCK);
++			cap_raise(current->cap_effective, CAP_SYS_RESOURCE);
++		}
++	}
++}
++
++static struct security_operations capability_ops = {
++	.ptrace =			cap_ptrace,
++	.capget =			cap_capget,
++	.capset_check =			cap_capset_check,
++	.capset_set =			cap_capset_set,
++	.capable =			cap_capable,
++	.netlink_send =			cap_netlink_send,
++	.netlink_recv =			cap_netlink_recv,
++	.bprm_apply_creds =		realtime_bprm_apply_creds,
++	.bprm_set_security =		cap_bprm_set_security,
++	.bprm_secureexec =		cap_bprm_secureexec,
++	.task_post_setuid =		cap_task_post_setuid,
++	.task_reparent_to_init =	cap_task_reparent_to_init,
++	.syslog =                       cap_syslog,
++	.vm_enough_memory =             cap_vm_enough_memory,
++};
++
++#define MY_NAME __stringify(KBUILD_MODNAME)
++
++static int secondary;	/* flag to keep track of how we were registered */
++
++static int __init realtime_init(void)
++{
++	/* register ourselves with the security framework */
++	if (register_security(&capability_ops)) {
++
++		/* try registering with primary module */
++		if (mod_reg_security(MY_NAME, &capability_ops)) {
++			printk(KERN_INFO RT_ERR "Failure registering "
++			       "capabilities with primary security module.\n");
++			printk(KERN_INFO RT_ERR "Is kernel configured "
++			       "with CONFIG_SECURITY_CAPABILITIES=m?\n");
++			return -EINVAL;
++		}
++		secondary = 1;
++	}
++
++	if (rt_any)
++		printk(KERN_INFO RT_LSM
++		       "initialized (all groups, mlock=%d)\n", rt_mlock);
++	else if (rt_gid == -1)
++		printk(KERN_INFO RT_LSM
++		       "initialized (no groups, mlock=%d)\n", rt_mlock);
++	else
++		printk(KERN_INFO RT_LSM
++		       "initialized (group %d, mlock=%d)\n", rt_gid, rt_mlock);
++
++	return 0;
++}
++
++static void __exit realtime_exit(void)
++{
++	/* remove ourselves from the security framework */
++	if (secondary) {
++		if (mod_unreg_security(MY_NAME, &capability_ops))
++			printk(KERN_INFO RT_ERR "Failure unregistering "
++				"capabilities with primary module.\n");
++
++	} else if (unregister_security(&capability_ops)) {
++		printk(KERN_INFO RT_ERR
++		       "Failure unregistering capabilities with the kernel\n");
++	}
++	printk(KERN_INFO "Realtime Capability LSM exiting\n");
++}
++
++late_initcall(realtime_init);
++module_exit(realtime_exit);
++
++MODULE_DESCRIPTION("Realtime Capabilities Security Module");
++MODULE_LICENSE("GPL");
+
+--YZ5djTAD1cGYuMQK--

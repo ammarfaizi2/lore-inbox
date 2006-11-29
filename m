@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758767AbWK2EOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758779AbWK2EO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758767AbWK2EOe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758770AbWK2EOd
+	id S1758779AbWK2EO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758780AbWK2EO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:14:33 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:47254 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1758767AbWK2EOb (ORCPT
+	Tue, 28 Nov 2006 23:14:58 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:46303 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1758766AbWK2EOl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:14:31 -0500
-Subject: [PATCH 4/12] ext3 balloc: say rb_entry not list_entry
+	Tue, 28 Nov 2006 23:14:41 -0500
+Subject: [PATCH 5/12] ext3 balloc: use io_error label
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
-To: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
 Cc: Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
        linux-kernel@vger.kernel.org,
        "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611281742470.29701@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0611281743370.29701@blonde.wat.veritas.com>
 References: <20061114014125.dd315fff.akpm@osdl.org>
 	 <20061114184919.GA16020@skynet.ie>
 	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
@@ -34,11 +34,11 @@ References: <20061114014125.dd315fff.akpm@osdl.org>
 	 <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
 	 <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
 	 <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0611281742470.29701@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0611281743370.29701@blonde.wat.veritas.com>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Tue, 28 Nov 2006 20:14:28 -0800
-Message-Id: <1164773668.4341.38.camel@localhost.localdomain>
+Date: Tue, 28 Nov 2006 20:14:37 -0800
+Message-Id: <1164773677.4341.39.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
@@ -47,55 +47,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 ------------------------------------------------------
-Subject: ext2 balloc: say rb_entry not list_entry
+Subject: ext2 balloc: use io_error label
 From: Hugh Dickins <hugh@veritas.com>
 
-The reservations tree is an rb_tree not a list, so it's less confusing to use
-rb_entry() than list_entry() - though they're both just container_of().
+ext2_new_blocks has a nice io_error label for setting -EIO, so goto that in
+the one place that doesn't already use it.
 
-----------------------------------------------------------
-
-Sync up this fix in ext3
+------------------------------------------------------
+Fix it in ext3_new_blocks.
 
 Signed-off-by: Mingming Cao <cmm@us.ibm.com>
----
 
 
 ---
 
- linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff -puN fs/ext3/balloc.c~ext3-balloc-say-rb_entry-not-list_entry fs/ext3/balloc.c
---- linux-2.6.19-rc5/fs/ext3/balloc.c~ext3-balloc-say-rb_entry-not-list_entry	2006-11-28 19:36:52.000000000 -0800
-+++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-28 19:36:52.000000000 -0800
-@@ -144,7 +144,7 @@ restart:
- 
- 	printk("Block Allocation Reservation Windows Map (%s):\n", fn);
- 	while (n) {
--		rsv = list_entry(n, struct ext3_reserve_window_node, rsv_node);
-+		rsv = rb_entry(n, struct ext3_reserve_window_node, rsv_node);
- 		if (verbose)
- 			printk("reservation window 0x%p "
- 			       "start:  %lu, end:  %lu\n",
-@@ -949,7 +949,7 @@ static int find_next_reservable_window(
- 
- 		prev = rsv;
- 		next = rb_next(&rsv->rsv_node);
--		rsv = list_entry(next,struct ext3_reserve_window_node,rsv_node);
-+		rsv = rb_entry(next,struct ext3_reserve_window_node,rsv_node);
- 
+diff -puN fs/ext3/balloc.c~ext3-balloc-use-io_error-label fs/ext3/balloc.c
+--- linux-2.6.19-rc5/fs/ext3/balloc.c~ext3-balloc-use-io_error-label	2006-11-28 19:45:51.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-28 19:45:51.000000000 -0800
+@@ -1515,10 +1515,8 @@ retry_alloc:
+ 		if (group_no >= ngroups)
+ 			group_no = 0;
+ 		gdp = ext3_get_group_desc(sb, group_no, &gdp_bh);
+-		if (!gdp) {
+-			*errp = -EIO;
+-			goto out;
+-		}
++		if (!gdp)
++			goto io_error;
+ 		free_blocks = le16_to_cpu(gdp->bg_free_blocks_count);
  		/*
- 		 * Reached the last reservation, we can just append to the
-@@ -1193,7 +1193,7 @@ static void try_to_extend_reservation(st
- 	if (!next)
- 		my_rsv->rsv_end += size;
- 	else {
--		next_rsv = list_entry(next, struct ext3_reserve_window_node, rsv_node);
-+		next_rsv = rb_entry(next, struct ext3_reserve_window_node, rsv_node);
- 
- 		if ((next_rsv->rsv_start - my_rsv->rsv_end - 1) >= size)
- 			my_rsv->rsv_end += size;
+ 		 * skip this group if the number of
 
 _
 

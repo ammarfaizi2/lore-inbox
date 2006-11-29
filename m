@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758210AbWK2WDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758284AbWK2WIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758210AbWK2WDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758246AbWK2WCn
+	id S1758284AbWK2WIv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758286AbWK2WDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:02:43 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64689 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758265AbWK2WCU
+	Wed, 29 Nov 2006 17:03:24 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:48340 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758284AbWK2WDS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:02:20 -0500
-Message-Id: <20061129220409.408136000@sous-sol.org>
+	Wed, 29 Nov 2006 17:03:18 -0500
+Message-Id: <20061129220445.699466000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:19 -0800
+Date: Wed, 29 Nov 2006 14:00:22 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       "David S. Miller" <davem@davemloft.net>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
@@ -22,9 +23,9 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
        alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
-       davem@davemloft.net
-Subject: [patch 08/23] NETFILTER: Kconfig: fix xt_physdev dependencies
-Content-Disposition: inline; filename=netfilter-kconfig-fix-xt_physdev-dependencies.patch
+       Faidon Liambotis <paravoid@debian.org>
+Subject: [patch 11/23] NETFILTER: H.323 conntrack: fix crash with CONFIG_IP_NF_CT_ACCT
+Content-Disposition: inline; filename=netfilter-h.323-conntrack-fix-crash-with-config_ip_nf_ct_acct.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,34 +34,46 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Patrick McHardy <kaber@trash.net>
 
-xt_physdev depends on bridge netfilter, which is a boolean, but can still
-be built modular because of special handling in the bridge makefile. Add
-a dependency on BRIDGE to prevent XT_MATCH_PHYSDEV=y, BRIDGE=m.
+H.323 connection tracking code calls ip_ct_refresh_acct() when
+processing RCFs and URQs but passes NULL as the skb.
+When CONFIG_IP_NF_CT_ACCT is enabled, the connection tracking core tries
+to derefence the skb, which results in an obvious panic.
+A similar fix was applied on the SIP connection tracking code some time
+ago.
 
+Signed-off-by: Faidon Liambotis <paravoid@debian.org>
 Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
-commit ca6adddd237afa4910bab5e9e8ba0685f37c2bfe
-tree 45c88fae3ec75a90ffac423906e662bdb36e8251
-parent cf08e74a590c945d3c0b95886ea3fad8ff73793d
-author Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:31 +0100
-committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:31 +0100
+commit 76b0c2b63fd5a2da358b36a22b7bf99298dde0b7
+tree cd96ddb4c4cd5ffb44ed5a47fa3be41267eea99a
+parent 1b9bb3c14c60324b54645ffefbe6d270f9fd191c
+author Faidon Liambotis <paravoid@debian.org> Fri, 17 Nov 2006 21:01:25 +0100
+committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 21:01:25 +0100
 
- net/netfilter/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/netfilter/ip_conntrack_helper_h323.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.18.4.orig/net/netfilter/Kconfig
-+++ linux-2.6.18.4/net/netfilter/Kconfig
-@@ -342,7 +342,7 @@ config NETFILTER_XT_MATCH_MULTIPORT
+--- linux-2.6.18.4.orig/net/ipv4/netfilter/ip_conntrack_helper_h323.c
++++ linux-2.6.18.4/net/ipv4/netfilter/ip_conntrack_helper_h323.c
+@@ -1417,7 +1417,7 @@ static int process_rcf(struct sk_buff **
+ 		DEBUGP
+ 		    ("ip_ct_ras: set RAS connection timeout to %u seconds\n",
+ 		     info->timeout);
+-		ip_ct_refresh_acct(ct, ctinfo, NULL, info->timeout * HZ);
++		ip_ct_refresh(ct, *pskb, info->timeout * HZ);
  
- config NETFILTER_XT_MATCH_PHYSDEV
- 	tristate '"physdev" match support'
--	depends on NETFILTER_XTABLES && BRIDGE_NETFILTER
-+	depends on NETFILTER_XTABLES && BRIDGE && BRIDGE_NETFILTER
- 	help
- 	  Physdev packet matching matches against the physical bridge ports
- 	  the IP packet arrived on or will leave by.
+ 		/* Set expect timeout */
+ 		read_lock_bh(&ip_conntrack_lock);
+@@ -1465,7 +1465,7 @@ static int process_urq(struct sk_buff **
+ 	info->sig_port[!dir] = 0;
+ 
+ 	/* Give it 30 seconds for UCF or URJ */
+-	ip_ct_refresh_acct(ct, ctinfo, NULL, 30 * HZ);
++	ip_ct_refresh(ct, *pskb, 30 * HZ);
+ 
+ 	return 0;
+ }
 
 --

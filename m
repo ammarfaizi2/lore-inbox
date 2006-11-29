@@ -1,71 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967604AbWK2Txw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967605AbWK2T5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967604AbWK2Txw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 14:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967605AbWK2Txw
+	id S967605AbWK2T5p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 14:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967611AbWK2T5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 14:53:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:34500 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S967604AbWK2Txv (ORCPT
+	Wed, 29 Nov 2006 14:57:45 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:29846 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S967605AbWK2T5o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 14:53:51 -0500
-Date: Wed, 29 Nov 2006 20:51:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc6-rt8: alsa xruns
-Message-ID: <20061129195144.GA8676@elte.hu>
-References: <1164743931.15887.34.camel@cmn3.stanford.edu> <20061128200927.GA26934@elte.hu> <1164746224.15887.40.camel@cmn3.stanford.edu> <1164747854.15887.48.camel@cmn3.stanford.edu> <20061129134311.GA14566@elte.hu> <1164825498.18954.5.camel@cmn3.stanford.edu>
+	Wed, 29 Nov 2006 14:57:44 -0500
+Date: Wed, 29 Nov 2006 11:49:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@suse.cz>, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc patch] Re: [patch] PM: suspend/resume debugging should
+ depend on SOFTWARE_SUSPEND
+Message-Id: <20061129114934.eedb7405.akpm@osdl.org>
+In-Reply-To: <1164796231.6147.12.camel@Homer.simpson.net>
+References: <200611190320_MC3-1-D21B-111C@compuserve.com>
+	<Pine.LNX.4.64.0611240959170.6991@woody.osdl.org>
+	<1164463898.6221.24.camel@Homer.simpson.net>
+	<200611251812.53246.rjw@sisk.pl>
+	<1164516833.6543.0.camel@Homer.simpson.net>
+	<1164708110.6021.12.camel@Homer.simpson.net>
+	<1164795696.6147.2.camel@Homer.simpson.net>
+	<1164796231.6147.12.camel@Homer.simpson.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164825498.18954.5.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Nov 2006 11:30:31 +0100
+Mike Galbraith <efault@gmx.de> wrote:
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> > ok, i reproduced something similar on one of my boxes and it turned 
-> > out to be a tracer bug. I've uploaded -rt10, could you try it? (The 
-> > xruns will likely remain, but at least the tracer should be more 
-> > usable now to find out the reason for the xruns.)
+> On Wed, 2006-11-29 at 11:21 +0100, Mike Galbraith wrote:
+> > > The serial console appears to be innocent.  The suspend/resume methods
+> > > for my 16550A serial port aren't even being _called_, apparently because
+> > > pnp swiped ttyS0.
 > 
-> I'm testing -rt10 right now (your binary rpm). Looks like the number 
-> and length of the xruns went down, at least for now. All below 2mSec - 
-> jack is running 128x2 @ 48000Hz. I'll let it run for a while and 
-> report the traces (I have a script that collects all traces above 
-> 60us, but not all xruns trigger a trace).
+> (ahem, bad aim with mouse, resuming)
+> 
+> Well, after further rummaging, the suspend/resume methods aren't being
+> called because we're using 8250_pnp.c when CONFIG_PNP is set, and it
+> doesn't have any :)  The below works for me, though I'm not sure it's
+> sufficient.  If it is deemed sufficient, I'll submit it to Andrew.
+> 
+> Add suspend/resume methods to 8250_pnp driver.
+> 
+> --- linux-2.6.19-rc6-mm2/drivers/serial/8250_pnp.c.org	2006-11-29 07:14:15.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2/drivers/serial/8250_pnp.c	2006-11-29 10:55:17.000000000 +0100
+> @@ -464,11 +464,38 @@ static void __devexit serial_pnp_remove(
+>  		serial8250_unregister_port(line - 1);
+>  }
+>  
+> +#ifdef CONFIG_PM
+> +static int serial_pnp_suspend(struct pnp_dev *dev, pm_message_t state)
+> +{
+> +	long line = (long)pnp_get_drvdata(dev);
 
-ok.
+Please avoid adding long lines.  (heh, I kill me)
 
-How do you gather the traces, are you using manual control of tracing 
-via prctl(0,1) / prctl(0,0) - or the built-in wakeup tracing method? The 
-wakeup tracing method will detect fundamental problems in -rt 
-scheduling, but other types of delays can be better debugged via 
-explicit tracing. [jackd used to have the gettimeofday(0,1)/(0,0) hack - 
-this API hack has been replaced by prctl(0,1)/(0,0) to start/stop 
-tracing] Take a look at linux/scripts/trace-it.c on how to set up 
-manually triggered tracing. [if you do that then all you need to do is 
-to start/stop the trace - the kernel will do a maximum search and will 
-record the longest delay between start/stop calls.]
+> +	if (!line)
+> +		return -ENODEV;
+> +	serial8250_suspend_port(line - 1);
+> +	return 0;
+> +}
+> +
+> +static int serial_pnp_resume(struct pnp_dev *dev)
+> +{
+> +	long line = (long)pnp_get_drvdata(dev);
+> +
+> +	if (!line)
+> +		return -ENODEV;
+> +	serial8250_resume_port(line - 1);
+> +	return 0;
+> +}
 
-Also, can you see the xruns/latencies with latencytest too? (That one 
-might be easier to reproduce for me.)
+We'd usually do
 
-Also, my experience is that if there's a short succession of latencies 
-after each other, then it's usually the first trace that makes most 
-sense to analyze - the others might just be 'followup' or 'secondary' 
-delays caused by the tracing/printing overhead of the first trace. So 
-generally i concentrate on the first trace. But if the traces are 
-reasonably apart then each of them makes sense - and sometimes one trace 
-is more informative than another.
+#else
+#define serial_pnp_suspend NULL
+#define serial_pnp_resume NULL
 
-	Ingo
+here
+
+> +
+> +#endif /* CONFIG_PM */
+> +
+>  static struct pnp_driver serial_pnp_driver = {
+>  	.name		= "serial",
+> -	.id_table	= pnp_dev_table,
+>  	.probe		= serial_pnp_probe,
+>  	.remove		= __devexit_p(serial_pnp_remove),
+> +#ifdef CONFIG_PM
+> +	.suspend	= serial_pnp_suspend,
+> +	.resume		= serial_pnp_resume,
+> +#endif
+
+and hence omit the ifdefs here.

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758789AbWK2Eom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758796AbWK2Ep5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758789AbWK2Eom (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758791AbWK2Eom
+	id S1758796AbWK2Ep5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758798AbWK2Ep5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:44:42 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:56463
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1758789AbWK2Eol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:44:41 -0500
-Date: Tue, 28 Nov 2006 20:44:40 -0800 (PST)
-Message-Id: <20061128.204440.39160464.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: kaber@trash.net, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely
- duplicate route_reverse function
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <E1GpHDJ-00059y-00@gondolin.me.apana.org.au>
-References: <20061128.202535.112619392.davem@davemloft.net>
-	<E1GpHDJ-00059y-00@gondolin.me.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 23:45:57 -0500
+Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:9881 "EHLO
+	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1758796AbWK2Ep4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 23:45:56 -0500
+Date: Tue, 28 Nov 2006 20:45:56 -0800 (PST)
+From: Trent Piepho <xyzzy@speakeasy.org>
+X-X-Sender: xyzzy@shell2.speakeasy.net
+To: Adrian Bunk <bunk@stusta.de>
+cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] [2.6 patch] remove DVB_AV7110_FIRMWARE
+In-Reply-To: <20061129030629.GD15364@stusta.de>
+Message-ID: <Pine.LNX.4.58.0611282045040.28220@shell2.speakeasy.net>
+References: <20061126004500.GB15364@stusta.de> <Pine.LNX.4.58.0611281304180.5546@shell3.speakeasy.net>
+ <20061129030629.GD15364@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Wed, 29 Nov 2006 15:38:29 +1100
+On Wed, 29 Nov 2006, Adrian Bunk wrote:
+> On Tue, Nov 28, 2006 at 01:06:02PM -0800, Trent Piepho wrote:
+> > On Sun, 26 Nov 2006, Adrian Bunk wrote:
+> > > DVB_AV7110_FIRMWARE was (except for some OSS drivers) the only option
+> > > that was still compiling a binary-only user-supplied firmware file at
+> > > build-time into the kernel.
+> > >
+> > > This patch changes the driver to always use the standard
+> > > request_firmware() way for firmware by removing DVB_AV7110_FIRMWARE.
+> >
+> > Doesn't this also prevent the AV7110 module from getting compiled
+> > into the kernel?  Shouldn't the Kconfig file be adjusted so
+> > that 'y' can't be selected anymore and it depends on MODULES?
+>
+> No.
+> No.
+>
+> request_firmware() works fine for built-in drivers.
 
-> David Miller <davem@davemloft.net> wrote:
-> > 
-> > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> > index 9264139..95e86ac 100644
-> > --- a/include/linux/netdevice.h
-> > +++ b/include/linux/netdevice.h
-> > @@ -94,7 +94,9 @@ #endif
-> > #endif
-> > 
-> > #if !defined(CONFIG_NET_IPIP) && \
-> > -    !defined(CONFIG_IPV6) && !defined(CONFIG_IPV6_MODULE)
-> > +    !defined(CONFIG_NET_IPGRE) && \
-> > +    !defined(CONFIG_IPV6_SIT) && \
-> > +    !defined(CONFIG_IPV6_TUNNEL)
-> > #define MAX_HEADER LL_MAX_HEADER
-> > #else
-> > #define MAX_HEADER (LL_MAX_HEADER + 48)
-> 
-> What if ipip/gre are modules?
-
-Good catch, I'll fix that up by adding the missing CONFIG_*_MODULE
-cases.
-
-Longer term this is really messy, we should handle this some
-other way.
+Wouldn't that require loading the firmware file before the filesystems are
+mounted?

@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758831AbWK2NPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758845AbWK2NTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758831AbWK2NPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 08:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758835AbWK2NPX
+	id S1758845AbWK2NTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 08:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758846AbWK2NTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 08:15:23 -0500
-Received: from ns.suse.de ([195.135.220.2]:55272 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1758831AbWK2NPW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 08:15:22 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH] use probe_kernel_address in Dwarf2 unwinder
-Date: Wed, 29 Nov 2006 14:15:13 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <456D79AB.76E4.0078.0@novell.com>
-In-Reply-To: <456D79AB.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611291415.13169.ak@suse.de>
+	Wed, 29 Nov 2006 08:19:46 -0500
+Received: from bay0-omc3-s31.bay0.hotmail.com ([65.54.246.231]:47277 "EHLO
+	bay0-omc3-s31.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1758845AbWK2NTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 08:19:45 -0500
+Message-ID: <BAY107-F330850604F413A1DA24A79CE40@phx.gbl>
+X-Originating-IP: [87.81.120.187]
+X-Originating-Email: [dcb314@hotmail.com]
+From: "d binderman" <dcb314@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: fs/9p/mux.c(786): remark #593: variable "cb" was set but never used    
+Date: Wed, 29 Nov 2006 13:19:43 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 29 Nov 2006 13:19:45.0176 (UTC) FILETIME=[09730980:01C713B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 November 2006 12:14, Jan Beulich wrote:
-> Use probe_kernel_address() instead of __get_user() in Dwarf2 unwinder.
 
-I had already done this here. Thanks.
+Hello there,
 
--Andi
+I just tried to compile Linux kernel 2.6.18.3 with the Intel C
+C compiler.
+
+The compiler said
+
+fs/9p/mux.c(786): remark #593: variable "cb" was set but never used
+
+The source code is
+
+    v9fs_mux_req_callback cb;
+
+I have checked the source code and I agree with the compiler.
+Suggest delete local variable.
+
+
+Regards
+
+David Binderman
+
+_________________________________________________________________
+Download the new Windows Live Toolbar, including Desktop search! 
+http://toolbar.live.com/?mkt=en-gb
+

@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758284AbWK2WIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758359AbWK2WM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758284AbWK2WIv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758286AbWK2WDY
+	id S1758359AbWK2WM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758380AbWK2WM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:03:24 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:48340 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758284AbWK2WDS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:03:18 -0500
-Message-Id: <20061129220445.699466000@sous-sol.org>
-References: <20061129220111.137430000@sous-sol.org>
-User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:22 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
-       Faidon Liambotis <paravoid@debian.org>
-Subject: [patch 11/23] NETFILTER: H.323 conntrack: fix crash with CONFIG_IP_NF_CT_ACCT
-Content-Disposition: inline; filename=netfilter-h.323-conntrack-fix-crash-with-config_ip_nf_ct_acct.patch
+	Wed, 29 Nov 2006 17:12:26 -0500
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:33179 "EHLO
+	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1758352AbWK2WMZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 17:12:25 -0500
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: PCI: check szhi when sz is 0 when 64 bit iomem bigger than
+ 4G
+Date: Wed, 29 Nov 2006 14:08:50 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA4907254@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PCI: check szhi when sz is 0 when 64 bit iomem bigger than
+ 4G
+Thread-Index: AccUAM2i9dAkAT41TdOsAZN69urr4AAAOUlw
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>
+cc: "Greg KH" <greg@kroah.com>, "Greg KH" <gregkh@suse.de>,
+       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org,
+       myles@mouselemur.cs.byu.edu
+X-OriginalArrivalTime: 29 Nov 2006 22:08:51.0929 (UTC)
+ FILETIME=[F3FD1C90:01C71402]
+X-WSS-ID: 6970DB740T01732106-11-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org] 
+Sent: Wednesday, November 29, 2006 1:53 PM
 
-From: Patrick McHardy <kaber@trash.net>
+>It has no changelog.  We're still waiting for a complete description of
+the
+>patch: why it is needed, what it does, how it does it.  Please provide
+>that.
 
-H.323 connection tracking code calls ip_ct_refresh_acct() when
-processing RCFs and URQs but passes NULL as the skb.
-When CONFIG_IP_NF_CT_ACCT is enabled, the connection tracking core tries
-to derefence the skb, which results in an obvious panic.
-A similar fix was applied on the SIP connection tracking code some time
-ago.
+-----------------
+For pci mem resource that size is bigger than 4G, the sz returned by
+pc_size will be 0.
+So that resource is skipped, and register contained hi address will be
+treated as another 32bit
+resource. We need to use sz64 and pci_sz64 for 64 bit resource for clear
+logical.
+Typical usages for this: Opteron system with co-processor and the
+co-processor could take
+more than 4G RAM as pre-fetchable mem resource.
+-----------------
 
-Signed-off-by: Faidon Liambotis <paravoid@debian.org>
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+YH
 
----
-commit 76b0c2b63fd5a2da358b36a22b7bf99298dde0b7
-tree cd96ddb4c4cd5ffb44ed5a47fa3be41267eea99a
-parent 1b9bb3c14c60324b54645ffefbe6d270f9fd191c
-author Faidon Liambotis <paravoid@debian.org> Fri, 17 Nov 2006 21:01:25 +0100
-committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 21:01:25 +0100
 
- net/ipv4/netfilter/ip_conntrack_helper_h323.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.18.4.orig/net/ipv4/netfilter/ip_conntrack_helper_h323.c
-+++ linux-2.6.18.4/net/ipv4/netfilter/ip_conntrack_helper_h323.c
-@@ -1417,7 +1417,7 @@ static int process_rcf(struct sk_buff **
- 		DEBUGP
- 		    ("ip_ct_ras: set RAS connection timeout to %u seconds\n",
- 		     info->timeout);
--		ip_ct_refresh_acct(ct, ctinfo, NULL, info->timeout * HZ);
-+		ip_ct_refresh(ct, *pskb, info->timeout * HZ);
- 
- 		/* Set expect timeout */
- 		read_lock_bh(&ip_conntrack_lock);
-@@ -1465,7 +1465,7 @@ static int process_urq(struct sk_buff **
- 	info->sig_port[!dir] = 0;
- 
- 	/* Give it 30 seconds for UCF or URJ */
--	ip_ct_refresh_acct(ct, ctinfo, NULL, 30 * HZ);
-+	ip_ct_refresh(ct, *pskb, 30 * HZ);
- 
- 	return 0;
- }
-
---

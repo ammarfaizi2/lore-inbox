@@ -1,100 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967500AbWK2SOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967505AbWK2SQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967500AbWK2SOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 13:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967499AbWK2SOI
+	id S967505AbWK2SQY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 13:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935996AbWK2SQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 13:14:08 -0500
-Received: from mga05.intel.com ([192.55.52.89]:9620 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S967500AbWK2SOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 13:14:06 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,475,1157353200"; 
-   d="scan'208"; a="170606763:sNHT18132331"
-Date: Wed, 29 Nov 2006 09:15:03 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Suresh B Siddha <suresh.b.siddha@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] x86-64: Fix the nterrupt race is in idle callback
-Message-ID: <20061129091503.A23188@unix-os.sc.intel.com>
+	Wed, 29 Nov 2006 13:16:24 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:32526 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S935979AbWK2SQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 13:16:23 -0500
+Date: Wed, 29 Nov 2006 18:16:02 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+Message-ID: <20061129181602.GD23101@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+	Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+	linux-kernel@vger.kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> <20061115232228.afaf42f2.akpm@osdl.org> <20061116123448.GA28311@flint.arm.linux.org.uk> <20061125145915.GB13089@flint.arm.linux.org.uk> <20061129074000.GA21352@flint.arm.linux.org.uk> <20061129003036.dd27f01e.akpm@osdl.org> <20061129092023.GA23101@flint.arm.linux.org.uk> <20061129013922.053482f9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061129013922.053482f9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 29, 2006 at 01:39:22AM -0800, Andrew Morton wrote:
+> On Wed, 29 Nov 2006 09:20:24 +0000
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+> > What I'm looking for is confirmation of the semantics of
+> > find_next_zero_bit()
+> 
+> What are the existing semantics?  I see no documentation in any of the
+> architectures I've looked at.  That's my point.
+> 
+> >From a quick read of fs/ext2/balloc.c
+> 
+> 	ext2_find_next_zero_bit(base, size, offset)
+> 
+> appears to expect that base is the start of the memory buffer, size is the
+> number of bits at *base and offset is the bit at which to start the search,
+> relative to base.  If a zero bit is found it will return the offset of that
+> bit relative to base.  It will return some number greater than `size' if no
+> zero-bit was found.  
 
+Thank you for taking the time to agree with my analysis of x86 and
+confirm that what ARM implements is also what is expected - that's
+all that I was after.  The reason I was after it was because you'd
+said in the message I originally replied to:
 
-Idle callbacks has some races when enter_idle() sets isidle and subsequent
-interrupts that can happen on that CPU, before CPU goes to idle. Due to this,
-an IDLE_END can get called before IDLE_START. To avoid these races, disable
-interrupts before enter_idle and make sure that all idle routines do not
-enable interrupts before entering idle.
+| yes, the `size' arg to find_next_zero_bit() represents the number of
+| bits to scan at `offset'.
 
-Note that poll_idle() still has a this race as it has to enable interrupts
-before going to idle. But, all other idle routines have the race fixed.
+which is entirely different from my understanding of what is required of
+this function.  Hence the confusion caused and the need to clear up
+that confusion.
 
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+> Whether that's how all the implementors interpreted it is anyone's guess. 
+> Presumably the architectures all do roughly the same thing.
 
-Index: linux-2.6.19-rc-mm/arch/x86_64/kernel/process.c
-===================================================================
---- linux-2.6.19-rc-mm.orig/arch/x86_64/kernel/process.c
-+++ linux-2.6.19-rc-mm/arch/x86_64/kernel/process.c
-@@ -127,6 +127,7 @@ static void default_idle(void)
-  */
- static void poll_idle (void)
- {
-+	local_irq_enable();
- 	cpu_relax();
- }
- 
-@@ -206,6 +207,12 @@ void cpu_idle (void)
- 				idle = default_idle;
- 			if (cpu_is_offline(smp_processor_id()))
- 				play_dead();
-+			/*
-+			 * Idle routines should keep interrupts disabled
-+			 * from here on, until they go to idle.
-+			 * Otherwise, idle callbacks can misfire.
-+			 */
-+			local_irq_disable();
- 			enter_idle();
- 			idle();
- 			/* In many cases the interrupt that ended idle
-@@ -243,8 +250,12 @@ void mwait_idle_with_hints(unsigned long
- /* Default MONITOR/MWAIT with no hints, used for default C1 state */
- static void mwait_idle(void)
- {
--	local_irq_enable();
--	mwait_idle_with_hints(0,0);
-+	if (!need_resched()) {
-+		__monitor((void *)&current_thread_info()->flags, 0, 0);
-+		smp_mb();
-+		if (!need_resched())
-+			__sti_mwait(0, 0);
-+	}
- }
- 
- void __cpuinit select_idle_routine(const struct cpuinfo_x86 *c)
-Index: linux-2.6.19-rc-mm/include/asm-x86_64/processor.h
-===================================================================
---- linux-2.6.19-rc-mm.orig/include/asm-x86_64/processor.h
-+++ linux-2.6.19-rc-mm/include/asm-x86_64/processor.h
-@@ -475,6 +475,14 @@ static inline void __mwait(unsigned long
- 		: :"a" (eax), "c" (ecx));
- }
- 
-+static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
-+{
-+	/* "mwait %eax,%ecx;" */
-+	asm volatile(
-+		"sti; .byte 0x0f,0x01,0xc9;"
-+		: :"a" (eax), "c" (ecx));
-+}
-+
- extern void mwait_idle_with_hints(unsigned long eax, unsigned long ecx);
- 
- #define stack_current() \
+ARM does exactly the same as x86, since x86 was the only architecture
+which existed in Linux when it was originally implemented.
+
+> > <extremely frustrated>
+> 
+> Well likewise.  It appears that nobody (and about 20 people have
+> implemented these things) could be bothered getting off ass and
+> documenting the pathetic thing.
+
+Back in those days it very much was "read the source, luke" and when
+porting the kernel that meant the x86 code.  Consider the lack of
+documentation a case of just following the agreed convention at the
+time.
+
+We've since now moved on to a more mature attitude towards documentation,
+and decided upon a format that it should take.  So yes, it would be nice
+if someone would document the entire set of kernel functions which
+architectures are expected to provide.  That'll probably be a full time
+job for someone though, and probably needs someone to be paid to do it.
+Or are the janitor folks up for it?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

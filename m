@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758043AbWK2Vjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758148AbWK2Vrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758043AbWK2Vjj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 16:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758148AbWK2Vjj
+	id S1758148AbWK2Vrq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 16:47:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758150AbWK2Vrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 16:39:39 -0500
-Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:23413 "EHLO
-	outbound1-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1758043AbWK2Vji convert rfc822-to-8bit (ORCPT
+	Wed, 29 Nov 2006 16:47:46 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:45788 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1758148AbWK2Vrp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 16:39:38 -0500
-X-BigFish: VP
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: PCI: check szhi when sz is 0 when 64 bit iomem bigger than
- 4G
-Date: Wed, 29 Nov 2006 13:33:12 -0800
-Message-ID: <5986589C150B2F49A46483AC44C7BCA4907252@ssvlexmb2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI: check szhi when sz is 0 when 64 bit iomem bigger than
- 4G
-Thread-Index: AccO4SAFWab2XS9TQiKqPnncj84GNAFHDazA
-From: "Lu, Yinghai" <yinghai.lu@amd.com>
-To: "Greg KH" <greg@kroah.com>
-cc: "Andrew Morton" <akpm@osdl.org>, "Greg KH" <gregkh@suse.de>,
-       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org,
-       myles@mouselemur.cs.byu.edu
-X-OriginalArrivalTime: 29 Nov 2006 21:33:13.0980 (UTC)
- FILETIME=[F9ABFBC0:01C713FD]
-X-WSS-ID: 697323131WC1736801-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	Wed, 29 Nov 2006 16:47:45 -0500
+Date: Wed, 29 Nov 2006 22:47:36 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: mass-storage problems with Archos AV500
+Message-ID: <20061129214736.GU14886@vasa.acc.umu.se>
+Mail-Followup-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
+I've got an Archos AV500 here (running the very latest firmware), pretty
+much acting as a doorstop, since I cannot get it to be recognized
+properly by Linux.
 
->Can you please send me the latest version of this patch, due to all of
->the different changes that it has gone through, I'm a bit confused...
+This device has two modes, and one usb-id for each:
 
-Please check 
+Windows device mode:
+0e79:1129
 
-http://lkml.org/lkml/2006/11/24/160
+mass storage mode:
+0e79:1128
 
-for updated version by Andrew.
+I didn't really expect any luck with the former (and didn't have any
+either), but I was kind of hoping that the latter would be supported.
+Not so.
 
-YH
+Relevant info from dmesg:
+
+[  112.904000] usb 5-5: new high speed USB device using ehci_hcd and
+address 4
+[  113.036000] usb 5-5: configuration #1 chosen from 1 choice
+[  113.124000] usbcore: registered new interface driver libusual
+[  113.140000] Initializing USB Mass Storage driver...
+[  113.140000] scsi4 : SCSI emulation for USB Mass Storage devices
+[  113.140000] usb-storage: device found at 4
+[  113.140000] usb-storage: waiting for device to settle before scanning
+[  113.140000] usbcore: registered new interface driver usb-storage
+[  113.140000] USB Mass Storage support registered.
+[  118.140000] scsi 4:0:0:0: Direct-Access     Archos   AV500
+0000 PQ: 0 ANSI: 4
+[  118.140000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
+MB)
+[  118.144000] sdb: Write Protect is off
+[  118.144000] sdb: Mode Sense: 33 00 00 00
+[  118.144000] sdb: assuming drive cache: write through
+[  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
+MB)
+[  118.144000] sdb: Write Protect is off
+[  118.144000] sdb: Mode Sense: 33 00 00 00
+[  118.144000] sdb: assuming drive cache: write through
+[  118.144000]  sdb: unknown partition table
+[  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
+[  118.452000] usb-storage: device scan complete
+
+This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
+I get similar results with a home-brew 2.6.18-rc4.
+
+Any mass storage quirk needed that might be missing?
 
 
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

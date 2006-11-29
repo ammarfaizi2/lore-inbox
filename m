@@ -1,52 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967588AbWK2Tfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967591AbWK2Tny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967588AbWK2Tfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 14:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967591AbWK2Tfa
+	id S967591AbWK2Tny (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 14:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967594AbWK2Tny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 14:35:30 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:29960 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S967588AbWK2Tf3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 14:35:29 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: sjhill@realitydiluted.com
-Subject: [PATCH] mtd rtc_from4 brace fix
-Date: Wed, 29 Nov 2006 20:34:58 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 14:43:54 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:27266 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S967591AbWK2Tnx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 14:43:53 -0500
+Date: Wed, 29 Nov 2006 19:43:46 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mips tx4927 missing brace fix
+Message-ID: <20061129194346.GA20892@linux-mips.org>
+References: <200611292030.36170.m.kozlowski@tuxland.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611292034.58566.m.kozlowski@tuxland.pl>
+In-Reply-To: <200611292030.36170.m.kozlowski@tuxland.pl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Nov 29, 2006 at 08:30:35PM +0100, Mariusz Kozlowski wrote:
 
-	Remove extra brace at the end of if (...
+> 	This patch adds missing brace at the end of toshiba_rbtx4927_irq_isa_init().
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Thanks Mariusz!  Applied,
 
- drivers/mtd/nand/rtc_from4.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.19-rc6-mm2-a/drivers/mtd/nand/rtc_from4.c	2006-11-28 12:16:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/drivers/mtd/nand/rtc_from4.c	2006-11-29 16:37:33.000000000 +0100
-@@ -456,7 +456,7 @@ static int rtc_from4_errstat(struct mtd_
- 		rtn = nand_do_read(mtd, page, len, &retlen, buf);
- 
- 		/* if read failed or > 1-bit error corrected */
--		if (rtn || (mtd->ecc_stats.corrected - corrected) > 1) {
-+		if (rtn || (mtd->ecc_stats.corrected - corrected) > 1)
- 			er_stat |= 1 << 1;
- 		kfree(buf);
- 	}
-
-
--- 
-Regards,
-
-	Mariusz Kozlowski
+  Ralf

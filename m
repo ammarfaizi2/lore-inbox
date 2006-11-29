@@ -1,83 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758148AbWK2Vrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758154AbWK2VxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758148AbWK2Vrq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 16:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758150AbWK2Vrq
+	id S1758154AbWK2VxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 16:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758155AbWK2VxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 16:47:46 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:45788 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1758148AbWK2Vrp (ORCPT
+	Wed, 29 Nov 2006 16:53:22 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:12476 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1758154AbWK2VxV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 16:47:45 -0500
-Date: Wed, 29 Nov 2006 22:47:36 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: mass-storage problems with Archos AV500
-Message-ID: <20061129214736.GU14886@vasa.acc.umu.se>
-Mail-Followup-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 29 Nov 2006 16:53:21 -0500
+Date: Wed, 29 Nov 2006 13:53:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: "Greg KH" <greg@kroah.com>, "Greg KH" <gregkh@suse.de>,
+       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org,
+       myles@mouselemur.cs.byu.edu
+Subject: Re: PCI: check szhi when sz is 0 when 64 bit iomem bigger than 4G
+Message-Id: <20061129135310.10f1b041.akpm@osdl.org>
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907252@ssvlexmb2.amd.com>
+References: <5986589C150B2F49A46483AC44C7BCA4907252@ssvlexmb2.amd.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an Archos AV500 here (running the very latest firmware), pretty
-much acting as a doorstop, since I cannot get it to be recognized
-properly by Linux.
+On Wed, 29 Nov 2006 13:33:12 -0800
+"Lu, Yinghai" <yinghai.lu@amd.com> wrote:
 
-This device has two modes, and one usb-id for each:
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com] 
+> 
+> >Can you please send me the latest version of this patch, due to all of
+> >the different changes that it has gone through, I'm a bit confused...
+> 
+> Please check 
+> 
+> http://lkml.org/lkml/2006/11/24/160
+> 
+> for updated version by Andrew.
+> 
 
-Windows device mode:
-0e79:1129
+This patch has been lost altogether - Greg dropped the base patch so I
+dropped the three fixes.
 
-mass storage mode:
-0e79:1128
+Here it is, all put back together again, against Greg's tree.
 
-I didn't really expect any luck with the former (and didn't have any
-either), but I was kind of hoping that the latter would be supported.
-Not so.
-
-Relevant info from dmesg:
-
-[  112.904000] usb 5-5: new high speed USB device using ehci_hcd and
-address 4
-[  113.036000] usb 5-5: configuration #1 chosen from 1 choice
-[  113.124000] usbcore: registered new interface driver libusual
-[  113.140000] Initializing USB Mass Storage driver...
-[  113.140000] scsi4 : SCSI emulation for USB Mass Storage devices
-[  113.140000] usb-storage: device found at 4
-[  113.140000] usb-storage: waiting for device to settle before scanning
-[  113.140000] usbcore: registered new interface driver usb-storage
-[  113.140000] USB Mass Storage support registered.
-[  118.140000] scsi 4:0:0:0: Direct-Access     Archos   AV500
-0000 PQ: 0 ANSI: 4
-[  118.140000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
-MB)
-[  118.144000] sdb: Write Protect is off
-[  118.144000] sdb: Mode Sense: 33 00 00 00
-[  118.144000] sdb: assuming drive cache: write through
-[  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
-MB)
-[  118.144000] sdb: Write Protect is off
-[  118.144000] sdb: Mode Sense: 33 00 00 00
-[  118.144000] sdb: assuming drive cache: write through
-[  118.144000]  sdb: unknown partition table
-[  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
-[  118.452000] usb-storage: device scan complete
-
-This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
-I get similar results with a home-brew 2.6.18-rc4.
-
-Any mass storage quirk needed that might be missing?
+It has no changelog.  We're still waiting for a complete description of the
+patch: why it is needed, what it does, how it does it.  Please provide
+that.
 
 
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+ drivers/pci/probe.c |   69 ++++++++++++++++++++++++++++++++++--------
+ 1 files changed, 56 insertions(+), 13 deletions(-)
+
+diff -puN drivers/pci/probe.c~gregkh-pci-pci-check-szhi-when-sz-is-0-when-64-bit-iomem-bigger-than-4g drivers/pci/probe.c
+--- a/drivers/pci/probe.c~gregkh-pci-pci-check-szhi-when-sz-is-0-when-64-bit-iomem-bigger-than-4g
++++ a/drivers/pci/probe.c
+@@ -144,6 +144,32 @@ static u32 pci_size(u32 base, u32 maxbas
+ 	return size;
+ }
+ 
++static u64 pci_size64(u64 base, u64 maxbase, u64 mask)
++{
++	u64 size = mask & maxbase;	/* Find the significant bits */
++	if (!size)
++		return 0;
++
++	/* Get the lowest of them to find the decode size, and
++	   from that the extent.  */
++	size = (size & ~(size-1)) - 1;
++
++	/* base == maxbase can be valid only if the BAR has
++	   already been programmed with all 1s.  */
++	if (base == maxbase && ((base | size) & mask) != mask)
++		return 0;
++
++	return size;
++}
++
++static inline int is_64bit_memory(u32 mask)
++{
++	if ((mask & (PCI_BASE_ADDRESS_SPACE|PCI_BASE_ADDRESS_MEM_TYPE_MASK)) ==
++	    (PCI_BASE_ADDRESS_SPACE_MEMORY|PCI_BASE_ADDRESS_MEM_TYPE_64))
++		return 1;
++	return 0;
++}
++
+ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
+ {
+ 	unsigned int pos, reg, next;
+@@ -151,6 +177,10 @@ static void pci_read_bases(struct pci_de
+ 	struct resource *res;
+ 
+ 	for(pos=0; pos<howmany; pos = next) {
++		u64 l64;
++		u64 sz64;
++		u32 raw_sz;
++
+ 		next = pos+1;
+ 		res = &dev->resource[pos];
+ 		res->name = pci_name(dev);
+@@ -163,9 +193,16 @@ static void pci_read_bases(struct pci_de
+ 			continue;
+ 		if (l == 0xffffffff)
+ 			l = 0;
+-		if ((l & PCI_BASE_ADDRESS_SPACE) == PCI_BASE_ADDRESS_SPACE_MEMORY) {
++		raw_sz = sz;
++		if ((l & PCI_BASE_ADDRESS_SPACE) ==
++				PCI_BASE_ADDRESS_SPACE_MEMORY) {
+ 			sz = pci_size(l, sz, (u32)PCI_BASE_ADDRESS_MEM_MASK);
+-			if (!sz)
++			/*
++			 * For 64bit prefetchable memory sz could be 0, if the
++			 * real size is bigger than 4G, so we need to check
++			 * szhi for that.
++			 */
++			if (!is_64bit_memory(l) && !sz)
+ 				continue;
+ 			res->start = l & PCI_BASE_ADDRESS_MEM_MASK;
+ 			res->flags |= l & ~PCI_BASE_ADDRESS_MEM_MASK;
+@@ -178,30 +215,36 @@ static void pci_read_bases(struct pci_de
+ 		}
+ 		res->end = res->start + (unsigned long) sz;
+ 		res->flags |= pci_calc_resource_flags(l);
+-		if ((l & (PCI_BASE_ADDRESS_SPACE | PCI_BASE_ADDRESS_MEM_TYPE_MASK))
+-		    == (PCI_BASE_ADDRESS_SPACE_MEMORY | PCI_BASE_ADDRESS_MEM_TYPE_64)) {
++		if (is_64bit_memory(l)) {
+ 			u32 szhi, lhi;
++
+ 			pci_read_config_dword(dev, reg+4, &lhi);
+ 			pci_write_config_dword(dev, reg+4, ~0);
+ 			pci_read_config_dword(dev, reg+4, &szhi);
+ 			pci_write_config_dword(dev, reg+4, lhi);
+-			szhi = pci_size(lhi, szhi, 0xffffffff);
++			sz64 = ((u64)szhi << 32) | raw_sz;
++			l64 = ((u64)lhi << 32) | l;
++			sz64 = pci_size64(l64, sz64, PCI_BASE_ADDRESS_MEM_MASK);
+ 			next++;
+ #if BITS_PER_LONG == 64
+-			res->start |= ((unsigned long) lhi) << 32;
+-			res->end = res->start + sz;
+-			if (szhi) {
+-				/* This BAR needs > 4GB?  Wow. */
+-				res->end |= (unsigned long)szhi<<32;
++			if (!sz64) {
++				res->start = 0;
++				res->end = 0;
++				res->flags = 0;
++				continue;
+ 			}
++			res->start = l64 & PCI_BASE_ADDRESS_MEM_MASK;
++			res->end = res->start + sz64;
+ #else
+-			if (szhi) {
+-				printk(KERN_ERR "PCI: Unable to handle 64-bit BAR for device %s\n", pci_name(dev));
++			if (sz64 > 0x100000000ULL) {
++				printk(KERN_ERR "PCI: Unable to handle 64-bit "
++					"BAR for device %s\n", pci_name(dev));
+ 				res->start = 0;
+ 				res->flags = 0;
+ 			} else if (lhi) {
+ 				/* 64-bit wide address, treat as disabled */
+-				pci_write_config_dword(dev, reg, l & ~(u32)PCI_BASE_ADDRESS_MEM_MASK);
++				pci_write_config_dword(dev, reg,
++					l & ~(u32)PCI_BASE_ADDRESS_MEM_MASK);
+ 				pci_write_config_dword(dev, reg+4, 0);
+ 				res->start = 0;
+ 				res->end = sz;
+_
+

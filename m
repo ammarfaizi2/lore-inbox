@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967470AbWK2Qe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934968AbWK2Qhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967470AbWK2Qe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 11:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967472AbWK2Qe5
+	id S934968AbWK2Qhh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 11:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935846AbWK2Qhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 11:34:57 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25279 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S967470AbWK2Qe5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 11:34:57 -0500
-Date: Wed, 29 Nov 2006 16:41:30 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH -mm] char: drivers use/need PCI
-Message-ID: <20061129164130.2789bb84@localhost.localdomain>
-In-Reply-To: <456DB524.8000008@gmail.com>
-References: <20061128211203.fa197b15.randy.dunlap@oracle.com>
-	<456D4033.5000202@gmail.com>
-	<456DB203.1090108@oracle.com>
-	<456DB524.8000008@gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Nov 2006 11:37:37 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:25321 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S934968AbWK2Qhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 11:37:36 -0500
+From: Andi Kleen <ak@suse.de>
+To: eranian@hpl.hp.com
+Subject: Re: [PATCH] i386 add idle notifier
+Date: Wed, 29 Nov 2006 17:37:31 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20061129162540.GL28007@frankl.hpl.hp.com>
+In-Reply-To: <20061129162540.GL28007@frankl.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611291737.31827.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But those drivers support ISA devices too. Ok then, let "&& PCI" be as a correct
-> temporary way and I'll add "|| ISA" after the proposed code fix :).
+On Wednesday 29 November 2006 17:25, Stephane Eranian wrote:
+> Hello,
+> 
+> Here is a patch that adds an idle notifier to the i386 tree.
+> The idle notifier functionalities and implementation are
+> identical to the x86_64 idle notifier. We use the idle notifier
+> in the context of perfmon.
+> 
+> The patch is against Andi Kleen's x86_64-2.6.19-rc6-061128-1.bz2
+> kernel. It may apply to other kernels but it needs some updates
+> to poll_idle() and default_idle() to work correctly.
 
-That stops it being built on some platforms that have ISA and not PCI.
-Seems a poor fix for what really is a couple of ifdefs
+Added thanks
+
+-Andi

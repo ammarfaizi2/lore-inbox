@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967471AbWK2ROa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967481AbWK2RPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967471AbWK2ROa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 12:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967482AbWK2ROa
+	id S967481AbWK2RPl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 12:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967486AbWK2RPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 12:14:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:1940 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S967471AbWK2RO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 12:14:29 -0500
-Subject: Re: [PATCH] UBI
-From: David Woodhouse <dwmw2@infradead.org>
-To: dedekind@infradead.org
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, haver@vnet.ibm.com,
-       Josh Boyer <jwboyer@linux.vnet.ibm.com>, arnez@vnet.ibm.com,
-       linux-mtd@mgw-ext13.nokia.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1164819769.576.53.camel@sauron>
-References: <1164819769.576.53.camel@sauron>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 17:12:23 +0000
-Message-Id: <1164820343.14595.104.camel@pmac.infradead.org>
+	Wed, 29 Nov 2006 12:15:41 -0500
+Received: from mgw-ext13.nokia.com ([131.228.20.172]:6287 "EHLO
+	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP id S967481AbWK2RPk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 12:15:40 -0500
+Subject: [PATCH] UBI
+From: Artem Bityutskiy <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, tglx@linutronix.de,
+       haver@vnet.ibm.com, Josh Boyer <jwboyer@linux.vnet.ibm.com>,
+       arnez@vnet.ibm.com, linux-mtd@mgw-ext13.nokia.com,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 29 Nov 2006 19:02:49 +0200
+Message-Id: <1164819769.576.53.camel@sauron>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 29 Nov 2006 17:02:49.0821 (UTC) FILETIME=[3351C8D0:01C713D8]
+X-eXpurgate-Category: 1/0
+X-eXpurgate-ID: 149371::061129190257-0C1B0BB0-64155D47/0-0/0-1
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-29 at 19:02 +0200, Artem Bityutskiy wrote:
-> Hello Andrew,
-> 
-> we have announced UBI several months ago in the MTD mailing list. It was
-> successfully used in our setup and we've got positive feedback.
-> 
-> In short, it is kind of LVM layer but for flash (MTD) devices which
-> hides flash devices complexities like bad eraseblocks (on NANDs) and
-> wear. The documentation is available at the MTD web site:
-> http://www.linux-mtd.infradead.org/doc/ubi.html
-> http://www.linux-mtd.infradead.org/faq/ubi.html
-> 
-> The source code is available at the UBI GIT tree:
-> git://git.infradead.org/home/dedekind/ubi-2.6.git
+Hello Andrew,
 
-Make that git://git.infradead.org/~dedekind/ubi-2.6.git
-or http://git.infradead.org/?p=users/dedekind/ubi-2.6.git
+we have announced UBI several months ago in the MTD mailing list. It was
+successfully used in our setup and we've got positive feedback.
 
-And it would be helpful (at least to me) if you'd keep an 'mtd' or
-'linus' branch in your tree, which shows the point at which you last
-pulled from your upstream tree(s). That way, 'git-diff mtd..' or
-'gitk mtd..' work.
+In short, it is kind of LVM layer but for flash (MTD) devices which
+hides flash devices complexities like bad eraseblocks (on NANDs) and
+wear. The documentation is available at the MTD web site:
+http://www.linux-mtd.infradead.org/doc/ubi.html
+http://www.linux-mtd.infradead.org/faq/ubi.html
+
+The source code is available at the UBI GIT tree:
+git://git.infradead.org/home/dedekind/ubi-2.6.git
+
+The UBI GIT tree is based upon the mtd-2.6.git
+(git://git.infradead.org/mtd-2.6.git)
+
+Plain patches may be found at
+http://linux-mtd.infradead.org/~dedekind/ubi/
+
+Please, include the patches to your tree.
 
 -- 
-dwmw2
+Best regards,
+Artem Bityutskiy (Битюцкий Артём)
 

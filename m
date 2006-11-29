@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935587AbWK2Noq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967147AbWK2NuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935587AbWK2Noq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 08:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935588AbWK2Noq
+	id S967147AbWK2NuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 08:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935596AbWK2NuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 08:44:46 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:9187 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S935587AbWK2Nop (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 08:44:45 -0500
-Date: Wed, 29 Nov 2006 14:43:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc6-rt8: alsa xruns
-Message-ID: <20061129134311.GA14566@elte.hu>
-References: <1164743931.15887.34.camel@cmn3.stanford.edu> <20061128200927.GA26934@elte.hu> <1164746224.15887.40.camel@cmn3.stanford.edu> <1164747854.15887.48.camel@cmn3.stanford.edu>
+	Wed, 29 Nov 2006 08:50:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:27335 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S935588AbWK2NuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 08:50:19 -0500
+Date: Wed, 29 Nov 2006 13:50:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: S?bastien Dugu? <sebastien.dugue@bull.net>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Zach Brown <zach.brown@oracle.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Subject: Re: [PATCH -mm 4/5][AIO] - AIO completion signal notification
+Message-ID: <20061129135012.GA24006@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	S?bastien Dugu? <sebastien.dugue@bull.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Zach Brown <zach.brown@oracle.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Jean Pierre Dion <jean-pierre.dion@bull.net>
+References: <20061129112441.745351c9@frecb000686> <20061129113301.74a66c91@frecb000686> <20061129105150.GB1773@infradead.org> <20061129140801.1a509e37@frecb000686>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1164747854.15887.48.camel@cmn3.stanford.edu>
+In-Reply-To: <20061129140801.1a509e37@frecb000686>
 User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -4.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.4 AWL                    AWL: From: address is in the auto white-list
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 29, 2006 at 02:08:01PM +0100, S?bastien Dugu? wrote:
+> On Wed, 29 Nov 2006 10:51:50 +0000, Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > I'm a little bit unhappy about the usage of the notify flag.  The usage
+> > seems correct but very confusing:
+> 
+>   Well, I followed the logic from posix-timers.c, but it may be a poor
+> choice ;-)
+> 
+>   For a start, the SIGEV_* flags are quite confusing (for me at least).
+> SIGEV_SIGNAL is defined as 0, SIGEV_NONE as 1 and SIGEV_THREAD_ID as 4. I
+> would rather have seen SIGEV_NONE defined as 0 to avoid all this.
+> 
+>   I also wish I knew why those SIGEV_* constants were defined that way.
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+Ah, I missed that.  It explains some of the more wierd bits.  I suspect
+we should then use != SIGEV_NONE for the any kind of signal notification
+bit and == SIGEV_THREAD_ID for the case where we want to deliver to
+a particular thread.
 
-> > > > (            japa-4096 |#0): new 17 us maximum-latency wakeup.
-> > > > (         beagled-3412 |#1): new 19 us maximum-latency wakeup.
-> > > > (          IRQ 18-1081 |#1): new 26 us maximum-latency wakeup.
-> > > > (             snd-4040 |#1): new 1107 us maximum-latency wakeup.
-> > > > (            japa-4096 |#0): new 1445 us maximum-latency wakeup.
-> > > > (            japa-4096 |#0): new 2110 us maximum-latency wakeup.
-> > > > (        qjackctl-4038 |#1): new 2328 us maximum-latency wakeup.
-> > > > (            japa-4096 |#0): new 2548 us maximum-latency wakeup.
-> > > > (          IRQ 18-1081 |#0): new 10291 us maximum-latency wakeup.
+But this means we only get a thread reference for SIGEV_THREAD_ID
+here:
 
-ok, i reproduced something similar on one of my boxes and it turned out 
-to be a tracer bug. I've uploaded -rt10, could you try it? (The xruns 
-will likely remain, but at least the tracer should be more usable now to 
-find out the reason for the xruns.)
+> > > +	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
+> > > +		/*
+> > > +		 * This reference will be dropped in really_put_req() when
+> > > +		 * we're done with the request.
+> > > +		 */
+> > > +		get_task_struct(target);
+> > > +	}
 
-	Ingo
+But even use it for SIGEV_SIGNAL without SIGEV_THREAD_ID here:
+
+> > > +	if (notify->notify & SIGEV_THREAD_ID)
+> > > +		ret = send_sigqueue(notify->signo, sigq, notify->target);
+> > > +	else
+> > > +		ret = send_group_sigqueue(notify->signo, sigq, notify->target);
+
+Or do I miss something?

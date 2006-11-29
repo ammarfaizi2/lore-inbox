@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966439AbWK2JR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966547AbWK2JUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966439AbWK2JR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966464AbWK2JR1
+	id S966547AbWK2JUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966585AbWK2JUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:17:27 -0500
-Received: from wx-out-0506.google.com ([66.249.82.224]:21850 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S966439AbWK2JR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:17:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KKShFXk0eUtPY3N6rzS4FAe/PQHM0WcYvrIEM1NCk9HlHQ53Dbr672XRFnzuvMvoBQ+8SRsO21wIBzq7kQjuZIZ3dI0eXwDKwIPBFsOoRMDI8iPAzcW+uVS3fHi9yavR3CzEMMC1PFAf/kZqqNqdju2UQ1gxwceYNSuN5dA2PZQ=
-Message-ID: <9a8748490611290117oc0ba880v1a6407bc4f41088f@mail.gmail.com>
-Date: Wed, 29 Nov 2006 10:17:25 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "David Chinner" <dgc@sgi.com>
-Subject: Re: XFS internal error xfs_trans_cancel at line 1138 of file fs/xfs/xfs_trans.c (kernel 2.6.18.1)
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com, xfs-masters@oss.sgi.com, "Keith Owens" <kaos@sgi.com>
-In-Reply-To: <20061129013214.GH44411608@melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 04:20:43 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:50194 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S966539AbWK2JUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 04:20:41 -0500
+Date: Wed, 29 Nov 2006 09:20:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org,
+       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+Subject: Re: Boot failure with ext2 and initrds
+Message-ID: <20061129092023.GA23101@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+	Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
+	linux-kernel@vger.kernel.org,
+	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
+References: <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com> <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> <20061115232228.afaf42f2.akpm@osdl.org> <20061116123448.GA28311@flint.arm.linux.org.uk> <20061125145915.GB13089@flint.arm.linux.org.uk> <20061129074000.GA21352@flint.arm.linux.org.uk> <20061129003036.dd27f01e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490611280749k5c97d21bx2e499d2209d27dfe@mail.gmail.com>
-	 <20061129013214.GH44411608@melbourne.sgi.com>
+In-Reply-To: <20061129003036.dd27f01e.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29/11/06, David Chinner <dgc@sgi.com> wrote:
-> On Tue, Nov 28, 2006 at 04:49:00PM +0100, Jesper Juhl wrote:
-> > Hi,
-> >
-> > One of my NFS servers just gave me a nasty surprise that I think it is
-> > relevant to tell you about:
->
-> Thanks, Jesper.
->
-> > Filesystem "dm-1": XFS internal error xfs_trans_cancel at line 1138 of
-> > file fs/xfs/xfs_trans.c.  Caller 0xffffffff8034b47e
-> >
-> > Call Trace:
-> > [<ffffffff8020b122>] show_trace+0xb2/0x380
-> > [<ffffffff8020b405>] dump_stack+0x15/0x20
-> > [<ffffffff80327b4c>] xfs_error_report+0x3c/0x50
-> > [<ffffffff803435ae>] xfs_trans_cancel+0x6e/0x130
-> > [<ffffffff8034b47e>] xfs_create+0x5ee/0x6a0
-> > [<ffffffff80356556>] xfs_vn_mknod+0x156/0x2e0
-> > [<ffffffff803566eb>] xfs_vn_create+0xb/0x10
-> > [<ffffffff80284b2c>] vfs_create+0x8c/0xd0
-> > [<ffffffff802e734a>] nfsd_create_v3+0x31a/0x560
-> > [<ffffffff802ec838>] nfsd3_proc_create+0x148/0x170
-> > [<ffffffff802e19f9>] nfsd_dispatch+0xf9/0x1e0
-> > [<ffffffff8049d617>] svc_process+0x437/0x6e0
-> > [<ffffffff802e176d>] nfsd+0x1cd/0x360
-> > [<ffffffff8020ab1c>] child_rip+0xa/0x12
-> > xfs_force_shutdown(dm-1,0x8) called from line 1139 of file
-> > fs/xfs/xfs_trans.c.  Return address = 0xffffffff80359daa
->
-> We shut down the filesystem because we cancelled a dirty transaction.
-> Once we start to dirty the incore objects, we can't roll back to
-> an unchanged state if a subsequent fatal error occurs during the
-> transaction and we have to abort it.
->
-So you are saying that there's nothing I can do to prevent this from
-happening in the future?
+On Wed, Nov 29, 2006 at 12:30:36AM -0800, Andrew Morton wrote:
+> On Wed, 29 Nov 2006 07:40:00 +0000
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+> > Yet another attempt to get a response from Andrew.  It is rather
+> > important that you DO respond to this.
+> 
+> You can read the code as easily as I can?
 
-> If I understand historic occurrences of this correctly, there is
-> a possibility that it can be triggered in ENOMEM situations. Was your
-> machine running out of memoy when this occurred?
->
-Not really. I just checked my monitoring software and, at the time
-this happened, the box had ~5.9G RAM free (of 8G total) and no swap
-used (but 11G available).
+Sigh.  Please don't cut the relevant part of my _first_ email message
+where it can be clearly seen that I _have_ read the code and interpreted
+it _differently_ from you.
 
+> I'm not really sure what you're asking - I thought Mingming cleared
+> things up.
 
-> > Filesystem "dm-1": Corruption of in-memory data detected.  Shutting
-> > down filesystem: dm-1
-> > Please umount the filesystem, and rectify the problem(s)
-> > nfsd: non-standard errno: 5
->
-> EIO gets returned in certain locations once the filesystem has
-> been shutdown.
->
-Makes sense.
+Which message did this happen?
 
+What I'm looking for is confirmation of the semantics of
+find_next_zero_bit(), which is a fairly simple question to ask, and
+certainly does not justify this rather obtuse and difficult thread.
 
-> > I unmounted the filesystem, ran xfs_repair which told me to try an
-> > mount it first to replay the log, so I did, unmounted it again, ran
-> > xfs_repair (which didn't find any problems) and finally mounted it and
-> > everything is good - the filesystem seems intact.
->
-> Yeah, the above error report typically is due to an in-memory
-> problem, not an on disk issue.
->
-Good to know.
-
-
-> > The server in question is running kernel 2.6.18.1
->
-> Can happen to XFS on any kernel version - got a report of this from
-> someone running a 2.4 kernel a couple of weeks ago....
->
-
-Ok.  Thank you for your reply David.
+<extremely frustrated>
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

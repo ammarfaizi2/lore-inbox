@@ -1,120 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934422AbWK2L37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934034AbWK2Lad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934422AbWK2L37 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 06:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934180AbWK2L37
+	id S934034AbWK2Lad (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 06:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935031AbWK2Lac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 06:29:59 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:52106 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1757680AbWK2L36 (ORCPT
+	Wed, 29 Nov 2006 06:30:32 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:49546 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S934034AbWK2La2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 06:29:58 -0500
-Message-ID: <364799788.33437@ustc.edu.cn>
+	Wed, 29 Nov 2006 06:30:28 -0500
+Message-ID: <364799787.25059@ustc.edu.cn>
 X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Message-Id: <20061129112948.946621000@intel.ustc.edu.cn>
-References: <20061129111416.430835000@intel.ustc.edu.cn>
+Message-Id: <20061129111416.430835000@intel.ustc.edu.cn>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 19:14:18 +0800
+Date: Wed, 29 Nov 2006 19:14:16 +0800
 From: Fengguang Wu <wfg@mail.ustc.edu.cn>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-Subject: [patch 2/2] readahead nfsd case: fix uninitialized ra_min/ra_max
-Content-Disposition: inline; filename=readahead-nfsd-case-fix-uninitialized-ra_min-ra_max.patch
+Subject: [patch 0/2] adaptive readahead fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ra_min/ra_max are not initialized, fix it.
+Andrew,
 
-New benchmark numbers on
+Here are two bug fix patches against -mm, with their recommended placement:
 
-	hda: ST3250820A, ATA DISK drive
-	hda: max request size: 512KiB
-	hda: 488397168 sectors (250059 MB) w/8192KiB Cache, CHS=30401/255/63, UDMA(100)
 
-with nfs mount
-	mount -o tcp,rsize=$((rsize<<10)) localhost:$EXPORT $MNT
+ readahead-events-accounting.patch
+ readahead-rescue_pages.patch
+ readahead-sysctl-parameters.patch
++readahead-sysctl-parameters-fix.patch
+ readahead-min-max-sizes.patch
+ readahead-state-based-method-aging-accounting.patch
+ readahead-state-based-method-routines.patch
 
-   rsize      stock  adaptive
-   ==================================
-f
-      8k       3.07    2.51    -18.2%
-     32k       2.40    2.17     -9.6%
-    128k       2.40    2.35     -2.1%
-ff
-      8k      12.44    6.40    -48.6%
-     32k      14.62    5.46    -62.7%
-    128k      15.79    5.19    -67.1%
-d
-      8k       2.84    2.48    -12.7%
-     32k       2.53    1.99    -21.3%
-    128k       2.18    2.00     -8.3%
-dd
-      8k       8.16    7.99     -2.1%
-     32k       8.27    6.88    -16.8%
-    128k       7.75    6.97    -10.1%
+ readahead-loop-case.patch
+ readahead-nfsd-case.patch
+ readahead-nfsd-case-fix.patch
++readahead-nfsd-case-fix-uninitialized-ra_min-ra_max.patch
+ readahead-turn-on-by-default.patch
+ readahead-remove-size-limit-on-read_ahead_kb.patch
+ readahead-remove-size-limit-of-max_sectors_kb-on-read_ahead_kb.patch
 
-The 4 patterns tested are:
-	 f: single file read
-	ff: double file parallel read
-	 d: single dir read
-	dd: double dir parallel read
 
-Signed-off-by: Fengguang Wu <wfg@mail.ustc.edu.cn>
----
+readahead-sysctl-parameters-fix.patch
+=====================================
 
---- linux-2.6.19-rc6-mm1.orig/mm/readahead.c
-+++ linux-2.6.19-rc6-mm1/mm/readahead.c
-@@ -1616,6 +1616,10 @@ page_cache_readahead_adaptive(struct add
- 	unsigned long ra_max;
- 	int ret;
- 
-+	/* no read-ahead */
-+	if (!ra->ra_pages)
-+		return 0;
-+
- 	if (page) {
- 		ClearPageReadahead(page);
- 
-@@ -1635,9 +1639,6 @@ page_cache_readahead_adaptive(struct add
- 						offset + LAPTOP_POLL_INTERVAL))
- 				return 0;
- 		}
--	} else if (ra->flags & RA_FLAG_NFSD) { /* nfsd read */
--		ra_size = max_sane_readahead(req_size);
--		goto readit;
- 	}
- 
- 	if (page)
-@@ -1647,11 +1648,13 @@ page_cache_readahead_adaptive(struct add
- 
- 	get_readahead_bounds(ra, &ra_min, &ra_max);
- 
--	/* read-ahead disabled? */
--	if (unlikely(!ra_max || !readahead_ratio)) {
--		ra_size = max_sane_readahead(req_size);
-+	/* read as is */
-+	if (!readahead_ratio)
-+		goto readit;
-+
-+	/* nfsd read */
-+	if (!page && (ra->flags & RA_FLAG_NFSD))
- 		goto readit;
--	}
- 
- 	/*
- 	 * Start of file.
-@@ -1698,11 +1701,11 @@ page_cache_readahead_adaptive(struct add
- 		return 0;
- 	}
- 
-+readit:
- 	/*
- 	 * Random read.
- 	 */
- 	ra_size = min(req_size, ra_max);
--readit:
- 	ra_size = __do_page_cache_readahead(mapping, filp, offset, ra_size, 0);
- 
- 	ra_account(ra, RA_EVENT_RANDOM_READ, ra_size);
+Two trivial fixes.
+// Was three, but you were so swift on CTL_UNNUMBERED :-)
 
---
+
+readahead-nfsd-case-fix-uninitialized-ra_min-ra_max.patch
+=========================================================
+
+The NFS benchmark is ran again with the bug fixed.
+The summary is included in the patch as changelog.
+The raw numbers are here:
+
+pattern=f rsize=8k
+
+ratio=1 	3.04s clock  0.64s kernel  0.01s user  224+1987 cs
+ratio=1 	3.06s clock  0.66s kernel  0.02s user  199+2340 cs
+ratio=1 	3.10s clock  0.63s kernel  0.02s user  254+2264 cs
+
+ratio=50 	2.59s clock  0.60s kernel  0.02s user  106+1180 cs
+ratio=50 	2.43s clock  0.59s kernel  0.01s user  94+1189 cs
+ratio=50 	2.50s clock  0.59s kernel  0.02s user  98+1174 cs
+
+pattern=f rsize=32k
+
+ratio=1 	2.39s clock  0.29s kernel  0.02s user  1046+59 cs
+ratio=1 	2.40s clock  0.29s kernel  0.01s user  1040+69 cs
+ratio=1 	2.41s clock  0.28s kernel  0.02s user  1114+55 cs
+
+ratio=50 	2.18s clock  0.32s kernel  0.02s user  227+213 cs
+ratio=50 	2.15s clock  0.32s kernel  0.02s user  230+215 cs
+ratio=50 	2.17s clock  0.33s kernel  0.01s user  225+208 cs
+
+pattern=f rsize=128k
+
+ratio=1 	2.42s clock  0.32s kernel  0.01s user  436+131 cs
+ratio=1 	2.38s clock  0.33s kernel  0.02s user  441+128 cs
+ratio=1 	2.39s clock  0.31s kernel  0.01s user  448+122 cs
+
+ratio=50 	2.36s clock  0.30s kernel  0.01s user  202+67 cs
+ratio=50 	2.21s clock  0.31s kernel  0.02s user  194+72 cs
+ratio=50 	2.47s clock  0.30s kernel  0.01s user  201+63 cs
+
+pattern=ff rsize=8k
+
+ratio=1 	12.19s clock  1.18s kernel  0.38s user  4152+13042 cs
+ratio=1 	12.88s clock  1.21s kernel  0.33s user  4564+12574 cs
+ratio=1 	12.26s clock  1.22s kernel  0.38s user  4857+12453 cs
+
+ratio=50 	6.53s clock  1.27s kernel  0.32s user  174+2256 cs
+ratio=50 	6.33s clock  1.27s kernel  0.33s user  164+2252 cs
+ratio=50 	6.35s clock  1.24s kernel  0.35s user  151+2264 cs
+
+pattern=ff rsize=32k
+
+ratio=1 	14.49s clock  0.90s kernel  0.37s user  2904+9906 cs
+ratio=1 	14.55s clock  1.00s kernel  0.34s user  2899+9803 cs
+ratio=1 	14.81s clock  1.00s kernel  0.31s user  2910+10147 cs
+
+ratio=50 	5.48s clock  0.65s kernel  0.30s user  177+512 cs
+ratio=50 	5.42s clock  0.68s kernel  0.29s user  181+509 cs
+ratio=50 	5.47s clock  0.65s kernel  0.29s user  175+521 cs
+
+pattern=ff rsize=128k
+
+ratio=1 	15.87s clock  0.90s kernel  0.32s user  1496+8738 cs
+ratio=1 	15.33s clock  0.89s kernel  0.34s user  1718+8350 cs
+ratio=1 	16.17s clock  0.91s kernel  0.32s user  1706+7959 cs
+
+ratio=50 	5.18s clock  0.56s kernel  0.28s user  175+255 cs
+ratio=50 	5.22s clock  0.57s kernel  0.30s user  172+258 cs
+ratio=50 	5.16s clock  0.54s kernel  0.30s user  168+260 cs
+
+pattern=d rsize=8k
+
+ratio=1 	2.86s clock  0.45s kernel  0.07s user  7961+729 cs
+ratio=1 	2.87s clock  0.50s kernel  0.07s user  8036+627 cs
+ratio=1 	2.80s clock  0.51s kernel  0.07s user  7986+640 cs
+
+ratio=50 	2.58s clock  0.51s kernel  0.07s user  8873+177 cs
+ratio=50 	2.39s clock  0.51s kernel  0.05s user  8782+194 cs
+ratio=50 	2.48s clock  0.51s kernel  0.06s user  8884+171 cs
+
+pattern=d rsize=32k
+
+ratio=1 	2.49s clock  0.40s kernel  0.05s user  7428+83 cs
+ratio=1 	2.57s clock  0.40s kernel  0.06s user  7425+86 cs
+ratio=1 	2.54s clock  0.41s kernel  0.06s user  7427+83 cs
+
+ratio=50 	2.02s clock  0.40s kernel  0.08s user  7478+169 cs
+ratio=50 	1.99s clock  0.43s kernel  0.05s user  7488+162 cs
+ratio=50 	1.95s clock  0.39s kernel  0.05s user  7483+169 cs
+
+pattern=d rsize=128k
+
+ratio=1 	2.17s clock  0.41s kernel  0.05s user  7248+120 cs
+ratio=1 	2.13s clock  0.42s kernel  0.05s user  7242+133 cs
+ratio=1 	2.23s clock  0.43s kernel  0.07s user  7247+121 cs
+
+ratio=50 	2.09s clock  0.39s kernel  0.06s user  7315+97 cs
+ratio=50 	1.93s clock  0.41s kernel  0.05s user  7314+131 cs
+ratio=50 	1.97s clock  0.43s kernel  0.07s user  7317+132 cs
+
+pattern=dd rsize=8k
+
+ratio=1 	8.23s clock  1.04s kernel  0.18s user  15564+1306 cs
+ratio=1 	8.20s clock  1.06s kernel  0.17s user  15465+1251 cs
+ratio=1 	8.04s clock  1.03s kernel  0.15s user  15487+1226 cs
+
+ratio=50 	8.06s clock  1.03s kernel  0.18s user  16992+291 cs
+ratio=50 	8.14s clock  0.98s kernel  0.19s user  17011+297 cs
+ratio=50 	7.77s clock  1.01s kernel  0.16s user  16920+292 cs
+
+pattern=dd rsize=32k
+
+ratio=1 	8.46s clock  0.91s kernel  0.16s user  14248+593 cs
+ratio=1 	8.27s clock  0.85s kernel  0.17s user  14266+564 cs
+ratio=1 	8.09s clock  0.86s kernel  0.18s user  14255+551 cs
+
+ratio=50 	6.85s clock  0.89s kernel  0.18s user  14304+301 cs
+ratio=50 	6.79s clock  0.93s kernel  0.14s user  14302+274 cs
+ratio=50 	6.99s clock  0.93s kernel  0.17s user  14296+303 cs
+
+pattern=dd rsize=128k
+
+ratio=1 	7.87s clock  0.88s kernel  0.17s user  13845+368 cs
+ratio=1 	7.81s clock  0.89s kernel  0.17s user  13853+393 cs
+ratio=1 	7.57s clock  0.90s kernel  0.17s user  13838+433 cs
+
+ratio=50 	6.97s clock  0.84s kernel  0.19s user  13816+235 cs
+ratio=50 	6.90s clock  0.88s kernel  0.19s user  13816+225 cs
+ratio=50 	7.03s clock  0.84s kernel  0.18s user  13813+222 cs
+
+
+Regards,
+Fengguang Wu
+
+PS.
+About the partial sendfile problem mentioned in the previous benchmark mail:
+The stock readahead is not handling it correctly, but not so destructive.
+So I choose not to submit the patch.

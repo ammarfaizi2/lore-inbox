@@ -1,93 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758083AbWK2VSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758107AbWK2VUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758083AbWK2VSM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 16:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757854AbWK2VSM
+	id S1758107AbWK2VUN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 16:20:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758110AbWK2VUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 16:18:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:17673 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1758083AbWK2VSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 16:18:11 -0500
-Date: Wed, 29 Nov 2006 21:18:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux PCI mailing list <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>
-Subject: /sys/bus/pci/drivers/<driver>/new_id
-Message-ID: <20061129211803.GB15186@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux PCI mailing list <linux-pci@atrey.karlin.mff.cuni.cz>,
-	Greg KH <greg@kroah.com>
+	Wed, 29 Nov 2006 16:20:13 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:52649 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1758107AbWK2VUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 16:20:12 -0500
+Date: Wed, 29 Nov 2006 13:17:08 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: ak@suse.de, akpm <akpm@osdl.org>
+Subject: [PATCH] alternatives/paravirt: use NULL for pointers
+Message-Id: <20061129131708.ebbdd36c.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately, the .../new_id feature does not work with the 8250_pci
-driver.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-The reason for this comes down to the way .../new_id is implemented.
-When PCI tries to match a driver to a device, it checks the modules
-static device ID tables _before_ checking the dynamic new_id tables.
+Use NULL instead of 0 for pointers.
 
-When a driver is capable of matching by ID, and falls back to matching
-by class (as 8250_pci does), this makes it absolutely impossible to
-specify a board by ID, and as such the correct driver_data value to
-use with it.
+arch/x86_64/kernel/../../i386/kernel/alternative.c:432:18: warning: Using plain integer as NULL pointer
+arch/x86_64/kernel/../../i386/kernel/alternative.c:432:44: warning: Using plain integer as NULL pointer
 
-Let's say you have a serial board with vendor 0x1234 and device 0x5678.
-It's class is set to PCI_CLASS_COMMUNICATION_SERIAL.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ include/asm-i386/alternative.h   |    5 +++--
+ include/asm-x86_64/alternative.h |    5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-On boot, this card is matched to the 8250_pci driver, which tries to
-probe it because it matched using the class entry.  The driver finds
-that it is unable to automatically detect the correct settings to use,
-so it returns -ENODEV.
-
-You know that the information the driver needs is to match this card
-using a device_data value of '7'.  So you echo 1234 5678 0 0 0 0 7
-into new_id.
-
-The kernel attempts to re-bind 8250_pci to this device.  However,
-because it scans the PCI driver tables, it _again_ matches the class
-entry which has the wrong device_data.  It fails.
-
-End of story.  You can't support the card without rebuilding the
-kernel (or writing a specific PCI probe module to support it.)
-
-So, can we make new_id override the driver-internal PCI ID tables?
-IOW, like this:
-
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 194f1d2..dc0bca9 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -165,10 +165,6 @@ const struct pci_device_id *pci_match_de
- 	const struct pci_device_id *id;
- 	struct pci_dynid *dynid;
+--- linux-2.6.19-rc6-mm2.orig/include/asm-i386/alternative.h
++++ linux-2.6.19-rc6-mm2/include/asm-i386/alternative.h
+@@ -5,6 +5,7 @@
  
--	id = pci_match_id(drv->id_table, dev);
--	if (id)
--		return id;
--
- 	/* static ids didn't match, lets look at the dynamic ones */
- 	spin_lock(&drv->dynids.lock);
- 	list_for_each_entry(dynid, &drv->dynids.list, node) {
-@@ -178,7 +174,8 @@ const struct pci_device_id *pci_match_de
- 		}
- 	}
- 	spin_unlock(&drv->dynids.lock);
--	return NULL;
-+
-+	return pci_match_id(drv->id_table, dev);
- }
+ #include <asm/types.h>
  
- static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev,
++#include <linux/stddef.h>
+ #include <linux/types.h>
+ 
+ struct alt_instr {
+@@ -125,8 +126,8 @@ void apply_paravirt(struct paravirt_patc
+ static inline void
+ apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
+ {}
+-#define __start_parainstructions 0
+-#define __stop_parainstructions 0
++#define __start_parainstructions NULL
++#define __stop_parainstructions NULL
+ #endif
+ 
+ #endif /* _I386_ALTERNATIVE_H */
+--- linux-2.6.19-rc6-mm2.orig/include/asm-x86_64/alternative.h
++++ linux-2.6.19-rc6-mm2/include/asm-x86_64/alternative.h
+@@ -3,6 +3,7 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/stddef.h>
+ #include <linux/types.h>
+ #include <asm/cpufeature.h>
+ 
+@@ -140,8 +141,8 @@ void apply_paravirt(struct paravirt_patc
+ static inline void
+ apply_paravirt(struct paravirt_patch *start, struct paravirt_patch *end)
+ {}
+-#define __start_parainstructions 0
+-#define __stop_parainstructions 0
++#define __start_parainstructions NULL
++#define __stop_parainstructions NULL
+ #endif
+ 
+ #endif /* _X86_64_ALTERNATIVE_H */
 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+---

@@ -1,141 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966389AbWK2Iz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966393AbWK2I5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966389AbWK2Iz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 03:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966403AbWK2Iz7
+	id S966393AbWK2I5N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 03:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966403AbWK2I5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 03:55:59 -0500
-Received: from nz-out-0506.google.com ([64.233.162.232]:22052 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S966387AbWK2Iz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 03:55:58 -0500
+	Wed, 29 Nov 2006 03:57:13 -0500
+Received: from web57906.mail.re3.yahoo.com ([68.142.236.99]:21692 "HELO
+	web57906.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S966393AbWK2I5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 03:57:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=YUCL+X5L4IFNSX2dt59GbTRH+JFOiWcCuQ88/sgdwbVRbN0vizNiatLXAYepk5e84yOCNvmmO9wOccSVuG5iGX+eFMenVRhyygJubl0M+hzfvlM5YIff0h04j59Ye9x1ciijrHarbOtPDRTkW+N0+M6PFFWf+IfYAF8pAEEPrSM=
-Message-ID: <456D4B17.4080503@gmail.com>
-Date: Wed, 29 Nov 2006 17:55:51 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=clU4AnTP2NENGx3LKzhuYZwLlwnt6g/UsSeiHtsuH43II6Xxui6cvXIjCFOXgE0m5NND/b/Iqubm4UKje7RCs+Gg/AHNx5/o0GGGoJnA3PkFODWS/FvJGSUNcmxtdIJE84bzHHa51Hw+3RHu0+Y7ekQ+s4XN+eHug6TNcOYC0cA=  ;
+Message-ID: <20061129085705.52839.qmail@web57906.mail.re3.yahoo.com>
+Date: Wed, 29 Nov 2006 00:57:05 -0800 (PST)
+From: tike64 <tike64@yahoo.com>
+Subject: realtime-preempt and arm
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "Berck E. Nash" <flyboy@gmail.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: 2.6.18 - AHCI detection pauses excessively
-References: <4557B7D2.2050004@gmail.com> <455B0BD7.20108@gmail.com> <455B5ADF.2040503@gmail.com> <20061127033550.GB11250@htj.dyndns.org> <456AA89C.909@gmail.com>
-In-Reply-To: <456AA89C.909@gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------080406080106090206090004"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080406080106090206090004
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi all,
 
-Berck E. Nash wrote:
-> Tejun Heo wrote:
-> 
->> Yeah, I did and forgot about this thread too.  Sorry.  This is on the
->> top of my to-do list now.  I'm attaching the patch.  TIA.
-> 
-> That didn't fix the problem, but did change the messages.  I've attached 
-> the entire log, including the weird errors on power-off from the same 
-> device that gives problems on boot, which I suspect are related.
+I'm trying the realtime-preempt patch-2.6.18-rt6 on
+lh7a400 arm system with little success. In a test
+program I try 5 ms timeout with select() but get 20 ms
+avg or 26 ms max. When the framebuffer scrolls, the
+max delay goes up to 59 ms. With a vanilla kernel I
+get 10 ms (because of tick resolution?), 11 ms and 39
+ms.
 
-Hmm... this is difficult.  The problem is that everything looks normal 
-until command is issued.  My primary suspect still is ahci powering down 
-phy during initialization.  Can you please test the attached patch again?
+My question is, is the realtime-preempt patch supposed
+to work on arm architecture and/or without high
+resolution timer (which lh7a40x seems to lack) at all
+or should I just try to be more clever.
 
-[--snip--]
-> Mounting root filesystem read-only...done.
-> Will now halt.
-> [ 9371.896444] ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
-> [ 9371.903036] ata2.00: (irq_stat 0x40000001)
-> [ 9371.907228] ata2.00: cmd e0/00:00:00:00:00/00:00:00:00:00/00 tag 0 data 0 in
-> [ 9371.907229]          res 51/04:00:01:01:80/00:00:00:00:00/a0 Emask 0x1 (device error)
-> [ 9371.931688] ata2.00: configured for UDMA/133
-> [ 9371.936073] ata2: EH complete
+Relevant code:
 
-Weird, the drive is failing STANDBY IMMEDIATE.
+====
+prio.sched_priority = 99;
+if (sched_setscheduler(0, SCHED_RR, &prio) < 0) ...
+if (mlockall(MCL_CURRENT | MCL_FUTURE) < 0) ...
+while (1) {
+	t = raw_timer();
+	tv.tv_usec = 5000;
+	tv.tv_sec = 0;
+	select(0, 0, 0, 0, &tv);
+	t = raw_timer() - t;
+	if (max_t < t) max_t = t;
+	if (min_t > t) min_t = t;
+	avg_t += t;
+	++n;
+	if (n < 100) continue;
+	printf("%i revs; min: %i max: %i avg: %i\n",
+		n,
+		min_t,
+		max_t,
+		(avg_t + n / 2) / n);
+====
 
-[--snip--]
-> [ 9372.152310] ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
-> [ 9372.158882] ata2.00: (irq_stat 0x40000001)
-> [ 9372.163079] ata2.00: cmd 94/00:00:00:00:00/00:00:00:00:00/00 tag 0 data 0 in
-> [ 9372.163080]          res 51/04:00:01:01:80/00:00:00:00:00/a0 Emask 0x1 (device error)
-> [ 9372.187505] ata2.00: configured for UDMA/133
+Relevant config: PREEMPT_RT, PREEMPT_SOFTIRQS,
+PREEMPT_HARDIRQS
 
-Then, a series of obsolete STANDBY failures.  Who's issuing these 
-commands?  It's not libata, libata uses STANDBY (0xe2).  Is it some kind 
-of gentoo thing?  Anyways, doesn't really matter although it's 
-surprising that the drive fails STANDBY IMMEDIATE.
+I didnt' enable HIGH_RES_TIMERS because lh7a40x seems
+not to support it.
 
-Thanks.
+--
 
--- 
-tejun
+tike
 
---------------080406080106090206090004
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 8f75c60..6100cbc 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -612,9 +612,6 @@ static void ahci_power_down(void __iomem
- static void ahci_init_port(void __iomem *port_mmio, u32 cap,
- 			   dma_addr_t cmd_slot_dma, dma_addr_t rx_fis_dma)
- {
--	/* power up */
--	ahci_power_up(port_mmio, cap);
--
- 	/* enable FIS reception */
- 	ahci_start_fis_rx(port_mmio, cap, cmd_slot_dma, rx_fis_dma);
+
  
-@@ -640,9 +637,6 @@ static int ahci_deinit_port(void __iomem
- 		return rc;
- 	}
- 
--	/* put device into slumber mode */
--	ahci_power_down(port_mmio, cap);
--
- 	return 0;
- }
- 
-@@ -1321,7 +1315,9 @@ static int ahci_port_suspend(struct ata_
- 	int rc;
- 
- 	rc = ahci_deinit_port(port_mmio, hpriv->cap, &emsg);
--	if (rc) {
-+	if (rc == 0)
-+		ahci_power_down(port_mmio, hpriv->cap);
-+	else {
- 		ata_port_printk(ap, KERN_ERR, "%s (%d)\n", emsg, rc);
- 		ahci_init_port(port_mmio, hpriv->cap,
- 			       pp->cmd_slot_dma, pp->rx_fis_dma);
-@@ -1337,6 +1333,7 @@ static int ahci_port_resume(struct ata_p
- 	void __iomem *mmio = ap->host->mmio_base;
- 	void __iomem *port_mmio = ahci_port_base(mmio, ap->port_no);
- 
-+	ahci_power_up(port_mmio, hpriv->cap);
- 	ahci_init_port(port_mmio, hpriv->cap, pp->cmd_slot_dma, pp->rx_fis_dma);
- 
- 	return 0;
-@@ -1443,6 +1440,9 @@ static int ahci_port_start(struct ata_po
- 
- 	ap->private_data = pp;
- 
-+	/* power up port */
-+	ahci_power_up(port_mmio, hpriv->cap);
-+
- 	/* initialize port */
- 	ahci_init_port(port_mmio, hpriv->cap, pp->cmd_slot_dma, pp->rx_fis_dma);
- 
-
---------------080406080106090206090004--
+____________________________________________________________________________________
+Cheap talk?
+Check out Yahoo! Messenger's low PC-to-Phone call rates.
+http://voice.yahoo.com

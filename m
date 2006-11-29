@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966435AbWK2JIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966417AbWK2JNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966435AbWK2JIS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:08:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758805AbWK2JIS
+	id S966417AbWK2JNz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:13:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966439AbWK2JNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:08:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44775 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1758806AbWK2JIQ (ORCPT
+	Wed, 29 Nov 2006 04:13:54 -0500
+Received: from mailer.gwdg.de ([134.76.10.26]:63410 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S966417AbWK2JNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:08:16 -0500
-Date: Wed, 29 Nov 2006 04:08:00 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Message-ID: <20061129090800.GI6570@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1164769705.2825.4.camel@entropy> <21982.1164772580@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21982.1164772580@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 29 Nov 2006 04:13:53 -0500
+Date: Wed, 29 Nov 2006 10:13:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: prajakta choudhari <prajaktachoudhari@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Help for kernel module programming
+In-Reply-To: <e9010580611282358p5966357cxf50c650819ba1710@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0611291012500.3813@yvahk01.tjqt.qr>
+References: <e9010580611282358p5966357cxf50c650819ba1710@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 02:56:20PM +1100, Keith Owens wrote:
-> Nicholas Miell (on Tue, 28 Nov 2006 19:08:25 -0800) wrote:
-> >On Wed, 2006-11-29 at 13:22 +1100, Keith Owens wrote:
-> >> Compiling 2.6.19-rc6 with gcc version 4.1.0 (SUSE Linux),
-> >> wait_hpet_tick is optimized away to a never ending loop and the kernel
-> >> hangs on boot in timer setup.
-> >> 
-> >> 0000001a <wait_hpet_tick>:
-> >>   1a:   55                      push   %ebp
-> >>   1b:   89 e5                   mov    %esp,%ebp
-> >>   1d:   eb fe                   jmp    1d <wait_hpet_tick+0x3>
-> >> 
-> >> This is not a problem with gcc 3.3.5.  Adding barrier() calls to
-> >> wait_hpet_tick does not help, making the variables volatile does.
-> >> 
-> >> Signed-off-by: Keith Owens <kaos@ocs.com.au>
-> >> 
-> >> ---
-> >>  arch/i386/kernel/time_hpet.c |    2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >> 
-> >> Index: linux-2.6/arch/i386/kernel/time_hpet.c
-> >> ===================================================================
-> >> --- linux-2.6.orig/arch/i386/kernel/time_hpet.c
-> >> +++ linux-2.6/arch/i386/kernel/time_hpet.c
-> >> @@ -51,7 +51,7 @@ static void hpet_writel(unsigned long d,
-> >>   */
-> >>  static void __devinit wait_hpet_tick(void)
-> >>  {
-> >> -	unsigned int start_cmp_val, end_cmp_val;
-> >> +	unsigned volatile int start_cmp_val, end_cmp_val;
-> >>  
-> >>  	start_cmp_val = hpet_readl(HPET_T0_CMP);
-> >>  	do {
-> >
-> >When you examine the inlined functions involved, this looks an awful lot
-> >like http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278
-> >
-> >Perhaps SUSE should fix their gcc instead of working around compiler
-> >problems in the kernel?
-> 
-> Firstly, the fix for 22278 is included in gcc 4.1.0.
 
-This actually sounds more like http://gcc.gnu.org/PR27236
-And that one is broken in 4.1.0, fixed in 4.1.1.
+> Hi:
+> I am writing a kernel module for assging an ip address to an interface.
+> I  have included linux/igmp.h but still whenever i use the function
 
-	Jakub
+...What function?
+
+> declared in  igmp.h file, it says unresolved symbol for that function.
+
+...What symbol?
+
+> I am new to this programming.
+> i use the following command to compile it:
+> gcc -c -D__KERNEL__   -DMODULE
+> -I/home/newkernelsource/linux-2.4.22/include  hello.c
+
+Please read the files in Documentation/kbuild/.
+
+
+	-`J'
+-- 

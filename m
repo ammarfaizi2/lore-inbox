@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967395AbWK2Xb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967676AbWK2XgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967395AbWK2Xb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 18:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967397AbWK2Xb7
+	id S967676AbWK2XgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 18:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967460AbWK2XgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 18:31:59 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:39949 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S967395AbWK2Xb6 (ORCPT
+	Wed, 29 Nov 2006 18:36:17 -0500
+Received: from dvhart.com ([64.146.134.43]:7369 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S967420AbWK2XgP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 18:31:58 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Denis Oliver Kropp <dok@directfb.org>
-Subject: [PATCH] video: neofb stray bracket fix
-Date: Thu, 30 Nov 2006 00:31:26 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
+	Wed, 29 Nov 2006 18:36:15 -0500
+Message-ID: <456E196E.2080802@mbligh.org>
+Date: Wed, 29 Nov 2006 15:36:14 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: wenji@fnal.gov
+Cc: netdev@vger.kernel.org, davem@davemloft.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Changelog] - Potential performance bottleneck for Linxu TCP
+References: <HNEBLGGMEGLPMPPDOPMGCEAKCGAA.wenji@fnal.gov>
+In-Reply-To: <HNEBLGGMEGLPMPPDOPMGCEAKCGAA.wenji@fnal.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611300031.26789.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-	This code is '#if 0'ed. Anyway if anyone wants to dump neo registers
-better to have it fixed.
-
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- drivers/video/neofb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.19-rc6-mm2-a/drivers/video/neofb.c	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/drivers/video/neofb.c	2006-11-29 15:25:42.000000000 +0100
-@@ -1932,7 +1932,7 @@ static int __devinit neo_init_hw(struct 
- 	printk(KERN_DEBUG "--- Neo extended register dump ---\n");
- 	for (int w = 0; w < 0x85; w++)
- 		printk(KERN_DEBUG "CR %p: %p\n", (void *) w,
--		       (void *) vga_rcrt(NULL, w);
-+		       (void *) vga_rcrt(NULL, w));
- 	for (int w = 0; w < 0xC7; w++)
- 		printk(KERN_DEBUG "GR %p: %p\n", (void *) w,
- 		       (void *) vga_rgfx(NULL, w));
+Wenji Wu wrote:
+> From: Wenji Wu <wenji@fnal.gov>
+> 
+> Greetings,
+> 
+> For Linux TCP, when the network applcaiton make system call to move data
+> from
+> socket's receive buffer to user space by calling tcp_recvmsg(). The socket
+> will
+> be locked. During the period, all the incoming packet for the TCP socket
+> will go
+> to the backlog queue without being TCP processed. Since Linux 2.6 can be
+> inerrupted mid-task, if the network application expires, and moved to the
+> expired array with the socket locked, all the packets within the backlog
+> queue
+> will not be TCP processed till the network applicaton resume its execution.
+> If
+> the system is heavily loaded, TCP can easily RTO in the Sender Side.
 
 
--- 
-Regards,
+So how much difference did this patch actually make, and to what
+benchmark?
 
-	Mariusz Kozlowski
+> The patch is for Linux kernel 2.6.14 Deskop and Low-latency Desktop
+
+The patch oesn't seem to be attached? Also, would be better to make
+it for the latest kernel version (2.6.19) ... 2.6.14 is rather old ;-)
+
+M

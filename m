@@ -1,134 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757464AbWK2AWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757054AbWK2A1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757464AbWK2AWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 19:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757441AbWK2AWF
+	id S1757054AbWK2A1F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 19:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757517AbWK2A1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 19:22:05 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:6359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1757464AbWK2AWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 19:22:03 -0500
-Date: Tue, 28 Nov 2006 16:21:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Wendy Cheng <wcheng@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] prune_icache_sb
-Message-Id: <20061128162144.8051998a.akpm@osdl.org>
-In-Reply-To: <456CACF3.7030200@redhat.com>
-References: <4564C28B.30604@redhat.com>
-	<20061122153603.33c2c24d.akpm@osdl.org>
-	<456B7A5A.1070202@redhat.com>
-	<20061127165239.9616cbc9.akpm@osdl.org>
-	<456CACF3.7030200@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Nov 2006 19:27:05 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:18934 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1757054AbWK2A1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 19:27:03 -0500
+Date: Tue, 28 Nov 2006 19:24:45 -0500
+From: Thomas Tuttle <linux-kernel@ttuttle.net>
+Subject: Re: 2.6.19-rc6-mm2
+In-reply-to: <20061128020246.47e481eb.akpm@osdl.org>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mail-followup-to: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <20061129002411.GA1178@lion>
+MIME-version: 1.0
+Content-type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary=OwLcNYc0lM97+oe1
+Content-disposition: inline
+References: <20061128020246.47e481eb.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2006 16:41:07 -0500
-Wendy Cheng <wcheng@redhat.com> wrote:
 
-> Andrew Morton wrote:
-> > On Mon, 27 Nov 2006 18:52:58 -0500
-> > Wendy Cheng <wcheng@redhat.com> wrote:
-> >
-> >   
-> >> Not sure about walking thru sb->s_inodes for several reasons....
-> >>
-> >> 1. First, the changes made are mostly for file server setup with large 
-> >> fs size - the entry count in sb->s_inodes may not be shorter then 
-> >> inode_unused list.
-> >>     
-> >
-> > umm, that's the best-case.  We also care about worst-case.  Think:
-> > 1,000,000 inodes on inode_unused, of which a randomly-sprinkled 10,000 are
-> > from the being-unmounted filesytem.  The code as-proposed will do 100x more
-> > work that it needs to do.  All under a global spinlock.
-> >   
-> By walking thru sb->s_inodes, we also need to take inode_lock and 
-> iprune_mutex (?), since we're purging the inodes from the system - or 
-> specifically, removing them from inode_unused list. There is really not 
-> much difference from the current prune_icache() logic.
+--OwLcNYc0lM97+oe1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There's quite a bit of difference.  The change you're proposing will
-perform poorly if it is used in the scenario which I describe above.  It
-will waste CPU cycles and will destroy the inode_unused LRU ordering (for
-what that's worth, which isn't much).
+I've found a couple of bugs so far...
 
-Trust me, every single time we've had an inefficient search in core kernel,
-someone has gone and done something which hits it and causes general
-meltdown in their workload.  So we've had to make significant changes to
-remove the O(n) or higher search complexity.
+1. I did `modprobe kvm' and then tried running a version of the KVM Qemu
+compiled for a different kernel.  My mistake.  But I got an oops:
 
-And in this case we *already have* the date structures in place to make it
-O(1).
+BUG: unable to handle kernel NULL pointer dereference at virtual address 00=
+000008
+ printing eip:
+f91f9c3f
+*pde =3D 00000000
+Oops: 0000 [#1]
+SMP=20
+last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+Modules linked in: kvm iTCO_wdt i8k rfcomm l2cap rtc sdhci mmc_block mmc_co=
+re hci_usb bluetooth b44 mii ohci1394 ieee1394 uhci_hcd ehci_hcd usbcore ps=
+mouse evdev i915 drm cpuid msr speedstep_centrino video thermal processor f=
+an container button battery ac
+CPU:    0
+EIP:    0060:[<f91f9c3f>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.19-rc6-mm1 #1)
+EIP is at kvm_vmx_return+0xef/0x4d0 [kvm]
+eax: e5490068   ebx: 00000000   ecx: 00000000   edx: e5491ca4
+esi: 00000000   edi: e5490060   ebp: e5a4fde0   esp: e5a4fd54
+ds: 007b   es: 007b   ss: 0068
+Process qemu (pid: 24193, ti=3De5a4e000 task=3Dc2286a90 task.ti=3De5a4e000)
+Stack: 00000002 00000001 f7fe1278 00000002 b7f92000 e5490000 00000000 00000=
+000=20
+       e5a4fdac 00000000 000000d8 f783a580 e5a4fdac c043b98a bfb93f7c f91fa=
+020=20
+       e5a4fde0 bfb93f7c bfb93f7c f91fa0cb 000004f3 c03fb974 e5490000 00000=
+000=20
+Call Trace:
+ [<f91fa020>] kvm_dev_ioctl+0x0/0x1040 [kvm]
+ [<f91fa0cb>] kvm_dev_ioctl+0xab/0x1040 [kvm]
+ [<c03fb974>] error_code+0x7c/0x84
+ [<c011d469>] kmap_atomic+0xc9/0xe0
+ [<c018007b>] permission+0x2b/0xd0
+ [<c01700d8>] sys_swapon+0x978/0xaf0
+ [<c011d263>] kunmap_atomic+0x63/0x70
+ [<c011d469>] kmap_atomic+0xc9/0xe0
+ [<c011d263>] kunmap_atomic+0x63/0x70
+ [<c015cdbd>] get_page_from_freelist+0x27d/0x340
+ [<c011d469>] kmap_atomic+0xc9/0xe0
+ [<c011d263>] kunmap_atomic+0x63/0x70
+ [<c015cdbd>] get_page_from_freelist+0x27d/0x340
+ [<c0157af0>] find_get_page+0x20/0x60
+ [<c015a75c>] filemap_nopage+0x2dc/0x490
+ [<c0178a47>] do_sync_read+0xc7/0x110
+ [<c011d469>] kmap_atomic+0xc9/0xe0
+ [<c011d263>] kunmap_atomic+0x63/0x70
+ [<c0166386>] __handle_mm_fault+0x246/0x9c0
+ [<f91fa020>] kvm_dev_ioctl+0x0/0x1040 [kvm]
+ [<c030ae02>] scsi_host_alloc+0x202/0x2a0
+  [<c018430b>] do_ioctl+0x2b/0x90
+ [<c01843cc>] vfs_ioctl+0x5c/0x2b0
+ [<c018465d>] sys_ioctl+0x3d/0x70
+ [<c0103238>] syscall_call+0x7/0xb
+ [<c030ae02>] scsi_host_alloc+0x202/0x2a0
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Code: 14 0f 87 77 02 00 00 8b 0c b5 00 15 20 f9 85 c9 0f 84 68 02 00 00 89 =
+ea 89 f8 ff d1 85 c0 0f 84 4c 02 00 00 89 f8 e8 31 e9 ff ff <65> a1 08 00 0=
+0 00 8b 40 04 8b 40 08 a8 04 0f 85 ae 02 00 00 e8=20
+EIP: [<f91f9c3f>] kvm_vmx_return+0xef/0x4d0 [kvm] SS:ESP 0068:e5a4fd54
+ msrs: 2
 
-> What's been 
-> proposed here is simply *exporting* the prune_icache() kernel code to 
-> allow filesystems to trim (purge a small percentage of ) its 
-> (potentially will be) unused per-mount inodes for *latency* considerations.
+Oh, and I get a ton of these messages with kvm:
 
-It just happens to work in your setup.  If you have a large machine with
-two filesystems and you run rsync on both filesystems and run FTP agains
-one of them, it might not work so well.  Because the proposed
-prune_icache_sb() might need to chew through 500,000 inodes from the wrong
-superblock before reclaiming any of the inodes which you want to reclaim. 
-Or something like that.
+rtc: lost some interrupts at 1024Hz.
 
-> I made a mistake by using the "page dirty ratio" to explain the problem 
-> (sorry! I was not thinking well in previous write-up) that could mislead 
-> you to think this is a VM issue. This is not so much about 
-> low-on-free-pages (and/or memory fragmentation) issue (though 
-> fragmentation is normally part of the symptoms). What the (external) 
-> kernel module does is to tie its cluster-wide file lock with in-memory 
-> inode that is obtained during file look-up time. The lock is removed 
-> from the machine when
-> 
-> 1. the lock is granted to other (cluster) machine; or
-> 2. the in-memory inode is purged from the system.
+2. I'm not sure if this bug is in the kernel, wireless tools, or the
+ipw3945 driver, but I haven't changed the version of anything but the
+kernel.  When I do `iwconfig eth1 essid foobar' something drops the
+last character of the essid, and a subsequent `iwconfig eth1' shows
+"fooba" as the essid.  And it's actually set as "fooba", since I had
+to do `iwconfig eth1 essid MyUsualEssid_' (note underscore) to get on
+to my usual network.
 
-It seems peculiar to be tying the lifetime of a DLM lock to the system's
-memory size and current memory pressure?
+--Thomas Tuttle
 
-> One of the clusters that has this latency issue is an IP/TV application 
-> where it "rsync" with main station server (with long geographical 
-> distance) every 15 minutes. It subsequently (and constantly) generates 
-> large amount of inode (and locks) hanging around. When other nodes, 
-> served as FTP servers, within the same cluster are serving the files, 
-> DLM has to wade through huge amount of locks entries to know whether the 
-> lock requests can be granted. That's where this latency issue gets 
-> popped out. Our profiling data shows when the cluster performance is 
-> dropped into un-acceptable ranges, DLM could hogs 40% of CPU cycle in 
-> lock searching logic. From VM point of view, the system does not have 
-> memory shortage so it doesn't have a need to kick off prune_icache() call.
+--OwLcNYc0lM97+oe1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-OK..
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-> This issue could also be fixed in several different ways - maybe by a 
-> better DLM hash function,
+iD8DBQFFbNNNgPpxLpYWreERAp8bAJ48VknjlZtCivvjjqlSiJdv4F2VgwCdHDax
+LfqCNa9zIE57eaaxcXP8DRc=
+=XSRk
+-----END PGP SIGNATURE-----
 
-It does sound like the lock lookup is broken.
-
-I assume there's some reason for keeping these things floating about in
-memory, so there must be a downside to artificially pruning them in
-this manner?  If so, a (much) faster lookup would seem to be the best fix.
-
-> maybe by asking IT people to umount the 
-> filesystem where *all* per-mount inodes are unconditionally purged (but 
-> it defeats the purpose of caching inodes and, in our case, the locks) 
-> after each rsync, ...., etc. But I do think the proposed patch is the 
-> most sensible way to fix this issue and believe it will be one of these 
-> functions that if you export it, people will find a good use of it. It 
-> helps with memory fragmentation and/or shortage *before* it becomes a 
-> problem as well. I certainly understand and respect a maintainer's 
-> daunting job on how to take/reject a patch - let me know how you think 
-> so I can start to work on other solutions if required.
-
-We shouldn't export this particular implementation to modules because it
-has bad failure modes.  There might be a case for exposing an
-i_sb_list-based API or, perhaps better, a max-unused-inodes mount option.
-
-
+--OwLcNYc0lM97+oe1--

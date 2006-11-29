@@ -1,70 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967177AbWK2OEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967200AbWK2OKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967177AbWK2OEM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967185AbWK2OEM
+	id S967200AbWK2OKU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967202AbWK2OKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:04:12 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28177 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S967177AbWK2OEL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:04:11 -0500
-Date: Wed, 29 Nov 2006 13:57:04 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, Adam Jackson <ajax@nwnk.net>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Casey Dahlin <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Overriding X on panic
-Message-ID: <20061129135704.GB4769@ucw.cz>
-References: <1164434093.10503.2.camel@localhost.localdomain> <1164443561.3147.54.camel@laptopd505.fenrus.org> <20061125161043.18f1b68d@localhost.localdomain> <1164529121.3147.65.camel@laptopd505.fenrus.org> <20061126142213.52c292d3@localhost.localdomain> <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 29 Nov 2006 09:10:20 -0500
+Received: from il.qumranet.com ([62.219.232.206]:7841 "EHLO cleopatra.q")
+	by vger.kernel.org with ESMTP id S967200AbWK2OKS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:10:18 -0500
+Message-ID: <456D94C8.2000109@qumranet.com>
+Date: Wed, 29 Nov 2006 16:10:16 +0200
+From: Avi Kivity <avi@qumranet.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Avi Kivity <avi@qumranet.com>, Thomas Tuttle <thinkinginbinary@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Yaniv Kamay <yaniv@qumranet.com>
+Subject: Re: 2.6.19-rc6-mm2
+References: <20061128020246.47e481eb.akpm@osdl.org>	<20061129002411.GA1178@lion> <20061128165328.fd17d085.akpm@osdl.org> <456D1807.1000603@qumranet.com>
+In-Reply-To: <456D1807.1000603@qumranet.com>
+Content-Type: multipart/mixed;
+ boundary="------------070409080708040002050901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------070409080708040002050901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> >> for the Intel hw Keith doesn't seem to think it's all 
-> >that much of a
-> >> problem though...
-> >
-> >Including the TV out, odder LCD panels, non BIOS modes 
-> >etc ? If so then
-> >it might be an interesting test case for intelfb to 
-> >grow some kind of
-> >console helper interface
-...
-> I personally think we need to probably just bite the 
-> bullet and start
-> sticking graphics drivers into the kernel, the new 
-> randr-1.2 interface
-> for X is probably a good starting point for a generic 
-> mode setting
-> interface that isn't so X dependent and could replace 
-> fbdev with
-> something more sane wrt dualhead and multiple outputs... 
-> fbdev could
-> be implemented on top of that layer then.. also 
-> suspend/resume really
-> needs this sort of thing....
+Avi Kivity wrote:
+>
+>
+>>> Oh, and I get a ton of these messages with kvm:
+>>>
+>>> rtc: lost some interrupts at 1024Hz.
+>>>     
+>>
+>>   
+>
+> I'll look into these too, though I'm not sure where.
+>
+>
 
-Yes, pretty please...
+Please try the attached patch and let us know.
 
-> My main worry with integrating graphics drivers into the 
-> kernel is
-> that when they don't work the user gets no screen, with 
-> network/sound
-> etc this isn't so bad, but if they can't see a screen 
-> debugging gets
-> to be a bit more difficult....
 
-You can have my hgc card + monitor if it helps :-). Okay, it is old
-ISA, so it probably does not, but with serial or netconsole debugging
-should be doable, no?
-							Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+error compiling committee.c: too many arguments to function
+
+
+--------------070409080708040002050901
+Content-Type: text/x-patch;
+ name="kvm-handle-external-interrupts-explicitly.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kvm-handle-external-interrupts-explicitly.patch"
+
+Index: linux/drivers/kvm/vmx.c
+===================================================================
+--- linux/drivers/kvm/vmx.c	(revision 3989)
++++ linux/drivers/kvm/vmx.c	(working copy)
+@@ -1163,6 +1163,7 @@
+ 	vmcs_writel(VM_EXIT_MSR_LOAD_ADDR,
+ 		    virt_to_phys(vcpu->host_msrs + NR_BAD_MSRS));
+ 	vmcs_write32_fixedbits(MSR_IA32_VMX_EXIT_CTLS_MSR, VM_EXIT_CONTROLS,
++			       VM_EXIT_ACK_INTR_ON_EXIT |
+ 		     	       (HOST_IS_64 << 9));  /* 22.2,1, 20.7.1 */
+ 	vmcs_write32(VM_EXIT_MSR_STORE_COUNT, nr_good_msrs); /* 22.2.2 */
+ 	vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, nr_good_msrs);  /* 22.2.2 */
+@@ -1380,7 +1381,24 @@
+ static int handle_external_interrupt(struct kvm_vcpu *vcpu,
+ 				     struct kvm_run *kvm_run)
+ {
++	unsigned long irq;
++
+ 	++kvm_stat.irq_exits;
++	irq = vmcs_read32(VM_EXIT_INTR_INFO) & 0xff;
++	asm volatile (
++		"lea irq_dispatch(%0,%0,2), %0 \n\t"
++		"call *%0 \n\t"
++		"jmp out \n\t"
++		"irq_dispatch: \n\t"
++		"irq = 0 \n\t"
++		".rept 256 \n\t"
++		"  .byte 0xcd, irq \n\t" /* avoid int $3 -- one byte opcode */
++		"  ret \n\t"
++		"  irq = irq + 1 \n\t"
++		".endr \n\t"
++		"out:"
++		: "+r"(irq) );
++
+ 	return 1;
+ }
+ 
+
+--------------070409080708040002050901--

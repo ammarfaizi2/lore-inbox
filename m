@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758231AbWK2WCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758246AbWK2WDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758231AbWK2WCE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758252AbWK2WBj
+	id S1758246AbWK2WDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758283AbWK2WCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:01:39 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:44721 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758231AbWK2WBf
+	Wed, 29 Nov 2006 17:02:42 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64945 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758210AbWK2WCU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:01:35 -0500
-Message-Id: <20061129220339.207771000@sous-sol.org>
+	Wed, 29 Nov 2006 17:02:20 -0500
+Message-Id: <20061129220357.585139000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:16 -0800
+Date: Wed, 29 Nov 2006 14:00:18 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -22,9 +22,10 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
        alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
-       dim@openvz.org, dev@openvz.org, davem@davemloft.net
-Subject: [patch 05/23] NETFILTER: Missed and reordered checks in {arp,ip,ip6}_tables
-Content-Disposition: inline; filename=netfilter-missed-and-reordered-checks-in-arp-ip-ip6-_tables.patch
+       davem@davemloft.net, Ken Brownfield <krb@irridia.com>,
+       Simon Horman <horms@verge.net.au>
+Subject: [patch 07/23] NETFILTER: Honour source routing for LVS-NAT
+Content-Disposition: inline; filename=netfilter-honour-source-routing-for-lvs-nat.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -33,387 +34,125 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Patrick McHardy <kaber@trash.net>
 
-Backport fix for missing ruleset validation in {arp,ip,ip6}_tables
-and a fix on top which fixes a regression in the first patch.
+For policy routing, packets originating from this machine itself may be
+routed differently to packets passing through. We want this packet to be
+routed as if it came from this machine itself. So re-compute the routing
+information using ip_route_me_harder().
 
-There is a number of issues in parsing user-provided table in
-translate_table(). Malicious user with CAP_NET_ADMIN may crash system by
-passing special-crafted table to the *_tables.
+This patch is derived from work by Ken Brownfield
 
-The first issue is that mark_source_chains() function is called before entry
-content checks. In case of standard target, mark_source_chains() function
-uses t->verdict field in order to determine new position. But the check, that
-this field leads no further, than the table end, is in check_entry(), which
-is called later, than mark_source_chains().
+This patch (-stable version) also includes commit
+b4c4ed175ff0ee816df48571cfa9b73f521964b6 ([NETFILTER]: add type parameter
+to ip_route_me_harder), which is a precondition for the fix.
 
-The second issue, that there is no check that target_offset points inside
-entry. If so, *_ITERATE_MATCH macro will follow further, than the entry
-ends. As a result, we'll have oops or memory disclosure.
-
-And the third issue, that there is no check that the target is completely
-inside entry. Results are the same, as in previous issue.
-
-Upstream commit 590bdf7fd2292b47c428111cb1360e312eff207e introduced a
-regression in match/target hook validation. mark_source_chains builds
-a bitmask for each rule representing the hooks it can be reached from,
-which is then used by the matches and targets to make sure they are
-only called from valid hooks. The patch moved the match/target specific
-validation before the mark_source_chains call, at which point the mask
-is always zero.
-
-This patch returns back to the old order and moves the standard checks
-to mark_source_chains. This allows to get rid of a special case for
-standard targets as a nice side-effect.
-
+Cc: Ken Brownfield <krb@irridia.com>
+Signed-off-by: Simon Horman <horms@verge.net.au>
 Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
-commit 1cfcb663c5a6d8b4b1172ff481af1b597bc8b54e
-tree 61c5b135ee292681f38945a3549cb9005aec1d7c
-parent b2ab160e1a3a1eb3fcc80132d8d7db5687a7a113
-author Patrick McHardy <kaber@trash.net> Tue, 21 Nov 2006 11:17:03 +0100
-committer Patrick McHardy <kaber@trash.net> Tue, 21 Nov 2006 11:24:51 +0100
+commit cf08e74a590c945d3c0b95886ea3fad8ff73793d
+tree d5c1a44360bb9a4a2d59e37a9f0dc3c6ce0b6c49
+parent 6b22b99ecd431b63aece1fa5b1faa01b75a8302e
+author Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:11 +0100
+committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:11 +0100
 
- net/ipv4/netfilter/arp_tables.c |   37 +++++++++++++---------
- net/ipv4/netfilter/ip_tables.c  |   65 +++++++++++++++++++---------------------
- net/ipv6/netfilter/ip6_tables.c |   53 ++++++++++++++------------------
- 3 files changed, 77 insertions(+), 78 deletions(-)
+ include/linux/netfilter_ipv4.h         |    2 +-
+ net/ipv4/ipvs/ip_vs_core.c             |   10 ++++++++++
+ net/ipv4/netfilter.c                   |    9 ++++++---
+ net/ipv4/netfilter/ip_nat_standalone.c |    3 ++-
+ net/ipv4/netfilter/iptable_mangle.c    |    3 ++-
+ 5 files changed, 21 insertions(+), 6 deletions(-)
 
---- linux-2.6.18.4.orig/net/ipv4/netfilter/arp_tables.c
-+++ linux-2.6.18.4/net/ipv4/netfilter/arp_tables.c
-@@ -380,6 +380,13 @@ static int mark_source_chains(struct xt_
- 			    && unconditional(&e->arp)) {
- 				unsigned int oldpos, size;
+--- linux-2.6.18.4.orig/include/linux/netfilter_ipv4.h
++++ linux-2.6.18.4/include/linux/netfilter_ipv4.h
+@@ -77,7 +77,7 @@ enum nf_ip_hook_priorities {
+ #define SO_ORIGINAL_DST 80
  
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
+ #ifdef __KERNEL__
+-extern int ip_route_me_harder(struct sk_buff **pskb);
++extern int ip_route_me_harder(struct sk_buff **pskb, unsigned addr_type);
+ extern int ip_xfrm_me_harder(struct sk_buff **pskb);
+ extern unsigned int nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
+ 				   unsigned int dataoff, u_int8_t protocol);
+--- linux-2.6.18.4.orig/net/ipv4/ipvs/ip_vs_core.c
++++ linux-2.6.18.4/net/ipv4/ipvs/ip_vs_core.c
+@@ -813,6 +813,16 @@ ip_vs_out(unsigned int hooknum, struct s
+ 	skb->nh.iph->saddr = cp->vaddr;
+ 	ip_send_check(skb->nh.iph);
+ 
++ 	/* For policy routing, packets originating from this
++ 	 * machine itself may be routed differently to packets
++ 	 * passing through.  We want this packet to be routed as
++ 	 * if it came from this machine itself.  So re-compute
++ 	 * the routing information.
++ 	 */
++ 	if (ip_route_me_harder(pskb, RTN_LOCAL) != 0)
++ 		goto drop;
++	skb = *pskb;
 +
- 				/* Return: backtrack through the last
- 				 * big jump.
- 				 */
-@@ -409,6 +416,14 @@ static int mark_source_chains(struct xt_
- 				if (strcmp(t->target.u.user.name,
- 					   ARPT_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct arpt_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
-+
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -431,8 +446,6 @@ static int mark_source_chains(struct xt_
- static inline int standard_check(const struct arpt_entry_target *t,
- 				 unsigned int max_offset)
+ 	IP_VS_DBG_PKT(10, pp, skb, 0, "After SNAT");
+ 
+ 	ip_vs_out_stats(cp, skb);
+--- linux-2.6.18.4.orig/net/ipv4/netfilter.c
++++ linux-2.6.18.4/net/ipv4/netfilter.c
+@@ -8,7 +8,7 @@
+ #include <net/ip.h>
+ 
+ /* route_me_harder function, used by iptable_nat, iptable_mangle + ip_queue */
+-int ip_route_me_harder(struct sk_buff **pskb)
++int ip_route_me_harder(struct sk_buff **pskb, unsigned addr_type)
  {
--	struct arpt_standard_target *targ = (void *)t;
--
- 	/* Check standard info. */
- 	if (t->u.target_size
- 	    != ARPT_ALIGN(sizeof(struct arpt_standard_target))) {
-@@ -442,18 +455,6 @@ static inline int standard_check(const s
- 		return 0;
- 	}
+ 	struct iphdr *iph = (*pskb)->nh.iph;
+ 	struct rtable *rt;
+@@ -16,10 +16,13 @@ int ip_route_me_harder(struct sk_buff **
+ 	struct dst_entry *odst;
+ 	unsigned int hh_len;
  
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct arpt_entry)) {
--		duprintf("arpt_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("arpt_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
- 	return 1;
++	if (addr_type == RTN_UNSPEC)
++		addr_type = inet_addr_type(iph->saddr);
++
+ 	/* some non-standard hacks like ipt_REJECT.c:send_reset() can cause
+ 	 * packets with foreign saddr to appear on the NF_IP_LOCAL_OUT hook.
+ 	 */
+-	if (inet_addr_type(iph->saddr) == RTN_LOCAL) {
++	if (addr_type == RTN_LOCAL) {
+ 		fl.nl_u.ip4_u.daddr = iph->daddr;
+ 		fl.nl_u.ip4_u.saddr = iph->saddr;
+ 		fl.nl_u.ip4_u.tos = RT_TOS(iph->tos);
+@@ -156,7 +159,7 @@ static int nf_ip_reroute(struct sk_buff 
+ 		if (!(iph->tos == rt_info->tos
+ 		      && iph->daddr == rt_info->daddr
+ 		      && iph->saddr == rt_info->saddr))
+-			return ip_route_me_harder(pskb);
++			return ip_route_me_harder(pskb, RTN_UNSPEC);
+ 	}
+ 	return 0;
  }
- 
-@@ -471,7 +472,13 @@ static inline int check_entry(struct arp
- 		return -EINVAL;
+--- linux-2.6.18.4.orig/net/ipv4/netfilter/ip_nat_standalone.c
++++ linux-2.6.18.4/net/ipv4/netfilter/ip_nat_standalone.c
+@@ -275,7 +275,8 @@ ip_nat_local_fn(unsigned int hooknum,
+ 		       ct->tuplehash[!dir].tuple.src.u.all
+ #endif
+ 		    )
+-			return ip_route_me_harder(pskb) == 0 ? ret : NF_DROP;
++			if (ip_route_me_harder(pskb, RTN_UNSPEC))
++				ret = NF_DROP;
  	}
- 
-+	if (e->target_offset + sizeof(struct arpt_entry_target) > e->next_offset)
-+		return -EINVAL;
-+
- 	t = arpt_get_target(e);
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+		return -EINVAL;
-+
- 	target = try_then_request_module(xt_find_target(NF_ARP, t->u.user.name,
- 							t->u.user.revision),
- 					 "arpt_%s", t->u.user.name);
-@@ -641,7 +648,7 @@ static int translate_table(const char *n
- 
- 	if (ret != 0) {
- 		ARPT_ENTRY_ITERATE(entry0, newinfo->size,
--				   cleanup_entry, &i);
-+				cleanup_entry, &i);
- 		return ret;
- 	}
- 
---- linux-2.6.18.4.orig/net/ipv4/netfilter/ip_tables.c
-+++ linux-2.6.18.4/net/ipv4/netfilter/ip_tables.c
-@@ -404,6 +404,13 @@ mark_source_chains(struct xt_table_info 
- 			    && unconditional(&e->ip)) {
- 				unsigned int oldpos, size;
- 
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
-+
- 				/* Return: backtrack through the last
- 				   big jump. */
- 				do {
-@@ -441,6 +448,13 @@ mark_source_chains(struct xt_table_info 
- 				if (strcmp(t->target.u.user.name,
- 					   IPT_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct ipt_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -474,27 +488,6 @@ cleanup_match(struct ipt_entry_match *m,
- }
- 
- static inline int
--standard_check(const struct ipt_entry_target *t,
--	       unsigned int max_offset)
--{
--	struct ipt_standard_target *targ = (void *)t;
--
--	/* Check standard info. */
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct ipt_entry)) {
--		duprintf("ipt_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("ipt_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	return 1;
--}
--
--static inline int
- check_match(struct ipt_entry_match *m,
- 	    const char *name,
- 	    const struct ipt_ip *ip,
-@@ -552,12 +545,18 @@ check_entry(struct ipt_entry *e, const c
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct ipt_entry_target) > e->next_offset)
-+		return -EINVAL;
-+
- 	j = 0;
- 	ret = IPT_MATCH_ITERATE(e, check_match, name, &e->ip, e->comefrom, &j);
- 	if (ret != 0)
- 		goto cleanup_matches;
- 
- 	t = ipt_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET,
- 						     t->u.user.name,
- 						     t->u.user.revision),
-@@ -575,12 +574,7 @@ check_entry(struct ipt_entry *e, const c
- 	if (ret)
- 		goto err;
- 
--	if (t->u.kernel.target == &ipt_standard_target) {
--		if (!standard_check(t, size)) {
--			ret = -EINVAL;
--			goto cleanup_matches;
--		}
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, e, target, t->data,
- 						      t->u.target_size
- 						      - sizeof(*t),
-@@ -730,7 +724,7 @@ translate_table(const char *name,
- 
- 	if (ret != 0) {
- 		IPT_ENTRY_ITERATE(entry0, newinfo->size,
--				  cleanup_entry, &i);
-+				cleanup_entry, &i);
- 		return ret;
- 	}
- 
-@@ -1531,6 +1525,10 @@ check_compat_entry_size_and_hooks(struct
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct compat_xt_entry_target) >
-+								e->next_offset)
-+		return -EINVAL;
-+
- 	off = 0;
- 	entry_offset = (void *)e - (void *)base;
- 	j = 0;
-@@ -1540,6 +1538,9 @@ check_compat_entry_size_and_hooks(struct
- 		goto cleanup_matches;
- 
- 	t = ipt_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET,
- 						     t->u.user.name,
- 						     t->u.user.revision),
-@@ -1656,19 +1657,15 @@ static int compat_copy_entry_from_user(s
- 	if (ret)
- 		goto err;
- 
--	ret = -EINVAL;
--	if (t->u.kernel.target == &ipt_standard_target) {
--		if (!standard_check(t, *size))
--			goto err;
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, de, target,
- 				t->data, t->u.target_size - sizeof(*t),
- 				de->comefrom)) {
- 		duprintf("ip_tables: compat: check failed for `%s'.\n",
- 			 t->u.kernel.target->name);
-+		ret = -EINVAL;
- 		goto err;
- 	}
--	ret = 0;
-  err:
  	return ret;
  }
---- linux-2.6.18.4.orig/net/ipv6/netfilter/ip6_tables.c
-+++ linux-2.6.18.4/net/ipv6/netfilter/ip6_tables.c
-@@ -444,6 +444,13 @@ mark_source_chains(struct xt_table_info 
- 			    && unconditional(&e->ipv6)) {
- 				unsigned int oldpos, size;
+--- linux-2.6.18.4.orig/net/ipv4/netfilter/iptable_mangle.c
++++ linux-2.6.18.4/net/ipv4/netfilter/iptable_mangle.c
+@@ -157,7 +157,8 @@ ipt_local_hook(unsigned int hook,
+ 		|| (*pskb)->nfmark != nfmark
+ #endif
+ 		|| (*pskb)->nh.iph->tos != tos))
+-		return ip_route_me_harder(pskb) == 0 ? ret : NF_DROP;
++		if (ip_route_me_harder(pskb, RTN_UNSPEC))
++			ret = NF_DROP;
  
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
-+
- 				/* Return: backtrack through the last
- 				   big jump. */
- 				do {
-@@ -481,6 +488,13 @@ mark_source_chains(struct xt_table_info 
- 				if (strcmp(t->target.u.user.name,
- 					   IP6T_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct ip6t_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -514,27 +528,6 @@ cleanup_match(struct ip6t_entry_match *m
+ 	return ret;
  }
- 
- static inline int
--standard_check(const struct ip6t_entry_target *t,
--	       unsigned int max_offset)
--{
--	struct ip6t_standard_target *targ = (void *)t;
--
--	/* Check standard info. */
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct ip6t_entry)) {
--		duprintf("ip6t_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("ip6t_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	return 1;
--}
--
--static inline int
- check_match(struct ip6t_entry_match *m,
- 	    const char *name,
- 	    const struct ip6t_ip6 *ipv6,
-@@ -592,12 +585,19 @@ check_entry(struct ip6t_entry *e, const 
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct ip6t_entry_target) >
-+								e->next_offset)
-+		return -EINVAL;
-+
- 	j = 0;
- 	ret = IP6T_MATCH_ITERATE(e, check_match, name, &e->ipv6, e->comefrom, &j);
- 	if (ret != 0)
- 		goto cleanup_matches;
- 
- 	t = ip6t_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET6,
- 							t->u.user.name,
- 							t->u.user.revision),
-@@ -615,12 +615,7 @@ check_entry(struct ip6t_entry *e, const 
- 	if (ret)
- 		goto err;
- 
--	if (t->u.kernel.target == &ip6t_standard_target) {
--		if (!standard_check(t, size)) {
--			ret = -EINVAL;
--			goto cleanup_matches;
--		}
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, e, target, t->data,
- 						      t->u.target_size
- 						      - sizeof(*t),
-@@ -770,7 +765,7 @@ translate_table(const char *name,
- 
- 	if (ret != 0) {
- 		IP6T_ENTRY_ITERATE(entry0, newinfo->size,
--				  cleanup_entry, &i);
-+				   cleanup_entry, &i);
- 		return ret;
- 	}
- 
-@@ -780,7 +775,7 @@ translate_table(const char *name,
- 			memcpy(newinfo->entries[i], entry0, newinfo->size);
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- /* Gets counters. */
 
 --

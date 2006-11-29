@@ -1,94 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758801AbWK2ERy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758793AbWK2EZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758801AbWK2ERy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758778AbWK2EPI
+	id S1758793AbWK2EZm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758786AbWK2EZl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:15:08 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:47249 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1758763AbWK2EOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:14:49 -0500
-Subject: [PATCH 6/12] ext2 balloc: fix _with_rsv freeze
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
-Cc: Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0611281739140.29701@blonde.wat.veritas.com>
-References: <20061114014125.dd315fff.akpm@osdl.org>
-	 <20061114184919.GA16020@skynet.ie>
-	 <Pine.LNX.4.64.0611141858210.11956@blonde.wat.veritas.com>
-	 <20061114113120.d4c22b02.akpm@osdl.org>
-	 <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-	 <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com>
-	 <20061115232228.afaf42f2.akpm@osdl.org>
-	 <1163666960.4310.40.camel@localhost.localdomain>
-	 <20061116011351.1401a00f.akpm@osdl.org>
-	 <1163708116.3737.12.camel@dyn9047017103.beaverton.ibm.com>
-	 <20061116132724.1882b122.akpm@osdl.org>
-	 <Pine.LNX.4.64.0611201544510.16530@blonde.wat.veritas.com>
-	 <1164073652.20900.34.camel@dyn9047017103.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0611210508270.22957@blonde.wat.veritas.com>
-	 <1164156193.3804.48.camel@dyn9047017103.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0611281659190.29701@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0611281739140.29701@blonde.wat.veritas.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Tue, 28 Nov 2006 20:14:46 -0800
-Message-Id: <1164773686.4341.40.camel@localhost.localdomain>
+	Tue, 28 Nov 2006 23:25:41 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:61126
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1758782AbWK2EZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 23:25:40 -0500
+Date: Tue, 28 Nov 2006 20:25:35 -0800 (PST)
+Message-Id: <20061128.202535.112619392.davem@davemloft.net>
+To: kaber@trash.net
+Cc: khc@pm.waw.pl, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely
+ duplicate route_reverse function
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <456CF049.7040407@trash.net>
+References: <456CAE0D.2080209@trash.net>
+	<m3slg3ktvw.fsf@defiant.localdomain>
+	<456CF049.7040407@trash.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Patrick McHardy <kaber@trash.net>
+Date: Wed, 29 Nov 2006 03:28:25 +0100
 
-Sync up a reservation fix from ext2 in ext3
-------------------------------------------------------
-Subject: ext2 balloc: fix _with_rsv freeze
-From: Hugh Dickins <hugh@veritas.com>
+> [NETFILTER]: ipt_REJECT: fix memory corruption
+> 
+> On devices with hard_header_len > LL_MAX_HEADER ip_route_me_harder()
+> reallocates the skb, leading to memory corruption when using the stale
+> tcph pointer to update the checksum.
+> 
+> Signed-off-by: Patrick McHardy <kaber@trash.net>
 
-After several days of testing ext2 with reservations, it got caught inside
-ext2_try_to_allocate_with_rsv: alloc_new_reservation repeatedly succeeding on
-the window [12cff,12d0e], ext2_try_to_allocate repeatedly failing to find the
-free block guaranteed to be included (unless there's contention).
+Applied, thanks Patrick.
 
-Fix the range to find_next_usable_block's memscan: the scan from "here"
-(0xcfe) up to (but excluding) "maxblocks" (0xd0e) needs to scan 3 bytes not 2
-(the relevant bytes of bitmap in this case being f7 df ff - none 00, but the
-premature cutoff implying that the last was found 00).
+And based upon your discovery wrt. MAX_HEADER I'm also
+applying the following.
 
-Is this a problem for mainline ext2?  No, because the "size" in its memscan is
-always EXT2_BLOCKS_PER_GROUP(sb), which mkfs.ext2 requires to be a multiple of
-8.  Is this a problem for ext3 or ext4?  No, because they have an additional
-extN_test_allocatable test which rescues them from the error.
+commit 93e3a20d6c67a09b867431e7d5b3e7bc97154fab
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Tue Nov 28 20:24:10 2006 -0800
 
---------------------------------------------------
+    [NET]: Fix MAX_HEADER setting.
+    
+    MAX_HEADER is either set to LL_MAX_HEADER or LL_MAX_HEADER + 48, and
+    this is controlled by a set of CONFIG_* ifdef tests.
+    
+    It is trying to use LL_MAX_HEADER + 48 when any of the tunnels are
+    enabled which set hard_header_len like this:
+    
+    dev->hard_header_len = LL_MAX_HEADER + sizeof(struct xxx);
+    
+    The correct set of tunnel drivers which do this are:
+    
+    ipip
+    ip_gre
+    ip6_tunnel
+    sit
+    
+    so make the ifdef test match.
+    
+    Noticed by Patrick McHardy.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
 
-Signed-off-by: Mingming Cao <cmm@us.ibm.com>
-
-
----
-
- linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN fs/ext3/balloc.c~ext3-balloc-fix-_with_rsv-freeze fs/ext3/balloc.c
---- linux-2.6.19-rc5/fs/ext3/balloc.c~ext3-balloc-fix-_with_rsv-freeze	2006-11-28 19:36:55.000000000 -0800
-+++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-28 19:36:55.000000000 -0800
-@@ -730,7 +730,7 @@ find_next_usable_block(ext3_grpblk_t sta
- 		here = 0;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 9264139..95e86ac 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -94,7 +94,9 @@ #endif
+ #endif
  
- 	p = ((char *)bh->b_data) + (here >> 3);
--	r = memscan(p, 0, (maxblocks - here + 7) >> 3);
-+	r = memscan(p, 0, ((maxblocks + 7) >> 3) - (here >> 3));
- 	next = (r - ((char *)bh->b_data)) << 3;
- 
- 	if (next < maxblocks && next >= start && ext3_test_allocatable(next, bh))
-
-_
-
-
+ #if !defined(CONFIG_NET_IPIP) && \
+-    !defined(CONFIG_IPV6) && !defined(CONFIG_IPV6_MODULE)
++    !defined(CONFIG_NET_IPGRE) && \
++    !defined(CONFIG_IPV6_SIT) && \
++    !defined(CONFIG_IPV6_TUNNEL)
+ #define MAX_HEADER LL_MAX_HEADER
+ #else
+ #define MAX_HEADER (LL_MAX_HEADER + 48)

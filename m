@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758956AbWK2XOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758949AbWK2XNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758956AbWK2XOu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 18:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758960AbWK2XOu
+	id S1758949AbWK2XNN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 18:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758951AbWK2XNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 18:14:50 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:23821 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1758956AbWK2XOt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 18:14:49 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: gibbs@btc.adaptec.com
-Subject: [PATCH] scsi: sic7xxx stray bracket fix
-Date: Thu, 30 Nov 2006 00:14:18 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
+	Wed, 29 Nov 2006 18:13:13 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:1740 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1758949AbWK2XNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 18:13:11 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
+Date: Thu, 30 Nov 2006 00:08:21 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net,
+       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Valerie Henson <val_henson@linux.intel.com>
+References: <20061128020246.47e481eb.akpm@osdl.org> <20061129133030.18c023cf.akpm@osdl.org> <200611292231.53253.rjw@sisk.pl>
+In-Reply-To: <200611292231.53253.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611300014.18439.m.kozlowski@tuxland.pl>
+Message-Id: <200611300008.21434.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
+> On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
+> > On Wed, 29 Nov 2006 21:08:00 +0100
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > 
+> > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
+> > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+> > > > > 
+> > > > > Temporarily at
+> > > > > 
+> > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
+> > > > > 
+> > > > > Will appear eventually at
+> > > > > 
+> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+> > > > 
+> > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
+> > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
+> > 
+> > That isn't a minor issue.
+> > 
+> > > > It worked just fine on -mm1, so something must have happened to it recently.
+> > > 
+> > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
+> > > 
+> > 
+> > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
+> > not using that (corrent?)
+> > 
+> > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
+> > that either.
+> > 
+> > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
+> > 
+> > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
+> > presumably a showstopper for statically-linked-uli526x users.  If you could
+> > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
+> 
+> OK, but it'll take some time.
 
-	Unused macro. Better to have it fixed though.
+OK, done.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+It's one of these (the first one alone doesn't compile):
 
- drivers/scsi/aic7xxx/aic79xx_pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+git-netdev-all.patch
+git-netdev-all-fixup.patch
+libphy-dont-do-that.patch
 
---- linux-2.6.19-rc6-mm2-a/drivers/scsi/aic7xxx/aic79xx_pci.c	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/drivers/scsi/aic7xxx/aic79xx_pci.c	2006-11-29 15:20:01.000000000 +0100
-@@ -88,7 +88,7 @@ ahd_compose_id(u_int device, u_int vendo
- 
- #define SUBID_9005_LEGACYCONN_FUNC(id) ((id) & 0x20)
- 
--#define SUBID_9005_SEEPTYPE(id) ((id) & 0x0C0) >> 6)
-+#define SUBID_9005_SEEPTYPE(id) (((id) & 0x0C0) >> 6)
- #define		SUBID_9005_SEEPTYPE_NONE	0x0
- #define		SUBID_9005_SEEPTYPE_4K		0x1
- 
+Is a broken-out version of git-netdev-all.patch available from somewhere?
 
-
--- 
-Regards,
-
-	Mariusz Kozlowski
+Greetings,
+Rafael

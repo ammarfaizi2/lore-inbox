@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967370AbWK2OkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967367AbWK2OtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967370AbWK2OkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967369AbWK2OkJ
+	id S967367AbWK2OtL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967374AbWK2OtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:40:09 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64441 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S967367AbWK2OkH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:40:07 -0500
-Date: Wed, 29 Nov 2006 14:46:52 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] ide_scsi: allow it to be used for non CD only
-Message-ID: <20061129144652.299f7919@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 29 Nov 2006 09:49:11 -0500
+Received: from smtp.ictp.trieste.it ([140.105.16.52]:14724 "EHLO
+	smtp.ictp.trieste.it") by vger.kernel.org with ESMTP
+	id S967367AbWK2OtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:49:09 -0500
+Message-ID: <53313.62.101.126.236.1164811670.squirrel@webmail2.ictp.trieste.it>
+Date: Wed, 29 Nov 2006 15:47:50 +0100 (CET)
+Subject: O_DIRECT error, user space programming
+From: "Leto Angelo" <aleto@ictp.it>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-ASICTP-MailScanner-Information: Please see http://www.ictp.trieste.it/antispam.html
+X-ASICTP-MailScanner: Found to be clean
+X-ASICTP-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-5.899, required 5, autolearn=not spam,
+	ALL_TRUSTED -3.30, BAYES_00 -2.60)
+X-MailScanner-From: aleto@ictp.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people want to use ide_cd for CD-ROM but still dynamically load
-ide-scsi for things like tape drives. If you compile in the CD driver
-this works out but if you want them modular you need an option to ensure
-that whoever loads first the right things happen.
+Hi,
+I got an:
+*** glibc detected *** double free or corruption (!prev): 0x84c01000 ***
+using O_DIRECT with threads: this error appends if I run several threads
+wich are reading several files (opened with O_RDONLY|O_DIRECT) at the same
+time.
+The error doesn't appends if I open the files whithout O_DIRECT or if I
+place a pthread_join after each thread call.
+I'm sure that no double free is done.
+kernel version: 2.6.17 SMP PREEMPT
+glibc version: 2.3.6
+filesystem: ext3
+g++ used: g++ (GCC) 4.0.4 20060507 (prerelease) (Debian 4.0.3-3)
+Does somebody knows the reasons of the error? There are limitation to use
+O_DIRECT on a multithread application?
+Thanks in advance for any help.
+A.
 
-This replaces the original draft patch which leaked a scsi host reference
+ps. I can provide the source code code (135 lines of C++) if it is useful
+to uinderstand better the problem
 
-Signed-off-by: Alan Cox <alan@redhat.com>
 
-diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c linux-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c
---- linux.vanilla-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c	2006-11-24 13:58:08.000000000 +0000
-+++ linux-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c	2006-11-29 14:18:12.000000000 +0000
-@@ -110,6 +110,7 @@
- } idescsi_scsi_t;
- 
- static DEFINE_MUTEX(idescsi_ref_mutex);
-+static int idescsi_nocd;			/* Set by module param to skip cd */
- 
- #define ide_scsi_g(disk) \
- 	container_of((disk)->private_data, struct ide_scsi_obj, driver)
-@@ -1127,11 +1128,14 @@
- 		warned = 1;
- 	}
- 
-+	if (idescsi_nocd && drive->media == ide_cdrom)
-+		return -ENODEV;
-+
- 	if (!strstr("ide-scsi", drive->driver_req) ||
- 	    !drive->present ||
- 	    drive->media == ide_disk ||
- 	    !(host = scsi_host_alloc(&idescsi_template,sizeof(idescsi_scsi_t))))
- 		return -ENODEV;
- 
- 	g = alloc_disk(1 << PARTN_BITS);
- 	if (!g)
-@@ -1187,6 +1192,7 @@
- 	driver_unregister(&idescsi_driver.gen_driver);
- }
- 
-+module_param(idescsi_nocd, int, 0600);
- module_init(init_idescsi_module);
- module_exit(exit_idescsi_module);
- MODULE_LICENSE("GPL");

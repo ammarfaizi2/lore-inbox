@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758355AbWK2WEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758347AbWK2WDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758355AbWK2WEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758303AbWK2WEd
+	id S1758347AbWK2WDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758344AbWK2WDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:04:33 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:1237 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758295AbWK2WER
+	Wed, 29 Nov 2006 17:03:53 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:56020 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758267AbWK2WDi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:04:17 -0500
-Message-Id: <20061129220554.699139000@sous-sol.org>
+	Wed, 29 Nov 2006 17:03:38 -0500
+Message-Id: <20061129220526.952590000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:28 -0800
+Date: Wed, 29 Nov 2006 14:00:26 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,44 +21,42 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, maks@sternwelten.at,
-       "Ira W. Snyder" <kernel@irasnyder.com>,
-       David S Miller <davem@davemloft.net>
-Subject: [patch 17/23] TG3: Add missing unlock in tg3_open() error path.
-Content-Disposition: inline; filename=tg3-add-missing-unlock-in-tg3_open-error-path.patch
+       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
+       ferdy@gentoo.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: [patch 15/23] alpha: Fix ALPHA_EV56 dependencies typo
+Content-Disposition: inline; filename=alpha-fix-alpha_ev56-dependencies-typo.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Ira W. Snyder <kernel@irasnyder.com>
+From: Fernando J. Pereda <ferdy@gentoo.org>
 
-Sparse noticed a locking imbalance in tg3_open(). This patch adds an
-unlock to one of the error paths, so that tg3_open() always exits
-without the lock held.
+There appears to be a typo in the EV56 config option. NORITAKE and PRIMO are
+be able to set a variation of either.
 
-Signed-off-by: Ira W. Snyder <kernel@irasnyder.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
+ arch/alpha/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/net/tg3.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- linux-2.6.18.4.orig/drivers/net/tg3.c
-+++ linux-2.6.18.4/drivers/net/tg3.c
-@@ -6889,8 +6889,10 @@ static int tg3_open(struct net_device *d
- 	tg3_full_lock(tp, 0);
+--- linux-2.6.18.4.orig/arch/alpha/Kconfig
++++ linux-2.6.18.4/arch/alpha/Kconfig
+@@ -381,7 +381,7 @@ config ALPHA_EV56
  
- 	err = tg3_set_power_state(tp, PCI_D0);
--	if (err)
-+	if (err) {
-+		tg3_full_unlock(tp);
- 		return err;
-+	}
+ config ALPHA_EV56
+ 	prompt "EV56 CPU (speed >= 333MHz)?"
+-	depends on ALPHA_NORITAKE && ALPHA_PRIMO
++	depends on ALPHA_NORITAKE || ALPHA_PRIMO
  
- 	tg3_disable_ints(tp);
- 	tp->tg3_flags &= ~TG3_FLAG_INIT_COMPLETE;
+ config ALPHA_EV56
+ 	prompt "EV56 CPU (speed >= 400MHz)?"
 
 --

@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758807AbWK2JIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966435AbWK2JIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758807AbWK2JIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758806AbWK2JIa
+	id S966435AbWK2JIS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758805AbWK2JIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:08:30 -0500
-Received: from mga09.intel.com ([134.134.136.24]:14352 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1758807AbWK2JI3 (ORCPT
+	Wed, 29 Nov 2006 04:08:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44775 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758806AbWK2JIQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:08:29 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,473,1157353200"; 
-   d="scan'208"; a="20911651:sNHT18953883"
-Subject: Re: [patch] Mark rdtsc as sync only for netburst, not for core2
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <456D4648.7000509@linux.intel.com>
-References: <1164709708.3276.72.camel@laptopd505.fenrus.org>
-	 <200611281136.29066.ak@suse.de> <1164774239.15257.5.camel@ymzhang>
-	 <456D372C.9080800@linux.intel.com> <1164787104.2899.7.camel@ymzhang>
-	 <456D4648.7000509@linux.intel.com>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 17:07:48 +0800
-Message-Id: <1164791268.2873.5.camel@ymzhang>
+	Wed, 29 Nov 2006 04:08:16 -0500
+Date: Wed, 29 Nov 2006 04:08:00 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
+Message-ID: <20061129090800.GI6570@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1164769705.2825.4.camel@entropy> <21982.1164772580@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21982.1164772580@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-29 at 09:35 +0100, Arjan van de Ven wrote:
-> Zhang, Yanmin wrote:
-> >> but second of all, the core2 cpus are dual core so.. .what does it 
-> >> bring you at all?
-> > 
-> > When there is only one cpu (or UP), the go backwards issue doesn't exist,
+On Wed, Nov 29, 2006 at 02:56:20PM +1100, Keith Owens wrote:
+> Nicholas Miell (on Tue, 28 Nov 2006 19:08:25 -0800) wrote:
+> >On Wed, 2006-11-29 at 13:22 +1100, Keith Owens wrote:
+> >> Compiling 2.6.19-rc6 with gcc version 4.1.0 (SUSE Linux),
+> >> wait_hpet_tick is optimized away to a never ending loop and the kernel
+> >> hangs on boot in timer setup.
+> >> 
+> >> 0000001a <wait_hpet_tick>:
+> >>   1a:   55                      push   %ebp
+> >>   1b:   89 e5                   mov    %esp,%ebp
+> >>   1d:   eb fe                   jmp    1d <wait_hpet_tick+0x3>
+> >> 
+> >> This is not a problem with gcc 3.3.5.  Adding barrier() calls to
+> >> wait_hpet_tick does not help, making the variables volatile does.
+> >> 
+> >> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+> >> 
+> >> ---
+> >>  arch/i386/kernel/time_hpet.c |    2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >> 
+> >> Index: linux-2.6/arch/i386/kernel/time_hpet.c
+> >> ===================================================================
+> >> --- linux-2.6.orig/arch/i386/kernel/time_hpet.c
+> >> +++ linux-2.6/arch/i386/kernel/time_hpet.c
+> >> @@ -51,7 +51,7 @@ static void hpet_writel(unsigned long d,
+> >>   */
+> >>  static void __devinit wait_hpet_tick(void)
+> >>  {
+> >> -	unsigned int start_cmp_val, end_cmp_val;
+> >> +	unsigned volatile int start_cmp_val, end_cmp_val;
+> >>  
+> >>  	start_cmp_val = hpet_readl(HPET_T0_CMP);
+> >>  	do {
+> >
+> >When you examine the inlined functions involved, this looks an awful lot
+> >like http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278
+> >
+> >Perhaps SUSE should fix their gcc instead of working around compiler
+> >problems in the kernel?
 > 
-> it does exist for single-socket dual core already. And core2 is dual 
-> core...
-> 
-> > so
-> > don't use cpuid here for UP. Another function init_amd already does so.
-> > 
-> not anymore.. that got fixed very recently...
-Thanks.
+> Firstly, the fix for 22278 is included in gcc 4.1.0.
 
-> (but you are right; on AMD the speculation is even bigger so there 
-> even on single core you need cpuid)
+This actually sounds more like http://gcc.gnu.org/PR27236
+And that one is broken in 4.1.0, fixed in 4.1.1.
+
+	Jakub

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758361AbWK2WFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758356AbWK2WE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758361AbWK2WFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758302AbWK2WEm
+	id S1758356AbWK2WE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758287AbWK2WD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:04:42 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:6613 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758295AbWK2WEd
+	Wed, 29 Nov 2006 17:03:57 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:50644 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758294AbWK2WDY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:04:33 -0500
-Message-Id: <20061129220638.365194000@sous-sol.org>
+	Wed, 29 Nov 2006 17:03:24 -0500
+Message-Id: <20061129220509.212217000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:31 -0800
+Date: Wed, 29 Nov 2006 14:00:24 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,49 +21,43 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, maks@sternwelten.at,
-       "David S. Miller" <davem@davemloft.net>
-Subject: [patch 20/23] BLUETOOTH: Fix unaligned access in hci_send_to_sock.
-Content-Disposition: inline; filename=bluetooth-fix-unaligned-access-in-hci_send_to_sock.patch
+       alan@lxorguk.ukuu.org.uk,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [patch 13/23] V4L: Do not enable VIDEO_V4L2 unconditionally
+Content-Disposition: inline; filename=v4l-do-not-enable-video_v4l2-unconditionally.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: David S. Miller <davem@davemloft.net>
+From: Maciej W. Rozycki <macro@linux-mips.org>
 
-The "u16 *" derefs of skb->data need to be wrapped inside of
-a get_unaligned().
+V4L: Do not enable VIDEO_V4L2 unconditionally
 
-Thanks to Gustavo Zacarias for the bug report.
+The VIDEO_V4L2 config setting is enabled unconditionally, even for
+configurations with no support for this subsystem whatsoever. The
+following patch adds the necessary dependency.
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
+ drivers/media/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
- net/bluetooth/hci_sock.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
---- linux-2.6.18.4.orig/net/bluetooth/hci_sock.c
-+++ linux-2.6.18.4/net/bluetooth/hci_sock.c
-@@ -120,10 +120,13 @@ void hci_send_to_sock(struct hci_dev *hd
- 			if (!hci_test_bit(evt, &flt->event_mask))
- 				continue;
+--- linux-2.6.18.4.orig/drivers/media/Kconfig
++++ linux-2.6.18.4/drivers/media/Kconfig
+@@ -54,6 +54,7 @@ config VIDEO_V4L1_COMPAT
  
--			if (flt->opcode && ((evt == HCI_EV_CMD_COMPLETE && 
--					flt->opcode != *(__u16 *)(skb->data + 3)) ||
--					(evt == HCI_EV_CMD_STATUS && 
--					flt->opcode != *(__u16 *)(skb->data + 4))))
-+			if (flt->opcode &&
-+			    ((evt == HCI_EV_CMD_COMPLETE &&
-+			      flt->opcode !=
-+			      get_unaligned((__u16 *)(skb->data + 3))) ||
-+			     (evt == HCI_EV_CMD_STATUS &&
-+			      flt->opcode !=
-+			      get_unaligned((__u16 *)(skb->data + 4)))))
- 				continue;
- 		}
+ config VIDEO_V4L2
+ 	bool
++	depends on VIDEO_DEV
+ 	default y
  
+ source "drivers/media/video/Kconfig"
 
 --

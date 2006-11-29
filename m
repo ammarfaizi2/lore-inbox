@@ -1,71 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966979AbWK2KbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966991AbWK2KeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966979AbWK2KbH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 05:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966975AbWK2KbH
+	id S966991AbWK2KeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 05:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966980AbWK2KeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 05:31:07 -0500
-Received: from vervifontaine.sonytel.be ([80.88.33.193]:62186 "EHLO
-	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
-	id S966972AbWK2KbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 05:31:04 -0500
-Date: Wed, 29 Nov 2006 11:30:58 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Andrew Morton <akpm@osdl.org>,
-       Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>,
-       adaplas@pol.net, James Simmons <jsimmons@infradead.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>, linux-m68k@vger.kernel.org,
-       Linux/PPC Development <linuxppc-dev@ozlabs.org>,
-       Sam Creasey <sammy@sammy.net>, sun3-list@redhat.com
-Subject: Re: [2.6 patch] remove broken video drivers (v3)
-In-Reply-To: <20061129100431.GN11084@stusta.de>
-Message-ID: <Pine.LNX.4.62.0611291130070.6335@pademelon.sonytel.be>
-References: <20061129100431.GN11084@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Nov 2006 05:34:10 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:30685 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S966993AbWK2KeI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 05:34:08 -0500
+Date: Wed, 29 Nov 2006 11:32:12 +0100
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Subject: [PATCH -mm 1/5][AIO] - Rework compat_sys_io_submit
+Message-ID: <20061129113212.1e614a61@frecb000686>
+In-Reply-To: <20061129112441.745351c9@frecb000686>
+References: <20061129112441.745351c9@frecb000686>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/11/2006 11:41:17,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 29/11/2006 11:41:19,
+	Serialize complete at 29/11/2006 11:41:19
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006, Adrian Bunk wrote:
-> This patch removes some video drivers that:
-> - had already been marked as BROKEN in 2.6.0 three years ago and
-> - are still marked as BROKEN.
-> 
-> These are the following drivers:
-> - FB_CYBER
-> - FB_VIRGE
-> - FB_RETINAZ3
-> - FB_SUN3
-> 
-> Drivers that had been marked as BROKEN for such a long time seem to be
-> unlikely to be revived in the forseeable future.
-> 
-> But if anyone wants to ever revive any of these drivers, the code is
-> still present in the older kernel releases.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Acked-By: Geert Uytterhoeven <geert@linux-m68k.org>
+                 compat_sys_io_submit() cleanup
 
-> This patch obsoletes the following patches in -mm:
-> ioremap-balanced-with-iounmap-for-drivers-video-cyberfb.patch
-> ioremap-balanced-with-iounmap-for-drivers-video-retz3fb.patch
-> ioremap-balanced-with-iounmap-for-drivers-video-virgefb.patch
 
-If possible, can these still be integrated first, to ease a future
-resurrection?
+  Cleanup compat_sys_io_submit by duplicating some of the native syscall
+logic in the compat layer and directly calling io_submit_one() instead
+of fooling the syscall into thinking it is called from a native 64-bit
+caller.
 
-Gr{oetje,eeting}s,
+  This is needed for the completion notification patch to avoid having
+to rewrite each iocb on the caller stack for sys_io_submit() to find the
+sigevents.
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ compat.c |   61 +++++++++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 35 insertions(+), 26 deletions(-)
+
+Signed-off-by: Sébastien Dugué <sebastien.dugue@bull.net>
+
+Index: linux-2.6.19-rc6-mm2/fs/compat.c
+===================================================================
+--- linux-2.6.19-rc6-mm2.orig/fs/compat.c	2006-11-28 12:49:40.000000000
++0100 +++ linux-2.6.19-rc6-mm2/fs/compat.c	2006-11-28 12:51:35.000000000
++0100 @@ -642,40 +642,49 @@ out:
+ 	return ret;
+ }
+ 
+-static inline long
+-copy_iocb(long nr, u32 __user *ptr32, struct iocb __user * __user *ptr64)
++asmlinkage long
++compat_sys_io_submit(aio_context_t ctx_id, int nr, u32 __user *iocb)
+ {
+-	compat_uptr_t uptr;
++	struct kioctx *ctx;
++	long ret = 0;
+ 	int i;
+ 
+-	for (i = 0; i < nr; ++i) {
+-		if (get_user(uptr, ptr32 + i))
+-			return -EFAULT;
+-		if (put_user(compat_ptr(uptr), ptr64 + i))
+-			return -EFAULT;
+-	}
+-	return 0;
+-}
++	if (unlikely(nr < 0))
++		return -EINVAL;
+ 
+-#define MAX_AIO_SUBMITS 	(PAGE_SIZE/sizeof(struct iocb *))
++	if (unlikely(!access_ok(VERIFY_READ, iocb, (nr * sizeof(u32)))))
++		return -EFAULT;
+ 
+-asmlinkage long
+-compat_sys_io_submit(aio_context_t ctx_id, int nr, u32 __user *iocb)
+-{
+-	struct iocb __user * __user *iocb64; 
+-	long ret;
++	ctx = lookup_ioctx(ctx_id);
+ 
+-	if (unlikely(nr < 0))
++	if (unlikely(!ctx))
+ 		return -EINVAL;
++	for (i=0; i<nr; i++) {
++		compat_uptr_t uptr;
++		struct iocb __user *user_iocb;
++		struct iocb tmp;
+ 
+-	if (nr > MAX_AIO_SUBMITS)
+-		nr = MAX_AIO_SUBMITS;
+-	
+-	iocb64 = compat_alloc_user_space(nr * sizeof(*iocb64));
+-	ret = copy_iocb(nr, iocb, iocb64);
+-	if (!ret)
+-		ret = sys_io_submit(ctx_id, nr, iocb64);
+-	return ret;
++		if (get_user(uptr, iocb + i)) {
++			ret = -EFAULT;
++			break;
++		}
++
++		user_iocb = compat_ptr(uptr);
++
++		if (unlikely(copy_from_user(&tmp, user_iocb, sizeof(tmp)))) {
++			ret = -EFAULT;
++			break;
++		}
++
++		ret = io_submit_one(ctx, user_iocb, &tmp);
++
++		if (ret)
++			break;
++	}
++
++	put_ioctx(ctx);
++
++	return i? i: ret;
+ }
+ 
+ struct compat_ncp_mount_data {

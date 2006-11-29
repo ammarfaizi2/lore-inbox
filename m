@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966119AbWK2Htw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966059AbWK2Huk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966119AbWK2Htw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 02:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966059AbWK2Htw
+	id S966059AbWK2Huk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 02:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966190AbWK2Huk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 02:49:52 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:53010 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S966031AbWK2Htv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 02:49:51 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: a.p.zijlstra@chello.nl (Peter Zijlstra)
-Subject: Re: [PATCH] lockdep: fix sk->sk_callback_lock locking
-Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, mingo@elte.hu, gandalf@wlug.westbo.se
-Organization: Core
-In-Reply-To: <1164715642.6588.58.camel@twins>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1GpKC4-0005Vc-00@gondolin.me.apana.org.au>
-Date: Wed, 29 Nov 2006 18:49:24 +1100
+	Wed, 29 Nov 2006 02:50:40 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59566 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966059AbWK2Huj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 02:50:39 -0500
+Date: Tue, 28 Nov 2006 23:47:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm1: drivers/net/chelsio/: unused code
+Message-Id: <20061128234719.9b3a224d.akpm@osdl.org>
+In-Reply-To: <20061129073609.GA11084@stusta.de>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	<20061124001731.GO3557@stusta.de>
+	<20061127102455.362fe88f@dxpl.pdx.osdl.net>
+	<20061129073609.GA11084@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+On Wed, 29 Nov 2006 08:36:09 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
+
+> On Mon, Nov 27, 2006 at 10:24:55AM -0800, Stephen Hemminger wrote:
+> > On Fri, 24 Nov 2006 01:17:31 +0100
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
+> > > >...
+> > > > Changes since 2.6.19-rc5-mm2:
+> > > >...
+> > > > +chelsio-22-driver.patch
+> > > >...
+> > > >  netdev updates
+> > > 
+> > > It is suspicious that the following newly added code is completely unused:
+> > >   drivers/net/chelsio/ixf1010.o
+> > >     t1_ixf1010_ops
+> > >   drivers/net/chelsio/mac.o
+> > >     t1_chelsio_mac_ops
+> > >   drivers/net/chelsio/vsc8244.o
+> > >     t1_vsc8244_ops
+> > > 
+> > > cu
+> > > Adrian
+> > > 
+> > 
+> > All that is gone in later version. I reposted new patches
+> > after -mm2 was done.
 > 
-> =========================================================
-> [ INFO: possible irq lock inversion dependency detected ]
-> 2.6.19-rc6 #4
-> ---------------------------------------------------------
-> nc/1854 just changed the state of lock:
-> (af_callback_keys + sk->sk_family#2){-.-?}, at: [<c0268a7f>] sock_def_error_report+0x1f/0x90
-> but this lock was taken by another, soft-irq-safe lock in the past:
-> (slock-AF_INET){-+..}
+> It seems these patches didn't make it into 2.6.19-rc6-mm2 ?
 > 
-> and interrupts could create inverse lock ordering between them.
 
-I think this is bogus.  The slock is not a standard lock.  When we
-hold it in process context we don't actually hold the spin lock part
-of it.  However, it does prevent the softirq path from running in
-critical sections which also prevents any attempt to grab the
-callback lock from softirq context.
-
-If you still think there is a problem, please show an actual scenario
-where it dead locks.
-
-Thanks,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I dropped that patch and picked up Francois's tree instead.

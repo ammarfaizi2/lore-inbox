@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758841AbWK2NQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758834AbWK2NPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758841AbWK2NQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 08:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758840AbWK2NQ0
+	id S1758834AbWK2NPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 08:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758835AbWK2NPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 08:16:26 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:56738 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1758839AbWK2NQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 08:16:25 -0500
-Date: Wed, 29 Nov 2006 06:16:24 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/scsi_error.c should #include "scsi_transport_api.h"
-Message-ID: <20061129131624.GV14076@parisc-linux.org>
-References: <20061129100422.GL11084@stusta.de>
+	Wed, 29 Nov 2006 08:15:23 -0500
+Received: from mail.suse.de ([195.135.220.2]:55528 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1758834AbWK2NPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 08:15:22 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [PATCH] more sanity checks in Dwarf2 unwinder
+Date: Wed, 29 Nov 2006 14:14:55 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <456D7985.76E4.0078.0@novell.com>
+In-Reply-To: <456D7985.76E4.0078.0@novell.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061129100422.GL11084@stusta.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200611291414.56268.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 11:04:22AM +0100, Adrian Bunk wrote:
-> +#include "scsi_transport_api.h"
+On Wednesday 29 November 2006 12:13, Jan Beulich wrote:
+> Tighten the requirements on both input to and output from the Dwarf2
+> unwinder.
 
-scsi_transport_api.h is a weird little file.  It's not included by
-anything in the drivers/scsi directory, only
-drivers/scsi/libsas/sas_scsi_host.c:#include "../scsi_transport_api.h"
-drivers/ata/libata-eh.c:#include "../scsi/scsi_transport_api.h"
+Thanks for doing this.
 
-To me, that says it should be living in include/scsi/ somewhere ...
-maybe just put the one function prototype into scsi_eh.h?
+>  	while (unwind(info) == 0 && UNW_PC(info)) {
+>  		n++;
+>  		oad->ops->address(oad->data, UNW_PC(info));
+>  		if (arch_unw_user_mode(info))
+>  			break;
+> +		if ((sp & ~(PAGE_SIZE - 1)) == (UNW_SP(info) & ~(PAGE_SIZE - 1))
+> +		    && sp > UNW_SP(info))
+> +			break;
+
+Hmm, but that wouldn't catch the case when the SP is completely
+corrupted for some reason.
+Maybe it would be better to just run a brute force check here like 
+the old in_exception_stack(). Similar on x86-64.
+
+> +	if (UNW_PC(frame) % state.codeAlign
+> +	    || UNW_SP(frame) % sleb128abs(state.dataAlign)
+> +	    || (pc == UNW_PC(frame) && sp == UNW_SP(frame)))
+> +		return -EIO;
+
+Would it be possible to add printks for the EIOs? We want to know 
+when dwarf2 is corrupted.
+
+-Andi

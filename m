@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966547AbWK2JUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966586AbWK2J14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966547AbWK2JUn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966585AbWK2JUn
+	id S966586AbWK2J14 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966595AbWK2J14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:20:43 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:50194 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S966539AbWK2JUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:20:41 -0500
-Date: Wed, 29 Nov 2006 09:20:24 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: Boot failure with ext2 and initrds
-Message-ID: <20061129092023.GA23101@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-	Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-	linux-kernel@vger.kernel.org,
-	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-References: <20061114113120.d4c22b02.akpm@osdl.org> <Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com> <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> <20061115232228.afaf42f2.akpm@osdl.org> <20061116123448.GA28311@flint.arm.linux.org.uk> <20061125145915.GB13089@flint.arm.linux.org.uk> <20061129074000.GA21352@flint.arm.linux.org.uk> <20061129003036.dd27f01e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Nov 2006 04:27:56 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:12828 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S966586AbWK2J1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 04:27:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LKpOf6aW5fJEd243tMCtQpu3M7D3TjSv6cw1lpBGo74O7n1RFCk0cvlxDHKctBsjeFLh0NKJXek3kQhkpbs/H4UIM6QmPH+OC6cGFToX45lFGuSLnDVgTg5kc9PqFF/tX0OycOTNjyL/khxTv7CeMiCZUIGEkyyaHadx8NwA4kc=
+Message-ID: <6d6a94c50611290127u2b26976en1100217a69d651c0@mail.gmail.com>
+Date: Wed, 29 Nov 2006 17:27:52 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: The VFS cache is not freed when there is not enough free memory to allocate
+Cc: "Sonic Zhang" <sonic.adi@gmail.com>,
+       "Peter Zijlstra" <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, vapier.adi@gmail.com
+In-Reply-To: <4e5ebad50611282317r55c22228qa5333306ccfff28e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061129003036.dd27f01e.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <6d6a94c50611212351if1701ecx7b89b3fe79371554@mail.gmail.com>
+	 <1164185036.5968.179.camel@twins>
+	 <6d6a94c50611220202t1d076b4cye70dcdcc19f56e55@mail.gmail.com>
+	 <456A964D.2050004@yahoo.com.au>
+	 <4e5ebad50611282317r55c22228qa5333306ccfff28e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 12:30:36AM -0800, Andrew Morton wrote:
-> On Wed, 29 Nov 2006 07:40:00 +0000
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> > Yet another attempt to get a response from Andrew.  It is rather
-> > important that you DO respond to this.
-> 
-> You can read the code as easily as I can?
+On 11/29/06, Sonic Zhang <sonic.adi@gmail.com> wrote:
+> Forward to the mailing list.
+>
+> > On 11/27/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>
+> >> I haven't actually written any nommu userspace code, but it is obvious
+> >> that you must try to keep malloc to <= PAGE_SIZE (although order 2 and
+> >> even 3 allocations seem to be reasonable, from process context)... Then
+> >> you would use something a bit more advanced than a linear array to store
+> >> data (a pagetable-like radix tree would be a nice, easy idea).
+> >>
+> >
+> > But, even we split the 8M memory into 2048 x 4k blocks, we still face
+> > this failure. The key problem is that available memory is small than
+> > 2048 x 4k, while there are still a lot of VFS cache. The VFS cache can
+> > be freed, but kernel allocation function ignores it. See the new test
+> > application.
+>
+>
+> Which kernel allocation function? If you can provide more details I'd
+> like to get to the bottom of this.
 
-Sigh.  Please don't cut the relevant part of my _first_ email message
-where it can be clearly seen that I _have_ read the code and interpreted
-it _differently_ from you.
+I posted it here, I think you missed it. So forwarded it to you.
 
-> I'm not really sure what you're asking - I thought Mingming cleared
-> things up.
+>
+> Because the anonymous memory allocation in mm/nommu.c is all allocated
+> with GFP_KERNEL from process context, and in that case, the allocator
+> should not fail but call into page reclaim which in turn will free VFS
+> caches.
+>
+>
+>
+> > What's a better way to free the VFS cache in memory allocator?
+>
+>
+> It should be freeing it for you, so I'm not quite sure what is going
+> on. Can you send over the kernel messages you see when the allocation
+> fails?
 
-Which message did this happen?
+I don't think so. The kernel doesn't attempt to free it. The log is
+included in the mail I forwarded to you.
 
-What I'm looking for is confirmation of the semantics of
-find_next_zero_bit(), which is a fairly simple question to ask, and
-certainly does not justify this rather obtuse and difficult thread.
+>
+> Also, do you happen to know of a reasonable toolchain + emulator setup
+> that I could test the nommu kernel with?
 
-<extremely frustrated>
+A project named skyeye.
+http://www.skyeye.org/index.shtml
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+-Aubrey

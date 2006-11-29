@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966994AbWK2Kef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966995AbWK2Kej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966994AbWK2Kef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 05:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967012AbWK2Kef
+	id S966995AbWK2Kej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 05:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967012AbWK2Kei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 05:34:35 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:60381 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S966994AbWK2KeX convert rfc822-to-8bit
+	Wed, 29 Nov 2006 05:34:38 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54493 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S966995AbWK2KeT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 05:34:23 -0500
-Date: Wed, 29 Nov 2006 11:33:26 +0100
+	Wed, 29 Nov 2006 05:34:19 -0500
+Date: Wed, 29 Nov 2006 11:33:01 +0100
 From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,8 +19,8 @@ Cc: linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
        Badari Pulavarty <pbadari@us.ibm.com>,
        Ulrich Drepper <drepper@redhat.com>,
        Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: [PATCH -mm 5/5][AIO] - Listio support
-Message-ID: <20061129113326.071092cf@frecb000686>
+Subject: [PATCH -mm 4/5][AIO] - AIO completion signal notification
+Message-ID: <20061129113301.74a66c91@frecb000686>
 In-Reply-To: <20061129112441.745351c9@frecb000686>
 References: <20061129112441.745351c9@frecb000686>
 X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
@@ -28,409 +28,387 @@ Mime-Version: 1.0
 X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
  29/11/2006 11:41:19,
 	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/11/2006 11:41:26,
-	Serialize complete at 29/11/2006 11:41:26
+ 29/11/2006 11:41:25,
+	Serialize complete at 29/11/2006 11:41:25
 Content-Transfer-Encoding: 8BIT
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                        POSIX listio support
 
-  This patch adds POSIX listio completion notification support. It builds
-on support provided by the aio signal notification patch and adds an
-IOCB_CMD_GROUP command to io_submit().
+                      AIO completion signal notification
 
-  The purpose of IOCB_CMD_GROUP is to group together the following requests in
-the list up to the end of the list sumbitted to io_submit.
+  The current 2.6 kernel does not support notification of user space via
+an RT signal upon an asynchronous IO completion. The POSIX specification
+states that when an AIO request completes, a signal can be delivered to
+the application as notification.
 
-  As io_submit already accepts an array of iocbs, as part of listio submission,
-the user process prepends to a list of requests an empty special aiocb with
-an aio_lio_opcode of IOCB_CMD_GROUP, filling only the aio_sigevent fields.
+  This patch adds a struct sigevent *aio_sigeventp to the iocb.
+The relevant fields (pid, signal number and value) are stored in the kiocb
+for use when the request completes.
 
-
-  An IOCB_CMD_GROUP is added to the IOCB_CMD enum in include/linux/aio_abi.h
-
-  A struct lio_event is added in include/linux/aio.h
-
-  A struct lio_event *ki_lio is added to struct iocb in include/linux/aio.h
-
-  In io_submit(), upon detecting such an IOCB_CMD_GROUP marker iocb, an
-lio_event is created in lio_create() which contains the necessary information
-for signaling a thread (signal number, pid, notify type and value) along with
-a count of requests attached to this event.
-
-        The following depicts the lio_event structure:
-
-        struct lio_event {
-                atomic_t        	lio_users;
-                struct aio_notify	lio_notify;
-        };
-
-  lio_users holds an atomic counter of the number of requests attached to this
-lio. It is incremented with each request submitted and decremented at each
-request completion. When the counter reaches 0, we send the notification.
-
-  Each subsequent submitted request is attached to this lio_event by setting
-the request kiocb->ki_lio to that lio_event (in io_submit_one()) and
-incrementing the lio_users count.
-
-  In aio_complete(), if the request is attached to an lio (ki_lio <> 0),
-then lio_check() is called to decrement the lio_users count and eventually
-signal the user process when all the requests in the group have completed.
+  That sigevent structure is filled by the application as part of the AIO
+request preparation. Upon request completion, the kernel notifies the
+application using those sigevent parameters. If SIGEV_NONE has been specified,
+then the old behaviour is retained and the application must rely on polling
+the completion queue using io_getevents().
 
 
-  The IOCB_CMD_GROUP semantic is as follows:
+  A struct sigevent *aio_sigeventp field is added to struct iocb in
+include/linux/aio_abi.h
 
-       - if the associated sigevent is NULL then we want to group
-         requests for the purpose of blocking on the group completion
-         (LIO_WAIT sync behavior).
+  A struct aio_notify containing the sigevent parameters is defined in aio.h:
 
-       - if the associated sigevent is valid (not NULL) then we want to
-         group requests for the purpose of being notified upon that
-         group of requests completion (LIO_NOWAIT async behaviour).
+  struct aio_notify {
+	struct task_struct	*target;
+	__u16			signo;
+	__u16			notify;
+	sigval_t		value;
+  };
+
+  A struct aio_notify ki_notify is added to struct kiocb in include/linux/aio.h
+
+  In io_submit_one(), if the application provided a sigevent then
+setup_sigevent() is called which does the following:
+
+	- check access to the user sigevent and make a local copy
+
+	- if the requested notification is SIGEV_NONE, then nothing to do
+
+	- fill in the kiocb->ki_notify fields (notify, signo, value)
+
+	- check sigevent consistency, get the signal target task and
+	  save it in kiocb->ki_notify.target
+
+	- preallocate a sigqueue for this event using sigqueue_alloc()
+
+  Upon request completion, in aio_complete(), if notification is needed for
+this request (iocb->ki_notify.notify != SIGEV_NONE), then aio_send_signal()
+is called to signal the target task as follows:
+
+	- fill in the siginfo struct to be sent to the task
+
+	- if notify is SIGEV_THREAD_ID then send signal to specific task
+	  using send_sigqueue()
+
+	- else send signal to task group using send_5group_sigqueue()
 
 
 
- fs/aio.c                |  123 ++++++++++++++++++++++++++++++++++++++++++++++--
- fs/compat.c             |   62 +++++++++++++++++++++++-
- include/linux/aio.h     |   15 +++++
- include/linux/aio_abi.h |    1
- 4 files changed, 192 insertions(+), 9 deletions(-)
+Notes concerning sigqueue preallocation:
+
+ To ensure reliable delivery of completion notification, the sigqueue is
+preallocated in the submission path so that there is no chance it can fail
+in the completion path.
+
+ Unlike the posix-timers case (currently the single other user of sigqueue
+preallocation), where the sigqueue is allocated for the lifetime of the timer
+and freed at timer destruction time, the aio case is a bit more tricky due to
+the async nature of the whole thing.
+
+  In the aio case, the sigqueue exists for the lifetime of the request,
+therefore it must be freed only once the signal for the request completion has
+been delivered. This involves changing __sigqueue_free() to free the sigqueue
+when the signal is collected if si_code is SI_ASYNCIO even if it was
+preallocated as well as explicitly calling sigqueue_free() in submission and
+completion error paths.
+
+
+ fs/aio.c                |  115 ++++++++++++++++++++++++++++++++++++++++++++++--
+ fs/compat.c             |   18 +++++++
+ include/linux/aio.h     |   12 +++++
+ include/linux/aio_abi.h |    3 -
+ kernel/signal.c         |    2
+ 5 files changed, 144 insertions(+), 6 deletions(-)
 
 Signed-off-by: Sébastien Dugué <sebastien.dugue@bull.net>
 Signed-off-by: Laurent Vivier <laurent.vivier@bull.net>
 
 Index: linux-2.6.19-rc6-mm2/fs/aio.c
 ===================================================================
---- linux-2.6.19-rc6-mm2.orig/fs/aio.c	2006-11-28 12:51:45.000000000
-+0100 +++ linux-2.6.19-rc6-mm2/fs/aio.c	2006-11-28 12:51:48.000000000
-+0100 @@ -414,6 +414,7 @@ static struct kiocb fastcall *__aio_get_
- 	req->ki_cancel = NULL;
- 	req->ki_retry = NULL;
+--- linux-2.6.19-rc6-mm2.orig/fs/aio.c	2006-11-28 12:49:40.000000000
++0100 +++ linux-2.6.19-rc6-mm2/fs/aio.c	2006-11-29 10:14:47.000000000
++0100 @@ -416,6 +416,7 @@ static struct kiocb fastcall *__aio_get_
  	req->ki_dtor = NULL;
-+	req->ki_lio = NULL;
  	req->private = NULL;
  	req->ki_iovec = NULL;
- 	req->ki_notify.sigq = NULL;
-@@ -1009,6 +1010,53 @@ out_unlock:
- 	return -EINVAL;
- }
++	req->ki_notify.sigq = NULL;
+ 	INIT_LIST_HEAD(&req->ki_run_list);
  
-+void lio_check(struct lio_event *lio)
+ 	/* Check if the completion queue has enough free space to
+@@ -463,6 +464,11 @@ static inline void really_put_req(struct
+ 		req->ki_dtor(req);
+ 	if (req->ki_iovec != &req->ki_inline_vec)
+ 		kfree(req->ki_iovec);
++
++	/* Release task ref */
++	if (req->ki_notify.notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
++		put_task_struct(req->ki_notify.target);
++
+ 	kmem_cache_free(kiocb_cachep, req);
+ 	ctx->reqs_active--;
+ 
+@@ -929,6 +935,80 @@ void fastcall kick_iocb(struct kiocb *io
+ }
+ EXPORT_SYMBOL(kick_iocb);
+ 
++static int aio_send_signal(struct aio_notify *notify)
 +{
++	struct sigqueue *sigq = notify->sigq;
++	struct siginfo *info = &sigq->info;
 +	int ret;
 +
-+	ret = atomic_dec_and_test(&lio->lio_users);
++	memset(info, 0, sizeof(struct siginfo));
 +
-+	if (unlikely(ret) && lio->lio_notify.notify != SIGEV_NONE) {
-+		/* last one -> notify process */
-+		aio_send_signal(&lio->lio_notify);
-+		kfree(lio);
-+	}
++	info->si_signo = notify->signo;
++	info->si_errno = 0;
++	info->si_code = SI_ASYNCIO;
++	info->si_pid = 0;
++	info->si_uid = 0;
++	info->si_value = notify->value;
++
++	if (notify->notify & SIGEV_THREAD_ID)
++		ret = send_sigqueue(notify->signo, sigq, notify->target);
++	else
++		ret = send_group_sigqueue(notify->signo, sigq, notify->target);
++
++	return ret;
 +}
 +
-+struct lio_event *lio_create(struct sigevent __user *user_event)
++static long aio_setup_sigevent(struct aio_notify *notify,
++			       struct sigevent __user *user_event)
 +{
-+	int ret = 0;
-+	struct lio_event *lio = NULL;
++	sigevent_t event;
++	struct task_struct *target;
 +
-+	lio = kzalloc(sizeof(*lio), GFP_KERNEL);
++	if (copy_from_user(&event, user_event, sizeof (event)))
++		return -EFAULT;
 +
-+	if (!lio)
-+		return ERR_PTR(-EAGAIN);
++	if (event.sigev_notify == SIGEV_NONE)
++		return 0;
 +
-+	/*
-+	 * Grab an initial ref on the lio to avoid races between
-+	 * submission and completion.
-+	 */
-+	atomic_set(&lio->lio_users, 1);
++	notify->notify = event.sigev_notify;
++	notify->signo = event.sigev_signo;
++	notify->value = event.sigev_value;
 +
-+	lio->lio_notify.notify = SIGEV_NONE;
++	read_lock(&tasklist_lock);
++	target = good_sigevent(&event);
 +
-+	if (user_event) {
++	if (unlikely(!target || (target->flags & PF_EXITING)))
++		goto out_unlock;
++
++	if (notify->notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID)) {
 +		/*
-+		 * User specified an event for this lio,
-+		 * he wants to be notified upon lio completion.
++		 * This reference will be dropped in really_put_req() when
++		 * we're done with the request.
 +		 */
-+		ret = aio_setup_sigevent(&lio->lio_notify, user_event);
-+
-+		if (ret) {
-+			kfree(lio);
-+			return ERR_PTR(ret);
-+		}
++		get_task_struct(target);
 +	}
 +
-+	return lio;
++	notify->target = target;
++	read_unlock(&tasklist_lock);
++
++	/*
++	 * NOTE: we cannot free the sigqueue in the completion path as
++	 * the signal may not have been delivered to the target task.
++	 * Therefore it has to be freed in __sigqueue_free() when the
++	 * signal is collected if si_code is SI_ASYNCIO.
++	 */
++	notify->sigq = sigqueue_alloc();
++
++	if (unlikely(!notify->sigq))
++		return -EAGAIN;
++
++	return 0;
++
++out_unlock:
++	read_unlock(&tasklist_lock);
++	return -EINVAL;
 +}
 +
  /* aio_complete
   *	Called when the io request on the given iocb is complete.
   *	Returns true if this is the last user of the request.  The 
-@@ -1057,8 +1105,12 @@ int fastcall aio_complete(struct kiocb *
+@@ -976,8 +1056,11 @@ int fastcall aio_complete(struct kiocb *
+ 	 * cancelled requests don't get events, userland was given one
  	 * when the event got cancelled.
  	 */
- 	if (kiocbIsCancelled(iocb)) {
-+		if (iocb->ki_lio)
-+			lio_check(iocb->ki_lio);
-+
- 		if (iocb->ki_notify.sigq)
- 			sigqueue_free(iocb->ki_notify.sigq);
-+
+-	if (kiocbIsCancelled(iocb))
++	if (kiocbIsCancelled(iocb)) {
++		if (iocb->ki_notify.sigq)
++			sigqueue_free(iocb->ki_notify.sigq);
  		goto put_rq;
- 	}
++	}
  
-@@ -1099,6 +1151,9 @@ int fastcall aio_complete(struct kiocb *
- 			sigqueue_free(iocb->ki_notify.sigq);
- 	}
+ 	ring = kmap_atomic(info->ring_pages[0], KM_IRQ1);
  
-+	if (iocb->ki_lio)
-+		lio_check(iocb->ki_lio);
+@@ -1008,6 +1091,14 @@ int fastcall aio_complete(struct kiocb *
+ 
+ 	pr_debug("added to ring %p at [%lu]\n", iocb, tail);
+ 
++	if (iocb->ki_notify.notify != SIGEV_NONE) {
++		ret = aio_send_signal(&iocb->ki_notify);
++
++		/* If signal generation failed, release the sigqueue */
++		if (ret)
++			sigqueue_free(iocb->ki_notify.sigq);
++	}
 +
  	pr_debug("%ld retries: %zd of %zd\n", iocb->ki_retried,
  		iocb->ki_nbytes - iocb->ki_left, iocb->ki_nbytes);
  put_rq:
-@@ -1633,7 +1688,7 @@ static int aio_wake_function(wait_queue_
- }
+@@ -1549,8 +1640,7 @@ int fastcall io_submit_one(struct kioctx
+ 	ssize_t ret;
  
- int fastcall io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
--			 struct iocb *iocb)
-+			   struct iocb *iocb, struct lio_event *lio)
- {
- 	struct kiocb *req;
- 	struct file *file;
-@@ -1695,6 +1750,9 @@ int fastcall io_submit_one(struct kioctx
- 			goto out_put_req;
+ 	/* enforce forwards compatibility on users */
+-	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved2 ||
+-		     iocb->aio_reserved3)) {
++	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved3)) {
+ 		pr_debug("EINVAL: io_submit: reserve field set\n");
+ 		return -EINVAL;
  	}
+@@ -1559,6 +1649,7 @@ int fastcall io_submit_one(struct kioctx
+ 	if (unlikely(
+ 	    (iocb->aio_buf != (unsigned long)iocb->aio_buf) ||
+ 	    (iocb->aio_nbytes != (size_t)iocb->aio_nbytes) ||
++	    (iocb->aio_sigeventp != (unsigned long)iocb->aio_sigeventp) ||
+ 	    ((ssize_t)iocb->aio_nbytes < 0)
+ 	   )) {
+ 		pr_debug("EINVAL: io_submit: overflow check\n");
+@@ -1593,10 +1684,21 @@ int fastcall io_submit_one(struct kioctx
+ 	INIT_LIST_HEAD(&req->ki_wait.task_list);
+ 	req->ki_retried = 0;
  
-+	/* Attach this iocb to its lio */
-+	req->ki_lio = lio;
++	/* handle setting up the sigevent for POSIX AIO signals */
++	req->ki_notify.notify = SIGEV_NONE;
++
++	if (iocb->aio_sigeventp) {
++		ret = aio_setup_sigevent(&req->ki_notify,
++					 (struct sigevent __user *)(unsigned
+long)
++					 iocb->aio_sigeventp);
++		if (ret)
++			goto out_put_req;
++	}
 +
  	ret = aio_setup_iocb(req);
  
  	if (ret)
-@@ -1738,6 +1796,8 @@ asmlinkage long sys_io_submit(aio_contex
- 			      struct iocb __user * __user *iocbpp)
- {
- 	struct kioctx *ctx;
-+	struct lio_event *lio = NULL;
-+	int lio_wait = 0;
- 	long ret = 0;
- 	int i;
+-		goto out_put_req;
++		goto out_sigqfree;
  
-@@ -1771,11 +1831,66 @@ asmlinkage long sys_io_submit(aio_contex
- 			break;
- 		}
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	aio_run_iocb(req);
+@@ -1609,6 +1711,11 @@ int fastcall io_submit_one(struct kioctx
+ 	aio_put_req(req);	/* drop extra ref to req */
+ 	return 0;
  
--		ret = io_submit_one(ctx, user_iocb, &tmp);
--		if (ret)
--			break;
-+		if (tmp.aio_lio_opcode == IOCB_CMD_GROUP) {
++out_sigqfree:
++	/* Undo the sigqueue alloc if someting went bad */
++	if (req->ki_notify.sigq)
++		sigqueue_free(req->ki_notify.sigq);
 +
-+			/* this command means that all following IO commands
-+			 * are in the same group.
-+			 *
-+			 * Userspace either wants to be notified upon or block
-until
-+			 * completion of all the requests in the group.
-+			 */
-+			/*
-+			 * Ignore an IOCB_CMD_GROUP request if we are already
-+			 * processing one. This means only one listio per
-+			 * io_submit call.
-+			 */
-+			if (lio)
-+				continue;
-+
-+			lio = lio_create((struct sigevent __user *)(unsigned
-long)
-+					 tmp.aio_sigeventp);
-+
-+			ret = PTR_ERR(lio);
-+
-+			if (IS_ERR(lio))
-+				goto out_put_ctx;
-+
-+			if (!tmp.aio_sigeventp)
-+				lio_wait = 1;
-+		} else {
-+			if (lio)
-+				atomic_inc(&lio->lio_users);
-+
-+			ret = io_submit_one(ctx, user_iocb, &tmp, lio);
-+
-+			if (ret) {
-+				if (lio) {
-+					/*
-+					 * If a request failed, just decrement
-+					 * the users count, but go on
-submitting
-+					 * subsequent requests.
-+					 */
-+					atomic_dec(&lio->lio_users);
-+				} else
-+					break;
-+			}
-+		}
-+	}
-+
-+	if (lio) {
-+		/*
-+		 * Drop extra ref on the lio now that we're done submitting
-+		 * requests
-+		 */
-+		lio_check(lio);
-+
-+		if (lio_wait) {
-+			wait_event(ctx->wait, atomic_read(&lio->lio_users)==0);
-+			kfree(lio);
-+		}
- 	}
- 
-+out_put_ctx:
- 	put_ioctx(ctx);
- 	return i ? i : ret;
- }
+ out_put_req:
+ 	aio_put_req(req);	/* drop extra ref to req */
+ 	aio_put_req(req);	/* drop i/o ref to req */
 Index: linux-2.6.19-rc6-mm2/include/linux/aio_abi.h
 ===================================================================
---- linux-2.6.19-rc6-mm2.orig/include/linux/aio_abi.h	2006-11-28
-12:51:45.000000000 +0100 +++
-linux-2.6.19-rc6-mm2/include/linux/aio_abi.h	2006-11-28
-12:51:48.000000000 +0100 @@ -43,6 +43,7 @@ enum { IOCB_CMD_NOOP = 6,
- 	IOCB_CMD_PREADV = 7,
- 	IOCB_CMD_PWRITEV = 8,
-+	IOCB_CMD_GROUP = 9,
- };
+--- linux-2.6.19-rc6-mm2.orig/include/linux/aio_abi.h	2006-11-16
+05:03:40.000000000 +0100 +++
+linux-2.6.19-rc6-mm2/include/linux/aio_abi.h	2006-11-29
+10:14:29.000000000 +0100 @@ -82,8 +82,9 @@ struct iocb { __u64
+aio_nbytes; __s64	aio_offset;
  
- /* read() from /dev/aio returns these structures. */
++	__u64	aio_sigeventp;	/* pointer to struct sigevent */
++
+ 	/* extra parameters */
+-	__u64	aio_reserved2;	/* TODO: use this for a (struct
+sigevent *) */ __u64	aio_reserved3;
+ }; /* 64 bytes */
+ 
 Index: linux-2.6.19-rc6-mm2/include/linux/aio.h
 ===================================================================
 --- linux-2.6.19-rc6-mm2.orig/include/linux/aio.h	2006-11-28
-12:51:45.000000000 +0100 +++ linux-2.6.19-rc6-mm2/include/linux/aio.h
-2006-11-28 12:51:48.000000000 +0100 @@ -58,6 +58,11 @@ struct aio_notify {
- 	struct sigqueue		*sigq;
- };
+12:51:41.000000000 +0100 +++ linux-2.6.19-rc6-mm2/include/linux/aio.h
+2006-11-29 10:14:29.000000000 +0100 @@ -7,6 +7,7 @@
+ #include <linux/uio.h>
  
-+struct lio_event {
-+	atomic_t		lio_users;
-+	struct aio_notify	lio_notify;
+ #include <asm/atomic.h>
++#include <asm/siginfo.h>
+ 
+ #define AIO_MAXSEGS		4
+ #define AIO_KIOGRP_NR_ATOMIC	8
+@@ -49,6 +50,14 @@ struct kioctx;
+ #define kiocbIsKicked(iocb)	test_bit(KIF_KICKED, &(iocb)->ki_flags)
+ #define kiocbIsCancelled(iocb)	test_bit(KIF_CANCELLED,
+&(iocb)->ki_flags) 
++struct aio_notify {
++	struct task_struct	*target;
++	__u16			signo;
++	__u16			notify;
++	sigval_t		value;
++	struct sigqueue		*sigq;
 +};
 +
  /* is there a better place to document function pointer methods? */
  /**
   * ki_retry	-	iocb forward progress callback
-@@ -113,6 +118,9 @@ struct kiocb {
- 	wait_queue_t		ki_wait;
- 	loff_t			ki_pos;
+@@ -118,6 +127,9 @@ struct kiocb {
  
-+	/* lio this iocb might be attached to */
-+	struct lio_event	*ki_lio;
+ 	struct list_head	ki_list;	/* the aio core uses this
+ 						 * for cancellation */
 +
- 	void			*private;
- 	/* State that we remember to be able to restart/retry  */
- 	unsigned short		ki_opcode;
-@@ -220,12 +228,15 @@ struct mm_struct;
- extern void FASTCALL(exit_aio(struct mm_struct *mm));
- extern struct kioctx *lookup_ioctx(unsigned long ctx_id);
- extern int FASTCALL(io_submit_one(struct kioctx *ctx,
--			struct iocb __user *user_iocb, struct iocb *iocb));
-+				  struct iocb __user *user_iocb, struct iocb
-*iocb,
-+				  struct lio_event *lio));
++	/* to notify a process on I/O event */
++	struct aio_notify	ki_notify;
+ };
  
- /* semi private, but used by the 32bit emulations: */
- struct kioctx *lookup_ioctx(unsigned long ctx_id);
- int FASTCALL(io_submit_one(struct kioctx *ctx, struct iocb __user *user_iocb,
--				  struct iocb *iocb));
-+			   struct iocb *iocb, struct lio_event *lio));
-+struct lio_event *lio_create(struct sigevent __user *user_event);
-+void lio_check(struct lio_event *lio);
- 
- #define get_ioctx(kioctx) do {						\
- 	BUG_ON(atomic_read(&(kioctx)->users) <= 0);			\
+ #define is_sync_kiocb(iocb)	((iocb)->ki_key == KIOCB_SYNC_KEY)
+Index: linux-2.6.19-rc6-mm2/kernel/signal.c
+===================================================================
+--- linux-2.6.19-rc6-mm2.orig/kernel/signal.c	2006-11-28
+12:51:43.000000000 +0100 +++ linux-2.6.19-rc6-mm2/kernel/signal.c
+2006-11-28 12:51:45.000000000 +0100 @@ -297,7 +297,7 @@ static struct sigqueue
+*__sigqueue_alloc 
+ static void __sigqueue_free(struct sigqueue *q)
+ {
+-	if (q->flags & SIGQUEUE_PREALLOC)
++	if (q->flags & SIGQUEUE_PREALLOC && q->info.si_code != SI_ASYNCIO)
+ 		return;
+ 	atomic_dec(&q->user->sigpending);
+ 	free_uid(q->user);
 Index: linux-2.6.19-rc6-mm2/fs/compat.c
 ===================================================================
---- linux-2.6.19-rc6-mm2.orig/fs/compat.c	2006-11-28 12:51:45.000000000
-+0100 +++ linux-2.6.19-rc6-mm2/fs/compat.c	2006-11-28 12:51:48.000000000
-+0100 @@ -646,6 +646,8 @@ asmlinkage long
- compat_sys_io_submit(aio_context_t ctx_id, int nr, u32 __user *iocb)
- {
- 	struct kioctx *ctx;
-+	struct lio_event *lio = NULL;
-+	int lio_wait = 0;
- 	long ret = 0;
- 	int i;
+--- linux-2.6.19-rc6-mm2.orig/fs/compat.c	2006-11-28 12:51:35.000000000
++0100 +++ linux-2.6.19-rc6-mm2/fs/compat.c	2006-11-29 10:14:29.000000000
++0100 @@ -663,6 +663,7 @@ compat_sys_io_submit(aio_context_t ctx_i
+ 		compat_uptr_t uptr;
+ 		struct iocb __user *user_iocb;
+ 		struct iocb tmp;
++		struct compat_sigevent __user *uevent;
  
-@@ -694,12 +696,66 @@ compat_sys_io_submit(aio_context_t ctx_i
- 			tmp.aio_sigeventp = (__u64)event;
+ 		if (get_user(uptr, iocb + i)) {
+ 			ret = -EFAULT;
+@@ -676,6 +677,23 @@ compat_sys_io_submit(aio_context_t ctx_i
+ 			break;
  		}
  
--		ret = io_submit_one(ctx, user_iocb, &tmp);
-+		if (tmp.aio_lio_opcode == IOCB_CMD_GROUP) {
- 
--		if (ret)
--			break;
-+			/* this command means that all following IO commands
-+			 * are in the same group.
-+			 *
-+			 * Userspace either wants to be notified upon or block
-until
-+			 * completion of all the requests in the group.
-+			 */
-+			/*
-+			 * Ignore an IOCB_CMD_GROUP request if we are already
-+			 * processing one. This means only one listio per
-+			 * io_submit call.
-+			 */
-+			if (lio)
-+				continue;
++		uevent = (struct compat_sigevent __user *)tmp.aio_sigeventp;
 +
-+			lio = lio_create((struct sigevent __user *)(unsigned
-long)
-+					 tmp.aio_sigeventp);
++		if (uevent) {
++			struct sigevent __user *event = NULL;
++			struct sigevent kevent;
 +
-+			ret = PTR_ERR(lio);
++			event = compat_alloc_user_space(sizeof(*event));
 +
-+			if (IS_ERR(lio))
-+				goto out_put_ctx;
-+
-+			if (!tmp.aio_sigeventp)
-+				lio_wait = 1;
-+		} else {
-+			if (lio)
-+				atomic_inc(&lio->lio_users);
-+
-+			ret = io_submit_one(ctx, user_iocb, &tmp, lio);
-+
-+			if (ret) {
-+				if (lio) {
-+					/*
-+					 * If a request failed, just decrement
-+					 * the users count, but go on
-submitting
-+					 * subsequent requests.
-+					 */
-+					atomic_dec(&lio->lio_users);
-+				} else
-+					break;
++			if (get_compat_sigevent(&kevent, uevent) ||
++			    copy_to_user(event, &kevent, sizeof(*event))) {
++				ret = -EFAULT;
++				break;
 +			}
-+		}
-+	}
 +
-+	if (lio) {
-+		/*
-+		 * Drop extra ref on the lio now that we're done submitting
-+		 * requests
-+		 */
-+		lio_check(lio);
-+
-+		if (lio_wait) {
-+			wait_event(ctx->wait, atomic_read(&lio->lio_users)==0);
-+			kfree(lio);
++			tmp.aio_sigeventp = (__u64)event;
 +		}
- 	}
++
+ 		ret = io_submit_one(ctx, user_iocb, &tmp);
  
-+out_put_ctx:
- 	put_ioctx(ctx);
- 
- 	return i? i: ret;
+ 		if (ret)

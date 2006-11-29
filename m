@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934223AbWK2Fvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934202AbWK2Fyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934223AbWK2Fvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 00:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934202AbWK2Fvn
+	id S934202AbWK2Fyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 00:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934366AbWK2Fyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 00:51:43 -0500
-Received: from excu-mxob-2.symantec.com ([198.6.49.23]:17383 "EHLO
-	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
-	id S934180AbWK2Fvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 00:51:42 -0500
-X-AuditID: c6063117-a2490bb000005266-63-456d1e98c76c 
-Date: Wed, 29 Nov 2006 05:46:17 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Mingming Cao <cmm@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, Mel Gorman <mel@skynet.ie>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: [PATCH 1/12] ext3 balloc: reset windowsz when full
-In-Reply-To: <1164773634.4341.34.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0611290530250.32007@blonde.wat.veritas.com>
-References: <1164773634.4341.34.camel@localhost.localdomain>
+	Wed, 29 Nov 2006 00:54:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62184 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S934190AbWK2Fyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 00:54:44 -0500
+Message-ID: <456D2259.1050306@redhat.com>
+Date: Wed, 29 Nov 2006 01:02:01 -0500
+From: Wendy Cheng <wcheng@redhat.com>
+Reply-To: wcheng@redhat.com
+Organization: Red Hat
+User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 29 Nov 2006 05:46:00.0516 (UTC) FILETIME=[A6499840:01C71379]
-X-Brightmail-Tracker: AAAAAA==
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] prune_icache_sb
+References: <4564C28B.30604@redhat.com>	<20061122153603.33c2c24d.akpm@osdl.org>	<456B7A5A.1070202@redhat.com>	<20061127165239.9616cbc9.akpm@osdl.org>	<456CACF3.7030200@redhat.com> <20061128162144.8051998a.akpm@osdl.org>
+In-Reply-To: <20061128162144.8051998a.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Nov 2006, Mingming Cao wrote:
+Andrew Morton wrote:
 
-> Port a series ext2 balloc patches from Hugh to ext3/4. The first 6
-> patches are against ext3, and the rest are aginst ext4.
+>We shouldn't export this particular implementation to modules because it
+>has bad failure modes.  There might be a case for exposing an
+>i_sb_list-based API or, perhaps better, a max-unused-inodes mount option.
+>
+>
+>  
+>
+Ok, thanks for looking into this - it is appreciated. I'll try to figure 
+out something else.
 
-Thanks for all that, Mingming:
-whichever is appropriate, all twelve
-Acked-by: Hugh Dickins <hugh@veritas.com>
-or
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+-- Wendy
 
-I'll think about your other mails, those that need further thought,
-later on: I need to pin down more accurately the repetitious sequence of
-reservations in the mistaken case - maybe it indicated further issues,
-maybe not; and I need to consider our different views of the my_rsv
-find_next_usable_block.
-
-Hugh

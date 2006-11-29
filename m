@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758813AbWK2JzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966641AbWK2J5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758813AbWK2JzL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758816AbWK2JzK
+	id S966641AbWK2J5l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966646AbWK2J5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:55:10 -0500
-Received: from gw.goop.org ([64.81.55.164]:35245 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1758813AbWK2JzJ (ORCPT
+	Wed, 29 Nov 2006 04:57:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52935 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S966641AbWK2J5k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:55:09 -0500
-Message-ID: <456D5959.2000404@goop.org>
-Date: Wed, 29 Nov 2006 01:56:41 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>, ak@suse.de,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386-pda UP optimization
-References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151227.04777.dada1@cosmosbay.com> <456CC25C.6070005@goop.org> <200611291030.56670.dada1@cosmosbay.com>
-In-Reply-To: <200611291030.56670.dada1@cosmosbay.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 04:57:40 -0500
+Subject: Re: [GFS2] Fix Kconfig wrt CRC32 [8/9]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Patrick Caulfield <pcaulfie@redhat.com>, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com,
+       Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
+In-Reply-To: <456C80FE.7090902@oracle.com>
+References: <1164360889.3392.146.camel@quoit.chygwyn.com>
+	 <20061124214338.0e4d0510.randy.dunlap@oracle.com>
+	 <1164633855.3392.167.camel@quoit.chygwyn.com> <456B149C.4050605@oracle.com>
+	 <1164736932.3752.28.camel@quoit.chygwyn.com> <456C80FE.7090902@oracle.com>
+Content-Type: multipart/mixed; boundary="=-eoGhuo/yICB5hOEWfMH0"
+Organization: Red Hat (UK) Ltd
+Date: Wed, 29 Nov 2006 09:57:43 +0000
+Message-Id: <1164794263.3752.41.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> if !CONFIG_SMP, why even dereferencing boot_pda+PDA_cpu to get 0 ?
-> and as PER_CPU(cpu_gdt_descr, %ebx) in !CONFIG_SMP doesnt need the a value in 
-> ebx, you can just do :
->
-> #define CUR_CPU(reg) /* nothing */
->   
 
-Yep.  On the other hand, I think that's an incredibly rare path anyway,
-so it won't make any difference either way.
+--=-eoGhuo/yICB5hOEWfMH0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
->> --- a/include/asm-i386/pda.h	Tue Nov 21 18:54:56 2006 -0800
->> +++ b/include/asm-i386/pda.h	Wed Nov 22 02:35:24 2006 -0800
->> @@ -22,6 +22,16 @@ extern struct i386_pda *_cpu_pda[];
->>
->>     
->
-> My patch was better IMHO : we dont need to force asm () instructions to 
-> perform regular C variable reading/writing in !CONFIG_SMP case.
->
-> Using plain C allows compiler to generate a better code.
->   
+Hi,
 
-Probably, but I'm interested in comparing apples with apples; how much
-do the actual segment prefixes make a difference?
+On Tue, 2006-11-28 at 10:33 -0800, Randy Dunlap wrote:
+> Steven Whitehouse wrote:
+[bits snipped to cut down size of reply]
+> > You'll need the patch:
+> > http://www.kernel.org/git/?p=linux/kernel/git/steve/gfs2-2.6-nmw.git;a=commitdiff;h=4a28fda50d864ede7d2724723949407e0e4043b8
+> > as well. I'm also slightly surprised that you managed to get the errors
+> > that you did, since most of those symbols appear to be networking
+> > related and the DLM depends on INET which is clearly not set since NET
+> > is not set.
+> 
+> Thanks, I'll apply that patch also and test again.
+> 
+> Part of the problem (IMO) is that kconfig s/w doesn't follow dependency
+> chains when applying "select"s.
+> 
+Ah, light begins to dawn :-) Sorry for being a bit slow on the uptake...
+I think I see what the problem might be now. I've attached a patch as a
+possible solution, let me know if you agree. Its against my -nmw tree,
+so for the current upstream it would be the same except for not needing
+the "if DLM_SCTP" on the end of the select line,
 
-    J
+Steve.
+
+
+--=-eoGhuo/yICB5hOEWfMH0
+Content-Disposition: attachment; filename=kconfig.diff
+Content-Type: text/x-patch; name=kconfig.diff; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+diff --git a/fs/dlm/Kconfig b/fs/dlm/Kconfig
+index b5654a2..a1d083d 100644
+--- a/fs/dlm/Kconfig
++++ b/fs/dlm/Kconfig
+@@ -1,5 +1,5 @@
+ menu "Distributed Lock Manager"
+-	depends on EXPERIMENTAL && INET
++	depends on EXPERIMENTAL && NET && INET
+ 
+ config DLM
+ 	tristate "Distributed Lock Manager (DLM)"
+diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
+index c0791cb..6a2ffa2 100644
+--- a/fs/gfs2/Kconfig
++++ b/fs/gfs2/Kconfig
+@@ -34,7 +34,9 @@ config GFS2_FS_LOCKING_NOLOCK
+ 
+ config GFS2_FS_LOCKING_DLM
+ 	tristate "GFS2 DLM locking module"
+-	depends on GFS2_FS
++	depends on GFS2_FS && NET && INET && (IPV6 || IPV6=n)
++	select IP_SCTP if DLM_SCTP
++	select CONFIGFS_FS
+ 	select DLM
+ 	help
+ 	Multiple node locking module for GFS2
+
+--=-eoGhuo/yICB5hOEWfMH0--
+

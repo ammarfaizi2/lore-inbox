@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757050AbWK1Xuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757379AbWK2AEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757050AbWK1Xuw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 18:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757085AbWK1Xuw
+	id S1757379AbWK2AEd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 19:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757290AbWK2AEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 18:50:52 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:8083 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1757016AbWK1Xuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 18:50:51 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <456CCB53.70208@s5r6.in-berlin.de>
-Date: Wed, 29 Nov 2006 00:50:43 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061113 SeaMonkey/1.0.6
+	Tue, 28 Nov 2006 19:04:33 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:26270 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1757379AbWK2AEc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 19:04:32 -0500
+From: Karsten Wiese <fzu@wemgehoertderstaat.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.19-rc6-rt8
+Date: Wed, 29 Nov 2006 01:04:51 +0100
+User-Agent: KMail/1.9.5
+Cc: "Fernando Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+References: <20061127094927.GA7339@elte.hu> <200611282340.21317.fzu@wemgehoertderstaat.de>
+In-Reply-To: <200611282340.21317.fzu@wemgehoertderstaat.de>
 MIME-Version: 1.0
-To: Alan <alan@lxorguk.ukuu.org.uk>
-CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [rfc PATCH] ieee1394: ohci1394: delete bogus spinlock, flush
- MMIO writes
-References: <tkrat.9660c0c3e547e1fd@s5r6.in-berlin.de> <20061128215621.2e0ac9a6@localhost.localdomain>
-In-Reply-To: <20061128215621.2e0ac9a6@localhost.localdomain>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611290104.51731.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> On Tue, 28 Nov 2006 22:24:11 +0100 (CET)
-> Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
->> All MMIO writes which were surrounded by the spinlock as well as the
->> very last MMIO write of the IRQ handler are now explicitly flushed by
->> MMIO reads of the respective register.
+Am Dienstag, 28. November 2006 23:40 schrieb Karsten Wiese:
+> Am Montag, 27. November 2006 10:49 schrieb Ingo Molnar:
+> > i have released the 2.6.19-rc6-rt8 tree, which can be downloaded from 
 > 
-> MMIO is ordered anyway on the bus, you just need mmiowb() to force
-> ordering to the bus controller in case you are on a big numa box.
+> I saw usb transport errors here before rebooting with
+> 	nmi_watchdog=0
+> contained in kernel command line.
+> 
+> Testcase stalled within 2 minutes before change,
+> ticks happily after change for 15 minutes now.
+> .config is a "release" type, no debugging options.
 
-The mmiowb is a checkpoint to ensure ordering between different threads
-of MMIO writes; i.e. it doesn't halt the thread until the write actually
-reached the device like a read would do, right?
--- 
-Stefan Richter
--=====-=-==- =-== ===-=
-http://arcgraph.de/sr/
+After estimated 15 minutes more it bugged again.
+Related dmesg translates to linux error
+	-EXDEV
+propably caused by the following lines:
+
+<snip>
+static int uhci_result_isochronous(struct uhci_hcd *uhci, struct urb *urb)
+{
+	struct uhci_td *td, *tmp;
+	struct urb_priv *urbp = urb->hcpriv;
+	struct uhci_qh *qh = urbp->qh;
+
+	list_for_each_entry_safe(td, tmp, &urbp->td_list, list) {
+		unsigned int ctrlstat;
+		int status;
+		int actlength;
+
+		if (uhci_frame_before_eq(uhci->cur_iso_frame, qh->iso_frame))
+			return -EINPROGRESS;
+
+		uhci_remove_tds_from_frame(uhci, qh->iso_frame);
+
+		ctrlstat = td_status(td);
+		if (ctrlstat & TD_CTRL_ACTIVE) {
+			status = -EXDEV;	/* TD was added too late? */
+</snip>
+
+      Karsten

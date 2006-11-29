@@ -1,85 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967352AbWK2XbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967467AbWK2Xc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967352AbWK2XbN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 18:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934356AbWK2XbN
+	id S967467AbWK2Xc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 18:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967457AbWK2Xc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 18:31:13 -0500
-Received: from mailgw1.fnal.gov ([131.225.111.11]:3007 "EHLO mailgw1.fnal.gov")
-	by vger.kernel.org with ESMTP id S935044AbWK2XbK (ORCPT
+	Wed, 29 Nov 2006 18:32:27 -0500
+Received: from xenotime.net ([66.160.160.81]:17817 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S967448AbWK2Xc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 18:31:10 -0500
-Date: Wed, 29 Nov 2006 17:31:05 -0600
-From: Wenji Wu <wenji@fnal.gov>
-Subject: [patch 4/4] - Potential performance bottleneck for Linxu TCP
-In-reply-to: <HNEBLGGMEGLPMPPDOPMGOEAKCGAA.wenji@fnal.gov>
-To: netdev@vger.kernel.org, davem@davemloft.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Reply-to: wenji@fnal.gov
-Message-id: <HNEBLGGMEGLPMPPDOPMGCEALCGAA.wenji@fnal.gov>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Content-type: multipart/mixed; boundary="Boundary_(ID_li4hDdoClOdbXctA3VlaaA)"
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Wed, 29 Nov 2006 18:32:26 -0500
+Date: Wed, 29 Nov 2006 15:32:55 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: "Geraldo Netto" <geraldonetto@gmail.com>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19
+Message-Id: <20061129153255.fc803056.rdunlap@xenotime.net>
+In-Reply-To: <faf3083f0611291525p7f482b58j542fc0ad5c6bdc5f@mail.gmail.com>
+References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
+	<20061129151111.6bd440f9.rdunlap@xenotime.net>
+	<20061129232112.7f116a57@localhost.localdomain>
+	<20061129151546.10ba6ba5.rdunlap@xenotime.net>
+	<faf3083f0611291525p7f482b58j542fc0ad5c6bdc5f@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, 29 Nov 2006 21:25:14 -0200 Geraldo Netto wrote:
 
---Boundary_(ID_li4hDdoClOdbXctA3VlaaA)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
+> uhm, you may try it :P
+> 
+> http://kernel.org/pub/linux/kernel/v2.6/
+> http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2
 
-From: Wenji Wu <wenji@fnal.gov>
+Yep.  but that's not the point.
 
-Greetings,
+> Geraldo
+> 
+> On 29/11/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> > On Wed, 29 Nov 2006 23:21:12 +0000 Alan wrote:
+> >
+> > > On Wed, 29 Nov 2006 15:11:11 -0800
+> > > Randy Dunlap <rdunlap@xenotime.net> wrote:
+> > >
+> > > > What would it take to have the kernel.org web page and finger banner
+> > > > give the correct version information?
+> > >
+> > > Patience 8)
+> >
+> > OK.  How many days?
 
-For Linux TCP, when the network applcaiton make system call to move data
-from
-socket's receive buffer to user space by calling tcp_recvmsg(). The socket
-will
-be locked. During the period, all the incoming packet for the TCP socket
-will go
-to the backlog queue without being TCP processed. Since Linux 2.6 can be
-inerrupted mid-task, if the network application expires, and moved to the
-expired array with the socket locked, all the packets within the backlog
-queue
-will not be TCP processed till the network applicaton resume its execution.
-If
-the system is heavily loaded, TCP can easily RTO in the Sender Side.
-
-Attached is the patch 3/4
-
-best regards,
-
-wenji
-
-Wenji Wu
-Network Researcher
-Fermilab, MS-368
-P.O. Box 500
-Batavia, IL, 60510
-(Email): wenji@fnal.gov
-(O): 001-630-840-4541
-
---Boundary_(ID_li4hDdoClOdbXctA3VlaaA)
-Content-type: application/octet-stream; name=fork.c.patch
-Content-transfer-encoding: QUOTED-PRINTABLE
-Content-disposition: attachment; filename=fork.c.patch
-
---- linux-2.6.14-old/kernel/fork.c=092006-11-29 16:22:25.000000000 -0=
-600=0A+++ linux-2.6.14/kernel/fork.c=092006-11-29 11:23:20.000000000 =
--0600=0A@@ -868,7 +868,7 @@=0A  *=0A  * It copies the registers, and =
-all the appropriate=0A  * parts of the process environment (as per th=
-e clone=0A- * flags). The actual kick-off is left to the caller.=0A+ =
-* flags). The actual kick-off is left to the caller.copy_process=0A  =
-*/=0A static task_t *copy_process(unsigned long clone_flags,=0A =09=
-=09=09=09 unsigned long stack_start,=0A@@ -1154,6 +1154,9 @@=0A =09wr=
-ite_unlock_irq(&tasklist_lock);=0A =09retval =3D 0;=0A =0A+=09p->back=
-log_flag =3D 0;=0A+=09p->extrarun_flag =3D 0;=0A+=0A fork_out:=0A =
-=09if (retval)=0A =09=09return ERR_PTR(retval);=0A=
-
---Boundary_(ID_li4hDdoClOdbXctA3VlaaA)--
+---
+~Randy

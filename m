@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934637AbWK2Gt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935285AbWK2GwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934637AbWK2Gt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 01:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935211AbWK2Gt2
+	id S935285AbWK2GwS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 01:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935244AbWK2GwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 01:49:28 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:46971 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S934637AbWK2Gt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 01:49:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=UEYrYrJUkIl+To2/QQMSwPxMp6CQsuUVzUUAHomAk8m3zTtp95bB0TQiSL+7BGJKzSD2LQSHOCdEpYww4rIiR1mDv3rWb+BGQBMrDMaHxt4zbsL9Jao0wlETyJajkNrhzG57F8UNJKC7rm/YLXoLbVB2ckQ55e6rMiGEQUFtqQY=
-Date: Wed, 29 Nov 2006 14:44:53 +0000
-From: Hu Gang <linuxbest@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Karsten Wiese <fzu@wemgehoertderstaat.de>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.19-rc6-rt8
-Message-ID: <20061129144453.7cbddc75@localhost>
-In-Reply-To: <20061129064109.GA27932@elte.hu>
-References: <20061127094927.GA7339@elte.hu>
-	<20061129091825.5438cfb9@localhost>
-	<20061129064109.GA27932@elte.hu>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; powerpc-unknown-linux-gnu)
+	Wed, 29 Nov 2006 01:52:18 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:15121 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S935214AbWK2GwR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 01:52:17 -0500
+Date: Wed, 29 Nov 2006 17:51:46 +1100
+To: David Miller <davem@davemloft.net>
+Cc: kaber@trash.net, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: Broken commit: [NETFILTER]: ipt_REJECT: remove largely duplicate route_reverse function
+Message-ID: <20061129065146.GA20681@gondor.apana.org.au>
+References: <20061128.204440.39160464.davem@davemloft.net> <E1GpHVB-0005CB-00@gondolin.me.apana.org.au> <20061128.210416.59658806.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061128.210416.59658806.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 07:41:09 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
-
+On Tue, Nov 28, 2006 at 09:04:16PM -0800, David Miller wrote:
+>
+> > Definitely.  I'm not sure whether 48 is enough even for recursive
+> > tunnels.  This should really just be a hint.  It's OK to spend a
+> > bit of time reallocating skb's if it's too small, but it's not OK
+> > to die.
 > 
-> * Hu Gang <linuxbest@gmail.com> wrote:
-> 
-> > On Mon, 27 Nov 2006 10:49:27 +0100
-> > Ingo Molnar <mingo@elte.hu> wrote:
-> > 
-> > > i have released the 2.6.19-rc6-rt8 tree, which can be downloaded from 
-> > > the usual place:
-> > > 
-> > >     http://redhat.com/~mingo/realtime-preempt/
-> > 
-> > attached patch to making it compile and works in my PowerBook G4. 
-> 
-> thanks, applied. I'll let the PPC -rt folks sort out the hack effects. 
-> Do you have CONFIG_HIGH_RES_TIMERS enabled?
-no.
+> The recursive tunnel case is handled by the PMTU reductions
+> in the route, isn't it?
 
+Oh I wasn't suggesting that the current code is broken.
 
-[hugang@:~]$ uname -a
-Linux hugang.soulinfo.com 2.6.19-rc6-rt8 #2 PREEMPT Wed Nov 29 09:29:43 UTC 2006 ppc GNU/Linux 
-[hugang@:~]$ zgrep CONFIG_HIGH_RES_TIMERS /proc/config.gz 
-[hugang@:~]$
+I'm just emphasising that LL_MAX_HEADER is by no means the *maximum*
+header size in a Linux system.  Anybody should be able to load a
+new NIC module with a hard header size exceeding what LL_MAX_HEADER
+is and the system should still function (albeit slower since every
+packet sent down that device has to be reallocated).
+
+In particular, nested tunnels is one such device which anybody can
+construct without writing a kernel module.
+
+As to getting rid of those ifdefs, here is one idea.  We keep a
+read-mostly global variable that represents the actual current
+maximum LL header size.  Everytime a new device appears (or if
+its hard header size changes) we update this variable if needed.
+
+Hmm, we don't actually update the hard header size should the
+underlying device change for tunnels.  Good thing the tunnels
+only use that as a hint and reallocate if necessary :)
+
+This is not optimal in that it never decreases, but it's certainly
+better than a compile-time constant (e.g., people using distribution
+kernels don't necessarily use tunnels).
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

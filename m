@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758812AbWK2JkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758813AbWK2JzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758812AbWK2JkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 04:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758811AbWK2JkQ
+	id S1758813AbWK2JzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 04:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758816AbWK2JzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 04:40:16 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:38610 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1758809AbWK2JkO (ORCPT
+	Wed, 29 Nov 2006 04:55:10 -0500
+Received: from gw.goop.org ([64.81.55.164]:35245 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1758813AbWK2JzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 04:40:14 -0500
-Date: Wed, 29 Nov 2006 01:39:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: Boot failure with ext2 and initrds
-Message-Id: <20061129013922.053482f9.akpm@osdl.org>
-In-Reply-To: <20061129092023.GA23101@flint.arm.linux.org.uk>
-References: <20061114113120.d4c22b02.akpm@osdl.org>
-	<Pine.LNX.4.64.0611142111380.19259@blonde.wat.veritas.com>
-	<Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com>
-	<20061115214534.72e6f2e8.akpm@osdl.org>
-	<455C0B6F.7000201@us.ibm.com>
-	<20061115232228.afaf42f2.akpm@osdl.org>
-	<20061116123448.GA28311@flint.arm.linux.org.uk>
-	<20061125145915.GB13089@flint.arm.linux.org.uk>
-	<20061129074000.GA21352@flint.arm.linux.org.uk>
-	<20061129003036.dd27f01e.akpm@osdl.org>
-	<20061129092023.GA23101@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Nov 2006 04:55:09 -0500
+Message-ID: <456D5959.2000404@goop.org>
+Date: Wed, 29 Nov 2006 01:56:41 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>, ak@suse.de,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386-pda UP optimization
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <200611151227.04777.dada1@cosmosbay.com> <456CC25C.6070005@goop.org> <200611291030.56670.dada1@cosmosbay.com>
+In-Reply-To: <200611291030.56670.dada1@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 09:20:24 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Eric Dumazet wrote:
+> if !CONFIG_SMP, why even dereferencing boot_pda+PDA_cpu to get 0 ?
+> and as PER_CPU(cpu_gdt_descr, %ebx) in !CONFIG_SMP doesnt need the a value in 
+> ebx, you can just do :
+>
+> #define CUR_CPU(reg) /* nothing */
+>   
 
-> What I'm looking for is confirmation of the semantics of
-> find_next_zero_bit()
+Yep.  On the other hand, I think that's an incredibly rare path anyway,
+so it won't make any difference either way.
 
-What are the existing semantics?  I see no documentation in any of the
-architectures I've looked at.  That's my point.
+>> --- a/include/asm-i386/pda.h	Tue Nov 21 18:54:56 2006 -0800
+>> +++ b/include/asm-i386/pda.h	Wed Nov 22 02:35:24 2006 -0800
+>> @@ -22,6 +22,16 @@ extern struct i386_pda *_cpu_pda[];
+>>
+>>     
+>
+> My patch was better IMHO : we dont need to force asm () instructions to 
+> perform regular C variable reading/writing in !CONFIG_SMP case.
+>
+> Using plain C allows compiler to generate a better code.
+>   
 
->From a quick read of fs/ext2/balloc.c
+Probably, but I'm interested in comparing apples with apples; how much
+do the actual segment prefixes make a difference?
 
-	ext2_find_next_zero_bit(base, size, offset)
-
-appears to expect that base is the start of the memory buffer, size is the
-number of bits at *base and offset is the bit at which to start the search,
-relative to base.  If a zero bit is found it will return the offset of that
-bit relative to base.  It will return some number greater than `size' if no
-zero-bit was found.  
-
-Whether that's how all the implementors interpreted it is anyone's guess. 
-Presumably the architectures all do roughly the same thing.
-
-> <extremely frustrated>
-
-Well likewise.  It appears that nobody (and about 20 people have
-implemented these things) could be bothered getting off ass and documenting
-the pathetic thing.
-
+    J

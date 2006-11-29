@@ -1,95 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758556AbWK2BKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758583AbWK2BWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758556AbWK2BKo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 20:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758557AbWK2BKo
+	id S1758583AbWK2BWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 20:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758590AbWK2BWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 20:10:44 -0500
-Received: from wr-out-0506.google.com ([64.233.184.238]:18157 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1758556AbWK2BKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 20:10:44 -0500
+	Tue, 28 Nov 2006 20:22:08 -0500
+Received: from wx-out-0506.google.com ([66.249.82.229]:49845 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1758583AbWK2BWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 20:22:05 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Up3BXf0BI1PM99cP/ynDF8YXAmtg/5nTiibpAOmiBUjKhA6nI1FTQdnBrdp4C1VWnjtm1aeCaa4AAnFof+LRxMo2VbRpb471JnBNT5qbyq59jqDw2nuPg6j63rUZfzHYThSJeVlS1eNFvl9/jGF0YmNREPn362xQWOAsC48GtR0=
-Message-ID: <9a8748490611281710g78402fbeh8ff7fcc162dbcbca@mail.gmail.com>
-Date: Wed, 29 Nov 2006 02:10:43 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       trivial@kernel.org
-In-Reply-To: <Pine.LNX.4.64.0611281600020.4244@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=p3SKJNgGY9sjSXmdGKyPrUbGyMIWNuVtU6+MHPBL6suKx/O00Q0d6LmpVc1yOZslgS1M9SDLOdbNJkNZAXUyjZHevBeno+y9jNq+jylICNIII03SM0QKV8TrqQqZzVQkEvafGUp6J9ZZhhP0TMUYg5xActp4hHmpUNaVHqsSZ+o=
+Date: Wed, 29 Nov 2006 09:18:25 +0000
+From: Hu Gang <linuxbest@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Karsten Wiese <fzu@wemgehoertderstaat.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.19-rc6-rt8
+Message-ID: <20061129091825.5438cfb9@localhost>
+In-Reply-To: <20061127094927.GA7339@elte.hu>
+References: <20061127094927.GA7339@elte.hu>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200611282317.14020.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0611281425220.4244@woody.osdl.org>
-	 <9a8748490611281434g3741045v5e7f952f633e08d3@mail.gmail.com>
-	 <Pine.LNX.4.64.0611281459331.4244@woody.osdl.org>
-	 <9a8748490611281542l2b05ab78kef8247b04f8c5389@mail.gmail.com>
-	 <Pine.LNX.4.64.0611281600020.4244@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29/11/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Wed, 29 Nov 2006, Jesper Juhl wrote:
-> >
-> > I would venture that "-Wshadow" is another one of those.
->
-> I'd agree, except for the fact that gcc does a horribly _bad_ job of
-> -Wshadow, making it (again) totally unusable.
->
-> For example, it's often entirely interesting to hear about local variables
-> that shadow each other. No question about it.
->
-> HOWEVER. It's _not_ really interesting to hear about a local variable that
-> happens to have a common name that is also shared by a extern function.
->
-> There just isn't any room for confusion, and it's actually not even that
-> unusual - I tried using -Wshadow on real programs, and it was just
-> horribly irritating.
->
-> In the kernel, we had obvious things like local use of "jiffies" that just
-> make _total_ sense in a small inline function, and the fact that there
-> happens to be an extern declaration for "jiffies" just isn't very
-> interesting.
->
-> Similarly, with nested macro expansion, even the "local variable shadows
-> another local variable" case - that looks like it should have an obvious
-> warning on the face of it - really isn't always necessarily that
-> interesting after all. Maybe it is a bug, maybe it isn't, but it's no
-> longer _obviously_ bogus any more.
->
-> So I'm not convinced about the usefulness of "-Wshadow". ESPECIALLY the
-> way that gcc implements it, it's almost totally useless in real life.
->
-> For example, I tried it on "git" one time, and this is a perfect example
-> of why "-Wshadow" is totally broken:
->
->         diff-delta.c: In function 'create_delta_index':
->         diff-delta.c:142: warning: declaration of 'index' shadows a global declaration
->
-> (and there's a _lot_ of those). If I'm not allowed to use "index" as a
-> local variable and include <string.h> at the same time, something is
-> simply SERIOUSLY WRONG with the warning.
->
-> So the fact is, the C language has scoping rules for a reason. Can you
-> screw yourself by usign them badly? Sure. But that does NOT mean that the
-> same name in different scopes is a bad thing that should be warned about.
->
-> If I wanted a language that didn't allow me to do anything wrong, I'd be
-> using Pascal. As it is, it turns out that things that "look" wrong on a
-> local level are often not wrong after all.
->
+On Mon, 27 Nov 2006 10:49:27 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-I can't really say anything else at this point but, point conceded...
+> i have released the 2.6.19-rc6-rt8 tree, which can be downloaded from 
+> the usual place:
+> 
+>     http://redhat.com/~mingo/realtime-preempt/
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+attached patch to making it compile and works in my PowerBook G4. 
+
+
+Index: linux-2.6.19-rc6-rt5/arch/powerpc/kernel/time.c
+===================================================================
+--- linux-2.6.19-rc6-rt5.orig/arch/powerpc/kernel/time.c	2006-11-28 22:13:54.000000000 +0000
++++ linux-2.6.19-rc6-rt5/arch/powerpc/kernel/time.c	2006-11-28 22:15:48.000000000 +0000
+@@ -507,7 +507,7 @@
+ 		if (per_cpu(last_jiffy, cpu) >= tb_next_jiffy) {
+ 			tb_last_jiffy = tb_next_jiffy;
+ 			do_timer(1);
+-			timer_recalc_offset(tb_last_jiffy);
++			/*timer_recalc_offset(tb_last_jiffy);*/
+ 			timer_check_rtc();
+ 		}
+ 		write_sequnlock(&xtime_lock);
+Index: linux-2.6.19-rc6-rt5/include/asm-powerpc/semaphore.h
+===================================================================
+--- linux-2.6.19-rc6-rt5.orig/include/asm-powerpc/semaphore.h	2006-11-28 22:13:54.000000000 +0000
++++ linux-2.6.19-rc6-rt5/include/asm-powerpc/semaphore.h	2006-11-28 22:15:48.000000000 +0000
+@@ -10,7 +10,7 @@
+ 
+ #ifdef __KERNEL__
+ 
+-#include <linux/config.h>
++/*#include <linux/config.h>*/
+ #include <asm/atomic.h>
+ #include <asm/system.h>
+ #include <linux/wait.h>
+Index: linux-2.6.19-rc6-rt5/mm/page_alloc.c
+===================================================================
+--- linux-2.6.19-rc6-rt5.orig/mm/page_alloc.c	2006-11-28 22:13:54.000000000 +0000
++++ linux-2.6.19-rc6-rt5/mm/page_alloc.c	2006-11-28 22:15:48.000000000 +0000
+@@ -2800,7 +2800,9 @@
+ 
+ void __init page_alloc_init(void)
+ {
++#ifdef CONFIG_HOTPLUG_CPU
+ 	hotcpu_notifier(page_alloc_cpu_notify, 0);
++#endif
+ }
+ 
+ /*

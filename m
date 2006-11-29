@@ -1,92 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758771AbWK2Eam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758765AbWK2EaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758771AbWK2Eam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758775AbWK2Eam
+	id S1758765AbWK2EaP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758771AbWK2EaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:30:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:1992 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1758771AbWK2Eal (ORCPT
+	Tue, 28 Nov 2006 23:30:15 -0500
+Received: from relay.rinet.ru ([195.54.192.35]:39898 "EHLO relay.rinet.ru")
+	by vger.kernel.org with ESMTP id S1758765AbWK2EaN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:30:41 -0500
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: David Miller <davem@davemloft.net>
-cc: nmiell@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away 
-In-reply-to: Your message of "Tue, 28 Nov 2006 20:04:53 -0800."
-             <20061128.200453.104036587.davem@davemloft.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 29 Nov 2006 15:30:27 +1100
-Message-ID: <23328.1164774627@kao2.melbourne.sgi.com>
+	Tue, 28 Nov 2006 23:30:13 -0500
+Message-ID: <456D0CC1.7070703@mail.ru>
+Date: Wed, 29 Nov 2006 07:29:53 +0300
+From: Michael Raskin <a1d23ab4@mail.ru>
+User-Agent: Thunderbird 2.0a1 (X11/20060809)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc6-mm2 is ok (2.6.19-rc1-mm1+ memory problem)
+References: <45614A95.6090102@mail.ru>
+In-Reply-To: <45614A95.6090102@mail.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (relay.rinet.ru [195.54.192.35]); Wed, 29 Nov 2006 07:30:07 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller (on Tue, 28 Nov 2006 20:04:53 -0800 (PST)) wrote:
->From: Keith Owens <kaos@ocs.com.au>
->Date: Wed, 29 Nov 2006 14:56:20 +1100
->
->> Secondly, I believe that this is a separate problem from bug 22278.
->> hpet_readl() is correctly using volatile internally, but its result is
->> being assigned to a pair of normal integers (not declared as volatile).
->> In the context of wait_hpet_tick, all the variables are unqualified so
->> gcc is allowed to optimize the comparison away.
->> 
->> The same problem may exist in other parts of arch/i386/kernel/time_hpet.c,
->> where the return value from hpet_readl() is assigned to a normal
->> variable.  Nothing in the C standard says that those unqualified
->> variables should be magically treated as volatile, just because the
->> original code that extracted the value used volatile.  IOW, time_hpet.c
->> needs to declare any variables that hold the result of hpet_readl() as
->> being volatile variables.
->
->I disagree with this.
->
->readl() returns values from an opaque source, and it is declared
->as such to show this to GCC.  It's like a function that GCC
->cannot see the implementation of, which it cannot determine
->anything about wrt. return values.
->
->The volatile'ness does not simply disappear the moment you
->assign the result to some local variable which is not volatile.
->
->Half of our drivers would break if this were true.
+Michael Raskin wrote:
+> I have a strange problem with 2.6.19-rc-mm kernels. After I load X, I 
+> notice that memory is marked used at rate of tens of KB/s. Then it 
 
-This is definitely a gcc bug, 4.1.0 is doing something weird.  Compile
-with CONFIG_CC_OPTIMIZE_FOR_SIZE=n and the bug appears,
-CONFIG_CC_OPTIMIZE_FOR_SIZE=y has no problem.
+Tried 2.6.19-rc6-mm2. Now the problem is gone. Sometimes memory is 
+getting maked used as before, but when the loss reaches a few MB's it is 
+all freed. After 3 hours of X+all those scripts that cause leak + 
+ThunderBird I can still shut down everything except a few processes and 
+have only 50MB used. Script that demonstrated leak is now working 
+without problems and without eating memory.
 
-Compile with CONFIG_CC_OPTIMIZE_FOR_SIZE=n and _either_ of the patches
-below and the problem disappears.
-
-Index: linux/arch/i386/kernel/time_hpet.c
-===================================================================
---- linux.orig/arch/i386/kernel/time_hpet.c	2006-11-29 13:51:33.900462088 +1100
-+++ linux/arch/i386/kernel/time_hpet.c	2006-11-29 15:25:47.853245938 +1100
-@@ -35,7 +35,8 @@ static void __iomem * hpet_virt_address;
- 
- int hpet_readl(unsigned long a)
- {
--	return readl(hpet_virt_address + a);
-+	volatile int v = readl(hpet_virt_address + a);
-+	return v;
- }
- 
- static void hpet_writel(unsigned long d, unsigned long a)
-
-
-Index: linux-2.6/arch/i386/kernel/time_hpet.c
-===================================================================
---- linux-2.6.orig/arch/i386/kernel/time_hpet.c
-+++ linux-2.6/arch/i386/kernel/time_hpet.c
-@@ -51,7 +51,7 @@ static void hpet_writel(unsigned long d,
-  */
- static void __devinit wait_hpet_tick(void)
- {
--	unsigned int start_cmp_val, end_cmp_val;
-+	unsigned volatile int start_cmp_val, end_cmp_val;
- 
- 	start_cmp_val = hpet_readl(HPET_T0_CMP);
- 	do {
-
+Thanks.

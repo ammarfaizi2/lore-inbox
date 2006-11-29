@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936094AbWK2UGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936046AbWK2UMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936094AbWK2UGW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 15:06:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936093AbWK2UGW
+	id S936046AbWK2UMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 15:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936056AbWK2UMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 15:06:22 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:3260 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S936094AbWK2UGV (ORCPT
+	Wed, 29 Nov 2006 15:12:33 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:56777 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S936046AbWK2UMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 15:06:21 -0500
-Message-ID: <456DE85F.50806@cfl.rr.com>
-Date: Wed, 29 Nov 2006 15:06:55 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Wed, 29 Nov 2006 15:12:32 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
+Date: Wed, 29 Nov 2006 21:08:00 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net
+References: <20061128020246.47e481eb.akpm@osdl.org> <200611292054.35313.rjw@sisk.pl>
+In-Reply-To: <200611292054.35313.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Matt Garman <matthew.garman@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: What happened to CONFIG_TCP_NAGLE_OFF?
-References: <bdd6985b0611281405j3e731e3xc7973c0365428663@mail.gmail.com>
-In-Reply-To: <bdd6985b0611281405j3e731e3xc7973c0365428663@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Nov 2006 20:06:57.0455 (UTC) FILETIME=[EC38F3F0:01C713F1]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14844.000
-X-TM-AS-Result: No--13.100100-5.000000-2
+Content-Disposition: inline
+Message-Id: <200611292108.00578.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Garman wrote:
-> I would like to globally disable nagling on my (2.6.9) system.  There
-> are several references on the web to the CONFIG_TCP_NAGLE_OFF kernel
-> config option.  However, it appears as though this no longer exists.
+On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
+> On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+> > 
+> > Temporarily at
+> > 
+> > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
+> > 
+> > Will appear eventually at
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
 > 
-> How might I achieve having TCP_NODELAY effectively set for all sockets
-> (by default)?  Is there a new/different kernel config option, a patch,
-> a sysctl or proc setting?  Or can I "fake" this behavior by, e.g.
-> setting a send buffer sufficiently small?
+> A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
+> work when it's first loaded.  I have to rmmod and modprobe it to make it work.
+> 
+> It worked just fine on -mm1, so something must have happened to it recently.
 
-This is a bad idea and breaks api compatibility.  Nagle is very 
-important for sockets being used for things like telnet.  Other 
-applications, like ftp, should already disable nagle themselves.
+Sorry, I was wrong.  The driver doesn't work at all, even after reload.
 
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

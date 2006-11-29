@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935457AbWK2Haw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935436AbWK2HgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935457AbWK2Haw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 02:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935467AbWK2Haw
+	id S935436AbWK2HgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 02:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935467AbWK2HgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 02:30:52 -0500
-Received: from mga05.intel.com ([192.55.52.89]:47689 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S935457AbWK2Hav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 02:30:51 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,473,1157353200"; 
-   d="scan'208"; a="170376341:sNHT31426136"
-Message-ID: <456D372C.9080800@linux.intel.com>
-Date: Wed, 29 Nov 2006 08:30:52 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 29 Nov 2006 02:36:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38407 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S935436AbWK2HgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 02:36:04 -0500
+Date: Wed, 29 Nov 2006 08:36:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm1: drivers/net/chelsio/: unused code
+Message-ID: <20061129073609.GA11084@stusta.de>
+References: <20061123021703.8550e37e.akpm@osdl.org> <20061124001731.GO3557@stusta.de> <20061127102455.362fe88f@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] Mark rdtsc as sync only for netburst, not for core2
-References: <1164709708.3276.72.camel@laptopd505.fenrus.org>	 <200611281136.29066.ak@suse.de> <1164774239.15257.5.camel@ymzhang>
-In-Reply-To: <1164774239.15257.5.camel@ymzhang>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061127102455.362fe88f@dxpl.pdx.osdl.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhang, Yanmin wrote:
-> If it's a single processor, the go backwards issue doesn't exist. Below is
-> my patch based on Arjan's. It's against 2.6.19-rc5-mm2.
-Hi,
+On Mon, Nov 27, 2006 at 10:24:55AM -0800, Stephen Hemminger wrote:
+> On Fri, 24 Nov 2006 01:17:31 +0100
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > On Thu, Nov 23, 2006 at 02:17:03AM -0800, Andrew Morton wrote:
+> > >...
+> > > Changes since 2.6.19-rc5-mm2:
+> > >...
+> > > +chelsio-22-driver.patch
+> > >...
+> > >  netdev updates
+> > 
+> > It is suspicious that the following newly added code is completely unused:
+> >   drivers/net/chelsio/ixf1010.o
+> >     t1_ixf1010_ops
+> >   drivers/net/chelsio/mac.o
+> >     t1_chelsio_mac_ops
+> >   drivers/net/chelsio/vsc8244.o
+> >     t1_vsc8244_ops
+> > 
+> > cu
+> > Adrian
+> > 
+> 
+> All that is gone in later version. I reposted new patches
+> after -mm2 was done.
 
-this patch is incorrect
-> --- linux-2.6.19-rc5-mm2_arjan/arch/x86_64/kernel/setup.c	2006-11-29 10:41:21.000000000 +0800
-> +++ linux-2.6.19-rc5-mm2_arjan_fix/arch/x86_64/kernel/setup.c	2006-11-29 10:42:28.000000000 +0800
-> @@ -861,7 +861,7 @@ static void __cpuinit init_intel(struct 
->  		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
->  	if (c->x86 == 6)
->  		set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
-> -	if (c->x86 == 15)
-> +	if (c->x86 == 15 && num_possible_cpus() != 1)
->  		set_bit(X86_FEATURE_SYNC_RDTSC, &c->x86_capability);
+It seems these patches didn't make it into 2.6.19-rc6-mm2 ?
 
-first of all, you probably meant "|| num_possible_cpus() == 1"
+cu
+Adrian
 
-but second of all, the core2 cpus are dual core so.. .what does it 
-bring you at all?
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

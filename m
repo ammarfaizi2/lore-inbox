@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967134AbWK2LQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966359AbWK2L0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967134AbWK2LQv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 06:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967141AbWK2LQv
+	id S966359AbWK2L0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 06:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966591AbWK2L0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 06:16:51 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60127 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S967134AbWK2LQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 06:16:50 -0500
-Date: Wed, 29 Nov 2006 12:16:49 +0100
-From: Jan Kara <jack@suse.cz>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] proper prototype for remove_inode_dquot_ref()
-Message-ID: <20061129111649.GF16630@atrey.karlin.mff.cuni.cz>
-References: <20061129100408.GJ11084@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129100408.GJ11084@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Wed, 29 Nov 2006 06:26:23 -0500
+Received: from wx-out-0506.google.com ([66.249.82.233]:14369 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S966359AbWK2L0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 06:26:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=XegVm2A8XXl0aWH2mRwX+1brew87sS9B/IZqXwjHpv9MOIrC0h9vnm4vpCLJIW+BX0w6w2/OSnATFNk2JnkuT9gP4d2P3RxYmQHXvhCd1aCM79RalBXjjGElbqaLaRZ03yzUnp2uHoV7Yh9gvpV5ATzyBTk8sGcueUaAGZeebxw=
+Message-ID: <456D6E59.1020507@gmail.com>
+Date: Wed, 29 Nov 2006 09:26:17 -0200
+From: Alexandre Pereira Nunes <alexandre.nunes@gmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pt-BR; rv:1.7.13) Gecko/20060809 Debian/1.7.13-0.3
+X-Accept-Language: pt-br, en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 tsc clocksource + ntp = excessive drift; acpi_pm does
+ fine.
+References: <456CCA54.6090504@gmail.com> <1164762181.5521.49.camel@localhost.localdomain>
+In-Reply-To: <1164762181.5521.49.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch adds a proer prototype for remove_inode_dquot_ref() in 
-> include/linux/quotaops.h
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-  Fine with me, if you find it better this way (but that function is not
-really supposed to be called from anywhere else).
+[cut]
 
-  Signed-off-by: Jan Kara <jack@suse.cz>
-
-								Honza
-
-> ---
-> 
->  fs/inode.c               |    3 ---
->  include/linux/quotaops.h |    3 +++
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> --- linux-2.6.19-rc6-mm2/include/linux/quotaops.h.old	2006-11-29 09:43:03.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/include/linux/quotaops.h	2006-11-29 09:43:21.000000000 +0100
-> @@ -37,6 +37,9 @@
->  extern int dquot_commit_info(struct super_block *sb, int type);
->  extern int dquot_mark_dquot_dirty(struct dquot *dquot);
+>
+>Also does booting w/ "noapic" change the behavior?
 >  
-> +int remove_inode_dquot_ref(struct inode *inode, int type,
-> +			   struct list_head *tofree_head);
-> +
->  extern int vfs_quota_on(struct super_block *sb, int type, int format_id, char *path);
->  extern int vfs_quota_on_mount(struct super_block *sb, char *qf_name,
->  		int format_id, int type);
-> --- linux-2.6.19-rc6-mm2/fs/inode.c.old	2006-11-29 09:43:40.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/inode.c	2006-11-29 09:43:50.000000000 +0100
-> @@ -1249,9 +1249,6 @@
->   */
->  #ifdef CONFIG_QUOTA
->  
-> -/* Function back in dquot.c */
-> -int remove_inode_dquot_ref(struct inode *, int, struct list_head *);
-> -
->  void remove_dquot_ref(struct super_block *sb, int type,
->  			struct list_head *tofree_head)
->  {
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+>
+
+No, it didn't. It behaves exactly as before.
+
+- Alexandre
+

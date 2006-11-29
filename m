@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758553AbWK2BJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758556AbWK2BKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758553AbWK2BJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 20:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758554AbWK2BJa
+	id S1758556AbWK2BKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 20:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758557AbWK2BKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 20:09:30 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:23512 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1758553AbWK2BJ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 20:09:29 -0500
-Date: Tue, 28 Nov 2006 17:08:51 -0800
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Tuttle <thinkinginbinary@gmail.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       James Ketrenos <jketreno@linux.intel.com>
-Subject: Re: 2.6.19-rc6-mm2
-Message-ID: <20061129010851.GA29432@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061128020246.47e481eb.akpm@osdl.org> <20061129002411.GA1178@lion> <20061128165828.54208bc1.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Nov 2006 20:10:44 -0500
+Received: from wr-out-0506.google.com ([64.233.184.238]:18157 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1758556AbWK2BKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Nov 2006 20:10:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Up3BXf0BI1PM99cP/ynDF8YXAmtg/5nTiibpAOmiBUjKhA6nI1FTQdnBrdp4C1VWnjtm1aeCaa4AAnFof+LRxMo2VbRpb471JnBNT5qbyq59jqDw2nuPg6j63rUZfzHYThSJeVlS1eNFvl9/jGF0YmNREPn362xQWOAsC48GtR0=
+Message-ID: <9a8748490611281710g78402fbeh8ff7fcc162dbcbca@mail.gmail.com>
+Date: Wed, 29 Nov 2006 02:10:43 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: [PATCH] Don't compare unsigned variable for <0 in sys_prctl()
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       trivial@kernel.org
+In-Reply-To: <Pine.LNX.4.64.0611281600020.4244@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061128165828.54208bc1.akpm@osdl.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+References: <200611282317.14020.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0611281425220.4244@woody.osdl.org>
+	 <9a8748490611281434g3741045v5e7f952f633e08d3@mail.gmail.com>
+	 <Pine.LNX.4.64.0611281459331.4244@woody.osdl.org>
+	 <9a8748490611281542l2b05ab78kef8247b04f8c5389@mail.gmail.com>
+	 <Pine.LNX.4.64.0611281600020.4244@woody.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2006 at 04:58:28PM -0800, Andrew Morton wrote:
-> On Tue, 28 Nov 2006 19:24:45 -0500
-> Thomas Tuttle <thinkinginbinary@gmail.com> wrote:
-> 
-> > 2. I'm not sure if this bug is in the kernel, wireless tools, or the
-> > ipw3945 driver, but I haven't changed the version of anything but the
-> > kernel.  When I do `iwconfig eth1 essid foobar' something drops the
-> > last character of the essid, and a subsequent `iwconfig eth1' shows
-> > "fooba" as the essid.  And it's actually set as "fooba", since I had
-> > to do `iwconfig eth1 essid MyUsualEssid_' (note underscore) to get on
-> > to my usual network.
-> 
-> This could be version skew between the wireless APIs in the kernel.org kernel,
-> the wireless userspace, the out-of-tree ipw3945 driver and conceivably one
-> of the git trees in -mm (although I suspect not the latter).
-> 
-> I don't know, but I know who to cc ;)   Probably they will want to knwo which
-> version of wireless-tools userspace you are running.
+On 29/11/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Wed, 29 Nov 2006, Jesper Juhl wrote:
+> >
+> > I would venture that "-Wshadow" is another one of those.
+>
+> I'd agree, except for the fact that gcc does a horribly _bad_ job of
+> -Wshadow, making it (again) totally unusable.
+>
+> For example, it's often entirely interesting to hear about local variables
+> that shadow each other. No question about it.
+>
+> HOWEVER. It's _not_ really interesting to hear about a local variable that
+> happens to have a common name that is also shared by a extern function.
+>
+> There just isn't any room for confusion, and it's actually not even that
+> unusual - I tried using -Wshadow on real programs, and it was just
+> horribly irritating.
+>
+> In the kernel, we had obvious things like local use of "jiffies" that just
+> make _total_ sense in a small inline function, and the fact that there
+> happens to be an extern declaration for "jiffies" just isn't very
+> interesting.
+>
+> Similarly, with nested macro expansion, even the "local variable shadows
+> another local variable" case - that looks like it should have an obvious
+> warning on the face of it - really isn't always necessarily that
+> interesting after all. Maybe it is a bug, maybe it isn't, but it's no
+> longer _obviously_ bogus any more.
+>
+> So I'm not convinced about the usefulness of "-Wshadow". ESPECIALLY the
+> way that gcc implements it, it's almost totally useless in real life.
+>
+> For example, I tried it on "git" one time, and this is a perfect example
+> of why "-Wshadow" is totally broken:
+>
+>         diff-delta.c: In function 'create_delta_index':
+>         diff-delta.c:142: warning: declaration of 'index' shadows a global declaration
+>
+> (and there's a _lot_ of those). If I'm not allowed to use "index" as a
+> local variable and include <string.h> at the same time, something is
+> simply SERIOUSLY WRONG with the warning.
+>
+> So the fact is, the C language has scoping rules for a reason. Can you
+> screw yourself by usign them badly? Sure. But that does NOT mean that the
+> same name in different scopes is a bad thing that should be warned about.
+>
+> If I wanted a language that didn't allow me to do anything wrong, I'd be
+> using Pascal. As it is, it turns out that things that "look" wrong on a
+> local level are often not wrong after all.
+>
 
-	Yes, it's a problem because the driver is out-of-tree. I sent
-a patch to the maintainer to make the driver compatible with kernel
-before/after, and it's actually integrated in the version 1.1.2 of the
-driver (Nov 1st).
-	So, please upgrade your driver and tell us how it works...
+I can't really say anything else at this point but, point conceded...
 
-	Jean
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

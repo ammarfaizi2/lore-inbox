@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758338AbWK2WDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758280AbWK2WCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758338AbWK2WDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758284AbWK2WD0
+	id S1758280AbWK2WCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758270AbWK2WCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:03:26 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:46548 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758270AbWK2WDQ
+	Wed, 29 Nov 2006 17:02:40 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2482 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758246AbWK2WC2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:03:16 -0500
-Message-Id: <20061129220453.517238000@sous-sol.org>
+	Wed, 29 Nov 2006 17:02:28 -0500
+Message-Id: <20061129220419.865448000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:23 -0800
+Date: Wed, 29 Nov 2006 14:00:20 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,51 +21,49 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
-       Daniel Ritz <daniel.ritz@gmx.ch>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Pavol Gono <Palo.Gono@gmail.com>
-Subject: [patch 12/23] pcmcia: fix rmmod pcmcia with unbound devices
-Content-Disposition: inline; filename=pcmcia-fix-rmmod-pcmcia-with-unbound-devices.patch
+       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
+       davem@davemloft.net
+Subject: [patch 09/23] NETFILTER: xt_CONNSECMARK: fix Kconfig dependencies
+Content-Disposition: inline; filename=netfilter-xt_connsecmark-fix-kconfig-dependencies.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+From: Patrick McHardy <kaber@trash.net>
 
-Having unbound PCMCIA devices: doing a 'find /sys' after a 'rmmod pcmcia'
-gives an oops because the pcmcia_device is not unregisterd from the driver
-core.
+CONNSECMARK needs conntrack, add missing dependency to fix linking error
+with CONNSECMARK=y and CONNTRACK=m.
 
-fixes bugzilla #7481
+Reported by Toralf Förster <toralf.foerster@gmx.de>.
 
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Pavol Gono <Palo.Gono@gmail.com>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-[chrisw: add subsequent mutex fix]
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- drivers/pcmcia/ds.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
---- linux-2.6.18.4.orig/drivers/pcmcia/ds.c
-+++ linux-2.6.18.4/drivers/pcmcia/ds.c
-@@ -1264,6 +1264,11 @@ static void pcmcia_bus_remove_socket(str
- 	socket->pcmcia_state.dead = 1;
- 	pccard_register_pcmcia(socket, NULL);
+---
+commit 7f013c33ba2b02614c856d715b65d858bc1ec47f
+tree 7ba757cfe1e953e47726bdcf956c16d07d94aa6e
+parent ca6adddd237afa4910bab5e9e8ba0685f37c2bfe
+author Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:54 +0100
+committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:54 +0100
+
+ net/netfilter/Kconfig |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- linux-2.6.18.4.orig/net/netfilter/Kconfig
++++ linux-2.6.18.4/net/netfilter/Kconfig
+@@ -197,7 +197,9 @@ config NETFILTER_XT_TARGET_SECMARK
  
-+	/* unregister any unbound devices */
-+	mutex_lock(&socket->skt_mutex);
-+	pcmcia_card_remove(socket, NULL);
-+	mutex_unlock(&socket->skt_mutex);
-+
- 	pcmcia_put_socket(socket);
- 
- 	return;
+ config NETFILTER_XT_TARGET_CONNSECMARK
+ 	tristate '"CONNSECMARK" target support'
+-	depends on NETFILTER_XTABLES && (NF_CONNTRACK_SECMARK || IP_NF_CONNTRACK_SECMARK)
++	depends on NETFILTER_XTABLES && \
++		   ((NF_CONNTRACK && NF_CONNTRACK_SECMARK) || \
++		    (IP_NF_CONNTRACK && IP_NF_CONNTRACK_SECMARK))
+ 	help
+ 	  The CONNSECMARK target copies security markings from packets
+ 	  to connections, and restores security markings from connections
 
 --

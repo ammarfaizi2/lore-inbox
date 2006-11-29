@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935031AbWK2Leh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966646AbWK2LsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935031AbWK2Leh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 06:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935091AbWK2Leh
+	id S966646AbWK2LsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 06:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966284AbWK2LsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 06:34:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32134 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S935031AbWK2Leg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 06:34:36 -0500
-Date: Wed, 29 Nov 2006 06:33:35 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Sebastian Dugue <sebastien.dugue@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH -mm 4/5][AIO] - AIO completion signal notification
-Message-ID: <20061129113335.GJ6570@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20061129112441.745351c9@frecb000686> <20061129113301.74a66c91@frecb000686>
+	Wed, 29 Nov 2006 06:48:15 -0500
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:53171 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S966410AbWK2LsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 06:48:14 -0500
+Subject: Re: [PATCH] lockdep: fix sk->sk_callback_lock locking
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mingo@elte.hu, gandalf@wlug.westbo.se
+In-Reply-To: <E1GpKC4-0005Vc-00@gondolin.me.apana.org.au>
+References: <E1GpKC4-0005Vc-00@gondolin.me.apana.org.au>
+Content-Type: text/plain
+Date: Wed, 29 Nov 2006 12:42:24 +0100
+Message-Id: <1164800544.6588.118.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129113301.74a66c91@frecb000686>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 11:33:01AM +0100, S?bastien Dugu? wrote:
->                       AIO completion signal notification
+On Wed, 2006-11-29 at 18:49 +1100, Herbert Xu wrote:
+> Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> > 
+> > =========================================================
+> > [ INFO: possible irq lock inversion dependency detected ]
+> > 2.6.19-rc6 #4
+> > ---------------------------------------------------------
+> > nc/1854 just changed the state of lock:
+> > (af_callback_keys + sk->sk_family#2){-.-?}, at: [<c0268a7f>] sock_def_error_report+0x1f/0x90
+> > but this lock was taken by another, soft-irq-safe lock in the past:
+> > (slock-AF_INET){-+..}
+> > 
+> > and interrupts could create inverse lock ordering between them.
 > 
->   The current 2.6 kernel does not support notification of user space via
-> an RT signal upon an asynchronous IO completion. The POSIX specification
-> states that when an AIO request completes, a signal can be delivered to
-> the application as notification.
+> I think this is bogus.  The slock is not a standard lock.  When we
+> hold it in process context we don't actually hold the spin lock part
+> of it.  However, it does prevent the softirq path from running in
+> critical sections which also prevents any attempt to grab the
+> callback lock from softirq context.
 > 
->   This patch adds a struct sigevent *aio_sigeventp to the iocb.
-> The relevant fields (pid, signal number and value) are stored in the kiocb
-> for use when the request completes.
-> 
->   That sigevent structure is filled by the application as part of the AIO
-> request preparation. Upon request completion, the kernel notifies the
-> application using those sigevent parameters. If SIGEV_NONE has been specified,
-> then the old behaviour is retained and the application must rely on polling
-> the completion queue using io_getevents().
+> If you still think there is a problem, please show an actual scenario
+> where it dead locks.
 
-Well, from what I see applications must rely on polling the completion
-queue using io_getevents() in any case, isn't that the only way how to free
-the kernel resources associated with the AIO request, even if it uses
-SIGEV_SIGNAL or thread notification?  aio_error/aio_return/aio_suspend
-will still need to io_getevents, the only important difference with this
-patch is that a) the polling doesn't need to be asynchronous (i.e. have
-a special thread which just loops doing io_getevents)
-b) it doesn't need to care about notification itself.
+process context does lock_sock(sk) which is basically a sleeping lock
+and sets an owner field when acquired.
 
-	Jakub
+BH context does bh_lock_sock(sk); which spins on the spinlock protecting
+the owner field; and checks for an owner under this lock. When an owner
+is found it will stick the skb on a queue for later processing.
+
+This scheme does indeed seem to avoid the reported deadlock scenario -
+although I didn't audit all code paths.
+
+However I'm not quite sure yet how to teach lockdep about this. The
+proposed patch will shut it up though.
+

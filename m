@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758360AbWK2WIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758344AbWK2WIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758360AbWK2WIJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S1758344AbWK2WIJ (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 29 Nov 2006 17:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758275AbWK2WDz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758847AbWK2WHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:03:55 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:51156 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758295AbWK2WDY
+	Wed, 29 Nov 2006 17:07:43 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22741 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758270AbWK2WHV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:03:24 -0500
-Message-Id: <20061129220524.148156000@sous-sol.org>
+	Wed, 29 Nov 2006 17:07:21 -0500
+Message-Id: <20061129220706.398976000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:25 -0800
+Date: Wed, 29 Nov 2006 14:00:34 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,62 +21,73 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Daniel Drake <dsd@gentoo.org>,
-       shaohua.li@intel.com
-Subject: [patch 14/23] x86 microcode: dont check the size
-Content-Disposition: inline; filename=x86-microcode-don-t-check-the-size.patch
+       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
+       bunk@stusta.de, Olaf Kirch <okir@suse.de>,
+       Jean Delvare <jdelvare@suse.de>
+Subject: [patch 23/23] UDP: Make udp_encap_rcv use pskb_may_pull
+Content-Disposition: inline; filename=udp-make-udp_encap_rcv-use-pskb_may_pull.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Shaohua Li <shaohua.li@intel.com>
+From: Olaf Kirch <okir@suse.de>
 
-IA32 manual says if micorcode update's size is 0, then the size is
-default size (2048 bytes). But this doesn't suggest all microcode
-update's size should be above 2048 bytes to me. We actually had a
-microcode update whose size is 1024 bytes. The patch just removed the
-check.
+IPsec with NAT-T breaks on some notebooks using the latest e1000 chipset,
+when header split is enabled. When receiving sufficiently large packets, the
+driver puts everything up to and including the UDP header into the header
+portion of the skb, and the rest goes into the paged part. udp_encap_rcv
+forgets to use pskb_may_pull, and fails to decapsulate it. Instead, it
+passes it up it to the IKE daemon.
 
-Backported to 2.6.18 by Daniel Drake.
-
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Signed-off-by: Olaf Kirch <okir@suse.de>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- arch/i386/kernel/microcode.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/ipv4/udp.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- linux-2.6.18.4.orig/arch/i386/kernel/microcode.c
-+++ linux-2.6.18.4/arch/i386/kernel/microcode.c
-@@ -250,14 +250,14 @@ static int find_matching_ucodes (void) 
- 		}
+--- linux-2.6.18.4.orig/net/ipv4/udp.c
++++ linux-2.6.18.4/net/ipv4/udp.c
+@@ -892,23 +892,32 @@ static int udp_encap_rcv(struct sock * s
+ 	return 1; 
+ #else
+ 	struct udp_sock *up = udp_sk(sk);
+-  	struct udphdr *uh = skb->h.uh;
++  	struct udphdr *uh;
+ 	struct iphdr *iph;
+ 	int iphlen, len;
+   
+-	__u8 *udpdata = (__u8 *)uh + sizeof(struct udphdr);
+-	__u32 *udpdata32 = (__u32 *)udpdata;
++	__u8 *udpdata;
++	__u32 *udpdata32;
+ 	__u16 encap_type = up->encap_type;
  
- 		total_size = get_totalsize(&mc_header);
--		if ((cursor + total_size > user_buffer_size) || (total_size < DEFAULT_UCODE_TOTALSIZE)) {
-+		if (cursor + total_size > user_buffer_size) {
- 			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
- 			error = -EINVAL;
- 			goto out;
- 		}
+ 	/* if we're overly short, let UDP handle it */
+-	if (udpdata > skb->tail)
++	len = skb->len - sizeof(struct udphdr);
++	if (len <= 0)
+ 		return 1;
  
- 		data_size = get_datasize(&mc_header);
--		if ((data_size + MC_HEADER_SIZE > total_size) || (data_size < DEFAULT_UCODE_DATASIZE)) {
-+		if (data_size + MC_HEADER_SIZE > total_size) {
- 			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
- 			error = -EINVAL;
- 			goto out;
-@@ -460,11 +460,6 @@ static ssize_t microcode_write (struct f
- {
- 	ssize_t ret;
+ 	/* if this is not encapsulated socket, then just return now */
+ 	if (!encap_type)
+ 		return 1;
  
--	if (len < DEFAULT_UCODE_TOTALSIZE) {
--		printk(KERN_ERR "microcode: not enough data\n"); 
--		return -EINVAL;
--	}
--
- 	if ((len >> PAGE_SHIFT) > num_physpages) {
- 		printk(KERN_ERR "microcode: too much data (max %ld pages)\n", num_physpages);
- 		return -EINVAL;
+-	len = skb->tail - udpdata;
++	/* If this is a paged skb, make sure we pull up
++	 * whatever data we need to look at. */
++	if (!pskb_may_pull(skb, sizeof(struct udphdr) + min(len, 8)))
++		return 1;
++
++	/* Now we can get the pointers */
++	uh = skb->h.uh;
++	udpdata = (__u8 *)uh + sizeof(struct udphdr);
++	udpdata32 = (__u32 *)udpdata;
+ 
+ 	switch (encap_type) {
+ 	default:
 
 --

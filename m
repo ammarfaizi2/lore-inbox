@@ -1,51 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967527AbWK2Sbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967528AbWK2SeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967527AbWK2Sbl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 13:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967528AbWK2Sbl
+	id S967528AbWK2SeO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 13:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967530AbWK2SeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 13:31:41 -0500
-Received: from fmmailgate02.web.de ([217.72.192.227]:40925 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP id S967527AbWK2Sbk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 13:31:40 -0500
-Message-ID: <456DD1D1.50007@web.de>
-Date: Wed, 29 Nov 2006 19:30:41 +0100
-From: Peter Schlaf <peter.schlaf@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.8.0.8) Gecko/20060911 SUSE/1.0.6-0.1 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: Pauline Middelink <middelink@polyware.nl>
-CC: Linux and Kernel Video <video4linux-list@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] remove the broken VIDEO_ZR36120 driver
-References: <20061125191510.GB3702@stusta.de> <456BC973.1050309@feise.com> <20061128060723.GA15364@stusta.de> <456BD8E4.6010003@feise.com> <1164707859.12613.7.camel@localhost> <456C89E7.9010507@web.de> <20061128213808.GA25754@polyware.nl>
-In-Reply-To: <20061128213808.GA25754@polyware.nl>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 13:34:14 -0500
+Received: from mga05.intel.com ([192.55.52.89]:7517 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S967528AbWK2SeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 13:34:13 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,475,1157353200"; 
+   d="scan'208"; a="151711125:sNHT18471348"
+Date: Wed, 29 Nov 2006 09:31:39 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Suresh B Siddha <suresh.b.siddha@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86-64: Fix the nterrupt race is in idle callback (2nd try)
+Message-ID: <20061129093139.A23242@unix-os.sc.intel.com>
+References: <20061129091503.A23188@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061129091503.A23188@unix-os.sc.intel.com>; from venkatesh.pallipadi@intel.com on Wed, Nov 29, 2006 at 09:15:03AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pauline Middelink schrieb:
-> On Tue, 28 Nov 2006 around 20:11:35 +0100, Peter Schlaf wrote:
->> Hello,
->>
->> I would like to see this driver fixed and remaining in the kernel and
->> would give any support I can to achive this goal.
->>
->> I have a zr36120 based tv card and wrote a driver on my own based on
->> this kernel driver from Pauline Middelink. Maybe it could be helpful.
-> 
-> I would have no problem Peter taking over the maintainance of the driver.
-> Due to timeconstrains I no longer have the time to upgrade the driver
-> to v4l2 (which is a bigger problem than getting the current driver to 
-> run under 2.6)
 
-Hi,
+Here is the second try. Thanks to Suresh Siddha who pointed out a issue with
+enabling interrupts in the first patch.
 
-I can maintain the driver, if there is no objection.
 
-But this driver only, not the bigphysarea patch.
+Idle callbacks has some races when enter_idle() sets isidle and subsequent
+interrupts that can happen on that CPU, before CPU goes to idle. Due to this,
+an IDLE_END can get called before IDLE_START. To avoid these races, disable
+interrupts before enter_idle and make sure that all idle routines do not
+enable interrupts before entering idle.
 
-CU
-Peter
+Note that poll_idle() still has a this race as it has to enable interrupts
+before going to idle. But, all other idle routines have the race fixed.
+
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+Index: linux-2.6.19-rc-mm/arch/x86_64/kernel/process.c
+===================================================================
+--- linux-2.6.19-rc-mm.orig/arch/x86_64/kernel/process.c
++++ linux-2.6.19-rc-mm/arch/x86_64/kernel/process.c
+@@ -127,6 +127,7 @@ static void default_idle(void)
+  */
+ static void poll_idle (void)
+ {
++	local_irq_enable();
+ 	cpu_relax();
+ }
+ 
+@@ -206,6 +207,12 @@ void cpu_idle (void)
+ 				idle = default_idle;
+ 			if (cpu_is_offline(smp_processor_id()))
+ 				play_dead();
++			/*
++			 * Idle routines should keep interrupts disabled
++			 * from here on, until they go to idle.
++			 * Otherwise, idle callbacks can misfire.
++			 */
++			local_irq_disable();
+ 			enter_idle();
+ 			idle();
+ 			/* In many cases the interrupt that ended idle
+@@ -237,14 +244,22 @@ void mwait_idle_with_hints(unsigned long
+ 		smp_mb();
+ 		if (!need_resched())
+ 			__mwait(eax, ecx);
++		else
++			local_irq_enable();
++	} else {
++		local_irq_enable();
+ 	}
+ }
+ 
+ /* Default MONITOR/MWAIT with no hints, used for default C1 state */
+ static void mwait_idle(void)
+ {
+-	local_irq_enable();
+-	mwait_idle_with_hints(0,0);
++	if (!need_resched()) {
++		__monitor((void *)&current_thread_info()->flags, 0, 0);
++		smp_mb();
++		if (!need_resched())
++			__sti_mwait(0, 0);
++	}
+ }
+ 
+ void __cpuinit select_idle_routine(const struct cpuinfo_x86 *c)
+Index: linux-2.6.19-rc-mm/include/asm-x86_64/processor.h
+===================================================================
+--- linux-2.6.19-rc-mm.orig/include/asm-x86_64/processor.h
++++ linux-2.6.19-rc-mm/include/asm-x86_64/processor.h
+@@ -475,6 +475,14 @@ static inline void __mwait(unsigned long
+ 		: :"a" (eax), "c" (ecx));
+ }
+ 
++static inline void __sti_mwait(unsigned long eax, unsigned long ecx)
++{
++	/* "mwait %eax,%ecx;" */
++	asm volatile(
++		"sti; .byte 0x0f,0x01,0xc9;"
++		: :"a" (eax), "c" (ecx));
++}
++
+ extern void mwait_idle_with_hints(unsigned long eax, unsigned long ecx);
+ 
+ #define stack_current() \

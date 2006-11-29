@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935380AbWK2HRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935316AbWK2HYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935380AbWK2HRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 02:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935356AbWK2HRQ
+	id S935316AbWK2HYj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 02:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935390AbWK2HYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 02:17:16 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:15371 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S935380AbWK2HRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 02:17:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jyGXzfwY3vmb6ff2DTKblDIZsEsIBm1GmyMPGLqUMUEEzze7zde59kp6qDZHbrfzWK0A2/jjgab813i3ESccilKjx91f1WlOeGis5kp7n88htCnj8v+6jk4T1TOmHpJfgggM46oAb+ySrCsibedBcK60fEOVJ7OOg41vLF+4oCM=
-Message-ID: <4e5ebad50611282317r55c22228qa5333306ccfff28e@mail.gmail.com>
-Date: Wed, 29 Nov 2006 15:17:13 +0800
-From: "Sonic Zhang" <sonic.adi@gmail.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: The VFS cache is not freed when there is not enough free memory to allocate
-Cc: Aubrey <aubreylee@gmail.com>, "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <456A964D.2050004@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 02:24:39 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:27095 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S935316AbWK2HYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 02:24:38 -0500
+Date: Wed, 29 Nov 2006 08:21:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc6-rt8: alsa xruns
+Message-ID: <20061129072100.GA1983@elte.hu>
+References: <1164743931.15887.34.camel@cmn3.stanford.edu> <1164744757.1701.58.camel@mindpipe> <20061128201444.GB26934@elte.hu> <1164751282.7543.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6d6a94c50611212351if1701ecx7b89b3fe79371554@mail.gmail.com>
-	 <1164185036.5968.179.camel@twins>
-	 <6d6a94c50611220202t1d076b4cye70dcdcc19f56e55@mail.gmail.com>
-	 <456A964D.2050004@yahoo.com.au>
+In-Reply-To: <1164751282.7543.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forward to the mailing list.
 
-Sonic Zhang wrote:
-> On 11/27/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+* Daniel Walker <dwalker@mvista.com> wrote:
 
+> > i fixed this in -rt8: the latency tracer now uses the time of day 
+> > clocksource - pmtimer in this case. (that means function tracing is 
+> > slower than with the TSC, but latency figures are more reliable.)
+> 
+> I have a patch set to make the using the clocksources a little nicer.. 
+> Is there anything I should add to that interface to help enable 
+> latency tracing, or are you satisfied with using the timekeeping 
+> clocksource? It might get constrictive after a while.
 
->> I haven't actually written any nommu userspace code, but it is obvious
->> that you must try to keep malloc to <= PAGE_SIZE (although order 2 and
->> even 3 allocations seem to be reasonable, from process context)... Then
->> you would use something a bit more advanced than a linear array to store
->> data (a pagetable-like radix tree would be a nice, easy idea).
->>
->
-> But, even we split the 8M memory into 2048 x 4k blocks, we still face
-> this failure. The key problem is that available memory is small than
-> 2048 x 4k, while there are still a lot of VFS cache. The VFS cache can
-> be freed, but kernel allocation function ignores it. See the new test
-> application.
+please talk to John and Thomas about GTOD interfaces. Right now the 
+solution used by the latency tracer is working out pretty OK - but if 
+something better comes along i can use that too. It's not a burning 
+issue though, unless you know of some bug. (i'm not sure what you mean 
+by it becoming constrictive)
 
-
-Which kernel allocation function? If you can provide more details I'd
-like to get to the bottom of this.
-
-Because the anonymous memory allocation in mm/nommu.c is all allocated
-with GFP_KERNEL from process context, and in that case, the allocator
-should not fail but call into page reclaim which in turn will free VFS
-caches.
-
-
-
-> What's a better way to free the VFS cache in memory allocator?
-
-
-It should be freeing it for you, so I'm not quite sure what is going
-on. Can you send over the kernel messages you see when the allocation
-fails?
-
-Also, do you happen to know of a reasonable toolchain + emulator setup
-that I could test the nommu kernel with?
-
-Thanks,
-Nick
+	Ingo

@@ -1,94 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967505AbWK2SQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967508AbWK2SSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967505AbWK2SQY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 13:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935996AbWK2SQY
+	id S967508AbWK2SSp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 13:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967509AbWK2SSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 13:16:24 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:32526 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S935979AbWK2SQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 13:16:23 -0500
-Date: Wed, 29 Nov 2006 18:16:02 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Wed, 29 Nov 2006 13:18:45 -0500
+Received: from mgw-ext14.nokia.com ([131.228.20.173]:59792 "EHLO
+	mgw-ext14.nokia.com") by vger.kernel.org with ESMTP id S967508AbWK2SSo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 13:18:44 -0500
+Subject: [PATCH] UBI: take 2
+From: Artem Bityutskiy <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
 To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org,
-       "linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-Subject: Re: Boot failure with ext2 and initrds
-Message-ID: <20061129181602.GD23101@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Mingming Cao <cmm@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-	Mel Gorman <mel@skynet.ie>, "Martin J. Bligh" <mbligh@mbligh.org>,
-	linux-kernel@vger.kernel.org,
-	"linux-ext4@vger.kernel.org" <linux-ext4@vger.kernel.org>
-References: <Pine.LNX.4.64.0611151404260.11929@blonde.wat.veritas.com> <20061115214534.72e6f2e8.akpm@osdl.org> <455C0B6F.7000201@us.ibm.com> <20061115232228.afaf42f2.akpm@osdl.org> <20061116123448.GA28311@flint.arm.linux.org.uk> <20061125145915.GB13089@flint.arm.linux.org.uk> <20061129074000.GA21352@flint.arm.linux.org.uk> <20061129003036.dd27f01e.akpm@osdl.org> <20061129092023.GA23101@flint.arm.linux.org.uk> <20061129013922.053482f9.akpm@osdl.org>
+Cc: tglx@linutronix.de, haver@vnet.ibm.com,
+       Josh Boyer <jwboyer@linux.vnet.ibm.com>, arnez@vnet.ibm.com,
+       llinux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 29 Nov 2006 20:17:26 +0200
+Message-Id: <1164824246.576.65.camel@sauron>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129013922.053482f9.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 29 Nov 2006 18:17:26.0260 (UTC) FILETIME=[9F7C2B40:01C713E2]
+X-eXpurgate-Category: 1/0
+X-eXpurgate-ID: 149371::061129201817-6B02EBB0-03E2AB8B/0-0/0-1
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 01:39:22AM -0800, Andrew Morton wrote:
-> On Wed, 29 Nov 2006 09:20:24 +0000
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> > What I'm looking for is confirmation of the semantics of
-> > find_next_zero_bit()
-> 
-> What are the existing semantics?  I see no documentation in any of the
-> architectures I've looked at.  That's my point.
-> 
-> >From a quick read of fs/ext2/balloc.c
-> 
-> 	ext2_find_next_zero_bit(base, size, offset)
-> 
-> appears to expect that base is the start of the memory buffer, size is the
-> number of bits at *base and offset is the bit at which to start the search,
-> relative to base.  If a zero bit is found it will return the offset of that
-> bit relative to base.  It will return some number greater than `size' if no
-> zero-bit was found.  
+This is take 2 of the previous mail with David's comments in mind.
 
-Thank you for taking the time to agree with my analysis of x86 and
-confirm that what ARM implements is also what is expected - that's
-all that I was after.  The reason I was after it was because you'd
-said in the message I originally replied to:
+Hello Andrew,
 
-| yes, the `size' arg to find_next_zero_bit() represents the number of
-| bits to scan at `offset'.
+we have announced UBI several months ago in the MTD mailing list. It was
+successfully used in our setup and we've got positive feedback.
 
-which is entirely different from my understanding of what is required of
-this function.  Hence the confusion caused and the need to clear up
-that confusion.
+In short, it is kind of LVM layer but for flash (MTD) devices which
+hides flash devices complexities like bad eraseblocks (on NANDs) and
+wear. The documentation is available at the MTD web site:
+http://www.linux-mtd.infradead.org/doc/ubi.html
+http://www.linux-mtd.infradead.org/faq/ubi.html
 
-> Whether that's how all the implementors interpreted it is anyone's guess. 
-> Presumably the architectures all do roughly the same thing.
+The source code is available at the UBI GIT tree:
+git://git.infradead.org/ubi-2.6.git
 
-ARM does exactly the same as x86, since x86 was the only architecture
-which existed in Linux when it was originally implemented.
+The UBI GIT tree is based upon the mtd-2.6.git
+(git://git.infradead.org/mtd-2.6.git)
 
-> > <extremely frustrated>
-> 
-> Well likewise.  It appears that nobody (and about 20 people have
-> implemented these things) could be bothered getting off ass and
-> documenting the pathetic thing.
+There is also an 'mtd' branch available in the UBI GIT which contains
+the current mtd-2.6.git. So that you can use git-diff mtd and have UBI
+patches.
 
-Back in those days it very much was "read the source, luke" and when
-porting the kernel that meant the x86 code.  Consider the lack of
-documentation a case of just following the agreed convention at the
-time.
+There is also web interface to the git trees available:
+UBI: http://git.infradead.org/?p=ubi-2.6.git;a=summary
+MTD: http://git.infradead.org/?p=mtd-2.6.git;a=summary
 
-We've since now moved on to a more mature attitude towards documentation,
-and decided upon a format that it should take.  So yes, it would be nice
-if someone would document the entire set of kernel functions which
-architectures are expected to provide.  That'll probably be a full time
-job for someone though, and probably needs someone to be paid to do it.
-Or are the janitor folks up for it?
+Plain patches may be found at
+http://linux-mtd.infradead.org/~dedekind/ubi/
+
+Please, include the patches to your tree.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Best regards,
+Artem Bityutskiy (Битюцкий Артём)
+

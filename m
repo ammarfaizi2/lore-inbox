@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967368AbWK2OsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967373AbWK2Oyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967368AbWK2OsY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967367AbWK2OsY
+	id S967373AbWK2Oyd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:54:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967375AbWK2Oyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:48:24 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:46689 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S967368AbWK2OsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:48:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RRnBnMpihBzn7U/brXA3kp65NJC/zZlI5Lm8gfUySKLOdcj1BJnJ00NN5oM7VH8H5gKWrCoaSKuBcvysUE9JnFb5FrUS8vHw6gQJCxhjHhYXQnk3Aa/4Ff0iNg0I55ijMrRELWz86Knu/3Uz8GH0lhA/YV3QroVAAbxQfEsP9uc=
-Message-ID: <b6fcc0a0611290648kcef7dacs670eef2588d00788@mail.gmail.com>
-Date: Wed, 29 Nov 2006 17:48:14 +0300
-From: "Alexey Dobriyan" <adobriyan@gmail.com>
-To: "d binderman" <dcb314@hotmail.com>
-Subject: Re: fs/9p/vfs_inode.c(406): remark #593: variable "sb" was set but never used
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BAY107-F302D53E3CC04B6B8AEA7E29CE40@phx.gbl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 09:54:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42432 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S967373AbWK2Oyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:54:32 -0500
+Date: Wed, 29 Nov 2006 14:54:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: S?bastien Dugu? <sebastien.dugue@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Subject: Re: [PATCH -mm 3/5][AIO] - export good_sigevent()
+Message-ID: <20061129145425.GA1953@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	S?bastien Dugu? <sebastien.dugue@bull.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Zach Brown <zach.brown@oracle.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Jean Pierre Dion <jean-pierre.dion@bull.net>
+References: <20061129112441.745351c9@frecb000686> <20061129113234.38c12911@frecb000686>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <BAY107-F302D53E3CC04B6B8AEA7E29CE40@phx.gbl>
+In-Reply-To: <20061129113234.38c12911@frecb000686>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/29/06, d binderman <dcb314@hotmail.com> wrote:
->
-> Hello there,
->
-> I just tried to compile Linux kernel 2.6.18.3 with the Intel C
-> C compiler.
->
-> The compiler said
->
-> 1.
->
-> fs/9p/vfs_inode.c(406): remark #593: variable "sb" was set but never used
->
-> The source code is
->
->     struct super_block *sb = NULL;
->
-> I have checked the source code and I agree with the compiler.
-> Suggest delete local variable.
->
-> 2.
->
-> fs/9p/vfs_inode.c(757): remark #593: variable "olddirfidnum" was set but
-> never used
-> fs/9p/vfs_inode.c(758): remark #593: variable "newdirfidnum" was set but
-> never used
+> +/***
+> + * good_sigevent - check and get target task from a sigevent.
+> + * @event: the sigevent to be checked
+> + *
+> + * This function must be called with tasklist_lock held for reading.
+> + */
+> +struct task_struct * good_sigevent(sigevent_t * event)
+> +{
+> +	struct task_struct *rtn = current->group_leader;
+> +
+> +	if ((event->sigev_notify & SIGEV_THREAD_ID ) &&
+> +		(!(rtn = find_task_by_pid(event->sigev_notify_thread_id)) ||
+> +		 rtn->tgid != current->tgid ||
+> +		 (event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL))
+> +		return NULL;
+> +
+> +	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
+> +	    ((event->sigev_signo <= 0) || (event->sigev_signo > SIGRTMAX)))
+> +		return NULL;
+> +
+> +	return rtn;
+> +}
 
-Please, upload full list of these warnings somewhere and post URL.
+And while we're at it we should badly beat up the person that wrote this
+mess in the first time.  To be somewhat readable it should look like:
+
+static struct task_struct *good_sigevent(sigevent_t *event)
+{
+	struct task_struct *task = current->group_leader;
+
+	if ((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) {
+		if (event->sigev_signo <= 0 || event->sigev_signo > SIGRTMAX)
+			return NULL;
+	}
+
+	if (event->sigev_notify & SIGEV_THREAD_ID) {
+		if ((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL)
+			return NULL;
+		task = find_task_by_pid(event->sigev_notify_thread_id);
+		if (!task || task->tgid != current->tgid)
+			return NULL;
+	}
+
+	return task;
+}
+
+And btw, looking at its currentl caller I see why we need the PF_EXITING
+flag I recommended to remove easiler on, it even has a big comment that
+we should copy & paste to aio.c aswell.  Still no idea why it's doing
+the selectiv reference grabbing, though.

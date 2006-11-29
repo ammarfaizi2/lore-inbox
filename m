@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758344AbWK2WIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758210AbWK2WDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758344AbWK2WIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758847AbWK2WHn
+	id S1758210AbWK2WDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758246AbWK2WCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:07:43 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22741 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1758270AbWK2WHV
+	Wed, 29 Nov 2006 17:02:43 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64689 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1758265AbWK2WCU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:07:21 -0500
-Message-Id: <20061129220706.398976000@sous-sol.org>
+	Wed, 29 Nov 2006 17:02:20 -0500
+Message-Id: <20061129220409.408136000@sous-sol.org>
 References: <20061129220111.137430000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Wed, 29 Nov 2006 14:00:34 -0800
+Date: Wed, 29 Nov 2006 14:00:19 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,73 +21,46 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
-       bunk@stusta.de, Olaf Kirch <okir@suse.de>,
-       Jean Delvare <jdelvare@suse.de>
-Subject: [patch 23/23] UDP: Make udp_encap_rcv use pskb_may_pull
-Content-Disposition: inline; filename=udp-make-udp_encap_rcv-use-pskb_may_pull.patch
+       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
+       davem@davemloft.net
+Subject: [patch 08/23] NETFILTER: Kconfig: fix xt_physdev dependencies
+Content-Disposition: inline; filename=netfilter-kconfig-fix-xt_physdev-dependencies.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Olaf Kirch <okir@suse.de>
+From: Patrick McHardy <kaber@trash.net>
 
-IPsec with NAT-T breaks on some notebooks using the latest e1000 chipset,
-when header split is enabled. When receiving sufficiently large packets, the
-driver puts everything up to and including the UDP header into the header
-portion of the skb, and the rest goes into the paged part. udp_encap_rcv
-forgets to use pskb_may_pull, and fails to decapsulate it. Instead, it
-passes it up it to the IKE daemon.
+xt_physdev depends on bridge netfilter, which is a boolean, but can still
+be built modular because of special handling in the bridge makefile. Add
+a dependency on BRIDGE to prevent XT_MATCH_PHYSDEV=y, BRIDGE=m.
 
-Signed-off-by: Olaf Kirch <okir@suse.de>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- net/ipv4/udp.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- linux-2.6.18.4.orig/net/ipv4/udp.c
-+++ linux-2.6.18.4/net/ipv4/udp.c
-@@ -892,23 +892,32 @@ static int udp_encap_rcv(struct sock * s
- 	return 1; 
- #else
- 	struct udp_sock *up = udp_sk(sk);
--  	struct udphdr *uh = skb->h.uh;
-+  	struct udphdr *uh;
- 	struct iphdr *iph;
- 	int iphlen, len;
-   
--	__u8 *udpdata = (__u8 *)uh + sizeof(struct udphdr);
--	__u32 *udpdata32 = (__u32 *)udpdata;
-+	__u8 *udpdata;
-+	__u32 *udpdata32;
- 	__u16 encap_type = up->encap_type;
+---
+commit ca6adddd237afa4910bab5e9e8ba0685f37c2bfe
+tree 45c88fae3ec75a90ffac423906e662bdb36e8251
+parent cf08e74a590c945d3c0b95886ea3fad8ff73793d
+author Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:31 +0100
+committer Patrick McHardy <kaber@trash.net> Fri, 17 Nov 2006 06:25:31 +0100
+
+ net/netfilter/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.18.4.orig/net/netfilter/Kconfig
++++ linux-2.6.18.4/net/netfilter/Kconfig
+@@ -342,7 +342,7 @@ config NETFILTER_XT_MATCH_MULTIPORT
  
- 	/* if we're overly short, let UDP handle it */
--	if (udpdata > skb->tail)
-+	len = skb->len - sizeof(struct udphdr);
-+	if (len <= 0)
- 		return 1;
- 
- 	/* if this is not encapsulated socket, then just return now */
- 	if (!encap_type)
- 		return 1;
- 
--	len = skb->tail - udpdata;
-+	/* If this is a paged skb, make sure we pull up
-+	 * whatever data we need to look at. */
-+	if (!pskb_may_pull(skb, sizeof(struct udphdr) + min(len, 8)))
-+		return 1;
-+
-+	/* Now we can get the pointers */
-+	uh = skb->h.uh;
-+	udpdata = (__u8 *)uh + sizeof(struct udphdr);
-+	udpdata32 = (__u32 *)udpdata;
- 
- 	switch (encap_type) {
- 	default:
+ config NETFILTER_XT_MATCH_PHYSDEV
+ 	tristate '"physdev" match support'
+-	depends on NETFILTER_XTABLES && BRIDGE_NETFILTER
++	depends on NETFILTER_XTABLES && BRIDGE && BRIDGE_NETFILTER
+ 	help
+ 	  Physdev packet matching matches against the physical bridge ports
+ 	  the IP packet arrived on or will leave by.
 
 --

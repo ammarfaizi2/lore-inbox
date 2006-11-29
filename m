@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967244AbWK2OUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967255AbWK2OV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967244AbWK2OUr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967246AbWK2OUr
+	id S967255AbWK2OV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967257AbWK2OV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:20:47 -0500
-Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:15793 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S967244AbWK2OUq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:20:46 -0500
-X-AntiVirus: PTMail-AV 0.3-0.88.6
-Subject: make oldconfig problem Re: autoconf.h and auto.conf missing
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <456B6B02.9060105@poczta.fm>
-References: <456B6B02.9060105@poczta.fm>
-Content-Type: text/plain
-Date: Wed, 29 Nov 2006 14:20:41 +0000
-Message-Id: <1164810041.13736.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Wed, 29 Nov 2006 09:21:27 -0500
+Received: from emulex.emulex.com ([138.239.112.1]:12790 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S967255AbWK2OV0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:21:26 -0500
+Message-ID: <456D958F.2080305@emulex.com>
+Date: Wed, 29 Nov 2006 09:13:35 -0500
+From: James Smart <James.Smart@Emulex.Com>
+Reply-To: James.Smart@Emulex.Com
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+CC: Adrian Bunk <bunk@stusta.de>, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/scsi_error.c should #include "scsi_transport_api.h"
+References: <20061129100422.GL11084@stusta.de> <20061129131624.GV14076@parisc-linux.org>
+In-Reply-To: <20061129131624.GV14076@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Nov 2006 14:13:35.0742 (UTC) FILETIME=[8F0449E0:01C713C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-27 at 23:47 +0100, Lukasz Stelmach wrote:
-> Greetings.
-> 
-> It seems that someone has broken *conf programs in 2.6.18 because
-> only "make silentoldconfig" recreates autoconf.h and auto.conf
-> properly after configuration (.config) has changed.
-> 
-> I do everything as I always have done.
-> 1. create an empty dir and put my current .config there
-> 2. make O=dir oldconfig
-> 3. compile, everything seems to be OK here
-> 4. do some changes to .config and make oldconfig once again
-> BZZZZZT
 
-yap I have the same problem 
 
-to workaround I just do make xconfig and click on save.
+Matthew Wilcox wrote:
+> On Wed, Nov 29, 2006 at 11:04:22AM +0100, Adrian Bunk wrote:
+>> +#include "scsi_transport_api.h"
+> 
+> scsi_transport_api.h is a weird little file.  It's not included by
+> anything in the drivers/scsi directory, only
+> drivers/scsi/libsas/sas_scsi_host.c:#include "../scsi_transport_api.h"
+> drivers/ata/libata-eh.c:#include "../scsi/scsi_transport_api.h"
+> 
+> To me, that says it should be living in include/scsi/ somewhere ...
+> maybe just put the one function prototype into scsi_eh.h?
 
-I like to have some more input about this ....
+would it only go in include/scsi if it intends to be an exported
+api for LLDD's and/or user apps ?  and stay in drivers/scsi if its
+an internal api within the scsi subsystem itself ?
 
-Thanks, 
-> 5. auto.conf and autoconf.h don't change along with .config and when
->  I build the kernel once again new settings don't take effect.
-> 
-> I discovered I have to make silentoldconfig to regenerate autoconf
-> files. However, this *seems* to force rebuilding of all the objects
-> instead of, what it has always done, only those that depend on
-> altered configurations.
-> 
-> Has anyone else seen something like this? Is it a bug or a feature?
-> 
-> Best regards,
-> 
-> Please CC, I am not a subscriber.
+Based on who uses it, I would say its internal right now.
 
+-- james s

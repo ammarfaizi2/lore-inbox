@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758764AbWK2EOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758768AbWK2EO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758764AbWK2EOB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Nov 2006 23:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758763AbWK2EOB
+	id S1758768AbWK2EO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Nov 2006 23:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758765AbWK2EO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Nov 2006 23:14:01 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:55514 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1758761AbWK2EOA (ORCPT
+	Tue, 28 Nov 2006 23:14:27 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:13532 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1758767AbWK2EO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Nov 2006 23:14:00 -0500
-Subject: [PATCH 1/12] ext3 balloc: reset windowsz when full
+	Tue, 28 Nov 2006 23:14:26 -0500
+Subject: [PATCH 3/12] ext3 balloc: fix off-by-one against rsv_end
 From: Mingming Cao <cmm@us.ibm.com>
 Reply-To: cmm@us.ibm.com
 To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
@@ -37,49 +37,44 @@ References: <20061114014125.dd315fff.akpm@osdl.org>
 	 <Pine.LNX.4.64.0611281741490.29701@blonde.wat.veritas.com>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Tue, 28 Nov 2006 20:13:54 -0800
-Message-Id: <1164773634.4341.34.camel@localhost.localdomain>
+Date: Tue, 28 Nov 2006 20:14:18 -0800
+Message-Id: <1164773658.4341.37.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Port a series ext2 balloc patches from Hugh to ext3/4. The first 6
-patches are against ext3, and the rest are aginst ext4.
-
 
 ------------------------------------------------------
-Subject: ext2 balloc: reset windowsz when full
+Subject: ext2 balloc: fix off-by-one against rsv_end
 From: Hugh Dickins <hugh@veritas.com>
 
-ext2_new_blocks should reset the reservation window size to 0 when squeezing
-the last blocks out of an almost full filesystem, so the retry doesn't skip
-any groups with less than half that free, reporting ENOSPC too soon.
-
+rsv_end is the last block within the reservation, so alloc_new_reservation
+should accept start_block == rsv_end as success.
 ------------------------------------------------------
-Sync up reservation fix from ext2
+Sync up  a ext2 reservation fix in ext3
 
-Signed-off-by: Mingming Cao <cmm@us.ibm.com>
+Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
+
+
 ---
 
+ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
----
-
- linux-2.6.19-rc5-cmm/fs/ext3/balloc.c |    1 +
- 1 file changed, 1 insertion(+)
-
-diff -puN fs/ext3/balloc.c~ext3_reset_windowsz_in_full_fs fs/ext3/balloc.c
---- linux-2.6.19-rc5/fs/ext3/balloc.c~ext3_reset_windowsz_in_full_fs	2006-11-28 19:36:41.000000000 -0800
-+++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-28 19:36:41.000000000 -0800
-@@ -1552,6 +1552,7 @@ retry_alloc:
+diff -puN fs/ext3/balloc.c~ext3-balloc-fix-off-by-one-against-rsv_end fs/ext3/balloc.c
+--- linux-2.6.19-rc5/fs/ext3/balloc.c~ext3-balloc-fix-off-by-one-against-rsv_end	2006-11-28 19:36:58.000000000 -0800
++++ linux-2.6.19-rc5-cmm/fs/ext3/balloc.c	2006-11-28 19:36:58.000000000 -0800
+@@ -1148,7 +1148,7 @@ retry:
+ 	 * check if the first free block is within the
+ 	 * free space we just reserved
  	 */
- 	if (my_rsv) {
- 		my_rsv = NULL;
-+		windowsz = 0;
- 		group_no = goal_group;
- 		goto retry_alloc;
- 	}
+-	if (start_block >= my_rsv->rsv_start && start_block < my_rsv->rsv_end)
++	if (start_block >= my_rsv->rsv_start && start_block <= my_rsv->rsv_end)
+ 		return 0;		/* success */
+ 	/*
+ 	 * if the first free bit we found is out of the reservable space
 
 _
 

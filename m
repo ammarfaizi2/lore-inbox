@@ -1,30 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758960AbWK2XSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758968AbWK2XTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758960AbWK2XSX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 18:18:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758968AbWK2XSX
+	id S1758968AbWK2XTn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 18:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758970AbWK2XTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 18:18:23 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:16051 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1758960AbWK2XSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 18:18:22 -0500
-To: "Sean Hefty" <sean.hefty@intel.com>
-Cc: <openib-general@openib.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] for 2.6.20 infiniband/ib_cm: fix path migration support
-X-Message-Flag: Warning: May contain useful information
-References: <000601c71340$8b5078d0$ff0da8c0@amr.corp.intel.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 29 Nov 2006 15:18:18 -0800
-In-Reply-To: <000601c71340$8b5078d0$ff0da8c0@amr.corp.intel.com> (Sean Hefty's message of "Tue, 28 Nov 2006 14:57:13 -0800")
-Message-ID: <adamz69q1tx.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Wed, 29 Nov 2006 18:19:43 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:64654 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1758968AbWK2XTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 18:19:42 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Wed, 29 Nov 2006 18:15:40 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: just how "sanitized" are the sanitized headers?
+Message-ID: <Pine.LNX.4.64.0611291812510.7515@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 29 Nov 2006 23:18:19.0283 (UTC) FILETIME=[A7ECDE30:01C7140C]
-Authentication-Results: sj-dkim-5; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim5002 verified; ); 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied, thanks.
+
+  i noticed that, when i generate the sanitized headers with "make
+headers_install", there are still a number of headers files that are
+installed with variations on "#ifdef __KERNEL__".
+
+  i always thought the fundamental property of sanitized headers was
+to be compatible with glibc and have no traces of "KERNEL" content
+left.  so what's the purpose of leaving some header files with that
+preprocessor content?  thanks.
+
+rday

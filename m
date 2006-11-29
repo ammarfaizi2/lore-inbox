@@ -1,37 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967190AbWK2OA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967177AbWK2OEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967190AbWK2OA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967185AbWK2OA3
+	id S967177AbWK2OEM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967185AbWK2OEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:00:29 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:29496
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S967190AbWK2OA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:00:28 -0500
-Message-Id: <456DA0EA.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Wed, 29 Nov 2006 14:02:02 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] use probe_kernel_address in Dwarf2 unwinder
-References: <456D79AB.76E4.0078.0@novell.com>
- <200611291415.13169.ak@suse.de>
-In-Reply-To: <200611291415.13169.ak@suse.de>
+	Wed, 29 Nov 2006 09:04:12 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28177 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S967177AbWK2OEL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:04:11 -0500
+Date: Wed, 29 Nov 2006 13:57:04 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, Adam Jackson <ajax@nwnk.net>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Casey Dahlin <cjdahlin@ncsu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Overriding X on panic
+Message-ID: <20061129135704.GB4769@ucw.cz>
+References: <1164434093.10503.2.camel@localhost.localdomain> <1164443561.3147.54.camel@laptopd505.fenrus.org> <20061125161043.18f1b68d@localhost.localdomain> <1164529121.3147.65.camel@laptopd505.fenrus.org> <20061126142213.52c292d3@localhost.localdomain> <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <21d7e9970611261419s12da9881h1f19adcf11756769@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andi Kleen <ak@suse.de> 29.11.06 14:15 >>>
->On Wednesday 29 November 2006 12:14, Jan Beulich wrote:
->> Use probe_kernel_address() instead of __get_user() in Dwarf2 unwinder.
->
->I had already done this here. Thanks.
+Hi!
 
-I had checked firstfloor and only found similar changes to arch/x86-64/.
+> >> for the Intel hw Keith doesn't seem to think it's all 
+> >that much of a
+> >> problem though...
+> >
+> >Including the TV out, odder LCD panels, non BIOS modes 
+> >etc ? If so then
+> >it might be an interesting test case for intelfb to 
+> >grow some kind of
+> >console helper interface
+...
+> I personally think we need to probably just bite the 
+> bullet and start
+> sticking graphics drivers into the kernel, the new 
+> randr-1.2 interface
+> for X is probably a good starting point for a generic 
+> mode setting
+> interface that isn't so X dependent and could replace 
+> fbdev with
+> something more sane wrt dualhead and multiple outputs... 
+> fbdev could
+> be implemented on top of that layer then.. also 
+> suspend/resume really
+> needs this sort of thing....
 
-Jan
+Yes, pretty please...
+
+> My main worry with integrating graphics drivers into the 
+> kernel is
+> that when they don't work the user gets no screen, with 
+> network/sound
+> etc this isn't so bad, but if they can't see a screen 
+> debugging gets
+> to be a bit more difficult....
+
+You can have my hgc card + monitor if it helps :-). Okay, it is old
+ISA, so it probably does not, but with serial or netconsole debugging
+should be doable, no?
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

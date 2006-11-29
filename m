@@ -1,38 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967413AbWK2PVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967423AbWK2PWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967413AbWK2PVr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 10:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967415AbWK2PVr
+	id S967423AbWK2PWh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 10:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967419AbWK2PWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 10:21:47 -0500
-Received: from nz-out-0506.google.com ([64.233.162.227]:35654 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S967413AbWK2PVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 10:21:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tj9G8dwRmqEA1+Ys2bNhS2kNnAnens5uSvlKW+82SOKRSi3g+SW16n4fokHf71KHJCzobX9fJZ+dcrI2t0H+5X/QtC/jEEi4hHdKyW0fFInYVwRsBhbnl/eldVrShIJHMmlptLSY81PbFHYEoRD/730EOonwvtKhfr+QPD1Iajc=
-Message-ID: <9956e0d30611290721o3d8ce45bwe9abb3156c994fa4@mail.gmail.com>
-Date: Wed, 29 Nov 2006 17:21:45 +0200
-From: "Vladimir Pouzanov" <farcaller@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Using poll for sysfs attribute files
+	Wed, 29 Nov 2006 10:22:37 -0500
+Received: from [220.225.176.247] ([220.225.176.247]:60169 "EHLO
+	220.225.176.247") by vger.kernel.org with ESMTP id S967414AbWK2PWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 10:22:36 -0500
+Message-ID: <009001c713c9$c6528700$0b04000a@DZrVeU>
+From: "Valiusha" <hayes@nahp.com>
+To: "1164686908" <1164686908@vger.kernel.org>
+Subject: Re[1]:Greetings from me
+Date: Wed, 29 Nov 2006 17:19:57 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Good Day, my Friend!
 
-I'm looking for a way to implement polling for sysfs attribute files.
-There seem to be sysfs_poll API but I have no idea how to use it
-correctly.
+I am just a little girl in this big big world. I desire love and I try to find it.
+Do you want to learn more a pretty foreign lady who has intensions to create a happy family? 
+If yes, you can find me here http://iamheremyfriend.com/lovelysingles
 
-Any hint, example of usage or comment wold be deeply appreciated.
+Waiting for your mail:)
 
--- 
-Sincerely,
-Vladimir "Farcaller" Pouzanov
+Valiusha
+
+

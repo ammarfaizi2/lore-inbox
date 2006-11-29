@@ -1,104 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935738AbWK2QKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935845AbWK2QPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935738AbWK2QKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 11:10:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935812AbWK2QKf
+	id S935845AbWK2QPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 11:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935847AbWK2QPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 11:10:35 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:5025 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S935738AbWK2QKe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 11:10:34 -0500
-Date: Wed, 29 Nov 2006 17:10:38 +0100
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH -mm 3/5][AIO] - export good_sigevent()
-Message-ID: <20061129171038.425e88cc@frecb000686>
-In-Reply-To: <20061129145425.GA1953@infradead.org>
-References: <20061129112441.745351c9@frecb000686>
-	<20061129113234.38c12911@frecb000686>
-	<20061129145425.GA1953@infradead.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/11/2006 17:17:44,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 29/11/2006 17:17:45,
-	Serialize complete at 29/11/2006 17:17:45
+	Wed, 29 Nov 2006 11:15:16 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:30095 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S935846AbWK2QPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 11:15:14 -0500
+Message-ID: <456DB203.1090108@oracle.com>
+Date: Wed, 29 Nov 2006 08:14:59 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH -mm] char: drivers use/need PCI
+References: <20061128211203.fa197b15.randy.dunlap@oracle.com> <456D4033.5000202@gmail.com>
+In-Reply-To: <456D4033.5000202@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 14:54:25 +0000, Christoph Hellwig <hch@infradead.org> wrote:
-
-> > +/***
-> > + * good_sigevent - check and get target task from a sigevent.
-> > + * @event: the sigevent to be checked
-> > + *
-> > + * This function must be called with tasklist_lock held for reading.
-> > + */
-> > +struct task_struct * good_sigevent(sigevent_t * event)
-> > +{
-> > +	struct task_struct *rtn = current->group_leader;
-> > +
-> > +	if ((event->sigev_notify & SIGEV_THREAD_ID ) &&
-> > +		(!(rtn = find_task_by_pid(event->sigev_notify_thread_id)) ||
-> > +		 rtn->tgid != current->tgid ||
-> > +		 (event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL))
-> > +		return NULL;
-> > +
-> > +	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-> > +	    ((event->sigev_signo <= 0) || (event->sigev_signo > SIGRTMAX)))
-> > +		return NULL;
-> > +
-> > +	return rtn;
-> > +}
+Jiri Slaby wrote:
+> Randy Dunlap wrote:
+>> From: Randy Dunlap <randy.dunlap@oracle.com>
+>>
+>> With CONFIG_PCI=n:
+>> drivers/char/mxser_new.c: In function 'mxser_release_res':
+>> drivers/char/mxser_new.c:2383: warning: implicit declaration of function 'pci_release_region'
+>> drivers/char/mxser_new.c: In function 'mxser_probe':
+>> drivers/char/mxser_new.c:2578: warning: implicit declaration of function 'pci_request_region'
+>> drivers/built-in.o: In function `sx_remove_card':
+>> sx.c:(.text.sx_remove_card+0x65): undefined reference to `pci_release_region'
+>> drivers/char/isicom.c: In function 'isicom_probe':
+>> drivers/char/isicom.c:1793: warning: implicit declaration of function 'pci_request_region'
+>> drivers/char/isicom.c:1827: warning: implicit declaration of function 'pci_release_region'
+>>
+>> Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+>> ---
+>>  drivers/char/Kconfig |    6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> --- linux-2.6.19-rc6-mm2.orig/drivers/char/Kconfig
+>> +++ linux-2.6.19-rc6-mm2/drivers/char/Kconfig
+>> @@ -203,7 +203,7 @@ config MOXA_SMARTIO
+>>  
+>>  config MOXA_SMARTIO_NEW
+>>  	tristate "Moxa SmartIO support v. 2.0 (EXPERIMENTAL)"
+>> -	depends on SERIAL_NONSTANDARD
+>> +	depends on SERIAL_NONSTANDARD && PCI
+>>  	help
+>>  	  Say Y here if you have a Moxa SmartIO multiport serial card and/or
+>>  	  want to help develop a new version of this driver.
+>> @@ -218,7 +218,7 @@ config MOXA_SMARTIO_NEW
+>>  
+>>  config ISI
+>>  	tristate "Multi-Tech multiport card support (EXPERIMENTAL)"
+>> -	depends on SERIAL_NONSTANDARD
+>> +	depends on SERIAL_NONSTANDARD && PCI
+>>  	select FW_LOADER
+>>  	help
+>>  	  This is a driver for the Multi-Tech cards which provide several
+>> @@ -312,7 +312,7 @@ config SPECIALIX_RTSCTS
+>>  
+>>  config SX
+>>  	tristate "Specialix SX (and SI) card support"
+>> -	depends on SERIAL_NONSTANDARD
+>> +	depends on SERIAL_NONSTANDARD && PCI
+>>  	help
+>>  	  This is a driver for the SX and SI multiport serial cards.
+>>  	  Please read the file <file:Documentation/sx.txt> for details.
 > 
-> And while we're at it we should badly beat up the person that wrote this
-> mess in the first time.
+> Nack. I have to correct the mxser and sx code. Thanks,
 
-  Agreed.
+Sure, either way is OK.  Thanks.
 
->  To be somewhat readable it should look like:
-> 
-> static struct task_struct *good_sigevent(sigevent_t *event)
-> {
-> 	struct task_struct *task = current->group_leader;
-> 
-> 	if ((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) {
-> 		if (event->sigev_signo <= 0 || event->sigev_signo > SIGRTMAX)
-> 			return NULL;
-> 	}
-> 
-> 	if (event->sigev_notify & SIGEV_THREAD_ID) {
-> 		if ((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL)
-> 			return NULL;
-> 		task = find_task_by_pid(event->sigev_notify_thread_id);
-> 		if (!task || task->tgid != current->tgid)
-> 			return NULL;
-> 	}
-> 
-> 	return task;
-> }
-
-  Yes, will incorporate this.
-
-> 
-> And btw, looking at its currentl caller I see why we need the PF_EXITING
-> flag I recommended to remove easiler on, it even has a big comment that
-> we should copy & paste to aio.c aswell.
-
-  Well, I do not take the siglock anymore, so I don't think the comment
-really applies here.
-
->  Still no idea why it's doing
-> the selectiv reference grabbing, though.
+-- 
+~Randy

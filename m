@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967407AbWK2RNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967471AbWK2ROa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967407AbWK2RNp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 12:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967483AbWK2RNp
+	id S967471AbWK2ROa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 12:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967482AbWK2ROa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 12:13:45 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:711 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S967407AbWK2RNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 12:13:44 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Bart Trojanowski <bart@jukie.net>
-Subject: Re: 2.6.18.3 SMP PREEMPT crashes (x86-64)
-Date: Wed, 29 Nov 2006 18:12:04 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20061129170253.GH2418@jukie.net>
-In-Reply-To: <20061129170253.GH2418@jukie.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2153864.bl9TFLtLK6";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 29 Nov 2006 12:14:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1940 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S967471AbWK2RO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 12:14:29 -0500
+Subject: Re: [PATCH] UBI
+From: David Woodhouse <dwmw2@infradead.org>
+To: dedekind@infradead.org
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, haver@vnet.ibm.com,
+       Josh Boyer <jwboyer@linux.vnet.ibm.com>, arnez@vnet.ibm.com,
+       linux-mtd@mgw-ext13.nokia.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1164819769.576.53.camel@sauron>
+References: <1164819769.576.53.camel@sauron>
+Content-Type: text/plain
+Date: Wed, 29 Nov 2006 17:12:23 +0000
+Message-Id: <1164820343.14595.104.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611291812.08408.prakash@punnoor.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2153864.bl9TFLtLK6
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 2006-11-29 at 19:02 +0200, Artem Bityutskiy wrote:
+> Hello Andrew,
+> 
+> we have announced UBI several months ago in the MTD mailing list. It was
+> successfully used in our setup and we've got positive feedback.
+> 
+> In short, it is kind of LVM layer but for flash (MTD) devices which
+> hides flash devices complexities like bad eraseblocks (on NANDs) and
+> wear. The documentation is available at the MTD web site:
+> http://www.linux-mtd.infradead.org/doc/ubi.html
+> http://www.linux-mtd.infradead.org/faq/ubi.html
+> 
+> The source code is available at the UBI GIT tree:
+> git://git.infradead.org/home/dedekind/ubi-2.6.git
 
-Am Mittwoch 29 November 2006 18:02 schrieb Bart Trojanowski:
-> Hi all,
->
-> I've been getting spurious hangs in 2.6.18 lately... first I thought it
-> was hardware but tried different replacement parts and memtest. Nothing
-> showed any problems.
->
-> I finally hooked up a serial console to the box and I see the following.
-> I include the initial dmesg output to show what's in the machine.
->
->  - Nforce4 based Shuttle XPC (PCIe, forcedeth, etc)
+Make that git://git.infradead.org/~dedekind/ubi-2.6.git
+or http://git.infradead.org/?p=users/dedekind/ubi-2.6.git
 
-> [    0.000000] Nvidia board detected. Ignoring ACPI timer override.
+And it would be helpful (at least to me) if you'd keep an 'mtd' or
+'linus' branch in your tree, which shows the point at which you last
+pulled from your upstream tree(s). That way, 'git-diff mtd..' or
+'gitk mtd..' work.
 
-Does your bios have the option to enable the hpet? (Maybe after a bios=20
-update?)
+-- 
+dwmw2
 
-If not:
-
-Try booting with noapic, compile latest git kernel and buut it (w/o noapic)=
-=2E=20
-Above message should now not appear, if I am not mistaken. Otherwise you ha=
-ve=20
-to hack the kernel to not ignoge the timer override..
-
-
-But I could be mistaken...
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart2153864.bl9TFLtLK6
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFbb9oxU2n/+9+t5gRAkuBAKCdhdF23kRPC4lwXm1sd4DUvCWuIACdEDcI
-N6pHgYQAS6NQliEsB7o5RPE=
-=0Ja7
------END PGP SIGNATURE-----
-
---nextPart2153864.bl9TFLtLK6--

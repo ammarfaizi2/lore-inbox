@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967345AbWK2OcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967370AbWK2OkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967345AbWK2OcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 09:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967353AbWK2OcM
+	id S967370AbWK2OkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 09:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967369AbWK2OkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 09:32:12 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:23957 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S967345AbWK2OcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 09:32:11 -0500
-Date: Wed, 29 Nov 2006 07:32:10 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: James Smart <James.Smart@Emulex.Com>
-Cc: Adrian Bunk <bunk@stusta.de>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/scsi_error.c should #include "scsi_transport_api.h"
-Message-ID: <20061129143210.GX14076@parisc-linux.org>
-References: <20061129100422.GL11084@stusta.de> <20061129131624.GV14076@parisc-linux.org> <456D958F.2080305@emulex.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <456D958F.2080305@emulex.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 29 Nov 2006 09:40:09 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64441 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S967367AbWK2OkH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 09:40:07 -0500
+Date: Wed, 29 Nov 2006 14:46:52 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] ide_scsi: allow it to be used for non CD only
+Message-ID: <20061129144652.299f7919@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 09:13:35AM -0500, James Smart wrote:
-> would it only go in include/scsi if it intends to be an exported
-> api for LLDD's and/or user apps ?  and stay in drivers/scsi if its
-> an internal api within the scsi subsystem itself ?
+Some people want to use ide_cd for CD-ROM but still dynamically load
+ide-scsi for things like tape drives. If you compile in the CD driver
+this works out but if you want them modular you need an option to ensure
+that whoever loads first the right things happen.
 
-It isn't clear to me that's the intended use of include/scsi.  If it is,
-it's already being violated, eg by
+This replaces the original draft patch which leaked a scsi host reference
 
-$ find * -type f |xargs grep scsi_host_scan_allowed
-drivers/scsi/scsi_scan.c:       if (scsi_host_scan_allowed(shost))
-drivers/scsi/scsi_scan.c:       if (scsi_host_scan_allowed(shost))
-drivers/scsi/scsi_scan.c:       if (scsi_host_scan_allowed(shost)) {
-drivers/scsi/scsi_scan.c:       if (!scsi_host_scan_allowed(shost))
-include/scsi/scsi_host.h: * scsi_host_scan_allowed - Is scanning of this
-host allowed
-include/scsi/scsi_host.h:static inline int scsi_host_scan_allowed(struct
-Scsi_Host *shost)
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-(a good candidate to be moved to scsi_scan.c, in fact!)
-
-scsi_host_state_name, scsi_normalize_sense, scsi_reset_provider,
-scsi_test_unit_ready, scsi_put_command are all in similar usage to
-scsi_schedule_eh.  There's probably more, I just picked some likely
-looking candidates.
+diff -u --exclude-from /usr/src/exclude --new-file --recursive linux.vanilla-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c linux-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c
+--- linux.vanilla-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c	2006-11-24 13:58:08.000000000 +0000
++++ linux-2.6.19-rc6-mm1/drivers/scsi/ide-scsi.c	2006-11-29 14:18:12.000000000 +0000
+@@ -110,6 +110,7 @@
+ } idescsi_scsi_t;
+ 
+ static DEFINE_MUTEX(idescsi_ref_mutex);
++static int idescsi_nocd;			/* Set by module param to skip cd */
+ 
+ #define ide_scsi_g(disk) \
+ 	container_of((disk)->private_data, struct ide_scsi_obj, driver)
+@@ -1127,11 +1128,14 @@
+ 		warned = 1;
+ 	}
+ 
++	if (idescsi_nocd && drive->media == ide_cdrom)
++		return -ENODEV;
++
+ 	if (!strstr("ide-scsi", drive->driver_req) ||
+ 	    !drive->present ||
+ 	    drive->media == ide_disk ||
+ 	    !(host = scsi_host_alloc(&idescsi_template,sizeof(idescsi_scsi_t))))
+ 		return -ENODEV;
+ 
+ 	g = alloc_disk(1 << PARTN_BITS);
+ 	if (!g)
+@@ -1187,6 +1192,7 @@
+ 	driver_unregister(&idescsi_driver.gen_driver);
+ }
+ 
++module_param(idescsi_nocd, int, 0600);
+ module_init(init_idescsi_module);
+ module_exit(exit_idescsi_module);
+ MODULE_LICENSE("GPL");

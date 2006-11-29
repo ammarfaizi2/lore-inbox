@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936046AbWK2UMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936056AbWK2UOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936046AbWK2UMd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 15:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936056AbWK2UMd
+	id S936056AbWK2UOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 15:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936099AbWK2UOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 15:12:33 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:56777 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S936046AbWK2UMc (ORCPT
+	Wed, 29 Nov 2006 15:14:30 -0500
+Received: from 1wt.eu ([62.212.114.60]:5893 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S936056AbWK2UOa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 15:12:32 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
-Date: Wed, 29 Nov 2006 21:08:00 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net
-References: <20061128020246.47e481eb.akpm@osdl.org> <200611292054.35313.rjw@sisk.pl>
-In-Reply-To: <200611292054.35313.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 15:14:30 -0500
+Date: Wed, 29 Nov 2006 21:14:10 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, Nicholas Miell <nmiell@comcast.net>,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
+Message-ID: <20061129201410.GB1736@1wt.eu>
+References: <1164769705.2825.4.camel@entropy> <21982.1164772580@kao2.melbourne.sgi.com> <20061129090800.GI6570@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611292108.00578.rjw@sisk.pl>
+In-Reply-To: <20061129090800.GI6570@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
-> On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+On Wed, Nov 29, 2006 at 04:08:00AM -0500, Jakub Jelinek wrote:
+> On Wed, Nov 29, 2006 at 02:56:20PM +1100, Keith Owens wrote:
+> > Nicholas Miell (on Tue, 28 Nov 2006 19:08:25 -0800) wrote:
+> > >On Wed, 2006-11-29 at 13:22 +1100, Keith Owens wrote:
+> > >> Compiling 2.6.19-rc6 with gcc version 4.1.0 (SUSE Linux),
+> > >> wait_hpet_tick is optimized away to a never ending loop and the kernel
+> > >> hangs on boot in timer setup.
+> > >> 
+> > >> 0000001a <wait_hpet_tick>:
+> > >>   1a:   55                      push   %ebp
+> > >>   1b:   89 e5                   mov    %esp,%ebp
+> > >>   1d:   eb fe                   jmp    1d <wait_hpet_tick+0x3>
+> > >> 
+> > >> This is not a problem with gcc 3.3.5.  Adding barrier() calls to
+> > >> wait_hpet_tick does not help, making the variables volatile does.
+> > >> 
+> > >> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+> > >> 
+> > >> ---
+> > >>  arch/i386/kernel/time_hpet.c |    2 +-
+> > >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >> 
+> > >> Index: linux-2.6/arch/i386/kernel/time_hpet.c
+> > >> ===================================================================
+> > >> --- linux-2.6.orig/arch/i386/kernel/time_hpet.c
+> > >> +++ linux-2.6/arch/i386/kernel/time_hpet.c
+> > >> @@ -51,7 +51,7 @@ static void hpet_writel(unsigned long d,
+> > >>   */
+> > >>  static void __devinit wait_hpet_tick(void)
+> > >>  {
+> > >> -	unsigned int start_cmp_val, end_cmp_val;
+> > >> +	unsigned volatile int start_cmp_val, end_cmp_val;
+> > >>  
+> > >>  	start_cmp_val = hpet_readl(HPET_T0_CMP);
+> > >>  	do {
+> > >
+> > >When you examine the inlined functions involved, this looks an awful lot
+> > >like http://gcc.gnu.org/bugzilla/show_bug.cgi?id=22278
+> > >
+> > >Perhaps SUSE should fix their gcc instead of working around compiler
+> > >problems in the kernel?
 > > 
-> > Temporarily at
-> > 
-> > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
-> > 
-> > Will appear eventually at
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+> > Firstly, the fix for 22278 is included in gcc 4.1.0.
 > 
-> A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
-> work when it's first loaded.  I have to rmmod and modprobe it to make it work.
-> 
-> It worked just fine on -mm1, so something must have happened to it recently.
+> This actually sounds more like http://gcc.gnu.org/PR27236
+> And that one is broken in 4.1.0, fixed in 4.1.1.
 
-Sorry, I was wrong.  The driver doesn't work at all, even after reload.
+Then why not simply check for gcc 4.1.0 in compiler.h and refuse to build
+with 4.1.0 if it's known to produce bad code ? I find it a bit annoying
+that we start fixing every place affected by buggy compiler versions,
+especially when the fix is already available.
 
-Greetings,
-Rafael
+> 	Jakub
 
+Regards,
+Willy
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

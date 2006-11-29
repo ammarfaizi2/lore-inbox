@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758936AbWK2XKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758956AbWK2XOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758936AbWK2XKn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 18:10:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758943AbWK2XKm
+	id S1758956AbWK2XOu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 18:14:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758960AbWK2XOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 18:10:42 -0500
-Received: from xenotime.net ([66.160.160.81]:33227 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1758936AbWK2XKm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 18:10:42 -0500
-Date: Wed, 29 Nov 2006 15:11:11 -0800
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       webmaster@kernel.org
-Subject: Re: Linux 2.6.19
-Message-Id: <20061129151111.6bd440f9.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
-References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Nov 2006 18:14:50 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:23821 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1758956AbWK2XOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 18:14:49 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: gibbs@btc.adaptec.com
+Subject: [PATCH] scsi: sic7xxx stray bracket fix
+Date: Thu, 30 Nov 2006 00:14:18 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611300014.18439.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 14:21:21 -0800 (PST) Linus Torvalds wrote:
+Hello,
 
-> 
-> There it finally is (or rather - I'm currently uploading the tar-file and 
-> patches, and the mirrors are hopefully busily pushing out the git tree 
-> that is already updated).
-> 
-> There's not a lot to be said about the changes since -rc6: the shortlog 
-> (appended) tells the whole story, and it's really mostly a lot of 
-> one-liners or other really small changes. Bugs fixed, but nothing that 
-> stands out in my mind.
+	Unused macro. Better to have it fixed though.
 
-What would it take to have the kernel.org web page and finger banner
-give the correct version information?  (yessir, not your problem)
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-from http://www.kernel.org/kdist/finger_banner:
+ drivers/scsi/aic7xxx/aic79xx_pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The latest stable version of the Linux kernel is:           2.6.18.3        X
-The latest prepatch for the stable Linux kernel tree is:    2.6.19-rc6
-The latest snapshot for the stable Linux kernel tree is:    2.6.19-rc6-git10 X
-The latest 2.4 version of the Linux kernel is:              2.4.33.4
-The latest prepatch for the 2.4 Linux kernel tree is:       2.4.34-pre6
-The latest 2.2 version of the Linux kernel is:              2.2.26
-The latest prepatch for the 2.2 Linux kernel tree is:       2.2.27-rc2
-The latest -mm patch to the stable Linux kernels is:        2.6.19-rc6-mm1  X
+--- linux-2.6.19-rc6-mm2-a/drivers/scsi/aic7xxx/aic79xx_pci.c	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/drivers/scsi/aic7xxx/aic79xx_pci.c	2006-11-29 15:20:01.000000000 +0100
+@@ -88,7 +88,7 @@ ahd_compose_id(u_int device, u_int vendo
+ 
+ #define SUBID_9005_LEGACYCONN_FUNC(id) ((id) & 0x20)
+ 
+-#define SUBID_9005_SEEPTYPE(id) ((id) & 0x0C0) >> 6)
++#define SUBID_9005_SEEPTYPE(id) (((id) & 0x0C0) >> 6)
+ #define		SUBID_9005_SEEPTYPE_NONE	0x0
+ #define		SUBID_9005_SEEPTYPE_4K		0x1
+ 
 
----
-~Randy
+
+-- 
+Regards,
+
+	Mariusz Kozlowski

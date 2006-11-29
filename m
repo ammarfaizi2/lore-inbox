@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758899AbWK2WkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758900AbWK2WmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758899AbWK2WkK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 17:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758900AbWK2WkK
+	id S1758900AbWK2WmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 17:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758902AbWK2WmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 17:40:10 -0500
-Received: from main.gmane.org ([80.91.229.2]:12748 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1758899AbWK2WkI (ORCPT
+	Wed, 29 Nov 2006 17:42:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40104 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1758900AbWK2WmO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 17:40:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Bart Trojanowski <bart@jukie.net>
-Subject: Re: 2.6.18.3 SMP PREEMPT crashes (x86-64)
-Date: Wed, 29 Nov 2006 21:07:26 +0000 (UTC)
-Message-ID: <loom.20061129T220542-977@post.gmane.org>
-References: <20061129170253.GH2418@jukie.net> <200611291812.08408.prakash@punnoor.de>
+	Wed, 29 Nov 2006 17:42:14 -0500
+Date: Wed, 29 Nov 2006 17:40:37 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 00/23] -stable review
+Message-ID: <20061129224037.GB27148@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>,
+	Chris Wedgwood <reviews@ml.cw.f00f.org>,
+	Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+References: <20061129220111.137430000@sous-sol.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 74.104.68.19 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061115 Ubuntu/dapper-security Firefox/1.5.0.8)
+Content-Disposition: inline
+In-Reply-To: <20061129220111.137430000@sous-sol.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash Punnoor <prakash <at> punnoor.de> writes:
-> Does your bios have the option to enable the hpet? (Maybe after a bios 
-> update?)
+On Wed, Nov 29, 2006 at 02:00:11PM -0800, Chris Wright wrote:
+ > This is the start of the stable review cycle for the 2.6.18.5 release.
+ > There are 23 patches in this series, all will be posted as a response
+ > to this one.  If anyone has any issues with these being applied, please
+ > let us know.  If anyone is a maintainer of the proper subsystem, and
+ > wants to add a Signed-off-by: line to the patch, please respond with it.
+ > 
+ > These patches are sent out with a number of different people on the
+ > Cc: line.  If you wish to be a reviewer, please email stable@kernel.org
+ > to add your name to the list.  If you want to be off the reviewer list,
+ > also email us.
+ > 
+ > Responses should be made by Fri Dec 01 22:00 UTC.  Anything received
+ > after that time might be too late.
 
-It does not.
+*cough* rc1.gz ?
 
-> If not:
-> 
-> Try booting with noapic, compile latest git kernel and buut it (w/o noapic). 
-> Above message should now not appear, if I am not mistaken. Otherwise you have 
-> to hack the kernel to not ignoge the timer override..
+		Dave
 
-Worked as advertised.  I booted with noapic maxcpus=1 and rebuilt the git repo.
- Rebooted and ran through the same kind of stress tests.  Seems to work.
-
-Thanks a lot.
-
-
-
+-- 
+http://www.codemonkey.org.uk

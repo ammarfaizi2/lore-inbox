@@ -1,148 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967724AbWK3A0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967717AbWK3A0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967724AbWK3A0c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 19:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967723AbWK3A0c
+	id S967717AbWK3A0H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 19:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967722AbWK3A0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 19:26:32 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:51944 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S967722AbWK3A0c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 19:26:32 -0500
-Date: Thu, 30 Nov 2006 01:26:17 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-X-X-Sender: jikos@twin.jikos.cz
-To: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Ian Kent <raven@themaw.net>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] autofs: fix error code path in autofs_fill_sb()
-Message-ID: <Pine.LNX.4.64.0611300123160.28502@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 29 Nov 2006 19:26:07 -0500
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:9366 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S967717AbWK3A0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 19:26:05 -0500
+Date: Thu, 30 Nov 2006 01:26:00 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19
+Message-ID: <20061130012600.0dcb1337@laptop.hypervisor.org>
+In-Reply-To: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
+References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=Sig_lNHeAuU2SpU9h3j26PeBDj+;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] autofs: fix error code path in autofs_fill_sb()
+--Sig_lNHeAuU2SpU9h3j26PeBDj+
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-When kernel is compiled with old version of autofs (CONFIG_AUTOFS_FS), and 
-new (observed at least with 5.x.x) automount deamon is started, kernel 
-correctly reports incompatible version of kernel and userland daemon, but 
-then screws things up instead of correct handling of the error:
+On Wed, 29 Nov 2006 14:21:21 -0800 (PST) Linus Torvalds (LT) wrote:
 
- autofs: kernel does not match daemon version
- =====================================
- [ BUG: bad unlock balance detected! ]
- -------------------------------------
- automount/4199 is trying to release lock (&type->s_umount_key) at:
- [<c0163b9e>] get_sb_nodev+0x76/0xa4
- but there are no more locks to release!
+LT> So go get it. It's one of those rare "perfect" kernels. So if it doesn'=
+t=20
+LT> happen to compile with your config (or it does compile, but then does=20
+LT> unspeakable acts of perversion with your pet dachshund), you can rest e=
+asy=20
+LT> knowing that it's all your own d*mn fault, and you should just fix your=
+=20
+LT> evil ways.
 
- other info that might help us debug this:
- no locks held by automount/4199.
+Ok, so 2.6.18 used to get along fine with cryptoloop and 2.6.19 refuses to
+cooperate. An strace of "losetup -e aes /dev/loop0 /dev/hda7" without all t=
+he
+terminal interaction shows:
 
- stack backtrace:
-  [<c0103b15>] dump_trace+0x68/0x1b2
-  [<c0103c77>] show_trace_log_lvl+0x18/0x2c
-  [<c01041db>] show_trace+0xf/0x11
-  [<c010424d>] dump_stack+0x12/0x14
-  [<c012e02c>] print_unlock_inbalance_bug+0xe7/0xf3
-  [<c012fd4f>] lock_release+0x8d/0x164
-  [<c012b452>] up_write+0x14/0x27
-  [<c0163b9e>] get_sb_nodev+0x76/0xa4
-  [<c0163689>] vfs_kern_mount+0x83/0xf6
-  [<c016373e>] do_kern_mount+0x2d/0x3e
-  [<c017513f>] do_mount+0x607/0x67a
-  [<c0175224>] sys_mount+0x72/0xa4
-  [<c0102b96>] sysenter_past_esp+0x5f/0x99
- DWARF2 unwinder stuck at sysenter_past_esp+0x5f/0x99
- Leftover inexact backtrace:
-  =======================
+open("/dev/hda7", O_RDWR|O_LARGEFILE)   =3D 3
+open("/dev/loop0", O_RDWR|O_LARGEFILE)  =3D 4
+mlockall(MCL_CURRENT|MCL_FUTURE)        =3D 0
+...
+munmap(0xb7fc8000, 4096)                =3D 0
+ioctl(4, 0x4c00, 0x3)                   =3D 0
+close(3)                                =3D 0
+ioctl(4, 0x4c04, 0xbfc21670)            =3D -1 ENOENT (No such file or dire=
+ctory)
+ioctl(4, 0x4c02, 0xbfc215e0)            =3D -1 ENOENT (No such file or dire=
+ctory)
+dup(2)                                  =3D 3
+fcntl64(3, F_GETFL)                     =3D 0x8002 (flags O_RDWR|O_LARGEFIL=
+E)
+fstat64(3, {st_mode=3DS_IFCHR|0720, st_rdev=3Dmakedev(4, 1), ...}) =3D 0
+ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo ...}=
+) =3D 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) =
+=3D 0xb7fc8000
+_llseek(3, 0, 0xbfc21040, SEEK_CUR)     =3D -1 ESPIPE (Illegal seek)
+write(3, "ioctl: LOOP_SET_STATUS: No such "..., 50ioctl: LOOP_SET_STATUS: N=
+o such file or directory) =3D 50
+close(3)                                =3D 0
+munmap(0xb7fc8000, 4096)                =3D 0
+ioctl(4, 0x4c01, 0)                     =3D 0
+close(4)                                =3D 0
+exit_group(1)                           =3D ?
 
-and then deadlock comes.
+Linux 2.6.18 does not fail at
 
-The problem: autofs_fill_super() returns EINVAL to get_sb_nodev(), but before
-that, it calls kill_anon_super() to destroy the superblock which won't be 
-needed. This is however way too soon to call kill_anon_super(), because 
-get_sb_nodev() has to perform its own cleanup of the superblock first
-(deactivate_super(), etc.). The correct time to call kill_anon_super() is in
-the autofs_kill_sb() callback, which is called by deactivate_super() at proper
-time, when the superblock is ready to be killed.
+	ioctl(4, 0x4c04, ...)
 
-I can see the same faulty codepath also in autofs4. This patch solves issues in
-both filesystems in a same way - it postpones the kill_anon_super() until the 
-proper time is signalized by deactivate_super() calling the kill_sb() callback.
+I know that dm-crypt is now the preferred method of doing such things, but =
+as
+long as cryptoloop exists in the kernel I'd expect it to work.
 
-Patch against 2.6.19-rc6-mm2.
+Cheers,
+	- Udo
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+--Sig_lNHeAuU2SpU9h3j26PeBDj+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
---- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
- fs/autofs/inode.c        |    4 ++--
- fs/autofs4/inode.c       |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+iD8DBQFFbiUbnhRzXSM7nSkRAhTHAJ4rkooLVFko48Bg0gdYTDIRN9rx8ACcCqCz
+xE6c+0RcmJN9LJfY+9+Geao=
+=sZww
+-----END PGP SIGNATURE-----
 
-diff --git a/fs/autofs/inode.c b/fs/autofs/inode.c
-index 38ede5c..61e04ab 100644
---- a/fs/autofs/inode.c
-+++ b/fs/autofs/inode.c
-@@ -31,7 +31,7 @@ void autofs_kill_sb(struct super_block *
- 	 * just exit when we are called from deactivate_super.
- 	 */
- 	if (!sbi)
--		return;
-+		goto out_kill_sb;
- 
- 	if ( !sbi->catatonic )
- 		autofs_catatonic_mode(sbi); /* Free wait queues, close pipe */
-@@ -44,6 +44,7 @@ void autofs_kill_sb(struct super_block *
- 
- 	kfree(sb->s_fs_info);
- 
-+out_kill_sb:
- 	DPRINTK(("autofs: shutting down\n"));
- 	kill_anon_super(sb);
- }
-@@ -209,7 +210,6 @@ fail_iput:
- fail_free:
- 	kfree(sbi);
- 	s->s_fs_info = NULL;
--	kill_anon_super(s);
- fail_unlock:
- 	return -EINVAL;
- }
-diff --git a/fs/autofs4/inode.c b/fs/autofs4/inode.c
-index ce7c0f1..be14200 100644
---- a/fs/autofs4/inode.c
-+++ b/fs/autofs4/inode.c
-@@ -155,7 +155,7 @@ void autofs4_kill_sb(struct super_block
- 	 * just exit when we are called from deactivate_super.
- 	 */
- 	if (!sbi)
--		return;
-+		goto out_kill_sb;
- 
- 	sb->s_fs_info = NULL;
- 
-@@ -167,6 +167,7 @@ void autofs4_kill_sb(struct super_block
- 
- 	kfree(sbi);
- 
-+out_kill_sb:
- 	DPRINTK("shutting down");
- 	kill_anon_super(sb);
- }
-@@ -426,7 +427,6 @@ fail_ino:
- fail_free:
- 	kfree(sbi);
- 	s->s_fs_info = NULL;
--	kill_anon_super(s);
- fail_unlock:
- 	return -EINVAL;
- }
-
-
--- 
-Jiri Kosina
-SUSE Labs
-
+--Sig_lNHeAuU2SpU9h3j26PeBDj+--

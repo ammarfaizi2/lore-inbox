@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759134AbWK3Idg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759130AbWK3Ifj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759134AbWK3Idg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759139AbWK3Idg
+	id S1759130AbWK3Ifj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:35:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759137AbWK3Ifj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:33:36 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:8119 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1759137AbWK3Idf (ORCPT
+	Thu, 30 Nov 2006 03:35:39 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16104 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1759130AbWK3Ifj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:33:35 -0500
-Date: Thu, 30 Nov 2006 00:29:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Srinivasa Ds <srinivasa@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       swhiteho@redhat.com, fabbione@ubuntu.com, bunk@stusta.de,
-       aarora@linux.vnet.ibm.com, aarora@in.ibm.com
-Subject: Re: [RFC][PATCH] Mount problem with the GFS2 code
-Message-Id: <20061130002934.829334a6.akpm@osdl.org>
-In-Reply-To: <456EA5BF.6090304@in.ibm.com>
-References: <456EA5BF.6090304@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 30 Nov 2006 03:35:39 -0500
+Date: Thu, 30 Nov 2006 09:33:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Subject: v2.6.19-rt1, yum/rpm
+Message-ID: <20061130083358.GA351@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 15:04:55 +0530
-Srinivasa Ds <srinivasa@in.ibm.com> wrote:
+i have released the 2.6.19-rt1 tree, which can be downloaded from the 
+usual place:
 
-> ==========================================================================
-> On debugging further we found that problem is while reading the super 
-> block(gfs2_read_super) and comparing the magic number in it.
-> When I  replace the submit_bio() call(present in gfs2_read_super) with 
-> the sb_getblk() and ll_rw_block(), mount operation succeded.
+    http://redhat.com/~mingo/realtime-preempt/
 
-umm, why on earth does gfs2_read_super() go direct-to-BIO?
+merged to v2.6.19 and applied a few more fixes and a KVM update.
 
-Switching to sb_getblk()+ll_rw_blk() sounds like a preferable fix.
+to build a 2.6.19-rt1 tree, the following patches should be applied:
 
-Even better would be switching to a bare sb_bread().   If sb->s_blocksize
-isn't set up by then then either set it up or, if you must, use __bread().
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rt1
 
+the -rt YUM repository for Fedora Core 6 and 5, for architectures x86_64 
+and i686 can be activated via:
+
+   cd /etc/yum.repos.d
+   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
+
+   yum install kernel-rt.x86_64   # on x86_64
+   yum install kernel-rt          # on i686
+
+   yum update kernel-rt           # refresh - or enable yum-updatesd
+
+as usual, bugreports, fixes and suggestions are welcome,
+
+	Ingo

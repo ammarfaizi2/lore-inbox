@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759094AbWK3I0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759122AbWK3Ibw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759094AbWK3I0I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759092AbWK3I0H
+	id S1759122AbWK3Ibw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759124AbWK3Ibw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:26:07 -0500
-Received: from nf-out-0910.google.com ([64.233.182.190]:41673 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1759091AbWK3I0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:26:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m2akEab9cM0ORIMAqCGayF7HGUQbmRMmi3vuLf6gYo3QVM9gbkug0AiAHiKGINxETTb3xycqWNOT2ZdufqkLcdvHqjQ5WNKyqFqgX6odfVcoDNjWp6H+rIkhLcKTlLPRQ37rq6FYDCk1JWNSxvS/tCztuvNLyfmwldnps3/11Ic=
-Message-ID: <b6fcc0a0611300026y6defe704o4f7dd4f1e82d5c1b@mail.gmail.com>
-Date: Thu, 30 Nov 2006 11:26:04 +0300
-From: "Alexey Dobriyan" <adobriyan@gmail.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Subject: Re: just how "sanitized" are the sanitized headers?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0611291812510.7515@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 03:31:52 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:58330 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1759122AbWK3Ibv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:31:51 -0500
+Date: Thu, 30 Nov 2006 09:29:34 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061130082934.GB29609@elte.hu>
+References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org> <20061130042807.GA4855@in.ibm.com> <20061130063512.GA19492@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0611291812510.7515@localhost.localdomain>
+In-Reply-To: <20061130063512.GA19492@in.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/30/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
->   i noticed that, when i generate the sanitized headers with "make
-> headers_install", there are still a number of headers files that are
-> installed with variations on "#ifdef __KERNEL__".
->
->   i always thought the fundamental property of sanitized headers was
-> to be compatible with glibc
 
-You were wrong.
+* Gautham R Shenoy <ego@in.ibm.com> wrote:
 
-> and have no traces of "KERNEL" content
-> left.
+> Ok, I see that we are already doing it :(. So we can end up in a 
+> deadlock.
+> 
+> Here's the culprit callpath:
 
-That's correct.
+in general lockdep is 100% correct when it comes to "individual locks". 
+The overwhelming majority of lockdep false-positives is not due to 
+lockdep not getting the dependencies right, but due to the "lock class" 
+not being correctly identified. That's not an issue here i think.
 
-> so what's the purpose of leaving some header files with that
-> preprocessor content?
+what lockdep does is it observes actual locking dependencies as they 
+happen individually in various contexts, and then 'completes' the 
+dependency graph by combining all the possible scenarios how contexts 
+might preempt each other. So if lockdep sees independent dependencies 
+and concludes that they are circular, there's nothing that saves us from 
+the deadlock.
 
-When you see __KERNEL__ in sanitized headers, it's either due to
-a) unifdef bug, or
-b) header being listed in header-y when it should be listed in unifdef-y
+The only way for those dependencies to /never/ trigger simultaneously on 
+different CPUs would be via the use of a further 'outer' exclusion 
+mechanism (i.e. a lock) - but all explicit kernel-API exclusion 
+mechanisms are tracked by lockdep => Q.E.D. (Open-coded exclusion might 
+escape the attention of lockdep, but those are extremely rare and are 
+also easily found.)
+
+	Ingo

@@ -1,142 +1,337 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030740AbWK3RGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030739AbWK3RHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030740AbWK3RGw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 12:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030770AbWK3RGv
+	id S1030739AbWK3RHv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 12:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030745AbWK3RHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 12:06:51 -0500
-Received: from ip-85-160-4-204.eurotel.cz ([85.160.4.204]:49670 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1030740AbWK3RGu (ORCPT
+	Thu, 30 Nov 2006 12:07:51 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:3001 "EHLO calculon.skynet.ie")
+	by vger.kernel.org with ESMTP id S1030739AbWK3RHt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 12:06:50 -0500
-Date: Thu, 30 Nov 2006 18:06:46 +0100
-From: "gary.czek" <gary@czek.info>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ICH6M SATA Controller, SATA2 NCQ disk and high iowait CPU time
-Message-ID: <20061130180646.66dc622b@localhost>
-In-Reply-To: <456A5936.9080903@gmail.com>
-References: <1164404380.20334.37.camel@localhost>
-	<456A5936.9080903@gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.6; i486-pc-linux-gnu)
-X-Operating-System: Ubuntu Edgy Eft (Linux i686)
+	Thu, 30 Nov 2006 12:07:49 -0500
+Date: Thu, 30 Nov 2006 17:07:46 +0000
+To: akpm@osdl.org
+Cc: clameter@sgi.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that may be migrated
+Message-ID: <20061130170746.GA11363@skynet.ie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: mel@skynet.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo <htejun@gmail.com> wrote:
+Am reporting this patch after there were no further comments on the last
+version.
 
-> gary.czek wrote:
-> > Hi, I have problem with my notebook Fujitsu-Siemens V8010. It has
-> > Intel ICH6M chipset with SATA Controller. And SATA II disk Fujitsu
-> > MHT2040BH with NCQ. If there is request on disk, iowait time of CPU
-> > gets to 100% and whole system gets totally unresponsible. For
-> > example apt upgrade (of average 10 packages totaling 30MB in .debs)
-> > gets 30 minutes. CPU iowait time gets about 95% for whole 30
-> > minutes.
-> > 
-> > My notebook details:
-> > CPU: Intel Celeron M 1,4GHz
-> > MEM: 256MB 333MHz
-> > HDD: Fujitsu MHT2040BH SATA II, NCQ, 5400rpm, 8MB buffer
-> > SWP: 512MB swap partition
-> > Chipset: ICH6M 82801FBM
-> > GPU: Intel i915GM integrated
-> > 
-> > kernel: 2.6.19-rc5
-> > SATA Controller/disk driver: ata_piix and ahci tested, but results
-> > of both were almost the same.
-> 
-> 1. does 'mount -o remount,barrier=0 /' change anything?
-> 
-> 2. 256MB is really small if you're running modern desktop
-> environment. Please post the result of 'vmstat 5' while the machine
-> is really slow.
-> 
+It is often known at allocation time when a page may be migrated or not. This
+page adds a flag called __GFP_MOVABLE and GFP_HIGH_MOVABLE. Allocations using
+the __GFP_MOVABLE can be either migrated using the page migration mechanism
+or reclaimed by syncing with backing storage and discarding.
 
-First of all. I've reinstalled Ubuntu and installed Xfce instead of
-Gnome. It seemed to me that it was much faster after reinstall. But as
-I installed as much programs as I had installed before reinstall it
-seems to me that it goes back to problems. Maybe it could by because of
-I have running MySQL and PostgreSQL dbs. But they are accessed
-minimally-not big queries and not so frequently (Only for use on
-localhost). I use for some work postgres and for other mysql.
+Additional credit goes to Christoph Lameter and Linus Torvalds for shaping
+the concept. Credit to Hugh Dickens for catching issues with shmem swap
+vector and ramfs allocations.
 
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
 
-1. no, that changes nothing. Maybe I just didn't recognised the
-difference.
-
-2. if I coldn't find the real problem, I'll buy 1Gig RAM immediatelly.
-
-"vmstat 5" when system is really slow shows following:
-
-procs -----------memory---------- ---swap-- -----io---- -system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa
- 0  9 285904   3044    832  42088   75   46   247    98  484  746  5  2 80 13
- 0  4 285560   3628    692  43724  686   71   913   418  952 1651 18  3  0 79
- 0  3 285000   3616    688  43100  822   15  1431   766  939 1761 16  4  0 80
- 0  3 284372   3612    700  42344  703    0  1234    43  941 1697 18  3  7 72
- 1  2 284012   3176    580  42800  406    0  1054    74  834 1602 15  4 36 45
- 0  3 283820   3888    824  40044  413   23  1102    95  865 1767 17  3  0 80
- 0  1 286364   3904    900  41508   63  540  1023   629  928 1646 15  3  0 82
- 0  2 287500   4884   1120  44840  388  338  1606   431  902 1670 13  4  0 83
- 0 10 291148   3104   1296  46088  396  827   923   877  917 1521 10  3  0 87
- 0  3 292952   3728   1492  47524  259  474   730   606  889 1754 15  2  0 84
- 0  2 294960   3540   1588  47488  633  632   970   678  863 1630 12  2  0 86
- 0  2 297444   3828   1676  46496  648  674   774   735  886 1906 14  2  0 84
- 0  3 298184   3616   1684  46420  593  290   759   331  844 1792 12  3  0 85
- 0  5 297836   3852   1508  43576  632  168   990   229  814 1605 10  1  0 88
- 0  3 297996   4084   1240  41552  876  315   981   345  866 1466  7  2  0 91
- 0  5 296632   3272   1100  38324 1084   19  1593    59  878 1756  8  2  0 90
- 0  9 295768   3840   1128  38332  801   14  1244   170  870 1385  9  2  0 89
- 0  5 294748   3812   1068  37924  705    0  1053    61  844 1547 12  2  0 86
- 0  6 293664   3588   1100  37844  832    0  1206    23  848 1765 16  1  0 82
- 0  2 293040   4308   1152  37388  638    5  1070   101  680 1524 13  1  0 86
- 2  4 294140   3908   1248  37772   30  235   750   425  791 1539 14  3  0 83
- 0  2 295608   3876   1452  38568  185  356   676   464  883 1658 12  3  0 85
- 0  4 297092   3552   1500  38188  497  424   842   532  871 1433  9  2  0 89
- 0  4 298484   4004   1488  38136  612  416   806   563  866 1371  9  2  0 89
- 0  5 300004   4376   1476  38524  468  433   913   490  773 1475 12  1  0 86
- 0  3 303592   3948   1508  39556  286  844   993  1022  459 1457 16  1  0 82
- 0  2 305068   3644   1428  39000  399  385   868   482  871 1579 12  3  0 84
- 0  2 304912   3460   1464  40136  317   52  1200   139  710 1573 12  2  0 87
- 0  3 305848   3924   1808  39856  462  326   794   470  659 1491 13  3  0 84
- 0  9 312892   3260   1200  48304  354 1590  1477  5350  846 3194  8  6  0 87
- 0 12 314740   3356   1252  48252  747  478  1306  1416  643 1370  2  1  0 96
- 0  9 315192   3800   1380  46372  727  260  1390  1706  430 1484  2  1  0 97
- 0  5 313996   3716   1540  43844  826   49  1387   181  457 1311  0  1  0 99
- 0  9 313088   2928   1528  40200 1021   25  1742    67  435 1275  1  1  0 98
- 0 10 312608   3664   1484  38452  714    0  1438   436  391 1139  1  1  0 98
- 0 10 311692   3520   1564  37928  986    0  1876    87  431 1133  1  1  0 98
- 0  8 297540   3436   1532  38008 1000    0  1813   111  763 1360  3  2  0 95
- 0 10 296264   3636   1292  39056  796    0  2186   196  853 1456  1  2  0 97
- 0 10 295476   3948    984  40616  440   25  2082   162  783 1380  1  1  0 97
- 0  9 293580  25044   1088  44084  346    0  1915   159  373 1339  3  1  0 96
- 0 21 292148  16892   1220  45908 1228    0  1618   286  414 2652  1  2  0 97
- 0 20 290812   3420   1276  48468 1349    0  1862    14  575 1823  3  3  0 94
- 0 25 290764   3172   1036  45176  831  231  1337   289  824 3387  1  2  0 96
- 0 20 289884   4144    772  42756  802   22  1173    34  794 1227  0  2  0 98
- 0 23 289976   3612    644  44300  722  186  1204   211  595 1203  0  2  0 98
- 0 22 289108   3088    720  45608  694    0  1087    28  379 1092  3  0  0 97
- 0 24 288328   3824    844  44304  699   13  1266    61  382 1210  2  1  0 97
- 0 18 287232   3792    816  42800 1013    0  1258    46  392 1209  5  1  0 94
- 0 19 286932   4348    764  44516  598  104  1489   141  379 1127 25  0  0 75
- 0 17 286136   3924    836  44672  678    6  1015    71  403 1122  3  1  0 96
- 0 20 286872   3116    688  45728  566  318  1508   345  445 1017  2  1  0 96
- 0 18 288712   4008    736  45680  403  446  1121   474  759  950  2  1  0 97
- 0 22 288700   3068    652  46824  722  163  1489   208  684 1135  1  1  0 98
- 0 30 289812   3204    720  46408  471  307  1002   317  454 1240  7  1  0 92
- 0 26 290196   2940    744  45684  726  228  1573   304  467 1198  3  1  0 96
- 2 18 289556   3776    752  42448  825   46  1425   126  457 1552 15  1  0 85
- 0 15 288872   3684    772  41244  696    5  1326    30  423 1384 21  1  0 78
- 0 16 288168   3916    688  41116  661    5  1601    50  430 1266 12  1  0 88
- 0 15 287252   3460    768  40552  791    0  1431    58  456 1361  6  1  0 94
- 0 12 286428   3952    764  40156  694    8  1329    50  438 1330  4  1  0 95
- 0 13 286400   3472    796  40304  636  202  1585   235  450 1293  4  1  0 95
- 0 13 287240   3444    756  41528  398  295  1398   323  453 1202 10  1  0 88
- 0 10 287868   3996    816  42396  378  216  1378   274  459 1208  6  0  0 93
- 0 16 289792   2976    884  42992  404  474  1381   477  448 1302  8  1  0 90
- 1 13 289424   4032    772  41468  707   69  1407   128  914 1462 15  2  0 83
- 0 10 290736   3380    664  42468  508  434  1635   461  934 1551 31  1  0 68
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/fs/compat.c linux-2.6.19-rc6-mm2-mark_highmovable/fs/compat.c
+--- linux-2.6.19-rc6-mm2-clean/fs/compat.c	2006-11-29 10:31:09.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/fs/compat.c	2006-11-29 10:34:12.000000000 +0000
+@@ -1419,7 +1419,7 @@ static int compat_copy_strings(int argc,
+ 			page = bprm->page[i];
+ 			new = 0;
+ 			if (!page) {
+-				page = alloc_page(GFP_HIGHUSER);
++				page = alloc_page(GFP_HIGH_MOVABLE);
+ 				bprm->page[i] = page;
+ 				if (!page) {
+ 					ret = -ENOMEM;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/fs/exec.c linux-2.6.19-rc6-mm2-mark_highmovable/fs/exec.c
+--- linux-2.6.19-rc6-mm2-clean/fs/exec.c	2006-11-29 10:31:09.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/fs/exec.c	2006-11-29 10:34:12.000000000 +0000
+@@ -239,7 +239,7 @@ static int copy_strings(int argc, char _
+ 			page = bprm->page[i];
+ 			new = 0;
+ 			if (!page) {
+-				page = alloc_page(GFP_HIGHUSER);
++				page = alloc_page(GFP_HIGH_MOVABLE);
+ 				bprm->page[i] = page;
+ 				if (!page) {
+ 					ret = -ENOMEM;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/fs/inode.c linux-2.6.19-rc6-mm2-mark_highmovable/fs/inode.c
+--- linux-2.6.19-rc6-mm2-clean/fs/inode.c	2006-11-29 10:31:09.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/fs/inode.c	2006-11-29 10:34:12.000000000 +0000
+@@ -146,7 +146,7 @@ static struct inode *alloc_inode(struct 
+ 		mapping->a_ops = &empty_aops;
+  		mapping->host = inode;
+ 		mapping->flags = 0;
+-		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
++		mapping_set_gfp_mask(mapping, GFP_HIGH_MOVABLE);
+ 		mapping->assoc_mapping = NULL;
+ 		mapping->backing_dev_info = &default_backing_dev_info;
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/fs/ramfs/inode.c linux-2.6.19-rc6-mm2-mark_highmovable/fs/ramfs/inode.c
+--- linux-2.6.19-rc6-mm2-clean/fs/ramfs/inode.c	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/fs/ramfs/inode.c	2006-11-29 10:34:12.000000000 +0000
+@@ -61,6 +61,7 @@ struct inode *ramfs_get_inode(struct sup
+ 		inode->i_blocks = 0;
+ 		inode->i_mapping->a_ops = &ramfs_aops;
+ 		inode->i_mapping->backing_dev_info = &ramfs_backing_dev_info;
++		mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
+ 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+ 		switch (mode & S_IFMT) {
+ 		default:
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-alpha/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-alpha/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-alpha/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-alpha/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -17,7 +17,7 @@
+ extern void clear_page(void *page);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vmaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vmaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ extern void copy_page(void * _to, void * _from);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-cris/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-cris/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-cris/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-cris/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -20,7 +20,7 @@
+ #define clear_user_page(page, vaddr, pg)    clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg) copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-h8300/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-h8300/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-h8300/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-h8300/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -22,7 +22,7 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-i386/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-i386/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-i386/page.h	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-i386/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -35,7 +35,7 @@
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr)	alloc_page_vma(GFP_HIGH_MOVABLE|__GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-ia64/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-ia64/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-ia64/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-ia64/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -89,7 +89,7 @@ do {						\
+ 
+ #define alloc_zeroed_user_highpage(vma, vaddr) \
+ ({						\
+-	struct page *page = alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr); \
++	struct page *page = alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vaddr); 		\
+ 	if (page)				\
+  		flush_dcache_page(page);	\
+ 	page;					\
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-m32r/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-m32r/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-m32r/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-m32r/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -16,7 +16,7 @@ extern void copy_page(void *to, void *fr
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-s390/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-s390/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-s390/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-s390/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -64,7 +64,7 @@ static inline void copy_page(void *to, v
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE | __GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/asm-x86_64/page.h linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-x86_64/page.h
+--- linux-2.6.19-rc6-mm2-clean/include/asm-x86_64/page.h	2006-11-16 04:03:40.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/asm-x86_64/page.h	2006-11-29 10:34:12.000000000 +0000
+@@ -51,7 +51,7 @@ void copy_page(void *, void *);
+ #define clear_user_page(page, vaddr, pg)	clear_page(page)
+ #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 
+-#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
++#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGH_MOVABLE|__GFP_ZERO, vma, vaddr)
+ #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
+ /*
+  * These are used to make use of C type-checking..
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/linux/gfp.h linux-2.6.19-rc6-mm2-mark_highmovable/include/linux/gfp.h
+--- linux-2.6.19-rc6-mm2-clean/include/linux/gfp.h	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/linux/gfp.h	2006-11-29 10:34:12.000000000 +0000
+@@ -30,6 +30,9 @@ struct vm_area_struct;
+  * cannot handle allocation failures.
+  *
+  * __GFP_NORETRY: The VM implementation must not retry indefinitely.
++ *
++ * __GFP_MOVABLE: Flag that this page will be movable by the page migration
++ * mechanism
+  */
+ #define __GFP_WAIT	((__force gfp_t)0x10u)	/* Can wait and reschedule? */
+ #define __GFP_HIGH	((__force gfp_t)0x20u)	/* Should access emergency pools? */
+@@ -46,6 +49,7 @@ struct vm_area_struct;
+ #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
+ #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
+ #define __GFP_THISNODE	((__force gfp_t)0x40000u)/* No fallback, no policies */
++#define __GFP_MOVABLE	((__force gfp_t)0x80000u) /* Page is movable */
+ 
+ #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
+@@ -54,7 +58,8 @@ struct vm_area_struct;
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+ 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
+-			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE)
++			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE|\
++			__GFP_MOVABLE)
+ 
+ /* This equals 0, but use constants in case they ever change */
+ #define GFP_NOWAIT	(GFP_ATOMIC & ~__GFP_HIGH)
+@@ -66,6 +71,9 @@ struct vm_area_struct;
+ #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
+ #define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
+ 			 __GFP_HIGHMEM)
++#define GFP_HIGH_MOVABLE	(__GFP_WAIT | __GFP_IO | __GFP_FS | \
++				 __GFP_HARDWALL | __GFP_HIGHMEM | \
++				 __GFP_MOVABLE)
+ 
+ #ifdef CONFIG_NUMA
+ #define GFP_THISNODE	(__GFP_THISNODE | __GFP_NOWARN | __GFP_NORETRY)
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/include/linux/highmem.h linux-2.6.19-rc6-mm2-mark_highmovable/include/linux/highmem.h
+--- linux-2.6.19-rc6-mm2-clean/include/linux/highmem.h	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/include/linux/highmem.h	2006-11-29 10:34:12.000000000 +0000
+@@ -65,7 +65,7 @@ static inline void clear_user_highpage(s
+ static inline struct page *
+ alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
+ {
+-	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
++	struct page *page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, vaddr);
+ 
+ 	if (page)
+ 		clear_user_highpage(page, vaddr);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/memory.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/memory.c
+--- linux-2.6.19-rc6-mm2-clean/mm/memory.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/memory.c	2006-11-29 10:34:12.000000000 +0000
+@@ -1564,7 +1564,7 @@ gotten:
+ 		if (!new_page)
+ 			goto oom;
+ 	} else {
+-		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
++		new_page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, address);
+ 		if (!new_page)
+ 			goto oom;
+ 		cow_user_page(new_page, old_page, address);
+@@ -2188,7 +2188,7 @@ retry:
+ 
+ 			if (unlikely(anon_vma_prepare(vma)))
+ 				goto oom;
+-			page = alloc_page_vma(GFP_HIGHUSER, vma, address);
++			page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, address);
+ 			if (!page)
+ 				goto oom;
+ 			copy_user_highpage(page, new_page, address);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/mempolicy.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/mempolicy.c
+--- linux-2.6.19-rc6-mm2-clean/mm/mempolicy.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/mempolicy.c	2006-11-29 10:34:12.000000000 +0000
+@@ -598,7 +598,7 @@ static void migrate_page_add(struct page
+ 
+ static struct page *new_node_page(struct page *page, unsigned long node, int **x)
+ {
+-	return alloc_pages_node(node, GFP_HIGHUSER, 0);
++	return alloc_pages_node(node, GFP_HIGH_MOVABLE, 0);
+ }
+ 
+ /*
+@@ -714,7 +714,7 @@ static struct page *new_vma_page(struct 
+ {
+ 	struct vm_area_struct *vma = (struct vm_area_struct *)private;
+ 
+-	return alloc_page_vma(GFP_HIGHUSER, vma, page_address_in_vma(page, vma));
++	return alloc_page_vma(GFP_HIGH_MOVABLE, vma, page_address_in_vma(page, vma));
+ }
+ #else
+ 
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/migrate.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/migrate.c
+--- linux-2.6.19-rc6-mm2-clean/mm/migrate.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/migrate.c	2006-11-29 10:34:12.000000000 +0000
+@@ -748,7 +748,7 @@ static struct page *new_page_node(struct
+ 
+ 	*result = &pm->status;
+ 
+-	return alloc_pages_node(pm->node, GFP_HIGHUSER | GFP_THISNODE, 0);
++	return alloc_pages_node(pm->node, GFP_HIGH_MOVABLE | GFP_THISNODE, 0);
+ }
+ 
+ /*
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/shmem.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/shmem.c
+--- linux-2.6.19-rc6-mm2-clean/mm/shmem.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/shmem.c	2006-11-29 10:34:12.000000000 +0000
+@@ -93,8 +93,11 @@ static inline struct page *shmem_dir_all
+ 	 * The above definition of ENTRIES_PER_PAGE, and the use of
+ 	 * BLOCKS_PER_PAGE on indirect pages, assume PAGE_CACHE_SIZE:
+ 	 * might be reconsidered if it ever diverges from PAGE_SIZE.
++	 *
++	 * __GFP_MOVABLE is masked out as swap vectors cannot move
+ 	 */
+-	return alloc_pages(gfp_mask, PAGE_CACHE_SHIFT-PAGE_SHIFT);
++	return alloc_pages((gfp_mask & ~__GFP_MOVABLE) | __GFP_ZERO,
++				PAGE_CACHE_SHIFT-PAGE_SHIFT);
+ }
+ 
+ static inline void shmem_dir_free(struct page *page)
+@@ -372,7 +375,7 @@ static swp_entry_t *shmem_swp_alloc(stru
+ 		}
+ 
+ 		spin_unlock(&info->lock);
+-		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping) | __GFP_ZERO);
++		page = shmem_dir_alloc(mapping_gfp_mask(inode->i_mapping));
+ 		if (page)
+ 			set_page_private(page, 0);
+ 		spin_lock(&info->lock);
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/swap_prefetch.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/swap_prefetch.c
+--- linux-2.6.19-rc6-mm2-clean/mm/swap_prefetch.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/swap_prefetch.c	2006-11-29 10:34:12.000000000 +0000
+@@ -204,7 +204,7 @@ static enum trickle_return trickle_swap_
+ 	 * Get a new page to read from swap. We have already checked the
+ 	 * watermarks so __alloc_pages will not call on reclaim.
+ 	 */
+-	page = alloc_pages_node(node, GFP_HIGHUSER & ~__GFP_WAIT, 0);
++	page = alloc_pages_node(node, GFP_HIGH_MOVABLE & ~__GFP_WAIT, 0);
+ 	if (unlikely(!page)) {
+ 		ret = TRICKLE_DELAY;
+ 		goto out;
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.19-rc6-mm2-clean/mm/swap_state.c linux-2.6.19-rc6-mm2-mark_highmovable/mm/swap_state.c
+--- linux-2.6.19-rc6-mm2-clean/mm/swap_state.c	2006-11-29 10:31:10.000000000 +0000
++++ linux-2.6.19-rc6-mm2-mark_highmovable/mm/swap_state.c	2006-11-29 10:34:12.000000000 +0000
+@@ -343,7 +343,7 @@ struct page *read_swap_cache_async(swp_e
+ 		 * Get a new page to read into from swap.
+ 		 */
+ 		if (!new_page) {
+-			new_page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
++			new_page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, addr);
+ 			if (!new_page)
+ 				break;		/* Out of memory */
+ 		}

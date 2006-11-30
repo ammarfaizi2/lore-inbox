@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759173AbWK3ItF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759178AbWK3Ivk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759173AbWK3ItF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759175AbWK3ItF
+	id S1759178AbWK3Ivk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759180AbWK3Ivk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:49:05 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:32015 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1759172AbWK3ItC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:49:02 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: linux-scsi@vger.kernel.org
-Subject: [PATCH] scsi: 53c7xx brackets fix
-Date: Thu, 30 Nov 2006 09:48:32 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
+	Thu, 30 Nov 2006 03:51:40 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:41945 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1759177AbWK3Ivj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:51:39 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=pdfzSyiuDzuw35a3fzwpnZQY9+T8fWzEtT8QIsmCgkmQejqgPC99b/KdYg41TUOP3
+	ee0OyRLGgbjuJYLrVxpow==
+Message-ID: <6599ad830611300051q5f48fb45gbfae9649e0e14524@mail.gmail.com>
+Date: Thu, 30 Nov 2006 00:51:26 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [PATCH 0/7] Generic Process Containers (+ ResGroups/BeanCounters)
+Cc: akpm@osdl.org, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       devel@openvz.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com
+In-Reply-To: <20061129233229.a47e0f1b.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611300948.32470.m.kozlowski@tuxland.pl>
+References: <20061123120848.051048000@menage.corp.google.com>
+	 <20061129233229.a47e0f1b.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 11/29/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> 2) I wedged the kernel on the container_lock, doing a removal of a cpuset
+>    using notify_on_release.
 
-	This patch fixes brackets in two places.
+I couldn't reproduce this, with a /sbin/cpuset_release_agent that does:
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+#!/bin/bash
+logger cpuset_release_agent $1
+rmdir /dev/cpuset/$1
 
- drivers/scsi/53c7xx.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+and running the commands:
 
---- linux-2.6.19-rc6-mm2-a/drivers/scsi/53c7xx.c	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/drivers/scsi/53c7xx.c	2006-11-29 15:50:54.000000000 +0100
-@@ -4400,7 +4400,7 @@ abort_connected (struct Scsi_Host *host)
-  * account the current synchronous offset) 
-  */
- 
--    sstat = (NCR53c8x0_read8 (SSTAT2_REG);
-+    sstat = NCR53c8x0_read8 (SSTAT2_REG);
-     offset = OFFSET (sstat & SSTAT2_FF_MASK) >> SSTAT2_FF_SHIFT;
-     phase = sstat & SSTAT2_PHASE_MASK;
- 
-@@ -5423,7 +5423,7 @@ insn_to_offset (Scsi_Cmnd *cmd, u32 *ins
-     	    	     --buffers, offset += segment->length, ++segment)
- #if 0
- 		    printk("scsi%d: comparing 0x%p to 0x%p\n", 
--			cmd->device->host->host_no, saved, page_address(segment->page+segment->offset);
-+			cmd->device->host->host_no, saved, page_address(segment->page+segment->offset));
- #else
- 		    ;
- #endif
+while true; do
+  mkdir -p /dev/cpuset/bar/foo
+  echo 1 > /dev/cpuset/bar/notify_on_release
+  rmdir /dev/cpuset/bar/foo
+  usleep 1000
+done
 
+Is it actually reproducible for you? If so, could you get a fuller backtrace?
 
--- 
-Regards,
+Thanks,
 
-	Mariusz Kozlowski
+Paul

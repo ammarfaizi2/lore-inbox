@@ -1,122 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967790AbWK3BWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967795AbWK3BYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967790AbWK3BWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967791AbWK3BWp
+	id S967795AbWK3BYK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967794AbWK3BYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:22:45 -0500
-Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:26622
-	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S967790AbWK3BWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:22:44 -0500
-Message-ID: <004901c7141e$15e6cc50$b100a8c0@erich2003>
-From: "erich" <erich@areca.com.tw>
-To: "Igmar Palsenberg" <i.palsenberg@jdi-ict.nl>
-Cc: "linux kernel" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
-Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
-Date: Thu, 30 Nov 2006 09:23:01 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="utf-8";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.2663
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2757
-X-OriginalArrivalTime: 30 Nov 2006 01:12:58.0000 (UTC) FILETIME=[ABF5C900:01C7141C]
+	Wed, 29 Nov 2006 20:24:10 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:55767 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S967795AbWK3BYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:24:09 -0500
+Date: Wed, 29 Nov 2006 17:25:28 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RCU] adds a prefetch() in rcu_do_batch()
+Message-ID: <20061130012528.GJ2335@us.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com> <20061121224613.548207f9.akpm@osdl.org> <200611221602.29597.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611221602.29597.dada1@cosmosbay.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Igmar Palsenberg,
-
-If you are working on arcmsr 1.20.00.13 for official kernel version.
-This is the last version.
-Could you check your RAID controller event and tell someting to me?
-You can check "MBIOS"=>"Physical Drive Information"=>"View Drive 
-Information"=>"Select The Drive"=>"Timeout Count"......
-It could tell you which disk had bad behavior cause your RAID volume 
-offline.
-About the message dump from arcmsr, it said that your RAID volume had 
-something wrong and kicked out from the system.
-How about your RAID config?
-Areca had new firmware released (1.42).
-If you are working on "sg" device with scsi passthrough ioctl method to feed 
-data into Areca's RAID volume.
-You need to limit your data under 512 blocks (256K) each transfer.
-The new firmware will enlarge it into 4096 blocks (2M) each transfer.
-The firmware version 1.42 is on releasing procedure but not yet put it on 
-Areca ftp site.
-If you need it, please tell me again.
-
-Best Regards
-Erich Chen
-
-
------ Original Message ----- 
-From: "Igmar Palsenberg" <i.palsenberg@jdi-ict.nl>
-To: <linux-kernel@vger.kernel.org>
-Cc: <erich@areca.com.tw>
-Sent: Wednesday, November 29, 2006 8:41 PM
-Subject: 2.6.16.32 stuck in generic_file_aio_write()
-
-
->
-> Hi,
->
-> I've got a machine which occasionally locks up. I can still sysrq it from
-> a serial console, so it's not entirely dead.
->
-> A sysrq-t learns me that it's got a large number of httpd processes stuck
-> in D state :
->
-> httpd         D F7619440  2160 11635   2057         11636       (NOTLB)
-> dbb7ae14 cc9b0550 c33224a0 f7619440 de187604 00000000 000000b3 00000001
->       000000b3 00000000 ffffffff d374a550 c33224a0 0005b8d8 f04af800
-> 000f75e7
->       d374a550 cc9b0550 cc9b0678 ef7d33ec ef7d33e8 cc9b0550 ef7d33fc
-> c041bf70
-> Call Trace:
-> [<c041bf70>] __mutex_lock_slowpath+0x92/0x43e
-> [<c0148f29>] generic_file_aio_write+0x5c/0xfa
-> [<c0148f29>] generic_file_aio_write+0x5c/0xfa
-> [<c0148f29>] generic_file_aio_write+0x5c/0xfa
-> [<c01746c9>] permission+0xad/0xcb
-> [<c01d9c4a>] ext3_file_write+0x3b/0xb0
-> [<c0166777>] do_sync_write+0xd5/0x130
-> [<c041d1bf>] _spin_unlock+0xb/0xf
-> [<c0135c13>] autoremove_wake_function+0x0/0x4b
-> [<c0166975>] vfs_write+0x1a3/0x1a8
-> [<c0166a39>] sys_write+0x4b/0x74
-> [<c0102c03>] sysenter_past_esp+0x54/0x75
->
-> After this, the machine is rendered useless (probably due to the fact that
-> disk IO isn't working anymore).
->
-> The lock debugging gives me this :
->
-> D           httpd:11635 [cc9b0550, 116] blocked on mutex: [ef7d33e8]
-> {inode_init_once}
-> .. held by:             httpd:  506 [d67e1000, 121]
-> ... acquired at:               generic_file_aio_write+0x5c/0xfa
->
->
-> I see similiar things as mentioned in http://lkml.org/lkml/2006/1/10/64,
-> with the difference that I'm not running software RAID or SATA (it's an
-> Areca ARC-1110).
->
-> I can't reproduce it until now, it 'just' happens. Can someone give me a
-> pointer where to start looking ?
->
-> Erich, I've CC-ed you since the machine is running an Areca RAID config.
-> It's also the only used disk subsystem in this machine.
->
->
-> Regards,
->
->
-> Igmar
+On Wed, Nov 22, 2006 at 04:02:29PM +0100, Eric Dumazet wrote:
+> On some workloads, (for example when lot of close() syscalls are done), RCU
+> qlen can be quite large, and RCU heads are no longer in cpu cache when
+> rcu_do_batch() is called.
 > 
+> This patches adds a prefetch() in rcu_do_batch() to give CPU a hint to bring
+> back cache lines containing 'struct rcu_head's.
+> 
+> Most list manipulations macros include prefetch(), but not open coded ones (at
+> least with current C compilers :) )
+> 
+> I got a nice speedup on a trivial benchmark  (3.48 us per iteration instead of
+> 3.95 us on a 1.6 GHz Pentium-M)
+> while (1) { pipe(p); close(fd[0]); close(fd[1]);}
+
+Interesting!  How much of the speedup was due to the prefetch() and how
+much to removing the extra store to rdp->donelist?
+
+							Thanx, Paul
+
+> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+> --- linux-2.6.19-rc6/kernel/rcupdate.c	2006-11-16 05:03:40.000000000 +0100
+> +++ linux-2.6.19-rc6-ed/kernel/rcupdate.c	2006-11-22 15:12:09.000000000 +0100
+> @@ -235,12 +235,14 @@ static void rcu_do_batch(struct rcu_data
+> 
+>  	list = rdp->donelist;
+>  	while (list) {
+> -		next = rdp->donelist = list->next;
+> +		next = list->next;
+> +		prefetch(next);
+>  		list->func(list);
+>  		list = next;
+>  		if (++count >= rdp->blimit)
+>  			break;
+>  	}
+> +	rdp->donelist = list;
+> 
+>  	local_irq_disable();
+>  	rdp->qlen -= count;
 

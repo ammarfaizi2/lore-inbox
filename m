@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933257AbWK3JgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933278AbWK3Jha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933257AbWK3JgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933168AbWK3JgJ
+	id S933278AbWK3Jha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933168AbWK3Jha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:36:09 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:23825 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S933073AbWK3JgG (ORCPT
+	Thu, 30 Nov 2006 04:37:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S933278AbWK3Jh3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:36:06 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: dale@farnsworth.org, mlachwani@mvista.com
-Subject: [PATCH] mv643xx add missing brackets
-Date: Thu, 30 Nov 2006 10:35:37 +0100
-User-Agent: KMail/1.9.5
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 30 Nov 2006 04:37:29 -0500
+Subject: Re: [RFC][PATCH] Mount problem with the GFS2 code
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Srinivasa Ds <srinivasa@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, fabbione@ubuntu.com, bunk@stusta.de,
+       aarora@linux.vnet.ibm.com, aarora@in.ibm.com
+In-Reply-To: <20061130011236.6ac60998.akpm@osdl.org>
+References: <456EA5BF.6090304@in.ibm.com>
+	 <20061130002934.829334a6.akpm@osdl.org>
+	 <1164877538.3752.93.camel@quoit.chygwyn.com>
+	 <20061130011236.6ac60998.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 30 Nov 2006 09:30:46 +0000
+Message-Id: <1164879046.3752.101.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301035.37786.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-	This patch adds missing brackets.
+On Thu, 2006-11-30 at 01:12 -0800, Andrew Morton wrote:
+> On Thu, 30 Nov 2006 09:05:38 +0000
+> Steven Whitehouse <swhiteho@redhat.com> wrote:
+> 
+> > Was there another
+> > reason for not using the bio routines?
+> 
+> Just that it's a layering violation.
+> 
+> Could I commend to you the use of code comments for this sort of thing?
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Ok. I'll take the patch, and then add a suitable comment. I'll make a
+note to change it to use the bh based functions at some stage in the
+future,
 
- include/linux/mv643xx.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.19-rc6-mm2-a/include/linux/mv643xx.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/include/linux/mv643xx.h	2006-11-30 01:10:53.000000000 +0100
-@@ -724,7 +724,7 @@
- #define MV643XX_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
- #define MV643XX_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
- #define MV643XX_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
--#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
-+#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
- #define MV643XX_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
- #define MV643XX_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
- #define MV643XX_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
-@@ -1135,7 +1135,7 @@ struct mv64xxx_i2c_pdata {
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_1	(1<<19)
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_2	(1<<20)
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_3	((1<<20) | (1<<19))
--#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21)
-+#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21))
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_5	((1<<21) | (1<<19))
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_6	((1<<21) | (1<<20))
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_7	((1<<21) | (1<<20) | (1<<19))
+Steve.
 
 
--- 
-Regards,
-
-	Mariusz Kozlowski

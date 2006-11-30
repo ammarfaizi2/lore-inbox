@@ -1,46 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759023AbWK3E0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935086AbWK3E2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759023AbWK3E0o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 23:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759011AbWK3E0W
+	id S935086AbWK3E2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 23:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934251AbWK3E2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 23:26:22 -0500
-Received: from www.swissdisk.com ([216.66.254.197]:22963 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S1759014AbWK3E0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 23:26:18 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: Ubuntu patch sync for 2.6.20
-Reply-To: Ben Collins <bcollins@ubuntu.com>
-Date: Wed, 29 Nov 2006 23:26:02 -0500
-Message-Id: <11648607683157-git-send-email-bcollins@ubuntu.com>
-X-Mailer: git-send-email 1.4.1
+	Wed, 29 Nov 2006 23:28:38 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:24983 "EHLO
+	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S935086AbWK3E2G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 23:28:06 -0500
+Date: Thu, 30 Nov 2006 09:58:07 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ego@in.ibm.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061130042807.GA4855@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061129130556.d20c726e.akpm@osdl.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a set of patches from the Ubuntu tree that seemed suitable for
-upstream sync.
+On Wed, Nov 29, 2006 at 01:05:56PM -0800, Andrew Morton wrote:
+> On Wed, 29 Nov 2006 20:54:04 +0530
+> Gautham R Shenoy <ego@in.ibm.com> wrote:
+> 
+> > Ok, so to cut the long story short,
+> > - While changing governor from anything to
+> > ondemand, locks are taken in the following order
+> >
+> > policy->lock ===> dbs_mutex ===> workqueue_mutex.
 
-[PATCH 1/4] [x86] Add command line option to enable/disable hyper-threading.
+> >
+> > - While offlining a cpu, locks are taken in the following order
+> >
+> > cpu_add_remove_lock ==> sched_hotcpu_mutex ==> workqueue_mutex ==
+> > ==> cache_chain_mutex ==> policy->lock.
+> 
+> What functions are taking all these locks?  (ie: the callpath?)
 
-[PATCH 2/4] [APIC] Allow disabling of UP APIC/IO-APIC by default, with command line option to turn it on.
+While changing cpufreq governor to ondemand, the locks taken are:
+--------------------------------------------------------------------------
+lock		function		file
+--------------------------------------------------------------------------
+policy->lock	store_scaling_governor	drivers/cpufreq/cpufreq.c
 
-[PATCH 3/4] [ATM] Add CPPFLAGS to byteorder.h check.
+dbs_mutex	cpufreq_governor_dbs	drivers/cpufreq/cpufreq_ondemand.c
 
-[PATCH 4/4] [HVCS] Select HVC_CONSOLE if HVCS is enabled.
+workqueue_mutex	__create_workqueue	kernel/workqueue.c
+--------------------------------------------------------------------------
 
+The complete callpath would be
 
- arch/i386/Kconfig                   |   13 +++++++++++++
- Documentation/kernel-parameters.txt |    3 +++
- arch/i386/Kconfig                   |    5 +++++
- arch/i386/kernel/apic.c             |   13 +++++++++++--
- arch/i386/kernel/cpu/common.c       |   30 +++++++++++++++++++++++++++++-
- arch/i386/kernel/io_apic.c          |   10 +++++++++-
- drivers/atm/Makefile                |    3 +--
- drivers/char/Kconfig                |    2 +-
- include/asm-i386/apic.h             |    6 ++++++
- include/asm-i386/io_apic.h          |    6 +++++-
- 10 files changed, 83 insertions(+), 8 deletions(-)
+store_scaling_governor [*]
+	|
+__cpufreq_set_policy
+	|
+__cpufreq_governor(data, CPUFREQ_GOV_START)
+	|
+policy->governor->governor => cpufreq_governor_dbs(data, CPUFREQ_GOV_START) [*]
+	|
+create_workqueue #defined as __create_workqueue [*]
+	
+where [*] = locks taken.
 
+While offlining a cpu, locks are taken in the following order:
+
+--------------------------------------------------------------------------
+lock			function		file
+--------------------------------------------------------------------------
+cpu_add_remove_lock	cpu_down		kernel/cpu.c
+
+sched_hotcpu_mutex	migration_call		kernel/sched.c
+
+workqueue_mutex		workqueue_cpu_callback	kernel/workqueue.c
+
+cache_chain_mutex	cpuup_callback		mm/slab.c
+
+policy->lock		cpufreq_driver_target	drivers/cpufreq/cpufreq.c
+---------------------------------------------------------------------------
+
+Please note that in the above,
+- sched_hotcpu_mutex, workqueue_mutex, cache_chain_mutex are taken 
+  while handling CPU_LOCK_ACQUIRE events in the respective subsystems'
+  cpu_callback functions.
+
+- policy->lock is taken while handling CPU_DOWN_PREPARE in 
+  cpufreq_cpu_callback which calls cpufreq_driver_target.
+
+It's perfectly clear that in the cpu offline callpath, cpufreq
+does not have to do anything with the workqueue. 
+
+So can we ignore this circular-dep warning as a false positive?
+Or is there a way to exploit this circular dependency ?
+
+At the moment, I cannot think of way to exploit this circular dependency
+unless we do something like try destroying the created workqueue when the
+cpu is dead, i.e make the cpufreq governors cpu-hotplug-aware.
+(eeks! that doesn't look good)
+
+I'm working on fixing this. Let me see if I can come up with something.
+
+Thanks and Regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

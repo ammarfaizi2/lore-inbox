@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759177AbWK3Ivz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759180AbWK3IyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759177AbWK3Ivz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759187AbWK3Ivz
+	id S1759180AbWK3IyI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759186AbWK3IyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:51:55 -0500
-Received: from ausmtp04.au.ibm.com ([202.81.18.152]:35467 "EHLO
-	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1759181AbWK3Ivy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:51:54 -0500
-Date: Thu, 30 Nov 2006 14:22:01 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, davej@redhat.com,
-       dipankar@in.ibm.com, vatsa@in.ibm.com
-Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-ID: <20061130085201.GA23354@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org> <20061130042807.GA4855@in.ibm.com> <20061130063512.GA19492@in.ibm.com> <20061130082934.GB29609@elte.hu>
+	Thu, 30 Nov 2006 03:54:08 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:11716 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1759180AbWK3IyF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:54:05 -0500
+Date: Thu, 30 Nov 2006 09:53:56 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mass-storage problems with Archos AV500
+Message-ID: <20061130085356.GV14886@vasa.acc.umu.se>
+Mail-Followup-To: Robert Hancock <hancockr@shaw.ca>,
+	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <fa.+HViQkzstd1WGzxw6QnaK2a1tiY@ifi.uio.no> <456E5F91.7020300@shaw.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061130082934.GB29609@elte.hu>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <456E5F91.7020300@shaw.ca>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 09:29:34AM +0100, Ingo Molnar wrote:
+On Wed, Nov 29, 2006 at 10:35:29PM -0600, Robert Hancock wrote:
+> David Weinehall wrote:
+> >I've got an Archos AV500 here (running the very latest firmware), pretty
+> >much acting as a doorstop, since I cannot get it to be recognized
+> >properly by Linux.
 > 
-> * Gautham R Shenoy <ego@in.ibm.com> wrote:
+> ..
 > 
-> > Ok, I see that we are already doing it :(. So we can end up in a
-> > deadlock.
+> >[  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
+> >MB)
+> >[  118.144000] sdb: Write Protect is off
+> >[  118.144000] sdb: Mode Sense: 33 00 00 00
+> >[  118.144000] sdb: assuming drive cache: write through
+> >[  118.144000]  sdb: unknown partition table
+> >[  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
+> >[  118.452000] usb-storage: device scan complete
 > >
-> > Here's the culprit callpath:
+> >This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
+> >I get similar results with a home-brew 2.6.18-rc4.
+> >
+> >Any mass storage quirk needed that might be missing?
 > 
-> in general lockdep is 100% correct when it comes to "individual locks".
-> The overwhelming majority of lockdep false-positives is not due to
-> lockdep not getting the dependencies right, but due to the "lock class"
-> not being correctly identified. That's not an issue here i think.
+> That all seems normal, other than the unknown partition table, but the 
+> device might be all one unpartitioned disk.. at what point is it failing?
 
-You're right. That's not the issue.
+Mounting it just claims wrong FS type.  And I've tried most file systems
+I can think of just to be sure.
 
-> 
-> what lockdep does is it observes actual locking dependencies as they
-> happen individually in various contexts, and then 'completes' the
-> dependency graph by combining all the possible scenarios how contexts
-> might preempt each other. So if lockdep sees independent dependencies
-> and concludes that they are circular, there's nothing that saves us from
-> the deadlock.
-> 
 
-Ah! I get it now. I had taken neither preemption nor the SMP scenario
-into account before concluding that the warning might be a false
-positive.
-
-All I need to do is to run my test cases on a preemptible kernel 
-or in parallel on a smp box. It'll definitely deadlock there!
-
-> The only way for those dependencies to /never/ trigger simultaneously on
-> different CPUs would be via the use of a further 'outer' exclusion
-> mechanism (i.e. a lock) - but all explicit kernel-API exclusion
-> mechanisms are tracked by lockdep => Q.E.D. (Open-coded exclusion might
-> escape the attention of lockdep, but those are extremely rare and are
-> also easily found.)
-
-Thanks for making it clear :-)
-
-> 
-> 	Ingo
-
-regards
-gautham.
+Regards: David
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

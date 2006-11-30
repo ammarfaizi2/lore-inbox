@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967856AbWK3Tzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031005AbWK3UAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967856AbWK3Tzs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 14:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967865AbWK3Tzs
+	id S1031005AbWK3UAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 15:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031279AbWK3UAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 14:55:48 -0500
-Received: from wr-out-0506.google.com ([64.233.184.226]:19152 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S967856AbWK3Tzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 14:55:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=nDfIREZbo+9KMSsc8+dWx3O0vxcg5sYZ/BY4jtGr+2Kx+bMzVKtuxNaj6X92QlGjqbNTYvfbUf3aGMjzeBP+Bbo4aET67M9yfYxVX2lCDCqsqShC8Ii7+zalBpnmYyGfTohFcZdrJHm3UO6Ofn3UdOqi1ISXiDj4OlYnZvGNDLg=
-Message-ID: <e9c3a7c20611301155p4069c642j276d7705b0f81447@mail.gmail.com>
-Date: Thu, 30 Nov 2006 12:55:46 -0700
-From: "Dan Williams" <dan.j.williams@intel.com>
-To: NeilBrown <neilb@suse.de>, "Jeff Garzik" <jeff@garzik.org>,
-       "Chris Leech" <christopher.leech@intel.com>, akpm@osdl.org
-Subject: [PATCH 00/12] md raid acceleration and the async_tx api
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux RAID Mailing List" <linux-raid@vger.kernel.org>,
-       "Olof Johansson" <olof@lixom.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 30 Nov 2006 15:00:35 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:37572 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031005AbWK3UAe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 15:00:34 -0500
+Date: Thu, 30 Nov 2006 11:59:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Avi Kivity <avi@qumranet.com>,
+       kvm-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/38] KVM: Create kvm-intel.ko module
+Message-Id: <20061130115957.c3761331.akpm@osdl.org>
+In-Reply-To: <20061130154425.GB28507@elte.hu>
+References: <456AD5C6.1090406@qumranet.com>
+	<20061127121136.DC69A25015E@cleopatra.q>
+	<20061127123606.GA11825@elte.hu>
+	<20061130142435.GA13372@infradead.org>
+	<20061130154425.GB28507@elte.hu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: 383842d381e13156
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the latest version of the raid acceleration patch set.  Since
-the last release I have created the async_tx api to address the
-concerns raised by Neil and Jeff.  With this api in place the raid5
-asynchronous and synchronous paths are no longer separated, i.e. there
-are no hardware specific concerns in the raid code.
+On Thu, 30 Nov 2006 16:44:25 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-The async_tx api is proposed as a special dmaengine management client
-that allows offload engines to be used for bulk memory
-transfers/transforms, and fallback to synchronous routines when an
-engine is not present.
+> > [...] Pretty similar to things like the msr or mtrr driver that expose 
+> > cpu features as character drivers aswell.
+> 
+> you can expose everything as character drivers and ioctls, but that 
+> doesnt make it the right solution. It might /start out/ as a driver, 
+> because that's an easy to hack model, but the moment something becomes 
+> important enough (and virtualization certainly is such a model) it 
+> demands a system call.
 
-This implementation has been tested on iop13xx and iop33x platforms in
-both the synchronous case and the asynchronous case with the iop-adma
-driver.  The changes to the ioatdma driver have only been compile
-tested, and testing NET_DMA with iop-adma is pending.
+Actually fourteen syscalls and counting, and some of those have `mode'
+arguments.
 
-Please consider for -mm.  These patches are against 2.6.19.
+It's a fat, complex, presumably arch-specific, presumably frequently-changing
+API.  So whatever we do will be unpleasant - that's unavoidable in this case,
+I suspect.
 
-Dan Williams:
-      dmaengine: add base support for the async_tx api
-      dmaengine: add the async_tx api
-      dmaengine: driver for the iop32x, iop33x, and iop13xx raid engines
-      md: add raid5_run_ops and support routines
-      md: workqueue for raid5 operations
-      md: move write operations to raid5_run_ops
-      md: move raid5 compute block operations to raid5_run_ops
-      md: move raid5 parity checks to raid5_run_ops
-      md: satisfy raid5 read requests via raid5_run_ops
-      md: use async_tx and raid5_run_ops for raid5 expansion operations
-      md: raid5 io requests to raid5_run_ops
-      md: remove raid5 compute_block and compute_parity5
+(hmm, the interface isn't versioned at present - should it be?)
 
-Regards,
-Dan
+Maybe, perhaps, one day it _should_ be a syscall API.  But right now if we
+did that it would become a versioned syscall API with obsolete slots and
+various other warts.
+
+I get the feeling we'd be best off if we were to revisit this in a year or
+so.
+

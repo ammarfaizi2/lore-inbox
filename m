@@ -1,125 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030902AbWK3R4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030906AbWK3SEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030902AbWK3R4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 12:56:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030904AbWK3R4Y
+	id S1030906AbWK3SEg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 13:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030910AbWK3SEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 12:56:24 -0500
-Received: from 85-210-232-110.dsl.pipex.com ([85.210.232.110]:14284 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1030902AbWK3R4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 12:56:23 -0500
-Date: Thu, 30 Nov 2006 17:56:03 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] make compound page destructor handling explicit
-Message-ID: <d72f9ec8b9ba005fd9116037673cf461@pinky>
+	Thu, 30 Nov 2006 13:04:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11718 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1030906AbWK3SEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 13:04:34 -0500
+Date: Thu, 30 Nov 2006 12:05:02 -0600
+From: "Bill O'Donnell" <billodo@sgi.com>
+To: Chris Friedhoff <chris@friedhoff.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+       Chris Wright <chrisw@sous-sol.org>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: [PATCH] Implement file posix capabilities
+Message-ID: <20061130180502.GA20345@sgi.com>
+References: <20061127170740.GA5859@sergelap.austin.ibm.com> <20061129112848.8e48267e.chris@friedhoff.org> <20061129204013.GA7228@sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061129204013.GA7228@sgi.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make compound page destructor handling explicit
+The memory fault when setfcaps is run as noted in #4 below also occurs 
+on RHEL5 IA64 (2.6.18 kernel-2.6.18-1.2747.el5 with Serge's capability patch,
+and Kaigai's userspace tools installed).
 
-Currently we we use the lru head link of the second page of a
-compound page to hold its destructor.  This was ok when it was purely
-an internal implmentation detail.  However, hugetlbfs overrides this
-destructor violating the layering.  Abstract this out as explicit
-calls, also introduce a type for the callback function allowing them
-to be type checked.  For each callback we pre-declare the function,
-causing a type error on definition rather than on use elsewhere.
+On Wed, Nov 29, 2006 at 02:40:13PM -0600, Bill O'Donnell wrote:
+| Once again, running into problems when trying this patch on SLES-10 IA64,
+| (Linux certify 2.6.18 #2 SMP PREEMPT Wed Nov 29 13:11:28 CST 2006 ia64)
+| 
+| 1) replaced the ancient /lib/libcap.so.1.92 with less ancient libcap.so.1.10
+| 
+| 2) successfully applied Serge's patch to SLES 2.6.18 sources and rebooted
+| 
+| 3) installed Kaigai's userspace tools... no problems evident
+| 
+| 4) ran setfcaps to see capabilities... (note Memory fault):
+| 
+| certify:~/libcap-1.10 # setfcaps
+| usage: setfcaps <capabilities> <file> ...
+|         cap_chown, cap_dac_override, cap_dac_read_search, cap_fowner
+| 	cap_fsetid, cap_kill, cap_setgid, cap_setuid
+| 	cap_setpcap, cap_linux_immutable,
+| 	cap_net_bind_service, cap_net_broadcast
+|         cap_net_admin, cap_net_raw, cap_ipc_lock, cap_ipc_owner
+| 	cap_sys_module, cap_sys_rawio, cap_sys_chroot, cap_sys_ptrace
+| 	cap_sys_pacct, cap_sys_admin, cap_sys_boot, cap_sys_nice
+| 	cap_sys_resource, cap_sys_time,
+| 	cap_sys_tty_config, cap_mknod
+|         cap_lease, cap_audit_write, cap_audit_controlMemory fault
+| 
+| 5) straced previous command:
+----snip----
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index cd0528d..667a72e 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -298,6 +298,24 @@ void put_pages_list(struct list_head *pa
- void split_page(struct page *page, unsigned int order);
- 
- /*
-+ * Compound pages have a destructor function.  Provide a 
-+ * prototype for that function and accessor functions.
-+ * These are _only_ valid on the head of a PG_compound page.
-+ */
-+typedef void compound_page_dtor(struct page *);
-+
-+static inline void set_compound_page_dtor(struct page *page,
-+						compound_page_dtor *dtor)
-+{
-+	page[1].lru.next = (void *)dtor;
-+}
-+
-+static inline compound_page_dtor *get_compound_page_dtor(struct page *page)
-+{
-+	return (compound_page_dtor *)page[1].lru.next;
-+}
-+
-+/*
-  * Multiple processes may "see" the same page. E.g. for untouched
-  * mappings of /dev/null, all processes see the same page full of
-  * zeroes, and text pages of executables and shared libraries have
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 2911a36..2032fb2 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -88,6 +88,8 @@ static struct page *dequeue_huge_page(st
- 	return page;
- }
- 
-+/* declare the destructor to catch a missmatch on definition. */
-+static compound_page_dtor free_huge_page;
- static void free_huge_page(struct page *page)
- {
- 	BUG_ON(page_count(page));
-@@ -109,7 +111,7 @@ static int alloc_fresh_huge_page(void)
- 	if (nid == MAX_NUMNODES)
- 		nid = first_node(node_online_map);
- 	if (page) {
--		page[1].lru.next = (void *)free_huge_page;	/* dtor */
-+		set_compound_page_dtor(page, free_huge_page);
- 		spin_lock(&hugetlb_lock);
- 		nr_huge_pages++;
- 		nr_huge_pages_node[page_to_nid(page)]++;
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7938e46..113d9bc 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -240,6 +240,8 @@ static void bad_page(struct page *page)
-  * This usage means that zero-order pages may not be compound.
-  */
- 
-+/* declare the destructor to catch a missmatch on definition. */
-+static compound_page_dtor free_compound_page;
- static void free_compound_page(struct page *page)
- {
- 	__free_pages_ok(page, (unsigned long)page[1].lru.prev);
-@@ -250,7 +252,7 @@ static void prep_compound_page(struct pa
- 	int i;
- 	int nr_pages = 1 << order;
- 
--	page[1].lru.next = (void *)free_compound_page;	/* set dtor */
-+	set_compound_page_dtor(page, free_compound_page);
- 	page[1].lru.prev = (void *)order;
- 	for (i = 0; i < nr_pages; i++) {
- 		struct page *p = page + i;
-diff --git a/mm/swap.c b/mm/swap.c
-index 6cc9cb0..87456b2 100644
---- a/mm/swap.c
-+++ b/mm/swap.c
-@@ -58,9 +58,9 @@ static void put_compound_page(struct pag
- {
- 	page = (struct page *)page_private(page);
- 	if (put_page_testzero(page)) {
--		void (*dtor)(struct page *page);
-+		compound_page_dtor *dtor;
- 
--		dtor = (void (*)(struct page *))page[1].lru.next;
-+		dtor = get_compound_page_dtor(page);
- 		(*dtor)(page);
- 	}
- }
+-Bill
+
+-- 
+Bill O'Donnell
+SGI
+billodo@sgi.com

@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030827AbWK3RVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030857AbWK3R1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030827AbWK3RVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 12:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030835AbWK3RVJ
+	id S1030857AbWK3R1u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 12:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030873AbWK3R1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 12:21:09 -0500
-Received: from rune.pobox.com ([208.210.124.79]:55221 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1030827AbWK3RVI (ORCPT
+	Thu, 30 Nov 2006 12:27:50 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:25736 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030857AbWK3R1t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 12:21:08 -0500
-Date: Thu, 30 Nov 2006 11:20:58 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, bryce@osdl.org,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: CPU hotplug broken with 2GB VMSPLIT
-Message-ID: <20061130172058.GC22050@localdomain>
-References: <20061130090348.GK5400@kernel.dk> <20061130091334.GM5400@kernel.dk> <20061130164347.GB22050@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061130164347.GB22050@localdomain>
-User-Agent: Mutt/1.5.11
+	Thu, 30 Nov 2006 12:27:49 -0500
+In-Reply-To: <20061130105710.572d3c6e@frecb000686>
+References: <20061129112441.745351c9@frecb000686> <20061129113212.1e614a61@frecb000686> <8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com> <20061130105710.572d3c6e@frecb000686>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <64A63298-D8EC-442A-B8D1-0DB8B6FA2E8D@oracle.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Content-Transfer-Encoding: 7bit
+From: Zach Brown <zach.brown@oracle.com>
+Subject: Re: [PATCH -mm 1/5][AIO] - Rework compat_sys_io_submit
+Date: Thu, 30 Nov 2006 09:27:49 -0800
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+X-Mailer: Apple Mail (2.752.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Lynch wrote:
-> Jens Axboe wrote:
-> > On Thu, Nov 30 2006, Jens Axboe wrote:
-> > > Hi,
-> > > 
-> > > Just got a new notebook (Lenovo X60), setup a custom kernel and then I
-> > > noticed that suspend to ram doesn't work anymore. The machine suspends
-> > > just fine, on resume it brings back the text display but reboots after
-> > > it has stalled for a few seconds. On the suggestion of Pavel, I tried
-> > > testing CPU hotplug, and indeed he was right: I can offline 1 of the
-> > > cores fine, bringing it back online freezes the machine for 3-4 seconds
-> > > and then reboots.
-> > > 
-> > > carl:/sys/devices/system/cpu/cpu1 # echo 0 > online 
-> > > carl:/sys/devices/system/cpu/cpu1 # dmesg
-> > > Breaking affinity for irq 219
-> > > CPU 1 is now offline
-> > > SMP alternatives: switching to UP code
-> > > carl:/sys/devices/system/cpu/cpu1 # echo 1 > online 
-> > > Read from remote host carl: Connection reset by peer
-> > > 
-> > > Booting with maxcpus=1 and resume works fine. Does this ring a bell with
-> > > anyone? With highmem enabled and the standard vmsplit, cpu hotplug works
-> > > fine for me.
-> > 
-> > Some more clues - booting with noreplacement doesn't fix it, so I think
-> > the alternatives code is off the hook.
-> 
-> I don't think this adds any new information, but it has been open
-> awhile:
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=6542
-> 
-> I was able to narrow it down to the vmsplit setting but I wasn't able
-> to debug it further.
+>>
+>> sys_io_getevents() reads:
+>
+>  uh!     ^^^^^^^^^    you must be meaning sys_io_submit()?
 
-Hmm, I'm pretty sure this is the same problem I reported in March,
-there might be some more information in that thread:
+Heh, yes, of course.  Damn these fingers!
 
-http://marc.theaimsgroup.com/?t=114039363100002&r=1&w=1
-
-but I didn't realize it was vmsplit-related at that time.
-
+- z

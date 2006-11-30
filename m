@@ -1,137 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967853AbWK3TOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031235AbWK3TPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967853AbWK3TOO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 14:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967855AbWK3TOO
+	id S1031235AbWK3TPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 14:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031233AbWK3TPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 14:14:14 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:23426 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S967853AbWK3TON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 14:14:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=VM9ObvdkJZFLvhLvtd6CY5n4jDRmGYRHsXDhzEGUBNfULAvoawaNPYhhLK9rfeR1Vj7d2qu03i8pWdOLhlnF5x5VnSRUsmkmTC+y/0dyXYAzjTSb5BsNygex76laQcuVn6fOmU50Q4ahTjQ6nsABY3TnURYKDu/ooiWLfuWmEVY=  ;
-X-YMail-OSG: 4nCWydUVM1myPmtwQ69wab8noHslRqro.bTF.G6MQJ8oJSxAcAeZZyu2FD4ZeymbtOUK6YvaFEnzIH2xrNw5uLSnjnVz8pEX1ZIg7puPpj9j7ycBoV7UpQ--
-From: David Brownell <david-b@pacbell.net>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: Re: [RFC/PATCH] arch-neutral GPIO calls: AVR32 implementation [take 2]
-Date: Thu, 30 Nov 2006 11:05:00 -0800
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andrew Victor <andrew@sanpeople.com>,
-       Bill Gatliff <bgat@billgatliff.com>, jamey.hicks@hp.com,
-       Kevin Hilman <khilman@mvista.com>, Nicolas Pitre <nico@cam.org>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Lindgren <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611211103.43757.david-b@pacbell.net> <20061128133618.0e6932fc@dhcp-252-105.norway.atmel.com>
-In-Reply-To: <20061128133618.0e6932fc@dhcp-252-105.norway.atmel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301105.01108.david-b@pacbell.net>
+	Thu, 30 Nov 2006 14:15:22 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:3471 "EHLO
+	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
+	id S1031177AbWK3TPE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 14:15:04 -0500
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>,
+       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [take26 5/8] kevent: Timer notifications.
+In-Reply-To: <11649140633583@2ka.mipt.ru>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 30 Nov 2006 22:14:23 +0300
+Message-Id: <11649140633125@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Content-Transfer-Encoding: 7BIT
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 November 2006 4:36 am, Haavard Skinnemoen wrote:
-> Here's another go at an implementation of the arch-neutral GPIO API for
-> AVR32. I've also thrown in the pin configuration stuff so that you can
-> see how all the pieces fit together.
 
-That looks good, but it was probably better in a "portmux.h" header.
-(Although the at32_* prefixes help a lot!)  You don't use the flags
-AT32_GPIO_PULLUP etc, either.
+Timer notifications.
 
-Other than that pinmux confusion, this looks pretty much OK to me.
-The GPIO stuff matches the proposal.
+Timer notifications can be used for fine grained per-process time 
+management, since interval timers are very inconvenient to use, 
+and they are limited.
 
+This subsystem uses high-resolution timers.
+id.raw[0] is used as number of seconds
+id.raw[1] is used as number of nanoseconds
 
-> Even though it is possible to tell from the hardware whether a pin is
-> set up for GPIO, I decided to use two allocation bitmasks per pio
-> controller to keep track of what the pins are used for: pinmux_mask and
-> gpio_mask.
-> 
-> pinmux_mask indicates which pins have been configured for usage either
-> by a peripheral or GPIO. If the corresponding bit is set when trying to
-> configure a pin, a warning will be printed along with a stack dump (no
-> BUG anymore.)
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-That is, pins without that set are still configured how the bootloader
-left them ... possibly as they were left by system reset.  On some systems
-it might be desirable to warn when the mode Linux wants isn't what the
-bootloader left, so that all the muxing code can be left out of Linux.
-(Not that it can save much on AT91 or AVR32, but the bootloader was probably
-writing those registers anyway, and saving codespace and boot time tends
-to be a Good Thing.)  Or so that Linux can't, oh, change the state of
-the GPIO that keeps the saw switched off.  ;)
+diff --git a/kernel/kevent/kevent_timer.c b/kernel/kevent/kevent_timer.c
+new file mode 100644
+index 0000000..df93049
+--- /dev/null
++++ b/kernel/kevent/kevent_timer.c
+@@ -0,0 +1,112 @@
++/*
++ * 2006 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/list.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/hrtimer.h>
++#include <linux/jiffies.h>
++#include <linux/kevent.h>
++
++struct kevent_timer
++{
++	struct hrtimer		ktimer;
++	struct kevent_storage	ktimer_storage;
++	struct kevent		*ktimer_event;
++};
++
++static int kevent_timer_func(struct hrtimer *timer)
++{
++	struct kevent_timer *t = container_of(timer, struct kevent_timer, ktimer);
++	struct kevent *k = t->ktimer_event;
++
++	kevent_storage_ready(&t->ktimer_storage, NULL, KEVENT_MASK_ALL);
++	hrtimer_forward(timer, timer->base->softirq_time,
++			ktime_set(k->event.id.raw[0], k->event.id.raw[1]));
++	return HRTIMER_RESTART;
++}
++
++static struct lock_class_key kevent_timer_key;
++
++static int kevent_timer_enqueue(struct kevent *k)
++{
++	int err;
++	struct kevent_timer *t;
++
++	t = kmalloc(sizeof(struct kevent_timer), GFP_KERNEL);
++	if (!t)
++		return -ENOMEM;
++
++	hrtimer_init(&t->ktimer, CLOCK_MONOTONIC, HRTIMER_REL);
++	t->ktimer.expires = ktime_set(k->event.id.raw[0], k->event.id.raw[1]);
++	t->ktimer.function = kevent_timer_func;
++	t->ktimer_event = k;
++
++	err = kevent_storage_init(&t->ktimer, &t->ktimer_storage);
++	if (err)
++		goto err_out_free;
++	lockdep_set_class(&t->ktimer_storage.lock, &kevent_timer_key);
++
++	err = kevent_storage_enqueue(&t->ktimer_storage, k);
++	if (err)
++		goto err_out_st_fini;
++
++	hrtimer_start(&t->ktimer, t->ktimer.expires, HRTIMER_REL);
++
++	return 0;
++
++err_out_st_fini:
++	kevent_storage_fini(&t->ktimer_storage);
++err_out_free:
++	kfree(t);
++
++	return err;
++}
++
++static int kevent_timer_dequeue(struct kevent *k)
++{
++	struct kevent_storage *st = k->st;
++	struct kevent_timer *t = container_of(st, struct kevent_timer, ktimer_storage);
++
++	hrtimer_cancel(&t->ktimer);
++	kevent_storage_dequeue(st, k);
++	kfree(t);
++
++	return 0;
++}
++
++static int kevent_timer_callback(struct kevent *k)
++{
++	k->event.ret_data[0] = jiffies_to_msecs(jiffies);
++	return 1;
++}
++
++static int __init kevent_init_timer(void)
++{
++	struct kevent_callbacks tc = {
++		.callback = &kevent_timer_callback,
++		.enqueue = &kevent_timer_enqueue,
++		.dequeue = &kevent_timer_dequeue};
++
++	return kevent_add_callbacks(&tc, KEVENT_TIMER);
++}
++module_init(kevent_init_timer);
++
 
-I notice you didn't have a way to return pins to an "unclaimed" state
-though, which would probably be disadvantageous in some cases.  I don't
-agree with the arguments made by Paul Mundt that such usage would be a
-common thing ... but on the other hand, I bet you'd get complaints from
-various folk if you make re-muxing excessively painful.
-
-
-> gpio_mask indicates which pins are available for GPIO. It starts out as
-> all ones, and whenever a pin is configured for GPIO, the corresponding
-> bit is cleared. gpio_request() test_and_set()s a bit in the mask
-> corresponding to the pin being requested, and if it's already set
-> (either because it hasn't been configured or because it's been
-> requested by a different driver), gpio_request() returns an error value.
-
-Sounds OK.  You are thus _requiring_ the pin muxing to have been
-done before the gpio pin is requested ... sort of complicates the
-"Linux uses bootloader's pin muxing" model.
-
-
-> The pin configuration API is AVR32-specific for now.
-> 
-> Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
-> ---
->  arch/avr32/mach-at32ap/at32ap7000.c        |  144 ++++++++++-----------
->  arch/avr32/mach-at32ap/pio.c               |  186 ++++++++++++++++++++++++++--
->  include/asm-avr32/arch-at32ap/at32ap7000.h |   26 ++++
->  include/asm-avr32/arch-at32ap/gpio.h       |   39 ++++++
->  include/asm-avr32/arch-at32ap/irq.h        |   11 ++
->  include/asm-avr32/arch-at32ap/portmux.h    |   16 ---
->  include/asm-avr32/gpio.h                   |    6 +
->  include/asm-avr32/irq.h                    |    8 +-
->  8 files changed, 333 insertions(+), 103 deletions(-)
-> 
-
-> @@ -569,26 +561,26 @@ DEV_CLK(usart, atmel_usart3, pba, 6);
->  
->  static inline void configure_usart0_pins(void)
->  {
-> -	portmux_set_func(PIOA,  8, FUNC_B);	/* RXD	*/
-> -	portmux_set_func(PIOA,  9, FUNC_B);	/* TXD	*/
-> +	select_peripheral(PA(8), PERIPH_B, 0);	/* RXD	*/
-> +	select_peripheral(PA(9), PERIPH_B, 0);	/* TXD	*/
-
-A constant like PULLUP_OFF would be clearer in these cases.
-
-
-> +void __init at32_select_periph(unsigned int pin, unsigned int periph,
-> +			       int use_pullup)
-
-Declared as "flags" elsewhere, not "use_pullup"...
-
-
-> +void __init at32_select_gpio(unsigned int pin, int enable_output,
-> +			     int use_pullup)
-
-
-> +/*
-> + * Set up pin multiplexing, called from board init only.
-> + *
-> + * The following flags determine the initial state of the pin.
-> + */
-> +#define AT32_GPIOF_PULLUP	0x00000001	/* Enable pull-up */
-> +#define AT32_GPIOF_OUTPUT	0x00000002	/* Enable output driver */
-> +#define AT32_GPIOF_HIGH		0x00000004	/* Set output high */
-> +
-> +void at32_select_periph(unsigned int pin, unsigned int periph,
-> +			unsigned long flags);
-> +void at32_select_gpio(unsigned int pin, unsigned long flags);

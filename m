@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756050AbWK3GEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757554AbWK3GU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756050AbWK3GEc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 01:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756383AbWK3GEc
+	id S1757554AbWK3GU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 01:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757639AbWK3GU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 01:04:32 -0500
-Received: from mail.gmx.net ([213.165.64.20]:10425 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1756050AbWK3GEb (ORCPT
+	Thu, 30 Nov 2006 01:20:58 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:31395 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1757554AbWK3GU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 01:04:31 -0500
-X-Authenticated: #14349625
+	Thu, 30 Nov 2006 01:20:56 -0500
+Date: Thu, 30 Nov 2006 07:19:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Wenji Wu <wenji@fnal.gov>
+Cc: Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-From: Mike Galbraith <efault@gmx.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Miller <davem@davemloft.net>, wenji@fnal.gov, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061129170835.72bd40b3.akpm@osdl.org>
-References: <HNEBLGGMEGLPMPPDOPMGCEAKCGAA.wenji@fnal.gov>
-	 <HNEBLGGMEGLPMPPDOPMGGEAKCGAA.wenji@fnal.gov>
-	 <20061129.165311.45739865.davem@davemloft.net>
-	 <20061129170835.72bd40b3.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 30 Nov 2006 07:04:25 +0100
-Message-Id: <1164866665.5913.33.camel@Homer.simpson.net>
+Message-ID: <20061130061912.GB2003@elte.hu>
+References: <2f2083e145b6.456de740@fnal.gov>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2f2083e145b6.456de740@fnal.gov>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-29 at 17:08 -0800, Andrew Morton wrote:
-> +		if (p->backlog_flag == 0) {
-> +			if (!TASK_INTERACTIVE(p) || expired_starving(rq)) {
-> +				enqueue_task(p, rq->expired);
-> +				if (p->static_prio < rq->best_expired_prio)
-> +					rq->best_expired_prio = p->static_prio;
-> +			} else
-> +				enqueue_task(p, rq->active);
-> +		} else {
-> +			if (expired_starving(rq)) {
-> +				enqueue_task(p,rq->expired);
-> +				if (p->static_prio < rq->best_expired_prio)
-> +					rq->best_expired_prio = p->static_prio;
-> +			} else {
-> +				if (!TASK_INTERACTIVE(p))
-> +					p->extrarun_flag = 1;
-> +				enqueue_task(p,rq->active);
-> +			}
-> +		}
 
-(oh my, doing that to the scheduler upsets my tummy, but that aside...)
+* Wenji Wu <wenji@fnal.gov> wrote:
 
-I don't see how that can really solve anything.  "Interactive" tasks
-starting to use cpu heftily can still preempt and keep the special cased
-cpu hog off the cpu for ages.  It also only takes one task in the
-expired array to trigger the forced array switch with a fully loaded
-cpu, and once any task hits the expired array, a stream of wakeups can
-prevent the switch from completing for as long as you can keep wakeups
-happening.
+> > That yield() will need to be removed - yield()'s behaviour is truly 
+> > awfulif the system is otherwise busy.  What is it there for?
+> 
+> Please read the uploaded paper, which has detailed description.
 
-	-Mike
+do you have any URL for that?
 
+	Ingo

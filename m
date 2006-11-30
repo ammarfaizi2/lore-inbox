@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758530AbWK3HVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758522AbWK3HVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758530AbWK3HVC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 02:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758529AbWK3HVC
+	id S1758522AbWK3HVf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 02:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758529AbWK3HVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 02:21:02 -0500
-Received: from ns1.suse.de ([195.135.220.2]:47518 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1758518AbWK3HVA (ORCPT
+	Thu, 30 Nov 2006 02:21:35 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26834 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1758522AbWK3HVe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 02:21:00 -0500
-Date: Thu, 30 Nov 2006 08:20:58 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
-Subject: [patch 1/3] mm: pagecache write deadlocks zerolength fix
-Message-ID: <20061130072058.GA18004@wotan.suse.de>
+	Thu, 30 Nov 2006 02:21:34 -0500
+Date: Thu, 30 Nov 2006 08:19:23 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rt] 2.6.19-4c6-rt9 build problem
+Message-ID: <20061130071923.GA14406@elte.hu>
+References: <20061129194821.GA2895@us.ibm.com> <20061129200307.GA11591@elte.hu> <20061129224451.GC2335@us.ibm.com> <20061129231507.GG2335@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061129231507.GG2335@us.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-writev with a zero-length segment is a noop, and we shouldn't return EFAULT.
+* Paul E. McKenney <paulmck@linux.vnet.ibm.com> wrote:
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+> > > thanks, applied. Have you tried to boot the resulting kernel as 
+> > > well?
+> 
+> And with these two changes, it does boot!
 
-Index: linux-2.6/include/linux/pagemap.h
-===================================================================
---- linux-2.6.orig/include/linux/pagemap.h
-+++ linux-2.6/include/linux/pagemap.h
-@@ -198,6 +198,9 @@ static inline int fault_in_pages_writeab
- {
- 	int ret;
- 
-+	if (unlikely(size == 0))
-+		return 0;
-+
- 	/*
- 	 * Writing zeroes into userspace here is OK, because we know that if
- 	 * the zero gets there, we'll be overwriting it.
-@@ -222,6 +225,9 @@ static inline int fault_in_pages_readabl
- 	volatile char c;
- 	int ret;
- 
-+	if (unlikely(size == 0))
-+		return 0;
-+
- 	ret = __get_user(c, uaddr);
- 	if (ret == 0) {
- 		const char __user *end = uaddr + size - 1;
+great! Applied both of them.
+
+	Ingo

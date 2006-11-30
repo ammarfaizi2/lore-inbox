@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759247AbWK3LWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759250AbWK3L1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759247AbWK3LWl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 06:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759249AbWK3LWk
+	id S1759250AbWK3L1G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 06:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759253AbWK3L1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 06:22:40 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:18661 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1759247AbWK3LWk (ORCPT
+	Thu, 30 Nov 2006 06:27:05 -0500
+Received: from xyzzy.farnsworth.org ([65.39.95.219]:39181 "HELO farnsworth.org")
+	by vger.kernel.org with SMTP id S1759250AbWK3L1D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 06:22:40 -0500
-Date: Thu, 30 Nov 2006 03:19:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
-       vatsa@in.ibm.com
-Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-Id: <20061130031933.5d30ec09.akpm@osdl.org>
-In-Reply-To: <20061130110315.GA30460@elte.hu>
-References: <20061129152404.GA7082@in.ibm.com>
-	<20061130083144.GC29609@elte.hu>
-	<20061130102410.GB23354@in.ibm.com>
-	<20061130110315.GA30460@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 06:27:03 -0500
+From: "Dale Farnsworth" <dale@farnsworth.org>
+Date: Thu, 30 Nov 2006 04:27:00 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dale Farnsworth <dale@farnsworth.org>, mlachwani@mvista.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Subject: [PATCH] mv643xx_eth: fix unbalanced parentheses in macros
+Message-ID: <20061130112700.GA17845@xyzzy.farnsworth.org>
+References: <200611301035.37786.m.kozlowski@tuxland.pl> <20061130100731.GA6301@xyzzy.farnsworth.org> <200611301133.32697.m.kozlowski@tuxland.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611301133.32697.m.kozlowski@tuxland.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 12:03:15 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-> 
-> * Gautham R Shenoy <ego@in.ibm.com> wrote:
-> 
-> > a) cpufreq maintain's it's own cpumask in the variable 
-> > policy->affected_cpus and says : If a frequency change is issued to 
-> > any one of the cpu's in the affected_cpus mask, you change frequency 
-> > on all cpus in the mask. So this needs to be consistent with 
-> > cpu_online map and hence cpu hotplug aware. Furthermore, we don't want 
-> > cpus in this mask to go down when we are trying to change frequencies 
-> > on them. The function which drives the frequency change in 
-> > cpufreq-core is cpufreq_driver_target and it needs cpu-hotplug 
-> > protection.
-> 
-> couldnt this complexity be radically simplified by having new kernel 
-> infrastructure that does something like:
-> 
->   " 'gather' all CPUs mentioned in <mask> via scheduling a separate 
->     helper-kthread on every CPU that <mask> specifies, disable all
->    interrupts, and execute function <fn> once all CPUs have been 
->    'gathered' - and release all CPUs once <fn> has executed on each of
->    them."
-> 
-> ?
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
-How does this differ from stop_machine_run(), which hot-unplug presently uses?
+---
+ include/linux/mv643xx.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> This would be done totally serialized and while holding the hotplug 
-> lock, so no CPU could go away or arrive while this operation is going 
-> on.
-
-You said "the hotplug lock".  That is the problem.
+--- linux-2.6.19-rc6-mm2-a/include/linux/mv643xx.h	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/include/linux/mv643xx.h	2006-11-30 11:30:14.000000000 +0100
+@@ -724,7 +724,7 @@
+ #define MV643XX_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
+ #define MV643XX_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
+ #define MV643XX_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
+-#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
++#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
+ #define MV643XX_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
+ #define MV643XX_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
+ #define MV643XX_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
+@@ -1135,7 +1135,7 @@ struct mv64xxx_i2c_pdata {
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_1	(1<<19)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_2	(1<<20)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_3	((1<<20) | (1<<19))
+-#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21)
++#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	(1<<21)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_5	((1<<21) | (1<<19))
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_6	((1<<21) | (1<<20))
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_7	((1<<21) | (1<<20) | (1<<19))

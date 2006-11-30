@@ -1,202 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758432AbWK3B5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758430AbWK3B5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758432AbWK3B5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758616AbWK3B5W
+	id S1758430AbWK3B5A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756985AbWK3B5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:57:22 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:50378 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S1758432AbWK3B5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:57:20 -0500
-Date: Thu, 30 Nov 2006 04:57:14 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, Jens Axboe <jens.axboe@oracle.com>
-Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Josh Triplett <josh@freedesktop.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH 1/2] qrcu: "quick" srcu implementation
-Message-ID: <20061130015714.GC1350@oleg>
-References: <20061129235303.GA1118@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129235303.GA1118@oleg>
-User-Agent: Mutt/1.5.11
+	Wed, 29 Nov 2006 20:57:00 -0500
+Received: from mailgw1.fnal.gov ([131.225.111.11]:64502 "EHLO mailgw1.fnal.gov")
+	by vger.kernel.org with ESMTP id S1755139AbWK3B47 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:56:59 -0500
+Date: Wed, 29 Nov 2006 19:56:58 -0600
+From: Wenji Wu <wenji@fnal.gov>
+Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <2f14bf623344.456de60a@fnal.gov>
+MIME-version: 1.0
+X-Mailer: Sun Java(tm) System Messenger Express 6.1 HotFix 0.02 (built Aug 25
+ 2004)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(the same patch + comments from Paul)
+Yes, when CONFIG_PREEMPT is disabled, the "problem" won't happen. That is why I put "for 2.6 desktop, low-latency desktop" in the uploaded paper. This "problem" happens in the 2.6 Desktop and Low-latency Desktop.
 
-[RFC, PATCH 1/2] qrcu: "quick" srcu implementation
+>We could also pepper tcp_recvmsg() with some very carefully placed preemption disable/enable calls to deal with this even with CONFIG_PREEMPT enabled.
 
-Very much based on ideas, corrections, and patient explanations from
-Alan and Paul.
+I also think about this approach. But since the "problem" happens in the 2.6 Desktop and Low-latency Desktop (not server), system responsiveness is a key feature, simply placing preemption disabled/enable call might not work.  If you want to place preemption disable/enable calls within tcp_recvmsg, you have to put them in the very beginning and end of the call. Disabling preemption would degrade system responsiveness.
 
-The current srcu implementation is very good for readers, lock/unlock
-are extremely cheap. But for that reason it is not possible to avoid
-synchronize_sched() and polling in synchronize_srcu().
+wenji
 
-Jens Axboe wrote:
->
-> It works for me, but the overhead is still large. Before it would take
-> 8-12 jiffies for a synchronize_srcu() to complete without there actually
-> being any reader locks active, now it takes 2-3 jiffies. So it's
-> definitely faster, and as suspected the loss of two of three
-> synchronize_sched() cut down the overhead to a third.
 
-'qrcu' behaves the same as srcu but optimized for writers. The fast path
-for synchronize_qrcu() is mutex_lock() + atomic_read() + mutex_unlock().
-The slow path is __wait_event(), no polling. However, the reader does
-atomic inc/dec on lock/unlock, and the counters are not per-cpu.
 
-Also, unlike srcu, qrcu read lock/unlock can be used in interrupt context,
-and 'qrcu_struct' can be compile-time initialized.
+----- Original Message -----
+From: David Miller <davem@davemloft.net>
+Date: Wednesday, November 29, 2006 7:13 pm
+Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
 
-See also (a long) discussion:
-	http://marc.theaimsgroup.com/?t=116370857600003
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 19-rc6/include/linux/srcu.h~1_qrcu	2006-10-22 18:24:03.000000000 +0400
-+++ 19-rc6/include/linux/srcu.h	2006-11-30 04:32:42.000000000 +0300
-@@ -27,6 +27,8 @@
- #ifndef _LINUX_SRCU_H
- #define _LINUX_SRCU_H
- 
-+#include <linux/wait.h>
-+
- struct srcu_struct_array {
- 	int c[2];
- };
-@@ -50,4 +52,32 @@ void srcu_read_unlock(struct srcu_struct
- void synchronize_srcu(struct srcu_struct *sp);
- long srcu_batches_completed(struct srcu_struct *sp);
- 
-+/*
-+ * fully compatible with srcu, but optimized for writers.
-+ */
-+
-+struct qrcu_struct {
-+	int completed;
-+	atomic_t ctr[2];
-+	wait_queue_head_t wq;
-+	struct mutex mutex;
-+};
-+
-+int init_qrcu_struct(struct qrcu_struct *qp);
-+int qrcu_read_lock(struct qrcu_struct *qp);
-+void qrcu_read_unlock(struct qrcu_struct *qp, int idx);
-+void synchronize_qrcu(struct qrcu_struct *qp);
-+
-+/**
-+ * cleanup_qrcu_struct - deconstruct a quick-RCU structure
-+ * @qp: structure to clean up.
-+ *
-+ * Must invoke this after you are finished using a given qrcu_struct that
-+ * was initialized via init_qrcu_struct().  We reserve the right to
-+ * leak memory should you fail to do this!
-+ */
-+static inline void cleanup_qrcu_struct(struct qrcu_struct *qp)
-+{
-+}
-+
- #endif
---- 19-rc6/kernel/srcu.c~1_qrcu	2006-10-22 18:24:03.000000000 +0400
-+++ 19-rc6/kernel/srcu.c	2006-11-30 04:39:53.000000000 +0300
-@@ -256,3 +256,94 @@ EXPORT_SYMBOL_GPL(srcu_read_unlock);
- EXPORT_SYMBOL_GPL(synchronize_srcu);
- EXPORT_SYMBOL_GPL(srcu_batches_completed);
- EXPORT_SYMBOL_GPL(srcu_readers_active);
-+
-+/**
-+ * init_qrcu_struct - initialize a quick-RCU structure.
-+ * @qp: structure to initialize.
-+ *
-+ * Must invoke this on a given qrcu_struct before passing that qrcu_struct
-+ * to any other function.  Each qrcu_struct represents a separate domain
-+ * of QRCU protection.
-+ */
-+int init_qrcu_struct(struct qrcu_struct *qp)
-+{
-+	qp->completed = 0;
-+	atomic_set(qp->ctr + 0, 1);
-+	atomic_set(qp->ctr + 1, 0);
-+	init_waitqueue_head(&qp->wq);
-+	mutex_init(&qp->mutex);
-+
-+	return 0;
-+}
-+
-+/**
-+ * qrcu_read_lock - register a new reader for an QRCU-protected structure.
-+ * @qp: qrcu_struct in which to register the new reader.
-+ *
-+ * Counts the new reader in the appropriate element of the qrcu_struct.
-+ * Returns an index that must be passed to the matching qrcu_read_unlock().
-+ */
-+int qrcu_read_lock(struct qrcu_struct *qp)
-+{
-+	for (;;) {
-+		int idx = qp->completed & 0x1;
-+		if (likely(atomic_inc_not_zero(qp->ctr + idx)))
-+			return idx;
-+	}
-+}
-+
-+/**
-+ * qrcu_read_unlock - unregister a old reader from an QRCU-protected structure.
-+ * @qp: qrcu_struct in which to unregister the old reader.
-+ * @idx: return value from corresponding qrcu_read_lock().
-+ *
-+ * Removes the count for the old reader from the appropriate element of
-+ * the qrcu_struct.
-+ */
-+void qrcu_read_unlock(struct qrcu_struct *qp, int idx)
-+{
-+	if (atomic_dec_and_test(qp->ctr + idx))
-+		wake_up(&qp->wq);
-+}
-+
-+/**
-+ * synchronize_qrcu - wait for prior QRCU read-side critical-section completion
-+ * @qp: qrcu_struct with which to synchronize.
-+ *
-+ * Flip the completed counter, and wait for the old count to drain to zero.
-+ * As with classic RCU, the updater must use some separate means of
-+ * synchronizing concurrent updates.  Can block; must be called from
-+ * process context.
-+ *
-+ * Note that it is illegal to call synchronize_qrcu() from the corresponding
-+ * QRCU read-side critical section; doing so will result in deadlock.
-+ * However, it is perfectly legal to call synchronize_qrcu() on one
-+ * qrcu_struct from some other qrcu_struct's read-side critical section.
-+ */
-+void synchronize_qrcu(struct qrcu_struct *qp)
-+{
-+	int idx;
-+
-+	smp_mb();
-+	mutex_lock(&qp->mutex);
-+
-+	idx = qp->completed & 0x1;
-+	if (atomic_read(qp->ctr + idx) == 1)
-+		goto out;
-+
-+	atomic_inc(qp->ctr + (idx ^ 0x1));
-+	/* Reduce the likelihood that qrcu_read_lock() will loop */
-+	smp_mb__after_atomic_inc();
-+	qp->completed++;
-+
-+	atomic_dec(qp->ctr + idx);
-+	__wait_event(qp->wq, !atomic_read(qp->ctr + idx));
-+out:
-+	mutex_unlock(&qp->mutex);
-+	smp_mb();
-+}
-+
-+EXPORT_SYMBOL_GPL(init_qrcu_struct);
-+EXPORT_SYMBOL_GPL(qrcu_read_lock);
-+EXPORT_SYMBOL_GPL(qrcu_read_unlock);
-+EXPORT_SYMBOL_GPL(synchronize_qrcu);
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Wed, 29 Nov 2006 17:08:35 -0800
+> 
+> > On Wed, 29 Nov 2006 16:53:11 -0800 (PST)
+> > David Miller <davem@davemloft.net> wrote:
+> > 
+> > > 
+> > > Please, it is very difficult to review your work the way you have
+> > > submitted this patch as a set of 4 patches.  These patches have 
+> not> > been split up "logically", but rather they have been split 
+> up "per
+> > > file" with the same exact changelog message in each patch posting.
+> > > This is very clumsy, and impossible to review, and wastes a lot of
+> > > mailing list bandwith.
+> > > 
+> > > We have an excellent file, called 
+> Documentation/SubmittingPatches, in
+> > > the kernel source tree, which explains exactly how to do this
+> > > correctly.
+> > > 
+> > > By splitting your patch into 4 patches, one for each file touched,
+> > > it is impossible to review your patch as a logical whole.
+> > > 
+> > > Please also provide your patch inline so people can just hit reply
+> > > in their mail reader client to quote your patch and comment on it.
+> > > This is impossible with the attachments you've used.
+> > > 
+> > 
+> > Here you go - joined up, cleaned up, ported to mainline and test-
+> compiled.> 
+> > That yield() will need to be removed - yield()'s behaviour is 
+> truly awful
+> > if the system is otherwise busy.  What is it there for?
+> 
+> What about simply turning off CONFIG_PREEMPT to fix this "problem"?
+> 
+> We always properly run the backlog (by doing a release_sock()) before
+> going to sleep otherwise except for the specific case of taking a page
+> fault during the copy to userspace.  It is only CONFIG_PREEMPT that
+> can cause this situation to occur in other circumstances as far as I
+> can see.
+> 
+> We could also pepper tcp_recvmsg() with some very carefully placed
+> preemption disable/enable calls to deal with this even with
+> CONFIG_PREEMPT enabled.
+> 
 

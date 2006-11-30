@@ -1,77 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967758AbWK3A7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967766AbWK3BBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967758AbWK3A7S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 19:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967767AbWK3A7R
+	id S967766AbWK3BBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967767AbWK3BBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 19:59:17 -0500
-Received: from mail.gmx.net ([213.165.64.20]:56500 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S967758AbWK3A7R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 19:59:17 -0500
-X-Authenticated: #476490
-From: Oliver Endriss <o.endriss@gmx.de>
-Organization: ESCAPE GmbH EDV-Loesungen
-To: v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] remove DVB_AV7110_FIRMWARE
-Date: Thu, 30 Nov 2006 01:58:32 +0100
-User-Agent: KMail/1.9.4
-Cc: Adrian Bunk <bunk@stusta.de>, Trent Piepho <xyzzy@speakeasy.org>,
-       linux-kernel@vger.kernel.org
-References: <20061126004500.GB15364@stusta.de> <Pine.LNX.4.58.0611282045040.28220@shell2.speakeasy.net> <20061129050702.GG15364@stusta.de>
-In-Reply-To: <20061129050702.GG15364@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 29 Nov 2006 20:01:04 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:23890 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S967766AbWK3BBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:01:02 -0500
+Date: Wed, 29 Nov 2006 17:01:11 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, ak@suse.de
+Subject: [PATCH -mm] x86_64 UP needs smp_call_function_single
+Message-Id: <20061129170111.a0ffb3f4.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611300158.32934@orion.escape-edv.de>
-X-Y-GMX-Trusted: 0
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Tue, Nov 28, 2006 at 08:45:56PM -0800, Trent Piepho wrote:
-> > On Wed, 29 Nov 2006, Adrian Bunk wrote:
-> > > On Tue, Nov 28, 2006 at 01:06:02PM -0800, Trent Piepho wrote:
-> > > > On Sun, 26 Nov 2006, Adrian Bunk wrote:
-> > > > > DVB_AV7110_FIRMWARE was (except for some OSS drivers) the only option
-> > > > > that was still compiling a binary-only user-supplied firmware file at
-> > > > > build-time into the kernel.
-> > > > >
-> > > > > This patch changes the driver to always use the standard
-> > > > > request_firmware() way for firmware by removing DVB_AV7110_FIRMWARE.
-> > > >
-> > > > Doesn't this also prevent the AV7110 module from getting compiled
-> > > > into the kernel?  Shouldn't the Kconfig file be adjusted so
-> > > > that 'y' can't be selected anymore and it depends on MODULES?
-> > >
-> > > No.
-> > > No.
-> > >
-> > > request_firmware() works fine for built-in drivers.
-> > 
-> > Wouldn't that require loading the firmware file before the filesystems are
-> > mounted?
-> 
-> Sure.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-And you have to create an initrd for the firmware!
+smp_call_function_single() needs to be visible in non-SMP builds, to fix:
 
-As I wrote before: 
-I NAK any attempt to remove this option.
+arch/x86_64/kernel/vsyscall.c:283: warning: implicit declaration of function 'smp_call_function_single'
 
-The option _is_ useful because it allows a user to build an av7110 driver
-without hotplug, initrd etc.
+The (other/trivial) fix (instead of this one) is to add:
+#include <asm/smp.h>
+to linux-2.6.19-rc6-mm2/arch/x86_64/kernel/vsyscall.c
 
-Nobody has to use this option, but it should be possible to do so.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ include/asm-x86_64/smp.h |    7 -------
+ include/linux/smp.h      |    7 +++++++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-CU
-Oliver
+--- linux-2.6.19-rc6-mm2.orig/include/asm-x86_64/smp.h
++++ linux-2.6.19-rc6-mm2/include/asm-x86_64/smp.h
+@@ -113,13 +113,6 @@ static __inline int logical_smp_processo
+ #define cpu_physical_id(cpu)		x86_cpu_to_apicid[cpu]
+ #else
+ #define cpu_physical_id(cpu)		boot_cpu_id
+-static inline int smp_call_function_single(int cpuid, void (*func) (void *info),
+-				void *info, int retry, int wait)
+-{
+-	/* Disable interrupts here? */
+-	func(info);
+-	return 0;
+-}
+ #endif /* !CONFIG_SMP */
+ #endif
+ 
+--- linux-2.6.19-rc6-mm2.orig/include/linux/smp.h
++++ linux-2.6.19-rc6-mm2/include/linux/smp.h
+@@ -99,6 +99,13 @@ static inline int up_smp_call_function(v
+ static inline void smp_send_reschedule(int cpu) { }
+ #define num_booting_cpus()			1
+ #define smp_prepare_boot_cpu()			do {} while (0)
++static inline int smp_call_function_single(int cpuid, void (*func) (void *info),
++				void *info, int retry, int wait)
++{
++	/* Disable interrupts here? */
++	func(info);
++	return 0;
++}
+ 
+ #endif /* !SMP */
+ 
 
--- 
---------------------------------------------------------
-VDR Remote Plugin 0.3.8 available at
-http://www.escape-edv.de/endriss/vdr/
---------------------------------------------------------
 
+---

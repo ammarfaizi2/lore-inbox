@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936128AbWK3CUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936141AbWK3CWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936128AbWK3CUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 21:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936136AbWK3CUN
+	id S936141AbWK3CWh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 21:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936139AbWK3CWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 21:20:13 -0500
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:48324 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S936128AbWK3CUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 21:20:11 -0500
-Date: Wed, 29 Nov 2006 20:20:08 -0600
-From: Greg Norris <haphazard@kc.rr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 29 Nov 2006 21:22:37 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:51207
+	"HELO linuxace.com") by vger.kernel.org with SMTP id S936141AbWK3CWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 21:22:36 -0500
+Date: Wed, 29 Nov 2006 18:22:36 -0800
+From: Phil Oester <kernel@linuxace.com>
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
 Subject: Re: Linux 2.6.19
-Message-ID: <20061130022008.GA4133@yggdrasil.localdomain>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org> <20061129151111.6bd440f9.rdunlap@xenotime.net> <20061130005631.GA3896@yggdrasil.localdomain> <20061129170815.29d985c2.rdunlap@xenotime.net>
-MIME-Version: 1.0
+Message-ID: <20061130022236.GA1401@linuxace.com>
+References: <20061129151111.6bd440f9.rdunlap@xenotime.net> <20061130005631.GA3896@yggdrasil.localdomain> <20061130014904.GA1405@linuxace.com> <20061129.181537.38322733.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061129170815.29d985c2.rdunlap@xenotime.net>
-X-Operating-System: Linux yggdrasil 2.6.19 #1 SMP PREEMPT Wed Nov 29 19:20:00 CST 2006 i686 Linux
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061129.181537.38322733.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 05:08:15PM -0800, Randy Dunlap wrote:
-> On Wed, 29 Nov 2006 18:56:31 -0600 Greg Norris wrote:
-> > On a similar vein, it'd be nice if http://www.kernel.org/kdist/version.html 
-> > would break the entries into separate lines.
+On Wed, Nov 29, 2006 at 06:15:37PM -0800, David Miller wrote:
+> In fact it does, the NDISC code is using MAX_HEADER incorrectly.  It
+> needs to explicitly allocate space for the struct ipv6hdr in 'len'.
+> Luckily the TCP ipv6 code was doing it right.
 > 
-> I prefer to use
-> http://www.kernel.org/kdist/finger_banner
-> for that.
+> What a horrible bug, this patch should fix it.  Let me know
+> if it doesn't, thanks:
 
-I use that in some cases as well, but the browser on my PDA insists upon 
-trying to download that file rather than simply displaying it.  So I 
-sometimes need to use version.html instead, even though it renders 
-poorly under every browser I've tried.
+Yes, that fixes it up for me, thanks.
+
+Phil

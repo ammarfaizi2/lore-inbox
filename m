@@ -1,40 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757083AbWK3Dsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757081AbWK3EAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757083AbWK3Dsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 22:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757081AbWK3Dsd
+	id S1757081AbWK3EAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 23:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757890AbWK3EAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 22:48:33 -0500
-Received: from clem.clem-digital.net ([68.16.168.10]:58633 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S1755309AbWK3Dsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 22:48:32 -0500
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200611300348.kAU3mN9w001555@clem.clem-digital.net>
-Subject: Re: 2.6.19 panic on boot -- i386
-To: randy.dunlap@oracle.com (Randy Dunlap)
-Date: Wed, 29 Nov 2006 22:48:23 -0500 (EST)
-Cc: clem@clem.clem-digital.net (Pete Clements),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <20061129191736.9c50d61e.randy.dunlap@oracle.com>
-X-Mailer: ELM [version 2.5 PL7]
+	Wed, 29 Nov 2006 23:00:53 -0500
+Received: from mail.gmx.net ([213.165.64.20]:31650 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1757081AbWK3EAw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 23:00:52 -0500
+X-Authenticated: #24879014
+Message-ID: <456E4B50.1020007@gmx.net>
+Date: Wed, 29 Nov 2006 19:09:04 -0800
+From: Michael Kerrisk <mtk-manpages@gmx.net>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: man-pages-2.43 is released
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Randy Dunlap
-  > > 2.6.19 panics at boot. Good up through rc6-git11.
-  > > Hand copied screen below.
-  > 
-  > Try the patch that DaveM recently posted:
-  >   http://lkml.org/lkml/2006/11/29/335
-  > 
-  > ---
-  > ~Randy
-  > 
-That fixed it.
+Gidday,
+
+I just released man-pages-2.43.
+
+This release is now available for download at:
+
+    ftp://ftp.kernel.org/pub/linux/docs/manpages
+    or mirrors: ftp://ftp.XX.kernel.org/pub/linux/docs/manpages
+
+and soon at:
+
+    ftp://ftp.win.tue.nl/pub/linux-local/manpages
+
+Changes in this release that may be of interest to readers
+of this list include the following:
+
+Changes to individual pages
+---------------------------
+
+rtc.4
+    David Brownell
+
+        Update the RTC man page to reflect the new RTC class framework:
+
+        - Generalize ... it's not just for PC/AT style RTCs, and there
+          may be more than one RTC per system.
+
+        - Not all RTCs expose the same feature set as PC/AT ones; most
+          of these ioctls will be rejected by some RTCs.
+
+        - Be explicit about when {A,P}IE_{ON,OFF} calls are needed.
+
+        - Describe the parameter to the get/set epoch request; correct
+          the description of the get/set frequency parameter.
+
+        - Document RTC_WKALM_{RD,SET}, which don't need AIE_{ON,OFF} and
+          which support longer alarm periods.
+
+        - Hey, not all system clock implementations count timer irqs any
+          more now that the new RT-derived clock support is merging.
+
+raw.7
+udp.7
+    Andi Kleen
+        Describe the correct default for UDP/RAW path MTU discovery.
+
+==
+
+Cheers,
+
+Michael
 
 -- 
-Pete Clements 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
+
+Want to help with man page maintenance?  Grab the latest tarball at
+http://www.kernel.org/pub/linux/docs/manpages/
+read the HOWTOHELP file and grep the source files for 'FIXME'.
+

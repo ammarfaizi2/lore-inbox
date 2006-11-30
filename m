@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759209AbWK3JQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWK3JRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759209AbWK3JQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759210AbWK3JQ7
+	id S932068AbWK3JRI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWK3JRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:16:59 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:52744 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1759209AbWK3JQ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:16:58 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: ralf@linux-mips.org
-Subject: [PATCH] mips: klconfig add missing bracket
-Date: Thu, 30 Nov 2006 10:16:29 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 30 Nov 2006 04:17:07 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:25795 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932068AbWK3JRE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:17:04 -0500
+Date: Thu, 30 Nov 2006 01:12:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Srinivasa Ds <srinivasa@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, fabbione@ubuntu.com, bunk@stusta.de,
+       aarora@linux.vnet.ibm.com, aarora@in.ibm.com
+Subject: Re: [RFC][PATCH] Mount problem with the GFS2 code
+Message-Id: <20061130011236.6ac60998.akpm@osdl.org>
+In-Reply-To: <1164877538.3752.93.camel@quoit.chygwyn.com>
+References: <456EA5BF.6090304@in.ibm.com>
+	<20061130002934.829334a6.akpm@osdl.org>
+	<1164877538.3752.93.camel@quoit.chygwyn.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301016.29505.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 30 Nov 2006 09:05:38 +0000
+Steven Whitehouse <swhiteho@redhat.com> wrote:
 
-	This patch adds missing bracket.
+> Was there another
+> reason for not using the bio routines?
 
- include/asm-mips/sn/klconfig.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Just that it's a layering violation.
 
---- linux-2.6.19-rc6-mm2-a/include/asm-mips/sn/klconfig.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/include/asm-mips/sn/klconfig.h	2006-11-30 00:58:32.000000000 +0100
-@@ -176,7 +176,7 @@ typedef struct kl_config_hdr {
- /* --- New Macros for the changed kl_config_hdr_t structure --- */
- 
- #define PTR_CH_MALLOC_HDR(_k)   ((klc_malloc_hdr_t *)\
--			(unsigned long)_k + (_k->ch_malloc_hdr_off)))
-+			((unsigned long)_k + (_k->ch_malloc_hdr_off)))
- 
- #define KL_CONFIG_CH_MALLOC_HDR(_n)   PTR_CH_MALLOC_HDR(KL_CONFIG_HDR(_n))
- 
-
-
--- 
-Regards,
-
-	Mariusz Kozlowski
+Could I commend to you the use of code comments for this sort of thing?

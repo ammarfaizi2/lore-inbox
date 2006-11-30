@@ -1,41 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967969AbWK3XKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967962AbWK3XNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967969AbWK3XKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 18:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967972AbWK3XKY
+	id S967962AbWK3XNx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 18:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967967AbWK3XNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 18:10:24 -0500
-Received: from nlpi012.sbcis.sbc.com ([207.115.36.41]:34906 "EHLO
-	nlpi012.sbcis.sbc.com") by vger.kernel.org with ESMTP
-	id S967969AbWK3XKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 18:10:22 -0500
-X-ORBL: [67.117.73.34]
-Date: Thu, 30 Nov 2006 15:09:42 -0800
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Takashi Iwai <tiwai@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       Vladimir Ananiev <vovan888@gmail.com>,
-       linux-omap <linux-omap-open-source@linux.omap.com>
-Subject: Re: sx1 mixer support
-Message-ID: <20061130230942.GH9605@atomide.com>
-References: <20061124111445.GA5940@elf.ucw.cz> <s5hk61lf4w3.wl%tiwai@suse.de> <20061124125040.GE5608@elf.ucw.cz> <s5hac2hf169.wl%tiwai@suse.de> <20061130170402.GB1860@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061130170402.GB1860@elf.ucw.cz>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: tony@atomide.com
+	Thu, 30 Nov 2006 18:13:53 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:25815 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S967962AbWK3XNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 18:13:52 -0500
+Date: Thu, 30 Nov 2006 15:14:05 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       ak@suse.de
+Subject: Re: [PATCH -mm] x86_64 UP needs smp_call_function_single
+Message-Id: <20061130151405.d7e2dd08.randy.dunlap@oracle.com>
+In-Reply-To: <20061130142719.7474b4c0.akpm@osdl.org>
+References: <20061129170111.a0ffb3f4.randy.dunlap@oracle.com>
+	<20061129174558.3dfd13df.akpm@osdl.org>
+	<1164870000.11036.23.camel@earth>
+	<20061130141140.a1b7d7cc.randy.dunlap@oracle.com>
+	<20061130142719.7474b4c0.akpm@osdl.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@ucw.cz> [061130 09:04]:
-> Hi!
+On Thu, 30 Nov 2006 14:27:19 -0800 Andrew Morton wrote:
+
+> On Thu, 30 Nov 2006 14:11:40 -0800
+> Randy Dunlap <randy.dunlap@oracle.com> wrote:
 > 
-> > > Apparently they do not. Fixed.
+> > On Thu, 30 Nov 2006 08:00:00 +0100 Ingo Molnar wrote:
 > > 
-> > They are still globals.  Could be static, right?
+> > > On Wed, 2006-11-29 at 17:45 -0800, Andrew Morton wrote:
+> > > > No, I think this patch is right - the declaration of the CONFIG_SMP
+> > > > smp_call_function_single() is in linux/smp.h so the !CONFIG_SMP
+> > > > declaration
+> > > > or definition should be there too.
+> > > > 
+> > > > It's still buggy though.  It should disable local interrupts around
+> > > > the
+> > > > call to match the SMP version.  I'll fix that separately. 
+> > > 
+> > > hm, didnt i send an updated patch for that already? See the patch below,
+> > > from many days ago. I sent it after the tsc-sync-rewrite patch.
+> > 
+> > Hi Ingo,
+> > 
+> > Has there been a patch for this one?  (UP again, not SMP)
+> > 
+> > drivers/input/ff-memless.c:384: warning: implicit declaration of function 'local_bh_disable'
+> > drivers/input/ff-memless.c:393: warning: implicit declaration of function 'local_bh_enable'
+> > 
+> > Thanks,
+> > ---
+> > ~Randy
+> > config:  http://oss.oracle.com/~rdunlap/configs/config-input-up-header
 > 
-> Yes, fixed.
+> eww..  I guess linux/spinlock.h should really include linux/interrupt.h. 
+> But interrupt.h includes stuff like sched.h which will want spinlock.h.
+> 
+> This, maybe?
 
-Pushing this version to linux-omap after a bit more tabifying.
+Ack.  Tested on UP and SMP x86_64.
 
-Tony
+>  include/linux/bottom_half.h |    5 +++++
+>  include/linux/interrupt.h   |    7 +------
+>  include/linux/spinlock.h    |    1 +
+>  3 files changed, 7 insertions(+), 6 deletions(-)
+> 
+> diff -puN /dev/null include/linux/bottom_half.h
+> --- /dev/null
+> +++ a/include/linux/bottom_half.h
+> @@ -0,0 +1,5 @@
+> +extern void local_bh_disable(void);
+> +extern void __local_bh_enable(void);
+> +extern void _local_bh_enable(void);
+> +extern void local_bh_enable(void);
+> +extern void local_bh_enable_ip(unsigned long ip);
+> diff -puN include/linux/interrupt.h~add-bottom_half.h include/linux/interrupt.h
+> --- a/include/linux/interrupt.h~add-bottom_half.h
+> +++ a/include/linux/interrupt.h
+> @@ -11,6 +11,7 @@
+>  #include <linux/hardirq.h>
+>  #include <linux/sched.h>
+>  #include <linux/irqflags.h>
+> +#include <linux/bottom_half.h>
+>  #include <asm/atomic.h>
+>  #include <asm/ptrace.h>
+>  #include <asm/system.h>
+> @@ -217,12 +218,6 @@ static inline void __deprecated save_and
+>  #define save_and_cli(x)	save_and_cli(&x)
+>  #endif /* CONFIG_SMP */
+>  
+> -extern void local_bh_disable(void);
+> -extern void __local_bh_enable(void);
+> -extern void _local_bh_enable(void);
+> -extern void local_bh_enable(void);
+> -extern void local_bh_enable_ip(unsigned long ip);
+> -
+>  /* PLEASE, avoid to allocate new softirqs, if you need not _really_ high
+>     frequency threaded job scheduling. For almost all the purposes
+>     tasklets are more than enough. F.e. all serial device BHs et
+> diff -puN include/linux/spinlock.h~add-bottom_half.h include/linux/spinlock.h
+> --- a/include/linux/spinlock.h~add-bottom_half.h
+> +++ a/include/linux/spinlock.h
+> @@ -52,6 +52,7 @@
+>  #include <linux/thread_info.h>
+>  #include <linux/kernel.h>
+>  #include <linux/stringify.h>
+> +#include <linux/bottom_half.h>
+>  
+>  #include <asm/system.h>
+
+---
+~Randy

@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933914AbWK3KHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933840AbWK3KHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933914AbWK3KHe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 05:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933874AbWK3KHe
+	id S933840AbWK3KHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 05:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933874AbWK3KHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 05:07:34 -0500
-Received: from xyzzy.farnsworth.org ([65.39.95.219]:17413 "HELO farnsworth.org")
-	by vger.kernel.org with SMTP id S933914AbWK3KHd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 05:07:33 -0500
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Thu, 30 Nov 2006 03:07:31 -0700
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: dale@farnsworth.org, mlachwani@mvista.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mv643xx add missing brackets
-Message-ID: <20061130100731.GA6301@xyzzy.farnsworth.org>
-References: <200611301035.37786.m.kozlowski@tuxland.pl>
+	Thu, 30 Nov 2006 05:07:04 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:27358 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S933840AbWK3KHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 05:07:03 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Thu, 30 Nov 2006 05:03:56 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Kbuild: add 3 more header files to get properly "unifdef"ed
+Message-ID: <Pine.LNX.4.64.0611300459290.12927@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611301035.37786.m.kozlowski@tuxland.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 10:35:37AM +0100, Mariusz Kozlowski wrote:
-> Hello,
-> 
-> 	This patch adds missing brackets.
-> 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> 
->  include/linux/mv643xx.h |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.19-rc6-mm2-a/include/linux/mv643xx.h	2006-11-16 05:03:40.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2-b/include/linux/mv643xx.h	2006-11-30 01:10:53.000000000 +0100
-> @@ -724,7 +724,7 @@
->  #define MV643XX_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
->  #define MV643XX_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
->  #define MV643XX_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
-> -#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
-> +#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
 
-Good.  Thanks.
+  Add 3 more files to get "unifdef"ed when creating sanitized headers
+with "make headers_install".
 
->  #define MV643XX_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
->  #define MV643XX_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
->  #define MV643XX_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
-> @@ -1135,7 +1135,7 @@ struct mv64xxx_i2c_pdata {
->  #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_1	(1<<19)
->  #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_2	(1<<20)
->  #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_3	((1<<20) | (1<<19))
-> -#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21)
-> +#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21))
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-Mariusz, please remove the extra parenthesis instead of adding
-an extra one, like:
-	#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	(1<<21)
-and resubmit.
+---
 
-Thanks,
--Dale
+diff --git a/include/linux/Kbuild b/include/linux/Kbuild
+index a1155a2..b6bc50c 100644
+--- a/include/linux/Kbuild
++++ b/include/linux/Kbuild
+@@ -225,6 +225,7 @@ unifdef-y += if_bridge.h
+ unifdef-y += if_ec.h
+ unifdef-y += if_eql.h
+ unifdef-y += if_ether.h
++unifdef-y += if_fddi.h
+ unifdef-y += if_frad.h
+ unifdef-y += if_ltalk.h
+ unifdef-y += if_pppox.h
+@@ -286,6 +287,7 @@ unifdef-y += nvram.h
+ unifdef-y += parport.h
+ unifdef-y += patchkey.h
+ unifdef-y += pci.h
++unifdef-y += personality.h
+ unifdef-y += pktcdvd.h
+ unifdef-y += pmu.h
+ unifdef-y += poll.h
+@@ -341,6 +343,7 @@ unifdef-y += videodev.h
+ unifdef-y += wait.h
+ unifdef-y += wanrouter.h
+ unifdef-y += watchdog.h
++unifdef-y += wireless.h
+ unifdef-y += xfrm.h
+ unifdef-y += zftape.h
+

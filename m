@@ -1,224 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967958AbWK3XEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031622AbWK3XFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967958AbWK3XEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 18:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967964AbWK3XET
+	id S1031622AbWK3XFB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 18:05:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031620AbWK3XFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 18:04:19 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33164 "EHLO omx1.sgi.com")
-	by vger.kernel.org with ESMTP id S967958AbWK3XEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 18:04:16 -0500
-Date: Thu, 30 Nov 2006 17:04:10 -0600 (CST)
-From: John Keller <jpk@sgi.com>
-To: linux-acpi@vger.kernel.org
-Cc: akpm@osdl.org, len.brown@intel.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       gregkh@suse.de, linux-kernel@vger.kernel.org, ayoung@sgi.com,
-       jes@sgi.com, John Keller <jpk@sgi.com>
-Message-Id: <20061130230410.23614.55659.74300@attica.americas.sgi.com>
-Subject: Re: [PATCH 3/3] - Add support for acpi_load_table/acpi_unload_table_id
+	Thu, 30 Nov 2006 18:05:01 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:46309 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1031622AbWK3XE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 18:04:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nSLeJNASKvG5q3c1asn4xH+dI+ruVd6jv0gGRfQxjphdYdvJPNm1o0un9X6XwgqpvYzBb8YHN+ZdgVryZtmja6ZqBpvrPrL9wfq+8QEIAb1BNB+mQFG4irCnNmmYZhmxaefQVUCKr7IyyFY0lXxpWROPkQYZh49l5oOYyMDgGoY=
+Message-ID: <5bdc1c8b0611301504y6d5b957et350bad438c5e636c@mail.gmail.com>
+Date: Thu, 30 Nov 2006 15:04:57 -0800
+From: "Mark Knecht" <markknecht@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
+Subject: 2.6.19-rt1 - failed to boot on AMD64
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
+   I attempted to get 2.6.19-rt1 going this afternoon but no luck.
+First, thanks for the realtime-lsm patch in the kernel. Nice to have
+it there.
 
- This patch makes acpi_load_table() available
- for use by removing it from the #ifdef ACPI_FUTURE_USAGE.
+   OK, so 2.6.19-rt1 starts booting, gets to the point where it see
+the keyboard and mouse, and then apparently starts looking for a
+remote NFS server? I don't remember seeing this on earlier kernels.
 
- It also adds a new routine used to unload an ACPI table
- of a given type and "id" - acpi_unload_table_id().
- The implementation of this new routine was almost a direct
- copy of existing routine acpi_unload_table() - only difference
- being that it only removes a specific table id instead of
- ALL tables of a given type.
- The SN hotplug driver (sgi_hotplug.c) now uses both of these
- interfaces to dynamically load and unload SSDT ACPI tables.
-
-Signed-off-by: Aaron Young <ayoung@sgi.com>
-
----
-
-Andrew,
-  Can you take this update and replace the current version in
-  your -mm tree:
-   add-support-for-acpi_load_table-acpi_unload_table_id.patch
-
-Len,
-  What do we need to do to resolve any licensing issues related to
-  these changes?
-
-Thanks.
+<SNIP>
+Root-NFS: No NFS server available, giving up
+VFS: Unable to mount root via NFS, trying floppy
+VFS: Insert root floppy and press enter
+SCSI 0:0:0:0: Direct-Access HP PSC1610  1.00 PQ: 0 ANSI: 2
+sd 0:0:0:0: Attached scsi removable disk sda
+<SNIP>
 
 
-Resend #2
-   Code has been improved to no longer use ACPI "internal" routines
-   (such as acpi_ns_get_next_node()). To this end, a new public interface
-   to obtain the owner_id for a handle was added (acpi_get_id()). It is
-   very similar to existing routine acpi_get_type().
-
-Resend #1
-   Original send of this patch was outdated and did not have
-   acpi_ut_acquire_mutex() and acpi_ut_release_mutex() calls
-   in acpi_unload_table_id().
+At this point the machine just waits and does nothing more. It does
+respond to Alt-Ctrl-Del and reboots cleanly.
 
 
- drivers/acpi/namespace/nsxfobj.c |   44 +++++++++++++++++++++++
- drivers/acpi/tables/tbxface.c    |   54 ++++++++++++++++++++++++++++-
- include/acpi/acpixf.h            |    7 ++-
- 3 files changed, 102 insertions(+), 3 deletions(-)
+Here's the basic hardware:
 
-Index: release/drivers/acpi/tables/tbxface.c
-===================================================================
---- release.orig/drivers/acpi/tables/tbxface.c	2006-11-29 14:14:23.532910707 -0600
-+++ release/drivers/acpi/tables/tbxface.c	2006-11-29 14:15:04.173937975 -0600
-@@ -123,7 +123,6 @@ acpi_status acpi_load_tables(void)
- 
- ACPI_EXPORT_SYMBOL(acpi_load_tables)
- 
--#ifdef ACPI_FUTURE_USAGE
- /*******************************************************************************
-  *
-  * FUNCTION:    acpi_load_table
-@@ -221,6 +220,59 @@ ACPI_EXPORT_SYMBOL(acpi_load_table)
- 
- /*******************************************************************************
-  *
-+ * FUNCTION:    acpi_unload_table_id
-+ *
-+ * PARAMETERS:  table_type    - Type of table to be unloaded
-+ *              id            - Owner ID of the table to be removed.
-+ *
-+ * RETURN:      Status
-+ *
-+ * DESCRIPTION: This routine is used to force the unload of a table (by id)
-+ *
-+ ******************************************************************************/
-+acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id)
-+{
-+	struct acpi_table_desc *table_desc;
-+	acpi_status status;
-+
-+	ACPI_FUNCTION_TRACE(acpi_unload_table);
-+
-+	/* Parameter validation */
-+	if (table_type > ACPI_TABLE_ID_MAX)
-+		return_ACPI_STATUS(AE_BAD_PARAMETER);
-+
-+	/* Find table from the requested type list */
-+	table_desc = acpi_gbl_table_lists[table_type].next;
-+	while (table_desc && table_desc->owner_id != id)
-+		table_desc = table_desc->next;
-+
-+	if (!table_desc)
-+		return_ACPI_STATUS(AE_NOT_EXIST);
-+
-+	/*
-+	 * Delete all namespace objects owned by this table. Note that these
-+	 * objects can appear anywhere in the namespace by virtue of the AML
-+	 * "Scope" operator. Thus, we need to track ownership by an ID, not
-+	 * simply a position within the hierarchy
-+	 */
-+	acpi_ns_delete_namespace_by_owner(table_desc->owner_id);
-+
-+	status = acpi_ut_acquire_mutex(ACPI_MTX_TABLES);
-+	if (ACPI_FAILURE(status))
-+		return_ACPI_STATUS(status);
-+
-+	(void)acpi_tb_uninstall_table(table_desc);
-+
-+	(void)acpi_ut_release_mutex(ACPI_MTX_TABLES);
-+
-+	return_ACPI_STATUS(AE_OK);
-+}
-+
-+ACPI_EXPORT_SYMBOL(acpi_unload_table_id)
-+
-+#ifdef ACPI_FUTURE_USAGE
-+/*******************************************************************************
-+ *
-  * FUNCTION:    acpi_unload_table
-  *
-  * PARAMETERS:  table_type    - Type of table to be unloaded
-Index: release/include/acpi/acpixf.h
-===================================================================
---- release.orig/include/acpi/acpixf.h	2006-11-29 14:14:23.556913676 -0600
-+++ release/include/acpi/acpixf.h	2006-11-29 14:18:55.966606388 -0600
-@@ -97,11 +97,12 @@ acpi_find_root_pointer(u32 flags, struct
- 
- acpi_status acpi_load_tables(void);
- 
--#ifdef ACPI_FUTURE_USAGE
- acpi_status acpi_load_table(struct acpi_table_header *table_ptr);
- 
--acpi_status acpi_unload_table(acpi_table_type table_type);
-+acpi_status acpi_unload_table_id(acpi_table_type table_type, acpi_owner_id id);
- 
-+#ifdef ACPI_FUTURE_USAGE
-+acpi_status acpi_unload_table(acpi_table_type table_type);
- acpi_status
- acpi_get_table_header(acpi_table_type table_type,
- 		      u32 instance, struct acpi_table_header *out_table_header);
-@@ -180,6 +181,8 @@ acpi_get_next_object(acpi_object_type ty
- 
- acpi_status acpi_get_type(acpi_handle object, acpi_object_type * out_type);
- 
-+acpi_status acpi_get_id(acpi_handle object, acpi_owner_id * out_type);
-+
- acpi_status acpi_get_parent(acpi_handle object, acpi_handle * out_handle);
- 
- /*
-Index: release/drivers/acpi/namespace/nsxfobj.c
-===================================================================
---- release.orig/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:18:31.000000000 -0600
-+++ release/drivers/acpi/namespace/nsxfobj.c	2006-11-29 14:19:18.709418875 -0600
-@@ -50,6 +50,50 @@ ACPI_MODULE_NAME("nsxfobj")
- 
- /*******************************************************************************
-  *
-+ * FUNCTION:    acpi_get_id
-+ *
-+ * PARAMETERS:  Handle          - Handle of object whose id is desired
-+ *              ret_id          - Where the id will be placed
-+ *
-+ * RETURN:      Status
-+ *
-+ * DESCRIPTION: This routine returns the owner id associated with a handle
-+ *
-+ ******************************************************************************/
-+acpi_status acpi_get_id(acpi_handle handle, acpi_owner_id * ret_id)
-+{
-+	struct acpi_namespace_node *node;
-+	acpi_status status;
-+
-+	/* Parameter Validation */
-+
-+	if (!ret_id) {
-+		return (AE_BAD_PARAMETER);
-+	}
-+
-+	status = acpi_ut_acquire_mutex(ACPI_MTX_NAMESPACE);
-+	if (ACPI_FAILURE(status)) {
-+		return (status);
-+	}
-+
-+	/* Convert and validate the handle */
-+
-+	node = acpi_ns_map_handle_to_node(handle);
-+	if (!node) {
-+		(void)acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
-+		return (AE_BAD_PARAMETER);
-+	}
-+
-+	*ret_id = node->owner_id;
-+
-+	status = acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
-+	return (status);
-+}
-+
-+ACPI_EXPORT_SYMBOL(acpi_get_id)
-+
-+/*******************************************************************************
-+ *
-  * FUNCTION:    acpi_get_type
-  *
-  * PARAMETERS:  Handle          - Handle of object whose type is desired
+lightning ~ # lspci
+00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
+00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
+00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
+00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
+00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
+00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97
+Audio Controller (rev a2)
+00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
+00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3)
+00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3)
+00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
+00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
+00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] HyperTransport Technology Configuration
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] Address Map
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] DRAM Controller
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8
+[Athlon64/Opteron] Miscellaneous Control
+01:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60
+[Radeon X300 (PCIE)]
+01:00.1 Display controller: ATI Technologies Inc RV370 [Radeon X300SE]
+05:06.0 Multimedia audio controller: Xilinx Corporation RME Hammerfall
+DSP (rev 68)
+05:08.0 FireWire (IEEE 1394): Texas Instruments TSB82AA2 IEEE-1394b
+Link Layer Controller (rev 01)
+lightning ~ #
+
+   I'll start going through the kernel config to see if something got
+messed up in the make oldconfig step. I've not seen this problem with
+any previous -rt kernel. I never ran 2.6.19-rcX so maybe this problem
+is something in 2.6.19 and not just the -rt? Maybe I should run 2.6.19
+itself and see if it boots?
+
+Thanks,
+Mark

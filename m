@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759127AbWK3IcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759069AbWK3Ida@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759127AbWK3IcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759146AbWK3IcS
+	id S1759069AbWK3Ida (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759135AbWK3Id3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:32:18 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:32268 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1759127AbWK3IcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:32:17 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] char: ip2 remove broken macro
-Date: Thu, 30 Nov 2006 09:31:46 +0100
-User-Agent: KMail/1.9.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 03:33:29 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:24551 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1759069AbWK3Id3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:33:29 -0500
+Date: Thu, 30 Nov 2006 09:31:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061130083144.GC29609@elte.hu>
+References: <20061129152404.GA7082@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200611300931.47007.m.kozlowski@tuxland.pl>
+In-Reply-To: <20061129152404.GA7082@in.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-	This macro is broken and unused so why not remove it.
+* Gautham R Shenoy <ego@in.ibm.com> wrote:
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> So do we
+> - Rethink the strategy of per-subsystem hotcpu-locks ?
+> 
+>   OR
+>   
+> - Think of a way to straighten out the super-convoluted cpufreq code ?
 
- drivers/char/ip2/i2cmd.h |    5 -----
- 1 file changed, 5 deletions(-)
+i'm still wondering what the conceptual source of this fundamental 
+locking complexity in cpufreq (and hotplug) is - it is not intuitive to 
+me at all. Could you try to explain that?
 
---- linux-2.6.19-rc6-mm2-a/drivers/char/ip2/i2cmd.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/drivers/char/ip2/i2cmd.h	2006-11-30 00:53:38.000000000 +0100
-@@ -367,11 +367,6 @@ static UCHAR cc02[];
- #define CSE_NULL  3  // Replace with a null
- #define CSE_MARK  4  // Replace with a 3-character sequence (as Unix)
- 
--#define  CMD_SET_REPLACEMENT(arg,ch)   \
--			(((cmdSyntaxPtr)(ct36a))->cmd[1] = (arg), \
--			(((cmdSyntaxPtr)(ct36a))->cmd[2] = (ch),  \
--			(cmdSyntaxPtr)(ct36a))
--
- #define CSE_REPLACE  0x8	// Replace the errored character with the
- 							// replacement character defined here
- 
-
-
--- 
-Regards,
-
-	Mariusz Kozlowski
+	Ingo

@@ -1,94 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936306AbWK3MoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936342AbWK3Mta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936306AbWK3MoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936305AbWK3MoQ
+	id S936342AbWK3Mta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936336AbWK3Mta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:44:16 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:60336 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP id S936306AbWK3MoO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:44:14 -0500
-Date: Thu, 30 Nov 2006 18:14:21 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Gautham R Shenoy <ego@in.ibm.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, davej@redhat.com,
-       dipankar@in.ibm.com, vatsa@in.ibm.com
-Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-ID: <20061130124421.GB25439@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061129152404.GA7082@in.ibm.com> <20061130083144.GC29609@elte.hu> <20061130102410.GB23354@in.ibm.com> <20061130110315.GA30460@elte.hu> <20061130031933.5d30ec09.akpm@osdl.org> <20061130114617.GA2324@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Nov 2006 07:49:30 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:65295 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S936321AbWK3Mt2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 07:49:28 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: marcelo@kvack.org
+Subject: [PATCH] ppc: cs4218_tdm remove extra brace
+Date: Thu, 30 Nov 2006 13:48:58 +0100
+User-Agent: KMail/1.9.5
+Cc: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061130114617.GA2324@elte.hu>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200611301348.59401.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 12:46:17PM +0100, Ingo Molnar wrote:
-> 
-> 	struct task_struct {
-> 		...
-> 		int hotplug_depth;
-> 		struct mutex *hotplug_lock;
-> 	}
-> 	...
-> 
-> 	DEFINE_PER_CPU(struct mutex, hotplug_lock);
-> 
-> 	void cpu_hotplug_lock(void)
-> 	{
-> 		int cpu = raw_smp_processor_id();
-> 		/*
-> 		 * Interrupts/softirqs are hotplug-safe:
-> 		 */
-> 		if (in_interrupt())
-> 			return;
-> 		if (current->hotplug_depth++)
-> 			return;
-> 		current->hotplug_lock = &per_cpu(hotplug_lock, cpu);
-> 		mutex_lock(current->hotplug_lock);
-> 	}
-> 
-> 	void cpu_hotplug_unlock(void)
-> 	{
-> 		int cpu;
-> 
-> 		if (in_interrupt())
-> 			return;
-> 		if (DEBUG_LOCKS_WARN_ON(!current->hotplug_depth))
-> 			return;
-> 		if (--current->hotplug_depth)
-> 			return;
-> 
-> 		mutex_unlock(current->hotplug_lock);
-> 		current->hotplug_lock = NULL;
-> 	}
-> 
+Hello,
 
-In process context preemptible code, 
-Lets say we are currently running on processor i.
+	I tried to find where does this line come from. Googled a bit with
+no luck. Probably somewhere between 2.5.10 and 2.5.20 some patch generated
+this leftover.
 
-cpu_hotplug_lock() ; /* does mutex_lock(&percpu(hotplug_lock, i)) */
 
-/* do some operation, which might sleep */
-/* migrates to cpu j */
+static struct timer_list beep_timer = {
+        function: cs_nosound
+};
 
-cpu_hotplug_unlock(); /* does mutex_unlock(&percpu(hotplug_lock, i)
-			 while running on cpu j */
+changed to:
 
-This would cause cacheline ping pong, no?
+static struct timer_list beep_timer = TIMER_INITIALIZER(cs_nosound, 0, 0);
+};
 
-> 
-> 	Ingo
 
-regards 
-gautham.
+The patch below removes this extra line.
+
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+
+ arch/ppc/8xx_io/cs4218_tdm.c |    1 -
+ 1 file changed, 1 deletion(-)
+
+--- linux-2.6.19-rc6-mm2-a/arch/ppc/8xx_io/cs4218_tdm.c	2006-11-28 12:16:29.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/arch/ppc/8xx_io/cs4218_tdm.c	2006-11-29 16:12:22.000000000 +0100
+@@ -1379,7 +1379,6 @@ static void cs_nosound(unsigned long xx)
+ }
+ 
+ static DEFINE_TIMER(beep_timer, cs_nosound, 0, 0);
+-};
+ 
+ static void cs_mksound(unsigned int hz, unsigned int ticks)
+ {
+
+
 -- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+Regards,
+
+	Mariusz Kozlowski

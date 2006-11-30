@@ -1,109 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933046AbWK3JsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933640AbWK3Jub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933046AbWK3JsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933640AbWK3JsV
+	id S933640AbWK3Jub (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933676AbWK3Jub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:48:21 -0500
-Received: from jdi.jdi-ict.nl ([82.94.239.5]:50148 "EHLO jdi.jdi-ict.nl")
-	by vger.kernel.org with ESMTP id S933046AbWK3JsU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:48:20 -0500
-Date: Thu, 30 Nov 2006 10:48:06 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
-X-X-Sender: igmar@jdi.jdi-ict.nl
-To: erich <erich@areca.com.tw>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
-In-Reply-To: <004901c7141e$15e6cc50$b100a8c0@erich2003>
-Message-ID: <Pine.LNX.4.58.0611301036050.27381@jdi.jdi-ict.nl>
-References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
- <004901c7141e$15e6cc50$b100a8c0@erich2003>
+	Thu, 30 Nov 2006 04:50:31 -0500
+Received: from rzcomm12.rz.tu-bs.de ([134.169.9.59]:458 "EHLO
+	rzcomm12.rz.tu-bs.de") by vger.kernel.org with ESMTP
+	id S933640AbWK3Jub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:50:31 -0500
+Message-ID: <456EA95C.8070301@l4x.org>
+Date: Thu, 30 Nov 2006 10:50:20 +0100
+From: Jan Dittmer <jdi@l4x.org>
+User-Agent: Thunderbird 2.0b1pre (Windows/20061126)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 30 Nov 2006 10:48:07 +0100 (CET)
+To: tao@acc.umu.se
+CC: Robert Hancock <hancockr@shaw.ca>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mass-storage problems with Archos AV500
+References: <fa.+HViQkzstd1WGzxw6QnaK2a1tiY@ifi.uio.no> <456E5F91.7020300@shaw.ca> <20061130085356.GV14886@vasa.acc.umu.se>
+In-Reply-To: <20061130085356.GV14886@vasa.acc.umu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Weinehall wrote:
+> On Wed, Nov 29, 2006 at 10:35:29PM -0600, Robert Hancock wrote:
+>> David Weinehall wrote:
+>>> I've got an Archos AV500 here (running the very latest firmware), pretty
+>>> much acting as a doorstop, since I cannot get it to be recognized
+>>> properly by Linux.
+>> ..
+>>
+>>> [  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
+>>> MB)
+>>> [  118.144000] sdb: Write Protect is off
+>>> [  118.144000] sdb: Mode Sense: 33 00 00 00
+>>> [  118.144000] sdb: assuming drive cache: write through
+>>> [  118.144000]  sdb: unknown partition table
+>>> [  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
+>>> [  118.452000] usb-storage: device scan complete
+>>>
+>>> This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
+>>> I get similar results with a home-brew 2.6.18-rc4.
+>>>
+>>> Any mass storage quirk needed that might be missing?
+>> That all seems normal, other than the unknown partition table, but the 
+>> device might be all one unpartitioned disk.. at what point is it failing?
+> 
+> Mounting it just claims wrong FS type.  And I've tried most file systems
+> I can think of just to be sure.
 
-Hi,
+Can you read the whole volume with 'dd'? If yes, you could provide
+a hex dump of the first few sectors? Probably someone on this list will
+recognize the format...
 
-> If you are working on arcmsr 1.20.00.13 for official kernel version.
-> This is the last version.
-
-I'm already on that version. I'll see if I can upgrade to 2.6.19 today.
-
-> Could you check your RAID controller event and tell someting to me?
-> You can check "MBIOS"=>"Physical Drive Information"=>"View Drive 
-> Information"=>"Select The Drive"=>"Timeout Count"......
-> It could tell you which disk had bad behavior cause your RAID volume 
-> offline.
-
-I need to be in the BIOS right ? I couldn't find anything usefull with the 
-cli32 tool.
-
-> About the message dump from arcmsr, it said that your RAID volume had 
-> something wrong and kicked out from the system.
-> How about your RAID config?
-
-CLI> disk info
-Ch   ModelName        Serial#          FirmRev     Capacity  State
-===============================================================================
- 1   HDT722516DLA380  VDK71BTCDB90KE   V43OA91A     164.7GB  RaidSet 
-Member(1)
- 2   HDT722516DLA380  VDN71BTCDEPH7G   V43OA91A     164.7GB  RaidSet 
-Member(1)
- 3   HDT722516DLA380  VDN71BTCDES96G   V43OA91A     164.7GB  RaidSet 
-Member(1)
- 4   HDT722516DLA380  VDN71BTCDE15KG   V43OA91A     164.7GB  RaidSet 
-Member(1)
-===============================================================================
-
-CLI> rsf info
-Num Name             Disks TotalCap  FreeCap DiskChannels       State
-===============================================================================
- 1  Raid Set # 00        4  640.0GB    0.0GB 1234               Normal
-===============================================================================
-
-CLI> vsf info
- # Name             Raid# Level   Capacity Ch/Id/Lun  State
-===============================================================================
- 1 ARC-1110-VOL#00    1   Raid5    480.0GB 00/00/00   Normal
-===============================================================================
-
-A plain RAID 5 config with 4 disks. 
-
-
-> Areca had new firmware released (1.42).
-> If you are working on "sg" device with scsi passthrough ioctl method to feed 
-> data into Areca's RAID volume.
-> You need to limit your data under 512 blocks (256K) each transfer.
-> The new firmware will enlarge it into 4096 blocks (2M) each transfer.
-> The firmware version 1.42 is on releasing procedure but not yet put it on 
-> Areca ftp site.
-
-I don't use the sg driver at all. Is the upgrade worth it ? I usually 
-don't mess with firmware unless being told to do so.
-
-> If you need it, please tell me again.
-
-Can you send it to me ? Installing it won't hurt I guess :)
-
-
-Regards,
-
-
-	Igmar
-
-
--- 
-Igmar Palsenberg
-JDI ICT
-
-Zutphensestraatweg 85
-6953 CJ Dieren
-Tel: +31 (0)313 - 496741
-Fax: +31 (0)313 - 420996
-The Netherlands
-
-mailto: i.palsenberg@jdi-ict.nl
+Jan

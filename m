@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759007AbWK3EYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933675AbWK3E0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759007AbWK3EYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 23:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759008AbWK3EYg
+	id S933675AbWK3E0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 23:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759026AbWK3E0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 23:24:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37771 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1759005AbWK3EYf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 23:24:35 -0500
-Date: Wed, 29 Nov 2006 20:27:59 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: David Miller <davem@davemloft.net>
-Cc: clem@clem.clem-digital.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 panic on boot -- i386
-Message-ID: <20061130042759.GL1397@sequoia.sous-sol.org>
-References: <200611300313.kAU3D9J7007005@clem.clem-digital.net> <20061129.201220.88477321.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129.201220.88477321.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.2i
+	Wed, 29 Nov 2006 23:26:20 -0500
+Received: from www.swissdisk.com ([216.66.254.197]:21939 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S1759008AbWK3E0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 23:26:18 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: Ubuntu patch sync for 2.6.20
+Reply-To: Ben Collins <bcollins@ubuntu.com>
+Date: Wed, 29 Nov 2006 23:26:04 -0500
+Message-Id: <11648607731770-git-send-email-bcollins@ubuntu.com>
+X-Mailer: git-send-email 1.4.1
+In-Reply-To: <11648607683157-git-send-email-bcollins@ubuntu.com>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Miller (davem@davemloft.net) wrote:
-> From: Pete Clements <clem@clem.clem-digital.net>
-> Date: Wed, 29 Nov 2006 22:13:09 -0500 (EST)
-> 
-> > 2.6.19 panics at boot. Good up through rc6-git11.
-> > Hand copied screen below.
-> 
-> Here is the fix, which was posted in response to a seperate
-> report of this problem here:
+This is a set of patches from the Ubuntu tree that seemed suitable for
+upstream sync.
 
-looks like 2.6.19.1 material ;-)
+[PATCH 1/4] [x86] Add command line option to enable/disable hyper-threading.
+
+[PATCH 2/4] [APIC] Allow disabling of UP APIC/IO-APIC by default, with command line option to turn it on.
+
+[PATCH 3/4] [ATM] Add CPPFLAGS to byteorder.h check.
+
+[PATCH 4/4] [HVCS] Select HVC_CONSOLE if HVCS is enabled.
+
+
+ arch/i386/Kconfig                   |   13 +++++++++++++
+ Documentation/kernel-parameters.txt |    3 +++
+ arch/i386/Kconfig                   |    5 +++++
+ arch/i386/kernel/apic.c             |   13 +++++++++++--
+ arch/i386/kernel/cpu/common.c       |   30 +++++++++++++++++++++++++++++-
+ arch/i386/kernel/io_apic.c          |   10 +++++++++-
+ drivers/atm/Makefile                |    3 +--
+ drivers/char/Kconfig                |    2 +-
+ include/asm-i386/apic.h             |    6 ++++++
+ include/asm-i386/io_apic.h          |    6 +++++-
+ 10 files changed, 83 insertions(+), 8 deletions(-)
+

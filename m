@@ -1,166 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967780AbWK3BIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967785AbWK3BIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967780AbWK3BIs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967781AbWK3BIs
+	id S967785AbWK3BIz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967784AbWK3BIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:08:48 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:11428 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S967780AbWK3BIr (ORCPT
+	Wed, 29 Nov 2006 20:08:55 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:28365 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S967782AbWK3BIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:08:47 -0500
-Date: Wed, 29 Nov 2006 17:08:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: wenji@fnal.gov, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-Message-Id: <20061129170835.72bd40b3.akpm@osdl.org>
-In-Reply-To: <20061129.165311.45739865.davem@davemloft.net>
-References: <HNEBLGGMEGLPMPPDOPMGCEAKCGAA.wenji@fnal.gov>
-	<HNEBLGGMEGLPMPPDOPMGGEAKCGAA.wenji@fnal.gov>
-	<20061129.165311.45739865.davem@davemloft.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 29 Nov 2006 20:08:53 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
+Date: Thu, 30 Nov 2006 02:04:15 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net,
+       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Valerie Henson <val_henson@linux.intel.com>
+References: <20061128020246.47e481eb.akpm@osdl.org> <200611300008.21434.rjw@sisk.pl> <20061129152619.0d1ac361.akpm@osdl.org>
+In-Reply-To: <20061129152619.0d1ac361.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611300204.16507.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 16:53:11 -0800 (PST)
-David Miller <davem@davemloft.net> wrote:
-
+On Thursday, 30 November 2006 00:26, Andrew Morton wrote:
+> On Thu, 30 Nov 2006 00:08:21 +0100
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 > 
-> Please, it is very difficult to review your work the way you have
-> submitted this patch as a set of 4 patches.  These patches have not
-> been split up "logically", but rather they have been split up "per
-> file" with the same exact changelog message in each patch posting.
-> This is very clumsy, and impossible to review, and wastes a lot of
-> mailing list bandwith.
+> > On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
+> > > On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
+> > > > On Wed, 29 Nov 2006 21:08:00 +0100
+> > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > 
+> > > > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
+> > > > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+> > > > > > > 
+> > > > > > > Temporarily at
+> > > > > > > 
+> > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
+> > > > > > > 
+> > > > > > > Will appear eventually at
+> > > > > > > 
+> > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+> > > > > > 
+> > > > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
+> > > > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
+> > > > 
+> > > > That isn't a minor issue.
+> > > > 
+> > > > > > It worked just fine on -mm1, so something must have happened to it recently.
+> > > > > 
+> > > > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
+> > > > > 
+> > > > 
+> > > > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
+> > > > not using that (corrent?)
+> > > > 
+> > > > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
+> > > > that either.
+> > > > 
+> > > > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
+> > > > 
+> > > > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
+> > > > presumably a showstopper for statically-linked-uli526x users.  If you could
+> > > > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
+> > > 
+> > > OK, but it'll take some time.
+> > 
+> > OK, done.
+> > 
+> > It's one of these (the first one alone doesn't compile):
+> > 
+> > git-netdev-all.patch
+> > git-netdev-all-fixup.patch
+> > libphy-dont-do-that.patch
 > 
-> We have an excellent file, called Documentation/SubmittingPatches, in
-> the kernel source tree, which explains exactly how to do this
-> correctly.
+> Are you able to eliminate libphy-dont-do-that.patch?
 > 
-> By splitting your patch into 4 patches, one for each file touched,
-> it is impossible to review your patch as a logical whole.
+> > Is a broken-out version of git-netdev-all.patch available from somewhere?
 > 
-> Please also provide your patch inline so people can just hit reply
-> in their mail reader client to quote your patch and comment on it.
-> This is impossible with the attachments you've used.
+> Nope, and my few fumbling attempts to generate the sort of patch series
+> which you want didn't work out too well.  One has to downgrade to
+> git-bisect :(
 > 
+> What does "doesn't work" mean, btw?
 
-Here you go - joined up, cleaned up, ported to mainline and test-compiled.
+Well, it turns out not to be 100% reproducible.  I can only reproduce it after
+a soft reboot (eg. shutdown -r now).
 
-That yield() will need to be removed - yield()'s behaviour is truly awful
-if the system is otherwise busy.  What is it there for?
+Then, while configuring network interfaces the system says the interface name
+is ethxx0, but it should be eth1 (eth0 is an RTL-8139, which is not used).  Now
+if I run ifconfig, it says:
+
+eth0: error fetching interface information: Device not found
+
+and that's all (normally, ifconfig would show the information for lo and eth1,
+without eth0).  Moreover, 'ifconfig eth1' says:
+
+eth1: error fetching interface information: Device not found
+
+Next, I run 'rmmod uli526x' and 'modprobe uli526x' and then 'ifconfig' is
+still saying the above (about eth0), but 'ifconfig eth1' seems to work as
+it should.  However, the interface often fails to transfer anything after
+that.
+
+Greetings,
+Rafael
 
 
-
-From: Wenji Wu <wenji@fnal.gov>
-
-For Linux TCP, when the network applcaiton make system call to move data from
-socket's receive buffer to user space by calling tcp_recvmsg().  The socket
-will be locked.  During this period, all the incoming packet for the TCP
-socket will go to the backlog queue without being TCP processed
-
-Since Linux 2.6 can be inerrupted mid-task, if the network application
-expires, and moved to the expired array with the socket locked, all the
-packets within the backlog queue will not be TCP processed till the network
-applicaton resume its execution.  If the system is heavily loaded, TCP can
-easily RTO in the Sender Side.
-
-
-
- include/linux/sched.h |    2 ++
- kernel/fork.c         |    3 +++
- kernel/sched.c        |   24 ++++++++++++++++++------
- net/ipv4/tcp.c        |    9 +++++++++
- 4 files changed, 32 insertions(+), 6 deletions(-)
-
-diff -puN net/ipv4/tcp.c~tcp-speedup net/ipv4/tcp.c
---- a/net/ipv4/tcp.c~tcp-speedup
-+++ a/net/ipv4/tcp.c
-@@ -1109,6 +1109,8 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 	struct task_struct *user_recv = NULL;
- 	int copied_early = 0;
- 
-+	current->backlog_flag = 1;
-+
- 	lock_sock(sk);
- 
- 	TCP_CHECK_TIMER(sk);
-@@ -1468,6 +1470,13 @@ skip_copy:
- 
- 	TCP_CHECK_TIMER(sk);
- 	release_sock(sk);
-+
-+	current->backlog_flag = 0;
-+	if (current->extrarun_flag == 1){
-+		current->extrarun_flag = 0;
-+		yield();
-+	}
-+
- 	return copied;
- 
- out:
-diff -puN include/linux/sched.h~tcp-speedup include/linux/sched.h
---- a/include/linux/sched.h~tcp-speedup
-+++ a/include/linux/sched.h
-@@ -1023,6 +1023,8 @@ struct task_struct {
- #ifdef	CONFIG_TASK_DELAY_ACCT
- 	struct task_delay_info *delays;
- #endif
-+	int backlog_flag; 	/* packets wait in tcp backlog queue flag */
-+	int extrarun_flag;	/* extra run flag for TCP performance */
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
-diff -puN kernel/sched.c~tcp-speedup kernel/sched.c
---- a/kernel/sched.c~tcp-speedup
-+++ a/kernel/sched.c
-@@ -3099,12 +3099,24 @@ void scheduler_tick(void)
- 
- 		if (!rq->expired_timestamp)
- 			rq->expired_timestamp = jiffies;
--		if (!TASK_INTERACTIVE(p) || expired_starving(rq)) {
--			enqueue_task(p, rq->expired);
--			if (p->static_prio < rq->best_expired_prio)
--				rq->best_expired_prio = p->static_prio;
--		} else
--			enqueue_task(p, rq->active);
-+		if (p->backlog_flag == 0) {
-+			if (!TASK_INTERACTIVE(p) || expired_starving(rq)) {
-+				enqueue_task(p, rq->expired);
-+				if (p->static_prio < rq->best_expired_prio)
-+					rq->best_expired_prio = p->static_prio;
-+			} else
-+				enqueue_task(p, rq->active);
-+		} else {
-+			if (expired_starving(rq)) {
-+				enqueue_task(p,rq->expired);
-+				if (p->static_prio < rq->best_expired_prio)
-+					rq->best_expired_prio = p->static_prio;
-+			} else {
-+				if (!TASK_INTERACTIVE(p))
-+					p->extrarun_flag = 1;
-+				enqueue_task(p,rq->active);
-+			}
-+		}
- 	} else {
- 		/*
- 		 * Prevent a too long timeslice allowing a task to monopolize
-diff -puN kernel/fork.c~tcp-speedup kernel/fork.c
---- a/kernel/fork.c~tcp-speedup
-+++ a/kernel/fork.c
-@@ -1032,6 +1032,9 @@ static struct task_struct *copy_process(
- 	clear_tsk_thread_flag(p, TIF_SIGPENDING);
- 	init_sigpending(&p->pending);
- 
-+	p->backlog_flag = 0;
-+	p->extrarun_flag = 0;
-+
- 	p->utime = cputime_zero;
- 	p->stime = cputime_zero;
-  	p->sched_time = 0;
-_
-
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

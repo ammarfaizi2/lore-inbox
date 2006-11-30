@@ -1,111 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031563AbWK3WYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031570AbWK3W1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031563AbWK3WYz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 17:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031564AbWK3WYz
+	id S1031570AbWK3W1h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 17:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031572AbWK3W1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 17:24:55 -0500
-Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:9351 "HELO
-	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1031563AbWK3WYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 17:24:54 -0500
+	Thu, 30 Nov 2006 17:27:37 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:48199 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1031570AbWK3W1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 17:27:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=X4L9JM8IoUedzikYizAncs/Yyhi2l/QU8C19UnW4bkOQOaXd8WeQ9PPoRsPtByibk7MEkE/FSChxqqjeooZ55/TwVjmLWv2ho9Img9yGuIJCFDsK2iwM7nD3GwfQokTU7aqr7LlhUVCcx5a0wVQx9b//9L7L6Li8gqJQgJbW2g4=  ;
-X-YMail-OSG: lcVdzKsVM1n6z8v_DWdt9lKTFGc6rTAhJiw.m6QTJX0WImRm9IOcN5.Gvu3uWeqOod2_gAsLjgHws1PMH3pE66bjraLONFGVRq3OrrT0q6nrRHL0uJoRVw--
-From: David Brownell <david-b@pacbell.net>
-To: "pHilipp Zabel" <philipp.zabel@gmail.com>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-Date: Thu, 30 Nov 2006 14:24:49 -0800
-User-Agent: KMail/1.7.1
-Cc: "Bill Gatliff" <bgat@billgatliff.com>, "Paul Mundt" <lethal@linux-sh.org>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Andrew Victor" <andrew@sanpeople.com>,
-       "Haavard Skinnemoen" <hskinnemoen@atmel.com>, jamey.hicks@hp.com,
-       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Tony Lindgren" <tony@atomide.com>
-References: <200611111541.34699.david-b@pacbell.net> <200611221640.55574.david-b@pacbell.net> <74d0deb30611292257n3f532abbyedef9b543b9d48ae@mail.gmail.com>
-In-Reply-To: <74d0deb30611292257n3f532abbyedef9b543b9d48ae@mail.gmail.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=sqcY73Rm2yTN5dz+fr9YkkoqYIY7qLdzEMo6WPYw+d+7tG5lM8QTIb4Zq+ZmYD+NsWG9iky/wt/FrolufpxpgghgbsYB3GQgVwjmIhLDV958Ga0XZLvhnMA1Foy1JgYGHgJv+djBJzGCx29eQvEgPesLYJ61EsSYuiwUsUVDpkU=
+Message-ID: <abe01d5c0611301427m4d7222fdgcd46abeade3328f5@mail.gmail.com>
+Date: Thu, 30 Nov 2006 19:27:34 -0300
+From: "Fausto Carvalho" <faustocarva@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [IDE0] Lost interrupt with CS5530A
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200611301424.50916.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 November 2006 10:57 pm, pHilipp Zabel wrote:
-> >
-> > Effectively, yes.  I counted quite a few implementations in the current
-> > tree which can trivially (#defines) map to that API.
-> 
-> I tried to do that for pxa, the patch is attached.
+I think some time ago somebody had the same problem:
 
-At a quick glance, that looked correct.  However:
+"
 
-> +#define gpio_get_value(gpio)   (GPLR(gpio) & GPIO_bit(gpio))
-> +#define gpio_set_value(gpio,value) \
-> +       ((value)? (GPSR(gpio) = GPIO_bit(gpio)):(GPCR(gpio) = GPIO_bit(gpio)))
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+CS5530: ide CONTROLLER AT pci SLOT 0000:00:12.2
+CS5530: chipset revision 0
+CS5530: not 100% native mode: will probe irqs later
+PCI: Enabling bus mastering for device 0000:00:12.2
+PCI: Setting latency timer of device 0000:00:12.2 to 64
+     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
+     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
+hda: CF 32MB, CFA DISK drive
+hda: IRQ probe failed (0xfeba)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq14
+hdc: Hitachi CV 5.1.1, CFA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15 (serialized with ide0)
+hda: max request size: 128KiB
+hda: 62976 sectors (32MB) w/1KiB Cache, CHS=492/4/32
+ hda:<4>hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
 
-Given how much code those macros expand to, I'd consider making those calls
-become inlines which check whether "gpio" is a constant or not.
+"
 
-  if gpio (and value to set?) is a constant
-	then use that inline.
-  ilse
-	procedure call to out-of-line code
+Windows and DOS works normaly, FreeBSD "timeout wainting for interrupt".
+BIOS32 service directory not found.
+PCI BIOS has not been found , using direct mode access.
+The IRQ rounting table was not foud too.
+I do not know if it is important but my BIOS is a XpressROM from NatiSemi.
+And the chipset is a CS5530A not a Cs5530.
+I have a lspci -xxx dump generated, if it can help:
 
-That's just in terms of avoiding object code bloat ... a pair of
-instructions in-lined for a constant gpio will cost as much space
-as the procedure call, but that logic hiding behind the GPLR(),
-GPSR(), and GPCR() macros is another thing altogether.
+00:00.0 Class 0600: Unknown device 1078:0001
+00: 78 10 01 00 07 00 80 02 00 00 00 06 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 1e 10 00 c1 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.0 Class 0601: Unknown device 1078:0100 (rev 30)
+00: 78 10 00 01 1f 00 80 02 30 00 01 06 04 40 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 89 18 ee 47 00 00 00 00 00 00 00 00 00 00 00 00
+50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
+90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 0c 00 20 20 41 11 e9 12 00 00 00 00
+c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.1 Class 0680: Unknown device 1078:0101
+00: 78 10 01 01 02 00 80 02 00 00 80 06 00 00 00 00
+10: 02 20 01 40 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
+90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 0c 00 20 20 42 28 b4 12 00 00 00 00
+c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.2 Class 0101: Unknown device 1078:0102
+00: 78 10 02 01 05 00 80 02 00 80 01 01 00 00 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
+90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 0c 00 20 20 43 02 96 12 00 00 00 00
+c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.3 Class 0401: Unknown device 1078:0103
+00: 78 10 03 01 06 00 80 02 00 00 01 04 00 00 00 00
+10: 00 10 01 40 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
+90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 0c 00 20 20 ef 01 b0 12 00 00 00 00
+c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:12.4 Class 0300: Unknown device 1078:0104
+00: 78 10 04 01 03 00 80 02 00 00 00 03 00 00 80 00
+10: 00 00 80 40 00 00 01 40 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 78 10 4d 58
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+40: 00 e8 3f 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 
-> So what is the state of this discussion, now that 2.6.19 is here?
+Any help is wellcome
 
-My understanding is that nobody objected to the GPIO calls, and several
-folk see active goodness in having them.  Notably Haavard, wanting to
-have a driver that works on both AVR32 and AT91 (different SOC arch,
-same controller IP), you (different ARM platforms), Bill Gatliff (for
-ISTR some code shared between ARM and PPC platforms), and a few others.
-
-The pushback has been entirely related to pin muxing, and I think it's
-accepted now that muxing is platform-specific and orthogonal ... doesn't
-need to hold up a common API here.
-
-
-> I just submitted an input driver for GPIO buttons to linux-input that
-> we use in the handhelds.org kernel for sa1100, pxa and s3c2410 archs.
-> It needs some ugly
-> #ifdefs currently, but with common GPIO calls they all could go away.
-
-Onless there are better suggestions, I think what I'll do is submit
-a pair of patches:
-
- - The documentation, with <asm-arm/gpio.h>
- - OMAP-specific implementation
-
-Then I'll send an FYI to the ARM list (since so many ARMs could use this!)
-and ask Andrew to merge that, first to MM then into 2.6.20 before RC1.
-
-Then I'll ask you to submit an updated PXA patch, plus preferably
-sa1100 and s3c2410 versions, ditto.  (If you can get other folk to
-help, more power to you!)
-
-And Haavard to submit an AVR32 patch, and corresponding AT91 patch
-(ISTR he promised both), ditto.
-
-When those patches are in the MM tree I'd see no particular reason
-to hold back on the upstream merge.  The folk on the CC list are
-involved in maintaining platforms that would be affected, and there
-have been no nay-sayers, so I believe nobody is objecting.
-
-Once they're upstream, it's business as usual:  drivers can start
-using these calls wherever they make sense, platforms can start to
-support them, and so on.
-
-- Dave
-
+-- 
+Fausto Carvalho

@@ -1,103 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936450AbWK3VNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031511AbWK3VP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936450AbWK3VNL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 16:13:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936452AbWK3VNK
+	id S1031511AbWK3VP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 16:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031516AbWK3VP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 16:13:10 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:30945 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S936450AbWK3VNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 16:13:08 -0500
-Date: Thu, 30 Nov 2006 13:12:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net,
-       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       Valerie Henson <val_henson@linux.intel.com>
-Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
-Message-Id: <20061130131240.21b1e889.akpm@osdl.org>
-In-Reply-To: <200611302121.28518.rjw@sisk.pl>
-References: <20061128020246.47e481eb.akpm@osdl.org>
-	<20061129152619.0d1ac361.akpm@osdl.org>
-	<200611300204.16507.rjw@sisk.pl>
-	<200611302121.28518.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 16:15:59 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:11788 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1031511AbWK3VP5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 16:15:57 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: us15@os.inf.tu-dresden.de (Udo A. Steinberg)
+Subject: Re: Linux 2.6.19
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20061130012600.0dcb1337@laptop.hypervisor.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1GptFQ-0002Yy-00@gondolin.me.apana.org.au>
+Date: Fri, 01 Dec 2006 08:15:12 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 21:21:27 +0100
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-
-> On Thursday, 30 November 2006 02:04, Rafael J. Wysocki wrote:
-> > On Thursday, 30 November 2006 00:26, Andrew Morton wrote:
-> > > On Thu, 30 Nov 2006 00:08:21 +0100
-> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > 
-> > > > On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
-> > > > > On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
-> > > > > > On Wed, 29 Nov 2006 21:08:00 +0100
-> > > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > > > > 
-> > > > > > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
-> > > > > > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
-> > > > > > > > > 
-> > > > > > > > > Temporarily at
-> > > > > > > > > 
-> > > > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
-> > > > > > > > > 
-> > > > > > > > > Will appear eventually at
-> > > > > > > > > 
-> > > > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
-> > > > > > > > 
-> > > > > > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
-> > > > > > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
-> > > > > > 
-> > > > > > That isn't a minor issue.
-> > > > > > 
-> > > > > > > > It worked just fine on -mm1, so something must have happened to it recently.
-> > > > > > > 
-> > > > > > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
-> > > > > > > 
-> > > > > > 
-> > > > > > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
-> > > > > > not using that (corrent?)
-> > > > > > 
-> > > > > > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
-> > > > > > that either.
-> > > > > > 
-> > > > > > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
-> > > > > > 
-> > > > > > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
-> > > > > > presumably a showstopper for statically-linked-uli526x users.  If you could
-> > > > > > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
-> > > > > 
-> > > > > OK, but it'll take some time.
-> > > > 
-> > > > OK, done.
-> > > > 
-> > > > It's one of these (the first one alone doesn't compile):
-> > > > 
-> > > > git-netdev-all.patch
-> > > > git-netdev-all-fixup.patch
-> > > > libphy-dont-do-that.patch
+Udo A. Steinberg <us15@os.inf.tu-dresden.de> wrote:
 > 
-> Hm, all of these patches are the same as in -mm1 which hasn't caused any
-> problems to appear on this box.
-> 
-> So, it seems there's another change between -mm1 and -mm2 that causes this
-> to happen.
-> 
+> Ok, so 2.6.18 used to get along fine with cryptoloop and 2.6.19 refuses to
+> cooperate. An strace of "losetup -e aes /dev/loop0 /dev/hda7" without all the
+> terminal interaction shows:
 
-It would be nice to eliminate libphy-dont-do-that.patch if poss - that was
-a rogue akpm patch aimed at some incomprehensible gobbledigook in the
-netdev tree (and to fix the current_is_keventd-not-exported-to-modules
-bug).
+Did you enable CONFIG_CRYPTO_CBC?
 
-I have a feeling that your bug will be cheerily merged into mainline soon. 
-That might of course mean that someone will hit it more firmly and it'll
-get fixed.
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

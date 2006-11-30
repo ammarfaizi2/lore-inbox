@@ -1,97 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933542AbWK3JmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933046AbWK3JsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933542AbWK3JmP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933622AbWK3JmO
+	id S933046AbWK3JsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933640AbWK3JsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:42:14 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:6930 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S933542AbWK3JmN (ORCPT
+	Thu, 30 Nov 2006 04:48:21 -0500
+Received: from jdi.jdi-ict.nl ([82.94.239.5]:50148 "EHLO jdi.jdi-ict.nl")
+	by vger.kernel.org with ESMTP id S933046AbWK3JsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:42:13 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: mchehab@infradead.org
-Subject: [PATCH] video: pm3fb macros fix
-Date: Thu, 30 Nov 2006 10:41:44 +0100
-User-Agent: KMail/1.9.5
-Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+	Thu, 30 Nov 2006 04:48:20 -0500
+Date: Thu, 30 Nov 2006 10:48:06 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
+X-X-Sender: igmar@jdi.jdi-ict.nl
+To: erich <erich@areca.com.tw>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
+In-Reply-To: <004901c7141e$15e6cc50$b100a8c0@erich2003>
+Message-ID: <Pine.LNX.4.58.0611301036050.27381@jdi.jdi-ict.nl>
+References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
+ <004901c7141e$15e6cc50$b100a8c0@erich2003>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301041.44239.m.kozlowski@tuxland.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 30 Nov 2006 10:48:07 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-	This patch fixes some macros.
+Hi,
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> If you are working on arcmsr 1.20.00.13 for official kernel version.
+> This is the last version.
 
- include/video/pm3fb.h |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+I'm already on that version. I'll see if I can upgrade to 2.6.19 today.
 
---- linux-2.6.19-rc6-mm2-a/include/video/pm3fb.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/include/video/pm3fb.h	2006-11-30 01:07:26.000000000 +0100
-@@ -607,16 +607,16 @@
- #define PM3FBDestReadModeOr					0xac98
- 	#define PM3FBDestReadMode_ReadDisable			0<<0
- 	#define PM3FBDestReadMode_ReadEnable			1<<0
--	#define PM3FBDestReadMode_StripePitch(sp)	(((sp)&0x7)<<2
--	#define PM3FBDestReadMode_StripeHeight(sh)	(((sh)&0x7)<<7
-+	#define PM3FBDestReadMode_StripePitch(sp)	(((sp)&0x7)<<2)
-+	#define PM3FBDestReadMode_StripeHeight(sh)	(((sh)&0x7)<<7)
- 	#define PM3FBDestReadMode_Enable0			1<<8
- 	#define PM3FBDestReadMode_Enable1			1<<9
- 	#define PM3FBDestReadMode_Enable2			1<<10
- 	#define PM3FBDestReadMode_Enable3			1<<11
--	#define PM3FBDestReadMode_Layout0(l)		(((l)&0x3)<<12
--	#define PM3FBDestReadMode_Layout1(l)		(((l)&0x3)<<14
--	#define PM3FBDestReadMode_Layout2(l)		(((l)&0x3)<<16
--	#define PM3FBDestReadMode_Layout3(l)		(((l)&0x3)<<18
-+	#define PM3FBDestReadMode_Layout0(l)		(((l)&0x3)<<12)
-+	#define PM3FBDestReadMode_Layout1(l)		(((l)&0x3)<<14)
-+	#define PM3FBDestReadMode_Layout2(l)		(((l)&0x3)<<16)
-+	#define PM3FBDestReadMode_Layout3(l)		(((l)&0x3)<<18)
- 	#define PM3FBDestReadMode_Origin0			1<<20
- 	#define PM3FBDestReadMode_Origin1			1<<21
- 	#define PM3FBDestReadMode_Origin2			1<<22
-@@ -640,16 +640,16 @@
- #define PM3FBSourceReadModeOr					0xaca8
- 	#define PM3FBSourceReadMode_ReadDisable			(0<<0)
- 	#define PM3FBSourceReadMode_ReadEnable			(1<<0)
--	#define PM3FBSourceReadMode_StripePitch(sp)	(((sp)&0x7)<<2
--	#define PM3FBSourceReadMode_StripeHeight(sh)	(((sh)&0x7)<<7
--	#define PM3FBSourceReadMode_Layout(l)		(((l)&0x3)<<8
-+	#define PM3FBSourceReadMode_StripePitch(sp)	(((sp)&0x7)<<2)
-+	#define PM3FBSourceReadMode_StripeHeight(sh)	(((sh)&0x7)<<7)
-+	#define PM3FBSourceReadMode_Layout(l)		(((l)&0x3)<<8)
- 	#define PM3FBSourceReadMode_Origin			1<<10
- 	#define PM3FBSourceReadMode_Blocking			1<<11
- 	#define PM3FBSourceReadMode_UserTexelCoord		1<<13
- 	#define PM3FBSourceReadMode_WrapXEnable			1<<14
- 	#define PM3FBSourceReadMode_WrapYEnable			1<<15
--	#define PM3FBSourceReadMode_WrapX(w)		(((w)&0xf)<<16
--	#define PM3FBSourceReadMode_WrapY(w)		(((w)&0xf)<<20
-+	#define PM3FBSourceReadMode_WrapX(w)		(((w)&0xf)<<16)
-+	#define PM3FBSourceReadMode_WrapY(w)		(((w)&0xf)<<20)
- 	#define PM3FBSourceReadMode_ExternalSourceData		1<<24
- #define PM3FBWriteBufferAddr0                                   0xb000
- #define PM3FBWriteBufferAddr1                                   0xb008
-@@ -942,7 +942,7 @@
- #define PM3Window						0x8980
- 	#define PM3Window_ForceLBUpdate				1<<3
- 	#define PM3Window_LBUpdateSource			1<<4
--	#define PM3Window_FrameCount(c)				(((c)&0xff)<<9
-+	#define PM3Window_FrameCount(c)				(((c)&0xff)<<9)
- 	#define PM3Window_StencilFCP				1<<17
- 	#define PM3Window_DepthFCP				1<<18
- 	#define PM3Window_OverrideWriteFiltering		1<<19
+> Could you check your RAID controller event and tell someting to me?
+> You can check "MBIOS"=>"Physical Drive Information"=>"View Drive 
+> Information"=>"Select The Drive"=>"Timeout Count"......
+> It could tell you which disk had bad behavior cause your RAID volume 
+> offline.
+
+I need to be in the BIOS right ? I couldn't find anything usefull with the 
+cli32 tool.
+
+> About the message dump from arcmsr, it said that your RAID volume had 
+> something wrong and kicked out from the system.
+> How about your RAID config?
+
+CLI> disk info
+Ch   ModelName        Serial#          FirmRev     Capacity  State
+===============================================================================
+ 1   HDT722516DLA380  VDK71BTCDB90KE   V43OA91A     164.7GB  RaidSet 
+Member(1)
+ 2   HDT722516DLA380  VDN71BTCDEPH7G   V43OA91A     164.7GB  RaidSet 
+Member(1)
+ 3   HDT722516DLA380  VDN71BTCDES96G   V43OA91A     164.7GB  RaidSet 
+Member(1)
+ 4   HDT722516DLA380  VDN71BTCDE15KG   V43OA91A     164.7GB  RaidSet 
+Member(1)
+===============================================================================
+
+CLI> rsf info
+Num Name             Disks TotalCap  FreeCap DiskChannels       State
+===============================================================================
+ 1  Raid Set # 00        4  640.0GB    0.0GB 1234               Normal
+===============================================================================
+
+CLI> vsf info
+ # Name             Raid# Level   Capacity Ch/Id/Lun  State
+===============================================================================
+ 1 ARC-1110-VOL#00    1   Raid5    480.0GB 00/00/00   Normal
+===============================================================================
+
+A plain RAID 5 config with 4 disks. 
+
+
+> Areca had new firmware released (1.42).
+> If you are working on "sg" device with scsi passthrough ioctl method to feed 
+> data into Areca's RAID volume.
+> You need to limit your data under 512 blocks (256K) each transfer.
+> The new firmware will enlarge it into 4096 blocks (2M) each transfer.
+> The firmware version 1.42 is on releasing procedure but not yet put it on 
+> Areca ftp site.
+
+I don't use the sg driver at all. Is the upgrade worth it ? I usually 
+don't mess with firmware unless being told to do so.
+
+> If you need it, please tell me again.
+
+Can you send it to me ? Installing it won't hurt I guess :)
+
+
+Regards,
+
+
+	Igmar
 
 
 -- 
-Regards,
+Igmar Palsenberg
+JDI ICT
 
-	Mariusz Kozlowski
+Zutphensestraatweg 85
+6953 CJ Dieren
+Tel: +31 (0)313 - 496741
+Fax: +31 (0)313 - 420996
+The Netherlands
+
+mailto: i.palsenberg@jdi-ict.nl

@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936401AbWK3M0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936386AbWK3M0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936401AbWK3M0B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936375AbWK3MYP
+	id S936386AbWK3M0l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936388AbWK3M0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:24:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2704 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936370AbWK3MYG (ORCPT
+	Thu, 30 Nov 2006 07:26:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9361 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936397AbWK3MZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:24:06 -0500
-Subject: [GFS2] Mount problem with the GFS2 code [68/70]
+	Thu, 30 Nov 2006 07:25:17 -0500
+Subject: [GFS2] Add a comment about reading the super block [69/70]
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Cc: Srinivasa DS <srinivasa@in.ibm.com>
+Cc: Srinivasa Ds <srinivasa@in.ibm.com>, Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 30 Nov 2006 12:23:51 +0000
-Message-Id: <1164889431.3752.445.camel@quoit.chygwyn.com>
+Date: Thu, 30 Nov 2006 12:24:05 +0000
+Message-Id: <1164889445.3752.447.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 0da3585e1ef650d3224b4d6f9799558d1d99fa1e Mon Sep 17 00:00:00 2001
-From: Srinivasa Ds <srinivasa@in.ibm.com>
-Date: Thu, 30 Nov 2006 15:04:55 +0530
-Subject: [PATCH] [GFS2] Mount problem with the GFS2 code
+>From aac1a3c77a46c2d06f297641760dd740ac2a84af Mon Sep 17 00:00:00 2001
+From: Steven Whitehouse <swhiteho@redhat.com>
+Date: Thu, 30 Nov 2006 10:02:19 -0500
+Subject: [PATCH] [GFS2] Add a comment about reading the super block
 
-  While mounting the gfs2 filesystem,our test team had a problem and we
-got this error message.
-=======================================================
+The comment explains why we use the bio functions to read
+the super block.
 
-GFS2: fsid=: Trying to join cluster "lock_nolock", "dasde1"
-GFS2: fsid=dasde1.0: Joined cluster. Now mounting FS...
-GFS2: not a GFS2 filesystem
-GFS2: fsid=dasde1.0: can't read superblock: -22
-
-==========================================================================
-On debugging further we found that problem is while reading the super
-block(gfs2_read_super) and comparing the magic number in it.
-When I  replace the submit_bio() call(present in gfs2_read_super) with
-the sb_getblk() and ll_rw_block(), mount operation succeded.
-On further analysis we found that before calling submit_bio(),
-bio->bi_sector was set to "sector" variable. This "sector" variable has
-the same value of bh->b_blocknr(block number). Hence there is a need to
-multiply this valuwith (blocksize >> 9)(9 because,sector size
-2^9,samething happens in ll_rw_block also, before calling submit_bio()).
-So I have developed the patch which solves this problem. Please let me
-know your comments.
-================================================================
-
-Signed-off-by: Srinivasa DS <srinivasa@in.ibm.com>
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: Srinivasa Ds <srinivasa@in.ibm.com>
 ---
- fs/gfs2/super.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ fs/gfs2/super.c |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
 
 diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 1408c5f..3b22727 100644
+index 3b22727..43a24f2 100644
 --- a/fs/gfs2/super.c
 +++ b/fs/gfs2/super.c
-@@ -199,7 +199,7 @@ struct page *gfs2_read_super(struct supe
- 		return NULL;
- 	}
+@@ -180,6 +180,24 @@ static int end_bio_io_page(struct bio *b
+ 	return 0;
+ }
  
--	bio->bi_sector = sector;
-+	bio->bi_sector = sector * (sb->s_blocksize >> 9);
- 	bio->bi_bdev = sb->s_bdev;
- 	bio_add_page(bio, page, PAGE_SIZE, 0);
- 
++/**
++ * gfs2_read_super - Read the gfs2 super block from disk
++ * @sb: The VFS super block
++ * @sector: The location of the super block
++ *
++ * This uses the bio functions to read the super block from disk
++ * because we want to be 100% sure that we never read cached data.
++ * A super block is read twice only during each GFS2 mount and is
++ * never written to by the filesystem. The first time its read no
++ * locks are held, and the only details which are looked at are those
++ * relating to the locking protocol. Once locking is up and working,
++ * the sb is read again under the lock to establish the location of
++ * the master directory (contains pointers to journals etc) and the
++ * root directory.
++ *
++ * Returns: A page containing the sb or NULL
++ */
++
+ struct page *gfs2_read_super(struct super_block *sb, sector_t sector)
+ {
+ 	struct page *page;
 -- 
 1.4.1
 

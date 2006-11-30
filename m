@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967977AbWK3XX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967987AbWK3Xv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967977AbWK3XX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 18:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967978AbWK3XX5
+	id S967987AbWK3Xv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 18:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967988AbWK3Xv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 18:23:57 -0500
-Received: from colin.muc.de ([193.149.48.1]:44299 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S967977AbWK3XX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 18:23:56 -0500
-Date: 1 Dec 2006 00:23:54 +0100
-Date: Fri, 1 Dec 2006 00:23:54 +0100
-From: Andi Kleen <ak@muc.de>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] atomic_cmpxchg return type error
-Message-ID: <20061130232354.GA12359@muc.de>
-References: <20061130211705.GA12987@Krystal>
+	Thu, 30 Nov 2006 18:51:59 -0500
+Received: from rhun.apana.org.au ([64.62.148.172]:11024 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S967987AbWK3Xv6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 18:51:58 -0500
+Date: Fri, 1 Dec 2006 10:51:49 +1100
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.19
+Message-ID: <20061130235149.GA11266@gondor.apana.org.au>
+References: <20061130012600.0dcb1337@laptop.hypervisor.org> <E1GptFQ-0002Yy-00@gondolin.me.apana.org.au> <20061130233259.69e0cfb0@laptop.hypervisor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061130211705.GA12987@Krystal>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061130233259.69e0cfb0@laptop.hypervisor.org>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 04:17:06PM -0500, Mathieu Desnoyers wrote:
-> Hi,
+On Thu, Nov 30, 2006 at 11:32:59PM +0100, Udo A. Steinberg wrote:
 > 
-> I just noticed that a atomic_cmpxchg, that would be given an atomic64_t
-> parameter, would cast the return value as a (int). In the typical use of this
-> primitive, the result would be that the 32 MSB would be lost when comparing
-> against the original value. It also affects atomic_add_unless. Note that there
-> is no atomic64_cmpxchg nor atomic64_add_unless, which might make things a
-> little clearer.
+> I didn't and that turned out to be the culprit. With CONFIG_CRYPTO_CBC enabled
+> everything works fine. Thanks, Herbert!
+> 
+> Shouldn't cryptoloop automatically select CONFIG_CRYPTO_CBC if it depends on it?
 
-Normally you're supposed to only use atomic64_* with atomic64_t
+Yes I'll make it select CONFIG_CRYPTO_CBC since that's the default
+chaining method.
 
-While it works for most by accident on x86 to just use atomic_* 
-with atomic64_t it's not portable to other architectures.
-
-If you want to use those with atomic64_t suitable macros would need
-to be added on all architectures.
-
--Andi
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

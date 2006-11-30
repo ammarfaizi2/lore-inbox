@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759013AbWK3Egt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759021AbWK3Eof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759013AbWK3Egt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 23:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759024AbWK3Egt
+	id S1759021AbWK3Eof (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 23:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759025AbWK3Eof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 23:36:49 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7467 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1759013AbWK3Egs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 23:36:48 -0500
-Date: Wed, 29 Nov 2006 22:35:29 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: mass-storage problems with Archos AV500
-In-reply-to: <fa.+HViQkzstd1WGzxw6QnaK2a1tiY@ifi.uio.no>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: tao@acc.umu.se
-Message-id: <456E5F91.7020300@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.+HViQkzstd1WGzxw6QnaK2a1tiY@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Wed, 29 Nov 2006 23:44:35 -0500
+Received: from web56507.mail.re3.yahoo.com ([66.196.97.36]:1691 "HELO
+	web56507.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S1759021AbWK3Eoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 23:44:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=Dfgpzo2cHLkdBvjOPe+kRi8idZWb0TS2++fe1R9DJOiykqxSkKK2mNdxYuLYlx73i7/61thr3/lb0aByn/2LQ+TS2cJ8sfAzmP+hJLT23DgL0E/2MBgS8GcmGmLX2XfttDUFXy0KQCFiQwAxbOzxIYUIlbE7eg/zogIySqBbUrY=;
+X-YMail-OSG: BV5pdV0VM1nkVBkCoSSQtub7zen9hywEH2.bs09guHcz6dRSCYSRFCZx105UnOJGseACJERRwHPtpGvoPNcQJhSFNuRIMkT22N9arvK6b98Lhn1eGzFUQw--
+Date: Wed, 29 Nov 2006 20:44:33 -0800 (PST)
+From: linux err <linux_err@yahoo.com>
+Subject: Core file size?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <4288.39070.qm@web56507.mail.re3.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> I've got an Archos AV500 here (running the very latest firmware), pretty
-> much acting as a doorstop, since I cannot get it to be recognized
-> properly by Linux.
+Does anyone know what determines the size of a core
+dump? I have a process running out of memory (it
+allocates about 3GB) - but the size of core varies
+(between 2-3GB) depending on how much the process
+wrote on the allocated memory.
 
-..
+Also, the time it takes to write the core (same size)
+varies??
 
-> [  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
-> MB)
-> [  118.144000] sdb: Write Protect is off
-> [  118.144000] sdb: Mode Sense: 33 00 00 00
-> [  118.144000] sdb: assuming drive cache: write through
-> [  118.144000]  sdb: unknown partition table
-> [  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
-> [  118.452000] usb-storage: device scan complete
-> 
-> This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
-> I get similar results with a home-brew 2.6.18-rc4.
-> 
-> Any mass storage quirk needed that might be missing?
+I briefly looked at elf_core_dump and get_user_pages()
+in binfmt_elf.c. Is there any documentation on this?
+Or anyone knows how it works?
 
-That all seems normal, other than the unknown partition table, but the 
-device might be all one unpartitioned disk.. at what point is it failing?
+TIA
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 
+ 
+____________________________________________________________________________________
+Cheap talk?
+Check out Yahoo! Messenger's low PC-to-Phone call rates.
+http://voice.yahoo.com

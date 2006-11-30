@@ -1,174 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936258AbWK3MLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936257AbWK3MLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936258AbWK3MLp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936260AbWK3MLp
+	id S936257AbWK3MLf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936255AbWK3MLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:11:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22917 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936258AbWK3MLo (ORCPT
+	Thu, 30 Nov 2006 07:11:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4229 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936257AbWK3MLe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:11:44 -0500
-Subject: [GFS2] split gfs2_dinode into on-disk and host variants [1/70]
+	Thu, 30 Nov 2006 07:11:34 -0500
+Subject: [GFS2 & DLM] Guide to -nmw tree patches
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Cc: Al Viro <viro@zeniv.linux.org.uk>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 30 Nov 2006 12:12:23 +0000
-Message-Id: <1164888743.3752.303.camel@quoit.chygwyn.com>
+Date: Thu, 30 Nov 2006 12:12:13 +0000
+Message-Id: <1164888733.3752.302.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 3ca68df6ee61e1a2034f3307b9edb9b3d87e5ca1 Mon Sep 17 00:00:00 2001
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: Fri, 13 Oct 2006 20:11:25 -0400
-Subject: [PATCH] [GFS2] split gfs2_dinode into on-disk and host variants
+Hi,
 
-The latter is used as part of gfs2-private part of struct inode.
-It actually stores a lot of fields differently; for now the
-declaration is just cloned, inode field is swtiched and changes
-propagated.
+Below is a summary diffstat of all the changes in the GFS2 & DLM -nmw
+(next merge window) git tree. Since merge time is once again upon us,
+the following patches are the current complete content of the tree.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
----
- fs/gfs2/inode.c             |    4 ++--
- fs/gfs2/ondisk.c            |    6 +++--
- include/linux/gfs2_ondisk.h |   48 ++++++++++++++++++++++++++++++++++++++++---
- 3 files changed, 50 insertions(+), 8 deletions(-)
+Although there are quite a few patches, there are relatively few major
+changes. There is one new feature and thats the DLM TCP communications
+layer. This existed before the (current upstream) TCP communications
+layer and has received more testing over its lifetime, so its a kind of
+old new feature :-)
 
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index d470e52..191a3df 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -48,7 +48,7 @@ #include "util.h"
- void gfs2_inode_attr_in(struct gfs2_inode *ip)
- {
- 	struct inode *inode = &ip->i_inode;
--	struct gfs2_dinode *di = &ip->i_di;
-+	struct gfs2_dinode_host *di = &ip->i_di;
- 
- 	inode->i_ino = ip->i_num.no_addr;
- 
-@@ -98,7 +98,7 @@ void gfs2_inode_attr_in(struct gfs2_inod
- void gfs2_inode_attr_out(struct gfs2_inode *ip)
- {
- 	struct inode *inode = &ip->i_inode;
--	struct gfs2_dinode *di = &ip->i_di;
-+	struct gfs2_dinode_host *di = &ip->i_di;
- 	gfs2_assert_withdraw(GFS2_SB(inode),
- 		(di->di_mode & S_IFMT) == (inode->i_mode & S_IFMT));
- 	di->di_mode = inode->i_mode;
-diff --git a/fs/gfs2/ondisk.c b/fs/gfs2/ondisk.c
-index 1025960..52cb9a2 100644
---- a/fs/gfs2/ondisk.c
-+++ b/fs/gfs2/ondisk.c
-@@ -153,7 +153,7 @@ void gfs2_quota_in(struct gfs2_quota *qu
- 	qu->qu_value = be64_to_cpu(str->qu_value);
- }
- 
--void gfs2_dinode_in(struct gfs2_dinode *di, const void *buf)
-+void gfs2_dinode_in(struct gfs2_dinode_host *di, const void *buf)
- {
- 	const struct gfs2_dinode *str = buf;
- 
-@@ -187,7 +187,7 @@ void gfs2_dinode_in(struct gfs2_dinode *
- 
- }
- 
--void gfs2_dinode_out(const struct gfs2_dinode *di, void *buf)
-+void gfs2_dinode_out(const struct gfs2_dinode_host *di, void *buf)
- {
- 	struct gfs2_dinode *str = buf;
- 
-@@ -221,7 +221,7 @@ void gfs2_dinode_out(const struct gfs2_d
- 
- }
- 
--void gfs2_dinode_print(const struct gfs2_dinode *di)
-+void gfs2_dinode_print(const struct gfs2_dinode_host *di)
- {
- 	gfs2_meta_header_print(&di->di_header);
- 	gfs2_inum_print(&di->di_num);
-diff --git a/include/linux/gfs2_ondisk.h b/include/linux/gfs2_ondisk.h
-index a7ae7c1..f334b4b 100644
---- a/include/linux/gfs2_ondisk.h
-+++ b/include/linux/gfs2_ondisk.h
-@@ -270,6 +270,48 @@ struct gfs2_dinode {
- 	__u8 di_reserved[56];
- };
- 
-+struct gfs2_dinode_host {
-+	struct gfs2_meta_header di_header;
-+
-+	struct gfs2_inum di_num;
-+
-+	__be32 di_mode;	/* mode of file */
-+	__be32 di_uid;	/* owner's user id */
-+	__be32 di_gid;	/* owner's group id */
-+	__be32 di_nlink;	/* number of links to this file */
-+	__be64 di_size;	/* number of bytes in file */
-+	__be64 di_blocks;	/* number of blocks in file */
-+	__be64 di_atime;	/* time last accessed */
-+	__be64 di_mtime;	/* time last modified */
-+	__be64 di_ctime;	/* time last changed */
-+	__be32 di_major;	/* device major number */
-+	__be32 di_minor;	/* device minor number */
-+
-+	/* This section varies from gfs1. Padding added to align with
-+         * remainder of dinode
-+	 */
-+	__be64 di_goal_meta;	/* rgrp to alloc from next */
-+	__be64 di_goal_data;	/* data block goal */
-+	__be64 di_generation;	/* generation number for NFS */
-+
-+	__be32 di_flags;	/* GFS2_DIF_... */
-+	__be32 di_payload_format;  /* GFS2_FORMAT_... */
-+	__u16 __pad1;	/* Was ditype in gfs1 */
-+	__be16 di_height;	/* height of metadata */
-+	__u32 __pad2;	/* Unused incarnation number from gfs1 */
-+
-+	/* These only apply to directories  */
-+	__u16 __pad3;	/* Padding */
-+	__be16 di_depth;	/* Number of bits in the table */
-+	__be32 di_entries;	/* The number of entries in the directory */
-+
-+	struct gfs2_inum __pad4; /* Unused even in current gfs1 */
-+
-+	__be64 di_eattr;	/* extended attribute block number */
-+
-+	__u8 di_reserved[56];
-+};
-+
- /*
-  * directory structure - many of these per directory file
-  */
-@@ -422,8 +464,8 @@ extern void gfs2_rgrp_in(struct gfs2_rgr
- extern void gfs2_rgrp_out(const struct gfs2_rgrp *rg, void *buf);
- extern void gfs2_quota_in(struct gfs2_quota *qu, const void *buf);
- extern void gfs2_quota_out(const struct gfs2_quota *qu, void *buf);
--extern void gfs2_dinode_in(struct gfs2_dinode *di, const void *buf);
--extern void gfs2_dinode_out(const struct gfs2_dinode *di, void *buf);
-+extern void gfs2_dinode_in(struct gfs2_dinode_host *di, const void *buf);
-+extern void gfs2_dinode_out(const struct gfs2_dinode_host *di, void *buf);
- extern void gfs2_ea_header_in(struct gfs2_ea_header *ea, const void *buf);
- extern void gfs2_ea_header_out(const struct gfs2_ea_header *ea, void *buf);
- extern void gfs2_log_header_in(struct gfs2_log_header *lh, const void *buf);
-@@ -436,7 +478,7 @@ extern void gfs2_quota_change_in(struct 
- /* Printing functions */
- 
- extern void gfs2_rindex_print(const struct gfs2_rindex *ri);
--extern void gfs2_dinode_print(const struct gfs2_dinode *di);
-+extern void gfs2_dinode_print(const struct gfs2_dinode_host *di);
- 
- #endif /* __KERNEL__ */
- 
--- 
-1.4.1
+Also 9 of these patches have been posted before as part of the -fixes
+tree, so there are here again as Linus didn't pull that tree last week
+and this is a superset therefore of the -fixes tree. I've marked the
+patches that have been posted before with a * in the list below.
 
+Also I've classified the patches into new=N, cleanup=C and bugfix=B to
+help make more sense of them.
+
+Of the remaining patches, 15 of them are from Al Viro and relate to
+endianess annotation. A similar number of follow up patches from myself
+build on that work by removing duplicated fields in the GFS2 in-core
+inode, thus shrinking it and removing some extra copying that we were
+doing.
+
+Assuming that no major objections are raised, I'll send Linus a pull
+request for these patches shortly. If any minor points are raised, then
+hopefully they can be resolved with a follow up patch.
+
+These patches have mostly (aside from the last few) been in -mm for some
+time now. The patches do not touch anything outside the GFS2/DLM code.
+Many thanks to all those who have sent bug reports & patches,
+
+Steve.
+-------------------------------------------------------------------------------------------
+
+The following changes since commit 0215ffb08ce99e2bb59eca114a99499a4d06e704:
+  Linus Torvalds:
+        Linux 2.6.19
+
+are found in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-nmw.git
+
+Al Viro:
+      [GFS2] split gfs2_dinode into on-disk and host variants               [C]
+      [GFS2] gfs2_dinode_host fields are host-endian                        [C]
+      [GFS2] split gfs2_sb                                                  [C]
+      [GFS2] fields of gfs2_sb_host are host-endian                         [C]
+      [GFS2] split and annotate gfs2_rgrp                                   [C]
+      [GFS2] split and annotate gfs2_inum_range                             [C]
+      [GFS2] split and annotate gfs2_log_head                               [C]
+      [GFS2] split and annotate gfs2_meta_header                            [C]
+      [GFS2] split and annotate gfs_rindex                                  [C]
+      [GFS2] split and annotate gfs2_inum                                   [C]
+      [GFS2] split and annotate gfs2_quota                                  [C]
+      [GFS2] split and annotate gfs2_statfs_change                          [C]
+      [GFS2] split and annotate gfs2_quota_change                           [C]
+      [GFS2] gfs2 misc endianness annotations                               [C]
+      [GFS2] gfs2 __user misannotation fix                                  [C]
+
+David Teigland:
+      [DLM] res_recover_locks_count not reset when recover_locks is aborted [B, *]
+      [DLM] status messages ping-pong between unmounted nodes               [B, *]
+      [DLM] fix requestqueue race                                           [B, *]
+      [DLM] fix aborted recovery during node removal                        [B, *]
+      [DLM] fix stopping unstarted recovery                                 [B, *]
+      [DLM] do full recover_locks barrier                                   [B, *]
+      [DLM] clear sbflags on lock master                                    [B, *]
+      [DLM] fix add_requestqueue checking nodes list                        [B]
+      [DLM] fix size of STATUS_REPLY message                                [B]
+      [DLM] don't accept replies to old recovery messages                   [B]
+
+Patrick Caulfield:
+      [DLM] Add support for tcp communications                              [N]
+      [DLM] Fix DLM config                                                  [B]
+
+Randy Dunlap:
+      [GFS2] lock function parameter                                        [B]
+
+Russell Cattelan:
+      [GFS2] Fix race in logging code                                       [B]
+      [GFS2] Remove unused zero_readpage from stuffed_readpage              [B]
+
+Ryusuke Konishi:
+      [GFS2] fs/gfs2/log.c:log_bmap() fix printk format warning             [C]
+      [DLM] fix format warnings in rcom.c and recoverd.c                    [C]
+
+Srinivasa Ds:
+      [GFS2] Mount problem with the GFS2 code                               [B]
+
+Steven Whitehouse:
+      [GFS2] Fix crc32 calculation in recovery.c                            [B]
+      [GFS2] Change argument of gfs2_dinode_out                             [C]
+      [GFS2] Change argument to gfs2_dinode_in                              [C]
+      [GFS2] Move gfs2_dinode_in to inode.c                                 [C]
+      [GFS2] Change argument to gfs2_dinode_print                           [C]
+      [GFS2] Shrink gfs2_inode (1) - di_header/di_num                       [C]
+      [GFS2] Shrink gfs2_inode (2) - di_major/di_minor                      [C]
+      [GFS2] Shrink gfs2_inode (3) - di_mode                                [C]
+      [GFS2] Shrink gfs2_inode (4) - di_uid/di_gid                          [C]
+      [GFS2] Shrink gfs2_inode (5) - di_nlink                               [C]
+      [GFS2] Shrink gfs2_inode (6) - di_atime/di_mtime/di_ctime             [C]
+      [GFS2] Shrink gfs2_inode (7) - di_payload_format                      [C]
+      [GFS2] Shrink gfs2_inode (8) - i_vn                                   [C]
+      [GFS2] Tidy up 0 initialisations in inode.c                           [C]
+      [GFS2] Don't copy meta_header for rgrp in and out                     [C]
+      [GFS2] Remove unused GL_DUMP flag                                     [C]
+      [GFS2] Fix page lock/glock deadlock                                   [B]
+      [GFS2] Only set inode flags when required                             [C]
+      [GFS2] Inode number is constant                                       [C]
+      [GFS2] Remove gfs2_inode_attr_in                                      [C]
+      [GFS2] Fix memory allocation in glock.c                               [B, *]
+      [GFS2] Tidy up bmap & fix boundary bug                                [B,C]
+      [GFS2] Remove unused sysfs files                                      [C]
+      [GFS2] Remove unused function from inode.c                            [B, C]
+      [GFS2] Make sentinel dirents compatible with gfs1                     [B]
+      [GFS2] Fix Kconfig wrt CRC32                                          [B, *]
+      [GFS2] Simplify glops functions                                       [C]
+      [GFS2] Fix glock ordering on inode creation                           [B]
+      [GFS2] mark_inode_dirty after write to stuffed file                   [B]
+      [GFS2] Fix journal flush problem                                      [B]
+      [GFS2] Move gfs2_meta_syncfs() into log.c                             [C]
+      [GFS2] Reduce number of arguments to meta_io.c:getbuf()               [C]
+      [GFS2] Fix recursive locking in gfs2_permission                       [B]
+      [GFS2] Fix recursive locking in gfs2_getattr                          [B]
+      [GFS2] Remove gfs2_check_acl()                                        [C]
+      [GFS2] Add a comment about reading the super block                    [C]
+      [GFS2] Don't flush everything on fdatasync                            [B, C]
+
+ fs/dlm/Kconfig              |   20 +
+ fs/dlm/Makefile             |    4 
+ fs/dlm/dlm_internal.h       |    4 
+ fs/dlm/lock.c               |   16 -
+ fs/dlm/lockspace.c          |    4 
+ fs/dlm/lowcomms-sctp.c      | 1239 ++++++++++++++++++++++++++++++++++++++++++
+ fs/dlm/lowcomms-tcp.c       | 1263 +++++++++++++++++++++++++++++++++++++++++++
+ fs/dlm/lowcomms.c           | 1239 ------------------------------------------
+ fs/dlm/member.c             |    8 
+ fs/dlm/rcom.c               |   58 +-
+ fs/dlm/recover.c            |    1 
+ fs/dlm/recoverd.c           |   44 +
+ fs/dlm/requestqueue.c       |   26 +
+ fs/dlm/requestqueue.h       |    2 
+ fs/gfs2/Kconfig             |    1 
+ fs/gfs2/acl.c               |   39 -
+ fs/gfs2/acl.h               |    1 
+ fs/gfs2/bmap.c              |  179 +++---
+ fs/gfs2/daemon.c            |    7 
+ fs/gfs2/dir.c               |   93 ++-
+ fs/gfs2/dir.h               |    8 
+ fs/gfs2/eaops.c             |    2 
+ fs/gfs2/eattr.c             |   66 +-
+ fs/gfs2/eattr.h             |    6 
+ fs/gfs2/glock.c             |   36 -
+ fs/gfs2/glock.h             |    3 
+ fs/gfs2/glops.c             |  138 +----
+ fs/gfs2/incore.h            |   43 +
+ fs/gfs2/inode.c             |  406 +++++---------
+ fs/gfs2/inode.h             |   20 -
+ fs/gfs2/log.c               |   41 +
+ fs/gfs2/log.h               |    2 
+ fs/gfs2/lops.c              |   40 +
+ fs/gfs2/lops.h              |    2 
+ fs/gfs2/meta_io.c           |   46 +-
+ fs/gfs2/meta_io.h           |    1 
+ fs/gfs2/ondisk.c            |  138 +----
+ fs/gfs2/ops_address.c       |   52 +-
+ fs/gfs2/ops_dentry.c        |    4 
+ fs/gfs2/ops_export.c        |   38 +
+ fs/gfs2/ops_export.h        |    2 
+ fs/gfs2/ops_file.c          |   65 ++
+ fs/gfs2/ops_file.h          |    2 
+ fs/gfs2/ops_fstype.c        |    4 
+ fs/gfs2/ops_inode.c         |  134 ++---
+ fs/gfs2/ops_super.c         |   11 
+ fs/gfs2/ops_vm.c            |    2 
+ fs/gfs2/quota.c             |   15 -
+ fs/gfs2/recovery.c          |   29 +
+ fs/gfs2/recovery.h          |    2 
+ fs/gfs2/rgrp.c              |   13 
+ fs/gfs2/super.c             |   50 +-
+ fs/gfs2/super.h             |    6 
+ fs/gfs2/sys.c               |    8 
+ fs/gfs2/util.h              |    6 
+ include/linux/gfs2_ondisk.h |  138 ++++-
+ 56 files changed, 3526 insertions(+), 2301 deletions(-)
+ create mode 100644 fs/dlm/lowcomms-sctp.c
+ create mode 100644 fs/dlm/lowcomms-tcp.c
+ delete mode 100644 fs/dlm/lowcomms.c
 
 

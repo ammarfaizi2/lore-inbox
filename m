@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936439AbWK3O53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967832AbWK3PEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936439AbWK3O53 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 09:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936438AbWK3O53
+	id S967832AbWK3PEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 10:04:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967834AbWK3PEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 09:57:29 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20409 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S936439AbWK3O53
+	Thu, 30 Nov 2006 10:04:49 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:51346 "EHLO
+	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S967832AbWK3PEs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 09:57:29 -0500
-Date: Thu, 30 Nov 2006 15:04:06 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd/tg3 issue
-Message-ID: <20061130150406.3d0b6afd@localhost.localdomain>
-In-Reply-To: <20061130144355.GK2021@washoe.onerussian.com>
-References: <20061130144355.GK2021@washoe.onerussian.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Nov 2006 10:04:48 -0500
+Subject: Re: [PATCH 4/4] [HVCS] Select HVC_CONSOLE if HVCS is enabled.
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0611301331520.6243@scrub.home>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com>
+	 <1164860773166-git-send-email-bcollins@ubuntu.com>
+	 <Pine.LNX.4.64.0611301331520.6243@scrub.home>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Nov 2006 10:04:44 -0500
+Message-Id: <1164899084.5257.806.camel@gullible>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 09:43:55 -0500
-Yaroslav Halchenko <yoh@psychology.rutgers.edu> wrote:
-
-> Dear Kernel People,
+On Thu, 2006-11-30 at 13:32 +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Just got a logwatch daily mail which revealed a problem:
-> [2024412.788680] kswapd1: page allocation failure. order:2, mode:0x20
-> and a lengthy backtrace with head
+> On Wed, 29 Nov 2006, Ben Collins wrote:
 > 
-> ,------------------------------------------------------------------------
-> | [2024412.795212] Call Trace:
-> | [2024412.799768]  <IRQ> [<ffffffff8020c852>] __alloc_pages+0x27a/0x291
-> | [2024412.806452]  [<ffffffff802a08e3>] kmem_getpages+0x5e/0xd8
-> | [2024412.812370]  [<ffffffff80212c68>] cache_grow+0xd0/0x185
-> | [2024412.818064]  [<ffffffff80245c4f>] cache_alloc_refill+0x18c/0x1da
-> | [2024412.824625]  [<ffffffff802a1979>] __kmalloc+0x93/0xa3
-> | [2024412.830145]  [<ffffffff80222e9e>] __alloc_skb+0x54/0x117
-> | [2024412.835958]  [<ffffffff803b8a55>] __netdev_alloc_skb+0x12/0x2d
-> | [2024412.842347]  [<ffffffff80370292>] tg3_alloc_rx_skb+0xbb/0x146
-> `---
-> full dmesg is at
-> http://www.onerussian.com/Linux/bugs/bug.kswapd/dmesg
+> > If HVC_CONSOLE provides symbols that HVCS requires.
+> > 
+> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> > ---
+> >  drivers/char/Kconfig |    1 +
+> >  1 files changed, 1 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
+> > index 2af12fc..c94ecdc 100644
+> > --- a/drivers/char/Kconfig
+> > +++ b/drivers/char/Kconfig
+> > @@ -598,6 +598,7 @@ config HVC_RTAS
+> >  config HVCS
+> >  	tristate "IBM Hypervisor Virtual Console Server support"
+> >  	depends on PPC_PSERIES
+> > +	select HVC_CONSOLE
+> >  	help
+> >  	  Partitionable IBM Power5 ppc64 machines allow hosting of
+> >  	  firmware virtual consoles from one Linux partition by
 > 
-> is that critical? seems to behave ok but...
+> 
+> Why not a normal dependency?
 
-Its tell us that the machine got very very tight on memory, far tighter
-than it probably ever should in normal situations. It is harmless of
-itself and if you only get the odd one is not a worry.
-
+Most of the HVC options are doing select on other HVC things (like
+select HVC_DRIVER). So if this one needs to be a dependency, then it
+would make more sense to clean up the HVC option group to do the same. I
+just did the one-liner to make it work.

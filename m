@@ -1,88 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935764AbWK3CHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936124AbWK3CPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935764AbWK3CHy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 21:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934632AbWK3CHy
+	id S936124AbWK3CPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 21:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936125AbWK3CPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 21:07:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36244 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S935764AbWK3CHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 21:07:53 -0500
-Date: Thu, 30 Nov 2006 13:07:34 +1100
-From: David Chinner <dgc@sgi.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: David Chinner <dgc@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs@oss.sgi.com, xfs-masters@oss.sgi.com, Keith Owens <kaos@sgi.com>
-Subject: Re: XFS internal error xfs_trans_cancel at line 1138 of file fs/xfs/xfs_trans.c (kernel 2.6.18.1)
-Message-ID: <20061130020734.GB37654165@melbourne.sgi.com>
-References: <9a8748490611280749k5c97d21bx2e499d2209d27dfe@mail.gmail.com> <20061129013214.GH44411608@melbourne.sgi.com> <9a8748490611290117oc0ba880v1a6407bc4f41088f@mail.gmail.com>
+	Wed, 29 Nov 2006 21:15:39 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:61072
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S936124AbWK3CPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 21:15:38 -0500
+Date: Wed, 29 Nov 2006 18:15:37 -0800 (PST)
+Message-Id: <20061129.181537.38322733.davem@davemloft.net>
+To: kernel@linuxace.com
+Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+Subject: Re: Linux 2.6.19
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061130014904.GA1405@linuxace.com>
+References: <20061129151111.6bd440f9.rdunlap@xenotime.net>
+	<20061130005631.GA3896@yggdrasil.localdomain>
+	<20061130014904.GA1405@linuxace.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490611290117oc0ba880v1a6407bc4f41088f@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 10:17:25AM +0100, Jesper Juhl wrote:
-> On 29/11/06, David Chinner <dgc@sgi.com> wrote:
-> >On Tue, Nov 28, 2006 at 04:49:00PM +0100, Jesper Juhl wrote:
-> >> Filesystem "dm-1": XFS internal error xfs_trans_cancel at line 1138 of
-> >> file fs/xfs/xfs_trans.c.  Caller 0xffffffff8034b47e
-> >>
-> >> Call Trace:
-> >> [<ffffffff8020b122>] show_trace+0xb2/0x380
-> >> [<ffffffff8020b405>] dump_stack+0x15/0x20
-> >> [<ffffffff80327b4c>] xfs_error_report+0x3c/0x50
-> >> [<ffffffff803435ae>] xfs_trans_cancel+0x6e/0x130
-> >> [<ffffffff8034b47e>] xfs_create+0x5ee/0x6a0
-> >> [<ffffffff80356556>] xfs_vn_mknod+0x156/0x2e0
-> >> [<ffffffff803566eb>] xfs_vn_create+0xb/0x10
-> >> [<ffffffff80284b2c>] vfs_create+0x8c/0xd0
-> >> [<ffffffff802e734a>] nfsd_create_v3+0x31a/0x560
-> >> [<ffffffff802ec838>] nfsd3_proc_create+0x148/0x170
-> >> [<ffffffff802e19f9>] nfsd_dispatch+0xf9/0x1e0
-> >> [<ffffffff8049d617>] svc_process+0x437/0x6e0
-> >> [<ffffffff802e176d>] nfsd+0x1cd/0x360
-> >> [<ffffffff8020ab1c>] child_rip+0xa/0x12
-> >> xfs_force_shutdown(dm-1,0x8) called from line 1139 of file
-> >> fs/xfs/xfs_trans.c.  Return address = 0xffffffff80359daa
-> >
-> >We shut down the filesystem because we cancelled a dirty transaction.
-> >Once we start to dirty the incore objects, we can't roll back to
-> >an unchanged state if a subsequent fatal error occurs during the
-> >transaction and we have to abort it.
-> >
-> So you are saying that there's nothing I can do to prevent this from
-> happening in the future?
+From: Phil Oester <kernel@linuxace.com>
+Date: Wed, 29 Nov 2006 17:49:04 -0800
 
-Pretty much - we need to work out what is going wrong and
-we can't from teh shutdown message above - the error has
-occurred in a path that doesn't have error report traps
-in it.
+> Getting an oops on boot here, caused by commit
+> e81c73596704793e73e6dbb478f41686f15a4b34 titled
+> "[NET]: Fix MAX_HEADER setting".
+> 
+> Reverting that patch fixes things up for me.  Dave?
 
-Is this reproducable?
+I suspect that it might be because I removed the IPV6
+ifdef from the list,  but I can't imagine why that would
+matter other than due to a bug in the IPV6 stack....
 
-> >If I understand historic occurrences of this correctly, there is
-> >a possibility that it can be triggered in ENOMEM situations. Was your
-> >machine running out of memoy when this occurred?
-> >
-> Not really. I just checked my monitoring software and, at the time
-> this happened, the box had ~5.9G RAM free (of 8G total) and no swap
-> used (but 11G available).
+Indeed.
 
-Ok. Sounds like we need more error reporting points inserted
-into that code so we dump an error earlier and hence have some
-hope of working out what went wrong next time.....
+Looking at ndisc_send_rs() I wonder if it miscalculates
+'len' or similar and the old MAX_HEADER setting was
+merely papering around this bug....
 
-OOC, there weren't any I/O errors reported before this shutdown?
+In fact it does, the NDISC code is using MAX_HEADER incorrectly.  It
+needs to explicitly allocate space for the struct ipv6hdr in 'len'.
+Luckily the TCP ipv6 code was doing it right.
 
-Cheers,
+What a horrible bug, this patch should fix it.  Let me know
+if it doesn't, thanks:
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+commit c28728decc37fe52c8cdf48b3e0c0cf9b0c2fefb
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Wed Nov 29 18:14:47 2006 -0800
+
+    [IPV6] NDISC: Calculate packet length correctly for allocation.
+    
+    MAX_HEADER does not include the ipv6 header length in it,
+    so we need to add it in explicitly.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/ipv6/ndisc.c b/net/ipv6/ndisc.c
+index 73eb8c3..c42d4c2 100644
+--- a/net/ipv6/ndisc.c
++++ b/net/ipv6/ndisc.c
+@@ -441,7 +441,8 @@ static void ndisc_send_na(struct net_dev
+         struct sk_buff *skb;
+ 	int err;
+ 
+-	len = sizeof(struct icmp6hdr) + sizeof(struct in6_addr);
++	len = sizeof(struct ipv6hdr) + sizeof(struct icmp6hdr) +
++		sizeof(struct in6_addr);
+ 
+ 	/* for anycast or proxy, solicited_addr != src_addr */
+ 	ifp = ipv6_get_ifaddr(solicited_addr, dev, 1);
+@@ -556,7 +557,8 @@ void ndisc_send_ns(struct net_device *de
+ 	if (err < 0)
+ 		return;
+ 
+-	len = sizeof(struct icmp6hdr) + sizeof(struct in6_addr);
++	len = sizeof(struct ipv6hdr) + sizeof(struct icmp6hdr) +
++		sizeof(struct in6_addr);
+ 	send_llinfo = dev->addr_len && !ipv6_addr_any(saddr);
+ 	if (send_llinfo)
+ 		len += ndisc_opt_addr_space(dev);
+@@ -632,7 +634,7 @@ void ndisc_send_rs(struct net_device *de
+ 	if (err < 0)
+ 		return;
+ 
+-	len = sizeof(struct icmp6hdr);
++	len = sizeof(struct ipv6hdr) + sizeof(struct icmp6hdr);
+ 	if (dev->addr_len)
+ 		len += ndisc_opt_addr_space(dev);
+ 
+@@ -1381,7 +1383,8 @@ void ndisc_send_redirect(struct sk_buff 
+ 			 struct in6_addr *target)
+ {
+ 	struct sock *sk = ndisc_socket->sk;
+-	int len = sizeof(struct icmp6hdr) + 2 * sizeof(struct in6_addr);
++	int len = sizeof(struct ipv6hdr) + sizeof(struct icmp6hdr) +
++		2 * sizeof(struct in6_addr);
+ 	struct sk_buff *buff;
+ 	struct icmp6hdr *icmph;
+ 	struct in6_addr saddr_buf;

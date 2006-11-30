@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936387AbWK3M0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936370AbWK3MZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936387AbWK3M0F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936411AbWK3M0D
+	id S936370AbWK3MZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936388AbWK3MZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:26:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:42906 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S936399AbWK3MZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:25:39 -0500
-Date: Thu, 30 Nov 2006 12:25:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [GFS2] split gfs2_dinode into on-disk and host variants [1/70]
-Message-ID: <20061130122538.GA27549@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Whitehouse <swhiteho@redhat.com>, cluster-devel@redhat.com,
-	linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-References: <1164888743.3752.303.camel@quoit.chygwyn.com>
+	Thu, 30 Nov 2006 07:25:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51088 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936387AbWK3MYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 07:24:51 -0500
+Subject: [GFS2] lock function parameter [65/70]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Cc: Randy Dunlap <randy.dunlap@oracle.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 30 Nov 2006 12:23:25 +0000
+Message-Id: <1164889405.3752.439.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164888743.3752.303.camel@quoit.chygwyn.com>
-User-Agent: Mutt/1.4.2.2i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	struct gfs2_dinode_host *di = &ip->i_di;
+>From 0ac230699a0f3f0d15ad4e4ad99446dac5b4a21f Mon Sep 17 00:00:00 2001
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Date: Tue, 28 Nov 2006 22:29:19 -0800
+Subject: [PATCH] [GFS2] lock function parameter
 
-Please call this things just gfs2_inode.  gfs_d(isk)_inode_host doesn't
-make any sense.
+Fix function parameter typing:
+fs/gfs2/glock.c:100: warning: function declaration isn't a prototype
+
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+---
+ fs/gfs2/glock.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 3c2ff81..f130f98 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -96,7 +96,7 @@ static inline rwlock_t *gl_lock_addr(uns
+ 	return &gl_hash_locks[x & (GL_HASH_LOCK_SZ-1)];
+ }
+ #else /* not SMP, so no spinlocks required */
+-static inline rwlock_t *gl_lock_addr(x)
++static inline rwlock_t *gl_lock_addr(unsigned int x)
+ {
+ 	return NULL;
+ }
+-- 
+1.4.1
+
+
 

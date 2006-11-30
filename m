@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031389AbWK3U3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031405AbWK3UbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031389AbWK3U3q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 15:29:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031392AbWK3U3p
+	id S1031405AbWK3UbH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 15:31:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031406AbWK3UbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 15:29:45 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:11233
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1031389AbWK3U3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 15:29:44 -0500
-Date: Thu, 30 Nov 2006 12:29:46 -0800 (PST)
-Message-Id: <20061130.122946.44938798.davem@davemloft.net>
-To: dev@sw.ru
-Cc: linux-kernel@vger.kernel.org, devel@openvz.org
-Subject: Re: [SPARC64]: resumable error decoding
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <45642430.6030009@sw.ru>
-References: <45630257.9070308@openvz.org>
-	<20061121.161158.63124759.davem@davemloft.net>
-	<45642430.6030009@sw.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 30 Nov 2006 15:31:06 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:47007 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1031402AbWK3UbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 15:31:03 -0500
+Date: Thu, 30 Nov 2006 21:30:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: David Miller <davem@davemloft.net>
+Cc: johnpol@2ka.mipt.ru, nickpiggin@yahoo.com.au, wenji@fnal.gov,
+       akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
+Message-ID: <20061130203026.GD14696@elte.hu>
+References: <456EAD6E.6040709@yahoo.com.au> <20061130102205.GA20654@2ka.mipt.ru> <20061130103240.GA25733@elte.hu> <20061130.122258.68041055.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061130.122258.68041055.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kirill Korotaev <dev@sw.ru>
-Date: Wed, 22 Nov 2006 13:19:28 +0300
 
-> > I should add proper support for this, this report is a good reminder
-> > :-)
-> would be nice :@)
+* David Miller <davem@davemloft.net> wrote:
 
-I tested the following patch and it worked fine for me on a T2000, let
-me know if it works for you too:
+> I want to point out something which is slightly misleading about this 
+> kind of analysis.
+> 
+> Your disk I/O speed doesn't go down by a factor of 10 just because 9 
+> other non disk I/O tasks are running, yet for TCP that's seemingly OK
+> :-)
 
-commit 035f09edbbc921b9688a65ec58c0f49b822e605c
-Author: David S. Miller <davem@sunset.davemloft.net>
-Date:   Wed Nov 29 21:16:21 2006 -0800
+disk I/O is typically not CPU bound, and i believe these TCP tests /are/ 
+CPU-bound. Otherwise there would be no expiry of the timeslice to begin 
+with and the TCP receiver task would always be boosted to 'interactive' 
+status by the scheduler and would happily chug along at 500 mbits ...
 
-    [SPARC64]: Run ctrl-alt-del action for sun4v powerdown request.
-    
-    Signed-off-by: David S. Miller <davem@davemloft.net>
+(and i grant you, if a disk IO test is 20% CPU bound in process context 
+and system load is 10, then the scheduler will throttle that task quite 
+effectively.)
 
-diff --git a/arch/sparc64/kernel/traps.c b/arch/sparc64/kernel/traps.c
-index ec7a601..ad67784 100644
---- a/arch/sparc64/kernel/traps.c
-+++ b/arch/sparc64/kernel/traps.c
-@@ -10,7 +10,7 @@
-  */
- 
- #include <linux/module.h>
--#include <linux/sched.h>  /* for jiffies */
-+#include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/kallsyms.h>
- #include <linux/signal.h>
-@@ -1873,6 +1873,16 @@ void sun4v_resum_error(struct pt_regs *r
- 
- 	put_cpu();
- 
-+	if (ent->err_type == SUN4V_ERR_TYPE_WARNING_RES) {
-+		/* If err_type is 0x4, it's a powerdown request.  Do
-+		 * not do the usual resumable error log because that
-+		 * makes it look like some abnormal error.
-+		 */
-+		printk(KERN_INFO "Power down request...\n");
-+		kill_cad_pid(SIGINT, 1);
-+		return;
-+	}
-+
- 	sun4v_log_error(regs, &local_copy, cpu,
- 			KERN_ERR "RESUMABLE ERROR",
- 			&sun4v_resum_oflow_cnt);
+	Ingo

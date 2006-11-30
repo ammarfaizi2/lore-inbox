@@ -1,58 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933744AbWK3Jyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933721AbWK3J6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933744AbWK3Jyx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933676AbWK3Jyx
+	id S933721AbWK3J6N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:58:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933753AbWK3J6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:54:53 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:31184 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S933718AbWK3Jyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:54:52 -0500
-Date: Thu, 30 Nov 2006 12:52:33 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: David Miller <davem@davemloft.net>, wenji@fnal.gov, akpm@osdl.org,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-Message-ID: <20061130095232.GA8990@2ka.mipt.ru>
-References: <20061130061758.GA2003@elte.hu> <20061129.223055.05159325.davem@davemloft.net> <20061130064758.GD2003@elte.hu> <20061129.231258.65649383.davem@davemloft.net> <20061130073504.GA19437@elte.hu>
+	Thu, 30 Nov 2006 04:58:13 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:19360 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S933721AbWK3J6L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:58:11 -0500
+Date: Thu, 30 Nov 2006 10:57:10 +0100
+From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Subject: Re: [PATCH -mm 1/5][AIO] - Rework compat_sys_io_submit
+Message-ID: <20061130105710.572d3c6e@frecb000686>
+In-Reply-To: <8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com>
+References: <20061129112441.745351c9@frecb000686>
+	<20061129113212.1e614a61@frecb000686>
+	<8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20061130073504.GA19437@elte.hu>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 30 Nov 2006 12:52:34 +0300 (MSK)
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/11/2006 11:04:18,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/11/2006 11:04:21,
+	Serialize complete at 30/11/2006 11:04:21
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 08:35:04AM +0100, Ingo Molnar (mingo@elte.hu) wrote:
-> what was observed here were the effects of completely throttling TCP 
-> processing for a given socket. I think such throttling can in fact be 
-> desirable: there is a /reason/ why the process context was preempted: in 
-> that load scenario there was 10 times more processing requested from the 
-> CPU than it can possibly service. It's a serious overload situation and 
-> it's the scheduler's task to prioritize between workloads!
+On Wed, 29 Nov 2006 16:47:47 -0800, Zach Brown <zach.brown@oracle.com> wrote:
+
+> On Nov 29, 2006, at 2:32 AM, Sébastien Dugué wrote:
 > 
-> normally such kind of "throttling" of the TCP stack for this particular 
-> socket does not happen. Note that there's no performance lost: we dont 
-> do TCP processing because there are /9 other tasks for this CPU to run/, 
-> and the scheduler has a tough choice.
+> >                  compat_sys_io_submit() cleanup
+> >
+> >
+> >   Cleanup compat_sys_io_submit by duplicating some of the native  
+> > syscall
+> > logic in the compat layer and directly calling io_submit_one() instead
+> > of fooling the syscall into thinking it is called from a native 64-bit
+> > caller.
+> >
+> >   This is needed for the completion notification patch to avoid having
+> > to rewrite each iocb on the caller stack for sys_io_submit() to  
+> > find the
+> > sigevents.
 > 
-> Now i agree that there are more intelligent ways to throttle and less 
-> intelligent ways to throttle, but the notion to allow a given workload 
-> 'steal' CPU time from other workloads by allowing it to push its 
-> processing into a softirq is i think unfair. (and this issue is 
-> partially addressed by my softirq threading patches in -rt :-)
+> You could explicitly mention that this eliminates:
+> 
+>   - the overhead of copying nr pointers on the userspace caller's stack
+> 
+>   - the arbitrary PAGE_SIZE/(sizeof(void *)) limit on the number of  
+> iocbs that can be submitted
+> 
+> Those alone make this worth merging.
 
-Doesn't the provided solution is just a in-kernel variant of the
-SCHED_FIFO set from userspace? Why kernel should be able to mark some
-users as having higher priority?
-What if workload of the system is targeted to not the maximum TCP
-performance, but maximum other-task performance, which will be broken
-with provided patch.
+  Right, will add.
 
-> 	Ingo
+> 
+> > +	if (unlikely(!access_ok(VERIFY_READ, iocb, (nr * sizeof(u32)))))
+> > +		return -EFAULT;
+> 
+> I'm glad you got that right :)  I no doubt would have initially  
+> hoisted these little checks into a shared helper function and missed  
+> that detail of getting the size of the access_ok() right in the  
+> compat case.
 
--- 
-	Evgeniy Polyakov
+  Thanks.
+
+> 
+> > +	put_ioctx(ctx);
+> > +
+> > +	return i? i: ret;
+> 
+> sys_io_getevents() reads:
+
+ uh!     ^^^^^^^^^    you must be meaning sys_io_submit()?
+
+> 
+>          put_ioctx(ctx);
+>          return i ? i : ret;
+> 
+> So while this compat_sys_io_submit() logic seems fine and I would be  
+> comfortable with it landing as-is, I'd also appreciate it if we  
+> didn't introduce differences between the two functions when it seems  
+> just as easy to make them the same.  (That chunk is just one  
+> example.  There's whitespace, missing unlikely()s, etc).
+> 
+
+  OK, will fix.
+
+  Thanks,
+
+  Sébastien.
+
+
+  

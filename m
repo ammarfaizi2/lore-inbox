@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030709AbWK3QWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759256AbWK3QYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030709AbWK3QWB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 11:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759256AbWK3QWB
+	id S1759256AbWK3QYa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 11:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759257AbWK3QYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 11:22:01 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:1004 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1758520AbWK3QWA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 11:22:00 -0500
-Message-ID: <456F0549.2050801@cfl.rr.com>
-Date: Thu, 30 Nov 2006 11:22:33 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-CC: reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
+	Thu, 30 Nov 2006 11:24:30 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:59673 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1759256AbWK3QY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 11:24:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aMxazSe6Ku1EuoQK1tHfadbZUnCIudIXYPNp9mhJIifhghmiGyWrKv0OnZO3Sv28vq2EGlceAJMw48AIfE1rJh/9m9FlxI6KfPv/5g8RoSMB3QPgGwG2tPrgPGsE7wCuhOGWJGk2qprfphXl3eTGWGo+wBSKwGXuzxu73rbOyRY=
+Message-ID: <a4e6962a0611300824qdfa43cbja783da86fe6eb5cf@mail.gmail.com>
+Date: Thu, 30 Nov 2006 10:24:27 -0600
+From: "Eric Van Hensbergen" <ericvh@gmail.com>
+To: "device-mapper development" <dm-devel@redhat.com>
+Subject: Re: [dm-devel] [RFC][PATCH] dm-cache: block level disk cache target for device mapper
+Cc: "Eric Van Hensbergen" <ericvh@hera.kernel.org>, ming@acis.ufl.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs: reiserfs add missing brackets
-References: <200611301038.03140.m.kozlowski@tuxland.pl>
-In-Reply-To: <200611301038.03140.m.kozlowski@tuxland.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+In-Reply-To: <200611301232.57966.jens.wilke@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Nov 2006 16:22:55.0403 (UTC) FILETIME=[CA8C57B0:01C7149B]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14844.003
-X-TM-AS-Result: No--6.552800-5.000000-31
+Content-Disposition: inline
+References: <200611271826.kARIQYRi032717@hera.kernel.org>
+	 <200611301232.57966.jens.wilke@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know it is just nit-picking, but those are parenthesis, not brackets.
+On 11/30/06, Jens Wilke <jens.wilke@de.ibm.com> wrote:
+> On Monday 27 November 2006 19:26, Eric Van Hensbergen wrote:
+>
+> If this is intended to speed up remote disks, is it possible that the cache content
+> can be paged out on local disks in low-mem situations?
+>
 
-() vs. []
+The main intent was to use local disks as cache to offload centralized
+remote disks.  The logic was that most systems have local disks, if
+only for swap -- so why not use them as a cache to help offload
+centralized storage.  While the in-memory page cache works perfectly
+fine in certain situations -- we were dealing with workloads in which
+the in-memory page-cache wasn't sufficient to hold all the data.
 
-Mariusz Kozlowski wrote:
-> Hello,
-> 
-> 	This patch adds missing brackets. 
-> 
->  include/linux/reiserfs_fs.h |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2.6.19-rc6-mm2-a/include/linux/reiserfs_fs.h	2006-11-28 12:17:06.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2-b/include/linux/reiserfs_fs.h	2006-11-30 01:05:38.000000000 +0100
-> @@ -739,7 +739,7 @@ struct block_head {
->  #define PUT_B_FREE_SPACE(p_s_bh,val)  do { set_blkh_free_space(B_BLK_HEAD(p_s_bh),val); } while (0)
->  
->  /* Get right delimiting key. -- little endian */
-> -#define B_PRIGHT_DELIM_KEY(p_s_bh)   (&(blk_right_delim_key(B_BLK_HEAD(p_s_bh))
-> +#define B_PRIGHT_DELIM_KEY(p_s_bh)   (&(blk_right_delim_key(B_BLK_HEAD(p_s_bh))))
->  
->  /* Does the buffer contain a disk leaf. */
->  #define B_IS_ITEMS_LEVEL(p_s_bh)     (B_LEVEL(p_s_bh) == DISK_LEAF_NODE_LEVEL)
-> 
-> 
+There are also some additional possibilities we've thought through and
+have been playing with including allowing the local disk cache to be
+persistent across reboots (with varying validation schemes).
 
+             -eric

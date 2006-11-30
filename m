@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967754AbWK3AxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967765AbWK3A4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967754AbWK3AxM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 19:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967755AbWK3AxM
+	id S967765AbWK3A4f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 19:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967764AbWK3A4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 19:53:12 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:48877
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S967754AbWK3AxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 19:53:08 -0500
-Date: Wed, 29 Nov 2006 16:53:11 -0800 (PST)
-Message-Id: <20061129.165311.45739865.davem@davemloft.net>
-To: wenji@fnal.gov
-Cc: netdev@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <HNEBLGGMEGLPMPPDOPMGGEAKCGAA.wenji@fnal.gov>
-References: <HNEBLGGMEGLPMPPDOPMGCEAKCGAA.wenji@fnal.gov>
-	<HNEBLGGMEGLPMPPDOPMGGEAKCGAA.wenji@fnal.gov>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 19:56:35 -0500
+Received: from ms-smtp-04.rdc-kc.rr.com ([24.94.166.116]:46748 "EHLO
+	ms-smtp-04.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S967765AbWK3A4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 19:56:34 -0500
+Date: Wed, 29 Nov 2006 18:56:31 -0600
+From: Greg Norris <haphazard@kc.rr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19
+Message-ID: <20061130005631.GA3896@yggdrasil.localdomain>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org> <20061129151111.6bd440f9.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061129151111.6bd440f9.rdunlap@xenotime.net>
+X-Operating-System: Linux yggdrasil 2.6.18.4 #1 SMP PREEMPT Wed Nov 29 17:14:44 CST 2006 i686 Linux
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 29, 2006 at 03:11:11PM -0800, Randy Dunlap wrote:
+> What would it take to have the kernel.org web page and finger banner
+> give the correct version information?  (yessir, not your problem)
 
-Please, it is very difficult to review your work the way you have
-submitted this patch as a set of 4 patches.  These patches have not
-been split up "logically", but rather they have been split up "per
-file" with the same exact changelog message in each patch posting.
-This is very clumsy, and impossible to review, and wastes a lot of
-mailing list bandwith.
-
-We have an excellent file, called Documentation/SubmittingPatches, in
-the kernel source tree, which explains exactly how to do this
-correctly.
-
-By splitting your patch into 4 patches, one for each file touched,
-it is impossible to review your patch as a logical whole.
-
-Please also provide your patch inline so people can just hit reply
-in their mail reader client to quote your patch and comment on it.
-This is impossible with the attachments you've used.
-
-Thanks.
+On a similar vein, it'd be nice if http://www.kernel.org/kdist/version.html 
+would break the entries into separate lines.

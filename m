@@ -1,157 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936437AbWK3U6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936450AbWK3VNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936437AbWK3U6x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 15:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936438AbWK3U6x
+	id S936450AbWK3VNL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 16:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936452AbWK3VNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 15:58:53 -0500
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:62639 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP id S936437AbWK3U6w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 15:58:52 -0500
-Message-ID: <456F4607.3000300@indt.org.br>
-Date: Thu, 30 Nov 2006 16:58:47 -0400
-From: Mauricio Lin <mauricio.lin@indt.org.br>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: [PATCH 2.6.19] kobject: kobject_uevent() returns manageable value
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 30 Nov 2006 16:13:10 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:30945 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S936450AbWK3VNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 16:13:08 -0500
+Date: Thu, 30 Nov 2006 13:12:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net,
+       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
+       Valerie Henson <val_henson@linux.intel.com>
+Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
+Message-Id: <20061130131240.21b1e889.akpm@osdl.org>
+In-Reply-To: <200611302121.28518.rjw@sisk.pl>
+References: <20061128020246.47e481eb.akpm@osdl.org>
+	<20061129152619.0d1ac361.akpm@osdl.org>
+	<200611300204.16507.rjw@sisk.pl>
+	<200611302121.28518.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Nov 2006 20:58:35.0721 (UTC) FILETIME=[4D589390:01C714C2]
-X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.19] kobject: kobject_uevent() returns manageable value
+On Thu, 30 Nov 2006 21:21:27 +0100
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-Since kobject_uevent() function does not return an integer value to
-indicate if its operation was completed with success or not, it is
-worth changing it in order to report a proper status (success or
-error) instead of returning void.
+> On Thursday, 30 November 2006 02:04, Rafael J. Wysocki wrote:
+> > On Thursday, 30 November 2006 00:26, Andrew Morton wrote:
+> > > On Thu, 30 Nov 2006 00:08:21 +0100
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > 
+> > > > On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
+> > > > > On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
+> > > > > > On Wed, 29 Nov 2006 21:08:00 +0100
+> > > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > > 
+> > > > > > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
+> > > > > > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+> > > > > > > > > 
+> > > > > > > > > Temporarily at
+> > > > > > > > > 
+> > > > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
+> > > > > > > > > 
+> > > > > > > > > Will appear eventually at
+> > > > > > > > > 
+> > > > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+> > > > > > > > 
+> > > > > > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
+> > > > > > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
+> > > > > > 
+> > > > > > That isn't a minor issue.
+> > > > > > 
+> > > > > > > > It worked just fine on -mm1, so something must have happened to it recently.
+> > > > > > > 
+> > > > > > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
+> > > > > > > 
+> > > > > > 
+> > > > > > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
+> > > > > > not using that (corrent?)
+> > > > > > 
+> > > > > > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
+> > > > > > that either.
+> > > > > > 
+> > > > > > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
+> > > > > > 
+> > > > > > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
+> > > > > > presumably a showstopper for statically-linked-uli526x users.  If you could
+> > > > > > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
+> > > > > 
+> > > > > OK, but it'll take some time.
+> > > > 
+> > > > OK, done.
+> > > > 
+> > > > It's one of these (the first one alone doesn't compile):
+> > > > 
+> > > > git-netdev-all.patch
+> > > > git-netdev-all-fixup.patch
+> > > > libphy-dont-do-that.patch
+> 
+> Hm, all of these patches are the same as in -mm1 which hasn't caused any
+> problems to appear on this box.
+> 
+> So, it seems there's another change between -mm1 and -mm2 that causes this
+> to happen.
+> 
 
-Keep kobject_uevent() returning the status as integer provide a easier
-way for detecting possible failure in the function. Using void
-returning style may take people to waste more time to figure out if
-the "send to" or "receive from" an event is a bug in the kernel or
-user space. Furthermore, the current way to detect where the error is
-taking place in the kobject_uevent() requires additional inclusion of
-printk() in each "if" condition that can lead to failure.
+It would be nice to eliminate libphy-dont-do-that.patch if poss - that was
+a rogue akpm patch aimed at some incomprehensible gobbledigook in the
+netdev tree (and to fix the current_is_keventd-not-exported-to-modules
+bug).
 
-Signed-off-by: Mauricio Lin <mauricio.lin@indt.org.br>
+I have a feeling that your bug will be cheerily merged into mainline soon. 
+That might of course mean that someone will hit it more firmly and it'll
+get fixed.
 
-Index: kernel/linux-2.6.19-rc6/include/linux/kobject.h
-===================================================================
---- linux-2.6.19-rc6.orig/include/linux/kobject.h	2006-11-29 16:15:19.000000000 -0400
-+++ linux-2.6.19-rc6/include/linux/kobject.h	2006-11-29 16:22:40.000000000 -0400
-@@ -263,14 +263,17 @@
- 					struct subsys_attribute *);
- 
- #if defined(CONFIG_HOTPLUG)
--void kobject_uevent(struct kobject *kobj, enum kobject_action action);
-+int kobject_uevent(struct kobject *kobj, enum kobject_action action);
- 
- int add_uevent_var(char **envp, int num_envp, int *cur_index,
- 			char *buffer, int buffer_size, int *cur_len,
- 			const char *format, ...)
- 	__attribute__((format (printf, 7, 8)));
- #else
--static inline void kobject_uevent(struct kobject *kobj, enum kobject_action action) { }
-+static inline int kobject_uevent(struct kobject *kobj, enum kobject_action action)
-+{
-+	return 0;
-+}
- 
- static inline int add_uevent_var(char **envp, int num_envp, int *cur_index,
- 				      char *buffer, int buffer_size, int *cur_len, 
-Index: kernel/linux-2.6.19-rc6/lib/kobject_uevent.c
-===================================================================
---- linux-2.6.19-rc6.orig/lib/kobject_uevent.c	2006-11-29 16:15:12.000000000 -0400
-+++ linux-2.6.19-rc6/lib/kobject_uevent.c	2006-11-29 16:31:16.000000000 -0400
-@@ -60,8 +60,11 @@
-  *
-  * @action: action that is happening (usually KOBJ_ADD and KOBJ_REMOVE)
-  * @kobj: struct kobject that the action is happening to
-+ *
-+ * Returns 0 if kobject_uevent() is completed with success or the
-+ * corresponding error when it fails.
-  */
--void kobject_uevent(struct kobject *kobj, enum kobject_action action)
-+int kobject_uevent(struct kobject *kobj, enum kobject_action action)
- {
- 	char **envp;
- 	char *buffer;
-@@ -81,7 +84,7 @@
- 
- 	action_string = action_to_string(action);
- 	if (!action_string)
--		return;
-+		return -EINVAL;
- 
- 	/* search the kset we belong to */
- 	top_kobj = kobj;
-@@ -91,7 +94,7 @@
- 		} while (!top_kobj->kset && top_kobj->parent);
- 	}
- 	if (!top_kobj->kset)
--		return;
-+		return -EINVAL;
- 
- 	kset = top_kobj->kset;
- 	uevent_ops = kset->uevent_ops;
-@@ -99,22 +102,27 @@
- 	/*  skip the event, if the filter returns zero. */
- 	if (uevent_ops && uevent_ops->filter)
- 		if (!uevent_ops->filter(kset, kobj))
--			return;
-+			return -EINVAL;
- 
- 	/* environment index */
- 	envp = kzalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
- 	if (!envp)
--		return;
-+		return -ENOMEM;
- 
- 	/* environment values */
- 	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
--	if (!buffer)
--		goto exit;
-+	if (!buffer) {
-+		kfree(envp);
-+		return -ENOMEM;
-+	}
- 
- 	/* complete object path */
- 	devpath = kobject_get_path(kobj, GFP_KERNEL);
--	if (!devpath)
--		goto exit;
-+	if (!devpath) {
-+		kfree(envp);
-+		kfree(buffer);
-+		return -ENOMEM;
-+	}
- 
- 	/* originating subsystem */
- 	if (uevent_ops && uevent_ops->name)
-@@ -179,7 +187,11 @@
- 			}
- 
- 			NETLINK_CB(skb).dst_group = 1;
--			netlink_broadcast(uevent_sock, skb, 0, 1, GFP_KERNEL);
-+			retval = netlink_broadcast(uevent_sock, skb, 0, 1,
-+						   GFP_KERNEL);
-+			if (retval)
-+				pr_debug ("%s - netlink_broadcast() returned "
-+					  "%d\n", __FUNCTION__, retval);
- 		}
- 	}
- #endif
-@@ -198,7 +210,7 @@
- 	kfree(devpath);
- 	kfree(buffer);
- 	kfree(envp);
--	return;
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(kobject_uevent);
- 

@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031405AbWK3UbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031382AbWK3Uag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031405AbWK3UbH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 15:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031406AbWK3UbG
+	id S1031382AbWK3Uag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 15:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031395AbWK3Uag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 15:31:06 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47007 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1031402AbWK3UbD (ORCPT
+	Thu, 30 Nov 2006 15:30:36 -0500
+Received: from mail.gmx.net ([213.165.64.20]:60374 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1031382AbWK3Uaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 15:31:03 -0500
-Date: Thu, 30 Nov 2006 21:30:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Thu, 30 Nov 2006 15:30:35 -0500
+X-Authenticated: #815327
+From: Malte =?iso-8859-1?q?Schr=F6der?= <MalteSch@gmx.de>
 To: David Miller <davem@davemloft.net>
-Cc: johnpol@2ka.mipt.ru, nickpiggin@yahoo.com.au, wenji@fnal.gov,
-       akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-Message-ID: <20061130203026.GD14696@elte.hu>
-References: <456EAD6E.6040709@yahoo.com.au> <20061130102205.GA20654@2ka.mipt.ru> <20061130103240.GA25733@elte.hu> <20061130.122258.68041055.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061130.122258.68041055.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+Subject: Re: Linux 2.6.19
+Date: Thu, 30 Nov 2006 21:30:19 +0100
+User-Agent: KMail/1.9.5
+Cc: kernel@linuxace.com, linux-kernel@vger.kernel.org,
+       linux-netdev@vger.kernel.org
+References: <20061129151111.6bd440f9.rdunlap@xenotime.net> <20061130014904.GA1405@linuxace.com> <20061129.181537.38322733.davem@davemloft.net>
+In-Reply-To: <20061129.181537.38322733.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1497331.gEmgpIVQIQ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200611302130.23556.MalteSch@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1497331.gEmgpIVQIQ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-* David Miller <davem@davemloft.net> wrote:
+On Thursday 30 November 2006 03:15, David Miller wrote:
+> From: Phil Oester <kernel@linuxace.com>
+> Date: Wed, 29 Nov 2006 17:49:04 -0800
+>
+> > Getting an oops on boot here, caused by commit
+> > e81c73596704793e73e6dbb478f41686f15a4b34 titled
+> > "[NET]: Fix MAX_HEADER setting".
+> >
+> > Reverting that patch fixes things up for me.  Dave?
+>
+> I suspect that it might be because I removed the IPV6
+> ifdef from the list,  but I can't imagine why that would
+> matter other than due to a bug in the IPV6 stack....
+>
+> Indeed.
+>
+> Looking at ndisc_send_rs() I wonder if it miscalculates
+> 'len' or similar and the old MAX_HEADER setting was
+> merely papering around this bug....
+>
+> In fact it does, the NDISC code is using MAX_HEADER incorrectly.  It
+> needs to explicitly allocate space for the struct ipv6hdr in 'len'.
+> Luckily the TCP ipv6 code was doing it right.
+>
+> What a horrible bug, this patch should fix it.  Let me know
+> if it doesn't, thanks:
 
-> I want to point out something which is slightly misleading about this 
-> kind of analysis.
-> 
-> Your disk I/O speed doesn't go down by a factor of 10 just because 9 
-> other non disk I/O tasks are running, yet for TCP that's seemingly OK
-> :-)
+I also encountered this bug (wasn't there in -rc6). The patch also fixes it=
+=20
+for me.
 
-disk I/O is typically not CPU bound, and i believe these TCP tests /are/ 
-CPU-bound. Otherwise there would be no expiry of the timeslice to begin 
-with and the TCP receiver task would always be boosted to 'interactive' 
-status by the scheduler and would happily chug along at 500 mbits ...
+regards
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
 
-(and i grant you, if a disk IO test is 20% CPU bound in process context 
-and system load is 10, then the scheduler will throttle that task quite 
-effectively.)
 
-	Ingo
+--nextPart1497331.gEmgpIVQIQ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFbz9f4q3E2oMjYtURAhlsAJ9IiTwLY3tAxDxjsG0AAn0KlK3XMACfYLSZ
+MrrcMaZ5aEEEMTjqoL1z+GQ=
+=Mc7J
+-----END PGP SIGNATURE-----
+
+--nextPart1497331.gEmgpIVQIQ--

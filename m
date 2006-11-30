@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759256AbWK3QYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759257AbWK3Q2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759256AbWK3QYa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 11:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759257AbWK3QYa
+	id S1759257AbWK3Q2K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 11:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759258AbWK3Q2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 11:24:30 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:59673 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1759256AbWK3QY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 11:24:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aMxazSe6Ku1EuoQK1tHfadbZUnCIudIXYPNp9mhJIifhghmiGyWrKv0OnZO3Sv28vq2EGlceAJMw48AIfE1rJh/9m9FlxI6KfPv/5g8RoSMB3QPgGwG2tPrgPGsE7wCuhOGWJGk2qprfphXl3eTGWGo+wBSKwGXuzxu73rbOyRY=
-Message-ID: <a4e6962a0611300824qdfa43cbja783da86fe6eb5cf@mail.gmail.com>
-Date: Thu, 30 Nov 2006 10:24:27 -0600
-From: "Eric Van Hensbergen" <ericvh@gmail.com>
-To: "device-mapper development" <dm-devel@redhat.com>
-Subject: Re: [dm-devel] [RFC][PATCH] dm-cache: block level disk cache target for device mapper
-Cc: "Eric Van Hensbergen" <ericvh@hera.kernel.org>, ming@acis.ufl.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200611301232.57966.jens.wilke@de.ibm.com>
+	Thu, 30 Nov 2006 11:28:10 -0500
+Received: from washoe.rutgers.edu ([165.230.95.67]:35043 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S1759257AbWK3Q2H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 11:28:07 -0500
+Date: Thu, 30 Nov 2006 11:28:04 -0500
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd/tg3 issue
+Message-ID: <20061130162804.GO2021@washoe.onerussian.com>
+Mail-Followup-To: Avi Kivity <avi@argo.co.il>,
+	Alan <alan@lxorguk.ukuu.org.uk>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20061130144355.GK2021@washoe.onerussian.com> <20061130150406.3d0b6afd@localhost.localdomain> <20061130151003.GM2021@washoe.onerussian.com> <20061130153906.59d78223@localhost.localdomain> <456EFC9F.9060607@argo.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200611271826.kARIQYRi032717@hera.kernel.org>
-	 <200611301232.57966.jens.wilke@de.ibm.com>
+In-Reply-To: <456EFC9F.9060607@argo.co.il>
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/30/06, Jens Wilke <jens.wilke@de.ibm.com> wrote:
-> On Monday 27 November 2006 19:26, Eric Van Hensbergen wrote:
->
-> If this is intended to speed up remote disks, is it possible that the cache content
-> can be paged out on local disks in low-mem situations?
->
+On another box which has 4 times more RAM or a bit more than twice total
+memory, it had twice as high vm.min_free_kbytes
+on another node with even more RAM it is 13821..
 
-The main intent was to use local disks as cache to offload centralized
-remote disks.  The logic was that most systems have local disks, if
-only for swap -- so why not use them as a cache to help offload
-centralized storage.  While the in-memory page cache works perfectly
-fine in certain situations -- we were dealing with workloads in which
-the in-memory page-cache wasn't sufficient to hold all the data.
+hm - so what is the algorithm which sets it? percent of available RAM?
 
-There are also some additional possibilities we've thought through and
-have been playing with including allowing the local disk cache to be
-persistent across reboots (with varying validation schemes).
+For now I am adjusting it on that server to be twice from default.
 
-             -eric
+Thanks everyone for your help
+
+On Thu, 30 Nov 2006, Avi Kivity wrote:
+
+> Alan wrote:
+> >Under heavy network or I/O pressure it may not have time to swap to get
+> >the memory. Thus adding swap won't usually help. Adding RAM may do but
+> >its often not the best answer. Arjan's suggestion should sort it, and -
+> >yes typically boxes with very high I/O and network load need more of a
+> >pool of memory free for immediate use than other systems.
+
+
+> It could be nice if the kernel could autotune this, for example by raising the free memory goal when memory shortage is detected, and lowering it 
+> gradually when not.
+
+> The sysctl could be a minimum from which this is calculated.
+-- 
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Student  Ph.D. @ CS Dept. NJIT
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
+WWW:     http://www.linkedin.com/in/yarik        

@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031106AbWK3Sd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967860AbWK3Smz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031106AbWK3Sd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 13:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031108AbWK3Sd4
+	id S967860AbWK3Smz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 13:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967861AbWK3Smz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 13:33:56 -0500
-Received: from mga05.intel.com ([192.55.52.89]:36154 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1031106AbWK3Sdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 13:33:55 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,481,1157353200"; 
-   d="scan'208"; a="171205127:sNHT26143880"
-Date: Thu, 30 Nov 2006 10:08:39 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH 1/4] [x86] Add command line option to enable/disable hyper-threading.
-Message-ID: <20061130100839.A30285@unix-os.sc.intel.com>
-References: <11648607683157-git-send-email-bcollins@ubuntu.com> <11648607733630-git-send-email-bcollins@ubuntu.com> <20061130110611.03aff95c@localhost.localdomain>
+	Thu, 30 Nov 2006 13:42:55 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:3844 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S967860AbWK3Smy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 13:42:54 -0500
+Date: Thu, 30 Nov 2006 19:43:18 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Elias Oltmanns <eo@nebensachen.de>
+Cc: Pavel Machek <pavel@ucw.cz>, Christoph Schmid <chris@schlagmichtod.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Message-ID: <20061130184317.GX5400@kernel.dk>
+References: <7ibks-1fg-15@gated-at.bofh.it> <7kpjn-7th-23@gated-at.bofh.it> <7kDFF-8rd-29@gated-at.bofh.it> <87d5783fms.fsf@denkblock.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20061130110611.03aff95c@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Nov 30, 2006 at 11:06:11AM +0000
+In-Reply-To: <87d5783fms.fsf@denkblock.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 11:06:11AM +0000, Alan wrote:
-> On Wed, 29 Nov 2006 23:26:05 -0500
-> Ben Collins <bcollins@ubuntu.com> wrote:
+On Mon, Nov 27 2006, Elias Oltmanns wrote:
+> Jens Axboe <jens.axboe@oracle.com> wrote:
+> > On Tue, Nov 21 2006, Pavel Machek wrote:
+> >> Hi!
+> >> 
+> [...]
+> >> > After some googeling and digging in gamne i read that someone said that
+> >> > there are plans for some generic support for HD-parking in the kernel
+> >> > and thus making such patches obsolete.
+> [...]
+> >> I'm afraid we need your help with development here. Porting old patch
+> >> to 2.6.19-rc6 should be easy, and then you can start 'how do I
+> >> makethis generic' debate.
+> >
+> > 2.6.19 will finally have the generic block layer commands, so this can
+> > be implemented properly.
 > 
-> > This patch adds a config option to allow disabling hyper-threading by
-> > default, and a kernel command line option to changes this default at
-> > boot time.
-> > 
-> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
-> 
-> The description is wrong - this does not disable hyperthreading it merely
-> leaves one thread idle.
+> Eventually, I've ported the patch to 2.6.19-rc6 (attached). However,
+> I'll need some gentle guidance by you developers for the next steps,
+> I'm afraid. What exactly do you mean by "making this generic".
+> Perhaps, you could give me a hint as to which generic block layer
+> commands you have in mind that should be used in such a patch.
 
-How does this patch achieve that? All this patch does is not detecting the
-sibling topology. Kernel will still use all the threads and it just
-forgoes the intelligence of which cpus are thread and core siblings and
-thus disables the optimizations done by scheduler and doesn't export the
-cpu topology to the user through sysfs and /proc.
+If you look in <linux/blkdev.h>, you can see the definition of
+REQ_TYPE_LINUX_BLOCK and the current sub commands (none are implemented
+right now). So you want to add REQ_LB_OPT_PARK (or whatever the name
+should be) to implement the freezing operation, and then add support for
+the drivers to understand this command and do what they need to do. You
+can add block layer helpers to perform the freezing of the actual queue,
+to be called when the PARK command completes. You can handle the queue
+draining for tagged devices like the barriers do for FUA barriers.
 
-Am I missing the point of this patch?
 
-thanks,
-suresh
+-- 
+Jens Axboe
 
-> I don't believe Intel have ever published a
-> procedure for truely disabling HT, but if you idle a thread you may want
-> to adjust the cache settings on a PIV (10.5.6 in the intel docs) and set
-> it to shared mode. Need to play more with what the bios does I guess.
-> 
-> So Ack but with the proviso it should say "Ignoring" or "Not using" not
-> "Disabling", because it does not do the latter and there seem to be
-> performance differences as a result
-> 
-> Acked-by: Alan Cox <alan@redhat.com>

@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757932AbWK3GfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757894AbWK3GfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757932AbWK3GfK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 01:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757894AbWK3GfK
+	id S1757894AbWK3GfR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 01:35:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757841AbWK3GfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 01:35:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:58053 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1757861AbWK3GfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 01:35:06 -0500
-Date: Thu, 30 Nov 2006 07:32:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: wenji@fnal.gov, netdev@vger.kernel.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
-Message-ID: <20061130063252.GC2003@elte.hu>
-References: <HNEBLGGMEGLPMPPDOPMGKEAJCGAA.wenji@fnal.gov> <20061129154200.c4db558c.akpm@osdl.org>
+	Thu, 30 Nov 2006 01:35:12 -0500
+Received: from ausmtp04.au.ibm.com ([202.81.18.152]:14328 "EHLO
+	ausmtp04.au.ibm.com") by vger.kernel.org with ESMTP
+	id S1757857AbWK3GfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 01:35:08 -0500
+Date: Thu, 30 Nov 2006 12:05:12 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061130063512.GA19492@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org> <20061130042807.GA4855@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061129154200.c4db558c.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+In-Reply-To: <20061130042807.GA4855@in.ibm.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > Attached is the detailed description of the problem and one possible 
-> > solution.
+On Thu, Nov 30, 2006 at 09:58:07AM +0530, Gautham R Shenoy wrote:
 > 
-> Thanks.  The attachment will be too large for the mailing-list servers 
-> so I uploaded a copy to 
-> http://userweb.kernel.org/~akpm/Linux-TCP-Bottleneck-Analysis-Report.pdf
+> So can we ignore this circular-dep warning as a false positive?
+> Or is there a way to exploit this circular dependency ?
 > 
-> From a quick peek it appears that you're getting around 10% 
-> improvement in TCP throughput, best case.
+> At the moment, I cannot think of way to exploit this circular dependency
+> unless we do something like try destroying the created workqueue when the
+> cpu is dead, i.e make the cpufreq governors cpu-hotplug-aware.
+> (eeks! that doesn't look good)
 
-Wenji, have you tried to renice the receiving task (to say nice -20) and 
-see how much TCP throughput you get in "background load of 10.0". 
-(similarly, you could also renice the background load tasks to nice +19 
-and/or set their scheduling policy to SCHED_BATCH)
+Ok, I see that we are already doing it :(. So we can end up in a
+deadlock.
 
-as far as i can see, the numbers in the paper and the patch prove the 
-following two points:
+Here's the culprit callpath:
 
- - a task doing TCP receive with 10 other tasks running on the CPU will
-   see lower TCP throughput than if it had the CPU for itself alone.
+_cpu_down()
+!
+!-> raw_notifier_call_chain(CPU_LOCK_ACQUIRE)
+!	!
+!	!-> workqueue_cpu_mutex(CPU_LOCK_ACQUIRE) [*]
+!
+!-> raw_notifier_call_chain(CPU_DEAD)
+	!
+	!-> cpufreq_cpu_callback (CPU_DEAD)
+		!
+		!-> cpufreq_remove_dev
+			!
+			!-> __cpufreq_governor(data, GOVERNOR_STOP)
+				!
+				!-> policy->governor->governor()
+					!
+					!-> cpufreq_governor_dbs(GOVERNOR_STOP)
+						!
+						!-> destroy_workqueue() [*]
 
- - a patch that tweaks the scheduler to give the receiving task more
-   timeslices (i.e. raises its nice level in essence) results in ...
-   more timeslices, which results in higher receive numbers ...
+[*] indicates function takes workqueue_mutex.
 
-so the most important thing to check would be, before any scheduler and 
-TCP code change is considered: if you give the task higher priority 
-/explicitly/, via nice -20, do the numbers improve? Similarly, if all 
-the other "background load" tasks are reniced to nice +19 (or their 
-policy is set to SCHED_BATCH), do you get a similar improvement?
+So a deadlock!
 
-	Ingo
+I wasn't able to observe this because I'm running Xeon SMP box on which
+you cannot offline cpu0. And cpufreq data is created only for cpu0,
+while all other cpus cpufreq_data just point to cpu0's cpufreq_data.
+
+So the mentioned callpath within  cpufreq_remove_dev is never reached
+during the normal cpu offline cycle.
+
+However, if there are architectures which allow the first-booted-cpu
+(or to be precise, the cpu for which cpufreq_data is *actually* created) 
+to be offlined and we are running Ondemand governor during the offline,
+we will see this deadlock.
+
+regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

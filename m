@@ -1,227 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936168AbWK3CpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936177AbWK3DNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936168AbWK3CpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 21:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936170AbWK3CpF
+	id S936177AbWK3DNM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 22:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936178AbWK3DNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 21:45:05 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:20620 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S936168AbWK3CpB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 21:45:01 -0500
-Date: Wed, 29 Nov 2006 18:46:21 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <jens.axboe@oracle.com>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Josh Triplett <josh@freedesktop.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH 1/2] qrcu: "quick" srcu implementation
-Message-ID: <20061130024621.GL2335@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20061129235303.GA1118@oleg> <20061130015714.GC1350@oleg>
-Mime-Version: 1.0
+	Wed, 29 Nov 2006 22:13:12 -0500
+Received: from clem.clem-digital.net ([68.16.168.10]:25867 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S936177AbWK3DNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 22:13:11 -0500
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200611300313.kAU3D9J7007005@clem.clem-digital.net>
+Subject: 2.6.19 panic on boot -- i386
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Wed, 29 Nov 2006 22:13:09 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL7]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061130015714.GC1350@oleg>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 04:57:14AM +0300, Oleg Nesterov wrote:
-> (the same patch + comments from Paul)
-> 
-> [RFC, PATCH 1/2] qrcu: "quick" srcu implementation
-> 
-> Very much based on ideas, corrections, and patient explanations from
-> Alan and Paul.
-> 
-> The current srcu implementation is very good for readers, lock/unlock
-> are extremely cheap. But for that reason it is not possible to avoid
-> synchronize_sched() and polling in synchronize_srcu().
-> 
-> Jens Axboe wrote:
-> >
-> > It works for me, but the overhead is still large. Before it would take
-> > 8-12 jiffies for a synchronize_srcu() to complete without there actually
-> > being any reader locks active, now it takes 2-3 jiffies. So it's
-> > definitely faster, and as suspected the loss of two of three
-> > synchronize_sched() cut down the overhead to a third.
-> 
-> 'qrcu' behaves the same as srcu but optimized for writers. The fast path
-> for synchronize_qrcu() is mutex_lock() + atomic_read() + mutex_unlock().
-> The slow path is __wait_event(), no polling. However, the reader does
-> atomic inc/dec on lock/unlock, and the counters are not per-cpu.
-> 
-> Also, unlike srcu, qrcu read lock/unlock can be used in interrupt context,
-> and 'qrcu_struct' can be compile-time initialized.
-> 
-> See also (a long) discussion:
-> 	http://marc.theaimsgroup.com/?t=116370857600003
+2.6.19 panics at boot. Good up through rc6-git11.
+Hand copied screen below.
+-- 
+Pete Clements 
 
-With the addition of a comment for the smp_mb() at the beginning of
-synchronize_qrcu(), shown below:
 
-Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 19-rc6/include/linux/srcu.h~1_qrcu	2006-10-22 18:24:03.000000000 +0400
-> +++ 19-rc6/include/linux/srcu.h	2006-11-30 04:32:42.000000000 +0300
-> @@ -27,6 +27,8 @@
->  #ifndef _LINUX_SRCU_H
->  #define _LINUX_SRCU_H
-> 
-> +#include <linux/wait.h>
-> +
->  struct srcu_struct_array {
->  	int c[2];
->  };
-> @@ -50,4 +52,32 @@ void srcu_read_unlock(struct srcu_struct
->  void synchronize_srcu(struct srcu_struct *sp);
->  long srcu_batches_completed(struct srcu_struct *sp);
-> 
-> +/*
-> + * fully compatible with srcu, but optimized for writers.
-> + */
-> +
-> +struct qrcu_struct {
-> +	int completed;
-> +	atomic_t ctr[2];
-> +	wait_queue_head_t wq;
-> +	struct mutex mutex;
-> +};
-> +
-> +int init_qrcu_struct(struct qrcu_struct *qp);
-> +int qrcu_read_lock(struct qrcu_struct *qp);
-> +void qrcu_read_unlock(struct qrcu_struct *qp, int idx);
-> +void synchronize_qrcu(struct qrcu_struct *qp);
-> +
-> +/**
-> + * cleanup_qrcu_struct - deconstruct a quick-RCU structure
-> + * @qp: structure to clean up.
-> + *
-> + * Must invoke this after you are finished using a given qrcu_struct that
-> + * was initialized via init_qrcu_struct().  We reserve the right to
-> + * leak memory should you fail to do this!
-> + */
-> +static inline void cleanup_qrcu_struct(struct qrcu_struct *qp)
-> +{
-> +}
-> +
->  #endif
-> --- 19-rc6/kernel/srcu.c~1_qrcu	2006-10-22 18:24:03.000000000 +0400
-> +++ 19-rc6/kernel/srcu.c	2006-11-30 04:39:53.000000000 +0300
-> @@ -256,3 +256,94 @@ EXPORT_SYMBOL_GPL(srcu_read_unlock);
->  EXPORT_SYMBOL_GPL(synchronize_srcu);
->  EXPORT_SYMBOL_GPL(srcu_batches_completed);
->  EXPORT_SYMBOL_GPL(srcu_readers_active);
-> +
-> +/**
-> + * init_qrcu_struct - initialize a quick-RCU structure.
-> + * @qp: structure to initialize.
-> + *
-> + * Must invoke this on a given qrcu_struct before passing that qrcu_struct
-> + * to any other function.  Each qrcu_struct represents a separate domain
-> + * of QRCU protection.
-> + */
-> +int init_qrcu_struct(struct qrcu_struct *qp)
-> +{
-> +	qp->completed = 0;
-> +	atomic_set(qp->ctr + 0, 1);
-> +	atomic_set(qp->ctr + 1, 0);
-> +	init_waitqueue_head(&qp->wq);
-> +	mutex_init(&qp->mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * qrcu_read_lock - register a new reader for an QRCU-protected structure.
-> + * @qp: qrcu_struct in which to register the new reader.
-> + *
-> + * Counts the new reader in the appropriate element of the qrcu_struct.
-> + * Returns an index that must be passed to the matching qrcu_read_unlock().
-> + */
-> +int qrcu_read_lock(struct qrcu_struct *qp)
-> +{
-> +	for (;;) {
-> +		int idx = qp->completed & 0x1;
-> +		if (likely(atomic_inc_not_zero(qp->ctr + idx)))
-> +			return idx;
-> +	}
-> +}
-> +
-> +/**
-> + * qrcu_read_unlock - unregister a old reader from an QRCU-protected structure.
-> + * @qp: qrcu_struct in which to unregister the old reader.
-> + * @idx: return value from corresponding qrcu_read_lock().
-> + *
-> + * Removes the count for the old reader from the appropriate element of
-> + * the qrcu_struct.
-> + */
-> +void qrcu_read_unlock(struct qrcu_struct *qp, int idx)
-> +{
-> +	if (atomic_dec_and_test(qp->ctr + idx))
-> +		wake_up(&qp->wq);
-> +}
-> +
-> +/**
-> + * synchronize_qrcu - wait for prior QRCU read-side critical-section completion
-> + * @qp: qrcu_struct with which to synchronize.
-> + *
-> + * Flip the completed counter, and wait for the old count to drain to zero.
-> + * As with classic RCU, the updater must use some separate means of
-> + * synchronizing concurrent updates.  Can block; must be called from
-> + * process context.
-> + *
-> + * Note that it is illegal to call synchronize_qrcu() from the corresponding
-> + * QRCU read-side critical section; doing so will result in deadlock.
-> + * However, it is perfectly legal to call synchronize_qrcu() on one
-> + * qrcu_struct from some other qrcu_struct's read-side critical section.
-> + */
-> +void synchronize_qrcu(struct qrcu_struct *qp)
-> +{
-> +	int idx;
-
-	/*
-	 * The following memory barrier is needed to ensure that
-	 * any prior data-structure manipulation is seen by other
-	 * CPUs to happen before picking up the value of
-	 * qp->completed.
-	 */
-
-> +	smp_mb();
-> +	mutex_lock(&qp->mutex);
-> +
-> +	idx = qp->completed & 0x1;
-> +	if (atomic_read(qp->ctr + idx) == 1)
-> +		goto out;
-> +
-> +	atomic_inc(qp->ctr + (idx ^ 0x1));
-> +	/* Reduce the likelihood that qrcu_read_lock() will loop */
-> +	smp_mb__after_atomic_inc();
-> +	qp->completed++;
-> +
-> +	atomic_dec(qp->ctr + idx);
-> +	__wait_event(qp->wq, !atomic_read(qp->ctr + idx));
-> +out:
-> +	mutex_unlock(&qp->mutex);
-
-	/*
-	 * The following memory barrier is needed to ensure that
-	 * and subsequent freeing of data elements previously
-	 * removed is seen by other CPUs after the wait completes.
-	 */
-
-Hmmm...  Now I am wondering if the memory barriers inherent in the
-__wait_event() suffice for this last barrier...  :-/  Thoughts?
-
-> +	smp_mb();
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(init_qrcu_struct);
-> +EXPORT_SYMBOL_GPL(qrcu_read_lock);
-> +EXPORT_SYMBOL_GPL(qrcu_read_unlock);
-> +EXPORT_SYMBOL_GPL(synchronize_qrcu);
-> 
+Call Trace:
+[<f894cda0>] ndisc_send_rs+0x420/0x460 [ipv6]
+[<f894cdac>] ndisc_send_rs+0x42c/0x460 [ipv6]
+[<f894cda0>] ndisc_send rs+0x420/0x460 [ipv6]
+[<f8940ac3>] addrconf_dad_completed+0x93/0xe0 [ipv6]
+[<f89437e9>] addrconf_dad_timer+0x119/0x120 [ipv6]
+[<c0115e31>] rebalance_tick+0x131/0x350
+[<f89436d0>] addrconf_dad_timer+0x0/0x120 [ipv6]
+[<c01255f3>] run_timer_softirq+0x113/0x190
+[<c01209e5>] __do_softirq+0x75/0xf0
+[<c0120a9b>] do_softirq+03b/0x50
+[<c010ea05>] smp_apic_timer_interrupt+0xa5/0xc0
+[<c0103ba7>] apic_timer_interrupt+0x1f/0x24
+[<c0101d20>] default_idle+0x0/0x60
+[<c0101d51>] default_idle+031/0x60
+[<c0101dec>] cpu_idle+0x6c/0x90
+[<c03d386e>] start_kernel+0x34e/0x3d0
+[<c03d3290>] unknown_bootoption+0x0/0x290
+========================
+Code: 8c 00 00 00 89 44 24 10 8b 44 24 2c 89 44 24 0c 8b 41 60 c7 04 24 e4 ac 36
+ c0 89 44 24 08 8b 44 24 30 89 44 24 04 e8 9d 51 e6 ff <0f> 0b 5d 00 1a 84 36 c0
+ 83 c4 24 c3 90 55 57 56 53 83 ec 2c 8b
+EIP: [<c02b7283>] skb_over_panic+0x63/0x70 SS:ESP 0068:c03cfe08
+ <0>Kernel panic - not syncing: Fatal exception in interrupt

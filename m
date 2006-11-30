@@ -1,114 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030881AbWK3Rrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967837AbWK3Rrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030881AbWK3Rrq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 12:47:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030885AbWK3Rrp
+	id S967837AbWK3Rrk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 12:47:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967839AbWK3Rrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 12:47:45 -0500
-Received: from mail.keyvoice.com ([12.153.69.53]:63141 "EHLO
-	outbound.comdial.com") by vger.kernel.org with ESMTP
-	id S1030881AbWK3Rrp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 12:47:45 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 30 Nov 2006 12:47:40 -0500
+Received: from ug-out-1314.google.com ([66.249.92.170]:64056 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S967837AbWK3Rrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 12:47:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AbJVYWIKx2lH7ZimwtYfg+iFsbYeHQx+4aGOYnvLTPtLSoQIF7dgcro6POv47HBvZT2zO9ZpFTD2ce7dOE3DCReWBphkZwgnZJwIhI+pon0T+purZDYz7XQptAr5Tte6uAbOiIVcSkJPxif7kwL2vtmuIG+eoun7kExDsIt8nMc=
+Message-ID: <41840b750611300947t5e72b4c1t356fb03fe9d31c68@mail.gmail.com>
+Date: Thu, 30 Nov 2006 19:47:36 +0200
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Cc: "Christoph Schmid" <chris@schlagmichtod.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061130171102.GC1860@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Reserving a fixed physical address page of RAM.
-Date: Thu, 30 Nov 2006 12:47:42 -0500
-Message-ID: <22170ADB26112F478A4E293FF9D449F44D105B@secure.comdial.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Reserving a fixed physical address page of RAM.
-Thread-Index: AccUpXLJ2/Z4a+SAQzSzq0FEfkXeogAANb1w
-From: "Jon Ringle" <JRingle@vertical.com>
-To: "Fawad Lateef" <fawadlateef@gmail.com>
-Cc: "Dave Airlie" <airlied@gmail.com>, "Robert Hancock" <hancockr@shaw.ca>,
-       <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <455DAF74.1050203@schlagmichtod.de> <20061121205124.GB4199@ucw.cz>
+	 <41840b750611231026r790cd327q7e48ebd99f9b9350@mail.gmail.com>
+	 <20061130171102.GC1860@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fawad Lateef wrote:
-> On 11/30/06, Jon Ringle <JRingle@vertical.com> wrote:
-> > Fawad Lateef wrote:
-> > > Yes, this can be used if required physical-memory exists 
-> in the last 
-> > > part of RAM as if you use mem=<xxxM> then kernel will only use 
-> > > memory less than or equal-to <xxxM> and above can be used 
-> by drivers 
-> > > (or any kernel module) might be through ioremap which takes 
-> > > physical-address.
+On 11/30/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > >Does hdaps work for you, btw? It gave all zeros on my x60, iirc.
 > >
-> > Seems that using mem= has to be in 1MB increments, where I 
-> only need 4K.
-> >
-> 
-> No AFAIK you can specify it in KBs (see
-> http://sosdg.org/~coywolf/lxr/source/Documentation/kernel-para
-> meters.txt#L869)
+> > Yes, vanilla hdaps is broken. It blindly issues commands to the
+> > embedded controller without following the protocol or checking the
+> > status. The patched version in the tp_smapi package fixes it.
+>
+> Is there a way to extract minimal patch? ...the kind that is trivial
+> enough so that akpm does accepts it...?
 
-Yes, you can specify the mem= using K notation, but there is a test in
-arch/arm/mm/mm-armv.c:create_mapping() that prevents the mapping from
-being created if the boundaries are not MB aligned:
+I can't think of any such trivial fix. My submitted code includes a
+whole new driver, thinkpad_ec, just to get the (fully documented!) EC
+protocl right. You could strip a few code paths which hdaps doesn't
+invoke, but it's hard to see how you can get away with much less
+except by making unwarranted assumptions about the hardware and its
+timing characteristics.
 
-	if (mem_types[md->type].prot_l1 == 0 &&
-	    (virt & 0xfffff || (virt + off) & 0xfffff || (virt + length)
-& 0xfffff)) {
-		printk(KERN_WARNING "BUG: map for 0x%08lx at 0x%08lx can
-not "
-		       "be mapped using pages, ignoring.\n",
-		       __pfn_to_phys(md->pfn), md->virtual);
-		return;
-	}
-
-This is in linux-2.6.16.29.
-
-> 
-> > >
-> > > But if lets say we need only 1MB portion of specific 
-> physical-memory 
-> > > region then AFAIK it must be done by hacking in kernel 
-> code during 
-> > > memory-initialization (mem_init
-> > > function) where it is marking/checking pages as/are reserved; you 
-> > > can simply mark you required pages as reserved too and set their 
-> > > count to some-value if you want to know later which pages are 
-> > > reserved by you. (can do this reservation work
-> > > here: 
-> http://lxr.free-electrons.com/source/arch/i386/mm/init.c#605).
-> >
-> > Do you think that the following would work to properly reserve the 
-> > memory. If it does, then I think I can just do a ioremap(0x0ffff000,
-> > 0x1000) to obtain a virtual address. (Ofcourse I would actually use 
-> > symbolic names rather than the hardcoded addesses shown here).
-> >
-> > Index: linux/arch/arm/mm/init.c
-> > ===================================================================
-> > --- linux.orig/arch/arm/mm/init.c       2006-11-30 
-> 11:03:00.000000000
-> > -0500
-> > +++ linux/arch/arm/mm/init.c    2006-11-30 11:09:09.000000000 -0500
-> > @@ -429,6 +429,10 @@
-> >         unsigned long addr;
-> >         void *vectors;
-> >
-> > +#ifdef CONFIG_MACH_VERTICAL_RSC4
-> > +       reserve_bootmem (0x0ffff000, 0x1000); #endif
-> > +
-> >         /*
-> >          * Allocate the vector page early.
-> >          */
-> >
-> >
-> 
-> I think you can do like this but can't say accurately because 
-> I havn't worked on arm architecture and also you havn't 
-> mentioned your kernel-version or function (in file 
-> arch/arm/mm/init.c) which you are going to do call reserve_bootmem !
-
-Kernel version is 2.6.16.29 and the reserve_bootmem() call above is at
-the top of the function devicemaps_init().
-
-Jon
+  Shem

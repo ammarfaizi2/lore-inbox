@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbWK3P2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030513AbWK3PcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030478AbWK3P2x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 10:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030499AbWK3P2x
+	id S1030513AbWK3PcN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 10:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030528AbWK3PcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 10:28:53 -0500
-Received: from washoe.rutgers.edu ([165.230.95.67]:38303 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S1030478AbWK3P2w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 10:28:52 -0500
-Date: Thu, 30 Nov 2006 10:28:51 -0500
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 30 Nov 2006 10:32:12 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24209 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030513AbWK3PcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 10:32:11 -0500
+Date: Thu, 30 Nov 2006 15:39:06 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: kswapd/tg3 issue
-Message-ID: <20061130152851.GN2021@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20061130144355.GK2021@washoe.onerussian.com> <20061130150406.3d0b6afd@localhost.localdomain> <20061130151003.GM2021@washoe.onerussian.com> <1164899853.3233.19.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164899853.3233.19.camel@laptopd505.fenrus.org>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r804 (Debian)
+Message-ID: <20061130153906.59d78223@localhost.localdomain>
+In-Reply-To: <20061130151003.GM2021@washoe.onerussian.com>
+References: <20061130144355.GK2021@washoe.onerussian.com>
+	<20061130150406.3d0b6afd@localhost.localdomain>
+	<20061130151003.GM2021@washoe.onerussian.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Arjan for advice
+On Thu, 30 Nov 2006 10:10:03 -0500
+Yaroslav Halchenko <yoh@psychology.rutgers.edu> wrote:
 
-I had 5746, made it 8619.
+> Thank you Alan
+> 
+> Ok - I am adding more memory in my purchasing plan ;-) For now I guess
+> adding swap space should help, right?
 
-Is that a good practice in general to have that value higher for a
-server with lots of I/O including networking? (there is a RAID on that
-system and 2 bonded gigabit interfaces) Is there any heuristic to decide
-on that value ?
-
-On Thu, 30 Nov 2006, Arjan van de Ven wrote:
-
-> >...<
-
-> actually since this was networking...
-> you probably should bump the value in
-> /proc/sys/vm/min_free_kbytes
-> a bit (like by 50%); that makes the kernel keep a bigger pool free for
-> emergencies/spikes...
-> That might be enough already if your system isn't swapping a whole lot.
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Student  Ph.D. @ CS Dept. NJIT
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
-WWW:     http://www.linkedin.com/in/yarik        
+Under heavy network or I/O pressure it may not have time to swap to get
+the memory. Thus adding swap won't usually help. Adding RAM may do but
+its often not the best answer. Arjan's suggestion should sort it, and -
+yes typically boxes with very high I/O and network load need more of a
+pool of memory free for immediate use than other systems.

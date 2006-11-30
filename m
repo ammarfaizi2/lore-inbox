@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030815AbWK3RLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030816AbWK3ROL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030815AbWK3RLO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 12:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030822AbWK3RLO
+	id S1030816AbWK3ROL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 12:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030820AbWK3ROL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 12:11:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57504 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030816AbWK3RLO (ORCPT
+	Thu, 30 Nov 2006 12:14:11 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5329 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030816AbWK3ROK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 12:11:14 -0500
-Date: Thu, 30 Nov 2006 18:11:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Christoph Schmid <chris@schlagmichtod.de>, linux-kernel@vger.kernel.org
-Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
-Message-ID: <20061130171102.GC1860@elf.ucw.cz>
-References: <455DAF74.1050203@schlagmichtod.de> <20061121205124.GB4199@ucw.cz> <41840b750611231026r790cd327q7e48ebd99f9b9350@mail.gmail.com>
-MIME-Version: 1.0
+	Thu, 30 Nov 2006 12:14:10 -0500
+Date: Thu, 30 Nov 2006 09:15:33 -0800
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: paulmck@linux.vnet.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RCU] adds a prefetch() in rcu_do_batch()
+Message-ID: <20061130171533.GB1869@us.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
+References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com> <200611221602.29597.dada1@cosmosbay.com> <20061130012528.GJ2335@us.ibm.com> <200611300955.52293.dada1@cosmosbay.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41840b750611231026r790cd327q7e48ebd99f9b9350@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200611300955.52293.dada1@cosmosbay.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >Does hdaps work for you, btw? It gave all zeros on my x60, iirc.
+On Thu, Nov 30, 2006 at 09:55:52AM +0100, Eric Dumazet wrote:
+> On Thursday 30 November 2006 02:25, Paul E. McKenney wrote:
+> > On Wed, Nov 22, 2006 at 04:02:29PM +0100, Eric Dumazet wrote:
+> > > On some workloads, (for example when lot of close() syscalls are done),
+> > > RCU qlen can be quite large, and RCU heads are no longer in cpu cache
+> > > when rcu_do_batch() is called.
+> > >
+> > > This patches adds a prefetch() in rcu_do_batch() to give CPU a hint to
+> > > bring back cache lines containing 'struct rcu_head's.
+> > >
+> > > Most list manipulations macros include prefetch(), but not open coded
+> > > ones (at least with current C compilers :) )
+> > >
+> > > I got a nice speedup on a trivial benchmark  (3.48 us per iteration
+> > > instead of 3.95 us on a 1.6 GHz Pentium-M)
+> > > while (1) { pipe(p); close(fd[0]); close(fd[1]);}
+> >
+> > Interesting!  How much of the speedup was due to the prefetch() and how
+> > much to removing the extra store to rdp->donelist?
 > 
-> Yes, vanilla hdaps is broken. It blindly issues commands to the
-> embedded controller without following the protocol or checking the
-> status. The patched version in the tp_smapi package fixes it.
+> I only benchmarked the prefetch() case.
+> 
+> Then, when cooking the patch I found I could do the rdp->donelist affectation
+> after the loop. I am not sure it's worth to do another benchmark for this
+> trivial optimization (Please dont tell me its not a valid one :) )
 
-Is there a way to extract minimal patch? ...the kind that is trivial
-enough so that akpm does accepts it...? 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+It would be a good idea to check it out.  Modern CPUs can be a bit
+on the tricky side.  I have seen cases where removing instructions
+slowed things down.  And it can't be -that- hard to run the other
+two cases!
+
+							Thanx, Paul

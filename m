@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759196AbWK3JJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759199AbWK3JKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759196AbWK3JJD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759195AbWK3JJB
+	id S1759199AbWK3JKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759200AbWK3JKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:09:01 -0500
-Received: from il.qumranet.com ([62.219.232.206]:62918 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1759196AbWK3JJA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:09:00 -0500
-Subject: [PATCH] KVM: printk log levels
-From: Avi Kivity <avi@qumranet.com>
-Date: Thu, 30 Nov 2006 09:08:59 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
-       rdreier@cisco.com
-Message-Id: <20061130090859.1942725017B@cleopatra.q>
+	Thu, 30 Nov 2006 04:10:37 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:24069 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1759199AbWK3JKf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:10:35 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] arm: arch-sa1100 add missing brackets
+Date: Thu, 30 Nov 2006 10:10:05 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611301010.05911.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roland Drier <rdreier@cisco.com>
+Hello,
 
-Here's a trivial patch that adds log levels to all printks.  This
-avoids ugly things like
+	This patch adds missing brackets.
 
-Message from syslogd@roland-xeon-2 at Wed Nov 29 14:01:01 2006 ...
-roland-xeon-2 kernel: [81842.565619] msrs: 6
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-popping up in a console on my system when starting a guest.
+ include/asm-arm/arch-sa1100/SA-1101.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
-
-Index: linux-2.6/drivers/kvm/vmx.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/vmx.c
-+++ linux-2.6/drivers/kvm/vmx.c
-@@ -1153,7 +1153,7 @@ static int vmx_vcpu_setup(struct kvm_vcp
- 		vcpu->guest_msrs[j] = vcpu->host_msrs[j];
- 		++vcpu->nmsrs;
- 	}
--	printk("msrs: %d\n", vcpu->nmsrs);
-+	printk(KERN_DEBUG "kvm: msrs: %d\n", vcpu->nmsrs);
+--- linux-2.6.19-rc6-mm2-a/include/asm-arm/arch-sa1100/SA-1101.h	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/include/asm-arm/arch-sa1100/SA-1101.h	2006-11-30 01:09:24.000000000 +0100
+@@ -106,7 +106,7 @@
+ #define SMCR_ColAdrBits( x )		  /* col. addr bits 8..11 */ \
+ 	(( (x) - 8 ) << FShft (SMCR_DCAC))
+ #define SMCR_RowAdrBits( x )		  /* row addr bits 9..12 */\
+-	(( (x) - 9 ) << FShft (SMCR_DRAC)
++	(( (x) - 9 ) << FShft (SMCR_DRAC))
  
- 	nr_good_msrs = vcpu->nmsrs - NR_BAD_MSRS;
- 	vmcs_writel(VM_ENTRY_MSR_LOAD_ADDR,
-Index: linux-2.6/drivers/kvm/svm.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/svm.c
-+++ linux-2.6/drivers/kvm/svm.c
-@@ -990,7 +990,7 @@ static int io_interception(struct kvm_vc
+ #define SNPR_VFBstart	  Fld(12,0)	/* Video frame buffer addr */
+ #define SNPR_VFBsize	  Fld(11,12)	/* Video frame buffer size */
+@@ -394,7 +394,7 @@
+ #define VgaStatus      (*((volatile Word *) SA1101_p2v (_VgaStatus)))
+ #define VgaInterruptMask (*((volatile Word *) SA1101_p2v (_VgaInterruptMask)))
+ #define VgaPalette     (*((volatile Word *) SA1101_p2v (_VgaPalette)))
+-#define DacControl     (*((volatile Word *) SA1101_p2v (_DacControl))
++#define DacControl     (*((volatile Word *) SA1101_p2v (_DacControl)))
+ #define VgaTest        (*((volatile Word *) SA1101_p2v (_VgaTest)))
  
- 		addr_mask = io_adress(vcpu, _in, &kvm_run->io.address);
- 		if (!addr_mask) {
--			printk("%s: get io address failed\n", __FUNCTION__);
-+			printk(KERN_DEBUG "%s: get io address failed\n", __FUNCTION__);
- 			return 1;
- 		}
- 
-@@ -1030,7 +1030,7 @@ static int invalid_op_interception(struc
- 
- static int task_switch_interception(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- {
--	printk("%s: task swiche is unsupported\n", __FUNCTION__);
-+	printk(KERN_DEBUG "%s: task swiche is unsupported\n", __FUNCTION__);
- 	kvm_run->exit_reason = KVM_EXIT_UNKNOWN;
- 	return 0;
- }
+ #define VideoControl_VgaEn    0x00000000
+
+
+-- 
+Regards,
+
+	Mariusz Kozlowski

@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935001AbWK3Kcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935057AbWK3KeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935001AbWK3Kcq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 05:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935007AbWK3Kcq
+	id S935057AbWK3KeF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 05:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935063AbWK3KeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 05:32:46 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:59098 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S935001AbWK3Kcp (ORCPT
+	Thu, 30 Nov 2006 05:34:04 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:43274 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S935057AbWK3KeD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 05:32:45 -0500
-Date: Thu, 30 Nov 2006 11:32:40 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Miller <davem@davemloft.net>,
-       wenji@fnal.gov, akpm@osdl.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-Message-ID: <20061130103240.GA25733@elte.hu>
-References: <20061130061758.GA2003@elte.hu> <20061129.223055.05159325.davem@davemloft.net> <20061130064758.GD2003@elte.hu> <20061129.231258.65649383.davem@davemloft.net> <20061130073504.GA19437@elte.hu> <20061130095232.GA8990@2ka.mipt.ru> <456EAD6E.6040709@yahoo.com.au> <20061130102205.GA20654@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Nov 2006 05:34:03 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: "Dale Farnsworth" <dale@farnsworth.org>
+Subject: Re: [PATCH] mv643xx add missing brackets
+Date: Thu, 30 Nov 2006 11:33:28 +0100
+User-Agent: KMail/1.9.5
+Cc: mlachwani@mvista.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200611301035.37786.m.kozlowski@tuxland.pl> <20061130100731.GA6301@xyzzy.farnsworth.org>
+In-Reply-To: <20061130100731.GA6301@xyzzy.farnsworth.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061130102205.GA20654@2ka.mipt.ru>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+Message-Id: <200611301133.32697.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-
-> > David's line of thinking for a solution sounds better to me. This 
-> > patch does not prevent the process from being preempted (for 
-> > potentially a long time), by any means.
+> > +#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21))
 > 
-> It steals timeslices from other processes to complete tcp_recvmsg() 
-> task, and only when it does it for too long, it will be preempted. 
-> Processing backlog queue on behalf of need_resched() will break 
-> fairness too - processing itself can take a lot of time, so process 
-> can be scheduled away in that part too.
+> Mariusz, please remove the extra parenthesis instead of adding
+> an extra one, like:
+> 	#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	(1<<21)
+> and resubmit.
 
-correct - it's just the wrong thing to do. The '10% performance win' 
-that was measured was against _9 other tasks who contended for the same 
-CPU resource_. I.e. it's /not/ an absolute 'performance win' AFAICS, 
-it's a simple shift in CPU cycles away from the other 9 tasks and 
-towards the task that does TCP receive.
+Sure. Here it goes. Second try:
 
-Note that even without the change the TCP receiving task is already 
-getting a disproportionate share of cycles due to softirq processing! 
-Under a load of 10.0 it went from 500 mbits to 74 mbits, while the 
-'fair' share would be 50 mbits. So the TCP receiver /already/ has an 
-unfair advantage. The patch only deepends that unfairness.
+	This patch fixes some mv643xx macros.
 
-The solution is really simple and needs no kernel change at all: if you 
-want the TCP receiver to get a larger share of timeslices then either 
-renice it to -20 or renice the other tasks to +19.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-The other disadvantage, even ignoring that it's the wrong thing to do, 
-is the crudeness of preempt_disable() that i mentioned in the other 
-post:
+ include/linux/mv643xx.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
----------->
+--- linux-2.6.19-rc6-mm2-a/include/linux/mv643xx.h	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/include/linux/mv643xx.h	2006-11-30 11:30:14.000000000 +0100
+@@ -724,7 +724,7 @@
+ #define MV643XX_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
+ #define MV643XX_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
+ #define MV643XX_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
+-#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
++#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
+ #define MV643XX_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
+ #define MV643XX_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
+ #define MV643XX_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
+@@ -1135,7 +1135,7 @@ struct mv64xxx_i2c_pdata {
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_1	(1<<19)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_2	(1<<20)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_3	((1<<20) | (1<<19))
+-#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21)
++#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	(1<<21)
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_5	((1<<21) | (1<<19))
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_6	((1<<21) | (1<<20))
+ #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_7	((1<<21) | (1<<20) | (1<<19))
 
-independently of the issue at hand, in general the explicit use of 
-preempt_disable() in non-infrastructure code is quite a heavy tool. Its 
-effects are heavy and global: it disables /all/ preemption (even on 
-PREEMPT_RT). Furthermore, when preempt_disable() is used for per-CPU 
-data structures then [unlike for example to a spin-lock] the connection 
-between the 'data' and the 'lock' is not explicit - causing all kinds of 
-grief when trying to convert such code to a different preemption model. 
-(such as PREEMPT_RT :-)
 
-So my plan is to remove all "open-coded" use of preempt_disable() [and 
-raw use of local_irq_save/restore] from the kernel and replace it with 
-some facility that connects data and lock. (Note that this will not 
-result in any actual changes on the instruction level because internally 
-every such facility still maps to preempt_disable() on non-PREEMPT_RT 
-kernels, so on non-PREEMPT_RT kernels such code will still be the same 
-as before.)
+-- 
+Regards,
 
-	Ingo
+	Mariusz Kozlowski

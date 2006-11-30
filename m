@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031280AbWK3UW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031369AbWK3UYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031280AbWK3UW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 15:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031363AbWK3UW6
+	id S1031369AbWK3UYs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 15:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031375AbWK3UYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 15:22:58 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:29411
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1031341AbWK3UW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 15:22:57 -0500
-Date: Thu, 30 Nov 2006 12:22:58 -0800 (PST)
-Message-Id: <20061130.122258.68041055.davem@davemloft.net>
-To: mingo@elte.hu
-Cc: johnpol@2ka.mipt.ru, nickpiggin@yahoo.com.au, wenji@fnal.gov,
-       akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061130103240.GA25733@elte.hu>
-References: <456EAD6E.6040709@yahoo.com.au>
-	<20061130102205.GA20654@2ka.mipt.ru>
-	<20061130103240.GA25733@elte.hu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 30 Nov 2006 15:24:48 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:7598 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1031369AbWK3UYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 15:24:47 -0500
+Date: Thu, 30 Nov 2006 21:24:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Gautham R Shenoy <ego@in.ibm.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061130202411.GC14696@elte.hu>
+References: <20061129152404.GA7082@in.ibm.com> <20061130083144.GC29609@elte.hu> <20061130102410.GB23354@in.ibm.com> <20061130110315.GA30460@elte.hu> <20061130031933.5d30ec09.akpm@osdl.org> <20061130114617.GA2324@elte.hu> <20061130114009.ed473fc0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061130114009.ed473fc0.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Date: Thu, 30 Nov 2006 11:32:40 +0100
 
-> Note that even without the change the TCP receiving task is already 
-> getting a disproportionate share of cycles due to softirq processing! 
-> Under a load of 10.0 it went from 500 mbits to 74 mbits, while the 
-> 'fair' share would be 50 mbits. So the TCP receiver /already/ has an 
-> unfair advantage. The patch only deepends that unfairness.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-I want to point out something which is slightly misleading about this
-kind of analysis.
+> > Even with complex inter-subsystem interactions, hotplugging could be 
+> > effectively and scalably controlled via a self-recursive per-CPU 
+> > mutex, and a pointer to it embedded in task_struct:
 
-Your disk I/O speed doesn't go down by a factor of 10 just because 9
-other non disk I/O tasks are running, yet for TCP that's seemingly OK
-:-)
+> So what I would propose is that rather than going ahead and piling 
+> more complexity on top of the existing poo-pile in an attempt to make 
+> it seem to work, we should simply rip all the cpu-hotplug locking out 
+> of cpufreq (there's a davej patch for that in -mm) and then just redo 
+> it all in an organised fashion.
 
-Not looking at input TCP packets enough to send out the ACKs is the
-same as "forgetting" to queue some I/O requests that can go to the
-controller right now.
+actually, that's precisely what i'm suggesting too, i wrote it to 
+Gautham in one of the previous mails:
 
-That's the problem, TCP performance is intimately tied to ACK
-feedback.  So we should find a way to make sure ACK feedback goes
-out, in preference to other tcp_recvmsg() processing.
+|| that would flatten the whole locking. Only one kind of lock taken, 
+|| recursive and scalable.
+||
+|| Then the mechanism that changes CPU frequency should take all these 
+|| hotplug locks on all (online) CPUs, and then first stop all 
+|| processing on all CPUs, and then do the frequency change, atomically. 
+|| This is with interrupts disabled everywhere /first/, and /without any 
+|| additional locking/. That would prevent any sort of interaction from 
+|| other CPUs - they'd all be sitting still with interrupts disabled.
 
-What really should pace the TCP sender in this kind of situation is
-the advertised window, not the lack of ACKs.  Lack of an ACK mean the
-packet didn't get there, which is the wrong signal in this kind of
-situation, whereas a closing window means "application can't keep
-up with the data rate, hold on..." and is the proper flow control
-signal in this high load scenerio.
+no other locking, only the CPU hotplug lock and the (existing) ability 
+to 'do stuff' with nothing else running on any other CPU.
 
-If you don't send ACKs, packets are retransmitted when there is no
-reason for it, and that borders on illegal. :-)
+	Ingo

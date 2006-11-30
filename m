@@ -1,173 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031570AbWK3W1h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031572AbWK3W2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031570AbWK3W1h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 17:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031572AbWK3W1h
+	id S1031572AbWK3W2c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 17:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031575AbWK3W2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 17:27:37 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:48199 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1031570AbWK3W1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 17:27:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=sqcY73Rm2yTN5dz+fr9YkkoqYIY7qLdzEMo6WPYw+d+7tG5lM8QTIb4Zq+ZmYD+NsWG9iky/wt/FrolufpxpgghgbsYB3GQgVwjmIhLDV958Ga0XZLvhnMA1Foy1JgYGHgJv+djBJzGCx29eQvEgPesLYJ61EsSYuiwUsUVDpkU=
-Message-ID: <abe01d5c0611301427m4d7222fdgcd46abeade3328f5@mail.gmail.com>
-Date: Thu, 30 Nov 2006 19:27:34 -0300
-From: "Fausto Carvalho" <faustocarva@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [IDE0] Lost interrupt with CS5530A
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 30 Nov 2006 17:28:32 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:22412 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031572AbWK3W2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 17:28:31 -0500
+Date: Thu, 30 Nov 2006 14:27:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Ingo Molnar <mingo@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       ak@suse.de
+Subject: Re: [PATCH -mm] x86_64 UP needs smp_call_function_single
+Message-Id: <20061130142719.7474b4c0.akpm@osdl.org>
+In-Reply-To: <20061130141140.a1b7d7cc.randy.dunlap@oracle.com>
+References: <20061129170111.a0ffb3f4.randy.dunlap@oracle.com>
+	<20061129174558.3dfd13df.akpm@osdl.org>
+	<1164870000.11036.23.camel@earth>
+	<20061130141140.a1b7d7cc.randy.dunlap@oracle.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think some time ago somebody had the same problem:
+On Thu, 30 Nov 2006 14:11:40 -0800
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
 
-"
+> On Thu, 30 Nov 2006 08:00:00 +0100 Ingo Molnar wrote:
+> 
+> > On Wed, 2006-11-29 at 17:45 -0800, Andrew Morton wrote:
+> > > No, I think this patch is right - the declaration of the CONFIG_SMP
+> > > smp_call_function_single() is in linux/smp.h so the !CONFIG_SMP
+> > > declaration
+> > > or definition should be there too.
+> > > 
+> > > It's still buggy though.  It should disable local interrupts around
+> > > the
+> > > call to match the SMP version.  I'll fix that separately. 
+> > 
+> > hm, didnt i send an updated patch for that already? See the patch below,
+> > from many days ago. I sent it after the tsc-sync-rewrite patch.
+> 
+> Hi Ingo,
+> 
+> Has there been a patch for this one?  (UP again, not SMP)
+> 
+> drivers/input/ff-memless.c:384: warning: implicit declaration of function 'local_bh_disable'
+> drivers/input/ff-memless.c:393: warning: implicit declaration of function 'local_bh_enable'
+> 
+> Thanks,
+> ---
+> ~Randy
+> config:  http://oss.oracle.com/~rdunlap/configs/config-input-up-header
 
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-CS5530: ide CONTROLLER AT pci SLOT 0000:00:12.2
-CS5530: chipset revision 0
-CS5530: not 100% native mode: will probe irqs later
-PCI: Enabling bus mastering for device 0000:00:12.2
-PCI: Setting latency timer of device 0000:00:12.2 to 64
-     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:pio, hdb:pio
-     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
-hda: CF 32MB, CFA DISK drive
-hda: IRQ probe failed (0xfeba)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq14
-hdc: Hitachi CV 5.1.1, CFA DISK drive
-ide1 at 0x170-0x177,0x376 on irq 15 (serialized with ide0)
-hda: max request size: 128KiB
-hda: 62976 sectors (32MB) w/1KiB Cache, CHS=492/4/32
- hda:<4>hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
+eww..  I guess linux/spinlock.h should really include linux/interrupt.h. 
+But interrupt.h includes stuff like sched.h which will want spinlock.h.
 
-"
+This, maybe?
 
-Windows and DOS works normaly, FreeBSD "timeout wainting for interrupt".
-BIOS32 service directory not found.
-PCI BIOS has not been found , using direct mode access.
-The IRQ rounting table was not foud too.
-I do not know if it is important but my BIOS is a XpressROM from NatiSemi.
-And the chipset is a CS5530A not a Cs5530.
-I have a lspci -xxx dump generated, if it can help:
+ include/linux/bottom_half.h |    5 +++++
+ include/linux/interrupt.h   |    7 +------
+ include/linux/spinlock.h    |    1 +
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
-00:00.0 Class 0600: Unknown device 1078:0001
-00: 78 10 01 00 07 00 80 02 00 00 00 06 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 1e 10 00 c1 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+diff -puN /dev/null include/linux/bottom_half.h
+--- /dev/null
++++ a/include/linux/bottom_half.h
+@@ -0,0 +1,5 @@
++extern void local_bh_disable(void);
++extern void __local_bh_enable(void);
++extern void _local_bh_enable(void);
++extern void local_bh_enable(void);
++extern void local_bh_enable_ip(unsigned long ip);
+diff -puN include/linux/interrupt.h~add-bottom_half.h include/linux/interrupt.h
+--- a/include/linux/interrupt.h~add-bottom_half.h
++++ a/include/linux/interrupt.h
+@@ -11,6 +11,7 @@
+ #include <linux/hardirq.h>
+ #include <linux/sched.h>
+ #include <linux/irqflags.h>
++#include <linux/bottom_half.h>
+ #include <asm/atomic.h>
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+@@ -217,12 +218,6 @@ static inline void __deprecated save_and
+ #define save_and_cli(x)	save_and_cli(&x)
+ #endif /* CONFIG_SMP */
+ 
+-extern void local_bh_disable(void);
+-extern void __local_bh_enable(void);
+-extern void _local_bh_enable(void);
+-extern void local_bh_enable(void);
+-extern void local_bh_enable_ip(unsigned long ip);
+-
+ /* PLEASE, avoid to allocate new softirqs, if you need not _really_ high
+    frequency threaded job scheduling. For almost all the purposes
+    tasklets are more than enough. F.e. all serial device BHs et
+diff -puN include/linux/spinlock.h~add-bottom_half.h include/linux/spinlock.h
+--- a/include/linux/spinlock.h~add-bottom_half.h
++++ a/include/linux/spinlock.h
+@@ -52,6 +52,7 @@
+ #include <linux/thread_info.h>
+ #include <linux/kernel.h>
+ #include <linux/stringify.h>
++#include <linux/bottom_half.h>
+ 
+ #include <asm/system.h>
+ 
+_
 
-00:12.0 Class 0601: Unknown device 1078:0100 (rev 30)
-00: 78 10 00 01 1f 00 80 02 30 00 01 06 04 40 80 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 89 18 ee 47 00 00 00 00 00 00 00 00 00 00 00 00
-50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
-90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 0c 00 20 20 41 11 e9 12 00 00 00 00
-c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:12.1 Class 0680: Unknown device 1078:0101
-00: 78 10 01 01 02 00 80 02 00 00 80 06 00 00 00 00
-10: 02 20 01 40 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
-90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 0c 00 20 20 42 28 b4 12 00 00 00 00
-c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:12.2 Class 0101: Unknown device 1078:0102
-00: 78 10 02 01 05 00 80 02 00 80 01 01 00 00 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
-90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 0c 00 20 20 43 02 96 12 00 00 00 00
-c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:12.3 Class 0401: Unknown device 1078:0103
-00: 78 10 03 01 06 00 80 02 00 00 01 04 00 00 00 00
-10: 00 10 01 40 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 7b 44 99 03 00 00 00 00 00 00 41 18 bb bb 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 02 a0 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 07 00 10 02 00 00 00 00 00 00 02 28 00 00 00 00
-90: 04 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 0c 00 20 20 ef 01 b0 12 00 00 00 00
-c0: 1c ac 00 00 00 00 00 00 00 00 00 00 63 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-00:12.4 Class 0300: Unknown device 1078:0104
-00: 78 10 04 01 03 00 80 02 00 00 00 03 00 00 80 00
-10: 00 00 80 40 00 00 01 40 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 78 10 4d 58
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 00 e8 3f 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-
-Any help is wellcome
-
--- 
-Fausto Carvalho

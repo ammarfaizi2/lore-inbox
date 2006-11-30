@@ -1,60 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967733AbWK3AfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967736AbWK3Amt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967733AbWK3AfR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 19:35:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967735AbWK3AfR
+	id S967736AbWK3Amt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 19:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967738AbWK3Amt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 19:35:17 -0500
-Received: from host-233-54.several.ru ([213.234.233.54]:13535 "EHLO
-	mail.screens.ru") by vger.kernel.org with ESMTP id S967733AbWK3AfP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 19:35:15 -0500
-Date: Thu, 30 Nov 2006 03:35:06 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] doc: atomic_add_unless() doesn't imply mb() on failure
-Message-ID: <20061130003506.GA1248@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 29 Nov 2006 19:42:49 -0500
+Received: from web26101.mail.ukl.yahoo.com ([217.12.10.225]:1199 "HELO
+	web26101.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S967736AbWK3Ams (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 19:42:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=GXuO8X7G/cCsC6Wcl7qyUyuaF++Zj6w7FViDROaPPZujHg017gcdQWWt/6QHuTXeIJ17+SfUpvU0D13vjBkXeXhSfoHBZML55RbHiyAKfFe2bbYr++4Zn7+l+UW9/cOJBDuy7UVRTAQ5QopYRzz60gNozqHhhkEnPK4ZIco0PEc=;
+X-YMail-OSG: K4kFhO0VM1kowZlA58wRMtBkpdr4tuqr0oQtOhH1NVCZAfV0GDbHLTVnASgFeZalyaLlxOfKgYXJsiSic1quMSE8JARaO0B4ympRFs9IRswNi9ERHNGFYj1sH7i5jijk.LGiBIGv0gsfsX391t5492GkihzmBIjSz8bJ1ImRe_69weuByrXrUq9kWA--
+Date: Thu, 30 Nov 2006 01:42:47 +0100 (CET)
+From: =?iso-8859-1?q?Ariel=20Ch=FFffffe1vez=20Lorenzo?= 
+	<achavezlo@yahoo.es>
+Subject: hrtimer.h
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-ID: <248625.39629.qm@web26101.mail.ukl.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most implementations of atomic_add_unless() can fail (return 0) after the first
-atomic_read() (before cmpxchg). In that case we have a compiler barrier only.
+Hi,
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Since the kernel 2.6.18 has incorporated the high
+resolution timer itself, I'm trying to test it, but on
+my GNU/Debian I can't figure out how to include
+hrtimer.h, that is on /usr/src/linux/include/, the
+headers.
 
- Documentation/atomic_ops.txt      |    3 ++-
- Documentation/memory-barriers.txt |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+I use the following command to try to compile it.
 
---- 19-rc6/Documentation/memory-barriers.txt~doc	2006-11-27 21:20:20.000000000 +0300
-+++ 19-rc6/Documentation/memory-barriers.txt	2006-11-30 03:32:06.000000000 +0300
-@@ -1492,7 +1492,7 @@ about the state (old or new) implies an 
- 	atomic_dec_and_test();
- 	atomic_sub_and_test();
- 	atomic_add_negative();
--	atomic_add_unless();
-+	atomic_add_unless();	/* when succeeds (returns 1) */
- 	test_and_set_bit();
- 	test_and_clear_bit();
- 	test_and_change_bit();
---- 19-rc6/Documentation/atomic_ops.txt~doc	2006-07-29 05:05:33.000000000 +0400
-+++ 19-rc6/Documentation/atomic_ops.txt	2006-11-30 03:22:58.000000000 +0300
-@@ -137,7 +137,8 @@ If the atomic value v is not equal to u,
- returns non zero. If v is equal to u then it returns zero. This is done as
- an atomic operation.
- 
--atomic_add_unless requires explicit memory barriers around the operation.
-+atomic_add_unless requires explicit memory barriers around the operation
-+unless it fails (returns 0).
- 
- atomic_inc_not_zero, equivalent to atomic_add_unless(v, 1, 0)
- 
+gcc -D__KERNEL__ -I /usr/src/linux/include ex.c
 
+
+ex.c is just the inclusion of hrtimer.h
+
+#include <linux/hrtimer.h>
+int main()
+{
+ return 0;
+}
+
+
+and I get this:
+
+
+
+In file included from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/thread_info.h:16,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/thread_info.h:21,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/preempt.h:9,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/spinlock.h:49,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/seqlock.h:29,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/time.h:7,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/ktime.h:24,
+                 from
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/hrtimer.h:19,
+                 from ex.c:1:
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/processor.h:80:
+error: ‘CONFIG_X86_L1_CACHE_SHIFT’ undeclared here
+(not in a function)
+/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/processor.h:80:
+error: requested alignment is not a constant
+
+
+I will appreciate any hint.
+Thanks in advance..
+
+Ariel
+
+
+
+		
+______________________________________________ 
+LLama Gratis a cualquier PC del Mundo. 
+Llamadas a fijos y móviles desde 1 céntimo por minuto. 
+http://es.voice.yahoo.com

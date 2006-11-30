@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759187AbWK3JDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759191AbWK3JG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759187AbWK3JDa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759190AbWK3JD3
+	id S1759191AbWK3JG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:06:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759193AbWK3JG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:03:29 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:8967 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1759187AbWK3JD0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:03:26 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Daniel Pirkl <daniel.pirkl@email.cz>
-Subject: [PATCH] fs: ufs add missing bracket
-Date: Thu, 30 Nov 2006 10:02:56 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 30 Nov 2006 04:06:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53432 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1759191AbWK3JGZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:06:25 -0500
+Subject: Re: [RFC][PATCH] Mount problem with the GFS2 code
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Srinivasa Ds <srinivasa@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, fabbione@ubuntu.com, bunk@stusta.de,
+       aarora@linux.vnet.ibm.com, aarora@in.ibm.com
+In-Reply-To: <20061130002934.829334a6.akpm@osdl.org>
+References: <456EA5BF.6090304@in.ibm.com>
+	 <20061130002934.829334a6.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 30 Nov 2006 09:05:38 +0000
+Message-Id: <1164877538.3752.93.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301002.56569.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-	This patch adds missing bracket.
+On Thu, 2006-11-30 at 00:29 -0800, Andrew Morton wrote:
+> On Thu, 30 Nov 2006 15:04:55 +0530
+> Srinivasa Ds <srinivasa@in.ibm.com> wrote:
+> 
+> > ==========================================================================
+> > On debugging further we found that problem is while reading the super 
+> > block(gfs2_read_super) and comparing the magic number in it.
+> > When I  replace the submit_bio() call(present in gfs2_read_super) with 
+> > the sb_getblk() and ll_rw_block(), mount operation succeded.
+> 
+> umm, why on earth does gfs2_read_super() go direct-to-BIO?
+> 
+We want to make 100% certain that we are not reading cached data in
+either of the two cases in which we read the sb. It is read from disk
+exactly twice on each mount of a GFS2 filesystem and is never touched
+again while the fs is mounted. GFS2 never writes the sb, it is created
+by mkfs and never changes.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+The reason its read twice, is that the first time its read to get the
+details of the locking protocol, the second time its called under a lock
+in order to discover the location of various bits of metadata on the
+disk.
 
- fs/ufs/util.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Switching to sb_getblk()+ll_rw_blk() sounds like a preferable fix.
+> 
+> Even better would be switching to a bare sb_bread().   If sb->s_blocksize
+> isn't set up by then then either set it up or, if you must, use __bread().
+> 
+I'm not convinced yet... I'd be happy to take the patch as posted
+assuming that the reason you are suggesting using sb_bread() or similar
+is that you expected us to want to cache the sb. Was there another
+reason for not using the bio routines?
 
---- linux-2.6.19-rc6-mm2-a/fs/ufs/util.h	2006-11-30 09:52:14.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/fs/ufs/util.h	2006-11-30 09:52:37.000000000 +0100
-@@ -299,7 +299,7 @@ static inline void *get_usb_offset(struc
- 
- #define ubh_get_addr16(ubh,begin) \
- 	(((__fs16*)((ubh)->bh[(begin) >> (uspi->s_fshift-1)]->b_data)) + \
--	((begin) & (uspi->fsize>>1) - 1)))
-+	((begin) & ((uspi->fsize>>1) - 1)))
- 
- #define ubh_get_addr32(ubh,begin) \
- 	(((__fs32*)((ubh)->bh[(begin) >> (uspi->s_fshift-2)]->b_data)) + \
+Steve.
 
 
--- 
-Regards,
-
-	Mariusz Kozlowski

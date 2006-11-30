@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759180AbWK3IyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759181AbWK3Izh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759180AbWK3IyI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:54:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759186AbWK3IyI
+	id S1759181AbWK3Izh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759183AbWK3Izh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:54:08 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:11716 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1759180AbWK3IyF (ORCPT
+	Thu, 30 Nov 2006 03:55:37 -0500
+Received: from pfx2.jmh.fr ([194.153.89.55]:2491 "EHLO pfx2.jmh.fr")
+	by vger.kernel.org with ESMTP id S1759179AbWK3Izg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:54:05 -0500
-Date: Thu, 30 Nov 2006 09:53:56 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mass-storage problems with Archos AV500
-Message-ID: <20061130085356.GV14886@vasa.acc.umu.se>
-Mail-Followup-To: Robert Hancock <hancockr@shaw.ca>,
-	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <fa.+HViQkzstd1WGzxw6QnaK2a1tiY@ifi.uio.no> <456E5F91.7020300@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Nov 2006 03:55:36 -0500
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: paulmck@linux.vnet.ibm.com
+Subject: Re: [RCU] adds a prefetch() in rcu_do_batch()
+Date: Thu, 30 Nov 2006 09:55:52 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
+       linux-kernel@vger.kernel.org
+References: <a769871e0611211233n20eb9d74j661cd73e9315fade@mail.gmail.com> <200611221602.29597.dada1@cosmosbay.com> <20061130012528.GJ2335@us.ibm.com>
+In-Reply-To: <20061130012528.GJ2335@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <456E5F91.7020300@shaw.ca>
-User-Agent: Mutt/1.4.2.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+Message-Id: <200611300955.52293.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 10:35:29PM -0600, Robert Hancock wrote:
-> David Weinehall wrote:
-> >I've got an Archos AV500 here (running the very latest firmware), pretty
-> >much acting as a doorstop, since I cannot get it to be recognized
-> >properly by Linux.
-> 
-> ..
-> 
-> >[  118.144000] SCSI device sdb: 58074975 512-byte hdwr sectors (29734
-> >MB)
-> >[  118.144000] sdb: Write Protect is off
-> >[  118.144000] sdb: Mode Sense: 33 00 00 00
-> >[  118.144000] sdb: assuming drive cache: write through
-> >[  118.144000]  sdb: unknown partition table
-> >[  118.452000] sd 4:0:0:0: Attached scsi removable disk sdb
-> >[  118.452000] usb-storage: device scan complete
+On Thursday 30 November 2006 02:25, Paul E. McKenney wrote:
+> On Wed, Nov 22, 2006 at 04:02:29PM +0100, Eric Dumazet wrote:
+> > On some workloads, (for example when lot of close() syscalls are done),
+> > RCU qlen can be quite large, and RCU heads are no longer in cpu cache
+> > when rcu_do_batch() is called.
 > >
-> >This is with linux-image-2.6.19-7-generic 2.6.19-7.10 from Ubuntu edgy.
-> >I get similar results with a home-brew 2.6.18-rc4.
+> > This patches adds a prefetch() in rcu_do_batch() to give CPU a hint to
+> > bring back cache lines containing 'struct rcu_head's.
 > >
-> >Any mass storage quirk needed that might be missing?
-> 
-> That all seems normal, other than the unknown partition table, but the 
-> device might be all one unpartitioned disk.. at what point is it failing?
+> > Most list manipulations macros include prefetch(), but not open coded
+> > ones (at least with current C compilers :) )
+> >
+> > I got a nice speedup on a trivial benchmark  (3.48 us per iteration
+> > instead of 3.95 us on a 1.6 GHz Pentium-M)
+> > while (1) { pipe(p); close(fd[0]); close(fd[1]);}
+>
+> Interesting!  How much of the speedup was due to the prefetch() and how
+> much to removing the extra store to rdp->donelist?
 
-Mounting it just claims wrong FS type.  And I've tried most file systems
-I can think of just to be sure.
+I only benchmarked the prefetch() case.
+ 
+Then, when cooking the patch I found I could do the rdp->donelist affectation 
+after the loop. I am not sure it's worth to do another benchmark for this 
+trivial optimization (Please dont tell me its not a valid one :) )
 
-
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Eric

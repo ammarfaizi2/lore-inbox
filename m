@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759250AbWK3L1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935645AbWK3Laz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759250AbWK3L1G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 06:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759253AbWK3L1F
+	id S935645AbWK3Laz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 06:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759254AbWK3Laz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 06:27:05 -0500
-Received: from xyzzy.farnsworth.org ([65.39.95.219]:39181 "HELO farnsworth.org")
-	by vger.kernel.org with SMTP id S1759250AbWK3L1D (ORCPT
+	Thu, 30 Nov 2006 06:30:55 -0500
+Received: from mail.suse.de ([195.135.220.2]:11488 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1759253AbWK3Lay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 06:27:03 -0500
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Thu, 30 Nov 2006 04:27:00 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dale Farnsworth <dale@farnsworth.org>, mlachwani@mvista.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Subject: [PATCH] mv643xx_eth: fix unbalanced parentheses in macros
-Message-ID: <20061130112700.GA17845@xyzzy.farnsworth.org>
-References: <200611301035.37786.m.kozlowski@tuxland.pl> <20061130100731.GA6301@xyzzy.farnsworth.org> <200611301133.32697.m.kozlowski@tuxland.pl>
-MIME-Version: 1.0
+	Thu, 30 Nov 2006 06:30:54 -0500
+Date: Thu, 30 Nov 2006 12:30:52 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: [patch 1/3] mm: pagecache write deadlocks zerolength fix
+Message-ID: <20061130113052.GB12579@wotan.suse.de>
+References: <20061130072058.GA18004@wotan.suse.de> <jeodqptf3o.fsf@sykes.suse.de> <20061130101933.GA12579@wotan.suse.de> <jeac29teeu.fsf@sykes.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200611301133.32697.m.kozlowski@tuxland.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <jeac29teeu.fsf@sykes.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+On Thu, Nov 30, 2006 at 11:30:33AM +0100, Andreas Schwab wrote:
+> Nick Piggin <npiggin@suse.de> writes:
+> 
+> > On Thu, Nov 30, 2006 at 11:15:39AM +0100, Andreas Schwab wrote:
+> >> Nick Piggin <npiggin@suse.de> writes:
+> >> 
+> >> > writev with a zero-length segment is a noop, and we shouldn't return EFAULT.
+> >> 
+> >> AFAICS the callers of these functions never pass a zero length.
+> >
+> > They can in the case of a zero length write.
+> 
+> How?  All (indirect) callers I could find explicitly handle the
+> zero-length case.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
+Sorry, zero length iov to writev (just had to double-check
+there ;).
 
----
- include/linux/mv643xx.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.19-rc6-mm2-a/include/linux/mv643xx.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/include/linux/mv643xx.h	2006-11-30 11:30:14.000000000 +0100
-@@ -724,7 +724,7 @@
- #define MV643XX_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
- #define MV643XX_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
- #define MV643XX_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
--#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
-+#define MV643XX_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
- #define MV643XX_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
- #define MV643XX_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
- #define MV643XX_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
-@@ -1135,7 +1135,7 @@ struct mv64xxx_i2c_pdata {
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_1	(1<<19)
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_2	(1<<20)
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_3	((1<<20) | (1<<19))
--#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	((1<<21)
-+#define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_4	(1<<21)
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_5	((1<<21) | (1<<19))
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_6	((1<<21) | (1<<20))
- #define MV643XX_ETH_DEFAULT_RX_UDP_QUEUE_7	((1<<21) | (1<<20) | (1<<19))

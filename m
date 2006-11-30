@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967772AbWK3BFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967776AbWK3BHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967772AbWK3BFU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967776AbWK3BFU
+	id S967776AbWK3BHr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967779AbWK3BHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:05:20 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:33031 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S967772AbWK3BFS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:05:18 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Date: Wed, 29 Nov 2006 17:04:28 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEGKAAAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 29 Nov 2006 20:07:47 -0500
+Received: from xenotime.net ([66.160.160.81]:53210 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S967776AbWK3BHr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:07:47 -0500
+Date: Wed, 29 Nov 2006 17:08:15 -0800
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Greg Norris <haphazard@kc.rr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.19
+Message-Id: <20061129170815.29d985c2.rdunlap@xenotime.net>
+In-Reply-To: <20061130005631.GA3896@yggdrasil.localdomain>
+References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
+	<20061129151111.6bd440f9.rdunlap@xenotime.net>
+	<20061130005631.GA3896@yggdrasil.localdomain>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <20061128.200453.104036587.davem@davemloft.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 29 Nov 2006 18:07:39 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 29 Nov 2006 18:07:41 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Nov 2006 18:56:31 -0600 Greg Norris wrote:
 
-Ask yourself this question: Can an assignment to a non-volatile variable be
-optimized out? Then ask yourself this question: Does casting away volatile
-make it not volatile any more?
-
-> The volatile'ness does not simply disappear the moment you
-> assign the result to some local variable which is not volatile.
-
-Yes, it does. That's what a cast does, it tells the compiler to, in all
-respects, pretend that a variable is of a different type than it 'actually
-is', such that it actually isn't anymore.
-
-> Half of our drivers would break if this were true.
-
-On the contrary, they'd break if it was true. If casting away volatile
-didn't make it go away, then casting in volatile wouldn't have to make it
-appear. A cast causes the compiler to act as if a variable really was the
-type you cast it to. If you cast volatile away, that has the reverse of the
-same affect casting to volatile has.
-
-The 'readl' function should actually assign the value to a volatile
-variable. Assignments to volatiles cannot be cast away, but casts can and
-assignments to non-volatile variables can be optimized out.
-
-DS
+> On Wed, Nov 29, 2006 at 03:11:11PM -0800, Randy Dunlap wrote:
+> > What would it take to have the kernel.org web page and finger banner
+> > give the correct version information?  (yessir, not your problem)
+> 
+> On a similar vein, it'd be nice if http://www.kernel.org/kdist/version.html 
+> would break the entries into separate lines.
 
 
+I prefer to use
+http://www.kernel.org/kdist/finger_banner
+for that.  And script it so that I can just type:
+
+$ kcurrent
+to see it.
+
+---
+~Randy

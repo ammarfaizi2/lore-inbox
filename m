@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967781AbWK3BNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967791AbWK3BWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967781AbWK3BNP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967784AbWK3BNP
+	id S967791AbWK3BWu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967793AbWK3BWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:13:15 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:49610
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S967781AbWK3BNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:13:14 -0500
-Date: Wed, 29 Nov 2006 17:13:16 -0800 (PST)
-Message-Id: <20061129.171316.70216831.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: wenji@fnal.gov, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061129170835.72bd40b3.akpm@osdl.org>
-References: <HNEBLGGMEGLPMPPDOPMGGEAKCGAA.wenji@fnal.gov>
-	<20061129.165311.45739865.davem@davemloft.net>
-	<20061129170835.72bd40b3.akpm@osdl.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Nov 2006 20:22:50 -0500
+Received: from web31807.mail.mud.yahoo.com ([68.142.207.70]:53903 "HELO
+	web31807.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S967791AbWK3BWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:22:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=LUUfq4o1U+4LflM+UEwa4KOkdbljVnDfMcDIIEynxveK+zt0FOerxqln861TyohuXYh8B4e1iQmTHriYi+mff6YjYuePslHhZPm0kk6/JOJWYbi8Z5nRXb2OCU1Q3BR91L4tYrglEDnPyOYGEJ3gbXWA023hlORysNYPJcDKXaA=;
+X-YMail-OSG: 0ucpLlkVM1mFJ56VADkpe6vbUtjSPvKDfAfKRahK2AlfKLsSdFCIf.48yYjPw1_mokirIIhDF76VLNbja9THpca9GQV_PMQpCXYqbcg8ZSFwlnyiXb3Y2dhWJvSOfEnaAMBRan7luGXpXi2IuYyAOHugrNpfBnye
+Date: Wed, 29 Nov 2006 17:22:48 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Infinite retries reading the partition table
+To: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <617182.73467.qm@web31807.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 29 Nov 2006 17:08:35 -0800
+Suppose reading sector 0 always reports an error,
+sense key HARDWARE ERROR.
 
-> On Wed, 29 Nov 2006 16:53:11 -0800 (PST)
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > 
-> > Please, it is very difficult to review your work the way you have
-> > submitted this patch as a set of 4 patches.  These patches have not
-> > been split up "logically", but rather they have been split up "per
-> > file" with the same exact changelog message in each patch posting.
-> > This is very clumsy, and impossible to review, and wastes a lot of
-> > mailing list bandwith.
-> > 
-> > We have an excellent file, called Documentation/SubmittingPatches, in
-> > the kernel source tree, which explains exactly how to do this
-> > correctly.
-> > 
-> > By splitting your patch into 4 patches, one for each file touched,
-> > it is impossible to review your patch as a logical whole.
-> > 
-> > Please also provide your patch inline so people can just hit reply
-> > in their mail reader client to quote your patch and comment on it.
-> > This is impossible with the attachments you've used.
-> > 
-> 
-> Here you go - joined up, cleaned up, ported to mainline and test-compiled.
-> 
-> That yield() will need to be removed - yield()'s behaviour is truly awful
-> if the system is otherwise busy.  What is it there for?
+What I'm observing is that the request to read sector 0,
+reading partition information, is retried forever, ad infinitum.
 
-What about simply turning off CONFIG_PREEMPT to fix this "problem"?
+Does anyone have a patch to resolve this? (2.6.19-rc6)
 
-We always properly run the backlog (by doing a release_sock()) before
-going to sleep otherwise except for the specific case of taking a page
-fault during the copy to userspace.  It is only CONFIG_PREEMPT that
-can cause this situation to occur in other circumstances as far as I
-can see.
+Thanks,
+    Luben
 
-We could also pepper tcp_recvmsg() with some very carefully placed
-preemption disable/enable calls to deal with this even with
-CONFIG_PREEMPT enabled.

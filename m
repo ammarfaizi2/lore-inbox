@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759269AbWK3QsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759272AbWK3Quh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759269AbWK3QsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 11:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759271AbWK3QsQ
+	id S1759272AbWK3Quh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 11:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759275AbWK3Quh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 11:48:16 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:36243 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1759269AbWK3QsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 11:48:15 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: "Allen Martin" <AMartin@nvidia.com>
-Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
-Date: Thu, 30 Nov 2006 17:46:23 +0100
-User-Agent: KMail/1.9.5
-Cc: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, jeff@garzik.org
-References: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1383361.5Wj1XmsPUk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 30 Nov 2006 11:50:37 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18619 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1759272AbWK3Quh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 11:50:37 -0500
+Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Wenji Wu <wenji@fnal.gov>, David Miller <davem@davemloft.net>,
+       akpm@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061130093329.GA4645@infradead.org>
+References: <2f14bf623344.456de60a@fnal.gov>
+	 <20061130093329.GA4645@infradead.org>
+Content-Type: text/plain
+Date: Thu, 30 Nov 2006 11:51:09 -0500
+Message-Id: <1164905470.12607.71.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200611301746.27193.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1383361.5Wj1XmsPUk
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2006-11-30 at 09:33 +0000, Christoph Hellwig wrote:
+> On Wed, Nov 29, 2006 at 07:56:58PM -0600, Wenji Wu wrote:
+> > Yes, when CONFIG_PREEMPT is disabled, the "problem" won't happen. That is why I put "for 2.6 desktop, low-latency desktop" in the uploaded paper. This "problem" happens in the 2.6 Desktop and Low-latency Desktop.
+> 
+> CONFIG_PREEMPT is only for people that are in for the feeling.  There is no
+> real world advtantage to it and we should probably remove it again.
 
-Am Dienstag 10 Oktober 2006 08:44 schrieb Allen Martin:
+There certainly is a real world advantage for many applications.  Of
+course it would be better if the latency requirements could be met
+without kernel preemption but that's not the case now.
 
-> No, only CK804 and MCP04 support ADMA.  We'll be publishing some patches
-> for NCQ support for MCP55/MCP61 soon.
+Lee
 
-Just wondering whether I missed them? It is now 1,5 month later...
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart1383361.5Wj1XmsPUk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFbwrjxU2n/+9+t5gRAhd2AKCoVyow52w5bory972q81yZcPmSjgCgiB1R
-imZOI5Fvce94rqA4ZuCdA9g=
-=Fyqm
------END PGP SIGNATURE-----
-
---nextPart1383361.5Wj1XmsPUk--

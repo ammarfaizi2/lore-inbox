@@ -1,80 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967766AbWK3BBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967773AbWK3BBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967766AbWK3BBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 20:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967767AbWK3BBE
+	id S967773AbWK3BBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 20:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967771AbWK3BBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 20:01:04 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:23890 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S967766AbWK3BBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 20:01:02 -0500
-Date: Wed, 29 Nov 2006 17:01:11 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: mingo@redhat.com, lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, ak@suse.de
-Subject: [PATCH -mm] x86_64 UP needs smp_call_function_single
-Message-Id: <20061129170111.a0ffb3f4.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Wed, 29 Nov 2006 20:01:39 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:37773
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S967770AbWK3BBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 20:01:38 -0500
+Date: Wed, 29 Nov 2006 17:01:41 -0800 (PST)
+Message-Id: <20061129.170141.23017532.davem@davemloft.net>
+To: wenji@fnal.gov
+Cc: netdev@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Bug 7596 - Potential performance bottleneck for Linxu TCP
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <HNEBLGGMEGLPMPPDOPMGKEAJCGAA.wenji@fnal.gov>
+References: <HNEBLGGMEGLPMPPDOPMGKEAJCGAA.wenji@fnal.gov>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
 
-smp_call_function_single() needs to be visible in non-SMP builds, to fix:
+The delays dealt with in your paper might actually help a highly
+loaded server with lots of sockets and threads trying to communicate.
 
-arch/x86_64/kernel/vsyscall.c:283: warning: implicit declaration of function 'smp_call_function_single'
+The packet processing delays caused by the scheduling delay paces the
+TCP sender by controlling the rate at which ACKs go back to that
+sender.  Those ACKs will go out paced to the rate at which the
+sleeping TCP receiver gets back onto the cpu, and this will cause the
+TCP sender to naturally adjust to the overall processing rate of the
+receiver system, on a per-connection basis.
 
-The (other/trivial) fix (instead of this one) is to add:
-#include <asm/smp.h>
-to linux-2.6.19-rc6-mm2/arch/x86_64/kernel/vsyscall.c
+Perhaps try a system with hundreds of processes and potentially
+hundreds of thousands of TCP sockets, with thousands of unique sender
+sites, and see what happens.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- include/asm-x86_64/smp.h |    7 -------
- include/linux/smp.h      |    7 +++++++
- 2 files changed, 7 insertions(+), 7 deletions(-)
-
---- linux-2.6.19-rc6-mm2.orig/include/asm-x86_64/smp.h
-+++ linux-2.6.19-rc6-mm2/include/asm-x86_64/smp.h
-@@ -113,13 +113,6 @@ static __inline int logical_smp_processo
- #define cpu_physical_id(cpu)		x86_cpu_to_apicid[cpu]
- #else
- #define cpu_physical_id(cpu)		boot_cpu_id
--static inline int smp_call_function_single(int cpuid, void (*func) (void *info),
--				void *info, int retry, int wait)
--{
--	/* Disable interrupts here? */
--	func(info);
--	return 0;
--}
- #endif /* !CONFIG_SMP */
- #endif
- 
---- linux-2.6.19-rc6-mm2.orig/include/linux/smp.h
-+++ linux-2.6.19-rc6-mm2/include/linux/smp.h
-@@ -99,6 +99,13 @@ static inline int up_smp_call_function(v
- static inline void smp_send_reschedule(int cpu) { }
- #define num_booting_cpus()			1
- #define smp_prepare_boot_cpu()			do {} while (0)
-+static inline int smp_call_function_single(int cpuid, void (*func) (void *info),
-+				void *info, int retry, int wait)
-+{
-+	/* Disable interrupts here? */
-+	func(info);
-+	return 0;
-+}
- 
- #endif /* !SMP */
- 
-
-
----
+This is a similar topic like TSO, where we are trying to balance the
+gains from batching work from the losses of gaps in the communication
+stream.

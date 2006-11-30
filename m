@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936247AbWK3MGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936250AbWK3MGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936247AbWK3MGT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936246AbWK3MGS
+	id S936250AbWK3MGp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936249AbWK3MGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:06:18 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:43277 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S936247AbWK3MGS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:06:18 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH] mips: klconfig add missing bracket
-Date: Thu, 30 Nov 2006 13:05:48 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-References: <200611301016.29505.m.kozlowski@tuxland.pl> <20061130115944.GA9564@linux-mips.org>
-In-Reply-To: <20061130115944.GA9564@linux-mips.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611301305.49442.m.kozlowski@tuxland.pl>
+	Thu, 30 Nov 2006 07:06:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:6111 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S936250AbWK3MGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 07:06:44 -0500
+Subject: Re: hrtimer.h
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ariel =?ISO-8859-1?Q?Ch=FFffffe1vez?= Lorenzo <achavezlo@yahoo.es>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <248625.39629.qm@web26101.mail.ukl.yahoo.com>
+References: <248625.39629.qm@web26101.mail.ukl.yahoo.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel International BV
+Date: Thu, 30 Nov 2006 13:06:41 +0100
+Message-Id: <1164888402.3233.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch is ok but please add a Signed-off-by: line to every patch you
-> send, See Documentation/SubmittingPatches for what this is about.
-
-Right. Must have ovelooked that. Second try:
-
-	This patch adds missing bracket.
-
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- include/asm-mips/sn/klconfig.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.19-rc6-mm2-a/include/asm-mips/sn/klconfig.h	2006-11-16 05:03:40.000000000 +0100
-+++ linux-2.6.19-rc6-mm2-b/include/asm-mips/sn/klconfig.h	2006-11-30 00:58:32.000000000 +0100
-@@ -176,7 +176,7 @@ typedef struct kl_config_hdr {
- /* --- New Macros for the changed kl_config_hdr_t structure --- */
- 
- #define PTR_CH_MALLOC_HDR(_k)   ((klc_malloc_hdr_t *)\
--			(unsigned long)_k + (_k->ch_malloc_hdr_off)))
-+			((unsigned long)_k + (_k->ch_malloc_hdr_off)))
- 
- #define KL_CONFIG_CH_MALLOC_HDR(_n)   PTR_CH_MALLOC_HDR(KL_CONFIG_HDR(_n))
- 
+On Thu, 2006-11-30 at 01:42 +0100, Ariel Chÿffffe1vez Lorenzo wrote:
+> Hi,
+> 
+> Since the kernel 2.6.18 has incorporated the high
+> resolution timer itself, I'm trying to test it, but on
+> my GNU/Debian I can't figure out how to include
+> hrtimer.h, that is on /usr/src/linux/include/, the
+> headers.
+> 
+> I use the following command to try to compile it.
+> 
+> gcc -D__KERNEL__ -I /usr/src/linux/include ex.c
 
 
--- 
-Regards,
+never use __KERNEL__ for userspace programs!
 
-	Mariusz Kozlowski
+

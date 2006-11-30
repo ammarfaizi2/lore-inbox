@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759069AbWK3Ida@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759134AbWK3Idg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759069AbWK3Ida (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:33:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759135AbWK3Id3
+	id S1759134AbWK3Idg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759139AbWK3Idg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:33:29 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:24551 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1759069AbWK3Id3 (ORCPT
+	Thu, 30 Nov 2006 03:33:36 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:8119 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1759137AbWK3Idf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:33:29 -0500
-Date: Thu, 30 Nov 2006 09:31:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Gautham R Shenoy <ego@in.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com
-Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-ID: <20061130083144.GC29609@elte.hu>
-References: <20061129152404.GA7082@in.ibm.com>
+	Thu, 30 Nov 2006 03:33:35 -0500
+Date: Thu, 30 Nov 2006 00:29:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Srinivasa Ds <srinivasa@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       swhiteho@redhat.com, fabbione@ubuntu.com, bunk@stusta.de,
+       aarora@linux.vnet.ibm.com, aarora@in.ibm.com
+Subject: Re: [RFC][PATCH] Mount problem with the GFS2 code
+Message-Id: <20061130002934.829334a6.akpm@osdl.org>
+In-Reply-To: <456EA5BF.6090304@in.ibm.com>
+References: <456EA5BF.6090304@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129152404.GA7082@in.ibm.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 30 Nov 2006 15:04:55 +0530
+Srinivasa Ds <srinivasa@in.ibm.com> wrote:
 
-* Gautham R Shenoy <ego@in.ibm.com> wrote:
+> ==========================================================================
+> On debugging further we found that problem is while reading the super 
+> block(gfs2_read_super) and comparing the magic number in it.
+> When I  replace the submit_bio() call(present in gfs2_read_super) with 
+> the sb_getblk() and ll_rw_block(), mount operation succeded.
 
-> So do we
-> - Rethink the strategy of per-subsystem hotcpu-locks ?
-> 
->   OR
->   
-> - Think of a way to straighten out the super-convoluted cpufreq code ?
+umm, why on earth does gfs2_read_super() go direct-to-BIO?
 
-i'm still wondering what the conceptual source of this fundamental 
-locking complexity in cpufreq (and hotplug) is - it is not intuitive to 
-me at all. Could you try to explain that?
+Switching to sb_getblk()+ll_rw_blk() sounds like a preferable fix.
 
-	Ingo
+Even better would be switching to a bare sb_bread().   If sb->s_blocksize
+isn't set up by then then either set it up or, if you must, use __bread().
+

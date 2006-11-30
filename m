@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936325AbWK3MSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936332AbWK3MTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936325AbWK3MSW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936301AbWK3MSF
+	id S936332AbWK3MTN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936330AbWK3MTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:18:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23178 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936303AbWK3MRh (ORCPT
+	Thu, 30 Nov 2006 07:19:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936303AbWK3MTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:17:37 -0500
-Subject: [GFS2] Remove unused GL_DUMP flag [31/70]
+	Thu, 30 Nov 2006 07:19:06 -0500
+Subject: [DLM] res_recover_locks_count not reset when recover_locks is
+	aborted [39/70]
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Cc: David Teigland <teigland@redhat.com>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 30 Nov 2006 12:17:15 +0000
-Message-Id: <1164889035.3752.366.camel@quoit.chygwyn.com>
+Date: Thu, 30 Nov 2006 12:19:20 +0000
+Message-Id: <1164889160.3752.383.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From c594d8866460a2710c436839d79f334a0714a2a7 Mon Sep 17 00:00:00 2001
-From: Steven Whitehouse <swhiteho@redhat.com>
-Date: Wed, 8 Nov 2006 09:01:13 -0500
-Subject: [PATCH] [GFS2] Remove unused GL_DUMP flag
+>From 520698096436f7da5b9142e63e3bed5580c5f14e Mon Sep 17 00:00:00 2001
+From: David Teigland <teigland@redhat.com>
+Date: Thu, 2 Nov 2006 09:49:02 -0600
+Subject: [PATCH] [DLM] res_recover_locks_count not reset when recover_locks is aborted
 
-There is no way to set the GL_DUMP flag, and in any case the
-same thing can be done with systemtap if required for debugging,
-so this removes it.
+Red Hat BZ 213684
 
+If a node sends an lkb to the new master (RCOM_LOCK message) during
+recovery and recovery is then aborted on both nodes before it gets a
+reply, the res_recover_locks_count needs to be reset to 0 so that when the
+subsequent recovery comes along and sends the lkb to the new master again
+the assertion doesn't trigger that checks that counter is zero.
+
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 ---
- fs/gfs2/glock.c |    3 ---
- fs/gfs2/glock.h |    1 -
- 2 files changed, 0 insertions(+), 4 deletions(-)
+ fs/dlm/recover.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 44633c4..746347a 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1244,9 +1244,6 @@ restart:
- 
- 	clear_bit(GLF_PREFETCH, &gl->gl_flags);
- 
--	if (error == GLR_TRYFAILED && (gh->gh_flags & GL_DUMP))
--		dump_glock(gl);
--
- 	return error;
- }
- 
-diff --git a/fs/gfs2/glock.h b/fs/gfs2/glock.h
-index 2b2a889..b985627 100644
---- a/fs/gfs2/glock.h
-+++ b/fs/gfs2/glock.h
-@@ -28,7 +28,6 @@ #define GL_ATIME		0x00000200
- #define GL_NOCACHE		0x00000400
- #define GL_NOCANCEL		0x00001000
- #define GL_AOP			0x00004000
--#define GL_DUMP			0x00008000
- 
- #define GLR_TRYFAILED		13
- #define GLR_CANCELED		14
+diff --git a/fs/dlm/recover.c b/fs/dlm/recover.c
+index a5e6d18..cf9f683 100644
+--- a/fs/dlm/recover.c
++++ b/fs/dlm/recover.c
+@@ -252,6 +252,7 @@ static void recover_list_clear(struct dl
+ 	spin_lock(&ls->ls_recover_list_lock);
+ 	list_for_each_entry_safe(r, s, &ls->ls_recover_list, res_recover_list) {
+ 		list_del_init(&r->res_recover_list);
++		r->res_recover_locks_count = 0;
+ 		dlm_put_rsb(r);
+ 		ls->ls_recover_list_count--;
+ 	}
 -- 
 1.4.1
 

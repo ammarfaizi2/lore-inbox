@@ -1,107 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933721AbWK3J6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933793AbWK3J7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933721AbWK3J6N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933753AbWK3J6N
+	id S933793AbWK3J7i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933753AbWK3J7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:58:13 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:19360 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S933721AbWK3J6L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:58:11 -0500
-Date: Thu, 30 Nov 2006 10:57:10 +0100
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH -mm 1/5][AIO] - Rework compat_sys_io_submit
-Message-ID: <20061130105710.572d3c6e@frecb000686>
-In-Reply-To: <8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com>
-References: <20061129112441.745351c9@frecb000686>
-	<20061129113212.1e614a61@frecb000686>
-	<8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/11/2006 11:04:18,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 30/11/2006 11:04:21,
-	Serialize complete at 30/11/2006 11:04:21
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 30 Nov 2006 04:59:38 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:25559 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S933793AbWK3J7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 04:59:37 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Thu, 30 Nov 2006 04:55:59 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: just how "sanitized" are the sanitized headers?
+In-Reply-To: <b6fcc0a0611300026y6defe704o4f7dd4f1e82d5c1b@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0611300426070.6464@localhost.localdomain>
+References: <Pine.LNX.4.64.0611291812510.7515@localhost.localdomain>
+ <b6fcc0a0611300026y6defe704o4f7dd4f1e82d5c1b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 16:47:47 -0800, Zach Brown <zach.brown@oracle.com> wrote:
+On Thu, 30 Nov 2006, Alexey Dobriyan wrote:
 
-> On Nov 29, 2006, at 2:32 AM, Sébastien Dugué wrote:
-> 
-> >                  compat_sys_io_submit() cleanup
+> On 11/30/06, Robert P. J. Day <rpjday@mindspring.com> wrote:
+> >   i noticed that, when i generate the sanitized headers with "make
+> > headers_install", there are still a number of headers files that are
+> > installed with variations on "#ifdef __KERNEL__".
 > >
-> >
-> >   Cleanup compat_sys_io_submit by duplicating some of the native  
-> > syscall
-> > logic in the compat layer and directly calling io_submit_one() instead
-> > of fooling the syscall into thinking it is called from a native 64-bit
-> > caller.
-> >
-> >   This is needed for the completion notification patch to avoid having
-> > to rewrite each iocb on the caller stack for sys_io_submit() to  
-> > find the
-> > sigevents.
-> 
-> You could explicitly mention that this eliminates:
-> 
->   - the overhead of copying nr pointers on the userspace caller's stack
-> 
->   - the arbitrary PAGE_SIZE/(sizeof(void *)) limit on the number of  
-> iocbs that can be submitted
-> 
-> Those alone make this worth merging.
+> >   i always thought the fundamental property of sanitized headers was
+> > to be compatible with glibc
+>
+> You were wrong.
 
-  Right, will add.
+ok, my fault, i worded that badly.  i have a *general* idea of the
+purpose of sanitized headers -- i've been using a pre-built set for
+crosstool for quite some time, and i'm assuming that (theoretically) i
+should be able to replace that pre-built set with what's generated by
+"make headers_install", is that right?
 
-> 
-> > +	if (unlikely(!access_ok(VERIFY_READ, iocb, (nr * sizeof(u32)))))
-> > +		return -EFAULT;
-> 
-> I'm glad you got that right :)  I no doubt would have initially  
-> hoisted these little checks into a shared helper function and missed  
-> that detail of getting the size of the access_ok() right in the  
-> compat case.
+(BTW, what is the proper description for the sanitized headers?
+there's *nothing* in the kernel source tree documentation that
+explains their creation.)
 
-  Thanks.
+> > and have no traces of "KERNEL" content
+> > left.
+>
+> That's correct.
 
-> 
-> > +	put_ioctx(ctx);
-> > +
-> > +	return i? i: ret;
-> 
-> sys_io_getevents() reads:
+good.  at least *that* part i got right. :-)
 
- uh!     ^^^^^^^^^    you must be meaning sys_io_submit()?
+> > so what's the purpose of leaving some header files with that
+> > preprocessor content?
+>
+> When you see __KERNEL__ in sanitized headers, it's either due to
+> a) unifdef bug, or
+> b) header being listed in header-y when it should be listed in unifdef-y
 
-> 
->          put_ioctx(ctx);
->          return i ? i : ret;
-> 
-> So while this compat_sys_io_submit() logic seems fine and I would be  
-> comfortable with it landing as-is, I'd also appreciate it if we  
-> didn't introduce differences between the two functions when it seems  
-> just as easy to make them the same.  (That chunk is just one  
-> example.  There's whitespace, missing unlikely()s, etc).
-> 
+a couple things going on here, actually.  in the simple case, there
+are three header files:
 
-  OK, will fix.
+  linux/if_fddi.h
+  linux/personality.h
+  linux/wireless.h
 
-  Thanks,
+that can be fixed simply by adding "unifdef-y" entries for them to the
+Kbuild file (i can submit a patch shortly).  but there are a few other
+cases which still contain compound preprocessor directives such as:
 
-  Sébastien.
+  #if defined(__KERNEL__) || !defined(__GLIBC__) || (__GLIBC__ < 2)
 
+having never worked with unifdef before, i guess i was being overly
+optimistic in thinking that it, if i "unifdef"ed __KERNEL__, it might
+at least simplify the expression.  oh, well ... live and learn.
 
-  
+rday

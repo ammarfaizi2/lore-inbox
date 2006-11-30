@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759223AbWK3JYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759213AbWK3JX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759223AbWK3JYS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 04:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759222AbWK3JYR
+	id S1759213AbWK3JX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 04:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759214AbWK3JX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 04:24:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30919 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1759218AbWK3JYP (ORCPT
+	Thu, 30 Nov 2006 04:23:58 -0500
+Received: from pasmtpb.tele.dk ([80.160.77.98]:32666 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S1759213AbWK3JX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 04:24:15 -0500
-Subject: Re: [PATCH -mm] x86_64 UP needs smp_call_function_single
-From: Ingo Molnar <mingo@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, ak@suse.de
-In-Reply-To: <20061129235407.7295c31d.akpm@osdl.org>
-References: <20061129170111.a0ffb3f4.randy.dunlap@oracle.com>
-	 <20061129174558.3dfd13df.akpm@osdl.org> <1164870000.11036.23.camel@earth>
-	 <20061129235407.7295c31d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 30 Nov 2006 10:22:20 +0100
-Message-Id: <1164878540.11036.29.camel@earth>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+	Thu, 30 Nov 2006 04:23:57 -0500
+From: Torsten Ertbjerg Rasmussen <tr@newtec.dk>
+Reply-To: tr@newtec.dk
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [PATCH] rtc: ds1743 support
+Date: Thu, 30 Nov 2006 10:23:55 +0100
+User-Agent: KMail/1.5
+References: <200611300812.02261.tr@newtec.dk> <20061130094723.6ab9e1d3@inspiron>
+In-Reply-To: <20061130094723.6ab9e1d3@inspiron>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611301023.55196.tr@newtec.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-11-29 at 23:54 -0800, Andrew Morton wrote:
-> which is somewhat unpleasant.  I added a WARN_ON(irqs_disabled()) to
-> the
-> out-of-line SMP version.
+On Thursday 30 November 2006 09:47, you wrote:
+> On Thu, 30 Nov 2006 08:12:02 +0100
+>
+> Torsten Ertbjerg Rasmussen <tr@newtec.dk> wrote:
+> > The real time clocks ds1742 and ds1743 differs only in the size of the
+> > nvram. This patch changes the existing ds1742 driver to support also
+> > ds1743. The main change is that the nvram size is determined from the
+> > resource attached to the device.
+> >
+> >
+> > +	pdata->ioaddr_rtc = ioaddr + pdata->size_nvram;
+> >
+> >  	/* turn RTC on if it was not on */
+> > +	ioaddr = pdata->ioaddr_rtc;
+> >  	sec = readb(ioaddr + RTC_SECONDS);
+>
+>  why not
+> 	sec = readb(pdata->ioaddr_rtc + RTC_SECONDS);
+> ?
 
-ok.
-> 
-> btw, does anyone know why the SMP versions of this function use
-> spin_lock_bh(&call_lock)?
+ioaddr is used several times below this point, so diff would be larger.
 
-that makes no sense (neither the get_cpu()/put_cpu() gymnastics) if this
-is called with irqs disabled all the time.
+In the original code, ioaddr points to beginning of nvram and RTC_SECONDS 
+implicitly adds the nvram size. Now the nvram size is removed from 
+RTC_SECONDS (and other RTC_*) so ioaddr must point to start of rtc-data.
 
-	Ingo
-> 
+Regards,
+Torsten Rasmussen
+
+>
+>
+>  Acked-by: Alessandro Zummo <a.zummo@towertech.it>
+
 

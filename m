@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933675AbWK3E0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759019AbWK3E0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933675AbWK3E0U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 23:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759026AbWK3E0U
+	id S1759019AbWK3E0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 23:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759025AbWK3E0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 23:26:20 -0500
-Received: from www.swissdisk.com ([216.66.254.197]:21939 "EHLO
+	Wed, 29 Nov 2006 23:26:19 -0500
+Received: from www.swissdisk.com ([216.66.254.197]:22195 "EHLO
 	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S1759008AbWK3E0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1759011AbWK3E0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 29 Nov 2006 23:26:18 -0500
 From: Ben Collins <bcollins@ubuntu.com>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org
 Subject: Ubuntu patch sync for 2.6.20
 Reply-To: Ben Collins <bcollins@ubuntu.com>
-Date: Wed, 29 Nov 2006 23:26:04 -0500
-Message-Id: <11648607731770-git-send-email-bcollins@ubuntu.com>
+Date: Wed, 29 Nov 2006 23:26:03 -0500
+Message-Id: <11648607732108-git-send-email-bcollins@ubuntu.com>
 X-Mailer: git-send-email 1.4.1
 In-Reply-To: <11648607683157-git-send-email-bcollins@ubuntu.com>
 References: <11648607683157-git-send-email-bcollins@ubuntu.com>

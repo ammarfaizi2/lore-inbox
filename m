@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967950AbWK3XA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967954AbWK3XBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967950AbWK3XA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 18:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967951AbWK3XA5
+	id S967954AbWK3XBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 18:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967949AbWK3XBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 18:00:57 -0500
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:59218 "EHLO
+	Thu, 30 Nov 2006 18:01:36 -0500
+Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:42397 "EHLO
 	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S967950AbWK3XAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 18:00:37 -0500
+	id S967944AbWK3XBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 18:01:17 -0500
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 2.6.19 04/10] Modules support for kmemleak
+Subject: [PATCH 2.6.19 07/10] Remove some of the kmemleak false positives
 To: linux-kernel@vger.kernel.org
-Date: Thu, 30 Nov 2006 23:00:32 +0000
-Message-ID: <20061130230032.5469.23092.stgit@localhost.localdomain>
+Date: Thu, 30 Nov 2006 23:01:11 +0000
+Message-ID: <20061130230110.5469.61645.stgit@localhost.localdomain>
 In-Reply-To: <20061130225219.5469.2453.stgit@localhost.localdomain>
 References: <20061130225219.5469.2453.stgit@localhost.localdomain>
 User-Agent: StGIT/0.11
@@ -23,128 +23,255 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch handles the kmemleak operations needed for modules loading so
-that memory allocations from inside a module are properly tracked.
+There are allocations for which the main pointer cannot be found but they
+are not memory leaks. This patch fixes some of them.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@gmail.com>
 ---
 
- kernel/module.c |   56 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 56 insertions(+), 0 deletions(-)
+ arch/i386/kernel/setup.c               |    2 ++
+ drivers/base/platform.c                |    3 +++
+ drivers/char/vt.c                      |    4 ++++
+ drivers/hwmon/w83627hf.c               |    4 ++++
+ drivers/scsi/hosts.c                   |    3 +++
+ drivers/video/console/fbcon.c          |    3 +++
+ fs/ext3/dir.c                          |    3 +++
+ include/linux/percpu.h                 |    5 +++++
+ ipc/util.c                             |    6 ++++++
+ kernel/params.c                        |    8 +++++++-
+ net/core/dev.c                         |    6 ++++++
+ net/core/skbuff.c                      |    3 +++
+ net/ipv4/netfilter/ip_conntrack_core.c |    5 +++++
+ net/sched/sch_generic.c                |    5 +++++
+ 14 files changed, 59 insertions(+), 1 deletions(-)
 
-diff --git a/kernel/module.c b/kernel/module.c
-index f016656..b2b9526 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -345,6 +345,7 @@ static void *percpu_modalloc(unsigned lo
- 	unsigned long extra;
- 	unsigned int i;
- 	void *ptr;
-+	int cpu;
+diff --git a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+index 141041d..610a725 100644
+--- a/arch/i386/kernel/setup.c
++++ b/arch/i386/kernel/setup.c
+@@ -1487,6 +1487,8 @@ static __init int add_pcspkr(void)
+ 	int ret;
  
- 	if (align > SMP_CACHE_BYTES) {
- 		printk(KERN_WARNING "%s: per-cpu alignment %li > %i\n",
-@@ -374,6 +375,10 @@ static void *percpu_modalloc(unsigned lo
- 			if (!split_block(i, size))
- 				return NULL;
+ 	pd = platform_device_alloc("pcspkr", -1);
++	/* mark it as not a leak since this device doesn't need to be freed */
++	memleak_not_leak(pd);
+ 	if (!pd)
+ 		return -ENOMEM;
  
-+		/* add the per-cpu scanning areas */
-+		for_each_possible_cpu(cpu)
-+			memleak_alloc(ptr + per_cpu_offset(cpu), size, 0);
-+
- 		/* Mark allocated */
- 		pcpu_size[i] = -pcpu_size[i];
- 		return ptr;
-@@ -388,6 +393,7 @@ static void percpu_modfree(void *freeme)
- {
- 	unsigned int i;
- 	void *ptr = __per_cpu_start + block_size(pcpu_size[0]);
-+	int cpu;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 940ce41..d331b54 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -166,6 +166,9 @@ struct platform_device *platform_device_
+ 	struct platform_object *pa;
  
- 	/* First entry is core kernel percpu data. */
- 	for (i = 1; i < pcpu_num_used; ptr += block_size(pcpu_size[i]), i++) {
-@@ -399,6 +405,10 @@ static void percpu_modfree(void *freeme)
- 	BUG();
- 
-  free:
-+	/* remove the per-cpu scanning areas */
-+	for_each_possible_cpu(cpu)
-+		memleak_free(freeme + per_cpu_offset(cpu));
-+
- 	/* Merge with previous? */
- 	if (pcpu_size[i-1] >= 0) {
- 		pcpu_size[i-1] += pcpu_size[i];
-@@ -1477,6 +1487,42 @@ static inline void add_kallsyms(struct m
- }
- #endif /* CONFIG_KALLSYMS */
- 
-+#ifdef CONFIG_DEBUG_MEMLEAK
-+static void memleak_load_module(struct module *mod, Elf_Ehdr *hdr,
-+				Elf_Shdr *sechdrs, char *secstrings)
-+{
-+	unsigned int mloffindex, i;
-+
-+	/* insert any new pointer aliases */
-+	mloffindex = find_sec(hdr, sechdrs, secstrings, ".init.memleak_offsets");
-+	if (mloffindex)
-+		memleak_insert_aliases((void *)sechdrs[mloffindex].sh_addr,
-+				       (void *)sechdrs[mloffindex].sh_addr
-+				       + sechdrs[mloffindex].sh_size);
-+
-+	/* only scan the sections containing data */
-+	memleak_scan_area(mod->module_core,
-+			  (unsigned long)mod - (unsigned long)mod->module_core,
-+			  sizeof(struct module));
-+
-+	for (i = 1; i < hdr->e_shnum; i++) {
-+		if (!(sechdrs[i].sh_flags & SHF_ALLOC))
-+			continue;
-+		if (strncmp(secstrings + sechdrs[i].sh_name, ".data", 5) != 0
-+		    && strncmp(secstrings + sechdrs[i].sh_name, ".bss", 4) != 0)
-+			continue;
-+
-+		memleak_scan_area(mod->module_core,
-+				  sechdrs[i].sh_addr - (unsigned long)mod->module_core,
-+				  sechdrs[i].sh_size);
-+	}
-+}
-+#else
-+static inline void memleak_load_module(struct module *mod, Elf_Ehdr *hdr,
-+				       Elf_Shdr *sechdrs, char *secstrings)
-+{ }
-+#endif
-+
- /* Allocate and load the module: note that size of section 0 is always
-    zero, and we rely on this for optional sections. */
- static struct module *load_module(void __user *umod,
-@@ -1672,6 +1718,10 @@ static struct module *load_module(void _
- 
- 	/* Do the allocs. */
- 	ptr = module_alloc(mod->core_size);
-+	/* the pointer to this block is stored in the module structure
-+	 * which is inside the block. Just mark it as not being a
-+	 * leak */
-+	memleak_not_leak(ptr);
- 	if (!ptr) {
+ 	pa = kzalloc(sizeof(struct platform_object) + strlen(name), GFP_KERNEL);
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(pa, struct platform_object);
+ 	if (pa) {
+ 		strcpy(pa->name, name);
+ 		pa->pdev.name = pa->name;
+diff --git a/drivers/char/vt.c b/drivers/char/vt.c
+index 8e4413f..614d7e9 100644
+--- a/drivers/char/vt.c
++++ b/drivers/char/vt.c
+@@ -2640,6 +2640,10 @@ static int __init con_init(void)
+ 	 */
+ 	for (currcons = 0; currcons < MIN_NR_CONSOLES; currcons++) {
+ 		vc_cons[currcons].d = vc = alloc_bootmem(sizeof(struct vc_data));
++		/* kmemleak does not track the memory allocated via
++		 * alloc_bootmem() but this block contains pointers to
++		 * other blocks allocated via kmalloc */
++		memleak_alloc(vc, sizeof(struct vc_data), 1);
+ 		visual_init(vc, currcons, 1);
+ 		vc->vc_screenbuf = (unsigned short *)alloc_bootmem(vc->vc_screenbuf_size);
+ 		vc->vc_kmalloced = 0;
+diff --git a/drivers/hwmon/w83627hf.c b/drivers/hwmon/w83627hf.c
+index dfdc29c..6f5c70f 100644
+--- a/drivers/hwmon/w83627hf.c
++++ b/drivers/hwmon/w83627hf.c
+@@ -1097,6 +1097,10 @@ static int w83627hf_detect(struct i2c_ad
  		err = -ENOMEM;
- 		goto free_percpu;
-@@ -1680,6 +1730,11 @@ static struct module *load_module(void _
- 	mod->module_core = ptr;
- 
- 	ptr = module_alloc(mod->init_size);
-+	/* the pointer to this block is stored in the module structure
-+	 * which is inside the block. This block doesn't need to be
-+	 * scanned as it contains data and code that will be freed
-+	 * after the module is initialized */
-+	memleak_ignore(ptr);
- 	if (!ptr && mod->init_size) {
- 		err = -ENOMEM;
- 		goto free_core;
-@@ -1710,6 +1765,7 @@ static struct module *load_module(void _
+ 		goto ERROR1;
  	}
- 	/* Module has been moved. */
- 	mod = (void *)sechdrs[modindex].sh_addr;
-+	memleak_load_module(mod, hdr, sechdrs, secstrings);
++	/* the pointer to member is stored but the code doesn't use
++	 * container_of for access and the alias need to be
++	 * explicitely declared here */
++	memleak_container(struct w83627hf_data, client);
  
- 	/* Now we've moved module, initialize linked lists, etc. */
- 	module_unload_init(mod);
+ 	new_client = &data->client;
+ 	i2c_set_clientdata(new_client, data);
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index 68ef163..34b9d41 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -300,6 +300,9 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	shost = kzalloc(sizeof(struct Scsi_Host) + privsize, gfp_mask);
+ 	if (!shost)
+ 		return NULL;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(shost, struct Scsi_Host);
+ 
+ 	spin_lock_init(&shost->default_lock);
+ 	scsi_assign_lock(shost, &shost->default_lock);
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index 302174b..b482cac 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -2485,6 +2485,9 @@ static int fbcon_set_font(struct vc_data
+ 	size = h * pitch * charcount;
+ 
+ 	new_data = kmalloc(FONT_EXTRA_WORDS * sizeof(int) + size, GFP_USER);
++	/* the stored pointer is different from the address of the
++	 * allocated block because of padding */
++	memleak_padding(new_data, FONT_EXTRA_WORDS * sizeof(int), size);
+ 
+ 	if (!new_data)
+ 		return -ENOMEM;
+diff --git a/fs/ext3/dir.c b/fs/ext3/dir.c
+index d0b54f3..5a102ce 100644
+--- a/fs/ext3/dir.c
++++ b/fs/ext3/dir.c
+@@ -349,6 +349,9 @@ int ext3_htree_store_dirent(struct file
+ 	new_fn = kzalloc(len, GFP_KERNEL);
+ 	if (!new_fn)
+ 		return -ENOMEM;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size */
++	memleak_typeid(new_fn, struct fname);
+ 	new_fn->hash = hash;
+ 	new_fn->minor_hash = minor_hash;
+ 	new_fn->inode = le32_to_cpu(dirent->inode);
+diff --git a/include/linux/percpu.h b/include/linux/percpu.h
+index 600e3d3..899776c 100644
+--- a/include/linux/percpu.h
++++ b/include/linux/percpu.h
+@@ -30,7 +30,12 @@ struct percpu_data {
+ 	void *ptrs[NR_CPUS];
+ };
+ 
++/* pointer disguising messes up the kmemleak objects tracking */
++#ifndef CONFIG_DEBUG_MEMLEAK
+ #define __percpu_disguise(pdata) (struct percpu_data *)~(unsigned long)(pdata)
++#else
++#define __percpu_disguise(pdata) (struct percpu_data *)(pdata)
++#endif
+ /* 
+  * Use this to get to a cpu's version of the per-cpu object dynamically
+  * allocated. Non-atomic access to the current CPU's version should
+diff --git a/ipc/util.c b/ipc/util.c
+index cd8bb14..6ac2b7e 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -492,6 +492,9 @@ void* ipc_rcu_alloc(int size)
+ 	 */
+ 	if (rcu_use_vmalloc(size)) {
+ 		out = vmalloc(HDRLEN_VMALLOC + size);
++		/* the stored pointer is different from the address of
++		 * the allocated block because of padding */
++		memleak_padding(out, HDRLEN_VMALLOC, size);
+ 		if (out) {
+ 			out += HDRLEN_VMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 1;
+@@ -499,6 +502,9 @@ void* ipc_rcu_alloc(int size)
+ 		}
+ 	} else {
+ 		out = kmalloc(HDRLEN_KMALLOC + size, GFP_KERNEL);
++		/* the stored pointer is different from the address of
++		 * the allocated block because of padding */
++		memleak_padding(out, HDRLEN_KMALLOC, size);
+ 		if (out) {
+ 			out += HDRLEN_KMALLOC;
+ 			container_of(out, struct ipc_rcu_hdr, data)->is_vmalloc = 0;
+diff --git a/kernel/params.c b/kernel/params.c
+index f406655..1510d89 100644
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -548,6 +548,7 @@ static void __init kernel_param_sysfs_se
+ {
+ 	struct module_kobject *mk;
+ 	int ret;
++	struct module_param_attrs *mp;
+ 
+ 	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
+ 	BUG_ON(!mk);
+@@ -558,8 +559,13 @@ static void __init kernel_param_sysfs_se
+ 	ret = kobject_register(&mk->kobj);
+ 	BUG_ON(ret < 0);
+ 
++	mp = param_sysfs_setup(mk, kparam, num_params, name_skip);
++	/* this structure is not freed but the pointer is
++	 * lost. However, there are other pointers to its members and
++	 * the object has to be kept */
++	memleak_not_leak(mp);
+ 	/* no need to keep the kobject if no parameter is exported */
+-	if (!param_sysfs_setup(mk, kparam, num_params, name_skip)) {
++	if (!mp) {
+ 		kobject_unregister(&mk->kobj);
+ 		kfree(mk);
+ 	}
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 81c426a..8ee5c01 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3210,6 +3210,12 @@ struct net_device *alloc_netdev(int size
+ 	dev = (struct net_device *)
+ 		(((long)p + NETDEV_ALIGN_CONST) & ~NETDEV_ALIGN_CONST);
+ 	dev->padded = (char *)dev - (char *)p;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size. The stored pointer
++	 * is also different from the address of the allocated block
++	 * because of padding */
++	memleak_padding(p, dev->padded, alloc_size - dev->padded);
++	memleak_typeid(p, struct net_device);
+ 
+ 	if (sizeof_priv)
+ 		dev->priv = netdev_priv(dev);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index b8b1063..247bbe6 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -151,6 +151,9 @@ struct sk_buff *__alloc_skb(unsigned int
+ 
+ 	/* Get the HEAD */
+ 	skb = kmem_cache_alloc(cache, gfp_mask & ~__GFP_DMA);
++	/* the skbuff_fclone_cache contains objects larger than
++	 * "struct sk_buff" and kmemleak cannot guess the type */
++	memleak_typeid(skb, struct sk_buff);
+ 	if (!skb)
+ 		goto out;
+ 
+diff --git a/net/ipv4/netfilter/ip_conntrack_core.c b/net/ipv4/netfilter/ip_conntrack_core.c
+index 8b848aa..6013147 100644
+--- a/net/ipv4/netfilter/ip_conntrack_core.c
++++ b/net/ipv4/netfilter/ip_conntrack_core.c
+@@ -645,6 +645,11 @@ struct ip_conntrack *ip_conntrack_alloc(
+ 	}
+ 
+ 	conntrack = kmem_cache_alloc(ip_conntrack_cachep, GFP_ATOMIC);
++	/* tuplehash_to_ctrack doesn't pass a constant argument to
++	 * container_of and therefore the conntrack->tuplehash[].list
++	 * aliases are ignored */
++	memleak_container(struct ip_conntrack, tuplehash[IP_CT_DIR_ORIGINAL]);
++	memleak_container(struct ip_conntrack, tuplehash[IP_CT_DIR_REPLY]);
+ 	if (!conntrack) {
+ 		DEBUGP("Can't allocate conntrack.\n");
+ 		atomic_dec(&ip_conntrack_count);
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 88c6a99..307c3fb 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -434,6 +434,11 @@ struct Qdisc *qdisc_alloc(struct net_dev
+ 		goto errout;
+ 	sch = (struct Qdisc *) QDISC_ALIGN((unsigned long) p);
+ 	sch->padded = (char *) sch - (char *) p;
++	/* kmemleak cannot guess the object type because the block
++	 * size is different from the object size. The stored pointer
++	 * is also different from the address of the allocated block
++	 * because of padding */
++	memleak_padding(p, sch->padded, sizeof(struct Qdisc));
+ 
+ 	INIT_LIST_HEAD(&sch->list);
+ 	skb_queue_head_init(&sch->q);

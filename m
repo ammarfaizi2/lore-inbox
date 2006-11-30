@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758497AbWK3HNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758530AbWK3HVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758497AbWK3HNA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 02:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758510AbWK3HNA
+	id S1758530AbWK3HVC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 02:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758529AbWK3HVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 02:13:00 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:13968
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1758497AbWK3HM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 02:12:59 -0500
-Date: Wed, 29 Nov 2006 23:12:58 -0800 (PST)
-Message-Id: <20061129.231258.65649383.davem@davemloft.net>
-To: mingo@elte.hu
-Cc: wenji@fnal.gov, akpm@osdl.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] - Potential performance bottleneck for Linxu TCP
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061130064758.GD2003@elte.hu>
-References: <20061130061758.GA2003@elte.hu>
-	<20061129.223055.05159325.davem@davemloft.net>
-	<20061130064758.GD2003@elte.hu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 30 Nov 2006 02:21:02 -0500
+Received: from ns1.suse.de ([195.135.220.2]:47518 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1758518AbWK3HVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 02:21:00 -0500
+Date: Thu, 30 Nov 2006 08:20:58 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+Subject: [patch 1/3] mm: pagecache write deadlocks zerolength fix
+Message-ID: <20061130072058.GA18004@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
-Date: Thu, 30 Nov 2006 07:47:58 +0100
 
-> furthermore, the tweak allows the shifting of processing from a 
-> prioritized process context into a highest-priority softirq context. 
-> (it's not proven that there is any significant /net win/ of performance: 
-> all that was proven is that if we shift TCP processing from process 
-> context into softirq context then TCP throughput of that otherwise 
-> penalized process context increases.)
+writev with a zero-length segment is a noop, and we shouldn't return EFAULT.
 
-If we preempt with any packets in the backlog, we send no ACKs and the
-sender cannot send thus the pipe empties.  That's the problem, this
-has nothing to do with scheduler priorities or stuff like that IMHO.
-The argument goes that if the reschedule is delayed long enough, the
-ACKs will exceed the round trip time and trigger retransmits which
-will absolutely kill performance.
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-The only reason we block input packet processing while we hold this
-lock is because we don't want the receive queue changing from
-underneath us while we're copying data to userspace.
-
-Furthermore once you preempt in this particular way, no input
-packet processing occurs in that socket still, exacerbating the
-situation.
-
-Anyways, even if we somehow unlocked the socket and ran the backlog at
-preemption points, by hand, since we've thus deferred the whole work
-of processing whatever is in the backlog until the preemption point,
-we've lost our quantum already, so it's perhaps not legal to do the
-deferred processing as the preemption signalling point from a fairness
-perspective.
-
-It would be different if we really did the packet processing at the
-original moment (where we had to queue to the socket backlog because
-it was locked, in softirq) because then we'd return from the softirq
-and hit the preemption point earlier or whatever.
-
-Therefore, perhaps the best would be to see if there is a way we can
-still allow input packet processing even while running the majority of
-TCP's recvmsg().  It won't be easy :)
+Index: linux-2.6/include/linux/pagemap.h
+===================================================================
+--- linux-2.6.orig/include/linux/pagemap.h
++++ linux-2.6/include/linux/pagemap.h
+@@ -198,6 +198,9 @@ static inline int fault_in_pages_writeab
+ {
+ 	int ret;
+ 
++	if (unlikely(size == 0))
++		return 0;
++
+ 	/*
+ 	 * Writing zeroes into userspace here is OK, because we know that if
+ 	 * the zero gets there, we'll be overwriting it.
+@@ -222,6 +225,9 @@ static inline int fault_in_pages_readabl
+ 	volatile char c;
+ 	int ret;
+ 
++	if (unlikely(size == 0))
++		return 0;
++
+ 	ret = __get_user(c, uaddr);
+ 	if (ret == 0) {
+ 		const char __user *end = uaddr + size - 1;

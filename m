@@ -1,124 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031046AbWK3ScT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031106AbWK3Sd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031046AbWK3ScT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 13:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031054AbWK3ScT
+	id S1031106AbWK3Sd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 13:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031108AbWK3Sd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 13:32:19 -0500
-Received: from wr-out-0506.google.com ([64.233.184.235]:8255 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1031046AbWK3ScP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 13:32:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hdp4aHI+MuUcp8PiKRUE+10WyulUt9Tz0jyxNi3dZF1cYGryMpTpu0BShPBcuVxGfaOlRN+58XR/wpP+lK3JX9KWFubQR9chPJC30JS7awJLokD9uXU7+RvbggA3HbFXxNExFLv6mkdsO5ULyG1ULbVcmFvKT5DVRzCgviExMzg=
-Message-ID: <1e62d1370611301032q9cfd2f0jbbe5e249fb114530@mail.gmail.com>
-Date: Thu, 30 Nov 2006 23:32:14 +0500
-From: "Fawad Lateef" <fawadlateef@gmail.com>
-To: "Jon Ringle" <JRingle@vertical.com>
-Subject: Re: Reserving a fixed physical address page of RAM.
-Cc: "Dave Airlie" <airlied@gmail.com>, "Robert Hancock" <hancockr@shaw.ca>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <22170ADB26112F478A4E293FF9D449F44D105B@secure.comdial.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 13:33:56 -0500
+Received: from mga05.intel.com ([192.55.52.89]:36154 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1031106AbWK3Sdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 13:33:55 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,481,1157353200"; 
+   d="scan'208"; a="171205127:sNHT26143880"
+Date: Thu, 30 Nov 2006 10:08:39 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 1/4] [x86] Add command line option to enable/disable hyper-threading.
+Message-ID: <20061130100839.A30285@unix-os.sc.intel.com>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com> <11648607733630-git-send-email-bcollins@ubuntu.com> <20061130110611.03aff95c@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <22170ADB26112F478A4E293FF9D449F44D105B@secure.comdial.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061130110611.03aff95c@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Nov 30, 2006 at 11:06:11AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/30/06, Jon Ringle <JRingle@vertical.com> wrote:
-> Fawad Lateef wrote:
-> > On 11/30/06, Jon Ringle <JRingle@vertical.com> wrote:
-> > > Fawad Lateef wrote:
-> > > > Yes, this can be used if required physical-memory exists
-> > in the last
-> > > > part of RAM as if you use mem=<xxxM> then kernel will only use
-> > > > memory less than or equal-to <xxxM> and above can be used
-> > by drivers
-> > > > (or any kernel module) might be through ioremap which takes
-> > > > physical-address.
-> > >
-> > > Seems that using mem= has to be in 1MB increments, where I
-> > only need 4K.
-> > >
-> >
-> > No AFAIK you can specify it in KBs (see
-> > http://sosdg.org/~coywolf/lxr/source/Documentation/kernel-para
-> > meters.txt#L869)
->
-> Yes, you can specify the mem= using K notation, but there is a test in
-> arch/arm/mm/mm-armv.c:create_mapping() that prevents the mapping from
-> being created if the boundaries are not MB aligned:
->
->         if (mem_types[md->type].prot_l1 == 0 &&
->             (virt & 0xfffff || (virt + off) & 0xfffff || (virt + length)
-> & 0xfffff)) {
->                 printk(KERN_WARNING "BUG: map for 0x%08lx at 0x%08lx can
-> not "
->                        "be mapped using pages, ignoring.\n",
->                        __pfn_to_phys(md->pfn), md->virtual);
->                 return;
->         }
->
-> This is in linux-2.6.16.29.
->
+On Thu, Nov 30, 2006 at 11:06:11AM +0000, Alan wrote:
+> On Wed, 29 Nov 2006 23:26:05 -0500
+> Ben Collins <bcollins@ubuntu.com> wrote:
+> 
+> > This patch adds a config option to allow disabling hyper-threading by
+> > default, and a kernel command line option to changes this default at
+> > boot time.
+> > 
+> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> 
+> The description is wrong - this does not disable hyperthreading it merely
+> leaves one thread idle.
 
-Ohh ok, I don't know about this architecture related information.
+How does this patch achieve that? All this patch does is not detecting the
+sibling topology. Kernel will still use all the threads and it just
+forgoes the intelligence of which cpus are thread and core siblings and
+thus disables the optimizations done by scheduler and doesn't export the
+cpu topology to the user through sysfs and /proc.
 
-> >
-> > > >
-> > > > But if lets say we need only 1MB portion of specific
-> > physical-memory
-> > > > region then AFAIK it must be done by hacking in kernel
-> > code during
-> > > > memory-initialization (mem_init
-> > > > function) where it is marking/checking pages as/are reserved; you
-> > > > can simply mark you required pages as reserved too and set their
-> > > > count to some-value if you want to know later which pages are
-> > > > reserved by you. (can do this reservation work
-> > > > here:
-> > http://lxr.free-electrons.com/source/arch/i386/mm/init.c#605).
-> > >
-> > > Do you think that the following would work to properly reserve the
-> > > memory. If it does, then I think I can just do a ioremap(0x0ffff000,
-> > > 0x1000) to obtain a virtual address. (Ofcourse I would actually use
-> > > symbolic names rather than the hardcoded addesses shown here).
-> > >
-> > > Index: linux/arch/arm/mm/init.c
-> > > ===================================================================
-> > > --- linux.orig/arch/arm/mm/init.c       2006-11-30
-> > 11:03:00.000000000
-> > > -0500
-> > > +++ linux/arch/arm/mm/init.c    2006-11-30 11:09:09.000000000 -0500
-> > > @@ -429,6 +429,10 @@
-> > >         unsigned long addr;
-> > >         void *vectors;
-> > >
-> > > +#ifdef CONFIG_MACH_VERTICAL_RSC4
-> > > +       reserve_bootmem (0x0ffff000, 0x1000); #endif
-> > > +
-> > >         /*
-> > >          * Allocate the vector page early.
-> > >          */
-> > >
-> > >
-> >
-> > I think you can do like this but can't say accurately because
-> > I havn't worked on arm architecture and also you havn't
-> > mentioned your kernel-version or function (in file
-> > arch/arm/mm/init.c) which you are going to do call reserve_bootmem !
->
-> Kernel version is 2.6.16.29 and the reserve_bootmem() call above is at
-> the top of the function devicemaps_init().
->
+Am I missing the point of this patch?
 
-reserving_bootmem in devicemaps_init will work but I think it will be
-better if you do this in mem_init function (here:
-http://sosdg.org/~coywolf/lxr/source/arch/arm/mm/init.c?v=2.6.16;a=arm#L620),
-so that all the paging and other map related stuff completes. (CMIIW)
+thanks,
+suresh
 
--- 
-Fawad Lateef
+> I don't believe Intel have ever published a
+> procedure for truely disabling HT, but if you idle a thread you may want
+> to adjust the cache settings on a PIV (10.5.6 in the intel docs) and set
+> it to shared mode. Need to play more with what the bios does I guess.
+> 
+> So Ack but with the proviso it should say "Ignoring" or "Not using" not
+> "Disabling", because it does not do the latter and there seem to be
+> performance differences as a result
+> 
+> Acked-by: Alan Cox <alan@redhat.com>

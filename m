@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030682AbWK3QRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030709AbWK3QWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030682AbWK3QRW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 11:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967836AbWK3QRW
+	id S1030709AbWK3QWB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 11:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759256AbWK3QWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 11:17:22 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:47851 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S967837AbWK3QRV (ORCPT
+	Thu, 30 Nov 2006 11:22:01 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:1004 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1758520AbWK3QWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 11:17:21 -0500
-Message-ID: <456F0432.8010203@cfl.rr.com>
-Date: Thu, 30 Nov 2006 11:17:54 -0500
+	Thu, 30 Nov 2006 11:22:00 -0500
+Message-ID: <456F0549.2050801@cfl.rr.com>
+Date: Thu, 30 Nov 2006 11:22:33 -0500
 From: Phillip Susi <psusi@cfl.rr.com>
 User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Jun Sun <jsun@junsun.net>, linux-kernel@vger.kernel.org
-Subject: Re: failed 'ljmp' in linear addressing mode
-References: <20061122234111.GA8499@srv.junsun.net> <Pine.LNX.4.61.0611270843500.4092@chaos.analogic.com> <20061127231646.GA21627@srv.junsun.net> <Pine.LNX.4.61.0611280806280.7116@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0611280806280.7116@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+CC: reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs: reiserfs add missing brackets
+References: <200611301038.03140.m.kozlowski@tuxland.pl>
+In-Reply-To: <200611301038.03140.m.kozlowski@tuxland.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Nov 2006 16:18:16.0082 (UTC) FILETIME=[240F5720:01C7149B]
+X-OriginalArrivalTime: 30 Nov 2006 16:22:55.0403 (UTC) FILETIME=[CA8C57B0:01C7149B]
 X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14844.003
-X-TM-AS-Result: No--7.276500-5.000000-31
+X-TM-AS-Result: No--6.552800-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> Get a copy of the Intel 486 Microprocessor Reference Manual or read it on-
-> line. There is no way that you can make a call like that. You would need to
-> call through a task-gate or otherwise set the code-segment and the instruction 
-> pointer at the same instant. First, look at the startup code for a GDT entry 
+I know it is just nit-picking, but those are parenthesis, not brackets.
 
-Setting the code segment and instruction pointer at the same time is 
-exactly what the long jump does.
+() vs. []
 
-OP:  What is at the linear address 0x10000000?
-
+Mariusz Kozlowski wrote:
+> Hello,
+> 
+> 	This patch adds missing brackets. 
+> 
+>  include/linux/reiserfs_fs.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-2.6.19-rc6-mm2-a/include/linux/reiserfs_fs.h	2006-11-28 12:17:06.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2-b/include/linux/reiserfs_fs.h	2006-11-30 01:05:38.000000000 +0100
+> @@ -739,7 +739,7 @@ struct block_head {
+>  #define PUT_B_FREE_SPACE(p_s_bh,val)  do { set_blkh_free_space(B_BLK_HEAD(p_s_bh),val); } while (0)
+>  
+>  /* Get right delimiting key. -- little endian */
+> -#define B_PRIGHT_DELIM_KEY(p_s_bh)   (&(blk_right_delim_key(B_BLK_HEAD(p_s_bh))
+> +#define B_PRIGHT_DELIM_KEY(p_s_bh)   (&(blk_right_delim_key(B_BLK_HEAD(p_s_bh))))
+>  
+>  /* Does the buffer contain a disk leaf. */
+>  #define B_IS_ITEMS_LEVEL(p_s_bh)     (B_LEVEL(p_s_bh) == DISK_LEAF_NODE_LEVEL)
+> 
+> 
 

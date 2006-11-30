@@ -1,362 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031222AbWK3TRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031239AbWK3Tbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031222AbWK3TRX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 14:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031226AbWK3TPN
+	id S1031239AbWK3Tbl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 14:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031238AbWK3Tbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 14:15:13 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:4239 "EHLO
-	kano.factory.vocord.ru") by vger.kernel.org with ESMTP
-	id S1031217AbWK3TPF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 14:15:05 -0500
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       Johann Borck <johann.borck@densedata.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>
-Subject: [take26 8/8] kevent: Kevent posix timer notifications.
-In-Reply-To: <1164914063636@2ka.mipt.ru>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 30 Nov 2006 22:14:23 +0300
-Message-Id: <11649140631011@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Content-Transfer-Encoding: 7BIT
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Thu, 30 Nov 2006 14:31:41 -0500
+Received: from wx-out-0506.google.com ([66.249.82.239]:32688 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S967909AbWK3Tbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 14:31:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=F9x4Bjb1NNjnBLYqrGVVYKcH65V2QJxipWpbOgh2LsVmBxbxdUgW6/WsoTmtll0vVZaLA72+il5yQ4rPR2HtHj4cnNnw2HKNIZpszKVCFSxluyzXKtGy+htSXZ5o4RUYlgAinKYzwFtms8Oe1vl3St/7qmsBuoSa6Van6P5jqUM=
+Message-ID: <5c49b0ed0611301131q3ee6ae08l8caeb4a226960203@mail.gmail.com>
+Date: Thu, 30 Nov 2006 11:31:39 -0800
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "Wendy Cheng" <wcheng@redhat.com>
+Subject: Re: [PATCH] prune_icache_sb
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <456F014C.5040200@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4564C28B.30604@redhat.com> <20061122153603.33c2c24d.akpm@osdl.org>
+	 <456B7A5A.1070202@redhat.com> <20061127165239.9616cbc9.akpm@osdl.org>
+	 <456CACF3.7030200@redhat.com> <20061128162144.8051998a.akpm@osdl.org>
+	 <456D2259.1050306@redhat.com> <456F014C.5040200@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11/30/06, Wendy Cheng <wcheng@redhat.com> wrote:
+> How about a simple and plain change with this uploaded patch ....
+>
+> The idea is, instead of unconditionally dropping every buffer associated
+> with the particular mount point (that defeats the purpose of page
+> caching), base kernel exports the "drop_pagecache_sb()" call that allows
+> page cache to be trimmed. More importantly, it is changed to offer the
+> choice of not randomly purging any buffer but the ones that seem to be
+> unused (i_state is NULL and i_count is zero). This will encourage
+> filesystem(s) to pro actively response to vm memory shortage if they
+> choose so.
+>
+>  From our end (cluster locks are expensive - that's why we cache them),
+> one of our kernel daemons will invoke this newly exported call based on
+> a set of pre-defined tunables. It is then followed by a lock reclaim
+> logic to trim the locks by checking the page cache associated with the
+> inode (that this cluster lock is created for). If nothing is attached to
+> the inode (based on i_mapping->nrpages count), we know it is a good
+> candidate for trimming and will subsequently drop this lock (instead of
+> waiting until the end of vfs inode life cycle).
 
-Kevent posix timer notifications.
+I have a patch that is a more comprehensive version of this idea, but
+it is not fully debugged, and has suffered some bitrot in the past
+couple months.  This turns out to be a good performance improvement in
+the general case too, but is more complex than your idea because there
+are real locking changes needed to avoid deadlocks.  I can send you a
+copy of the patch if you are interested.
 
-Simple extensions to POSIX timers which allows
-to deliver notification of the timer expiration
-through kevent queue.
+> Note that I could do invalidate_inode_pages() within our kernel modules
+> to accomplish what drop_pagecache_sb() does (without coming here to bug
+> people) but I don't have access to inode_lock as an external kernel
+> module. So either EXPORT_SYMBOL(inode_lock) or this patch ?
 
-Example application posix_timer.c can be found
-in archive on project homepage.
+like i said above, you have to be careful when touching inode_lock,
+dcache_lock, and the mapping's tree_lock, because of potential
+deadlocks.  the mapping's lock can be taken from softirq context, but
+the inode and dcache locks cannot.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
-
-diff --git a/include/asm-generic/siginfo.h b/include/asm-generic/siginfo.h
-index 8786e01..3768746 100644
---- a/include/asm-generic/siginfo.h
-+++ b/include/asm-generic/siginfo.h
-@@ -235,6 +235,7 @@ typedef struct siginfo {
- #define SIGEV_NONE	1	/* other notification: meaningless */
- #define SIGEV_THREAD	2	/* deliver via thread creation */
- #define SIGEV_THREAD_ID 4	/* deliver to thread */
-+#define SIGEV_KEVENT	8	/* deliver through kevent queue */
- 
- /*
-  * This works because the alignment is ok on all current architectures
-@@ -260,6 +261,8 @@ typedef struct sigevent {
- 			void (*_function)(sigval_t);
- 			void *_attribute;	/* really pthread_attr_t */
- 		} _sigev_thread;
-+
-+		int kevent_fd;
- 	} _sigev_un;
- } sigevent_t;
- 
-diff --git a/include/linux/posix-timers.h b/include/linux/posix-timers.h
-index a7dd38f..4b9deb4 100644
---- a/include/linux/posix-timers.h
-+++ b/include/linux/posix-timers.h
-@@ -4,6 +4,7 @@
- #include <linux/spinlock.h>
- #include <linux/list.h>
- #include <linux/sched.h>
-+#include <linux/kevent_storage.h>
- 
- union cpu_time_count {
- 	cputime_t cpu;
-@@ -49,6 +50,9 @@ struct k_itimer {
- 	sigval_t it_sigev_value;	/* value word of sigevent struct */
- 	struct task_struct *it_process;	/* process to send signal to */
- 	struct sigqueue *sigq;		/* signal queue entry. */
-+#ifdef CONFIG_KEVENT_TIMER
-+	struct kevent_storage st;
-+#endif
- 	union {
- 		struct {
- 			struct hrtimer timer;
-diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
-index e5ebcc1..8d0e7a3 100644
---- a/kernel/posix-timers.c
-+++ b/kernel/posix-timers.c
-@@ -48,6 +48,8 @@
- #include <linux/wait.h>
- #include <linux/workqueue.h>
- #include <linux/module.h>
-+#include <linux/kevent.h>
-+#include <linux/file.h>
- 
- /*
-  * Management arrays for POSIX timers.	 Timers are kept in slab memory
-@@ -224,6 +226,99 @@ static int posix_ktime_get_ts(clockid_t
- 	return 0;
- }
- 
-+#ifdef CONFIG_KEVENT_TIMER
-+static int posix_kevent_enqueue(struct kevent *k)
-+{
-+	/*
-+	 * It is not ugly - there is no pointer in the id field union, 
-+	 * but its size is 64bits, which is ok for any known pointer size.
-+	 */
-+	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
-+	return kevent_storage_enqueue(&tmr->st, k);
-+}
-+static int posix_kevent_dequeue(struct kevent *k)
-+{
-+	struct k_itimer *tmr = (struct k_itimer *)(unsigned long)k->event.id.raw_u64;
-+	kevent_storage_dequeue(&tmr->st, k);
-+	return 0;
-+}
-+static int posix_kevent_callback(struct kevent *k)
-+{
-+	return 1;
-+}
-+static int posix_kevent_init(void)
-+{
-+	struct kevent_callbacks tc = {
-+		.callback = &posix_kevent_callback,
-+		.enqueue = &posix_kevent_enqueue,
-+		.dequeue = &posix_kevent_dequeue};
-+
-+	return kevent_add_callbacks(&tc, KEVENT_POSIX_TIMER);
-+}
-+
-+extern struct file_operations kevent_user_fops;
-+
-+static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
-+{
-+	struct ukevent uk;
-+	struct file *file;
-+	struct kevent_user *u;
-+	int err;
-+
-+	file = fget(fd);
-+	if (!file) {
-+		err = -EBADF;
-+		goto err_out;
-+	}
-+
-+	if (file->f_op != &kevent_user_fops) {
-+		err = -EINVAL;
-+		goto err_out_fput;
-+	}
-+
-+	u = file->private_data;
-+
-+	memset(&uk, 0, sizeof(struct ukevent));
-+
-+	uk.event = KEVENT_MASK_ALL;
-+	uk.type = KEVENT_POSIX_TIMER;
-+	uk.id.raw_u64 = (unsigned long)(tmr); /* Just cast to something unique */
-+	uk.req_flags = KEVENT_REQ_ONESHOT | KEVENT_REQ_ALWAYS_QUEUE;
-+	uk.ptr = tmr->it_sigev_value.sival_ptr;
-+
-+	err = kevent_user_add_ukevent(&uk, u);
-+	if (err)
-+		goto err_out_fput;
-+
-+	fput(file);
-+
-+	return 0;
-+
-+err_out_fput:
-+	fput(file);
-+err_out:
-+	return err;
-+}
-+
-+static void posix_kevent_fini_timer(struct k_itimer *tmr)
-+{
-+	kevent_storage_fini(&tmr->st);
-+}
-+#else
-+static int posix_kevent_init_timer(struct k_itimer *tmr, int fd)
-+{
-+	return -ENOSYS;
-+}
-+static int posix_kevent_init(void)
-+{
-+	return 0;
-+}
-+static void posix_kevent_fini_timer(struct k_itimer *tmr)
-+{
-+}
-+#endif
-+
-+
- /*
-  * Initialize everything, well, just everything in Posix clocks/timers ;)
-  */
-@@ -241,6 +336,11 @@ static __init int init_posix_timers(void
- 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
- 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
- 
-+	if (posix_kevent_init()) {
-+		printk(KERN_ERR "Failed to initialize kevent posix timers.\n");
-+		BUG();
-+	}
-+
- 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
- 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
- 	idr_init(&posix_timers_id);
-@@ -343,23 +443,27 @@ static int posix_timer_fn(struct hrtimer
- 
- 	timr = container_of(timer, struct k_itimer, it.real.timer);
- 	spin_lock_irqsave(&timr->it_lock, flags);
-+	
-+	if (timr->it_sigev_notify == SIGEV_KEVENT) {
-+		kevent_storage_ready(&timr->st, NULL, KEVENT_MASK_ALL);
-+	} else {
-+		if (timr->it.real.interval.tv64 != 0)
-+			si_private = ++timr->it_requeue_pending;
- 
--	if (timr->it.real.interval.tv64 != 0)
--		si_private = ++timr->it_requeue_pending;
--
--	if (posix_timer_event(timr, si_private)) {
--		/*
--		 * signal was not sent because of sig_ignor
--		 * we will not get a call back to restart it AND
--		 * it should be restarted.
--		 */
--		if (timr->it.real.interval.tv64 != 0) {
--			timr->it_overrun +=
--				hrtimer_forward(timer,
--						timer->base->softirq_time,
--						timr->it.real.interval);
--			ret = HRTIMER_RESTART;
--			++timr->it_requeue_pending;
-+		if (posix_timer_event(timr, si_private)) {
-+			/*
-+			 * signal was not sent because of sig_ignor
-+			 * we will not get a call back to restart it AND
-+			 * it should be restarted.
-+			 */
-+			if (timr->it.real.interval.tv64 != 0) {
-+				timr->it_overrun +=
-+					hrtimer_forward(timer,
-+							timer->base->softirq_time,
-+							timr->it.real.interval);
-+				ret = HRTIMER_RESTART;
-+				++timr->it_requeue_pending;
-+			}
- 		}
- 	}
- 
-@@ -407,6 +511,9 @@ static struct k_itimer * alloc_posix_tim
- 		kmem_cache_free(posix_timers_cache, tmr);
- 		tmr = NULL;
- 	}
-+#ifdef CONFIG_KEVENT_TIMER
-+	kevent_storage_init(tmr, &tmr->st);
-+#endif
- 	return tmr;
- }
- 
-@@ -424,6 +531,7 @@ static void release_posix_timer(struct k
- 	if (unlikely(tmr->it_process) &&
- 	    tmr->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
- 		put_task_struct(tmr->it_process);
-+	posix_kevent_fini_timer(tmr);
- 	kmem_cache_free(posix_timers_cache, tmr);
- }
- 
-@@ -496,40 +604,52 @@ sys_timer_create(const clockid_t which_c
- 		new_timer->it_sigev_signo = event.sigev_signo;
- 		new_timer->it_sigev_value = event.sigev_value;
- 
--		read_lock(&tasklist_lock);
--		if ((process = good_sigevent(&event))) {
--			/*
--			 * We may be setting up this process for another
--			 * thread.  It may be exiting.  To catch this
--			 * case the we check the PF_EXITING flag.  If
--			 * the flag is not set, the siglock will catch
--			 * him before it is too late (in exit_itimers).
--			 *
--			 * The exec case is a bit more invloved but easy
--			 * to code.  If the process is in our thread
--			 * group (and it must be or we would not allow
--			 * it here) and is doing an exec, it will cause
--			 * us to be killed.  In this case it will wait
--			 * for us to die which means we can finish this
--			 * linkage with our last gasp. I.e. no code :)
--			 */
-+		if (event.sigev_notify == SIGEV_KEVENT) {
-+			error = posix_kevent_init_timer(new_timer, event._sigev_un.kevent_fd);
-+			if (error)
-+				goto out;
-+
-+			process = current->group_leader;
- 			spin_lock_irqsave(&process->sighand->siglock, flags);
--			if (!(process->flags & PF_EXITING)) {
--				new_timer->it_process = process;
--				list_add(&new_timer->list,
--					 &process->signal->posix_timers);
--				spin_unlock_irqrestore(&process->sighand->siglock, flags);
--				if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
--					get_task_struct(process);
--			} else {
--				spin_unlock_irqrestore(&process->sighand->siglock, flags);
--				process = NULL;
-+			new_timer->it_process = process;
-+			list_add(&new_timer->list, &process->signal->posix_timers);
-+			spin_unlock_irqrestore(&process->sighand->siglock, flags);
-+		} else {
-+			read_lock(&tasklist_lock);
-+			if ((process = good_sigevent(&event))) {
-+				/*
-+				 * We may be setting up this process for another
-+				 * thread.  It may be exiting.  To catch this
-+				 * case the we check the PF_EXITING flag.  If
-+				 * the flag is not set, the siglock will catch
-+				 * him before it is too late (in exit_itimers).
-+				 *
-+				 * The exec case is a bit more invloved but easy
-+				 * to code.  If the process is in our thread
-+				 * group (and it must be or we would not allow
-+				 * it here) and is doing an exec, it will cause
-+				 * us to be killed.  In this case it will wait
-+				 * for us to die which means we can finish this
-+				 * linkage with our last gasp. I.e. no code :)
-+				 */
-+				spin_lock_irqsave(&process->sighand->siglock, flags);
-+				if (!(process->flags & PF_EXITING)) {
-+					new_timer->it_process = process;
-+					list_add(&new_timer->list,
-+						 &process->signal->posix_timers);
-+					spin_unlock_irqrestore(&process->sighand->siglock, flags);
-+					if (new_timer->it_sigev_notify == (SIGEV_SIGNAL|SIGEV_THREAD_ID))
-+						get_task_struct(process);
-+				} else {
-+					spin_unlock_irqrestore(&process->sighand->siglock, flags);
-+					process = NULL;
-+				}
-+			}
-+			read_unlock(&tasklist_lock);
-+			if (!process) {
-+				error = -EINVAL;
-+				goto out;
- 			}
--		}
--		read_unlock(&tasklist_lock);
--		if (!process) {
--			error = -EINVAL;
--			goto out;
- 		}
- 	} else {
- 		new_timer->it_sigev_notify = SIGEV_SIGNAL;
-
+NATE

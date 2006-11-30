@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030726AbWK3QoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759268AbWK3QsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030726AbWK3QoI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 11:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030727AbWK3QoI
+	id S1759268AbWK3QsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 11:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759271AbWK3QsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 11:44:08 -0500
-Received: from rune.pobox.com ([208.210.124.79]:11951 "EHLO rune.pobox.com")
-	by vger.kernel.org with ESMTP id S1030726AbWK3QoF (ORCPT
+	Thu, 30 Nov 2006 11:48:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10634 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1759268AbWK3QsK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 11:44:05 -0500
-Date: Thu, 30 Nov 2006 10:43:47 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, bryce@osdl.org
+	Thu, 30 Nov 2006 11:48:10 -0500
+Date: Thu, 30 Nov 2006 17:48:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Jens Axboe <jens.axboe@oracle.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, bryce@osdl.org
 Subject: Re: CPU hotplug broken with 2GB VMSPLIT
-Message-ID: <20061130164347.GB22050@localdomain>
-References: <20061130090348.GK5400@kernel.dk> <20061130091334.GM5400@kernel.dk>
+Message-ID: <20061130164800.GA1860@elf.ucw.cz>
+References: <20061130090348.GK5400@kernel.dk> <20061130091334.GM5400@kernel.dk> <20061130164347.GB22050@localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061130091334.GM5400@kernel.dk>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20061130164347.GB22050@localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Nov 30 2006, Jens Axboe wrote:
-> > Hi,
-> > 
-> > Just got a new notebook (Lenovo X60), setup a custom kernel and then I
-> > noticed that suspend to ram doesn't work anymore. The machine suspends
-> > just fine, on resume it brings back the text display but reboots after
-> > it has stalled for a few seconds. On the suggestion of Pavel, I tried
-> > testing CPU hotplug, and indeed he was right: I can offline 1 of the
-> > cores fine, bringing it back online freezes the machine for 3-4 seconds
-> > and then reboots.
-> > 
-> > carl:/sys/devices/system/cpu/cpu1 # echo 0 > online 
-> > carl:/sys/devices/system/cpu/cpu1 # dmesg
-> > Breaking affinity for irq 219
-> > CPU 1 is now offline
-> > SMP alternatives: switching to UP code
-> > carl:/sys/devices/system/cpu/cpu1 # echo 1 > online 
-> > Read from remote host carl: Connection reset by peer
-> > 
-> > Booting with maxcpus=1 and resume works fine. Does this ring a bell with
-> > anyone? With highmem enabled and the standard vmsplit, cpu hotplug works
-> > fine for me.
+Hi!
+
+> > Some more clues - booting with noreplacement doesn't fix it, so I think
+> > the alternatives code is off the hook.
 > 
-> Some more clues - booting with noreplacement doesn't fix it, so I think
-> the alternatives code is off the hook.
+> I don't think this adds any new information, but it has been open
+> awhile:
+> 
+> http://bugme.osdl.org/show_bug.cgi?id=6542
+> 
+> I was able to narrow it down to the vmsplit setting but I wasn't able
+> to debug it further.
 
-I don't think this adds any new information, but it has been open
-awhile:
-
-http://bugme.osdl.org/show_bug.cgi?id=6542
-
-I was able to narrow it down to the vmsplit setting but I wasn't able
-to debug it further.
-
+Can we at least add error return or something? Or make CPU_HOTPLUG
+depend on "normal" VM split, or...? Having s2ram breaking for known
+problem is annoying...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

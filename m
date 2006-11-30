@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031597AbWK3WkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031609AbWK3WtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031597AbWK3WkI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 17:40:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031596AbWK3WkH
+	id S1031609AbWK3WtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 17:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031571AbWK3WtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 17:40:07 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:22416 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1031595AbWK3WkG (ORCPT
+	Thu, 30 Nov 2006 17:49:18 -0500
+Received: from ns2.suse.de ([195.135.220.15]:23952 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1031609AbWK3WtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 17:40:06 -0500
-Date: Thu, 30 Nov 2006 14:39:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Kent <raven@themaw.net>
-Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] autofs: fix error code path in autofs_fill_sb()
-Message-Id: <20061130143959.ca82ef57.akpm@osdl.org>
-In-Reply-To: <1164863675.3127.4.camel@localhost>
-References: <Pine.LNX.4.64.0611300123160.28502@twin.jikos.cz>
-	<1164863675.3127.4.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Nov 2006 17:49:18 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [Bugme-new] [Bug 7602] New: Failure on compilation: include/asm/bitops.h:122: error: inconsistent operand constraints in an `asm' in nfs_access_add_cache()
+Date: Thu, 30 Nov 2006 23:49:12 +0100
+User-Agent: KMail/1.9.5
+Cc: bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org,
+       mjw99@ic.ac.uk
+References: <200611302118.kAULIrxS011661@fire-2.osdl.org> <200611302322.00167.ak@suse.de> <20061130143246.4a4bb970.akpm@osdl.org>
+In-Reply-To: <20061130143246.4a4bb970.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611302349.12261.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 13:14:35 +0800
-Ian Kent <raven@themaw.net> wrote:
-
-> > The problem: autofs_fill_super() returns EINVAL to get_sb_nodev(), but before
-> > that, it calls kill_anon_super() to destroy the superblock which won't be 
-> > needed. This is however way too soon to call kill_anon_super(), because 
-> > get_sb_nodev() has to perform its own cleanup of the superblock first
-> > (deactivate_super(), etc.). The correct time to call kill_anon_super() is in
-> > the autofs_kill_sb() callback, which is called by deactivate_super() at proper
-> > time, when the superblock is ready to be killed.
-> > 
-> > I can see the same faulty codepath also in autofs4. This patch solves issues in
-> > both filesystems in a same way - it postpones the kill_anon_super() until the 
-> > proper time is signalized by deactivate_super() calling the kill_sb() callback.
-> > 
-> > Patch against 2.6.19-rc6-mm2.
-> > 
-> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> Acked-by: Ian Kent <raven@themaw.net>
+On Thursday 30 November 2006 23:32, Andrew Morton wrote:
+> On Thu, 30 Nov 2006 23:22:00 +0100
+> Andi Kleen <ak@suse.de> wrote:
 > 
-> It looks so obvious now.
-> Updating the comment above would be a good idea also, see attached.
+> > > 
+> > > static __inline__ int __test_and_set_bit(int nr, volatile void * addr)
+> > > {
+> > > 	int oldbit;
+> > > 
+> > > 	__asm__(
+> > > 		"btsl %2,%1\n\tsbbl %0,%0"
+> > > 		:"=r" (oldbit),"+m" (ADDR)
+> > > 		:"dIr" (nr));
+> > > 	return oldbit;
+> > > }
+> > > 
+> > > explodes with gcc-3.4.4.
+> > 
+> > Known issue.  The new form is correct and needed, but the old gcc doesn't accept
+> > it. I haven't gotten a form that is both and correct and works on the old compiler
+> > out of the gcc hackers I asked.
+> 
+> Oh, thanks.
+> 
+> What does "d" do, btw?  My gcc info page only covers "x86" and says only "`d' register"
 
+Hmm, normally edx (aka Extended D register eXtended :) or rdx 
 
-Thanks, Ian.
+But you're right it doesn't make sense here because 'd' is already included in 'r'.
+Probably should be dropped.
 
-I've tagged these for 2.6.19.x also.  Please let me know if you think that's
-inappropriate, unnecessary or too risky.
+> 
+> (And, more importantly, where is the best description of gcc asm constraints?)
+
+Either info pages or gcc source. There was also a web page somewhere with a tutorial,
+but i don't think it was a full reference.
+
+-Andi

@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967832AbWK3PEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWK3PKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967832AbWK3PEt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 10:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967834AbWK3PEt
+	id S1030257AbWK3PKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 10:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967834AbWK3PKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 10:04:49 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:51346 "EHLO
-	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S967832AbWK3PEs
+	Thu, 30 Nov 2006 10:10:06 -0500
+Received: from washoe.rutgers.edu ([165.230.95.67]:53142 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S967833AbWK3PKE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 10:04:48 -0500
-Subject: Re: [PATCH 4/4] [HVCS] Select HVC_CONSOLE if HVCS is enabled.
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <Pine.LNX.4.64.0611301331520.6243@scrub.home>
-References: <11648607683157-git-send-email-bcollins@ubuntu.com>
-	 <1164860773166-git-send-email-bcollins@ubuntu.com>
-	 <Pine.LNX.4.64.0611301331520.6243@scrub.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Nov 2006 10:04:44 -0500
-Message-Id: <1164899084.5257.806.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 30 Nov 2006 10:10:04 -0500
+Date: Thu, 30 Nov 2006 10:10:03 -0500
+From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd/tg3 issue
+Message-ID: <20061130151003.GM2021@washoe.onerussian.com>
+Mail-Followup-To: Alan <alan@lxorguk.ukuu.org.uk>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20061130144355.GK2021@washoe.onerussian.com> <20061130150406.3d0b6afd@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061130150406.3d0b6afd@localhost.localdomain>
+X-URL: http://www.onerussian.com
+X-Image-Url: http://www.onerussian.com/img/yoh.png
+X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
+X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
+User-Agent: mutt-ng/devel-r804 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-30 at 13:32 +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 29 Nov 2006, Ben Collins wrote:
-> 
-> > If HVC_CONSOLE provides symbols that HVCS requires.
-> > 
-> > Signed-off-by: Ben Collins <bcollins@ubuntu.com>
-> > ---
-> >  drivers/char/Kconfig |    1 +
-> >  1 files changed, 1 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-> > index 2af12fc..c94ecdc 100644
-> > --- a/drivers/char/Kconfig
-> > +++ b/drivers/char/Kconfig
-> > @@ -598,6 +598,7 @@ config HVC_RTAS
-> >  config HVCS
-> >  	tristate "IBM Hypervisor Virtual Console Server support"
-> >  	depends on PPC_PSERIES
-> > +	select HVC_CONSOLE
-> >  	help
-> >  	  Partitionable IBM Power5 ppc64 machines allow hosting of
-> >  	  firmware virtual consoles from one Linux partition by
-> 
-> 
-> Why not a normal dependency?
+Thank you Alan
 
-Most of the HVC options are doing select on other HVC things (like
-select HVC_DRIVER). So if this one needs to be a dependency, then it
-would make more sense to clean up the HVC option group to do the same. I
-just did the one-liner to make it work.
+Ok - I am adding more memory in my purchasing plan ;-) For now I guess
+adding swap space should help, right?
+
+> > >...<
+> Its tell us that the machine got very very tight on memory, far tighter
+> than it probably ever should in normal situations. It is harmless of
+> itself and if you only get the odd one is not a worry.
+
+
+
+-- 
+Yaroslav Halchenko
+Research Assistant, Psychology Department, Rutgers-Newark
+Student  Ph.D. @ CS Dept. NJIT
+Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
+        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
+WWW:     http://www.linkedin.com/in/yarik        

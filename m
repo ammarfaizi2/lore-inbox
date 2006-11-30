@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759130AbWK3Ifj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759144AbWK3IgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759130AbWK3Ifj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759137AbWK3Ifj
+	id S1759144AbWK3IgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759152AbWK3IgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:35:39 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16104 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1759130AbWK3Ifj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:35:39 -0500
-Date: Thu, 30 Nov 2006 09:33:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: v2.6.19-rt1, yum/rpm
-Message-ID: <20061130083358.GA351@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Nov 2006 03:36:09 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:40196 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1759136AbWK3IgH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:36:07 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: maintainers@chelsio.com
+Subject: [PATCH] net: chelsio add missing bracket
+Date: Thu, 30 Nov 2006 09:35:37 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+Message-Id: <200611300935.37796.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.19-rt1 tree, which can be downloaded from the 
-usual place:
+Hello,
 
-    http://redhat.com/~mingo/realtime-preempt/
+	This patch adds missing bracket.
 
-merged to v2.6.19 and applied a few more fixes and a KVM update.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-to build a 2.6.19-rt1 tree, the following patches should be applied:
+ drivers/net/chelsio/suni1x10gexp_regs.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.19.tar.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.19-rt1
+--- linux-2.6.19-rc6-mm2-a/drivers/net/chelsio/suni1x10gexp_regs.h	2006-11-28 12:16:42.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/drivers/net/chelsio/suni1x10gexp_regs.h	2006-11-30 00:54:28.000000000 +0100
+@@ -76,7 +76,7 @@
+ #define mSUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_LOW(filterId) (0x204A + mSUNI1x10GEXP_MAC_FILTER_OFFSET(filterId))
+ #define mSUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_MID(filterId) (0x204B + mSUNI1x10GEXP_MAC_FILTER_OFFSET(filterId))
+ #define mSUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_HIGH(filterId)(0x204C + mSUNI1x10GEXP_MAC_FILTER_OFFSET(filterId))
+-#define mSUNI1x10GEXP_REG_RXXG_EXACT_MATCH_VID(filterId)      (0x2062 + mSUNI1x10GEXP_MAC_VID_FILTER_OFFSET(filterId)
++#define mSUNI1x10GEXP_REG_RXXG_EXACT_MATCH_VID(filterId)      (0x2062 + mSUNI1x10GEXP_MAC_VID_FILTER_OFFSET(filterId))
+ #define SUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_0_LOW                     0x204A
+ #define SUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_0_MID                     0x204B
+ #define SUNI1x10GEXP_REG_RXXG_EXACT_MATCH_ADDR_0_HIGH                    0x204C
 
-the -rt YUM repository for Fedora Core 6 and 5, for architectures x86_64 
-and i686 can be activated via:
 
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
+-- 
+Regards,
 
-   yum install kernel-rt.x86_64   # on x86_64
-   yum install kernel-rt          # on i686
-
-   yum update kernel-rt           # refresh - or enable yum-updatesd
-
-as usual, bugreports, fixes and suggestions are welcome,
-
-	Ingo
+	Mariusz Kozlowski

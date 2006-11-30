@@ -1,97 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758541AbWK3H3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758548AbWK3Hc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758541AbWK3H3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 02:29:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758543AbWK3H3b
+	id S1758548AbWK3Hc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 02:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758550AbWK3Hc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 02:29:31 -0500
-Received: from nf-out-0910.google.com ([64.233.182.189]:6396 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1758541AbWK3H3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 02:29:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=urCph6PyoZaKcmx8fqhkiMOrC4cSiFSF1u6zRU9hzkS6Xu2YVO1R+Vtx5yrr7ONdsIfoPebKhM9LPwPArZGZtTIf4ZbeBbshjby2clTk9YERApZqBzyNDo6CDSAyM+Jc6YPon92N1Lm++8vj7gnODxC1Yw26w8/bFUXG7C8xOVc=
-Message-ID: <74d0deb30611292329ifc9f69bk77bd8b3a1b22cf3e@mail.gmail.com>
-Date: Thu, 30 Nov 2006 08:29:28 +0100
-From: "pHilipp Zabel" <philipp.zabel@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: [patch/rfc 2.6.19-rc5] arch-neutral GPIO calls
-Cc: "Bill Gatliff" <bgat@billgatliff.com>, "Paul Mundt" <lethal@linux-sh.org>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Andrew Victor" <andrew@sanpeople.com>,
-       "Haavard Skinnemoen" <hskinnemoen@atmel.com>,
-       "Kevin Hilman" <khilman@mvista.com>, "Nicolas Pitre" <nico@cam.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Tony Lindgren" <tony@atomide.com>
-In-Reply-To: <74d0deb30611292257n3f532abbyedef9b543b9d48ae@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_31974_4785888.1164871768729"
-References: <200611111541.34699.david-b@pacbell.net>
-	 <200611202135.39970.david-b@pacbell.net>
-	 <456321E9.2030308@billgatliff.com>
-	 <200611221640.55574.david-b@pacbell.net>
-	 <74d0deb30611292257n3f532abbyedef9b543b9d48ae@mail.gmail.com>
+	Thu, 30 Nov 2006 02:32:57 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61860 "EHLO omx1.sgi.com")
+	by vger.kernel.org with ESMTP id S1758548AbWK3Hc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 02:32:56 -0500
+Date: Wed, 29 Nov 2006 23:32:29 -0800
+From: Paul Jackson <pj@sgi.com>
+To: menage@google.com
+Cc: akpm@osdl.org, sekharan@us.ibm.com, dev@sw.ru, xemul@sw.ru,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
+       devel@openvz.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com
+Subject: Re: [PATCH 0/7] Generic Process Containers (+
+ ResGroups/BeanCounters)
+Message-Id: <20061129233229.a47e0f1b.pj@sgi.com>
+In-Reply-To: <20061123120848.051048000@menage.corp.google.com>
+References: <20061123120848.051048000@menage.corp.google.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_31974_4785888.1164871768729
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I got a chance to build and test this patch set, to see if it behaved
+like I expected cpusets to behave, on an ia64 SN2 Altix system.
 
-On 11/30/06, pHilipp Zabel <philipp.zabel@gmail.com> wrote:
-> > Effectively, yes.  I counted quite a few implementations in the current
-> > tree which can trivially (#defines) map to that API.
+Two details - otherwise looked good.  I continue to like this
+approach.
 
-Or so I thought, sorry.
+The two details are (1) /proc/<pid>/cpuset not configured by
+default if CPUSETS configured, and (2) a locking bug wedging
+tasks trying to rmdir a cpuset off the notify_on_release hook.
 
-regards
-Philipp
 
-------=_Part_31974_4785888.1164871768729
-Content-Type: text/x-patch; name=gpio-api-pxa.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ev4ukbap
-Content-Disposition: attachment; filename="gpio-api-pxa.patch"
+1) I had to enable CONFIG_PROC_PID_CPUSET.  I used the following
+   one line change to do this.  I am willing to consider, in due
+   time, phasing out such legacy cpuset support.  But so long as it
+   is small stuff that is not getting in anyone's way, I think we
+   should take our sweet time about doing so -- as in a year or two
+   after marking it deprecated or some such.  No sense deciding that
+   matter now; keep the current cpuset API working throughout any
+   transitition to container based cpusets, then revisit the question
+   of whether to deprecate and eventually remove these kernel API
+   details, later on, after the major reconstruction dust settles.
+   In general, we try to avoid removing kernel API's, especially if
+   they are happily being used and working and not causing anyone
+   grief.
 
-SW5kZXg6IGxpbnV4LTIuNi9pbmNsdWRlL2FzbS1hcm0vYXJjaC1weGEvZ3Bpby5oCj09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT0KLS0tIC9kZXYvbnVsbAkxOTcwLTAxLTAxIDAwOjAwOjAwLjAwMDAwMDAwMCArMDAwMAorKysg
-bGludXgtMi42L2luY2x1ZGUvYXNtLWFybS9hcmNoLXB4YS9ncGlvLmgJMjAwNi0xMS0zMCAwNzoz
-OTo1OS4wMDAwMDAwMDAgKzAxMDAKQEAgLTAsMCArMSw2NSBAQAorLyoKKyAqIGxpbnV4L2luY2x1
-ZGUvYXNtLWFybS9hcmNoLXB4YS9ncGlvLmgKKyAqCisgKiBQWEEgR1BJTyB3cmFwcGVycyBmb3Ig
-YXJjaC1uZXV0cmFsIEdQSU8gY2FsbHMKKyAqCisgKiBXcml0dGVuIGJ5IFBoaWxpcHAgWmFiZWwg
-PHBoaWxpcHAuemFiZWxAZ21haWwuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNv
-ZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiBpdCB1bmRl
-ciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hl
-ZCBieQorICogdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBv
-ZiB0aGUgTGljZW5zZSwgb3IKKyAqIChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24u
-CisgKgorICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQg
-d2lsbCBiZSB1c2VmdWwsCisgKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZl
-biB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgorICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1Mg
-Rk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiBTZWUgdGhlCisgKiBHTlUgR2VuZXJhbCBQdWJsaWMg
-TGljZW5zZSBmb3IgbW9yZSBkZXRhaWxzLgorICoKKyAqIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZl
-ZCBhIGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlCisgKiBhbG9uZyB3aXRo
-IHRoaXMgcHJvZ3JhbTsgaWYgbm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQorICogRm91
-bmRhdGlvbiwgSW5jLiwgNTkgVGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEgMDIx
-MTEtMTMwNyBVU0EKKyAqCisgKi8KKworI2lmbmRlZiBfX0FTTV9BUkNIX1BYQV9HUElPX0gKKyNk
-ZWZpbmUgX19BU01fQVJDSF9QWEFfR1BJT19ICisKKyNpbmNsdWRlIDxhc20vYXJjaC9weGEtcmVn
-cy5oPgorI2luY2x1ZGUgPGFzbS9hcmNoL2lycXMuaD4KKyNpbmNsdWRlIDxhc20vYXJjaC9oYXJk
-d2FyZS5oPgorCisjaW5jbHVkZSA8YXNtL2Vycm5vLmg+CisKK3N0YXRpYyBpbmxpbmUgaW50IGdw
-aW9fcmVxdWVzdCh1bnNpZ25lZCBncGlvLCBjb25zdCBjaGFyICpsYWJlbCkKK3sKKwlyZXR1cm4g
-MDsKK30KKworc3RhdGljIGlubGluZSB2b2lkIGdwaW9fZnJlZSh1bnNpZ25lZCBncGlvKQorewor
-CXJldHVybjsKK30KKworc3RhdGljIGlubGluZSBpbnQgZ3Bpb19kaXJlY3Rpb25faW5wdXQodW5z
-aWduZWQgZ3BpbykKK3sKKwlpZiAoZ3BpbyA+IFBYQV9MQVNUX0dQSU8pCisJCXJldHVybiAtRUlO
-VkFMOworCXB4YV9ncGlvX21vZGUoZ3BpbyB8IEdQSU9fSU4pOworfQorCitzdGF0aWMgaW5saW5l
-IGludCBncGlvX2RpcmVjdGlvbl9vdXRwdXQodW5zaWduZWQgZ3BpbykKK3sKKwlpZiAoZ3BpbyA+
-IFBYQV9MQVNUX0dQSU8pCisJCXJldHVybiAtRUlOVkFMOworCXB4YV9ncGlvX21vZGUoZ3BpbyB8
-IEdQSU9fT1VUKTsKK30KKworI2RlZmluZSBncGlvX2dldF92YWx1ZShncGlvKQkoR1BMUihncGlv
-KSAmIEdQSU9fYml0KGdwaW8pKQorI2RlZmluZSBncGlvX3NldF92YWx1ZShncGlvLHZhbHVlKSBc
-CisJKCh2YWx1ZSk/IChHUFNSKGdwaW8pID0gR1BJT19iaXQoZ3BpbykpOihHUENSKGdwaW8pID0g
-R1BJT19iaXQoZ3BpbykpKQorCisjZGVmaW5lIGdwaW9fdG9faXJxKGdwaW8pCUlSUV9HUElPKGdw
-aW8pCisjZGVmaW5lIGlycV90b19ncGlvKGlycSkJSVJRX1RPX0dQSU8oaXJxKQorCisKKyNlbmRp
-Zgo=
-------=_Part_31974_4785888.1164871768729--
+============================ begin ============================
+--- 2.6.19-rc5.orig/init/Kconfig	2006-11-29 21:14:48.071114833 -0800
++++ 2.6.19-rc5/init/Kconfig	2006-11-29 22:19:02.015166048 -0800
+@@ -268,6 +268,7 @@ config CPUSETS
+ config PROC_PID_CPUSET
+ 	bool "Include legacy /proc/<pid>/cpuset file"
+ 	depends on CPUSETS
++	default y if CPUSETS
+ 
+ config CONTAINER_CPUACCT
+ 	bool "Simple CPU accounting container subsystem"
+============================= end =============================
+
+
+2) I wedged the kernel on the container_lock, doing a removal of a cpuset
+   using notify_on_release.
+
+   Right now, that test system has the following two tasks, wedged:
+
+============================ begin ============================
+F S UID   PID PPID C PRI NI ADDR SZ  WCHAN  STIME TTY  TIME     CMD
+0 S root 4992   34 0  71 -5 -   380   wait   22:51 ?   00:00:00 /bin/sh /sbin/cpuset_release_agent /cpuset_test_tree
+0 D root 4994 4992 0  72 -5 -   200 contai   22:51 ?   00:00:00 rmdir /dev/cpuset//cpuset_test_tree
+============================= end =============================
+
+   I had a cpuset called /cpuset_test_tree, and some sub-cpusets
+   below it.  I marked it 'notify_on_release' and then removed all
+   tasks from it, and then removed the child cpusets that it had.
+   Removing that last child cpuset presumably triggered the above
+   callout to /sbin/cpuset_release_agent, which called rmdir.
+
+   That wait address (from /proc/4994/stat) in hex is a0000001000f1060,
+   and my System.map has the two lines:
+
+	a0000001000f1040 T container_lock
+	a0000001000f1360 T container_manage_unlock
+
+   So it is wedged in container_lock.
+
+   I have subsequently also wedged an 'ls' command trying to scan this
+   /dev/cpuset directory, waiting in the kernel routine vfs_readdir
+   (not surprising, given that I'm in the middle of doing a rmdir on
+   that directory.)
+
+   If you don't immediately see the problem, I can go back and get a
+   kernel stack trace or whatever else you need.
+
+   This lockup occurred the first, and thus far only, time that I tried
+   to use notify_on_release to rmdir a cpuset.  So I presume it is an
+   easy failure for me to reproduce.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

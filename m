@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759205AbWK3K4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935664AbWK3K7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759205AbWK3K4l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 05:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759233AbWK3K4l
+	id S935664AbWK3K7b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 05:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935683AbWK3K7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 05:56:41 -0500
-Received: from il.qumranet.com ([62.219.232.206]:39887 "EHLO cleopatra.q")
-	by vger.kernel.org with ESMTP id S1759205AbWK3K4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 05:56:41 -0500
-Subject: [PATCH] KVM: Fix mov to/from control register emulation,
-	with r8-r15 as gpr
-From: Avi Kivity <avi@qumranet.com>
-Date: Thu, 30 Nov 2006 10:56:38 -0000
-To: kvm-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
-Message-Id: <20061130105638.7EADB25017B@cleopatra.q>
+	Thu, 30 Nov 2006 05:59:31 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20134 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S935664AbWK3K7b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 05:59:31 -0500
+Date: Thu, 30 Nov 2006 11:06:11 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 1/4] [x86] Add command line option to enable/disable
+ hyper-threading.
+Message-ID: <20061130110611.03aff95c@localhost.localdomain>
+In-Reply-To: <11648607733630-git-send-email-bcollins@ubuntu.com>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com>
+	<11648607733630-git-send-email-bcollins@ubuntu.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the standrd modrm decoder instead of special casing these instructions.
-This fixes mov %rX, %crY with X >= 8 or Y >= 8.
+On Wed, 29 Nov 2006 23:26:05 -0500
+Ben Collins <bcollins@ubuntu.com> wrote:
 
-The fix only applies to AMD SVM, as Intel vmx decodes the instruction for us.
-It cures the FC5 installer crashing when loading the xor module.
+> This patch adds a config option to allow disabling hyper-threading by
+> default, and a kernel command line option to changes this default at
+> boot time.
+> 
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-Signed-off-by: Avi Kivity <avi@qumranet.com>
+The description is wrong - this does not disable hyperthreading it merely
+leaves one thread idle. I don't believe Intel have ever published a
+procedure for truely disabling HT, but if you idle a thread you may want
+to adjust the cache settings on a PIV (10.5.6 in the intel docs) and set
+it to shared mode. Need to play more with what the bios does I guess.
 
-Index: linux-2.6/drivers/kvm/x86_emulate.c
-===================================================================
---- linux-2.6.orig/drivers/kvm/x86_emulate.c
-+++ linux-2.6/drivers/kvm/x86_emulate.c
-@@ -155,7 +155,8 @@ static u8 twobyte_table[256] = {
- 	/* 0x10 - 0x1F */
- 	0, 0, 0, 0, 0, 0, 0, 0, ImplicitOps | ModRM, 0, 0, 0, 0, 0, 0, 0,
- 	/* 0x20 - 0x2F */
--	ImplicitOps, ModRM, ImplicitOps, ModRM, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-+	ModRM | ImplicitOps, ModRM, ModRM | ImplicitOps, ModRM, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0, 0, 0, 0,
- 	/* 0x30 - 0x3F */
- 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
- 	/* 0x40 - 0x47 */
-@@ -1295,17 +1296,14 @@ twobyte_special_insn:
- 		emulate_clts(ctxt->vcpu);
- 		break;
- 	case 0x20: /* mov cr, reg */
--		b = insn_fetch(u8, 1, _eip);
--		if ((b & 0xc0) != 0xc0)
-+		if (modrm_mod != 3)
- 			goto cannot_emulate;
--		_regs[b & 7] = realmode_get_cr(ctxt->vcpu, (b >> 3) & 7);
-+		_regs[modrm_rm] = realmode_get_cr(ctxt->vcpu, modrm_reg);
- 		break;
- 	case 0x22: /* mov reg, cr */
--		b = insn_fetch(u8, 1, _eip);
--		if ((b & 0xc0) != 0xc0)
-+		if (modrm_mod != 3)
- 			goto cannot_emulate;
--		realmode_set_cr(ctxt->vcpu, (b >> 3) & 7, _regs[b & 7] & -1u,
--				&_eflags);
-+		realmode_set_cr(ctxt->vcpu, modrm_reg, modrm_val, &_eflags);
- 		break;
- 	case 0xc7:		/* Grp9 (cmpxchg8b) */
- #if defined(__i386__)
+So Ack but with the proviso it should say "Ignoring" or "Not using" not
+"Disabling", because it does not do the latter and there seem to be
+performance differences as a result
+
+Acked-by: Alan Cox <alan@redhat.com>
+
+Alan

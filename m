@@ -1,91 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031384AbWK3U0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031389AbWK3U3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031384AbWK3U0T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 15:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031378AbWK3U0T
+	id S1031389AbWK3U3q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 15:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031392AbWK3U3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 15:26:19 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:16088 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1031258AbWK3U0R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 15:26:17 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
-Date: Thu, 30 Nov 2006 21:21:27 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, tulip-users@lists.sourceforge.net,
-       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>,
-       Valerie Henson <val_henson@linux.intel.com>
-References: <20061128020246.47e481eb.akpm@osdl.org> <20061129152619.0d1ac361.akpm@osdl.org> <200611300204.16507.rjw@sisk.pl>
-In-Reply-To: <200611300204.16507.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 30 Nov 2006 15:29:45 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:11233
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1031389AbWK3U3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 15:29:44 -0500
+Date: Thu, 30 Nov 2006 12:29:46 -0800 (PST)
+Message-Id: <20061130.122946.44938798.davem@davemloft.net>
+To: dev@sw.ru
+Cc: linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: Re: [SPARC64]: resumable error decoding
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <45642430.6030009@sw.ru>
+References: <45630257.9070308@openvz.org>
+	<20061121.161158.63124759.davem@davemloft.net>
+	<45642430.6030009@sw.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200611302121.28518.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 30 November 2006 02:04, Rafael J. Wysocki wrote:
-> On Thursday, 30 November 2006 00:26, Andrew Morton wrote:
-> > On Thu, 30 Nov 2006 00:08:21 +0100
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > 
-> > > On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
-> > > > On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
-> > > > > On Wed, 29 Nov 2006 21:08:00 +0100
-> > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > > > > 
-> > > > > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
-> > > > > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
-> > > > > > > > 
-> > > > > > > > Temporarily at
-> > > > > > > > 
-> > > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
-> > > > > > > > 
-> > > > > > > > Will appear eventually at
-> > > > > > > > 
-> > > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
-> > > > > > > 
-> > > > > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
-> > > > > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
-> > > > > 
-> > > > > That isn't a minor issue.
-> > > > > 
-> > > > > > > It worked just fine on -mm1, so something must have happened to it recently.
-> > > > > > 
-> > > > > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
-> > > > > > 
-> > > > > 
-> > > > > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
-> > > > > not using that (corrent?)
-> > > > > 
-> > > > > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
-> > > > > that either.
-> > > > > 
-> > > > > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
-> > > > > 
-> > > > > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
-> > > > > presumably a showstopper for statically-linked-uli526x users.  If you could
-> > > > > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
-> > > > 
-> > > > OK, but it'll take some time.
-> > > 
-> > > OK, done.
-> > > 
-> > > It's one of these (the first one alone doesn't compile):
-> > > 
-> > > git-netdev-all.patch
-> > > git-netdev-all-fixup.patch
-> > > libphy-dont-do-that.patch
+From: Kirill Korotaev <dev@sw.ru>
+Date: Wed, 22 Nov 2006 13:19:28 +0300
 
-Hm, all of these patches are the same as in -mm1 which hasn't caused any
-problems to appear on this box.
+> > I should add proper support for this, this report is a good reminder
+> > :-)
+> would be nice :@)
 
-So, it seems there's another change between -mm1 and -mm2 that causes this
-to happen.
+I tested the following patch and it worked fine for me on a T2000, let
+me know if it works for you too:
 
-Greetings,
-Rafael
+commit 035f09edbbc921b9688a65ec58c0f49b822e605c
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Wed Nov 29 21:16:21 2006 -0800
+
+    [SPARC64]: Run ctrl-alt-del action for sun4v powerdown request.
+    
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/arch/sparc64/kernel/traps.c b/arch/sparc64/kernel/traps.c
+index ec7a601..ad67784 100644
+--- a/arch/sparc64/kernel/traps.c
++++ b/arch/sparc64/kernel/traps.c
+@@ -10,7 +10,7 @@
+  */
+ 
+ #include <linux/module.h>
+-#include <linux/sched.h>  /* for jiffies */
++#include <linux/sched.h>
+ #include <linux/kernel.h>
+ #include <linux/kallsyms.h>
+ #include <linux/signal.h>
+@@ -1873,6 +1873,16 @@ void sun4v_resum_error(struct pt_regs *r
+ 
+ 	put_cpu();
+ 
++	if (ent->err_type == SUN4V_ERR_TYPE_WARNING_RES) {
++		/* If err_type is 0x4, it's a powerdown request.  Do
++		 * not do the usual resumable error log because that
++		 * makes it look like some abnormal error.
++		 */
++		printk(KERN_INFO "Power down request...\n");
++		kill_cad_pid(SIGINT, 1);
++		return;
++	}
++
+ 	sun4v_log_error(regs, &local_copy, cpu,
+ 			KERN_ERR "RESUMABLE ERROR",
+ 			&sun4v_resum_oflow_cnt);

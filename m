@@ -1,102 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936384AbWK3MYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936335AbWK3MWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936384AbWK3MYm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 07:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936366AbWK3MYV
+	id S936335AbWK3MWA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 07:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936368AbWK3MV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 07:24:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14992 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936379AbWK3MYO (ORCPT
+	Thu, 30 Nov 2006 07:21:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64397 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936365AbWK3MVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 07:24:14 -0500
-Subject: [GFS2] Don't flush everything on fdatasync [70/70]
+	Thu, 30 Nov 2006 07:21:53 -0500
+Subject: [GFS2] Fix glock ordering on inode creation [54/70]
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Thu, 30 Nov 2006 12:24:08 +0000
-Message-Id: <1164889448.3752.449.camel@quoit.chygwyn.com>
+Date: Thu, 30 Nov 2006 12:21:43 +0000
+Message-Id: <1164889303.3752.413.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 33c3de32872ef3c075e4dac04c0de8f86ac39f6f Mon Sep 17 00:00:00 2001
+>From 28626e2078571c4b776a17eaa486bbd2b7dfe2cd Mon Sep 17 00:00:00 2001
 From: Steven Whitehouse <swhiteho@redhat.com>
-Date: Thu, 30 Nov 2006 10:14:32 -0500
-Subject: [PATCH] [GFS2] Don't flush everything on fdatasync
+Date: Wed, 22 Nov 2006 11:13:21 -0500
+Subject: [PATCH] [GFS2] Fix glock ordering on inode creation
 
-The gfs2_fsync() function was doing a journal flush on each
-and every call. While this is correct, its also a lot of
-overhead. This patch means that on fdatasync flushes we
-rely on the VFS to flush the data for us and we don't do
-a journal flush unless we really need to.
-
-We have to do a journal flush for stuffed files though because
-they have the data and the inode metadata in the same block.
-Journaled files also need a journal flush too of course.
+The lock order here should be parent -> child rather than
+numeric order.
 
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 ---
- fs/gfs2/ops_file.c |   30 +++++++++++++++++++++++++++---
- 1 files changed, 27 insertions(+), 3 deletions(-)
+ fs/gfs2/inode.c |   31 ++++---------------------------
+ 1 files changed, 4 insertions(+), 27 deletions(-)
 
-diff --git a/fs/gfs2/ops_file.c b/fs/gfs2/ops_file.c
-index c2be216..7bd971b 100644
---- a/fs/gfs2/ops_file.c
-+++ b/fs/gfs2/ops_file.c
-@@ -22,6 +22,7 @@ #include <linux/gfs2_ondisk.h>
- #include <linux/ext2_fs.h>
- #include <linux/crc32.h>
- #include <linux/lm_interface.h>
-+#include <linux/writeback.h>
- #include <asm/uaccess.h>
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index ce7f833..d122074 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -870,33 +870,10 @@ struct inode *gfs2_createi(struct gfs2_h
+ 	if (error)
+ 		goto fail_gunlock;
  
- #include "gfs2.h"
-@@ -503,16 +504,39 @@ static int gfs2_close(struct inode *inod
-  * @file: the file that points to the dentry (we ignore this)
-  * @dentry: the dentry that points to the inode to sync
-  *
-+ * The VFS will flush "normal" data for us. We only need to worry
-+ * about metadata here. For journaled data, we just do a log flush
-+ * as we can't avoid it. Otherwise we can just bale out if datasync
-+ * is set. For stuffed inodes we must flush the log in order to
-+ * ensure that all data is on disk.
-+ *
-  * Returns: errno
-  */
+-	if (inum.no_addr < dip->i_num.no_addr) {
+-		gfs2_glock_dq(ghs);
+-
+-		error = gfs2_glock_nq_num(sdp, inum.no_addr,
+-					  &gfs2_inode_glops, LM_ST_EXCLUSIVE,
+-					  GL_SKIP, ghs + 1);
+-		if (error) {
+-			return ERR_PTR(error);
+-		}
+-
+-		gfs2_holder_reinit(LM_ST_EXCLUSIVE, 0, ghs);
+-		error = gfs2_glock_nq(ghs);
+-		if (error) {
+-			gfs2_glock_dq_uninit(ghs + 1);
+-			return ERR_PTR(error);
+-		}
+-
+-		error = create_ok(dip, name, mode);
+-		if (error)
+-			goto fail_gunlock2;
+-	} else {
+-		error = gfs2_glock_nq_num(sdp, inum.no_addr,
+-					  &gfs2_inode_glops, LM_ST_EXCLUSIVE,
+-					  GL_SKIP, ghs + 1);
+-		if (error)
+-			goto fail_gunlock;
+-	}
++	error = gfs2_glock_nq_num(sdp, inum.no_addr, &gfs2_inode_glops,
++				  LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
++	if (error)
++		goto fail_gunlock;
  
- static int gfs2_fsync(struct file *file, struct dentry *dentry, int datasync)
- {
--	struct gfs2_inode *ip = GFS2_I(dentry->d_inode);
-+	struct inode *inode = dentry->d_inode;
-+	int sync_state = inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC);
-+	int ret = 0;
-+	struct writeback_control wbc = {
-+		.sync_mode = WB_SYNC_ALL,
-+		.nr_to_write = 0,
-+	};
-+
-+	if (gfs2_is_jdata(GFS2_I(inode))) {
-+		gfs2_log_flush(GFS2_SB(inode), GFS2_I(inode)->i_gl);
-+		return 0;
-+	}
- 
--	gfs2_log_flush(ip->i_gl->gl_sbd, ip->i_gl);
-+	if (sync_state != 0) {
-+		if (!datasync)
-+			ret = sync_inode(inode, &wbc);
- 
--	return 0;
-+		if (gfs2_is_stuffed(GFS2_I(inode)))
-+			gfs2_log_flush(GFS2_SB(inode), GFS2_I(inode)->i_gl);
-+	}
-+
-+	return ret;
- }
- 
- /**
+ 	error = make_dinode(dip, ghs[1].gh_gl, mode, &inum, &generation, dev);
+ 	if (error)
 -- 
 1.4.1
 

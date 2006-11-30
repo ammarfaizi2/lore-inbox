@@ -1,90 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967736AbWK3Amt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967741AbWK3Aru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967736AbWK3Amt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Nov 2006 19:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967738AbWK3Amt
+	id S967741AbWK3Aru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Nov 2006 19:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967743AbWK3Aru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Nov 2006 19:42:49 -0500
-Received: from web26101.mail.ukl.yahoo.com ([217.12.10.225]:1199 "HELO
-	web26101.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S967736AbWK3Ams (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Nov 2006 19:42:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=GXuO8X7G/cCsC6Wcl7qyUyuaF++Zj6w7FViDROaPPZujHg017gcdQWWt/6QHuTXeIJ17+SfUpvU0D13vjBkXeXhSfoHBZML55RbHiyAKfFe2bbYr++4Zn7+l+UW9/cOJBDuy7UVRTAQ5QopYRzz60gNozqHhhkEnPK4ZIco0PEc=;
-X-YMail-OSG: K4kFhO0VM1kowZlA58wRMtBkpdr4tuqr0oQtOhH1NVCZAfV0GDbHLTVnASgFeZalyaLlxOfKgYXJsiSic1quMSE8JARaO0B4ympRFs9IRswNi9ERHNGFYj1sH7i5jijk.LGiBIGv0gsfsX391t5492GkihzmBIjSz8bJ1ImRe_69weuByrXrUq9kWA--
-Date: Thu, 30 Nov 2006 01:42:47 +0100 (CET)
-From: =?iso-8859-1?q?Ariel=20Ch=FFffffe1vez=20Lorenzo?= 
-	<achavezlo@yahoo.es>
-Subject: hrtimer.h
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-ID: <248625.39629.qm@web26101.mail.ukl.yahoo.com>
+	Wed, 29 Nov 2006 19:47:50 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:25062 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S967741AbWK3Art convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Nov 2006 19:47:49 -0500
+In-Reply-To: <20061129113212.1e614a61@frecb000686>
+References: <20061129112441.745351c9@frecb000686> <20061129113212.1e614a61@frecb000686>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <8BA392C6-FCCB-40BD-9CCF-3EF56C3491BD@oracle.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Jean Pierre Dion <jean-pierre.dion@bull.net>
+Content-Transfer-Encoding: 8BIT
+From: Zach Brown <zach.brown@oracle.com>
+Subject: Re: [PATCH -mm 1/5][AIO] - Rework compat_sys_io_submit
+Date: Wed, 29 Nov 2006 16:47:47 -0800
+To: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+X-Mailer: Apple Mail (2.752.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Nov 29, 2006, at 2:32 AM, Sébastien Dugué wrote:
 
-Since the kernel 2.6.18 has incorporated the high
-resolution timer itself, I'm trying to test it, but on
-my GNU/Debian I can't figure out how to include
-hrtimer.h, that is on /usr/src/linux/include/, the
-headers.
+>                  compat_sys_io_submit() cleanup
+>
+>
+>   Cleanup compat_sys_io_submit by duplicating some of the native  
+> syscall
+> logic in the compat layer and directly calling io_submit_one() instead
+> of fooling the syscall into thinking it is called from a native 64-bit
+> caller.
+>
+>   This is needed for the completion notification patch to avoid having
+> to rewrite each iocb on the caller stack for sys_io_submit() to  
+> find the
+> sigevents.
 
-I use the following command to try to compile it.
+You could explicitly mention that this eliminates:
 
-gcc -D__KERNEL__ -I /usr/src/linux/include ex.c
+  - the overhead of copying nr pointers on the userspace caller's stack
 
+  - the arbitrary PAGE_SIZE/(sizeof(void *)) limit on the number of  
+iocbs that can be submitted
 
-ex.c is just the inclusion of hrtimer.h
+Those alone make this worth merging.
 
-#include <linux/hrtimer.h>
-int main()
-{
- return 0;
-}
+> +	if (unlikely(!access_ok(VERIFY_READ, iocb, (nr * sizeof(u32)))))
+> +		return -EFAULT;
 
+I'm glad you got that right :)  I no doubt would have initially  
+hoisted these little checks into a shared helper function and missed  
+that detail of getting the size of the access_ok() right in the  
+compat case.
 
-and I get this:
+> +	put_ioctx(ctx);
+> +
+> +	return i? i: ret;
 
+sys_io_getevents() reads:
 
+         put_ioctx(ctx);
+         return i ? i : ret;
 
-In file included from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/thread_info.h:16,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/thread_info.h:21,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/preempt.h:9,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/spinlock.h:49,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/seqlock.h:29,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/time.h:7,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/ktime.h:24,
-                 from
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/linux/hrtimer.h:19,
-                 from ex.c:1:
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/processor.h:80:
-error: ‘CONFIG_X86_L1_CACHE_SHIFT’ undeclared here
-(not in a function)
-/usr/src/linux-headers-2.6.18sbr-24-11-06/include/asm/processor.h:80:
-error: requested alignment is not a constant
+So while this compat_sys_io_submit() logic seems fine and I would be  
+comfortable with it landing as-is, I'd also appreciate it if we  
+didn't introduce differences between the two functions when it seems  
+just as easy to make them the same.  (That chunk is just one  
+example.  There's whitespace, missing unlikely()s, etc).
 
-
-I will appreciate any hint.
-Thanks in advance..
-
-Ariel
-
-
-
-		
-______________________________________________ 
-LLama Gratis a cualquier PC del Mundo. 
-Llamadas a fijos y móviles desde 1 céntimo por minuto. 
-http://es.voice.yahoo.com
+- z

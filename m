@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936205AbWK3LrA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936224AbWK3Lxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936205AbWK3LrA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 06:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936209AbWK3LrA
+	id S936224AbWK3Lxh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 06:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936225AbWK3Lxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 06:47:00 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12775 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S936205AbWK3Lq7 (ORCPT
+	Thu, 30 Nov 2006 06:53:37 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53470 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S936224AbWK3Lxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 06:46:59 -0500
-Date: Thu, 30 Nov 2006 12:46:17 +0100
+	Thu, 30 Nov 2006 06:53:37 -0500
+Date: Thu, 30 Nov 2006 12:53:27 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
-       vatsa@in.ibm.com
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       davej@redhat.com, dipankar@in.ibm.com, vatsa@in.ibm.com
 Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-ID: <20061130114617.GA2324@elte.hu>
-References: <20061129152404.GA7082@in.ibm.com> <20061130083144.GC29609@elte.hu> <20061130102410.GB23354@in.ibm.com> <20061130110315.GA30460@elte.hu> <20061130031933.5d30ec09.akpm@osdl.org>
+Message-ID: <20061130115327.GB2324@elte.hu>
+References: <20061129152404.GA7082@in.ibm.com> <20061130083144.GC29609@elte.hu> <20061130102410.GB23354@in.ibm.com> <20061130110315.GA30460@elte.hu> <20061130114346.GC23354@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061130031933.5d30ec09.akpm@osdl.org>
+In-Reply-To: <20061130114346.GC23354@in.ibm.com>
 User-Agent: Mutt/1.4.2.2i
 X-ELTE-VirusStatus: clean
 X-ELTE-SpamScore: 0.0
@@ -33,77 +32,27 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+* Gautham R Shenoy <ego@in.ibm.com> wrote:
 
-> > This would be done totally serialized and while holding the hotplug 
-> > lock, so no CPU could go away or arrive while this operation is 
-> > going on.
-> 
-> You said "the hotplug lock".  That is the problem.
+> This is what is currently being done by cpufreq:
 
-maybe i'm too dense today but i still dont see the fundamental problem. 
+ok!
 
-Even with complex inter-subsystem interactions, hotplugging could be 
-effectively and scalably controlled via a self-recursive per-CPU mutex, 
-and a pointer to it embedded in task_struct:
+> a) get_some_cpu_hotplug_protection() [use either some global mechanism 
+> 					or a persubsystem mutex]
 
-	struct task_struct {
-		...
-		int hotplug_depth;
-		struct mutex *hotplug_lock;
-	}
-	...
+this bit is wrong i think. Any reason why it's not a per-CPU (but 
+otherwise global) array of mutexes that controls CPU hotplug - as per my 
+previous mail?
 
-	DEFINE_PER_CPU(struct mutex, hotplug_lock);
+that would flatten the whole locking. Only one kind of lock taken, 
+recursive and scalable.
 
-	void cpu_hotplug_lock(void)
-	{
-		int cpu = raw_smp_processor_id();
-		/*
-		 * Interrupts/softirqs are hotplug-safe:
-		 */
-		if (in_interrupt())
-			return;
-		if (current->hotplug_depth++)
-			return;
-		current->hotplug_lock = &per_cpu(hotplug_lock, cpu);
-		mutex_lock(current->hotplug_lock);
-	}
-
-	void cpu_hotplug_unlock(void)
-	{
-		int cpu;
-
-		if (in_interrupt())
-			return;
-		if (DEBUG_LOCKS_WARN_ON(!current->hotplug_depth))
-			return;
-		if (--current->hotplug_depth)
-			return;
-
-		mutex_unlock(current->hotplug_lock);
-		current->hotplug_lock = NULL;
-	}
-
-	...
-
-	void do_exit(void)
-	{
-	...
-		DEBUG_LOCKS_WARN_ON(current->hotplug_depth);
-	...
-	}
-	...
-	copy_process(void)
-	{
-	...
-		p->hotplug_depth = 0;
-		p->hotplug_lock = NULL;
-	...
-	}
-
-50 lines of code at most. The only rule is to not use cpu_hotplug_lock() 
-in process-context non-preemptible code [interrupt contexts are 
-automatically ignored]. What am i missing?
+Then the mechanism that changes CPU frequency should take all these 
+hotplug locks on all (online) CPUs, and then first stop all processing 
+on all CPUs, and then do the frequency change, atomically. This is with 
+interrupts disabled everywhere /first/, and /without any additional 
+locking/. That would prevent any sort of interaction from other CPUs - 
+they'd all be sitting still with interrupts disabled.
 
 	Ingo

@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759167AbWK3Ir2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759173AbWK3ItF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759167AbWK3Ir2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 03:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759168AbWK3Ir2
+	id S1759173AbWK3ItF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 03:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759175AbWK3ItF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 03:47:28 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:54245 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1759164AbWK3Ir1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 03:47:27 -0500
-Date: Thu, 30 Nov 2006 09:47:23 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: tr@newtec.dk
-Cc: a.zummo@towertech.it, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rtc: ds1743 support
-Message-ID: <20061130094723.6ab9e1d3@inspiron>
-In-Reply-To: <200611300812.02261.tr@newtec.dk>
-References: <200611300812.02261.tr@newtec.dk>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Nov 2006 03:49:05 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:32015 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1759172AbWK3ItC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 03:49:02 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: linux-scsi@vger.kernel.org
+Subject: [PATCH] scsi: 53c7xx brackets fix
+Date: Thu, 30 Nov 2006 09:48:32 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200611300948.32470.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 08:12:02 +0100
-Torsten Ertbjerg Rasmussen <tr@newtec.dk> wrote:
+Hello,
 
-> The real time clocks ds1742 and ds1743 differs only in the size of the nvram. 
-> This patch changes the existing ds1742 driver to support also ds1743. The 
-> main change is that the nvram size is determined from the resource attached 
-> to the device. 
+	This patch fixes brackets in two places.
 
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-> +	pdata->ioaddr_rtc = ioaddr + pdata->size_nvram;
->  
->  	/* turn RTC on if it was not on */
-> +	ioaddr = pdata->ioaddr_rtc;
->  	sec = readb(ioaddr + RTC_SECONDS);
+ drivers/scsi/53c7xx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- why not
-	sec = readb(pdata->ioaddr_rtc + RTC_SECONDS);
-?
+--- linux-2.6.19-rc6-mm2-a/drivers/scsi/53c7xx.c	2006-11-16 05:03:40.000000000 +0100
++++ linux-2.6.19-rc6-mm2-b/drivers/scsi/53c7xx.c	2006-11-29 15:50:54.000000000 +0100
+@@ -4400,7 +4400,7 @@ abort_connected (struct Scsi_Host *host)
+  * account the current synchronous offset) 
+  */
+ 
+-    sstat = (NCR53c8x0_read8 (SSTAT2_REG);
++    sstat = NCR53c8x0_read8 (SSTAT2_REG);
+     offset = OFFSET (sstat & SSTAT2_FF_MASK) >> SSTAT2_FF_SHIFT;
+     phase = sstat & SSTAT2_PHASE_MASK;
+ 
+@@ -5423,7 +5423,7 @@ insn_to_offset (Scsi_Cmnd *cmd, u32 *ins
+     	    	     --buffers, offset += segment->length, ++segment)
+ #if 0
+ 		    printk("scsi%d: comparing 0x%p to 0x%p\n", 
+-			cmd->device->host->host_no, saved, page_address(segment->page+segment->offset);
++			cmd->device->host->host_no, saved, page_address(segment->page+segment->offset));
+ #else
+ 		    ;
+ #endif
 
-
- Acked-by: Alessandro Zummo <a.zummo@towertech.it>
 
 -- 
+Regards,
 
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+	Mariusz Kozlowski

@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967405AbWK3On5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967409AbWK3OsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967405AbWK3On5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 09:43:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936434AbWK3On5
+	id S967409AbWK3OsL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 09:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936434AbWK3OsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 09:43:57 -0500
-Received: from washoe.rutgers.edu ([165.230.95.67]:62095 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S936432AbWK3On4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 09:43:56 -0500
-Date: Thu, 30 Nov 2006 09:43:55 -0500
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: kswapd/tg3 issue
-Message-ID: <20061130144355.GK2021@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Thu, 30 Nov 2006 09:48:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45511 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S936432AbWK3OsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 09:48:09 -0500
+Date: Thu, 30 Nov 2006 14:48:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Van Hensbergen <ericvh@hera.kernel.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com, ming@acis.ufl.edu,
+       ericvh@gmail.com
+Subject: Re: [RFC][PATCH] dm-cache: block level disk cache target for device mapper
+Message-ID: <20061130144807.GA16474@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Eric Van Hensbergen <ericvh@hera.kernel.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+	ming@acis.ufl.edu, ericvh@gmail.com
+References: <200611271826.kARIQYRi032717@hera.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r804 (Debian)
+In-Reply-To: <200611271826.kARIQYRi032717@hera.kernel.org>
+User-Agent: Mutt/1.4.2.2i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel People,
+On Mon, Nov 27, 2006 at 06:26:34PM +0000, Eric Van Hensbergen wrote:
+> This is the first cut of a device-mapper target which provides a write-back
+> or write-through block cache.  It is intended to be used in conjunction with
+> remote block devices such as iSCSI or ATA-over-Ethernet, particularly in
+> cluster situations.
+> 
+> In performance tests with iSCSI, gave peformance improvements of 2-10x that
+> of iSCSI alone when Postmark or Bonnie loads were applied from 8 clients to
+> a single server.  Evidence suggests even greater differences on larger
+> clusters.  A detailed performance analysis will be vailable shortly via a
+> technical report on IBM's CyberDigest.
+> 
+> This module was developed during an intership at IBM Research by
+> Ming Zhao.  Please direct comments to both Ming and myself.
 
-Just got a logwatch daily mail which revealed a problem:
-[2024412.788680] kswapd1: page allocation failure. order:2, mode:0x20
-and a lengthy backtrace with head
+I don't quite understand the need for this.  Do you need this module
+because your iscsi target doesn't use the pagecache on the server?
 
-,------------------------------------------------------------------------
-| [2024412.795212] Call Trace:
-| [2024412.799768]  <IRQ> [<ffffffff8020c852>] __alloc_pages+0x27a/0x291
-| [2024412.806452]  [<ffffffff802a08e3>] kmem_getpages+0x5e/0xd8
-| [2024412.812370]  [<ffffffff80212c68>] cache_grow+0xd0/0x185
-| [2024412.818064]  [<ffffffff80245c4f>] cache_alloc_refill+0x18c/0x1da
-| [2024412.824625]  [<ffffffff802a1979>] __kmalloc+0x93/0xa3
-| [2024412.830145]  [<ffffffff80222e9e>] __alloc_skb+0x54/0x117
-| [2024412.835958]  [<ffffffff803b8a55>] __netdev_alloc_skb+0x12/0x2d
-| [2024412.842347]  [<ffffffff80370292>] tg3_alloc_rx_skb+0xbb/0x146
-`---
-full dmesg is at
-http://www.onerussian.com/Linux/bugs/bug.kswapd/dmesg
-
-is that critical? seems to behave ok but...
-
-More details on the system and error in particular can be
-http://www.onerussian.com/Linux/bugs/bug.kswapd/
-
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Student  Ph.D. @ CS Dept. NJIT
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
-WWW:     http://www.linkedin.com/in/yarik        

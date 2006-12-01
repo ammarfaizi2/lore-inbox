@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWLAP3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967492AbWLAPbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030391AbWLAP3M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbWLAP3L
+	id S967492AbWLAPbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 10:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967420AbWLAPbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:29:11 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:51463 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1030391AbWLAP3J
+	Fri, 1 Dec 2006 10:31:44 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36587 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S967359AbWLAPbn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:29:09 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: [2.4 PATCH] parisc pdc parenthesis fix
-Date: Fri, 1 Dec 2006 16:28:44 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Fri, 1 Dec 2006 10:31:43 -0500
+Date: Fri, 1 Dec 2006 15:37:06 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Jan Glauber <jan.glauber@de.ibm.com>
+Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Pseudo-random number generator
+Message-ID: <20061201153706.321926f5@localhost.localdomain>
+In-Reply-To: <1164986446.5882.36.camel@bender>
+References: <1164979155.5882.23.camel@bender>
+	<20061201133924.023289c4@localhost.localdomain>
+	<1164986446.5882.36.camel@bender>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612011628.44857.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-	This patch fixes removes an extra parenthesis in PAT_GET_MOD_PAGES() macro code.
-
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-
- include/asm-parisc/pdc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.4.34-pre6-a/include/asm-parisc/pdc.h	2003-06-13 16:51:38.000000000 +0200
-+++ linux-2.4.34-pre6-b/include/asm-parisc/pdc.h	2006-12-01 12:01:46.000000000 +0100
-@@ -1000,7 +1000,7 @@ int pdc_pat_pd_get_addr_map(unsigned lon
- #define PAT_GET_ENTITY(value)	(((value) >> 56) & 0xffUL)
- #define PAT_GET_DVI(value)	(((value) >> 48) & 0xffUL)
- #define PAT_GET_IOC(value)	(((value) >> 40) & 0xffUL)
--#define PAT_GET_MOD_PAGES(value)(((value) & 0xffffffUL)
-+#define PAT_GET_MOD_PAGES(value) ((value) & 0xffffffUL)
- 
- #else /* !__LP64__ */
- /* No PAT support for 32-bit kernels...sorry */
+On Fri, 01 Dec 2006 16:20:46 +0100
+Jan Glauber <jan.glauber@de.ibm.com> wrote:
+> Yes, a user can just symlink urandom to prandom and will have a faster
+> generator.
 
 
--- 
-Regards,
-
-	Mariusz Kozlowski
+More usefully they can use it as an entropy source with an entropy
+daemon to feed it into the standard urandom/random.

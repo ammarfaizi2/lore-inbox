@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162150AbWLAWmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162153AbWLAWpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162150AbWLAWmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 17:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162151AbWLAWmp
+	id S1162153AbWLAWpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 17:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162155AbWLAWpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 17:42:45 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:41434 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1162150AbWLAWmo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 17:42:44 -0500
-Date: Fri, 1 Dec 2006 22:42:40 +0000
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD oddities with VIA PATA
-Message-ID: <20061201224240.GB22909@deepthought.linux.bogus>
-References: <20061201220134.GA22909@deepthought.linux.bogus>
+	Fri, 1 Dec 2006 17:45:22 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46560 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1162153AbWLAWpU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 17:45:20 -0500
+Date: Fri, 1 Dec 2006 22:50:15 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: tim@cyberelk.net, linux-parport@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] paride: remove parport #ifdef's
+Message-ID: <20061201225015.2496dd98@localhost.localdomain>
+In-Reply-To: <20061201223315.GJ11084@stusta.de>
+References: <20061201223315.GJ11084@stusta.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20061201220134.GA22909@deepthought.linux.bogus>
-User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 10:01:34PM +0000, Ken Moffat wrote:
+On Fri, 1 Dec 2006 23:33:15 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
+
+> CONFIG_PARIDE depends on CONFIG_PARPORT_PC, so there's no reason for 
+> these #ifdef's.
 > 
-> (i.) cdparanoia (9.8) works for root, but for a user it complains
-> that the ioctl isn't cooked and refuses to run.  For test purposes,
-> it runs ok for a user as suid root, but I imagine that increases
-> the likelihood of unspeakable things happening.  (Fortunately, I
-> don't have a dachshund)
-> 
- Forgot to mention the lines in the log from cdparanoia, but I think
-these frequent messages are expected:
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Dec  1 20:35:53 ac30 kernel: sg_write: data in/out 30576/30576 bytes for SCSI command 0xbe--guessing data in;
-Dec  1 20:35:53 ac30 kernel:    program cdparanoia not setting count and/or reply_len properly
-
- Also forgot the details of the drive, just in case
-
-Dec  1 19:17:14 ac30 kernel: scsi3 : pata_via
-Dec  1 19:17:14 ac30 kernel: ata4.00: ATAPI, max UDMA/66
-Dec  1 19:17:14 ac30 kernel: Losing some ticks... checking if CPU frequency changed.
-Dec  1 19:17:14 ac30 kernel: ata4.00: configured for UDMA/66
-Dec  1 19:17:14 ac30 kernel: scsi 3:0:0:0: CD-ROM            LITE-ON DVDRW SHW-1635S  YS0G PQ: 0 ANSI: 5
-Dec  1 19:17:14 ac30 kernel: sr0: scsi3-mmc drive: 48x/48x writer cd/rw xa/form2 cdda tray
-Dec  1 19:17:14 ac30 kernel: Uniform CD-ROM driver Revision: 3.20
-Dec  1 19:17:14 ac30 kernel: sr 3:0:0:0: Attached scsi CD-ROM sr0
-Dec  1 19:17:14 ac30 kernel: sr 3:0:0:0: Attached scsi generic sg1 type 5
-
-Ken
--- 
-das eine Mal als Tragödie, das andere Mal als Farce
+Acked-by: Alan Cox <alan@redhat.com>

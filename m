@@ -1,59 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161734AbWLAVQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161767AbWLAVQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161734AbWLAVQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 16:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161748AbWLAVQF
+	id S1161767AbWLAVQd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 16:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161764AbWLAVQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 16:16:05 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:18328 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1161734AbWLAVQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 16:16:02 -0500
-Message-ID: <45709B95.9000009@drzeus.cx>
-Date: Fri, 01 Dec 2006 22:16:05 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Anderson Briglia <anderson.briglia@indt.org.br>
-CC: "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       ext David Brownell <david-b@pacbell.net>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+	Fri, 1 Dec 2006 16:16:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60829 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161767AbWLAVQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 16:16:32 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Greg KH <gregkh@suse.de>, Andi Kleen <ak@suse.de>
+Cc: "Lu, Yinghai" <yinghai.lu@amd.com>,
+       Stefan Reinauer <stepan@coresystems.de>, linuxbios@linuxbios.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 4/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_sysfs.diff
-References: <45646457.1060203@indt.org.br> <45680555.1000406@drzeus.cx> <456ACC9E.2030105@indt.org.br>
-In-Reply-To: <456ACC9E.2030105@indt.org.br>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
+References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com>
+	<20061201191916.GB3539@suse.de> <20061201204249.28842.qmail@cdy.org>
+Date: Fri, 01 Dec 2006 14:15:24 -0700
+In-Reply-To: <20061201204249.28842.qmail@cdy.org> (Peter Stuge's message of
+	"Fri, 1 Dec 2006 21:42:49 +0100")
+Message-ID: <m164cvgvwz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anderson Briglia wrote:
-> Hi Pierre,
+Peter Stuge <stuge-linuxbios@cdy.org> writes:
+
+> On Fri, Dec 01, 2006 at 11:19:16AM -0800, Greg KH wrote:
+>> Well, earlyprintk will not work, as you need PCI up and running.
 >
-> ext Pierre Ossman wrote:
->> Patch looks ok. But I never got an answer what the difference between
->> "change" and "assign" is.
+> Not all of it though. LinuxBIOS will probably do just enough PCI
+> setup to talk to the EHCI controller and use the debug port _very_
+> soon after power on.
+
+Right.  For LinuxBIOS not a problem for earlyprintk in the kernel
+somethings might need to be refactored.  The challenge in the kernel
+is we don't know at build to how to do a pci_read_config...
+
+The other hard part early in the kernel is the fact that the
+bar is memory mapped I/O.  Which means it will need to get mapped
+into the kernels page tables.
+
+>> And I have some code that barely works for this already, perhaps
+>> Eric and I should work together on this :)
 >
-> You're right, the command is the same, but the difference is the
-> password's
-> length and password itself sent to the card.
-> According to MMC spec 4.1, when a password replacement is done, the
-> length value
-> (PWD_LEN) shall include both passwords, the old and the new one, and
-> the password
-> (PWD) shall include the old (currently) followed by the new password.
+> I would be interested in having a look at any code for it too.
 
-So shouldn't this be something that userspace handles?
+Sure, I will send it out shortly.  I currently have a working
+user space libusb thing (easy, but useful for my debug) and 
+a rude read/write to the bar from user space program that
+allowed me to debug the worst of the state machine from user
+space.  I don't think I have the state setup logic correct yet
+but that is minor in comparison.
 
--- 
-     -- Pierre Ossman
+I really wish the EHCI spec had made that stupid interface 16 bytes
+instead of 8 or had a way to chain multiple access together.  The
+we could have used a normal usb cable.  As it is most descriptors
+are 1 byte to big to read.
 
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+>> Yes, that will work just fine today using the usb-serial generic
+>> driver.
+>
+> Ugh. I did not know it was that generic. The irony is that I always
+> ask other libusb users to check the kernel drivers to see if they
+> really need to write a libusb app.
+>
+>
+>> I'll knock up a "real" driver for the device later today and send
+>> it to Linus, as it's trivial to do so, and will make it simpler
+>> than using the module parameters.
+>
+> Awesome. Thanks!
 
+Yep. It looks like it sufficient generic.  The Maximum packet size
+appears to be reported correctly for writes which is the tidbit
+I was worried about but otherwise it is just a pair of bulk transfer
+endpoints.
+
+Eric

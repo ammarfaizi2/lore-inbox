@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031750AbWLATei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031761AbWLATfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031750AbWLATei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 14:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031754AbWLATei
+	id S1031761AbWLATfM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 14:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031757AbWLATfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 14:34:38 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:1545 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1031750AbWLATeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 14:34:37 -0500
-Date: Fri, 1 Dec 2006 19:34:28 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Scott Wood <scottwood@freescale.com>
-Cc: trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make platform_device_add_data accept a const pointer.
-Message-ID: <20061201193428.GA4055@flint.arm.linux.org.uk>
-Mail-Followup-To: Scott Wood <scottwood@freescale.com>, trivial@kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20061201185447.GA19669@ld0162-tx32.am.freescale.net>
+	Fri, 1 Dec 2006 14:35:11 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:56002 "EHLO
+	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1031758AbWLATfK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 14:35:10 -0500
+Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Eric Piel <eric.piel@tremplin-utc>
+In-Reply-To: <20061201185657.0b4b5af7@localhost.localdomain>
+References: <1164998179.5257.953.camel@gullible>
+	 <20061201185657.0b4b5af7@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 01 Dec 2006 14:35:05 -0500
+Message-Id: <1165001705.5257.959.camel@gullible>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061201185447.GA19669@ld0162-tx32.am.freescale.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 12:54:47PM -0600, Scott Wood wrote:
-> platform_device_add_data() makes a copy of the data that is given to it,
-> and thus the parameter can be const.  This removes a warning when data
-> from get_property() on powerpc is handed to platform_device_add_data(),
-> as get_property() returns a const pointer.
+On Fri, 2006-12-01 at 18:56 +0000, Alan wrote:
+> On Fri, 01 Dec 2006 13:36:19 -0500
+> Ben Collins <ben.collins@ubuntu.com> wrote:
+> 
+> > I'd be willing to bet that most distros have this patch in their kernel.
+> > One of those things we can't really live without.
+> 
+> This has been suggested various times before. 
+> 
+> | +Before you run away from customising your DSDT, you should note that
+> | already +corrected tables are available for a fair amount of computers
+> | on this web-page: +http://acpi.sf.net/dsdt
+> 
+> Generally without copyright permission from the owner of the copyrighted
+> work in question to have it modified and redistributed.
+> 
+> The whole approach of using filp_open() not the firmware interface
+> is horribly ugly and does not belong mainstream. 
 
-Doesn't this cause a compile warning in platform.c, concerning assigning
-'data' to struct device's non-const 'platform_data' pointer?
-
-So in essence you're probably just moving the problem rather than really
-solving anything.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+What about the point that userspace (udev, and such) is not available
+when DSDT loading needs to occur? Init hasn't even started at that
+point.

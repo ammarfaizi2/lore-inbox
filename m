@@ -1,86 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936548AbWLAUaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031587AbWLAUdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936548AbWLAUaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 15:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936549AbWLAUaI
+	id S1031587AbWLAUdM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 15:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031612AbWLAUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 15:30:08 -0500
-Received: from iabervon.org ([66.92.72.58]:33544 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S936548AbWLAUaH (ORCPT
+	Fri, 1 Dec 2006 15:33:12 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:45519 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1031587AbWLAUdK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 15:30:07 -0500
-Date: Fri, 1 Dec 2006 15:30:06 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: stable@kernel.org
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, Greg KH <greg@kroah.com>
-Subject: Re: [stable] [PATCH] Disable INTx when enabling MSI in forcedeth
-In-Reply-To: <20061201015000.GX1397@sequoia.sous-sol.org>
-Message-ID: <Pine.LNX.4.64.0612011507130.20138@iabervon.org>
-References: <Pine.LNX.4.64.0611301533010.20138@iabervon.org>
- <20061201003057.GV1397@sequoia.sous-sol.org> <Pine.LNX.4.64.0611301928420.20138@iabervon.org>
- <20061201011010.GW1397@sequoia.sous-sol.org> <Pine.LNX.4.64.0611302020150.20138@iabervon.org>
- <20061201015000.GX1397@sequoia.sous-sol.org>
+	Fri, 1 Dec 2006 15:33:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SHWdYsOGebNXk6hcxM4eltScYaWFMeqqG70ddLDTgdY4e68J7xHWR7lCYLg9qBb7Gs37k9tU9TZU4xOrw/MEgNvwBCeBTlvXvjVhGDkHw9mnguv097A9c2MjBfkqyolBwhcJHw+k5nwZUp6q3JmcjeEtM7oarI40XzZeebi4cDE=
+Message-ID: <feed8cdd0612011233i544d196x5bba1a6f6ce653bb@mail.gmail.com>
+Date: Fri, 1 Dec 2006 12:33:08 -0800
+From: "Stephen Pollei" <stephen.pollei@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+Cc: "Hua Zhong" <hzhong@gmail.com>, "Adrian Bunk" <bunk@stusta.de>,
+       tigran@aivazian.fsnet.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <1164964119.3233.56.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <00e401c7150e$061da500$6721100a@nuitysystems.com>
+	 <1164964119.3233.56.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From 27fc7625159acb1fd77d4a36a326be521ee79b19 Mon Sep 17 00:00:00 2001
-From: Daniel Barkalow <barkalow@gaussian.borglab.com>
-Date: Fri, 1 Dec 2006 14:56:58 -0500
-Subject: [PATCH] Disable INTx when enabling MSI in forcedeth
+On 12/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Thu, 2006-11-30 at 22:00 -0800, Hua Zhong wrote:
+> > I am curious, what's the point?
+> >
+> > These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
+> > were at that point.
 
-At least some nforce cards continue to send legacy interrupts when MSI
-is enabled, and these interrupts are treated as unhandled by the
-kernel. This patch disables legacy interrupts explicitly when enabling
-MSI mode.
+Approximately when I wish the copyright dates were comma separated
+iso8601 date ranges myself.
+I also am not likely to typically care what their email address was
+then, I want current information in the current kernel sources.
+If I want old email address I got old tarballs I can get at least.
 
-The correct fix is to change the MSI infrastructure to disable legacy
-interrupts when enabling MSI, but this is potentially risky if the
-device isn't PCI-2.3 or is quirky, so the correct fix is going into
-mainline, while patches like this one go into -stable.
+> .. and which company owns the copyright.
 
-Legend has it that it is most correct to disable legacy interrupts
-before enabling MSI, but the mainline patch does it in the other
-order, and this patch is "obviously" the same as mainline.
+Not in the USA according to http://www.copyright.gov/title17/92chap4.html#401 .
+[[ ... § 401. Notice of copyright: Visually perceptible copies ...
+b) Form of Notice. — If a notice appears on the copies, it shall
+consist of the following three elements:
 
-Signed-off-by: Daniel Barkalow <barkalow@iabervon.org>
----
+(1) the symbol (c) (the letter C in a circle), or the word
+"Copyright", or the abbreviation "Copr."; and
 
-Is there anyone else who should review this early? It should probably 
-still wait on the patch from http://lkml.org/lkml/2006/11/21/332 actually 
-getting into the mainline, and I don't know the status on that.
+(2) the year of first publication of the work; in the case of
+compilations or derivative works incorporating previously published
+material, the year date of first publication of the compilation or
+derivative work is sufficient. The year date may be omitted where a
+pictorial, graphic, or sculptural work, with accompanying text matter,
+if any, is reproduced in or on greeting cards, postcards, stationery,
+jewelry, dolls, toys, or any useful articles; and
 
- drivers/net/forcedeth.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+(3) the name of the owner of copyright in the work, or an abbreviation
+by which the name can be recognized, or a generally known alternative
+designation of the owner. ]]
 
-diff --git a/drivers/net/forcedeth.c b/drivers/net/forcedeth.c
-index c5ed635..72325fa 100644
---- a/drivers/net/forcedeth.c
-+++ b/drivers/net/forcedeth.c
-@@ -2815,11 +2815,13 @@ static int nv_request_irq(struct net_dev
- 	}
- 	if (ret != 0 && np->msi_flags & NV_MSI_CAPABLE) {
- 		if ((ret = pci_enable_msi(np->pci_dev)) == 0) {
-+			pci_intx(np->pci_dev, 0);
- 			np->msi_flags |= NV_MSI_ENABLED;
- 			if ((!intr_test && request_irq(np->pci_dev->irq, &nv_nic_irq, IRQF_SHARED, dev->name, dev) != 0) ||
- 			    (intr_test && request_irq(np->pci_dev->irq, &nv_nic_irq_test, IRQF_SHARED, dev->name, dev) != 0)) {
- 				printk(KERN_INFO "forcedeth: request_irq failed %d\n", ret);
- 				pci_disable_msi(np->pci_dev);
-+				pci_intx(np->pci_dev, 1);
- 				np->msi_flags &= ~NV_MSI_ENABLED;
- 				goto out_err;
- 			}
-@@ -2862,6 +2864,7 @@ static void nv_free_irq(struct net_devic
- 		free_irq(np->pci_dev->irq, dev);
- 		if (np->msi_flags & NV_MSI_ENABLED) {
- 			pci_disable_msi(np->pci_dev);
-+			pci_intx(np->pci_dev, 1);
- 			np->msi_flags &= ~NV_MSI_ENABLED;
- 		}
- 	}
+For source code generally there are a few changes for typical copyright notices:
+They use "Copyright (C)" because ASCII and EBCDIC didn't have native
+copyright symbol like unicode does now.
+They include years in which they were published and not just the first
+year in which in this version was published.
+The name of copyright owner typically also includes an email address.
+
+Copyright (C) 1999,2000 Tigran Aivazian <tigran@veritas.com>
+Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
+etc seems like only copyright notices changed effect Tigran and if
+Tigran meant for it to be copyrighted by veritas he would have done
+Copyright (C) 1999 Veritas Inc. http://www.veritas.com/
+However he did not do so.
+
+Of course I'd prefer something closer to
+Copyright (C) 1999-07-05/2000-03-12 Tigran Aivazian
+<tigran@aivazian.fsnet.co.uk>
+or at least
+Copyright (C) 1999-07-05/2000-03 Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+
+Especially if the laws ever get changed to make copyright durations
+shorter. Like 14 years instead of 50 years ,70 years, or as old as
+Disney's Steam Boat Willie.
+
+>
+> Lets not remove historical email addresses. Just make sure there's a
+> current one in MODULE_AUTHOR / MAINTAINERS.
+
+I think whoever should either remove or update the email addresses.
+
 -- 
-1.4.2.4
-
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=2455954990164098214
+http://stephen_pollei.home.comcast.net/

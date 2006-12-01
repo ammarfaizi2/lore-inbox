@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030715AbWLAPeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030722AbWLAPeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030715AbWLAPeP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:34:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030722AbWLAPeP
+	id S1030722AbWLAPeR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 10:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030734AbWLAPeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:34:15 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:31108 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1030715AbWLAPeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:34:14 -0500
-Date: Fri, 1 Dec 2006 10:30:21 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `make checkstack' and cross-compilation
-Message-ID: <20061201153021.GA4332@ccure.user-mode-linux.org>
-References: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Dec 2006 10:34:17 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:49420 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1030722AbWLAPeQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 10:34:16 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: Willy Tarreau <wtarreau@hera.kernel.org>
+Subject: [2.4 PATCH] ppc ppc4xx_dma parenthesis fix
+Date: Fri, 1 Dec 2006 16:33:50 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200612011633.50809.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 02:58:16PM +0100, Geert Uytterhoeven wrote:
-> Makefile has:
-> | # Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
-> | # In the UML case, $(SUBARCH) is the name of the underlying
-> | # architecture, while for all other arches, it is the same as $(ARCH).
-> | checkstack:
-> |         $(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
-> |         $(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
-> 
-> While this may fix `make checkstack' for UML, it breaks cross-compilation.
-> E.g. when cross-compiling for PPC on ia32, ARCH=powerpc, but SUBARCH=i386.
-> 
-> Probably it should use SUBARCH if ARCH=um, and ARCH otherwise?
+Hello,
 
-Whoops, you're right.  
+	This patch adds missing parenthesis in DMA_DEC macro code.
 
-Do you have a patch?  If not, I'll make one.
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-And, do you have a cross-compilation environment which tests this?
+ include/asm-ppc/ppc4xx_dma.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-				Jeff
+--- linux-2.4.34-pre6-a/include/asm-ppc/ppc4xx_dma.h	2003-11-28 19:26:21.000000000 +0100
++++ linux-2.4.34-pre6-b/include/asm-ppc/ppc4xx_dma.h	2006-12-01 11:57:29.000000000 +0100
+@@ -137,7 +137,7 @@ extern unsigned long DMA_MODE_WRITE, DMA
+ #define DMA_TCE_ENABLE     (1<<(8-DMA_CR_OFFSET))
+ #define SET_DMA_TCE(x)     (((x)&0x1)<<(8-DMA_CR_OFFSET))
+ 
+-#define DMA_DEC            (1<<(2)	/* Address Decrement */
++#define DMA_DEC            (1<<(2))	/* Address Decrement */
+ #define SET_DMA_DEC(x)     (((x)&0x1)<<2)
+ #define GET_DMA_DEC(x)     (((x)&DMA_DEC)>>2)
+ 
+
 
 -- 
-Work email - jdike at linux dot intel dot com
+Regards,
+
+	Mariusz Kozlowski

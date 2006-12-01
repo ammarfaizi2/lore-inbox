@@ -1,35 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031675AbWLABNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031696AbWLABNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031675AbWLABNX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 20:13:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031688AbWLABNX
+	id S1031696AbWLABNl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 20:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031692AbWLABNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 20:13:23 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:33489
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1031675AbWLABNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 20:13:22 -0500
-Date: Thu, 30 Nov 2006 17:13:24 -0800 (PST)
-Message-Id: <20061130.171324.86891944.davem@davemloft.net>
-To: burman.yan@gmail.com
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.19-rc6] sparc64: replace kmalloc+memset with kzalloc
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <4566DF79.6030004@gmail.com>
-References: <4566DF79.6030004@gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 30 Nov 2006 20:13:36 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:41399 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1031689AbWLABNc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 20:13:32 -0500
+Date: Thu, 30 Nov 2006 17:16:57 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Daniel Barkalow <barkalow@iabervon.org>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>, David Miller <davem@davemloft.net>,
+       Roland Dreier <rdreier@cisco.com>, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: [PATCH] Disable INTx when enabling MSI in forcedeth
+Message-ID: <20061201011657.GD6602@sequoia.sous-sol.org>
+References: <Pine.LNX.4.64.0611212118540.20138@iabervon.org> <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0611211839540.3338@woody.osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Yan Burman <burman.yan@gmail.com>
-Date: Fri, 24 Nov 2006 14:03:05 +0200
-
-> Replace kmalloc+memset with kzalloc 
+* Linus Torvalds (torvalds@osdl.org) wrote:
+> On Tue, 21 Nov 2006, Daniel Barkalow wrote:
+> >
+> > My nVidia ethernet card doesn't disable its own INTx when MSI is
+> > enabled. This causes a steady stream of spurious interrupts that
+> > eventually kills my SATA IRQ if MSI is used with forcedeth, which is
+> > true by default. Simply disabling the INTx interrupt takes care of it.
+> > 
+> > This is against -stable, and would be suitable once someone who knows the 
+> > code verifies that it's correct.
 > 
-> Signed-off-by: Yan Burman <burman.yan@gmail.com>
+> I _really_ think that we should do this in pci_msi_enable().
+> 
+> Screw cards that are not PCI-2.3 compliant - just make the rule be that if 
+> you use MSI, you _have_ to allow us to set the disable-INTx bit. It's then 
+> up to the drivers to decide if they can use MSI or not.
+> 
+> (Even a number of cards that are not PCI-2.3 may simply not _implement_ 
+> the disable-INTx bit, and in that case, they can use MSI if they disable 
+> INTx automatically - the ).
 
-Applied, thanks Yan.
+Hmm, what do you recommend we do in the meantime, since it's a real
+problem and the -stable tree has no fix?  Only issue I had with Daniel's
+patch is that it's only half-tested.
 
+thanks,
+-chris

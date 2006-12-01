@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031665AbWLARdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759285AbWLARgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031665AbWLARdO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 12:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031664AbWLARdN
+	id S1759285AbWLARgu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 12:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759281AbWLARgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 12:33:13 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:42981 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1031660AbWLARdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 12:33:11 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [RFC][PATCH] Pseudo-random number generator
-To: Alan <alan@lxorguk.ukuu.org.uk>, Jan Glauber <jan.glauber@de.ibm.com>,
-       linux-crypto <linux-crypto@vger.kernel.org>,
+	Fri, 1 Dec 2006 12:36:50 -0500
+Received: from colo.lackof.org ([198.49.126.79]:39823 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1759285AbWLARgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 12:36:49 -0500
+Date: Fri, 1 Dec 2006 10:36:47 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>, Andrew Morton <akpm@osdl.org>,
+       matthew@wil.cx, kyle@parisc-linux.org, parisc-linux@parisc-linux.org,
        linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 01 Dec 2006 18:33:01 +0100
-References: <7ngD0-8fX-11@gated-at.bofh.it> <7ngMA-8D-39@gated-at.bofh.it> <7niv3-4sQ-21@gated-at.bofh.it> <7niEE-4Mk-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1GqCFx-0006X8-IO@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@gmx.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+Subject: Re: [2.6 patch] parisc: "extern inline" -> "static inline" (fwd)
+Message-ID: <20061201173647.GB10549@colo.lackof.org>
+References: <20061201114811.GQ11084@stusta.de> <20061201164354.GA10549@colo.lackof.org> <20061201165427.GD11084@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061201165427.GD11084@stusta.de>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> On Fri, 01 Dec 2006 16:20:46 +0100
-> Jan Glauber <jan.glauber@de.ibm.com> wrote:
+On Fri, Dec 01, 2006 at 05:54:27PM +0100, Adrian Bunk wrote:
+> If you read John David Anglin's email, you'll note that if you take the 
+> address you need this function provided somewhere.
 
->> Yes, a user can just symlink urandom to prandom and will have a faster
->> generator.
+Let me turn that around.
+Which of the "extern inline" functions are we taking the address?
+The parisc kernel wouldn't (shouldn't) link if that were true.
+
+> Which of the functions my patch changes also have a global function 
+> provided within the kernel?
 > 
-> 
-> More usefully they can use it as an entropy source with an entropy
-> daemon to feed it into the standard urandom/random.
+> If none, "extern inline" didn't make any sense.
 
-Only if other users will randomly drain /dev/prandom, otherwise you might
-as well use /dev/zero.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+I expect none.
 
-http://david.woodhou.se/why-not-spf.html
+...
+> Currently, "inline" is defined to be always_inline, and 
+> __always_inline is for cases that produce non-compiling or non-working 
+> (opposed to only suboptimal) code.
+
+Ok.  Sounds like "extern inline" is the same as __always_inline.
+
+Has gcc community confirmed "gcc -Wmissing-prototypes" behavior
+is really correct with respect to "extern inline"?
+
+If so, I'm ok with changing "extern inline" to __always_inline.
+
+thanks,
+grant

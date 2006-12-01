@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031676AbWLABGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031678AbWLABJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031676AbWLABGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 20:06:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031677AbWLABGr
+	id S1031678AbWLABJB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 20:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031680AbWLABJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 20:06:47 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:32964 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1031676AbWLABGq (ORCPT
+	Thu, 30 Nov 2006 20:09:01 -0500
+Received: from ip-85-160-27-120.eurotel.cz ([85.160.27.120]:62224 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1031678AbWLABJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 20:06:46 -0500
-Date: Thu, 30 Nov 2006 17:06:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dedekind@infradead.org
-Cc: tglx@linutronix.de, haver@vnet.ibm.com,
-       Josh Boyer <jwboyer@linux.vnet.ibm.com>, arnez@vnet.ibm.com,
-       llinux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] UBI: take 2
-Message-Id: <20061130170624.94fde80d.akpm@osdl.org>
-In-Reply-To: <1164824246.576.65.camel@sauron>
-References: <1164824246.576.65.camel@sauron>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 30 Nov 2006 20:09:00 -0500
+Date: Fri, 1 Dec 2006 02:08:59 +0100
+From: "gary.czek" <gary@czek.info>
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ICH6M SATA Controller, SATA2 NCQ disk and high iowait CPU time
+Message-ID: <20061201020859.21db6dcb@localhost>
+In-Reply-To: <456F7C69.90800@gmail.com>
+References: <1164404380.20334.37.camel@localhost>
+	<456A5936.9080903@gmail.com>
+	<20061130180646.66dc622b@localhost>
+	<456F7C69.90800@gmail.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.6; i486-pc-linux-gnu)
+X-Operating-System: Ubuntu Edgy Eft (Linux i686)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2006 20:17:26 +0200
-Artem Bityutskiy <dedekind@infradead.org> wrote:
+On Fri, 01 Dec 2006 09:50:49 +0900
 
-> This is take 2 of the previous mail with David's comments in mind.
-> 
-> Hello Andrew,
-> 
-> we have announced UBI several months ago in the MTD mailing list. It was
-> successfully used in our setup and we've got positive feedback.
-> 
-> In short, it is kind of LVM layer but for flash (MTD) devices which
-> hides flash devices complexities like bad eraseblocks (on NANDs) and
-> wear. The documentation is available at the MTD web site:
-> http://www.linux-mtd.infradead.org/doc/ubi.html
-> http://www.linux-mtd.infradead.org/faq/ubi.html
-> 
-> The source code is available at the UBI GIT tree:
-> git://git.infradead.org/ubi-2.6.git
+Tejun Heo <htejun@gmail.com> wrote:
 
-Got that, thanks.  It needs a bit of help:
-
---- a/drivers/mtd/ubi/cdev.c~git-ubi-fix
-+++ a/drivers/mtd/ubi/cdev.c
-@@ -1185,7 +1185,7 @@ static ssize_t vol_cdev_direct_write(str
- 			 len, vol_id, lnum, off);
+> Your machine is thrashing.  Working set size is over the available
+> memory and pages are continuously getting dropped and then brought
+> back. Run top and press 'M' after the list showed up.  It will show
+> who are consuming all the memory.  Adding 1G should solve the problem
+> but just another 256M will make a big difference too.
  
- 		err = ubi_eba_write_leb(ubi, vol_id, lnum, tbuf, off, len,
--					UBI_DATA_UNKNOWN, &written, 0, NULL);
-+					UBI_DATA_UNKNOWN, &written, NULL);
- 		if (unlikely(err)) {
- 			count -= written;
- 			*offp += written;
-_
+Well... The problem is solved.
+Thanks a lot for your time.
+I look forward for additional 1Gig.
 
+Thanks a lot twice more time.

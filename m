@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758474AbWLADfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758480AbWLADep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758474AbWLADfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 22:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758512AbWLADfJ
+	id S1758480AbWLADep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 22:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758496AbWLADep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 22:35:09 -0500
-Received: from ausmtp05.au.ibm.com ([202.81.18.154]:6583 "EHLO
-	ausmtp05.au.ibm.com") by vger.kernel.org with ESMTP
-	id S1758474AbWLADfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 22:35:07 -0500
-Date: Fri, 1 Dec 2006 07:13:13 +0530
-From: Gautham R Shenoy <ego@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gautham R Shenoy <ego@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, davej@redhat.com,
-       dipankar@in.ibm.com, vatsa@in.ibm.com
-Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
-Message-ID: <20061201014313.GA25074@in.ibm.com>
-Reply-To: ego@in.ibm.com
-References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org> <20061130042807.GA4855@in.ibm.com> <20061130063512.GA19492@in.ibm.com> <20061130082934.GB29609@elte.hu>
-Mime-Version: 1.0
+	Thu, 30 Nov 2006 22:34:45 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:25296 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1758476AbWLADeo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 22:34:44 -0500
+Date: Fri, 1 Dec 2006 12:34:23 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 1/2] atomic.h atomic64_t standardization
+Message-ID: <20061201033423.GB27639@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Tom Zanussi <zanussi@us.ibm.com>,
+	Karim Yaghmour <karim@opersys.com>, Jes Sorensen <jes@sgi.com>,
+	Richard J Moore <richardj_moore@uk.ibm.com>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	Michel Dagenais <michel.dagenais@polymtl.ca>,
+	Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+	systemtap@sources.redhat.com
+References: <20061124215518.GE25048@Krystal> <20061127165643.GD5348@infradead.org> <20061201031153.GA10835@Krystal>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061130082934.GB29609@elte.hu>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20061201031153.GA10835@Krystal>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 09:29:34AM +0100, Ingo Molnar wrote:
-> what lockdep does is it observes actual locking dependencies as they
-> happen individually in various contexts, and then 'completes' the
-> dependency graph by combining all the possible scenarios how contexts
-> might preempt each other. So if lockdep sees independent dependencies
-> and concludes that they are circular, there's nothing that saves us from
-> the deadlock.
+On Thu, Nov 30, 2006 at 10:11:53PM -0500, Mathieu Desnoyers wrote:
+> --- a/include/asm-generic/atomic.h
+> +++ b/include/asm-generic/atomic.h
+[snip]
+> +#if 0
+> +/* Atomic add unless is only effective on atomic_t on powerpc (at least) */
+> +static inline long atomic_long_add_unless(atomic_long_t *l, long a, long u)
+> +{
+> +	atomic_t *v = (atomic_t *)l;
+> +	
+> +	return atomic_add_unless(v, a, u);
+> +}
+> +
+> +static inline long atomic_long_inc_not_zero(atomic_long_t *l)
+> +{
+> +	atomic_t *v = (atomic_t *)l;
+> +	
+> +	return atomic_inc_not_zero(v);
+> +}
+> +#endif //0
+> +
 
-Ingo,
-
-Consider a case where we have three locks A, B and C.
-We have very clear locking rule inside the kernel that lock A *should*
-be acquired before acquiring either lock B or lock C.
-
-At runtime lockdep detects the two dependency chains,
-A --> B --> C
-
-and
-
-A --> C --> B.
-
-Does lockdep issue a circular dependency warning for this ? 
-It's quite clear from the locking rule that we cannot have a
-circular deadlock, since A acts as a mutex for B->C / C->B callpath.
-
-Just curious :-) [ Well, I might encounter such a scenario in an attempt
-		   to make cpufreq cpu-hotplug safe! ]
-
-> 	Ingo
-
-Thanks and Regards
-gautham.
--- 
-Gautham R Shenoy
-Linux Technology Center
-IBM India.
-"Freedom comes with a price tag of responsibility, which is still a bargain,
-because Freedom is priceless!"
+Why is this in the patch?

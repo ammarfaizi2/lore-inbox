@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031557AbWLAQUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936521AbWLAQ1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031557AbWLAQUb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 11:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936457AbWLAQUb
+	id S936521AbWLAQ1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 11:27:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936523AbWLAQ1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 11:20:31 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:1427 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S935227AbWLAQUa (ORCPT
+	Fri, 1 Dec 2006 11:27:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40345 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S936521AbWLAQ1n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 11:20:30 -0500
-Date: Fri, 1 Dec 2006 08:20:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Ben Collins <ben.collins@ubuntu.com>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] [x86] Add command line option to enable/disable
- hyper-threading.
-In-Reply-To: <1164989436.3233.85.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0612010815510.3695@woody.osdl.org>
-References: <11648607683157-git-send-email-bcollins@ubuntu.com> 
- <11648607733630-git-send-email-bcollins@ubuntu.com>  <20061201132918.GB4239@ucw.cz>
-  <1164980500.5257.922.camel@gullible>  <1164983529.3233.73.camel@laptopd505.fenrus.org>
-  <1164985757.5257.933.camel@gullible> <1164989436.3233.85.camel@laptopd505.fenrus.org>
+	Fri, 1 Dec 2006 11:27:43 -0500
+Date: Fri, 1 Dec 2006 08:27:35 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+In-Reply-To: <20061130235117.018c3c70.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0612010823170.17445@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+ <20061103134633.a815c7b3.akpm@osdl.org> <Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+ <20061103143145.85a9c63f.akpm@osdl.org> <20061103172605.e646352a.pj@sgi.com>
+ <20061103174206.53f2c49e.akpm@osdl.org> <20061104025128.ca3c9859.pj@sgi.com>
+ <Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
+ <20061130235117.018c3c70.pj@sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 30 Nov 2006, Paul Jackson wrote:
 
+> Anybody have any idea which is the case?
 
-On Fri, 1 Dec 2006, Arjan van de Ven wrote:
-> 
-> I would suggest you drop the patch; openssl has been long fixed, and it
-> was only a theoretical attack in the first place...
-> I'm not saying the attack isn't something that should be addressed.. but
-> it is, and disabling hyperthreading is not the right fix.
+You can rely on those to increment and count events if it does not matter 
+that we may miss an event once in a while. And I think that is the case 
+here.
 
-I concur. A lot of these "timing attacks" may be slightly easier on HT 
-CPU's than other CPU's, but they are still pretty damn theoretical (the 
-more recent branch predictor one is even more so, since it apparently 
-requires access to the branch predictor state itself, which you need 
-CPL0 to get - and once you have CPL0, why the hell bother with the branch 
-predictors at all, since you might as well just read the state directly 
-from the process..)
-
-People are a hell of a lot better at worrying about unrealistic attacks 
-that they don't understand and thus sound scary, than about worrying about 
-the simple things ("You mean my password shouldn't be my pets name, taped 
-to my monitor? Really? And I wasn't supposed to give it out just because 
-that nice man gave me chocolate?")
-
-So I think people have blown those SSL timing attacks _way_ out of 
-proportion, just because it sounds technical and cool. 
-
-Besides, most of the time you can disable HT in the BIOS, which is better 
-anyway if you don't want it.
-
-		Linus
+The counters may only switched off for embedded systems. We could just 
+remove the CONFIG option if necessary. The event counter operations are in 
+critical paths of the VM though and I would think that embedded systems 
+with no need for vmstat want those as efficient as possible.

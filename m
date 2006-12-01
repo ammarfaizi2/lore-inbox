@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759348AbWLASzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759349AbWLAS6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759348AbWLASzb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 13:55:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759346AbWLASzb
+	id S1759349AbWLAS6m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 13:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759350AbWLAS6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 13:55:31 -0500
-Received: from de01egw02.freescale.net ([192.88.165.103]:16276 "EHLO
-	de01egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1759348AbWLASza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 13:55:30 -0500
-Date: Fri, 1 Dec 2006 12:54:47 -0600
-From: Scott Wood <scottwood@freescale.com>
-To: trivial@kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Make platform_device_add_data accept a const pointer.
-Message-ID: <20061201185447.GA19669@ld0162-tx32.am.freescale.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 1 Dec 2006 13:58:42 -0500
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:28209 "EHLO
+	outbound2-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1759349AbWLAS6l convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 13:58:41 -0500
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug
+ device
+Date: Fri, 1 Dec 2006 10:55:48 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug
+ device
+Thread-Index: AccVeGOhK39MY0LLQnC/K+FZLWfRKwAAM5Fw
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Greg KH" <gregkh@suse.de>
+cc: "Stefan Reinauer" <stepan@coresystems.de>,
+       "Peter Stuge" <stuge-linuxbios@cdy.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, linuxbios@linuxbios.org,
+       linux-kernel@vger.kernel.org
+X-OriginalArrivalTime: 01 Dec 2006 18:55:49.0571 (UTC)
+ FILETIME=[51310930:01C7157A]
+X-WSS-ID: 696EA53F0T01891259-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-platform_device_add_data() makes a copy of the data that is given to it,
-and thus the parameter can be const.  This removes a warning when data
-from get_property() on powerpc is handed to platform_device_add_data(),
-as get_property() returns a const pointer.
+-----Original Message-----
+From: Greg KH [mailto:gregkh@suse.de] 
 
-Signed-off-by: Scott Wood <scottwood@freescale.com>
----
- drivers/base/platform.c         |    2 +-
- include/linux/platform_device.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+>I can do that in about 15 minutes if you give me the device ids for the
+>usb debug device that you wish to have.
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 940ce41..9cb2128 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -212,7 +212,7 @@ EXPORT_SYMBOL_GPL(platform_device_add_re
-  *	pointer.  The memory associated with the platform data will be freed
-  *	when the platform device is released.
-  */
--int platform_device_add_data(struct platform_device *pdev, void *data, size_t size)
-+int platform_device_add_data(struct platform_device *pdev, const void *data, size_t size)
- {
- 	void *d;
- 
-diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
-index 29cd6de..cc21647 100644
---- a/include/linux/platform_device.h
-+++ b/include/linux/platform_device.h
-@@ -39,7 +39,7 @@ extern struct platform_device *platform_
- 
- extern struct platform_device *platform_device_alloc(const char *name, unsigned int id);
- extern int platform_device_add_resources(struct platform_device *pdev, struct resource *res, unsigned int num);
--extern int platform_device_add_data(struct platform_device *pdev, void *data, size_t size);
-+extern int platform_device_add_data(struct platform_device *pdev, const void *data, size_t size);
- extern int platform_device_add(struct platform_device *pdev);
- extern void platform_device_del(struct platform_device *pdev);
- extern void platform_device_put(struct platform_device *pdev);
--- 
-1.4.2.3
+>Or you can also use the generic usb-serial driver today just fine with
+>no modification.  Have you had a problem with using that option?
+
+We are talking about using USB debug device/EHCI debug port in LinuxBIOS
+in legacy free PC.
+Because one AM2+MCP55 MB doesn't have serial port.
+
+I guess Eric is working on USB debug device/EHCI debug port for
+earlyprintk or printk.
+
+So we need one client program on host side. So it would great if we
+could use current USB stack for 
+the clients on system even without debug port.
+
+I'm getting one USB debug device cable, and will test generic usb_serial
+driver.
+
+Thanks
+
+YH
+
+
+

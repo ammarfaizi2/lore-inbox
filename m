@@ -1,188 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162315AbWLAX3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162228AbWLAX2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162315AbWLAX3d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 18:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162266AbWLAXXq
+	id S1162228AbWLAX2r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 18:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162324AbWLAX2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 18:23:46 -0500
-Received: from ns1.suse.de ([195.135.220.2]:27533 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162260AbWLAXXU (ORCPT
+	Fri, 1 Dec 2006 18:28:08 -0500
+Received: from mail.suse.de ([195.135.220.2]:48269 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1162271AbWLAXXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 18:23:20 -0500
+	Fri, 1 Dec 2006 18:23:50 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 20/36] Driver core: convert mmc code to use struct device
-Date: Fri,  1 Dec 2006 15:21:50 -0800
-Message-Id: <11650153891878-git-send-email-greg@kroah.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 28/36] cpu topology: consider sysfs_create_group return value
+Date: Fri,  1 Dec 2006 15:21:58 -0800
+Message-Id: <11650154181661-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.4.1
-In-Reply-To: <11650153861854-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com> <11650153861854-git-send-email-greg@kroah.com>
+In-Reply-To: <1165015415131-git-send-email-greg@kroah.com>
+References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com> <11650153861854-git-send-email-greg@kroah.com> <11650153891878-git-send-email-greg@kroah.com> <11650153
+ 922117-git-send-email-greg@kroah.com> <11650153961479-git-send-email-greg@kroah.com> <11650154001320-git-send-email-greg@kroah.com> <11650154032080-git-send-email-greg@kroah.com> <11650154071138-git-send-email-greg@kroah.com> <11650154123942-git-send-email-greg@kroah.com> <1165015415131-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Converts from using struct "class_device" to "struct device" making
-everything show up properly in /sys/devices/ with symlinks from the
-/sys/class directory.
+Take return value of sysfs_create_group() into account.  That function got
+called in case of CPU_ONLINE notification.  Since callbacks are not allowed
+to fail on CPU_ONLINE notification do the sysfs group creation on
+CPU_UP_PREPARE notification.
 
+Also remember if creation succeeded in a bitmask.  So it's possible to know
+whether it's legal to call sysfs_remove_group or not.
+
+In addition some other minor stuff:
+
+- since CPU_UP_PREPARE might fail add CPU_UP_CANCELED handling as well.
+- use hotcpu_notifier instead of register_hotcpu_notifier.
+- #ifdef code that isn't needed in the !CONFIG_HOTPLUG_CPU case.
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/mmc/mmc_queue.c  |    4 ++--
- drivers/mmc/mmc_sysfs.c  |   20 ++++++++++----------
- drivers/mmc/wbsd.c       |    6 +++---
- include/linux/mmc/host.h |    8 ++++----
- 4 files changed, 19 insertions(+), 19 deletions(-)
+ drivers/base/topology.c |   55 +++++++++++++++++++++++++++-------------------
+ 1 files changed, 32 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/mmc/mmc_queue.c b/drivers/mmc/mmc_queue.c
-index 4ccdd82..61a1de8 100644
---- a/drivers/mmc/mmc_queue.c
-+++ b/drivers/mmc/mmc_queue.c
-@@ -130,8 +130,8 @@ int mmc_init_queue(struct mmc_queue *mq,
- 	u64 limit = BLK_BOUNCE_HIGH;
- 	int ret;
- 
--	if (host->dev->dma_mask && *host->dev->dma_mask)
--		limit = *host->dev->dma_mask;
-+	if (mmc_dev(host)->dma_mask && *mmc_dev(host)->dma_mask)
-+		limit = *mmc_dev(host)->dma_mask;
- 
- 	mq->card = card;
- 	mq->queue = blk_init_queue(mmc_request, lock);
-diff --git a/drivers/mmc/mmc_sysfs.c b/drivers/mmc/mmc_sysfs.c
-index 10cc973..ac53296 100644
---- a/drivers/mmc/mmc_sysfs.c
-+++ b/drivers/mmc/mmc_sysfs.c
-@@ -199,7 +199,7 @@ void mmc_init_card(struct mmc_card *card
- 	memset(card, 0, sizeof(struct mmc_card));
- 	card->host = host;
- 	device_initialize(&card->dev);
--	card->dev.parent = card->host->dev;
-+	card->dev.parent = mmc_dev(host);
- 	card->dev.bus = &mmc_bus_type;
- 	card->dev.release = mmc_release_card;
- }
-@@ -242,7 +242,7 @@ void mmc_remove_card(struct mmc_card *ca
- }
- 
- 
--static void mmc_host_classdev_release(struct class_device *dev)
-+static void mmc_host_classdev_release(struct device *dev)
- {
- 	struct mmc_host *host = cls_dev_to_mmc_host(dev);
- 	kfree(host);
-@@ -250,7 +250,7 @@ static void mmc_host_classdev_release(st
- 
- static struct class mmc_host_class = {
- 	.name		= "mmc_host",
--	.release	= mmc_host_classdev_release,
-+	.dev_release	= mmc_host_classdev_release,
+diff --git a/drivers/base/topology.c b/drivers/base/topology.c
+index 28dccb7..3d12b85 100644
+--- a/drivers/base/topology.c
++++ b/drivers/base/topology.c
+@@ -94,54 +94,63 @@ static struct attribute_group topology_a
+ 	.name = "topology"
  };
  
- static DEFINE_IDR(mmc_host_idr);
-@@ -267,10 +267,10 @@ struct mmc_host *mmc_alloc_host_sysfs(in
- 	if (host) {
- 		memset(host, 0, sizeof(struct mmc_host) + extra);
++static cpumask_t topology_dev_map = CPU_MASK_NONE;
++
+ /* Add/Remove cpu_topology interface for CPU device */
+-static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
++static int __cpuinit topology_add_dev(unsigned int cpu)
+ {
+-	return sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
++	int rc;
++	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
++
++	rc = sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
++	if (!rc)
++		cpu_set(cpu, topology_dev_map);
++	return rc;
+ }
  
--		host->dev = dev;
--		host->class_dev.dev = host->dev;
-+		host->parent = dev;
-+		host->class_dev.parent = dev;
- 		host->class_dev.class = &mmc_host_class;
--		class_device_initialize(&host->class_dev);
-+		device_initialize(&host->class_dev);
+-static int __cpuinit topology_remove_dev(struct sys_device * sys_dev)
++#ifdef CONFIG_HOTPLUG_CPU
++static void __cpuinit topology_remove_dev(unsigned int cpu)
+ {
++	struct sys_device *sys_dev = get_cpu_sysdev(cpu);
++
++	if (!cpu_isset(cpu, topology_dev_map))
++		return;
++	cpu_clear(cpu, topology_dev_map);
+ 	sysfs_remove_group(&sys_dev->kobj, &topology_attr_group);
+-	return 0;
+ }
+ 
+ static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+-		unsigned long action, void *hcpu)
++					   unsigned long action, void *hcpu)
+ {
+ 	unsigned int cpu = (unsigned long)hcpu;
+-	struct sys_device *sys_dev;
++	int rc = 0;
+ 
+-	sys_dev = get_cpu_sysdev(cpu);
+ 	switch (action) {
+-	case CPU_ONLINE:
+-		topology_add_dev(sys_dev);
++	case CPU_UP_PREPARE:
++		rc = topology_add_dev(cpu);
+ 		break;
++	case CPU_UP_CANCELED:
+ 	case CPU_DEAD:
+-		topology_remove_dev(sys_dev);
++		topology_remove_dev(cpu);
+ 		break;
  	}
- 
- 	return host;
-@@ -292,10 +292,10 @@ int mmc_add_host_sysfs(struct mmc_host *
- 	if (err)
- 		return err;
- 
--	snprintf(host->class_dev.class_id, BUS_ID_SIZE,
-+	snprintf(host->class_dev.bus_id, BUS_ID_SIZE,
- 		 "mmc%d", host->index);
- 
--	return class_device_add(&host->class_dev);
-+	return device_add(&host->class_dev);
+-	return NOTIFY_OK;
++	return rc ? NOTIFY_BAD : NOTIFY_OK;
  }
+-
+-static struct notifier_block __cpuinitdata topology_cpu_notifier =
+-{
+-	.notifier_call = topology_cpu_callback,
+-};
++#endif
  
- /*
-@@ -303,7 +303,7 @@ int mmc_add_host_sysfs(struct mmc_host *
-  */
- void mmc_remove_host_sysfs(struct mmc_host *host)
+ static int __cpuinit topology_sysfs_init(void)
  {
--	class_device_del(&host->class_dev);
-+	device_del(&host->class_dev);
+-	int i;
++	int cpu;
++	int rc;
  
- 	spin_lock(&mmc_host_lock);
- 	idr_remove(&mmc_host_idr, host->index);
-@@ -315,7 +315,7 @@ void mmc_remove_host_sysfs(struct mmc_ho
-  */
- void mmc_free_host_sysfs(struct mmc_host *host)
- {
--	class_device_put(&host->class_dev);
-+	put_device(&host->class_dev);
- }
- 
- static struct workqueue_struct *workqueue;
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
-index ced309b..682e62b 100644
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -1488,7 +1488,7 @@ static void __devinit wbsd_request_dma(s
- 	/*
- 	 * Translate the address to a physical address.
- 	 */
--	host->dma_addr = dma_map_single(host->mmc->dev, host->dma_buffer,
-+	host->dma_addr = dma_map_single(mmc_dev(host->mmc), host->dma_buffer,
- 		WBSD_DMA_SIZE, DMA_BIDIRECTIONAL);
- 
- 	/*
-@@ -1512,7 +1512,7 @@ kfree:
- 	 */
- 	BUG_ON(1);
- 
--	dma_unmap_single(host->mmc->dev, host->dma_addr,
-+	dma_unmap_single(mmc_dev(host->mmc), host->dma_addr,
- 		WBSD_DMA_SIZE, DMA_BIDIRECTIONAL);
- 	host->dma_addr = (dma_addr_t)NULL;
- 
-@@ -1530,7 +1530,7 @@ err:
- static void __devexit wbsd_release_dma(struct wbsd_host *host)
- {
- 	if (host->dma_addr) {
--		dma_unmap_single(host->mmc->dev, host->dma_addr,
-+		dma_unmap_single(mmc_dev(host->mmc), host->dma_addr,
- 			WBSD_DMA_SIZE, DMA_BIDIRECTIONAL);
+-	for_each_online_cpu(i) {
+-		topology_cpu_callback(&topology_cpu_notifier, CPU_ONLINE,
+-				(void *)(long)i);
++	for_each_online_cpu(cpu) {
++		rc = topology_add_dev(cpu);
++		if (rc)
++			return rc;
  	}
- 	kfree(host->dma_buffer);
-diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
-index 587264a..528e7d3 100644
---- a/include/linux/mmc/host.h
-+++ b/include/linux/mmc/host.h
-@@ -74,8 +74,8 @@ struct mmc_card;
- struct device;
+-
+-	register_hotcpu_notifier(&topology_cpu_notifier);
++	hotcpu_notifier(topology_cpu_callback, 0);
  
- struct mmc_host {
--	struct device		*dev;
--	struct class_device	class_dev;
-+	struct device		*parent;
-+	struct device		class_dev;
- 	int			index;
- 	const struct mmc_host_ops *ops;
- 	unsigned int		f_min;
-@@ -125,8 +125,8 @@ static inline void *mmc_priv(struct mmc_
- 	return (void *)host->private;
+ 	return 0;
  }
  
--#define mmc_dev(x)	((x)->dev)
--#define mmc_hostname(x)	((x)->class_dev.class_id)
-+#define mmc_dev(x)	((x)->parent)
-+#define mmc_hostname(x)	((x)->class_dev.bus_id)
- 
- extern int mmc_suspend_host(struct mmc_host *, pm_message_t);
- extern int mmc_resume_host(struct mmc_host *);
+ device_initcall(topology_sysfs_init);
+-
 -- 
 1.4.4.1
 

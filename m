@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936471AbWLAPYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936519AbWLAPZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936471AbWLAPYq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936501AbWLAPYq
+	id S936519AbWLAPZt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 10:25:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936522AbWLAPZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:24:46 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:7176 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S936471AbWLAPYp (ORCPT
+	Fri, 1 Dec 2006 10:25:49 -0500
+Received: from pat.uio.no ([129.240.10.15]:47276 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S936519AbWLAPZt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:24:45 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: [2.4 PATCH] mips/mips64 mv64340 parenthesis fixes
-Date: Fri, 1 Dec 2006 16:24:20 +0100
-User-Agent: KMail/1.9.5
+	Fri, 1 Dec 2006 10:25:49 -0500
+Subject: Re: 2.6.19: nfs-related kernel NULL pointer dereference
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Sven Geggus <sven-im-usenet@gegg.us>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+In-Reply-To: <ekpeot$caj$1@ultimate100.geggus.net>
+References: <ekpeot$caj$1@ultimate100.geggus.net>
+Content-Type: text/plain
+Date: Fri, 01 Dec 2006 10:23:51 -0500
+Message-Id: <1164986631.5761.93.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612011624.21006.m.kozlowski@tuxland.pl>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.219, required 12,
+	autolearn=disabled, AWL 1.64, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2006-12-01 at 14:38 +0000, Sven Geggus wrote:
+> Hello,
+> 
+> while trying to boot Kernel 2.6.19 (vanilla+unionfs) I get the following
+> NULL pointer dereferences:
 
-	This patch fixes parenthesis mv64340 stuff in both mips and mips64 code.
+Are you able to reproduce this without unionfs?
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Trond
 
- include/asm-mips/mv64340.h   |    2 +-
- include/asm-mips64/mv64340.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -upr linux-2.4.34-pre6-a/include/asm-mips/mv64340.h linux-2.4.34-pre6-b/include/asm-mips/mv64340.h
---- linux-2.4.34-pre6-a/include/asm-mips/mv64340.h	2003-08-25 13:44:43.000000000 +0200
-+++ linux-2.4.34-pre6-b/include/asm-mips/mv64340.h	2006-12-01 11:56:57.000000000 +0100
-@@ -718,7 +718,7 @@
- #define MV64340_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
- #define MV64340_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
- #define MV64340_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
--#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
-+#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
- #define MV64340_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
- #define MV64340_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
- #define MV64340_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
-diff -upr linux-2.4.34-pre6-a/include/asm-mips64/mv64340.h linux-2.4.34-pre6-b/include/asm-mips64/mv64340.h
---- linux-2.4.34-pre6-a/include/asm-mips64/mv64340.h	2003-08-25 13:44:44.000000000 +0200
-+++ linux-2.4.34-pre6-b/include/asm-mips64/mv64340.h	2006-12-01 12:01:03.000000000 +0100
-@@ -718,7 +718,7 @@
- #define MV64340_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
- #define MV64340_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
- #define MV64340_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
--#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
-+#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
- #define MV64340_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
- #define MV64340_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
- #define MV64340_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
-
-
--- 
-Regards,
-
-	Mariusz Kozlowski

@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936134AbWLAKaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936172AbWLAKa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936134AbWLAKaP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 05:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936172AbWLAKaO
+	id S936172AbWLAKa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 05:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936135AbWLAKaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 05:30:14 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:14940 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S936134AbWLAKaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 05:30:12 -0500
-From: Jens Wilke <jens.wilke@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: dm-devel@redhat.com
-Subject: Re: [dm-devel] [RFC][PATCH] dm-cache: block level disk cache target for device mapper
-Date: Fri, 1 Dec 2006 11:30:04 +0100
-User-Agent: KMail/1.9.4
-Cc: "Ming Zhao" <mingzhao99th@gmail.com>, linux-kernel@vger.kernel.org
-References: <200611271826.kARIQYRi032717@hera.kernel.org> <200611302107.40418.jens.wilke@de.ibm.com> <b1e142760611302316w5917bc67q5a9f26e1d069f716@mail.gmail.com>
-In-Reply-To: <b1e142760611302316w5917bc67q5a9f26e1d069f716@mail.gmail.com>
+	Fri, 1 Dec 2006 05:30:55 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:57549 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S936172AbWLAKaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 05:30:55 -0500
+Message-ID: <4570045D.40100@s5r6.in-berlin.de>
+Date: Fri, 01 Dec 2006 11:30:53 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Keith Curtis <Keith.Curtis@digeo.com>
+CC: Robert Crocombe <rcrocomb@gmail.com>,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: isochronous receives?
+References: <DD2010E58E069B40886650EE617FCC0CBA8EC9@digeo-mail1.digeo.com>
+In-Reply-To: <DD2010E58E069B40886650EE617FCC0CBA8EC9@digeo-mail1.digeo.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612011130.04466.jens.wilke@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 December 2006 08:16, Ming Zhao wrote:
-> On 11/30/06, Jens Wilke <jens.wilke@de.ibm.com> wrote:
-> > - You don't keep track of I/O on the fly to the cache that is mapped
-> > directly in cache_hit(). How do you make sure that this I/O is completed
-> > before you replace a cache block?
+Keith Curtis wrote:
+> I never resolved the problem. I turned on the excessive debugging output, but it 
+> didn't print out info about receiving packets or interrupts. My test 
+> app claimed there were no packets received although the bus analyzer 
+> showed lots of packets going by.  
 > 
-> The previous I/O from cache hit and the later I/O for cache
-> replacement should be queued in order on the cache block device - is
-> this a safe assumption?
+> If I can help out, let me know, but I'm not sure where to start at this point.
+...
+> -----Original Message-----
+> From: Robert Crocombe [mailto:rcrocomb@gmail.com]
+> Sent: Tuesday, November 28, 2006 4:59 PM
+...
+> Did you ultimately have any success getting this going?  Funnily
+> enough, when I tested isochronous stuff in July, I just did iso
+> transmit since I figured receives *must* be working since everyone has
+> camcorders and whatnot.  My currently my iso xmit stuff does appear to
+> be working, but iso receives are not.
+> 
+> I have a Firespy and no reason not to trust it, so I can see the junk
+> I'm spewing out.  I've tried transmitting on channels 4 and 63 (per
+> your advice), but neither works for me.  I suppose it could my
+> stuff... nah.
 
-I don't think you can assume that the request processing in the host
-is ordered without sychronization. Everything you queue in your worker
-thread is serialized by that. Everything else is out of your control and each
-thread may be scheduled or not.
-
-Maybe we have certain guarantees through DM or the block I/O layer, that
-I don't know. Can somebody else step in here?
-
-Best,
-
-Jens
+I don't know much about the mechanisms, but I suppose there could be one
+of the following causes:
+ - The IR DMA context was never set up for the respective channel in the
+   first place.
+ - The context was set up but the interrupt event masks weren't switched
+   on, i.e. IntMask as per OHCI clause 6.2 and isoRecvIntMask as per
+   clause 6.3.2.
+ - The context and masks were set up, but then one or both of the masks
+   were switched off again, similar to the bus reset bug which Robert
+   reported: http://bugzilla.kernel.org/show_bug.cgi?id=7569
+-- 
+Stefan Richter
+-=====-=-==- ==-- ----=
+http://arcgraph.de/sr/

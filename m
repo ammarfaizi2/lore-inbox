@@ -1,331 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162377AbWLAXcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162269AbWLAXca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162377AbWLAXcI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 18:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162269AbWLAXXl
+	id S1162269AbWLAXca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 18:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162260AbWLAXcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 18:23:41 -0500
-Received: from ns1.suse.de ([195.135.220.2]:30605 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162243AbWLAXXY (ORCPT
+	Fri, 1 Dec 2006 18:32:09 -0500
+Received: from mx2.suse.de ([195.135.220.15]:45293 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1162238AbWLAXXn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 18:23:24 -0500
+	Fri, 1 Dec 2006 18:23:43 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 21/36] Driver core: convert firmware code to use struct device
-Date: Fri,  1 Dec 2006 15:21:51 -0800
-Message-Id: <11650153922117-git-send-email-greg@kroah.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 26/36] ACPI: Change ACPI to use dev_archdata instead of firmware_data
+Date: Fri,  1 Dec 2006 15:21:56 -0800
+Message-Id: <11650154123942-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.4.1
-In-Reply-To: <11650153891878-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com> <11650153861854-git-send-email-greg@kroah.com> <11650153891878-git-send-email-greg@kroah.com>
+In-Reply-To: <11650154071138-git-send-email-greg@kroah.com>
+References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com> <11650153861854-git-send-email-greg@kroah.com> <11650153891878-git-send-email-greg@kroah.com> <11650153
+ 922117-git-send-email-greg@kroah.com> <11650153961479-git-send-email-greg@kroah.com> <11650154001320-git-send-email-greg@kroah.com> <11650154032080-git-send-email-greg@kroah.com> <11650154071138-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Converts from using struct "class_device" to "struct device" making
-everything show up properly in /sys/devices/ with symlinks from the
-/sys/class directory.
+Change ACPI to use dev_archdata instead of firmware_data
 
+This patch changes ACPI to use the new dev_archdata on i386, x86_64
+and ia64 (is there any other arch using ACPI ?) to store it's
+acpi_handle.
+
+It also removes the firmware_data field from struct device as this
+was the only user.
+
+Only build-tested on x86
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Len Brown <lenb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/firmware_class.c |  119 +++++++++++++++++++---------------------
- 1 files changed, 57 insertions(+), 62 deletions(-)
+ drivers/acpi/glue.c         |   20 +++++++++++---------
+ include/acpi/acpi_bus.h     |    2 +-
+ include/asm-i386/device.h   |   10 +++++++++-
+ include/asm-ia64/device.h   |   10 +++++++++-
+ include/asm-x86_64/device.h |   10 +++++++++-
+ include/linux/device.h      |    2 --
+ 6 files changed, 39 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
-index 1461569..4bad287 100644
---- a/drivers/base/firmware_class.c
-+++ b/drivers/base/firmware_class.c
-@@ -21,6 +21,8 @@
- #include <linux/firmware.h>
- #include "base.h"
- 
-+#define to_dev(obj) container_of(obj, struct device, kobj)
-+
- MODULE_AUTHOR("Manuel Estrada Sainz <ranty@debian.org>");
- MODULE_DESCRIPTION("Multi purpose firmware loading support");
- MODULE_LICENSE("GPL");
-@@ -86,12 +88,12 @@ firmware_timeout_store(struct class *cla
- 
- static CLASS_ATTR(timeout, 0644, firmware_timeout_show, firmware_timeout_store);
- 
--static void  fw_class_dev_release(struct class_device *class_dev);
-+static void fw_dev_release(struct device *dev);
- 
--static int firmware_class_uevent(struct class_device *class_dev, char **envp,
--				 int num_envp, char *buffer, int buffer_size)
-+static int firmware_uevent(struct device *dev, char **envp, int num_envp,
-+			   char *buffer, int buffer_size)
+diff --git a/drivers/acpi/glue.c b/drivers/acpi/glue.c
+index 10f160d..a2f46d5 100644
+--- a/drivers/acpi/glue.c
++++ b/drivers/acpi/glue.c
+@@ -267,9 +267,9 @@ static int acpi_bind_one(struct device *
  {
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 	int i = 0, len = 0;
+ 	acpi_status status;
  
- 	if (!test_bit(FW_STATUS_READY, &fw_priv->status))
-@@ -110,21 +112,21 @@ static int firmware_class_uevent(struct
- 
- static struct class firmware_class = {
- 	.name		= "firmware",
--	.uevent		= firmware_class_uevent,
--	.release	= fw_class_dev_release,
-+	.dev_uevent	= firmware_uevent,
-+	.dev_release	= fw_dev_release,
- };
- 
--static ssize_t
--firmware_loading_show(struct class_device *class_dev, char *buf)
-+static ssize_t firmware_loading_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
- {
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 	int loading = test_bit(FW_STATUS_LOADING, &fw_priv->status);
- 	return sprintf(buf, "%d\n", loading);
- }
- 
- /**
-  * firmware_loading_store - set value in the 'loading' control file
-- * @class_dev: class_device pointer
-+ * @dev: device pointer
-  * @buf: buffer to scan for loading control value
-  * @count: number of bytes in @buf
-  *
-@@ -134,11 +136,11 @@ firmware_loading_show(struct class_devic
-  *	 0: Conclude the load and hand the data to the driver code.
-  *	-1: Conclude the load with an error and discard any written data.
-  **/
--static ssize_t
--firmware_loading_store(struct class_device *class_dev,
--		       const char *buf, size_t count)
-+static ssize_t firmware_loading_store(struct device *dev,
-+				      struct device_attribute *attr,
-+				      const char *buf, size_t count)
- {
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 	int loading = simple_strtol(buf, NULL, 10);
- 
- 	switch (loading) {
-@@ -174,15 +176,14 @@ firmware_loading_store(struct class_devi
- 	return count;
- }
- 
--static CLASS_DEVICE_ATTR(loading, 0644,
--			firmware_loading_show, firmware_loading_store);
-+static DEVICE_ATTR(loading, 0644, firmware_loading_show, firmware_loading_store);
- 
- static ssize_t
- firmware_data_read(struct kobject *kobj,
- 		   char *buffer, loff_t offset, size_t count)
- {
--	struct class_device *class_dev = to_class_dev(kobj);
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct device *dev = to_dev(kobj);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 	struct firmware *fw;
- 	ssize_t ret_count = count;
- 
-@@ -234,7 +235,7 @@ fw_realloc_buffer(struct firmware_priv *
- 
- /**
-  * firmware_data_write - write method for firmware
-- * @kobj: kobject for the class_device
-+ * @kobj: kobject for the device
-  * @buffer: buffer being written
-  * @offset: buffer offset for write in total data store area
-  * @count: buffer size
-@@ -246,8 +247,8 @@ static ssize_t
- firmware_data_write(struct kobject *kobj,
- 		    char *buffer, loff_t offset, size_t count)
- {
--	struct class_device *class_dev = to_class_dev(kobj);
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct device *dev = to_dev(kobj);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 	struct firmware *fw;
- 	ssize_t retval;
- 
-@@ -280,13 +281,12 @@ static struct bin_attribute firmware_att
- 	.write = firmware_data_write,
- };
- 
--static void
--fw_class_dev_release(struct class_device *class_dev)
-+static void fw_dev_release(struct device *dev)
- {
--	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
-+	struct firmware_priv *fw_priv = dev_get_drvdata(dev);
- 
- 	kfree(fw_priv);
--	kfree(class_dev);
-+	kfree(dev);
- 
- 	module_put(THIS_MODULE);
- }
-@@ -298,26 +298,23 @@ firmware_class_timeout(u_long data)
- 	fw_load_abort(fw_priv);
- }
- 
--static inline void
--fw_setup_class_device_id(struct class_device *class_dev, struct device *dev)
-+static inline void fw_setup_device_id(struct device *f_dev, struct device *dev)
- {
- 	/* XXX warning we should watch out for name collisions */
--	strlcpy(class_dev->class_id, dev->bus_id, BUS_ID_SIZE);
-+	strlcpy(f_dev->bus_id, dev->bus_id, BUS_ID_SIZE);
- }
- 
--static int
--fw_register_class_device(struct class_device **class_dev_p,
--			 const char *fw_name, struct device *device)
-+static int fw_register_device(struct device **dev_p, const char *fw_name,
-+			      struct device *device)
- {
- 	int retval;
- 	struct firmware_priv *fw_priv = kzalloc(sizeof(*fw_priv),
- 						GFP_KERNEL);
--	struct class_device *class_dev = kzalloc(sizeof(*class_dev),
--						 GFP_KERNEL);
-+	struct device *f_dev = kzalloc(sizeof(*f_dev), GFP_KERNEL);
- 
--	*class_dev_p = NULL;
-+	*dev_p = NULL;
- 
--	if (!fw_priv || !class_dev) {
-+	if (!fw_priv || !f_dev) {
- 		printk(KERN_ERR "%s: kmalloc failed\n", __FUNCTION__);
- 		retval = -ENOMEM;
- 		goto error_kfree;
-@@ -331,55 +328,54 @@ fw_register_class_device(struct class_de
- 	fw_priv->timeout.data = (u_long) fw_priv;
- 	init_timer(&fw_priv->timeout);
- 
--	fw_setup_class_device_id(class_dev, device);
--	class_dev->dev = device;
--	class_dev->class = &firmware_class;
--	class_set_devdata(class_dev, fw_priv);
--	retval = class_device_register(class_dev);
-+	fw_setup_device_id(f_dev, device);
-+	f_dev->parent = device;
-+	f_dev->class = &firmware_class;
-+	dev_set_drvdata(f_dev, fw_priv);
-+	retval = device_register(f_dev);
- 	if (retval) {
--		printk(KERN_ERR "%s: class_device_register failed\n",
-+		printk(KERN_ERR "%s: device_register failed\n",
- 		       __FUNCTION__);
- 		goto error_kfree;
+-	if (dev->firmware_data) {
++	if (dev->archdata.acpi_handle) {
+ 		printk(KERN_WARNING PREFIX
+-		       "Drivers changed 'firmware_data' for %s\n", dev->bus_id);
++		       "Drivers changed 'acpi_handle' for %s\n", dev->bus_id);
+ 		return -EINVAL;
  	}
--	*class_dev_p = class_dev;
-+	*dev_p = f_dev;
+ 	get_device(dev);
+@@ -278,25 +278,26 @@ static int acpi_bind_one(struct device *
+ 		put_device(dev);
+ 		return -EINVAL;
+ 	}
+-	dev->firmware_data = handle;
++	dev->archdata.acpi_handle = handle;
+ 
  	return 0;
- 
- error_kfree:
- 	kfree(fw_priv);
--	kfree(class_dev);
-+	kfree(f_dev);
- 	return retval;
  }
  
--static int
--fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
--		      const char *fw_name, struct device *device, int uevent)
-+static int fw_setup_device(struct firmware *fw, struct device **dev_p,
-+			   const char *fw_name, struct device *device,
-+			   int uevent)
+ static int acpi_unbind_one(struct device *dev)
  {
--	struct class_device *class_dev;
-+	struct device *f_dev;
- 	struct firmware_priv *fw_priv;
- 	int retval;
- 
--	*class_dev_p = NULL;
--	retval = fw_register_class_device(&class_dev, fw_name, device);
-+	*dev_p = NULL;
-+	retval = fw_register_device(&f_dev, fw_name, device);
- 	if (retval)
- 		goto out;
- 
- 	/* Need to pin this module until class device is destroyed */
- 	__module_get(THIS_MODULE);
- 
--	fw_priv = class_get_devdata(class_dev);
-+	fw_priv = dev_get_drvdata(f_dev);
- 
- 	fw_priv->fw = fw;
--	retval = sysfs_create_bin_file(&class_dev->kobj, &fw_priv->attr_data);
-+	retval = sysfs_create_bin_file(&f_dev->kobj, &fw_priv->attr_data);
- 	if (retval) {
- 		printk(KERN_ERR "%s: sysfs_create_bin_file failed\n",
- 		       __FUNCTION__);
- 		goto error_unreg;
+-	if (!dev->firmware_data)
++	if (!dev->archdata.acpi_handle)
+ 		return 0;
+-	if (dev == acpi_get_physical_device(dev->firmware_data)) {
++	if (dev == acpi_get_physical_device(dev->archdata.acpi_handle)) {
+ 		/* acpi_get_physical_device increase refcnt by one */
+ 		put_device(dev);
+-		acpi_detach_data(dev->firmware_data, acpi_glue_data_handler);
+-		dev->firmware_data = NULL;
++		acpi_detach_data(dev->archdata.acpi_handle,
++				 acpi_glue_data_handler);
++		dev->archdata.acpi_handle = NULL;
+ 		/* acpi_bind_one increase refcnt by one */
+ 		put_device(dev);
+ 	} else {
+ 		printk(KERN_ERR PREFIX
+-		       "Oops, 'firmware_data' corrupt for %s\n", dev->bus_id);
++		       "Oops, 'acpi_handle' corrupt for %s\n", dev->bus_id);
  	}
- 
--	retval = class_device_create_file(class_dev,
--					  &class_device_attr_loading);
-+	retval = device_create_file(f_dev, &dev_attr_loading);
- 	if (retval) {
--		printk(KERN_ERR "%s: class_device_create_file failed\n",
-+		printk(KERN_ERR "%s: device_create_file failed\n",
- 		       __FUNCTION__);
- 		goto error_unreg;
- 	}
-@@ -388,11 +384,11 @@ fw_setup_class_device(struct firmware *f
-                 set_bit(FW_STATUS_READY, &fw_priv->status);
-         else
-                 set_bit(FW_STATUS_READY_NOHOTPLUG, &fw_priv->status);
--	*class_dev_p = class_dev;
-+	*dev_p = f_dev;
- 	goto out;
- 
- error_unreg:
--	class_device_unregister(class_dev);
-+	device_unregister(f_dev);
- out:
- 	return retval;
+ 	return 0;
  }
-@@ -401,7 +397,7 @@ static int
- _request_firmware(const struct firmware **firmware_p, const char *name,
- 		 struct device *device, int uevent)
- {
--	struct class_device *class_dev;
-+	struct device *f_dev;
- 	struct firmware_priv *fw_priv;
- 	struct firmware *firmware;
- 	int retval;
-@@ -417,12 +413,11 @@ _request_firmware(const struct firmware
- 		goto out;
- 	}
+@@ -328,7 +329,8 @@ static int acpi_platform_notify(struct d
+ 	if (!ret) {
+ 		struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
  
--	retval = fw_setup_class_device(firmware, &class_dev, name, device,
--				       uevent);
-+	retval = fw_setup_device(firmware, &f_dev, name, device, uevent);
- 	if (retval)
- 		goto error_kfree_fw;
+-		acpi_get_name(dev->firmware_data, ACPI_FULL_PATHNAME, &buffer);
++		acpi_get_name(dev->archdata.acpi_handle,
++			      ACPI_FULL_PATHNAME, &buffer);
+ 		DBG("Device %s -> %s\n", dev->bus_id, (char *)buffer.pointer);
+ 		kfree(buffer.pointer);
+ 	} else
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index f338e40..fdd1095 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -357,7 +357,7 @@ struct device *acpi_get_physical_device(
+ /* helper */
+ acpi_handle acpi_get_child(acpi_handle, acpi_integer);
+ acpi_handle acpi_get_pci_rootbridge_handle(unsigned int, unsigned int);
+-#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->firmware_data))
++#define DEVICE_ACPI_HANDLE(dev) ((acpi_handle)((dev)->archdata.acpi_handle))
  
--	fw_priv = class_get_devdata(class_dev);
-+	fw_priv = dev_get_drvdata(f_dev);
+ #endif /* CONFIG_ACPI */
  
- 	if (uevent) {
- 		if (loading_timeout > 0) {
-@@ -430,7 +425,7 @@ _request_firmware(const struct firmware
- 			add_timer(&fw_priv->timeout);
- 		}
+diff --git a/include/asm-i386/device.h b/include/asm-i386/device.h
+index d8f9872..849604c 100644
+--- a/include/asm-i386/device.h
++++ b/include/asm-i386/device.h
+@@ -3,5 +3,13 @@
+  *
+  * This file is released under the GPLv2
+  */
+-#include <asm-generic/device.h>
++#ifndef _ASM_I386_DEVICE_H
++#define _ASM_I386_DEVICE_H
  
--		kobject_uevent(&class_dev->kobj, KOBJ_ADD);
-+		kobject_uevent(&f_dev->kobj, KOBJ_ADD);
- 		wait_for_completion(&fw_priv->completion);
- 		set_bit(FW_STATUS_DONE, &fw_priv->status);
- 		del_timer_sync(&fw_priv->timeout);
-@@ -445,7 +440,7 @@ _request_firmware(const struct firmware
- 	}
- 	fw_priv->fw = NULL;
- 	mutex_unlock(&fw_lock);
--	class_device_unregister(class_dev);
-+	device_unregister(f_dev);
- 	goto out;
++struct dev_archdata {
++#ifdef CONFIG_ACPI
++	void	*acpi_handle;
++#endif
++};
++
++#endif /* _ASM_I386_DEVICE_H */
+diff --git a/include/asm-ia64/device.h b/include/asm-ia64/device.h
+index d8f9872..3db6daf 100644
+--- a/include/asm-ia64/device.h
++++ b/include/asm-ia64/device.h
+@@ -3,5 +3,13 @@
+  *
+  * This file is released under the GPLv2
+  */
+-#include <asm-generic/device.h>
++#ifndef _ASM_IA64_DEVICE_H
++#define _ASM_IA64_DEVICE_H
  
- error_kfree_fw:
++struct dev_archdata {
++#ifdef CONFIG_ACPI
++	void	*acpi_handle;
++#endif
++};
++
++#endif /* _ASM_IA64_DEVICE_H */
+diff --git a/include/asm-x86_64/device.h b/include/asm-x86_64/device.h
+index d8f9872..3afa03f 100644
+--- a/include/asm-x86_64/device.h
++++ b/include/asm-x86_64/device.h
+@@ -3,5 +3,13 @@
+  *
+  * This file is released under the GPLv2
+  */
+-#include <asm-generic/device.h>
++#ifndef _ASM_X86_64_DEVICE_H
++#define _ASM_X86_64_DEVICE_H
+ 
++struct dev_archdata {
++#ifdef CONFIG_ACPI
++	void	*acpi_handle;
++#endif
++};
++
++#endif /* _ASM_X86_64_DEVICE_H */
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 5b54d75..2d9dc35 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -369,8 +369,6 @@ struct device {
+ 	void		*driver_data;	/* data private to the driver */
+ 	void		*platform_data;	/* Platform specific data, device
+ 					   core doesn't touch it */
+-	void		*firmware_data; /* Firmware specific data (e.g. ACPI,
+-					   BIOS data),reserved for device core*/
+ 	struct dev_pm_info	power;
+ 
+ 	u64		*dma_mask;	/* dma mask (if dma'able device) */
 -- 
 1.4.4.1
 

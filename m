@@ -1,124 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031720AbWLATOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031734AbWLATRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031720AbWLATOO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 14:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031733AbWLATOO
+	id S1031734AbWLATRN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 14:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031736AbWLATRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 14:14:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17879 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1031720AbWLATOO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 14:14:14 -0500
-Subject: Re: [GFS2] Fix page lock/glock deadlock [32/70]
-From: Russell Cattelan <cattelan@redhat.com>
+	Fri, 1 Dec 2006 14:17:13 -0500
+Received: from cattelan-host202.dsl.visi.com ([208.42.117.202]:45533 "EHLO
+	slurp.thebarn.com") by vger.kernel.org with ESMTP id S1031734AbWLATRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 14:17:12 -0500
+Subject: Re: [GFS2] Move gfs2_meta_syncfs() into log.c [57/70]
+From: Russell Cattelan <cattelan@thebarn.com>
 To: Steven Whitehouse <swhiteho@redhat.com>
 Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1164889047.3752.368.camel@quoit.chygwyn.com>
-References: <1164889047.3752.368.camel@quoit.chygwyn.com>
-Content-Type: text/plain
-Date: Fri, 01 Dec 2006 13:14:07 -0600
-Message-Id: <1165000447.1194.86.camel@xenon.msp.redhat.com>
+In-Reply-To: <1164889320.3752.419.camel@quoit.chygwyn.com>
+References: <1164889320.3752.419.camel@quoit.chygwyn.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bMgpic93SbhwW4pnzpwg"
+Date: Fri, 01 Dec 2006 13:16:17 -0600
+Message-Id: <1165000577.1194.87.camel@xenon.msp.redhat.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.8.1.1-1mdv2007.1 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-11-30 at 12:17 +0000, Steven Whitehouse wrote:
-> >From 2ca99501fa5422e84f18333918a503433449e2b5 Mon Sep 17 00:00:00 2001
+
+--=-bMgpic93SbhwW4pnzpwg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2006-11-30 at 12:22 +0000, Steven Whitehouse wrote:
+> >From a25311c8e0b7071b129ca9a9e49e22eeaf620864 Mon Sep 17 00:00:00 2001
 > From: Steven Whitehouse <swhiteho@redhat.com>
-> Date: Wed, 8 Nov 2006 10:26:54 -0500
-> Subject: [PATCH] [GFS2] Fix page lock/glock deadlock
-> 
-> This fixes a race between the glock and the page lock encountered
-> during truncate in gfs2_readpage and gfs2_prepare_write. The gfs2_readpages
-> function doesn't need the same fix since it only uses a try lock anyway, so
-> it will fail back to gfs2_readpage in the case of a potential deadlock.
-> 
-> This bug was spotted by Russell Cattelan.\
-This bug was fixed correctly by Russell Cattelan
-and this is an incomplete version of my patch.
+> Date: Thu, 23 Nov 2006 11:06:35 -0500
+> Subject: [PATCH] [GFS2] Move gfs2_meta_syncfs() into log.c
+>=20
+> By moving gfs2_meta_syncfs() into log.c, gfs2_ail1_start()
+> can be made static.
+While this is not a incorrect change as it stands.
+This kind of pointless code curn is making it harder
+to stabilize GFS2.
 
-
-As I keep trying to point out readpages is still wrong in that
-the stuffed case is not correct and results in a panic
-if a file is being truncated down.
-If nr_pages is calculated prior a truncate the stuffed inode
-case will try to operate on pages that are no longer there.
-
-
-The correct fix is to not try and handled the stuffed inode 
-case at all in readpages and simply return AOP_TRUNCATED_PAGE
-and let things things fall back to readpage.
-
-
-> 
-> Cc: Russell Cattelan <cattelan@redhat.com>
+>=20
 > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 > ---
->  fs/gfs2/glock.h       |    1 -
->  fs/gfs2/ops_address.c |   13 +++++++++----
->  2 files changed, 9 insertions(+), 5 deletions(-)
-> 
-> diff --git a/fs/gfs2/glock.h b/fs/gfs2/glock.h
-> index b985627..a331bf8 100644
-> --- a/fs/gfs2/glock.h
-> +++ b/fs/gfs2/glock.h
-> @@ -27,7 +27,6 @@ #define GL_SKIP			0x00000100
->  #define GL_ATIME		0x00000200
->  #define GL_NOCACHE		0x00000400
->  #define GL_NOCANCEL		0x00001000
-> -#define GL_AOP			0x00004000
->  
->  #define GLR_TRYFAILED		13
->  #define GLR_CANCELED		14
-> diff --git a/fs/gfs2/ops_address.c b/fs/gfs2/ops_address.c
-> index 5c3962c..3822189 100644
-> --- a/fs/gfs2/ops_address.c
-> +++ b/fs/gfs2/ops_address.c
-> @@ -230,7 +230,7 @@ static int gfs2_readpage(struct file *fi
->  				/* gfs2_sharewrite_nopage has grabbed the ip->i_gl already */
->  				goto skip_lock;
->  		}
-> -		gfs2_holder_init(ip->i_gl, LM_ST_SHARED, GL_ATIME|GL_AOP, &gh);
-> +		gfs2_holder_init(ip->i_gl, LM_ST_SHARED, GL_ATIME|LM_FLAG_TRY_1CB, &gh);
->  		do_unlock = 1;
->  		error = gfs2_glock_nq_m_atime(1, &gh);
->  		if (unlikely(error))
-> @@ -254,6 +254,8 @@ skip_lock:
->  out:
->  	return error;
->  out_unlock:
-> +	if (error == GLR_TRYFAILED)
-> +		error = AOP_TRUNCATED_PAGE;
->  	unlock_page(page);
->  	if (do_unlock)
->  		gfs2_holder_uninit(&gh);
-> @@ -293,7 +295,7 @@ static int gfs2_readpages(struct file *f
->  				goto skip_lock;
->  		}
->  		gfs2_holder_init(ip->i_gl, LM_ST_SHARED,
-> -				 LM_FLAG_TRY_1CB|GL_ATIME|GL_AOP, &gh);
-> +				 LM_FLAG_TRY_1CB|GL_ATIME, &gh);
->  		do_unlock = 1;
->  		ret = gfs2_glock_nq_m_atime(1, &gh);
->  		if (ret == GLR_TRYFAILED)
-> @@ -366,10 +368,13 @@ static int gfs2_prepare_write(struct fil
->  	unsigned int write_len = to - from;
->  
-> 
-> -	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_ATIME|GL_AOP, &ip->i_gh);
-> +	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_ATIME|LM_FLAG_TRY_1CB, &ip->i_gh);
->  	error = gfs2_glock_nq_m_atime(1, &ip->i_gh);
-> -	if (error)
-> +	if (unlikely(error)) {
-> +		if (error == GLR_TRYFAILED)
-> +			error = AOP_TRUNCATED_PAGE;
->  		goto out_uninit;
+>  fs/gfs2/log.c     |   21 ++++++++++++++++++++-
+>  fs/gfs2/log.h     |    2 +-
+>  fs/gfs2/meta_io.c |   17 -----------------
+>  fs/gfs2/meta_io.h |    1 -
+>  4 files changed, 21 insertions(+), 20 deletions(-)
+>=20
+> diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+> index 6456fc3..7713d59 100644
+> --- a/fs/gfs2/log.c
+> +++ b/fs/gfs2/log.c
+> @@ -15,6 +15,7 @@ #include <linux/buffer_head.h>
+>  #include <linux/gfs2_ondisk.h>
+>  #include <linux/crc32.h>
+>  #include <linux/lm_interface.h>
+> +#include <linux/delay.h>
+> =20
+>  #include "gfs2.h"
+>  #include "incore.h"
+> @@ -142,7 +143,7 @@ static int gfs2_ail1_empty_one(struct gf
+>  	return list_empty(&ai->ai_ail1_list);
+>  }
+> =20
+> -void gfs2_ail1_start(struct gfs2_sbd *sdp, int flags)
+> +static void gfs2_ail1_start(struct gfs2_sbd *sdp, int flags)
+>  {
+>  	struct list_head *head =3D &sdp->sd_ail1_list;
+>  	u64 sync_gen;
+> @@ -689,3 +690,21 @@ void gfs2_log_shutdown(struct gfs2_sbd *
+>  	up_write(&sdp->sd_log_flush_lock);
+>  }
+> =20
+> +
+> +/**
+> + * gfs2_meta_syncfs - sync all the buffers in a filesystem
+> + * @sdp: the filesystem
+> + *
+> + */
+> +
+> +void gfs2_meta_syncfs(struct gfs2_sbd *sdp)
+> +{
+> +	gfs2_log_flush(sdp, NULL);
+> +	for (;;) {
+> +		gfs2_ail1_start(sdp, DIO_ALL);
+> +		if (gfs2_ail1_empty(sdp, DIO_ALL))
+> +			break;
+> +		msleep(10);
 > +	}
->  
->  	gfs2_write_calc_reserv(ip, write_len, &data_blocks, &ind_blocks);
->  
--- 
-Russell Cattelan <cattelan@redhat.com>
+> +}
+> +
+> diff --git a/fs/gfs2/log.h b/fs/gfs2/log.h
+> index 7f5737d..8e7aa0f 100644
+> --- a/fs/gfs2/log.h
+> +++ b/fs/gfs2/log.h
+> @@ -48,7 +48,6 @@ static inline void gfs2_log_pointers_ini
+>  unsigned int gfs2_struct2blk(struct gfs2_sbd *sdp, unsigned int nstruct,
+>  			    unsigned int ssize);
+> =20
+> -void gfs2_ail1_start(struct gfs2_sbd *sdp, int flags);
+>  int gfs2_ail1_empty(struct gfs2_sbd *sdp, int flags);
+> =20
+>  int gfs2_log_reserve(struct gfs2_sbd *sdp, unsigned int blks);
+> @@ -61,5 +60,6 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
+>  void gfs2_log_commit(struct gfs2_sbd *sdp, struct gfs2_trans *trans);
+> =20
+>  void gfs2_log_shutdown(struct gfs2_sbd *sdp);
+> +void gfs2_meta_syncfs(struct gfs2_sbd *sdp);
+> =20
+>  #endif /* __LOG_DOT_H__ */
+> diff --git a/fs/gfs2/meta_io.c b/fs/gfs2/meta_io.c
+> index 939a09f..fbeba81 100644
+> --- a/fs/gfs2/meta_io.c
+> +++ b/fs/gfs2/meta_io.c
+> @@ -574,20 +574,3 @@ out:
+>  	return first_bh;
+>  }
+> =20
+> -/**
+> - * gfs2_meta_syncfs - sync all the buffers in a filesystem
+> - * @sdp: the filesystem
+> - *
+> - */
+> -
+> -void gfs2_meta_syncfs(struct gfs2_sbd *sdp)
+> -{
+> -	gfs2_log_flush(sdp, NULL);
+> -	for (;;) {
+> -		gfs2_ail1_start(sdp, DIO_ALL);
+> -		if (gfs2_ail1_empty(sdp, DIO_ALL))
+> -			break;
+> -		msleep(10);
+> -	}
+> -}
+> -
+> diff --git a/fs/gfs2/meta_io.h b/fs/gfs2/meta_io.h
+> index 3ec939e..e037425 100644
+> --- a/fs/gfs2/meta_io.h
+> +++ b/fs/gfs2/meta_io.h
+> @@ -67,7 +67,6 @@ static inline int gfs2_meta_inode_buffer
+>  }
+> =20
+>  struct buffer_head *gfs2_meta_ra(struct gfs2_glock *gl, u64 dblock, u32 =
+extlen);
+> -void gfs2_meta_syncfs(struct gfs2_sbd *sdp);
+> =20
+>  #define buffer_busy(bh) \
+>  ((bh)->b_state & ((1ul << BH_Dirty) | (1ul << BH_Lock) | (1ul << BH_Pinn=
+ed)))
+--=20
+Russell Cattelan <cattelan@thebarn.com>
+
+--=-bMgpic93SbhwW4pnzpwg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFcH+ANRmM+OaGhBgRAqZsAJwJar7tFuNu/Xuu/HthdaHRZdOkmwCePWJb
+QYhr5yFwRTUIsIubt2tFlKw=
+=C44C
+-----END PGP SIGNATURE-----
+
+--=-bMgpic93SbhwW4pnzpwg--
 

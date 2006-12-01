@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031725AbWLASim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031726AbWLASlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031725AbWLASim (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 13:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031726AbWLASim
+	id S1031726AbWLASlt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 13:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031727AbWLASlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 13:38:42 -0500
-Received: from cattelan-host202.dsl.visi.com ([208.42.117.202]:51440 "EHLO
-	slurp.thebarn.com") by vger.kernel.org with ESMTP id S1031725AbWLASil
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 13:38:41 -0500
-Subject: Re: [GFS2 & DLM] Guide to -nmw tree patches
-From: Russell Cattelan <cattelan@thebarn.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Steven Whitehouse <swhiteho@redhat.com>, cluster-devel@redhat.com,
+	Fri, 1 Dec 2006 13:41:49 -0500
+Received: from mx2.suse.de ([195.135.220.15]:46258 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1031726AbWLASls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 13:41:48 -0500
+Date: Fri, 1 Dec 2006 10:41:23 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Lu, Yinghai" <yinghai.lu@amd.com>
+Cc: Stefan Reinauer <stepan@coresystems.de>,
+       Peter Stuge <stuge-linuxbios@cdy.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, linuxbios@linuxbios.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <1164889309.3233.8.camel@laptopd505.fenrus.org>
-References: <1164888733.3752.302.camel@quoit.chygwyn.com>
-	 <1164889309.3233.8.camel@laptopd505.fenrus.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0EqkZFwSQTyYJ8+cmr1M"
-Date: Fri, 01 Dec 2006 12:38:14 -0600
-Message-Id: <1164998294.1194.57.camel@xenon.msp.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1-1mdv2007.1 
+Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
+Message-ID: <20061201184123.GA2996@suse.de>
+References: <5986589C150B2F49A46483AC44C7BCA4907273@ssvlexmb2.amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907273@ssvlexmb2.amd.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 01, 2006 at 10:26:19AM -0800, Lu, Yinghai wrote:
+> -----Original Message-----
+> From: Lu, Yinghai 
+> 
+> >To my understanding, you don't need to waiting for Eric's code.
+> >You can use the cable on two systems without debug port support.
+> >So just extend the program to make it can write the data too.
+> 
+> Greg,
+> 
+> Anyone is working on creating one usb_serial_driver for USB debug device
+> without using host debug port?
 
---=-0EqkZFwSQTyYJ8+cmr1M
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I can do that in about 15 minutes if you give me the device ids for the
+usb debug device that you wish to have.
 
-On Thu, 2006-11-30 at 13:21 +0100, Arjan van de Ven wrote:
-> On Thu, 2006-11-30 at 12:12 +0000, Steven Whitehouse wrote:
-> > Hi,
-> >=20
-> > Below is a summary diffstat of all the changes in the GFS2 & DLM -nmw
-> > (next merge window) git tree. Since merge time is once again upon us,
-> > the following patches are the current complete content of the tree.
->=20
->=20
-> Hi,
->=20
-> can you please make sure your patch series is in reply to your first
-> message, so that your mails properly thread in mail clients?
->=20
-> (everyone else seems to manage this, I bet the git or quilt patch series
-> send stuff has this built in somehow..)
+Or you can also use the generic usb-serial driver today just fine with
+no modification.  Have you had a problem with using that option?
 
-I agree.
+thanks,
 
-I would also continue to urge for internal reviews (since this is
-the first I have seen any of these changes) before spamming lkml
-with 70 loosely related patches.
-
->=20
-> Greetings,
->   Arjan van de Ven
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-Russell Cattelan <cattelan@thebarn.com>
-
---=-0EqkZFwSQTyYJ8+cmr1M
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFcHaWNRmM+OaGhBgRAgG1AJ0URQ36QXCiXmyBkrqhTSoVIqt6JwCfSz+3
-POf4brJFDK99eiDFDOS8mPk=
-=/g5n
------END PGP SIGNATURE-----
-
---=-0EqkZFwSQTyYJ8+cmr1M--
-
+greg k-h

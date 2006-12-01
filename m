@@ -1,140 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030731AbWLALY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936470AbWLALhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030731AbWLALY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 06:24:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936460AbWLALY7
+	id S936470AbWLALhh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 06:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936471AbWLALhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 06:24:59 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:50955 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S936458AbWLALY6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 06:24:58 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <mrmacman_g4@mac.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Date: Fri, 1 Dec 2006 03:24:54 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEDBABAC.davids@webmaster.com>
+	Fri, 1 Dec 2006 06:37:37 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44294 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S936470AbWLALhg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 06:37:36 -0500
+Date: Fri, 1 Dec 2006 12:37:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: please pull from the trivial tree
+Message-ID: <20061201113740.GP11084@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-In-Reply-To: <A3610BE9-66B4-452A-9EEB-D2620A4958E2@mac.com>
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 01 Dec 2006 04:27:54 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 01 Dec 2006 04:27:55 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please pull from:
 
-> Imagine we change the code to read from some auto-increment hardware
-> at a specific MMIO address instead of a global:
-> > static int my_func(int a)
-> > {
-> > 	return a + *(volatile int *)(0xABCD1234);
-> > }
+  git://git.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
 
-> But you're telling me that the change in the header file (where the
-> new function returns the exact same series of values with every call
-> as the old) causes the program to enter an infinite loop?
->
-> How do you rationalize this again?
 
-No, I'm not saying that. I'm saying it *can*.
+This tree contains the following:
 
-We try to write code so that no matter what information the compiler has, it
-will still build correct code if the compiler is correct. When we don't do
-this, smarter compilers compile our code into executables that don't do what
-we want.
+Alexey Dobriyan (1):
+      mqueue.h: don't include linux/types.h
 
-In some cases, it's very unlikely that compilers will ever become smart
-enough to demonstrate that our code is broken, but that doesn't make the
-code any less broken, just less likely to fail.
+Chase Venters (1):
+      Fix jiffies.h comment
 
-> > The 'readl' function should actually assign the value to a volatile
-> > variable. Assignments to volatiles cannot be cast away, but casts
-> > can and assignments to non-volatile variables can be optimized out.
+Eric Sesterhenn (3):
+      BUG_ON conversion for drivers/media/video/pwc/pwc-if.c
+      BUG_ON conversion for drivers/mmc/omap.c
+      BUG_ON conversion for fs/aio.c
 
-> Actually, no.  The reason for the volatile in the pointer dereference
-> is to force the memory access to *always* happen.
+Jan Engelhardt (2):
+      Fix typos in doc and comments
+      Fix typos in drivers/isdn/hisax/isdnl2.c
 
-That's why it was placed there, however it was thrown away right after it
-was placed, in the same step it was supposed to force a memory access.
+Jim Cromie (2):
+      fix spelling error in include/linux/kernel.h
+      tabify MAINTAINERS
 
-> It's a guarantee
-> that the compiler will do that memory access every time it appears.
+Matt LaPlante (5):
+      Fix typos in /Documentation : 'T''
+      Fix typos in /Documentation : 'U-Z'
+      Fix typos in /Documentation : Misc
+      Fix misc Kconfig typos
+      Fix misc .c/.h comment typos
 
-Unless you throw it away before the memory access or in the same step as the
-memory access, say by casting it.
 
-> You have a volatile int afterwards and what you do with that nobody
-> cares.
-
-You have a volatile int unless you cast it so something else.
-
-> The point is the presence of the volatile in a single pointer-
-> dereference forcibly turns off any optimization of that specific
-> access, including loop unrolling and such.
-
-It did that in the past, because optimizers weren't smart enough. Now
-they're smarter, and so the breakage in the code is becoming apparent.
-
-The code is broken because it gets rid of the volatile in the same step that
-it expects the volatile to have effect. Only an assignment to a volatile
-variable cannot be elided by a cast.
-
-To put it another way:
-
-int j=*(int *)(volatile int *)f;
-is the same as
-int j=*(int *)f;
-
-Because the 'int *' cast removes the 'volatile int *' cast. This applies to
-whatever is cast, and whenever it is cast or assigned.
-
-Let's look back at 'readl':
-
-static inline unsigned int readl(const volatile void __iomem *addr)
-{
-        return *(volatile unsigned int __force *) addr;
-}
-
-Notice that there is no assignment to anything volatile qualified. Notice
-also that before any assignment takes place, and in the same step as the
-access that you thing can't be eliminated, the result is cast to an
-'unsigned int' and returned.
-
-The problem is that '*(volatile unsigned int *)' results in a 'volatile
-unsigned int'. The *assignment* occurs in the return operation, after the
-'volatile unsigned int' is *cast* to a plain 'unsigned int'. The assignment
-is *not* in any sense volatile or inviolate, so neither is the return value.
-
-One solution would be this:
-
-static inline unsigned int readl(const volatile void __iomem *addr)
-{
- volatile unsigned int j;
- j=*(volatile unsigned int __force *) addr;
- return j;
-}
-
-This will probably result in an extra memory access though. There are
-probably better solutions but I can't think of any at the moment.
-
-(This may or may not fix the issue though. There is at least one known
-compiler issue that might be causing the breakage. However, correct compiler
-optimizations should be ruled out first.)
-
-DS
-
+ Documentation/Changes                           |    2 
+ Documentation/DMA-API.txt                       |    2 
+ Documentation/DMA-ISA-LPC.txt                   |    2 
+ Documentation/MSI-HOWTO.txt                     |    2 
+ Documentation/accounting/taskstats.txt          |   10 -
+ Documentation/block/biodoc.txt                  |   10 -
+ Documentation/cpu-freq/cpufreq-nforce2.txt      |    4 
+ Documentation/cpu-hotplug.txt                   |    4 
+ Documentation/devices.txt                       |    8 
+ Documentation/driver-model/porting.txt          |    2 
+ Documentation/dvb/ci.txt                        |    4 
+ Documentation/eisa.txt                          |    2 
+ Documentation/filesystems/adfs.txt              |    2 
+ Documentation/filesystems/configfs/configfs.txt |    4 
+ Documentation/filesystems/fuse.txt              |    4 
+ Documentation/filesystems/hpfs.txt              |    2 
+ Documentation/filesystems/ntfs.txt              |    4 
+ Documentation/filesystems/ocfs2.txt             |    2 
+ Documentation/filesystems/proc.txt              |   10 -
+ Documentation/filesystems/spufs.txt             |    2 
+ Documentation/fujitsu/frv/gdbstub.txt           |    2 
+ Documentation/fujitsu/frv/kernel-ABI.txt        |    2 
+ Documentation/ide.txt                           |    2 
+ Documentation/input/amijoy.txt                  |    4 
+ Documentation/input/atarikbd.txt                |   12 -
+ Documentation/input/yealink.txt                 |    2 
+ Documentation/ioctl/cdrom.txt                   |    2 
+ Documentation/kbuild/makefiles.txt              |   10 -
+ Documentation/keys.txt                          |    2 
+ Documentation/laptop-mode.txt                   |    8 
+ Documentation/memory-barriers.txt               |    2 
+ Documentation/networking/NAPI_HOWTO.txt         |   26 +-
+ Documentation/networking/cs89x0.txt             |    6 
+ Documentation/networking/iphase.txt             |    2 
+ Documentation/networking/packet_mmap.txt        |    2 
+ Documentation/networking/pktgen.txt             |    6 
+ Documentation/networking/proc_net_tcp.txt       |    2 
+ Documentation/networking/sk98lin.txt            |    2 
+ Documentation/networking/slicecom.txt           |    2 
+ Documentation/networking/wan-router.txt         |    8 
+ Documentation/pnp.txt                           |    2 
+ Documentation/power/pci.txt                     |    4 
+ Documentation/power/states.txt                  |    2 
+ Documentation/power/swsusp.txt                  |    2 
+ Documentation/powerpc/booting-without-of.txt    |    8 
+ Documentation/robust-futex-ABI.txt              |    2 
+ Documentation/robust-futexes.txt                |    2 
+ Documentation/s390/crypto/crypto-API.txt        |    4 
+ Documentation/scsi/aic79xx.txt                  |    4 
+ Documentation/scsi/aic7xxx_old.txt              |    4 
+ Documentation/scsi/ibmmca.txt                   |   14 -
+ Documentation/scsi/in2000.txt                   |    2 
+ Documentation/scsi/libsas.txt                   |    2 
+ Documentation/scsi/ncr53c8xx.txt                |    2 
+ Documentation/scsi/scsi-changer.txt             |    4 
+ Documentation/scsi/scsi_eh.txt                  |    2 
+ Documentation/scsi/st.txt                       |    2 
+ Documentation/scsi/sym53c8xx_2.txt              |    2 
+ Documentation/sharedsubtree.txt                 |    4 
+ Documentation/sound/alsa/ALSA-Configuration.txt |    2 
+ Documentation/sound/alsa/Audigy-mixer.txt       |    2 
+ Documentation/sound/alsa/SB-Live-mixer.txt      |    2 
+ Documentation/stable_kernel_rules.txt           |    2 
+ Documentation/sysctl/fs.txt                     |    2 
+ Documentation/sysctl/vm.txt                     |    2 
+ Documentation/uml/UserModeLinux-HOWTO.txt       |    2 
+ Documentation/usb/hiddev.txt                    |    2 
+ Documentation/usb/rio.txt                       |    4 
+ Documentation/usb/usb-serial.txt                |    8 
+ Documentation/watchdog/watchdog-api.txt         |    2 
+ MAINTAINERS                                     |  144 ++++++++--------
+ arch/arm/mach-ixp4xx/Kconfig                    |    2 
+ arch/arm/mach-lh7a40x/Kconfig                   |    2 
+ arch/arm/mach-s3c2410/Kconfig                   |    2 
+ arch/arm/mm/Kconfig                             |    2 
+ arch/cris/arch-v10/Kconfig                      |    2 
+ arch/cris/arch-v10/drivers/Kconfig              |    2 
+ arch/cris/arch-v10/drivers/eeprom.c             |    6 
+ arch/cris/arch-v10/drivers/i2c.c                |    2 
+ arch/cris/arch-v10/kernel/kgdb.c                |    2 
+ arch/cris/arch-v32/drivers/Kconfig              |    8 
+ arch/ia64/hp/common/sba_iommu.c                 |    8 
+ arch/m68knommu/Kconfig                          |    4 
+ arch/mips/Kconfig                               |    4 
+ arch/powerpc/Kconfig                            |    2 
+ arch/powerpc/platforms/83xx/Kconfig             |    4 
+ arch/ppc/Kconfig                                |    2 
+ arch/sh/Kconfig                                 |    2 
+ arch/sh64/lib/dbg.c                             |    2 
+ arch/sparc/Kconfig                              |    4 
+ arch/um/drivers/chan_user.c                     |    2 
+ drivers/atm/iphase.c                            |    2 
+ drivers/char/Kconfig                            |    2 
+ drivers/char/rio/riocmd.c                       |    2 
+ drivers/char/rio/rioinit.c                      |    2 
+ drivers/char/rio/rioparam.c                     |    6 
+ drivers/ide/ide-floppy.c                        |    2 
+ drivers/isdn/hardware/eicon/os_4bri.c           |    2 
+ drivers/isdn/hisax/hfc4s8s_l1.h                 |    2 
+ drivers/isdn/hisax/isdnl2.c                     |   20 +-
+ drivers/media/dvb/ttpci/budget-patch.c          |    8 
+ drivers/media/video/Kconfig                     |    2 
+ drivers/media/video/pwc/pwc-if.c                |    3 
+ drivers/message/fusion/mptbase.c                |    2 
+ drivers/mmc/omap.c                              |    3 
+ drivers/mtd/maps/Kconfig                        |    2 
+ drivers/mtd/maps/cfi_flagadm.c                  |    2 
+ drivers/net/Kconfig                             |    4 
+ drivers/net/e100.c                              |    2 
+ drivers/net/e1000/e1000_hw.c                    |    2 
+ drivers/net/phy/Kconfig                         |    4 
+ drivers/net/sk98lin/h/skdrv2nd.h                |    2 
+ drivers/net/sk98lin/skdim.c                     |    4 
+ drivers/net/wireless/ipw2200.c                  |    4 
+ drivers/parisc/ccio-dma.c                       |    2 
+ drivers/parisc/iosapic.c                        |    6 
+ drivers/pci/Kconfig                             |    4 
+ drivers/pci/hotplug/ibmphp_hpc.c                |    2 
+ drivers/s390/net/claw.h                         |    2 
+ drivers/scsi/aic94xx/aic94xx_reg_def.h          |    2 
+ drivers/scsi/aic94xx/aic94xx_sds.c              |    4 
+ drivers/scsi/ncr53c8xx.c                        |   14 -
+ drivers/scsi/ncr53c8xx.h                        |    6 
+ drivers/spi/Kconfig                             |    2 
+ drivers/usb/host/Kconfig                        |    2 
+ drivers/usb/host/u132-hcd.c                     |    6 
+ drivers/usb/misc/usb_u132.h                     |    2 
+ drivers/usb/serial/digi_acceleport.c            |    2 
+ fs/Kconfig                                      |    4 
+ fs/aio.c                                        |    6 
+ fs/jfs/jfs_filsys.h                             |    2 
+ fs/reiserfs/journal.c                           |    6 
+ include/asm-m68knommu/mcfmbus.h                 |    2 
+ include/asm-parisc/dma.h                        |    6 
+ include/asm-parisc/pci.h                        |    2 
+ include/asm-parisc/ropes.h                      |    2 
+ include/linux/ixjuser.h                         |    2 
+ include/linux/jiffies.h                         |    2 
+ include/linux/kernel.h                          |    2 
+ include/linux/mqueue.h                          |    2 
+ include/linux/reiserfs_fs_sb.h                  |    2 
+ include/linux/textsearch.h                      |    4 
+ lib/textsearch.c                                |    2 
+ net/wanrouter/af_wanpipe.c                      |    4 
+ net/wanrouter/wanmain.c                         |    2 
+ sound/Kconfig                                   |    4 
+ sound/oss/cs46xx.c                              |    6 
+ 147 files changed, 344 insertions(+), 350 deletions(-)
 

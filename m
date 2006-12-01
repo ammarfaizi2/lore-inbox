@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936467AbWLAPW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936471AbWLAPYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936467AbWLAPW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936471AbWLAPW7
+	id S936471AbWLAPYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 10:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936501AbWLAPYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:22:59 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:8076 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S936467AbWLAPW6 (ORCPT
+	Fri, 1 Dec 2006 10:24:46 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:7176 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S936471AbWLAPYp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:22:58 -0500
-Date: Fri, 1 Dec 2006 07:24:13 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Josh Triplett <josh@freedesktop.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [PATCH] Add Sparse annotations to SRCU wrapper functions in rcutorture
-Message-ID: <20061201152413.GB1927@us.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <456F9D2D.9090305@freedesktop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Dec 2006 10:24:45 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: Willy Tarreau <wtarreau@hera.kernel.org>
+Subject: [2.4 PATCH] mips/mips64 mv64340 parenthesis fixes
+Date: Fri, 1 Dec 2006 16:24:20 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <456F9D2D.9090305@freedesktop.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200612011624.21006.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 07:10:37PM -0800, Josh Triplett wrote:
-> The SRCU wrapper functions srcu_torture_read_lock and srcu_torture_read_unlock
-> in rcutorture intentionally change the SRCU context; annotate them
-> accordingly, to avoid a warning.
+Hello,
 
-Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+	This patch fixes parenthesis mv64340 stuff in both mips and mips64 code.
 
-> Signed-off-by: Josh Triplett <josh@freedesktop.org>
-> ---
->  kernel/rcutorture.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/rcutorture.c b/kernel/rcutorture.c
-> index cd27547..ddafbbf 100644
-> --- a/kernel/rcutorture.c
-> +++ b/kernel/rcutorture.c
-> @@ -401,7 +401,7 @@ static void srcu_torture_cleanup(void)
->  	cleanup_srcu_struct(&srcu_ctl);
->  }
->  
-> -static int srcu_torture_read_lock(void)
-> +static int srcu_torture_read_lock(void) __acquires(&srcu_ctl)
->  {
->  	return srcu_read_lock(&srcu_ctl);
->  }
-> @@ -419,7 +419,7 @@ static void srcu_read_delay(struct rcu_random_state *rrsp)
->  		schedule_timeout_interruptible(longdelay);
->  }
->  
-> -static void srcu_torture_read_unlock(int idx)
-> +static void srcu_torture_read_unlock(int idx) __releases(&srcu_ctl)
->  {
->  	srcu_read_unlock(&srcu_ctl, idx);
->  }
-> -- 
-> 1.4.4.1
-> 
-> 
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+
+ include/asm-mips/mv64340.h   |    2 +-
+ include/asm-mips64/mv64340.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -upr linux-2.4.34-pre6-a/include/asm-mips/mv64340.h linux-2.4.34-pre6-b/include/asm-mips/mv64340.h
+--- linux-2.4.34-pre6-a/include/asm-mips/mv64340.h	2003-08-25 13:44:43.000000000 +0200
++++ linux-2.4.34-pre6-b/include/asm-mips/mv64340.h	2006-12-01 11:56:57.000000000 +0100
+@@ -718,7 +718,7 @@
+ #define MV64340_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
+ #define MV64340_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
+ #define MV64340_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
+-#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
++#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
+ #define MV64340_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
+ #define MV64340_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
+ #define MV64340_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
+diff -upr linux-2.4.34-pre6-a/include/asm-mips64/mv64340.h linux-2.4.34-pre6-b/include/asm-mips64/mv64340.h
+--- linux-2.4.34-pre6-a/include/asm-mips64/mv64340.h	2003-08-25 13:44:44.000000000 +0200
++++ linux-2.4.34-pre6-b/include/asm-mips64/mv64340.h	2006-12-01 12:01:03.000000000 +0100
+@@ -718,7 +718,7 @@
+ #define MV64340_ETH_RX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2470 + (port<<10))
+ #define MV64340_ETH_TX_FIFO_URGENT_THRESHOLD_REG(port)             (0x2474 + (port<<10))
+ #define MV64340_ETH_RX_MINIMAL_FRAME_SIZE_REG(port)                (0x247c + (port<<10))
+-#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10)
++#define MV64340_ETH_RX_DISCARDED_FRAMES_COUNTER(port)              (0x2484 + (port<<10))
+ #define MV64340_ETH_PORT_DEBUG_0_REG(port)                         (0x248c + (port<<10))
+ #define MV64340_ETH_PORT_DEBUG_1_REG(port)                         (0x2490 + (port<<10))
+ #define MV64340_ETH_PORT_INTERNAL_ADDR_ERROR_REG(port)             (0x2494 + (port<<10))
 
 
+-- 
+Regards,
+
+	Mariusz Kozlowski

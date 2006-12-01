@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031678AbWLABJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031680AbWLABLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031678AbWLABJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 20:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031680AbWLABJB
+	id S1031680AbWLABLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 20:11:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031687AbWLABLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 20:09:01 -0500
-Received: from ip-85-160-27-120.eurotel.cz ([85.160.27.120]:62224 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S1031678AbWLABJA (ORCPT
+	Thu, 30 Nov 2006 20:11:24 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:35339 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1031680AbWLABLX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 20:09:00 -0500
-Date: Fri, 1 Dec 2006 02:08:59 +0100
-From: "gary.czek" <gary@czek.info>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ICH6M SATA Controller, SATA2 NCQ disk and high iowait CPU time
-Message-ID: <20061201020859.21db6dcb@localhost>
-In-Reply-To: <456F7C69.90800@gmail.com>
-References: <1164404380.20334.37.camel@localhost>
-	<456A5936.9080903@gmail.com>
-	<20061130180646.66dc622b@localhost>
-	<456F7C69.90800@gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.10.6; i486-pc-linux-gnu)
-X-Operating-System: Ubuntu Edgy Eft (Linux i686)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Nov 2006 20:11:23 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
+References: <20061130072058.GA18004@wotan.suse.de>
+	<20061130072202.GB18004@wotan.suse.de>
+	<20061130072247.GC18004@wotan.suse.de>
+	<20061130113241.GC12579@wotan.suse.de>
+	<87r6vkzinv.fsf@duaron.myhome.or.jp>
+	<20061201002750.GA455@wotan.suse.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 01 Dec 2006 10:11:14 +0900
+In-Reply-To: <20061201002750.GA455@wotan.suse.de> (Nick Piggin's message of "Fri\, 1 Dec 2006 01\:27\:50 +0100")
+Message-ID: <873b80v2rx.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Dec 2006 09:50:49 +0900
+Nick Piggin <npiggin@suse.de> writes:
 
-Tejun Heo <htejun@gmail.com> wrote:
+> I would be happy if you come up with a quick fix, I'm just trying to
+> stamp out a few big bugs in mm. However I did prefer my way of moving
+> all the exapand code into generic_cont_expand, out of prepare_write, and
+> avoiding holding the target page locked while we're doing all the expand
+> work (strictly, you might be able to get away with this, but it is
+> fragile and ugly).
+>
+> AFAIKS, the only reason to use prepare_write is to avoid passing the
+> get_block into generic_cont_expand?
 
-> Your machine is thrashing.  Working set size is over the available
-> memory and pages are continuously getting dropped and then brought
-> back. Run top and press 'M' after the list showed up.  It will show
-> who are consuming all the memory.  Adding 1G should solve the problem
-> but just another 256M will make a big difference too.
- 
-Well... The problem is solved.
-Thanks a lot for your time.
-I look forward for additional 1Gig.
+IIRC, because generic_cont_expand is designed as really generic. It
+can also use for non moronic filesystem.
 
-Thanks a lot twice more time.
+In the case of reiserfs, it ->prepare_write might be necessary.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

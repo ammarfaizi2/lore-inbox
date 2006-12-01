@@ -1,90 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933575AbWLAHMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933835AbWLAHQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933575AbWLAHMP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 02:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933577AbWLAHMP
+	id S933835AbWLAHQc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 02:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933843AbWLAHQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 02:12:15 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:42092 "EHLO kernel.dk")
-	by vger.kernel.org with ESMTP id S933575AbWLAHMO (ORCPT
+	Fri, 1 Dec 2006 02:16:31 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:5296 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S933835AbWLAHQ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 02:12:14 -0500
-Date: Fri, 1 Dec 2006 08:12:40 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Nathan Lynch <ntl@pobox.com>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       pavel@ucw.cz, bryce@osdl.org, Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: CPU hotplug broken with 2GB VMSPLIT
-Message-ID: <20061201071239.GC5400@kernel.dk>
-References: <20061130090348.GK5400@kernel.dk> <20061130091334.GM5400@kernel.dk> <20061130164347.GB22050@localdomain> <20061130172058.GC22050@localdomain> <1164941307.4640.1.camel@sli10-conroe.sh.intel.com>
+	Fri, 1 Dec 2006 02:16:29 -0500
+Date: Thu, 30 Nov 2006 23:16:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mike Mattie <codermattie@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: snd-usb-audio (I think) hangs apps ( audacious media
+ player )  in 'D' state, linux = 2.6.18.3
+Message-Id: <20061130231627.d1df7c58.akpm@osdl.org>
+In-Reply-To: <20061130222145.4e5d5f0e@reforged>
+References: <20061130222145.4e5d5f0e@reforged>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1164941307.4640.1.camel@sli10-conroe.sh.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01 2006, Shaohua Li wrote:
-> On Fri, 2006-12-01 at 01:20 +0800, Nathan Lynch wrote:
-> > Nathan Lynch wrote:
-> > > Jens Axboe wrote:
-> > > > On Thu, Nov 30 2006, Jens Axboe wrote:
-> > > > > Hi,
-> > > > >
-> > > > > Just got a new notebook (Lenovo X60), setup a custom kernel and
-> > then I
-> > > > > noticed that suspend to ram doesn't work anymore. The machine
-> > suspends
-> > > > > just fine, on resume it brings back the text display but reboots
-> > after
-> > > > > it has stalled for a few seconds. On the suggestion of Pavel, I
-> > tried
-> > > > > testing CPU hotplug, and indeed he was right: I can offline 1 of
-> > the
-> > > > > cores fine, bringing it back online freezes the machine for 3-4
-> > seconds
-> > > > > and then reboots.
-> > > > >
-> > > > > carl:/sys/devices/system/cpu/cpu1 # echo 0 > online
-> > > > > carl:/sys/devices/system/cpu/cpu1 # dmesg
-> > > > > Breaking affinity for irq 219
-> > > > > CPU 1 is now offline
-> > > > > SMP alternatives: switching to UP code
-> > > > > carl:/sys/devices/system/cpu/cpu1 # echo 1 > online
-> > > > > Read from remote host carl: Connection reset by peer
-> > > > >
-> > > > > Booting with maxcpus=1 and resume works fine. Does this ring a
-> > bell with
-> > > > > anyone? With highmem enabled and the standard vmsplit, cpu
-> > hotplug works
-> > > > > fine for me.
-> > > >
-> > > > Some more clues - booting with noreplacement doesn't fix it, so I
-> > think
-> > > > the alternatives code is off the hook.
-> > >
-> > > I don't think this adds any new information, but it has been open
-> > > awhile:
-> > >
-> > > http://bugme.osdl.org/show_bug.cgi?id=6542
-> > >
-> > > I was able to narrow it down to the vmsplit setting but I wasn't
-> > able
-> > > to debug it further.
-> > 
-> > Hmm, I'm pretty sure this is the same problem I reported in March,
-> > there might be some more information in that thread:
-> > 
-> > http://marc.theaimsgroup.com/?t=114039363100002&r=1&w=1
-> > 
-> > but I didn't realize it was vmsplit-related at that time.
-> Does this patch help?
+On Thu, 30 Nov 2006 22:21:45 -0800
+Mike Mattie <codermattie@gmail.com> wrote:
 
-It does! Booted a vmsplit 2G kernel again, and started with offlining
-and onlining CPU1. Worked fine, that would previously reboot the
-notebook. Then I did a suspend-to-ram -> resume cycle, worked fine as
-well. Thanks!
+> I use a soundblaster audigy 2 NX external sound card in USB 2.0 high
+> speed mode. 
+> 
+> Until 2.6.18 pausing the player would instantly 'D' state
+> audacious, requiring a re-boot. I thought it went away in 2.6.18 but
+> it recently hung again when the system was under heavy load. This
+> most recent hang occured while playing for the first
+> time, and produced a 'Zl' state in audacious instead of a D state.
 
--- 
-Jens Axboe
+Next time it happens please do
 
+	echo t > /proc/sysrq-trigger
+	dmesg -s 1000000 > foo
+
+and send foo.

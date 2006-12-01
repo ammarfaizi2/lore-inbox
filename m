@@ -1,114 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967535AbWLAIoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030177AbWLAIzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967535AbWLAIoL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 03:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967556AbWLAIoL
+	id S1030177AbWLAIzU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 03:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWLAIzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 03:44:11 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:17930 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S967535AbWLAIoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 03:44:10 -0500
-Date: Fri, 1 Dec 2006 08:43:59 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux PCI mailing list <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>
-Subject: Resend: [RFC] /sys/bus/pci/drivers/<driver>/new_id
-Message-ID: <20061201084359.GB13646@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux PCI mailing list <linux-pci@atrey.karlin.mff.cuni.cz>,
-	Greg KH <greg@kroah.com>
+	Fri, 1 Dec 2006 03:55:20 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9709 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030177AbWLAIzT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 03:55:19 -0500
+Date: Fri, 1 Dec 2006 09:55:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gautham R Shenoy <ego@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, davej@redhat.com, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Message-ID: <20061201085502.GA29060@elte.hu>
+References: <20061129152404.GA7082@in.ibm.com> <20061129130556.d20c726e.akpm@osdl.org> <20061130042807.GA4855@in.ibm.com> <20061130063512.GA19492@in.ibm.com> <20061130082934.GB29609@elte.hu> <20061201014313.GA25074@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061201014313.GA25074@in.ibm.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
 
-Date:	Wed, 29 Nov 2006 21:18:04 +0000
-From:	Russell King <rmk+lkml@arm.linux.org.uk>
-To:	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux PCI mailing list <linux-pci@atrey.karlin.mff.cuni.cz>,
-	Greg KH <greg@kroah.com>
-Subject: /sys/bus/pci/drivers/<driver>/new_id
+* Gautham R Shenoy <ego@in.ibm.com> wrote:
 
-Unfortunately, the .../new_id feature does not work with the 8250_pci
-driver.
+> Consider a case where we have three locks A, B and C.
+> We have very clear locking rule inside the kernel that lock A *should*
+> be acquired before acquiring either lock B or lock C.
+> 
+> At runtime lockdep detects the two dependency chains,
+> A --> B --> C
+> 
+> and
+> 
+> A --> C --> B.
+> 
+> Does lockdep issue a circular dependency warning for this ? 
+> It's quite clear from the locking rule that we cannot have a
+> circular deadlock, since A acts as a mutex for B->C / C->B callpath.
+> 
+> Just curious :-) [ Well, I might encounter such a scenario in an attempt
+> 		   to make cpufreq cpu-hotplug safe! ]
 
-The reason for this comes down to the way .../new_id is implemented.
-When PCI tries to match a driver to a device, it checks the modules
-static device ID tables _before_ checking the dynamic new_id tables.
+yes, lockdep will warn about this. Will you /ever/ have a B->C or C->B 
+dependency without A being taken first?
 
-When a driver is capable of matching by ID, and falls back to matching
-by class (as 8250_pci does), this makes it absolutely impossible to
-specify a board by ID, and as such the correct driver_data value to
-use with it.
+if not then my suggestion would be to just lump 'B' and 'C' into a 
+single lock - or to get rid of them altogether. There's little reason to 
+keep them separate. /If/ you want to keep them separate (because they 
+protect different data structures) then it's the cleanest design to have 
+an ordering between them. The taking of 'A' might go away anytime - such 
+a construct is really, really fragile and is only asking for trouble.
 
-Let's say you have a serial board with vendor 0x1234 and device 0x5678.
-It's class is set to PCI_CLASS_COMMUNICATION_SERIAL.
-
-On boot, this card is matched to the 8250_pci driver, which tries to
-probe it because it matched using the class entry.  The driver finds
-that it is unable to automatically detect the correct settings to use,
-so it returns -ENODEV.
-
-You know that the information the driver needs is to match this card
-using a device_data value of '7'.  So you echo 1234 5678 0 0 0 0 7
-into new_id.
-
-The kernel attempts to re-bind 8250_pci to this device.  However,
-because it scans the PCI driver tables, it _again_ matches the class
-entry which has the wrong device_data.  It fails.
-
-End of story.  You can't support the card without rebuilding the
-kernel (or writing a specific PCI probe module to support it.)
-
-So, can we make new_id override the driver-internal PCI ID tables?
-IOW, like this:
-
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 194f1d2..dc0bca9 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -165,10 +165,6 @@ const struct pci_device_id *pci_match_de
- 	const struct pci_device_id *id;
- 	struct pci_dynid *dynid;
- 
--	id = pci_match_id(drv->id_table, dev);
--	if (id)
--		return id;
--
- 	/* static ids didn't match, lets look at the dynamic ones */
- 	spin_lock(&drv->dynids.lock);
- 	list_for_each_entry(dynid, &drv->dynids.list, node) {
-@@ -178,7 +174,8 @@ const struct pci_device_id *pci_match_de
- 		}
- 	}
- 	spin_unlock(&drv->dynids.lock);
--	return NULL;
-+
-+	return pci_match_id(drv->id_table, dev);
- }
- 
- static int pci_call_probe(struct pci_driver *drv, struct pci_dev *dev,
-
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+	Ingo

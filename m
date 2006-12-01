@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759079AbWLAFOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759074AbWLAFWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759079AbWLAFOc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 00:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759077AbWLAFOc
+	id S1759074AbWLAFWg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 00:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759077AbWLAFWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 00:14:32 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49104 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1759079AbWLAFOb (ORCPT
+	Fri, 1 Dec 2006 00:22:36 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:33683 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1759074AbWLAFWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 00:14:31 -0500
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@osdl.org>
-cc: Willy Tarreau <w@1wt.eu>, Jakub Jelinek <jakub@redhat.com>,
-       Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, ak@suse.de
-Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away 
-In-reply-to: Your message of "Thu, 30 Nov 2006 21:05:51 -0800."
-             <20061130210551.e5ca0f29.akpm@osdl.org> 
+	Fri, 1 Dec 2006 00:22:35 -0500
+Date: Thu, 30 Nov 2006 21:19:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] arch/i386/kernel/reboot.c should #include
+ <linux/reboot.h>
+Message-Id: <20061130211922.73112be6.akpm@osdl.org>
+In-Reply-To: <20061129100426.GM11084@stusta.de>
+References: <20061129100426.GM11084@stusta.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Dec 2006 16:14:04 +1100
-Message-ID: <22166.1164950044@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (on Thu, 30 Nov 2006 21:05:51 -0800) wrote:
->On Wed, 29 Nov 2006 21:14:10 +0100
->Willy Tarreau <w@1wt.eu> wrote:
->
->> Then why not simply check for gcc 4.1.0 in compiler.h and refuse to build
->> with 4.1.0 if it's known to produce bad code ?
->
->Think so.  I'll queue this and see how many howls it causes.
->
->--- a/init/main.c~gcc-4-1-0-is-bust
->+++ a/init/main.c
->@@ -75,6 +75,10 @@
-> #error Sorry, your GCC is too old. It builds incorrect kernels.
-> #endif
-> 
->+#if __GNUC__ == 4 && __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 0
->+#error gcc-4.1.0 is known to miscompile the kernel.  Please use a different compiler version.
->+#endif
->+
-> static int init(void *);
-> 
-> extern void init_IRQ(void);
+On Wed, 29 Nov 2006 11:04:26 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-SuSE's SLES10 ships with gcc 4.1.0.  There is nothing to stop a
-distributor from backporting the bug fix from gcc 4.1.1 to 4.1.0, but
-this patch would not allow the fixed compiler to build the kernel.
+> Every file should #include the headers containing the prototypes for 
+> its global functions.
 
+--- a/Makefile~add-gcc-wmissing-prototypes
++++ a/Makefile
+@@ -313,7 +313,7 @@ LINUXINCLUDE    := -Iinclude \
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+ CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-                   -fno-strict-aliasing -fno-common
++                   -fno-strict-aliasing -fno-common -Wmissing-prototypes
+ AFLAGS          := -D__ASSEMBLY__
+ 
+ # Read KERNELRELEASE from include/config/kernel.release (if it exists)
+_
+
+Have fun...

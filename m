@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936369AbWLAK6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936390AbWLAK7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936369AbWLAK6h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 05:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936381AbWLAK6h
+	id S936390AbWLAK7v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 05:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936388AbWLAK7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 05:58:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27334 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S936379AbWLAK6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 05:58:36 -0500
-Date: Fri, 1 Dec 2006 11:58:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       stable@kernel.org
-Subject: Re: [PATCH] PM: Fix swsusp debug mode testproc
-Message-ID: <20061201105807.GD1968@elf.ucw.cz>
-References: <200612011145.12787.rjw@sisk.pl>
+	Fri, 1 Dec 2006 05:59:50 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19206 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S936383AbWLAK7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 05:59:50 -0500
+Date: Fri, 1 Dec 2006 11:59:55 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Hua Zhong <hzhong@gmail.com>, tigran@aivazian.fsnet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+Message-ID: <20061201105955.GO11084@stusta.de>
+References: <00e401c7150e$061da500$6721100a@nuitysystems.com> <1164964119.3233.56.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612011145.12787.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1164964119.3233.56.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 2006-12-01 11:45:12, Rafael J. Wysocki wrote:
-> The 'testproc' swsusp debug mode thaws tasks twice in a row, which is _very_
-> confusing.  Fix that.
+On Fri, Dec 01, 2006 at 10:08:39AM +0100, Arjan van de Ven wrote:
+> On Thu, 2006-11-30 at 22:00 -0800, Hua Zhong wrote:
+> > I am curious, what's the point?
+> > 
+> > These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
+> > were at that point.
 > 
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-
-ACK.
-
-> ---
->  kernel/power/disk.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Index: linux-2.6.19-rc6-mm2/kernel/power/disk.c
-> ===================================================================
-> --- linux-2.6.19-rc6-mm2.orig/kernel/power/disk.c	2006-11-28 22:48:35.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/kernel/power/disk.c	2006-11-29 23:46:33.000000000 +0100
-> @@ -153,7 +153,7 @@ int pm_suspend_disk(void)
->  		return error;
->  
->  	if (pm_disk_mode == PM_DISK_TESTPROC)
-> -		goto Thaw;
-> +		return 0;
->  
->  	suspend_console();
->  	error = device_suspend(PMSG_FREEZE);
+> .. and which company owns the copyright.
+>...
+
+Email addresses aren't good for this kind of information.
+
+As an example, what is stusta.de and does it have any rights on my 
+contributions? [1]
+
+cu
+Adrian
+
+[1] it can't own the copyright since in Germany the copyright belongs
+    untransferably [2] to the author [3]
+[2] except for heritage
+[3] but he can give exclusive usage rights for known kinds of usage
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967700AbWLATBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936541AbWLATBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967700AbWLATBV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 14:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936534AbWLATBV
+	id S936541AbWLATBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 14:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936542AbWLATBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 14:01:21 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33227 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S936536AbWLATBU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 14:01:20 -0500
-Date: Fri, 1 Dec 2006 11:01:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: clameter@sgi.com, Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-Message-Id: <20061201110103.08d0cf3d.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-References: <20061130170746.GA11363@skynet.ie>
-	<20061130173129.4ebccaa2.akpm@osdl.org>
-	<Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 1 Dec 2006 14:01:38 -0500
+Received: from smtp3.Stanford.EDU ([171.67.20.26]:34992 "EHLO
+	smtp3.stanford.edu") by vger.kernel.org with ESMTP id S936540AbWLATBh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 14:01:37 -0500
+Subject: Re: 2.6.19-rt1: max latencies with jackd
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU, "Linux-Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061201080826.GA17504@elte.hu>
+References: <1164923245.31959.49.camel@cmn3.stanford.edu>
+	 <20061201080826.GA17504@elte.hu>
+Content-Type: text/plain
+Date: Fri, 01 Dec 2006 11:01:35 -0800
+Message-Id: <1164999696.4385.20.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006 09:54:11 +0000 (GMT)
-Mel Gorman <mel@csn.ul.ie> wrote:
-
-> >> @@ -65,7 +65,7 @@ static inline void clear_user_highpage(s
-> >>  static inline struct page *
-> >>  alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
-> >>  {
-> >> -	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
-> >> +	struct page *page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, vaddr);
-> >>
-> >>  	if (page)
-> >>  		clear_user_highpage(page, vaddr);
-> >
-> > But this change is presumptuous.  alloc_zeroed_user_highpage() doesn't know
-> > that its caller is going to use the page for moveable purposes.  (Ditto lots
-> > of other places in this patch).
-> >
+On Fri, 2006-12-01 at 09:08 +0100, Ingo Molnar wrote:
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+> could you try the patch below? It changes trace entries to be measured 
+> via get_cycles() again [which should be must faster than pmtimer on your 
+> CPU], but keeps the latency tracing timestamps (the timestamp of the 
+> start/end of critical sections) on pmtimer again. This should give us 
+> accurate latency measurements, but fast trace entries.
 > 
-> according to grep -r, alloc_zeroed_user_highpage() is only used in two 
-> places, do_wp_page() (when write faulting the zero page)[1] and 
-> do_anonymous_page() (when mapping the zero page for the first time and 
-> writing). In these cases, they are known to be movable. What am I missing?
+> you can still revert to the conservative timestamping behavior via:
+> 
+> 	echo 0 > /proc/sys/kernel/trace_use_raw_cycles
+> 
+> note: you can probably get a higher quality of 'overview trace' via:
+> 
+> 	echo 0 > /proc/sys/kernel/mcount_enabled
+> 	echo 1 > /proc/sys/kernel/stackframe_tracing
 
-We shouldn't implement a function which "knows" how its callers are using
-it in this manner.
+If I do this I get a lockup or an instant reboot. 
 
-You've gone and changed alloc_zeroed_user_highpage() into alloc_user_zeroed_highpage_which_you_must_use_in_an_application_where_it_is_movable().
-Now, if we want to put a big fat comment over these functions saying that the caller
-must honour the promise we've made on the caller's behalf then OK(ish).  But it'd
-be better (albeit perhaps bloaty) to require the caller to pass in the gfp-flags.
+But it looks like something is wrong. I'm not getting traces at all and
+the preempt_max_latency remains stubbornly at 0. 
+
+I'll try with the previous kernel but I'll just turn on tracing for all
+activity, not just within the jackd client activation cycle. It looks
+like the xruns are happening elsewhere. 
+
+-- Fernando
+
+PS: this is what I'm using to "arm" the trace (from the trace-it.c
+example):
+
+-----
+#!/bin/bash
+#
+
+echo 1 > /proc/sys/kernel/trace_user_triggered
+[ -e /proc/sys/kernel/wakeup_timing ] && echo 1
+> /proc/sys/kernel/wakeup_timing
+echo 1 > /proc/sys/kernel/trace_enabled
+
+# get better quality traces
+echo 1 > /proc/sys/kernel/mcount_enabled
+# echo 0 > /proc/sys/kernel/mcount_enabled
+# echo 1 > /proc/sys/kernel/stackframe_tracing
+
+echo 0 > /proc/sys/kernel/trace_freerunning
+echo 0 > /proc/sys/kernel/trace_print_at_crash
+echo 0 > /proc/sys/kernel/trace_verbose
+echo 0 > /proc/sys/kernel/preempt_thresh 2>/dev/null
+echo 0 > /proc/sys/kernel/preempt_max_latency 2>/dev/null
+-----
+
+

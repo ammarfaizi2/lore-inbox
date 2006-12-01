@@ -1,98 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936553AbWLAUsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161191AbWLAUx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936553AbWLAUsM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 15:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936554AbWLAUsL
+	id S1161191AbWLAUx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 15:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936565AbWLAUx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 15:48:11 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:55884 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S936553AbWLAUsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 15:48:09 -0500
-Date: Fri, 1 Dec 2006 12:48:37 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19: ALi M5229 - CD-ROM not found with pata_ali
-Message-Id: <20061201124837.6d0d8adb.randy.dunlap@oracle.com>
-In-Reply-To: <200612012335.29179.arvidjaar@mail.ru>
-References: <200606220004.30863.arvidjaar@mail.ru>
-	<200612012335.29179.arvidjaar@mail.ru>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 1 Dec 2006 15:53:26 -0500
+Received: from cattelan-host202.dsl.visi.com ([208.42.117.202]:27363 "EHLO
+	slurp.thebarn.com") by vger.kernel.org with ESMTP id S936564AbWLAUxZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 15:53:25 -0500
+Subject: Re: [Cluster-devel] Re: [GFS2] Change argument of gfs2_dinode_out
+	[17/70]
+From: Russell Cattelan <cattelan@thebarn.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20061201192555.GD3078@ftp.linux.org.uk>
+References: <1164888933.3752.338.camel@quoit.chygwyn.com>
+	 <1165000744.1194.89.camel@xenon.msp.redhat.com>
+	 <20061201192555.GD3078@ftp.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DofeCuqA18tYDCHBG+rV"
+Date: Fri, 01 Dec 2006 14:52:11 -0600
+Message-Id: <1165006331.1194.96.camel@xenon.msp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-Mailer: Evolution 2.8.1.1-1mdv2007.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006 23:35:28 +0300 Andrey Borzenkov wrote:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Thursday 22 June 2006 00:04, Andrey Borzenkov wrote:
-> > Just in case you have missed this on LKML :)
-> >
-> > Alan Cox wrote:
-> > > http://zeniv.linux.org.uk/~alan/IDE
-> > >
-> > > This is basically a resync versus 2.6.17, the head of the PATA tree is
-> > > now built against Jeffs tree with revised error handling and the like.
-> >
-> > Running vanilla 2.6.17 + ide1 patch on ALi M5229 does not find CD-ROM.
-> > Notice "ata2: command 0xa0 timeout" below.
-> >
-> 
-> Still the same in 2.6.19 + suspend pata_ali patch. The only way I can get 
-> CD-ROM is with
-> 
-> options pata_ali atapi_max_xfer_mask=0x7f
-> 
-> and patch
-> 
-> diff --git a/drivers/ata/pata_ali.c b/drivers/ata/pata_ali.c
-> index 1d695df..a0b9e49 100644
-> - --- a/drivers/ata/pata_ali.c
-> +++ b/drivers/ata/pata_ali.c
-> @@ -329,6 +329,16 @@ static void ali_lock_sectors(struct ata_
->         adev->max_sectors = 255;
->  }
-> 
-> +static unsigned long atapi_max_xfer_mask = ~0;
-> +module_param(atapi_max_xfer_mask, ulong, 644);
-                                            ^^^
-BTW:                                        0644
+--=-DofeCuqA18tYDCHBG+rV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2006-12-01 at 19:25 +0000, Al Viro wrote:
+> On Fri, Dec 01, 2006 at 01:19:04PM -0600, Russell Cattelan wrote:
+> > On Thu, 2006-11-30 at 12:15 +0000, Steven Whitehouse wrote:
+> > > >From 539e5d6b7ae8612c0393fe940d2da5b591318d3d Mon Sep 17 00:00:00 20=
+01
+> > > From: Steven Whitehouse <swhiteho@redhat.com>
+> > > Date: Tue, 31 Oct 2006 15:07:05 -0500
+> > > Subject: [PATCH] [GFS2] Change argument of gfs2_dinode_out
+> > >=20
+> > > Everywhere this was called, a struct gfs2_inode was available,
+> > > but despite that, it was always called with a struct gfs2_dinode
+> > > as an argument. By making this change it paves the way to start
+> > > eliminating fields duplicated between the kernel's struct inode
+> > > and the struct gfs2_dinode.
+> > More pointless code churn.
+> >=20
+> > This only makes sense once the file system is working=20
+> > and we have time to do this type of cleanup on against
+> > a stable and TESTED code base.
+>=20
+> Bzzert.  Cleaner code is easier to _get_ stable.  "Keep it ucking fugly
+> until everyone stops looking at it out of sheer disgust" is a bad idea.'
+code clean up are not without risk and with no regression test suite to
+verify
+that a "cleanup" has not broken something. Cleanups are very much a
+hindrance to stabilization. With no know working points in a code
+history it becomes difficult
+to bisect changes and figure out when bugs were introduced
+Especially when cleanups are mixed in with bug fixes.
+
+Pretty code does not equal correct code.
 
 
-> +
-> +static unsigned long ali_mode_filter(const struct ata_port *ap, struct 
-> ata_devi
-> ce *adev, unsigned long xfer_mask)
-> +{
-> +       if (adev->class == ATA_DEV_ATAPI)
-> +               xfer_mask &= atapi_max_xfer_mask;
-> +       return ata_pci_default_filter(ap, adev, xfer_mask);
-> +}
-> +
->  static struct scsi_host_template ali_sht = {
->         .module                 = THIS_MODULE,
->         .name                   = DRV_NAME,
-> @@ -428,7 +438,7 @@ static struct ata_port_operations ali_c2
->         .port_disable   = ata_port_disable,
->         .set_piomode    = ali_set_piomode,
->         .set_dmamode    = ali_set_dmamode,
-> - -       .mode_filter    = ata_pci_default_filter,
-> +       .mode_filter    = ali_mode_filter,
->         .tf_load        = ata_tf_load,
->         .tf_read        = ata_tf_read,
->         .check_status   = ata_check_status,
-> 
-> allowing even MWDMA results in the same timeouts and CD-ROM not found.
+--=20
+Russell Cattelan <cattelan@thebarn.com>
 
----
-~Randy
+--=-DofeCuqA18tYDCHBG+rV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFcJX7NRmM+OaGhBgRAhftAJ9ABVSVyYoASnof9jJWe79OVVzs8QCfSnwV
+j1KikKWxCu62DFYOizok8Nw=
+=QfNV
+-----END PGP SIGNATURE-----
+
+--=-DofeCuqA18tYDCHBG+rV--
+

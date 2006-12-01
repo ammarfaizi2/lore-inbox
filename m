@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWLALwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936479AbWLALxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030804AbWLALwa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 06:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030736AbWLALwa
+	id S936479AbWLALxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 06:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936478AbWLALxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 06:52:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59654 "HELO
+	Fri, 1 Dec 2006 06:53:14 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60934 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030722AbWLALw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 06:52:29 -0500
-Date: Fri, 1 Dec 2006 12:52:34 +0100
+	id S1030742AbWLALxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 06:53:13 -0500
+Date: Fri, 1 Dec 2006 12:53:18 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: ysato@users.sourceforge.jp, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] include/asm-h8300/: "extern inline" -> "static inline"
-Message-ID: <20061201115234.GT11084@stusta.de>
+Cc: paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/asm-powerpc/: "extern inline" -> "static inline"
+Message-ID: <20061201115318.GU11084@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,84 +37,66 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 22 Nov 2006
 
- include/asm-h8300/delay.h       |    4 ++--
- include/asm-h8300/mmu_context.h |    4 ++--
- include/asm-h8300/pci.h         |    4 ++--
- include/asm-h8300/tlbflush.h    |    4 ++--
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ include/asm-powerpc/io.h      |    4 ++--
+ include/asm-powerpc/tsi108.h  |    4 ++--
+ include/asm-powerpc/uaccess.h |    4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.19-rc5-mm2/include/asm-h8300/delay.h.old	2006-11-22 01:48:48.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/include/asm-h8300/delay.h	2006-11-22 01:48:52.000000000 +0100
-@@ -9,7 +9,7 @@
-  * Delay routines, using a pre-computed "loops_per_second" value.
-  */
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/io.h.old	2006-11-22 01:46:28.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/io.h	2006-11-22 01:47:08.000000000 +0100
+@@ -304,7 +304,7 @@ do {									\
+ #ifdef CONFIG_PPC32
  
--extern __inline__ void __delay(unsigned long loops)
-+static inline void __delay(unsigned long loops)
- {
- 	__asm__ __volatile__ ("1:\n\t"
- 			      "dec.l #1,%0\n\t"
-@@ -27,7 +27,7 @@ extern __inline__ void __delay(unsigned 
- 
- extern unsigned long loops_per_jiffy;
- 
--extern __inline__ void udelay(unsigned long usecs)
-+static inline void udelay(unsigned long usecs)
- {
- 	usecs *= 4295;		/* 2**32 / 1000000 */
- 	usecs /= (loops_per_jiffy*HZ);
---- linux-2.6.19-rc5-mm2/include/asm-h8300/mmu_context.h.old	2006-11-22 01:49:00.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/include/asm-h8300/mmu_context.h	2006-11-22 01:49:05.000000000 +0100
-@@ -9,7 +9,7 @@ static inline void enter_lazy_tlb(struct
- {
+ #define __do_in_asm(name, op)				\
+-extern __inline__ unsigned int name(unsigned int port)	\
++static inline unsigned int name(unsigned int port)	\
+ {							\
+ 	unsigned int x;					\
+ 	__asm__ __volatile__(				\
+@@ -331,7 +331,7 @@ extern __inline__ unsigned int name(unsi
  }
  
--extern inline int
-+static inline int
- init_new_context(struct task_struct *tsk, struct mm_struct *mm)
+ #define __do_out_asm(name, op)				\
+-extern __inline__ void name(unsigned int val, unsigned int port) \
++static inline void name(unsigned int val, unsigned int port) \
+ {							\
+ 	__asm__ __volatile__(				\
+ 		"sync\n"				\
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/tsi108.h.old	2006-11-22 01:47:17.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/tsi108.h	2006-11-22 01:47:26.000000000 +0100
+@@ -98,12 +98,12 @@ typedef struct {
+ extern u32 get_vir_csrbase(void);
+ extern u32 tsi108_csr_vir_base;
+ 
+-extern inline u32 tsi108_read_reg(u32 reg_offset)
++static inline u32 tsi108_read_reg(u32 reg_offset)
  {
- 	// mm->context = virt_to_phys(mm->pgd);
-@@ -23,7 +23,7 @@ static inline void switch_mm(struct mm_s
- {
+ 	return in_be32((volatile u32 *)(tsi108_csr_vir_base + reg_offset));
  }
  
--extern inline void activate_mm(struct mm_struct *prev_mm,
-+static inline void activate_mm(struct mm_struct *prev_mm,
- 			       struct mm_struct *next_mm)
+-extern inline void tsi108_write_reg(u32 reg_offset, u32 val)
++static inline void tsi108_write_reg(u32 reg_offset, u32 val)
  {
+ 	out_be32((volatile u32 *)(tsi108_csr_vir_base + reg_offset), val);
  }
---- linux-2.6.19-rc5-mm2/include/asm-h8300/pci.h.old	2006-11-22 01:49:13.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/include/asm-h8300/pci.h	2006-11-22 01:49:19.000000000 +0100
-@@ -10,12 +10,12 @@
- #define pcibios_assign_all_busses()	0
- #define pcibios_scan_all_fns(a, b)	0
+--- linux-2.6.19-rc5-mm2/include/asm-powerpc/uaccess.h.old	2006-11-22 01:47:33.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-powerpc/uaccess.h	2006-11-22 01:47:38.000000000 +0100
+@@ -304,7 +304,7 @@ extern unsigned long __copy_tofrom_user(
  
--extern inline void pcibios_set_master(struct pci_dev *dev)
-+static inline void pcibios_set_master(struct pci_dev *dev)
- {
- 	/* No special bus mastering setup handling */
- }
+ #ifndef __powerpc64__
  
--extern inline void pcibios_penalize_isa_irq(int irq, int active)
-+static inline void pcibios_penalize_isa_irq(int irq, int active)
+-extern inline unsigned long copy_from_user(void *to,
++static inline unsigned long copy_from_user(void *to,
+ 		const void __user *from, unsigned long n)
  {
- 	/* We don't do dynamic PCI IRQ allocation */
- }
---- linux-2.6.19-rc5-mm2/include/asm-h8300/tlbflush.h.old	2006-11-22 01:49:29.000000000 +0100
-+++ linux-2.6.19-rc5-mm2/include/asm-h8300/tlbflush.h	2006-11-22 01:49:34.000000000 +0100
-@@ -47,12 +47,12 @@ static inline void flush_tlb_range(struc
- 	BUG();
+ 	unsigned long over;
+@@ -319,7 +319,7 @@ extern inline unsigned long copy_from_us
+ 	return n;
  }
  
--extern inline void flush_tlb_kernel_page(unsigned long addr)
-+static inline void flush_tlb_kernel_page(unsigned long addr)
+-extern inline unsigned long copy_to_user(void __user *to,
++static inline unsigned long copy_to_user(void __user *to,
+ 		const void *from, unsigned long n)
  {
- 	BUG();
- }
- 
--extern inline void flush_tlb_pgtables(struct mm_struct *mm,
-+static inline void flush_tlb_pgtables(struct mm_struct *mm,
- 				      unsigned long start, unsigned long end)
- {
- 	BUG();
+ 	unsigned long over;
 

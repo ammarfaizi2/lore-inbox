@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935310AbWLAKXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936134AbWLAKaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935310AbWLAKXl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 05:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936113AbWLAKXl
+	id S936134AbWLAKaP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 05:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936172AbWLAKaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 05:23:41 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:30755 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S935310AbWLAKXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 05:23:40 -0500
-Message-ID: <457004DF.7030100@sw.ru>
-Date: Fri, 01 Dec 2006 13:33:03 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 1 Dec 2006 05:30:14 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:14940 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S936134AbWLAKaM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 05:30:12 -0500
+From: Jens Wilke <jens.wilke@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: dm-devel@redhat.com
+Subject: Re: [dm-devel] [RFC][PATCH] dm-cache: block level disk cache target for device mapper
+Date: Fri, 1 Dec 2006 11:30:04 +0100
+User-Agent: KMail/1.9.4
+Cc: "Ming Zhao" <mingzhao99th@gmail.com>, linux-kernel@vger.kernel.org
+References: <200611271826.kARIQYRi032717@hera.kernel.org> <200611302107.40418.jens.wilke@de.ibm.com> <b1e142760611302316w5917bc67q5a9f26e1d069f716@mail.gmail.com>
+In-Reply-To: <b1e142760611302316w5917bc67q5a9f26e1d069f716@mail.gmail.com>
 MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Containers <containers@lists.osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.19 VServer 2.1.x
-References: <20061201022904.GP2826@MAIL.13thfloor.at>
-In-Reply-To: <20061201022904.GP2826@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612011130.04466.jens.wilke@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OpenVZ has been using them for more than a month already ;-)
+On Friday 01 December 2006 08:16, Ming Zhao wrote:
+> On 11/30/06, Jens Wilke <jens.wilke@de.ibm.com> wrote:
+> > - You don't keep track of I/O on the fly to the cache that is mapped
+> > directly in cache_hit(). How do you make sure that this I/O is completed
+> > before you replace a cache block?
+> 
+> The previous I/O from cache hit and the later I/O for cache
+> replacement should be queued in order on the cache block device - is
+> this a safe assumption?
 
-Kirill
+I don't think you can assume that the request processing in the host
+is ordered without sychronization. Everything you queue in your worker
+thread is serialized by that. Everything else is out of your control and each
+thread may be scheduled or not.
 
-> Ladies and Gentlemen!
-> 
-> here is the first Linux-VServer version (testing)
-> with support for the *spaces (uts, ipc and vfs)
-> introduced in 2.6.19 ...
-> 
-> http://vserver.13thfloor.at/Experimental/patch-2.6.19-vs2.1.x-t1.diff
-> 
-> it might not be as perfect as the kernel itself *G*
-> but it does work fine here, and with recent tools
-> most virtualization features work as expected
-> 
-> please if you do testing, report issues or comments
-> to the Linux-VServer mailing list or to me directly
-> (at least CC would be fine) and do not bother the
-> nice kernel folks ...
-> 
-> enjoy,
-> Herbert
-> _______________________________________________
-> Containers mailing list
-> Containers@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/containers
-> 
-> 
+Maybe we have certain guarantees through DM or the block I/O layer, that
+I don't know. Can somebody else step in here?
 
+Best,
+
+Jens

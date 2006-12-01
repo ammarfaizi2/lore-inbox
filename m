@@ -1,328 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759109AbWLAGA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759105AbWLAGO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759109AbWLAGA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 01:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759111AbWLAGA3
+	id S1759105AbWLAGO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 01:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759111AbWLAGO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 01:00:29 -0500
-Received: from nz-out-0506.google.com ([64.233.162.232]:60060 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1759106AbWLAGA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 01:00:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=FYwiKx7Odhp7QgmL/hTqO0248GVuQ2X+e8oWnN2UVSmDuzoJ1P0AcWemZnCZAk7qdy8CZDRxksU0r0J4vRk4IvQfXfRe3NI0Hv1BOjYx4KiuTh1Ty6RugE3pIht7GyaZomqeUUjdQzRyvMUllrleRTHax1/3Lz6olOQUiiPbmAI=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Adrian Bunk'" <bunk@stusta.de>, <tigran@aivazian.fsnet.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-Date: Thu, 30 Nov 2006 22:00:35 -0800
-Message-ID: <00e401c7150e$061da500$6721100a@nuitysystems.com>
+	Fri, 1 Dec 2006 01:14:58 -0500
+Received: from mail.cruzers.com ([209.165.193.12]:32530 "EHLO
+	woodstock.cruzers.com") by vger.kernel.org with ESMTP
+	id S1759105AbWLAGO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 01:14:58 -0500
+Message-ID: <456FC859.9070709@cruzers.com>
+Date: Thu, 30 Nov 2006 22:14:49 -0800
+From: ron moncreiff <rmoncreiff@cruzers.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: linux-kernel@vger.kernel.org
+Subject: trying pata_ali in 2.6.19
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <20061201055145.GK11084@stusta.de>
-Thread-Index: AccVDRVVIzWhMggTSlecVa1Y/Zd/jwAAKzTg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am curious, what's the point?
+// I have tried out the new pata options in the 2.6.19 kernel and had 
+some problems. //
+// So here's the skinny. I am using the asrock 939dual - sataII mobo. 
+lspci reports //
+// the IDE interface thus: //
 
-These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
-were at that point.
+00:12.0 IDE interface: ALi Corporation M5229 IDE (rev c7)
 
-It's not MAINTAINERS. If people want to contact someone, go find the latest address there.
+// It works fine under the old regime //
+// Here's what hdparm -i /dev/hda returns: //
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Adrian Bunk
-> Sent: Thursday, November 30, 2006 9:52 PM
-> To: tigran@aivazian.fsnet.co.uk
-> Cc: linux-kernel@vger.kernel.org
-> Subject: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-> 
-> This patch removes bouncing email addresses of Tigran 
-> Aivazian from the kernel tree.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  Documentation/filesystems/bfs.txt |    2 +-
->  arch/i386/kernel/microcode.c      |   28 ++++++++++++++--------------
->  arch/sh/kernel/kgdb_stub.c        |    2 +-
->  drivers/net/tlan.c                |    2 +-
->  fs/bfs/bfs.h                      |    2 +-
->  fs/bfs/dir.c                      |    2 +-
->  fs/bfs/file.c                     |    2 +-
->  fs/bfs/inode.c                    |    2 +-
->  fs/proc/kcore.c                   |    4 ++--
->  include/asm-sh/kgdb.h             |    2 +-
->  include/linux/bfs_fs.h            |    2 +-
->  mm/vmalloc.c                      |    2 +-
->  12 files changed, 26 insertions(+), 26 deletions(-)
-> 
-> --- linux-2.6.19-rc6-mm2/arch/i386/kernel/microcode.c.old	
-> 2006-11-30 06:04:39.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/arch/i386/kernel/microcode.c	
-> 2006-11-30 06:08:32.000000000 +0100
-> @@ -20,25 +20,25 @@
->   *	as published by the Free Software Foundation; either version
->   *	2 of the License, or (at your option) any later version.
->   *
-> - *	1.0	16 Feb 2000, Tigran Aivazian <tigran@sco.com>
-> + *	1.0	16 Feb 2000, Tigran Aivazian
->   *		Initial release.
-> - *	1.01	18 Feb 2000, Tigran Aivazian <tigran@sco.com>
-> + *	1.01	18 Feb 2000, Tigran Aivazian 
->   *		Added read() support + cleanups.
-> - *	1.02	21 Feb 2000, Tigran Aivazian <tigran@sco.com>
-> + *	1.02	21 Feb 2000, Tigran Aivazian
->   *		Added 'device trimming' support. open(O_WRONLY) zeroes
->   *		and frees the saved copy of applied microcode.
-> - *	1.03	29 Feb 2000, Tigran Aivazian <tigran@sco.com>
-> + *	1.03	29 Feb 2000, Tigran Aivazian
->   *		Made to use devfs (/dev/cpu/microcode) + cleanups.
->   *	1.04	06 Jun 2000, Simon Trimmer <simon@veritas.com>
->   *		Added misc device support (now uses both devfs 
-> and misc).
->   *		Added MICROCODE_IOCFREE ioctl to clear memory.
->   *	1.05	09 Jun 2000, Simon Trimmer <simon@veritas.com>
->   *		Messages for error cases (non Intel & no 
-> suitable microcode).
-> - *	1.06	03 Aug 2000, Tigran Aivazian <tigran@veritas.com>
-> + *	1.06	03 Aug 2000, Tigran Aivazian
->   *		Removed ->release(). Removed exclusive open and 
-> status bitmap.
->   *		Added microcode_rwsem to serialize 
-> read()/write()/ioctl().
->   *		Removed global kernel lock usage.
-> - *	1.07	07 Sep 2000, Tigran Aivazian <tigran@veritas.com>
-> + *	1.07	07 Sep 2000, Tigran Aivazian
->   *		Write 0 to 0x8B msr and then cpuid before 
-> reading revision,
->   *		so that it works even if there were no update 
-> done by the
->   *		BIOS. Otherwise, reading from 0x8B gives junk 
-> (which happened
-> @@ -46,26 +46,26 @@
->   *		disabled update by the BIOS)
->   *		Thanks to Eric W. Biederman 
-> <ebiederman@lnxi.com> for the fix.
->   *	1.08	11 Dec 2000, Richard Schaal 
-> <richard.schaal@intel.com> and
-> - *			     Tigran Aivazian <tigran@veritas.com>
-> + *			     Tigran Aivazian
->   *		Intel Pentium 4 processor support and bugfixes.
-> - *	1.09	30 Oct 2001, Tigran Aivazian <tigran@veritas.com>
-> + *	1.09	30 Oct 2001, Tigran Aivazian 
->   *		Bugfix for HT (Hyper-Threading) enabled processors
->   *		whereby processor resources are shared by all 
-> logical processors
->   *		in a single CPU package.
->   *	1.10	28 Feb 2002 Asit K Mallick 
-> <asit.k.mallick@intel.com> and
-> - *		Tigran Aivazian <tigran@veritas.com>,
-> + *		Tigran Aivazian 
->   *		Serialize updates as required on HT processors 
-> due to speculative
->   *		nature of implementation.
-> - *	1.11	22 Mar 2002 Tigran Aivazian <tigran@veritas.com>
-> + *	1.11	22 Mar 2002 Tigran Aivazian
->   *		Fix the panic when writing zero-length microcode chunk.
->   *	1.12	29 Sep 2003 Nitin Kamble <nitin.a.kamble@intel.com>, 
->   *		Jun Nakajima <jun.nakajima@intel.com>
->   *		Support for the microcode updates in the new format.
-> - *	1.13	10 Oct 2003 Tigran Aivazian <tigran@veritas.com>
-> + *	1.13	10 Oct 2003 Tigran Aivazian
->   *		Removed ->read() method and obsoleted 
-> MICROCODE_IOCFREE ioctl
->   *		because we no longer hold a copy of applied microcode 
->   *		in kernel memory.
-> - *	1.14	25 Jun 2004 Tigran Aivazian <tigran@veritas.com>
-> + *	1.14	25 Jun 2004 Tigran Aivazian
->   *		Fix sigmatch() macro to handle old CPUs with pf == 0.
->   *		Thanks to Stuart Swales for pointing out this bug.
->   */
-> @@ -92,7 +92,7 @@
->  #include <asm/processor.h>
->  
->  MODULE_DESCRIPTION("Intel CPU (IA-32) Microcode Update 
-> Driver"); -MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
-> +MODULE_AUTHOR("Tigran Aivazian");
->  MODULE_LICENSE("GPL");
->  
->  #define MICROCODE_VERSION 	"1.14a"
-> @@ -752,7 +752,7 @@
->  	register_hotcpu_notifier(&mc_cpu_notifier);
->  
->  	printk(KERN_INFO 
-> -		"IA-32 Microcode Update Driver: v" 
-> MICROCODE_VERSION " <tigran@veritas.com>\n");
-> +		"IA-32 Microcode Update Driver: v" 
-> MICROCODE_VERSION "\n");
->  	return 0;
->  }
->  
-> --- 
-> linux-2.6.19-rc6-mm2/Documentation/filesystems/bfs.txt.old	
-> 2006-11-30 06:07:30.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/Documentation/filesystems/bfs.txt	
-> 2006-11-30 06:08:00.000000000 +0100
-> @@ -54,4 +54,4 @@
->  If you have any patches, questions or suggestions regarding 
-> this BFS  implementation please contact the author:
->  
-> -Tigran A. Aivazian <tigran@veritas.com>
-> +Tigran A. Aivazian <tigran@aivazian.fsnet.co.uk>
-> --- linux-2.6.19-rc6-mm2/arch/sh/kernel/kgdb_stub.c.old	
-> 2006-11-30 06:08:47.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/arch/sh/kernel/kgdb_stub.c	
-> 2006-11-30 06:08:58.000000000 +0100
-> @@ -3,7 +3,7 @@
->   * License.  See linux/COPYING for more information.
->   *
->   * Containes extracts from code by Glenn Engel, Jim Kingdon,
-> - * David Grothe <dave@gcom.com>, Tigran Aivazian <tigran@sco.com>,
-> + * David Grothe <dave@gcom.com>, Tigran Aivazian,
->   * Amit S. Kale <akale@veritas.com>,  William Gatliff 
-> <bgat@open-widgets.com>,
->   * Ben Lee, Steve Chamberlain and Benoit Miller <fulg@iname.com>.
->   * 
-> --- linux-2.6.19-rc6-mm2/drivers/net/tlan.c.old	
-> 2006-11-30 06:09:09.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/drivers/net/tlan.c	2006-11-30 
-> 06:09:26.000000000 +0100
-> @@ -29,7 +29,7 @@
->   *
->   * Change History
->   *
-> - *	Tigran Aivazian <tigran@sco.com>:	TLan_PciProbe() now uses
-> + *	Tigran Aivazian	                 :	TLan_PciProbe() now uses
->   *						new PCI BIOS interface.
->   *	Alan Cox	<alan@redhat.com>:	Fixed the out of memory
->   *						handling.
-> --- linux-2.6.19-rc6-mm2/fs/bfs/bfs.h.old	2006-11-30 
-> 06:09:35.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/bfs/bfs.h	2006-11-30 
-> 06:09:40.000000000 +0100
-> @@ -1,6 +1,6 @@
->  /*
->   *	fs/bfs/bfs.h
-> - *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
-> + *	Copyright (C) 1999 Tigran Aivazian
->   */
->  #ifndef _FS_BFS_BFS_H
->  #define _FS_BFS_BFS_H
-> --- linux-2.6.19-rc6-mm2/fs/bfs/dir.c.old	2006-11-30 
-> 06:09:46.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/bfs/dir.c	2006-11-30 
-> 06:09:51.000000000 +0100
-> @@ -1,7 +1,7 @@
->  /*
->   *	fs/bfs/dir.c
->   *	BFS directory operations.
-> - *	Copyright (C) 1999,2000  Tigran Aivazian <tigran@veritas.com>
-> + *	Copyright (C) 1999,2000  Tigran Aivazian
->   *      Made endianness-clean by Andrew Stribblehill 
-> <ads@wompom.org> 2005
->   */
->  
-> --- linux-2.6.19-rc6-mm2/fs/bfs/file.c.old	2006-11-30 
-> 06:09:57.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/bfs/file.c	2006-11-30 
-> 06:10:02.000000000 +0100
-> @@ -1,7 +1,7 @@
->  /*
->   *	fs/bfs/file.c
->   *	BFS file operations.
-> - *	Copyright (C) 1999,2000 Tigran Aivazian <tigran@veritas.com>
-> + *	Copyright (C) 1999,2000 Tigran Aivazian
->   */
->  
->  #include <linux/fs.h>
-> --- linux-2.6.19-rc6-mm2/fs/bfs/inode.c.old	2006-11-30 
-> 06:10:11.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/bfs/inode.c	2006-11-30 
-> 06:10:16.000000000 +0100
-> @@ -1,7 +1,7 @@
->  /*
->   *	fs/bfs/inode.c
->   *	BFS superblock and inode operations.
-> - *	Copyright (C) 1999,2000 Tigran Aivazian <tigran@veritas.com>
-> + *	Copyright (C) 1999,2000 Tigran Aivazian
->   *	From fs/minix, Copyright (C) 1991, 1992 Linus Torvalds.
->   *
->   *      Made endianness-clean by Andrew Stribblehill 
-> <ads@wompom.org>, 2005.
-> --- linux-2.6.19-rc6-mm2/fs/proc/kcore.c.old	2006-11-30 
-> 06:10:43.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/fs/proc/kcore.c	2006-11-30 
-> 06:11:00.000000000 +0100
-> @@ -4,8 +4,8 @@
->   *	Modelled on fs/exec.c:aout_core_dump()
->   *	Jeremy Fitzhardinge <jeremy@sw.oz.au>
->   *	ELF version written by David Howells <David.Howells@nexor.co.uk>
-> - *	Modified and incorporated into 2.3.x by Tigran Aivazian 
-> <tigran@veritas.com>
-> - *	Support to dump vmalloc'd areas (ELF only), Tigran 
-> Aivazian <tigran@veritas.com>
-> + *	Modified and incorporated into 2.3.x by Tigran Aivazian
-> + *	Support to dump vmalloc'd areas (ELF only), Tigran Aivazian
->   *	Safe accesses to vmalloc/direct-mapped discontiguous 
-> areas, Kanoj Sarcar <kanoj@sgi.com>
->   */
->  
-> --- linux-2.6.19-rc6-mm2/include/asm-sh/kgdb.h.old	
-> 2006-11-30 06:11:08.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/include/asm-sh/kgdb.h	
-> 2006-11-30 06:11:16.000000000 +0100
-> @@ -3,7 +3,7 @@
->   * License.  See linux/COPYING for more information.
->   *
->   * Based on original code by Glenn Engel, Jim Kingdon,
-> - * David Grothe <dave@gcom.com>, Tigran Aivazian, 
-> <tigran@sco.com> and
-> + * David Grothe <dave@gcom.com>, Tigran Aivazian, and
->   * Amit S. Kale <akale@veritas.com>
->   *
->   * Super-H port based on sh-stub.c (Ben Lee and Steve Chamberlain) by
-> --- linux-2.6.19-rc6-mm2/include/linux/bfs_fs.h.old	
-> 2006-11-30 06:11:26.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/include/linux/bfs_fs.h	
-> 2006-11-30 06:11:31.000000000 +0100
-> @@ -1,6 +1,6 @@
->  /*
->   *	include/linux/bfs_fs.h - BFS data structures on disk.
-> - *	Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
-> + *	Copyright (C) 1999 Tigran Aivazian
->   */
->  
->  #ifndef _LINUX_BFS_FS_H
-> --- linux-2.6.19-rc6-mm2/mm/vmalloc.c.old	2006-11-30 
-> 06:11:38.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/mm/vmalloc.c	2006-11-30 
-> 06:11:46.000000000 +0100
-> @@ -3,7 +3,7 @@
->   *
->   *  Copyright (C) 1993  Linus Torvalds
->   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999
-> - *  SMP-safe vmalloc/vfree/ioremap, Tigran Aivazian 
-> <tigran@veritas.com>, May 2000
-> + *  SMP-safe vmalloc/vfree/ioremap, Tigran Aivazian, May 2000
->   *  Major rework to support vmap/vunmap, Christoph Hellwig, 
-> SGI, August 2002
->   *  Numa awareness, Christoph Lameter, SGI, June 2005
->   */
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+/dev/hda:
+
+ Model=ST380011A, FwRev=8.01, SerialNo=5JVQHHJ9
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=156301488
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 2:  ATA/ATAPI-1 
+ATA/ATAPI-2 ATA/ATAPI-3 ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6
+
+ * signifies the current active mode
+
+// and /dev/hdb: //
+
+/dev/hdb:
+
+ Model=PIONEER DVD-RW DVR-108, FwRev=1.10, SerialNo=
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=13395, BuffSize=64kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 *udma4
+ AdvancedPM=no
+ Drive conforms to: Unspecified:  ATA/ATAPI-2 ATA/ATAPI-3 ATA/ATAPI-4 
+ATA/ATAPI-5
+
+ * signifies the current active mode
+
+// Here's what happens on the command line when I modprobe the module 
+and then lsmod. //
+
+frontman ata # modprobe -v pata_ali
+insmod /lib/modules/2.6.19-gentoo/kernel/drivers/ata/pata_ali.ko
+Segmentation fault
+frontman ata # lsmod
+Module                  Size  Used by
+pata_ali                7714  1
+snd_seq_midi            6048  0
+rtc                     9972  0
+snd_ens1371            18752  0
+snd_rawmidi            17824  2 snd_seq_midi,snd_ens1371
+snd_ac97_codec         90084  1 snd_ens1371
+snd_ac97_bus            1856  1 snd_ac97_codec
+k8temp                  4352  0
+
+// here's the tail end of dmesg after the modprobe //
+
+BUG: unable to handle kernel NULL pointer dereference at virtual address 
+00000020
+printing eip:
+f8ba0823
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: pata_ali snd_seq_midi rtc snd_ens1371 snd_rawmidi 
+snd_ac97_codec snd_ac97_bus k8temp
+CPU:    0
+EIP:    0060:[<f8ba0823>]    Not tainted VLI
+EFLAGS: 00010246   (2.6.19-gentoo #5)
+EIP is at ali_init_one+0x1ba/0x2f7 [pata_ali]
+eax: ef47fe1a   ebx: 00000000   ecx: f7cb84b0   edx: 00000001
+esi: f7cbcc00   edi: f7cb8400   ebp: f6f5f9a0   esp: ef47fe08
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 4770, ti=ef47e000 task=f1a25a70 task.ti=ef47e000)
+Stack: 000010b9 00001533 00000079 ef47fe1a c7c11734 f8ba1734 f8ba1700 
+f7cbcc00
+       c024b556 f7cbcc00 f8ba09bc f7cbcc48 f7cbcc48 f8ba1734 c02a9dce 
+f7cbcc48
+       c17df0c0 000000d0 c036d1de f7cbcc48 ef47fe84 c02a9fa1 f8ba1734 
+c02a9fef
+Call Trace:
+ [<c024b556>] pci_device_probe+0x44/0x68
+ [<c02a9dce>] really_probe+0x3c/0xe4
+ [<c036d1de>] klist_next+0x57/0x95
+ [<c02a9fa1>] __driver_attach+0x0/0x81
+ [<c02a9fef>] __driver_attach+0x4e/0x81
+ [<c02a93b6>] bus_for_each_dev+0x51/0x78
+ [<c02a9cd8>] driver_attach+0x26/0x2a
+ [<c02a9fa1>] __driver_attach+0x0/0x81
+ [<c02a9739>] bus_add_driver+0x66/0x18d
+ [<c02aa1f3>] driver_register+0x80/0x8d
+ [<c024b6ec>] __pci_register_driver+0x63/0x86
+ [<f8ba3017>] ali_init+0x17/0x1a [pata_ali]
+ [<c012f670>] sys_init_module+0x1471/0x1628
+ [<c0102a69>] sysenter_past_esp+0x56/0x79
+ =======================
+Code: 00 c7 04 24 b9 10 00 00 e8 06 b4 6a c7 85 ff 89 c3 74 64 66 81 7f 
+24 b9 10 75 5c 8d 44 24 12 c7 44 24 08 79 00 00 00 89 44 24 0c <8b> 43 
+20 89 44 24 04 8b 43 10 89 04 24 e8 b1 63 6a c7 80 7c 24
+EIP: [<f8ba0823>] ali_init_one+0x1ba/0x2f7 [pata_ali] SS:ESP 0068:ef47fe08
+
+// Just for yuks I took a look at the pata_ali.c code at // 
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=1d695df5860a3ac44fc77476847d88f50927d7fb;f=drivers/ata/pata_ali.c 
+//
+// and noticed that starting at line 510 there are a bunch of "static 
+struct ata_port_info info_20" like structure //
+// declarations (definitions ?) that seem to reference various revisions 
+of the chip. Mine is a c7 and there's no //
+// structure for that one. Could this be the problem?
+
+TIA, Ron
+rmoncreiff@cruzers.com
 

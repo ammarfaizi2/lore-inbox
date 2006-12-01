@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758394AbWLADRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758414AbWLADYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758394AbWLADRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 22:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758391AbWLADRM
+	id S1758414AbWLADYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 22:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758457AbWLADYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 22:17:12 -0500
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:30886 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1758375AbWLADRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 22:17:10 -0500
-Date: Thu, 30 Nov 2006 22:11:53 -0500
+	Thu, 30 Nov 2006 22:24:15 -0500
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:43143 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1758402AbWLADYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 22:24:14 -0500
+Date: Thu, 30 Nov 2006 22:24:11 -0500
 From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
 To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
@@ -21,41 +21,25 @@ To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
        Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
        systemtap@sources.redhat.com
-Subject: [PATCH 1/2] atomic.h atomic64_t standardization
-Message-ID: <20061201031153.GA10835@Krystal>
-References: <20061124215518.GE25048@Krystal> <20061127165643.GD5348@infradead.org>
+Subject: Re: [PATCH 1/2] atomic.h atomic64_t standardization
+Message-ID: <20061201032411.GA32440@Krystal>
+References: <20061124215518.GE25048@Krystal> <20061127165643.GD5348@infradead.org> <20061201031153.GA10835@Krystal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061127165643.GD5348@infradead.org>
+In-Reply-To: <20061201031153.GA10835@Krystal>
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 22:06:17 up 100 days, 14 min,  3 users,  load average: 0.45, 0.35, 0.39
+X-Uptime: 22:22:52 up 100 days, 30 min,  2 users,  load average: 0.55, 0.43, 0.41
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christoph Hellwig (hch@infradead.org) wrote:
-> We already have local_t in asm/local.h for this purposed.  Unfortunately
-> several architecture implementations are rather suboptimal, but I'm sure
-> the architecture maintainers would be interested in patches to optimize
-> the various implementations.
-> 
+New version, fixes PowerPC typo.
 
-Hi Christoph,
 
-I just implemented some modifications over i386, x86_64, powerpc, mips and arm
-implementations (2.6.18) of atomic.h to add the atomic64_cmpxchg primitives.
-They are required for proper asm-generic/atomic.h atomic_long_t type. This patch
-also adds missing primitives to asm-generic/atomic.h.
-
-local.h modifications for these architectures follows in the next post.
-
-Mathieu
-
----BEGIN---
 --- a/include/asm-i386/atomic.h
 +++ b/include/asm-i386/atomic.h
 @@ -207,8 +207,9 @@ static __inline__ int atomic_sub_return(
@@ -283,7 +267,7 @@ Mathieu
 + * Atomically adds @a to @v, so long as it was not @u.
 + * Returns non-zero if @v was not @u, and zero otherwise.
 + */
-+static __inline__ int atomic64_add_unless(atomic_t *v, long a, long u)
++static __inline__ int atomic64_add_unless(atomic64_t *v, long a, long u)
 +{
 +	long t;
 +
@@ -723,7 +707,6 @@ Mathieu
 +#define atomic_long_xchg(l, new) (xchg(&((l)->counter), (new)))
 +
  #endif
----END---
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,61 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967553AbWLAIe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934424AbWLAIjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967553AbWLAIe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 03:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967555AbWLAIe4
+	id S934424AbWLAIjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 03:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967555AbWLAIjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 03:34:56 -0500
-Received: from mga01.intel.com ([192.55.52.88]:52579 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S967553AbWLAIe4 (ORCPT
+	Fri, 1 Dec 2006 03:39:36 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:21649 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S934424AbWLAIjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 03:34:56 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,483,1157353200"; 
-   d="scan'208"; a="171527383:sNHT25462675"
-Subject: Re: [patch]VMSPLIT_2G conflicts with PAE
-From: Shaohua Li <shaohua.li@intel.com>
-To: Jens Axboe <jens.axboe@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20061201075520.GD5400@kernel.dk>
-References: <1164944925.1918.5.camel@sli10-conroe.sh.intel.com>
-	 <20061201075520.GD5400@kernel.dk>
-Content-Type: text/plain
-Date: Fri, 01 Dec 2006 16:34:17 +0800
-Message-Id: <1164962057.3299.6.camel@sli10-conroe.sh.intel.com>
+	Fri, 1 Dec 2006 03:39:35 -0500
+Date: Fri, 1 Dec 2006 09:39:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/4] [APIC] Allow disabling of UP APIC/IO-APIC by default, with command line option to turn it on.
+Message-ID: <20061201083900.GA26703@elte.hu>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com> <11648607732981-git-send-email-bcollins@ubuntu.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11648607732981-git-send-email-bcollins@ubuntu.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-01 at 08:55 +0100, Jens Axboe wrote:
-> On Fri, Dec 01 2006, Shaohua Li wrote:
-> > PAGE_OFFSET is 0x78000000 with VMSPLIT_2G, this address is in the middle
-> > of the second pgd entry with pae enabled. This breaks assumptions
-> > (address is aligned to pgd entry's address) in a lot of places like
-> > pagetable_init. Fixing the assumptions is hard (eg, low mapping). SO I
-> > just changed the address to 0x80000000.
-> > 
-> > Signed-off-by: Shaohua Li <shaohua.li@intel.com>
-> > 
-> > diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
-> > index 8ff1c6f..fddfb26 100644
-> > --- a/arch/i386/Kconfig
-> > +++ b/arch/i386/Kconfig
-> > @@ -532,7 +532,7 @@ endchoice
-> >  config PAGE_OFFSET
-> >  	hex
-> >  	default 0xB0000000 if VMSPLIT_3G_OPT
-> > -	default 0x78000000 if VMSPLIT_2G
-> > +	default 0x80000000 if VMSPLIT_2G
-> >  	default 0x40000000 if VMSPLIT_1G
-> >  	default 0xC0000000
-> 
-> 0x78000000 was chosen since it gives you the full 2G as low memory, if
-> you mave it 0x80000000 then you still have a little highmem and need
-> that turned on.
-Ok, Maybe the x86 relocatable patch (it seems removed the low identity
-mapping) can help here. With it, we just need to fix pagetable_init.
 
-Thanks,
-Shaohua
+* Ben Collins <bcollins@ubuntu.com> wrote:
+
+> +config X86_UP_APIC_DEFAULT_OFF
+> +	bool "APIC support on uniprocessors defaults to off"
+> +	depends on X86_UP_APIC
+> +	default n
+
+'n' is the default
+
+>  /*
+>   * Knob to control our willingness to enable the local APIC.
+> + * -2=default-disable, -1=force-disable, 1=force-enable, 0=automatic
+>   */
+> -static int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
+> +static int enable_local_apic __initdata = (X86_APIC_DEFAULT_OFF ? -2 : 0);
+
+i guess this begs for enums?
+
+>  		if (enable_local_apic <= 0) {
+> -			printk("Local APIC disabled by BIOS -- "
+> +			printk("Local APIC disabled by BIOS (or by default) -- "
+>  			       "you can enable it with \"lapic\"\n");
+
+that message should be more intelligent, depending on whether the value 
+is 0, -1 or -2.
+
+> +	/* If local apic is off due to config_x86_apic_off option, jump
+> +	 * out here. */
+
+nitpick: proper comment style for new code is:
+
+	/*
+	 * If local APIC is off due to config_x86_apic_off option, jump
+	 * out here.
+	 */
+
+> +	if (enable_local_apic < -1) {
+> +		printk(KERN_INFO "Local APIC disabled by default -- "
+> +		       "use 'lapic' to enable it.\n");
+> +		return -1;
+> +	}
+
+this should be enable_local_apic == -2. (and should use the enum)
+
+> -int skip_ioapic_setup;
+> +int skip_ioapic_setup = X86_APIC_DEFAULT_OFF;
+
+nitpick: should be X86_IOAPIC_DEFAULT_VALUE - if the config option is 
+not set then this 'OFF' value will mean 'on' ...
+
+> +static int __init parse_apic(char *arg)
+> +{
+> +	/* enable IO-APIC */
+> +	enable_ioapic_setup();
+> +	return 0;
+> +}
+> +early_param("apic", parse_apic);
+
+that should be "ioapic", not "apic". The CPU has a piece of silicon 
+called the "local APIC" - enabled via the 'lapic' option, and disabled 
+via noapic. What the option above wants to enable is the IO-APIC in the 
+chipset (a different piece of silicon) and the interrupt routing 
+capabilities attached to it. That piece is what is causing the installer 
+problems.
+
+looks good in principle, but needs these cleanups.
+
+	Ingo

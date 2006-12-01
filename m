@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031113AbWLAMeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031243AbWLAMjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031113AbWLAMeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 07:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031156AbWLAMeJ
+	id S1031243AbWLAMjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 07:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031247AbWLAMjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 07:34:09 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:10869 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1031113AbWLAMeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 07:34:08 -0500
-Message-ID: <45702037.1030701@openvz.org>
-Date: Fri, 01 Dec 2006 15:29:43 +0300
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Fri, 1 Dec 2006 07:39:44 -0500
+Received: from [139.30.44.39] ([139.30.44.39]:6748 "EHLO
+	fink.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S1031243AbWLAMjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 07:39:43 -0500
+Date: Fri, 1 Dec 2006 13:41:18 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: please pull from the trivial tree
+In-Reply-To: <20061201113740.GP11084@stusta.de>
+Message-ID: <Pine.LNX.4.63.0612011329130.3090@fink.physik3.uni-rostock.de>
+References: <20061201113740.GP11084@stusta.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fixed formatting in ia64_process_pending_irq()
-Content-Type: multipart/mixed;
- boundary="------------090402000904030001040004"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090402000904030001040004
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+> Chase Venters (1):
+>       Fix jiffies.h comment
 
-A trivial issue found during code examining.
-Someone typed unneeded extra spaces.
+This one actually obscures the comment rather than fixing it.
 
-Signed-off-by: Pavel Emelianov <xemul@openvz.org>
+>From jiffies.h:
+> 76 /*
+> 77  * The 64-bit value is not volatile - you MUST NOT read it
+> 78  * without sampling the sequence number in xtime_lock.
+> 79  * get_jiffies_64() will do this for you as appropriate.
+> 80  */
+> 81  extern u64 __jiffy_data jiffies_64;
+> 82  extern unsigned long volatile __jiffy_data jiffies;
 
---------------090402000904030001040004
-Content-Type: text/plain;
- name="diff-ia64-irq-typo"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ia64-irq-typo"
+Note that jiffies is volatile, while jiffies_64 is not; the comment 
+currently explains that. The proposed patch
 
---- ./arch/ia64/kernel/irq_ia64.c.irqtypo	2006-11-23 11:45:25.000000000 +0300
-+++ ./arch/ia64/kernel/irq_ia64.c	2006-12-01 15:19:12.000000000 +0300
-@@ -219,16 +219,16 @@ void ia64_process_pending_intr(void)
- 
- 	vector = ia64_get_ivr();
- 
--	 irq_enter();
--	 saved_tpr = ia64_getreg(_IA64_REG_CR_TPR);
--	 ia64_srlz_d();
--
--	 /*
--	  * Perform normal interrupt style processing
--	  */
-+	irq_enter();
-+	saved_tpr = ia64_getreg(_IA64_REG_CR_TPR);
-+	ia64_srlz_d();
-+
-+	/*
-+	 * Perform normal interrupt style processing
-+	 */
- 	while (vector != IA64_SPURIOUS_INT_VECTOR) {
- 		if (unlikely(IS_RESCHEDULE(vector)))
--			 kstat_this_cpu.irqs[vector]++;
-+			kstat_this_cpu.irqs[vector]++;
- 		else {
- 			struct pt_regs *old_regs = set_irq_regs(NULL);
- 
+> Fix jiffies.h comment
+> jiffies.h includes a comment informing that jiffies_64 must be read with the
+> assistance of the xtime_lock seqlock. The comment text, however, calls
+> jiffies_64 "not volatile", which should probably read "not atomic".
+> 
+> --- a/include/linux/jiffies.h
+> +++ b/include/linux/jiffies.h
+> @@ -74,7 +74,7 @@
+> #define __jiffy_data __attribute__((section(".data")))
+> /*
+> - * The 64-bit value is not volatile - you MUST NOT read it
+> + * The 64-bit value is not atomic - you MUST NOT read it
+> * without sampling the sequence number in xtime_lock.
+> * get_jiffies_64() will do this for you as appropriate.
+> */
 
---------------090402000904030001040004--
+would leave a comment that is correct, but less useful (I'd expect any 
+kernel hacker to know that u64 is non-atomic on many platforms).
+
+Tim

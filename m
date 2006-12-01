@@ -1,82 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936100AbWLAH5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966999AbWLAH7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936100AbWLAH5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 02:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936105AbWLAH5i
+	id S966999AbWLAH7k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 02:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967124AbWLAH7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 02:57:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54723 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936100AbWLAH5h (ORCPT
+	Fri, 1 Dec 2006 02:59:39 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:443 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S966999AbWLAH7j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 02:57:37 -0500
-Date: Fri, 1 Dec 2006 02:57:18 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Keith Owens <kaos@ocs.com.au>, Andrew Morton <akpm@osdl.org>,
-       Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, ak@suse.de
-Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Message-ID: <20061201075718.GR6570@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20061201052653.GB11835@1wt.eu> <23790.1164954762@kao2.melbourne.sgi.com> <20061201072816.GA16684@1wt.eu>
+	Fri, 1 Dec 2006 02:59:39 -0500
+Date: Thu, 30 Nov 2006 23:59:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: Avoid allocating during interleave from almost full nodes
+Message-Id: <20061130235936.cd979ba5.akpm@osdl.org>
+In-Reply-To: <20061130235117.018c3c70.pj@sgi.com>
+References: <Pine.LNX.4.64.0611031256190.15870@schroedinger.engr.sgi.com>
+	<20061103134633.a815c7b3.akpm@osdl.org>
+	<Pine.LNX.4.64.0611031353570.16486@schroedinger.engr.sgi.com>
+	<20061103143145.85a9c63f.akpm@osdl.org>
+	<20061103172605.e646352a.pj@sgi.com>
+	<20061103174206.53f2c49e.akpm@osdl.org>
+	<20061104025128.ca3c9859.pj@sgi.com>
+	<Pine.LNX.4.64.0611060854000.25351@schroedinger.engr.sgi.com>
+	<20061130235117.018c3c70.pj@sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061201072816.GA16684@1wt.eu>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 08:28:16AM +0100, Willy Tarreau wrote:
-> Oh, I'm perfectly aware of this. That's in part why I started the hotfix
-> branch in the past :-) But sometimes, fixes consist in merging all the
-> patches from the maintenance branch (eg: from 4.1.0 to 4.1.1), and if
-> this is the case, there would not be much justification not to simply
-> update the version. In fact, what's really missing is a "fixlevel" in
-> the packages, to inform the user that 4.1.0 as shipped by the distro
-> has the same level of fixes as 4.1.1. But this is what the version is
-> used for today.
+On Thu, 30 Nov 2006 23:51:17 -0800
+Paul Jackson <pj@sgi.com> wrote:
 
-This is even more complicated by the fact that upstream GCC release branches
-(and also several Linux distributors) start announcing the upcoming version
-already a few days after a release is tagged.
-E.g. 14 days old gcc-4_1-branch says:
-./xgcc -B ./ --version; ./xgcc -B ./ -dD -E -xc /dev/null | grep GNU
-xgcc (GCC) 4.1.2 20061114 (prerelease)
-Copyright (C) 2006 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+> A month ago, Christoph replied to pj:
+> >
+> > On Sat, 4 Nov 2006, Paul Jackson wrote:
+> > 
+> > >   Do you know of any existing counters that we could use like this?
+> > > 
+> > > Adding a system wide count of pages allocated or scanned, just for
+> > > these fullnode hint caches, bothers me.
+> > 
+> > There are already such counters. PGALLOC_* and PGSCAN_*. See 
+> > include/linux/vmstat.h
+> 
+> These counters depend on CONFIG_VM_EVENT_COUNTERS.
+> 
+> The Kconfig comment for CONFIG_VM_EVENT_COUNTERS states:
+> 
+>           VM event counters are only needed to for event counts to be
+>           shown. They have no function for the kernel itself. This
+>           option allows the disabling of the VM event counters.
+>           /proc/vmstat will only show page counts.
+> 
+> (By the way - note the "needed to for event" phrasing error.)
+> 
+> The header file, include/linux/vmstat.h, for these counters states:
+> 
+> 	/*
+> 	 * Light weight per cpu counter implementation.
+> 	 *
+> 	 * Counters should only be incremented and no critical kernel component
+> 	 * should rely on the counter values.
+> 
+> Both these clearly state that I should not use these counters for real
+> kernel functions.
+> 
+> If that is so, I should find some other "time base" for the zonelist
+> caching.
+> 
+> If that is not so, then these comments need updating.
+> 
+> Anybody have any idea which is the case?
 
-#define __GNUC__ 4
-#define __GNUC_MINOR__ 1
-#define __GNUC_PATCHLEVEL__ 2
+You need to set EMBEDDED to disable VM_EVENT_COUNTERS.
 
-but GCC 4.1.2 has not been released yet.
-In Fedora Core/RHEL and I think a few other distros the version number
-is only changed when it is officially released, e.g.:
+Things like procps (vmstat, top, etc) now use /proc/vmstat and would likely
+break.
 
-gcc --version; gcc -dD -E -xc /dev/null | grep GNU
-gcc (GCC) 4.1.1 20061011 (Red Hat 4.1.1-30)
-Copyright (C) 2006 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+I don't know how much space it saves, but I doubt if the world would end if
+we removed CONFIG_VM_EVENT_COUNTERS.
 
-#define __GNUC__ 4
-#define __GNUC_MINOR__ 1
-#define __GNUC_PATCHLEVEL__ 1
-#define __GNUC_RH_RELEASE__ 30
-
-Note, 4.1.1 was released end of May this year and 4.1.2 has not been
-released.  So, using __GNUC_PATCHLEVEL__ to detect if a bug has been fixed
-or not isn't very useful (you'd need to rule out also __GNUC_PATCHLEVEL__ <= 1
-because gcc-4_1-branch was announcing that patchlevel already since
-beggining of March, on the other side there is a lot of GCCs with
-__GNUC_PATCHLEVEL__ == 1 that certainly have that bug fixed).
-
-You perhaps could parse the prerelease vs. release vs. vendor strings,
-but that could be quite difficult, perhaps easier would be just parse the
-date in the --version output.  Checking for the bug is best though, because
-that will catch even backports of the bugfix without rebasing from the
-release branch.
-
-	Jakub

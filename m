@@ -1,83 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161767AbWLAVQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161735AbWLAVSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161767AbWLAVQd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 16:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161764AbWLAVQd
+	id S1161735AbWLAVSO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 16:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161748AbWLAVSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 16:16:33 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60829 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161767AbWLAVQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 16:16:32 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Greg KH <gregkh@suse.de>, Andi Kleen <ak@suse.de>
-Cc: "Lu, Yinghai" <yinghai.lu@amd.com>,
-       Stefan Reinauer <stepan@coresystems.de>, linuxbios@linuxbios.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
-References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com>
-	<20061201191916.GB3539@suse.de> <20061201204249.28842.qmail@cdy.org>
-Date: Fri, 01 Dec 2006 14:15:24 -0700
-In-Reply-To: <20061201204249.28842.qmail@cdy.org> (Peter Stuge's message of
-	"Fri, 1 Dec 2006 21:42:49 +0100")
-Message-ID: <m164cvgvwz.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 1 Dec 2006 16:18:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:13537 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161735AbWLAVSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 16:18:12 -0500
+Date: Fri, 1 Dec 2006 13:18:01 -0800
+From: Greg KH <greg@kroah.com>
+To: David Lopez <dave.l.lopez@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB: add driver for LabJack USB DAQ devices
+Message-ID: <20061201211801.GA448@kroah.com>
+References: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Stuge <stuge-linuxbios@cdy.org> writes:
+On Fri, Dec 01, 2006 at 01:37:22PM -0700, David Lopez wrote:
+> From: David Lopez <dave.l.lopez@gmail.com>
 
-> On Fri, Dec 01, 2006 at 11:19:16AM -0800, Greg KH wrote:
->> Well, earlyprintk will not work, as you need PCI up and running.
->
-> Not all of it though. LinuxBIOS will probably do just enough PCI
-> setup to talk to the EHCI controller and use the debug port _very_
-> soon after power on.
+Please CC: linux-usb-devel for new usb drivers.
 
-Right.  For LinuxBIOS not a problem for earlyprintk in the kernel
-somethings might need to be refactored.  The challenge in the kernel
-is we don't know at build to how to do a pci_read_config...
+> 
+> This driver adds support for LabJack U3 and UE9 USB DAQ devices.
+> 
+> Signed-off-by: David Lopez <dave.l.lopez@gmail.com>
+> ---
+> Patch against stable 2.6.19 kernel.
+> 
+> Kconfig  |   15 +
+> Makefile |    1
+> ljusb.c  |  584 
+> +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> 
+> diff -uprN -X linux-2.6.19-vanilla/Documentation/dontdiff
+> linux-2.6.19-vanilla/drivers/usb/misc/Kconfig
+> linux-2.6.19/drivers/usb/misc/Kconfig
+> --- linux-2.6.19-vanilla/drivers/usb/misc/Kconfig	2006-11-29
+> 14:57:37.000000000 -0700
 
-The other hard part early in the kernel is the fact that the
-bar is memory mapped I/O.  Which means it will need to get mapped
-into the kernels page tables.
+The patch seems linewrapped, which doesn't make it easy to apply :(
 
->> And I have some code that barely works for this already, perhaps
->> Eric and I should work together on this :)
->
-> I would be interested in having a look at any code for it too.
+Can you resend this?
 
-Sure, I will send it out shortly.  I currently have a working
-user space libusb thing (easy, but useful for my debug) and 
-a rude read/write to the bar from user space program that
-allowed me to debug the worst of the state machine from user
-space.  I don't think I have the state setup logic correct yet
-but that is minor in comparison.
+> +/* Private defines */
+> +#define MAX_TRANSFER			( PAGE_SIZE - 512 )
 
-I really wish the EHCI spec had made that stupid interface 16 bytes
-instead of 8 or had a way to chain multiple access together.  The
-we could have used a normal usb cable.  As it is most descriptors
-are 1 byte to big to read.
+Any specific reason for this size limit?
 
->> Yes, that will work just fine today using the usb-serial generic
->> driver.
->
-> Ugh. I did not know it was that generic. The irony is that I always
-> ask other libusb users to check the kernel drivers to see if they
-> really need to write a libusb app.
->
->
->> I'll knock up a "real" driver for the device later today and send
->> it to Linus, as it's trivial to do so, and will make it simpler
->> than using the module parameters.
->
-> Awesome. Thanks!
+> +#define BULK_IN_TIMEOUT			1000	/* default bulk in 
+> read timeout */
 
-Yep. It looks like it sufficient generic.  The Maximum packet size
-appears to be reported correctly for writes which is the tidbit
-I was worried about but otherwise it is just a pair of bulk transfer
-endpoints.
+What units is this timeout in?
 
-Eric
+
+> +/**
+> + *	ljusb_delete
+> + */
+> +static void ljusb_delete(struct kref *kref)
+> +{	
+
+You have trailing spaces in a number of places.  My tools will strip
+them out, but you should be aware of it in the future.
+
+> +	int i;
+> +	struct usb_ljusb *dev = to_ljusb_dev(kref);
+> +
+> +	usb_put_dev(dev->udev);
+> +	
+> +	for(i = 0; i < N_BULK_IN_ENDPOINTS; ++i)
+> +		kfree (dev->bulk_in_buffer[i]);
+> +	kfree (dev);
+
+Minor style point.  Please put a space after the "for", but not before
+the function call.
+
+So those lines should be redone as:
+	for (i = 0; i < N_BULK_IN_ENDPOINTS; ++i)
+		kfree(dev->bulk_in_buffer[i]);
+	kfree(dev);
+
+Yes, not all portions of the kernel abide by this, but for new code we
+are trying to be stricter.
+
+> +static void ljusb_write_bulk_callback(struct urb *urb)
+> +{
+> +	struct usb_ljusb *dev;
+> +
+> +	dev = (struct usb_ljusb *)urb->context;
+> +
+> +	/* sync/async unlink faults aren't errors */
+> +	if (urb->status &&
+> +	    !(urb->status == -ENOENT ||
+> +	      urb->status == -ECONNRESET ||
+> +	      urb->status == -ESHUTDOWN)) {
+> +		dbg("%s - nonzero write bulk status received: %d",
+> +		    __FUNCTION__, urb->status);
+> +	}
+
+A switch statement might work a bit better here.  It will let you handle
+the different values you might get in a saner way.
+
+> +	/* free up our allocated buffer */
+> +	usb_buffer_free(urb->dev, urb->transfer_buffer_length,
+> +			urb->transfer_buffer, urb->transfer_dma);
+> +	up(&dev->sem);
+
+You hold the semaphore over the urb lifecycle?  Why?  That seems a bit
+"odd".
+
+Or is this a bug?
+
+Can't that semaphore be a mutex instead?
+
+> +/**
+> + *	ljusb_ioctl
+> + */
+> +static int ljusb_ioctl (struct inode *inode, struct file *file,
+> unsigned int cmd, unsigned long arg)
+
+New ioctls are pretty much frowned apon to add.  Do you _really_ need
+these?
+
+Can you use sysfs instead?
+
+> +	/* driver specific commands */
+> +	switch (cmd) {
+> +		/* Sets the timeout for usb_bulk_msg reads transfers in ms 
+> from an integer
+> +		 * argument.  If the timeout is set to zero, reads will wait 
+> forever */
+> +		case IOCTL_LJ_SET_BULK_IN_TIMEOUT:
+> +			data = (void __user *) arg;
+> +			if (data == NULL)
+> +				break;
+> +
+> +			if (copy_from_user(&timeout, data, sizeof(int))) {
+> +				retval = -EFAULT;
+> +				break;
+> +			}
+> +
+> +			if(timeout < 0)
+> +				retval = -EINVAL;
+> +			else
+> +				dev->bulk_in_timeout = timeout;
+> +				
+> +			break;
+
+Is this really needed to be modified?
+
+> +		/* Gets the Product ID for the device */
+> +		case IOCTL_LJ_GET_PRODUCT_ID:
+> +			retval = put_user(dev->udev->descriptor.idProduct,
+> +						(unsigned int __user *)arg);
+> +			break;
+
+You can get this from sysfs or usbfs today.  Don't duplicate it please.
+
+> +		/* Sets the bulk in endpoint for the next read from an 
+> integer argument.
+> +		 * There are two bulk endpoints, which are endpoints 0 and 1 
+> when
+> +		 * setting the integer argument. */
+> +		case IOCTL_LJ_SET_BULK_IN_ENDPOINT:
+> +			data = (void __user *) arg;
+> +			if (data == NULL)
+> +				break;
+> +			
+> +			if (copy_from_user(&ep, data, sizeof(int))) {
+> +				retval = -EFAULT;
+> +				break;
+> +			}
+> +			
+> +			if(ep > N_BULK_IN_ENDPOINTS || ep < 0)
+> +				retval = -EINVAL;
+> +			else
+> +				dev->next_bulk_in_endpoint = ep;
+> +			break;
+
+Why is this needed?
+
+> +		if(j < N_BULK_IN_ENDPOINTS)
+> +		{
+
+{ should be on the same line as the 'if'.  Also please add a space after
+the 'if', like you did on the next line:
+
+> +			if (!dev->bulk_in_endpointAddr[j] &&
+> +				((endpoint->bEndpointAddress & 
+> USB_ENDPOINT_DIR_MASK)
+> +						== USB_DIR_IN) &&
+> +			    	((endpoint->bmAttributes & 
+> USB_ENDPOINT_XFERTYPE_MASK)
+> +						== USB_ENDPOINT_XFER_BULK)) {
+
+We have functions to check for direction and endpoint type now.  Please
+use them instead.
+
+thanks,
+
+greg k-h

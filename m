@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031636AbWLAATI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031651AbWLAA1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031636AbWLAATI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 19:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031642AbWLAATI
+	id S1031651AbWLAA1x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 19:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031649AbWLAA1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 19:19:08 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:39441 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1031636AbWLAATE (ORCPT
+	Thu, 30 Nov 2006 19:27:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:2521 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1031648AbWLAA1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 19:19:04 -0500
-Date: Fri, 1 Dec 2006 01:19:01 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
-Message-ID: <20061201001901.GA11057@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20061123195137.GA35120@dspnet.fr.eu.org> <200611252159.59414.ak@suse.de> <20061126131532.GA41703@dspnet.fr.eu.org> <200611262028.04638.ak@suse.de> <20061127190301.GA75765@dspnet.fr.eu.org> <20061127190748.GA7015@bingen.suse.de> <20061127202406.GA90483@dspnet.fr.eu.org>
+	Thu, 30 Nov 2006 19:27:52 -0500
+Date: Fri, 1 Dec 2006 01:27:50 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
+Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
+Message-ID: <20061201002750.GA455@wotan.suse.de>
+References: <20061130072058.GA18004@wotan.suse.de> <20061130072202.GB18004@wotan.suse.de> <20061130072247.GC18004@wotan.suse.de> <20061130113241.GC12579@wotan.suse.de> <87r6vkzinv.fsf@duaron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061127202406.GA90483@dspnet.fr.eu.org>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <87r6vkzinv.fsf@duaron.myhome.or.jp>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2006 at 09:24:06PM +0100, Olivier Galibert wrote:
-> On Mon, Nov 27, 2006 at 08:07:48PM +0100, Andi Kleen wrote:
-> > Is that with just the code movement patch or your feature patch
-> > added too? If the later can you test it with only code movement
-> > (and compare against vanilla kernel). at least code movement
-> > only should behave exactly the same as unpatched kernel.
+On Fri, Dec 01, 2006 at 07:14:28AM +0900, OGAWA Hirofumi wrote:
 > 
-> You misread.  Unpatched kernel does not work.  That's why I gave the
-> git reference of the kernel too.  Patched kernel does not work either,
-> unsurprisingly (bios gives correct tables on that box).
+> quick look. Doesn't this break reiserfs? IIRC, the reiserfs is using
+> it for another reason. I was also working for this, but I lost the
+> thread of this, sorry.
 
-Ok, I'm trying to debug it, and it's a pain.  It's a timing issue,
-mmcfg write accesses are too slow for something.  The get_base_addr()
-call is enough to slow things down too much, which explains why the
-fundamentally simpler x86-64 code works without a hitch.
+Yes I think it will break reiserfs, so I just have to have a look
+at converting it. Shouldn't take too long.
 
-Finding out what it is too slow for, though, is an interesting
-proposition.  It's not entirely obvious it is actually related to the
-sata accesses.
+> 
+> I found some another users (affs, hfs, hfsplus). Those seem have same
+> problem, but probably those also can use this...
+> 
+> What do you think?
 
-  OG.
+Well I guess this is your code, so it is up to you ;)
 
+I would be happy if you come up with a quick fix, I'm just trying to
+stamp out a few big bugs in mm. However I did prefer my way of moving
+all the exapand code into generic_cont_expand, out of prepare_write, and
+avoiding holding the target page locked while we're doing all the expand
+work (strictly, you might be able to get away with this, but it is
+fragile and ugly).
+
+AFAIKS, the only reason to use prepare_write is to avoid passing the
+get_block into generic_cont_expand?
+
+
+Thanks,
+Nick
 

@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031680AbWLABLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031690AbWLABMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031680AbWLABLY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 20:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031687AbWLABLY
+	id S1031690AbWLABMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 20:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031689AbWLABMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 20:11:24 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:35339 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1031680AbWLABLX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 20:11:23 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
-References: <20061130072058.GA18004@wotan.suse.de>
-	<20061130072202.GB18004@wotan.suse.de>
-	<20061130072247.GC18004@wotan.suse.de>
-	<20061130113241.GC12579@wotan.suse.de>
-	<87r6vkzinv.fsf@duaron.myhome.or.jp>
-	<20061201002750.GA455@wotan.suse.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 01 Dec 2006 10:11:14 +0900
-In-Reply-To: <20061201002750.GA455@wotan.suse.de> (Nick Piggin's message of "Fri\, 1 Dec 2006 01\:27\:50 +0100")
-Message-ID: <873b80v2rx.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Nov 2006 20:12:03 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:31697
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1031688AbWLABMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 20:12:00 -0500
+Date: Thu, 30 Nov 2006 17:12:03 -0800 (PST)
+Message-Id: <20061130.171203.52167774.davem@davemloft.net>
+To: burman.yan@gmail.com
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org, wli@holomorphy.com
+Subject: Re: [PATCH 2.6.19-rc6] sparc: replace kmalloc+memset with kzalloc
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4566DF0A.3050803@gmail.com>
+References: <4566DF0A.3050803@gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> writes:
+From: Yan Burman <burman.yan@gmail.com>
+Date: Fri, 24 Nov 2006 14:01:14 +0200
 
-> I would be happy if you come up with a quick fix, I'm just trying to
-> stamp out a few big bugs in mm. However I did prefer my way of moving
-> all the exapand code into generic_cont_expand, out of prepare_write, and
-> avoiding holding the target page locked while we're doing all the expand
-> work (strictly, you might be able to get away with this, but it is
-> fragile and ugly).
->
-> AFAIKS, the only reason to use prepare_write is to avoid passing the
-> get_block into generic_cont_expand?
+> Replace kmalloc+memset with kzalloc 
+> 
+> Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-IIRC, because generic_cont_expand is designed as really generic. It
-can also use for non moronic filesystem.
+Applied and I added the necessary return value checks in
+sun4d_irq.c and io-unit.c
 
-In the case of reiserfs, it ->prepare_write might be necessary.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Thanks.

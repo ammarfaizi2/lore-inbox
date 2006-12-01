@@ -1,145 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759105AbWLAGO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759114AbWLAGQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759105AbWLAGO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 01:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759111AbWLAGO6
+	id S1759114AbWLAGQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 01:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759115AbWLAGQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 01:14:58 -0500
-Received: from mail.cruzers.com ([209.165.193.12]:32530 "EHLO
-	woodstock.cruzers.com") by vger.kernel.org with ESMTP
-	id S1759105AbWLAGO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 01:14:58 -0500
-Message-ID: <456FC859.9070709@cruzers.com>
-Date: Thu, 30 Nov 2006 22:14:49 -0800
-From: ron moncreiff <rmoncreiff@cruzers.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Fri, 1 Dec 2006 01:16:55 -0500
+Received: from mga01.intel.com ([192.55.52.88]:29318 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1759112AbWLAGQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 01:16:54 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,483,1157353200"; 
+   d="scan'208"; a="171486882:sNHT21848281"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Zach Brown'" <zach.brown@oracle.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Chris Mason" <chris.mason@oracle.com>
+Subject: RE: [rfc patch] optimize o_direct on block device
+Date: Thu, 30 Nov 2006 22:16:53 -0800
+Message-ID: <000001c71510$4bec8400$8f8c030a@amr.corp.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: trying pata_ali in 2.6.19
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccUyNIqbvFeehNITC2pCST5RhjTsAAHG8gA
+In-Reply-To: <48655D0C-F150-4EF1-B946-94B959580A65@oracle.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-// I have tried out the new pata options in the 2.6.19 kernel and had 
-some problems. //
-// So here's the skinny. I am using the asrock 939dual - sataII mobo. 
-lspci reports //
-// the IDE interface thus: //
+Zach Brown wrote on Thursday, November 30, 2006 1:45 PM
+> > At that time, a patch was written for raw device to demonstrate that
+> > large performance head room is achievable (at ~20% speedup for micro-
+> > benchmark and ~2% for db transaction processing benchmark) with a  
+> > tight I/O submission processing loop.
+> 
+> Where exactly does the benefit come from?  icache misses?  "atomic"  
+> ops leading to pipeline flushes?
 
-00:12.0 IDE interface: ALi Corporation M5229 IDE (rev c7)
+It benefit from shorter path length. It takes much shorter time to process
+one I/O request, both in the submit and completion path.  I always think in
+terms of how many instructions, or clock ticks does it take to convert user
+request into bio, submit it and in the return path, to process the bio call
+back function and do the appropriate io completion (sync or async).  The
+stock 2.6.19 kernel takes about 5.17 micro-seconds to process one 4K aligned
+DIO (just the submit and completion path, less disk I/O latency).  With the
+patch, the time is reduced to 4.26 us.
 
-// It works fine under the old regime //
-// Here's what hdparm -i /dev/hda returns: //
+This time may look small compare to disk latency. But with multi-threaded
+app using native AIO interface, the metric is important because we are CPU
+bound instead of traditionally I/O bound. So software efficiency is critical.
 
-/dev/hda:
 
- Model=ST380011A, FwRev=8.01, SerialNo=5JVQHHJ9
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=156301488
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
- AdvancedPM=no WriteCache=enabled
- Drive conforms to: ATA/ATAPI-6 T13 1410D revision 2:  ATA/ATAPI-1 
-ATA/ATAPI-2 ATA/ATAPI-3 ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6
+> I ask to find out just what exactly it would take to get fs/direct- 
+> io.c do the job efficiently on behalf of the block devices so that it  
+> doesn't have to grow code that duplicates the 48 billion fiddly  
+> little behavioural quirks of O_DIRECT.
 
- * signifies the current active mode
+I've attempted that first, but fall flat with all the 48 billion corner
+cases needed to handle in the most inner loop.
 
-// and /dev/hdb: //
 
-/dev/hdb:
+> > (2) there are some inconsistency for synchronous I/O: condition to  
+> > update
+> >     ppos and condition to wait on sync_kiocb is incompatible.  Call  
+> > chain
+> >     looks like the following:
+> >
+> >     do_sync_read
+> >        generic_file_aio_read
+> >          ...
+> >            blkdev_direct_IO
+> >
+> >     do_sync_read will wait for I/O completion only if lower  
+> > function returned
+> >     -EIOCBQUEUED. Updating ppos is done via generic_file_aio_read,  
+> > but only
+> >     if the lower function returned positive value. So I either have  
+> > to construct
+> >     my own wait_on_sync_kiocb, or hack around the ppos update.
+> 
+> Yeah, this stuff is a mess.
+> 
+> If memory serves this works out because nothing currently uses the  
+> AIO completion paths (EIOCBQEUED, aio_complete()) for sync iocbs.   
+> That is, they test is_sync_iocb() and block internally and return the  
+> number of bytes transferred.
+> 
+> Changing this implies moving some work that's done in the generic  
+> return code processing path over into the aio completion path.  Like  
+> extending i_size.
 
- Model=PIONEER DVD-RW DVR-108, FwRev=1.10, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=13395, BuffSize=64kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 *udma4
- AdvancedPM=no
- Drive conforms to: Unspecified:  ATA/ATAPI-2 ATA/ATAPI-3 ATA/ATAPI-4 
-ATA/ATAPI-5
+Right. block device never change i_size on write, so I'm utilizing the
+blocking call in the generic path that is currently never exercised.
 
- * signifies the current active mode
 
-// Here's what happens on the command line when I modprobe the module 
-and then lsmod. //
+> > +	atomic_t* bio_count = (atomic_t*) &iocb->private;
+> 
+> Is atomic_t defined to fit in a long?  Right now it seems to.. (all  
+> use 'int' or 's32').  That'll be fun to debug if some joker arch  
+> decides to put some debugging help in the atomic_t struct, etc.
+> 
+> BUILD_BUG_ON() if the sizes don't fit, I guess, if we have to do it  
+> this way.  Maybe something somewhere does that already.
 
-frontman ata # modprobe -v pata_ali
-insmod /lib/modules/2.6.19-gentoo/kernel/drivers/ata/pata_ali.ko
-Segmentation fault
-frontman ata # lsmod
-Module                  Size  Used by
-pata_ali                7714  1
-snd_seq_midi            6048  0
-rtc                     9972  0
-snd_ens1371            18752  0
-snd_rawmidi            17824  2 snd_seq_midi,snd_ens1371
-snd_ac97_codec         90084  1 snd_ens1371
-snd_ac97_bus            1856  1 snd_ac97_codec
-k8temp                  4352  0
+Good suggestion, I will add that.
 
-// here's the tail end of dmesg after the modprobe //
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 
-00000020
-printing eip:
-f8ba0823
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: pata_ali snd_seq_midi rtc snd_ens1371 snd_rawmidi 
-snd_ac97_codec snd_ac97_bus k8temp
-CPU:    0
-EIP:    0060:[<f8ba0823>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.19-gentoo #5)
-EIP is at ali_init_one+0x1ba/0x2f7 [pata_ali]
-eax: ef47fe1a   ebx: 00000000   ecx: f7cb84b0   edx: 00000001
-esi: f7cbcc00   edi: f7cb8400   ebp: f6f5f9a0   esp: ef47fe08
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 4770, ti=ef47e000 task=f1a25a70 task.ti=ef47e000)
-Stack: 000010b9 00001533 00000079 ef47fe1a c7c11734 f8ba1734 f8ba1700 
-f7cbcc00
-       c024b556 f7cbcc00 f8ba09bc f7cbcc48 f7cbcc48 f8ba1734 c02a9dce 
-f7cbcc48
-       c17df0c0 000000d0 c036d1de f7cbcc48 ef47fe84 c02a9fa1 f8ba1734 
-c02a9fef
-Call Trace:
- [<c024b556>] pci_device_probe+0x44/0x68
- [<c02a9dce>] really_probe+0x3c/0xe4
- [<c036d1de>] klist_next+0x57/0x95
- [<c02a9fa1>] __driver_attach+0x0/0x81
- [<c02a9fef>] __driver_attach+0x4e/0x81
- [<c02a93b6>] bus_for_each_dev+0x51/0x78
- [<c02a9cd8>] driver_attach+0x26/0x2a
- [<c02a9fa1>] __driver_attach+0x0/0x81
- [<c02a9739>] bus_add_driver+0x66/0x18d
- [<c02aa1f3>] driver_register+0x80/0x8d
- [<c024b6ec>] __pci_register_driver+0x63/0x86
- [<f8ba3017>] ali_init+0x17/0x1a [pata_ali]
- [<c012f670>] sys_init_module+0x1471/0x1628
- [<c0102a69>] sysenter_past_esp+0x56/0x79
- =======================
-Code: 00 c7 04 24 b9 10 00 00 e8 06 b4 6a c7 85 ff 89 c3 74 64 66 81 7f 
-24 b9 10 75 5c 8d 44 24 12 c7 44 24 08 79 00 00 00 89 44 24 0c <8b> 43 
-20 89 44 24 04 8b 43 10 89 04 24 e8 b1 63 6a c7 80 7c 24
-EIP: [<f8ba0823>] ali_init_one+0x1ba/0x2f7 [pata_ali] SS:ESP 0068:ef47fe08
+> > +	size = i_size_read(inode);
+> > +	if (pos + nbytes > size)
+> > +		nbytes = size - pos;
+> 
+> Has something else made sure that pos won't be > size?  I don't know  
+> the block device world all that well.
 
-// Just for yuks I took a look at the pata_ali.c code at // 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=1d695df5860a3ac44fc77476847d88f50927d7fb;f=drivers/ata/pata_ali.c 
-//
-// and noticed that starting at line 510 there are a bunch of "static 
-struct ata_port_info info_20" like structure //
-// declarations (definitions ?) that seem to reference various revisions 
-of the chip. Mine is a c7 and there's no //
-// structure for that one. Could this be the problem?
+generic_file_aio_read checks pos < size before calling down direct_IO
+method, so the check is there already.  But you are right that in the
+write path, the equivalent check is not there.  I need to chew on this
+a bit more.
 
-TIA, Ron
-rmoncreiff@cruzers.com
 
+> > +		bio = bio_alloc(GFP_KERNEL, nvec);
+> > +		bio->bi_bdev = I_BDEV(inode);
+> 
+> Not checking for bio allocation failure?
+
+I should've add a big fat comments that bio_alloc never fail with
+GFP_KERNEL flag. It allocates from mempool that guarantees availability.
+
+
+> > +		page = blk_get_page(addr, count, rw, &pvec);
+> 
+> It looks like count is the iov_len and isn't clamped to the block  
+> device size like nbytes.  So we could still have 'count' bytes mapped  
+> after nbytes hits the end of the device and stops building IO.  I  
+> don't see the function cleaning up these pages that were pinned in  
+> the user region that extended beyond the block device.  I guess this  
+> wants to be 'nbytes'.
+
+I think I adjusted nbytes to never pass beyond the end of disk.  So the
+above scenario won't happen.  I will double check.  Using nbytes won't
+be correct though, because each vector isn't contiguous in virtual address
+space, I really have to make separate call to get_user_pages further down
+from the blk_get_page().
+
+
+> Indeed, what happens if nbytes runs out when a bio is partially  
+> full?  Is it not submitted?  I feel like I'm missing something.
+
+No, it will get submitted.
+
+
+> > +		if (IS_ERR(page)) {
+> > +			bio_release_pages(bio);
+> > +			bio_put(bio);
+> > +			if (atomic_read(bio_count) == 1)
+> > +				return PTR_ERR(page);
+> 
+> Does this mean that a fault part-way through an IO that exits from  
+> here won't update ki_bytes and so the eventual aio_complete() will be  
+> for the full requested IO rather than the partial IOs that completed?
+
+If nothing is submitted, then it's an easy case.  But if some bio is
+already submitted, yes, the error path lacks backing out bytes
+accumulated for current vector because it won't get submitted.
+
+
+> > +			if (++seg < nr_segs) {
+> > +				addr = (unsigned long) iov[seg].iov_base;
+> > +				count = iov[seg].iov_len;
+> 
+> Am I missing where the alignment of the iovec elements beyond the  
+> first are being checked?
+
+It is checked immediately below addr and count assignment:
+
++				if (!(addr & blocksize_mask ||
++				      count & blocksize_mask))
++					goto same_bio;
+
+Looking closely, these checks is not complete ....
+
+
+> Backing up a bit, I'm not sure it's worth giving ourselves the  
+> opportunity to make all these mistakes by copying this code over.   
+> 2%, on an extremely aggressive IO subsystem?
+
+IMO, it worth the effort because 2% just from DIO is significant.
+
+- Ken
+
+ 

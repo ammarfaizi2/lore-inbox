@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967518AbWLAPug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031498AbWLAQJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967518AbWLAPug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967534AbWLAPug
+	id S1031498AbWLAQJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 11:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031530AbWLAQJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:50:36 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:10250 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S967518AbWLAPuf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:50:35 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: [2.4 PATCH] ia64 kernel entry fix
-Date: Fri, 1 Dec 2006 16:50:09 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
+	Fri, 1 Dec 2006 11:09:19 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:5845 "EHLO
+	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
+	id S1031498AbWLAQJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 11:09:18 -0500
+Date: Fri, 1 Dec 2006 17:09:17 +0100 (CET)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Jeff Dike <jdike@addtoit.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: `make checkstack' and cross-compilation
+In-Reply-To: <20061201153021.GA4332@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.62.0612011708550.30940@pademelon.sonytel.be>
+References: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
+ <20061201153021.GA4332@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612011650.09717.m.kozlowski@tuxland.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 1 Dec 2006, Jeff Dike wrote:
+> On Fri, Dec 01, 2006 at 02:58:16PM +0100, Geert Uytterhoeven wrote:
+> > Makefile has:
+> > | # Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
+> > | # In the UML case, $(SUBARCH) is the name of the underlying
+> > | # architecture, while for all other arches, it is the same as $(ARCH).
+> > | checkstack:
+> > |         $(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
+> > |         $(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
+> > 
+> > While this may fix `make checkstack' for UML, it breaks cross-compilation.
+> > E.g. when cross-compiling for PPC on ia32, ARCH=powerpc, but SUBARCH=i386.
+> > 
+> > Probably it should use SUBARCH if ARCH=um, and ARCH otherwise?
+> 
+> Whoops, you're right.  
+> 
+> Do you have a patch?  If not, I'll make one.
 
-	I noticed some parenthesis thing here but I'd be glad if anyone would 
-confirm thath the patch below is correct. This code looks magic to me ;-)
+No.
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> And, do you have a cross-compilation environment which tests this?
 
- arch/ia64/kernel/entry.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes :-)
 
---- linux-2.4.34-pre6-a/arch/ia64/kernel/entry.h	2003-11-28 19:26:19.000000000 +0100
-+++ linux-2.4.34-pre6-b/arch/ia64/kernel/entry.h	2006-12-01 12:05:58.000000000 +0100
-@@ -49,7 +49,7 @@
- 	.spillsp @priunat,SW(AR_UNAT)+16+(off);					\
- 	.spillsp ar.rnat,SW(AR_RNAT)+16+(off);					\
- 	.spillsp ar.bspstore,SW(AR_BSPSTORE)+16+(off);				\
--	.spillsp pr,SW(PR)+16+(off))
-+	.spillsp pr,SW(PR)+16+(off);
- 
- #define DO_SAVE_SWITCH_STACK			\
- 	movl r28=1f;				\
+Gr{oetje,eeting}s,
 
+						Geert
 
--- 
-Regards,
-
-	Mariusz Kozlowski
+--
+Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
+Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
+Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium

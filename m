@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031498AbWLAQJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031536AbWLAQKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031498AbWLAQJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 11:09:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031530AbWLAQJT
+	id S1031536AbWLAQKl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 11:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031533AbWLAQKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 11:09:19 -0500
-Received: from vervifontaine.sonytel.be ([80.88.33.193]:5845 "EHLO
-	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
-	id S1031498AbWLAQJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 11:09:18 -0500
-Date: Fri, 1 Dec 2006 17:09:17 +0100 (CET)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Jeff Dike <jdike@addtoit.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `make checkstack' and cross-compilation
-In-Reply-To: <20061201153021.GA4332@ccure.user-mode-linux.org>
-Message-ID: <Pine.LNX.4.62.0612011708550.30940@pademelon.sonytel.be>
-References: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
- <20061201153021.GA4332@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Dec 2006 11:10:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58503 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1031530AbWLAQKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 11:10:40 -0500
+Subject: Re: [PATCH 1/4] [x86] Add command line option to enable/disable
+	hyper-threading.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <1164985757.5257.933.camel@gullible>
+References: <11648607683157-git-send-email-bcollins@ubuntu.com>
+	 <11648607733630-git-send-email-bcollins@ubuntu.com>
+	 <20061201132918.GB4239@ucw.cz>  <1164980500.5257.922.camel@gullible>
+	 <1164983529.3233.73.camel@laptopd505.fenrus.org>
+	 <1164985757.5257.933.camel@gullible>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Fri, 01 Dec 2006 17:10:36 +0100
+Message-Id: <1164989436.3233.85.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006, Jeff Dike wrote:
-> On Fri, Dec 01, 2006 at 02:58:16PM +0100, Geert Uytterhoeven wrote:
-> > Makefile has:
-> > | # Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
-> > | # In the UML case, $(SUBARCH) is the name of the underlying
-> > | # architecture, while for all other arches, it is the same as $(ARCH).
-> > | checkstack:
-> > |         $(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
-> > |         $(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
-> > 
-> > While this may fix `make checkstack' for UML, it breaks cross-compilation.
-> > E.g. when cross-compiling for PPC on ia32, ARCH=powerpc, but SUBARCH=i386.
-> > 
-> > Probably it should use SUBARCH if ARCH=um, and ARCH otherwise?
+
+> I'm just basing this on the history of the patch, which preceeds me, so
+> if this is incorrect, please don't blame me for misinformation :)
 > 
-> Whoops, you're right.  
+> The original patch claims that hyper-threading opens the user up to some
+> sort of security risk involving hardware limitations in protecting
+> memory across the threads. I can't recall all the details.
 > 
-> Do you have a patch?  If not, I'll make one.
+> If this is wrong, I'm more than happy to just drop the whole damn patch.
 
-No.
+that is not correct.
+I suspect what is meant is the "attack" on older openssl versions where
+you could in theory get SOME information about a key in use by snooping
+cache patterns in a shared cache situation. By no means is it a "direct"
+leak of any kind, and openssl has since then been fixed to not have as
+many key-dependent execution streams anymore.
 
-> And, do you have a cross-compilation environment which tests this?
+I would suggest you drop the patch; openssl has been long fixed, and it
+was only a theoretical attack in the first place...
+I'm not saying the attack isn't something that should be addressed.. but
+it is, and disabling hyperthreading is not the right fix.
 
-Yes :-)
 
-Gr{oetje,eeting}s,
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-						Geert
-
---
-Geert Uytterhoeven -- Sony Network and Software Technology Center Europe (NSCE)
-Geert.Uytterhoeven@sonycom.com ------- The Corporate Village, Da Vincilaan 7-D1
-Voice +32-2-7008453 Fax +32-2-7008622 ---------------- B-1935 Zaventem, Belgium

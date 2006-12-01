@@ -1,126 +1,199 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030845AbWLAMIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030876AbWLAMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030845AbWLAMIz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 07:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030873AbWLAMIz
+	id S1030876AbWLAMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 07:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030897AbWLAMJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 07:08:55 -0500
-Received: from smtpout.mac.com ([17.250.248.181]:26821 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030845AbWLAMIy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 07:08:54 -0500
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEDBABAC.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKMEDBABAC.davids@webmaster.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0BE44B2C-6589-4CFB-AE3A-F62317C355B8@mac.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Date: Fri, 1 Dec 2006 07:08:49 -0500
-To: davids@webmaster.com
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
+	Fri, 1 Dec 2006 07:09:39 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:10247 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030876AbWLAMJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 07:09:39 -0500
+Date: Fri, 1 Dec 2006 13:09:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.ne,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove NFSD_OPTIMIZE_SPACE
+Message-ID: <20061201120943.GY11084@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 01, 2006, at 06:24:54, David Schwartz wrote:
->> Imagine we change the code to read from some auto-increment hardware
->> at a specific MMIO address instead of a global:
->>> static int my_func(int a)
->>> {
->>> 	return a + *(volatile int *)(0xABCD1234);
->>> }
->
->> But you're telling me that the change in the header file (where the
->> new function returns the exact same series of values with every call
->> as the old) causes the program to enter an infinite loop?
->>
->> How do you rationalize this again?
->
-> No, I'm not saying that. I'm saying it *can*.
+This patch removes the unused NFSD_OPTIMIZE_SPACE.
 
-No, it can't.  If you leave the prototype alone and the function when  
-called in sequence returns the same list of values, then by  
-definition the internals can have no effect on the code which uses  
-that function.  As further proof, if you wrapped my "my_func()" with  
-this in some C file:
-int my_other_func(int a)
-{
-	return my_func(a);
-}
+Additionally, it does differently what NFSD_OPTIMIZE_SPACE was supposed 
+to do:
 
-Next you stick a my_other_func declaration in a header and use  
-my_other_func instead of my_func() in the main function.  Now the  
-result is that the compiler has no damn clue what my_other_func()  
-contains so it can't optimize it out of the loop with either  
-version.  You cannot treat "volatile" the way you are saying it is  
-treated without severely violating both the C99 spec *and* common sense.
+Nowadays, gcc knows best when to inline code, and 
+CONFIG_CC_OPTIMIZE_FOR_SIZE even tells gcc globally whether to optimize 
+for size or for speed. Therefore, this patch also removes all inline's 
+from these files.
 
-> In some cases, it's very unlikely that compilers will ever become  
-> smart enough to demonstrate that our code is broken, but that  
-> doesn't make the code any less broken, just less likely to fail.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-No, the code is not broken because the language simply isn't defined  
-that way.  Essentially when the compiler is looking at any volatile  
-data it cannot ignore or optimize-away any operations on that data.   
-On the other hand, when you cast volatile data into non-volatile  
-data, the compiler must preserve linearity of program execution.  If  
-you call a function in a loop which dereferences a pointer to a  
-volatile then the compiler *MUST* always dereference the pointer,  
-even if it later discards the result and continues on its merry way.
+---
 
->> Actually, no.  The reason for the volatile in the pointer  
->> dereference is to force the memory access to *always* happen.
->
-> That's why it was placed there, however it was thrown away right  
-> after it was placed, in the same step it was supposed to force a  
-> memory access.
+This patch was already sent on:
+- 22 Nov 2006
 
-Doesn't matter if you throw away the result.  The C standard defines  
-this:
-   (void)( *(volatile int *)0xABCD1234 );
-to imply that the code reads an integer from that memory location and  
-then discards the result.  The whole point of volatile is you still  
-MUST do the read.  Feel free to read the bugzilla entry mentioned in  
-this thread as it even quotes all the pertinent sections of the C  
-standard for you.
+ fs/nfsd/nfs3xdr.c |   24 ++++++++++--------------
+ fs/nfsd/nfsxdr.c  |   13 ++++---------
+ 2 files changed, 14 insertions(+), 23 deletions(-)
 
-> The problem is that '*(volatile unsigned int *)' results in a  
-> 'volatile unsigned int'. The *assignment* occurs in the return  
-> operation, after the 'volatile unsigned int' is *cast* to a plain  
-> 'unsigned int'. The assignment is *not* in any sense volatile or  
-> inviolate, so neither is the return value.
-
-No, the assignment is irrelevant but the pointer dereference in  
-rvalue context *is* relevant.  The dereference forces a read operation.
-
-> One solution would be this:
->
-> static inline unsigned int readl(const volatile void __iomem *addr)
-> {
->  volatile unsigned int j;
->  j=*(volatile unsigned int __force *) addr;
->  return j;
-> }
-
-This is no different from the current code.  You cast the pointer to  
-a volatile unsigned int, you dereference that pointer, and you cast  
-the result to an unsigned int.  C does not have the same "assignment"  
-distinctions that C++ has.
-
-> (This may or may not fix the issue though. There is at least one  
-> known compiler issue that might be causing the breakage. However,  
-> correct compiler optimizations should be ruled out first.)
-
-Nope, any GCC behavior requiring code such as the above is broken,  
-not just in my opinion but in the opinion of the GCC developers  
-themselves, as you'd notice if you took the time to read down to the  
-end of the bugzilla discussion.
-
-Cheers,
-Kyle Moffett
+--- linux-2.6.19-rc5-mm2/fs/nfsd/nfs3xdr.c.old	2006-11-22 01:59:19.000000000 +0100
++++ linux-2.6.19-rc5-mm2/fs/nfsd/nfs3xdr.c	2006-11-22 02:00:17.000000000 +0100
+@@ -24,10 +24,6 @@
+ 
+ #define NFSDDBG_FACILITY		NFSDDBG_XDR
+ 
+-#ifdef NFSD_OPTIMIZE_SPACE
+-# define inline
+-#endif
+-
+ 
+ /*
+  * Mapping of S_IF* types to NFS file types
+@@ -42,14 +38,14 @@ static u32	nfs3_ftypes[] = {
+ /*
+  * XDR functions for basic NFS types
+  */
+-static inline __be32 *
++static __be32 *
+ encode_time3(__be32 *p, struct timespec *time)
+ {
+ 	*p++ = htonl((u32) time->tv_sec); *p++ = htonl(time->tv_nsec);
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ decode_time3(__be32 *p, struct timespec *time)
+ {
+ 	time->tv_sec = ntohl(*p++);
+@@ -57,7 +53,7 @@ decode_time3(__be32 *p, struct timespec 
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ decode_fh(__be32 *p, struct svc_fh *fhp)
+ {
+ 	unsigned int size;
+@@ -77,7 +73,7 @@ __be32 *nfs3svc_decode_fh(__be32 *p, str
+ 	return decode_fh(p, fhp);
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_fh(__be32 *p, struct svc_fh *fhp)
+ {
+ 	unsigned int size = fhp->fh_handle.fh_size;
+@@ -91,7 +87,7 @@ encode_fh(__be32 *p, struct svc_fh *fhp)
+  * Decode a file name and make sure that the path contains
+  * no slashes or null bytes.
+  */
+-static inline __be32 *
++static __be32 *
+ decode_filename(__be32 *p, char **namp, int *lenp)
+ {
+ 	char		*name;
+@@ -107,7 +103,7 @@ decode_filename(__be32 *p, char **namp, 
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ decode_sattr3(__be32 *p, struct iattr *iap)
+ {
+ 	u32	tmp;
+@@ -153,7 +149,7 @@ decode_sattr3(__be32 *p, struct iattr *i
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_fattr3(struct svc_rqst *rqstp, __be32 *p, struct svc_fh *fhp,
+ 	      struct kstat *stat)
+ {
+@@ -186,7 +182,7 @@ encode_fattr3(struct svc_rqst *rqstp, __
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_saved_post_attr(struct svc_rqst *rqstp, __be32 *p, struct svc_fh *fhp)
+ {
+ 	struct inode	*inode = fhp->fh_dentry->d_inode;
+@@ -776,7 +772,7 @@ nfs3svc_encode_readdirres(struct svc_rqs
+ 		return xdr_ressize_check(rqstp, p);
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_entry_baggage(struct nfsd3_readdirres *cd, __be32 *p, const char *name,
+ 	     int namlen, ino_t ino)
+ {
+@@ -790,7 +786,7 @@ encode_entry_baggage(struct nfsd3_readdi
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_entryplus_baggage(struct nfsd3_readdirres *cd, __be32 *p,
+ 		struct svc_fh *fhp)
+ {
+--- linux-2.6.19-rc5-mm2/fs/nfsd/nfsxdr.c.old	2006-11-22 02:00:24.000000000 +0100
++++ linux-2.6.19-rc5-mm2/fs/nfsd/nfsxdr.c	2006-11-22 02:00:35.000000000 +0100
+@@ -18,11 +18,6 @@
+ 
+ #define NFSDDBG_FACILITY		NFSDDBG_XDR
+ 
+-
+-#ifdef NFSD_OPTIMIZE_SPACE
+-# define inline
+-#endif
+-
+ /*
+  * Mapping of S_IF* types to NFS file types
+  */
+@@ -55,7 +50,7 @@ __be32 *nfs2svc_decode_fh(__be32 *p, str
+ 	return decode_fh(p, fhp);
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ encode_fh(__be32 *p, struct svc_fh *fhp)
+ {
+ 	memcpy(p, &fhp->fh_handle.fh_base, NFS_FHSIZE);
+@@ -66,7 +61,7 @@ encode_fh(__be32 *p, struct svc_fh *fhp)
+  * Decode a file name and make sure that the path contains
+  * no slashes or null bytes.
+  */
+-static inline __be32 *
++static __be32 *
+ decode_filename(__be32 *p, char **namp, int *lenp)
+ {
+ 	char		*name;
+@@ -82,7 +77,7 @@ decode_filename(__be32 *p, char **namp, 
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ decode_pathname(__be32 *p, char **namp, int *lenp)
+ {
+ 	char		*name;
+@@ -98,7 +93,7 @@ decode_pathname(__be32 *p, char **namp, 
+ 	return p;
+ }
+ 
+-static inline __be32 *
++static __be32 *
+ decode_sattr(__be32 *p, struct iattr *iap)
+ {
+ 	u32	tmp, tmp1;
 

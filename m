@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759129AbWLAGTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759147AbWLAGVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759129AbWLAGTy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 01:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759133AbWLAGTy
+	id S1759147AbWLAGVV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 01:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759141AbWLAGVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 01:19:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8452 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1759131AbWLAGTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 01:19:53 -0500
-Date: Fri, 1 Dec 2006 07:19:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: tigran@aivazian.fsnet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-Message-ID: <20061201061958.GL11084@stusta.de>
-References: <20061201055145.GK11084@stusta.de> <00e401c7150e$061da500$6721100a@nuitysystems.com>
+	Fri, 1 Dec 2006 01:21:20 -0500
+Received: from rex.snapgear.com ([203.143.235.140]:42416 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S1759115AbWLAGVT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 01:21:19 -0500
+Message-ID: <456FC9DC.3080400@snapgear.com>
+Date: Fri, 01 Dec 2006 16:21:16 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00e401c7150e$061da500$6721100a@nuitysystems.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: uclinux-dev@uclinux.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m68knommu: scatterlist add missing bracket
+References: <200611301013.17991.m.kozlowski@tuxland.pl>
+In-Reply-To: <200611301013.17991.m.kozlowski@tuxland.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 10:00:35PM -0800, Hua Zhong wrote:
+Hi Mariusz,
 
-> I am curious, what's the point?
+Mariusz Kozlowski wrote:
+> 	This patch adds missing bracket.
+> 
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
 
-Email addresses are for contacting people.
+Thanks. I'll make sure that gets pushed up.
 
-> These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
-> were at that point.
+Regards
+Greg
 
-For historical purposes, you can always use historical kernels.
 
-> It's not MAINTAINERS. If people want to contact someone, go find the latest address there.
 
-It's also MODULE_AUTHOR() and printk() which are far more user-visible 
-than MAINTAINERS.
-
-cu
-Adrian
+>  include/asm-m68knommu/scatterlist.h |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- linux-2.6.19-rc6-mm2-a/include/asm-m68knommu/scatterlist.h	2006-11-16 05:03:40.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2-b/include/asm-m68knommu/scatterlist.h	2006-11-30 00:57:24.000000000 +0100
+> @@ -10,7 +10,7 @@ struct scatterlist {
+>  	unsigned int	length;
+>  };
+>  
+> -#define sg_address(sg) (page_address((sg)->page) + (sg)->offset
+> +#define sg_address(sg) (page_address((sg)->page) + (sg)->offset)
+>  #define sg_dma_address(sg)      ((sg)->dma_address)
+>  #define sg_dma_len(sg)          ((sg)->length)
+>  
+> 
+> 
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a Secure Computing Company      PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

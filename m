@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967420AbWLAPby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030715AbWLAPeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967420AbWLAPby (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 10:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967496AbWLAPbx
+	id S1030715AbWLAPeP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 10:34:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030722AbWLAPeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 10:31:53 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:47884 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S967420AbWLAPbx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 10:31:53 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: [2.4 PATCH] ppc m48t35 parenthesis fix
-Date: Fri, 1 Dec 2006 16:31:27 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Dec 2006 10:34:15 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:31108 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1030715AbWLAPeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 10:34:14 -0500
+Date: Fri, 1 Dec 2006 10:30:21 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: `make checkstack' and cross-compilation
+Message-ID: <20061201153021.GA4332@ccure.user-mode-linux.org>
+References: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612011631.27600.m.kozlowski@tuxland.pl>
+In-Reply-To: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Dec 01, 2006 at 02:58:16PM +0100, Geert Uytterhoeven wrote:
+> Makefile has:
+> | # Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
+> | # In the UML case, $(SUBARCH) is the name of the underlying
+> | # architecture, while for all other arches, it is the same as $(ARCH).
+> | checkstack:
+> |         $(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
+> |         $(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
+> 
+> While this may fix `make checkstack' for UML, it breaks cross-compilation.
+> E.g. when cross-compiling for PPC on ia32, ARCH=powerpc, but SUBARCH=i386.
+> 
+> Probably it should use SUBARCH if ARCH=um, and ARCH otherwise?
 
-	This patch adds missing parenthesis.
+Whoops, you're right.  
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Do you have a patch?  If not, I'll make one.
 
- include/asm-ppc/m48t35.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+And, do you have a cross-compilation environment which tests this?
 
---- linux-2.4.34-pre6-a/include/asm-ppc/m48t35.h	2003-08-25 13:44:44.000000000 +0200
-+++ linux-2.4.34-pre6-b/include/asm-ppc/m48t35.h	2006-12-01 11:57:59.000000000 +0100
-@@ -39,7 +39,7 @@
- #define M48T35_RTC_WATCHDOG_RB         0x03
- #define M48T35_RTC_WATCHDOG_BMB        0x7c
- #define M48T35_RTC_WATCHDOG_WDS        0x80
--#define M48T35_RTC_WATCHDOG_ALL        (M48T35_RTC_WATCHDOG_RB|M48T35_RTC_WATCHDOG_BMB|M48T35_RTC_W
-+#define M48T35_RTC_WATCHDOG_ALL        (M48T35_RTC_WATCHDOG_RB|M48T35_RTC_WATCHDOG_BMB|M48T35_RTC_W)
- 
- #define M48T35_RTC_CONTROL_WRITE       0x80
- #define M48T35_RTC_CONTROL_READ        0x40
-
+				Jeff
 
 -- 
-Regards,
-
-	Mariusz Kozlowski
+Work email - jdike at linux dot intel dot com

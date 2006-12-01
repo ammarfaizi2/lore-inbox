@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031708AbWLABVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031716AbWLAB2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031708AbWLABVF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 20:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031707AbWLABVE
+	id S1031716AbWLAB2H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 20:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031719AbWLAB2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 20:21:04 -0500
-Received: from mx1.suse.de ([195.135.220.2]:230 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1031704AbWLABVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 20:21:01 -0500
-Date: Thu, 30 Nov 2006 17:20:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       tulip-users@lists.sourceforge.net, netdev@vger.kernel.org,
-       Jeff Garzik <jeff@garzik.org>,
-       Valerie Henson <val_henson@linux.intel.com>
-Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
-Message-ID: <20061201012049.GA20352@kroah.com>
-References: <20061128020246.47e481eb.akpm@osdl.org> <200611300008.21434.rjw@sisk.pl> <20061129152619.0d1ac361.akpm@osdl.org> <200611300204.16507.rjw@sisk.pl> <20061129181809.c55da5e8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061129181809.c55da5e8.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 30 Nov 2006 20:28:07 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:14993
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1031717AbWLAB2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 20:28:04 -0500
+Date: Thu, 30 Nov 2006 17:28:06 -0800 (PST)
+Message-Id: <20061130.172806.125565481.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [-mm patch] net/: possible cleanups
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061124215820.GI28363@stusta.de>
+References: <20061123021703.8550e37e.akpm@osdl.org>
+	<20061124215820.GI28363@stusta.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 06:18:09PM -0800, Andrew Morton wrote:
-> On Thu, 30 Nov 2006 02:04:15 +0100
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > > > 
-> > > > git-netdev-all.patch
-> > > > git-netdev-all-fixup.patch
-> > > > libphy-dont-do-that.patch
-> > > 
-> > > Are you able to eliminate libphy-dont-do-that.patch?
-> > > 
-> > > > Is a broken-out version of git-netdev-all.patch available from somewhere?
-> > > 
-> > > Nope, and my few fumbling attempts to generate the sort of patch series
-> > > which you want didn't work out too well.  One has to downgrade to
-> > > git-bisect :(
-> > > 
-> > > What does "doesn't work" mean, btw?
-> > 
-> > Well, it turns out not to be 100% reproducible.  I can only reproduce it after
-> > a soft reboot (eg. shutdown -r now).
-> > 
-> > Then, while configuring network interfaces the system says the interface name
-> > is ethxx0, but it should be eth1 (eth0 is an RTL-8139, which is not used).  Now
-> > if I run ifconfig, it says:
-> > 
-> > eth0: error fetching interface information: Device not found
-> > 
-> > and that's all (normally, ifconfig would show the information for lo and eth1,
-> > without eth0).  Moreover, 'ifconfig eth1' says:
-> > 
-> > eth1: error fetching interface information: Device not found
-> > 
-> > Next, I run 'rmmod uli526x' and 'modprobe uli526x' and then 'ifconfig' is
-> > still saying the above (about eth0), but 'ifconfig eth1' seems to work as
-> > it should.  However, the interface often fails to transfer anything after
-> > that.
-> 
-> Lovely.  Sounds like some startup race, perhaps against userspace.
-> 
-> Is CONFIG_PCI_MULTITHREAD_PROBE set?  (err, we meant to disable that for
-> 2.6.19 but forgot).
+From: Adrian Bunk <bunk@stusta.de>
+Date: Fri, 24 Nov 2006 22:58:20 +0100
 
-No, I disabled it for 2.6.19, -mm turns it back on :)
+> This patch contains the following possible cleanups:
+> - make the following needlessly global functions statis:
+>   - ipv4/tcp.c: __tcp_alloc_md5sig_pool()
+>   - ipv4/tcp_ipv4.c: tcp_v4_reqsk_md5_lookup()
+>   - ipv4/udplite.c: udplite_rcv()
+>   - ipv4/udplite.c: udplite_err()
+> - make the following needlessly global structs static:
+>   - ipv4/tcp_ipv4.c: tcp_request_sock_ipv4_ops
+>   - ipv4/tcp_ipv4.c: tcp_sock_ipv4_specific
+>   - ipv6/tcp_ipv6.c: tcp_request_sock_ipv6_ops
+> - net/ipv{4,6}/udplite.c: remove inline's from static functions
+>                           (gcc should know best when to inline them)
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-thanks,
-
-greg k-h
+Applied, thanks Adrian.

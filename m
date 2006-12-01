@@ -1,128 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758529AbWLADld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758562AbWLADq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758529AbWLADld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 22:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758562AbWLADld
+	id S1758562AbWLADq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 22:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758543AbWLADq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 22:41:33 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:47371 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1758529AbWLADlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 22:41:32 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
-References: <20061130072058.GA18004@wotan.suse.de>
-	<20061130072202.GB18004@wotan.suse.de>
-	<20061130072247.GC18004@wotan.suse.de>
-	<20061130113241.GC12579@wotan.suse.de>
-	<87r6vkzinv.fsf@duaron.myhome.or.jp>
-	<20061201020910.GC455@wotan.suse.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 01 Dec 2006 12:41:25 +0900
-In-Reply-To: <20061201020910.GC455@wotan.suse.de> (Nick Piggin's message of "Fri\, 1 Dec 2006 03\:09\:12 +0100")
-Message-ID: <87mz68xoyi.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 30 Nov 2006 22:46:57 -0500
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:13954 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1758562AbWLADq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 22:46:56 -0500
+Date: Thu, 30 Nov 2006 22:41:43 -0500
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Paul Mundt <lethal@linux-sh.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 1/2] atomic.h atomic64_t standardization
+Message-ID: <20061201034143.GA11388@Krystal>
+References: <20061124215518.GE25048@Krystal> <20061127165643.GD5348@infradead.org> <20061201031153.GA10835@Krystal> <20061201033423.GB27639@linux-sh.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20061201033423.GB27639@linux-sh.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 22:38:53 up 100 days, 46 min,  2 users,  load average: 0.17, 0.40, 0.37
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> writes:
+* Paul Mundt (lethal@linux-sh.org) wrote:
+> On Thu, Nov 30, 2006 at 10:11:53PM -0500, Mathieu Desnoyers wrote:
+> > --- a/include/asm-generic/atomic.h
+> > +++ b/include/asm-generic/atomic.h
+> [snip]
+> > +#if 0
+> > +/* Atomic add unless is only effective on atomic_t on powerpc (at least) */
+> > +static inline long atomic_long_add_unless(atomic_long_t *l, long a, long u)
+> > +{
+> > +	atomic_t *v = (atomic_t *)l;
+> > +	
+> > +	return atomic_add_unless(v, a, u);
+> > +}
+> > +
+> > +static inline long atomic_long_inc_not_zero(atomic_long_t *l)
+> > +{
+> > +	atomic_t *v = (atomic_t *)l;
+> > +	
+> > +	return atomic_inc_not_zero(v);
+> > +}
+> > +#endif //0
+> > +
+> 
+> Why is this in the patch?
+> 
 
-> On Fri, Dec 01, 2006 at 07:14:28AM +0900, OGAWA Hirofumi wrote:
->> 
->> quick look. Doesn't this break reiserfs? IIRC, the reiserfs is using
->> it for another reason. I was also working for this, but I lost the
->> thread of this, sorry.
->> 
->> I found some another users (affs, hfs, hfsplus). Those seem have same
->> problem, but probably those also can use this...
->> 
->> What do you think?
->> -- 
->> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
->> 
->> 
->> 
->> Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
->> ---
->> 
->>  fs/buffer.c                 |   59 +++++++++++++++++---------------------------
->>  fs/fat/file.c               |    2 -
->>  include/linux/buffer_head.h |    1 
->>  3 files changed, 24 insertions(+), 38 deletions(-)
->> 
->> diff -puN fs/buffer.c~generic_cont_expand-avoid-zero-size fs/buffer.c
->> --- linux-2.6/fs/buffer.c~generic_cont_expand-avoid-zero-size	2006-11-13 01:42:01.000000000 +0900
->> +++ linux-2.6-hirofumi/fs/buffer.c	2006-11-13 02:16:20.000000000 +0900
->> @@ -2004,18 +2004,24 @@ int block_read_full_page(struct page *pa
->>  	return 0;
->>  }
->>  
->> -/* utility function for filesystems that need to do work on expanding
->> +/*
->> + * utility function for filesystems that need to do work on expanding
->>   * truncates.  Uses prepare/commit_write to allow the filesystem to
->>   * deal with the hole.  
->>   */
->> -static int __generic_cont_expand(struct inode *inode, loff_t size,
->> -				 pgoff_t index, unsigned int offset)
->> +int generic_cont_expand(struct inode *inode, loff_t size)
->>  {
->>  	struct address_space *mapping = inode->i_mapping;
->> +	loff_t pos = inode->i_size;
->>  	struct page *page;
->>  	unsigned long limit;
->> +	pgoff_t index;
->> +	unsigned int from, to;
->> +	void *kaddr;
->>  	int err;
->>  
->> +	WARN_ON(pos >= size);
->> +
->>  	err = -EFBIG;
->>          limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
->>  	if (limit != RLIM_INFINITY && size > (loff_t)limit) {
->> @@ -2025,11 +2031,18 @@ static int __generic_cont_expand(struct 
->>  	if (size > inode->i_sb->s_maxbytes)
->>  		goto out;
->>  
->> +	index = (size - 1) >> PAGE_CACHE_SHIFT;
->> +	to = size - ((loff_t)index << PAGE_CACHE_SHIFT);
->> +	if (index != (pos >> PAGE_CACHE_SHIFT))
->> +		from = 0;
->> +	else
->> +		from = pos & (PAGE_CACHE_SIZE - 1);
->> +
->>  	err = -ENOMEM;
->>  	page = grab_cache_page(mapping, index);
->>  	if (!page)
->>  		goto out;
->> -	err = mapping->a_ops->prepare_write(NULL, page, offset, offset);
->> +	err = mapping->a_ops->prepare_write(NULL, page, from, to);
->>  	if (err) {
->>  		/*
->>  		 * ->prepare_write() may have instantiated a few blocks
->> @@ -2041,7 +2054,12 @@ static int __generic_cont_expand(struct 
->>  		goto out;
->>  	}
->>  
->> -	err = mapping->a_ops->commit_write(NULL, page, offset, offset);
->> +	kaddr = kmap_atomic(page, KM_USER0);
->> +	memset(kaddr + from, 0, to - from);
->> +	flush_dcache_page(page);
->> +	kunmap_atomic(kaddr, KM_USER0);
->> +
->> +	err = mapping->a_ops->commit_write(NULL, page, from, to);
->
-> So basically this is changing from having prepare_write do all the
-> zeroing, to zeroing the last page in generic_cont_expand, so that
-> we don't have to pass a zero-length to prepare_write?
+Oops, I forgot to remove these comments after I fixed it in the powerpc code.
+Code for all other architectures will have to modified too : I just modified
+i386, x86_64, mips, arm and powerpc.
 
-Yes, this patch doesn't pass zero-length to prepare_write. However,
-I'm not checking this patch is ok for reiserfs...
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Thanks for reporting.
+
+Mathieu
+
+
+Here is the fix :
+
+
+--- a/include/asm-generic/atomic.h
++++ b/include/asm-generic/atomic.h
+@@ -122,22 +122,19 @@ static inline long atomic_long_dec_retur
+ 	return atomic64_dec_return(v);
+ }
+ 
+-#if 0
+-/* Atomic add unless is only effective on atomic_t on powerpc (at least) */
+ static inline long atomic_long_add_unless(atomic_long_t *l, long a, long u)
+ {
+-	atomic_t *v = (atomic_t *)l;
++	atomic64_t *v = (atomic64_t *)l;
+ 	
+-	return atomic_add_unless(v, a, u);
++	return atomic64_add_unless(v, a, u);
+ }
+ 
+ static inline long atomic_long_inc_not_zero(atomic_long_t *l)
+ {
+-	atomic_t *v = (atomic_t *)l;
++	atomic64_t *v = (atomic64_t *)l;
+ 	
+-	return atomic_inc_not_zero(v);
++	return atomic64_inc_not_zero(v);
+ }
+-#endif //0
+ 
+ #else
+ 
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,71 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162245AbWLAXXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162338AbWLAXdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162245AbWLAXXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 18:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162246AbWLAXW6
+	id S1162338AbWLAXdH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 18:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162345AbWLAXcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 18:22:58 -0500
-Received: from ns1.suse.de ([195.135.220.2]:11661 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162239AbWLAXWd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 18:22:33 -0500
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 4/36] CONFIG_SYSFS_DEPRECATED
-Date: Fri,  1 Dec 2006 15:21:34 -0800
-Message-Id: <11650153362310-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.4.1
-In-Reply-To: <1165015333344-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com>
+	Fri, 1 Dec 2006 18:32:55 -0500
+Received: from teetot.devrandom.net ([66.35.250.243]:48845 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S1162273AbWLAXcw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 18:32:52 -0500
+Date: Fri, 1 Dec 2006 15:32:47 -0800
+From: thockin@hockin.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Sebastian Kemper <sebastian_ml@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OHCI] BIOS handoff failed (BIOS bug?)
+Message-ID: <20061201233247.GA27014@hockin.org>
+References: <20061201130359.GA3999@section_eight> <20061201182855.GA7867@section_eight> <20061201150201.4e8c9edb.zaitcev@redhat.com> <20061201232339.GA25645@hockin.org> <20061201152922.93cc59a4.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061201152922.93cc59a4.zaitcev@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kay Sievers <kay.sievers@vrfy.org>
+On Fri, Dec 01, 2006 at 03:29:22PM -0800, Pete Zaitcev wrote:
+> On Fri, 1 Dec 2006 15:23:39 -0800, thockin@hockin.org wrote:
+> 
+> > BIOS handoff assumes an SMI, right?  Could SMI be masked?
+> 
+> That might be a bad idea, because things like fans may be controlled
+> by SMM BIOS. The best thing we can do is to follow the published
+> procedure, and maybe insert a workaround if Sebastian can identify it.
 
-Provide a way to support older versions of udev that are shipped in
-older distros.  If this option is disabled, it will also turn off the
-compatible symlinks in sysfs that older programs might rely on.
+Sorry, I don't mean "could we mask it" but rather "is it possible that it
+is already masked"?
 
-When in doubt, or if running a distro older than 2006, say Yes here.
-
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- init/Kconfig |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
-
-diff --git a/init/Kconfig b/init/Kconfig
-index 176f7e5..14d4846 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -249,6 +249,26 @@ config CPUSETS
- 
- 	  Say N if unsure.
- 
-+config SYSFS_DEPRECATED
-+	bool "Create deprecated sysfs files"
-+	default y
-+	help
-+	  This option creates deprecated symlinks such as the
-+	  "device"-link, the <subsystem>:<name>-link, and the
-+	  "bus"-link. It may also add deprecated key in the
-+	  uevent environment.
-+	  None of these features or values should be used today, as
-+	  they export driver core implementation details to userspace
-+	  or export properties which can't be kept stable across kernel
-+	  releases.
-+
-+	  If enabled, this option will also move any device structures
-+	  that belong to a class, back into the /sys/class heirachy, in
-+	  order to support older versions of udev.
-+
-+	  If you are using a distro that was released in 2006 or later,
-+	  it should be safe to say N here.
-+
- config RELAY
- 	bool "Kernel->user space relay support (formerly relayfs)"
- 	help
--- 
-1.4.4.1
-
+Tim

@@ -1,102 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934424AbWLAIjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967555AbWLAIka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934424AbWLAIjg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 03:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967555AbWLAIjg
+	id S967555AbWLAIka (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 03:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967556AbWLAIk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 03:39:36 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21649 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S934424AbWLAIjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 03:39:35 -0500
-Date: Fri, 1 Dec 2006 09:39:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Ben Collins <bcollins@ubuntu.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/4] [APIC] Allow disabling of UP APIC/IO-APIC by default, with command line option to turn it on.
-Message-ID: <20061201083900.GA26703@elte.hu>
-References: <11648607683157-git-send-email-bcollins@ubuntu.com> <11648607732981-git-send-email-bcollins@ubuntu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Dec 2006 03:40:29 -0500
+Received: from wx-out-0506.google.com ([66.249.82.236]:53073 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S967555AbWLAIk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 03:40:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ab4ZOQpaNoDnJowhvClJzMROofYO43dfECtPwNFJ1gzoup3qCU10T4NvC3BdSSnLGt2Y0d0gsrO2s+OfAESeHRG4u/OeGBod0RFa1IagERbyMvar5nw6LzRAAYKJpCbSc6wP1rGufY56r++lneV9cgMD82cf2NSZJNAvchF/xs4=
+Message-ID: <3a5b1be00612010040r5ee24696h71119adb0a9bbffe@mail.gmail.com>
+Date: Fri, 1 Dec 2006 10:40:27 +0200
+From: "Komal Shah" <komal.shah802003@gmail.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: =?ISO-8859-1?Q?Re:_bitmap=AD=5Ffind=5Ffree=5Fregio?= =?ISO-8859-1?Q?n_and_bitmap=5Ffull_arg_doubts?=
+Cc: "Paul Mundt" <lethal@linux-sh.org>, "M. R. Brown" <mrbrown@0xd6.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20061130161008.5417c8b4.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <11648607732981-git-send-email-bcollins@ubuntu.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+References: <3a5b1be00611300733y121ef089m66bf46852ec0866d@mail.gmail.com>
+	 <20061130161008.5417c8b4.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/1/06, Paul Jackson <pj@sgi.com> wrote:
+>
+>   M. R. Brown and Paul Mundt -- take a look at the question at end of this post.
+>
+> Komal wrote:
+> >
+> > I have attached the test module code. I have confusion about the what
+> > to pass as second argument of bitmap_find_free_region for 2nd layer
+> > bitmap.
+> >
+> > Do we have to pass "total size of the block...here 128MB" as the
+> > second argument or no. of bits in that block, which 32768 (128 >>
+> > PAGE_SHIFT) ?
+> >
+> > This confusion arised as store queue implementation (sq.c) of sh arch,
+> > passes total size of the bitmap (64M) as the second argument instead
+> > of bits.
+> >
+> > Same is the case with bitmap_full, where I have to pass total size of
+> > the block (here 128MB) instead of no. of bits, in-order it to make my
+> > test module work correctly.
+>
+> A bitmap is essentially an array of bits.  The bitmap_* routines should
+> take a count of how many bits are in the bitmap array (or in your case,
+> how many bits are in the segment that you expect to be used in that call.)
+>
+> So I'm guessing you will be passing L2_BM_BITS for that second argument.
+>
+> The call to bitmap_find_free_region(), in arch/sh/kernel/cpu/sh4/sq.c
+> looks bogus:
+>
+>         page = bitmap_find_free_region(sq_bitmap, 0x04000000,
+>                                        get_order(map->size));
+>
+> It says the bitmap has 0x04000000 bits.  This would take 0x04000000 / 8
+> which is 8388608 (decimal) bytes to hold.  That's an insanely
+> huge bitmap - 8 million bytes worth of bits.
+>
+> I can't make entire sense of the the code you attached.  I get confused
+> over the various sizes of maps and what the maps represent, and of bits
+> and bytes, and of the two levels.
+>
 
-* Ben Collins <bcollins@ubuntu.com> wrote:
+Thanx for clarifying. I am now able to understand it properly, and I
+will modify my code, so that it will be easy to understand/read :)
 
-> +config X86_UP_APIC_DEFAULT_OFF
-> +	bool "APIC support on uniprocessors defaults to off"
-> +	depends on X86_UP_APIC
-> +	default n
-
-'n' is the default
-
->  /*
->   * Knob to control our willingness to enable the local APIC.
-> + * -2=default-disable, -1=force-disable, 1=force-enable, 0=automatic
->   */
-> -static int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
-> +static int enable_local_apic __initdata = (X86_APIC_DEFAULT_OFF ? -2 : 0);
-
-i guess this begs for enums?
-
->  		if (enable_local_apic <= 0) {
-> -			printk("Local APIC disabled by BIOS -- "
-> +			printk("Local APIC disabled by BIOS (or by default) -- "
->  			       "you can enable it with \"lapic\"\n");
-
-that message should be more intelligent, depending on whether the value 
-is 0, -1 or -2.
-
-> +	/* If local apic is off due to config_x86_apic_off option, jump
-> +	 * out here. */
-
-nitpick: proper comment style for new code is:
-
-	/*
-	 * If local APIC is off due to config_x86_apic_off option, jump
-	 * out here.
-	 */
-
-> +	if (enable_local_apic < -1) {
-> +		printk(KERN_INFO "Local APIC disabled by default -- "
-> +		       "use 'lapic' to enable it.\n");
-> +		return -1;
-> +	}
-
-this should be enable_local_apic == -2. (and should use the enum)
-
-> -int skip_ioapic_setup;
-> +int skip_ioapic_setup = X86_APIC_DEFAULT_OFF;
-
-nitpick: should be X86_IOAPIC_DEFAULT_VALUE - if the config option is 
-not set then this 'OFF' value will mean 'on' ...
-
-> +static int __init parse_apic(char *arg)
-> +{
-> +	/* enable IO-APIC */
-> +	enable_ioapic_setup();
-> +	return 0;
-> +}
-> +early_param("apic", parse_apic);
-
-that should be "ioapic", not "apic". The CPU has a piece of silicon 
-called the "local APIC" - enabled via the 'lapic' option, and disabled 
-via noapic. What the option above wants to enable is the IO-APIC in the 
-chipset (a different piece of silicon) and the interrupt routing 
-capabilities attached to it. That piece is what is causing the installer 
-problems.
-
-looks good in principle, but needs these cleanups.
-
-	Ingo
+-- 
+---Komal Shah
+http://komalshah.blogspot.com

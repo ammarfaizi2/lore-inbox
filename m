@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031279AbWLAMzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031326AbWLAM7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031279AbWLAMzA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 07:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031322AbWLAMzA
+	id S1031326AbWLAM7w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 07:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031336AbWLAM7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 07:55:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42247 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1031279AbWLAMy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 07:54:59 -0500
-Date: Fri, 1 Dec 2006 13:55:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: please pull from the trivial tree
-Message-ID: <20061201125504.GC11084@stusta.de>
-References: <20061201113740.GP11084@stusta.de> <Pine.LNX.4.63.0612011329130.3090@fink.physik3.uni-rostock.de>
+	Fri, 1 Dec 2006 07:59:52 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:41104 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1031326AbWLAM7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 07:59:51 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Fri, 1 Dec 2006 07:56:32 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: has something changed recently involving adding the git version
+ string?
+Message-ID: <Pine.LNX.4.64.0612010751510.1595@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0612011329130.3090@fink.physik3.uni-rostock.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 01:41:18PM +0100, Tim Schmielau wrote:
-> > Chase Venters (1):
-> >       Fix jiffies.h comment
-> 
-> This one actually obscures the comment rather than fixing it.
-> 
-> >From jiffies.h:
-> > 76 /*
-> > 77  * The 64-bit value is not volatile - you MUST NOT read it
-> > 78  * without sampling the sequence number in xtime_lock.
-> > 79  * get_jiffies_64() will do this for you as appropriate.
-> > 80  */
-> > 81  extern u64 __jiffy_data jiffies_64;
-> > 82  extern unsigned long volatile __jiffy_data jiffies;
-> 
-> Note that jiffies is volatile, while jiffies_64 is not; the comment 
-> currently explains that. The proposed patch
-> 
-> > Fix jiffies.h comment
-> > jiffies.h includes a comment informing that jiffies_64 must be read with the
-> > assistance of the xtime_lock seqlock. The comment text, however, calls
-> > jiffies_64 "not volatile", which should probably read "not atomic".
-> > 
-> > --- a/include/linux/jiffies.h
-> > +++ b/include/linux/jiffies.h
-> > @@ -74,7 +74,7 @@
-> > #define __jiffy_data __attribute__((section(".data")))
-> > /*
-> > - * The 64-bit value is not volatile - you MUST NOT read it
-> > + * The 64-bit value is not atomic - you MUST NOT read it
-> > * without sampling the sequence number in xtime_lock.
-> > * get_jiffies_64() will do this for you as appropriate.
-> > */
-> 
-> would leave a comment that is correct, but less useful (I'd expect any 
-> kernel hacker to know that u64 is non-atomic on many platforms).
 
+  has there been a change in the last few days involving whether the
+kernel option CONFIG_LOCALVERSION_AUTO appends the first part of $(git
+rev-parse HEAD) to the kernel uname?
 
-If kernel hackers are expected to already know it's non-atomic we could 
-remove the whole comment.
+  i could have *sworn* that, only a few days ago, i could configure
+and build a new kernel with a uname release of something like
+"2.6.19-rday-ge0f1..."  now, though, all i get is "2.6.19-rday".  and
+that affects the installed /lib/modules/ directory name as well.
 
-The comment regarding "volatile" was bogus since "volatile" wouldn't 
-help against getting garbage when reading an u64 variable.
+  am i just hallucinating again?
 
-
-> Tim
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+rday

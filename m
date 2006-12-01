@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936321AbWLAK55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936369AbWLAK6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936321AbWLAK55 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 05:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936364AbWLAK55
+	id S936369AbWLAK6h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 05:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936381AbWLAK6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 05:57:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49287 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936321AbWLAK54 (ORCPT
+	Fri, 1 Dec 2006 05:58:37 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27334 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S936379AbWLAK6g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 05:57:56 -0500
-Subject: Re: [GFS2] Don't flush everything on fdatasync [70/70]
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20061130230158.174e995c.akpm@osdl.org>
-References: <1164889448.3752.449.camel@quoit.chygwyn.com>
-	 <20061130230158.174e995c.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 01 Dec 2006 10:58:58 +0000
-Message-Id: <1164970738.3752.508.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Dec 2006 05:58:36 -0500
+Date: Fri, 1 Dec 2006 11:58:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       stable@kernel.org
+Subject: Re: [PATCH] PM: Fix swsusp debug mode testproc
+Message-ID: <20061201105807.GD1968@elf.ucw.cz>
+References: <200612011145.12787.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612011145.12787.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 2006-11-30 at 23:01 -0800, Andrew Morton wrote:
-> On Thu, 30 Nov 2006 12:24:08 +0000
-> Steven Whitehouse <swhiteho@redhat.com> wrote:
+On Fri 2006-12-01 11:45:12, Rafael J. Wysocki wrote:
+> The 'testproc' swsusp debug mode thaws tasks twice in a row, which is _very_
+> confusing.  Fix that.
 > 
-> >  static int gfs2_fsync(struct file *file, struct dentry *dentry, int datasync)
-> >  {
-> > -	struct gfs2_inode *ip = GFS2_I(dentry->d_inode);
-> > +	struct inode *inode = dentry->d_inode;
-> > +	int sync_state = inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC);
-> > +	int ret = 0;
-> > +	struct writeback_control wbc = {
-> > +		.sync_mode = WB_SYNC_ALL,
-> > +		.nr_to_write = 0,
-> > +	};
-> > +
-> > +	if (gfs2_is_jdata(GFS2_I(inode))) {
-> > +		gfs2_log_flush(GFS2_SB(inode), GFS2_I(inode)->i_gl);
-> > +		return 0;
-> > +	}
-> >  
-> > -	gfs2_log_flush(ip->i_gl->gl_sbd, ip->i_gl);
-> > +	if (sync_state != 0) {
-> > +		if (!datasync)
-> > +			ret = sync_inode(inode, &wbc);
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ACK.
+
+> ---
+>  kernel/power/disk.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> filemap_fdatawrite() would be simpler.
+> Index: linux-2.6.19-rc6-mm2/kernel/power/disk.c
+> ===================================================================
+> --- linux-2.6.19-rc6-mm2.orig/kernel/power/disk.c	2006-11-28 22:48:35.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2/kernel/power/disk.c	2006-11-29 23:46:33.000000000 +0100
+> @@ -153,7 +153,7 @@ int pm_suspend_disk(void)
+>  		return error;
+>  
+>  	if (pm_disk_mode == PM_DISK_TESTPROC)
+> -		goto Thaw;
+> +		return 0;
+>  
+>  	suspend_console();
+>  	error = device_suspend(PMSG_FREEZE);
 
-I was taking my cue here from ext3 which does something similar. The
-filemap_fdatawrite() is done by the VFS before this is called with a
-filemap_fdatawait() afterwards. This was intended to flush the metadata
-via (eventually) ->write_inode() although I guess I should be calling
-write_inode_now() instead?
-
-Steve.
-
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

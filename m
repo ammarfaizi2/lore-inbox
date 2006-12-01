@@ -1,89 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933924AbWLAHVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934264AbWLAH2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933924AbWLAHVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 02:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933892AbWLAHVK
+	id S934264AbWLAH2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 02:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934293AbWLAH2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 02:21:10 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60336 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933603AbWLAHVI (ORCPT
+	Fri, 1 Dec 2006 02:28:37 -0500
+Received: from 1wt.eu ([62.212.114.60]:13061 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S934264AbWLAH2g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 02:21:08 -0500
-Date: Thu, 30 Nov 2006 23:21:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
-Message-Id: <20061130232102.0cc7fc0b.akpm@osdl.org>
-In-Reply-To: <20061201050852.GA31347@wotan.suse.de>
-References: <20061130072058.GA18004@wotan.suse.de>
-	<20061130072202.GB18004@wotan.suse.de>
-	<20061130072247.GC18004@wotan.suse.de>
-	<20061130113241.GC12579@wotan.suse.de>
-	<87r6vkzinv.fsf@duaron.myhome.or.jp>
-	<20061201020910.GC455@wotan.suse.de>
-	<87mz68xoyi.fsf@duaron.myhome.or.jp>
-	<20061201050852.GA31347@wotan.suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 1 Dec 2006 02:28:36 -0500
+Date: Fri, 1 Dec 2006 08:28:16 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>,
+       Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, ak@suse.de
+Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
+Message-ID: <20061201072816.GA16684@1wt.eu>
+References: <20061201052653.GB11835@1wt.eu> <23790.1164954762@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <23790.1164954762@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006 06:08:52 +0100
-Nick Piggin <npiggin@suse.de> wrote:
-
-> On Fri, Dec 01, 2006 at 12:41:25PM +0900, OGAWA Hirofumi wrote:
-> > 
-> > Yes, this patch doesn't pass zero-length to prepare_write. However,
-> > I'm not checking this patch is ok for reiserfs...
+On Fri, Dec 01, 2006 at 05:32:42PM +1100, Keith Owens wrote:
+> Willy Tarreau (on Fri, 1 Dec 2006 06:26:53 +0100) wrote:
+> >On Fri, Dec 01, 2006 at 04:14:04PM +1100, Keith Owens wrote:
+> >> SuSE's SLES10 ships with gcc 4.1.0.  There is nothing to stop a
+> >> distributor from backporting the bug fix from gcc 4.1.1 to 4.1.0, but
+> >> this patch would not allow the fixed compiler to build the kernel.
+> >
+> >Then maybe replace #error with #warning ? It's too dangerous to let people
+> >build their kernel with a known broken compiler without being informed.
 > 
-> OK, vfat wasn't working correctly for me -- I needed the following patch:
+> Agreed.
+> 
+> >I think this shows the limit of backports to known broken versions.
+> >Providing a full update to 4.1.1 would certainly be cleaner for all
+> >customers than backporting 4.1.1 to 4.1.0 and calling it 4.1.0.
+> 
+> Agreed, but Enterprise customers expect bug fixes, not wholesale
+> replacements of critical programs.
 
-Now I'm confused.  What relationship does this patch have to the below?
+Oh, I'm perfectly aware of this. That's in part why I started the hotfix
+branch in the past :-) But sometimes, fixes consist in merging all the
+patches from the maintenance branch (eg: from 4.1.0 to 4.1.1), and if
+this is the case, there would not be much justification not to simply
+update the version. In fact, what's really missing is a "fixlevel" in
+the packages, to inform the user that 4.1.0 as shipped by the distro
+has the same level of fixes as 4.1.1. But this is what the version is
+used for today.
 
-revert-generic_file_buffered_write-handle-zero-length-iovec-segments.patch
-revert-generic_file_buffered_write-deadlock-on-vectored-write.patch
-generic_file_buffered_write-cleanup.patch
-mm-only-mm-debug-write-deadlocks.patch
-mm-fix-pagecache-write-deadlocks.patch
-mm-fix-pagecache-write-deadlocks-comment.patch
-mm-fix-pagecache-write-deadlocks-xip.patch
-mm-fix-pagecache-write-deadlocks-mm-pagecache-write-deadlocks-efault-fix.patch
-mm-fix-pagecache-write-deadlocks-zerolength-fix.patch
-mm-fix-pagecache-write-deadlocks-stale-holes-fix.patch
-fs-prepare_write-fixes.patch
-fs-prepare_write-fixes-fuse-fix.patch
-fs-prepare_write-fixes-jffs-fix.patch
-fs-prepare_write-fixes-fat-fix.patch
-fs-fix-cont-vs-deadlock-patches.patch
+> >Another solution would be to be able to check gcc for known bugs in the
+> >makefile, just like we check it for specific options. But I don't know
+> >how we can check gcc for bad code, especially in cross-compile environments
+> 
+> It is doable, but it is as ugly as hell.  Note the lack of a
+> signed-off-by :)
 
+Yes it's ugly, but at least it's a proposal. We might need something like
+this as a more generic solution across all architectures to easily check
+for such known problems. It's somewhat comparable to runtime fixups but
+here it's build time fixups.
 
-> Index: linux-2.6/fs/buffer.c
+Regards,
+Willy
+
+> ---
+>  arch/i386/kernel/Makefile |   16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> Index: linux/arch/i386/kernel/Makefile
 > ===================================================================
-> --- linux-2.6.orig/fs/buffer.c	2006-12-01 15:31:22.000000000 +1100
-> +++ linux-2.6/fs/buffer.c	2006-12-01 16:02:23.000000000 +1100
-> @@ -2102,6 +2102,7 @@
-
-Please always use `diff -p'
-
->  			*bytes |= (blocksize-1);
->  			(*bytes)++;
->  		}
+> --- linux.orig/arch/i386/kernel/Makefile
+> +++ linux/arch/i386/kernel/Makefile
+> @@ -83,3 +83,19 @@ $(obj)/vsyscall-syms.o: $(src)/vsyscall.
+>  k8-y                      += ../../x86_64/kernel/k8.o
+>  stacktrace-y		  += ../../x86_64/kernel/stacktrace.o
+>  
+> +# Some versions of gcc generate invalid code for hpet_timer, depending
+> +# on other config options.  Make sure that the generated code is valid.
+> +# Invalid versions of gcc generate a tight loop in wait_hpet_tick, with
+> +# no 'cmp' instructions.  Extract the generated object code for
+> +# wait_hpet_tick, down to the next function then check that the code
+> +# contains at least one comparison.
 > +
->  		status = __block_prepare_write(inode, new_page, zerofrom,
->  						PAGE_CACHE_SIZE, get_block);
->  		if (status)
-> @@ -2110,7 +2111,7 @@
->  		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
->  		flush_dcache_page(new_page);
->  		kunmap_atomic(kaddr, KM_USER0);
-> -		generic_commit_write(NULL, new_page, zerofrom, PAGE_CACHE_SIZE);
-> +		__block_commit_write(inode, new_page, zerofrom, PAGE_CACHE_SIZE);
-
-Whatever function this is doesn't need to update i_size?
-
-
+> +ifeq ($(CONFIG_HPET_TIMER),y)
+> +$(obj)/built-in.o: $(obj)/.tmp_check_gcc_bug
+> +
+> +$(obj)/.tmp_check_gcc_bug: $(obj)/time_hpet.o
+> +	$(Q)[ -n "`$(OBJDUMP) -Sr $< | grep -A40 '<wait_hpet_tick>:' | sed -e '1d; />:$$/,$$d;' | grep -w cmp`" ] || \
+> +		(echo gcc volatile bug detected, fix your gcc; exit 1)
+> +	$(Q)touch $@
+> +
+> +endif

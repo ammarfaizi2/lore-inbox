@@ -1,344 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031717AbWLASg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031709AbWLASgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031717AbWLASg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 13:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031711AbWLASg0
+	id S1031709AbWLASgW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 13:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031711AbWLASgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 13:36:26 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:51926 "EHLO
-	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1031720AbWLASgY
+	Fri, 1 Dec 2006 13:36:22 -0500
+Received: from cattelan-host202.dsl.visi.com ([208.42.117.202]:20453 "EHLO
+	slurp.thebarn.com") by vger.kernel.org with ESMTP id S1031709AbWLASgW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 13:36:24 -0500
-Subject: [RFC] Include ACPI DSDT from INITRD patch into mainline
-From: Ben Collins <ben.collins@ubuntu.com>
-To: linux-kernel@vger.kernel.org
-Cc: Eric Piel <eric.piel@tremplin-utc>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 01 Dec 2006 13:36:19 -0500
-Message-Id: <1164998179.5257.953.camel@gullible>
+	Fri, 1 Dec 2006 13:36:22 -0500
+Subject: Re: [GFS2] Remove unused function from inode.c [50/70]
+From: Russell Cattelan <cattelan@thebarn.com>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1164889273.3752.405.camel@quoit.chygwyn.com>
+References: <1164889273.3752.405.camel@quoit.chygwyn.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nPz7w/BdnXxkdF2P025l"
+Date: Fri, 01 Dec 2006 12:35:58 -0600
+Message-Id: <1164998159.1194.54.camel@xenon.msp.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+X-Mailer: Evolution 2.8.1.1-1mdv2007.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd be willing to bet that most distros have this patch in their kernel.
-One of those things we can't really live without.
 
-What I haven't understood is why it isn't included in the mainline
-kernel yet. There's enough kernel hackers out there using this that I
-doubt it will get stale or broken for very long.
+--=-nPz7w/BdnXxkdF2P025l
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm willing to do the grunt work to get it suitable.
+On Thu, 2006-11-30 at 12:21 +0000, Steven Whitehouse wrote:
+> >From dcd2479959c79d44f5dd77e71672e70f1f8b1f06 Mon Sep 17 00:00:00 2001
+> From: Steven Whitehouse <swhiteho@redhat.com>
+> Date: Thu, 16 Nov 2006 11:08:16 -0500
+> Subject: [PATCH] [GFS2] Remove unused function from inode.c
+>=20
+> The gfs2_glock_nq_m_atime function is unused in so far as its only
+> ever called with num_gh =3D 1, and this falls through to the
+> gfs2_glock_nq_atime function, so we might as well call that directly.
 
-Patch attached for convenience.
+does gfs support a noatime type of option?
 
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/Documentation/dsdt-initrd.txt linux-2.6.18/Documentation/dsdt-initrd.txt
---- linux-2.6.18.bak/Documentation/dsdt-initrd.txt	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/Documentation/dsdt-initrd.txt	2006-08-12 11:15:13.000000000 +0200
-@@ -0,0 +1,98 @@
-+ACPI Custom DSDT read from initramfs
-+
-+2003 by Markuss Gaugusch < dsdt at gaugusch dot org >
-+Special thanks go to Thomas Renninger from SuSE, who updated the patch for
-+2.6.0 and later modified it to read inside initramfs
-+2004 - 2006 maintained by Eric Piel < eric dot piel at tremplin-utc dot net >
-+
-+This option is intended for people who would like to hack their DSDT and don't want
-+to recompile their kernel after every change. It can also be useful to distros
-+which offers pre-compiled kernels and want to allow their users to use a
-+modified DSDT. In the Kernel config, enable the initial RAM filesystem support
-+(in Device Drivers|Block Devices) and enable ACPI_CUSTOM_DSDT_INITRD at the ACPI
-+options (General Setup|ACPI Support|Read custom DSDT from initrd).
-+
-+A custom DSDT (Differentiated System Description Table) is useful when your
-+computer uses ACPI but problems occur due to broken implementation. Typically,
-+your computer works but there are some troubles with the hardware detection or
-+the power management. You can check that troubles come from errors in the DSDT by
-+activating the ACPI debug option and reading the logs. This table is provided
-+by the BIOS, therefore it might be a good idea to check for BIOS update on your
-+vendor website before going any further. Errors are often caused by vendors
-+testing their hardware only with Windows or because there is code which is
-+executed only on a specific OS with a specific version and Linux hasn't been
-+considered during the development.
-+
-+Before you run away from customising your DSDT, you should note that already
-+corrected tables are available for a fair amount of computers on this web-page:
-+http://acpi.sf.net/dsdt . If you are part of the unluckies who cannot find
-+their hardware in this database, you can modify your DSDT by yourself. This
-+process is less painful than it sounds. Download the Intel ASL 
-+compiler/decompiler at http://www.intel.com/technology/IAPC/acpi/downloads.htm .
-+As root, you then have to dump your DSDT and decompile it. By using the
-+compiler messages as well as the kernel ACPI debug messages and the reference book
-+(available at the Intel website and also at http://www.acpi.info), it is quite
-+easy to obtain a fully working table.
-+
-+Once your new DSDT is ready you'll have to add it to an initrd so that the
-+kernel can read the table at the very beginning of the boot. As the file has
-+to be accessed very early during the boot process the initrd has to be an
-+initramfs. The file is contained into the initramfs under the name /DSDT.aml .
-+To obtain such an initrd, you might have to modify your mkinitrd script or you
-+can add it later to the initrd with the script appended to this document. The
-+command will look like:
-+initrd-add-dsdt initrd.img my-dsdt.aml
-+
-+In case you don't use any initrd, the possibilities you have are to either start
-+using one (try mkinitrd or yaird), or use the "Include Custom DSDT" configure
-+option to directly include your DSDT inside the kernel.
-+
-+The message "Looking for DSDT in initramfs..." will tell you if the DSDT was
-+found or not. If you need to update your DSDT, generate a new initrd and
-+perform the steps above. Don't forget that with Lilo, you'll have to re-run it.
-+
-+
-+======================= Here starts initrd-add-dsdt ===============================
-+#!/bin/bash
-+# Adds a DSDT file to the initrd (if it's an initramfs)
-+# first argument is the name of archive
-+# second argurment is the name of the file to add
-+# The file will be copied as /DSDT.aml
-+
-+# 20060126: fix "Premature end of file" with some old cpio (Roland Robic)
-+# 20060205: this time it should really work
-+
-+# check the arguments
-+if [ $# -ne 2 ]; then
-+	program_name=$(basename $0)
-+	echo "\
-+$program_name: too few arguments
-+Usage: $program_name initrd-name.img DSDT-to-add.aml
-+Adds a DSDT file to an initrd (in initramfs format)
-+
-+  initrd-name.img: filename of the initrd in initramfs format
-+  DSDT-to-add.aml: filename of the DSDT file to add
-+  " 1>&2
-+    exit 1
-+fi
-+
-+# we should check it's an initramfs
-+
-+tempcpio=$(mktemp -d)
-+# cleanup on exit, hangup, interrupt, quit, termination
-+trap 'rm -rf $tempcpio' 0 1 2 3 15
-+
-+# extract the archive
-+gunzip -c "$1" > "$tempcpio"/initramfs.cpio || exit 1
-+
-+# copy the DSDT file at the root of the directory so that we can call it "/DSDT.aml"
-+cp -f "$2" "$tempcpio"/DSDT.aml
-+
-+# add the file
-+cd "$tempcpio"
-+(echo DSDT.aml | cpio --quiet -H newc -o -A -O "$tempcpio"/initramfs.cpio) || exit 1
-+cd "$OLDPWD"
-+
-+# re-compress the archive
-+gzip -c "$tempcpio"/initramfs.cpio > "$1"
-+
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/drivers/acpi/Kconfig linux-2.6.18/drivers/acpi/Kconfig
---- linux-2.6.18.bak/drivers/acpi/Kconfig	2006-08-12 11:14:05.000000000 +0200
-+++ linux-2.6.18/drivers/acpi/Kconfig	2006-08-12 11:15:13.000000000 +0200
-@@ -264,6 +264,23 @@ config ACPI_CUSTOM_DSDT_FILE
- 	  Enter the full path name to the file which includes the AmlCode
- 	  declaration.
- 
-+config ACPI_CUSTOM_DSDT_INITRD
-+	bool "Read Custom DSDT from initramfs"
-+	depends on BLK_DEV_INITRD
-+	default y
-+	help
-+	  The DSDT (Differentiated System Description Table) often needs to be
-+	  overridden because of broken BIOS implementations. If this feature is
-+	  activated you will be able to provide a customized DSDT by adding it
-+	  to your initramfs.  For now you need to use a special mkinitrd tool.
-+	  For more details see <file:Documentation/dsdt-initrd.txt> or 
-+	  <http://gaugusch.at/kernel.shtml>. If there is no table found, it 
-+	  will fallback to the custom DSDT in-kernel (if activated) or to the
-+	  DSDT from the BIOS.
-+
-+	  Even if you do not need a new one at the moment, you may want to use a
-+	  better implemented DSDT later. It is safe to say Y here.
-+
- config ACPI_BLACKLIST_YEAR
- 	int "Disable ACPI for systems before Jan 1st this year" if X86_32
- 	default 0
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/drivers/acpi/osl.c linux-2.6.18/drivers/acpi/osl.c
---- linux-2.6.18.bak/drivers/acpi/osl.c	2006-08-12 11:14:05.000000000 +0200
-+++ linux-2.6.18/drivers/acpi/osl.c	2006-08-12 11:16:08.000000000 +0200
-@@ -69,6 +69,10 @@ extern char line_buf[80];
- int acpi_specific_hotkey_enabled = TRUE;
- EXPORT_SYMBOL(acpi_specific_hotkey_enabled);
- 
-+#ifdef CONFIG_ACPI_CUSTOM_DSDT_INITRD
-+int acpi_must_unregister_table = FALSE;
-+#endif
-+
- static unsigned int acpi_irq_irq;
- static acpi_osd_handler acpi_irq_handler;
- static void *acpi_irq_context;
-@@ -219,6 +223,67 @@ acpi_os_predefined_override(const struct
- 	return AE_OK;
- }
- 
-+#ifdef CONFIG_ACPI_CUSTOM_DSDT_INITRD
-+struct acpi_table_header * acpi_find_dsdt_initrd(void)
-+{
-+	struct file *firmware_file;
-+	mm_segment_t oldfs;
-+	unsigned long len, len2;
-+	struct acpi_table_header *dsdt_buffer, *ret = NULL;
-+	struct kstat stat;
-+	/* maybe this could be an argument on the cmd line, but let's keep it simple for now */
-+	char *ramfs_dsdt_name = "/DSDT.aml";
-+
-+	printk(KERN_INFO PREFIX "Looking for DSDT in initramfs... ");
-+
-+	/* 
-+	 * Never do this at home, only the user-space is allowed to open a file.
-+	 * The clean way would be to use the firmware loader. But this code must be run
-+	 * before there is any userspace available. So we need a static/init firmware 
-+	 * infrastructure, which doesn't exist yet...
-+	 */
-+	if (vfs_stat(ramfs_dsdt_name, &stat) < 0) {
-+		printk("error, file %s not found.\n", ramfs_dsdt_name);
-+		return ret;
-+	}
-+
-+	len = stat.size;
-+	/* check especially against empty files */
-+	if (len <= 4) {
-+		printk("error file is too small, only %lu bytes.\n", len);
-+		return ret;
-+	}
-+
-+	firmware_file = filp_open(ramfs_dsdt_name, O_RDONLY, 0);
-+	if (IS_ERR(firmware_file)) {
-+		printk("error, could not open file %s.\n", ramfs_dsdt_name);
-+		return ret;
-+	}
-+
-+	dsdt_buffer = ACPI_ALLOCATE(len);
-+	if (!dsdt_buffer) {
-+		printk("error when allocating %lu bytes of memory.\n", len);
-+		goto err;
-+	}
-+
-+	oldfs = get_fs();
-+	set_fs(KERNEL_DS);
-+	len2 = vfs_read(firmware_file, (char __user *)dsdt_buffer, len, &firmware_file->f_pos);
-+	set_fs(oldfs);
-+	if (len2 < len) {
-+		printk("error trying to read %lu bytes from %s.\n", len, ramfs_dsdt_name);
-+		ACPI_FREE(dsdt_buffer);
-+		goto err;
-+	}
-+
-+	printk("successfully read %lu bytes from %s.\n", len, ramfs_dsdt_name);
-+	ret = dsdt_buffer;
-+err:
-+	filp_close(firmware_file, NULL);
-+	return ret;
-+}
-+#endif
-+
- acpi_status
- acpi_os_table_override(struct acpi_table_header * existing_table,
- 		       struct acpi_table_header ** new_table)
-@@ -226,13 +291,20 @@ acpi_os_table_override(struct acpi_table
- 	if (!existing_table || !new_table)
- 		return AE_BAD_PARAMETER;
- 
-+	*new_table = NULL;
-+
- #ifdef CONFIG_ACPI_CUSTOM_DSDT
- 	if (strncmp(existing_table->signature, "DSDT", 4) == 0)
- 		*new_table = (struct acpi_table_header *)AmlCode;
--	else
--		*new_table = NULL;
--#else
--	*new_table = NULL;
-+#endif
-+#ifdef CONFIG_ACPI_CUSTOM_DSDT_INITRD
-+	if (strncmp(existing_table->signature, "DSDT", 4) == 0) {
-+		struct acpi_table_header* initrd_table = acpi_find_dsdt_initrd();
-+		if (initrd_table) {
-+			*new_table = initrd_table;
-+			acpi_must_unregister_table = TRUE;
-+		}
-+	}
- #endif
- 	return AE_OK;
- }
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/drivers/acpi/tables/tbget.c linux-2.6.18/drivers/acpi/tables/tbget.c
---- linux-2.6.18.bak/drivers/acpi/tables/tbget.c	2006-08-12 11:14:05.000000000 +0200
-+++ linux-2.6.18/drivers/acpi/tables/tbget.c	2006-08-12 11:15:27.000000000 +0200
-@@ -278,6 +278,14 @@ acpi_tb_table_override(struct acpi_table
- 	address.pointer.logical = new_table;
- 
- 	status = acpi_tb_get_this_table(&address, new_table, table_info);
-+
-+#ifdef CONFIG_ACPI_CUSTOM_DSDT_INITRD
-+	if (acpi_must_unregister_table) {
-+		ACPI_FREE(new_table);
-+		acpi_must_unregister_table = FALSE;
-+	}
-+#endif
-+
- 	if (ACPI_FAILURE(status)) {
- 		ACPI_EXCEPTION((AE_INFO, status, "Could not copy ACPI table"));
- 		return_ACPI_STATUS(status);
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/include/acpi/acpiosxf.h linux-2.6.18/include/acpi/acpiosxf.h
---- linux-2.6.18.bak/include/acpi/acpiosxf.h	2006-08-12 11:14:05.000000000 +0200
-+++ linux-2.6.18/include/acpi/acpiosxf.h	2006-08-12 11:15:13.000000000 +0200
-@@ -95,6 +95,10 @@ acpi_status
- acpi_os_table_override(struct acpi_table_header *existing_table,
- 		       struct acpi_table_header **new_table);
- 
-+#ifdef CONFIG_ACPI_CUSTOM_DSDT_INITRD
-+extern int acpi_must_unregister_table;
-+#endif
-+
- /*
-  * Spinlock primitives
-  */
-diff -urpN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18.bak/init/main.c linux-2.6.18/init/main.c
---- linux-2.6.18.bak/init/main.c	2006-08-12 11:14:05.000000000 +0200
-+++ linux-2.6.18/init/main.c	2006-08-12 11:15:13.000000000 +0200
-@@ -581,8 +581,6 @@ asmlinkage void __init start_kernel(void
- 
- 	check_bugs();
- 
--	acpi_early_init(); /* before LAPIC and SMP init */
--
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
- }
-@@ -699,6 +697,14 @@ static int init(void * unused)
- 	 */
- 	child_reaper = current;
- 
-+ 	/*
-+ 	 * Do this before initcalls, because some drivers want to access
-+ 	 * firmware files.
-+ 	 */
-+ 	populate_rootfs();
-+ 
-+ 	acpi_early_init(); /* before LAPIC and SMP init */
-+
- 	smp_prepare_cpus(max_cpus);
- 
- 	do_pre_smp_initcalls();
-@@ -708,12 +714,6 @@ static int init(void * unused)
- 
- 	cpuset_init_smp();
- 
--	/*
--	 * Do this before initcalls, because some drivers want to access
--	 * firmware files.
--	 */
--	populate_rootfs();
--
- 	do_basic_setup();
- 
- 	/*
+I seems like reason for the split was to allow for that
+possibility?
+
+>=20
+> Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+> ---
+>  fs/gfs2/inode.c       |   86 -------------------------------------------=
+------
+>  fs/gfs2/inode.h       |    4 --
+>  fs/gfs2/ops_address.c |    8 ++---
+>  fs/gfs2/ops_file.c    |    2 +
+>  4 files changed, 5 insertions(+), 95 deletions(-)
+>=20
+> diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+> index ea9ca23..ce7f833 100644
+> --- a/fs/gfs2/inode.c
+> +++ b/fs/gfs2/inode.c
+> @@ -1234,92 +1234,6 @@ fail:
+>  	return error;
+>  }
+> =20
+> -/**
+> - * glock_compare_atime - Compare two struct gfs2_glock structures for so=
+rt
+> - * @arg_a: the first structure
+> - * @arg_b: the second structure
+> - *
+> - * Returns: 1 if A > B
+> - *         -1 if A < B
+> - *          0 if A =3D=3D B
+> - */
+> -
+> -static int glock_compare_atime(const void *arg_a, const void *arg_b)
+> -{
+> -	const struct gfs2_holder *gh_a =3D *(const struct gfs2_holder **)arg_a;
+> -	const struct gfs2_holder *gh_b =3D *(const struct gfs2_holder **)arg_b;
+> -	const struct lm_lockname *a =3D &gh_a->gh_gl->gl_name;
+> -	const struct lm_lockname *b =3D &gh_b->gh_gl->gl_name;
+> -
+> -	if (a->ln_number > b->ln_number)
+> -		return 1;
+> -	if (a->ln_number < b->ln_number)
+> -		return -1;
+> -	if (gh_a->gh_state =3D=3D LM_ST_SHARED && gh_b->gh_state =3D=3D LM_ST_E=
+XCLUSIVE)
+> -		return 1;
+> -	if (gh_a->gh_state =3D=3D LM_ST_SHARED && (gh_b->gh_flags & GL_ATIME))
+> -		return 1;
+> -
+> -	return 0;
+> -}
+> -
+> -/**
+> - * gfs2_glock_nq_m_atime - acquire multiple glocks where one may need an
+> - *      atime update
+> - * @num_gh: the number of structures
+> - * @ghs: an array of struct gfs2_holder structures
+> - *
+> - * Returns: 0 on success (all glocks acquired),
+> - *          errno on failure (no glocks acquired)
+> - */
+> -
+> -int gfs2_glock_nq_m_atime(unsigned int num_gh, struct gfs2_holder *ghs)
+> -{
+> -	struct gfs2_holder **p;
+> -	unsigned int x;
+> -	int error =3D 0;
+> -
+> -	if (!num_gh)
+> -		return 0;
+> -
+> -	if (num_gh =3D=3D 1) {
+> -		ghs->gh_flags &=3D ~(LM_FLAG_TRY | GL_ASYNC);
+> -		if (ghs->gh_flags & GL_ATIME)
+> -			error =3D gfs2_glock_nq_atime(ghs);
+> -		else
+> -			error =3D gfs2_glock_nq(ghs);
+> -		return error;
+> -	}
+> -
+> -	p =3D kcalloc(num_gh, sizeof(struct gfs2_holder *), GFP_KERNEL);
+> -	if (!p)
+> -		return -ENOMEM;
+> -
+> -	for (x =3D 0; x < num_gh; x++)
+> -		p[x] =3D &ghs[x];
+> -
+> -	sort(p, num_gh, sizeof(struct gfs2_holder *), glock_compare_atime,NULL)=
+;
+> -
+> -	for (x =3D 0; x < num_gh; x++) {
+> -		p[x]->gh_flags &=3D ~(LM_FLAG_TRY | GL_ASYNC);
+> -
+> -		if (p[x]->gh_flags & GL_ATIME)
+> -			error =3D gfs2_glock_nq_atime(p[x]);
+> -		else
+> -			error =3D gfs2_glock_nq(p[x]);
+> -
+> -		if (error) {
+> -			while (x--)
+> -				gfs2_glock_dq(p[x]);
+> -			break;
+> -		}
+> -	}
+> -
+> -	kfree(p);
+> -	return error;
+> -}
+> -
+> -
+>  static int
+>  __gfs2_setattr_simple(struct gfs2_inode *ip, struct iattr *attr)
+>  {
+> diff --git a/fs/gfs2/inode.h b/fs/gfs2/inode.h
+> index 46917ed..b57f448 100644
+> --- a/fs/gfs2/inode.h
+> +++ b/fs/gfs2/inode.h
+> @@ -50,12 +50,8 @@ int gfs2_unlink_ok(struct gfs2_inode *di
+>  		   struct gfs2_inode *ip);
+>  int gfs2_ok_to_move(struct gfs2_inode *this, struct gfs2_inode *to);
+>  int gfs2_readlinki(struct gfs2_inode *ip, char **buf, unsigned int *len)=
+;
+> -
+>  int gfs2_glock_nq_atime(struct gfs2_holder *gh);
+> -int gfs2_glock_nq_m_atime(unsigned int num_gh, struct gfs2_holder *ghs);
+> -
+>  int gfs2_setattr_simple(struct gfs2_inode *ip, struct iattr *attr);
+> -
+>  struct inode *gfs2_lookup_simple(struct inode *dip, const char *name);
+> =20
+>  #endif /* __INODE_DOT_H__ */
+> diff --git a/fs/gfs2/ops_address.c b/fs/gfs2/ops_address.c
+> index 2f7ef98..8676c39 100644
+> --- a/fs/gfs2/ops_address.c
+> +++ b/fs/gfs2/ops_address.c
+> @@ -217,7 +217,7 @@ static int gfs2_readpage(struct file *fi
+>  		}
+>  		gfs2_holder_init(ip->i_gl, LM_ST_SHARED, GL_ATIME|LM_FLAG_TRY_1CB, &gh=
+);
+>  		do_unlock =3D 1;
+> -		error =3D gfs2_glock_nq_m_atime(1, &gh);
+> +		error =3D gfs2_glock_nq_atime(&gh);
+>  		if (unlikely(error))
+>  			goto out_unlock;
+>  	}
+> @@ -282,7 +282,7 @@ static int gfs2_readpages(struct file *f
+>  		gfs2_holder_init(ip->i_gl, LM_ST_SHARED,
+>  				 LM_FLAG_TRY_1CB|GL_ATIME, &gh);
+>  		do_unlock =3D 1;
+> -		ret =3D gfs2_glock_nq_m_atime(1, &gh);
+> +		ret =3D gfs2_glock_nq_atime(&gh);
+>  		if (ret =3D=3D GLR_TRYFAILED)
+>  			goto out_noerror;
+>  		if (unlikely(ret))
+> @@ -354,7 +354,7 @@ static int gfs2_prepare_write(struct fil
+> =20
+>=20
+>  	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_ATIME|LM_FLAG_TRY_1CB, &=
+ip->i_gh);
+> -	error =3D gfs2_glock_nq_m_atime(1, &ip->i_gh);
+> +	error =3D gfs2_glock_nq_atime(&ip->i_gh);
+>  	if (unlikely(error)) {
+>  		if (error =3D=3D GLR_TRYFAILED)
+>  			error =3D AOP_TRUNCATED_PAGE;
+> @@ -609,7 +609,7 @@ static ssize_t gfs2_direct_IO(int rw, st
+>  	 * on this path. All we need change is atime.
+>  	 */
+>  	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, GL_ATIME, &gh);
+> -	rv =3D gfs2_glock_nq_m_atime(1, &gh);
+> +	rv =3D gfs2_glock_nq_atime(&gh);
+>  	if (rv)
+>  		goto out;
+> =20
+> diff --git a/fs/gfs2/ops_file.c b/fs/gfs2/ops_file.c
+> index eabf6c6..c2be216 100644
+> --- a/fs/gfs2/ops_file.c
+> +++ b/fs/gfs2/ops_file.c
+> @@ -253,7 +253,7 @@ static int gfs2_get_flags(struct file *f
+>  	u32 fsflags;
+> =20
+>  	gfs2_holder_init(ip->i_gl, LM_ST_SHARED, GL_ATIME, &gh);
+> -	error =3D gfs2_glock_nq_m_atime(1, &gh);
+> +	error =3D gfs2_glock_nq_atime(&gh);
+>  	if (error)
+>  		return error;
+> =20
+--=20
+Russell Cattelan <cattelan@thebarn.com>
+
+--=-nPz7w/BdnXxkdF2P025l
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFcHYONRmM+OaGhBgRAqzrAJ41/F5PXqIDJpACadAYWE+jcGE41wCdG/zA
+L6TBN3VZhJIOFpEOJc65Kto=
+=CaZi
+-----END PGP SIGNATURE-----
+
+--=-nPz7w/BdnXxkdF2P025l--
 

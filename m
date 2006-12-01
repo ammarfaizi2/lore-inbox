@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759172AbWLAGe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759225AbWLAGip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759172AbWLAGe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 01:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759225AbWLAGe6
+	id S1759225AbWLAGip (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 01:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759233AbWLAGip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 01:34:58 -0500
-Received: from web31803.mail.mud.yahoo.com ([68.142.207.66]:5545 "HELO
-	web31803.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1759184AbWLAGe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 01:34:57 -0500
+	Fri, 1 Dec 2006 01:38:45 -0500
+Received: from nz-out-0506.google.com ([64.233.162.231]:26298 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1759225AbWLAGip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 01:38:45 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=u1q8qaVna6BFKYv9ygOL0pt8eFcD1zpcXj9zsi5wNFynGpQ8dQ9fD/Bk3i+XLISzsS5I+23jgc6KeTxV8/c5gWM4Z2zBhc3BlfMIEHG3U6lmRNdp+PH4BT8mu7fuodnSE4U+OapYp+EuQBYf5wwQjHL/+E+WA6LGTQHCC/Ug334=;
-X-YMail-OSG: c2utOnsVM1m0fH7DB0PxLUUx_lI.E2SVqIqzREX8eHMICRxCrVDuL_0ONEvTI0gaByZ6v9fwpTlJyJyxS78pr9J5AQ3LOHSAW8.1NvNRQDLuizRGzJAgRmL25_aJejYW8387CLeuUxdQCpY-
-Date: Thu, 30 Nov 2006 22:34:57 -0800 (PST)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: Infinite retries reading the partition table
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061130214716.6306a586.akpm@osdl.org>
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
+        b=a50LpGPfrwx+5/wLTAiYe1wDONN8xeig8BDCl22ecw1ZCz2Fi1Du8x8Mlimg1iJ4gSk2lwDGUARLC+7uGMYRkQ8zPdkvP/g00q2SVmbe95QptlyN9krXO3pr8f6iyhFF3A7gVifaEFOX2bj/WMCvo/Hfs+lQ+t/RzN54ZB/NsVo=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Adrian Bunk'" <bunk@stusta.de>
+Cc: <tigran@aivazian.fsnet.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+Date: Thu, 30 Nov 2006 22:38:43 -0800
+Message-ID: <00e901c71513$5f8397d0$6721100a@nuitysystems.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <117439.97789.qm@web31803.mail.mud.yahoo.com>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <20061201061958.GL11084@stusta.de>
+Thread-Index: AccVELX4mtlmefp2RuCs45EEtMp5OgAAdxpg
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> On Wed, 29 Nov 2006 17:22:48 -0800 (PST)
-> Luben Tuikov <ltuikov@yahoo.com> wrote:
+> On Thu, Nov 30, 2006 at 10:00:35PM -0800, Hua Zhong wrote:
 > 
-> > Suppose reading sector 0 always reports an error,
-> > sense key HARDWARE ERROR.
-> > 
-> > What I'm observing is that the request to read sector 0,
-> > reading partition information, is retried forever, ad infinitum.
-> > 
-> > Does anyone have a patch to resolve this? (2.6.19-rc6)
-> > 
+> > I am curious, what's the point?
 > 
-> Please send a backtrace so we can see where the offending loop occurs.
+> Email addresses are for contacting people.
 
-I posted a patch to linux-scsi which resolves this issue:
-http://marc.theaimsgroup.com/?l=linux-scsi&m=116485834119885&w=2
+Do you go back and change all the signed-off lines too when people change jobs?
+ 
+> > These email addresses serve a "historical" purpose: they tell
+> > when the contribution was made,  what the author's email addresses 
+> > were at that point.
+> 
+> For historical purposes, you can always use historical kernels.
 
-     Luben
+Then remove all the lines like the following:
+
+- *	1.0	16 Feb 2000, Tigran Aivazian <tigran@sco.com>
++ *	1.0	16 Feb 2000, Tigran Aivazian
+  *		Initial release.
+- *	1.01	18 Feb 2000, Tigran Aivazian <tigran@sco.com>
++ *	1.01	18 Feb 2000, Tigran Aivazian 
+  *		Added read() support + cleanups.
+
+If you keep them, they tell the history and email addresses are part of the history.
+
+Or simply remove all the history and tell people to look for the information in git changelogs.
+
+The way you are doing it, serves no purpose other than losing information.
+
+> > It's not MAINTAINERS. If people want to contact someone, go 
+> > find the latest address there.
+> 
+> It's also MODULE_AUTHOR() and printk() which are far more 
+> user-visible than MAINTAINERS.
+
+Those are OK. But majority of you patch isn't the case.
 

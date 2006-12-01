@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759296AbWLAJyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759297AbWLAJ5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759296AbWLAJyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 04:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759299AbWLAJyQ
+	id S1759297AbWLAJ5r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 04:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759300AbWLAJ5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 04:54:16 -0500
-Received: from calculon.skynet.ie ([193.1.99.88]:45698 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S1759297AbWLAJyN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 04:54:13 -0500
-Date: Fri, 1 Dec 2006 09:54:11 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@sgi.com, Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-In-Reply-To: <20061130173129.4ebccaa2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-References: <20061130170746.GA11363@skynet.ie> <20061130173129.4ebccaa2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 1 Dec 2006 04:57:47 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:3251 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1759297AbWLAJ5q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 04:57:46 -0500
+Date: Fri, 1 Dec 2006 10:55:58 +0100 (MET)
+Message-Id: <200612010955.kB19twqh002446@alkaid.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: [PATCH 2.6.19 1/3] sata_promise: PHYMODE4 fixup
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006, Andrew Morton wrote:
+This patch adds code to fix up the PHYMODE4 "align timing"
+register value on second-generation Promise SATA chips.
+Failure to correct this value on non-x86 machines makes
+drive detection prone to failure due to timeouts. (I've
+observed about 50% detection failure rates on SPARC64.)
 
-> On Thu, 30 Nov 2006 17:07:46 +0000
-> mel@skynet.ie (Mel Gorman) wrote:
->
->> Am reporting this patch after there were no further comments on the last
->> version.
->
-> Am not sure what to do with it - nothing actually uses __GFP_MOVABLE.
->
+The HW boots with a bad value in this register, but on x86
+machines the Promise BIOS corrects it to the value recommended
+by the manual, so most people have been unaffected by this issue.
 
-Nothing yet. To begin with, this is just a documentation mechanism. I'll 
-be trying to push page clustering one piece at a time which will need 
-this. The markings may also be of interest to containers and to pagesets 
-because it will clearly flag what are allocations in use by userspace.
+After developing the patch I checked Promise's SATAII driver,
+and discovered that it also corrects PHYMODE4 just like this
+patch does.
 
->> It is often known at allocation time when a page may be migrated or not.
->
-> "often", yes.
->
->> This
->> page adds a flag called __GFP_MOVABLE and GFP_HIGH_MOVABLE. Allocations using
->> the __GFP_MOVABLE can be either migrated using the page migration mechanism
->> or reclaimed by syncing with backing storage and discarding.
->>
->> Additional credit goes to Christoph Lameter and Linus Torvalds for shaping
->> the concept. Credit to Hugh Dickens for catching issues with shmem swap
->> vector and ramfs allocations.
->>
->> ...
->>
->> @@ -65,7 +65,7 @@ static inline void clear_user_highpage(s
->>  static inline struct page *
->>  alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
->>  {
->> -	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
->> +	struct page *page = alloc_page_vma(GFP_HIGH_MOVABLE, vma, vaddr);
->>
->>  	if (page)
->>  		clear_user_highpage(page, vaddr);
->
-> But this change is presumptuous.  alloc_zeroed_user_highpage() doesn't know
-> that its caller is going to use the page for moveable purposes.  (Ditto lots
-> of other places in this patch).
->
+This patch depends on the sata_promise SATAII updates
+patch I sent recently.
 
-according to grep -r, alloc_zeroed_user_highpage() is only used in two 
-places, do_wp_page() (when write faulting the zero page)[1] and 
-do_anonymous_page() (when mapping the zero page for the first time and 
-writing). In these cases, they are known to be movable. What am I missing?
+Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
-[1] I missed a call to GFP_HIGHUSER in do_wp_page() that should have been 
-GFP_HIGH_MOVABLE.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+diff -rupN linux-2.6.19.sata_promise-1-genII-fixes/drivers/ata/sata_promise.c linux-2.6.19.sata_promise-2-PHYMODE4-fixup/drivers/ata/sata_promise.c
+--- linux-2.6.19.sata_promise-1-genII-fixes/drivers/ata/sata_promise.c	2006-11-30 23:25:03.000000000 +0100
++++ linux-2.6.19.sata_promise-2-PHYMODE4-fixup/drivers/ata/sata_promise.c	2006-11-30 23:36:57.000000000 +0100
+@@ -281,6 +281,7 @@ static struct pci_driver pdc_ata_pci_dri
+ static int pdc_port_start(struct ata_port *ap)
+ {
+ 	struct device *dev = ap->host->dev;
++	struct pdc_host_priv *hp = ap->host->private_data;
+ 	struct pdc_port_priv *pp;
+ 	int rc;
+ 
+@@ -302,6 +303,16 @@ static int pdc_port_start(struct ata_por
+ 
+ 	ap->private_data = pp;
+ 
++	/* fix up PHYMODE4 align timing */
++	if ((hp->flags & PDC_FLAG_GEN_II) && sata_scr_valid(ap)) {
++		void __iomem *mmio = (void __iomem *) ap->ioaddr.scr_addr;
++		unsigned int tmp;
++
++		tmp = readl(mmio + 0x014);
++		tmp = (tmp & ~3) | 1;	/* set bits 1:0 = 0:1 */
++		writel(tmp, mmio + 0x014);
++	}
++
+ 	return 0;
+ 
+ err_out_kfree:

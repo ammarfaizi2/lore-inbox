@@ -1,132 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758987AbWLAFIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759079AbWLAFOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758987AbWLAFIz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 00:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758996AbWLAFIz
+	id S1759079AbWLAFOc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 00:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759077AbWLAFOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 00:08:55 -0500
-Received: from ns.suse.de ([195.135.220.2]:5802 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1758987AbWLAFIy (ORCPT
+	Fri, 1 Dec 2006 00:14:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49104 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1759079AbWLAFOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 00:08:54 -0500
-Date: Fri, 1 Dec 2006 06:08:52 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
-Message-ID: <20061201050852.GA31347@wotan.suse.de>
-References: <20061130072058.GA18004@wotan.suse.de> <20061130072202.GB18004@wotan.suse.de> <20061130072247.GC18004@wotan.suse.de> <20061130113241.GC12579@wotan.suse.de> <87r6vkzinv.fsf@duaron.myhome.or.jp> <20061201020910.GC455@wotan.suse.de> <87mz68xoyi.fsf@duaron.myhome.or.jp>
+	Fri, 1 Dec 2006 00:14:31 -0500
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Morton <akpm@osdl.org>
+cc: Willy Tarreau <w@1wt.eu>, Jakub Jelinek <jakub@redhat.com>,
+       Nicholas Miell <nmiell@comcast.net>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, ak@suse.de
+Subject: Re: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away 
+In-reply-to: Your message of "Thu, 30 Nov 2006 21:05:51 -0800."
+             <20061130210551.e5ca0f29.akpm@osdl.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mz68xoyi.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.5.9i
+Date: Fri, 01 Dec 2006 16:14:04 +1100
+Message-ID: <22166.1164950044@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 12:41:25PM +0900, OGAWA Hirofumi wrote:
+Andrew Morton (on Thu, 30 Nov 2006 21:05:51 -0800) wrote:
+>On Wed, 29 Nov 2006 21:14:10 +0100
+>Willy Tarreau <w@1wt.eu> wrote:
+>
+>> Then why not simply check for gcc 4.1.0 in compiler.h and refuse to build
+>> with 4.1.0 if it's known to produce bad code ?
+>
+>Think so.  I'll queue this and see how many howls it causes.
+>
+>--- a/init/main.c~gcc-4-1-0-is-bust
+>+++ a/init/main.c
+>@@ -75,6 +75,10 @@
+> #error Sorry, your GCC is too old. It builds incorrect kernels.
+> #endif
 > 
-> Yes, this patch doesn't pass zero-length to prepare_write. However,
-> I'm not checking this patch is ok for reiserfs...
+>+#if __GNUC__ == 4 && __GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ == 0
+>+#error gcc-4.1.0 is known to miscompile the kernel.  Please use a different compiler version.
+>+#endif
+>+
+> static int init(void *);
+> 
+> extern void init_IRQ(void);
 
-OK, vfat wasn't working correctly for me -- I needed the following patch:
+SuSE's SLES10 ships with gcc 4.1.0.  There is nothing to stop a
+distributor from backporting the bug fix from gcc 4.1.1 to 4.1.0, but
+this patch would not allow the fixed compiler to build the kernel.
 
-Index: linux-2.6/fs/buffer.c
-===================================================================
---- linux-2.6.orig/fs/buffer.c	2006-12-01 15:31:22.000000000 +1100
-+++ linux-2.6/fs/buffer.c	2006-12-01 16:02:23.000000000 +1100
-@@ -2102,6 +2102,7 @@
- 			*bytes |= (blocksize-1);
- 			(*bytes)++;
- 		}
-+
- 		status = __block_prepare_write(inode, new_page, zerofrom,
- 						PAGE_CACHE_SIZE, get_block);
- 		if (status)
-@@ -2110,7 +2111,7 @@
- 		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
- 		flush_dcache_page(new_page);
- 		kunmap_atomic(kaddr, KM_USER0);
--		generic_commit_write(NULL, new_page, zerofrom, PAGE_CACHE_SIZE);
-+		__block_commit_write(inode, new_page, zerofrom, PAGE_CACHE_SIZE);
- 		unlock_page(new_page);
- 		page_cache_release(new_page);
- 	}
-@@ -2142,6 +2143,7 @@
- 		kunmap_atomic(kaddr, KM_USER0);
- 		__block_commit_write(inode, page, zerofrom, offset);
- 	}
-+
- 	return 0;
- out1:
- 	ClearPageUptodate(page);
-Index: linux-2.6/fs/fat/inode.c
-===================================================================
---- linux-2.6.orig/fs/fat/inode.c	2006-12-01 15:31:22.000000000 +1100
-+++ linux-2.6/fs/fat/inode.c	2006-12-01 16:02:08.000000000 +1100
-@@ -151,7 +151,8 @@
- {
- 	struct inode *inode = page->mapping->host;
- 	int err;
--	if (to - from > 0)
-+
-+	if (to - from == 0)
- 		return 0;
- 
- 	err = generic_commit_write(file, page, from, to);
-
-And reiserfs has some creative uses of generic_cont_expand, which I
-think I've fixed in the following way. I'll send out the full patch
-if you (and others) agree with the changes.
-
-
-Index: linux-2.6/fs/reiserfs/file.c
-===================================================================
---- linux-2.6.orig/fs/reiserfs/file.c	2006-12-01 16:01:17.000000000 +1100
-+++ linux-2.6/fs/reiserfs/file.c	2006-12-01 16:03:34.000000000 +1100
-@@ -892,6 +892,34 @@
- 	return retval;
- }
- 
-+static int reiserfs_convert_tail(struct inode *inode, loff_t offset)
-+{
-+	struct address_space *mapping = inode->i_mapping;
-+	pgoff_t index;
-+	struct page *page;
-+	int err = -ENOMEM;
-+
-+	index = offset >> PAGE_CACHE_SHIFT;
-+	page = grab_cache_page(mapping, index);
-+	if (!page)
-+		goto out;
-+
-+	offset = offset & ~PAGE_CACHE_MASK;
-+	WARN_ON(!offset); /* shouldn't pass zero length to prepare/commit */
-+
-+	err = mapping->a_ops->prepare_write(NULL, page, 0, offset);
-+	if (err)
-+		goto out_unlock;
-+
-+	err = mapping->a_ops->commit_write(NULL, page, 0, offset);
-+
-+out_unlock:
-+	unlock_page(page);
-+	page_cache_release(page);
-+out:
-+	return err;
-+}
-+
- /* Look if passed writing region is going to touch file's tail
-    (if it is present). And if it is, convert the tail to unformatted node */
- static int reiserfs_check_for_tail_and_convert(struct inode *inode,	/* inode to deal with */
-@@ -937,7 +965,8 @@
- 		    le_key_k_offset(get_inode_item_key_version(inode),
- 				    &(ih->ih_key));
- 		pathrelse(&path);
--		res = generic_cont_expand(inode, cont_expand_offset);
-+
-+		res = reiserfs_convert_tail(inode, cont_expand_offset);
- 	} else
- 		pathrelse(&path);
- 

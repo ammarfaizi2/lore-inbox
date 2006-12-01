@@ -1,111 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031627AbWLAAKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031630AbWLAAOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031627AbWLAAKW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 19:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031625AbWLAAKV
+	id S1031630AbWLAAOT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 19:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031629AbWLAAOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 19:10:21 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3766 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1031627AbWLAAKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 19:10:19 -0500
-Date: Thu, 30 Nov 2006 16:10:08 -0800
-From: Paul Jackson <pj@sgi.com>
-To: "Komal Shah" <komal.shah802003@gmail.com>,
-       Paul Mundt <lethal@linux-sh.org>, "M. R. Brown" <mrbrown@0xd6.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, lethal@linux-sh.org
-Subject: Re: =?ISO-8859-1?B?Yml0bWFwrV9maW5kX2ZyZWVfcmVnaW9u?= and
- bitmap_full arg doubts
-Message-Id: <20061130161008.5417c8b4.pj@sgi.com>
-In-Reply-To: <3a5b1be00611300733y121ef089m66bf46852ec0866d@mail.gmail.com>
-References: <3a5b1be00611300733y121ef089m66bf46852ec0866d@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 30 Nov 2006 19:14:19 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:42709 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1031632AbWLAAOQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 19:14:16 -0500
+Date: Fri, 1 Dec 2006 03:14:05 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, Jens Axboe <jens.axboe@oracle.com>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Josh Triplett <josh@freedesktop.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, PATCH 1/2] qrcu: "quick" srcu implementation
+Message-ID: <20061201001405.GC1245@oleg>
+References: <20061129235303.GA1118@oleg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061129235303.GA1118@oleg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hopefully the final version: added a comment (thanks Paul!) for the
+2-nd smp_mb().
 
-  M. R. Brown and Paul Mundt -- take a look at the question at end of this post.
+[RFC, PATCH 1/2] qrcu: "quick" srcu implementation
 
-Komal wrote:
-> 
-> I have attached the test module code. I have confusion about the what
-> to pass as second argument of bitmap_find_free_region for 2nd layer
-> bitmap.
-> 
-> Do we have to pass "total size of the block...here 128MB" as the
-> second argument or no. of bits in that block, which 32768 (128 >>
-> PAGE_SHIFT) ?
-> 
-> This confusion arised as store queue implementation (sq.c) of sh arch,
-> passes total size of the bitmap (64M) as the second argument instead
-> of bits.
-> 
-> Same is the case with bitmap_full, where I have to pass total size of
-> the block (here 128MB) instead of no. of bits, in-order it to make my
-> test module work correctly.
+Very much based on ideas, corrections, and patient explanations from
+Alan and Paul.
 
-A bitmap is essentially an array of bits.  The bitmap_* routines should
-take a count of how many bits are in the bitmap array (or in your case,
-how many bits are in the segment that you expect to be used in that call.)
+The current srcu implementation is very good for readers, lock/unlock
+are extremely cheap. But for that reason it is not possible to avoid
+synchronize_sched() and polling in synchronize_srcu().
 
-So I'm guessing you will be passing L2_BM_BITS for that second argument.
+Jens Axboe wrote:
+>
+> It works for me, but the overhead is still large. Before it would take
+> 8-12 jiffies for a synchronize_srcu() to complete without there actually
+> being any reader locks active, now it takes 2-3 jiffies. So it's
+> definitely faster, and as suspected the loss of two of three
+> synchronize_sched() cut down the overhead to a third.
 
-The call to bitmap_find_free_region(), in arch/sh/kernel/cpu/sh4/sq.c
-looks bogus:
+'qrcu' behaves the same as srcu but optimized for writers. The fast path
+for synchronize_qrcu() is mutex_lock() + atomic_read() + mutex_unlock().
+The slow path is __wait_event(), no polling. However, the reader does
+atomic inc/dec on lock/unlock, and the counters are not per-cpu.
 
-        page = bitmap_find_free_region(sq_bitmap, 0x04000000,
-                                       get_order(map->size));
+Also, unlike srcu, qrcu read lock/unlock can be used in interrupt context,
+and 'qrcu_struct' can be compile-time initialized.
 
-It says the bitmap has 0x04000000 bits.  This would take 0x04000000 / 8
-which is 8388608 (decimal) bytes to hold.  That's an insanely
-huge bitmap - 8 million bytes worth of bits.
+See also (a long) discussion:
+	http://marc.theaimsgroup.com/?t=116370857600003
 
-I can't make entire sense of the the code you attached.  I get confused 
-over the various sizes of maps and what the maps represent, and of bits 
-and bytes, and of the two levels.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-When you do call bitmap_find_free_region(), you should pass the number
-of bits that are in that segment of the L2 bitmap, which I would guess
-is L2_BM_BITS (32 K).
+--- 19-rc6/include/linux/srcu.h~1_qrcu	2006-10-22 18:24:03.000000000 +0400
++++ 19-rc6/include/linux/srcu.h	2006-11-30 04:32:42.000000000 +0300
+@@ -27,6 +27,8 @@
+ #ifndef _LINUX_SRCU_H
+ #define _LINUX_SRCU_H
+ 
++#include <linux/wait.h>
++
+ struct srcu_struct_array {
+ 	int c[2];
+ };
+@@ -50,4 +52,32 @@ void srcu_read_unlock(struct srcu_struct
+ void synchronize_srcu(struct srcu_struct *sp);
+ long srcu_batches_completed(struct srcu_struct *sp);
+ 
++/*
++ * fully compatible with srcu, but optimized for writers.
++ */
++
++struct qrcu_struct {
++	int completed;
++	atomic_t ctr[2];
++	wait_queue_head_t wq;
++	struct mutex mutex;
++};
++
++int init_qrcu_struct(struct qrcu_struct *qp);
++int qrcu_read_lock(struct qrcu_struct *qp);
++void qrcu_read_unlock(struct qrcu_struct *qp, int idx);
++void synchronize_qrcu(struct qrcu_struct *qp);
++
++/**
++ * cleanup_qrcu_struct - deconstruct a quick-RCU structure
++ * @qp: structure to clean up.
++ *
++ * Must invoke this after you are finished using a given qrcu_struct that
++ * was initialized via init_qrcu_struct().  We reserve the right to
++ * leak memory should you fail to do this!
++ */
++static inline void cleanup_qrcu_struct(struct qrcu_struct *qp)
++{
++}
++
+ #endif
+--- 19-rc6/kernel/srcu.c~1_qrcu	2006-10-22 18:24:03.000000000 +0400
++++ 19-rc6/kernel/srcu.c	2006-12-01 01:54:30.000000000 +0300
+@@ -256,3 +256,108 @@ EXPORT_SYMBOL_GPL(srcu_read_unlock);
+ EXPORT_SYMBOL_GPL(synchronize_srcu);
+ EXPORT_SYMBOL_GPL(srcu_batches_completed);
+ EXPORT_SYMBOL_GPL(srcu_readers_active);
++
++/**
++ * init_qrcu_struct - initialize a quick-RCU structure.
++ * @qp: structure to initialize.
++ *
++ * Must invoke this on a given qrcu_struct before passing that qrcu_struct
++ * to any other function.  Each qrcu_struct represents a separate domain
++ * of QRCU protection.
++ */
++int init_qrcu_struct(struct qrcu_struct *qp)
++{
++	qp->completed = 0;
++	atomic_set(qp->ctr + 0, 1);
++	atomic_set(qp->ctr + 1, 0);
++	init_waitqueue_head(&qp->wq);
++	mutex_init(&qp->mutex);
++
++	return 0;
++}
++
++/**
++ * qrcu_read_lock - register a new reader for an QRCU-protected structure.
++ * @qp: qrcu_struct in which to register the new reader.
++ *
++ * Counts the new reader in the appropriate element of the qrcu_struct.
++ * Returns an index that must be passed to the matching qrcu_read_unlock().
++ */
++int qrcu_read_lock(struct qrcu_struct *qp)
++{
++	for (;;) {
++		int idx = qp->completed & 0x1;
++		if (likely(atomic_inc_not_zero(qp->ctr + idx)))
++			return idx;
++	}
++}
++
++/**
++ * qrcu_read_unlock - unregister a old reader from an QRCU-protected structure.
++ * @qp: qrcu_struct in which to unregister the old reader.
++ * @idx: return value from corresponding qrcu_read_lock().
++ *
++ * Removes the count for the old reader from the appropriate element of
++ * the qrcu_struct.
++ */
++void qrcu_read_unlock(struct qrcu_struct *qp, int idx)
++{
++	if (atomic_dec_and_test(qp->ctr + idx))
++		wake_up(&qp->wq);
++}
++
++/**
++ * synchronize_qrcu - wait for prior QRCU read-side critical-section completion
++ * @qp: qrcu_struct with which to synchronize.
++ *
++ * Flip the completed counter, and wait for the old count to drain to zero.
++ * As with classic RCU, the updater must use some separate means of
++ * synchronizing concurrent updates.  Can block; must be called from
++ * process context.
++ *
++ * Note that it is illegal to call synchronize_qrcu() from the corresponding
++ * QRCU read-side critical section; doing so will result in deadlock.
++ * However, it is perfectly legal to call synchronize_qrcu() on one
++ * qrcu_struct from some other qrcu_struct's read-side critical section.
++ */
++void synchronize_qrcu(struct qrcu_struct *qp)
++{
++	int idx;
++
++	/*
++	 * The following memory barrier is needed to ensure that
++	 * any prior data-structure manipulation is seen by other
++	 * CPUs to happen before picking up the value of
++	 * qp->completed.
++	 */
++	smp_mb();
++	mutex_lock(&qp->mutex);
++
++	idx = qp->completed & 0x1;
++	if (atomic_read(qp->ctr + idx) == 1)
++		goto out;
++
++	atomic_inc(qp->ctr + (idx ^ 0x1));
++	/* Reduce the likelihood that qrcu_read_lock() will loop */
++	smp_mb__after_atomic_inc();
++	qp->completed++;
++
++	atomic_dec(qp->ctr + idx);
++	__wait_event(qp->wq, !atomic_read(qp->ctr + idx));
++out:
++	mutex_unlock(&qp->mutex);
++	smp_mb();
++	/*
++	 * The above smp_mb() is needed in the case that we
++	 * see the counter reaching zero, so that we do not
++	 * need to block.  In this case, we need to make
++	 * sure that the CPU does not re-order any subsequent
++	 * changes made by the caller to occur prior to the
++	 * test, as seen by other CPUs.
++	 */
++}
++
++EXPORT_SYMBOL_GPL(init_qrcu_struct);
++EXPORT_SYMBOL_GPL(qrcu_read_lock);
++EXPORT_SYMBOL_GPL(qrcu_read_unlock);
++EXPORT_SYMBOL_GPL(synchronize_qrcu);
 
-When you kzalloc() the L2 bitmap for all 16 segments at once, you
-should pass the number of -bytes-, not the number of longs. That is,
-I guess you want to replace your line:
-
-	bm_l2 = kzalloc(size * L1_BM_NUM_SEGS, GFP_KERNEL);
-
-with the line:
-
-	bm_l2 = kzalloc(size * L1_BM_NUM_SEGS * sizeof(long), GFP_KERNEL);
-
-This is because, like most of the *alloc() routines, kzalloc() takes
-a byte count, not a long count.  The related DECLARE_BITMAP() macro
-computes the number of longs, not bytes, but that is because it is
-declaring an array of longs, not allocating a number of bytes.
-
-But I might be entirely confused about what this code is doing.
-
-If this code is to become a kernel patch proposal, it will take some
-work to make it easier to understand.
-
-See also the code and comments in lib/bitmap.c for the routine
-bitmap_find_free_region() to see what it is doing.
-
-And, as I noted above, I suspect that the arch sh code using
-these bitmap routines is seriously wrong, and will blow up if
-ever asked to handle the harder, more full, cases.
-
-M. R. Brown and Paul Mundt - looks like you two are listed as authors
-for that sh arch code for "SH-4 integrated Store Queues".
-
-Could you take a look at it, and see whether it is that code, or my
-brain, that is on drugs?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

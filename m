@@ -1,216 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162403AbWLAXfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162244AbWLAXhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162403AbWLAXfH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 18:35:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162262AbWLAXea
+	id S1162244AbWLAXhi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 18:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162254AbWLAXhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 18:34:30 -0500
-Received: from mail.suse.de ([195.135.220.2]:17549 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162251AbWLAXWy (ORCPT
+	Fri, 1 Dec 2006 18:37:37 -0500
+Received: from colo.lackof.org ([198.49.126.79]:37540 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1162244AbWLAXhf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 18:22:54 -0500
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 12/36] Driver core: change misc class_devices to be real devices
-Date: Fri,  1 Dec 2006 15:21:42 -0800
-Message-Id: <11650153631070-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.4.1
-In-Reply-To: <11650153591876-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com>
+	Fri, 1 Dec 2006 18:37:35 -0500
+Date: Fri, 1 Dec 2006 16:37:33 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [GIT PATCH] PCI patches for 2.6.19
+Message-ID: <20061201233733.GA14249@colo.lackof.org>
+References: <20061201231624.GA7552@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061201231624.GA7552@kroah.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+On Fri, Dec 01, 2006 at 03:16:24PM -0800, Greg KH wrote:
+> Here are some PCI patches for 2.6.19
 
-This also ment that some of the misc drivers had to also be fixed
-up as they were assuming the device was a class_device.
+You meant 2.6.20-rc1?
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/char/hw_random/core.c   |   38 +++++++++++++++++++-------------------
- drivers/char/misc.c             |   13 ++++---------
- drivers/char/tpm/tpm.c          |    2 +-
- drivers/input/serio/serio_raw.c |    2 +-
- include/linux/miscdevice.h      |    5 ++---
- 5 files changed, 27 insertions(+), 33 deletions(-)
+grant
 
-diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-index 154a81d..ebace20 100644
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -162,7 +162,8 @@ static struct miscdevice rng_miscdev = {
- };
- 
- 
--static ssize_t hwrng_attr_current_store(struct class_device *class,
-+static ssize_t hwrng_attr_current_store(struct device *dev,
-+					struct device_attribute *attr,
- 					const char *buf, size_t len)
- {
- 	int err;
-@@ -192,7 +193,8 @@ static ssize_t hwrng_attr_current_store(
- 	return err ? : len;
- }
- 
--static ssize_t hwrng_attr_current_show(struct class_device *class,
-+static ssize_t hwrng_attr_current_show(struct device *dev,
-+				       struct device_attribute *attr,
- 				       char *buf)
- {
- 	int err;
-@@ -210,7 +212,8 @@ static ssize_t hwrng_attr_current_show(s
- 	return ret;
- }
- 
--static ssize_t hwrng_attr_available_show(struct class_device *class,
-+static ssize_t hwrng_attr_available_show(struct device *dev,
-+					 struct device_attribute *attr,
- 					 char *buf)
- {
- 	int err;
-@@ -234,20 +237,18 @@ static ssize_t hwrng_attr_available_show
- 	return ret;
- }
- 
--static CLASS_DEVICE_ATTR(rng_current, S_IRUGO | S_IWUSR,
--			 hwrng_attr_current_show,
--			 hwrng_attr_current_store);
--static CLASS_DEVICE_ATTR(rng_available, S_IRUGO,
--			 hwrng_attr_available_show,
--			 NULL);
-+static DEVICE_ATTR(rng_current, S_IRUGO | S_IWUSR,
-+		   hwrng_attr_current_show,
-+		   hwrng_attr_current_store);
-+static DEVICE_ATTR(rng_available, S_IRUGO,
-+		   hwrng_attr_available_show,
-+		   NULL);
- 
- 
- static void unregister_miscdev(void)
- {
--	class_device_remove_file(rng_miscdev.class,
--				 &class_device_attr_rng_available);
--	class_device_remove_file(rng_miscdev.class,
--				 &class_device_attr_rng_current);
-+	device_remove_file(rng_miscdev.this_device, &dev_attr_rng_available);
-+	device_remove_file(rng_miscdev.this_device, &dev_attr_rng_current);
- 	misc_deregister(&rng_miscdev);
- }
- 
-@@ -258,20 +259,19 @@ static int register_miscdev(void)
- 	err = misc_register(&rng_miscdev);
- 	if (err)
- 		goto out;
--	err = class_device_create_file(rng_miscdev.class,
--				       &class_device_attr_rng_current);
-+	err = device_create_file(rng_miscdev.this_device,
-+				 &dev_attr_rng_current);
- 	if (err)
- 		goto err_misc_dereg;
--	err = class_device_create_file(rng_miscdev.class,
--				       &class_device_attr_rng_available);
-+	err = device_create_file(rng_miscdev.this_device,
-+				 &dev_attr_rng_available);
- 	if (err)
- 		goto err_remove_current;
- out:
- 	return err;
- 
- err_remove_current:
--	class_device_remove_file(rng_miscdev.class,
--				 &class_device_attr_rng_current);
-+	device_remove_file(rng_miscdev.this_device, &dev_attr_rng_current);
- err_misc_dereg:
- 	misc_deregister(&rng_miscdev);
- 	goto out;
-diff --git a/drivers/char/misc.c b/drivers/char/misc.c
-index 62ebe09..7a484fc 100644
---- a/drivers/char/misc.c
-+++ b/drivers/char/misc.c
-@@ -169,11 +169,6 @@ fail:
- 	return err;
- }
- 
--/* 
-- * TODO for 2.7:
-- *  - add a struct kref to struct miscdevice and make all usages of
-- *    them dynamic.
-- */
- static struct class *misc_class;
- 
- static const struct file_operations misc_fops = {
-@@ -228,10 +223,10 @@ int misc_register(struct miscdevice * mi
- 		misc_minors[misc->minor >> 3] |= 1 << (misc->minor & 7);
- 	dev = MKDEV(MISC_MAJOR, misc->minor);
- 
--	misc->class = class_device_create(misc_class, NULL, dev, misc->dev,
-+	misc->this_device = device_create(misc_class, misc->parent, dev,
- 					  "%s", misc->name);
--	if (IS_ERR(misc->class)) {
--		err = PTR_ERR(misc->class);
-+	if (IS_ERR(misc->this_device)) {
-+		err = PTR_ERR(misc->this_device);
- 		goto out;
- 	}
- 
-@@ -264,7 +259,7 @@ int misc_deregister(struct miscdevice *
- 
- 	down(&misc_sem);
- 	list_del(&misc->list);
--	class_device_destroy(misc_class, MKDEV(MISC_MAJOR, misc->minor));
-+	device_destroy(misc_class, MKDEV(MISC_MAJOR, misc->minor));
- 	if (i < DYNAMIC_MINORS && i>0) {
- 		misc_minors[i>>3] &= ~(1 << (misc->minor & 7));
- 	}
-diff --git a/drivers/char/tpm/tpm.c b/drivers/char/tpm/tpm.c
-index 6ad2d3b..6e1329d 100644
---- a/drivers/char/tpm/tpm.c
-+++ b/drivers/char/tpm/tpm.c
-@@ -1130,7 +1130,7 @@ struct tpm_chip *tpm_register_hardware(s
- 	scnprintf(devname, DEVNAME_SIZE, "%s%d", "tpm", chip->dev_num);
- 	chip->vendor.miscdev.name = devname;
- 
--	chip->vendor.miscdev.dev = dev;
-+	chip->vendor.miscdev.parent = dev;
- 	chip->dev = get_device(dev);
- 
- 	if (misc_register(&chip->vendor.miscdev)) {
-diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
-index ba2a203..7c8d039 100644
---- a/drivers/input/serio/serio_raw.c
-+++ b/drivers/input/serio/serio_raw.c
-@@ -297,7 +297,7 @@ static int serio_raw_connect(struct seri
- 
- 	serio_raw->dev.minor = PSMOUSE_MINOR;
- 	serio_raw->dev.name = serio_raw->name;
--	serio_raw->dev.dev = &serio->dev;
-+	serio_raw->dev.parent = &serio->dev;
- 	serio_raw->dev.fops = &serio_raw_fops;
- 
- 	err = misc_register(&serio_raw->dev);
-diff --git a/include/linux/miscdevice.h b/include/linux/miscdevice.h
-index b03cfb9..326da7d 100644
---- a/include/linux/miscdevice.h
-+++ b/include/linux/miscdevice.h
-@@ -31,15 +31,14 @@
- #define	HPET_MINOR	     228
- 
- struct device;
--struct class_device;
- 
- struct miscdevice  {
- 	int minor;
- 	const char *name;
- 	const struct file_operations *fops;
- 	struct list_head list;
--	struct device *dev;
--	struct class_device *class;
-+	struct device *parent;
-+	struct device *this_device;
- };
- 
- extern int misc_register(struct miscdevice * misc);
--- 
-1.4.4.1
-
+> 
+> They contain a number of PCI hotplug driver fixes and changes, and some
+> other stuff that is detailed below.
+> 
+> All of these patches have been in the -mm tree for a while.
+> 
+> Please pull from:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> 
+> The full patches will be sent to the linux-pci mailing list, if anyone
+> wants to see them.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+>  arch/i386/kernel/pci-dma.c              |    4 +-
+>  arch/i386/pci/common.c                  |    2 +-
+>  arch/i386/pci/fixup.c                   |   46 ---
+>  arch/i386/pci/i386.c                    |   64 ++-
+>  arch/i386/pci/irq.c                     |    6 +
+>  arch/ia64/pci/pci.c                     |   75 ++---
+>  arch/ia64/sn/kernel/Makefile            |    5 +-
+>  arch/ia64/sn/kernel/io_acpi_init.c      |  231 +++++++++++
+>  arch/ia64/sn/kernel/io_common.c         |  613 ++++++++++++++++++++++++++++++
+>  arch/ia64/sn/kernel/io_init.c           |  633 +++++--------------------------
+>  arch/ia64/sn/kernel/iomv.c              |   11 +-
+>  arch/ia64/sn/kernel/setup.c             |   18 +
+>  arch/ia64/sn/kernel/tiocx.c             |    2 +-
+>  arch/ia64/sn/pci/pcibr/pcibr_provider.c |   17 +-
+>  arch/ia64/sn/pci/tioce_provider.c       |   18 -
+>  arch/powerpc/platforms/powermac/pci.c   |    1 -
+>  arch/sparc64/kernel/pci.c               |    9 -
+>  drivers/i2c/busses/Kconfig              |    1 +
+>  drivers/i2c/busses/i2c-i801.c           |    2 +
+>  drivers/message/i2o/pci.c               |   15 +-
+>  drivers/pci/Kconfig                     |    2 +-
+>  drivers/pci/access.c                    |   75 +++--
+>  drivers/pci/hotplug/acpiphp.h           |    4 +-
+>  drivers/pci/hotplug/acpiphp_core.c      |   39 +--
+>  drivers/pci/hotplug/acpiphp_glue.c      |    8 +-
+>  drivers/pci/hotplug/ibmphp_pci.c        |    4 +-
+>  drivers/pci/hotplug/pciehp_core.c       |    7 +-
+>  drivers/pci/hotplug/pciehp_hpc.c        |    2 -
+>  drivers/pci/hotplug/rpadlpar_core.c     |    2 +-
+>  drivers/pci/hotplug/rpaphp_core.c       |    2 +-
+>  drivers/pci/hotplug/sgi_hotplug.c       |   35 +-
+>  drivers/pci/msi.h                       |    8 -
+>  drivers/pci/pci-acpi.c                  |   10 +-
+>  drivers/pci/pci-driver.c                |   11 +-
+>  drivers/pci/pci-sysfs.c                 |   33 +-
+>  drivers/pci/pci.c                       |  123 +++++-
+>  drivers/pci/pci.h                       |    1 +
+>  drivers/pci/probe.c                     |   27 ++
+>  drivers/pci/quirks.c                    |   59 +---
+>  drivers/pci/rom.c                       |    9 +-
+>  include/asm-ia64/io.h                   |    2 +-
+>  include/asm-ia64/machvec.h              |   12 +
+>  include/asm-ia64/machvec_sn2.h          |    2 +
+>  include/asm-ia64/pci.h                  |   21 +-
+>  include/asm-ia64/sn/acpi.h              |   16 +
+>  include/asm-ia64/sn/pcidev.h            |   22 +-
+>  include/asm-ia64/sn/sn_feature_sets.h   |    6 +
+>  include/asm-ia64/sn/sn_sal.h            |    1 +
+>  include/asm-powerpc/pci.h               |   20 +-
+>  include/asm-sparc64/pci.h               |    6 +-
+>  include/linux/ioport.h                  |    1 +
+>  include/linux/pci.h                     |    3 +-
+>  include/linux/pci_ids.h                 |    7 +
+>  include/linux/pci_regs.h                |    6 +
+>  54 files changed, 1400 insertions(+), 959 deletions(-)
+>  create mode 100644 arch/ia64/sn/kernel/io_acpi_init.c
+>  create mode 100644 arch/ia64/sn/kernel/io_common.c
+>  create mode 100644 include/asm-ia64/sn/acpi.h
+> 
+> ---------------
+> 
+> Adrian Bunk (2):
+>       PCI: ibmphp_pci.c: fix NULL dereference
+>       PCI: make arch/i386/pci/common.c:pci_bf_sort static
+> 
+> Akinobu Mita (3):
+>       acpiphp: fix use of list_for_each macro
+>       acpiphp: fix missing acpiphp_glue_exit()
+>       pci: fix __pci_register_driver error handling
+> 
+> Alan Cox (1):
+>       PCI: quirks: fix the festering mess that claims to handle IDE quirks
+> 
+> Amol Lad (1):
+>       PCI: arch/i386/kernel/pci-dma.c: ioremap balanced with iounmap
+> 
+> Greg Kroah-Hartman (1):
+>       PCI: Let PCI_MULTITHREAD_PROBE not be broken
+> 
+> Inaky Perez-Gonzalez (2):
+>       PCI: switch pci_{enable,disable}_device() to be nestable
+>       PCI: pci_{enable,disable}_device() nestable ports
+> 
+> Jason Gaston (2):
+>       PCI: irq: irq and pci_ids patch for Intel ICH9
+>       i2c-i801: SMBus patch for Intel ICH9
+> 
+> John Keller (3):
+>       Altix: Add initial ACPI IO support
+>       Altix: SN ACPI hotplug support.
+>       Altix: Initial ACPI support - ROM shadowing.
+> 
+> John Rose (1):
+>       PCI: rpaphp: change device tree examination
+> 
+> Kenji Kaneshige (2):
+>       pciehp: remove unnecessary free_irq
+>       pciehp: remove unnecessary pci_disable_msi
+> 
+> Kristen Carlson Accardi (1):
+>       pci: clear osc support flags if no _OSC method
+> 
+> Matthew Wilcox (5):
+>       PCI: Use pci_generic_prep_mwi on ia64
+>       PCI: Use pci_generic_prep_mwi on sparc64
+>       PCI: Replace HAVE_ARCH_PCI_MWI with PCI_DISABLE_MWI
+>       PCI: Delete unused extern in powermac/pci.c
+>       PCI: Block on access to temporarily unavailable pci device
+> 
+> Michael Ellerman (1):
+>       PCI: Make some MSI-X #defines generic
+> 
+> Randy Dunlap (1):
+>       pci/i386: style cleanups
+> 
+> Rolf Eike Beer (1):
+>       PCI: Change memory allocation for acpiphp slots
+> 
+> Stephen Hemminger (1):
+>       PCI: save/restore PCI-X state

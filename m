@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031651AbWLAA1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031655AbWLAAmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031651AbWLAA1x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 19:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031649AbWLAA1x
+	id S1031655AbWLAAmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 19:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031656AbWLAAmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 19:27:53 -0500
-Received: from ns.suse.de ([195.135.220.2]:2521 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1031648AbWLAA1w (ORCPT
+	Thu, 30 Nov 2006 19:42:54 -0500
+Received: from smtp.ocgnet.org ([64.20.243.3]:26512 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1031655AbWLAAmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 19:27:52 -0500
-Date: Fri, 1 Dec 2006 01:27:50 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org
-Subject: Re: [patch 3/3] fs: fix cont vs deadlock patches
-Message-ID: <20061201002750.GA455@wotan.suse.de>
-References: <20061130072058.GA18004@wotan.suse.de> <20061130072202.GB18004@wotan.suse.de> <20061130072247.GC18004@wotan.suse.de> <20061130113241.GC12579@wotan.suse.de> <87r6vkzinv.fsf@duaron.myhome.or.jp>
-Mime-Version: 1.0
+	Thu, 30 Nov 2006 19:42:53 -0500
+Date: Fri, 1 Dec 2006 09:42:29 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: Komal Shah <komal.shah802003@gmail.com>, "M. R. Brown" <mrbrown@0xd6.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: bitmap?_find_free_region and bitmap_full arg doubts
+Message-ID: <20061201004229.GA25702@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Paul Jackson <pj@sgi.com>, Komal Shah <komal.shah802003@gmail.com>,
+	"M. R. Brown" <mrbrown@0xd6.org>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <3a5b1be00611300733y121ef089m66bf46852ec0866d@mail.gmail.com> <20061130161008.5417c8b4.pj@sgi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87r6vkzinv.fsf@duaron.myhome.or.jp>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061130161008.5417c8b4.pj@sgi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 07:14:28AM +0900, OGAWA Hirofumi wrote:
+On Thu, Nov 30, 2006 at 04:10:08PM -0800, Paul Jackson wrote:
+> The call to bitmap_find_free_region(), in arch/sh/kernel/cpu/sh4/sq.c
+> looks bogus:
 > 
-> quick look. Doesn't this break reiserfs? IIRC, the reiserfs is using
-> it for another reason. I was also working for this, but I lost the
-> thread of this, sorry.
-
-Yes I think it will break reiserfs, so I just have to have a look
-at converting it. Shouldn't take too long.
-
+>         page = bitmap_find_free_region(sq_bitmap, 0x04000000,
+>                                        get_order(map->size));
 > 
-> I found some another users (affs, hfs, hfsplus). Those seem have same
-> problem, but probably those also can use this...
+> It says the bitmap has 0x04000000 bits.  This would take 0x04000000 / 8
+> which is 8388608 (decimal) bytes to hold.  That's an insanely
+> huge bitmap - 8 million bytes worth of bits.
 > 
-> What do you think?
-
-Well I guess this is your code, so it is up to you ;)
-
-I would be happy if you come up with a quick fix, I'm just trying to
-stamp out a few big bugs in mm. However I did prefer my way of moving
-all the exapand code into generic_cont_expand, out of prepare_write, and
-avoiding holding the target page locked while we're doing all the expand
-work (strictly, you might be able to get away with this, but it is
-fragile and ugly).
-
-AFAIKS, the only reason to use prepare_write is to avoid passing the
-get_block into generic_cont_expand?
-
-
-Thanks,
-Nick
-
+Ouch, you're right, for some reason we missed the >> PAGE_SHIFT here,
+even though it was handled properly in sq_api_init(). I suppose we
+haven't hit this in practice as most of the users end up being quite
+small. I'll fix it up. Good catch, thanks!

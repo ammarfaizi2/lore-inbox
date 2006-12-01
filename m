@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162325AbWLAXY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162258AbWLAX2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162325AbWLAXY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 18:24:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162257AbWLAXYO
+	id S1162258AbWLAX2F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 18:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162260AbWLAXXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 18:24:14 -0500
-Received: from ns2.suse.de ([195.135.220.15]:59629 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1162264AbWLAXYH (ORCPT
+	Fri, 1 Dec 2006 18:23:47 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:34541 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1162258AbWLAXXR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 18:24:07 -0500
+	Fri, 1 Dec 2006 18:23:17 -0500
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 33/36] driver core: Use klist_remove() in device_move()
-Date: Fri,  1 Dec 2006 15:22:03 -0800
-Message-Id: <11650154353407-git-send-email-greg@kroah.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 19/36] Driver core: convert ppdev code to use struct device
+Date: Fri,  1 Dec 2006 15:21:49 -0800
+Message-Id: <11650153861854-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.4.1
-In-Reply-To: <11650154311175-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com> <11650153861854-git-send-email-greg@kroah.com> <11650153891878-git-send-email-greg@kroah.com> <11650153
- 922117-git-send-email-greg@kroah.com> <11650153961479-git-send-email-greg@kroah.com> <11650154001320-git-send-email-greg@kroah.com> <11650154032080-git-send-email-greg@kroah.com> <11650154071138-git-send-email-greg@kroah.com> <11650154123942-git-send-email-greg@kroah.com> <1165015415131-git-send-email-greg@kroah.com> <11650154181661-git-send-email-greg@kroah.com> <11650154221716-git-send-email-greg@kroah.com> <11650154251022-git-send-email-greg@kroah.com> <11650154282911-git-send-email-greg@kroah.com> <11650154311175-git-send-email-greg@kroah.com>
+In-Reply-To: <11650153833896-git-send-email-greg@kroah.com>
+References: <20061201231620.GA7560@kroah.com> <11650153262399-git-send-email-greg@kroah.com> <11650153293531-git-send-email-greg@kroah.com> <1165015333344-git-send-email-greg@kroah.com> <11650153362310-git-send-email-greg@kroah.com> <11650153392022-git-send-email-greg@kroah.com> <11650153432284-git-send-email-greg@kroah.com> <11650153463092-git-send-email-greg@kroah.com> <1165015349830-git-send-email-greg@kroah.com> <11650153522862-git-send-email-greg@kroah.com> <116501535622-git-send-email-greg@kroah.com> <11650153591876-git-send-email-greg@kroah.com> <11650153631070-git-send-email-greg@kroah.com> <1165015366759-git-send-email-greg@kroah.com> <11650153704007-git-send-email-greg@kroah.com> <11650153733277-git-send-email-greg@kroah.com> <11650153763330-git-send-email-greg@kroah.com> <11650153792132-git-send-email-greg@kroah.com> <11650153833896-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-As pointed out by Alan Stern, device_move needs to use klist_remove which waits
-until removal is complete.
+Converts from using struct "class_device" to "struct device" making
+everything show up properly in /sys/devices/ with symlinks from the
+/sys/class directory.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/core.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/ppdev.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index e4eaf46..e4b530e 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -1022,7 +1022,7 @@ int device_move(struct device *dev, stru
- 	old_parent = dev->parent;
- 	dev->parent = new_parent;
- 	if (old_parent)
--		klist_del(&dev->knode_parent);
-+		klist_remove(&dev->knode_parent);
- 	klist_add_tail(&dev->knode_parent, &new_parent->klist_children);
- 	if (!dev->class)
- 		goto out_put;
-@@ -1031,7 +1031,7 @@ int device_move(struct device *dev, stru
- 		/* We ignore errors on cleanup since we're hosed anyway... */
- 		device_move_class_links(dev, new_parent, old_parent);
- 		if (!kobject_move(&dev->kobj, &old_parent->kobj)) {
--			klist_del(&dev->knode_parent);
-+			klist_remove(&dev->knode_parent);
- 			if (old_parent)
- 				klist_add_tail(&dev->knode_parent,
- 					       &old_parent->klist_children);
+diff --git a/drivers/char/ppdev.c b/drivers/char/ppdev.c
+index efc485e..c1e3dd8 100644
+--- a/drivers/char/ppdev.c
++++ b/drivers/char/ppdev.c
+@@ -752,13 +752,13 @@ static const struct file_operations pp_f
+ 
+ static void pp_attach(struct parport *port)
+ {
+-	class_device_create(ppdev_class, NULL, MKDEV(PP_MAJOR, port->number),
+-			NULL, "parport%d", port->number);
++	device_create(ppdev_class, NULL, MKDEV(PP_MAJOR, port->number),
++			"parport%d", port->number);
+ }
+ 
+ static void pp_detach(struct parport *port)
+ {
+-	class_device_destroy(ppdev_class, MKDEV(PP_MAJOR, port->number));
++	device_destroy(ppdev_class, MKDEV(PP_MAJOR, port->number));
+ }
+ 
+ static struct parport_driver pp_driver = {
 -- 
 1.4.4.1
 

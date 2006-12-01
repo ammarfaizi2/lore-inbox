@@ -1,420 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936564AbWLAVBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWLAVBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936564AbWLAVBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 16:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936566AbWLAVBL
+	id S1161363AbWLAVBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 16:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161382AbWLAVBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 16:01:11 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59660 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S936564AbWLAVBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 16:01:08 -0500
-Date: Fri, 1 Dec 2006 22:01:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: coreteam@netfilter.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/*/nf_conntrack_*.c:possible cleanups
-Message-ID: <20061201210113.GI11084@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 1 Dec 2006 16:01:15 -0500
+Received: from adelie.ubuntu.com ([82.211.81.139]:24279 "EHLO
+	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1161363AbWLAVBN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 16:01:13 -0500
+Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
+From: Ben Collins <ben.collins@ubuntu.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Eric Piel <eric.piel@tremplin-utc>
+In-Reply-To: <1165002345.3233.104.camel@laptopd505.fenrus.org>
+References: <1164998179.5257.953.camel@gullible>
+	 <20061201185657.0b4b5af7@localhost.localdomain>
+	 <1165001705.5257.959.camel@gullible>
+	 <1165002345.3233.104.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 01 Dec 2006 16:01:08 -0500
+Message-Id: <1165006868.5257.972.camel@gullible>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the following needlessly global functions static:
-  - net/netfilter/nf_conntrack_core.c: nf_conntrack_register_cache()
-  - net/netfilter/nf_conntrack_core.c: nf_conntrack_unregister_cache()
-  - net/netfilter/nf_conntrack_core.c: __nf_conntrack_attach()
-  - net/netfilter/nf_conntrack_core.c: set_hashsize()
-  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_proto_sctp_init()
-  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_proto_sctp_fini()
-- make the following needlessly global variables/locks/structs static:
-  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_secret_interval
-  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_mem
-  - net/netfilter/nf_conntrack_core.c: nf_ct_cache_lock
-  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_protocol_sctp4
-  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_protocol_sctp6
-- #if 0 the following unused global functions:
-  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_kfree_frags()
-  - net/netfilter/nf_conntrack_core.c: nf_conntrack_tuple_taken()
-  - net/netfilter/nf_conntrack_core.c: nf_ct_invert_tuplepr()
-- remove the following unused or write-only variables:
-  - net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c: nat_module_is_loaded
-  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_nqueues
-- remove the following unused hooks:
-  - net/netfilter/nf_conntrack_core.c: nf_conntrack_destroyed()
-  - net/netfilter/nf_conntrack_ftp.c: nf_nat_ftp_hook()
-- remove the following unused EXPORT_SYMBOL's:
-  - nf_ct_iterate_cleanup
-  - nf_ct_protos
-  - nf_ct_l3protos
+On Fri, 2006-12-01 at 20:45 +0100, Arjan van de Ven wrote:
+> On Fri, 2006-12-01 at 14:35 -0500, Ben Collins wrote:
+> > What about the point that userspace (udev, and such) is not available
+> > when DSDT loading needs to occur? Init hasn't even started at that
+> > point.
+> 
+> that's a moot point; you need to load firmware from the initramfs ANYWAY
+> for things like qlogic and others...
 
-Please review which of these changes make sense and which might conflict 
-with pending patches.
+I don't see how that relates. The DSDT needs to be loaded even before
+driver initialization begins. Things like qlogic can over come this by
+being compiled as modules, and letting initramfs-tools take care of
+things.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+That's not the case for DSDT loading. I'm not saying this patch is the
+epitome of good coding, just that it's a needed feature.
 
----
-
- include/net/netfilter/nf_conntrack.h           |   17 -----------
- include/net/netfilter/nf_conntrack_core.h      |    2 -
- net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c |    4 --
- net/ipv6/netfilter/nf_conntrack_reasm.c        |    9 ++---
- net/netfilter/nf_conntrack_core.c              |   21 ++++++-------
- net/netfilter/nf_conntrack_ftp.c               |   26 +++--------------
- net/netfilter/nf_conntrack_proto_sctp.c        |    9 ++---
- net/netfilter/nf_conntrack_standalone.c        |    7 ----
- 8 files changed, 23 insertions(+), 72 deletions(-)
-
---- linux-2.6.18-rc1-mm1-full/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c.old	2006-07-09 19:20:35.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c	2006-07-09 19:20:46.000000000 +0200
-@@ -113,12 +113,8 @@
- 	return NF_ACCEPT;
- }
- 
--int nat_module_is_loaded = 0;
- static u_int32_t ipv4_get_features(const struct nf_conntrack_tuple *tuple)
- {
--	if (nat_module_is_loaded)
--		return NF_CT_F_NAT;
--
- 	return NF_CT_F_BASIC;
- }
- 
---- linux-2.6.18-rc1-mm1-full/net/ipv6/netfilter/nf_conntrack_reasm.c.old	2006-07-09 19:21:08.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/ipv6/netfilter/nf_conntrack_reasm.c	2006-07-09 19:22:45.000000000 +0200
-@@ -99,13 +99,11 @@
- static DEFINE_RWLOCK(nf_ct_frag6_lock);
- static u32 nf_ct_frag6_hash_rnd;
- static LIST_HEAD(nf_ct_frag6_lru_list);
--int nf_ct_frag6_nqueues = 0;
- 
- static __inline__ void __fq_unlink(struct nf_ct_frag6_queue *fq)
- {
- 	hlist_del(&fq->list);
- 	list_del(&fq->lru_list);
--	nf_ct_frag6_nqueues--;
- }
- 
- static __inline__ void fq_unlink(struct nf_ct_frag6_queue *fq)
-@@ -143,7 +141,7 @@
- }
- 
- static struct timer_list nf_ct_frag6_secret_timer;
--int nf_ct_frag6_secret_interval = 10 * 60 * HZ;
-+static int nf_ct_frag6_secret_interval = 10 * 60 * HZ;
- 
- static void nf_ct_frag6_secret_rebuild(unsigned long dummy)
- {
-@@ -173,7 +171,7 @@
- 	mod_timer(&nf_ct_frag6_secret_timer, now + nf_ct_frag6_secret_interval);
- }
- 
--atomic_t nf_ct_frag6_mem = ATOMIC_INIT(0);
-+static atomic_t nf_ct_frag6_mem = ATOMIC_INIT(0);
- 
- /* Memory Tracking Functions. */
- static inline void frag_kfree_skb(struct sk_buff *skb, unsigned int *work)
-@@ -331,7 +329,6 @@
- 	hlist_add_head(&fq->list, &nf_ct_frag6_hash[hash]);
- 	INIT_LIST_HEAD(&fq->lru_list);
- 	list_add_tail(&fq->lru_list, &nf_ct_frag6_lru_list);
--	nf_ct_frag6_nqueues++;
- 	write_unlock(&nf_ct_frag6_lock);
- 	return fq;
- }
-@@ -842,6 +839,7 @@
- 	nf_conntrack_put_reasm(skb);
- }
- 
-+#if 0
- int nf_ct_frag6_kfree_frags(struct sk_buff *skb)
- {
- 	struct sk_buff *s, *s2;
-@@ -856,6 +854,7 @@
- 
- 	return 0;
- }
-+#endif  /*  0  */
- 
- int nf_ct_frag6_init(void)
- {
---- linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack_core.h.old	2006-07-09 19:23:09.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack_core.h	2006-07-09 19:23:16.000000000 +0200
-@@ -68,8 +68,6 @@
- 	return ret;
- }
- 
--extern void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb);
--
- extern struct list_head *nf_conntrack_hash;
- extern struct list_head nf_conntrack_expect_list;
- extern rwlock_t nf_conntrack_lock ;
---- linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack.h.old	2006-07-09 19:24:29.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack.h	2006-07-09 19:28:48.000000000 +0200
-@@ -177,12 +177,6 @@
- nf_conntrack_alter_reply(struct nf_conn *conntrack,
- 			 const struct nf_conntrack_tuple *newreply);
- 
--/* Is this tuple taken? (ignoring any belonging to the given
--   conntrack). */
--extern int
--nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
--			 const struct nf_conn *ignored_conntrack);
--
- /* Return conntrack_info and tuple hash for given skb. */
- static inline struct nf_conn *
- nf_ct_get(const struct sk_buff *skb, enum ip_conntrack_info *ctinfo)
-@@ -221,11 +215,8 @@
- extern void nf_ct_helper_put(struct nf_conntrack_helper *helper);
- 
- extern struct nf_conntrack_helper *
- __nf_conntrack_helper_find_byname(const char *name);
- 
--extern int nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
--				const struct nf_conntrack_tuple *orig);
--
- extern void __nf_ct_refresh_acct(struct nf_conn *ct,
- 				 enum ip_conntrack_info ctinfo,
- 				 const struct sk_buff *skb,
-@@ -260,9 +247,6 @@
- 				    struct nf_conn *conntrack,
- 				    int dir);
- 
--/* Call me when a conntrack is destroyed. */
--extern void (*nf_conntrack_destroyed)(struct nf_conn *conntrack);
--
- /* Fake conntrack entry for untracked connections */
- extern struct nf_conn nf_conntrack_untracked;
- 
-@@ -380,11 +364,6 @@
- #define	NF_CT_F_NAT	2
- #define NF_CT_F_NUM	4
- 
--extern int
--nf_conntrack_register_cache(u_int32_t features, const char *name, size_t size);
--extern void
--nf_conntrack_unregister_cache(u_int32_t features);
--
- /* valid combinations:
-  * basic: nf_conn, nf_conn .. nf_conn_help
-  * nat: nf_conn .. nf_conn_nat, nf_conn .. nf_conn_nat, nf_conn help
---- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_core.c.old	2006-07-09 19:23:24.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_core.c	2006-07-09 19:30:55.000000000 +0200
-@@ -72,7 +72,6 @@
- /* nf_conntrack_standalone needs this */
- atomic_t nf_conntrack_count = ATOMIC_INIT(0);
- 
--void (*nf_conntrack_destroyed)(struct nf_conn *conntrack) = NULL;
- LIST_HEAD(nf_conntrack_expect_list);
- struct nf_conntrack_protocol **nf_ct_protos[PF_MAX];
- struct nf_conntrack_l3proto *nf_ct_l3protos[PF_MAX];
-@@ -180,7 +179,7 @@
- } nf_ct_cache[NF_CT_F_NUM];
- 
- /* protect members of nf_ct_cache except of "use" */
--DEFINE_RWLOCK(nf_ct_cache_lock);
-+static DEFINE_RWLOCK(nf_ct_cache_lock);
- 
- /* This avoids calling kmem_cache_create() with same name simultaneously */
- static DEFINE_MUTEX(nf_ct_cache_mutex);
-@@ -285,8 +284,8 @@
- 				nf_conntrack_hash_rnd);
- }
- 
--int nf_conntrack_register_cache(u_int32_t features, const char *name,
--				size_t size)
-+static int nf_conntrack_register_cache(u_int32_t features, const char *name,
-+				       size_t size)
- {
- 	int ret = 0;
- 	char *cache_name;
-@@ -366,7 +365,7 @@
- }
- 
- /* FIXME: In the current, only nf_conntrack_cleanup() can call this function. */
--void nf_conntrack_unregister_cache(u_int32_t features)
-+static void nf_conntrack_unregister_cache(u_int32_t features)
- {
- 	kmem_cache_t *cachep;
- 	char *name;
-@@ -578,9 +577,6 @@
- 	if (proto && proto->destroy)
- 		proto->destroy(ct);
- 
--	if (nf_conntrack_destroyed)
--		nf_conntrack_destroyed(ct);
--
- 	write_lock_bh(&nf_conntrack_lock);
- 	/* Expectations will have been removed in clean_from_lists,
- 	 * except TFTP can create an expectation on the first packet,
-@@ -762,6 +758,7 @@
- 
- /* Returns true if a connection correspondings to the tuple (required
-    for NAT). */
-+#if 0
- int
- nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
- 			 const struct nf_conn *ignored_conntrack)
-@@ -774,6 +771,7 @@
- 
- 	return h != NULL;
- }
-+#endif  /*  0  */
- 
- /* There's a small race here where we may free a just-assured
-    connection.  Too bad: we're in trouble anyway. */
-@@ -1137,6 +1139,7 @@
- 	return ret;
- }
- 
-+#if 0
- int nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
- 			 const struct nf_conntrack_tuple *orig)
- {
-@@ -1145,6 +1148,7 @@
- 				  __nf_ct_proto_find(orig->src.l3num,
- 						     orig->dst.protonum));
- }
-+#endif  /*  0  */
- 
- /* Would two expected things clash? */
- static inline int expect_clash(const struct nf_conntrack_expect *a,
-@@ -1482,8 +1486,7 @@
- }
- #endif
- 
--/* Used by ipt_REJECT and ip6t_REJECT. */
--void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb)
-+static void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb)
- {
- 	struct nf_conn *ct;
- 	enum ip_conntrack_info ctinfo;
-@@ -1635,7 +1638,7 @@
- 	return hash;
- }
- 
--int set_hashsize(const char *val, struct kernel_param *kp)
-+static int set_hashsize(const char *val, struct kernel_param *kp)
- {
- 	int i, bucket, hashsize, vmalloced;
- 	int old_vmalloced, old_size;
---- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_standalone.c.old	2006-07-09 19:23:54.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_standalone.c	2006-07-09 19:30:34.000000000 +0200
-@@ -851,26 +851,20 @@
- EXPORT_SYMBOL(nf_conntrack_l3proto_unregister);
- EXPORT_SYMBOL(nf_conntrack_protocol_register);
- EXPORT_SYMBOL(nf_conntrack_protocol_unregister);
--EXPORT_SYMBOL(nf_ct_invert_tuplepr);
--EXPORT_SYMBOL(nf_conntrack_destroyed);
- EXPORT_SYMBOL(need_conntrack);
- EXPORT_SYMBOL(nf_conntrack_helper_register);
- EXPORT_SYMBOL(nf_conntrack_helper_unregister);
--EXPORT_SYMBOL(nf_ct_iterate_cleanup);
- EXPORT_SYMBOL(__nf_ct_refresh_acct);
--EXPORT_SYMBOL(nf_ct_protos);
- EXPORT_SYMBOL(__nf_ct_proto_find);
- EXPORT_SYMBOL(nf_ct_proto_find_get);
- EXPORT_SYMBOL(nf_ct_proto_put);
- EXPORT_SYMBOL(nf_ct_l3proto_find_get);
- EXPORT_SYMBOL(nf_ct_l3proto_put);
--EXPORT_SYMBOL(nf_ct_l3protos);
- EXPORT_SYMBOL_GPL(nf_conntrack_checksum);
- EXPORT_SYMBOL(nf_conntrack_expect_alloc);
- EXPORT_SYMBOL(nf_conntrack_expect_put);
- EXPORT_SYMBOL(nf_conntrack_expect_related);
- EXPORT_SYMBOL(nf_conntrack_unexpect_related);
--EXPORT_SYMBOL(nf_conntrack_tuple_taken);
- EXPORT_SYMBOL(nf_conntrack_htable_size);
- EXPORT_SYMBOL(nf_conntrack_lock);
- EXPORT_SYMBOL(nf_conntrack_hash);
-@@ -883,6 +877,5 @@
- EXPORT_SYMBOL(nf_ct_get_tuple);
- EXPORT_SYMBOL(nf_ct_invert_tuple);
- EXPORT_SYMBOL(nf_conntrack_in);
--EXPORT_SYMBOL(__nf_conntrack_attach);
- EXPORT_SYMBOL(nf_conntrack_alloc);
- EXPORT_SYMBOL(nf_conntrack_free);
---- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_ftp.c.old	2006-07-09 19:31:09.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_ftp.c	2006-07-09 19:39:01.000000000 +0200
-@@ -45,15 +45,6 @@
- static int loose;
- module_param(loose, bool, 0600);
- 
--unsigned int (*nf_nat_ftp_hook)(struct sk_buff **pskb,
--				enum ip_conntrack_info ctinfo,
--				enum ip_ct_ftp_type type,
--				unsigned int matchoff,
--				unsigned int matchlen,
--				struct nf_conntrack_expect *exp,
--				u32 *seq);
--EXPORT_SYMBOL_GPL(nf_nat_ftp_hook);
--
- #if 0
- #define DEBUGP printk
- #else
-@@ -602,18 +593,11 @@
- 	exp->expectfn = NULL;
- 	exp->flags = 0;
- 
--	/* Now, NAT might want to mangle the packet, and register the
--	 * (possibly changed) expectation itself. */
--	if (nf_nat_ftp_hook)
--		ret = nf_nat_ftp_hook(pskb, ctinfo, search[dir][i].ftptype,
--				      matchoff, matchlen, exp, &seq);
--	else {
--		/* Can't expect this?  Best to drop packet now. */
--		if (nf_conntrack_expect_related(exp) != 0)
--			ret = NF_DROP;
--		else
--			ret = NF_ACCEPT;
--	}
-+	/* Can't expect this?  Best to drop packet now. */
-+	if (nf_conntrack_expect_related(exp) != 0)
-+		ret = NF_DROP;
-+	else
-+		ret = NF_ACCEPT;
- 
- out_put_expect:
- 	nf_conntrack_expect_put(exp);
---- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_proto_sctp.c.old	2006-07-09 19:32:45.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_proto_sctp.c	2006-07-09 19:33:27.000000000 +0200
-@@ -508,7 +508,7 @@
- 	return 1;
- }
- 
--struct nf_conntrack_protocol nf_conntrack_protocol_sctp4 = { 
-+static struct nf_conntrack_protocol nf_conntrack_protocol_sctp4 = { 
- 	.l3proto	 = PF_INET,
- 	.proto 		 = IPPROTO_SCTP, 
- 	.name 		 = "sctp",
-@@ -522,7 +522,7 @@
- 	.me 		 = THIS_MODULE 
- };
- 
--struct nf_conntrack_protocol nf_conntrack_protocol_sctp6 = { 
-+static struct nf_conntrack_protocol nf_conntrack_protocol_sctp6 = { 
- 	.l3proto	 = PF_INET6,
- 	.proto 		 = IPPROTO_SCTP, 
- 	.name 		 = "sctp",
-@@ -620,7 +620,7 @@
- static struct ctl_table_header *nf_ct_sysctl_header;
- #endif
- 
--int __init nf_conntrack_proto_sctp_init(void)
-+static int __init nf_conntrack_proto_sctp_init(void)
- {
- 	int ret;
- 
-@@ -657,7 +657,7 @@
- 	return ret;
- }
- 
--void __exit nf_conntrack_proto_sctp_fini(void)
-+static void __exit nf_conntrack_proto_sctp_fini(void)
- {
- 	nf_conntrack_protocol_unregister(&nf_conntrack_protocol_sctp6);
- 	nf_conntrack_protocol_unregister(&nf_conntrack_protocol_sctp4);
-
+If there's a better way to do it, I'm volunteering to do the grunt work,
+but I haven't heard of any alternatives to this solution.

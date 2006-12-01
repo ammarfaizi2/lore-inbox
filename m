@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759128AbWLAGTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759129AbWLAGTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759128AbWLAGTx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 01:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759132AbWLAGTx
+	id S1759129AbWLAGTy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 01:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759133AbWLAGTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 1 Dec 2006 01:19:54 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8452 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1759131AbWLAGTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Dec 2006 01:19:53 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:47878 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1759115AbWLAGTx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 01:19:53 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: alan@lxorguk.ukuu.org.uk (Alan)
-Subject: Re: kswapd/tg3 issue
-Cc: yoh@psychology.rutgers.edu, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20061130150406.3d0b6afd@localhost.localdomain>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1Gq1kG-0003q5-00@gondolin.me.apana.org.au>
-Date: Fri, 01 Dec 2006 17:19:36 +1100
+Date: Fri, 1 Dec 2006 07:19:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: tigran@aivazian.fsnet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+Message-ID: <20061201061958.GL11084@stusta.de>
+References: <20061201055145.GK11084@stusta.de> <00e401c7150e$061da500$6721100a@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00e401c7150e$061da500$6721100a@nuitysystems.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan <alan@lxorguk.ukuu.org.uk> wrote:
->> 
->> Just got a logwatch daily mail which revealed a problem:
->> [2024412.788680] kswapd1: page allocation failure. order:2, mode:0x20
->> and a lengthy backtrace with head
->> 
->> ,------------------------------------------------------------------------
->> | [2024412.795212] Call Trace:
->> | [2024412.799768]  <IRQ> [<ffffffff8020c852>] __alloc_pages+0x27a/0x291
->> | [2024412.806452]  [<ffffffff802a08e3>] kmem_getpages+0x5e/0xd8
->> | [2024412.812370]  [<ffffffff80212c68>] cache_grow+0xd0/0x185
->> | [2024412.818064]  [<ffffffff80245c4f>] cache_alloc_refill+0x18c/0x1da
->> | [2024412.824625]  [<ffffffff802a1979>] __kmalloc+0x93/0xa3
->> | [2024412.830145]  [<ffffffff80222e9e>] __alloc_skb+0x54/0x117
->> | [2024412.835958]  [<ffffffff803b8a55>] __netdev_alloc_skb+0x12/0x2d
->> | [2024412.842347]  [<ffffffff80370292>] tg3_alloc_rx_skb+0xbb/0x146
->> `---
->> full dmesg is at
->> http://www.onerussian.com/Linux/bugs/bug.kswapd/dmesg
->> 
->> is that critical? seems to behave ok but...
-> 
-> Its tell us that the machine got very very tight on memory, far tighter
-> than it probably ever should in normal situations. It is harmless of
-> itself and if you only get the odd one is not a worry.
+On Thu, Nov 30, 2006 at 10:00:35PM -0800, Hua Zhong wrote:
 
-Since this is a 2nd order allocation, it could also be that you have
-memory but it's fragmented.  If you aren't using jumbograms you can
-try disabling that.
+> I am curious, what's the point?
 
-Cheers,
+Email addresses are for contacting people.
+
+> These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
+> were at that point.
+
+For historical purposes, you can always use historical kernels.
+
+> It's not MAINTAINERS. If people want to contact someone, go find the latest address there.
+
+It's also MODULE_AUTHOR() and printk() which are far more user-visible 
+than MAINTAINERS.
+
+cu
+Adrian
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

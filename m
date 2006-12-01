@@ -1,97 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162046AbWLAWAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162022AbWLAWBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162046AbWLAWAO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 17:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162022AbWLAWAO
+	id S1162022AbWLAWBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 17:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162053AbWLAWBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 17:00:14 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:24425 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1162053AbWLAWAM (ORCPT
+	Fri, 1 Dec 2006 17:01:39 -0500
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:52028 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1162022AbWLAWBi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 17:00:12 -0500
-From: Dmitry Mishin <dim@openvz.org>
-Organization: SWsoft
-To: devel@openvz.org
-Subject: Re: [Devel] Re: Linux 2.6.19 VServer 2.1.x
-Date: Sat, 2 Dec 2006 00:59:47 +0300
-User-Agent: KMail/1.9.4
-Cc: Herbert Poetzl <herbert@13thfloor.at>, Kirill Korotaev <dev@sw.ru>,
-       Linux Containers <containers@lists.osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <20061201022904.GP2826@MAIL.13thfloor.at> <457004DF.7030100@sw.ru> <20061201193230.GA544@MAIL.13thfloor.at>
-In-Reply-To: <20061201193230.GA544@MAIL.13thfloor.at>
-X-Face: 'h\woBm&GL5>q=4~&$7\8J0Sv3c2a98rBl,dx/@?L4)Tg!C-nz4]2>M>=?utf-8?q?6ZwpyJ=7Ek=7EqqVT-=0A=09=7CIm?=(,W)U}CZo`G#(&OpK?El5u#-mi~%Uo)?X/qE[LE-H88#x'Y<GId$mZ]i%"iG|<=?utf-8?q?Zm/4u=0A=09Ld=2E=23=5B/Am=7D=5DV10UW0qjZUu7?=@;6SQI%Uy^H
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Dec 2006 17:01:38 -0500
+Date: Fri, 1 Dec 2006 22:01:34 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: CD oddities with VIA PATA
+Message-ID: <20061201220134.GA22909@deepthought.linux.bogus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200612020059.48170.dim@openvz.org>
+User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 December 2006 22:32, Herbert Poetzl wrote:
-> On Fri, Dec 01, 2006 at 01:33:03PM +0300, Kirill Korotaev wrote:
-> > OpenVZ has been using them for more than a month already ;-)
->
-> great for you, here some details:
->
->  - 2.6.19 was released 29th Nov 2006
->  - OpenVZ page shows 2.6.9-023, 2.6.16 and the
->    2.6.18 development
->  - Linux-VServer has followed the -rc series
->    too, so that's nothing new
->  - I didn't manage to find an OpenVZ patch for
->    2.6.19 on your site
->
-> but probably all the changes from 2.6.19 have
-> been backported to the stable 2.6.9 kernel
-> several months ago :)
-more details:
-http://git.openvz.org/?p=linux-2.6.18-openvz;a=commitdiff;h=2563d54c8c3215792af24d96d852fe30aed2a7b4
-http://git.openvz.org/?p=linux-2.6.18-openvz;a=commitdiff;h=44100ee643f4f59e8b71ac10b7b5f01f8a423292
+ I'm testing 2.6.19 on this box, and I thought I might as well try
+out the Parallel ATA driver for the CD/DVD writer (VIA) since the
+disk is already handled by libata.
 
->
-> best,
-> Herbert
->
-> > Kirill
-> >
-> > > Ladies and Gentlemen!
-> > >
-> > > here is the first Linux-VServer version (testing)
-> > > with support for the *spaces (uts, ipc and vfs)
-> > > introduced in 2.6.19 ...
-> > >
-> > > http://vserver.13thfloor.at/Experimental/patch-2.6.19-vs2.1.x-t1.diff
-> > >
-> > > it might not be as perfect as the kernel itself *G*
-> > > but it does work fine here, and with recent tools
-> > > most virtualization features work as expected
-> > >
-> > > please if you do testing, report issues or comments
-> > > to the Linux-VServer mailing list or to me directly
-> > > (at least CC would be fine) and do not bother the
-> > > nice kernel folks ...
-> > >
-> > > enjoy,
-> > > Herbert
-> > > _______________________________________________
-> > > Containers mailing list
-> > > Containers@lists.osdl.org
-> > > https://lists.osdl.org/mailman/listinfo/containers
->
-> _______________________________________________
-> Containers mailing list
-> Containers@lists.osdl.org
-> https://lists.osdl.org/mailman/listinfo/containers
->
-> _______________________________________________
-> Devel mailing list
-> Devel@openvz.org
-> https://openvz.org/mailman/listinfo/devel
+ So far, I've found two oddities - 
 
+(i.) cdparanoia (9.8) works for root, but for a user it complains
+that the ioctl isn't cooked and refuses to run.  For test purposes,
+it runs ok for a user as suid root, but I imagine that increases
+the likelihood of unspeakable things happening.  (Fortunately, I
+don't have a dachshund)
+
+(ii.) As a user, I burned a small (28MB) CD using dvdrecord from
+dvdrtools-0.3.1, and on a different box I can mount it (using
+ide-cd) and it seems fine.  On this box I can't mount it -
+
+ken@ac30 ~ $mount /media/cdrom/
+mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+       missing codepage or other error
+       In some cases useful info is found in syslog - try
+       dmesg | tail  or so
+
+ The syslog shows
+
+Dec  1 21:17:41 ac30 kernel: attempt to access beyond end of device
+Dec  1 21:17:41 ac30 kernel: sr0: rw=0, want=68, limit=4
+Dec  1 21:17:41 ac30 kernel: isofs_fill_super: bread failed, dev=sr0, iso_blknum=16, block=16
+
+ The iso is the gparted-livecd-0.3.1-1.iso.
+
+ The problem might be specific to small CDs, I can mount others (41M
+of data and more) without difficulty and all of the likely NLS options
+are selected as =y in my config.
+
+Ken
 -- 
-Thanks,
-Dmitry.
+das eine Mal als Tragödie, das andere Mal als Farce

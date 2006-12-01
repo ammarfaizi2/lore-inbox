@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbWLAI4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbWLAJHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030434AbWLAI4X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 03:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWLAI4X
+	id S1030625AbWLAJHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 04:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967576AbWLAJHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 03:56:23 -0500
-Received: from jdi.jdi-ict.nl ([82.94.239.5]:1473 "EHLO jdi.jdi-ict.nl")
-	by vger.kernel.org with ESMTP id S1030391AbWLAI4W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 03:56:22 -0500
-Date: Fri, 1 Dec 2006 09:56:06 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
-X-X-Sender: igmar@jdi.jdi-ict.nl
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, erich <erich@areca.com.tw>
-Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
-In-Reply-To: <20061130212248.1b49bd32.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
-References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
- <20061130212248.1b49bd32.akpm@osdl.org>
+	Fri, 1 Dec 2006 04:07:06 -0500
+Received: from web59207.mail.re1.yahoo.com ([66.196.101.33]:22709 "HELO
+	web59207.mail.re1.yahoo.com") by vger.kernel.org with SMTP
+	id S967572AbWLAJHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 04:07:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=1neiFmpQVh2hAAbxbaURxtDe1AwR/OA+BfFP53ZMfTRpK3mxfC8qCtXwA4BiUwwuXQtIr3sbEZWIAUxYGyKYZhtxXshcSK0P5eJO+9nf91cH8Nyoocx2g/Oj12FPi1enKWwv8xtGyP59tWs/iVYYhC5dSOKcGTRA++3lGz9K3rs=;
+X-YMail-OSG: D0Vr4p0VM1kB0v3Zx874EtHNLu7ViOofoHAgrjh6jQ.VbP_EqP71X8jkNNXY1nSVd0jJ5gM8p.YBo6LtaysDM5VyT3qFuKIjLFPg8cApsZrpv3E5NFUzmxpZ5Jng8lZgE98tcXY18C39gOx4ZA9f67PhGSSM_H5vBg--
+Date: Fri, 1 Dec 2006 01:07:04 -0800 (PST)
+From: tike64 <tike64@yahoo.com>
+Subject: Re: realtime-preempt and arm
+To: junjiec@gmail.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <456eff57.0e1fcf5c.617c.44a6@mx.google.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Fri, 01 Dec 2006 09:56:06 +0100 (CET)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <304269.38734.qm@web59207.mail.re1.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Hi,
-
-> > I've got a machine which occasionally locks up. I can still sysrq it from 
-> > a serial console, so it's not entirely dead.
-> > 
-> > A sysrq-t learns me that it's got a large number of httpd processes stuck 
-> > in D state :
+> Hi,
 > 
-> There are known deadlocks in generic_file_write() in kernels up to and
-> including 2.6.17.  Pagefaults are involved and I'd need to see the entire
-> sysrq-T output to determine if you're hitting that bug.
+> Without the support of High Resolution Timer
+> supported, the timer resolution wouldn't change.
 
-It's rather large, but for those who want to look at it : 
-http://www.jdi-ict.nl/plain/serial-28112006.txt
+Ok, I understand that. I was not expecting more
+resolution. I expected only that I would get more
+precise 10ms delays. What confuses me is that the
+delays roughly doubled.
 
-There is also a dump from a day later, but halfway the Areca controller 
-decided to kick out the array, on which a lot of unwritten data needed to 
-be written :)
+> With high-resolution-timer supported, our
+> arm926-based board could get resolution like
+40~50us.
+> There are codes you can reference ,may be you should
+> just try to implement it.
 
-That dump is at http://www.jdi-ict.nl/plain/serial-29112006.txt
+It is good to know that the problem is not the arm
+architecture itself. Thanks to you for that.
+
+The problem must be in the lh7a40x specific code or my
+configuration. I am not yet convinced enough that high
+resolution timer implementation would solve the
+problem. I don't need timing resolution finer than
+10ms providing that FB doesn't blow it up to 60ms.
+
+Could you or someone please give a hint where to look
+next or give an explanation why the lack of high
+resolution timer would behave like that.
+
+--
+
+tike
 
 
-Regards,
 
-
-	Igmar
-
+ 
+____________________________________________________________________________________
+Cheap talk?
+Check out Yahoo! Messenger's low PC-to-Phone call rates.
+http://voice.yahoo.com

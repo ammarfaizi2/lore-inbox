@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936496AbWLAOId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758957AbWLAOL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936496AbWLAOId (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 09:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936501AbWLAOId
+	id S1758957AbWLAOL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 09:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758954AbWLAOL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 09:08:33 -0500
-Received: from washoe.rutgers.edu ([165.230.95.67]:53174 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S936496AbWLAOIc
+	Fri, 1 Dec 2006 09:11:26 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:44818 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1758520AbWLAOLZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 09:08:32 -0500
-Date: Fri, 1 Dec 2006 09:08:31 -0500
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kswapd/tg3 issue
-Message-ID: <20061201140830.GB2021@washoe.onerussian.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20061130150406.3d0b6afd@localhost.localdomain> <E1Gq1kG-0003q5-00@gondolin.me.apana.org.au>
+	Fri, 1 Dec 2006 09:11:25 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: Willy Tarreau <wtarreau@hera.kernel.org>
+Subject: [2.4 PATCH] arm: dma-arc add missing parenthesis
+Date: Fri, 1 Dec 2006 15:10:57 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1Gq1kG-0003q5-00@gondolin.me.apana.org.au>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r804 (Debian)
+Message-Id: <200612011510.58990.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since this is a 2nd order allocation, it could also be that you have
-> memory but it's fragmented. 
-Thanks for the info!
+Hello,
 
-> If you aren't using jumbograms you can
-> try disabling that.
-disabling 2nd order allocation?
-and I do use jumbos on that box (it is an NFS server so jumbo frames --
-MTU 9000 -- presumable help a bit on CPU utilization)
+	This patch adds missing parenthesis in arc_floppy_data_enable_dma() code.
 
-> Cheers,
+Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+
+ arch/arm/kernel/dma-arc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff -upr linux-2.4.34-pre6-a/arch/arm/kernel/dma-arc.c linux-2.4.34-pre6-b/arch/arm/kernel/dma-arc.c
+--- linux-2.4.34-pre6-a/arch/arm/kernel/dma-arc.c	2003-08-25 13:44:39.000000000 +0200
++++ linux-2.4.34-pre6-b/arch/arm/kernel/dma-arc.c	2006-12-01 12:31:39.000000000 +0100
+@@ -55,7 +55,7 @@ static void arc_floppy_data_enable_dma(d
+ 		memcpy ((void *)0x1c, (void *)&fdc1772_dma_write,
+ 			&fdc1772_dma_write_end - &fdc1772_dma_write);
+ 		fdc1772_setupdma(dma->buf.length, dma->buf.address); /* Sets data pointer up */
+-		enable_fiq(FIQ_FLOPPYDATA;
++		enable_fiq(FIQ_FLOPPYDATA);
+ 
+ 		local_irq_restore(flags);
+ 	    }
+
 -- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Student  Ph.D. @ CS Dept. NJIT
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07102
-WWW:     http://www.linkedin.com/in/yarik        
+Regards,
+
+	Mariusz Kozlowski

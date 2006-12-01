@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759090AbWLAO5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759246AbWLAO6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759090AbWLAO5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 09:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759246AbWLAO5i
+	id S1759246AbWLAO6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 09:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759285AbWLAO6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 09:57:38 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:59399 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1759140AbWLAO5h
+	Fri, 1 Dec 2006 09:58:53 -0500
+Received: from smtp.nokia.com ([131.228.20.173]:2508 "EHLO mgw-ext14.nokia.com")
+	by vger.kernel.org with ESMTP id S1759246AbWLAO6w convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 09:57:37 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Willy Tarreau <wtarreau@hera.kernel.org>
-Subject: [2.4 PATCH] video cyberfb remove broken and unused macro
-Date: Fri, 1 Dec 2006 15:57:10 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612011557.11897.m.kozlowski@tuxland.pl>
+	Fri, 1 Dec 2006 09:58:52 -0500
+Subject: Re: [PATCH] UBI: take 2
+From: Artem Bityutskiy <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, haver@vnet.ibm.com,
+       Josh Boyer <jwboyer@linux.vnet.ibm.com>, arnez@vnet.ibm.com,
+       llinux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061130170624.94fde80d.akpm@osdl.org>
+References: <1164824246.576.65.camel@sauron>
+	 <20061130170624.94fde80d.akpm@osdl.org>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 01 Dec 2006 16:29:12 +0200
+Message-Id: <1164983352.20337.18.camel@sauron>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 01 Dec 2006 14:29:11.0943 (UTC) FILETIME=[11DCB970:01C71555]
+X-eXpurgate-Category: 1/0
+X-eXpurgate-ID: 149371::061201162917-2E1BCBB0-1020F41C/0-0/0-1
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello Andrew,
 
-	This patch removes broken and unused macro.
+On Thu, 2006-11-30 at 17:06 -0800, Andrew Morton wrote:
+> --- a/drivers/mtd/ubi/cdev.c~git-ubi-fix
+> +++ a/drivers/mtd/ubi/cdev.c
+> @@ -1185,7 +1185,7 @@ static ssize_t vol_cdev_direct_write(str
+>  			 len, vol_id, lnum, off);
+>  
+>  		err = ubi_eba_write_leb(ubi, vol_id, lnum, tbuf, off, len,
+> -					UBI_DATA_UNKNOWN, &written, 0, NULL);
+> +					UBI_DATA_UNKNOWN, &written, NULL);
 
-Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+I have re-based the ubi-2.6.git tree, my apologies for this. I hope I
+have not caused you many troubles by this.
 
- drivers/video/cyberfb.c |    2 --
- 1 file changed, 2 deletions(-)
-
---- linux-2.4.34-pre6-a/drivers/video/cyberfb.c	2001-11-14 23:52:20.000000000 +0100
-+++ linux-2.4.34-pre6-b/drivers/video/cyberfb.c	2006-12-01 12:28:11.000000000 +0100
-@@ -110,8 +110,6 @@ static void cv64_dump(void);
- #define wb_64(regs,reg,dat) (*(((volatile unsigned char *)regs) + reg) = dat)
- #define rb_64(regs, reg) (*(((volatile unsigned char *)regs) + reg))
- 
--#define ww_64(regs,reg,dat) (*((volatile unsigned short *)(regs + reg) = dat)
--
- struct cyberfb_par {
- 	struct fb_var_screeninfo var;
- 	__u32 type;
-
+I also I have applied your fix.
 
 -- 
-Regards,
+Best regards,
+Artem Bityutskiy (Битюцкий Артём)
 
-	Mariusz Kozlowski

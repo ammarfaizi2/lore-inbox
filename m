@@ -1,103 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031587AbWLAUdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031756AbWLAUda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031587AbWLAUdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 15:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031612AbWLAUdM
+	id S1031756AbWLAUda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 15:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031759AbWLAUda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 15:33:12 -0500
-Received: from ug-out-1314.google.com ([66.249.92.173]:45519 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1031587AbWLAUdK convert rfc822-to-8bit (ORCPT
+	Fri, 1 Dec 2006 15:33:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:65202 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1031748AbWLAUd2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 15:33:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SHWdYsOGebNXk6hcxM4eltScYaWFMeqqG70ddLDTgdY4e68J7xHWR7lCYLg9qBb7Gs37k9tU9TZU4xOrw/MEgNvwBCeBTlvXvjVhGDkHw9mnguv097A9c2MjBfkqyolBwhcJHw+k5nwZUp6q3JmcjeEtM7oarI40XzZeebi4cDE=
-Message-ID: <feed8cdd0612011233i544d196x5bba1a6f6ce653bb@mail.gmail.com>
-Date: Fri, 1 Dec 2006 12:33:08 -0800
-From: "Stephen Pollei" <stephen.pollei@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-Cc: "Hua Zhong" <hzhong@gmail.com>, "Adrian Bunk" <bunk@stusta.de>,
-       tigran@aivazian.fsnet.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <1164964119.3233.56.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <00e401c7150e$061da500$6721100a@nuitysystems.com>
-	 <1164964119.3233.56.camel@laptopd505.fenrus.org>
+	Fri, 1 Dec 2006 15:33:28 -0500
+Date: Fri, 1 Dec 2006 12:31:34 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: vatsa@in.ibm.com, akpm@osdl.org, sekharan@us.ibm.com, dev@sw.ru,
+       xemul@sw.ru, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, mbligh@google.com, winget@google.com,
+       rohitseth@google.com, devel@openvz.org, mingo@elte.hu,
+       nickpiggin@yahoo.com.au, dipankar@in.ibm.com, balbir@in.ibm.com
+Subject: Re: [Patch 1/3] Miscellaneous container fixes
+Message-Id: <20061201123134.106da1c2.pj@sgi.com>
+In-Reply-To: <6599ad830612010925w17f56643n8c92f179ea28b828@mail.gmail.com>
+References: <20061123120848.051048000@menage.corp.google.com>
+	<20061123123414.641150000@menage.corp.google.com>
+	<20061201164632.GA26550@in.ibm.com>
+	<6599ad830612010925w17f56643n8c92f179ea28b828@mail.gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/1/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Thu, 2006-11-30 at 22:00 -0800, Hua Zhong wrote:
-> > I am curious, what's the point?
-> >
-> > These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
-> > were at that point.
+Paul M wrote:
+> Ah - this may be the lockup that PaulJ hit.
 
-Approximately when I wish the copyright dates were comma separated
-iso8601 date ranges myself.
-I also am not likely to typically care what their email address was
-then, I want current information in the current kernel sources.
-If I want old email address I got old tarballs I can get at least.
+Yes - looks like this fixes it.  Thanks, Srivatsa.
 
-> .. and which company owns the copyright.
+And with that fix, it becomes obvious how to reproduce this problem:
 
-Not in the USA according to http://www.copyright.gov/title17/92chap4.html#401 .
-[[ ... § 401. Notice of copyright: Visually perceptible copies ...
-b) Form of Notice. — If a notice appears on the copies, it shall
-consist of the following three elements:
+	mount -t cpuset cpuset /dev/cpuset	# if not already mounted
+	cd /dev/cpuset
+	mkdir foo
+	echo 1 > foo/cpu_exclusive
+	rmdir foo				# hangs ...
 
-(1) the symbol (c) (the letter C in a circle), or the word
-"Copyright", or the abbreviation "Copr."; and
+However ...
 
-(2) the year of first publication of the work; in the case of
-compilations or derivative works incorporating previously published
-material, the year date of first publication of the compilation or
-derivative work is sufficient. The year date may be omitted where a
-pictorial, graphic, or sculptural work, with accompanying text matter,
-if any, is reproduced in or on greeting cards, postcards, stationery,
-jewelry, dolls, toys, or any useful articles; and
+Read the comment in kernel/cpuset.c for the routine cpuset_destroy().
+It explains that update_flag() is called where it is (turning off
+the cpu_exclusive flag, if it was set), to avoid the calling sequence:
 
-(3) the name of the owner of copyright in the work, or an abbreviation
-by which the name can be recognized, or a generally known alternative
-designation of the owner. ]]
+  cpuset_destroy->update_flag->update_cpu_domains->lock_cpu_hotplug
 
-For source code generally there are a few changes for typical copyright notices:
-They use "Copyright (C)" because ASCII and EBCDIC didn't have native
-copyright symbol like unicode does now.
-They include years in which they were published and not just the first
-year in which in this version was published.
-The name of copyright owner typically also includes an email address.
+while holding the callback_mutex, as that could ABBA deadlock with the
+CPU hotplug code.
 
-Copyright (C) 1999,2000 Tigran Aivazian <tigran@veritas.com>
-Copyright (C) 1999 Tigran Aivazian <tigran@veritas.com>
-etc seems like only copyright notices changed effect Tigran and if
-Tigran meant for it to be copyrighted by veritas he would have done
-Copyright (C) 1999 Veritas Inc. http://www.veritas.com/
-However he did not do so.
+But with this container based rewrite of cpusets, it now seems that
+cpuset_destroy -is- called holding the callback_mutex (though I don't
+see any mention of that in the cpuset_destroy comment ;), so it would
+seem that we once again are at risk for this ABBA deadlock.
 
-Of course I'd prefer something closer to
-Copyright (C) 1999-07-05/2000-03-12 Tigran Aivazian
-<tigran@aivazian.fsnet.co.uk>
-or at least
-Copyright (C) 1999-07-05/2000-03 Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+I also notice that the comment for container_lock() in the file
+kernel/container.c only mentions its use in the oom code.  That is
+no longer the only, or even primary, user of this lock routine.
+The kernel/cpuset.c code uses it frequently (without comment ;),
+and I wouldn't be surprised to see other future controllers calling
+container_lock() as well.
 
-Especially if the laws ever get changed to make copyright durations
-shorter. Like 14 years instead of 50 years ,70 years, or as old as
-Disney's Steam Boat Willie.
+Looks like its time to update those comments, and think about what
+was written there before, as that might catch a bug or two, such as
+the one Srivatsa just fixed for us.
 
->
-> Lets not remove historical email addresses. Just make sure there's a
-> current one in MODULE_AUTHOR / MAINTAINERS.
-
-I think whoever should either remove or update the email addresses.
+Most of those long locking comments in kernel/cpuset.c are there
+for a reason - recording the results of a lesson learned in the
+school of hard knocks.
 
 -- 
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=2455954990164098214
-http://stephen_pollei.home.comcast.net/
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

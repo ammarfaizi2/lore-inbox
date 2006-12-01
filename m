@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936486AbWLANEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936493AbWLANIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936486AbWLANEk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 08:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936489AbWLANEk
+	id S936493AbWLANIt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 08:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936494AbWLANIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 08:04:40 -0500
-Received: from vscan05.westnet.com.au ([203.10.1.139]:22428 "EHLO
-	vscan05.westnet.com.au") by vger.kernel.org with ESMTP
-	id S936486AbWLANEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 08:04:39 -0500
-Message-ID: <45702865.4020604@snapgear.com>
-Date: Fri, 01 Dec 2006 23:04:37 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 1 Dec 2006 08:08:49 -0500
+Received: from mail.gmx.net ([213.165.64.20]:61886 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S936493AbWLANIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 08:08:48 -0500
+X-Authenticated: #24128601
+Date: Fri, 1 Dec 2006 14:03:59 +0100
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [OHCI] BIOS handoff failed (BIOS bug?)
+Message-ID: <20061201130359.GA3999@section_eight>
+Mail-Followup-To: Sebastian Kemper <sebastian_ml@gmx.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.19-uc0 (MMU-less updates)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus: Scanned with PMX 5.2.1.279297
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hello all,
 
-An update of the uClinux (MMU-less) code against 2.6.19.
-I have quite a few things outstanding here to push up.
+I sometimes get this message when I boot kernel 2.6.19. Could this be
+related to the BIOS option "USB keyboard support"? When I turn it off I
+never get the "handoff failed" message afaik. But I need it to access
+lilo. Now I use an USB->PS2 adapter and turn "USB keyboard support" off.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.19-uc0.patch.gz
-
-
-Change log:
-
-. m68knommu Kconfig cleanups                    Greg Ungerer
-. m68knommu printk cleanups                     Greg Ungerer
-. fix setup.c initrd compile problem            Adrian Bunk
-. add m68knommu shmem support                   David Wu
-. fix m532x ColdFire timer                      Greg Ungerer
-. fix ROMEND marker for 68360 platforms         Greg Ungerer
-. support 5272 coldfire serial fraction div     Andrea Tarani
-. fix coldfire master clock definition          Greg Ungerer
-. make ucontext FPU agnostic                    Gavin Lambert
-. fix mmaping of open directory                 Mike Frysinger
-. rework uclinux MTD map driver                 David McCullough
-. autodetect mem size on m520x                  Michael Broughton
-. fix scatterlist.h missing bracket             Mariusz Kozlowski
-. m68knommu use generic rtc code                Greg Ungerer
-. new style coldfire serial driver              Greg Ungerer
+If "handoff failed" and "USB keyboard support" are related wouldn't it
+make sense to change the USB error handling?
 
 Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a division of Secure Computing  PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
-
+Sebastian

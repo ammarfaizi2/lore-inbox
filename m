@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030625AbWLAJHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030646AbWLAJJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030625AbWLAJHH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 04:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967576AbWLAJHG
+	id S1030646AbWLAJJU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 04:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030648AbWLAJJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 04:07:06 -0500
-Received: from web59207.mail.re1.yahoo.com ([66.196.101.33]:22709 "HELO
-	web59207.mail.re1.yahoo.com") by vger.kernel.org with SMTP
-	id S967572AbWLAJHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 04:07:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=1neiFmpQVh2hAAbxbaURxtDe1AwR/OA+BfFP53ZMfTRpK3mxfC8qCtXwA4BiUwwuXQtIr3sbEZWIAUxYGyKYZhtxXshcSK0P5eJO+9nf91cH8Nyoocx2g/Oj12FPi1enKWwv8xtGyP59tWs/iVYYhC5dSOKcGTRA++3lGz9K3rs=;
-X-YMail-OSG: D0Vr4p0VM1kB0v3Zx874EtHNLu7ViOofoHAgrjh6jQ.VbP_EqP71X8jkNNXY1nSVd0jJ5gM8p.YBo6LtaysDM5VyT3qFuKIjLFPg8cApsZrpv3E5NFUzmxpZ5Jng8lZgE98tcXY18C39gOx4ZA9f67PhGSSM_H5vBg--
-Date: Fri, 1 Dec 2006 01:07:04 -0800 (PST)
-From: tike64 <tike64@yahoo.com>
-Subject: Re: realtime-preempt and arm
-To: junjiec@gmail.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <456eff57.0e1fcf5c.617c.44a6@mx.google.com>
+	Fri, 1 Dec 2006 04:09:20 -0500
+Received: from palakse.guam.net ([202.128.0.38]:7629 "EHLO palakse.guam.net")
+	by vger.kernel.org with ESMTP id S1030646AbWLAJJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 04:09:18 -0500
+From: "Michael D. Setzer II" <mikes@kuentos.guam.net>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 01 Dec 2006 19:09:16 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <304269.38734.qm@web59207.mail.re1.yahoo.com>
+Subject: Change Required in building ISO with 2.6.19
+Message-ID: <45707DDC.7760.62D5221@mikes.kuentos.guam.net>
+X-PM-Encryptor: QDPGP, 4
+X-mailer: Pegasus Mail for Windows (4.41)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi,
-> 
-> Without the support of High Resolution Timer
-> supported, the timer resolution wouldn't change.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ok, I understand that. I was not expecting more
-resolution. I expected only that I would get more
-precise 10ms delays. What confuses me is that the
-delays roughly doubled.
+I've been working on the g4l disk imaging project, and have been trying to 
+keep kernels for the cd up-to-date to work for those users with the latest 
+hardware. I was recommended to try the 2.6.19-git kernel since the kernels 
+since 2.6.15.6 that I've build from kernel.org do not work with the sata_via. 
+All the kernels from 2.6.18.3 and below have worked with the makecd script 
+that was created by the previous project manager. The 2.6.19 git and 
+released kernel required me to modify the script to use a 4096 byte block 
+size instead of the default 1024 bytes. Problem is, that the earlier computers 
+don't mount with the 4K, but the 2.6.19 don't work with the 1K size. It goes 
+all the way thru, but they fail with trying to mount the /. 
 
-> With high-resolution-timer supported, our
-> arm926-based board could get resolution like
-40~50us.
-> There are codes you can reference ,may be you should
-> just try to implement it.
+Only difference in the scripts 
+Using 4K for 2.6.19 kernels 
+< mke2fs -m 0 -b 4096 -N 4000 /dev/loop0 
+- --- 
+Using 1K default for all earlier kernels. 
+> mke2fs -m 0 -N 4000 /dev/loop0 
 
-It is good to know that the problem is not the arm
-architecture itself. Thanks to you for that.
+I have no knowledge on the script, so it might be something in the script that 
+makes the difference, but would like to have a way to allow both the older 
+and newer kernels to reside on one image. It now requires to different CDs. 
 
-The problem must be in the lh7a40x specific code or my
-configuration. I am not yet convinced enough that high
-resolution timer implementation would solve the
-problem. I don't need timing resolution finer than
-10ms providing that FB doesn't blow it up to 60ms.
+Full Original script with default 1k 
+ftp://amd64gcc.dyndns.org/makecd1k 
 
-Could you or someone please give a hint where to look
-next or give an explanation why the lack of high
-resolution timer would behave like that.
+Modified script with 4k option 
+ftp://amd64gcc.dyndns.org/makecd4k 
 
---
++----------------------------------------------------------+
+  Michael D. Setzer II -  Computer Science Instructor      
+  Guam Community College  Computer Center                  
+  mailto:mikes@kuentos.guam.net                            
+  mailto:msetzerii@gmail.com
+  http://www.guam.net/home/mikes
+  Guam - Where America's Day Begins                        
++----------------------------------------------------------+
 
-tike
+http://setiathome.berkeley.edu
+Number of Seti Units Returned:  19,471
+Processing time:  32 years, 290 days, 12 hours, 58 minutes
+(Total Hours: 287,489)
+
+BOINC TOTAL CREDITS SETI@HOME/EINSTEIN@HOME
+Total Credits 2294755.789617 
+Total Credits 305549.598810 
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8 -- QDPGP 2.61c
+Comment: http://community.wow.net/grt/qdpgp.html
 
- 
-____________________________________________________________________________________
-Cheap talk?
-Check out Yahoo! Messenger's low PC-to-Phone call rates.
-http://voice.yahoo.com
+iQA/AwUBRW9knSzGQcr/2AKZEQKIIACg/sT/MjU3WRYY0X/BxlzvZnea4k0AoMuI
+WY32l9CMXSxdxi0w56U/Gj5+
+=xp+T
+-----END PGP SIGNATURE-----

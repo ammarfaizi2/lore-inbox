@@ -1,57 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967525AbWLAITl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967544AbWLAIcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967525AbWLAITl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 03:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967534AbWLAITl
+	id S967544AbWLAIcd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 03:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967549AbWLAIcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 03:19:41 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:927 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S967525AbWLAITl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 03:19:41 -0500
-Date: Fri, 1 Dec 2006 09:19:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rt1 - failed to boot on AMD64
-Message-ID: <20061201081936.GA24896@elte.hu>
-References: <5bdc1c8b0611301504y6d5b957et350bad438c5e636c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0611301504y6d5b957et350bad438c5e636c@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
+	Fri, 1 Dec 2006 03:32:33 -0500
+Received: from web31807.mail.mud.yahoo.com ([68.142.207.70]:7335 "HELO
+	web31807.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S967544AbWLAIcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 03:32:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=Sg7vXNT1bN8EPRQYQZg/sxfkF6Yw2FoSL/ma6Ki/quQaDeuU+7TN8GML3WFrt1p7rb8AcNQxARfirv7RvtCWqsElMiGbf7DtX4Vp18WtTVtH6j6ytRvug1Na6zUBNtBjCCyPOx0WDPM4bzhRleG1fHzMts9VT5+gUcj+16x2yZ0=;
+X-YMail-OSG: EiTy67kVM1m9P49uqdUVw1Vl.sPI2UdR6c439sKSACMlKYdAJHkx1JRs.lzVK1SCZg--
+Date: Fri, 1 Dec 2006 00:32:31 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: Infinite retries reading the partition table
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061130232916.6cbd1408.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <520003.85125.qm@web31807.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Andrew Morton <akpm@osdl.org> wrote:
+> On Thu, 30 Nov 2006 22:34:57 -0800 (PST)
+> Luben Tuikov <ltuikov@yahoo.com> wrote:
+> 
+> > --- Andrew Morton <akpm@osdl.org> wrote:
+> > > On Wed, 29 Nov 2006 17:22:48 -0800 (PST)
+> > > Luben Tuikov <ltuikov@yahoo.com> wrote:
+> > > 
+> > > > Suppose reading sector 0 always reports an error,
+> > > > sense key HARDWARE ERROR.
+> > > > 
+> > > > What I'm observing is that the request to read sector 0,
+> > > > reading partition information, is retried forever, ad infinitum.
+> > > > 
+> > > > Does anyone have a patch to resolve this? (2.6.19-rc6)
+> > > > 
+> > > 
+> > > Please send a backtrace so we can see where the offending loop occurs.
+> > 
+> > I posted a patch to linux-scsi
+> 
+> hm.  Does sending patches to linux-scsi get them applied?  It might, I
+> don't know.
 
-* Mark Knecht <markknecht@gmail.com> wrote:
+Good question -- I don't know either.
 
->   OK, so 2.6.19-rt1 starts booting, gets to the point where it see the 
-> keyboard and mouse, and then apparently starts looking for a remote 
-> NFS server? I don't remember seeing this on earlier kernels.
+> > which resolves this issue:
+> > http://marc.theaimsgroup.com/?l=linux-scsi&m=116485834119885&w=2
+> 
+> That looks like it prevents the IO error.  But why was an IO error causing
+> an infinite loop?   What piece of code was initiating the retries?
 
-if you have a Fedora 5/6-ish setup then you might be better off by 
-trying my yum rpm kernels, via:
+Here is what happens: sector 0 is broken -- the device cannot read
+the media at that location.  The device properly returns a certain
+type of uncorrectable MEDIUM ERROR (ASC: UNRECOVERABLE READ ERR).
 
-   cd /etc/yum.repos.d
-   wget http://people.redhat.com/~mingo/realtime-preempt/rt.repo
+SCSI Core loops around its retries (which this patch fixes) and
+eventually gives up and sends it for "completion".  This is what
+happens when scsi_check_sense() returns NEEDS_RETRY to
+scsi_decide_disposition() to scsi_softirq().  The first chunk
+of the patch fixes this.
 
-   yum install kernel-rt.x86_64
+We end up in scsi_io_completion(), where good_bytes = 0, and
+result = 0x08000002 (DRIVER SENSE and CHECK CONDITION).
 
-by the looks of it something changed in the .config that prevented your 
-block device from being detected - and after that the kernel fell back 
-to other methods of booting.
+This statement in scsi_io_completion() causes the infinite retry loop:
+   if (scsi_end_request(cmd, 1, good_bytes, !!result) == NULL)
+         return;
+substitute to get: scsi_end_request(cmd, uptodate=1, uptodate bytes=0, retry=1)
+Yeah, but it doesn't make sense to call scsi_end_request() with uptodate=1 and
+uptodate bytes = 0.  This causes the infinite retry, since the code
+tries to re-read the whole xfer size (0 bytes were uptodate and retry=1),
+from the bad media.
 
-another thing, is your /etc/fstab using labels, or explicit devices? 
-IIRC labels are needed i think by the new SATA/PATA code, a'ka:
+That is, we want to set uptodate=1 iff there was at least 1 byte up to date.
+Else if nothing was read, uptodate bytes = 0, then we should pass
+uptodate = 0, uptodate_bytes = total xfer, to mean the whole xfer is
+not uptodate; and retry iff there was no error. (This is the very bottom
+of the function.)
 
-  LABEL=/                 /                       ext3    noatime,nodiratime 1 1
+... I know, I know, but that's what we've got.
 
-	Ingo
+See this commit 03aba2f79594ca94d159c8bab454de9bcc385b76 as well.
+
+      Luben
+

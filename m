@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161980AbWLAVq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161994AbWLAVrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161980AbWLAVq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 16:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161994AbWLAVq0
+	id S1161994AbWLAVrf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 16:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162012AbWLAVrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 16:46:26 -0500
-Received: from foo.birdnet.se ([213.88.146.6]:58264 "EHLO foo.birdnet.se")
-	by vger.kernel.org with ESMTP id S1161980AbWLAVqZ (ORCPT
+	Fri, 1 Dec 2006 16:47:35 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161994AbWLAVre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 16:46:25 -0500
-Message-ID: <20061201214631.6991.qmail@cdy.org>
-Date: Fri, 1 Dec 2006 22:46:31 +0100
-From: Peter Stuge <stuge-linuxbios@cdy.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Greg KH <gregkh@suse.de>, Andi Kleen <ak@suse.de>,
-       Stefan Reinauer <stepan@coresystems.de>, linuxbios@linuxbios.org,
-       linux-kernel@vger.kernel.org, "Lu, Yinghai" <yinghai.lu@amd.com>
-Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Greg KH <gregkh@suse.de>, Andi Kleen <ak@suse.de>,
-	Stefan Reinauer <stepan@coresystems.de>, linuxbios@linuxbios.org,
-	linux-kernel@vger.kernel.org, "Lu, Yinghai" <yinghai.lu@amd.com>
-References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com> <20061201191916.GB3539@suse.de> <20061201204249.28842.qmail@cdy.org> <m164cvgvwz.fsf@ebiederm.dsl.xmission.com>
+	Fri, 1 Dec 2006 16:47:34 -0500
+Date: Fri, 1 Dec 2006 13:47:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fixed formatting in ia64_process_pending_irq()
+Message-Id: <20061201134732.aa1c597a.akpm@osdl.org>
+In-Reply-To: <45702037.1030701@openvz.org>
+References: <45702037.1030701@openvz.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m164cvgvwz.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 02:15:24PM -0700, Eric W. Biederman wrote:
-> Right.  For LinuxBIOS not a problem for earlyprintk in the kernel
-> somethings might need to be refactored.  The challenge in the
-> kernel is we don't know at build to how to do a pci_read_config...
-> 
-> The other hard part early in the kernel is the fact that the
-> bar is memory mapped I/O.  Which means it will need to get mapped
-> into the kernels page tables.
+On Fri, 01 Dec 2006 15:29:43 +0300
+Pavel Emelianov <xemul@openvz.org> wrote:
 
-I see.
+> A trivial issue found during code examining.
+> Someone typed unneeded extra spaces.
 
+It's the usual mess in there.
 
-> >> And I have some code that barely works for this already, perhaps
-> >> Eric and I should work together on this :)
-> >
-> > I would be interested in having a look at any code for it too.
-> 
-> Sure, I will send it out shortly.  I currently have a working
-> user space libusb thing (easy, but useful for my debug)
+akpm:/usr/src/linux-2.6.19> grep -r '^    ' arch/ia64 | wc -l           
+341
 
-Hm - for driving which end?
-
-
-> and a rude read/write to the bar from user space program that
-
-How does that work? /dev/{port,mem}?
-
-
-> allowed me to debug the worst of the state machine from user
-> space.  I don't think I have the state setup logic correct yet
-> but that is minor in comparison.
-> 
-> I really wish the EHCI spec had made that stupid interface 16 bytes
-> instead of 8 or had a way to chain multiple access together.  The
-> we could have used a normal usb cable.  As it is most descriptors
-> are 1 byte to big to read.
-
-Which descriptors are you reading?
-
-The debug port isn't really supposed to be used with anything but a
-debug device - which can't be enumerated normally anyway.
-
-
-//Peter
+There isn't much point in fixing just four of them.

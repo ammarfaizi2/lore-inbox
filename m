@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936131AbWLAKkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936304AbWLAKte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936131AbWLAKkj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 05:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936187AbWLAKkj
+	id S936304AbWLAKte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 05:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936295AbWLAKte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 05:40:39 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:50304 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S936131AbWLAKki (ORCPT
+	Fri, 1 Dec 2006 05:49:34 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:15583 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S936304AbWLAKtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 05:40:38 -0500
-Date: Fri, 1 Dec 2006 05:40:37 -0500
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Srinivasa Ds <srinivasa@in.ibm.com>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: PM-Timer clock source is slow. Try something else: How slow? What other source(s)?
-Message-ID: <20061201104037.GA15645@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Linda Walsh <lkml@tlinx.org>, Srinivasa Ds <srinivasa@in.ibm.com>,
-	john stultz <johnstul@us.ibm.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <456E2C2C.40303@tlinx.org> <1164850329.5426.33.camel@localhost.localdomain> <456E8181.4060109@in.ibm.com> <456F3378.5030708@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Dec 2006 05:49:33 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] PM: Fix swsusp debug mode testproc
+Date: Fri, 1 Dec 2006 11:45:12 +0100
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       stable@kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <456F3378.5030708@tlinx.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200612011145.12787.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 11:39:36AM -0800, Linda Walsh wrote:
-> Srinivasa Ds wrote: 
-> >You can change the clock source using "clock=" kernel parameter. 
-> >Please refer to  Documentation/kernel-parameters.txt file of kernel 
-> >source.
-> ---
->    Uh, yeah...you mean the "clock=" parameter that is
->  "deprecated"    ?   :-)
-> 
->    *cough*
->    *sigh*
+The 'testproc' swsusp debug mode thaws tasks twice in a row, which is _very_
+confusing.  Fix that.
 
-"clocksource=" is the replacement.
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ kernel/power/disk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-	Dominik
+Index: linux-2.6.19-rc6-mm2/kernel/power/disk.c
+===================================================================
+--- linux-2.6.19-rc6-mm2.orig/kernel/power/disk.c	2006-11-28 22:48:35.000000000 +0100
++++ linux-2.6.19-rc6-mm2/kernel/power/disk.c	2006-11-29 23:46:33.000000000 +0100
+@@ -153,7 +153,7 @@ int pm_suspend_disk(void)
+ 		return error;
+ 
+ 	if (pm_disk_mode == PM_DISK_TESTPROC)
+-		goto Thaw;
++		return 0;
+ 
+ 	suspend_console();
+ 	error = device_suspend(PMSG_FREEZE);

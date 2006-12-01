@@ -1,47 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936480AbWLALvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWLALwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936480AbWLALvd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 06:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936482AbWLALvd
+	id S1030804AbWLALwa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 06:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030736AbWLALwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 06:51:33 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2793 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S936480AbWLALvc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 06:51:32 -0500
-Date: Fri, 1 Dec 2006 11:58:10 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: ron moncreiff <rmoncreiff@cruzers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: trying pata_ali in 2.6.19
-Message-ID: <20061201115810.55a4b66a@localhost.localdomain>
-In-Reply-To: <456FC859.9070709@cruzers.com>
-References: <456FC859.9070709@cruzers.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Dec 2006 06:52:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59654 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030722AbWLALw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 06:52:29 -0500
+Date: Fri, 1 Dec 2006 12:52:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ysato@users.sourceforge.jp, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/asm-h8300/: "extern inline" -> "static inline"
+Message-ID: <20061201115234.GT11084@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2006 22:14:49 -0800
-ron moncreiff <rmoncreiff@cruzers.com> wrote:
+"extern inline" generates a warning with -Wmissing-prototypes and I'm
+currently working on getting the kernel cleaned up for adding this to
+the CFLAGS since it will help us to avoid a nasty class of runtime
+errors.
 
-> // I have tried out the new pata options in the 2.6.19 kernel and had 
-> some problems. //
-> // So here's the skinny. I am using the asrock 939dual - sataII mobo. 
-> lspci reports //
-> // the IDE interface thus: //
+If there are places that really need a forced inline, __always_inline
+would be the correct solution.
 
-As you've no doubt noticed it isn't supposed to oops. Can you send me an
-lspci -vxx of your system and in the mean time I will go and stare at the
-code and see what is going on.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> // declarations (definitions ?) that seem to reference various revisions 
-> of the chip. Mine is a c7 and there's no //
-> // structure for that one. Could this be the problem?
+---
 
-C7 is quite new but the info blocks cover ranges of versions not specific
-versions. It shouldn't be the cause but...
+This patch was already sent on:
+- 22 Nov 2006
 
-Alan
+ include/asm-h8300/delay.h       |    4 ++--
+ include/asm-h8300/mmu_context.h |    4 ++--
+ include/asm-h8300/pci.h         |    4 ++--
+ include/asm-h8300/tlbflush.h    |    4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+--- linux-2.6.19-rc5-mm2/include/asm-h8300/delay.h.old	2006-11-22 01:48:48.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-h8300/delay.h	2006-11-22 01:48:52.000000000 +0100
+@@ -9,7 +9,7 @@
+  * Delay routines, using a pre-computed "loops_per_second" value.
+  */
+ 
+-extern __inline__ void __delay(unsigned long loops)
++static inline void __delay(unsigned long loops)
+ {
+ 	__asm__ __volatile__ ("1:\n\t"
+ 			      "dec.l #1,%0\n\t"
+@@ -27,7 +27,7 @@ extern __inline__ void __delay(unsigned 
+ 
+ extern unsigned long loops_per_jiffy;
+ 
+-extern __inline__ void udelay(unsigned long usecs)
++static inline void udelay(unsigned long usecs)
+ {
+ 	usecs *= 4295;		/* 2**32 / 1000000 */
+ 	usecs /= (loops_per_jiffy*HZ);
+--- linux-2.6.19-rc5-mm2/include/asm-h8300/mmu_context.h.old	2006-11-22 01:49:00.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-h8300/mmu_context.h	2006-11-22 01:49:05.000000000 +0100
+@@ -9,7 +9,7 @@ static inline void enter_lazy_tlb(struct
+ {
+ }
+ 
+-extern inline int
++static inline int
+ init_new_context(struct task_struct *tsk, struct mm_struct *mm)
+ {
+ 	// mm->context = virt_to_phys(mm->pgd);
+@@ -23,7 +23,7 @@ static inline void switch_mm(struct mm_s
+ {
+ }
+ 
+-extern inline void activate_mm(struct mm_struct *prev_mm,
++static inline void activate_mm(struct mm_struct *prev_mm,
+ 			       struct mm_struct *next_mm)
+ {
+ }
+--- linux-2.6.19-rc5-mm2/include/asm-h8300/pci.h.old	2006-11-22 01:49:13.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-h8300/pci.h	2006-11-22 01:49:19.000000000 +0100
+@@ -10,12 +10,12 @@
+ #define pcibios_assign_all_busses()	0
+ #define pcibios_scan_all_fns(a, b)	0
+ 
+-extern inline void pcibios_set_master(struct pci_dev *dev)
++static inline void pcibios_set_master(struct pci_dev *dev)
+ {
+ 	/* No special bus mastering setup handling */
+ }
+ 
+-extern inline void pcibios_penalize_isa_irq(int irq, int active)
++static inline void pcibios_penalize_isa_irq(int irq, int active)
+ {
+ 	/* We don't do dynamic PCI IRQ allocation */
+ }
+--- linux-2.6.19-rc5-mm2/include/asm-h8300/tlbflush.h.old	2006-11-22 01:49:29.000000000 +0100
++++ linux-2.6.19-rc5-mm2/include/asm-h8300/tlbflush.h	2006-11-22 01:49:34.000000000 +0100
+@@ -47,12 +47,12 @@ static inline void flush_tlb_range(struc
+ 	BUG();
+ }
+ 
+-extern inline void flush_tlb_kernel_page(unsigned long addr)
++static inline void flush_tlb_kernel_page(unsigned long addr)
+ {
+ 	BUG();
+ }
+ 
+-extern inline void flush_tlb_pgtables(struct mm_struct *mm,
++static inline void flush_tlb_pgtables(struct mm_struct *mm,
+ 				      unsigned long start, unsigned long end)
+ {
+ 	BUG();
+

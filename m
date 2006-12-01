@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWLAVBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161382AbWLAVG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161363AbWLAVBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 16:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161382AbWLAVBP
+	id S1161382AbWLAVG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 16:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWLAVG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 16:01:15 -0500
-Received: from adelie.ubuntu.com ([82.211.81.139]:24279 "EHLO
-	adelie.ubuntu.com") by vger.kernel.org with ESMTP id S1161363AbWLAVBN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 16:01:13 -0500
-Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
-From: Ben Collins <ben.collins@ubuntu.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Eric Piel <eric.piel@tremplin-utc>
-In-Reply-To: <1165002345.3233.104.camel@laptopd505.fenrus.org>
-References: <1164998179.5257.953.camel@gullible>
-	 <20061201185657.0b4b5af7@localhost.localdomain>
-	 <1165001705.5257.959.camel@gullible>
-	 <1165002345.3233.104.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
+	Fri, 1 Dec 2006 16:06:29 -0500
+Received: from mx27.mail.ru ([194.67.23.64]:31282 "EHLO mx27.mail.ru")
+	by vger.kernel.org with ESMTP id S1161382AbWLAVG2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 16:06:28 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: Re: 2.6.19: ALi M5229 - CD-ROM not found with pata_ali
+Date: Sat, 2 Dec 2006 00:06:25 +0300
+User-Agent: KMail/1.9.5
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <200606220004.30863.arvidjaar@mail.ru> <200612012335.29179.arvidjaar@mail.ru> <20061201124837.6d0d8adb.randy.dunlap@oracle.com>
+In-Reply-To: <20061201124837.6d0d8adb.randy.dunlap@oracle.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 01 Dec 2006 16:01:08 -0500
-Message-Id: <1165006868.5257.972.camel@gullible>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+Content-Disposition: inline
+Message-Id: <200612020006.25784.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-01 at 20:45 +0100, Arjan van de Ven wrote:
-> On Fri, 2006-12-01 at 14:35 -0500, Ben Collins wrote:
-> > What about the point that userspace (udev, and such) is not available
-> > when DSDT loading needs to occur? Init hasn't even started at that
-> > point.
-> 
-> that's a moot point; you need to load firmware from the initramfs ANYWAY
-> for things like qlogic and others...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't see how that relates. The DSDT needs to be loaded even before
-driver initialization begins. Things like qlogic can over come this by
-being compiled as modules, and letting initramfs-tools take care of
-things.
+On Friday 01 December 2006 23:48, Randy Dunlap wrote:
+> > +static unsigned long atapi_max_xfer_mask = ~0;
+> > +module_param(atapi_max_xfer_mask, ulong, 644);
+>
+>                                             ^^^
+> BTW:                                        0644
+>
 
-That's not the case for DSDT loading. I'm not saying this patch is the
-epitome of good coding, just that it's a needed feature.
+Tnx :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-If there's a better way to do it, I'm volunteering to do the grunt work,
-but I haven't heard of any alternatives to this solution.
+iD8DBQFFcJlRR6LMutpd94wRAoa2AJwMIINzZMYEef5z1uiZoszImXA0nwCgkhdB
+SmFMtClM1+xEcmI6WZ8PkvY=
+=co6P
+-----END PGP SIGNATURE-----

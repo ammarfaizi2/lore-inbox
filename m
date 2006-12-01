@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967993AbWLAAB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031626AbWLAAJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967993AbWLAAB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Nov 2006 19:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967994AbWLAAB0
+	id S1031626AbWLAAJs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Nov 2006 19:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031625AbWLAAJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Nov 2006 19:01:26 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:50157 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S967993AbWLAABZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Nov 2006 19:01:25 -0500
-Message-ID: <456F70C3.7010608@bigpond.net.au>
-Date: Fri, 01 Dec 2006 10:01:07 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>,
-       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
-Subject: [ANNOUNCE][RFC] PlugSched-6.4 for  2.6.19
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at oaamta01ps.mx.bigpond.com from [58.167.133.219] using ID pwil3058@bigpond.net.au at Fri, 1 Dec 2006 00:01:07 +0000
+	Thu, 30 Nov 2006 19:09:48 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:35931 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1031620AbWLAAJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Nov 2006 19:09:47 -0500
+Date: Thu, 30 Nov 2006 18:07:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [RFC PATCH] nForce4 ADMA with NCQ: It's aliiiive..
+In-reply-to: <200611301746.27193.prakash@punnoor.de>
+To: Prakash Punnoor <prakash@punnoor.de>
+Cc: Allen Martin <AMartin@nvidia.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       jeff@garzik.org
+Message-id: <456F7234.8010203@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <DBFABB80F7FD3143A911F9E6CFD477B018E81719@hqemmail02.nvidia.com>
+ <200611301746.27193.prakash@punnoor.de>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This version removes the hard/soft CPU rate caps from the SPA schedulers.
+Prakash Punnoor wrote:
+> Am Dienstag 10 Oktober 2006 08:44 schrieb Allen Martin:
+> 
+>> No, only CK804 and MCP04 support ADMA.  We'll be publishing some patches
+>> for NCQ support for MCP55/MCP61 soon.
+> 
+> Just wondering whether I missed them? It is now 1,5 month later...
 
-A patch for 2.6.19 is available at:
+I don't think you missed them.. It would be nice to get this support in, 
+those are the last NVIDIA chipsets which have NCQ support (apparently) 
+that don't support it under Linux. Even just the hardware docs would be 
+useful..
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-6.4-for-2.6.19.patch?download>
-
-Very Brief Documentation:
-
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
-
-cpusched=<scheduler>
-
-to the boot command line where <scheduler> is one of: ingosched,
-ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
-or zaphod.  If you don't change the default when you build the kernel
-the default scheduler will be ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+---
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/

@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162875AbWLBJs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162876AbWLBJt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162875AbWLBJs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 04:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162876AbWLBJs4
+	id S1162876AbWLBJt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 04:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162877AbWLBJt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 04:48:56 -0500
-Received: from mail.gmx.net ([213.165.64.20]:29316 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1162875AbWLBJsz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 04:48:55 -0500
-X-Authenticated: #815327
-From: Malte =?iso-8859-15?q?Schr=F6der?= <MalteSch@gmx.de>
-To: David Miller <davem@davemloft.net>
-Subject: Re: Linux 2.6.19
-Date: Sat, 2 Dec 2006 10:48:48 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
-References: <20061129151111.6bd440f9.rdunlap@xenotime.net> <20061129.181537.38322733.davem@davemloft.net> <200611302130.23556.MalteSch@gmx.de>
-In-Reply-To: <200611302130.23556.MalteSch@gmx.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1194016.WnslNtgVCP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200612021048.51880.MalteSch@gmx.de>
-X-Y-GMX-Trusted: 0
+	Sat, 2 Dec 2006 04:49:56 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:47370 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1162876AbWLBJtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 04:49:55 -0500
+Date: Sat, 2 Dec 2006 09:49:29 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>, David Miller <davem@davemloft.net>,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       anemo@mba.ocn.ne.jp, linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+       James.Bottomley@SteelEye.com
+Subject: Re: [PATCH 1/3] Fix COW D-cache aliasing on fork
+Message-ID: <20061202094929.GA12294@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Ralf Baechle <ralf@linux-mips.org>,
+	David Miller <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+	akpm@osdl.org, linux-kernel@vger.kernel.org, anemo@mba.ocn.ne.jp,
+	linux-arch@vger.kernel.org, schwidefsky@de.ibm.com,
+	James.Bottomley@SteelEye.com
+References: <Pine.LNX.4.64.0610201302090.3962@g5.osdl.org> <20061020214916.GA27810@linux-mips.org> <Pine.LNX.4.64.0610201500040.3962@g5.osdl.org> <20061020.152247.111203913.davem@davemloft.net> <20061020225118.GA30965@linux-mips.org> <Pine.LNX.4.64.0610201625190.3962@g5.osdl.org> <20061021000609.GA32701@linux-mips.org> <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610201733490.3962@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1194016.WnslNtgVCP
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, Oct 20, 2006 at 05:38:32PM -0700, Linus Torvalds wrote:
+> On Sat, 21 Oct 2006, Ralf Baechle wrote:
+> > > That said, maybe nobody does that. Virtual caches are a total braindamage 
+> > > in the first place, so hopefully they have limited use.
+> > 
+> > On MIPS we never had pure virtual caches.
+> 
+> Ok, so on MIPS my schenario doesn't matter.
+> 
+> I think (but may be mistaken) that ARM _does_ have pure virtual caches 
+> with a process ID, but people have always ended up flushing them at 
+> context switch simply because it just causes too much trouble.
 
-On Thursday 30 November 2006 21:30, Malte Schr=F6der wrote:
-> I also encountered this bug (wasn't there in -rc6). The patch also fixes =
-it
-> for me.
+Just read this, sorry.
 
-Ok, I have to make a correction here: It doesn't crash anymore but now ipv6=
-=20
-doesn't work at all. To be more precise, I see adresses on the network=20
-interfaces and the corresponding routes, but when I try to ping my gateway =
-I=20
-get "Destination unreachable: Address unreachable".
+The majority of ARM CPU implementations have pure virtual caches
+_without_ process IDs.  (Some have a nasty hack which involves
+remapping the lower 32MB of virtual memory space to other areas
+of the cache's virtual space, but obviously that limits you to
+32MB of VM.)
 
-Hope this helps ..
-=2D-=20
-=2D--------------------------------------
-Malte Schr=F6der
-MalteSch@gmx.de
-ICQ# 68121508
-=2D--------------------------------------
+Thankfully, with ARM version 6, they had an inkling of clue, and
+decided to move to VIPT caches but with _optional_ aliasing, and
+if the CPU design was Harvard there's a possibility for D/I cache
+aliasing.
 
+> > Be sure I'm sending a CPU designers a strong message about aliases.
+> 
+> Castration. That's the best solution. We don't want those people 
+> procreating.
 
---nextPart1194016.WnslNtgVCP
-Content-Type: application/pgp-signature
+Absolutely.  Can we start such a program in Cambridge, England ASAP
+please?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFcUwD4q3E2oMjYtURArEvAKDyocytr7mihjlkSLThnrxdn8x/ywCg1c6u
-R+JQAqPL/xbhnYWfdmnp7Cg=
-=52xZ
------END PGP SIGNATURE-----
-
---nextPart1194016.WnslNtgVCP--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

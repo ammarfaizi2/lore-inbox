@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162237AbWLBCND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162719AbWLBC2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162237AbWLBCND (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 21:13:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162714AbWLBCND
+	id S1162719AbWLBC2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 21:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162720AbWLBC2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 21:13:03 -0500
-Received: from wx-out-0506.google.com ([66.249.82.234]:34989 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1162237AbWLBCNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 21:13:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:mime-version:content-transfer-encoding:message-id:content-type:to:subject:date:x-mailer:from;
-        b=FjUYJ+GtBia4z8EgohT50AUrIQK5AzLiNAGhzY9ZWBTg3cHfahvH9SDjtpTiGe5ZFs2iZ/YsTgP1tEmKoaFEniDNWK/cYbHByH1VtpK9noowcB+p2DErU/3QCb6exNPQqr2LctzZRzsFnqgmKigh65RIv9/zMtxlTqtJjGkz8Fo=
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Transfer-Encoding: 7bit
-Message-Id: <61D44F12-D09C-4A6F-9FC7-4AC49FEC757B@gmail.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+	Fri, 1 Dec 2006 21:28:25 -0500
+Received: from websrv.werbeagentur-aufwind.de ([88.198.253.206]:5055 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S1162719AbWLBC2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 21:28:24 -0500
+Subject: [stable][PATCH < 2.6.19] Fix data corruption with dm-crypt over
+	RAID5
+From: Christophe Saout <christophe@saout.de>
 To: linux-kernel@vger.kernel.org
-Subject: hang booting onboard HPT 366 with libata (PATA)
-Date: Fri, 1 Dec 2006 21:13:00 -0500
-X-Mailer: Apple Mail (2.752.2)
-From: Ricardo Lugo <ricardolugo@gmail.com>
+Cc: dm-crypt@saout.de, Andrey <dm-crypt-revealed-address@lelik.org>,
+       Andrew Morton <akpm@osdl.org>, agk@redhat.com,
+       Neil Brown <neilb@suse.de>, Jens Axboe <jens.axboe@oracle.com>,
+       Chris Wright <chrisw@sous-sol.org>
+In-Reply-To: <1165026116.29307.18.camel@leto.intern.saout.de>
+References: <456B732F.6080906@lelik.org>
+	 <20061129145208.GQ4409@agk.surrey.redhat.com> <456F46E3.6030702@lelik.org>
+	 <1164983209.24524.20.camel@leto.intern.saout.de>
+	 <20061201152143.GE4409@agk.surrey.redhat.com>  <45704B95.3020308@lelik.org>
+	 <1165026116.29307.18.camel@leto.intern.saout.de>
+Content-Type: text/plain
+Date: Sat, 02 Dec 2006 03:27:56 +0100
+Message-Id: <1165026476.29307.23.camel@leto.intern.saout.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Fix corruption issue with dm-crypt on top of software raid5. Cancelled
+readahead bio's that report no error, just have BIO_UPTODATE cleared
+were reported as successful reads to the higher layers (and leaving
+random content in the buffer cache). Already fixed in 2.6.19.
 
-With the release of libata PATA support in 2.6.19, I am trying out  
-libata with my HPT366 (built-on to motherboard), and it hangs at  
-bootup while scanning for partitions. Additionally, it complains of  
-abnormal status? Related information about my setup below:
+Signed-off-by: Christophe Saout <christophe@saout.de>
 
-- Abit BP6 motherboard running BIOS RV with HPT 1.28 (ie has  
-functional ACPI DSDT table), has been recapped, not overclocked
-- onboard HPT366 controller functions fine with the old IDE drivers  
-(but only so long as I use UDMA mode <=3, mode 4 has reported  
-problems on BP6)
-- hard drive is an 80GB seagate 7200.1-ish that supports UDMA mode 5,  
-partition scheme is (1-xfs, 2-swap)
-- this hard drive is the only drive connected, but the kernel  
-discovers one empty pata_piix controller and one empty pata_hpt366  
-controller before it.
 
-Related boot messages:
+--- linux-2.6.18.orig/drivers/md/dm-crypt.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18/drivers/md/dm-crypt.c	2006-12-02 03:03:36.000000000 +0100
+@@ -717,13 +717,15 @@
+ 	if (bio->bi_size)
+ 		return 1;
+ 
++	if (!bio_flagged(bio, BIO_UPTODATE) && !error)
++		error = -EIO;
++                        
+ 	bio_put(bio);
+ 
+ 	/*
+ 	 * successful reads are decrypted by the worker thread
+ 	 */
+-	if ((bio_data_dir(bio) == READ)
+-	    && bio_flagged(bio, BIO_UPTODATE)) {
++	if (bio_data_dir(io->bio) == READ && !error) {
+ 		kcryptd_queue_io(io);
+ 		return 0;
+ 	}
 
----
 
-ACPI: PCI Interrup 0000:00:13.1[B] -> GSI 18 (level, low) -> IRQ 16
-ata5: PATA max UDMA/66 cmd 0xE400 ctl 0xE802 bmdma 0xEC00 irq 16
-ata6: PATA max UDMA/66 cmd 0x0 ctl 0x2 bmdma 0xEC08 irq 16
-scsi4 : pata_hpt366
-ata5.00: ATA-6, max UDMA/100, 156301488 sectors: LBA48
-ata5.00: ata5: dev 0 multi count 16
-ata5.00 configured for UDMA/33
-scsi5 : pata_hpt366
-ATA: abnormal status 0x1C on port 0x7
-scsi 4:0:0:0: Direct-Access     ATA      ST380011A         3.06 PQ: 0  
-ANSI: 5
-SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-sda: Write Protect is off
-SCSI device sda: drive cache: write back
-SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-sda: Write Protect is off
-SCSI device sda: drive cache: write back
-sda:_
-
----
-
-If there is anything I can test to help fix this issue or further  
-diagnose it, please let me know.
-
-	- Ricardo

@@ -1,96 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936127AbWLBHT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936550AbWLBH2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936127AbWLBHT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 02:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759405AbWLBHT4
+	id S936550AbWLBH2h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 02:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936545AbWLBH2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 02:19:56 -0500
-Received: from mail.gmx.net ([213.165.64.20]:36819 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1759404AbWLBHTz (ORCPT
+	Sat, 2 Dec 2006 02:28:37 -0500
+Received: from cantor.suse.de ([195.135.220.2]:34526 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S936476AbWLBH2f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 02:19:55 -0500
-X-Authenticated: #24128601
-Date: Sat, 2 Dec 2006 08:15:03 +0100
-From: Sebastian Kemper <sebastian_ml@gmx.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, thockin@hockin.org
-Subject: Re: [OHCI] BIOS handoff failed (BIOS bug?)
-Message-ID: <20061202071503.GA6184@section_eight>
-Mail-Followup-To: Sebastian Kemper <sebastian_ml@gmx.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Pete Zaitcev <zaitcev@redhat.com>, thockin@hockin.org
-References: <20061201130359.GA3999@section_eight> <20061201182855.GA7867@section_eight> <20061201150201.4e8c9edb.zaitcev@redhat.com> <20061201232339.GA25645@hockin.org> <20061201152922.93cc59a4.zaitcev@redhat.com> <20061201233247.GA27014@hockin.org>
-MIME-Version: 1.0
+	Sat, 2 Dec 2006 02:28:35 -0500
+Date: Sat, 2 Dec 2006 08:28:22 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: [new patch 3/3] fs: fix cont vs deadlock patches
+Message-ID: <20061202072822.GA5911@wotan.suse.de>
+References: <20061130072247.GC18004@wotan.suse.de> <20061130113241.GC12579@wotan.suse.de> <87r6vkzinv.fsf@duaron.myhome.or.jp> <20061201020910.GC455@wotan.suse.de> <87mz68xoyi.fsf@duaron.myhome.or.jp> <20061201050852.GA31347@wotan.suse.de> <20061130232102.0cc7fc0b.akpm@osdl.org> <20061201075341.GB31347@wotan.suse.de> <87slfzu0ty.fsf@duaron.myhome.or.jp> <4570CA90.8050203@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061201233247.GA27014@hockin.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+In-Reply-To: <4570CA90.8050203@yahoo.com.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 03:32:47PM -0800, thockin@hockin.org wrote:
-> On Fri, Dec 01, 2006 at 03:29:22PM -0800, Pete Zaitcev wrote:
-> > On Fri, 1 Dec 2006 15:23:39 -0800, thockin@hockin.org wrote:
-> > 
-> > > BIOS handoff assumes an SMI, right?  Could SMI be masked?
-> > 
-> > That might be a bad idea, because things like fans may be controlled
-> > by SMM BIOS. The best thing we can do is to follow the published
-> > procedure, and maybe insert a workaround if Sebastian can identify it.
+> I see. I guess you need to synchronise your writepage versus this
+> extention in order to handle it properly then. I won't bother with
+> that though: it won't be worse than it was before.
 > 
-> Sorry, I don't mean "could we mask it" but rather "is it possible that it
-> is already masked"?
-> 
-> Tim
+> Thanks for review, do you agree with the other hunks?
 
-Hi,
+Well, Andrew's got the rest of the patches in his tree, so I'll send
+what we've got for now. Has had some testing on both reiserfs and
+fat. Doesn't look like the other filesystems using cont_prepare_write
+will have any problems...
 
-I can't see any negative effects when the handoff fails. But if any of
-you think it's worth to get to the bottom of this I'm more than willing
-to help the best I can. But I don't know what SMI nor SMM BIOS is, just
-so you know that I can't figure out these things on my own.
+Andrew, please apply this patch as a replacement for the fat-fix
+patch in your rollup (this patch includes the same fix, and is a
+more logical change unit I think).
+--
 
-I extracted my BIOS' dsdt and disassembled it (on a hunch). I grepped
-it for strings like "Microsoft" and "Windows" and found three:
+Stop overloading zero length prepare/commit_write to request a
+file extend operation by the "cont" buffer code. Instead, have
+generic_cont_expand perform a zeroing operation on the last
+page, and cont_prepare_write naturally zeroes any previous
+pages required.
 
-           Method (_INI, 0, NotSerialized)
-            {
-                If (STRC (_OS, "Microsoft Windows"))
-                {
-                    Store (0x56, SMIP)
-                }
-                Else
-                {
-                    If (STRC (_OS, "Microsoft Windows NT"))
-                    {
-                        If (CondRefOf (_OSI, Local0))
-                        {
-                            If (_OSI ("Windows 2001"))
-                            {
-                                Store (0x59, SMIP)
-                                Store (Zero, OSFL)
-                                Store (0x03, OSFX)
-                            }
-                        }
-                        Else
-                        {
-                            Store (0x58, SMIP)
-                            Store (Zero, OSFL)
-                        }
-                    }
-                    Else
-                    {
-                        Store (0x57, SMIP)
-                        Store (0x02, OSFL)
-                    }
-                }
-            }
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-So I tried all possible combinations of acpi_os_name and acpi_osi
-(allthough the latter seemed to be ignored by the ACPI system). But this
-didn't change the OHCI handoff behaviour. At least we can rule this one
-out. But probably disassembling the dsdt was a waste of time :-)
+Reiserfs was trying to "extend" a file to something smaller than
+it already is with generic_cont_expand. This broke the above fix.
+Open code the prepare/ commit pair instead... maybe the code would
+be cleaner if reiserfs just did the operation explicitly (call
+get_block or whatever helper is used to unpack the tail)?
 
-Regards
-Sebastian
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+
+Index: linux-2.6/fs/buffer.c
+===================================================================
+--- linux-2.6.orig/fs/buffer.c
++++ linux-2.6/fs/buffer.c
+@@ -2004,18 +2004,24 @@ int block_read_full_page(struct page *pa
+ 	return 0;
+ }
+ 
+-/* utility function for filesystems that need to do work on expanding
++/*
++ * utility function for filesystems that need to do work on expanding
+  * truncates.  Uses prepare/commit_write to allow the filesystem to
+  * deal with the hole.  
+  */
+-static int __generic_cont_expand(struct inode *inode, loff_t size,
+-				 pgoff_t index, unsigned int offset)
++int generic_cont_expand(struct inode *inode, loff_t size)
+ {
+ 	struct address_space *mapping = inode->i_mapping;
++	loff_t pos = inode->i_size;
+ 	struct page *page;
+ 	unsigned long limit;
++	pgoff_t index;
++	unsigned int from, to;
++	void *kaddr;
+ 	int err;
+ 
++	WARN_ON(pos >= size);
++
+ 	err = -EFBIG;
+         limit = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
+ 	if (limit != RLIM_INFINITY && size > (loff_t)limit) {
+@@ -2025,11 +2031,18 @@ static int __generic_cont_expand(struct 
+ 	if (size > inode->i_sb->s_maxbytes)
+ 		goto out;
+ 
++	index = (size - 1) >> PAGE_CACHE_SHIFT;
++	to = size - ((loff_t)index << PAGE_CACHE_SHIFT);
++	if (index != (pos >> PAGE_CACHE_SHIFT))
++		from = 0;
++	else
++		from = pos & (PAGE_CACHE_SIZE - 1);
++
+ 	err = -ENOMEM;
+ 	page = grab_cache_page(mapping, index);
+ 	if (!page)
+ 		goto out;
+-	err = mapping->a_ops->prepare_write(NULL, page, offset, offset);
++	err = mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err) {
+ 		/*
+ 		 * ->prepare_write() may have instantiated a few blocks
+@@ -2041,7 +2054,12 @@ static int __generic_cont_expand(struct 
+ 		goto out;
+ 	}
+ 
+-	err = mapping->a_ops->commit_write(NULL, page, offset, offset);
++	kaddr = kmap_atomic(page, KM_USER0);
++	memset(kaddr + from, 0, to - from);
++	flush_dcache_page(page);
++	kunmap_atomic(kaddr, KM_USER0);
++
++	err = mapping->a_ops->commit_write(NULL, page, from, to);
+ 
+ 	unlock_page(page);
+ 	page_cache_release(page);
+@@ -2051,36 +2069,6 @@ out:
+ 	return err;
+ }
+ 
+-int generic_cont_expand(struct inode *inode, loff_t size)
+-{
+-	pgoff_t index;
+-	unsigned int offset;
+-
+-	offset = (size & (PAGE_CACHE_SIZE - 1)); /* Within page */
+-
+-	/* ugh.  in prepare/commit_write, if from==to==start of block, we
+-	** skip the prepare.  make sure we never send an offset for the start
+-	** of a block
+-	*/
+-	if ((offset & (inode->i_sb->s_blocksize - 1)) == 0) {
+-		/* caller must handle this extra byte. */
+-		offset++;
+-	}
+-	index = size >> PAGE_CACHE_SHIFT;
+-
+-	return __generic_cont_expand(inode, size, index, offset);
+-}
+-
+-int generic_cont_expand_simple(struct inode *inode, loff_t size)
+-{
+-	loff_t pos = size - 1;
+-	pgoff_t index = pos >> PAGE_CACHE_SHIFT;
+-	unsigned int offset = (pos & (PAGE_CACHE_SIZE - 1)) + 1;
+-
+-	/* prepare/commit_write can handle even if from==to==start of block. */
+-	return __generic_cont_expand(inode, size, index, offset);
+-}
+-
+ /*
+  * For moronic filesystems that do not allow holes in file.
+  * We may have to extend the file.
+@@ -3015,7 +3003,6 @@ EXPORT_SYMBOL(fsync_bdev);
+ EXPORT_SYMBOL(generic_block_bmap);
+ EXPORT_SYMBOL(generic_commit_write);
+ EXPORT_SYMBOL(generic_cont_expand);
+-EXPORT_SYMBOL(generic_cont_expand_simple);
+ EXPORT_SYMBOL(init_buffer);
+ EXPORT_SYMBOL(invalidate_bdev);
+ EXPORT_SYMBOL(ll_rw_block);
+Index: linux-2.6/include/linux/buffer_head.h
+===================================================================
+--- linux-2.6.orig/include/linux/buffer_head.h
++++ linux-2.6/include/linux/buffer_head.h
+@@ -203,7 +203,6 @@ int block_prepare_write(struct page*, un
+ int cont_prepare_write(struct page*, unsigned, unsigned, get_block_t*,
+ 				loff_t *);
+ int generic_cont_expand(struct inode *inode, loff_t size);
+-int generic_cont_expand_simple(struct inode *inode, loff_t size);
+ int block_commit_write(struct page *page, unsigned from, unsigned to);
+ void block_sync_page(struct page *);
+ sector_t generic_block_bmap(struct address_space *, sector_t, get_block_t *);
+Index: linux-2.6/fs/fat/file.c
+===================================================================
+--- linux-2.6.orig/fs/fat/file.c
++++ linux-2.6/fs/fat/file.c
+@@ -143,7 +143,7 @@ static int fat_cont_expand(struct inode 
+ 	loff_t start = inode->i_size, count = size - inode->i_size;
+ 	int err;
+ 
+-	err = generic_cont_expand_simple(inode, size);
++	err = generic_cont_expand(inode, size);
+ 	if (err)
+ 		goto out;
+ 
+Index: linux-2.6/fs/fat/inode.c
+===================================================================
+--- linux-2.6.orig/fs/fat/inode.c
++++ linux-2.6/fs/fat/inode.c
+@@ -151,7 +151,8 @@ static int fat_commit_write(struct file 
+ {
+ 	struct inode *inode = page->mapping->host;
+ 	int err;
+-	if (to - from > 0)
++
++	if (to - from == 0)
+ 		return 0;
+ 
+ 	err = generic_commit_write(file, page, from, to);
+Index: linux-2.6/fs/reiserfs/file.c
+===================================================================
+--- linux-2.6.orig/fs/reiserfs/file.c
++++ linux-2.6/fs/reiserfs/file.c
+@@ -892,6 +892,37 @@ static int reiserfs_submit_file_region_f
+ 	return retval;
+ }
+ 
++/* To not overcomplicate matters, we just call prepare/commit_wrie
++   which will in turn call other stuff and finally will boil down to
++   reiserfs_get_block() that would do necessary conversion. */
++static int reiserfs_convert_tail(struct inode *inode, loff_t offset)
++{
++	struct address_space *mapping = inode->i_mapping;
++	pgoff_t index;
++	struct page *page;
++	int err = -ENOMEM;
++
++	index = offset >> PAGE_CACHE_SHIFT;
++	page = grab_cache_page(mapping, index);
++	if (!page)
++		goto out;
++
++	offset = offset & ~PAGE_CACHE_MASK;
++	WARN_ON(!offset); /* shouldn't pass zero length to prepare/commit */
++
++	err = mapping->a_ops->prepare_write(NULL, page, 0, offset);
++	if (err)
++		goto out_unlock;
++
++	err = mapping->a_ops->commit_write(NULL, page, 0, offset);
++
++out_unlock:
++	unlock_page(page);
++	page_cache_release(page);
++out:
++	return err;
++}
++
+ /* Look if passed writing region is going to touch file's tail
+    (if it is present). And if it is, convert the tail to unformatted node */
+ static int reiserfs_check_for_tail_and_convert(struct inode *inode,	/* inode to deal with */
+@@ -930,14 +961,12 @@ static int reiserfs_check_for_tail_and_c
+ 	if (is_direct_le_ih(ih)) {
+ 		/* Ok, closest item is file tail (tails are stored in "direct"
+ 		 * items), so we need to unpack it. */
+-		/* To not overcomplicate matters, we just call generic_cont_expand
+-		   which will in turn call other stuff and finally will boil down to
+-		   reiserfs_get_block() that would do necessary conversion. */
+ 		cont_expand_offset =
+ 		    le_key_k_offset(get_inode_item_key_version(inode),
+ 				    &(ih->ih_key));
+ 		pathrelse(&path);
+-		res = generic_cont_expand(inode, cont_expand_offset);
++
++		res = reiserfs_convert_tail(inode, cont_expand_offset);
+ 	} else
+ 		pathrelse(&path);
+ 

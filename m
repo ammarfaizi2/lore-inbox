@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162474AbWLBTkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759467AbWLBTmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162474AbWLBTkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 14:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759457AbWLBTkS
+	id S1759467AbWLBTmb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 14:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759468AbWLBTmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 14:40:18 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35078 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1758504AbWLBTkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 14:40:17 -0500
-Date: Sat, 2 Dec 2006 20:40:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] FW_LOADER should select HOTPLUG
-Message-ID: <20061202194022.GY11084@stusta.de>
-MIME-Version: 1.0
+	Sat, 2 Dec 2006 14:42:31 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:13073 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1759467AbWLBTmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 14:42:31 -0500
+Date: Sat, 2 Dec 2006 19:42:23 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] cleanup asm/setup.h userspace visibility (v2)
+Message-ID: <20061202194223.GC26111@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20061202175539.GV11084@stusta.de> <20061202180233.GA26111@flint.arm.linux.org.uk> <20061202182600.GX11084@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061202182600.GX11084@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since FW_LOADER is an option that is always select'ed by the code using 
-it, it mustn't depend on HOTPLUG.
+On Sat, Dec 02, 2006 at 07:26:00PM +0100, Adrian Bunk wrote:
+> On Sat, Dec 02, 2006 at 06:02:33PM +0000, Russell King wrote:
+> > On Sat, Dec 02, 2006 at 06:55:39PM +0100, Adrian Bunk wrote:
+> > > This patch makes the contents of the userspace asm/setup.h header 
+> > > consistent on all architectures:
+> > > - export setup.h to userspace on all architectures
+> > > - export only COMMAND_LINE_SIZE to userspace
+> > 
+> > On ARM, all the ATAGs are exported to userspace because they are an API
+> > for boot loaders to use.  Everything down to the comment "Memory map
+> > description" should be exported.
+> 
+> Is the updated patch below OK?
 
-It's only relevant in the EMBEDDED=y case, but this might have resulted 
-in illegal FW_LOADER=, HOTPLUG=n configurations.
+Yup, thanks.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.19-rc6-mm2/drivers/base/Kconfig.old	2006-12-02 20:36:49.000000000 +0100
-+++ linux-2.6.19-rc6-mm2/drivers/base/Kconfig	2006-12-02 20:37:03.000000000 +0100
-@@ -19,8 +19,8 @@
- 	  If unsure say Y here.
- 
- config FW_LOADER
--	tristate "Userspace firmware loading support"
--	depends on HOTPLUG
-+	tristate
-+	select HOTPLUG
- 	---help---
- 	  This option is provided for the case where no in-kernel-tree modules
- 	  require userspace firmware loading support, but a module built outside
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

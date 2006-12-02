@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424351AbWLBSdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424357AbWLBSfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424351AbWLBSdi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 13:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424357AbWLBSdi
+	id S1424357AbWLBSfk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 13:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424365AbWLBSfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 13:33:38 -0500
-Received: from wx-out-0506.google.com ([66.249.82.235]:3933 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1424351AbWLBSdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 13:33:37 -0500
+	Sat, 2 Dec 2006 13:35:40 -0500
+Received: from qb-out-0506.google.com ([72.14.204.231]:12196 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1424357AbWLBSfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 13:35:39 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ajfzJPGTKEf2ocDu3JWfE9Zb3WBcPh5kmLjIPZmjbp//9HeM/VCm0xBoAA1eSJiiaZKYXhxNjjybZONZs/pJWTJb3Ro+fJM9QPOjhFwDvMnKfF0DONYMXBNqwjNUHnU0TYn36nJmhVhJlKXFfXSKLx/c+BzAhyA4QPB//DSNDSo=
-Message-ID: <571a92f0612021033q37cb64e4hb2054f6250d4b522@mail.gmail.com>
-Date: Sat, 2 Dec 2006 11:33:36 -0700
-From: "David Lopez" <dave.l.lopez@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [PATCH] USB: add driver for LabJack USB DAQ devices
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20061202125235.GB4773@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=qff3bm2WFR1JWt+0VNDzarnKcfHG3OJotbMG1WyDaCRw4bB1YD5bDLo9XVkTw/mpgUpikDoPit8LXfgXB9Hn6AEA08LYzfikesKvFLu6JVY/G/henXPu24SJuP2M+XeYjbtqOZcPm/aNc+49RoACBi6IrNlWugNXfGLJUHolGyw=
+Subject: Re: [dm-devel] Re: [RFC][PATCH] dm-cache: block level disk cache
+	target for device mapper
+From: Ming Zhang <blackmagic02881@gmail.com>
+Reply-To: blackmagic02881@gmail.com
+To: Ming Zhao <mingzhao99th@gmail.com>
+Cc: device-mapper development <dm-devel@redhat.com>,
+       bert hubert <bert.hubert@netherlabs.nl>, ming@acis.ufl.edu,
+       Linux Kernel <linux-kernel@vger.kernel.org>, ericvh@gmail.com
+In-Reply-To: <b1e142760612021028t522ba3ffs485bc70d93a85774@mail.gmail.com>
+References: <200611271826.kARIQYRi032717@hera.kernel.org>
+	 <20061127184748.GA11219@outpost.ds9a.nl>
+	 <a4e6962a0611271155q55adf6fftd489de84d6ae7e88@mail.gmail.com>
+	 <1165022497.2761.216.camel@localhost.localdomain>
+	 <b1e142760612021028t522ba3ffs485bc70d93a85774@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 02 Dec 2006 13:35:36 -0500
+Message-Id: <1165084536.5456.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
-	 <20061202125235.GB4773@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/2/06, Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
->
-> > From: David Lopez <dave.l.lopez@gmail.com>
+
+On Sat, 2006-12-02 at 13:28 -0500, Ming Zhao wrote:
+> On 12/1/06, Ming Zhang <blackmagic02881@gmail.com> wrote:
+> > like to see this idea but any similarity with
+> > http://www.ele.uri.edu/Research/hpcl/STICS/stics.pdf?
 > >
-> > This driver adds support for LabJack U3 and UE9 USB DAQ
-> > devices.
->
-> WTF is DAQ?
-
-DAQ is short for data acquisition.  I should change so it's not abbreviated.
-
-
-> > +       For a user-space API and usage examples, please
-> > visit the LabJack
-> > +       downloads web page at
-> > <http://www.labjack.com/downloads.php> and go
-> > +       to the specific device's downloads page.
->
-> If it needs userland driver, anyway, why not libusb?
-
-Thanks for pointing this out.  I'll look into using this and see if it
-is stable enough for the devices needs.  If it is I might end up using
-this as opposed to having our own kernel driver.
+> > STICS is patent pending so not sure if kernel can be free to merge this
+> > dm-cache.
+> 
+> I like the idea of STICS, an efficient bridge between SCSI and IP. But
+> I think its only similarity with dm-cache is the use of nonvolatile
+> caching.
+> 
+> Dm-cache is a generic block-level disk cache that supports a variety
+> of SAN technologies and is not tied to any particular one.
+> 
 
 
-David
+great. as long as you are aware of this and can find the difference,
+then fine.
+
+> 
+> Best regards,
+> Ming Zhao
+

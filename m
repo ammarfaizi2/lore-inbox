@@ -1,60 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936523AbWLBHp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWLBHsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936523AbWLBHp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 02:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936561AbWLBHp4
+	id S1161383AbWLBHsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 02:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162069AbWLBHsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 02:45:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49043 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S936523AbWLBHpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 02:45:55 -0500
-Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Eric Piel <eric.piel@tremplin-utc>
-In-Reply-To: <1165012538.5257.992.camel@gullible>
-References: <1164998179.5257.953.camel@gullible>
-	 <20061201185657.0b4b5af7@localhost.localdomain>
-	 <1165001705.5257.959.camel@gullible>
-	 <1165002345.3233.104.camel@laptopd505.fenrus.org>
-	 <1165006868.5257.972.camel@gullible>
-	 <1165009747.3233.108.camel@laptopd505.fenrus.org>
-	 <1165012538.5257.992.camel@gullible>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sat, 02 Dec 2006 08:45:52 +0100
-Message-Id: <1165045552.3233.132.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 2 Dec 2006 02:48:39 -0500
+Received: from ns1.suse.de ([195.135.220.2]:38112 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161383AbWLBHsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 02:48:38 -0500
+Date: Fri, 1 Dec 2006 23:48:26 -0800
+From: Greg KH <greg@kroah.com>
+To: David Lopez <dave.l.lopez@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB: add driver for LabJack USB DAQ devices
+Message-ID: <20061202074825.GA15982@kroah.com>
+References: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com> <20061201211801.GA448@kroah.com> <571a92f0612011612w13409d7u792b5afc20cc3e98@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <571a92f0612011612w13409d7u792b5afc20cc3e98@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Providing object files for on-demand relinking of the kernel just adds a
-> shit load of overhead. If you're suggesting modifying vmlinuz in place
-> instead, that just seems really undesirable. Last thing I want is
-> something mucking with the kernel binary.
-
-... while randomly mucking with the bios content is something you do
-want? While it's already *running* ? How much do you trust the end user
-to himself randomly edit the AML code to force it to compile (usually
-it's not more than that)?
-
+On Fri, Dec 01, 2006 at 05:12:56PM -0700, David Lopez wrote:
+> On 12/1/06, Greg KH <greg@kroah.com> wrote:
+> >On Fri, Dec 01, 2006 at 01:37:22PM -0700, David Lopez wrote:
+> >> From: David Lopez <dave.l.lopez@gmail.com>
+> >
 > 
-> It's easier for me to keep this patch in my tree, especially since most
-> users have come to expect this as the "standard" method for inserting
-> their DSDT replacement.
+> >The patch seems linewrapped, which doesn't make it easy to apply :(
+> >
+> >Can you resend this?
+> 
+> Sorry about that.  Is it ok to send the patch as an attachment?  It
+> seems like gmail likes to linewrap plain text.  Also, when I resend
+> the patch after a little fixing should I send it as a reply.
 
-now here's another question... the ACPI layer got improved over the last
-18 months bigtime to behave more like windows in many ways. How much of
-this is still really needed? 
+A plain text attachment should work.
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+> >> +             /* Gets the Product ID for the device */
+> >> +             case IOCTL_LJ_GET_PRODUCT_ID:
+> >> +                     retval = put_user(dev->udev->descriptor.idProduct,
+> >> +                                             (unsigned int __user 
+> >*)arg);
+> >> +                     break;
+> >
+> >You can get this from sysfs or usbfs today.  Don't duplicate it please.
+> 
+> I didn't look at sysfs or usbfs.  I just needed a way to determine the
+> device from a device node in /dev from user space, and it seemed easy
+> to use ioctl.
 
+Ok, but as there are other ways to get this information, can you take it
+out please?
+
+> >> +             /* Sets the bulk in endpoint for the next read from an
+> >> integer argument.
+> >> +              * There are two bulk endpoints, which are endpoints 0 and 
+> >1
+> >> when
+> >> +              * setting the integer argument. */
+> >> +             case IOCTL_LJ_SET_BULK_IN_ENDPOINT:
+> >> +                     data = (void __user *) arg;
+> >> +                     if (data == NULL)
+> >> +                             break;
+> >> +
+> >> +                     if (copy_from_user(&ep, data, sizeof(int))) {
+> >> +                             retval = -EFAULT;
+> >> +                             break;
+> >> +                     }
+> >> +
+> >> +                     if(ep > N_BULK_IN_ENDPOINTS || ep < 0)
+> >> +                             retval = -EINVAL;
+> >> +                     else
+> >> +                             dev->next_bulk_in_endpoint = ep;
+> >> +                     break;
+> >
+> >Why is this needed?
+> 
+> The devices have a stream mode which can only be read from the second
+> bulk in endpoint.  All other communications are done from the first
+> bulk in and bulk out endpoints, and I needed some way to indicate that
+> the the next read should be from second bulk in endpoint keeping in
+> mind that first bulk in endpoint can still be used.  Is there a better
+> way to do this?
+
+Can you just create a new device node for the second endpoint?  That way
+your userspace tools don't have to toggle anything, and it might make
+things for users simpler.  Just use the second device node to read from
+the endpoint used for streaming.  Writing on it might not need to do
+anything (or you could tie the write into the single out endpoint,
+that's up to you.)
+
+Would that work?
+
+thanks,
+
+greg k-h

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759425AbWLBKMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759432AbWLBKZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759425AbWLBKMp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 05:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759426AbWLBKMp
+	id S1759432AbWLBKZU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 05:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759433AbWLBKZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 05:12:45 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:26264 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1759425AbWLBKMo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 05:12:44 -0500
-Message-ID: <457151A0.8090203@drzeus.cx>
-Date: Sat, 02 Dec 2006 11:12:48 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PULL] MMC update
-References: <45708A56.3040508@drzeus.cx> <Pine.LNX.4.64.0612011639240.3695@woody.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612011639240.3695@woody.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 2 Dec 2006 05:25:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2773 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1759432AbWLBKZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 05:25:19 -0500
+Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Ben Collins <ben.collins@ubuntu.com>, Alan <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, Eric Piel <eric.piel@tremplin-utc>
+In-Reply-To: <20061202002116.GB7931@redhat.com>
+References: <1164998179.5257.953.camel@gullible>
+	 <20061201185657.0b4b5af7@localhost.localdomain>
+	 <1165001705.5257.959.camel@gullible>
+	 <20061201195337.39ed9992@localhost.localdomain>
+	 <1165006694.5257.968.camel@gullible>  <20061202002116.GB7931@redhat.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sat, 02 Dec 2006 11:25:16 +0100
+Message-Id: <1165055116.3233.144.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Fri, 1 Dec 2006, Pierre Ossman wrote:
->   
->>         git://git.kernel.org/pub/scm/linux/kernel/git/drzeus/mmc.git for-linus
->>     
->
-> I get
->
-> 	Already up-to-date.
->
-> did you forget to push? Or is mirroring just really slow again?
->
->   
+On Fri, 2006-12-01 at 19:21 -0500, Dave Jones wrote:
+> On Fri, Dec 01, 2006 at 03:58:14PM -0500, Ben Collins wrote:
+>  > On Fri, 2006-12-01 at 19:53 +0000, Alan wrote:
+>  > > > > The whole approach of using filp_open() not the firmware interface
+>  > > > > is horribly ugly and does not belong mainstream. 
+>  > > > 
+>  > > > What about the point that userspace (udev, and such) is not available
+>  > > > when DSDT loading needs to occur? Init hasn't even started at that
+>  > > > point.
+>  > > 
+>  > > Does that change the fact it is ugly ?
+>  > 
+>  > No, but it does beg the question "how else can it be done"?
+>  > 
+>  > Distros need a way for users to add a fixed DSDT without recompiling
+>  > their own kernels.
+> 
+> There already is a way. It's called beating up the braindead bios authors,
+> and pressuring motherboard vendors to push out updates.
 
-Seems mirroring is slow as hell. It's still not updated, but on
-master.kernel.org, head is 8b7feff881b7e9f065ddd718a6841121207c3c19.
+and it includes pointing them at the linux-ready firmware developer kit
+(URL in sig) so that it's really easy for them to test Linux with their
+bios. 
 
-I don't suppose there's a status page somewhere that tells you what the
-mirroring is up to?
-
-Rgds
+If you or anyone else experience bios horkage that's not caught, please
+let us know, so that we can add tests....
 
 -- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162871AbWLBJnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162875AbWLBJs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162871AbWLBJnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 04:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162873AbWLBJnR
+	id S1162875AbWLBJs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 04:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162876AbWLBJs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 04:43:17 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:36364 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1162871AbWLBJnP (ORCPT
+	Sat, 2 Dec 2006 04:48:56 -0500
+Received: from mail.gmx.net ([213.165.64.20]:29316 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1162875AbWLBJsz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 04:43:15 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: Nick Piggin <npiggin@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [new patch 3/3] fs: fix cont vs deadlock patches
-References: <20061130072247.GC18004@wotan.suse.de>
-	<20061130113241.GC12579@wotan.suse.de>
-	<87r6vkzinv.fsf@duaron.myhome.or.jp>
-	<20061201020910.GC455@wotan.suse.de>
-	<87mz68xoyi.fsf@duaron.myhome.or.jp>
-	<20061201050852.GA31347@wotan.suse.de>
-	<20061130232102.0cc7fc0b.akpm@osdl.org>
-	<20061201075341.GB31347@wotan.suse.de>
-	<87slfzu0ty.fsf@duaron.myhome.or.jp> <4570CA90.8050203@yahoo.com.au>
-	<20061202072822.GA5911@wotan.suse.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 02 Dec 2006 18:43:05 +0900
-In-Reply-To: <20061202072822.GA5911@wotan.suse.de> (Nick Piggin's message of "Sat\, 2 Dec 2006 08\:28\:22 +0100")
-Message-ID: <87vekuskeu.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.91 (gnu/linux)
+	Sat, 2 Dec 2006 04:48:55 -0500
+X-Authenticated: #815327
+From: Malte =?iso-8859-15?q?Schr=F6der?= <MalteSch@gmx.de>
+To: David Miller <davem@davemloft.net>
+Subject: Re: Linux 2.6.19
+Date: Sat, 2 Dec 2006 10:48:48 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+References: <20061129151111.6bd440f9.rdunlap@xenotime.net> <20061129.181537.38322733.davem@davemloft.net> <200611302130.23556.MalteSch@gmx.de>
+In-Reply-To: <200611302130.23556.MalteSch@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1194016.WnslNtgVCP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200612021048.51880.MalteSch@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> writes:
+--nextPart1194016.WnslNtgVCP
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
->> I see. I guess you need to synchronise your writepage versus this
->> extention in order to handle it properly then. I won't bother with
->> that though: it won't be worse than it was before.
->> 
->> Thanks for review, do you agree with the other hunks?
->
-> Well, Andrew's got the rest of the patches in his tree, so I'll send
-> what we've got for now. Has had some testing on both reiserfs and
-> fat. Doesn't look like the other filesystems using cont_prepare_write
-> will have any problems...
->
-> Andrew, please apply this patch as a replacement for the fat-fix
-> patch in your rollup (this patch includes the same fix, and is a
-> more logical change unit I think).
+On Thursday 30 November 2006 21:30, Malte Schr=F6der wrote:
+> I also encountered this bug (wasn't there in -rc6). The patch also fixes =
+it
+> for me.
 
-I'm confused. I couldn't track what is final patchset. Anyway, I'll
-see and test your final patchset in -mm.
+Ok, I have to make a correction here: It doesn't crash anymore but now ipv6=
+=20
+doesn't work at all. To be more precise, I see adresses on the network=20
+interfaces and the corresponding routes, but when I try to ping my gateway =
+I=20
+get "Destination unreachable: Address unreachable".
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Hope this helps ..
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
+
+
+--nextPart1194016.WnslNtgVCP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFcUwD4q3E2oMjYtURArEvAKDyocytr7mihjlkSLThnrxdn8x/ywCg1c6u
+R+JQAqPL/xbhnYWfdmnp7Cg=
+=52xZ
+-----END PGP SIGNATURE-----
+
+--nextPart1194016.WnslNtgVCP--

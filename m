@@ -1,71 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936575AbWLBWkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424510AbWLBWt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936575AbWLBWkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 17:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936574AbWLBWkW
+	id S1424510AbWLBWt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 17:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936581AbWLBWt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 17:40:22 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:12218 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S936572AbWLBWkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 17:40:21 -0500
-Date: Sat, 2 Dec 2006 22:40:18 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
-       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+	Sat, 2 Dec 2006 17:49:29 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:18841 "EHLO
+	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
+	id S936580AbWLBWt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 17:49:28 -0500
+From: Steve Wise <swise@opengridcomputing.com>
+Subject: [PATCH  v2 01/13] Linux RDMA Core Changes
+Date: Sat, 02 Dec 2006 16:49:27 -0600
+To: rdreier@cisco.com
+Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061202224018.GO3078@ftp.linux.org.uk>
-References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612022306360.1867@scrub.home>
-User-Agent: Mutt/1.4.1i
+Message-Id: <20061202224927.27014.24669.stgit@dell3.ogc.int>
+In-Reply-To: <20061202224917.27014.15424.stgit@dell3.ogc.int>
+References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2006 at 11:13:21PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Sat, 2 Dec 2006, Al Viro wrote:
-> 
-> > > You need some more magic macros to access/modify the data field.
-> > 
-> > Which is done bloody rarely.  grep and you'll see...  BTW, there are
-> > other reasons why passing struct timer_list * is wrong:
-> > 	* direct calls of the timer callback
-> 
-> Why should that be wrong?
 
-Need to arrange a struct timer_list?
+Support provider-specific data in ib_uverbs_cmd_req_notify_cq().
+The Chelsio iwarp provider library needs to pass information to the
+kernel verb for re-arming the CQ.
 
-> > 	* callback being the same for two timers embedded into
-> > different structs
-> 
-> That's done bloody rarely as well.
-> 
-> > 	* see a timer callback, decide it looks better as a tasklet.
-> > What, need a different glue now?
-> 
-> What's wrong with changing the prototype? If you don't do it, the compiler 
-> will complain about it anyway.
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+---
 
-How about "not having to change it at all"?
+ drivers/infiniband/core/uverbs_cmd.c      |    9 +++++++--
+ drivers/infiniband/hw/amso1100/c2.h       |    2 +-
+ drivers/infiniband/hw/amso1100/c2_cq.c    |    3 ++-
+ drivers/infiniband/hw/ehca/ehca_iverbs.h  |    3 ++-
+ drivers/infiniband/hw/ehca/ehca_reqs.c    |    3 ++-
+ drivers/infiniband/hw/ipath/ipath_cq.c    |    4 +++-
+ drivers/infiniband/hw/ipath/ipath_verbs.h |    3 ++-
+ drivers/infiniband/hw/mthca/mthca_cq.c    |    6 ++++--
+ drivers/infiniband/hw/mthca/mthca_dev.h   |    4 ++--
+ include/rdma/ib_verbs.h                   |    5 +++--
+ 10 files changed, 28 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 743247e..5dd1de9 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -959,6 +959,7 @@ ssize_t ib_uverbs_req_notify_cq(struct i
+ 				int out_len)
+ {
+ 	struct ib_uverbs_req_notify_cq cmd;
++	struct ib_udata		      udata;
+ 	struct ib_cq                  *cq;
  
-> > Look, it's a delayed call.  The less glue we need, the better - the
-> > rules are much simpler that way, so that alone means that we'll get
-> > fewer fsckups.
-> 
-> You have the glue in a different place, so what?
-
-Where?
-
-> The other alternative has real _practical_ value in almost every case, 
-> which I very much prefer. What's wrong with that?
-
-Lack of any type safety whatsoever, magic boilerplates in callback instances,
-rules more complex than "your callback should take a pointer, don't cast
-anything, it's just a way to arrange for a delayed call, nothing magical
-needed"?
+ 	if (copy_from_user(&cmd, buf, sizeof cmd))
+@@ -968,8 +969,12 @@ ssize_t ib_uverbs_req_notify_cq(struct i
+ 	if (!cq)
+ 		return -EINVAL;
+ 
+-	ib_req_notify_cq(cq, cmd.solicited_only ?
+-			 IB_CQ_SOLICITED : IB_CQ_NEXT_COMP);
++	INIT_UDATA(&udata, buf + sizeof cmd, 0,
++		   in_len - sizeof cmd, 0); 
++
++	cq->device->req_notify_cq(cq, cmd.solicited_only ?
++				  IB_CQ_SOLICITED : IB_CQ_NEXT_COMP,
++				  &udata);
+ 
+ 	put_cq_read(cq);
+ 
+diff --git a/drivers/infiniband/hw/amso1100/c2.h b/drivers/infiniband/hw/amso1100/c2.h
+index 1b17dcd..716f9dc 100644
+--- a/drivers/infiniband/hw/amso1100/c2.h
++++ b/drivers/infiniband/hw/amso1100/c2.h
+@@ -519,7 +519,7 @@ extern void c2_free_cq(struct c2_dev *c2
+ extern void c2_cq_event(struct c2_dev *c2dev, u32 mq_index);
+ extern void c2_cq_clean(struct c2_dev *c2dev, struct c2_qp *qp, u32 mq_index);
+ extern int c2_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry);
+-extern int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify);
++extern int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify, struct ib_udata *udata);
+ 
+ /* CM */
+ extern int c2_llp_connect(struct iw_cm_id *cm_id,
+diff --git a/drivers/infiniband/hw/amso1100/c2_cq.c b/drivers/infiniband/hw/amso1100/c2_cq.c
+index 05c9154..7ce8bca 100644
+--- a/drivers/infiniband/hw/amso1100/c2_cq.c
++++ b/drivers/infiniband/hw/amso1100/c2_cq.c
+@@ -217,7 +217,8 @@ int c2_poll_cq(struct ib_cq *ibcq, int n
+ 	return npolled;
+ }
+ 
+-int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int c2_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++	      struct ib_udata *udata)
+ {
+ 	struct c2_mq_shared __iomem *shared;
+ 	struct c2_cq *cq;
+diff --git a/drivers/infiniband/hw/ehca/ehca_iverbs.h b/drivers/infiniband/hw/ehca/ehca_iverbs.h
+index 3720e30..566b30c 100644
+--- a/drivers/infiniband/hw/ehca/ehca_iverbs.h
++++ b/drivers/infiniband/hw/ehca/ehca_iverbs.h
+@@ -135,7 +135,8 @@ int ehca_poll_cq(struct ib_cq *cq, int n
+ 
+ int ehca_peek_cq(struct ib_cq *cq, int wc_cnt);
+ 
+-int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify);
++int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify,
++		       struct ib_udata *udata);
+ 
+ struct ib_qp *ehca_create_qp(struct ib_pd *pd,
+ 			     struct ib_qp_init_attr *init_attr,
+diff --git a/drivers/infiniband/hw/ehca/ehca_reqs.c b/drivers/infiniband/hw/ehca/ehca_reqs.c
+index b46bda1..3ed6992 100644
+--- a/drivers/infiniband/hw/ehca/ehca_reqs.c
++++ b/drivers/infiniband/hw/ehca/ehca_reqs.c
+@@ -634,7 +634,8 @@ poll_cq_exit0:
+ 	return ret;
+ }
+ 
+-int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify)
++int ehca_req_notify_cq(struct ib_cq *cq, enum ib_cq_notify cq_notify,
++		       struct ib_udata *udata)
+ {
+ 	struct ehca_cq *my_cq = container_of(cq, struct ehca_cq, ib_cq);
+ 
+diff --git a/drivers/infiniband/hw/ipath/ipath_cq.c b/drivers/infiniband/hw/ipath/ipath_cq.c
+index 87462e0..27ba4db 100644
+--- a/drivers/infiniband/hw/ipath/ipath_cq.c
++++ b/drivers/infiniband/hw/ipath/ipath_cq.c
+@@ -307,13 +307,15 @@ int ipath_destroy_cq(struct ib_cq *ibcq)
+  * ipath_req_notify_cq - change the notification type for a completion queue
+  * @ibcq: the completion queue
+  * @notify: the type of notification to request
++ * @udata: user data 
+  *
+  * Returns 0 for success.
+  *
+  * This may be called from interrupt context.  Also called by
+  * ib_req_notify_cq() in the generic verbs code.
+  */
+-int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++			struct ib_udata *udata)
+ {
+ 	struct ipath_cq *cq = to_icq(ibcq);
+ 	unsigned long flags;
+diff --git a/drivers/infiniband/hw/ipath/ipath_verbs.h b/drivers/infiniband/hw/ipath/ipath_verbs.h
+index 8039f6e..0d39960 100644
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.h
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.h
+@@ -716,7 +716,8 @@ struct ib_cq *ipath_create_cq(struct ib_
+ 
+ int ipath_destroy_cq(struct ib_cq *ibcq);
+ 
+-int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify);
++int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++			struct ib_udata *udata);
+ 
+ int ipath_resize_cq(struct ib_cq *ibcq, int cqe, struct ib_udata *udata);
+ 
+diff --git a/drivers/infiniband/hw/mthca/mthca_cq.c b/drivers/infiniband/hw/mthca/mthca_cq.c
+index 149b369..ec7bb79 100644
+--- a/drivers/infiniband/hw/mthca/mthca_cq.c
++++ b/drivers/infiniband/hw/mthca/mthca_cq.c
+@@ -723,7 +723,8 @@ repoll:
+ 	return err == 0 || err == -EAGAIN ? npolled : err;
+ }
+ 
+-int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify)
++int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, 
++		       struct ib_udata *udata)
+ {
+ 	__be32 doorbell[2];
+ 
+@@ -740,7 +741,8 @@ int mthca_tavor_arm_cq(struct ib_cq *cq,
+ 	return 0;
+ }
+ 
+-int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
++int mthca_arbel_arm_cq(struct ib_cq *ibcq, enum ib_cq_notify notify,
++		       struct ib_udata *udata)
+ {
+ 	struct mthca_cq *cq = to_mcq(ibcq);
+ 	__be32 doorbell[2];
+diff --git a/drivers/infiniband/hw/mthca/mthca_dev.h b/drivers/infiniband/hw/mthca/mthca_dev.h
+index fe5cecf..6b9ccf6 100644
+--- a/drivers/infiniband/hw/mthca/mthca_dev.h
++++ b/drivers/infiniband/hw/mthca/mthca_dev.h
+@@ -493,8 +493,8 @@ void mthca_unmap_eq_icm(struct mthca_dev
+ 
+ int mthca_poll_cq(struct ib_cq *ibcq, int num_entries,
+ 		  struct ib_wc *entry);
+-int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
+-int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify);
++int mthca_tavor_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
++int mthca_arbel_arm_cq(struct ib_cq *cq, enum ib_cq_notify notify, struct ib_udata *udata);
+ int mthca_init_cq(struct mthca_dev *dev, int nent,
+ 		  struct mthca_ucontext *ctx, u32 pdn,
+ 		  struct mthca_cq *cq);
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 8eacc35..e3e1a2c 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -941,7 +941,8 @@ struct ib_device {
+ 					      struct ib_wc *wc);
+ 	int                        (*peek_cq)(struct ib_cq *cq, int wc_cnt);
+ 	int                        (*req_notify_cq)(struct ib_cq *cq,
+-						    enum ib_cq_notify cq_notify);
++						    enum ib_cq_notify cq_notify,
++						    struct ib_udata *udata);
+ 	int                        (*req_ncomp_notif)(struct ib_cq *cq,
+ 						      int wc_cnt);
+ 	struct ib_mr *             (*get_dma_mr)(struct ib_pd *pd,
+@@ -1373,7 +1374,7 @@ int ib_peek_cq(struct ib_cq *cq, int wc_
+ static inline int ib_req_notify_cq(struct ib_cq *cq,
+ 				   enum ib_cq_notify cq_notify)
+ {
+-	return cq->device->req_notify_cq(cq, cq_notify);
++	return cq->device->req_notify_cq(cq, cq_notify, NULL);
+ }
+ 
+ /**

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424633AbWLBWw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936583AbWLBWvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424633AbWLBWw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 17:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424591AbWLBWwY
+	id S936583AbWLBWvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 17:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936584AbWLBWun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 17:52:24 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:32665 "EHLO
+	Sat, 2 Dec 2006 17:50:43 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:24729 "EHLO
 	smtp.opengridcomputing.com") by vger.kernel.org with ESMTP
-	id S936585AbWLBWvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 17:51:19 -0500
+	id S1424578AbWLBWuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 17:50:19 -0500
 From: Steve Wise <swise@opengridcomputing.com>
-Subject: [PATCH  v2 12/13] Core Debug functions
-Date: Sat, 02 Dec 2006 16:51:19 -0600
+Subject: [PATCH  v2 06/13] Completion Queues
+Date: Sat, 02 Dec 2006 16:50:18 -0600
 To: rdreier@cisco.com
 Cc: netdev@vger.kernel.org, openib-general@openib.org,
        linux-kernel@vger.kernel.org
-Message-Id: <20061202225119.27014.65672.stgit@dell3.ogc.int>
+Message-Id: <20061202225018.27014.78386.stgit@dell3.ogc.int>
 In-Reply-To: <20061202224917.27014.15424.stgit@dell3.ogc.int>
 References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,21 +25,20 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Debug code to dump various data structs, some of which are in 
-adapter memory.
+Functions to manipulate CQs.
 
 Signed-off-by: Steve Wise <swise@opengridcomputing.com>
 ---
 
- drivers/infiniband/hw/cxgb3/core/cxio_dbg.c |  205 +++++++++++++++++++++++++++
- 1 files changed, 205 insertions(+), 0 deletions(-)
+ drivers/infiniband/hw/cxgb3/iwch_cq.c |  231 +++++++++++++++++++++++++++++++++
+ 1 files changed, 231 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb3/core/cxio_dbg.c b/drivers/infiniband/hw/cxgb3/core/cxio_dbg.c
+diff --git a/drivers/infiniband/hw/cxgb3/iwch_cq.c b/drivers/infiniband/hw/cxgb3/iwch_cq.c
 new file mode 100644
-index 0000000..22f4f75
+index 0000000..9d82df4
 --- /dev/null
-+++ b/drivers/infiniband/hw/cxgb3/core/cxio_dbg.c
-@@ -0,0 +1,205 @@
++++ b/drivers/infiniband/hw/cxgb3/iwch_cq.c
+@@ -0,0 +1,231 @@
 +/*
 + * Copyright (c) 2006 Chelsio, Inc. All rights reserved.
 + * Copyright (c) 2006 Open Grid Computing, Inc. All rights reserved.
@@ -72,176 +71,202 @@ index 0000000..22f4f75
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + */
++#include "iwch_provider.h"
++#include "iwch.h"
++
++/*
++ * Get one cq entry from cxio and map it to openib.
++ *
++ * Returns:
++ * 	0 			EMPTY;
++ *	1			cqe returned
++ *	-EAGAIN 		caller must try again
++ * 	any other -errno	fatal error
++ */
++int iwch_poll_cq_one(struct iwch_dev *rhp, struct iwch_cq *chp,
++		     struct ib_wc *wc)
++{
++	struct iwch_qp *qhp = NULL;
++	struct t3_cqe cqe, *rd_cqe;
++	struct t3_wq *wq;
++	u32 credit = 0;
++	u8 cqe_flushed;
++	u64 cookie;
++	int ret = 1;
++
++	rd_cqe = cxio_next_cqe(&chp->cq);
++
++	if (!rd_cqe)
++		return 0;
++
++	qhp = get_qhp(rhp, CQE_QPID(*rd_cqe));
++	if (!qhp)
++		wq = NULL;
++	else {
++		spin_lock(&qhp->lock);
++		wq = &(qhp->wq);
++	}
++	ret = cxio_poll_cq(wq, &(chp->cq), &cqe, &cqe_flushed, &cookie,
++				   &credit);
++	if (t3a_device(chp->rhp) && credit) {
++		PDBG("%s updating %d cq credits on id %d\n", __FUNCTION__, 
++		     credit, chp->cq.cqid);
++		cxio_hal_cq_op(&rhp->rdev, &chp->cq, CQ_CREDIT_UPDATE, credit);
++	}
++
++	if (ret) {
++		ret = -EAGAIN;
++		goto out;
++	}
++	ret = 1;
++
++	wc->wr_id = cookie;
++	wc->qp_num = qhp->wq.qpid;
++	wc->vendor_err = CQE_STATUS(cqe);
++
++	PDBG("%s qpid 0x%x type %d opcode %d status 0x%x wrid hi 0x%x "
++	     "lo 0x%x cookie 0x%llx\n", __FUNCTION__, 
++	     CQE_QPID(cqe), CQE_TYPE(cqe),
++	     CQE_OPCODE(cqe), CQE_STATUS(cqe), CQE_WRID_HI(cqe),
++	     CQE_WRID_LOW(cqe), cookie);
++
++	if (CQE_TYPE(cqe) == 0) {
++		if (!CQE_STATUS(cqe))
++			wc->byte_len = CQE_LEN(cqe);
++		else
++			wc->byte_len = 0;
++		wc->opcode = IB_WC_RECV;
++	} else {
++		switch (CQE_OPCODE(cqe)) {
++		case T3_RDMA_WRITE:
++			wc->opcode = IB_WC_RDMA_WRITE;
++			break;
++		case T3_READ_REQ:
++			wc->opcode = IB_WC_RDMA_READ;
++			wc->byte_len = CQE_LEN(cqe);
++			break;
++		case T3_SEND:
++		case T3_SEND_WITH_SE:
++			wc->opcode = IB_WC_SEND;
++			break;
++		case T3_BIND_MW:
++			wc->opcode = IB_WC_BIND_MW;
++			break;
++
++		/* these aren't supported yet */
++		case T3_SEND_WITH_INV:
++		case T3_SEND_WITH_SE_INV:
++		case T3_LOCAL_INV:
++		case T3_FAST_REGISTER:
++		default:
++			printk(KERN_ERR MOD "Unexpected opcode %d "
++			       "in the CQE received for QPID=0x%0x\n", 
++			       CQE_OPCODE(cqe), CQE_QPID(cqe));
++			ret = -EINVAL;
++			goto out;
++		}
++	}
++
++	if (cqe_flushed)
++		wc->status = IB_WC_WR_FLUSH_ERR;
++	else {
++		
++		switch (CQE_STATUS(cqe)) {
++		case TPT_ERR_SUCCESS:
++			wc->status = IB_WC_SUCCESS;
++			break;
++		case TPT_ERR_STAG:
++			wc->status = IB_WC_LOC_ACCESS_ERR;
++			break;
++		case TPT_ERR_PDID:
++			wc->status = IB_WC_LOC_PROT_ERR;
++			break;
++		case TPT_ERR_QPID:
++		case TPT_ERR_ACCESS:
++			wc->status = IB_WC_LOC_ACCESS_ERR;
++			break;
++		case TPT_ERR_WRAP:
++			wc->status = IB_WC_GENERAL_ERR;
++			break;
++		case TPT_ERR_BOUND:
++			wc->status = IB_WC_LOC_LEN_ERR;
++			break;
++		case TPT_ERR_INVALIDATE_SHARED_MR:
++		case TPT_ERR_INVALIDATE_MR_WITH_MW_BOUND:
++			wc->status = IB_WC_MW_BIND_ERR;
++			break;
++		case TPT_ERR_CRC:
++		case TPT_ERR_MARKER:
++		case TPT_ERR_PDU_LEN_ERR:
++		case TPT_ERR_OUT_OF_RQE:
++		case TPT_ERR_DDP_VERSION:
++		case TPT_ERR_RDMA_VERSION:
++		case TPT_ERR_DDP_QUEUE_NUM:
++		case TPT_ERR_MSN:
++		case TPT_ERR_TBIT:
++		case TPT_ERR_MO:
++		case TPT_ERR_MSN_RANGE:
++		case TPT_ERR_IRD_OVERFLOW:
++		case TPT_ERR_OPCODE:
++			wc->status = IB_WC_FATAL_ERR;
++			break;
++		case TPT_ERR_SWFLUSH:
++			wc->status = IB_WC_WR_FLUSH_ERR;
++			break;
++		default:
++			printk(KERN_ERR MOD "Unexpected cqe_status 0x%x for "
++			       "QPID=0x%0x\n", CQE_STATUS(cqe), CQE_QPID(cqe));
++			ret = -EINVAL;
++		}
++	}
++out:
++	if (wq)
++		spin_unlock(&qhp->lock);
++	return ret;
++}
++
++int iwch_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *wc)
++{
++	struct iwch_dev *rhp;
++	struct iwch_cq *chp;
++	unsigned long flags;
++	int npolled;
++	int err = 0;
++
++	chp = to_iwch_cq(ibcq);
++	rhp = chp->rhp;
++
++	spin_lock_irqsave(&chp->lock, flags);
++	for (npolled = 0; npolled < num_entries; ++npolled) {
 +#ifdef DEBUG
-+#include <linux/types.h>
-+#include "common.h"
-+#include "cxgb3_ioctl.h"
-+#include "cxio_hal.h"
-+#include "cxio_wr.h"
-+
-+void cxio_dump_tpt(struct cxio_rdev *rdev, u32 stag) 
-+{
-+	struct ch_mem_range *m;
-+	u64 *data;
-+	int rc;
-+	int size = 32;
-+
-+	m = kmalloc(sizeof(*m) + size, GFP_ATOMIC);
-+	if (!m) {
-+		PDBG("%s couldn't allocate memory.\n", __FUNCTION__);
-+		return;
-+	}
-+	m->mem_id = MEM_PMRX;
-+	m->addr = (stag>>8) * 32 + rdev->rnic_info.tpt_base;
-+	m->len = size;
-+	PDBG("%s TPT addr 0x%x len %d\n", __FUNCTION__, m->addr, m->len);
-+	rc = rdev->t3cdev_p->ctl(rdev->t3cdev_p, RDMA_GET_MEM, m);
-+	if (rc) {
-+		PDBG("%s toectl returned error %d\n", __FUNCTION__, rc);
-+		kfree(m);
-+		return;
-+	}
-+
-+	data = (u64 *)m->buf;
-+	while (size > 0) {
-+		PDBG("TPT %08x: %016llx\n", m->addr, (u64)*data);
-+		size -= 8;
-+		data++;
-+		m->addr += 8;
-+	}
-+	kfree(m);
-+}
-+
-+void cxio_dump_pbl(struct cxio_rdev *rdev, u32 pbl_addr, uint len, u8 shift)
-+{
-+	struct ch_mem_range *m;
-+	u64 *data;
-+	int rc;
-+	int size, npages;
-+
-+	shift += 12;
-+	npages = (len + (1ULL << shift) - 1) >> shift;
-+	size = npages * sizeof(u64);
-+
-+	m = kmalloc(sizeof(*m) + size, GFP_ATOMIC);
-+	if (!m) {
-+		PDBG("%s couldn't allocate memory.\n", __FUNCTION__);
-+		return;
-+	}
-+	m->mem_id = MEM_PMRX;
-+	m->addr = pbl_addr;
-+	m->len = size;
-+	PDBG("%s PBL addr 0x%x len %d depth %d\n", 
-+		__FUNCTION__, m->addr, m->len, npages);
-+	rc = rdev->t3cdev_p->ctl(rdev->t3cdev_p, RDMA_GET_MEM, m);
-+	if (rc) {
-+		PDBG("%s toectl returned error %d\n", __FUNCTION__, rc);
-+		kfree(m);
-+		return;
-+	}
-+
-+	data = (u64 *)m->buf;
-+	while (size > 0) {
-+		PDBG("PBL %08x: %016llx\n", m->addr, (u64)*data);
-+		size -= 8;
-+		data++;
-+		m->addr += 8;
-+	}
-+	kfree(m);
-+}
-+
-+void cxio_dump_wqe(union t3_wr *wqe)
-+{
-+	__be64 *data = (__be64 *)wqe;
-+	uint size = (uint)(be64_to_cpu(*data) & 0xff);
-+
-+	if (size == 0) 
-+		size = 8;
-+	while (size > 0) {
-+		PDBG("WQE %p: %016llx\n", data, be64_to_cpu(*data));
-+		size--;
-+		data++;
-+	}
-+}
-+
-+void cxio_dump_wce(struct t3_cqe *wce)
-+{
-+	__be64 *data = (__be64 *)wce;
-+	int size = sizeof(*wce);
-+
-+	while (size > 0) {
-+		PDBG("WCE %p: %016llx\n", data, be64_to_cpu(*data));
-+		size -= 8;
-+		data++;
-+	}
-+}
-+
-+void cxio_dump_rqt(struct cxio_rdev *rdev, u32 hwtid, int nents)
-+{
-+	struct ch_mem_range *m;
-+	int size = nents * 64;
-+	u64 *data;
-+	int rc;
-+
-+	m = kmalloc(sizeof(*m) + size, GFP_ATOMIC);
-+	if (!m) {
-+		PDBG("%s couldn't allocate memory.\n", __FUNCTION__);
-+		return;
-+	}
-+	m->mem_id = MEM_PMRX;
-+	m->addr = ((hwtid)<<10) + rdev->rnic_info.rqt_base;
-+	m->len = size;
-+	PDBG("%s RQT addr 0x%x len %d\n", __FUNCTION__, m->addr, m->len);
-+	rc = rdev->t3cdev_p->ctl(rdev->t3cdev_p, RDMA_GET_MEM, m);
-+	if (rc) {
-+		PDBG("%s toectl returned error %d\n", __FUNCTION__, rc);
-+		kfree(m);
-+		return;
-+	}
-+
-+	data = (u64 *)m->buf;
-+	while (size > 0) {
-+		PDBG("RQT %08x: %016llx\n", m->addr, (u64)*data);
-+		size -= 8;
-+		data++;
-+		m->addr += 8;
-+	}
-+	kfree(m);
-+}
-+
-+void cxio_dump_tcb(struct cxio_rdev *rdev, u32 hwtid)
-+{
-+	struct ch_mem_range *m;
-+	int size = TCB_SIZE;
-+	u32 *data;
-+	int rc;
-+
-+	m = kmalloc(sizeof(*m) + size, GFP_ATOMIC);
-+	if (!m) {
-+		PDBG("%s couldn't allocate memory.\n", __FUNCTION__);
-+		return;
-+	}
-+	m->mem_id = MEM_CM;
-+	m->addr = hwtid * size; 
-+	m->len = size;
-+	PDBG("%s TCB %d len %d\n", __FUNCTION__, m->addr, m->len);
-+	rc = rdev->t3cdev_p->ctl(rdev->t3cdev_p, RDMA_GET_MEM, m);
-+	if (rc) {
-+		PDBG("%s toectl returned error %d\n", __FUNCTION__, rc);
-+		kfree(m);
-+		return;
-+	}
-+
-+	data = (u32 *)m->buf;
-+	while (size > 0) {
-+		printk("%2u: %08x %08x %08x %08x %08x %08x %08x %08x\n", 
-+			m->addr, 
-+			*(data+2), *(data+3), *(data),*(data+1),
-+			*(data+6), *(data+7), *(data+4), *(data+5));
-+		size -= 32;
-+		data += 8;
-+		m->addr += 32;
-+	}
-+	kfree(m);
-+}
++		int i=0;
 +#endif
++
++		/*
++	 	 * Because T3 can post CQEs that are _not_ associated
++	 	 * with a WR, we might have to poll again after removing
++	 	 * one of these.  
++		 */
++		do {
++			err = iwch_poll_cq_one(rhp, chp, wc + npolled);
++#ifdef DEBUG
++			BUG_ON(++i > 1000);
++#endif
++		} while (err == -EAGAIN);
++		if (err <= 0)
++			break;
++	}
++	spin_unlock_irqrestore(&chp->lock, flags);
++
++	if (err < 0)
++		return err;
++	else {
++		return npolled;
++	}
++}
++
++int iwch_modify_cq(struct ib_cq *cq, int cqe)
++{
++	PDBG("iwch_modify_cq: TBD\n");
++	return 0;
++}

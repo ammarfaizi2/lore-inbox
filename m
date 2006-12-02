@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422863AbWLBLJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422685AbWLBLIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422863AbWLBLJM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 06:09:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162222AbWLBLIy
+	id S1422685AbWLBLIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 06:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162131AbWLBK7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 06:08:54 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:17093 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1162219AbWLBK7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 05:59:25 -0500
+	Sat, 2 Dec 2006 05:59:24 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:63718 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1759456AbWLBK7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 05:59:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=EOYC/iNcyp9OJMgGsPqoRmXiar0yVYe0xjZDf898XFcve7BxbkCx6+a+Q7/NicuLfi7YXEKsqO0BWIlhWA6PKyWepwu5WflgivD2Kl/wXeJgESgsE2Opm92q/o+Mvpz7xPdpqUWcsajQCxE07aZw7HQMFeTuUXNnbZTK66ynLM8=
+        b=fLGQmeD3QIa0JvgIgBbsy8LDCP3YEfLD6KEJRO9ZfTa/zuK0y8NDMMa0UGEB+b6JYGLytVH35zn5/dq7FPEHQtjIeFoEsZ90GJbVZGxtl/9nV5mRbJmAojc4/1YG8iFaayyJm3I9Yrn9Z+zPAv0cI9CitBVgbg7qIKZdpWooYkk=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 07/26] Dynamic kernel command-line - frv
-Date: Sat, 2 Dec 2006 12:50:34 +0200
+Subject: [PATCH 02/26] Dynamic kernel command-line - alpha
+Date: Sat, 2 Dec 2006 12:48:54 +0200
 User-Agent: KMail/1.9.5
 References: <200612021247.43291.alon.barlev@gmail.com>
 In-Reply-To: <200612021247.43291.alon.barlev@gmail.com>
@@ -25,7 +25,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612021250.35481.alon.barlev@gmail.com>
+Message-Id: <200612021248.55310.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -37,33 +37,33 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.19.org/arch/frv/kernel/setup.c linux-2.6.19/arch/frv/kernel/setup.c
---- linux-2.6.19.org/arch/frv/kernel/setup.c	2006-11-29 23:57:37.000000000 +0200
-+++ linux-2.6.19/arch/frv/kernel/setup.c	2006-12-02 11:31:32.000000000 +0200
-@@ -110,7 +110,7 @@ unsigned long __initdata num_mappedpages
+diff -urNp linux-2.6.19.org/arch/alpha/kernel/setup.c linux-2.6.19/arch/alpha/kernel/setup.c
+--- linux-2.6.19.org/arch/alpha/kernel/setup.c	2006-11-29 23:57:37.000000000 +0200
++++ linux-2.6.19/arch/alpha/kernel/setup.c	2006-12-02 11:31:32.000000000 +0200
+@@ -122,7 +122,7 @@ static void get_sysnames(unsigned long, 
+ 			 char **, char **);
+ static void determine_cpu_caches (unsigned int);
  
- struct cpuinfo_frv __nongprelbss boot_cpu_data;
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
  
--char command_line[COMMAND_LINE_SIZE];
-+char __initdata command_line[COMMAND_LINE_SIZE];
- char __initdata redboot_command_line[COMMAND_LINE_SIZE];
+ /*
+  * The format of "screen_info" is strange, and due to early
+@@ -547,7 +547,7 @@ setup_arch(char **cmdline_p)
+ 	} else {
+ 		strlcpy(command_line, COMMAND_LINE, sizeof command_line);
+ 	}
+-	strcpy(saved_command_line, command_line);
++	strcpy(boot_command_line, command_line);
+ 	*cmdline_p = command_line;
  
- #ifdef CONFIG_PM
-@@ -762,7 +762,7 @@ void __init setup_arch(char **cmdline_p)
- 	printk("uClinux FR-V port done by Red Hat Inc <dhowells@redhat.com>\n");
- #endif
+ 	/* 
+@@ -589,7 +589,7 @@ setup_arch(char **cmdline_p)
+ 	}
  
--	memcpy(saved_command_line, redboot_command_line, COMMAND_LINE_SIZE);
-+	memcpy(boot_command_line, redboot_command_line, COMMAND_LINE_SIZE);
+ 	/* Replace the command line, now that we've killed it with strsep.  */
+-	strcpy(command_line, saved_command_line);
++	strcpy(command_line, boot_command_line);
  
- 	determine_cpu();
- 	determine_clocks(1);
-@@ -803,7 +803,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- 
- 	/* deal with the command line - RedBoot may have passed one to the kernel */
--	memcpy(command_line, saved_command_line, sizeof(command_line));
-+	memcpy(command_line, boot_command_line, sizeof(command_line));
- 	*cmdline_p = &command_line[0];
- 	parse_cmdline_early(command_line);
- 
+ 	/* If we want SRM console printk echoing early, do it now. */
+ 	if (alpha_using_srm && srmcons_output) {

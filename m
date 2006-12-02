@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162702AbWLBBVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWLBB2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162702AbWLBBVl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 20:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759365AbWLBBVk
+	id S1161415AbWLBB2P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 20:28:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759366AbWLBB2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 20:21:40 -0500
-Received: from qb-out-0506.google.com ([72.14.204.224]:64602 "EHLO
-	qb-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1759363AbWLBBVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 20:21:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=GcxRJ+meL90qgvsP639FewtmY8CrkLIS/4npPrhSP7b+h0+sd1cNNiGxeyjiQ8Zk4Vyx06DE5p+HHS2QBMNH+OZQXObTdaljx1wB1YDGR3NvxU2VvoRYm2cR3+2xVqOVMGzjZaJ9eXLKF3ZyixuY0OtTgLB9aQa4akrgE0ccsVc=
-Subject: Re: [dm-devel] Re: [RFC][PATCH] dm-cache: block level disk cache
-	target for device mapper
-From: Ming Zhang <blackmagic02881@gmail.com>
-Reply-To: blackmagic02881@gmail.com
-To: device-mapper development <dm-devel@redhat.com>
-Cc: bert hubert <bert.hubert@netherlabs.nl>, ming@acis.ufl.edu,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <a4e6962a0611271155q55adf6fftd489de84d6ae7e88@mail.gmail.com>
-References: <200611271826.kARIQYRi032717@hera.kernel.org>
-	 <20061127184748.GA11219@outpost.ds9a.nl>
-	 <a4e6962a0611271155q55adf6fftd489de84d6ae7e88@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 01 Dec 2006 20:21:37 -0500
-Message-Id: <1165022497.2761.216.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Dec 2006 20:28:15 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:50066 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S1759365AbWLBB2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 20:28:14 -0500
+Message-ID: <4570D6AB.9010204@scientia.net>
+Date: Sat, 02 Dec 2006 02:28:11 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061124)
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
+ hole mapping related bug?!
+References: <4570CF26.8070800@scientia.net> <20061202011505.GA2728@codepoet.org>
+In-Reply-To: <20061202011505.GA2728@codepoet.org>
+Content-Type: multipart/mixed;
+ boundary="------------030608070506090808060001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-11-27 at 13:55 -0600, Eric Van Hensbergen wrote:
-> On 11/27/06, bert hubert <bert.hubert@netherlabs.nl> wrote:
-> > On Mon, Nov 27, 2006 at 06:26:34PM +0000, Eric Van Hensbergen wrote:
-> > > This is the first cut of a device-mapper target which provides a write-back
-> > > or write-through block cache.  It is intended to be used in conjunction with
-> > > remote block devices such as iSCSI or ATA-over-Ethernet, particularly in
-> > > cluster situations.
-> >
-> > How does this work in practice? In other words, what is a typical actual
-> > configuration?
-> >
-> > There is a remote block device, and a local one, and these are kept into
-> > sync in some way?
-> >
-> 
-> That's the basic idea.  In our testbed, we had a single iSCSI server
-> exporting block devices to several clients -- each maintaining their
-> own local disk cache of the server exported block devices.  You can
-> configured either write-through or write-back policies -- write-back
-> has better performance, but somewhat obvious consistency issues in
-> failure cases.
-> 
-> The original intent was to combine this with the dm-cow target (which
-> I posted a few hours before the dm-cache patch) to provide a scalable
-> cluster deployment system based on back-end iSCSI or ATA-over-Ethernet
-> storage.
+This is a multi-part message in MIME format.
+--------------030608070506090808060001
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-like to see this idea but any similarity with
-http://www.ele.uri.edu/Research/hpcl/STICS/stics.pdf?
+Erik Andersen wrote:
+> Doh!  I have a Tyan S2895 in my system, and I've been pulling my
+> hair out trying to track down the cause of a similar somewhat
+> rare failure for the pre-computer sha1 of a block of data to
+> actually match the calculated sha1.  I'd been hunting in vain the
+> past few days trying to find a cause -- looking for buffer
+> overflows, non thread safe code, or similar usual suspects.
+>
+> It is a relief to see I am not alone!
+>   
+^^
 
-STICS is patent pending so not sure if kernel can be free to merge this
-dm-cache.
+You might read my email and all links in it, etc. throughly,.. than you
+can try what I did.
 
+Please inform me about all your results, and about your specific
+hardware (i.e. CPU type (with stepping and exact model), which harddisks
+and so on).
 
-> 
->           -eric
-> 
-> --
-> dm-devel mailing list
-> dm-devel@redhat.com
-> https://www.redhat.com/mailman/listinfo/dm-devel
+Best wishes,
+Chris.
 
+--------------030608070506090808060001
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------030608070506090808060001--

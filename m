@@ -1,77 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424169AbWLBVjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424174AbWLBVoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424169AbWLBVjp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424170AbWLBVjp
+	id S1424174AbWLBVoM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424170AbWLBVoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:39:45 -0500
-Received: from static-ip-217-172-177-14.inaddr.intergenia.de ([217.172.177.14]:64683
-	"EHLO minden014.server4you.de") by vger.kernel.org with ESMTP
-	id S1424169AbWLBVjo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:39:44 -0500
-From: Christian Parpart <trapni@gentoo.org>
-Organization: Gentoo Foundation
-To: linux-kernel@vger.kernel.org
-Subject: x86-64 dual core: oops'ing alot, "null pointer deref, ..."
-Date: Sat, 2 Dec 2006 22:39:38 +0100
+	Sat, 2 Dec 2006 16:44:12 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:10897 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1424156AbWLBVoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:44:11 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Date: Sat, 2 Dec 2006 22:43:58 +0100
 User-Agent: KMail/1.9.5
+Cc: Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk>
+In-Reply-To: <20061202184035.GL3078@ftp.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1291786.pN6A9Bh9GN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200612022239.42275.trapni@gentoo.org>
+Content-Disposition: inline
+Message-Id: <200612022243.58348.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1291786.pN6A9Bh9GN
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-Hi all,
+On Saturday 02 December 2006 19:40, Al Viro wrote:
 
-(nearly?) just like bart trojanowski's problem, I get tons of oops'es when=
-=20
-booting into the kernel using SMP activated.
+> RTFPosting.  It might be void *, but it's set via SETUP_TIMER which
+> does type checks before casting to void *.
+>
+> IOW, I don't want _any_ typecasts/container_of necessary in the code.
+>
+> Sane variant is
+>
+> void foo_timer(struct net_device *dev)
+> {
+> 	...
+> }
+>
+> 	struct foo_dev *p = netdev_priv(dev);
+> 	SETUP_TIMER(&p->timer, foo_timer, dev);
+>
+> etc.
+>
+> With warning generated if foo_timer(dev) would not be type safe.  Without
+> typecasts.  Without container_of().  Without any bleeding cruft at all.
 
-noapic cmdline does not help either.
+You need some more magic macros to access/modify the data field.
+Your SETUP_TIMER macro only protects the simple cases, which are easy anyway, 
+in this case I prefer the space savings container_of can give us.
 
-However, I made lots some screenshots of my oops times as it sometimes even=
-=20
-happens before init got spawned:
-
-http://mylair.de/~trapni/crashes/30112006067.jpg
-http://mylair.de/~trapni/crashes/30112006069.jpg
-http://mylair.de/~trapni/crashes/01122006070.jpg
-http://mylair.de/~trapni/crashes/02122006071.jpg
-http://mylair.de/~trapni/crashes/02122006072.jpg
-http://mylair.de/~trapni/crashes/02122006074.jpg
-http://mylair.de/~trapni/crashes/02122006076.jpg
-
-all with smp enabled, and with KV from 2.6.16 to 2.6.19.
-
-I am currently playing with kexec/kdump to get more out of it, but don't=20
-expect me to get it running well (yet) ;)
-
-However, I'd be really pleased when someone could help me out here as I'm n=
-ot=20
-really willing to run in non-smp mode when having a second core in the box.
-
-Many thanks in advance,
-Christian Parpart.
-
---nextPart1291786.pN6A9Bh9GN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFcfKePpa2GmDVhK0RAk95AJ4k39QG/3ZESiOWD7yqg0TeV13HLQCdHC2e
-jwTnCojc9oPVQxiNGPcHo2k=
-=eNFV
------END PGP SIGNATURE-----
-
---nextPart1291786.pN6A9Bh9GN--
+bye, Roman

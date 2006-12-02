@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422874AbWLBL3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423165AbWLBLar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422874AbWLBL3f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 06:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423146AbWLBL3f
+	id S1423165AbWLBLar (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 06:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423351AbWLBLar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 06:29:35 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:51276 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422874AbWLBL3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 06:29:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=CQen+hH2aPsTGvibm9C9DScmC4iy7ULNmL4N3mybmj+b/dRuk4XwYazKSHLxlGBnDGffpQicrcbxP9zPOJIs7lcX4qrXlxSO9Q2sF2ctD2Q1leAwz80PXfsi+T/NlUMGwOdx0Cp++ZLYPqDi6cHmUopIuKyUbaS+khJs8VuyBoY=
-Subject: [PATCH 2.6.19] jffs: replace kmalloc+memset with kzalloc
-From: Yan Burman <burman.yan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@kernel.org, jffs-dev@axis.com
-Content-Type: text/plain
-Date: Sat, 02 Dec 2006 13:31:23 +0200
-Message-Id: <1165059084.4523.33.camel@localhost>
+	Sat, 2 Dec 2006 06:30:47 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38880 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1423165AbWLBLaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 06:30:46 -0500
+Date: Sat, 2 Dec 2006 11:37:52 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Karsten Weiss <knweiss@gmx.de>
+Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
+ memory hole mapping related bug?!
+Message-ID: <20061202113752.47dab7c6@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612021048200.2981@addx.localnet>
+References: <4570CF26.8070800@scientia.net>
+	<Pine.LNX.4.64.0612021048200.2981@addx.localnet>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace kmalloc+memset with kzalloc
+On Sat, 2 Dec 2006 12:00:36 +0100 (CET)
+Karsten Weiss <knweiss@gmx.de> wrote:
 
-Signed-off-by: Yan Burman <burman.yan@gmail.com>
+> Hello Christoph!
+> 
+> On Sat, 2 Dec 2006, Christoph Anton Mitterer wrote:
+> 
+> > I found a severe bug mainly by fortune because it occurs very rarely.
+> > My test looks like the following: I have about 30GB of testing data on
+> 
+> This sounds very familiar! One of the Linux compute clusters I
+> administer at work is a 336 node system consisting of the
+> following components:
 
-diff -rubp linux-2.6.19-rc5_orig/fs/jffs/intrep.c linux-2.6.19-rc5_kzalloc/fs/jffs/intrep.c
---- linux-2.6.19-rc5_orig/fs/jffs/intrep.c	2006-11-09 12:16:20.000000000 +0200
-+++ linux-2.6.19-rc5_kzalloc/fs/jffs/intrep.c	2006-11-11 22:44:18.000000000 +0200
-@@ -591,7 +591,7 @@ jffs_add_virtual_root(struct jffs_contro
- 	D2(printk("jffs_add_virtual_root(): "
- 		  "Creating a virtual root directory.\n"));
- 
--	if (!(root = kmalloc(sizeof(struct jffs_file), GFP_KERNEL))) {
-+	if (!(root = kzalloc(sizeof(struct jffs_file), GFP_KERNEL))) {
- 		return -ENOMEM;
- 	}
- 	no_jffs_file++;
-@@ -603,7 +603,6 @@ jffs_add_virtual_root(struct jffs_contro
- 	DJM(no_jffs_node++);
- 	memset(node, 0, sizeof(struct jffs_node));
- 	node->ino = JFFS_MIN_INO;
--	memset(root, 0, sizeof(struct jffs_file));
- 	root->ino = JFFS_MIN_INO;
- 	root->mode = S_IFDIR | S_IRWXU | S_IRGRP
- 		     | S_IXGRP | S_IROTH | S_IXOTH;
-
-
+See the thread http://lkml.org/lkml/2006/8/16/305
 

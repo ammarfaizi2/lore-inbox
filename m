@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162298AbWLBAca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162379AbWLBAdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162298AbWLBAca (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 19:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162306AbWLBAca
+	id S1162379AbWLBAdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 19:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162028AbWLBAdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 19:32:30 -0500
-Received: from cantor.suse.de ([195.135.220.2]:5023 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1162298AbWLBAca (ORCPT
+	Fri, 1 Dec 2006 19:33:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35295 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1162379AbWLBAdC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 19:32:30 -0500
-Date: Fri, 1 Dec 2006 16:32:16 -0800
-From: Greg KH <gregkh@suse.de>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [GIT PATCH] PCI patches for 2.6.19
-Message-ID: <20061202003216.GA13275@suse.de>
-References: <20061201231624.GA7552@kroah.com> <20061201233733.GA14249@colo.lackof.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061201233733.GA14249@colo.lackof.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 1 Dec 2006 19:33:02 -0500
+Date: Fri, 1 Dec 2006 16:32:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, linux-kernel@vger.kernel.org,
+       akinobu.mita@gmail.com, jgarzik@pobox.com, Matt_Domsch@dell.com
+Subject: Re: 2.6.19-rc6-mm2
+Message-Id: <20061201163248.f174bc0b.akpm@osdl.org>
+In-Reply-To: <200612011933.22029.edt@aei.ca>
+References: <20061128020246.47e481eb.akpm@osdl.org>
+	<20061129201006.b7ae509f.randy.dunlap@oracle.com>
+	<200611300803.30969.edt@aei.ca>
+	<200612011933.22029.edt@aei.ca>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 04:37:33PM -0700, Grant Grundler wrote:
-> On Fri, Dec 01, 2006 at 03:16:24PM -0800, Greg KH wrote:
-> > Here are some PCI patches for 2.6.19
+On Fri, 1 Dec 2006 19:33:21 -0500
+Ed Tomlinson <edt@aei.ca> wrote:
+
+> I booted without the video and vga settings with earlyprintk=vga and got output.  The
+> kenerl was complaining about a crc error.  Checking the patch list I found:
 > 
-> You meant 2.6.20-rc1?
+> crc32-replace-bitreverse-by-bitrev32.patch
+> 
+> reversing this patch fixes booting here.
 
-No, well yes, they are "against" 2.6.19 :)
+Odd that you're the only person seeing this - could be a miscompile?
 
-thanks,
+What was the error message, exactly?
 
-greg k-h

@@ -1,60 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758519AbWLBTpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162485AbWLBTv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758519AbWLBTpm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 14:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162484AbWLBTpm
+	id S1162485AbWLBTv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 14:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759479AbWLBTv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 14:45:42 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:48545 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1759471AbWLBTpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 14:45:41 -0500
-From: Daniel Drake <dsd@gentoo.org>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Cc: miraze@web.de
-Subject: [PATCH] kbuild: Write astest files to $(KBUILD_EXTMOD) directory
-Message-Id: <20061202194544.D9F057B40A0@zog.reactivated.net>
-Date: Sat,  2 Dec 2006 19:45:44 +0000 (GMT)
+	Sat, 2 Dec 2006 14:51:26 -0500
+Received: from wx-out-0506.google.com ([66.249.82.226]:54455 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1758537AbWLBTvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 14:51:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MH917Rj2oDdNzIiJGwShJquiCWnFN2ia1q90JqKyD+oZsWqloIlhDsqcv8NL9449Ps6+5Svs+vpdTVvO5KDGz/9fmTqKSeiBASZsZ8iC/276mnuJT7qpXa/99277ClcDkQlYc95kqYoBvXpfppGuGv7Ql71F/yjJzhocVgB4uOA=
+Message-ID: <571a92f0612021151r25849c81md2f44e29532c5c73@mail.gmail.com>
+Date: Sat, 2 Dec 2006 12:51:23 -0700
+From: "David Lopez" <dave.l.lopez@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH] USB: add driver for LabJack USB DAQ devices
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20061202074825.GA15982@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
+	 <20061201211801.GA448@kroah.com>
+	 <571a92f0612011612w13409d7u792b5afc20cc3e98@mail.gmail.com>
+	 <20061202074825.GA15982@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The astest code in 2.6.19 causes problems for Gentoo and other distributions
-building external kernel modules in sandboxes. kbuild has generally been
-pretty good at not violating the sandbox for quite a while, I hope we can
-keep it that way.
+On 12/2/06, Greg KH <greg@kroah.com> wrote:
+> On Fri, Dec 01, 2006 at 05:12:56PM -0700, David Lopez wrote:
+> > On 12/1/06, Greg KH <greg@kroah.com> wrote:
+> > >On Fri, Dec 01, 2006 at 01:37:22PM -0700, David Lopez wrote:
+> > >> From: David Lopez <dave.l.lopez@gmail.com>
+> > >
+> > >> +             /* Gets the Product ID for the device */
+> > >> +             case IOCTL_LJ_GET_PRODUCT_ID:
+> > >> +                     retval = put_user(dev->udev->descriptor.idProduct,
+> > >> +                                             (unsigned int __user
+> > >*)arg);
+> > >> +                     break;
+> > >
+> > >You can get this from sysfs or usbfs today.  Don't duplicate it please.
+> >
+> > I didn't look at sysfs or usbfs.  I just needed a way to determine the
+> > device from a device node in /dev from user space, and it seemed easy
+> > to use ioctl.
+>
+> Ok, but as there are other ways to get this information, can you take it
+> out please?
 
-Right now it writes to a temporary astest file in the current directory
-(i.e. /usr/src/linux), this is because it is found that writing to /dev/null
-is not safe because as deletes its output file on failure.
+I'll take it out.
 
-To clarify what a sandbox is: Gentoo's package system compiles the package
-in /var/tmp/portage and while that package is building it restricts writes
-to parts of the filesystem outside of /var/tmp/portage and /tmp. If the
-external module tries to write to another location on the real filesystem such
-as /usr/src/linux, the build is aborted due to sandbox violation.
 
-This patch prefixes the astest file path with the KBUILD_EXTMOD path if
-an external kernel module is being built. The behaviour in other situations
-is unmodified.
+> > >> +             /* Sets the bulk in endpoint for the next read from an
+> > >> integer argument.
+> > >> +              * There are two bulk endpoints, which are endpoints 0 and
+> > >1
+> > >> when
+> > >> +              * setting the integer argument. */
+> > >> +             case IOCTL_LJ_SET_BULK_IN_ENDPOINT:
+> > >> +                     data = (void __user *) arg;
+> > >> +                     if (data == NULL)
+> > >> +                             break;
+> > >> +
+> > >> +                     if (copy_from_user(&ep, data, sizeof(int))) {
+> > >> +                             retval = -EFAULT;
+> > >> +                             break;
+> > >> +                     }
+> > >> +
+> > >> +                     if(ep > N_BULK_IN_ENDPOINTS || ep < 0)
+> > >> +                             retval = -EINVAL;
+> > >> +                     else
+> > >> +                             dev->next_bulk_in_endpoint = ep;
+> > >> +                     break;
+> > >
+> > >Why is this needed?
+> >
+> > The devices have a stream mode which can only be read from the second
+> > bulk in endpoint.  All other communications are done from the first
+> > bulk in and bulk out endpoints, and I needed some way to indicate that
+> > the the next read should be from second bulk in endpoint keeping in
+> > mind that first bulk in endpoint can still be used.  Is there a better
+> > way to do this?
+>
+> Can you just create a new device node for the second endpoint?  That way
+> your userspace tools don't have to toggle anything, and it might make
+> things for users simpler.  Just use the second device node to read from
+> the endpoint used for streaming.  Writing on it might not need to do
+> anything (or you could tie the write into the single out endpoint,
+> that's up to you.)
+>
+> Would that work?
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+To do this do I call usb_register_dev twice with different endpoint
+info in the usb_ljusb struct that I pass in the probe function?
+This could work, though it is preferred that the second node's
+numbering is +1 of the first.  So for example, the first node for the
+first set of endpoints would be ljusb0 and second endpoint would be
+ljusb1.  Though now that I think about it a global mutex should help
+with that.
 
-Index: linux-2.6.19/scripts/Kbuild.include
-===================================================================
---- linux-2.6.19.orig/scripts/Kbuild.include
-+++ linux-2.6.19/scripts/Kbuild.include
-@@ -66,9 +66,11 @@ as-option = $(shell if $(CC) $(CFLAGS) $
- # as-instr
- # Usage: cflags-y += $(call as-instr, instr, option1, option2)
- 
--as-instr = $(shell if echo -e "$(1)" | $(AS) >/dev/null 2>&1 -W -Z -o astest$$$$.out ; \
-+as-instr = $(shell if echo -e "$(1)" | $(AS) >/dev/null 2>&1 -W -Z -o \
-+		   $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)astest$$$$.out ; \
- 		   then echo "$(2)"; else echo "$(3)"; fi; \
--	           rm -f astest$$$$.out)
-+	           rm -f \
-+		   $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)astest$$$$.out)
- 
- # cc-option
- # Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
+Someone pointed out to me that there is the possibility of using the
+libusb library as opposed to having a kernel driver, which would be
+preferable.  I will need to test this library to see if it what I am
+looking for and is stable enough, and if all goes well I might not
+need to submit this kernel driver.
+
+
+Thanks,
+David

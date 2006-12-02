@@ -1,89 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759463AbWLBK7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162916AbWLBK7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759463AbWLBK7V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 05:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759459AbWLBK7U
+	id S1162916AbWLBK7t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 05:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759459AbWLBK73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 05:59:20 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:55527 "EHLO
+	Sat, 2 Dec 2006 05:59:29 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:57575 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1759454AbWLBK7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 05:59:19 -0500
+	id S1162028AbWLBK7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 05:59:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=fnfq4CaeD4cvuqm4Rh1EotW6BvLoYN9rMdn5hw/BjBboJGygTe1U3tTXhK4SjjB98bGNEhH2L1bhGP/mVVyz46hBLsKnk8/nd7rumdnXZIq5OArp3Z9b56Cl2NwvhkzaAttuuUSC3HUPE9MewuPMCfQ70Fl2qSX61WFh1NlPySQ=
+        h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=aBgQL8iMjmY6tfaoMdommYiUARL//6nIqkzaHffbaBsNl4mmcefv0SmQNRCqafwM+cxuR9QNaSjvnxlRJOXO9HADbpY92J1cNIyOeM1yHw6n8ILk/ZORwjQ1WftN0GWrbYus5ZR8rWYcKSS6DNBGQtEujlnvgU28X5UohbnJcmI=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 00/26] Dynamic kernel command-line
-Date: Sat, 2 Dec 2006 12:47:41 +0200
+Subject: [PATCH 05/26] Dynamic kernel command-line - avr32
+Date: Sat, 2 Dec 2006 12:49:54 +0200
 User-Agent: KMail/1.9.5
+References: <200612021247.43291.alon.barlev@gmail.com>
+In-Reply-To: <200612021247.43291.alon.barlev@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612021247.43291.alon.barlev@gmail.com>
+Message-Id: <200612021249.55192.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
-
-This is take 3 of submission, I submit this patch
-once in a few monthes to collect some more signatures :)
-Until now, I got three:
-- avr32
-- sh
-- sh64
-
-I know this is not one of major priorities, but it
-should be simple enough to be reviewed and included.
-
-I will also be happy to get a REJECT response, so I
-stop trying to get it included. Any suggestions of
-how to push this farward will also be appreciated.
-
-Current implementation stores a static command-line
-buffer allocated to COMMAND_LINE_SIZE size. Most
-architectures stores two copies of this buffer, one
-for future reference and one for parameter parsing.
-
-Current kernel command-line size for most architecture
-is much too small for module parameters, video settings,
-initramfs paramters and much more. The problem is that
-setting COMMAND_LINE_SIZE to a grater value, allocates
-static buffers.
-
-In order to allow a greater command-line size, these
-buffers should be dynamically allocated or marked
-as init disposable buffers, so unused memory can be
-released.
-
-This patch renames the static saved_command_line
-variable into boot_command_line adding __initdata
-attribute, so that it can be disposed after
-initialization. This rename is required so applications
-that use saved_command_line will not be affected
-by this change.
-
-It reintroduces saved_command_line as dynamically
-allocated buffer to match the data in boot_command_line.
-
-It also mark secondary command-line buffer as __initdata,
-and copies it to dynamically allocated static_command_line
-buffer components may hold reference to it after
-initialization.
-
-This patch is for linux-2.6.19 and is divided to
-target each architecture. I could not check this in any
-architecture so please forgive me if I got it wrong.
-
-The per-architecture modification is very simple, use
-boot_command_line in place of saved_command_line. The
-common code is the change into dynamic command-line.
+1. Rename saved_command_line into boot_command_line.
+2. Set command_line as __initdata.
 
 Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
+Acked-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
 ---
 
+diff -urNp linux-2.6.19.org/arch/avr32/kernel/setup.c linux-2.6.19/arch/avr32/kernel/setup.c
+--- linux-2.6.19.org/arch/avr32/kernel/setup.c	2006-11-29 23:57:37.000000000 +0200
++++ linux-2.6.19/arch/avr32/kernel/setup.c	2006-12-02 11:31:32.000000000 +0200
+@@ -44,7 +44,7 @@ struct avr32_cpuinfo boot_cpu_data = {
+ };
+ EXPORT_SYMBOL(boot_cpu_data);
+ 
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
+ 
+ /*
+  * Should be more than enough, but if you have a _really_ complex
+@@ -202,7 +202,7 @@ __tagtable(ATAG_MEM, parse_tag_mem);
+ 
+ static int __init parse_tag_cmdline(struct tag *tag)
+ {
+-	strlcpy(saved_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
+ 	return 0;
+ }
+ __tagtable(ATAG_CMDLINE, parse_tag_cmdline);
+@@ -318,7 +318,7 @@ void __init setup_arch (char **cmdline_p
+ 	init_mm.end_data = (unsigned long) &_edata;
+ 	init_mm.brk = (unsigned long) &_end;
+ 
+-	strlcpy(command_line, saved_command_line, COMMAND_LINE_SIZE);
++	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
+ 	parse_early_param();
+ 

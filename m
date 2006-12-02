@@ -1,54 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162498AbWLBBAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755649AbWLBBKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162498AbWLBBAI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 20:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162530AbWLBBAH
+	id S1755649AbWLBBKq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 20:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757969AbWLBBKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 20:00:07 -0500
-Received: from mx2.cs.washington.edu ([128.208.2.105]:34274 "EHLO
-	mx2.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S1162526AbWLBBAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 20:00:03 -0500
-Date: Fri, 1 Dec 2006 16:59:55 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org, Martin Mares <mj@ucw.cz>
-Subject: Re: [PATCH] Be a bit defensive in quirk_nvidia_ck804() so we don't
- risk dereferencing a NULL pdev.
-In-Reply-To: <200612020021.56250.jesper.juhl@gmail.com>
-Message-ID: <Pine.LNX.4.64N.0612011656410.26933@attu4.cs.washington.edu>
-References: <200612020021.56250.jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Dec 2006 20:10:46 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:21163 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1755649AbWLBBKq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 20:10:46 -0500
+Date: Sat, 2 Dec 2006 01:10:43 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Russell Cattelan <cattelan@thebarn.com>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [Cluster-devel] Re: [GFS2] Change argument of gfs2_dinode_out [17/70]
+Message-ID: <20061202011043.GG3078@ftp.linux.org.uk>
+References: <1164888933.3752.338.camel@quoit.chygwyn.com> <1165000744.1194.89.camel@xenon.msp.redhat.com> <20061201192555.GD3078@ftp.linux.org.uk> <1165006331.1194.96.camel@xenon.msp.redhat.com> <20061201210849.GF3078@ftp.linux.org.uk> <1165015786.1194.133.camel@xenon.msp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165015786.1194.133.camel@xenon.msp.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006, Jesper Juhl wrote:
+On Fri, Dec 01, 2006 at 05:29:46PM -0600, Russell Cattelan wrote:
 
-> pci_get_slot() may return NULL if nothing was found. 
-> quirk_nvidia_ck804() does not check the value returned from pci_get_slot(),
-> so it may end up causing a NULL pointer deref.
-> 
+> gfs2 is supposed to be stabilized and use-able for the up coming rhel5
+> release, not pretty up for somebody to print out and hang on their wall.
 
-Looks good.  The possible NULL pointer is actually not at pci_dev_put, 
-but rather at pci_find_capability on the msi_ht_cap_enabled(pdev) call.
-
-> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-> index 5b44838..d3dcbda 100644
-> --- a/drivers/pci/quirks.c
-> +++ b/drivers/pci/quirks.c
-> @@ -1741,6 +1741,8 @@ static void __devinit quirk_nvidia_ck804
->  	 * a single one having MSI is enough to be sure that MSI are supported.
->  	 */
->  	pdev = pci_get_slot(dev->bus, 0);
-> +	if (!pdev)
-> +		return;
->  	if (dev->subordinate && !msi_ht_cap_enabled(dev)
->  	    && !msi_ht_cap_enabled(pdev)) {
->  		printk(KERN_WARNING "PCI: MSI quirk detected. "
-> 
-
-The check for dev->subordinate in the neighboring conditional can also be 
-removed.
-
-		David
+Your insight, sir, is truly stunning.  That is to say, it reminds of
+a sudden and unpleasant contact with something dense and misplaced.
+May I direct your attention to the fact that rhel5 is quite unlikely
+to be based on 2.6.20?

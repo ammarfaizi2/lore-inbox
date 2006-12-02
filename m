@@ -1,61 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424428AbWLBTZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758340AbWLBTg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424428AbWLBTZu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 14:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424433AbWLBTZu
+	id S1758340AbWLBTg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 14:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758385AbWLBTg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 14:25:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44740 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1424428AbWLBTZu (ORCPT
+	Sat, 2 Dec 2006 14:36:27 -0500
+Received: from bart.ott.istop.com ([66.11.172.99]:13213 "EHLO jukie.net")
+	by vger.kernel.org with ESMTP id S1758340AbWLBTg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 14:25:50 -0500
-Date: Sat, 2 Dec 2006 20:25:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       dcb314@hotmail.com
-Subject: swsusp: kill write-only variable
-Message-ID: <20061202192541.GA4019@elf.ucw.cz>
+	Sat, 2 Dec 2006 14:36:26 -0500
+Date: Sat, 2 Dec 2006 14:36:24 -0500
+From: Bart Trojanowski <bart@jukie.net>
+To: Robert Hancock <hancockr@shaw.ca>, linux-kernel@vger.kernel.org
+Subject: Re: nforce chipset + dualcore x86-64: Oops, NMI, Null pointer deref, etc
+Message-ID: <20061202193624.GD20337@jukie.net>
+References: <fa.EzYK0cTOJOhsylgT7NpDZwIOqx8@ifi.uio.no> <4571BBFE.9000707@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J4XPiPrVK1ev6Sgr"
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <4571BBFE.9000707@shaw.ca>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup write-only variable, suggested by D Binderman.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+--J4XPiPrVK1ev6Sgr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----
-commit e4bb3afa65dd97dd64fee857823040a963091444
-tree ee5af7ebe992cbcffd3824f853411a26c3cd085a
-parent 7f5ff90d786d5a8ef2488334f86e59ded46d9b72
-author Pavel <pavel@amd.ucw.cz> Sat, 02 Dec 2006 20:24:40 +0100
-committer Pavel <pavel@amd.ucw.cz> Sat, 02 Dec 2006 20:24:40 +0100
+* Robert Hancock <hancockr@shaw.ca> [061202 13:33]:
+> >[   27.337641] Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> >[   27.344035] ide: Assuming 33MHz system bus speed for PIO modes;=20
+> >override with idebus=3Dxx
+> >[   27.352191] Probing IDE interface ide0...
+> >[   28.145997] hda: PLEXTOR DVDR PX-716AL, ATAPI CD/DVD-ROM drive
+> >[   28.457643] Probing IDE interface ide1...
+> >[   28.970267] ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>=20
+> Hmm. Something seems missing here. Chipset-specific driver not enabled?=
+=20
+> I don't see any references to DMA mode or the controller type. It seems=
+=20
+> like in this case something in drivers/ide is blowing up later on (which=
+=20
+> shouldn't happen in any case but that code is not the greatest).
+>=20
+> Myself, I would try disabling CONFIG_IDE entirely and enabling the=20
+> corresponding new libata PATA driver for this chipset's PATA ports (for=
+=20
+> nForce4 it will be pata_amd). Even if it still doesn't work it may allow=
+=20
+> the real problem to be diagnosed more easily.
 
- kernel/power/disk.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+Robert, thanks for taking time to look at the output.
 
-diff --git a/kernel/power/disk.c b/kernel/power/disk.c
-index b1fb786..a049596 100644
---- a/kernel/power/disk.c
-+++ b/kernel/power/disk.c
-@@ -40,12 +40,10 @@ dev_t swsusp_resume_device;
- 
- static void power_down(suspend_disk_method_t mode)
- {
--	int error = 0;
--
- 	switch(mode) {
- 	case PM_DISK_PLATFORM:
- 		kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
--		error = pm_ops->enter(PM_SUSPEND_DISK);
-+		pm_ops->enter(PM_SUSPEND_DISK);
- 		break;
- 	case PM_DISK_SHUTDOWN:
- 		kernel_power_off();
+I am not using anything on the PATA chain, other then the DVD drive --
+which has sat idle during all of this.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+BTW, I did have this in my config already...
+
+CONFIG_ATA=3Dy
+CONFIG_SATA_NV=3Dy
+
+Thanks for the suggestion.  I can certainly disable CONFIG_IDE and try
+again.
+
+-Bart
+
+--=20
+				WebSig: http://www.jukie.net/~bart/sig/
+
+--J4XPiPrVK1ev6Sgr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFcdW4/zRZ1SKJaI8RAq2yAKC5iigpuPmiAV0JMkY/TzA496W2qQCdHe9Q
+Oj/60mUjUiP8Te00KlQVqNA=
+=5Pb9
+-----END PGP SIGNATURE-----
+
+--J4XPiPrVK1ev6Sgr--

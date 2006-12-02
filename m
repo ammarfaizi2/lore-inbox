@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162497AbWLBVbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162504AbWLBVcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162497AbWLBVbz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:31:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162499AbWLBVbz
+	id S1162504AbWLBVcm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:32:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162502AbWLBVcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:31:55 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18183 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1162497AbWLBVbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:31:55 -0500
-Date: Sat, 2 Dec 2006 22:32:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
+	Sat, 2 Dec 2006 16:32:42 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:2449 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1162500AbWLBVck (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:32:40 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Date: Sat, 2 Dec 2006 22:32:01 +0100
+User-Agent: KMail/1.9.5
+Cc: Thomas Gleixner <tglx@linutronix.de>, Al Viro <viro@ftp.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-Message-ID: <20061202213200.GZ11084@stusta.de>
-References: <00e401c7150e$061da500$6721100a@nuitysystems.com> <1164964119.3233.56.camel@laptopd505.fenrus.org> <20061201105955.GO11084@stusta.de> <Pine.LNX.4.61.0612022101500.1388@ginsburg.homenet>
+References: <20061201172149.GC3078@ftp.linux.org.uk> <1165070713.24604.50.camel@localhost.localdomain> <20061202160252.GQ14076@parisc-linux.org>
+In-Reply-To: <20061202160252.GQ14076@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0612022101500.1388@ginsburg.homenet>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200612022232.03345.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2006 at 09:08:56PM +0000, Tigran Aivazian wrote:
+Hi,
 
-> Hi Adrian,
+On Saturday 02 December 2006 17:02, Matthew Wilcox wrote:
 
-Hi Tigran,
+> On Sat, Dec 02, 2006 at 03:45:12PM +0100, Thomas Gleixner wrote:
+> > What's the cruft ?
+> >
+> > struct bla = container_of(timer, struct bla, timer); ???
+>
+> That's it, right there.  Any idea how much we've bloated the kernel with
+> sysfs, just by insisting that the struct device not be the first item in
+> the struct?
 
-> I have only now had time to read your patch and reject most of it --- the 
-> email addresses in the revision histories etc are for historical purposes 
-> and as such are very useful. They are NOT meant to be valid except at the 
-> moment of time when they are written. The only purpose of email address in 
-> the revision history is the indication where the person worked _at the 
-> time_.
+sysfs is a major bloat indeed, but that's not it.
+If at all this generates smaller code, as only one pointer is needed instead 
+of two.
 
-as I explained with my email address as an example, email addresses 
-aren't suitable for this.
-
-> The only bits that should be made sure to remain valid are the 
-> MODULE_AUTHOR, as Arjan also mentioned.
-
-Even the "please contact the author" and the printk() should continue to 
-contain known bouncing addresses?
-
-> Also, it is very strange that I have _not_ received your original email 
-> containing the patch --- I only saw it now via lkml archive.
-
-I haven't yet gotten a bounce from tigran@aivazian.fsnet.co.uk.
-
-Do you have a spamfilter?
-Or a provider doing some kind of email filtering?
-
-> Kind regards
-> Tigran
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+bye, Roman

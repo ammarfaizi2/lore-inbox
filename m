@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWLBB2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162237AbWLBCND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161415AbWLBB2P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 20:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759366AbWLBB2P
+	id S1162237AbWLBCND (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 21:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162714AbWLBCND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 20:28:15 -0500
-Received: from mail1.key-systems.net ([81.3.43.253]:50066 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S1759365AbWLBB2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 20:28:14 -0500
-Message-ID: <4570D6AB.9010204@scientia.net>
-Date: Sat, 02 Dec 2006 02:28:11 +0100
-From: Christoph Anton Mitterer <calestyo@scientia.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061124)
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives // memory
- hole mapping related bug?!
-References: <4570CF26.8070800@scientia.net> <20061202011505.GA2728@codepoet.org>
-In-Reply-To: <20061202011505.GA2728@codepoet.org>
-Content-Type: multipart/mixed;
- boundary="------------030608070506090808060001"
+	Fri, 1 Dec 2006 21:13:03 -0500
+Received: from wx-out-0506.google.com ([66.249.82.234]:34989 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1162237AbWLBCNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 21:13:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:mime-version:content-transfer-encoding:message-id:content-type:to:subject:date:x-mailer:from;
+        b=FjUYJ+GtBia4z8EgohT50AUrIQK5AzLiNAGhzY9ZWBTg3cHfahvH9SDjtpTiGe5ZFs2iZ/YsTgP1tEmKoaFEniDNWK/cYbHByH1VtpK9noowcB+p2DErU/3QCb6exNPQqr2LctzZRzsFnqgmKigh65RIv9/zMtxlTqtJjGkz8Fo=
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Transfer-Encoding: 7bit
+Message-Id: <61D44F12-D09C-4A6F-9FC7-4AC49FEC757B@gmail.com>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: hang booting onboard HPT 366 with libata (PATA)
+Date: Fri, 1 Dec 2006 21:13:00 -0500
+X-Mailer: Apple Mail (2.752.2)
+From: Ricardo Lugo <ricardolugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030608070506090808060001
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Hi all,
 
-Erik Andersen wrote:
-> Doh!  I have a Tyan S2895 in my system, and I've been pulling my
-> hair out trying to track down the cause of a similar somewhat
-> rare failure for the pre-computer sha1 of a block of data to
-> actually match the calculated sha1.  I'd been hunting in vain the
-> past few days trying to find a cause -- looking for buffer
-> overflows, non thread safe code, or similar usual suspects.
->
-> It is a relief to see I am not alone!
->   
-^^
+With the release of libata PATA support in 2.6.19, I am trying out  
+libata with my HPT366 (built-on to motherboard), and it hangs at  
+bootup while scanning for partitions. Additionally, it complains of  
+abnormal status? Related information about my setup below:
 
-You might read my email and all links in it, etc. throughly,.. than you
-can try what I did.
+- Abit BP6 motherboard running BIOS RV with HPT 1.28 (ie has  
+functional ACPI DSDT table), has been recapped, not overclocked
+- onboard HPT366 controller functions fine with the old IDE drivers  
+(but only so long as I use UDMA mode <=3, mode 4 has reported  
+problems on BP6)
+- hard drive is an 80GB seagate 7200.1-ish that supports UDMA mode 5,  
+partition scheme is (1-xfs, 2-swap)
+- this hard drive is the only drive connected, but the kernel  
+discovers one empty pata_piix controller and one empty pata_hpt366  
+controller before it.
 
-Please inform me about all your results, and about your specific
-hardware (i.e. CPU type (with stepping and exact model), which harddisks
-and so on).
+Related boot messages:
 
-Best wishes,
-Chris.
+---
 
---------------030608070506090808060001
-Content-Type: text/x-vcard; charset=utf-8;
- name="calestyo.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="calestyo.vcf"
+ACPI: PCI Interrup 0000:00:13.1[B] -> GSI 18 (level, low) -> IRQ 16
+ata5: PATA max UDMA/66 cmd 0xE400 ctl 0xE802 bmdma 0xEC00 irq 16
+ata6: PATA max UDMA/66 cmd 0x0 ctl 0x2 bmdma 0xEC08 irq 16
+scsi4 : pata_hpt366
+ata5.00: ATA-6, max UDMA/100, 156301488 sectors: LBA48
+ata5.00: ata5: dev 0 multi count 16
+ata5.00 configured for UDMA/33
+scsi5 : pata_hpt366
+ATA: abnormal status 0x1C on port 0x7
+scsi 4:0:0:0: Direct-Access     ATA      ST380011A         3.06 PQ: 0  
+ANSI: 5
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write back
+SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
+sda: Write Protect is off
+SCSI device sda: drive cache: write back
+sda:_
 
-YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
-Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
-CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
---------------030608070506090808060001--
+---
+
+If there is anything I can test to help fix this issue or further  
+diagnose it, please let me know.
+
+	- Ricardo

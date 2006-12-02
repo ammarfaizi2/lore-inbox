@@ -1,76 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424306AbWLBSBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424286AbWLBSCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424306AbWLBSBA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 13:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424309AbWLBSBA
+	id S1424286AbWLBSCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 13:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424309AbWLBSCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 13:01:00 -0500
-Received: from mail29.messagelabs.com ([216.82.249.147]:36239 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S1424306AbWLBSA7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 13:00:59 -0500
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-2.tower-29.messagelabs.com!1165082458!29839942!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: RFC: removing the dgrs net driver
-Date: Sat, 2 Dec 2006 12:00:57 -0600
-Message-ID: <335DD0B75189FB428E5C32680089FB9F8041BC@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: RFC: removing the dgrs net driver
-Thread-Index: AccWO9FRR9n7J45WRAWFV8Ug9qQACg==
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: <linux-netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <alan@lxorguk.ukuu.org.uk>, <bunk@stusta.de>
-X-OriginalArrivalTime: 02 Dec 2006 18:00:57.0956 (UTC) FILETIME=[D1A63240:01C7163B]
+	Sat, 2 Dec 2006 13:02:46 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27667 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1424286AbWLBSCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 13:02:46 -0500
+Date: Sat, 2 Dec 2006 18:02:33 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] cleanup asm/setup.h userspace visibility
+Message-ID: <20061202180233.GA26111@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org
+References: <20061202175539.GV11084@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061202175539.GV11084@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
- 
-> As I understand it a small number of such devices were produced, but I
-> have no objection to it going away. Even if someone had such a card it
-> would not actually be useful any more.
-> Alan
+On Sat, Dec 02, 2006 at 06:55:39PM +0100, Adrian Bunk wrote:
+> This patch makes the contents of the userspace asm/setup.h header 
+> consistent on all architectures:
+> - export setup.h to userspace on all architectures
+> - export only COMMAND_LINE_SIZE to userspace
 
-Alan is correct.
+On ARM, all the ATAGs are exported to userspace because they are an API
+for boot loaders to use.  Everything down to the comment "Memory map
+description" should be exported.
 
-The "Digi RightSwitch" product did actually make it out to the real
-world.
-
-Its basically a NIC card with a built-in switch, back when switches
-actually
-cost $$$.
-
-Obviously its been commoditized in the marketplace to the point where
-its
-basically worthless now. =)
-
-There were not that many produced or sold, and got "killed" pretty
-quick here at Digi.
-
-I know Digi as a company would not care if the driver "went away" from
-the
-kernel sources as the product hasn't been sold in many many years...
-
-However, there *might* actually still be users for said driver...
-Its just hard to say.
-
-Scott Kilau
-Digi International
-
-
-
-
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

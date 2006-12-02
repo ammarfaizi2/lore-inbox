@@ -1,79 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162475AbWLBVIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162479AbWLBVK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162475AbWLBVIt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162477AbWLBVIt
+	id S1162479AbWLBVK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162481AbWLBVK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:08:49 -0500
-Received: from astro.systems.pipex.net ([62.241.163.6]:63632 "EHLO
-	astro.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1162475AbWLBVIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:08:48 -0500
-Date: Sat, 2 Dec 2006 21:08:56 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@ginsburg.homenet
-To: Adrian Bunk <bunk@stusta.de>
-cc: Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-In-Reply-To: <20061201105955.GO11084@stusta.de>
-Message-ID: <Pine.LNX.4.61.0612022101500.1388@ginsburg.homenet>
-References: <00e401c7150e$061da500$6721100a@nuitysystems.com>
- <1164964119.3233.56.camel@laptopd505.fenrus.org> <20061201105955.GO11084@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 2 Dec 2006 16:10:26 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:30601 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1162479AbWLBVKY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:10:24 -0500
+Date: Sun, 3 Dec 2006 00:09:38 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>, Jens Axboe <jens.axboe@oracle.com>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Josh Triplett <josh@freedesktop.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, PATCH 2/2] qrcu: add rcutorture test
+Message-ID: <20061202210938.GA99@oleg>
+References: <20061129235409.GA1121@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061129235409.GA1121@oleg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+(with sparse annotations from Josh)
 
-I have only now had time to read your patch and reject most of it --- the 
-email addresses in the revision histories etc are for historical purposes 
-and as such are very useful. They are NOT meant to be valid except at the 
-moment of time when they are written. The only purpose of email address in 
-the revision history is the indication where the person worked _at the 
-time_.
+[PATCH 2/2] qrcu: add rcutorture test
 
-The only bits that should be made sure to remain valid are the 
-MODULE_AUTHOR, as Arjan also mentioned.
+Add rcutorture test for qrcu.
 
-Also, it is very strange that I have _not_ received your original email 
-containing the patch --- I only saw it now via lkml archive.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
 
-Kind regards
-Tigran
+--- 19-rc6/include/linux/srcu.h~2_test	2006-11-30 04:32:42.000000000 +0300
++++ 19-rc6/include/linux/srcu.h	2006-12-03 00:03:18.000000000 +0300
+@@ -64,8 +64,8 @@ struct qrcu_struct {
+ };
+ 
+ int init_qrcu_struct(struct qrcu_struct *qp);
+-int qrcu_read_lock(struct qrcu_struct *qp);
+-void qrcu_read_unlock(struct qrcu_struct *qp, int idx);
++int qrcu_read_lock(struct qrcu_struct *qp) __acquires(qp);
++void qrcu_read_unlock(struct qrcu_struct *qp, int idx) __releases(qp);
+ void synchronize_qrcu(struct qrcu_struct *qp);
+ 
+ /**
+--- 19-rc6/kernel/rcutorture.c~2_test	2006-10-22 18:24:03.000000000 +0400
++++ 19-rc6/kernel/rcutorture.c	2006-12-03 00:03:18.000000000 +0300
+@@ -465,6 +465,73 @@ static struct rcu_torture_ops srcu_ops =
+ };
+ 
+ /*
++ * Definitions for qrcu torture testing.
++ */
++
++static struct qrcu_struct qrcu_ctl;
++
++static void qrcu_torture_init(void)
++{
++	init_qrcu_struct(&qrcu_ctl);
++	rcu_sync_torture_init();
++}
++
++static void qrcu_torture_cleanup(void)
++{
++	synchronize_qrcu(&qrcu_ctl);
++	cleanup_qrcu_struct(&qrcu_ctl);
++}
++
++static int qrcu_torture_read_lock(void) __acquires(&qrcu_ctl)
++{
++	return qrcu_read_lock(&qrcu_ctl);
++}
++
++static void qrcu_torture_read_unlock(int idx) __releases(&qrcu_ctl)
++{
++	qrcu_read_unlock(&qrcu_ctl, idx);
++}
++
++static int qrcu_torture_completed(void)
++{
++	return qrcu_ctl.completed;
++}
++
++static void qrcu_torture_synchronize(void)
++{
++	synchronize_qrcu(&qrcu_ctl);
++}
++
++static int qrcu_torture_stats(char *page)
++{
++	int cnt = 0;
++	int idx = qrcu_ctl.completed & 0x1;
++
++	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):",
++			torture_type, TORTURE_FLAG, idx);
++
++	cnt += sprintf(&page[cnt], " (%d,%d)",
++			atomic_read(qrcu_ctl.ctr + 0),
++			atomic_read(qrcu_ctl.ctr + 1));
++
++	cnt += sprintf(&page[cnt], "\n");
++	return cnt;
++}
++
++static struct rcu_torture_ops qrcu_ops = {
++	.init = qrcu_torture_init,
++	.cleanup = qrcu_torture_cleanup,
++	.readlock = qrcu_torture_read_lock,
++	.readdelay = srcu_read_delay,
++	.readunlock = qrcu_torture_read_unlock,
++	.completed = qrcu_torture_completed,
++	.deferredfree = rcu_sync_torture_deferred_free,
++	.sync = qrcu_torture_synchronize,
++	.stats = qrcu_torture_stats,
++	.name = "qrcu"
++};
++
++/*
+  * Definitions for sched torture testing.
+  */
+ 
+@@ -503,8 +570,8 @@ static struct rcu_torture_ops sched_ops 
+ };
+ 
+ static struct rcu_torture_ops *torture_ops[] =
+-	{ &rcu_ops, &rcu_sync_ops, &rcu_bh_ops, &rcu_bh_sync_ops, &srcu_ops,
+-	  &sched_ops, NULL };
++	{ &rcu_ops, &rcu_sync_ops, &rcu_bh_ops, &rcu_bh_sync_ops,
++	  &srcu_ops, &qrcu_ops, &sched_ops, NULL };
+ 
+ /*
+  * RCU torture writer kthread.  Repeatedly substitutes a new structure
 
-On Fri, 1 Dec 2006, Adrian Bunk wrote:
-
-> On Fri, Dec 01, 2006 at 10:08:39AM +0100, Arjan van de Ven wrote:
->> On Thu, 2006-11-30 at 22:00 -0800, Hua Zhong wrote:
->>> I am curious, what's the point?
->>>
->>> These email addresses serve a "historical" purpose: they tell when the contribution was made,  what the author's email addresses
->>> were at that point.
->>
->>
->> .. and which company owns the copyright.
->> ...
->
-> Email addresses aren't good for this kind of information.
->
-> As an example, what is stusta.de and does it have any rights on my
-> contributions? [1]
->
-> cu
-> Adrian
->
-> [1] it can't own the copyright since in Germany the copyright belongs
->    untransferably [2] to the author [3]
-> [2] except for heritage
-> [3] but he can give exclusive usage rights for known kinds of usage
->
-> -- 
->
->       "Is there not promise of rain?" Ling Tan asked suddenly out
->        of the darkness. There had been need of rain for many days.
->       "Only a promise," Lao Er said.
->                                       Pearl S. Buck - Dragon Seed
->
->

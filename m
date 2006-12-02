@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162504AbWLBVcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162499AbWLBVcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162504AbWLBVcm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162502AbWLBVcm
+	id S1162499AbWLBVcu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162502AbWLBVcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:32:42 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:2449 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1162500AbWLBVck (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:32:40 -0500
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Date: Sat, 2 Dec 2006 22:32:01 +0100
-User-Agent: KMail/1.9.5
-Cc: Thomas Gleixner <tglx@linutronix.de>, Al Viro <viro@ftp.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+	Sat, 2 Dec 2006 16:32:50 -0500
+Received: from galaxy.systems.pipex.net ([62.241.162.31]:37824 "EHLO
+	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S1162499AbWLBVct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:32:49 -0500
+Date: Sat, 2 Dec 2006 21:33:00 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@ginsburg.homenet
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Hua Zhong <hzhong@gmail.com>, Adrian Bunk <bunk@stusta.de>,
        linux-kernel@vger.kernel.org
-References: <20061201172149.GC3078@ftp.linux.org.uk> <1165070713.24604.50.camel@localhost.localdomain> <20061202160252.GQ14076@parisc-linux.org>
-In-Reply-To: <20061202160252.GQ14076@parisc-linux.org>
+Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+In-Reply-To: <9a8748490612011340w75199a6co91c233f71f4090f6@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0612022125560.1464@ginsburg.homenet>
+References: <20061201055145.GK11084@stusta.de>  <00e401c7150e$061da500$6721100a@nuitysystems.com>
+ <9a8748490612011340w75199a6co91c233f71f4090f6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612022232.03345.zippel@linux-m68k.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 1 Dec 2006, Jesper Juhl wrote:
+> In my opinion the addresses should be working ones or not present at
+> all (or at the very least there should be a note that the email
+> address is outdated).
 
-On Saturday 02 December 2006 17:02, Matthew Wilcox wrote:
+The above argument is not valid for entries in a revision history. 
+Most likely (though not necessarily), when there are multiple entries in a 
+revision history with different email addresses, some are going to 
+contain obsolete parts.
 
-> On Sat, Dec 02, 2006 at 03:45:12PM +0100, Thomas Gleixner wrote:
-> > What's the cruft ?
-> >
-> > struct bla = container_of(timer, struct bla, timer); ???
->
-> That's it, right there.  Any idea how much we've bloated the kernel with
-> sysfs, just by insisting that the struct device not be the first item in
-> the struct?
+Besides, I am sure there are thousands of stale email addresses throughout 
+the current kernel source tree (and there have always been such) --- why 
+start with me? Start with the top --- Linus Torvalds :) Try finding an 
+obsolete email address for him in the kernel. By 2030 my turn may come :)
 
-sysfs is a major bloat indeed, but that's not it.
-If at all this generates smaller code, as only one pointer is needed instead 
-of two.
-
-bye, Roman
+Kind regards
+Tigran

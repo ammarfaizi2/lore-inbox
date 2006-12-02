@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163002AbWLBNzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163007AbWLBN4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163002AbWLBNzT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 08:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163008AbWLBNzS
+	id S1163007AbWLBN4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 08:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163009AbWLBN4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 08:55:18 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:3755 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S1163002AbWLBNzR (ORCPT
+	Sat, 2 Dec 2006 08:56:16 -0500
+Received: from wylie.me.uk ([82.68.155.89]:25309 "EHLO mail.wylie.me.uk")
+	by vger.kernel.org with ESMTP id S1163007AbWLBN4Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 08:55:17 -0500
-Date: Sat, 2 Dec 2006 14:55:12 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: linux-kernel@vger.kernel.org, Ladislav Michl <ladis@linux-mips.org>,
-       eibach@gdsys.de, stieler@gdsys.de, Jean Delvare <khali@linux-fr.org>,
-       James Chapman <jchapman@katalix.com>,
-       Bill Gatliff <bgat@billgatliff.com>,
-       David Brownell <david-b@pacbell.net>
-Subject: rtc-ds1307 driver
-Message-ID: <20061202145512.3baccf92@inspiron>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 2 Dec 2006 08:56:16 -0500
+From: "Alan J. Wylie" <alan@wylie.me.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17777.34301.958405.967354@wylie.me.uk>
+Date: Sat, 2 Dec 2006 13:56:13 +0000
+To: linux-kernel@vger.kernel.org
+Subject: Confusing stream of atkbd messages after failed boot
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On upgrading to 2.6.19, I didn't bother reading the release notes, did
+a "make oldconfig", and rebooted. The boot failed (since the SATA
+.config options had been moved) and I was presented with a continous
+stream of error messages:
 
- Hello,
+atkbd.c: Spurious ACK on isa0060/serio
+  Some program might be trying to access hardware directly.
 
-  given the recent patch for ds1337 initialization (drivers/i2c/chips),
- I would like to ask owners of DS1307, DS1337, DS1338, DS1339, DS1340, ST M41T00
- to give a try the rtc-ds1307 driver (drivers/rtc).
+These seem to be as a result of the keyboard LEDs being flashed.
 
-  I need to be sure that it works (and correctly initializes)
- all the chips that claims to support.
+They cause the real error message:
 
-  Jean would be very happy if we can remove drivers from
- i2c/chips ;)
+Cannot open root device
+
+and the preceding kernel messages which show a lack of detection of
+the SATA hard drive to be rapidly scrolled off screen.
+
+The atkbd message should at the very least be rate limited.
+
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+Alan J. Wylie                                          http://www.wylie.me.uk/
+"Perfection [in design] is achieved not when there is nothing left to add,
+but rather when there is nothing left to take away."
+  -- Antoine de Saint-Exupery

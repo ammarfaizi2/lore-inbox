@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423165AbWLBLar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423682AbWLBLgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423165AbWLBLar (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 06:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423351AbWLBLar
+	id S1423682AbWLBLgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 06:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423685AbWLBLgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 06:30:47 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38880 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1423165AbWLBLaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 06:30:46 -0500
-Date: Sat, 2 Dec 2006 11:37:52 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Karsten Weiss <knweiss@gmx.de>
-Cc: Christoph Anton Mitterer <calestyo@scientia.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives //
- memory hole mapping related bug?!
-Message-ID: <20061202113752.47dab7c6@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0612021048200.2981@addx.localnet>
-References: <4570CF26.8070800@scientia.net>
-	<Pine.LNX.4.64.0612021048200.2981@addx.localnet>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Sat, 2 Dec 2006 06:36:13 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:21773 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1423682AbWLBLgM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 06:36:12 -0500
+Date: Sat, 2 Dec 2006 12:36:18 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Hans de Goede <j.w.r.degoede@hhs.nl>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hwmon/abituguru: handle sysfs errors
+Message-Id: <20061202123618.67047029.khali@linux-fr.org>
+In-Reply-To: <452B6569.7050404@hhs.nl>
+References: <20061010065359.GA21576@havoc.gtf.org>
+	<452B4B59.1050606@hhs.nl>
+	<20061010110803.1a70b576.khali@linux-fr.org>
+	<452B6569.7050404@hhs.nl>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006 12:00:36 +0100 (CET)
-Karsten Weiss <knweiss@gmx.de> wrote:
+Hans,
 
-> Hello Christoph!
+On Tue, 10 Oct 2006 11:18:33 +0200, Hans de Goede wrote:
+> Jean Delvare wrote:
+> > The patch isn't wrong per se, but it could be made more simple, and is
+> > incomplete in comparison to what was done for all other hardware
+> > monitoring drivers:
+> > 
+> > * We want to create all the files before registering with the hwmon
+> >   class, this closes a race condition.
+> > * We want to delete all the device files at regular cleanup time (after
+> >   unregistering with the hwmon class).
+> > * It's OK to call device_remove_file() on a non-existent file, so the
+> >   error path can be simplified.
+> >
+> > I'd like the abituguru driver to behave the same as all other hardware
+> > monitoring drivers to lower the maintenance effort. Can either you
+> > or Jeff work up a compliant patch? 
 > 
-> On Sat, 2 Dec 2006, Christoph Anton Mitterer wrote:
-> 
-> > I found a severe bug mainly by fortune because it occurs very rarely.
-> > My test looks like the following: I have about 30GB of testing data on
-> 
-> This sounds very familiar! One of the Linux compute clusters I
-> administer at work is a 336 node system consisting of the
-> following components:
+> I understand Jeff any chance you can do a new revision of
+> your patch? Otherwise I'll take care of it as time permits.
 
-See the thread http://lkml.org/lkml/2006/8/16/305
+I'm still waiting for this patch. It'd be nice to have the abituguru
+driver fixed in 2.6.20.
 
+Thanks,
+-- 
+Jean Delvare

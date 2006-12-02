@@ -1,59 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759397AbWLBGjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755523AbWLBGpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759397AbWLBGjF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 01:39:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759398AbWLBGjF
+	id S1755523AbWLBGpG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 01:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759293AbWLBGpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 01:39:05 -0500
-Received: from nz-out-0506.google.com ([64.233.162.232]:14545 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1759397AbWLBGjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 01:39:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=aQS1P79kKrR+x7hL8dXsWJI/y8B1+etCEi4maERcz/hcVQMjXsGIFwOa0ovqVtz+6vUohqZC7Xd32AuAa9dIEDgUJqOHm9LBJvWQABSXwTgOB6rhPQOgagl2pG/CkvP37X6Xg6h0U5+lBypukUL+cJ6/uM+aJQb+iQNKJsZp5KA=
-Message-ID: <a2705a960612012239j697f2799t27bec643f33c9e12@mail.gmail.com>
-Date: Fri, 1 Dec 2006 22:39:01 -0800
-From: mariusn@gmail.com
-To: linux-kernel@vger.kernel.org
-Subject: Linux portability bugs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Dec 2006 01:45:05 -0500
+Received: from 1wt.eu ([62.212.114.60]:16389 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1755523AbWLBGpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 01:45:04 -0500
+Date: Sat, 2 Dec 2006 07:44:54 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: shaohua.li@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 14/23] x86 microcode: dont check the size
+Message-ID: <20061202064454.GE1736@1wt.eu>
+References: <20061129220111.137430000@sous-sol.org> <20061129220524.148156000@sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061129220524.148156000@sous-sol.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please include me in CCs - I am not subscribed to the list.]
+Shaohua,
 
-Hi guys,
+this one seems appropriate for 2.4 too. It is OK for you if I merge it ?
 
-I am a graduate student at University of Washington, building a tool
-automatically discover portability bugs in system-level code written
-in C. My definition of "portability" is at the data layout level,
-accounting for differences in alignment, padding, and generally layout
-policies on various platforms. E.g., one might perform a pointer cast
-that only works as intended when doubles are 4-byte aligned, which is
-the case with gcc/ia-32 (default options) but not with gcc/sparc (due
-to sparc's limited support for accessing doubles on non-8-byte
-boundaries).
+Thanks,
+Willy
 
-I am looking for advice on how/where to look for these kinds of bugs
-in the kernel and related software. This (dated) document
-(http://netwinder.osuosl.org/users/b/brianbr/public_html/alignment.html
-) describes exactly these sorts of issues in the context of Linux/ARM
-and mentions things like the kernel, binutils, cpio, X11, Orbit, as
-sources of these sorts of bugs. I am having a bit of a hard time
-locating change logs and otherwise related information on where these
-bugs occurred, patches that addressed them, etc.
-
-Any pointers or discussion whatsoever about known/fixed bugs, and also
-any hunches on where these sorts of portability bugs might lay
-dormant, would be much appreciated. I am committed to contributing
-back anything I find in my research - in the form of patches or bug
-reports.
-
-Thank you!
-
--Marius
+On Wed, Nov 29, 2006 at 02:00:25PM -0800, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> From: Shaohua Li <shaohua.li@intel.com>
+> 
+> IA32 manual says if micorcode update's size is 0, then the size is
+> default size (2048 bytes). But this doesn't suggest all microcode
+> update's size should be above 2048 bytes to me. We actually had a
+> microcode update whose size is 1024 bytes. The patch just removed the
+> check.
+> 
+> Backported to 2.6.18 by Daniel Drake.
+> 
+> Signed-off-by: Daniel Drake <dsd@gentoo.org>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> ---
+>  arch/i386/kernel/microcode.c |    9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> --- linux-2.6.18.4.orig/arch/i386/kernel/microcode.c
+> +++ linux-2.6.18.4/arch/i386/kernel/microcode.c
+> @@ -250,14 +250,14 @@ static int find_matching_ucodes (void) 
+>  		}
+>  
+>  		total_size = get_totalsize(&mc_header);
+> -		if ((cursor + total_size > user_buffer_size) || (total_size < DEFAULT_UCODE_TOTALSIZE)) {
+> +		if (cursor + total_size > user_buffer_size) {
+>  			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
+>  			error = -EINVAL;
+>  			goto out;
+>  		}
+>  
+>  		data_size = get_datasize(&mc_header);
+> -		if ((data_size + MC_HEADER_SIZE > total_size) || (data_size < DEFAULT_UCODE_DATASIZE)) {
+> +		if (data_size + MC_HEADER_SIZE > total_size) {
+>  			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
+>  			error = -EINVAL;
+>  			goto out;
+> @@ -460,11 +460,6 @@ static ssize_t microcode_write (struct f
+>  {
+>  	ssize_t ret;
+>  
+> -	if (len < DEFAULT_UCODE_TOTALSIZE) {
+> -		printk(KERN_ERR "microcode: not enough data\n"); 
+> -		return -EINVAL;
+> -	}
+> -
+>  	if ((len >> PAGE_SHIFT) > num_physpages) {
+>  		printk(KERN_ERR "microcode: too much data (max %ld pages)\n", num_physpages);
+>  		return -EINVAL;
+> 
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

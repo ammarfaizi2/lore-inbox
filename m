@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031789AbWLBUyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031791AbWLBU6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031789AbWLBUyB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 15:54:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162465AbWLBUyA
+	id S1031791AbWLBU6v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 15:58:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031792AbWLBU6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 15:54:00 -0500
-Received: from smtpout.mac.com ([17.250.248.174]:22993 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1031789AbWLBUyA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 15:54:00 -0500
-In-Reply-To: <20061202124251.GI3078@ftp.linux.org.uk>
-References: <20061201172149.GC3078@ftp.linux.org.uk> <6911A3DA-83C4-4BE9-8553-3E960026BF51@mac.com> <20061202124251.GI3078@ftp.linux.org.uk>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <59A7652D-BB6A-47BF-B916-4A79459DC226@mac.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Date: Sat, 2 Dec 2006 15:53:48 -0500
-To: Al Viro <viro@ftp.linux.org.uk>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
-X-Proofpoint-Virus-Version: vendor=fsecure engine=4.65.5446:2.3.11,1.2.37,4.0.164 definitions=2006-12-01_07:2006-12-01,2006-12-01,2006-12-01 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 ipscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx engine=3.1.0-0610180000 definitions=main-0612020014
+	Sat, 2 Dec 2006 15:58:51 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:9993 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1031791AbWLBU6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 15:58:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=a+AxIIxJgA0XDYB4c9NV8L+rhkYd/wC8j4wVGpWQw3szsRareWhpN1UDcE3hZpKxdak7nhWvb8Cqva4d/RwGP8gJWQ+dXSbQ7j043E7KQVv7HbZPbK6IZrOC7YOqsN4iTNAObjx4qgMq9WFn7BncBpfGmRKfhmAa2ly4PiL1Ao8=
+Date: Sat, 2 Dec 2006 23:58:49 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: do_coredump() and not stopping rewrite attacks?
+Message-ID: <20061202205849.GA2714@martell.zuzino.mipt.ru>
+References: <20061202204744.GA5030@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061202204744.GA5030@martell.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 02, 2006, at 07:42:51, Al Viro wrote:
-> On Sat, Dec 02, 2006 at 04:23:32AM -0500, Kyle Moffett wrote:
->> On Dec 01, 2006, at 12:21:49, Al Viro wrote:
->>> And that's where it gets interesting.  It would be very nice to  
->>> get to
->>> the following situation:
->>>  * callbacks are void (*)(void *)
->>>  * data is void *
->>>  * instances can take void * or pointer to object type
->>>  * a macro SETUP_TIMER(timer, func, data) sets callback and data  
->>> and checks if func(data) would be valid.
->>
->> This is where a very limited form of C++ templates would do  
->> nicely; you could define something like the following:
->>
->> template <typename T>
->> static inline void setup_timer(struct timer_list *timer,
->> 		void (*function)(T *), T *data)
->> {
->> 	timer->function = (void (*)(void *))function;
->> 	timer->data = (void *)data;
->> 	init_timer(timer);
->> }
->>
->> Any attempts to call it with mismatched "function" and "data"  
->> arguments would display an "Unable to find matching template"  
->> error from the compiler.
->>
->> Unfortunately you can't get simple templated functions without  
->> opening the whole barrel of monkeys involved with C++ support;
->
-> Fortunately, you can get all checks done by gcc without involving C+ 
-> + (or related flamewars).  See original post for a way to do it in  
-> a macro and for fsck sake, leave gcc@gcc.gnu.org out of it
+On Sat, Dec 02, 2006 at 11:47:44PM +0300, Alexey Dobriyan wrote:
+> David Binderman compiled 2.6.19 with icc and grepped for "was set but never
+> used". Many warnings are on
+> 	http://coderock.org/kj/unused-2.6.19-fs
 
-Oh, I'm sorry I totally missed the CC of gcc@gcc.gnu.org.  My point  
-was just that while it _could_ be done with GCC and some ugly macros,  
-a basic form of C++ templates usually produces much nicer and more  
-descriptive error messages (leaving out all the reasons C++ isn't  
-usable in the kernel for the sake of academic discussion).  The  
-template syntax is also a bit more descriptive than is the macro  
-syntax for achieving the same thing.
+Heh, the very first line:
+fs/exec.c(1465): remark #593: variable "flag" was set but never used
 
-Cheers,
-Kyle Moffett
+fs/exec.c:
+  1477		/*
+  1478		 *	We cannot trust fsuid as being the "true" uid of the
+  1479		 *	process nor do we know its entire history. We only know it
+  1480		 *	was tainted so we dump it as root in mode 2.
+  1481		 */
+  1482		if (mm->dumpable == 2) {	/* Setuid core dump mode */
+  1483			flag = O_EXCL;		/* Stop rewrite attacks */
+  1484			current->fsuid = 0;	/* Dump root private */
+  1485		}
+
+And then filp_open follows with "flag" totally ignored.
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1515,7 +1515,8 @@ int do_coredump(long signr, int exit_cod
+ 		ispipe = 1;
+  	} else
+  		file = filp_open(corename,
+-				 O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE, 0600);
++				 O_CREAT | 2 | O_NOFOLLOW | O_LARGEFILE | flag,
++				 0600);
+ 	if (IS_ERR(file))
+ 		goto fail_unlock;
+ 	inode = file->f_dentry->d_inode;
 

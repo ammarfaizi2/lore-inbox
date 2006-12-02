@@ -1,72 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162978AbWLBMRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423837AbWLBMgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162978AbWLBMRi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 07:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162979AbWLBMRi
+	id S1423837AbWLBMgx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 07:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423819AbWLBMgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 07:17:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51730 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1162978AbWLBMRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 07:17:37 -0500
-Date: Sat, 2 Dec 2006 13:17:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@suse.de>,
-       dhowells@redhat.com
-Subject: [-mm patch] arch/frv/kernel/futex.c must #include <linux/uaccess.h>
-Message-ID: <20061202121742.GN11084@stusta.de>
-References: <20061128020246.47e481eb.akpm@osdl.org>
-MIME-Version: 1.0
+	Sat, 2 Dec 2006 07:36:52 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60370 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1423801AbWLBMgw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 07:36:52 -0500
+Date: Sat, 2 Dec 2006 12:36:53 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Daniel Berlin <dberlin@dberlin.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, gcc@gcc.gnu.org
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Message-ID: <20061202123653.GH3078@ftp.linux.org.uk>
+References: <20061201172149.GC3078@ftp.linux.org.uk> <4aca3dc20612012229l18a3c5ebsdc5ee63ef7cf9240@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061128020246.47e481eb.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <4aca3dc20612012229l18a3c5ebsdc5ee63ef7cf9240@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the following compile error with 
--Werror-implicit-function-declaration
-(without -Werror-implicit-function-declaration it's a link error):
+On Sat, Dec 02, 2006 at 01:29:32AM -0500, Daniel Berlin wrote:
+> >While that is safe (modulo the portability constraint that affects much
+> >more code than just timers), it ends up very inconvenient and leads to
+> >lousy type safety.
+> 
+> Understandable.  I assume you are trying to get more  type safety more
+> for error checking than optimization, being that the kernel still
+> defaults to -fno-strict-aliasing.
 
-<--  snip  -->
+Indeed.
 
-...
-  CC      arch/frv/kernel/futex.o
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc6-mm2/arch/frv/kernel/futex.c: 
-In function 'futex_atomic_op_inuser':
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc6-mm2/arch/frv/kernel/futex.c:203:
-error: implicit declaration of function 'pagefault_disable'
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc6-mm2/arch/frv/kernel/futex.c:226: 
-error: implicit declaration of function 'pagefault_enable'
-make[2]: *** [arch/frv/kernel/futex.o] Error 1
+> >Again, that's not a portable C, even leaving aside the use of typeof.
+> >Casts between the incompatible function types are undefined behaviour;
+> >rationale is that we might have different calling conventions for those.
+> >However, here we are at much safer ground; calling conventions are not
+> >likely to change if you replace a pointer to object with void *.
+                                                ^^^^^^
+> Is this true of the ports you guys support  even if the object is a
+> function pointer or a function?
+> (Though the first case may be insane.  I can't think of a *good*
+> reason you'd pass a pointer to a function pointer to a timer
+> callback,).
 
-<--  snip  -->
+Pointer to pointer to function should be OK - it's a pointer to normal
+object type and I would be very surprised if it differed from void *,
+modulo very creative reading of 6.3.2.3(1).  I certainly wouldn't expect
+it to differ from e.g. pointer to pointer to struct, even on targets
+far odder than anything we might hope to port to.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Pointer to function might be worse, but that's excluded by the above -
+it's not a pointer to object type.
 
---- linux-2.6.19-rc6-mm2/arch/frv/kernel/futex.c.old	2006-12-02 13:06:45.000000000 +0100
-+++ linux-2.6.19-rc6-mm2/arch/frv/kernel/futex.c	2006-12-02 13:07:17.000000000 +0100
-@@ -10,9 +10,9 @@
-  */
+In any case, we don't do either anywhere and if the need ever arises
+we can simply put that pointer into whatever structure our timer_list
+is embedded into and pass the address of that structure (which is what
+we do in a lot of cases anyway).
+
+IOW, it's worth checking in SETUP_TIMER, but it's not going to be a
+realistic PITA in any instance.
+
+> >IOW, "gcc would ICE if it ever inlined it" kind of arguments (i.e. what
+> >had triggered gcc refusing to do direct call via such cast) doesn't apply
+> >here.  Question to gcc folks: can we expect no problems with the approach
+> >above, provided that calling conventions are the same for passing void *
+> >and pointers to objects?  No versions (including current 4.3 snapshots)
+> >create any problems here...
+> 
+> Personally, as someone who works on the pointer and alias analysis,
+> I'm much more worried about your casting of void (*)(void) to void
+> (*)(unsigned long) breaking in the future than I am about the above.
+
+That one will be gone; it's pure laziness and IMO ~10 instances mostly in
+weird ancient cdrom drivers are not worth worrying about, especially since
+getting rid of such crap is a matter of minutes.
+
+> I can't really see the above code breaking any more than what you have
+> now, and it should in fact, break a lot less.  However, the removal of
+> the argument cast (IE void (*) (void) to void (*) unsigned long) maybe
+> break eventually.  As we get into intermodule analysis and figure out
+> the conservative set of called functions for a random function
+> pointer,  the typical thing to do is to type filter the set so only
+> those address taken functions with "compatible"  signatures (for some
+> very loose definition of compatible) are said to be callable by a
+> given function pointer.  I can't imagine the definition of compatible
+> would include address taken functions with less arguments than the
+> function pointer you are calling through.  In this specific case, as
+> you point out, it's pretty unlikely we'll ever be able to come up with
+> a set without something telling us.  But I figured i'd mention it in
+> case this type of casting is prevalent elsewhere.
+
+Umm...  That type of casting worries me too, and not for timer-related
+reasons.  We do it a lot in one place: fs/bad_inode.c.  A bunch of methods
+with different arguments,
+static int return_EIO(void)
+{
+        return -EIO;
+}
+and (void *)return_EIO used to initialize them.  There's a couple of
+other places where minor turds like that are done, but that one is
+the most massive.  That's bloody annoying when doing any global call
+graph analysis (sparse-based in my case, but I wouldn't expect gcc
+folks being any happier with it)...
+
+And no, it certainly isn't good C for many reasons (any target where
+callee removes arguments from stack before returning control to caller
+and that one's toast, for starters).
  
- #include <linux/futex.h>
-+#include <linux/uaccess.h>
- #include <asm/futex.h>
- #include <asm/errno.h>
--#include <asm/uaccess.h>
- 
- /*
-  * the various futex operations; MMU fault checking is ignored under no-MMU
-
-
-
-
-
-
-
-
-
-
-
-
+> IOW, unless someone else can see a good reason, I see no reason for
+> you guys not to switch.

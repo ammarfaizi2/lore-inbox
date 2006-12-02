@@ -1,86 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162946AbWLBLBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162947AbWLBLBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162946AbWLBLBZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S1162947AbWLBLBZ (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 2 Dec 2006 06:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162945AbWLBLBB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162946AbWLBLBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 06:01:01 -0500
-Received: from websrv.werbeagentur-aufwind.de ([88.198.253.206]:22418 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S1162942AbWLBLAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 06:00:52 -0500
-Subject: Re: [stable][PATCH < 2.6.19] Fix data corruption with dm-crypt
-	over RAID5
-From: Christophe Saout <christophe@saout.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, dm-crypt@saout.de,
-       Andrey <dm-crypt-revealed-address@lelik.org>,
-       Andrew Morton <akpm@osdl.org>, agk@redhat.com,
-       Neil Brown <neilb@suse.de>, Jens Axboe <jens.axboe@oracle.com>,
-       stable@kernel.org
-In-Reply-To: <20061202034947.GE6602@sequoia.sous-sol.org>
-References: <456B732F.6080906@lelik.org>
-	 <20061129145208.GQ4409@agk.surrey.redhat.com> <456F46E3.6030702@lelik.org>
-	 <1164983209.24524.20.camel@leto.intern.saout.de>
-	 <20061201152143.GE4409@agk.surrey.redhat.com> <45704B95.3020308@lelik.org>
-	 <1165026116.29307.18.camel@leto.intern.saout.de>
-	 <1165026476.29307.23.camel@leto.intern.saout.de>
-	 <20061202034947.GE6602@sequoia.sous-sol.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6GPEPENJBxq39thyM/1x"
-Date: Sat, 02 Dec 2006 12:00:48 +0100
-Message-Id: <1165057248.15095.9.camel@leto.intern.saout.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+	Sat, 2 Dec 2006 06:01:05 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:27140 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S1162934AbWLBLAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 06:00:49 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: Willy Tarreau <w@1wt.eu>
+Subject: Re: [2.4 PATCH] missing parenthesis
+Date: Sat, 2 Dec 2006 12:00:24 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200612011510.58990.m.kozlowski@tuxland.pl> <20061201174035.GA18203@1wt.eu>
+In-Reply-To: <20061201174035.GA18203@1wt.eu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612021200.24989.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Willy, 
 
---=-6GPEPENJBxq39thyM/1x
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Thanks for your work at fixing all this code. I'm wondering though,
+> given the type of errors, this code should never have been able to
+> build at all, so that means that it might not be used at all.
 
-Am Freitag, den 01.12.2006, 19:49 -0800 schrieb Chris Wright:
+Either not used or #ifdef'ed so much that it is rarely build.
 
-> * Christophe Saout (christophe@saout.de) wrote:
-> > Fix corruption issue with dm-crypt on top of software raid5. Cancelled
-> > readahead bio's that report no error, just have BIO_UPTODATE cleared
-> > were reported as successful reads to the higher layers (and leaving
-> > random content in the buffer cache). Already fixed in 2.6.19.
->=20
-> I take it this is fixed a different way in 2.6.19?  Mind clarifying the
-> difference?
+> As a general rule of thumb, keep in mind that we're not much tempted
+> to fix known unused code, especially if it's unmaintained. The reason
 
-It's more or less fixed the same way in 2.6.19. The function was
-reordered by Milan Broz to accommodate the changed write path (commit
-8b004457168995f2ae2a35327f885183a9e74141):
+Maybe dumb question but ... how do I know which parts of code are unused
+and/or unmaintained?
 
-> [PATCH] dm crypt: restructure for workqueue change
->
-> Restructure part of the dm-crypt code in preparation for workqueue
-> changes.
->
-> Use 'base_bio' or 'clone' variable names consistently throughout.  No
-> functional changes are included in this patch.
+> is simple : when some code does not work, people who need it often
+> maintain patches in their tree to make it work. When we start changing
+> things there, their patches often apply with rejects. Anyway, *I* am
+> still for a clean kernel because I know that there's nothing more
+> annoying than spending days chasing a bug which we discover was known
+> for years.
+> 
+> So what I can propose you is that we :
+>   - postpone those patches for 2.4.35-pre
 
-"No functional changes" actually included the correct fix, accidental or
-not.
+Ok.
 
-> Minor nit:  introduces trailing whitespaces, cleaned it up locally.
+>   - ask maintainers of each of these files if he accepts to fix the
+>     file, because some of them are totally against any such change.
 
-Ouch, sorry.
+Ok. Couple of questions:
 
+- how do we do that?
+- do I resend each patch to proper maintainer?
+- if there is no maintainer then what? (btw. is there any other
+more accurate source of MAINTAINERS for each file in the kernel tree?)
+- do I have to resend them once more to LKML?
 
---=-6GPEPENJBxq39thyM/1x
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+>   - we would merge the accepted patches and those without any reply
+>     which we consider relevant early in the 35-pre cycle so that
+>     people have some time to inform us about the potential conflicts
+>     they encounter.
+> 
+> Quite frankly, there should be very few problems, considering that we
+> have affected more files with the gcc4 patches and that nobody
+> complained.
+> 
+> As an exception, if you get some maintainer's approval for some of
+> the patches during 2.4.34 cycle, of course I will merge them first
+> because as I said, it's important to maintain supported code in good
+> shape.
+> 
+> Is it OK for you ?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Sure.
 
-iD8DBQBFcVzgZCYBcts5dM0RAvtuAKCcKAnVpKhxOo0y63OHHwIYGS35mwCgoPU5
-z8Tt0rIhJW9ecEKOdrDa3pE=
-=wMM/
------END PGP SIGNATURE-----
+-- 
+Regards,
 
---=-6GPEPENJBxq39thyM/1x--
-
+	Mariusz Kozlowski

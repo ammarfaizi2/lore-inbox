@@ -1,1121 +1,789 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162420AbWLBAs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162436AbWLBA4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162420AbWLBAs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 19:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162442AbWLBAs5
+	id S1162436AbWLBA4M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 19:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162441AbWLBA4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 19:48:57 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:49560 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1162420AbWLBAsz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 19:48:55 -0500
-Date: Fri, 1 Dec 2006 16:52:15 -0800
-From: Chris Wright <chrisw@sous-sol.org>
+	Fri, 1 Dec 2006 19:56:12 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:25234 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S1162436AbWLBA4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 19:56:10 -0500
+Message-ID: <4570CF26.8070800@scientia.net>
+Date: Sat, 02 Dec 2006 01:56:06 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061124)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.18.5
-Message-ID: <20061202005215.GG1397@sequoia.sous-sol.org>
-References: <20061202005118.GF1397@sequoia.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061202005118.GF1397@sequoia.sous-sol.org>
-User-Agent: Mutt/1.4.2.2i
+Subject: data corruption with nvidia chipsets and IDE/SATA drives // memory
+ hole mapping related bug?!
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index d026088..85d8009 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 18
--EXTRAVERSION = .4
-+EXTRAVERSION = .5
- NAME=Avast! A bilge rat!
- 
- # *DOCUMENTATION*
-diff --git a/arch/alpha/Kconfig b/arch/alpha/Kconfig
-index 213c785..2b36afd 100644
---- a/arch/alpha/Kconfig
-+++ b/arch/alpha/Kconfig
-@@ -381,7 +381,7 @@ config ALPHA_EV56
- 
- config ALPHA_EV56
- 	prompt "EV56 CPU (speed >= 333MHz)?"
--	depends on ALPHA_NORITAKE && ALPHA_PRIMO
-+	depends on ALPHA_NORITAKE || ALPHA_PRIMO
- 
- config ALPHA_EV56
- 	prompt "EV56 CPU (speed >= 400MHz)?"
-diff --git a/arch/i386/kernel/microcode.c b/arch/i386/kernel/microcode.c
-index 40b44cc..e5520eb 100644
---- a/arch/i386/kernel/microcode.c
-+++ b/arch/i386/kernel/microcode.c
-@@ -250,14 +250,14 @@ static int find_matching_ucodes (void) 
- 		}
- 
- 		total_size = get_totalsize(&mc_header);
--		if ((cursor + total_size > user_buffer_size) || (total_size < DEFAULT_UCODE_TOTALSIZE)) {
-+		if (cursor + total_size > user_buffer_size) {
- 			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
- 			error = -EINVAL;
- 			goto out;
- 		}
- 
- 		data_size = get_datasize(&mc_header);
--		if ((data_size + MC_HEADER_SIZE > total_size) || (data_size < DEFAULT_UCODE_DATASIZE)) {
-+		if (data_size + MC_HEADER_SIZE > total_size) {
- 			printk(KERN_ERR "microcode: error! Bad data in microcode data file\n");
- 			error = -EINVAL;
- 			goto out;
-@@ -460,11 +460,6 @@ static ssize_t microcode_write (struct f
- {
- 	ssize_t ret;
- 
--	if (len < DEFAULT_UCODE_TOTALSIZE) {
--		printk(KERN_ERR "microcode: not enough data\n"); 
--		return -EINVAL;
--	}
--
- 	if ((len >> PAGE_SHIFT) > num_physpages) {
- 		printk(KERN_ERR "microcode: too much data (max %ld pages)\n", num_physpages);
- 		return -EINVAL;
-diff --git a/arch/ia64/sn/kernel/bte.c b/arch/ia64/sn/kernel/bte.c
-index 27dee45..c55f487 100644
---- a/arch/ia64/sn/kernel/bte.c
-+++ b/arch/ia64/sn/kernel/bte.c
-@@ -382,14 +382,13 @@ bte_result_t bte_unaligned_copy(u64 src,
- 		 * bcopy to the destination.
- 		 */
- 
--		/* Add the leader from source */
--		headBteLen = len + (src & L1_CACHE_MASK);
--		/* Add the trailing bytes from footer. */
--		headBteLen += L1_CACHE_BYTES - (headBteLen & L1_CACHE_MASK);
--		headBteSource = src & ~L1_CACHE_MASK;
- 		headBcopySrcOffset = src & L1_CACHE_MASK;
- 		headBcopyDest = dest;
- 		headBcopyLen = len;
-+
-+		headBteSource = src - headBcopySrcOffset;
-+		/* Add the leading and trailing bytes from source */
-+		headBteLen = L1_CACHE_ALIGN(len + headBcopySrcOffset);
- 	}
- 
- 	if (headBcopyLen > 0) {
-diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
-index ed3d3ae..848ac42 100644
---- a/block/scsi_ioctl.c
-+++ b/block/scsi_ioctl.c
-@@ -286,9 +286,8 @@ static int sg_io(struct file *file, requ
- 	 * fill in request structure
- 	 */
- 	rq->cmd_len = hdr->cmd_len;
-+	memset(rq->cmd, 0, BLK_MAX_CDB); /* ATAPI hates garbage after CDB */
- 	memcpy(rq->cmd, cmd, hdr->cmd_len);
--	if (sizeof(rq->cmd) != hdr->cmd_len)
--		memset(rq->cmd + hdr->cmd_len, 0, sizeof(rq->cmd) - hdr->cmd_len);
- 
- 	memset(sense, 0, sizeof(sense));
- 	rq->sense = sense;
-diff --git a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
-index cc5ea34..d218575 100644
---- a/drivers/char/agp/generic.c
-+++ b/drivers/char/agp/generic.c
-@@ -1042,7 +1042,7 @@ void *agp_generic_alloc_page(struct agp_
- {
- 	struct page * page;
- 
--	page = alloc_page(GFP_KERNEL);
-+	page = alloc_page(GFP_KERNEL | GFP_DMA32);
- 	if (page == NULL)
- 		return NULL;
- 
-diff --git a/drivers/char/agp/intel-agp.c b/drivers/char/agp/intel-agp.c
-index 61ac380..64bb579 100644
---- a/drivers/char/agp/intel-agp.c
-+++ b/drivers/char/agp/intel-agp.c
-@@ -160,7 +160,7 @@ static void *i8xx_alloc_pages(void)
- {
- 	struct page * page;
- 
--	page = alloc_pages(GFP_KERNEL, 2);
-+	page = alloc_pages(GFP_KERNEL | GFP_DMA32, 2);
- 	if (page == NULL)
- 		return NULL;
- 
-diff --git a/drivers/media/Kconfig b/drivers/media/Kconfig
-index ed4aa4e..9f7e1fe 100644
---- a/drivers/media/Kconfig
-+++ b/drivers/media/Kconfig
-@@ -54,6 +54,7 @@ config VIDEO_V4L1_COMPAT
- 
- config VIDEO_V4L2
- 	bool
-+	depends on VIDEO_DEV
- 	default y
- 
- source "drivers/media/video/Kconfig"
-diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
-index eafabb2..fa620ae 100644
---- a/drivers/net/tg3.c
-+++ b/drivers/net/tg3.c
-@@ -6889,8 +6889,10 @@ static int tg3_open(struct net_device *d
- 	tg3_full_lock(tp, 0);
- 
- 	err = tg3_set_power_state(tp, PCI_D0);
--	if (err)
-+	if (err) {
-+		tg3_full_unlock(tp);
- 		return err;
-+	}
- 
- 	tg3_disable_ints(tp);
- 	tp->tg3_flags &= ~TG3_FLAG_INIT_COMPLETE;
-diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-index f24ba4d..42eecf2 100644
---- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-+++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-@@ -1463,6 +1463,23 @@ static void handle_irq_transmit_status(s
- 	}
- }
- 
-+static void drain_txstatus_queue(struct bcm43xx_private *bcm)
-+{
-+	u32 dummy;
-+
-+	if (bcm->current_core->rev < 5)
-+		return;
-+	/* Read all entries from the microcode TXstatus FIFO
-+	 * and throw them away.
-+	 */
-+	while (1) {
-+		dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_0);
-+		if (!dummy)
-+			break;
-+		dummy = bcm43xx_read32(bcm, BCM43xx_MMIO_XMITSTAT_1);
-+	}
-+}
-+
- static void bcm43xx_generate_noise_sample(struct bcm43xx_private *bcm)
- {
- 	bcm43xx_shm_write16(bcm, BCM43xx_SHM_SHARED, 0x408, 0x7F7F);
-@@ -3517,6 +3534,7 @@ int bcm43xx_select_wireless_core(struct 
- 	bcm43xx_macfilter_clear(bcm, BCM43xx_MACFILTER_ASSOC);
- 	bcm43xx_macfilter_set(bcm, BCM43xx_MACFILTER_SELF, (u8 *)(bcm->net_dev->dev_addr));
- 	bcm43xx_security_init(bcm);
-+	drain_txstatus_queue(bcm);
- 	ieee80211softmac_start(bcm->net_dev);
- 
- 	/* Let's go! Be careful after enabling the IRQs.
-diff --git a/drivers/pcmcia/ds.c b/drivers/pcmcia/ds.c
-index 74b3124..95d5e88 100644
---- a/drivers/pcmcia/ds.c
-+++ b/drivers/pcmcia/ds.c
-@@ -1264,6 +1264,11 @@ static void pcmcia_bus_remove_socket(str
- 	socket->pcmcia_state.dead = 1;
- 	pccard_register_pcmcia(socket, NULL);
- 
-+	/* unregister any unbound devices */
-+	mutex_lock(&socket->skt_mutex);
-+	pcmcia_card_remove(socket, NULL);
-+	mutex_unlock(&socket->skt_mutex);
-+
- 	pcmcia_put_socket(socket);
- 
- 	return;
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 077c1c6..3031078 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -408,6 +408,7 @@ int scsi_execute_async(struct scsi_devic
- 		goto free_req;
- 
- 	req->cmd_len = cmd_len;
-+	memset(req->cmd, 0, BLK_MAX_CDB); /* ATAPI hates garbage after CDB */
- 	memcpy(req->cmd, cmd, req->cmd_len);
- 	req->sense = sioc->sense;
- 	req->sense_len = 0;
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 5d7c726..f75deeb 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -138,6 +138,7 @@ static int fuse_dentry_revalidate(struct
- 		struct fuse_entry_out outarg;
- 		struct fuse_conn *fc;
- 		struct fuse_req *req;
-+		struct fuse_req *forget_req;
- 
- 		/* Doesn't hurt to "reset" the validity timeout */
- 		fuse_invalidate_entry_cache(entry);
-@@ -151,21 +152,29 @@ static int fuse_dentry_revalidate(struct
- 		if (IS_ERR(req))
- 			return 0;
- 
-+		forget_req = fuse_get_req(fc);
-+		if (IS_ERR(forget_req)) {
-+			fuse_put_request(fc, req);
-+			return 0;
-+		}
-+
- 		fuse_lookup_init(req, entry->d_parent->d_inode, entry, &outarg);
- 		request_send(fc, req);
- 		err = req->out.h.error;
-+		fuse_put_request(fc, req);
- 		/* Zero nodeid is same as -ENOENT */
- 		if (!err && !outarg.nodeid)
- 			err = -ENOENT;
- 		if (!err) {
- 			struct fuse_inode *fi = get_fuse_inode(inode);
- 			if (outarg.nodeid != get_node_id(inode)) {
--				fuse_send_forget(fc, req, outarg.nodeid, 1);
-+				fuse_send_forget(fc, forget_req,
-+						 outarg.nodeid, 1);
- 				return 0;
- 			}
- 			fi->nlookup ++;
- 		}
--		fuse_put_request(fc, req);
-+		fuse_put_request(fc, forget_req);
- 		if (err || (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
- 			return 0;
- 
-@@ -214,6 +223,7 @@ static struct dentry *fuse_lookup(struct
- 	struct inode *inode = NULL;
- 	struct fuse_conn *fc = get_fuse_conn(dir);
- 	struct fuse_req *req;
-+	struct fuse_req *forget_req;
- 
- 	if (entry->d_name.len > FUSE_NAME_MAX)
- 		return ERR_PTR(-ENAMETOOLONG);
-@@ -222,9 +232,16 @@ static struct dentry *fuse_lookup(struct
- 	if (IS_ERR(req))
- 		return ERR_PTR(PTR_ERR(req));
- 
-+	forget_req = fuse_get_req(fc);
-+	if (IS_ERR(forget_req)) {
-+		fuse_put_request(fc, req);
-+		return ERR_PTR(PTR_ERR(forget_req));
-+	}
-+
- 	fuse_lookup_init(req, dir, entry, &outarg);
- 	request_send(fc, req);
- 	err = req->out.h.error;
-+	fuse_put_request(fc, req);
- 	/* Zero nodeid is same as -ENOENT, but with valid timeout */
- 	if (!err && outarg.nodeid &&
- 	    (invalid_nodeid(outarg.nodeid) || !valid_mode(outarg.attr.mode)))
-@@ -233,11 +250,11 @@ static struct dentry *fuse_lookup(struct
- 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
- 				  &outarg.attr);
- 		if (!inode) {
--			fuse_send_forget(fc, req, outarg.nodeid, 1);
-+			fuse_send_forget(fc, forget_req, outarg.nodeid, 1);
- 			return ERR_PTR(-ENOMEM);
- 		}
- 	}
--	fuse_put_request(fc, req);
-+	fuse_put_request(fc, forget_req);
- 	if (err && err != -ENOENT)
- 		return ERR_PTR(err);
- 
-@@ -375,6 +392,13 @@ static int create_new_entry(struct fuse_
- 	struct fuse_entry_out outarg;
- 	struct inode *inode;
- 	int err;
-+	struct fuse_req *forget_req;
-+
-+	forget_req = fuse_get_req(fc);
-+	if (IS_ERR(forget_req)) {
-+		fuse_put_request(fc, req);
-+		return PTR_ERR(forget_req);
-+	}
- 
- 	req->in.h.nodeid = get_node_id(dir);
- 	req->out.numargs = 1;
-@@ -382,24 +406,24 @@ static int create_new_entry(struct fuse_
- 	req->out.args[0].value = &outarg;
- 	request_send(fc, req);
- 	err = req->out.h.error;
--	if (err) {
--		fuse_put_request(fc, req);
--		return err;
--	}
-+	fuse_put_request(fc, req);
-+	if (err)
-+		goto out_put_forget_req;
-+
- 	err = -EIO;
- 	if (invalid_nodeid(outarg.nodeid))
--		goto out_put_request;
-+		goto out_put_forget_req;
- 
- 	if ((outarg.attr.mode ^ mode) & S_IFMT)
--		goto out_put_request;
-+		goto out_put_forget_req;
- 
- 	inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
- 			  &outarg.attr);
- 	if (!inode) {
--		fuse_send_forget(fc, req, outarg.nodeid, 1);
-+		fuse_send_forget(fc, forget_req, outarg.nodeid, 1);
- 		return -ENOMEM;
- 	}
--	fuse_put_request(fc, req);
-+	fuse_put_request(fc, forget_req);
- 
- 	if (dir_alias(inode)) {
- 		iput(inode);
-@@ -411,8 +435,8 @@ static int create_new_entry(struct fuse_
- 	fuse_invalidate_attr(dir);
- 	return 0;
- 
-- out_put_request:
--	fuse_put_request(fc, req);
-+ out_put_forget_req:
-+	fuse_put_request(fc, forget_req);
- 	return err;
- }
- 
-diff --git a/include/linux/netfilter_ipv4.h b/include/linux/netfilter_ipv4.h
-index ce02c98..5b63a23 100644
---- a/include/linux/netfilter_ipv4.h
-+++ b/include/linux/netfilter_ipv4.h
-@@ -77,7 +77,7 @@ enum nf_ip_hook_priorities {
- #define SO_ORIGINAL_DST 80
- 
- #ifdef __KERNEL__
--extern int ip_route_me_harder(struct sk_buff **pskb);
-+extern int ip_route_me_harder(struct sk_buff **pskb, unsigned addr_type);
- extern int ip_xfrm_me_harder(struct sk_buff **pskb);
- extern unsigned int nf_ip_checksum(struct sk_buff *skb, unsigned int hook,
- 				   unsigned int dataoff, u_int8_t protocol);
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 1a35d34..316fa7a 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -120,10 +120,13 @@ void hci_send_to_sock(struct hci_dev *hd
- 			if (!hci_test_bit(evt, &flt->event_mask))
- 				continue;
- 
--			if (flt->opcode && ((evt == HCI_EV_CMD_COMPLETE && 
--					flt->opcode != *(__u16 *)(skb->data + 3)) ||
--					(evt == HCI_EV_CMD_STATUS && 
--					flt->opcode != *(__u16 *)(skb->data + 4))))
-+			if (flt->opcode &&
-+			    ((evt == HCI_EV_CMD_COMPLETE &&
-+			      flt->opcode !=
-+			      get_unaligned((__u16 *)(skb->data + 3))) ||
-+			     (evt == HCI_EV_CMD_STATUS &&
-+			      flt->opcode !=
-+			      get_unaligned((__u16 *)(skb->data + 4)))))
- 				continue;
- 		}
- 
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index 610c722..3744c24 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -276,7 +276,7 @@ static void dccp_v6_err(struct sk_buff *
- 	__u64 seq;
- 
- 	sk = inet6_lookup(&dccp_hashinfo, &hdr->daddr, dh->dccph_dport,
--			  &hdr->saddr, dh->dccph_sport, skb->dev->ifindex);
-+			  &hdr->saddr, dh->dccph_sport, inet6_iif(skb));
- 
- 	if (sk == NULL) {
- 		ICMP6_INC_STATS_BH(__in6_dev_get(skb->dev), ICMP6_MIB_INERRORS);
-diff --git a/net/ieee80211/softmac/ieee80211softmac_io.c b/net/ieee80211/softmac/ieee80211softmac_io.c
-index 6ae5a1d..3b67d19 100644
---- a/net/ieee80211/softmac/ieee80211softmac_io.c
-+++ b/net/ieee80211/softmac/ieee80211softmac_io.c
-@@ -304,7 +304,7 @@ ieee80211softmac_auth(struct ieee80211_a
- 		2 +		/* Auth Transaction Seq */
- 		2 +		/* Status Code */
- 		 /* Challenge Text IE */
--		is_shared_response ? 0 : 1 + 1 + net->challenge_len
-+		(is_shared_response ? 1 + 1 + net->challenge_len : 0)
- 	);
- 	if (unlikely((*pkt) == NULL))
- 		return 0;
-diff --git a/net/ipv4/ipvs/ip_vs_core.c b/net/ipv4/ipvs/ip_vs_core.c
-index 3f47ad8..f594635 100644
---- a/net/ipv4/ipvs/ip_vs_core.c
-+++ b/net/ipv4/ipvs/ip_vs_core.c
-@@ -813,6 +813,16 @@ ip_vs_out(unsigned int hooknum, struct s
- 	skb->nh.iph->saddr = cp->vaddr;
- 	ip_send_check(skb->nh.iph);
- 
-+ 	/* For policy routing, packets originating from this
-+ 	 * machine itself may be routed differently to packets
-+ 	 * passing through.  We want this packet to be routed as
-+ 	 * if it came from this machine itself.  So re-compute
-+ 	 * the routing information.
-+ 	 */
-+ 	if (ip_route_me_harder(pskb, RTN_LOCAL) != 0)
-+ 		goto drop;
-+	skb = *pskb;
-+
- 	IP_VS_DBG_PKT(10, pp, skb, 0, "After SNAT");
- 
- 	ip_vs_out_stats(cp, skb);
-diff --git a/net/ipv4/netfilter.c b/net/ipv4/netfilter.c
-index 6a9e34b..327ba37 100644
---- a/net/ipv4/netfilter.c
-+++ b/net/ipv4/netfilter.c
-@@ -8,7 +8,7 @@ #include <net/xfrm.h>
- #include <net/ip.h>
- 
- /* route_me_harder function, used by iptable_nat, iptable_mangle + ip_queue */
--int ip_route_me_harder(struct sk_buff **pskb)
-+int ip_route_me_harder(struct sk_buff **pskb, unsigned addr_type)
- {
- 	struct iphdr *iph = (*pskb)->nh.iph;
- 	struct rtable *rt;
-@@ -16,10 +16,13 @@ int ip_route_me_harder(struct sk_buff **
- 	struct dst_entry *odst;
- 	unsigned int hh_len;
- 
-+	if (addr_type == RTN_UNSPEC)
-+		addr_type = inet_addr_type(iph->saddr);
-+
- 	/* some non-standard hacks like ipt_REJECT.c:send_reset() can cause
- 	 * packets with foreign saddr to appear on the NF_IP_LOCAL_OUT hook.
- 	 */
--	if (inet_addr_type(iph->saddr) == RTN_LOCAL) {
-+	if (addr_type == RTN_LOCAL) {
- 		fl.nl_u.ip4_u.daddr = iph->daddr;
- 		fl.nl_u.ip4_u.saddr = iph->saddr;
- 		fl.nl_u.ip4_u.tos = RT_TOS(iph->tos);
-@@ -156,7 +159,7 @@ static int nf_ip_reroute(struct sk_buff 
- 		if (!(iph->tos == rt_info->tos
- 		      && iph->daddr == rt_info->daddr
- 		      && iph->saddr == rt_info->saddr))
--			return ip_route_me_harder(pskb);
-+			return ip_route_me_harder(pskb, RTN_UNSPEC);
- 	}
- 	return 0;
- }
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index 8d1d7a6..8ba83e8 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -380,6 +380,13 @@ static int mark_source_chains(struct xt_
- 			    && unconditional(&e->arp)) {
- 				unsigned int oldpos, size;
- 
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
-+
- 				/* Return: backtrack through the last
- 				 * big jump.
- 				 */
-@@ -409,6 +416,14 @@ static int mark_source_chains(struct xt_
- 				if (strcmp(t->target.u.user.name,
- 					   ARPT_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct arpt_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
-+
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -431,8 +446,6 @@ static int mark_source_chains(struct xt_
- static inline int standard_check(const struct arpt_entry_target *t,
- 				 unsigned int max_offset)
- {
--	struct arpt_standard_target *targ = (void *)t;
--
- 	/* Check standard info. */
- 	if (t->u.target_size
- 	    != ARPT_ALIGN(sizeof(struct arpt_standard_target))) {
-@@ -442,18 +455,6 @@ static inline int standard_check(const s
- 		return 0;
- 	}
- 
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct arpt_entry)) {
--		duprintf("arpt_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("arpt_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
- 	return 1;
- }
- 
-@@ -471,7 +472,13 @@ static inline int check_entry(struct arp
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct arpt_entry_target) > e->next_offset)
-+		return -EINVAL;
-+
- 	t = arpt_get_target(e);
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+		return -EINVAL;
-+
- 	target = try_then_request_module(xt_find_target(NF_ARP, t->u.user.name,
- 							t->u.user.revision),
- 					 "arpt_%s", t->u.user.name);
-@@ -641,7 +648,7 @@ static int translate_table(const char *n
- 
- 	if (ret != 0) {
- 		ARPT_ENTRY_ITERATE(entry0, newinfo->size,
--				   cleanup_entry, &i);
-+				cleanup_entry, &i);
- 		return ret;
- 	}
- 
-@@ -1204,6 +1211,8 @@ err1:
- static void __exit arp_tables_fini(void)
- {
- 	nf_unregister_sockopt(&arpt_sockopts);
-+	xt_unregister_target(&arpt_error_target);
-+	xt_unregister_target(&arpt_standard_target);
- 	xt_proto_fini(NF_ARP);
- }
- 
-diff --git a/net/ipv4/netfilter/ip_conntrack_helper_h323.c b/net/ipv4/netfilter/ip_conntrack_helper_h323.c
-index 9a39e29..afe7039 100644
---- a/net/ipv4/netfilter/ip_conntrack_helper_h323.c
-+++ b/net/ipv4/netfilter/ip_conntrack_helper_h323.c
-@@ -1417,7 +1417,7 @@ static int process_rcf(struct sk_buff **
- 		DEBUGP
- 		    ("ip_ct_ras: set RAS connection timeout to %u seconds\n",
- 		     info->timeout);
--		ip_ct_refresh_acct(ct, ctinfo, NULL, info->timeout * HZ);
-+		ip_ct_refresh(ct, *pskb, info->timeout * HZ);
- 
- 		/* Set expect timeout */
- 		read_lock_bh(&ip_conntrack_lock);
-@@ -1465,7 +1465,7 @@ static int process_urq(struct sk_buff **
- 	info->sig_port[!dir] = 0;
- 
- 	/* Give it 30 seconds for UCF or URJ */
--	ip_ct_refresh_acct(ct, ctinfo, NULL, 30 * HZ);
-+	ip_ct_refresh(ct, *pskb, 30 * HZ);
- 
- 	return 0;
- }
-diff --git a/net/ipv4/netfilter/ip_nat_standalone.c b/net/ipv4/netfilter/ip_nat_standalone.c
-index 6db485f..c508544 100644
---- a/net/ipv4/netfilter/ip_nat_standalone.c
-+++ b/net/ipv4/netfilter/ip_nat_standalone.c
-@@ -275,7 +275,8 @@ #ifdef CONFIG_XFRM
- 		       ct->tuplehash[!dir].tuple.src.u.all
- #endif
- 		    )
--			return ip_route_me_harder(pskb) == 0 ? ret : NF_DROP;
-+			if (ip_route_me_harder(pskb, RTN_UNSPEC))
-+				ret = NF_DROP;
- 	}
- 	return ret;
- }
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index 048514f..e964436 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -404,6 +404,13 @@ mark_source_chains(struct xt_table_info 
- 			    && unconditional(&e->ip)) {
- 				unsigned int oldpos, size;
- 
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
-+
- 				/* Return: backtrack through the last
- 				   big jump. */
- 				do {
-@@ -441,6 +448,13 @@ #endif
- 				if (strcmp(t->target.u.user.name,
- 					   IPT_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct ipt_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -474,27 +488,6 @@ cleanup_match(struct ipt_entry_match *m,
- }
- 
- static inline int
--standard_check(const struct ipt_entry_target *t,
--	       unsigned int max_offset)
--{
--	struct ipt_standard_target *targ = (void *)t;
--
--	/* Check standard info. */
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct ipt_entry)) {
--		duprintf("ipt_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("ipt_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	return 1;
--}
--
--static inline int
- check_match(struct ipt_entry_match *m,
- 	    const char *name,
- 	    const struct ipt_ip *ip,
-@@ -552,12 +545,18 @@ check_entry(struct ipt_entry *e, const c
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct ipt_entry_target) > e->next_offset)
-+		return -EINVAL;
-+
- 	j = 0;
- 	ret = IPT_MATCH_ITERATE(e, check_match, name, &e->ip, e->comefrom, &j);
- 	if (ret != 0)
- 		goto cleanup_matches;
- 
- 	t = ipt_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET,
- 						     t->u.user.name,
- 						     t->u.user.revision),
-@@ -575,12 +574,7 @@ check_entry(struct ipt_entry *e, const c
- 	if (ret)
- 		goto err;
- 
--	if (t->u.kernel.target == &ipt_standard_target) {
--		if (!standard_check(t, size)) {
--			ret = -EINVAL;
--			goto cleanup_matches;
--		}
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, e, target, t->data,
- 						      t->u.target_size
- 						      - sizeof(*t),
-@@ -730,7 +724,7 @@ translate_table(const char *name,
- 
- 	if (ret != 0) {
- 		IPT_ENTRY_ITERATE(entry0, newinfo->size,
--				  cleanup_entry, &i);
-+				cleanup_entry, &i);
- 		return ret;
- 	}
- 
-@@ -1531,15 +1525,22 @@ check_compat_entry_size_and_hooks(struct
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct compat_xt_entry_target) >
-+								e->next_offset)
-+		return -EINVAL;
-+
- 	off = 0;
- 	entry_offset = (void *)e - (void *)base;
- 	j = 0;
- 	ret = IPT_MATCH_ITERATE(e, compat_check_calc_match, name, &e->ip,
- 			e->comefrom, &off, &j);
- 	if (ret != 0)
--		goto out;
-+		goto cleanup_matches;
- 
- 	t = ipt_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET,
- 						     t->u.user.name,
- 						     t->u.user.revision),
-@@ -1547,7 +1548,7 @@ check_compat_entry_size_and_hooks(struct
- 	if (IS_ERR(target) || !target) {
- 		duprintf("check_entry: `%s' not found\n", t->u.user.name);
- 		ret = target ? PTR_ERR(target) : -ENOENT;
--		goto out;
-+		goto cleanup_matches;
- 	}
- 	t->u.kernel.target = target;
- 
-@@ -1574,7 +1575,10 @@ check_compat_entry_size_and_hooks(struct
- 
- 	(*i)++;
- 	return 0;
-+
- out:
-+	module_put(t->u.kernel.target->me);
-+cleanup_matches:
- 	IPT_MATCH_ITERATE(e, cleanup_match, &j);
- 	return ret;
- }
-@@ -1597,18 +1601,16 @@ static inline int compat_copy_match_from
- 	ret = xt_check_match(match, AF_INET, dm->u.match_size - sizeof(*dm),
- 			     name, hookmask, ip->proto,
- 			     ip->invflags & IPT_INV_PROTO);
--	if (ret)
--		return ret;
- 
--	if (m->u.kernel.match->checkentry
-+	if (!ret && m->u.kernel.match->checkentry
- 	    && !m->u.kernel.match->checkentry(name, ip, match, dm->data,
- 					      dm->u.match_size - sizeof(*dm),
- 					      hookmask)) {
- 		duprintf("ip_tables: check failed for `%s'.\n",
- 			 m->u.kernel.match->name);
--		return -EINVAL;
-+		ret = -EINVAL;
- 	}
--	return 0;
-+	return ret;
- }
- 
- static int compat_copy_entry_from_user(struct ipt_entry *e, void **dstptr,
-@@ -1630,7 +1632,7 @@ static int compat_copy_entry_from_user(s
- 	ret = IPT_MATCH_ITERATE(e, compat_copy_match_from_user, dstptr, size,
- 			name, &de->ip, de->comefrom);
- 	if (ret)
--		goto out;
-+		goto err;
- 	de->target_offset = e->target_offset - (origsize - *size);
- 	t = ipt_get_target(e);
- 	target = t->u.kernel.target;
-@@ -1653,22 +1655,18 @@ static int compat_copy_entry_from_user(s
- 			      name, e->comefrom, e->ip.proto,
- 			      e->ip.invflags & IPT_INV_PROTO);
- 	if (ret)
--		goto out;
-+		goto err;
- 
--	ret = -EINVAL;
--	if (t->u.kernel.target == &ipt_standard_target) {
--		if (!standard_check(t, *size))
--			goto out;
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, de, target,
- 				t->data, t->u.target_size - sizeof(*t),
- 				de->comefrom)) {
- 		duprintf("ip_tables: compat: check failed for `%s'.\n",
- 			 t->u.kernel.target->name);
--		goto out;
-+		ret = -EINVAL;
-+		goto err;
- 	}
--	ret = 0;
--out:
-+ err:
- 	return ret;
- }
- 
-@@ -1682,7 +1680,7 @@ translate_compat_table(const char *name,
- 		unsigned int *hook_entries,
- 		unsigned int *underflows)
- {
--	unsigned int i;
-+	unsigned int i, j;
- 	struct xt_table_info *newinfo, *info;
- 	void *pos, *entry0, *entry1;
- 	unsigned int size;
-@@ -1700,21 +1698,21 @@ translate_compat_table(const char *name,
- 	}
- 
- 	duprintf("translate_compat_table: size %u\n", info->size);
--	i = 0;
-+	j = 0;
- 	xt_compat_lock(AF_INET);
- 	/* Walk through entries, checking offsets. */
- 	ret = IPT_ENTRY_ITERATE(entry0, total_size,
- 				check_compat_entry_size_and_hooks,
- 				info, &size, entry0,
- 				entry0 + total_size,
--				hook_entries, underflows, &i, name);
-+				hook_entries, underflows, &j, name);
- 	if (ret != 0)
- 		goto out_unlock;
- 
- 	ret = -EINVAL;
--	if (i != number) {
-+	if (j != number) {
- 		duprintf("translate_compat_table: %u not %u entries\n",
--			 i, number);
-+			 j, number);
- 		goto out_unlock;
- 	}
- 
-@@ -1773,8 +1771,10 @@ translate_compat_table(const char *name,
- free_newinfo:
- 	xt_free_table_info(newinfo);
- out:
-+	IPT_ENTRY_ITERATE(entry0, total_size, cleanup_entry, &j);
- 	return ret;
- out_unlock:
-+	compat_flush_offsets();
- 	xt_compat_unlock(AF_INET);
- 	goto out;
- }
-@@ -1994,6 +1994,9 @@ compat_do_ipt_get_ctl(struct sock *sk, i
- {
- 	int ret;
- 
-+	if (!capable(CAP_NET_ADMIN))
-+		return -EPERM;
-+
- 	switch (cmd) {
- 	case IPT_SO_GET_INFO:
- 		ret = get_info(user, len, 1);
-diff --git a/net/ipv4/netfilter/iptable_mangle.c b/net/ipv4/netfilter/iptable_mangle.c
-index 4e7998b..f7b8906 100644
---- a/net/ipv4/netfilter/iptable_mangle.c
-+++ b/net/ipv4/netfilter/iptable_mangle.c
-@@ -157,7 +157,8 @@ #ifdef CONFIG_IP_ROUTE_FWMARK
- 		|| (*pskb)->nfmark != nfmark
- #endif
- 		|| (*pskb)->nh.iph->tos != tos))
--		return ip_route_me_harder(pskb) == 0 ? ret : NF_DROP;
-+		if (ip_route_me_harder(pskb, RTN_UNSPEC))
-+			ret = NF_DROP;
- 
- 	return ret;
- }
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index f136cec..87b7fe5 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -892,23 +892,32 @@ #ifndef CONFIG_XFRM
- 	return 1; 
- #else
- 	struct udp_sock *up = udp_sk(sk);
--  	struct udphdr *uh = skb->h.uh;
-+  	struct udphdr *uh;
- 	struct iphdr *iph;
- 	int iphlen, len;
-   
--	__u8 *udpdata = (__u8 *)uh + sizeof(struct udphdr);
--	__u32 *udpdata32 = (__u32 *)udpdata;
-+	__u8 *udpdata;
-+	__u32 *udpdata32;
- 	__u16 encap_type = up->encap_type;
- 
- 	/* if we're overly short, let UDP handle it */
--	if (udpdata > skb->tail)
-+	len = skb->len - sizeof(struct udphdr);
-+	if (len <= 0)
- 		return 1;
- 
- 	/* if this is not encapsulated socket, then just return now */
- 	if (!encap_type)
- 		return 1;
- 
--	len = skb->tail - udpdata;
-+	/* If this is a paged skb, make sure we pull up
-+	 * whatever data we need to look at. */
-+	if (!pskb_may_pull(skb, sizeof(struct udphdr) + min(len, 8)))
-+		return 1;
-+
-+	/* Now we can get the pointers */
-+	uh = skb->h.uh;
-+	udpdata = (__u8 *)uh + sizeof(struct udphdr);
-+	udpdata32 = (__u32 *)udpdata;
- 
- 	switch (encap_type) {
- 	default:
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index c9d6b23..751548a 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -444,6 +444,13 @@ mark_source_chains(struct xt_table_info 
- 			    && unconditional(&e->ipv6)) {
- 				unsigned int oldpos, size;
- 
-+				if (t->verdict < -NF_MAX_VERDICT - 1) {
-+					duprintf("mark_source_chains: bad "
-+						"negative verdict (%i)\n",
-+								t->verdict);
-+					return 0;
-+				}
-+
- 				/* Return: backtrack through the last
- 				   big jump. */
- 				do {
-@@ -481,6 +488,13 @@ #endif
- 				if (strcmp(t->target.u.user.name,
- 					   IP6T_STANDARD_TARGET) == 0
- 				    && newpos >= 0) {
-+					if (newpos > newinfo->size -
-+						sizeof(struct ip6t_entry)) {
-+						duprintf("mark_source_chains: "
-+							"bad verdict (%i)\n",
-+								newpos);
-+						return 0;
-+					}
- 					/* This a jump; chase it. */
- 					duprintf("Jump rule %u -> %u\n",
- 						 pos, newpos);
-@@ -514,27 +528,6 @@ cleanup_match(struct ip6t_entry_match *m
- }
- 
- static inline int
--standard_check(const struct ip6t_entry_target *t,
--	       unsigned int max_offset)
--{
--	struct ip6t_standard_target *targ = (void *)t;
--
--	/* Check standard info. */
--	if (targ->verdict >= 0
--	    && targ->verdict > max_offset - sizeof(struct ip6t_entry)) {
--		duprintf("ip6t_standard_check: bad verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	if (targ->verdict < -NF_MAX_VERDICT - 1) {
--		duprintf("ip6t_standard_check: bad negative verdict (%i)\n",
--			 targ->verdict);
--		return 0;
--	}
--	return 1;
--}
--
--static inline int
- check_match(struct ip6t_entry_match *m,
- 	    const char *name,
- 	    const struct ip6t_ip6 *ipv6,
-@@ -592,12 +585,19 @@ check_entry(struct ip6t_entry *e, const 
- 		return -EINVAL;
- 	}
- 
-+	if (e->target_offset + sizeof(struct ip6t_entry_target) >
-+								e->next_offset)
-+		return -EINVAL;
-+
- 	j = 0;
- 	ret = IP6T_MATCH_ITERATE(e, check_match, name, &e->ipv6, e->comefrom, &j);
- 	if (ret != 0)
- 		goto cleanup_matches;
- 
- 	t = ip6t_get_target(e);
-+	ret = -EINVAL;
-+	if (e->target_offset + t->u.target_size > e->next_offset)
-+			goto cleanup_matches;
- 	target = try_then_request_module(xt_find_target(AF_INET6,
- 							t->u.user.name,
- 							t->u.user.revision),
-@@ -615,12 +615,7 @@ check_entry(struct ip6t_entry *e, const 
- 	if (ret)
- 		goto err;
- 
--	if (t->u.kernel.target == &ip6t_standard_target) {
--		if (!standard_check(t, size)) {
--			ret = -EINVAL;
--			goto cleanup_matches;
--		}
--	} else if (t->u.kernel.target->checkentry
-+	if (t->u.kernel.target->checkentry
- 		   && !t->u.kernel.target->checkentry(name, e, target, t->data,
- 						      t->u.target_size
- 						      - sizeof(*t),
-@@ -770,7 +765,7 @@ translate_table(const char *name,
- 
- 	if (ret != 0) {
- 		IP6T_ENTRY_ITERATE(entry0, newinfo->size,
--				  cleanup_entry, &i);
-+				   cleanup_entry, &i);
- 		return ret;
- 	}
- 
-@@ -780,7 +775,7 @@ translate_table(const char *name,
- 			memcpy(newinfo->entries[i], entry0, newinfo->size);
- 	}
- 
--	return ret;
-+	return 0;
- }
- 
- /* Gets counters. */
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 3d54f24..7ecfe82 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -314,14 +314,13 @@ static void udpv6_err(struct sk_buff *sk
- {
- 	struct ipv6_pinfo *np;
- 	struct ipv6hdr *hdr = (struct ipv6hdr*)skb->data;
--	struct net_device *dev = skb->dev;
- 	struct in6_addr *saddr = &hdr->saddr;
- 	struct in6_addr *daddr = &hdr->daddr;
- 	struct udphdr *uh = (struct udphdr*)(skb->data+offset);
- 	struct sock *sk;
- 	int err;
- 
--	sk = udp_v6_lookup(daddr, uh->dest, saddr, uh->source, dev->ifindex);
-+	sk = udp_v6_lookup(daddr, uh->dest, saddr, uh->source, inet6_iif(skb));
-    
- 	if (sk == NULL)
- 		return;
-@@ -415,7 +414,7 @@ static void udpv6_mcast_deliver(struct u
- 
- 	read_lock(&udp_hash_lock);
- 	sk = sk_head(&udp_hash[ntohs(uh->dest) & (UDP_HTABLE_SIZE - 1)]);
--	dif = skb->dev->ifindex;
-+	dif = inet6_iif(skb);
- 	sk = udp_v6_mcast_next(sk, uh->dest, daddr, uh->source, saddr, dif);
- 	if (!sk) {
- 		kfree_skb(skb);
-@@ -496,7 +495,7 @@ static int udpv6_rcv(struct sk_buff **ps
- 	 * check socket cache ... must talk to Alan about his plans
- 	 * for sock caches... i'll skip this for now.
- 	 */
--	sk = udp_v6_lookup(saddr, uh->source, daddr, uh->dest, dev->ifindex);
-+	sk = udp_v6_lookup(saddr, uh->source, daddr, uh->dest, inet6_iif(skb));
- 
- 	if (sk == NULL) {
- 		if (!xfrm6_policy_check(NULL, XFRM_POLICY_IN, skb))
-diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
-index a9894dd..e1c27b7 100644
---- a/net/netfilter/Kconfig
-+++ b/net/netfilter/Kconfig
-@@ -197,7 +197,9 @@ config NETFILTER_XT_TARGET_SECMARK
- 
- config NETFILTER_XT_TARGET_CONNSECMARK
- 	tristate '"CONNSECMARK" target support'
--	depends on NETFILTER_XTABLES && (NF_CONNTRACK_SECMARK || IP_NF_CONNTRACK_SECMARK)
-+	depends on NETFILTER_XTABLES && \
-+		   ((NF_CONNTRACK && NF_CONNTRACK_SECMARK) || \
-+		    (IP_NF_CONNTRACK && IP_NF_CONNTRACK_SECMARK))
- 	help
- 	  The CONNSECMARK target copies security markings from packets
- 	  to connections, and restores security markings from connections
-@@ -342,7 +344,7 @@ config NETFILTER_XT_MATCH_MULTIPORT
- 
- config NETFILTER_XT_MATCH_PHYSDEV
- 	tristate '"physdev" match support'
--	depends on NETFILTER_XTABLES && BRIDGE_NETFILTER
-+	depends on NETFILTER_XTABLES && BRIDGE && BRIDGE_NETFILTER
- 	help
- 	  Physdev packet matching matches against the physical bridge ports
- 	  the IP packet arrived on or will leave by.
+Hi.
+
+Perhaps some of you have read my older two threads:
+http://marc.theaimsgroup.com/?t=116312440000001&r=1&w=2 and the even
+older http://marc.theaimsgroup.com/?t=116291314500001&r=1&w=2
+
+The issue was basically the following:
+I found a severe bug mainly by fortune because it occurs very rarely.
+My test looks like the following: I have about 30GB of testing data on
+my harddisk,... I repeat verifying sha512 sums on these files and check
+if errors occur.
+One test pass verifies the 30GB 50 times,... about one to four
+differences are found in each pass.
+
+The corrupted data is not one single completely wrong block of data or
+so,.. but if you look at the area of the file where differences are
+found,.. than some bytes are ok,.. some are wrong,.. and so on (seems to
+be randomly).
+
+Also, there seems to be no event that triggers the corruption,.. it
+seems to be randomly, too.
+
+It is really definitely not a harware issue (see my old threads my
+emails to Tyan/Hitachi and my "workaround" below. My system isn't
+overclocked.
+
+
+
+My System:
+Mainboard: Tyan S2895
+Chipsets: Nvidia nforce professional 2200 and 2050 and AMD 8131
+CPU: 2x DualCore Opterons model 275
+RAM: 4GB Kingston Registered/ECC
+Diskdrives: IBM/Hitachi: 1 PATA, 2 SATA
+
+
+The data corruption error occurs on all drives.
+
+
+You might have a look at the emails between me and Tyan and Hitachi,..
+they contain probalby lots of valuable information (especially my
+different tests).
+
+
+
+Some days ago,.. an engineer of Tyan suggested me to boot the kernel
+with mem=3072M.
+When doing this,.. the issue did not occur (I don't want to say it was
+solved. Why? See my last emails to Tyan!)
+Then he suggested me to disable the memory hole mapping in the BIOS,...
+When doing so,.. the error doesn't occur, too.
+But I loose about 2GB RAM,.. and,.. more important,.. I cant believe
+that this is responsible for the whole issue. I don't consider it a
+solution but more a poor workaround which perhaps only by fortune solves
+the issue (Why? See my last eMails to Tyan ;) )
+
+
+
+So I'd like to ask you if you perhaps could read the current information
+in this and previous mails,.. and tell me your opinions.
+It is very likely that a large number of users suffer from this error
+(namely all Nvidia chipset users) but only few (there are some,.. I
+found most of them in the Nvidia forums,.. and they have exactly the
+same issue) identify this as an error because it's so rare.
+
+Perhaps someone have an idea why disabling the memhole mapping solves
+it. I've always thought that memhole mapping just moves some address
+space to higher addreses to avoid the conflict between address space for
+PCI devices and address space for pyhsical memory.
+But this should be just a simple addition and not solve this obviously
+complex error.
+
+
+
+Lots of thanks in advance.
+
+Best wishes,
+Chris.
+
+
+
+
+#########################################################################
+### email #1 to Tyan/Hitachi                                          ###
+#########################################################################
+
+(sorry for reposting but the AMD support system requires to add some keywords in
+the subject, and I wanted to have the correct subject for all other parties
+(Tyan and Hitachi) too, so that CC'ing would be possible for all.
+
+Hi.
+
+I provide this information to:
+- Tyan (support@tyan.de) - Mr. Rodger Dusatko
+- Hitachi (support_de@hitachigst.com , please add the GST Support
+Request #627-602-082-5 in the subject) Mr. Schledz)
+- and with this email for the first time to AMD tech.support@amd.com
+(for the AMD people: please have a look at the information at the very
+end of this email first,... there you'll find links where you can read
+the introduction and description about the whole issue).
+
+It might be useful if you contact each other (and especially nvidia
+which I wasn't able to contact myself),.. but please CC me in all you
+communications.
+Also, please forward my emails/information to your responsible technical
+engineers and developers.
+
+Please do not ignore this problem:
+- it existing,
+- several users are experiencing it (thus this is not a single failure
+of my system),
+- it can cause severe data corruption (which is even more grave, as the
+a user won't notice it throught error messages) and
+- it happens with different Operating Systems (at least Linux and Windows).
+
+
+
+
+This is my current state of testing. For further information,.. please
+do not hesitate to ask.
+You'll find old information (included in my previous mails or found at
+the linux-kernel mailinglist thread I've included in my mails) at the end.
+
+- In the meantime I do not use diff any longer for my tests, simply
+because it takes much longer than to use sha512sums to verify
+dataintegrity (but this has not effect on the testing or the issue
+itself, it just proves that the error is not in the diff program).
+
+- I always test 30GB insteat of 15
+
+- As before I'm still very sure, that the following components are fully
+working and not damaged (see my old mails or lkml):
+CPUs => due to extensive gimps/mprime torture tests
+memory => due to extensive memtest86+ tests
+harddisks => because I use three different disks (SATA-II and PATA) (but
+all from IBM/Hitachi or Hitachi) and I did extensive badblock scans
+temperature should be ok in my system => proper chassis (not any of the
+chep ones) with several fans, CPUs between 38 °C an 45°C, System ambient
+about 46°C, videocard, between 55° and 88°C (when under full 3D use),...
+the chipsetS (!) don't have temperature monitoring,.. and seem to be
+quite hot, but according Tyan this is normal.
+
+
+Ok now my current state:
+- I found (although it was difficult) a lot of resource in the internet
+where users report about the same or a very similar problem using the
+same hardware components. Some of them:
+http://forums.nvidia.com/index.php?showtopic=8171&st=0
+http://forums.nvidia.com/index.php?showtopic=18923
+http://lkml.org/lkml/2006/8/14/42 (see http://lkml.org/lkml/2006/8/15/109)
+Note that I've opened a thread at the nvidia forums myself:
+http://forums.nvidia.com/index.php?showtopic=21576
+
+All of them have in common, that the issue is/was not a hardware failure
+and it seems that none of them was able to reproduce the failure.
+
+
+- As far as I understand the Tyan S2895 mainboard manual
+ftp://ftp.tyan.com/manuals/m_s2895_101.pdf on page 9,... both the IDE
+and SATA are connected to the Nvidia nforce professional 2200,.. so this
+may be nvidia related
+(If anyone of you has the ability to contact nvidia,.. please do so and
+send them all my information (also the old one). It seems that it's not
+easily possible to contact them for "end-users")
+
+- I tried different cable routings in my chassis (as far as this was
+possible) which did not solve the problem.
+I also switched of all other devices in my rooms that might produce
+electro-magnetic disturbances....
+thus electro-magnetic disturbances are unlikely.
+
+- I found the errata for the AMD 8131 (which is on of my chipsets):
+www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/26310.pdf
+Please have a look at it (all the issues) as some might be responsible
+for the whole issue.
+
+- I tried to use older BIOS versions (1.02 and 1.03) but all of them
+gave me an OPROM error (at bus 12 device 06 function 1) and despite of
+that booting,.. the problem still exists.
+According to Linux's dmesg this is:
+
+12:06.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X
+Fusion-MPT Dual Ultra320 SCSI (rev 07)
+12:06.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X
+Fusion-MPT Dual Ultra320 SCSI (rev 07)
+
+- I tried with 8131 Errata 56 PCLK (which actualy disables the AMD
+Errata 56 fix) but the issue still exists
+
+- I activated my BIOS's Spread Spectrum Option (although it is not
+described what it does).
+Is this just for harddisks? And would I have to activate SpredSpectrum
+at the Hitachi Feature Tools, too, for having an effect?
+
+- I tried everything with the lowest possible BIOS settings,.. which
+solved nothing.
+
+- According to the information found in the threads at the nvidia boards
+(see the links above)... this may be a nvidia-Hitachi nvidia-Maxtor (and
+even other manufracturers of HDDs) related problem.
+Some even claimed that deactivation of Native Command Queueing (NCQ)
+helped,.. BUT only for a limited time.
+But as far as I know, Linux doesn't support NCQ at all (at the moment).
+
+
+Thank you very much for now.
+Best wishes,
+Christoph Anton Mitterer.
+
+
+----------------------------
+Old information:
+As a reminder my software/hardware data:
+
+CPU: 2x DualCore Opteron 275
+Mainboard: Tyan Thunder K8WE (S2895)
+Chipsets: Nvidia nForce professional 2200, Nvidia nForce professional
+2050, AMD 8131
+Memory: Kingston ValueRAM 4x 1GB Registered ECC
+Harddisks: 1x PATA IBM/Hitachi, 2x SATA IBM/Hitachi
+Additional Devices/Drives: Plextor PX760A DVD/CD, TerraTec Aureon 7.1
+Universe soundcard, Hauppage Nova 500T DualDVB-T card.
+Distribution: Debian sid
+Kernel: self-compiled 2.6.18.2 (see below for .config) with applied EDAC
+patches
+
+The system should be cooled enough so I don't think that this comes from
+overheating issues. Nothing is overclocked.
+
+
+The issue was:
+
+For an in depth description of the problem please have a look at the
+linux-kernel mailing list.
+The full, current thread:
+http://marc.theaimsgroup.com/?t=116312440000001&r=1&w=2
+
+(You'll find there my system specs, too.)
+
+
+An older thread with the same problem, but where I thougt the problem is
+FAT32 related (anyway, might be interesting, too):
+http://marc.theaimsgroup.com/?t=116291314500001&r=1&w=2
+#########################################################################
+### email #2 to Tyan/Hitachi                                          ###
+#########################################################################
+
+Hi Mr. Dusatko, hi Mr. Ebner.
+
+
+Rodger Dusatko - Tyan wrote:
+
+> > Thanks so much for your e-mail.
+>   
+Well I have to thank you for your support, too :-)
+
+
+> > You seem to have tried many different tests.
+> >   
+>   
+Dozens ^^
+
+
+> > If I understand the problem correctly, when you use the on-board SATA, you 
+> > are receiving corrupted data.
+> >   
+>   
+It happens with the onboard IDE, too !!!! This sounds reasonable as both
+IDE and SATA are connected to the nforce 2200.
+If you read the links to pages where other people report about the same
+problem (especially at the Nvidia forums) you'll see that others think
+that this is nforce related, too.
+
+I established contact with some of them and most think that this may
+(but of course there is no definite proof for this) related to a
+nforce/disk manufracturer combination. So all of them report for example
+that the error occurs with nforce/Hitachi.
+Some of them think that it might be NCQ related (did you read the NCQ
+related parts of my last email? As far as I can see NCQ will be added in
+the kernel for sata_nv in 2.6.19).
+Both of this sounds somewhat strange to me...
+For my understanding of computer technology I would assume that this
+should be a general harddisk error,.. and not only Hitachi or e.g.
+Maxtor related.
+
+(I didn't test it with the onboard SCSI, as I don't have any SCSI drives.)
+Not that
+
+
+
+
+> > Sometimes we have solved this problem by simply readjusting bios settings.
+> >   
+>   
+Does this mean that you were able to reproduce the problem?
+
+
+
+> > Please try the following:
+> >
+> > in the Linux boot prompt, please try (mem=3072M). This will show whether it 
+> > might be a problem related to the memory hole.
+> > or use only 2gb of memory.
+> >
+> >   
+>   
+I'm going to test this in a few minutes (althoug I think I did already a
+similar test)...
+Anyway from a theoretical point of view it sounds very unlikely to me,
+that this is a memory related issue at all. Not only because of my
+memtest86+ test,.. but also because of the way the linux kernel works in
+that area.
+
+
+> > If it is a memory hole problem, you should have (with Linux) the following 
+> > settings:
+> >   
+>   
+My current memhole seetings are these (the ones that I use under
+"normal" production):
+IOMMU -> enabled
+IOMMU -> 64 MB
+Memhole -> AUTO
+mapping -> HARDWARE
+
+Other memory settings
+
+-> Node Memory Interleave -> enabled
+-> Dram Bank Interleave -> enabled
+-> MTTR Mapping -> discrete
+-> Memory Hole
+-> Memory Hole mapping -> enabled
+-> Memory Config
+-> Memory Clock DDR400
+-> Swizzle memory banks enabled
+
+
+
+
+> > CMOS reset (press CMOS Clear button for 20 seconds).
+> > Go into Bios -> Set all values to default (F9)
+> > Main -> Installed O/S -> Linux
+> > Advanced -> Hammer Config
+> > -> Node Memory Interleave -> disabled
+> > -> Dram Bank Interleave -> disabled
+> > -> MTTR Mapping -> discrete
+> > -> Memory Hole
+> > -> Memory Hole mapping -> Disabled
+> > -> Memory Config
+> > -> Memory Clock DDR333
+> > -> Swizzle memory banks disabled
+> >   
+>   
+I've already checked excatly this setting ;) expect that I used
+DDR400,... could that make any difference?
+
+
+> > You might try SATA HDDs from another manufacturer.
+> >   
+>   
+I'm already trying to do so but currently none of my friends was able to
+borrow me any devices,... I'm also going to check the issue with other
+operating systems (at least if I find any that support the Nvidia
+chipsets at all),.. maybe some *BSD or OpenSolaris.
+
+
+
+> > Also, I have a newer beta bios version available.
+> >
+> > ftp://ftp.tech2.de/boards/28xx/2895/BIOS/ -> 2895_1047.zip you might want to 
+> > try.
+> >   
+>   
+Please don't understand me wrong,... I still would like you to help and
+investigate in that issue... but currently I think (although I may be
+wrong) that this could be harddisk firmware related.
+So what _excatly_ did you change in that version,.. or is it just a
+crappy solution or workaround,...?
+
+
+
+Any idea about that spread spectrum option?:
+
+> > - I activated my BIOS's Spread Spectrum Option (although it is not
+> > described what it does).
+> > Is this just for harddisks? And would I have to activate SpredSpectrum
+> > at the Hitachi Feature Tools, too, for having an effect?
+> >   
+>   
+
+Thanks so far.
+
+Chris.
+#########################################################################
+### email #3 to Tyan/Hitachi                                          ###
+#########################################################################
+
+Rodger Dusatko - Tyan wrote:
+
+> > Hello Christoph,
+> >
+> > another customer having data corruption problems said by entering the 
+> > command mem=3072M he no longer has data corruption problems.
+> >
+> > Please let me know as soon as possible, that I might know how to help 
+> > further.
+> >   
+>   
+I just finished my test....
+Used my "old" BIOS settings (not the one included in you mail)... but
+set mem=3072M.
+It seems (although I'm not yet fully convinced as I've already had cases
+where an error occured after lots of sha512-passes) that with mem=3072M
+_no error occures_
+
+But of course I get only 2GB ram (of my 4GB which I wanted to upgrad to
+even more memory in the next months).
+So just to use mem=3072M is not acceptable.
+
+And I must admit that I have strong concerns about the fact that memhole
+settings are a proper fix for that.
+Of course I'd be glad if I could fix that... but from my own large
+system programming experience I know that there are many cases where a
+fix isn't really a fix for a problem,... but solves the problem in
+conjunction with other errors (that are not yet found).
+
+
+I'd be glad if you could give me better explanation of the
+memhole-solution (and especially how to solve it without mem=3072M
+because I'd like to have my full memory) ... because I'd like to fully
+understand the issue to secure that it is really fixed or not.
+
+I'll test you beta BIOS tomorrow and report my results.
+
+If you whish I could also call you via phone (just give me your phone-#).
+
+Thanks in advance,
+Chris.
+#########################################################################
+### email #4 to Tyan/Hitachi                                          ###
+#########################################################################
+One thing I forgot,...
+Although using it very very rarely,.. there are some cases where I have
+to use M$ Windows.... and afaik,.. you cannot tell windows something
+like mem=3072M
+So it wouldn't solve that for Windows.
+
+
+Chris.
+#########################################################################
+### email #5 to Tyan/Hitachi                                          ###
+#########################################################################
+Dear Mr. Dusatko, Mr. Ebner and dear sir at the Hitachi GST Support.
+
+I'd like to give you my current status of the problem.
+
+First of all AMD didn't even answer until now, the same applies for my
+request at Nvidias knowledge base,... says something about these
+companies I think.
+
+For the people at Hitachi: With the advice of Mr. Dusatko from Tyan I
+was able to workaround the problem:
+
+Rodger Dusatko - Tyan wrote:
+
+> > as I mentioned earlier, you can do some of these memory hole settings
+> > : (for
+> > Linux)
+>   
+>>> >>> Go into Bios -> Set all values to default (F9)
+>>> >>> Main -> Installed O/S -> Linux
+>>> >>> Advanced -> Hammer Config
+>>> >>> -> Node Memory Interleave -> disabled
+>>> >>> -> Dram Bank Interleave -> disabled
+>>> >>> -> MTTR Mapping -> discrete
+>>> >>> -> Memory Hole
+>>> >>> -> Memory Hole mapping -> Disabled
+>>> >>> -> Memory Config
+>>> >>> -> Memory Clock DDR333
+>>> >>> -> Swizzle memory banks disabled
+>>>       
+The above settings for the BIOS actually lead to a system that did not
+make any errors during one of my complete tests (that is verifying
+sha512sums 50 times on 30 GB of data).
+
+
+Actually I seems to depend only on one of the above settings: Memory
+hole mapping.
+Currently I'm using the following:
+Main -> Installed O/S -> Linux
+Advanced -> Hammer Config
+-> Node Memory Interleave -> Auto
+-> Dram Bank Interleave -> Auto
+-> MTTR Mapping -> discrete
+-> Memory Hole
+-> Memory Hole mapping -> Disabled
+-> Memory Config
+-> Memory Clock->DDR400
+->Swizzle memory banks -> Enabled
+And still no error occurs.
+But as soon as I set Memory Hole mapping to one of the other values
+(Auto, Hardware or Software),.. the error occurs.
+(Especially for Tyan: Note that when using Software Node Memory
+Interleave is always automatically set to Disabled after reboot, while
+when using Harware, Auto works - perhaps a bug?)
+
+
+
+Ok,.. now you might think,... problem solved,.. but it is defenitely not:
+
+1) Memory Hole mapping costs me 2GB of my 4GB RAM (which are unusable
+because of the memory hole),.. this is not really acceptable.
+The beta BIOS Mr. Dusatko from Tyan gave might solve this, but I wasn't
+able to test this yet.
+
+
+2) But even it this would solve the problem I'm still very concerned and
+encourage especially the people at Hitachi to try to find another reason.
+Why? Because I cannot imagine how the memory hole leads to the wole issue:
+- The memory hole is a quite simple process where the BIOS / Hardware
+remaps to some portions of physical RAM to higher areas,.. to give the
+lower areas to PCI devices that make uses of mmap.
+Even if there would be an error,... that would not only affect IDE/SATA
+but also CD/DVD/SCSI drives and any other memory operations at all.
+AND there would be complete block that would be corrupted,.. not only
+several bytes (remember: I've reportet that in a currupted block some
+bytes are ok,.. some are note,... and so on).
+
+-If you look at the board description
+(ftp://ftp.tyan.com/manuals/m_s2895_101.pdf page 9) you see that both
+IDE and SATA are connected to the nforce professional 2200, right?
+Why should the memhole settings affect only the IDE/SATA drives? If
+there was an error in the memory controller it would affect every memory
+operation in the system (see above) because the memory controller is not
+onboard,.. but integrated in the Operton CPUs. (This is also the reason
+why, if the memory controller would have design errors, not only people
+using nvidia chipsets have this problem,.. which is apparently the case.)
+
+-Last but not least,.. (as also noted above) the errors are always like
+the following: not a complete block is corrupted but just perhaps half
+of all its bytes (in any order). Could this come from the simple memory
+hole remapping???? In my opinion, definitely not.
+
+
+So I think "we" are not yet finished with work.
+- I ask the Hitachi people to continue their work (or start with it ;) )
+in taking a special look at their firmware and how it interoperates with
+nforce chipsets.
+I found (really) lots of reports where people tells that this issue has
+been resolved by firmware upgrades of their vendor (especially for
+Maxtor devices).
+Nvidia itself suggests this:
+http://nvidia.custhelp.com/cgi-bin/nvidia.cfg/php/enduser/std_adp.php?p_faqid=768&p_created=1138923863&p_sid=9qSJ8Yni&p_accessibility=0&p_redirect=&p_lva=&p_sp=cF9zcmNoPSZwX3NvcnRfYnk9JnBfZ3JpZHNvcnQ9JnBfcm93X2NudD00MzImcF9wcm9kcz0mcF9jYXRzPSZwX3B2PSZwX2N2PSZwX3NlYXJjaF90eXBlPWFuc3dlcnMuc2VhcmNoX2ZubCZwX3BhZ2U9MQ**&p_li=&p_topview=1
+(although they think that the issue appears only on SATA which is
+definitely not true)
+Please have a detailed look on the NCQ of the drives:
+This would be (according to how NCQ works) the most likely reason for
+the error,... and some people say that deactivating it under Windows,
+solved the issue. Anyway,... if NCQ was responsible for the error,.. it
+would not appear on the IDE drives (but it does).
+And I'm not even sure if Linux/libata (until kernel 2.6.18.x) even uses
+NCQ. I always thought it would not but I might be wrong. See this part
+of my dmesg:
+sata_nv 0000:00:07.0: version 2.0
+ACPI: PCI Interrupt Link [LTID] enabled at IRQ 22
+GSI 18 sharing vector 0xD9 and IRQ 18
+ACPI: PCI Interrupt 0000:00:07.0[A] -> Link [LTID] -> GSI 22 (level,
+high) -> IRQ 217
+PCI: Setting latency timer of device 0000:00:07.0 to 64
+ata1: SATA max UDMA/133 cmd 0x1C40 ctl 0x1C36 bmdma 0x1C10 irq 217
+ata2: SATA max UDMA/133 cmd 0x1C38 ctl 0x1C32 bmdma 0x1C18 irq 217
+scsi0 : sata_nv
+ata1: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+ata1.00: ATA-7, max UDMA/133, 488397168 sectors: LBA48 NCQ (depth 0/32)
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/133
+scsi1 : sata_nv
+ata2: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+ata2.00: ATA-7, max UDMA/133, 488397168 sectors: LBA48 NCQ (depth 0/32)
+ata2.00: ata2: dev 0 multi count 16
+ata2.00: configured for UDMA/133
+  Vendor: ATA       Model: HDT722525DLA380   Rev: V44O
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: ATA       Model: HDT722525DLA380   Rev: V44O
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+
+It says something about NCQ...
+
+-It would also be great if Hitachi could inform me about their current
+progress or how long it will take until their engineers start to have a
+look at my issue.
+
+
+
+Especially for Mr. Dusatko at tyan:
+
+> > Just because memtest86 works it doesn't mean that the memory you are using 
+> > is compatible memory. That is why we have a recommended list.
+> >
+> > Each of the modules on our recommended list have been thoroughly tested. 
+> > Most memories pass the memtest86 test, yet many of these do not past our 
+> > tests.
+> >
+> > my tel-nr.
+>   
+My memory modules are actually on your compatible list (they're the
+Kingston KVR400D8R3A/1G) so this cannot be the point.
+
+I still was not able to test your beta BIOS but I'll do so as soon as
+possible an report the results. And I'm going to call you this or next
+week (have to work at the Leibniz-Supercomputing Centre today and
+tomorrow,.. so don't know when I have enough time).
+
+
+Thanks for now.
+
+Best wishes,
+Chris.
+#########################################################################
+### email #6 to Tyan/Hitachi                                          ###
+#########################################################################
+Rodger Dusatko - Tyan wrote:
+
+> > you mention:
+> >
+> >   
+>   
+>> >> My memory modules are actually on your compatible list (they're the
+>> >> Kingston KVR400D8R3A/1G) so this cannot be the point.
+>> >>     
+>>     
+> >
+> > I have talked with so many customers about this very problem. Just because 
+> > the part-nr. of the Kingston modules is correct, this means absolutely 
+> > nothing.
+> >
+> > You need to also have the same chips as on our recommended website. The 
+> > chips being used are even more important than the kingston part-nr.
+> >
+> > The chips on the KVR400D8R3A/1G must be Micron, having chip part-nr. 
+> > MT46V64M8TG-5B D as shown on our recommended memory page.
+> >   
+>   
+I'll check this these days and inform you about the exact chips on the DIMMs
+
+Anyway...
+What do you say to the reasons why I don't think that the memhole stuff
+is a real solution but more a poor workaround (see my last email,..
+which is attached below).
+You didn't comment on my ideas in your last answer.
+
+
+> > This is a grave problem with Kingston memory and why I would only recommend 
+> > Kingston memory when your supplier is willing to help you to get the exact 
+> > modules which we have tested.
+> >   
+>   
+Well are you absolutely sure that this is memory related? (See also my
+comments in my last email)
+Note that lots of users were able to solve this via disk drive firmware
+upgrades and many of them didn't have Kingston RAMs.
+Also,... all RAMs "shoudl" be usable as all "should" follow the SDRAM
+standard...
+
+If there would be a Kingston error,.. that data corruption issue should
+appear everywhere, shouldn't it? And not only on hard disk accesses.
+
+
+In all doing respect, and please believe me that I truely respect your
+knowledge and so (because you surely know more about hardware because my
+computer science study goes more about theoretical stuff)... but I
+cannot believe that this is the simple reason,... "wrong RAMs wrong BIOS
+settings and you cannot use your full RAM" (see my reasons in my last
+email)...
+I'd say that there is somewhere a real and perhaps grave error....
+either on the board itself ot the nvidia chipset (which I suspect as the
+evil here ;-) ).
+And I think the error is severe enought that there should be made a
+considerable effort to solve it, or at least, exactly locate where there
+error is, and why the memhole disabled solves it.
+
+And remember,... it may be the case that the data corruption doesn't
+appear when UDMA (at PATA drives) is disabled,.. but this shouldn't have
+to do anything with memory vendor or memhole settings,... so why would
+this solve the issue, too (if it actually does which I cannot proove)?
+
+I'm also going to start my test with changing the following BIOS settings:
+SCSI Bus master from my current setting Enabled to Disabled
+Disk Access Mode (don't recall the actual name) from Other to DOS.
+
+I'm going to report you the results next week,.. and I'll probably going
+to call you again.
+
+
+
+> > Wiith ATP or other vendors, they stick usually to the same chips as long as 
+> > the vendor part-nr is the same. In such a case, you probably would have been 
+> > right when the vendor part-nr matches your part-nr.
+> >
+> > The problems you are having, as I mentioned before, may disappear if you use 
+> > memory on our recommended memory list.
+> >   
+>   
+Is it possible for Tyan to borrow me such memory for testing? I live in
+Munich and Tyan Germany is in Munich too, if I recall correctly.
+
+
+Thanks in adc
+
+Best wishes,
+Chris.
+#########################################################################
+### email #7 to Tyan/Hitachi                                          ###
+#########################################################################
+Sorry I forgot one thing:
+The beta BIOS you gave me did not change anything.
+As soon as I activate memhole mapping (either to software, hardware or
+auto),.. data corruption occurs.
+
+Chris.
+#########################################################################
+### reply to #1 from Tyan                                             ###
+#########################################################################
+Hello Chris,
+
+there are often problems which are not really so easy to understand.
+
+As I understand it, the hard disk uses DMA (Direct Memory Access), which is 
+supported by the chipset.
+
+The processor uses the DMA access to the DIMMs through the chipset to write 
+to the disks.
+
+Now, I really am not an expert on this, but normally the DMA is not used by 
+the processor when communicating with the memory, but rather the 
+hypertransport connection.
+
+This may be an explanation of what is causing the problem. Because a driver 
+for HDDs also exists, there may be different links where the problem is 
+occuring.
+
+The driver may be able to solve problems which can make it that even using 
+the hardware setting for memory hole causes no problems. However, there are 
+many different amd cpu steppings, all different in how they manage memory 
+(and in this case, the memory hole). If the drivers take all of these 
+considerations, they may be able to adjust according to the processor being 
+used. But I am not sure if the people who write these drivers get involved 
+with this.
+
+Rodger
+
+
+
+, the DMA s supported from the chipset   uses the DMA access for 
+communicating with the processor, the memory
+----- Original Message ----- 
+...
+...
+...
+
+
+
+
+That were all (important) emails so until now.
+

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162499AbWLBVcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424167AbWLBVhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162499AbWLBVcu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162502AbWLBVcu
+	id S1424167AbWLBVhT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424168AbWLBVhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:32:50 -0500
-Received: from galaxy.systems.pipex.net ([62.241.162.31]:37824 "EHLO
-	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1162499AbWLBVct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:32:49 -0500
-Date: Sat, 2 Dec 2006 21:33:00 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-X-X-Sender: tigran@ginsburg.homenet
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Hua Zhong <hzhong@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+	Sat, 2 Dec 2006 16:37:19 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44233 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1424167AbWLBVhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:37:18 -0500
+Date: Sat, 2 Dec 2006 21:42:13 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
-In-Reply-To: <9a8748490612011340w75199a6co91c233f71f4090f6@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0612022125560.1464@ginsburg.homenet>
-References: <20061201055145.GK11084@stusta.de>  <00e401c7150e$061da500$6721100a@nuitysystems.com>
- <9a8748490612011340w75199a6co91c233f71f4090f6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Message-ID: <20061202214213.2188bced@localhost.localdomain>
+In-Reply-To: <20061202213200.GZ11084@stusta.de>
+References: <00e401c7150e$061da500$6721100a@nuitysystems.com>
+	<1164964119.3233.56.camel@laptopd505.fenrus.org>
+	<20061201105955.GO11084@stusta.de>
+	<Pine.LNX.4.61.0612022101500.1388@ginsburg.homenet>
+	<20061202213200.GZ11084@stusta.de>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006, Jesper Juhl wrote:
-> In my opinion the addresses should be working ones or not present at
-> all (or at the very least there should be a note that the email
-> address is outdated).
+On Sat, 2 Dec 2006 22:32:00 +0100 Adrian Bunk <bunk@stusta.de> wrote:
 
-The above argument is not valid for entries in a revision history. 
-Most likely (though not necessarily), when there are multiple entries in a 
-revision history with different email addresses, some are going to 
-contain obsolete parts.
+> as I explained with my email address as an example, email addresses 
+> aren't suitable for this.
 
-Besides, I am sure there are thousands of stale email addresses throughout 
-the current kernel source tree (and there have always been such) --- why 
-start with me? Start with the top --- Linus Torvalds :) Try finding an 
-obsolete email address for him in the kernel. By 2030 my turn may come :)
+I disagree. They can be very useful for tracking people down, and also
+for finding information as the email address (old or otherwise) is a
+great search key for info on a driver in mailing lists.
+ 
+> Even the "please contact the author" and the printk() should continue to 
+> contain known bouncing addresses?
 
-Kind regards
-Tigran
+Possibly not.
+ 

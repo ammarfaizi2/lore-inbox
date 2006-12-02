@@ -1,49 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759378AbWLBD3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162442AbWLBDqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759378AbWLBD3h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 22:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759381AbWLBD3h
+	id S1162442AbWLBDqx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 22:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162760AbWLBDqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 22:29:37 -0500
-Received: from rhun.apana.org.au ([64.62.148.172]:53006 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1759378AbWLBD3g
+	Fri, 1 Dec 2006 22:46:53 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:25555 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1162442AbWLBDqw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 22:29:36 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: psusi@cfl.rr.com (Phillip Susi)
-Subject: Re: What happened to CONFIG_TCP_NAGLE_OFF?
-Cc: alan@lxorguk.ukuu.org.uk, matthew.garman@gmail.com,
-       linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <457093C5.1040501@cfl.rr.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1GqLZ0-0006iY-00@gondolin.me.apana.org.au>
-Date: Sat, 02 Dec 2006 14:29:18 +1100
+	Fri, 1 Dec 2006 22:46:52 -0500
+Date: Fri, 1 Dec 2006 19:49:47 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org, dm-crypt@saout.de,
+       Andrey <dm-crypt-revealed-address@lelik.org>,
+       Andrew Morton <akpm@osdl.org>, agk@redhat.com,
+       Neil Brown <neilb@suse.de>, Jens Axboe <jens.axboe@oracle.com>,
+       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org
+Subject: Re: [stable][PATCH < 2.6.19] Fix data corruption with dm-crypt over RAID5
+Message-ID: <20061202034947.GE6602@sequoia.sous-sol.org>
+References: <456B732F.6080906@lelik.org> <20061129145208.GQ4409@agk.surrey.redhat.com> <456F46E3.6030702@lelik.org> <1164983209.24524.20.camel@leto.intern.saout.de> <20061201152143.GE4409@agk.surrey.redhat.com> <45704B95.3020308@lelik.org> <1165026116.29307.18.camel@leto.intern.saout.de> <1165026476.29307.23.camel@leto.intern.saout.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165026476.29307.23.camel@leto.intern.saout.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> wrote:
+[Note: please Cc: stable@kernel.org on -stable patches]
+
+* Christophe Saout (christophe@saout.de) wrote:
+> Fix corruption issue with dm-crypt on top of software raid5. Cancelled
+> readahead bio's that report no error, just have BIO_UPTODATE cleared
+> were reported as successful reads to the higher layers (and leaving
+> random content in the buffer cache). Already fixed in 2.6.19.
+
+I take it this is fixed a different way in 2.6.19?  Mind clarifying the
+difference?
+
+> Signed-off-by: Christophe Saout <christophe@saout.de>
 > 
-> UDP is highly appropriate because the congestion controls and other 
-> features of TCP are not required for this type of data, and in fact, 
-> tend to muck things up.  That is why the application needs to implement 
-> its own congestion, sequencing, retransmit and connect/disconnect 
-> controls; because the way TCP handles them is not good for this 
-> application.
+> 
+> --- linux-2.6.18.orig/drivers/md/dm-crypt.c	2006-09-20 05:42:06.000000000 +0200
+> +++ linux-2.6.18/drivers/md/dm-crypt.c	2006-12-02 03:03:36.000000000 +0100
+> @@ -717,13 +717,15 @@
+>  	if (bio->bi_size)
+>  		return 1;
+>  
+> +	if (!bio_flagged(bio, BIO_UPTODATE) && !error)
+> +		error = -EIO;
+> +                        
 
-Congestion control is always appropriate in a shared network.  Please
-note that congestion control does not conflict with the objectives of
-UDP.  For UDP, congestion control can simply mean dropping packets at
-the source.  DCCP is a good replacement for UDP that has congestion
-control.
+Minor nit:  introduces trailing whitespaces, cleaned it up locally.
 
-In general it's much better to much better to drop packets at the
-source rather than half-way through.
+thanks,
+-chris
+--
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+This is a note to let you know that we have just queued up the patch titled
+
+    Subject: dm crypt: Fix data corruption with dm-crypt over RAID5
+
+to the 2.6.18-stable tree.  Its filename is
+
+    dm-crypt-fix-data-corruption-with-dm-crypt-over-raid5.patch
+
+A git repo of this tree can be found at 
+    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+
+
+>From linux-kernel-owner+chrisw=40sous-sol.org-S1162719AbWLBC2Z@vger.kernel.org  Fri Dec  1 18:36:19 2006
+Date: 	Sat, 02 Dec 2006 03:27:56 +0100
+From: Christophe Saout <christophe@saout.de>
+To: linux-kernel@vger.kernel.org
+Cc: dm-crypt@saout.de, Andrey <dm-crypt-revealed-address@lelik.org>, Andrew Morton <akpm@osdl.org>, agk@redhat.com, Neil Brown <neilb@suse.de>, Jens Axboe <jens.axboe@oracle.com>, Chris Wright <chrisw@sous-sol.org>
+Subject: dm crypt: Fix data corruption with dm-crypt over RAID5
+
+Fix corruption issue with dm-crypt on top of software raid5. Cancelled
+readahead bio's that report no error, just have BIO_UPTODATE cleared
+were reported as successful reads to the higher layers (and leaving
+random content in the buffer cache). Already fixed in 2.6.19.
+
+Signed-off-by: Christophe Saout <christophe@saout.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ drivers/md/dm-crypt.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- linux-2.6.18.5.orig/drivers/md/dm-crypt.c
++++ linux-2.6.18.5/drivers/md/dm-crypt.c
+@@ -717,13 +717,15 @@ static int crypt_endio(struct bio *bio, 
+ 	if (bio->bi_size)
+ 		return 1;
+ 
++	if (!bio_flagged(bio, BIO_UPTODATE) && !error)
++		error = -EIO;
++
+ 	bio_put(bio);
+ 
+ 	/*
+ 	 * successful reads are decrypted by the worker thread
+ 	 */
+-	if ((bio_data_dir(bio) == READ)
+-	    && bio_flagged(bio, BIO_UPTODATE)) {
++	if (bio_data_dir(io->bio) == READ && !error) {
+ 		kcryptd_queue_io(io);
+ 		return 0;
+ 	}

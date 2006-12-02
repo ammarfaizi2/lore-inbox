@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424119AbWLBQiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424120AbWLBQil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424119AbWLBQiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 11:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163078AbWLBQiQ
+	id S1424120AbWLBQil (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 11:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424123AbWLBQiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 11:38:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54289 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1163074AbWLBQiP
+	Sat, 2 Dec 2006 11:38:22 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54801 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1163076AbWLBQiT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 11:38:15 -0500
-Date: Sat, 2 Dec 2006 12:52:35 +0000
+	Sat, 2 Dec 2006 11:38:19 -0500
+Date: Sat, 2 Dec 2006 16:23:52 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: David Lopez <dave.l.lopez@gmail.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB: add driver for LabJack USB DAQ devices
-Message-ID: <20061202125235.GB4773@ucw.cz>
-References: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com
+Subject: Re: [PATCH] acpi: add backlight support to the sony_acpi driver (v2)
+Message-ID: <20061202162352.GD4773@ucw.cz>
+References: <20061127174328.30e8856e.alessandro.guido@gmail.com> <20061201133520.GC4239@ucw.cz> <20061201194337.GA7773@khazad-dum.debian.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <571a92f0612011237p35e00be5w832fafb3f824b97a@mail.gmail.com>
+In-Reply-To: <20061201194337.GA7773@khazad-dum.debian.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> From: David Lopez <dave.l.lopez@gmail.com>
+> > Looks okay to me. We really want unified interface for backlight.
 > 
-> This driver adds support for LabJack U3 and UE9 USB DAQ 
-> devices.
+> Then I request some help to get
+> http://article.gmane.org/gmane.linux.acpi.devel/19792
+> merged.
+> 
+> Without it, the backlight interface becomes annoying on laptops.  Your
+> screen will be powered off when you remove the modules providing the
+> backlight interface.  This is not consistent with the needs of laptop
+> backlight devices, or with the behaviour the drivers had before the
+> backlight sysfs support was added.
 
-WTF is DAQ?
+Just retransmit it to akpm and list, and add acked-by headers with
+people who said patch is okay... that included me IIRC.
 
-> +config USB_LJ
-> +	tristate "USB LabJack DAQ devices driver"
-> +	depends on USB
-> +	help
-> +	  USB driver for the following LabJack DAQ 
-> devices:
-> +	  - U3
-> +	  - UE9
-
-
-This is great place to explain...
-
-> +	  For a user-space API and usage examples, please 
-> visit the LabJack
-> +	  downloads web page at 
-> <http://www.labjack.com/downloads.php> and go
-> +	  to the specific device's downloads page.
-
-If it needs userland driver, anyway, why not libusb?
 -- 
 Thanks for all the (sleeping) penguins.

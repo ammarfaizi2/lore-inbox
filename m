@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424120AbWLBQil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424165AbWLBQ4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424120AbWLBQil (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 11:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424123AbWLBQiW
+	id S1424165AbWLBQ4V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 11:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424156AbWLBQ4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 11:38:22 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54801 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1163076AbWLBQiT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 11:38:19 -0500
-Date: Sat, 2 Dec 2006 16:23:52 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: [PATCH] acpi: add backlight support to the sony_acpi driver (v2)
-Message-ID: <20061202162352.GD4773@ucw.cz>
-References: <20061127174328.30e8856e.alessandro.guido@gmail.com> <20061201133520.GC4239@ucw.cz> <20061201194337.GA7773@khazad-dum.debian.net>
-Mime-Version: 1.0
+	Sat, 2 Dec 2006 11:56:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23557 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1424165AbWLBQ4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 11:56:21 -0500
+Date: Sat, 2 Dec 2006 17:56:26 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, aia21@cantab.net
+Subject: Re: [PATCH 1/2] lib + ntfs: let modules force HWEIGHT
+Message-ID: <20061202165626.GO11084@stusta.de>
+References: <20061128140840.f87540e8.randy.dunlap@oracle.com> <20061128164538.d95e8498.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061201194337.GA7773@khazad-dum.debian.net>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061128164538.d95e8498.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Looks okay to me. We really want unified interface for backlight.
+On Tue, Nov 28, 2006 at 04:45:38PM -0800, Andrew Morton wrote:
+> On Tue, 28 Nov 2006 14:08:40 -0800
+> Randy Dunlap <randy.dunlap@oracle.com> wrote:
 > 
-> Then I request some help to get
-> http://article.gmane.org/gmane.linux.acpi.devel/19792
-> merged.
+> > From: Randy Dunlap <randy.dunlap@oracle.com>
+> > 
+> > NTFS (=m) uses hweight32(), but that function is only linked
+> > into the kernel image if it is used inside the kernel image,
+> > not in loadable modules.  Let modules force HWEIGHT to be
+> > built into the kernel image.  Otherwise build fails:
+> > 
+> >   Building modules, stage 2.
+> >   MODPOST 94 modules
+> > WARNING: "hweight32" [fs/ntfs/ntfs.ko] undefined!
+> > 
+> > Yes, I'd certainly prefer for this to be more automated rather than
+> > forced by each module that needs it.
 > 
-> Without it, the backlight interface becomes annoying on laptops.  Your
-> screen will be powered off when you remove the modules providing the
-> backlight interface.  This is not consistent with the needs of laptop
-> backlight devices, or with the behaviour the drivers had before the
-> backlight sysfs support was added.
+> Perhaps we should just put it in lib-y and remove CONFIG_GENERIC_HWEIGHT.
+>...
 
-Just retransmit it to akpm and list, and add acked-by headers with
-people who said patch is okay... that included me IIRC.
+This will obviously not help in this case...
+
+EXPORT_SYMBOL() in a lib-* is always a bug.
+
+cu
+Adrian
 
 -- 
-Thanks for all the (sleeping) penguins.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

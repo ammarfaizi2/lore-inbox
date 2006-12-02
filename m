@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424283AbWLBRyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163054AbWLBRyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424283AbWLBRyy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 12:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424285AbWLBRyy
+	id S1163054AbWLBRyr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 12:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163074AbWLBRyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 12:54:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:54789 "HELO
+	Sat, 2 Dec 2006 12:54:47 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53765 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424283AbWLBRyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 12:54:53 -0500
-Date: Sat, 2 Dec 2006 18:54:58 +0100
+	id S1163054AbWLBRyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 12:54:46 -0500
+Date: Sat, 2 Dec 2006 18:54:51 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, chris@zankel.net
-Subject: [-mm patch] fix include/asm-xtensa/unistd.h compilation
-Message-ID: <20061202175458.GS11084@stusta.de>
-References: <20061128020246.47e481eb.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/wd33c93.c: cleanups
+Message-ID: <20061202175451.GR11084@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061128020246.47e481eb.akpm@osdl.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<--  snip  -->
-
-...
-In file included from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc6-mm2/include/linux/unistd.h:7,
-                 from 
-/home/bunk/linux/kernel-2.6/linux-2.6.19-rc6-mm2/init/main.c:46:
-include2/asm/unistd.h:235:2: error: #endif without #if
-make[2]: *** [init/main.o] Error 1
-
-<--  snip  -->
+This patch contains the following cleanups:
+- #include <asm/irq.h> for getting the prototypes of
+  {dis,en}able_irq()
+- make the needlessly global wd33c93_setup() static
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.19-rc6-mm2/include/asm-xtensa/unistd.h.old	2006-12-02 18:32:53.000000000 +0100
-+++ linux-2.6.19-rc6-mm2/include/asm-xtensa/unistd.h	2006-12-02 18:35:01.000000000 +0100
-@@ -218,6 +218,8 @@
+---
+
+This patch was already sent on:
+- 4 Sep 2006
+
+--- linux-2.6.18-rc5-mm1/drivers/scsi/wd33c93.c.old	2006-09-04 01:45:57.000000000 +0200
++++ linux-2.6.18-rc5-mm1/drivers/scsi/wd33c93.c	2006-09-04 01:46:26.000000000 +0200
+@@ -85,6 +85,8 @@
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h>
  
- #define SYSXTENSA_COUNT		   5	/* count of syscall0 functions*/
- 
-+#ifdef __KERNEL__
++#include <asm/irq.h>
 +
- /*
-  * "Conditional" syscalls
-  *
+ #include "wd33c93.h"
+ 
+ 
+@@ -1710,7 +1712,7 @@
+ static char setup_used[MAX_SETUP_ARGS];
+ static int done_setup = 0;
+ 
+-int
++static int
+ wd33c93_setup(char *str)
+ {
+ 	int i;
+
 

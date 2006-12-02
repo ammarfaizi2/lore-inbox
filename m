@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936565AbWLBS7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424381AbWLBTDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936565AbWLBS7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 13:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936566AbWLBS7J
+	id S1424381AbWLBTDi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 14:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424382AbWLBTDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 13:59:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29591 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S936565AbWLBS7I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 13:59:08 -0500
-Date: Sat, 2 Dec 2006 19:58:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Arkadiusz Miskiewicz <arekm@maven.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Acer smart battery (was Re: [RFC] Include ACPI DSDT from INITRD patch into mainline)
-Message-ID: <20061202185854.GA3992@elf.ucw.cz>
-References: <1164998179.5257.953.camel@gullible> <200612012301.20086.arekm@maven.pl> <20061202125004.GA4773@ucw.cz> <200612021834.59840.arekm@maven.pl>
+	Sat, 2 Dec 2006 14:03:38 -0500
+Received: from mail.1dial.com ([64.136.164.73]:27917 "EHLO
+	MAIL02.inside.adbasesystems.com") by vger.kernel.org with ESMTP
+	id S1424381AbWLBTDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 14:03:38 -0500
+X-Modus-ReverseDNS: OK
+X-Modus-BlackList: 64.124.13.3=OK;MrUmunhum@popdial.com=OK
+X-Modus-RBL: 64.124.13.3=OK
+X-Modus-Trusted: 64.124.13.3=NO
+X-Modus-Audit: FALSE;0;0;0
+Message-ID: <4571CE06.4040800@popdial.com>
+Date: Sat, 02 Dec 2006 11:03:34 -0800
+From: William Estrada <MrUmunhum@popdial.com>
+Reply-To: MrUmunhum@popdial.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060501 Fedora/1.7.13-1.1.fc5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612021834.59840.arekm@maven.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: linux-kernel@vger.kernel.org
+Subject: Mounting NFS root FS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 2006-12-02 18:34:59, Arkadiusz Miskiewicz wrote:
-> On Saturday 02 December 2006 13:50, Pavel Machek wrote:
+Hi guys,
+
+  I have been trying to make FC5's kernel do a boot with an NFS root file system.  I see
+the support is in the kernel(?).  I have tried this:
+
+> [root@Server ~]# cat /tftpboot/pxelinux.cfg/0A0101
+> SERIAL 0 9600
+> Say
 > 
-> > > Acer notebook users here dump DSDT from their own machine, fix it and
-> > > then load via initrd. No legal problems. (... and without that even
-> > > battery can't be monitored on sych notebooks)
-> >
-> > Merge smart battery support, instead of hacking DSDT. It is about time
-> > linux started supporting smart batteries, and yes they are documented.
-> Are you talking about this?
-> https://sourceforge.net/forum/forum.php?forum_id=604605
+> SAY Hello
+> 
+> SAY Trying NFS
+> SAY ramdisk_size=10000 debug ip=dhcp initrd=NFS/initrd.gz lang=us apm=power-off console=ttyS0,9600 console=tty0 quiet root=/dev/nfs nfsroot=10.1.1.12:/tftpboot/NFS/Root_FS init=/bin/bash
+> 
+> Default NFS/vmlinuz
+> 
+> append  ramdisk_size=10000 debug ip=10.1.1.50 initrd=NFS/initrd.gz lang=us apm=power-off console=ttyS0,9600 console=tty0 quiet  root=/dev/nfs nfsroot=10.1.1.12:/tftpboot/NFS/Root_FS init=/bin/bash
 
-Yes.
+  I get "mount: could not find file system: '/dev/root'" and then a kernel panic.
 
-> It's seem to be already merged and I didn't even know about that
->feature.
+  I am using the FC5 kernel and the FC5 initrd.gz as you can see above.  
 
-Aha, I did not know that. Anyway, it should mean
-no-longer-patching-DSDT.
-									Pavel
+> [root@Server ~]# ls -lrt /tftpboot/NFS/
+> total 2636
+> drwxr-xr-x  4 root root    4096 Nov 26 18:41 SAVE
+> -rwxr-xr-x  1 root root  932077 Nov 26 18:51 initrd.gz
+> drwxr-xr-x 13 root root    4096 Nov 26 19:18 Root_FS
+> -rwxr-xr-x  1 root root 1732515 Nov 26 19:37 vmlinuz
+
+  I tried to build a new kernel many times, but that process failed.
+
+  Am I missing something?  Do I need to change linuxrc?  Does someone have a simple example
+of how to do an NFS Root FS?
+
+  Would appreciate any points.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+  Thanks for your time.
+
+William Estrada
+
+Email      : MrUmunhum at popdial dot com
+Resume     : www.Mt-Umunhum-Wireless.net/resume/william_estrada.html
+HTTP       : www.Mt-Umunhum-Wireless.net

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424447AbWLBV7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424446AbWLBWCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424447AbWLBV7q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424444AbWLBV7q
+	id S1424446AbWLBWCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 17:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424453AbWLBWCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:59:46 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:53961 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1424324AbWLBV7p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:59:45 -0500
-Date: Sat, 2 Dec 2006 21:59:41 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
-       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+	Sat, 2 Dec 2006 17:02:46 -0500
+Received: from astro.systems.pipex.net ([62.241.163.6]:42115 "EHLO
+	astro.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S1424446AbWLBWCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 17:02:46 -0500
+Date: Sat, 2 Dec 2006 22:02:57 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@ginsburg.homenet
+To: Adrian Bunk <bunk@stusta.de>
+cc: Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061202215941.GN3078@ftp.linux.org.uk>
-References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612022243.58348.zippel@linux-m68k.org>
-User-Agent: Mutt/1.4.1i
+Subject: Re: [2.6 patch] Tigran Aivazian: remove bouncing email addresses
+In-Reply-To: <20061202213200.GZ11084@stusta.de>
+Message-ID: <Pine.LNX.4.61.0612022201210.1464@ginsburg.homenet>
+References: <00e401c7150e$061da500$6721100a@nuitysystems.com>
+ <1164964119.3233.56.camel@laptopd505.fenrus.org> <20061201105955.GO11084@stusta.de>
+ <Pine.LNX.4.61.0612022101500.1388@ginsburg.homenet> <20061202213200.GZ11084@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2006 at 10:43:58PM +0100, Roman Zippel wrote:
+On Sat, 2 Dec 2006, Adrian Bunk wrote:
+>> The only bits that should be made sure to remain valid are the
+>> MODULE_AUTHOR, as Arjan also mentioned.
+>
+> Even the "please contact the author" and the printk() should continue to
+> contain known bouncing addresses?
 
-> You need some more magic macros to access/modify the data field.
+Ah, I forgot about that one, but I see Alan Cox already replied and I 
+agree with both you and Alan on this.
 
-Which is done bloody rarely.  grep and you'll see...  BTW, there are
-other reasons why passing struct timer_list * is wrong:
-	* direct calls of the timer callback
-	* callback being the same for two timers embedded into
-different structs
-	* see a timer callback, decide it looks better as a tasklet.
-What, need a different glue now?
-
-Look, it's a delayed call.  The less glue we need, the better - the
-rules are much simpler that way, so that alone means that we'll get
-fewer fsckups.
+Kind regards
+Tigran

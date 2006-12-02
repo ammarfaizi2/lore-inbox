@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758385AbWLBThT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162474AbWLBTkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758385AbWLBThT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 14:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758422AbWLBThT
+	id S1162474AbWLBTkT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 14:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759457AbWLBTkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 14:37:19 -0500
-Received: from bart.ott.istop.com ([66.11.172.99]:13981 "EHLO jukie.net")
-	by vger.kernel.org with ESMTP id S1758385AbWLBThR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 14:37:17 -0500
-Date: Sat, 2 Dec 2006 14:37:16 -0500
-From: Bart Trojanowski <bart@jukie.net>
-To: Prakash Punnoor <prakash@punnoor.de>, linux-kernel@vger.kernel.org
-Subject: Re: nforce chipset + dualcore x86-64: Oops, NMI, Null pointer deref, etc
-Message-ID: <20061202193716.GE20337@jukie.net>
-References: <20061202172208.GC20337@jukie.net> <200612021840.48073.prakash@punnoor.de>
+	Sat, 2 Dec 2006 14:40:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:35078 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1758504AbWLBTkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 14:40:17 -0500
+Date: Sat, 2 Dec 2006 20:40:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] FW_LOADER should select HOTPLUG
+Message-ID: <20061202194022.GY11084@stusta.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="twz1s1Hj1O0rHoT0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612021840.48073.prakash@punnoor.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since FW_LOADER is an option that is always select'ed by the code using 
+it, it mustn't depend on HOTPLUG.
 
---twz1s1Hj1O0rHoT0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's only relevant in the EMBEDDED=y case, but this might have resulted 
+in illegal FW_LOADER=, HOTPLUG=n configurations.
 
-* Prakash Punnoor <prakash@punnoor.de> [061202 13:32]:
-> Am Samstag 02 Dezember 2006 18:22 schrieb Bart Trojanowski:
-> > In summary, I have an Opteron 170 in a Shuttle SN25P (nforce4 chipset).
-> > I've tested the ram overnight and swapped out every component in the
-> > system except for the HDDs.  I see these problems only with the
-> > dual-core, and even on an older Asus nforce4 based motherboard.
-> > noticed the following events (the complete dmesg is included below).
->=20
-> > [    0.000000] Nvidia board detected. Ignoring ACPI timer override.
-> > [    0.000000] If you got timer trouble try acpi_use_timer_override
->=20
-> Have you tried this?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I saw the suggestions, but I didn't understand what that was asking.  I
-will checkout that code.
+--- linux-2.6.19-rc6-mm2/drivers/base/Kconfig.old	2006-12-02 20:36:49.000000000 +0100
++++ linux-2.6.19-rc6-mm2/drivers/base/Kconfig	2006-12-02 20:37:03.000000000 +0100
+@@ -19,8 +19,8 @@
+ 	  If unsure say Y here.
+ 
+ config FW_LOADER
+-	tristate "Userspace firmware loading support"
+-	depends on HOTPLUG
++	tristate
++	select HOTPLUG
+ 	---help---
+ 	  This option is provided for the case where no in-kernel-tree modules
+ 	  require userspace firmware loading support, but a module built outside
 
-Cheers,
-
--Bart
-
---=20
-				WebSig: http://www.jukie.net/~bart/sig/
-
---twz1s1Hj1O0rHoT0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFcdXs/zRZ1SKJaI8RAmcgAJ96fLMfR8YUdAuwer+BWI6Gb4u3PQCg5kAg
-hHfc3I+PIs6EZA/X6HKeu+8=
-=27VA
------END PGP SIGNATURE-----
-
---twz1s1Hj1O0rHoT0--

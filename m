@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424279AbWLBV5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424447AbWLBV7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424279AbWLBV5v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 16:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWLBV5v
+	id S1424447AbWLBV7q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 16:59:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424444AbWLBV7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 16:57:51 -0500
-Received: from mailer-b2.gwdg.de ([134.76.10.29]:62147 "EHLO mailer-b2.gwdg.de")
-	by vger.kernel.org with ESMTP id S1424279AbWLBV5u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 16:57:50 -0500
-Date: Sat, 2 Dec 2006 22:56:38 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Willy Tarreau <w@1wt.eu>
-cc: William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
-Subject: Re: Mounting NFS root FS
-In-Reply-To: <20061202211522.GB24090@1wt.eu>
-Message-ID: <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr>
-References: <4571CE06.4040800@popdial.com> <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr>
- <20061202211522.GB24090@1wt.eu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Sat, 2 Dec 2006 16:59:46 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53961 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1424324AbWLBV7p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 16:59:45 -0500
+Date: Sat, 2 Dec 2006 21:59:41 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Message-ID: <20061202215941.GN3078@ftp.linux.org.uk>
+References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612022243.58348.zippel@linux-m68k.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 02, 2006 at 10:43:58PM +0100, Roman Zippel wrote:
 
->> > I have been trying to make FC5's kernel do a boot with an NFS root file
->> > system.  I see
->> > the support is in the kernel(?).  I have tried this:
->> >
->> >> root=/dev/nfs nfsroot=10.1.1.12:/tftpboot/NFS/Root_FS
->> 
->> This feature is almost deprecated. One is supposed to use initramfs,
->> /sbin/ip or some DHCP client, and a mount program nowadays.
->
->But I think that there are plenty of light terminals still booting like
->this which will not be able to upgrade anymore then. Even right here,
->my web server (parisc) boot from the network that way. At least an
->initramfs would need to be able to cope with the same syntax,
+> You need some more magic macros to access/modify the data field.
 
-No problem:
+Which is done bloody rarely.  grep and you'll see...  BTW, there are
+other reasons why passing struct timer_list * is wrong:
+	* direct calls of the timer callback
+	* callback being the same for two timers embedded into
+different structs
+	* see a timer callback, decide it looks better as a tasklet.
+What, need a different glue now?
 
-<<</init<<<
-#!/bin/bash
-
-for o in `cat /proc/cmdline`; do
-    case "$o" in
-        nfsroot=*)
-            arg="${o##nfsroot=}";
-            ;;
-    esac;
-done;
-
-### further parse $arg
->>>
-
-simplified example of how this can be accomplished. This is why
-initrds/initramfs are so much more powerful than in-kernel software.
-
-
-	-`J'
--- 
+Look, it's a delayed call.  The less glue we need, the better - the
+rules are much simpler that way, so that alone means that we'll get
+fewer fsckups.

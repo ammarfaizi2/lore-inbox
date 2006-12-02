@@ -1,111 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423715AbWLBLvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162969AbWLBL6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423715AbWLBLvh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 06:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162970AbWLBLvh
+	id S1162969AbWLBL6R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 06:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162970AbWLBL6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 06:51:37 -0500
-Received: from 1wt.eu ([62.212.114.60]:16901 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1162969AbWLBLvg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 06:51:36 -0500
-Date: Sat, 2 Dec 2006 12:51:30 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] missing parenthesis
-Message-ID: <20061202115130.GA24090@1wt.eu>
-References: <200612011510.58990.m.kozlowski@tuxland.pl> <20061201174035.GA18203@1wt.eu> <200612021200.24989.m.kozlowski@tuxland.pl>
+	Sat, 2 Dec 2006 06:58:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36367 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1162969AbWLBL6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 06:58:16 -0500
+Date: Sat, 2 Dec 2006 11:57:09 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Elias Oltmanns <eo@nebensachen.de>
+Cc: Jens Axboe <jens.axboe@oracle.com>,
+       Christoph Schmid <chris@schlagmichtod.de>, linux-kernel@vger.kernel.org
+Subject: Re: is there any Hard-disk shock-protection for 2.6.18 and above?
+Message-ID: <20061202115709.GC4030@ucw.cz>
+References: <7ibks-1fg-15@gated-at.bofh.it> <7kpjn-7th-23@gated-at.bofh.it> <7kDFF-8rd-29@gated-at.bofh.it> <87d5783fms.fsf@denkblock.local> <20061130171910.GD1860@elf.ucw.cz> <87k61bpuk4.fsf@denkblock.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200612021200.24989.m.kozlowski@tuxland.pl>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <87k61bpuk4.fsf@denkblock.local>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mariusz,
+Hi!
 
-On Sat, Dec 02, 2006 at 12:00:24PM +0100, Mariusz Kozlowski wrote:
-> Hi Willy, 
+> >> 1. Adds functions to ide-disk.c and scsi_lib.c that issue an idle
+> >>    immediate with head unload or a standby immediate command as
+> >>    appropriate and stop the queue on command completion.
+> >
+> > Can we get short Documentation/ patch?
 > 
-> > Thanks for your work at fixing all this code. I'm wondering though,
-> > given the type of errors, this code should never have been able to
-> > build at all, so that means that it might not be used at all.
+> Sure. Would Documentation/block/disk-protection.txt be an appropriate
+> location?
+
+Yes.
+
+> >> +module_param_named(protect_method, libata_protect_method, int, 0444);
+> >> +MODULE_PARM_DESC(protect_method, "hdaps disk protection method  (0=autodetect, 1=unload, 2=standby)");
+> >
+> > Should this be configurable by module parameter? Why not tell each
+> > unload what to do?
 > 
-> Either not used or #ifdef'ed so much that it is rarely build.
+> As I understand, ATA specs expect drives to indicate whether they
+> support the head unload feature of the idle immediate command or not.
+> Unfortunately, a whole lot of them doesn't, well, mine doesn't anyway.
+> Since I know that my drive does actually support head unloading, I'd
+> like to tell the module so in order to prevent it from falling back to
+> standby immediate. Applications that issue disk parking requests
+> should not be bothered with this issue, in my opinion.
 
-OK.
+What if you have two disks and one supports head unload and second
+does not?
 
-> > As a general rule of thumb, keep in mind that we're not much tempted
-> > to fix known unused code, especially if it's unmaintained. The reason
+> > Is /sys interface right thing to do?
 > 
-> Maybe dumb question but ... how do I know which parts of code are unused
+> Probably, you're right here. Since this feature is actually drive
+> specific, it should not really be set globally as a libata or ide-disk
+> parameter but specifically for each drive connected. Perhaps we should
+> add another attribute to /sys/block/*/queue or enhance the scope of
+> /sys/block/*/queue/protect?
 
-- #if 0 (or equivalent), except #if DEBUG.
-- obviously broken code which is included in files which compile and work
-  for you
-
-> and/or unmaintained?
-
-just as I do : check for the maintainer in the files themselves, or in
-the MAINTAINERS file. As a rule of thumb, if a file has not changed in
-the last 3 years and its maintainer is not one of the active ones you
-regularly see posting on LKML, then there are great chances that the
-file is unmaintained. In this case, you might find the new maintainer
-in the 2.6 port of the same file/driver. Same if the maintainer's
-address bounces.
-
-> > is simple : when some code does not work, people who need it often
-> > maintain patches in their tree to make it work. When we start changing
-> > things there, their patches often apply with rejects. Anyway, *I* am
-> > still for a clean kernel because I know that there's nothing more
-> > annoying than spending days chasing a bug which we discover was known
-> > for years.
-> > 
-> > So what I can propose you is that we :
-> >   - postpone those patches for 2.4.35-pre
-> 
-> Ok.
-> 
-> >   - ask maintainers of each of these files if he accepts to fix the
-> >     file, because some of them are totally against any such change.
-> 
-> Ok. Couple of questions:
-> 
-> - how do we do that?
-
-generally, the core subsystems (network, filesystems, archs, ...) are
-still well maintained by people who *really want* to validate the
-patches before forwarding them upstream.
-
-> - do I resend each patch to proper maintainer?
-
-Yes, when you can identify them without too much difficulty. For all
-network drivers, please send to Jeff Garzik and netdev@vger.kernel.org.
-For the rest of the network stuff, use Davem and netdev. Send to Al Viro
-for FS. Davem for arch/sparc*, Russell King for arch/arm, Ralf Baechle
-for arch/mips*, Paul Mackerras for arch/ppc*, etc... If you find a list
-address in the MAINTAINERS file, please CC it too. They're all busy,
-so make the question simple enough so that they can quickly reply with
-ACK/NACK/QUEUED. Keep me CCed so that you don't have to forward me the
-response. Generally, they will reply within one week.
-
-It might seem a bit complicated and heavy, but it's the only way to
-get a continued quality support on the whole code.
-
-> - if there is no maintainer then what? (btw. is there any other
-> more accurate source of MAINTAINERS for each file in the kernel tree?)
-
-If there's no easily identifiable maintainer anymore, or if some
-maintainers don't reply, then it becomes my job.
-
-> - do I have to resend them once more to LKML?
-
-No, not at all. We're not doing administrative and repetitive tasks,
-and we can still dig through the list archives for a missing patch :-)
-Don't waste your time doing this.
-
-Thanks,
-Willy
-
+Certainly better than current solution. Or maybe ioctl similar to wat
+hdparm uses?
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

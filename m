@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424165AbWLBQ4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424201AbWLBRBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424165AbWLBQ4V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 11:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424156AbWLBQ4V
+	id S1424201AbWLBRBA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 12:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424209AbWLBRA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 11:56:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23557 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1424165AbWLBQ4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 11:56:21 -0500
-Date: Sat, 2 Dec 2006 17:56:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, aia21@cantab.net
-Subject: Re: [PATCH 1/2] lib + ntfs: let modules force HWEIGHT
-Message-ID: <20061202165626.GO11084@stusta.de>
-References: <20061128140840.f87540e8.randy.dunlap@oracle.com> <20061128164538.d95e8498.akpm@osdl.org>
+	Sat, 2 Dec 2006 12:00:59 -0500
+Received: from quechua.inka.de ([193.197.184.2]:55249 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1424201AbWLBRA7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 12:00:59 -0500
+Message-ID: <4571AFED.8060200@dungeon.inka.de>
+Date: Sat, 02 Dec 2006 17:55:09 +0100
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061128164538.d95e8498.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.6.19 still crashing
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Ciphire-Security: plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 28, 2006 at 04:45:38PM -0800, Andrew Morton wrote:
-> On Tue, 28 Nov 2006 14:08:40 -0800
-> Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> 
-> > From: Randy Dunlap <randy.dunlap@oracle.com>
-> > 
-> > NTFS (=m) uses hweight32(), but that function is only linked
-> > into the kernel image if it is used inside the kernel image,
-> > not in loadable modules.  Let modules force HWEIGHT to be
-> > built into the kernel image.  Otherwise build fails:
-> > 
-> >   Building modules, stage 2.
-> >   MODPOST 94 modules
-> > WARNING: "hweight32" [fs/ntfs/ntfs.ko] undefined!
-> > 
-> > Yes, I'd certainly prefer for this to be more automated rather than
-> > forced by each module that needs it.
-> 
-> Perhaps we should just put it in lib-y and remove CONFIG_GENERIC_HWEIGHT.
->...
+my msi s270 laptop. but all vanilla kernel I ever tried do
+that, also the debian and ubuntu kernel are instable too.
+But: xen 3.0.2 plus xen'ified linux 2.6.16.31 are rock solid.
+any idea what the issue could be? I'm running 64bit kernel,
+64bit userland (plus some 32bit apps), and the cpu is a turion
+mt-40 (sempron users seem to not have this problem).
 
-This will obviously not help in this case...
+I documented all details, config files, dmesg, /proc/interrupts,
+lspci -vvv and xorg log file at
+	http://www.megawiki.org/wiki/S270Crashing
 
-EXPORT_SYMBOL() in a lib-* is always a bug.
+I can also mail you all those files (didn't want to spam
+linux-kernel with a huge mail), and provide any other information
+that can help, try patches or command line options, or different
+compile options or whatever you can suggest.
 
-cu
-Adrian
+Thanks for your help!
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Regards, Andreas

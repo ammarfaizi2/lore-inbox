@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162817AbWLBHxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162836AbWLBIlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162817AbWLBHxH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 02:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162822AbWLBHxH
+	id S1162836AbWLBIlK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 03:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162835AbWLBIlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 02:53:07 -0500
-Received: from hera.kernel.org ([140.211.167.34]:18591 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1162817AbWLBHxE (ORCPT
+	Sat, 2 Dec 2006 03:41:10 -0500
+Received: from mailer-b2.gwdg.de ([134.76.10.29]:22743 "EHLO mailer-b2.gwdg.de")
+	by vger.kernel.org with ESMTP id S1162836AbWLBIlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 02:53:04 -0500
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
-To: Linus Torvalds <torvalds@osdl.org>, stable@vger.kernel.org
-Subject: [GIT PATCH] fix ACPI interrupt regression in 2.6.19
-Date: Sat, 2 Dec 2006 02:56:04 -0500
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Sat, 2 Dec 2006 03:41:07 -0500
+Date: Sat, 2 Dec 2006 09:40:16 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steven Whitehouse <swhiteho@redhat.com>
+cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [GFS2] Fix crc32 calculation in recovery.c [8/70]
+In-Reply-To: <1164888829.3752.318.camel@quoit.chygwyn.com>
+Message-ID: <Pine.LNX.4.61.0612020939460.1635@yvahk01.tjqt.qr>
+References: <1164888829.3752.318.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612020256.05317.len.brown@intel.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Greg/Chris,
 
-please pull from:
+>Commit "[GFS2] split and annotate gfs2_log_head" resulted in an incorrect
+>checksum calculation for log headers. This patch corrects the
+>problem without resorting to copying the whole log header as
+>the previous code used to.
+>
+>Cc: Al Viro <viro@zeniv.linux.org.uk>
+>Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+>---
+> fs/gfs2/recovery.c |    9 +++++----
+> 1 files changed, 5 insertions(+), 4 deletions(-)
+>
+>diff --git a/fs/gfs2/recovery.c b/fs/gfs2/recovery.c
+>index 4478162..4acf238 100644
+>--- a/fs/gfs2/recovery.c
+>+++ b/fs/gfs2/recovery.c
+>@@ -136,6 +136,7 @@ static int get_log_header(struct gfs2_jd
+> {
+> 	struct buffer_head *bh;
+> 	struct gfs2_log_header_host lh;
+>+static const u32 nothing = 0;
+> 	u32 hash;
+> 	int error;
+> 
 
-git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
+At least indent it.
 
-This is a single revert on top of 2.6.19.
-If  fixes a regression which was introduced after 2.6.18 and before 2.6.19.
+>@@ -143,11 +144,11 @@ static int get_log_header(struct gfs2_jd
+> 	if (error)
+> 		return error;
+> 
+>-	memcpy(&lh, bh->b_data, sizeof(struct gfs2_log_header));	/* XXX */
+>-	lh.lh_hash = 0;
+>-	hash = gfs2_disk_hash((char *)&lh, sizeof(struct gfs2_log_header));
+>+	hash = crc32_le((u32)~0, bh->b_data, sizeof(struct gfs2_log_header) -
+>+					     sizeof(u32));
+>+	hash = crc32_le(hash, (unsigned char const *)&nothing, sizeof(nothing));
+>+	hash ^= (u32)~0;
+> 	gfs2_log_header_in(&lh, bh->b_data);
+>-
+> 	brelse(bh);
+> 
+> 	if (lh.lh_header.mh_magic != GFS2_MAGIC ||
+>-- 
+>1.4.1
 
-thanks!
--Len
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.19/acpi-release-20060707-2.6.19.diff.gz
-
- arch/i386/kernel/acpi/boot.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-through these commits:
-
-Len Brown (1):
-      Revert "ACPI: SCI interrupt source override"
-
-with this log:
-
-commit 7bdd21cef9e5dbc3d3a718c55bb3d0da024644da
-Author: Len Brown <len.brown@intel.com>
-Date:   Sat Dec 2 02:27:46 2006 -0500
-
-    Revert "ACPI: SCI interrupt source override"
-
-    This reverts commit 281ea49b0c294649a6de47a6f8fbe5611137726b,
-    which broke ACPI Interrupt source overrides that move
-    the SCI from one IRQ in PIC mode to another in IOAPIC mode.
-
-    If the SCI shared an interrupt line with another device,
-    this would result in a "irq 18: nobody cared" type failure.
-
-    http://bugzilla.kernel.org/show_bug.cgi?id=7601
-
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
+	-`J'
+-- 

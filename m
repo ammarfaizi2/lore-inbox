@@ -1,481 +1,1007 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162784AbWLBEiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162781AbWLBEj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162784AbWLBEiy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 23:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162782AbWLBEix
+	id S1162781AbWLBEj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 23:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162782AbWLBEj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 23:38:53 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:52632 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1162777AbWLBEis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 23:38:48 -0500
-Date: Fri, 1 Dec 2006 23:38:47 -0500
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] net driver fixes
-Message-ID: <20061202043846.GA15624@havoc.gtf.org>
-Mime-Version: 1.0
+	Fri, 1 Dec 2006 23:39:26 -0500
+Received: from mta16.mail.adelphia.net ([68.168.78.211]:34293 "EHLO
+	mta16.adelphia.net") by vger.kernel.org with ESMTP id S1162781AbWLBEjX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 23:39:23 -0500
+Date: Fri, 1 Dec 2006 22:39:21 -0600
+From: Corey Minyard <minyard@acm.org>
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
+       Rocky Craig <rocky.craig@hp.com>
+Subject: [PATCH 11/12] IPMI: Fix BT long busy
+Message-ID: <20061202043921.GG30531@localdomain>
+Reply-To: minyard@acm.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
+The IPMI BT subdriver has been patched to survive "long busy"
+timeouts seen during firmware upgrades and resets.  The patch
+never returns the HOSED state, synthesizes response messages with
+meaningful completion codes, and recovers gracefully when the
+hardware finishes the long busy.  The subdriver now issues a "Get BT
+Capabilities" command and properly uses those results.
+More informative completion codes are returned on error from
+transaction starts; this logic was propogated to the KCS and
+SMIC subdrivers.  Finally, indent and other style quirks were
+normalized.
 
-to receive the following updates:
+Signed-off-by: Rocky Craig <rocky.craig@hp.com>
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
- drivers/net/Kconfig                           |    4 +-
- drivers/net/bonding/bond_main.c               |   63 ++++++++++++++-----------
- drivers/net/cs89x0.c                          |    4 +-
- drivers/net/spider_net.c                      |   20 ++------
- drivers/net/spider_net.h                      |    8 ++-
- drivers/net/wireless/zd1211rw/zd_ieee80211.h  |    2 -
- drivers/net/wireless/zd1211rw/zd_mac.c        |    2 -
- drivers/net/wireless/zd1211rw/zd_mac.h        |    4 +-
- drivers/net/wireless/zd1211rw/zd_usb.c        |   26 +++++-----
- drivers/net/wireless/zd1211rw/zd_usb.h        |   14 +++---
- net/ieee80211/ieee80211_tx.c                  |    4 +-
- net/ieee80211/softmac/ieee80211softmac_scan.c |    2 -
- 12 files changed, 76 insertions(+), 77 deletions(-)
-
-George G. Davis:
-      Fix an offset error when reading the CS89x0 ADD_PORT register
-
-James K Lewis:
-      Spidernet: remove ETH_ZLEN check in earlier patch
-
-John W. Linville:
-      Revert "zd1211rw: Removed unneeded packed attributes"
-
-Laurent Riffard:
-      bonding: fix an oops when slave device does not provide get_stats
-
-Linas Vepstas:
-      spidernet: poor network performance
-
-Michael Buesch:
-      softmac: remove netif_tx_disable when scanning
-
-Ralf Baechle:
-      drivers/net: SAA9730: Fix build error
-
-Ulrich Kunitz:
-      zd1211rw: Fix of a locking bug
-
-Zhu Yi:
-      ieee80211: Fix kernel panic when QoS is enabled
-
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 6e863aa..30ae712 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -1769,8 +1769,8 @@ config VIA_RHINE_NAPI
- 	  information.
+Index: linux-2.6.19-rc6/drivers/char/ipmi/ipmi_bt_sm.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/char/ipmi/ipmi_bt_sm.c
++++ linux-2.6.19-rc6/drivers/char/ipmi/ipmi_bt_sm.c
+@@ -33,11 +33,13 @@
+ #include <linux/ipmi_msgdefs.h>		/* for completion codes */
+ #include "ipmi_si_sm.h"
  
- config LAN_SAA9730
--	bool "Philips SAA9730 Ethernet support (EXPERIMENTAL)"
--	depends on NET_PCI && EXPERIMENTAL && MIPS
-+	bool "Philips SAA9730 Ethernet support"
-+	depends on NET_PCI && PCI && MIPS_ATLAS
- 	help
- 	  The SAA9730 is a combined multimedia and peripheral controller used
- 	  in thin clients, Internet access terminals, and diskless
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 17a4611..488d8ed 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1336,6 +1336,13 @@ int bond_enslave(struct net_device *bond
- 		goto err_undo_flags;
- 	}
- 
-+	if (slave_dev->get_stats == NULL) {
-+		printk(KERN_NOTICE DRV_NAME
-+			": %s: the driver for slave device %s does not provide "
-+			"get_stats function, network statistics will be "
-+			"inaccurate.\n", bond_dev->name, slave_dev->name);
-+	}
+-static int bt_debug = 0x00;	/* Production value 0, see following flags */
++#define BT_DEBUG_OFF	0	/* Used in production */
++#define BT_DEBUG_ENABLE	1	/* Generic messages */
++#define BT_DEBUG_MSG	2	/* Prints all request/response buffers */
++#define BT_DEBUG_STATES	4	/* Verbose look at state changes */
 +
- 	new_slave = kmalloc(sizeof(struct slave), GFP_KERNEL);
- 	if (!new_slave) {
- 		res = -ENOMEM;
-@@ -3605,33 +3612,35 @@ static struct net_device_stats *bond_get
- 	read_lock_bh(&bond->lock);
++static int bt_debug = BT_DEBUG_OFF;
  
- 	bond_for_each_slave(bond, slave, i) {
--		sstats = slave->dev->get_stats(slave->dev);
--
--		stats->rx_packets += sstats->rx_packets;
--		stats->rx_bytes += sstats->rx_bytes;
--		stats->rx_errors += sstats->rx_errors;
--		stats->rx_dropped += sstats->rx_dropped;
--
--		stats->tx_packets += sstats->tx_packets;
--		stats->tx_bytes += sstats->tx_bytes;
--		stats->tx_errors += sstats->tx_errors;
--		stats->tx_dropped += sstats->tx_dropped;
--
--		stats->multicast += sstats->multicast;
--		stats->collisions += sstats->collisions;
--
--		stats->rx_length_errors += sstats->rx_length_errors;
--		stats->rx_over_errors += sstats->rx_over_errors;
--		stats->rx_crc_errors += sstats->rx_crc_errors;
--		stats->rx_frame_errors += sstats->rx_frame_errors;
--		stats->rx_fifo_errors += sstats->rx_fifo_errors;
--		stats->rx_missed_errors += sstats->rx_missed_errors;
--
--		stats->tx_aborted_errors += sstats->tx_aborted_errors;
--		stats->tx_carrier_errors += sstats->tx_carrier_errors;
--		stats->tx_fifo_errors += sstats->tx_fifo_errors;
--		stats->tx_heartbeat_errors += sstats->tx_heartbeat_errors;
--		stats->tx_window_errors += sstats->tx_window_errors;
-+		if (slave->dev->get_stats) {
-+			sstats = slave->dev->get_stats(slave->dev);
+-#define	BT_DEBUG_ENABLE	1
+-#define BT_DEBUG_MSG	2
+-#define BT_DEBUG_STATES	4
+ module_param(bt_debug, int, 0644);
+ MODULE_PARM_DESC(bt_debug, "debug bitmask, 1=enable, 2=messages, 4=states");
+ 
+@@ -47,38 +49,54 @@ MODULE_PARM_DESC(bt_debug, "debug bitmas
+    Since the Open IPMI architecture is single-message oriented at this
+    stage, the queue depth of BT is of no concern. */
+ 
+-#define BT_NORMAL_TIMEOUT	5000000	/* seconds in microseconds */
+-#define BT_RETRY_LIMIT		2
+-#define BT_RESET_DELAY		6000000	/* 6 seconds after warm reset */
++#define BT_NORMAL_TIMEOUT	5	/* seconds */
++#define BT_NORMAL_RETRY_LIMIT	2
++#define BT_RESET_DELAY		6	/* seconds after warm reset */
 +
-+			stats->rx_packets += sstats->rx_packets;
-+			stats->rx_bytes += sstats->rx_bytes;
-+			stats->rx_errors += sstats->rx_errors;
-+			stats->rx_dropped += sstats->rx_dropped;
-+
-+			stats->tx_packets += sstats->tx_packets;
-+			stats->tx_bytes += sstats->tx_bytes;
-+			stats->tx_errors += sstats->tx_errors;
-+			stats->tx_dropped += sstats->tx_dropped;
-+
-+			stats->multicast += sstats->multicast;
-+			stats->collisions += sstats->collisions;
-+
-+			stats->rx_length_errors += sstats->rx_length_errors;
-+			stats->rx_over_errors += sstats->rx_over_errors;
-+			stats->rx_crc_errors += sstats->rx_crc_errors;
-+			stats->rx_frame_errors += sstats->rx_frame_errors;
-+			stats->rx_fifo_errors += sstats->rx_fifo_errors;
-+			stats->rx_missed_errors += sstats->rx_missed_errors;
-+
-+			stats->tx_aborted_errors += sstats->tx_aborted_errors;
-+			stats->tx_carrier_errors += sstats->tx_carrier_errors;
-+			stats->tx_fifo_errors += sstats->tx_fifo_errors;
-+			stats->tx_heartbeat_errors += sstats->tx_heartbeat_errors;
-+			stats->tx_window_errors += sstats->tx_window_errors;
-+		}
- 	}
++/* States are written in chronological order and usually cover
++   multiple rows of the state table discussion in the IPMI spec. */
  
- 	read_unlock_bh(&bond->lock);
-diff --git a/drivers/net/cs89x0.c b/drivers/net/cs89x0.c
-index 4ffc9b4..dec70c2 100644
---- a/drivers/net/cs89x0.c
-+++ b/drivers/net/cs89x0.c
-@@ -588,10 +588,10 @@ #endif
- 				goto out2;
- 			}
- 	}
--	printk(KERN_DEBUG "PP_addr at %x[%x]: 0x%x\n",
--			ioaddr, ADD_PORT, readword(ioaddr, ADD_PORT));
- 
- 	ioaddr &= ~3;
-+	printk(KERN_DEBUG "PP_addr at %x[%x]: 0x%x\n",
-+			ioaddr, ADD_PORT, readword(ioaddr, ADD_PORT));
- 	writeword(ioaddr, ADD_PORT, PP_ChipID);
- 
- 	tmp = readword(ioaddr, DATA_PORT);
-diff --git a/drivers/net/spider_net.c b/drivers/net/spider_net.c
-index 418138d..cef7e66 100644
---- a/drivers/net/spider_net.c
-+++ b/drivers/net/spider_net.c
-@@ -644,20 +644,12 @@ spider_net_prepare_tx_descr(struct spide
- 	struct spider_net_descr *descr;
- 	dma_addr_t buf;
- 	unsigned long flags;
--	int length;
- 
--	length = skb->len;
--	if (length < ETH_ZLEN) {
--		if (skb_pad(skb, ETH_ZLEN-length))
--			return 0;
--		length = ETH_ZLEN;
--	}
--
--	buf = pci_map_single(card->pdev, skb->data, length, PCI_DMA_TODEVICE);
-+	buf = pci_map_single(card->pdev, skb->data, skb->len, PCI_DMA_TODEVICE);
- 	if (pci_dma_mapping_error(buf)) {
- 		if (netif_msg_tx_err(card) && net_ratelimit())
- 			pr_err("could not iommu-map packet (%p, %i). "
--				  "Dropping packet\n", skb->data, length);
-+				  "Dropping packet\n", skb->data, skb->len);
- 		card->spider_stats.tx_iommu_map_error++;
- 		return -ENOMEM;
- 	}
-@@ -667,7 +659,7 @@ spider_net_prepare_tx_descr(struct spide
- 	card->tx_chain.head = descr->next;
- 
- 	descr->buf_addr = buf;
--	descr->buf_size = length;
-+	descr->buf_size = skb->len;
- 	descr->next_descr_addr = 0;
- 	descr->skb = skb;
- 	descr->data_status = 0;
-@@ -802,8 +794,8 @@ spider_net_release_tx_chain(struct spide
- 
- 		/* unmap the skb */
- 		if (skb) {
--			int len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
--			pci_unmap_single(card->pdev, buf_addr, len, PCI_DMA_TODEVICE);
-+			pci_unmap_single(card->pdev, buf_addr, skb->len,
-+					PCI_DMA_TODEVICE);
- 			dev_kfree_skb(skb);
- 		}
- 	}
-@@ -1641,7 +1633,7 @@ spider_net_enable_card(struct spider_net
- 			     SPIDER_NET_INT2_MASK_VALUE);
- 
- 	spider_net_write_reg(card, SPIDER_NET_GDTDMACCNTR,
--			     SPIDER_NET_GDTBSTA | SPIDER_NET_GDTDCEIDIS);
-+			     SPIDER_NET_GDTBSTA);
- }
- 
- /**
-diff --git a/drivers/net/spider_net.h b/drivers/net/spider_net.h
-index b3b4611..3e196df 100644
---- a/drivers/net/spider_net.h
-+++ b/drivers/net/spider_net.h
-@@ -24,7 +24,7 @@
- #ifndef _SPIDER_NET_H
- #define _SPIDER_NET_H
- 
--#define VERSION "1.1 A"
-+#define VERSION "1.6 A"
- 
- #include "sungem_phy.h"
- 
-@@ -217,8 +217,7 @@ #define SPIDER_NET_TX_DMA_EN           0
- #define SPIDER_NET_GDTBSTA             0x00000300
- #define SPIDER_NET_GDTDCEIDIS          0x00000002
- #define SPIDER_NET_DMA_TX_VALUE        SPIDER_NET_TX_DMA_EN | \
--                                       SPIDER_NET_GDTBSTA | \
--                                       SPIDER_NET_GDTDCEIDIS
-+                                       SPIDER_NET_GDTBSTA
- 
- #define SPIDER_NET_DMA_TX_FEND_VALUE	0x00030003
- 
-@@ -328,7 +327,8 @@ enum spider_net_int2_status {
- 	SPIDER_NET_GRISPDNGINT
+ enum bt_states {
+-	BT_STATE_IDLE,
++	BT_STATE_IDLE = 0,	/* Order is critical in this list */
+ 	BT_STATE_XACTION_START,
+ 	BT_STATE_WRITE_BYTES,
+-	BT_STATE_WRITE_END,
+ 	BT_STATE_WRITE_CONSUME,
+-	BT_STATE_B2H_WAIT,
+-	BT_STATE_READ_END,
+-	BT_STATE_RESET1,		/* These must come last */
++	BT_STATE_READ_WAIT,
++	BT_STATE_CLEAR_B2H,
++	BT_STATE_READ_BYTES,
++	BT_STATE_RESET1,	/* These must come last */
+ 	BT_STATE_RESET2,
+ 	BT_STATE_RESET3,
+ 	BT_STATE_RESTART,
+-	BT_STATE_HOSED
++	BT_STATE_PRINTME,
++	BT_STATE_CAPABILITIES_BEGIN,
++	BT_STATE_CAPABILITIES_END,
++	BT_STATE_LONG_BUSY	/* BT doesn't get hosed :-) */
  };
  
--#define SPIDER_NET_TXINT	( (1 << SPIDER_NET_GDTFDCINT) )
-+#define SPIDER_NET_TXINT	( (1 << SPIDER_NET_GDTFDCINT) | \
-+                             (1 << SPIDER_NET_GDTDCEINT) )
++/* Macros seen at the end of state "case" blocks.  They help with legibility
++   and debugging. */
++
++#define BT_STATE_CHANGE(X,Y) { bt->state = X; return Y; }
++
++#define BT_SI_SM_RETURN(Y)   { last_printed = BT_STATE_PRINTME; return Y; }
++
+ struct si_sm_data {
+ 	enum bt_states	state;
+-	enum bt_states	last_state;	/* assist printing and resets */
+ 	unsigned char	seq;		/* BT sequence number */
+ 	struct si_sm_io	*io;
+-        unsigned char	write_data[IPMI_MAX_MSG_LENGTH];
+-        int		write_count;
+-        unsigned char	read_data[IPMI_MAX_MSG_LENGTH];
+-        int		read_count;
+-        int		truncated;
+-        long		timeout;
+-        unsigned int	error_retries;	/* end of "common" fields */
++	unsigned char	write_data[IPMI_MAX_MSG_LENGTH];
++	int		write_count;
++	unsigned char	read_data[IPMI_MAX_MSG_LENGTH];
++	int		read_count;
++	int		truncated;
++	long		timeout;	/* microseconds countdown */
++	int		error_retries;	/* end of "common" fields */
+ 	int		nonzero_status;	/* hung BMCs stay all 0 */
++	enum bt_states	complete;	/* to divert the state machine */
++	int		BT_CAP_outreqs;
++	long		BT_CAP_req2rsp;
++	int		BT_CAP_retries;	/* Recommended retries */
+ };
  
- /* We rely on flagged descriptor interrupts */
- #define SPIDER_NET_RXINT	( (1 << SPIDER_NET_GDAFDCINT) )
-diff --git a/drivers/net/wireless/zd1211rw/zd_ieee80211.h b/drivers/net/wireless/zd1211rw/zd_ieee80211.h
-index f63245b..3632989 100644
---- a/drivers/net/wireless/zd1211rw/zd_ieee80211.h
-+++ b/drivers/net/wireless/zd1211rw/zd_ieee80211.h
-@@ -64,7 +64,7 @@ struct cck_plcp_header {
- 	u8 service;
- 	__le16 length;
- 	__le16 crc16;
--};
-+} __attribute__((packed));
- 
- static inline u8 zd_cck_plcp_header_rate(const struct cck_plcp_header *header)
+ #define BT_CLR_WR_PTR	0x01	/* See IPMI 1.5 table 11.6.4 */
+@@ -111,86 +129,118 @@ struct si_sm_data {
+ static char *state2txt(unsigned char state)
  {
-diff --git a/drivers/net/wireless/zd1211rw/zd_mac.c b/drivers/net/wireless/zd1211rw/zd_mac.c
-index a7d29bd..e5fedf9 100644
---- a/drivers/net/wireless/zd1211rw/zd_mac.c
-+++ b/drivers/net/wireless/zd1211rw/zd_mac.c
-@@ -721,7 +721,7 @@ struct zd_rt_hdr {
- 	u8  rt_rate;
- 	u16 rt_channel;
- 	u16 rt_chbitmask;
--};
-+} __attribute__((packed));
+ 	switch (state) {
+-		case BT_STATE_IDLE:		return("IDLE");
+-		case BT_STATE_XACTION_START:	return("XACTION");
+-		case BT_STATE_WRITE_BYTES:	return("WR_BYTES");
+-		case BT_STATE_WRITE_END:	return("WR_END");
+-		case BT_STATE_WRITE_CONSUME:	return("WR_CONSUME");
+-		case BT_STATE_B2H_WAIT:		return("B2H_WAIT");
+-		case BT_STATE_READ_END:		return("RD_END");
+-		case BT_STATE_RESET1:		return("RESET1");
+-		case BT_STATE_RESET2:		return("RESET2");
+-		case BT_STATE_RESET3:		return("RESET3");
+-		case BT_STATE_RESTART:		return("RESTART");
+-		case BT_STATE_HOSED:		return("HOSED");
++	case BT_STATE_IDLE:		return("IDLE");
++	case BT_STATE_XACTION_START:	return("XACTION");
++	case BT_STATE_WRITE_BYTES:	return("WR_BYTES");
++	case BT_STATE_WRITE_CONSUME:	return("WR_CONSUME");
++	case BT_STATE_READ_WAIT:	return("RD_WAIT");
++	case BT_STATE_CLEAR_B2H:	return("CLEAR_B2H");
++	case BT_STATE_READ_BYTES:	return("RD_BYTES");
++	case BT_STATE_RESET1:		return("RESET1");
++	case BT_STATE_RESET2:		return("RESET2");
++	case BT_STATE_RESET3:		return("RESET3");
++	case BT_STATE_RESTART:		return("RESTART");
++	case BT_STATE_LONG_BUSY:	return("LONG_BUSY");
++	case BT_STATE_CAPABILITIES_BEGIN: return("CAP_BEGIN");
++	case BT_STATE_CAPABILITIES_END:	return("CAP_END");
+ 	}
+ 	return("BAD STATE");
+ }
+ #define STATE2TXT state2txt(bt->state)
  
- static void fill_rt_header(void *buffer, struct zd_mac *mac,
- 	                   const struct ieee80211_rx_stats *stats,
-diff --git a/drivers/net/wireless/zd1211rw/zd_mac.h b/drivers/net/wireless/zd1211rw/zd_mac.h
-index b8ea3de..e4dd40a 100644
---- a/drivers/net/wireless/zd1211rw/zd_mac.h
-+++ b/drivers/net/wireless/zd1211rw/zd_mac.h
-@@ -82,7 +82,7 @@ #define ZD_PLCP_HEADER_SIZE		5
- struct rx_length_info {
- 	__le16 length[3];
- 	__le16 tag;
--};
-+} __attribute__((packed));
+-static char *status2txt(unsigned char status, char *buf)
++static char *status2txt(unsigned char status)
+ {
++	/*
++	 * This cannot be called by two threads at the same time and
++	 * the buffer is always consumed immediately, so the static is
++	 * safe to use.
++	 */
++	static char buf[40];
++
+ 	strcpy(buf, "[ ");
+-	if (status & BT_B_BUSY) strcat(buf, "B_BUSY ");
+-	if (status & BT_H_BUSY) strcat(buf, "H_BUSY ");
+-	if (status & BT_OEM0) strcat(buf, "OEM0 ");
+-	if (status & BT_SMS_ATN) strcat(buf, "SMS ");
+-	if (status & BT_B2H_ATN) strcat(buf, "B2H ");
+-	if (status & BT_H2B_ATN) strcat(buf, "H2B ");
++	if (status & BT_B_BUSY)
++		strcat(buf, "B_BUSY ");
++	if (status & BT_H_BUSY)
++		strcat(buf, "H_BUSY ");
++	if (status & BT_OEM0)
++		strcat(buf, "OEM0 ");
++	if (status & BT_SMS_ATN)
++		strcat(buf, "SMS ");
++	if (status & BT_B2H_ATN)
++		strcat(buf, "B2H ");
++	if (status & BT_H2B_ATN)
++		strcat(buf, "H2B ");
+ 	strcat(buf, "]");
+ 	return buf;
+ }
+-#define STATUS2TXT(buf) status2txt(status, buf)
++#define STATUS2TXT status2txt(status)
++
++/* called externally at insmod time, and internally on cleanup */
  
- #define RX_LENGTH_INFO_TAG		0x697e
- 
-@@ -93,7 +93,7 @@ struct rx_status {
- 	u8 signal_quality_ofdm;
- 	u8 decryption_type;
- 	u8 frame_status;
--};
-+} __attribute__((packed));
- 
- /* rx_status field decryption_type */
- #define ZD_RX_NO_WEP	0
-diff --git a/drivers/net/wireless/zd1211rw/zd_usb.c b/drivers/net/wireless/zd1211rw/zd_usb.c
-index 3faaeb2..a15b095 100644
---- a/drivers/net/wireless/zd1211rw/zd_usb.c
-+++ b/drivers/net/wireless/zd1211rw/zd_usb.c
-@@ -366,15 +366,6 @@ error:
- 	return r;
+-/* This will be called from within this module on a hosed condition */
+-#define FIRST_SEQ	0
+ static unsigned int bt_init_data(struct si_sm_data *bt, struct si_sm_io *io)
+ {
+-	bt->state = BT_STATE_IDLE;
+-	bt->last_state = BT_STATE_IDLE;
+-	bt->seq = FIRST_SEQ;
+-	bt->io = io;
+-	bt->write_count = 0;
+-	bt->read_count = 0;
+-	bt->error_retries = 0;
+-	bt->nonzero_status = 0;
+-	bt->truncated = 0;
+-	bt->timeout = BT_NORMAL_TIMEOUT;
++	memset(bt, 0, sizeof(struct si_sm_data));
++	if (bt->io != io) {		/* external: one-time only things */
++		bt->io = io;
++		bt->seq = 0;
++	}
++	bt->state = BT_STATE_IDLE;	/* start here */
++	bt->complete = BT_STATE_IDLE;	/* end here */
++	bt->BT_CAP_req2rsp = BT_NORMAL_TIMEOUT * 1000000;
++	bt->BT_CAP_retries = BT_NORMAL_RETRY_LIMIT;
++	/* BT_CAP_outreqs == zero is a flag to read BT Capabilities */
+ 	return 3; /* We claim 3 bytes of space; ought to check SPMI table */
  }
  
--static void disable_read_regs_int(struct zd_usb *usb)
--{
--	struct zd_usb_interrupt *intr = &usb->intr;
--
--	spin_lock(&intr->lock);
--	intr->read_regs_enabled = 0;
--	spin_unlock(&intr->lock);
--}
--
- #define urb_dev(urb) (&(urb)->dev->dev)
- 
- static inline void handle_regs_int(struct urb *urb)
-@@ -1156,10 +1147,19 @@ static void prepare_read_regs_int(struct
- {
- 	struct zd_usb_interrupt *intr = &usb->intr;
- 
--	spin_lock(&intr->lock);
-+	spin_lock_irq(&intr->lock);
- 	intr->read_regs_enabled = 1;
- 	INIT_COMPLETION(intr->read_regs.completion);
--	spin_unlock(&intr->lock);
-+	spin_unlock_irq(&intr->lock);
++/* Jam a completion code (probably an error) into a response */
++
++static void force_result(struct si_sm_data *bt, unsigned char completion_code)
++{
++	bt->read_data[0] = 4;				/* # following bytes */
++	bt->read_data[1] = bt->write_data[1] | 4;	/* Odd NetFn/LUN */
++	bt->read_data[2] = bt->write_data[2];		/* seq (ignored) */
++	bt->read_data[3] = bt->write_data[3];		/* Command */
++	bt->read_data[4] = completion_code;
++	bt->read_count = 5;
 +}
 +
-+static void disable_read_regs_int(struct zd_usb *usb)
-+{
-+	struct zd_usb_interrupt *intr = &usb->intr;
++/* The upper state machine starts here */
 +
-+	spin_lock_irq(&intr->lock);
-+	intr->read_regs_enabled = 0;
-+	spin_unlock_irq(&intr->lock);
+ static int bt_start_transaction(struct si_sm_data *bt,
+ 				unsigned char *data,
+ 				unsigned int size)
+ {
+ 	unsigned int i;
+ 
+-	if ((size < 2) || (size > (IPMI_MAX_MSG_LENGTH - 2)))
+-	       return -1;
++	if (size < 2)
++		return IPMI_REQ_LEN_INVALID_ERR;
++	if (size > IPMI_MAX_MSG_LENGTH)
++		return IPMI_REQ_LEN_EXCEEDED_ERR;
++
++	if (bt->state == BT_STATE_LONG_BUSY)
++		return IPMI_NODE_BUSY_ERR;
+ 
+-	if ((bt->state != BT_STATE_IDLE) && (bt->state != BT_STATE_HOSED))
+-		return -2;
++	if (bt->state != BT_STATE_IDLE)
++		return IPMI_NOT_IN_MY_STATE_ERR;
+ 
+ 	if (bt_debug & BT_DEBUG_MSG) {
+-    		printk(KERN_WARNING "+++++++++++++++++++++++++++++++++++++\n");
+-		printk(KERN_WARNING "BT: write seq=0x%02X:", bt->seq);
++		printk(KERN_WARNING "BT: +++++++++++++++++ New command\n");
++		printk(KERN_WARNING "BT: NetFn/LUN CMD [%d data]:", size - 2);
+ 		for (i = 0; i < size; i ++)
+-		       printk (" %02x", data[i]);
++			printk (" %02x", data[i]);
+ 		printk("\n");
+ 	}
+ 	bt->write_data[0] = size + 1;	/* all data plus seq byte */
+ 	bt->write_data[1] = *data;	/* NetFn/LUN */
+-	bt->write_data[2] = bt->seq;
++	bt->write_data[2] = bt->seq++;
+ 	memcpy(bt->write_data + 3, data + 1, size - 1);
+ 	bt->write_count = size + 2;
+-
+ 	bt->error_retries = 0;
+ 	bt->nonzero_status = 0;
+-	bt->read_count = 0;
+ 	bt->truncated = 0;
+ 	bt->state = BT_STATE_XACTION_START;
+-	bt->last_state = BT_STATE_IDLE;
+-	bt->timeout = BT_NORMAL_TIMEOUT;
++	bt->timeout = bt->BT_CAP_req2rsp;
++	force_result(bt, IPMI_ERR_UNSPECIFIED);
+ 	return 0;
  }
  
- static int get_results(struct zd_usb *usb, u16 *values,
-@@ -1171,7 +1171,7 @@ static int get_results(struct zd_usb *us
- 	struct read_regs_int *rr = &intr->read_regs;
- 	struct usb_int_regs *regs = (struct usb_int_regs *)rr->buffer;
+@@ -198,38 +248,30 @@ static int bt_start_transaction(struct s
+    it calls this.  Strip out the length and seq bytes. */
  
--	spin_lock(&intr->lock);
-+	spin_lock_irq(&intr->lock);
+ static int bt_get_result(struct si_sm_data *bt,
+-			   unsigned char *data,
+-			   unsigned int length)
++			 unsigned char *data,
++			 unsigned int length)
+ {
+ 	int i, msg_len;
  
- 	r = -EIO;
- 	/* The created block size seems to be larger than expected.
-@@ -1204,7 +1204,7 @@ static int get_results(struct zd_usb *us
+ 	msg_len = bt->read_count - 2;		/* account for length & seq */
+-	/* Always NetFn, Cmd, cCode */
+ 	if (msg_len < 3 || msg_len > IPMI_MAX_MSG_LENGTH) {
+-		printk(KERN_DEBUG "BT results: bad msg_len = %d\n", msg_len);
+-		data[0] = bt->write_data[1] | 0x4;	/* Kludge a response */
+-		data[1] = bt->write_data[3];
+-		data[2] = IPMI_ERR_UNSPECIFIED;
++		force_result(bt, IPMI_ERR_UNSPECIFIED);
+ 		msg_len = 3;
+-	} else {
+-		data[0] = bt->read_data[1];
+-		data[1] = bt->read_data[3];
+-		if (length < msg_len)
+-		       bt->truncated = 1;
+-		if (bt->truncated) {	/* can be set in read_all_bytes() */
+-			data[2] = IPMI_ERR_MSG_TRUNCATED;
+-			msg_len = 3;
+-		} else
+-		       memcpy(data + 2, bt->read_data + 4, msg_len - 2);
++	}
++	data[0] = bt->read_data[1];
++	data[1] = bt->read_data[3];
++	if (length < msg_len || bt->truncated) {
++		data[2] = IPMI_ERR_MSG_TRUNCATED;
++		msg_len = 3;
++	} else
++		memcpy(data + 2, bt->read_data + 4, msg_len - 2);
  
- 	r = 0;
- error_unlock:
--	spin_unlock(&intr->lock);
-+	spin_unlock_irq(&intr->lock);
- 	return r;
+-		if (bt_debug & BT_DEBUG_MSG) {
+-			printk (KERN_WARNING "BT: res (raw)");
+-			for (i = 0; i < msg_len; i++)
+-			       printk(" %02x", data[i]);
+-			printk ("\n");
+-		}
++	if (bt_debug & BT_DEBUG_MSG) {
++		printk (KERN_WARNING "BT: result %d bytes:", msg_len);
++		for (i = 0; i < msg_len; i++)
++			printk(" %02x", data[i]);
++		printk ("\n");
+ 	}
+-	bt->read_count = 0;	/* paranoia */
+ 	return msg_len;
  }
  
-diff --git a/drivers/net/wireless/zd1211rw/zd_usb.h b/drivers/net/wireless/zd1211rw/zd_usb.h
-index e81a2d3..317d37c 100644
---- a/drivers/net/wireless/zd1211rw/zd_usb.h
-+++ b/drivers/net/wireless/zd1211rw/zd_usb.h
-@@ -74,17 +74,17 @@ enum control_requests {
- struct usb_req_read_regs {
- 	__le16 id;
- 	__le16 addr[0];
--};
-+} __attribute__((packed));
+@@ -238,22 +280,40 @@ static int bt_get_result(struct si_sm_da
  
- struct reg_data {
- 	__le16 addr;
- 	__le16 value;
--};
-+} __attribute__((packed));
+ static void reset_flags(struct si_sm_data *bt)
+ {
++	if (bt_debug)
++		printk(KERN_WARNING "IPMI BT: flag reset %s\n",
++					status2txt(BT_STATUS));
+ 	if (BT_STATUS & BT_H_BUSY)
+-	       BT_CONTROL(BT_H_BUSY);
+-	if (BT_STATUS & BT_B_BUSY)
+-	       BT_CONTROL(BT_B_BUSY);
+-	BT_CONTROL(BT_CLR_WR_PTR);
+-	BT_CONTROL(BT_SMS_ATN);
+-
+-	if (BT_STATUS & BT_B2H_ATN) {
+-		int i;
+-		BT_CONTROL(BT_H_BUSY);
+-		BT_CONTROL(BT_B2H_ATN);
+-		BT_CONTROL(BT_CLR_RD_PTR);
+-		for (i = 0; i < IPMI_MAX_MSG_LENGTH + 2; i++)
+-		       BMC2HOST;
+-		BT_CONTROL(BT_H_BUSY);
+-	}
++		BT_CONTROL(BT_H_BUSY);	/* force clear */
++	BT_CONTROL(BT_CLR_WR_PTR);	/* always reset */
++	BT_CONTROL(BT_SMS_ATN);		/* always clear */
++	BT_INTMASK_W(BT_BMC_HWRST);
++}
++
++/* Get rid of an unwanted/stale response.  This should only be needed for
++   BMCs that support multiple outstanding requests. */
++
++static void drain_BMC2HOST(struct si_sm_data *bt)
++{
++	int i, size;
++
++	if (!(BT_STATUS & BT_B2H_ATN)) 	/* Not signalling a response */
++		return;
++
++	BT_CONTROL(BT_H_BUSY);		/* now set */
++	BT_CONTROL(BT_B2H_ATN);		/* always clear */
++	BT_STATUS;			/* pause */
++	BT_CONTROL(BT_B2H_ATN);		/* some BMCs are stubborn */
++	BT_CONTROL(BT_CLR_RD_PTR);	/* always reset */
++	if (bt_debug)
++		printk(KERN_WARNING "IPMI BT: stale response %s; ",
++			status2txt(BT_STATUS));
++	size = BMC2HOST;
++	for (i = 0; i < size ; i++)
++		BMC2HOST;
++	BT_CONTROL(BT_H_BUSY);		/* now clear */
++	if (bt_debug)
++		printk("drained %d bytes\n", size + 1);
+ }
  
- struct usb_req_write_regs {
- 	__le16 id;
- 	struct reg_data reg_writes[0];
--};
-+} __attribute__((packed));
+ static inline void write_all_bytes(struct si_sm_data *bt)
+@@ -261,201 +321,256 @@ static inline void write_all_bytes(struc
+ 	int i;
  
- enum {
- 	RF_IF_LE = 0x02,
-@@ -101,7 +101,7 @@ struct usb_req_rfwrite {
- 	/* RF2595: 24 */
- 	__le16 bit_values[0];
- 	/* (CR203 & ~(RF_IF_LE | RF_CLK | RF_DATA)) | (bit ? RF_DATA : 0) */
--};
-+} __attribute__((packed));
+ 	if (bt_debug & BT_DEBUG_MSG) {
+-    		printk(KERN_WARNING "BT: write %d bytes seq=0x%02X",
++		printk(KERN_WARNING "BT: write %d bytes seq=0x%02X",
+ 			bt->write_count, bt->seq);
+ 		for (i = 0; i < bt->write_count; i++)
+ 			printk (" %02x", bt->write_data[i]);
+ 		printk ("\n");
+ 	}
+ 	for (i = 0; i < bt->write_count; i++)
+-	       HOST2BMC(bt->write_data[i]);
++		HOST2BMC(bt->write_data[i]);
+ }
  
- /* USB interrupt */
+ static inline int read_all_bytes(struct si_sm_data *bt)
+ {
+ 	unsigned char i;
  
-@@ -118,12 +118,12 @@ enum usb_int_flags {
- struct usb_int_header {
- 	u8 type;	/* must always be 1 */
- 	u8 id;
--};
-+} __attribute__((packed));
++	/* length is "framing info", minimum = 4: NetFn, Seq, Cmd, cCode.
++	   Keep layout of first four bytes aligned with write_data[] */
++
+ 	bt->read_data[0] = BMC2HOST;
+ 	bt->read_count = bt->read_data[0];
+-	if (bt_debug & BT_DEBUG_MSG)
+-    		printk(KERN_WARNING "BT: read %d bytes:", bt->read_count);
  
- struct usb_int_regs {
- 	struct usb_int_header hdr;
- 	struct reg_data regs[0];
--};
-+} __attribute__((packed));
+-	/* minimum: length, NetFn, Seq, Cmd, cCode == 5 total, or 4 more
+-	   following the length byte. */
+ 	if (bt->read_count < 4 || bt->read_count >= IPMI_MAX_MSG_LENGTH) {
+ 		if (bt_debug & BT_DEBUG_MSG)
+-			printk("bad length %d\n", bt->read_count);
++			printk(KERN_WARNING "BT: bad raw rsp len=%d\n",
++				bt->read_count);
+ 		bt->truncated = 1;
+ 		return 1;	/* let next XACTION START clean it up */
+ 	}
+ 	for (i = 1; i <= bt->read_count; i++)
+-	       bt->read_data[i] = BMC2HOST;
+-	bt->read_count++;	/* account for the length byte */
++		bt->read_data[i] = BMC2HOST;
++	bt->read_count++;	/* Account internally for length byte */
  
- struct usb_int_retry_fail {
- 	struct usb_int_header hdr;
-@@ -131,7 +131,7 @@ struct usb_int_retry_fail {
- 	u8 _dummy;
- 	u8 addr[ETH_ALEN];
- 	u8 ibss_wakeup_dest;
--};
-+} __attribute__((packed));
+ 	if (bt_debug & BT_DEBUG_MSG) {
+-	    	for (i = 0; i < bt->read_count; i++)
++		int max = bt->read_count;
++
++		printk(KERN_WARNING "BT: got %d bytes seq=0x%02X",
++			max, bt->read_data[2]);
++		if (max > 16)
++			max = 16;
++		for (i = 0; i < max; i++)
+ 			printk (" %02x", bt->read_data[i]);
+-	    	printk ("\n");
++		printk ("%s\n", bt->read_count == max ? "" : " ...");
+ 	}
+-	if (bt->seq != bt->write_data[2])	/* idiot check */
+-		printk(KERN_DEBUG "BT: internal error: sequence mismatch\n");
  
- struct read_regs_int {
- 	struct completion completion;
-diff --git a/net/ieee80211/ieee80211_tx.c b/net/ieee80211/ieee80211_tx.c
-index ae25449..854fc13 100644
---- a/net/ieee80211/ieee80211_tx.c
-+++ b/net/ieee80211/ieee80211_tx.c
-@@ -390,7 +390,7 @@ int ieee80211_xmit(struct sk_buff *skb, 
- 		 * this stack is providing the full 802.11 header, one will
- 		 * eventually be affixed to this fragment -- so we must account
- 		 * for it when determining the amount of payload space. */
--		bytes_per_frag = frag_size - IEEE80211_3ADDR_LEN;
-+		bytes_per_frag = frag_size - hdr_len;
- 		if (ieee->config &
- 		    (CFG_IEEE80211_COMPUTE_FCS | CFG_IEEE80211_RESERVE_FCS))
- 			bytes_per_frag -= IEEE80211_FCS_LEN;
-@@ -412,7 +412,7 @@ int ieee80211_xmit(struct sk_buff *skb, 
- 	} else {
- 		nr_frags = 1;
- 		bytes_per_frag = bytes_last_frag = bytes;
--		frag_size = bytes + IEEE80211_3ADDR_LEN;
-+		frag_size = bytes + hdr_len;
+-	/* per the spec, the (NetFn, Seq, Cmd) tuples should match */
+-	if ((bt->read_data[3] == bt->write_data[3]) &&		/* Cmd */
+-        	(bt->read_data[2] == bt->write_data[2]) &&	/* Sequence */
+-        	((bt->read_data[1] & 0xF8) == (bt->write_data[1] & 0xF8)))
++	/* per the spec, the (NetFn[1], Seq[2], Cmd[3]) tuples must match */
++	if ((bt->read_data[3] == bt->write_data[3]) &&
++	    (bt->read_data[2] == bt->write_data[2]) &&
++	    ((bt->read_data[1] & 0xF8) == (bt->write_data[1] & 0xF8)))
+ 			return 1;
+ 
+ 	if (bt_debug & BT_DEBUG_MSG)
+-	       printk(KERN_WARNING "BT: bad packet: "
++		printk(KERN_WARNING "IPMI BT: bad packet: "
+ 		"want 0x(%02X, %02X, %02X) got (%02X, %02X, %02X)\n",
+-		bt->write_data[1], bt->write_data[2], bt->write_data[3],
++		bt->write_data[1] | 0x04, bt->write_data[2], bt->write_data[3],
+ 		bt->read_data[1],  bt->read_data[2],  bt->read_data[3]);
+ 	return 0;
+ }
+ 
+-/* Modifies bt->state appropriately, need to get into the bt_event() switch */
++/* Restart if retries are left, or return an error completion code */
+ 
+-static void error_recovery(struct si_sm_data *bt, char *reason)
++static enum si_sm_result error_recovery(struct si_sm_data *bt,
++					unsigned char status,
++					unsigned char cCode)
+ {
+-	unsigned char status;
+-	char buf[40]; /* For getting status */
++	char *reason;
+ 
+-	bt->timeout = BT_NORMAL_TIMEOUT; /* various places want to retry */
++	bt->timeout = bt->BT_CAP_req2rsp;
+ 
+-	status = BT_STATUS;
+-	printk(KERN_DEBUG "BT: %s in %s %s\n", reason, STATE2TXT,
+-	       STATUS2TXT(buf));
++	switch (cCode) {
++	case IPMI_TIMEOUT_ERR:
++		reason = "timeout";
++		break;
++	default:
++		reason = "internal error";
++		break;
++	}
++
++	printk(KERN_WARNING "IPMI BT: %s in %s %s ", 	/* open-ended line */
++		reason, STATE2TXT, STATUS2TXT);
+ 
++	/* Per the IPMI spec, retries are based on the sequence number
++	   known only to this module, so manage a restart here. */
+ 	(bt->error_retries)++;
+-	if (bt->error_retries > BT_RETRY_LIMIT) {
+-		printk(KERN_DEBUG "retry limit (%d) exceeded\n", BT_RETRY_LIMIT);
+-		bt->state = BT_STATE_HOSED;
+-		if (!bt->nonzero_status)
+-			printk(KERN_ERR "IPMI: BT stuck, try power cycle\n");
+-		else if (bt->error_retries <= BT_RETRY_LIMIT + 1) {
+-			printk(KERN_DEBUG "IPMI: BT reset (takes 5 secs)\n");
+-        		bt->state = BT_STATE_RESET1;
+-		}
+-	return;
++	if (bt->error_retries < bt->BT_CAP_retries) {
++		printk("%d retries left\n",
++			bt->BT_CAP_retries - bt->error_retries);
++		bt->state = BT_STATE_RESTART;
++		return SI_SM_CALL_WITHOUT_DELAY;
  	}
  
- 	rts_required = (frag_size > ieee->rts
-diff --git a/net/ieee80211/softmac/ieee80211softmac_scan.c b/net/ieee80211/softmac/ieee80211softmac_scan.c
-index d31cf77..ad67368 100644
---- a/net/ieee80211/softmac/ieee80211softmac_scan.c
-+++ b/net/ieee80211/softmac/ieee80211softmac_scan.c
-@@ -47,7 +47,6 @@ ieee80211softmac_start_scan(struct ieee8
- 	sm->scanning = 1;
- 	spin_unlock_irqrestore(&sm->lock, flags);
- 
--	netif_tx_disable(sm->ieee->dev);
- 	ret = sm->start_scan(sm->dev);
- 	if (ret) {
- 		spin_lock_irqsave(&sm->lock, flags);
-@@ -248,7 +247,6 @@ void ieee80211softmac_scan_finished(stru
- 		if (net)
- 			sm->set_channel(sm->dev, net->channel);
+-	/* Sometimes the BMC queues get in an "off-by-one" state...*/
+-	if ((bt->state == BT_STATE_B2H_WAIT) && (status & BT_B2H_ATN)) {
+-    		printk(KERN_DEBUG "retry B2H_WAIT\n");
+-		return;
++	printk("failed %d retries, sending error response\n",
++		bt->BT_CAP_retries);
++	if (!bt->nonzero_status)
++		printk(KERN_ERR "IPMI BT: stuck, try power cycle\n");
++
++	/* this is most likely during insmod */
++	else if (bt->seq <= (unsigned char)(bt->BT_CAP_retries & 0xFF)) {
++		printk(KERN_WARNING "IPMI: BT reset (takes 5 secs)\n");
++		bt->state = BT_STATE_RESET1;
++		return SI_SM_CALL_WITHOUT_DELAY;
  	}
--	netif_wake_queue(sm->ieee->dev);
- 	ieee80211softmac_call_events(sm, IEEE80211SOFTMAC_EVENT_SCAN_FINISHED, NULL);
+ 
+-	printk(KERN_DEBUG "restart command\n");
+-	bt->state = BT_STATE_RESTART;
++	/* Concoct a useful error message, set up the next state, and
++	   be done with this sequence. */
++
++	bt->state = BT_STATE_IDLE;
++	switch (cCode) {
++	case IPMI_TIMEOUT_ERR:
++		if (status & BT_B_BUSY) {
++			cCode = IPMI_NODE_BUSY_ERR;
++			bt->state = BT_STATE_LONG_BUSY;
++		}
++		break;
++	default:
++		break;
++	}
++	force_result(bt, cCode);
++	return SI_SM_TRANSACTION_COMPLETE;
  }
- EXPORT_SYMBOL_GPL(ieee80211softmac_scan_finished);
+ 
+-/* Check the status and (possibly) advance the BT state machine.  The
+-   default return is SI_SM_CALL_WITH_DELAY. */
++/* Check status and (usually) take action and change this state machine. */
+ 
+ static enum si_sm_result bt_event(struct si_sm_data *bt, long time)
+ {
+-	unsigned char status;
+-	char buf[40]; /* For getting status */
++	unsigned char status, BT_CAP[8];
++	static enum bt_states last_printed = BT_STATE_PRINTME;
+ 	int i;
+ 
+ 	status = BT_STATUS;
+ 	bt->nonzero_status |= status;
+-
+-	if ((bt_debug & BT_DEBUG_STATES) && (bt->state != bt->last_state))
++	if ((bt_debug & BT_DEBUG_STATES) && (bt->state != last_printed)) {
+ 		printk(KERN_WARNING "BT: %s %s TO=%ld - %ld \n",
+ 			STATE2TXT,
+-			STATUS2TXT(buf),
++			STATUS2TXT,
+ 			bt->timeout,
+ 			time);
+-	bt->last_state = bt->state;
++		last_printed = bt->state;
++	}
+ 
+-	if (bt->state == BT_STATE_HOSED)
+-	       return SI_SM_HOSED;
++	/* Commands that time out may still (eventually) provide a response.
++	   This stale response will get in the way of a new response so remove
++	   it if possible (hopefully during IDLE).  Even if it comes up later
++	   it will be rejected by its (now-forgotten) seq number. */
++
++	if ((bt->state < BT_STATE_WRITE_BYTES) && (status & BT_B2H_ATN)) {
++		drain_BMC2HOST(bt);
++		BT_SI_SM_RETURN(SI_SM_CALL_WITH_DELAY);
++	}
+ 
+-	if (bt->state != BT_STATE_IDLE) {	/* do timeout test */
++	if ((bt->state != BT_STATE_IDLE) &&
++	    (bt->state <  BT_STATE_PRINTME)) {		/* check timeout */
+ 		bt->timeout -= time;
+-		if ((bt->timeout < 0) && (bt->state < BT_STATE_RESET1)) {
+-			error_recovery(bt, "timed out");
+-			return SI_SM_CALL_WITHOUT_DELAY;
+-		}
++		if ((bt->timeout < 0) && (bt->state < BT_STATE_RESET1))
++			return error_recovery(bt,
++					      status,
++					      IPMI_TIMEOUT_ERR);
+ 	}
+ 
+ 	switch (bt->state) {
+ 
+-    	case BT_STATE_IDLE:	/* check for asynchronous messages */
++	/* Idle state first checks for asynchronous messages from another
++	   channel, then does some opportunistic housekeeping. */
++
++	case BT_STATE_IDLE:
+ 		if (status & BT_SMS_ATN) {
+ 			BT_CONTROL(BT_SMS_ATN);	/* clear it */
+ 			return SI_SM_ATTN;
+ 		}
+-		return SI_SM_IDLE;
+ 
+-	case BT_STATE_XACTION_START:
+-		if (status & BT_H_BUSY) {
++		if (status & BT_H_BUSY)		/* clear a leftover H_BUSY */
+ 			BT_CONTROL(BT_H_BUSY);
+-			break;
+-		}
+-    		if (status & BT_B2H_ATN)
+-		       break;
+-		bt->state = BT_STATE_WRITE_BYTES;
+-		return SI_SM_CALL_WITHOUT_DELAY;	/* for logging */
+ 
+-	case BT_STATE_WRITE_BYTES:
++		/* Read BT capabilities if it hasn't been done yet */
++		if (!bt->BT_CAP_outreqs)
++			BT_STATE_CHANGE(BT_STATE_CAPABILITIES_BEGIN,
++					SI_SM_CALL_WITHOUT_DELAY);
++		bt->timeout = bt->BT_CAP_req2rsp;
++		BT_SI_SM_RETURN(SI_SM_IDLE);
++
++	case BT_STATE_XACTION_START:
+ 		if (status & (BT_B_BUSY | BT_H2B_ATN))
+-		       break;
++			BT_SI_SM_RETURN(SI_SM_CALL_WITH_DELAY);
++		if (BT_STATUS & BT_H_BUSY)
++			BT_CONTROL(BT_H_BUSY);	/* force clear */
++		BT_STATE_CHANGE(BT_STATE_WRITE_BYTES,
++				SI_SM_CALL_WITHOUT_DELAY);
++
++	case BT_STATE_WRITE_BYTES:
++		if (status & BT_H_BUSY)
++			BT_CONTROL(BT_H_BUSY);	/* clear */
+ 		BT_CONTROL(BT_CLR_WR_PTR);
+ 		write_all_bytes(bt);
+-		BT_CONTROL(BT_H2B_ATN);	/* clears too fast to catch? */
+-		bt->state = BT_STATE_WRITE_CONSUME;
+-		return SI_SM_CALL_WITHOUT_DELAY; /* it MIGHT sail through */
+-
+-	case BT_STATE_WRITE_CONSUME: /* BMCs usually blow right thru here */
+-        	if (status & (BT_H2B_ATN | BT_B_BUSY))
+-		       break;
+-		bt->state = BT_STATE_B2H_WAIT;
+-		/* fall through with status */
+-
+-	/* Stay in BT_STATE_B2H_WAIT until a packet matches.  However, spinning
+-	   hard here, constantly reading status, seems to hold off the
+-	   generation of B2H_ATN so ALWAYS return CALL_WITH_DELAY. */
+-
+-	case BT_STATE_B2H_WAIT:
+-    		if (!(status & BT_B2H_ATN))
+-		       break;
+-
+-		/* Assume ordered, uncached writes: no need to wait */
+-		if (!(status & BT_H_BUSY))
+-		       BT_CONTROL(BT_H_BUSY); /* set */
+-		BT_CONTROL(BT_B2H_ATN);		/* clear it, ACK to the BMC */
+-		BT_CONTROL(BT_CLR_RD_PTR);	/* reset the queue */
+-		i = read_all_bytes(bt);
+-		BT_CONTROL(BT_H_BUSY);		/* clear */
+-		if (!i)				/* Try this state again */
+-		       break;
+-		bt->state = BT_STATE_READ_END;
+-		return SI_SM_CALL_WITHOUT_DELAY;	/* for logging */
+-
+-    	case BT_STATE_READ_END:
+-
+-		/* I could wait on BT_H_BUSY to go clear for a truly clean
+-		   exit.  However, this is already done in XACTION_START
+-		   and the (possible) extra loop/status/possible wait affects
+-		   performance.  So, as long as it works, just ignore H_BUSY */
++		BT_CONTROL(BT_H2B_ATN);	/* can clear too fast to catch */
++		BT_STATE_CHANGE(BT_STATE_WRITE_CONSUME,
++				SI_SM_CALL_WITHOUT_DELAY);
+ 
+-#ifdef MAKE_THIS_TRUE_IF_NECESSARY
++	case BT_STATE_WRITE_CONSUME:
++		if (status & (BT_B_BUSY | BT_H2B_ATN))
++			BT_SI_SM_RETURN(SI_SM_CALL_WITH_DELAY);
++		BT_STATE_CHANGE(BT_STATE_READ_WAIT,
++				SI_SM_CALL_WITHOUT_DELAY);
++
++	/* Spinning hard can suppress B2H_ATN and force a timeout */
++
++	case BT_STATE_READ_WAIT:
++		if (!(status & BT_B2H_ATN))
++			BT_SI_SM_RETURN(SI_SM_CALL_WITH_DELAY);
++		BT_CONTROL(BT_H_BUSY);		/* set */
++
++		/* Uncached, ordered writes should just proceeed serially but
++		   some BMCs don't clear B2H_ATN with one hit.  Fast-path a
++		   workaround without too much penalty to the general case. */
++
++		BT_CONTROL(BT_B2H_ATN);		/* clear it to ACK the BMC */
++		BT_STATE_CHANGE(BT_STATE_CLEAR_B2H,
++				SI_SM_CALL_WITHOUT_DELAY);
++
++	case BT_STATE_CLEAR_B2H:
++		if (status & BT_B2H_ATN) {	/* keep hitting it */
++			BT_CONTROL(BT_B2H_ATN);
++			BT_SI_SM_RETURN(SI_SM_CALL_WITH_DELAY);
++		}
++		BT_STATE_CHANGE(BT_STATE_READ_BYTES,
++				SI_SM_CALL_WITHOUT_DELAY);
+ 
+-		if (status & BT_H_BUSY)
+-		       break;
+-#endif
+-		bt->seq++;
+-		bt->state = BT_STATE_IDLE;
+-		return SI_SM_TRANSACTION_COMPLETE;
++	case BT_STATE_READ_BYTES:
++		if (!(status & BT_H_BUSY))	/* check in case of retry */
++			BT_CONTROL(BT_H_BUSY);
++		BT_CONTROL(BT_CLR_RD_PTR);	/* start of BMC2HOST buffer */
++		i = read_all_bytes(bt);		/* true == packet seq match */
++		BT_CONTROL(BT_H_BUSY);		/* NOW clear */
++		if (!i) 			/* Not my message */
++			BT_STATE_CHANGE(BT_STATE_READ_WAIT,
++					SI_SM_CALL_WITHOUT_DELAY);
++		bt->state = bt->complete;
++		return bt->state == BT_STATE_IDLE ?	/* where to next? */
++			SI_SM_TRANSACTION_COMPLETE :	/* normal */
++			SI_SM_CALL_WITHOUT_DELAY;	/* Startup magic */
++
++	case BT_STATE_LONG_BUSY:	/* For example: after FW update */
++		if (!(status & BT_B_BUSY)) {
++			reset_flags(bt);	/* next state is now IDLE */
++			bt_init_data(bt, bt->io);
++		}
++		return SI_SM_CALL_WITH_DELAY;	/* No repeat printing */
+ 
+ 	case BT_STATE_RESET1:
+-    		reset_flags(bt);
+-    		bt->timeout = BT_RESET_DELAY;
+-		bt->state = BT_STATE_RESET2;
+-		break;
++		reset_flags(bt);
++		drain_BMC2HOST(bt);
++		BT_STATE_CHANGE(BT_STATE_RESET2,
++				SI_SM_CALL_WITH_DELAY);
+ 
+ 	case BT_STATE_RESET2:		/* Send a soft reset */
+ 		BT_CONTROL(BT_CLR_WR_PTR);
+@@ -464,29 +579,59 @@ static enum si_sm_result bt_event(struct
+ 		HOST2BMC(42);		/* Sequence number */
+ 		HOST2BMC(3);		/* Cmd == Soft reset */
+ 		BT_CONTROL(BT_H2B_ATN);
+-		bt->state = BT_STATE_RESET3;
+-		break;
++		bt->timeout = BT_RESET_DELAY * 1000000;
++		BT_STATE_CHANGE(BT_STATE_RESET3,
++				SI_SM_CALL_WITH_DELAY);
+ 
+-	case BT_STATE_RESET3:
++	case BT_STATE_RESET3:		/* Hold off everything for a bit */
+ 		if (bt->timeout > 0)
+-		       return SI_SM_CALL_WITH_DELAY;
+-		bt->state = BT_STATE_RESTART;	/* printk in debug modes */
+-		break;
++			return SI_SM_CALL_WITH_DELAY;
++		drain_BMC2HOST(bt);
++		BT_STATE_CHANGE(BT_STATE_RESTART,
++				SI_SM_CALL_WITH_DELAY);
+ 
+-	case BT_STATE_RESTART:		/* don't reset retries! */
+-		reset_flags(bt);
+-		bt->write_data[2] = ++bt->seq;
++	case BT_STATE_RESTART:		/* don't reset retries or seq! */
+ 		bt->read_count = 0;
+ 		bt->nonzero_status = 0;
+-		bt->timeout = BT_NORMAL_TIMEOUT;
+-		bt->state = BT_STATE_XACTION_START;
+-		break;
+-
+-	default:	/* HOSED is supposed to be caught much earlier */
+-		error_recovery(bt, "internal logic error");
+-		break;
+-  	}
+-  	return SI_SM_CALL_WITH_DELAY;
++		bt->timeout = bt->BT_CAP_req2rsp;
++		BT_STATE_CHANGE(BT_STATE_XACTION_START,
++				SI_SM_CALL_WITH_DELAY);
++
++	/* Get BT Capabilities, using timing of upper level state machine.
++	   Set outreqs to prevent infinite loop on timeout. */
++	case BT_STATE_CAPABILITIES_BEGIN:
++		bt->BT_CAP_outreqs = 1;
++		{
++			unsigned char GetBT_CAP[] = { 0x18, 0x36 };
++			bt->state = BT_STATE_IDLE;
++			bt_start_transaction(bt, GetBT_CAP, sizeof(GetBT_CAP));
++		}
++		bt->complete = BT_STATE_CAPABILITIES_END;
++		BT_STATE_CHANGE(BT_STATE_XACTION_START,
++				SI_SM_CALL_WITH_DELAY);
++
++	case BT_STATE_CAPABILITIES_END:
++		i = bt_get_result(bt, BT_CAP, sizeof(BT_CAP));
++		bt_init_data(bt, bt->io);
++		if ((i == 8) && !BT_CAP[2]) {
++			bt->BT_CAP_outreqs = BT_CAP[3];
++			bt->BT_CAP_req2rsp = BT_CAP[6] * 1000000;
++			bt->BT_CAP_retries = BT_CAP[7];
++		} else
++			printk(KERN_WARNING "IPMI BT: using default values\n");
++		if (!bt->BT_CAP_outreqs)
++			bt->BT_CAP_outreqs = 1;
++		printk(KERN_WARNING "IPMI BT: req2rsp=%ld secs retries=%d\n",
++			bt->BT_CAP_req2rsp / 1000000L, bt->BT_CAP_retries);
++		bt->timeout = bt->BT_CAP_req2rsp;
++		return SI_SM_CALL_WITHOUT_DELAY;
++
++	default:	/* should never occur */
++		return error_recovery(bt,
++				      status,
++				      IPMI_ERR_UNSPECIFIED);
++	}
++	return SI_SM_CALL_WITH_DELAY;
+ }
+ 
+ static int bt_detect(struct si_sm_data *bt)
+@@ -497,7 +642,7 @@ static int bt_detect(struct si_sm_data *
+ 	   test that first.  The calling routine uses negative logic. */
+ 
+ 	if ((BT_STATUS == 0xFF) && (BT_INTMASK_R == 0xFF))
+-	       return 1;
++		return 1;
+ 	reset_flags(bt);
+ 	return 0;
+ }
+@@ -513,11 +658,11 @@ static int bt_size(void)
+ 
+ struct si_sm_handlers bt_smi_handlers =
+ {
+-	.init_data         = bt_init_data,
+-	.start_transaction = bt_start_transaction,
+-	.get_result        = bt_get_result,
+-	.event             = bt_event,
+-	.detect            = bt_detect,
+-	.cleanup           = bt_cleanup,
+-	.size              = bt_size,
++	.init_data		= bt_init_data,
++	.start_transaction	= bt_start_transaction,
++	.get_result		= bt_get_result,
++	.event			= bt_event,
++	.detect			= bt_detect,
++	.cleanup		= bt_cleanup,
++	.size			= bt_size,
+ };
+Index: linux-2.6.19-rc6/drivers/char/ipmi/ipmi_kcs_sm.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/char/ipmi/ipmi_kcs_sm.c
++++ linux-2.6.19-rc6/drivers/char/ipmi/ipmi_kcs_sm.c
+@@ -261,12 +261,14 @@ static int start_kcs_transaction(struct 
+ {
+ 	unsigned int i;
+ 
+-	if ((size < 2) || (size > MAX_KCS_WRITE_SIZE)) {
+-		return -1;
+-	}
+-	if ((kcs->state != KCS_IDLE) && (kcs->state != KCS_HOSED)) {
+-		return -2;
+-	}
++	if (size < 2)
++		return IPMI_REQ_LEN_INVALID_ERR;
++	if (size > MAX_KCS_WRITE_SIZE)
++		return IPMI_REQ_LEN_EXCEEDED_ERR;
++
++	if ((kcs->state != KCS_IDLE) && (kcs->state != KCS_HOSED))
++		return IPMI_NOT_IN_MY_STATE_ERR;
++
+ 	if (kcs_debug & KCS_DEBUG_MSG) {
+ 		printk(KERN_DEBUG "start_kcs_transaction -");
+ 		for (i = 0; i < size; i ++) {
+Index: linux-2.6.19-rc6/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.19-rc6/drivers/char/ipmi/ipmi_si_intf.c
+@@ -247,14 +247,18 @@ static void deliver_recv_msg(struct smi_
+ 	spin_lock(&(smi_info->si_lock));
+ }
+ 
+-static void return_hosed_msg(struct smi_info *smi_info)
++static void return_hosed_msg(struct smi_info *smi_info, int cCode)
+ {
+ 	struct ipmi_smi_msg *msg = smi_info->curr_msg;
+ 
++	if (cCode < 0 || cCode > IPMI_ERR_UNSPECIFIED)
++		cCode = IPMI_ERR_UNSPECIFIED;
++	/* else use it as is */
++
+ 	/* Make it a reponse */
+ 	msg->rsp[0] = msg->data[0] | 4;
+ 	msg->rsp[1] = msg->data[1];
+-	msg->rsp[2] = IPMI_ERR_UNSPECIFIED;
++	msg->rsp[2] = cCode;
+ 	msg->rsp_size = 3;
+ 
+ 	smi_info->curr_msg = NULL;
+@@ -305,7 +309,7 @@ static enum si_sm_result start_next_msg(
+ 			smi_info->curr_msg->data,
+ 			smi_info->curr_msg->data_size);
+ 		if (err) {
+-			return_hosed_msg(smi_info);
++			return_hosed_msg(smi_info, err);
+ 		}
+ 
+ 		rv = SI_SM_CALL_WITHOUT_DELAY;
+@@ -647,7 +651,7 @@ static enum si_sm_result smi_event_handl
+ 			/* If we were handling a user message, format
+                            a response to send to the upper layer to
+                            tell it about the error. */
+-			return_hosed_msg(smi_info);
++			return_hosed_msg(smi_info, IPMI_ERR_UNSPECIFIED);
+ 		}
+ 		si_sm_result = smi_info->handlers->event(smi_info->si_sm, 0);
+ 	}
+Index: linux-2.6.19-rc6/drivers/char/ipmi/ipmi_smic_sm.c
+===================================================================
+--- linux-2.6.19-rc6.orig/drivers/char/ipmi/ipmi_smic_sm.c
++++ linux-2.6.19-rc6/drivers/char/ipmi/ipmi_smic_sm.c
+@@ -141,12 +141,14 @@ static int start_smic_transaction(struct
+ {
+ 	unsigned int i;
+ 
+-	if ((size < 2) || (size > MAX_SMIC_WRITE_SIZE)) {
+-		return -1;
+-	}
+-	if ((smic->state != SMIC_IDLE) && (smic->state != SMIC_HOSED)) {
+-		return -2;
+-	}
++	if (size < 2)
++		return IPMI_REQ_LEN_INVALID_ERR;
++	if (size > MAX_SMIC_WRITE_SIZE)
++		return IPMI_REQ_LEN_EXCEEDED_ERR;
++
++	if ((smic->state != SMIC_IDLE) && (smic->state != SMIC_HOSED))
++		return IPMI_NOT_IN_MY_STATE_ERR;
++
+ 	if (smic_debug & SMIC_DEBUG_MSG) {
+ 		printk(KERN_INFO "start_smic_transaction -");
+ 		for (i = 0; i < size; i ++) {
+Index: linux-2.6.19-rc6/include/linux/ipmi_msgdefs.h
+===================================================================
+--- linux-2.6.19-rc6.orig/include/linux/ipmi_msgdefs.h
++++ linux-2.6.19-rc6/include/linux/ipmi_msgdefs.h
+@@ -71,14 +71,18 @@
+ /* The BT interface on high-end HP systems supports up to 255 bytes in
+  * one transfer.  Its "virtual" BMC supports some commands that are longer
+  * than 128 bytes.  Use the full 256, plus NetFn/LUN, Cmd, cCode, plus
+- * some overhead.  It would be nice to base this on the "BT Capabilities"
+- * but that's too hard to propagate to the rest of the driver. */
++ * some overhead; it's not worth the effort to dynamically size this based
++ * on the results of the "Get BT Capabilities" command. */
+ #define IPMI_MAX_MSG_LENGTH	272	/* multiple of 16 */
+ 
+ #define IPMI_CC_NO_ERROR		0x00
+ #define IPMI_NODE_BUSY_ERR		0xc0
+ #define IPMI_INVALID_COMMAND_ERR	0xc1
++#define IPMI_TIMEOUT_ERR		0xc3
+ #define IPMI_ERR_MSG_TRUNCATED		0xc6
++#define IPMI_REQ_LEN_INVALID_ERR	0xc7
++#define IPMI_REQ_LEN_EXCEEDED_ERR	0xc8
++#define IPMI_NOT_IN_MY_STATE_ERR	0xd5	/* IPMI 2.0 */
+ #define IPMI_LOST_ARBITRATION_ERR	0x81
+ #define IPMI_BUS_ERR			0x82
+ #define IPMI_NAK_ON_WRITE_ERR		0x83

@@ -1,97 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424262AbWLBR3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424269AbWLBRfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424262AbWLBR3n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 12:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424263AbWLBR3n
+	id S1424269AbWLBRfS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 12:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424270AbWLBRfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 12:29:43 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:38928 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S1424262AbWLBR3m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 12:29:42 -0500
-Date: Sat, 2 Dec 2006 18:31:36 +0100
-From: maximilian attems <maks@sternwelten.at>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       Nathanael Nerode <neroden@fastmail.fm>,
-       Andres Salomon <dilinger@debian.org>
-Subject: Re: RFC: removing the dgrs net driver
-Message-ID: <20061202173136.GM30153@baikonur.stro.at>
-References: <20061202171932.GP11084@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 2 Dec 2006 12:35:18 -0500
+Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:60051 "EHLO
+	outgoing1.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S1424269AbWLBRfQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 12:35:16 -0500
+From: Arkadiusz Miskiewicz <arekm@maven.pl>
+Organization: SelfOrganizing
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Acer smart battery (was Re: [RFC] Include ACPI DSDT from INITRD patch into mainline)
+Date: Sat, 2 Dec 2006 18:34:59 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <1164998179.5257.953.camel@gullible> <200612012301.20086.arekm@maven.pl> <20061202125004.GA4773@ucw.cz>
+In-Reply-To: <20061202125004.GA4773@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061202171932.GP11084@stusta.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200612021834.59840.arekm@maven.pl>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2006 at 06:19:32PM +0100, Adrian Bunk wrote:
-> Based on the information in the email forwarded below I'd remove the 
-> dgrs net driver (this wasn't the first driver shipped with the kernel 
-> without any hardware ever produced...).
-> 
-> Is this OK or is there any doubt whether this information is true?
-> 
-> cu
-> Adrian
+On Saturday 02 December 2006 13:50, Pavel Machek wrote:
 
-ok thanks for doing this,
-as the reporter was to lazy to cook up a proper patch for that.
+> > Acer notebook users here dump DSDT from their own machine, fix it and
+> > then load via initrd. No legal problems. (... and without that even
+> > battery can't be monitored on sych notebooks)
+>
+> Merge smart battery support, instead of hacking DSDT. It is about time
+> linux started supporting smart batteries, and yes they are documented.
+Are you talking about this?
+https://sourceforge.net/forum/forum.php?forum_id=604605
 
-there is zero bug report for dgrs on the debian bts nor did i find
-one in bugzilla.kernel.org. redhat guys might want to verify on their
-side.
-
- 
-> ----- Forwarded message from Nathanael Nerode <neroden@fastmail.fm> -----
-> 
-> Date:	Sun, 24 Sep 2006 13:00:12 -0400
-> From: Nathanael Nerode <neroden@fastmail.fm>
-> To: netdev@vger.kernel.org
-> Subject: Please remove useless dgrs driver
-> 
-> An official email from digi.com to Andres Salomon <dilinger@debian.org>
-> explained:
-> 
->  Dear Andres:
-> 
->  After further research, we found that this product was killed in place
->  and never reached the market.  We would like to request that this not be
->  included.
-> 
-> Copy at http://wiki.debian.org/KernelFirmwareLicensing (this was discovered
-> during research into firmware licensing).
-> 
-> The drgs driver is useless (no hardware to drive) and should be removed.
-> The files which should be deleted from the tree are:
->         drivers/net/dgrs.c
->         drivers/net/dgrs.h
->         drivers/net/dgrs_es4h.h
->         drivers/net/dgrs_plx9060.h
->         drivers/net/dgrs_i82596.h
->         drivers/net/dgrs_ether.h
->         drivers/net/dgrs_asstruct.h
->         drivers/net/dgrs_bcomm.h
->         drivers/net/dgrs_firmware.c
-> 
-> It will probably also be necessary to delete some stuff from drivers/net/Kconfig
-> and drivers/net/Makefile, but I assume that this will be trivial for any
-> net maintainer.
-> 
-> Thanks in advance for doing this.
-> 
-> -- 
-> Nathanael Nerode  <neroden@fastmail.fm>
-> 
-> "(Instead, we front-load the flamewars and grudges in
-> the interest of efficiency.)" --Steve Lanagasek,
-> http://lists.debian.org/debian-devel/2005/09/msg01056.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> ----- End forwarded message -----
---
-maks
+It's seem to be already merged and I didn't even know about that feature.
+-- 
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

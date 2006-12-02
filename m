@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162922AbWLBLIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162934AbWLBLIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162922AbWLBLIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 06:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759459AbWLBK7x
+	id S1162934AbWLBLIb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 06:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422875AbWLBLI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 05:59:53 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:63718 "EHLO
+	Sat, 2 Dec 2006 06:08:29 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:55527 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1759486AbWLBK7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 05:59:43 -0500
+	id S1162349AbWLBK70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 05:59:26 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=IZgGQxJnh0fzMoUKKk3NBMcvWtPIbMCXrssxhKc9fpI3oWgKmDQfRbMhEusO1s+jTTELM8gDWPiNRgMUPXRblVTn42cdx++X1v4PxelkE8t+EhK1qtmSIHWNXVFamlOWzPXs7uE2d9LCj3IGTWiN09a1iNLOFjyVeRwNYqcVW+Y=
+        b=ozx0F+upPc4EEPIdLsW7HuOLnOi+wpS5FAYMAly8HolL+1iuayGCKdsniCLbnDyZ7ME+uAiYDQEPD9UloI+EpTHPvRPi7VkVhS7U3oGY+X0uX1A6pl5z+8Y9bvcJCzOueTF5sdXmNKm09aJLKFpR8Nd4zNm+aLuPQwnoiBN5jog=
 From: Alon Bar-Lev <alon.barlev@gmail.com>
 To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 23/26] Dynamic kernel command-line - um
-Date: Sat, 2 Dec 2006 12:56:38 +0200
+Subject: [PATCH 08/26] Dynamic kernel command-line - h8300
+Date: Sat, 2 Dec 2006 12:50:55 +0200
 User-Agent: KMail/1.9.5
 References: <200612021247.43291.alon.barlev@gmail.com>
 In-Reply-To: <200612021247.43291.alon.barlev@gmail.com>
@@ -25,7 +25,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612021256.39595.alon.barlev@gmail.com>
+Message-Id: <200612021250.56334.alon.barlev@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -37,27 +37,26 @@ Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
 
 ---
 
-diff -urNp linux-2.6.19.org/arch/um/include/user_util.h linux-2.6.19/arch/um/include/user_util.h
---- linux-2.6.19.org/arch/um/include/user_util.h	2006-11-29 23:57:37.000000000 +0200
-+++ linux-2.6.19/arch/um/include/user_util.h	2006-12-02 11:31:33.000000000 +0200
-@@ -38,7 +38,7 @@ extern unsigned long long highmem;
+diff -urNp linux-2.6.19.org/arch/h8300/kernel/setup.c linux-2.6.19/arch/h8300/kernel/setup.c
+--- linux-2.6.19.org/arch/h8300/kernel/setup.c	2006-11-29 23:57:37.000000000 +0200
++++ linux-2.6.19/arch/h8300/kernel/setup.c	2006-12-02 11:31:32.000000000 +0200
+@@ -54,7 +54,7 @@ unsigned long rom_length;
+ unsigned long memory_start;
+ unsigned long memory_end;
  
- extern char host_info[];
+-char command_line[COMMAND_LINE_SIZE];
++char __initdata command_line[COMMAND_LINE_SIZE];
  
--extern char saved_command_line[];
-+extern char __initdata boot_command_line[];
+ extern int _stext, _etext, _sdata, _edata, _sbss, _ebss, _end;
+ extern int _ramstart, _ramend;
+@@ -154,8 +154,8 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ 	/* Keep a copy of command line */
+ 	*cmdline_p = &command_line[0];
+-	memcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
+-	saved_command_line[COMMAND_LINE_SIZE-1] = 0;
++	memcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
++	boot_command_line[COMMAND_LINE_SIZE-1] = 0;
  
- extern unsigned long _stext, _etext, _sdata, _edata, __bss_start, _end;
- extern unsigned long _unprotected_end;
-diff -urNp linux-2.6.19.org/arch/um/kernel/um_arch.c linux-2.6.19/arch/um/kernel/um_arch.c
---- linux-2.6.19.org/arch/um/kernel/um_arch.c	2006-11-29 23:57:37.000000000 +0200
-+++ linux-2.6.19/arch/um/kernel/um_arch.c	2006-12-02 11:31:33.000000000 +0200
-@@ -482,7 +482,7 @@ void __init setup_arch(char **cmdline_p)
- 	atomic_notifier_chain_register(&panic_notifier_list,
- 			&panic_exit_notifier);
- 	paging_init();
--        strlcpy(saved_command_line, command_line, COMMAND_LINE_SIZE);
-+	strlcpy(boot_command_line, command_line, COMMAND_LINE_SIZE);
-  	*cmdline_p = command_line;
- 	setup_hostinfo();
- }
+ #ifdef DEBUG
+ 	if (strlen(*cmdline_p)) 

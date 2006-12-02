@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162434AbWLBAlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162435AbWLBAoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162434AbWLBAlo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Dec 2006 19:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162436AbWLBAlo
+	id S1162435AbWLBAoi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Dec 2006 19:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162437AbWLBAoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Dec 2006 19:41:44 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:1508 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1162434AbWLBAln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Dec 2006 19:41:43 -0500
-Date: Fri, 1 Dec 2006 16:41:36 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [GIT PATCH] PCI patches for 2.6.19
-Message-Id: <20061201164136.a3fd8317.randy.dunlap@oracle.com>
-In-Reply-To: <20061201233733.GA14249@colo.lackof.org>
-References: <20061201231624.GA7552@kroah.com>
-	<20061201233733.GA14249@colo.lackof.org>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Dec 2006 19:44:37 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:55964 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1162435AbWLBAog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Dec 2006 19:44:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=b7eFstpOT5EWfdi3ZyVAXkzP1c5g6DeMEgYTCSCiru2twXuM6s8uo6+etqsAUmHXVVV0FJ7PYQg6nDdFlkZY3olJssz6jkL0d/JDE4UXsFrJ2JMX9jgwISiPxA8OBsf5hiQ0e3EahPauo/S6VdoDF4FKsFiiLmP8Mxn7kWQ5L5c=  ;
+X-YMail-OSG: 9pqf5CEVM1npEYo4zw4eeCUSmsQa2AZuZ1Pu1r6c9TW9rI6nYVTpKre_qJ.FZD9YHnc4zkHSF8CLzvLIdt2t3UmAGwTI9mmNvwNVlOJGo7qCig--
+Message-ID: <4570CC3E.40805@yahoo.com.au>
+Date: Sat, 02 Dec 2006 11:43:42 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 1/2] atomic.h atomic64_t standardization
+References: <20061124215518.GE25048@Krystal> <20061127165643.GD5348@infradead.org> <20061201031153.GA10835@Krystal> <20061201032411.GA32440@Krystal> <20061201221912.GA10075@Krystal>
+In-Reply-To: <20061201221912.GA10075@Krystal>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006 16:37:33 -0700 Grant Grundler wrote:
-
-> On Fri, Dec 01, 2006 at 03:16:24PM -0800, Greg KH wrote:
-> > Here are some PCI patches for 2.6.19
+Mathieu Desnoyers wrote:
+> Hi,
 > 
-> You meant 2.6.20-rc1?
+> I finalized the work for atomic64_t cmpxchg and atomic64_add_unless on all
+> architectures. asm-generic/atomic.h atomic_long_t is also streamlined.
+> 
+> Review is welcome.
 
-He meant "for", as in "on top of" or "to patch" 2.6.19.
-Language has lots of ambiguity...
+Beautiful! Now I can do the rwsem consolidation. Thanks.
 
----
-~Randy
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

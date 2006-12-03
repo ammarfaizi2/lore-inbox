@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757059AbWLCWMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758829AbWLCWMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757059AbWLCWMA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 17:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757265AbWLCWMA
+	id S1758829AbWLCWMn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 17:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758919AbWLCWMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 17:12:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58384 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1757059AbWLCWL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 17:11:59 -0500
-Date: Sun, 3 Dec 2006 23:12:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Kbuild: add 3 more header files to get properly "unifdef"ed
-Message-ID: <20061203221203.GC3442@stusta.de>
-References: <Pine.LNX.4.64.0611300459290.12927@localhost.localdomain>
-MIME-Version: 1.0
+	Sun, 3 Dec 2006 17:12:43 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:13726 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1758829AbWLCWMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 17:12:42 -0500
+Date: Mon, 4 Dec 2006 01:12:27 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH? rcu_do_batch: fix a pure theoretical memory ordering race
+Message-ID: <20061203221227.GA468@oleg>
+References: <20061202212517.GA1199@oleg> <45730AAD.1050006@cosmosbay.com> <20061203200153.GA107@oleg> <457334C4.8010604@cosmosbay.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611300459290.12927@localhost.localdomain>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <457334C4.8010604@cosmosbay.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 05:03:56AM -0500, Robert P. J. Day wrote:
+On 12/03, Eric Dumazet wrote:
+>
+> Oleg Nesterov a ?crit :
 > 
->   Add 3 more files to get "unifdef"ed when creating sanitized headers
-> with "make headers_install".
+> Yes, but how is it related to RCU ?
+> I mean, rcu_do_batch() is just a loop like others in kernel.
+> The loop itself is not buggy, but can call a buggy function, you are right.
 
-Your patch should also remove them from header-y.
+	int start_me_again;
 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
-> 
-> ---
-> 
-> diff --git a/include/linux/Kbuild b/include/linux/Kbuild
-> index a1155a2..b6bc50c 100644
-> --- a/include/linux/Kbuild
-> +++ b/include/linux/Kbuild
-> @@ -225,6 +225,7 @@ unifdef-y += if_bridge.h
->  unifdef-y += if_ec.h
->  unifdef-y += if_eql.h
->  unifdef-y += if_ether.h
-> +unifdef-y += if_fddi.h
->  unifdef-y += if_frad.h
->  unifdef-y += if_ltalk.h
->  unifdef-y += if_pppox.h
-> @@ -286,6 +287,7 @@ unifdef-y += nvram.h
->  unifdef-y += parport.h
->  unifdef-y += patchkey.h
->  unifdef-y += pci.h
-> +unifdef-y += personality.h
->  unifdef-y += pktcdvd.h
->  unifdef-y += pmu.h
->  unifdef-y += poll.h
-> @@ -341,6 +343,7 @@ unifdef-y += videodev.h
->  unifdef-y += wait.h
->  unifdef-y += wanrouter.h
->  unifdef-y += watchdog.h
-> +unifdef-y += wireless.h
->  unifdef-y += xfrm.h
->  unifdef-y += zftape.h
+	struct rcu_head rcu_head;
 
-cu
-Adrian
+	void rcu_func(struct rcu_head *rcu)
+	{
+		start_me_again = 1;
+	}
 
--- 
+	// could be called on arbitrary CPU
+	void check_start_me_again(void)
+	{
+		static spinlock_t lock;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+		spin_lock(lock);
+		if (start_me_again) {
+			start_me_again = 0;
+			call_rcu(&rcu_head, rcu_func);
+		}
+		spin_unlock(lock);
+	}
+
+I'd say this code is not buggy.
+
+In case it was not clear. I do not claim we need this patch (I don't know).
+And yes, I very much doubt we can hit this problem in practice (even if I am
+right).
+
+What I don't agree with is that it is callback which should take care of this
+problem.
+
+> A smp_rmb() wont avoid all possible bugs...
+
+For example?
+
+Oleg.
 

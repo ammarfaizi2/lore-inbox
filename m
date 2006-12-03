@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760113AbWLCV1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756981AbWLCV3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760113AbWLCV1U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 16:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760126AbWLCV0z
+	id S1756981AbWLCV3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 16:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760108AbWLCV3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 16:26:55 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:23444 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1760107AbWLCV0p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 16:26:45 -0500
-Date: Sun, 3 Dec 2006 13:26:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: minyard@acm.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
-       Rocky Craig <rocky.craig@hp.com>
-Subject: Re: [PATCH 11/12] IPMI: Fix BT long busy
-Message-Id: <20061203132636.a7ac969d.akpm@osdl.org>
-In-Reply-To: <20061202043921.GG30531@localdomain>
-References: <20061202043921.GG30531@localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 3 Dec 2006 16:29:39 -0500
+Received: from host-233-54.several.ru ([213.234.233.54]:57995 "EHLO
+	mail.screens.ru") by vger.kernel.org with ESMTP id S1756981AbWLCV3i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 16:29:38 -0500
+Date: Mon, 4 Dec 2006 00:29:26 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] introduce put_pid_rcu() to fix unsafe put_pid(vc->vt_pid)
+Message-ID: <20061203212926.GA428@oleg>
+References: <20061201234826.GA9511@oleg> <20061203130237.761bb15d.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061203130237.761bb15d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006 22:39:21 -0600
-Corey Minyard <minyard@acm.org> wrote:
-
-> 
-> The IPMI BT subdriver has been patched to survive "long busy"
-> timeouts seen during firmware upgrades and resets.  The patch
-> never returns the HOSED state, synthesizes response messages with
-> meaningful completion codes, and recovers gracefully when the
-> hardware finishes the long busy.  The subdriver now issues a "Get BT
-> Capabilities" command and properly uses those results.
-> More informative completion codes are returned on error from
-> transaction starts; this logic was propogated to the KCS and
-> SMIC subdrivers.  Finally, indent and other style quirks were
-> normalized.
-> 
-> ...
+On 12/03, Andrew Morton wrote:
 >
-> +	BT_CONTROL(BT_CLR_WR_PTR);	/* always reset */
+> On Sat, 2 Dec 2006 02:48:26 +0300
+> Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> 
+> > drivers/char/vt_ioctl.c changes vc->vt_pid doing
+> > 
+> > 	put_pid(xchg(&vc->vt_pid, ...));
+> > 
+> > This is unsafe, put_pid() can actually free the memory while vc->vt_pid is
+> > still used by kill_pid(vc->vt_pid).
+> > 
+> > Add a new helper, put_pid_rcu(), which frees "struct pid" via rcu callback
+> > and convert vt_ioctl.c to use it.
+> > 
+> 
+> 
+> I'm a bit reluctant to go adding more tricky infrastructure (especially
+> 100% undocumented infrastructure) on behalf of a single usage site in a
+> place as creepy as the VT ioctl code.
+> If we envisage future users of this infrastructure (and if it gets
+> documented) then OK.
 
-argh.
+It is a shame we can't use "struct pid*" lockless, note that "struct pid"
+itself is rcu-protected. I hope we can find another usage for put_pid_rcu
+(in fact I suggested it before, but didn't have a reason). However, I don't
+see any other example immediately.
 
-#define BT_STATUS	bt->io->inputb(bt->io, 0)
-#define BT_CONTROL(x)	bt->io->outputb(bt->io, 0, x)
+>                       Otherwise I'd rather just stick another bandaid into
+> the vt code.  Can we add some locking there,
 
-#define BMC2HOST	bt->io->inputb(bt->io, 1)
-#define HOST2BMC(x)	bt->io->outputb(bt->io, 1, x)
+Yes, this is possible, and probably we should do just this.
 
-#define BT_INTMASK_R	bt->io->inputb(bt->io, 2)
-#define BT_INTMASK_W(x)	bt->io->outputb(bt->io, 2, x)
+>                                               or change it to use a
+> task_struct* or something?
 
-Please don't write macros which require that the caller have a particular
-local variable of a particular name.
+I don't think this is good. It was converted from task_struct* to pid*.
 
-In fact, please don't write macros.
+Eric, what do you think?
 
-All the above would be perfectly nice as
-
-static inline void bt_control(struct si_sm_data *bt, int val)
-{
-	bt->io->outputb(bt->io, val);
-}
-
+Oleg.
 

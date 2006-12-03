@@ -1,52 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759691AbWLCVGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760099AbWLCVJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759691AbWLCVGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 16:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760098AbWLCVGs
+	id S1760099AbWLCVJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 16:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760101AbWLCVJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 16:06:48 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33677 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1759691AbWLCVGr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 16:06:47 -0500
-Date: Sun, 3 Dec 2006 13:02:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce put_pid_rcu() to fix unsafe
- put_pid(vc->vt_pid)
-Message-Id: <20061203130237.761bb15d.akpm@osdl.org>
-In-Reply-To: <20061201234826.GA9511@oleg>
-References: <20061201234826.GA9511@oleg>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 3 Dec 2006 16:09:36 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:45242 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1760099AbWLCVJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 16:09:35 -0500
+Date: Sun, 3 Dec 2006 21:09:30 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bulk] [MMC] Fix syntax error
+Message-ID: <20061203210930.GB22329@linux-mips.org>
+References: <20061203193721.GA20896@linux-mips.org> <200612031222.32028.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612031222.32028.david-b@pacbell.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006 02:48:26 +0300
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
+On Sun, Dec 03, 2006 at 12:22:31PM -0800, David Brownell wrote:
 
-> drivers/char/vt_ioctl.c changes vc->vt_pid doing
+> On Sunday 03 December 2006 11:37 am, Ralf Baechle wrote:
+> > Fix syntax error introduced in ab7aefd0b38297e6d2d71f43e8f81f9f4a36cdae.
 > 
-> 	put_pid(xchg(&vc->vt_pid, ...));
-> 
-> This is unsafe, put_pid() can actually free the memory while vc->vt_pid is
-> still used by kill_pid(vc->vt_pid).
-> 
-> Add a new helper, put_pid_rcu(), which frees "struct pid" via rcu callback
-> and convert vt_ioctl.c to use it.
-> 
+> Whoops, sorry -- my bad.  However:
 
-
-I'm a bit reluctant to go adding more tricky infrastructure (especially
-100% undocumented infrastructure) on behalf of a single usage site in a
-place as creepy as the VT ioctl code.
-
-If we envisage future users of this infrastructure (and if it gets
-documented) then OK.  Otherwise I'd rather just stick another bandaid into
-the vt code.  Can we add some locking there, or change it to use a
-task_struct* or something?
+Undercaffeination ...

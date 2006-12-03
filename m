@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757385AbWLCRAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757388AbWLCRAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757385AbWLCRAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 12:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757409AbWLCRAL
+	id S1757388AbWLCRAn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 12:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757418AbWLCRAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 12:00:11 -0500
-Received: from pat.uio.no ([129.240.10.15]:36065 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1757385AbWLCRAK (ORCPT
+	Sun, 3 Dec 2006 12:00:43 -0500
+Received: from foo.birdnet.se ([213.88.146.6]:20926 "EHLO foo.birdnet.se")
+	by vger.kernel.org with ESMTP id S1757388AbWLCRAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 12:00:10 -0500
-Subject: Re: Mounting NFS root FS
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Willy Tarreau <w@1wt.eu>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061203083031.GB900@1wt.eu>
-References: <4571CE06.4040800@popdial.com>
-	 <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr>
-	 <20061202211522.GB24090@1wt.eu>
-	 <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr>
-	 <20061202225528.GA27342@1wt.eu>
-	 <1165113438.5698.5.camel@lade.trondhjem.org> <20061203060208.GA900@1wt.eu>
-	 <1165129510.5745.14.camel@lade.trondhjem.org> <20061203083031.GB900@1wt.eu>
-Content-Type: text/plain
-Date: Sun, 03 Dec 2006 11:59:50 -0500
-Message-Id: <1165165190.711.57.camel@lade.trondhjem.org>
+	Sun, 3 Dec 2006 12:00:42 -0500
+Message-ID: <20061203170046.28314.qmail@cdy.org>
+Date: Sun, 3 Dec 2006 18:00:46 +0100
+From: Peter Stuge <stuge-linuxbios@cdy.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, linuxbios@linuxbios.org
+Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+	Andi Kleen <ak@suse.de>, linuxbios@linuxbios.org
+References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com> <20061201191916.GB3539@suse.de> <20061201204249.28842.qmail@cdy.org> <m164cvgvwz.fsf@ebiederm.dsl.xmission.com> <20061201214631.6991.qmail@cdy.org> <m1wt5bfces.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.167, required 12,
-	autolearn=disabled, AWL 1.70, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wt5bfces.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-03 at 09:30 +0100, Willy Tarreau wrote:
-> It's one use, but another one is for diskless terminals, often built
-> from old systems. In this case, it's to avoid the cost, noise, power
-> consumption and failures associated to disks. It's quite often done
-> one radically different archs/OS between the server and the clients,
-> making the upgrade more complicated.
+On Fri, Dec 01, 2006 at 04:02:03PM -0700, Eric W. Biederman wrote:
+> >> Sure, I will send it out shortly.  I currently have a working
+> >> user space libusb thing (easy, but useful for my debug)
+> >
+> > Hm - for driving which end?
+> 
+> Either.  The specific device we are talking about doesn't care.
 
-It is naive to believe that the only thing you need to keep up to date
-is the kernel itself: if you are at all worried about security, then
-upgrades are a fact of life. Depending on your choice of distribution,
-then you can make that process easy or difficult.
+Which device do you have?
 
-As for the kernel, nobody has promised you that we would keep all
-possible implementations of a given feature around forever. As and when
-we develop better ways of implementing a set of features, we may want to
-remove the old ways. You will be given advance notice in
-Documentation/feature-removal-schedule.txt, and it will be your choice
-whether or not you want to follow the upgrade path, or stick with your
-existing setup.
-What we will not do is to maintain a bunch of parallel kernel trees or
-unduly bloat the kernel forever in order to support old systems: that is
-the job of those distributions that promise you n years legacy support.
 
-  Trond
+> > The debug port isn't really supposed to be used with anything but
+> > a debug device - which can't be enumerated normally anyway.
+> 
+> It depends.  If you have a debug cable with magic ends and a
+> hardcoded address of 127 the normal enumeration doesn't work.  I
+> don't think anyone actually makes one of those.
 
+Only one of the ports on Stefan's PLX NET20DC that I had a look at
+during the LinuxBIOS symposium enumerated for me.
+
+
+> Debug devices are also allowed to be normal devices that just
+> support the debug descriptor.  Which is what I'm working with.
+
+Aye. I would be happy if we could get something out, as you have
+done! :) Looking forward to trying it, I hope I get my device soon.
+
+
+//Peter

@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758869AbWLCXTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758881AbWLCXYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758869AbWLCXTj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 18:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758881AbWLCXTj
+	id S1758881AbWLCXYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 18:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758904AbWLCXYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 18:19:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39093 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1758869AbWLCXTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 18:19:38 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] introduce put_pid_rcu() to fix unsafe put_pid(vc->vt_pid)
-References: <20061201234826.GA9511@oleg>
-	<20061203130237.761bb15d.akpm@osdl.org> <20061203212926.GA428@oleg>
-Date: Sun, 03 Dec 2006 16:18:24 -0700
-In-Reply-To: <20061203212926.GA428@oleg> (Oleg Nesterov's message of "Mon, 4
-	Dec 2006 00:29:26 +0300")
-Message-ID: <m1psb0efgf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 3 Dec 2006 18:24:12 -0500
+Received: from pythia.bakeyournoodle.com ([203.82.209.197]:11406 "EHLO
+	pythia.bakeyournoodle.com") by vger.kernel.org with ESMTP
+	id S1758881AbWLCXYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 18:24:11 -0500
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Mon, 4 Dec 2006 10:23:45 +1100
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: Device naming randomness (udev?)
+Message-ID: <20061203232345.GK27551@bakeyournoodle.com>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@mbligh.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Greg Kroah-Hartman <gregkh@suse.de>
+References: <45735230.7030504@mbligh.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45735230.7030504@mbligh.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+On Sun, Dec 03, 2006 at 02:39:44PM -0800, Martin J. Bligh wrote:
+> This PC has 1 ethernet interface, an e1000. Ubuntu Dapper.
+> 
+> On 2.6.14, my e1000 interface appears as eth0.
+> On 2.6.15 to 2.6.18, my e1000 interface appears as eth1.
+> 
+> In both cases, there are no other ethX interfaces listed in
+> "ifconfig -a". There are no modules involved, just a static
+> kernel build.
+> 
+> Is this a bug in udev, or the kernel? I'm presuming udev,
+> but seems odd it changes over a kernel release boundary.
+> Any ideas on how I get rid of it? Makes automatic switching
+> between kernel versions a royal pain in the ass.
 
->> task_struct* or something?
->
-> I don't think this is good. It was converted from task_struct* to pid*.
->
-> Eric, what do you think?
+Have a look at /etc/iftab.
 
-I think I have a fix that uses the proper locking sitting in my queue that
-I haven't pushed because I have been got to look at just about every
-irq but present in 2.6.19-rcX.  Then for some reason I had this stupid
-usb debug cable sitting on my desk and since I can't stand useful
-things going unused I just wrote a driver for that :)
+Yours Tony
 
-Anyway with a little luck I should be working on the pid namespace and
-this stuff later today so I will try and send out the proper patch.
-
-Not that I'm really opposed to this infrastructure but I'd like to
-avoid it until we really need it.
-
-Eric
+   linux.conf.au       http://linux.conf.au/ || http://lca2007.linux.org.au/
+   Jan 15-20 2007      The Australian Linux Technical Conference!
 

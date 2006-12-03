@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759641AbWLCMtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757648AbWLCMw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759641AbWLCMtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 07:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758343AbWLCMtQ
+	id S1757648AbWLCMw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 07:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757935AbWLCMwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 07:49:16 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1757961AbWLCMtP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 07:49:15 -0500
-Message-ID: <4572C7C8.5050900@redhat.com>
-Date: Sun, 03 Dec 2006 07:49:12 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Sun, 3 Dec 2006 07:52:55 -0500
+Received: from khepri.openbios.org ([80.190.231.112]:12689 "EHLO
+	khepri.openbios.org") by vger.kernel.org with ESMTP
+	id S1757648AbWLCMwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 07:52:55 -0500
+Date: Sun, 3 Dec 2006 13:52:50 +0100
+From: Stefan Reinauer <stepan@coresystems.de>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Peter Stuge <stuge-linuxbios@cdy.org>, linux-kernel@vger.kernel.org,
+       linuxbios@linuxbios.org
+Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
+Message-ID: <20061203125250.GA17019@coresystems.de>
+References: <5986589C150B2F49A46483AC44C7BCA490727C@ssvlexmb2.amd.com> <m1irgufl9q.fsf@ebiederm.dsl.xmission.com> <2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com> <m1ejrhfb9o.fsf@ebiederm.dsl.xmission.com> <20061203120130.GA32458@coresystems.de> <77E505A2-6E0B-422F-92AB-97395730A522@kernel.crashing.org>
 MIME-Version: 1.0
-To: Brad Boyer <flar@allandria.com>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] ensure i_ino uniqueness in filesystems without permanent
- inode numbers (via idr)
-References: <457040C4.1000002@redhat.com> <20061201085227.2463b185.randy.dunlap@oracle.com> <20061201172136.GA11669@dantu.rdu.redhat.com> <20061202053013.GC26389@cynthia.pants.nu> <45723CDB.1060304@redhat.com> <20061202125851.GA30187@cynthia.pants.nu>
-In-Reply-To: <20061202125851.GA30187@cynthia.pants.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <77E505A2-6E0B-422F-92AB-97395730A522@kernel.crashing.org>
+X-Operating-System: Linux 2.6.18.2-4-default on an x86_64
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Boyer wrote:
-> 
-> This sounds slightly petty to me. For example, generic_file_read() is
-> there just to make it easier to implement the read callback, but it
-> isn't required. In fact, I would think that any filesystem complex
-> enough to be worth making proprietary would not use it. However, that
-> doesn't seem to me to be a good argument for marking it GPL-only. The
-> functionality in question is easier to reimplement, but that doesn't
-> make it right to force it on people just because of a license choice.
-> 
+* Segher Boessenkool <segher@kernel.crashing.org> [061203 13:42]:
+> On LPC, yes -- or 0.5us or something like that.  On ISA it's
+> a lot faster, on PCI too -- better do 20 or so outb's to be
+> safe.
 
-Yes, most filesystems have their own scheme for managing i_ino 
-assignment, so this is primarily for "pseudo-filesystems". Stuff like 
-pipefs, sockfs, /proc, etc...
+The value's actually something we have been using as a rule of thumb
+while doing outb to port 80. Don't think these are routed to LPC, are
+they?
 
->> I'm certainly open to discussion though. Is there a compelling reason to 
->> open this up to proprietary software authors?
-> 
-> I don't think there is a compelling reason to open it up since the
-> functionality could be reimplemented if needed, but I also think
-> the only reason it is being marked GPL-only is the very common
-> attitude that there should not be any proprietary modules.
-> 
-> To be honest, I think it looks bad for someone associated with redhat
-> to be suggesting that life should be made more difficult for those
-> who write proprietary software on Linux. The support from commercial
-> software is a major reason for the success of the RHEL product line.
-> I can't imagine that this attitude will affect support from software
-> companies as long as there is a demand for software on Linux, but
-> it isn't exactly supportive.
-> 
-
-I have no problem with someone writing, selling and supporting 
-proprietary modules. Knock yourself out. I just don't see a reason why I 
-should contribute code to such an effort.
-
-Still though, this was coded in part on company time. I certainly don't 
-want to go against Red Hat's policy in such a matter, so I'll do some 
-due diligence internally as to how this should be done.
-
-In the meantime, does anyone have objections or comments on this 
-approach on technical grounds?
-
-Thanks,
-Jeff
+-- 
+coresystems GmbH • Brahmsstr. 16 • D-79104 Freiburg i. Br.
+      Tel.: +49 761 7668825 • Fax: +49 761 7664613
+Email: info@coresystems.de  • http://www.coresystems.de/

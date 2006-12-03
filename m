@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935791AbWLCK4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935809AbWLCLG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935791AbWLCK4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 05:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935788AbWLCK4J
+	id S935809AbWLCLG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 06:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935814AbWLCLG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 05:56:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41650 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S935784AbWLCK4I (ORCPT
+	Sun, 3 Dec 2006 06:06:29 -0500
+Received: from mailer-b2.gwdg.de ([134.76.10.29]:35548 "EHLO mailer-b2.gwdg.de")
+	by vger.kernel.org with ESMTP id S935809AbWLCLG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 05:56:08 -0500
-Date: Sun, 3 Dec 2006 11:21:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061203102108.GA1724@elf.ucw.cz>
-References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home>
+	Sun, 3 Dec 2006 06:06:28 -0500
+Date: Sun, 3 Dec 2006 12:04:45 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Willy Tarreau <w@1wt.eu>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
+Subject: Re: Mounting NFS root FS
+In-Reply-To: <20061203083031.GB900@1wt.eu>
+Message-ID: <Pine.LNX.4.61.0612031202250.25553@yvahk01.tjqt.qr>
+References: <4571CE06.4040800@popdial.com> <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr>
+ <20061202211522.GB24090@1wt.eu> <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr>
+ <20061202225528.GA27342@1wt.eu> <1165113438.5698.5.camel@lade.trondhjem.org>
+ <20061203060208.GA900@1wt.eu> <1165129510.5745.14.camel@lade.trondhjem.org>
+ <20061203083031.GB900@1wt.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612022345520.1867@scrub.home>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > The other alternative has real _practical_ value in almost every case, 
-> > > which I very much prefer. What's wrong with that?
-> > 
-> > Lack of any type safety whatsoever, magic boilerplates in callback instances,
-> > rules more complex than "your callback should take a pointer, don't cast
-> > anything, it's just a way to arrange for a delayed call, nothing magical
-> > needed"?
-> 
-> I admit the compile check in SETUP_TIMER() is clever, but this way all the
-> magic is in this place and is it really worth it? You're only adding _one_ 
-> extra typecheck for mostly simple cases anyway.
+>It's one use, but another one is for diskless terminals, often built
+>from old systems. In this case, it's to avoid the cost, noise, power
+>consumption and failures associated to disks. It's quite often done
+>one radically different archs/OS between the server and the clients,
+>making the upgrade more complicated.
 
-Well, there are so many of these simple changes, that SETUP_TIMER()
-with its clever trick looks very useful.
-									Pavel
+unionfs is becoming popular, and it's one of those things that can't
+do without initramfs at all, for example.
 
+>> I have no influence over the distributions' choice of kernel compiler
+>> options. The fact is, though, that few of them support nfsroot out of
+>> the box. AFAICS FC-6 is one of those that appears not to.
+
+(File a bug report, heh.)
+
+So what, noone supports unionfs OOTB, which leaves me with what options?
+Right, hacking it up myself by modifying the initramfs scripts my
+distro's mkinitrd gave me.
+
+
+	-`J'
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752629AbWLCPua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754075AbWLCPwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752629AbWLCPua (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 10:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752809AbWLCPua
+	id S1754075AbWLCPwe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 10:52:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1753942AbWLCPwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 10:50:30 -0500
-Received: from kallisti.us ([67.59.168.233]:54538 "EHLO kallisti.us")
-	by vger.kernel.org with ESMTP id S1752629AbWLCPu3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 10:50:29 -0500
-From: Ross Vandegrift <ross@kallisti.us>
-Date: Sun, 3 Dec 2006 10:49:36 -0500
-To: Tomasz Chmielewski <mangoo@wpkg.org>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: why can't I remove a kernel module (or: what uses a given module)?
-Message-ID: <20061203154936.GB26669@kallisti.us>
-References: <4572B30F.9020605@wpkg.org> <jewt592oxf.fsf@sykes.suse.de> <4572BBE0.4010801@wpkg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4572BBE0.4010801@wpkg.org>
-User-Agent: Mutt/1.5.9i
+	Sun, 3 Dec 2006 10:52:32 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31557 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1753329AbWLCPwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 10:52:31 -0500
+Date: Sun, 03 Dec 2006 09:52:25 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: libata update?
+In-reply-to: <fa.UAIxHHsfQPfRUPTHLywDGPoXEbE@ifi.uio.no>
+To: erik@echohome.org
+Cc: linux-kernel@vger.kernel.org
+Message-id: <4572F2B9.7090306@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.UAIxHHsfQPfRUPTHLywDGPoXEbE@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 12:58:24PM +0100, Tomasz Chmielewski wrote:
-> You mean the "Used by" column? No, it's not used by any other module 
-> according to lsmod output.
+Erik Ohrnberger wrote:
+> It's been a number of months since I build a custom kernel with the libata
+> incorporated to deal with multiple Promise EIDE controller card's 'DMA
+> Expiry' errors.
 > 
-> Any other methods of checking what uses /dev/sda*?
+> I'd like to re-build basically the same thing with an updated kernel and
+> updates libata.  Could someone point me into the right direction to achieve
+> this?
+> 
+> Thanks in advance
+> Erik.
 
-There's a good chance that if it was loaded at system boot, hald or
-udev may be doing something with it.
-
-When you loaded it manually, you didn't have udev rescan for devices
-so they didn't notice that you had loaded up a new disk.
+All of the PATA stuff was merged in 2.6.19, if you want the very latest 
+and greatest you can try the -mm tree..
 
 -- 
-Ross Vandegrift
-ross@kallisti.us
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-"The good Christian should beware of mathematicians, and all those who
-make empty prophecies. The danger already exists that the mathematicians
-have made a covenant with the devil to darken the spirit and to confine
-man in the bonds of Hell."
-	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

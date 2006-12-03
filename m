@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757734AbWLCRCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757962AbWLCRRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757734AbWLCRCd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 12:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757736AbWLCRCd
+	id S1757962AbWLCRRy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 12:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758009AbWLCRRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 12:02:33 -0500
-Received: from frankvm.xs4all.nl ([80.126.170.174]:29064 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S1757688AbWLCRCc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 12:02:32 -0500
-Date: Sun, 3 Dec 2006 18:02:31 +0100
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: linux-kernel@vger.kernel.org
-Subject: radix-tree.c:__lookup_slot() dead code removal
-Message-ID: <20061203170231.GA20298@janus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-BotBait: val@frankvm.com, kuil@frankvm.com
+	Sun, 3 Dec 2006 12:17:53 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:6600 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1757962AbWLCRRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 12:17:53 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Sun, 3 Dec 2006 12:14:29 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ipc:  Convert kmalloc()+memset() to kzalloc() in ipc/.
+Message-ID: <Pine.LNX.4.64.0612031211560.4877@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most of the code suggests that it is valid to insert a NULL item,
-possibly a zero item with pointer cast. However, in __lookup_slot()
-whether or not the slot is found seems to depend on the actual value
-of the item in one special case. But further on it doesn't make any
-difference so to remove some dead code:
 
---- a/lib/radix-tree.c	2006-12-03 13:23:00.000000000 +0100
-+++ b/lib/radix-tree.c	2006-12-03 17:57:03.000000000 +0100
-@@ -319,9 +319,6 @@ static inline void **__lookup_slot(struc
- 	if (index > radix_tree_maxindex(height))
- 		return NULL;
- 
--	if (height == 0 && root->rnode)
--		return (void **)&root->rnode;
--
- 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
- 	slot = &root->rnode;
- 
+  Convert the single changeable instance of kmalloc() + memset() to
+kzalloc() in the ipc/ directory.
 
--- 
-Frank
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+
+---
+
+  ok, i *think* this one's valid.  now i'll go work on something else.
+
+diff --git a/ipc/sem.c b/ipc/sem.c
+index 21b3289..3c23dc9 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -1070,14 +1070,13 @@ static struct sem_undo *find_undo(struct
+ 	ipc_rcu_getref(sma);
+ 	sem_unlock(sma);
+
+-	new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
++	new = (struct sem_undo *) kzalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
+ 	if (!new) {
+ 		ipc_lock_by_ptr(&sma->sem_perm);
+ 		ipc_rcu_putref(sma);
+ 		sem_unlock(sma);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-	memset(new, 0, sizeof(struct sem_undo) + sizeof(short)*nsems);
+ 	new->semadj = (short *) &new[1];
+ 	new->semid = semid;
+

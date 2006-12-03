@@ -1,97 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936778AbWLCPcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936790AbWLCPk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936778AbWLCPcE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 10:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936784AbWLCPcE
+	id S936790AbWLCPk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 10:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936789AbWLCPk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 10:32:04 -0500
-Received: from deine-taler.de ([217.160.107.63]:21460 "EHLO
-	p15091797.pureserver.info") by vger.kernel.org with ESMTP
-	id S936778AbWLCPcB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 10:32:01 -0500
-Date: Sun, 3 Dec 2006 16:32:00 +0100
-From: Ulrich Kunitz <kune@deine-taler.de>
-To: linville@tuxdriver.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] softmac: Fixed handling of deassociation from AP
-Message-ID: <20061203153200.GA26888@p15091797.pureserver.info>
-Mail-Followup-To: linville@tuxdriver.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 3 Dec 2006 10:40:56 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:5315 "EHLO
+	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
+	id S936790AbWLCPkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 10:40:55 -0500
+Message-Id: <200612031540.kB3FeiQI028507@ms-smtp-03.texas.rr.com>
+Reply-To: <Aucoin@Houston.RR.com>
+From: "Aucoin" <Aucoin@Houston.RR.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>, <clameter@sgi.com>
+Subject: RE: la la la la ... swappiness
+Date: Sun, 3 Dec 2006 09:40:48 -0600
+Organization: home
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-reply-to: <20061203000857.af758c33.akpm@osdl.org>
+Thread-Index: AccWqdfZWXFrv6KaQ+iuY7z/+u1mVgARLF+Q
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.19 a deauthentication from the AP doesn't start a
-reassociation by the softmac code. It appears that
-mac->associnfo.associating must be set and the
-ieee80211softmac_assoc_work function must be scheduled. This patch
-fixes that.
 
-Signed-off-by: Ulrich Kunitz <kune@deine-taler.de>
----
- net/ieee80211/softmac/ieee80211softmac_assoc.c |   14 ++++++++++++--
- net/ieee80211/softmac/ieee80211softmac_auth.c  |    2 ++
- net/ieee80211/softmac/ieee80211softmac_priv.h  |    2 ++
- 3 files changed, 16 insertions(+), 2 deletions(-)
+Thanks for the reply! I'll buy one of your books!
 
-diff --git a/net/ieee80211/softmac/ieee80211softmac_assoc.c b/net/ieee80211/softmac/ieee80211softmac_assoc.c
-index cf51c87..614aa8d 100644
---- a/net/ieee80211/softmac/ieee80211softmac_assoc.c
-+++ b/net/ieee80211/softmac/ieee80211softmac_assoc.c
-@@ -427,6 +427,17 @@ ieee80211softmac_handle_assoc_response(s
- 	return 0;
- }
- 
-+void
-+ieee80211softmac_try_reassoc(struct ieee80211softmac_device *mac)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&mac->lock, flags);
-+	mac->associnfo.associating = 1;
-+	schedule_work(&mac->associnfo.work);
-+	spin_unlock_irqrestore(&mac->lock, flags);
-+}
-+
- int
- ieee80211softmac_handle_disassoc(struct net_device * dev,
- 				 struct ieee80211_disassoc *disassoc)
-@@ -445,8 +456,7 @@ ieee80211softmac_handle_disassoc(struct 
- 	dprintk(KERN_INFO PFX "got disassoc frame\n");
- 	ieee80211softmac_disassoc(mac);
- 
--	/* try to reassociate */
--	schedule_work(&mac->associnfo.work);
-+	ieee80211softmac_try_reassoc(mac);
- 
- 	return 0;
- }
-diff --git a/net/ieee80211/softmac/ieee80211softmac_auth.c b/net/ieee80211/softmac/ieee80211softmac_auth.c
-index 4cef39e..88897e4 100644
---- a/net/ieee80211/softmac/ieee80211softmac_auth.c
-+++ b/net/ieee80211/softmac/ieee80211softmac_auth.c
-@@ -328,6 +328,8 @@ ieee80211softmac_deauth_from_net(struct 
- 	/* can't transmit data right now... */
- 	netif_carrier_off(mac->dev);
- 	spin_unlock_irqrestore(&mac->lock, flags);
-+
-+	ieee80211softmac_try_reassoc(mac);
- }
- 
- /* 
-diff --git a/net/ieee80211/softmac/ieee80211softmac_priv.h b/net/ieee80211/softmac/ieee80211softmac_priv.h
-index 0642e09..3ae894f 100644
---- a/net/ieee80211/softmac/ieee80211softmac_priv.h
-+++ b/net/ieee80211/softmac/ieee80211softmac_priv.h
-@@ -238,4 +238,6 @@ void ieee80211softmac_call_events_locked
- int ieee80211softmac_notify_internal(struct ieee80211softmac_device *mac,
- 	int event, void *event_context, notify_function_ptr fun, void *context, gfp_t gfp_mask);
- 
-+void ieee80211softmac_try_reassoc(struct ieee80211softmac_device *mac);
-+
- #endif /* IEEE80211SOFTMAC_PRIV_H_ */
--- 
-1.4.1
+2.6.16.28 SMP
+
+The application is an "embedded", headless system and we've pretty much laid
+memory out the way we want it, the only rogue player is the tar update
+process. A little bit of swapping is fine but enough swapping to irritate
+OOM is not desireable. Yes, the swap is only 500MB but this is a purpose
+built system, there are no random user apps started and stopped so
+absolutely nothing swaps until the update process runs.
+
+Here's meminfo from an idle system, on a loaded system the machine locks up
+now since I've disabled OOM trying to prevent the imminent crash. I got
+desperate and not only set swappiness to zero but I've also tried setting
+the dirty ratios down as low as 1, the centisecs as low as 1 and cache
+pressure as high as 9999. I'm thrashing and running out of dials to turn.
+
+With the ridiculous settings above dirty pages porpoise between 0-20K, with
+more reasonable settings they porpoise between 10-40K but it seems to be the
+inactive page count that is killing me.
+
+before tar extraction
+MemTotal:      2075152 kB
+MemFree:        502916 kB
+Buffers:          2272 kB
+Cached:           7180 kB
+SwapCached:          0 kB
+Active:         118792 kB
+Inactive:         1648 kB
+HighTotal:     1179392 kB
+HighFree:         3040 kB
+LowTotal:       895760 kB
+LowFree:        499876 kB
+SwapTotal:      524276 kB
+SwapFree:       524276 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:         116720 kB
+Slab:            27956 kB
+CommitLimit:    557376 kB
+Committed_AS:   903912 kB
+PageTables:       1340 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      1000 kB
+VmallocChunk:   113584 kB
+HugePages_Total:   345
+HugePages_Free:      0
+Hugepagesize:     4096 kB
+
+during tar extraction ... inactive pages reaches levels as high as ~375000
+MemTotal:      2075152 kB
+MemFree:        256316 kB
+Buffers:          2944 kB
+Cached:         247228 kB
+SwapCached:          0 kB
+Active:         159652 kB
+Inactive:       201608 kB
+HighTotal:     1179392 kB
+HighFree:         1652 kB
+LowTotal:       895760 kB
+LowFree:        254664 kB
+SwapTotal:      524276 kB
+SwapFree:       523932 kB
+Dirty:           16068 kB
+Writeback:           0 kB
+Mapped:         116952 kB
+Slab:            34864 kB
+CommitLimit:    557376 kB
+Committed_AS:   904196 kB
+PageTables:       1352 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      1000 kB
+VmallocChunk:   113584 kB
+HugePages_Total:   345
+HugePages_Free:      0
+Hugepagesize:     4096 kB
+
+even after the tar has been complete for a couple minutes.
+MemTotal:      2075152 kB
+MemFree:        169848 kB
+Buffers:          4360 kB
+Cached:         334824 kB
+SwapCached:          0 kB
+Active:         178692 kB
+Inactive:       271452 kB
+HighTotal:     1179392 kB
+HighFree:         1652 kB
+LowTotal:       895760 kB
+LowFree:        168196 kB
+SwapTotal:      524276 kB
+SwapFree:       523932 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:         116716 kB
+Slab:            31868 kB
+CommitLimit:    557376 kB
+Committed_AS:   903908 kB
+PageTables:       1340 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      1000 kB
+VmallocChunk:   113584 kB
+HugePages_Total:   345
+HugePages_Free:      0
+Hugepagesize:     4096 kB
+
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org] 
+Sent: Sunday, December 03, 2006 2:09 AM
+To: Aucoin@Houston.RR.com
+Cc: torvalds@osdl.org; linux-kernel@vger.kernel.org; clameter@sgi.com
+Subject: Re: la la la la ... swappiness
+
+> On Sun, 3 Dec 2006 00:16:38 -0600 "Aucoin" <Aucoin@Houston.RR.com> wrote:
+> I set swappiness to zero and it doesn't do what I want!
+> 
+> I have a system that runs as a Linux based data server 24x7 and
+occasionally
+> I need to apply an update or patch. It's a BIIIG patch to the tune of
+> several hundred megabytes, let's say 600MB for a good round number. The
+> server software itself runs on very tight memory boundaries, I've
+> preallocated a large chunk of memory that is shared amongst several
+> processes as a form of application cache, there is barely 15% spare memory
+> floating around.
+> 
+> The update is delivered to the server as a tar file. In order to minimize
+> down time I untar this update and verify the contents landed correctly
+> before switching over to the updated software.
+> 
+> The problem is when I attempt to untar the payload disk I/O starts
+caching,
+> the inactive page count reels wildly out of control, the system starts
+> swapping, OOM fires and there goes my 4 9's uptime. My system just
+suffered
+> a catastrophic failure because I can't control pagecache due to disk I/O.
+
+kernel version?
+
+> I need a pagecache throttle, what do you suggest?
+
+Don't set swappiness to zero...   Leaving it at the default should avoid
+the oom-killer.
+
+

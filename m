@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760095AbWLCU5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759469AbWLCVBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760095AbWLCU5B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 15:57:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760096AbWLCU5B
+	id S1759469AbWLCVBW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 16:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760097AbWLCVBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 15:57:01 -0500
-Received: from smtp6-g19.free.fr ([212.27.42.36]:55997 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1760095AbWLCU5A (ORCPT
+	Sun, 3 Dec 2006 16:01:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23013 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1758509AbWLCVBU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 15:57:00 -0500
-Message-ID: <45733A16.5010908@ccr.jussieu.fr>
-Date: Sun, 03 Dec 2006 21:56:54 +0100
-From: Bernard Pidoux <pidoux@ccr.jussieu.fr>
-Organization: Universite Pierre & Marie Curie - Paris 6
-User-Agent: Thunderbird 1.5.0.8 (X11/20061109)
+	Sun, 3 Dec 2006 16:01:20 -0500
+Date: Sun, 3 Dec 2006 22:01:13 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
+       Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Message-ID: <20061203210113.GF9876@elf.ucw.cz>
+References: <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home> <20061203102108.GA1724@elf.ucw.cz> <20061203112706.GA12722@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612031602570.1867@scrub.home>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bad PCI function mask in atiixp driver (was: Re: Linux 2.6.19)
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612031602570.1867@scrub.home>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006 23:06:57 -0500 Chuck Ebbert wrote:
->
->> In-Reply-To: <4571D9FE.2050107@xxxxxxxxx>
->>
->> On Sat, 02 Dec 2006 20:54:38 +0100, Matthijs wrote:
->>
->> > make modules gives me these warnings in modpost and then errors out:
->> > WARNING: Can't handle masks in drivers/ide/pci/atiixp:FFFF05
->>
->> Message is from scripts/file2alias.c::do_pci_entry():
->>
->> if ((baseclass_mask != 0 && baseclass_mask != 0xFF)
->> || (subclass_mask != 0 && subclass_mask != 0xFF)
->> || (interface_mask != 0 && interface_mask != 0xFF)) {
->> warn("Can't handle masks in %s:%04X\n",
->> filename, id->class_mask);
->> return 0;
->> }
->>
->> and it is complaining about this recent addition to atiixp.c:
->>
->> @@ -348,6 +368,7 @@ static struct pci_device_id atiixp_pci_t
->> { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP300_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
->> { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
->> { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_IDE, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0},
->> + { PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP600_SATA, PCI_ANY_ID,
-PCI_ANY_ID, (PCI_CLASS_STORAGE_IDE<<8)|0x8a, 0xffff05, 1},
->> { 0, },
->> };
->> MODULE_DEVICE_TABLE(pci, atiixp_pci_tbl);
->> --
->
->http://lkml.org/lkml/2006/11/01/199
->
->However, I'm still dubious.
->
->---
->~Randy
+On Sun 2006-12-03 16:21:25, Roman Zippel wrote:
+> Hi,
+> 
+> On Sun, 3 Dec 2006, Russell King wrote:
+> 
+> > I agree with Al, Matthew and Pavel.  The current timer stuff is a pita
+> > and needs fixing, and it seems Al has come up with a good way to do it
+> > without adding additional crap into every single user of timers.
+> 
+> What exactly is the pita here? Al only came up with some rather 
+> theoretical problems with no practical relevance.
 
-I made the same observation here when installing 2.6.19 :
+Lack of type-checking in timers is ugly.
 
-root@bernard linux]# make modules
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  Building modules, stage 2.
-  MODPOST 573 modules
-WARNING: Can't handle masks in drivers/ide/pci/atiixp:FFFF05
-[root@bernard linux]#
+> > Al - I look forward to your changes.
+> 
+> I don't. The current API is maybe not perfect, but changing the API for no 
+> practical benefit would be an even bigger pita. I'd rather keep it as is.
 
-Hardware is quite oldfashioned.
-Is there any relashionship ?
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host
-bridge (rev 03)
-00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP
-bridge (rev 03)
-00:04.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:04.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:04.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev 01)
-00:04.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:0c.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
-00:0d.0 Mass storage controller: Promise Technology, Inc. PDC20262
-(FastTrak66/Ultra66) (rev 01)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP
-1X/2X (rev 5c)
-
-Bernard.
+Al is trying to  add type-checking in pretty nice & straightforward
+manner. Please let him do it.
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

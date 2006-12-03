@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760069AbWLCUW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760071AbWLCUWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760069AbWLCUW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 15:22:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760070AbWLCUW2
+	id S1760071AbWLCUWf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 15:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760072AbWLCUWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 15:22:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64683 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1760069AbWLCUW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 15:22:28 -0500
-Message-ID: <457331DF.1070100@redhat.com>
-Date: Sun, 03 Dec 2006 15:21:51 -0500
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.7 (X11/20061008)
+	Sun, 3 Dec 2006 15:22:35 -0500
+Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:5238 "HELO
+	smtp108.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1760071AbWLCUWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 15:22:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=ZGpYnQcY9XRW2k9KCceDmZyk5BJG3dquG4ILx2zoZbS6KmCJ2pIN3gdBGy5/G/e2ssKYFi9SMOfcvAQLYUeESciU3SbvsMAiIEiBzhJ3bKyxLiJcYf0+VmmjobRUPplILmXaxAEvW0Q25Cw1L18d/oU4KX+kvEEAOMelFaJCbi8=  ;
+X-YMail-OSG: yFLjkkAVM1nVczmrRV2joJdRbltHLEmS6J2sfQ023WwWtaipTVpSMGMx7r_C7MlMQSkUWp3pKDJjyhVCjJ9pw9YT1U7MK_aWu0XgdCCGioJU_Ms2MJKw
+From: David Brownell <david-b@pacbell.net>
+To: Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [Bulk] [MMC] Fix syntax error
+Date: Sun, 3 Dec 2006 12:22:31 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20061203193721.GA20896@linux-mips.org>
+In-Reply-To: <20061203193721.GA20896@linux-mips.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Russell Cattelan <cattelan@thebarn.com>, Al Viro <viro@ftp.linux.org.uk>,
-       cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [Cluster-devel] Re: [GFS2] Change argument of gfs2_dinode_out
- [17/70]
-References: <1164888933.3752.338.camel@quoit.chygwyn.com> <1165000744.1194.89.camel@xenon.msp.redhat.com> <20061201192555.GD3078@ftp.linux.org.uk> <1165006331.1194.96.camel@xenon.msp.redhat.com> <20061201210849.GF3078@ftp.linux.org.uk> <1165015786.1194.133.camel@xenon.msp.redhat.com> <20061202114016.GA4030@ucw.cz>
-In-Reply-To: <20061202114016.GA4030@ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612031222.32028.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Sunday 03 December 2006 11:37 am, Ralf Baechle wrote:
+> Fix syntax error introduced in ab7aefd0b38297e6d2d71f43e8f81f9f4a36cdae.
 
-> Feel free to keep rhel5 ugly, 
+Whoops, sorry -- my bad.  However:
 
-Oh no he won't.  We review patches internally, too :)
 
--- 
-Politics is the struggle between those who want to make their country
-the best in the world, and those who believe it already is.  Each group
-calls the other unpatriotic.
+> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+> 
+> diff --git a/drivers/mmc/au1xmmc.c b/drivers/mmc/au1xmmc.c
+> index 447fba5..6aac498 100644
+> --- a/drivers/mmc/au1xmmc.c
+> +++ b/drivers/mmc/au1xmmc.c
+> @@ -875,7 +875,7 @@ static void au1xmmc_init_dma(struct au1x
+>  	host->rx_chan = rxchan;
+>  }
+>  
+> -struct const mmc_host_ops au1xmmc_ops = {
+> +const struct mmc_host_ops au1xmmc_ops = {
+
+This would normally be "static const struct" ...
+
+>  	.request	= au1xmmc_request,
+>  	.set_ios	= au1xmmc_set_ios,
+>  };
+> 

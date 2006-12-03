@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760138AbWLCWFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757059AbWLCWMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760138AbWLCWFe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 17:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760135AbWLCWFe
+	id S1757059AbWLCWMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 17:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757265AbWLCWMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 17:05:34 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:49251 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1760136AbWLCWFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 17:05:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=B3rUELIiKFX4IANZUKr4+uGyQh4gf20xNcwTWZ6KmDUKCh8BbMpjRm+f7xwq/mcQ14/1fM/6rL6lW+a/2ToU6T+icdIBAxUAcqaWBdfU6WFzvdKpR3AHvLX29vvdbeoCf4Q7QG4AyQJpD44StRAOP/UwU0kNiaahe5q37O94kFU=
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Date: Sun, 3 Dec 2006 23:05:15 +0100
-User-Agent: KMail/1.9.5
-Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, John Linville <linville@tuxdriver.com>,
-       Jiri Benc <jbenc@suse.cz>, Lennart Poettering <lennart@poettering.net>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Larry Finger <Larry.Finger@lwfinger.net>
-References: <200612031936.34343.IvDoorn@gmail.com> <1165173618.3233.243.camel@laptopd505.fenrus.org>
-In-Reply-To: <1165173618.3233.243.camel@laptopd505.fenrus.org>
+	Sun, 3 Dec 2006 17:12:00 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58384 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1757059AbWLCWL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 17:11:59 -0500
+Date: Sun, 3 Dec 2006 23:12:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Kbuild: add 3 more header files to get properly "unifdef"ed
+Message-ID: <20061203221203.GC3442@stusta.de>
+References: <Pine.LNX.4.64.0611300459290.12927@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612032305.16567.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0611300459290.12927@localhost.localdomain>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 December 2006 20:20, Arjan van de Ven wrote:
-> this open_count thing smells fishy to me; what are the locking rules for
-> it? What guarantees that the readers of it don't get the value changed
-> underneath them between looking at the value and doing whatever action
-> depends on it's value ?
+On Thu, Nov 30, 2006 at 05:03:56AM -0500, Robert P. J. Day wrote:
+> 
+>   Add 3 more files to get "unifdef"ed when creating sanitized headers
+> with "make headers_install".
 
-Good point, a race condition could indeed occur in the only reader
-that sends the signal to the userspace through the input device.
-I'll fix this immediately.
+Your patch should also remove them from header-y.
 
-Thanks,
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> 
+> ---
+> 
+> diff --git a/include/linux/Kbuild b/include/linux/Kbuild
+> index a1155a2..b6bc50c 100644
+> --- a/include/linux/Kbuild
+> +++ b/include/linux/Kbuild
+> @@ -225,6 +225,7 @@ unifdef-y += if_bridge.h
+>  unifdef-y += if_ec.h
+>  unifdef-y += if_eql.h
+>  unifdef-y += if_ether.h
+> +unifdef-y += if_fddi.h
+>  unifdef-y += if_frad.h
+>  unifdef-y += if_ltalk.h
+>  unifdef-y += if_pppox.h
+> @@ -286,6 +287,7 @@ unifdef-y += nvram.h
+>  unifdef-y += parport.h
+>  unifdef-y += patchkey.h
+>  unifdef-y += pci.h
+> +unifdef-y += personality.h
+>  unifdef-y += pktcdvd.h
+>  unifdef-y += pmu.h
+>  unifdef-y += poll.h
+> @@ -341,6 +343,7 @@ unifdef-y += videodev.h
+>  unifdef-y += wait.h
+>  unifdef-y += wanrouter.h
+>  unifdef-y += watchdog.h
+> +unifdef-y += wireless.h
+>  unifdef-y += xfrm.h
+>  unifdef-y += zftape.h
 
-Ivo
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

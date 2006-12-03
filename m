@@ -1,93 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759672AbWLCNfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759674AbWLCNis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759672AbWLCNfV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 08:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759671AbWLCNfV
+	id S1759674AbWLCNis (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 08:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759677AbWLCNir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 08:35:21 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:56545 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1758660AbWLCNfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 08:35:19 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Sun, 3 Dec 2006 08:31:50 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kernel: replace "kmalloc+memset" with kzalloc in kernel/
- dir
-Message-ID: <Pine.LNX.4.64.0612030829400.3793@localhost.localdomain>
+	Sun, 3 Dec 2006 08:38:47 -0500
+Received: from 30.mail-out.ovh.net ([213.186.62.213]:18605 "HELO
+	30.mail-out.ovh.net") by vger.kernel.org with SMTP id S1759674AbWLCNiq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 08:38:46 -0500
+Date: Sun, 03 Dec 2006 14:21:09 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] - revert generic_fillattr stat->blksize to PAGE_CACHE_SIZE
+From: col-pepper@catking.net
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.541, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, SARE_SUB_OBFU_Z 0.26)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+Content-Transfer-Encoding: 7bit
+Message-ID: <op.tjzjdji6q8etvz@linbox.localdomain>
+User-Agent: Opera Mail/9.02 (Linux)
+X-Ovh-Remote: 90.144.87.8 (d90-144-87-8.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: DONE|H 0.5/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am using a 2.6.18.2 based kernel and see lots of broken fs due to this  
+"diet". eg cloop
 
-  Replace kmalloc()+memset() combination with kzalloc().
+I hope some general lessons can be drawn about the necessity and  
+desirablility of such changes that (predictably) invoke broadband breakage.
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+This kind of change and the breakage and dependancy issues they create are  
+what makes linux a nightmare to maintain.
 
----
+While it seems some improvement and clean up may result from this getting  
+attention, it appears that the inode structure is back to it's original  
+size. Which is quite probably the way it should have stayed all along.
 
- auditfilter.c |    3 +--
- futex.c       |    4 +---
- kexec.c       |    3 +--
- 3 files changed, 3 insertions(+), 7 deletions(-)
+Hopefully this has now stablised.
 
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index 4f40d92..2e896f8 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -636,10 +636,9 @@ static struct audit_rule *audit_krule_to
- 	struct audit_rule *rule;
- 	int i;
 
--	rule = kmalloc(sizeof(*rule), GFP_KERNEL);
-+	rule = kzalloc(sizeof(*rule), GFP_KERNEL);
- 	if (unlikely(!rule))
- 		return NULL;
--	memset(rule, 0, sizeof(*rule));
+What kernel release contains code where all this calms down and I dont  
+need to search patches and updates for modules in order to get basics to  
+work again?
 
- 	rule->flags = krule->flags | krule->listnr;
- 	rule->action = krule->action;
-diff --git a/kernel/futex.c b/kernel/futex.c
-index 93ef30b..999bfaf 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -324,12 +324,10 @@ static int refill_pi_state_cache(void)
- 	if (likely(current->pi_state_cache))
- 		return 0;
+Alternatively can I simply revert the original diet patch on my 2.6.18.2  
+to maintain working fs modules?
 
--	pi_state = kmalloc(sizeof(*pi_state), GFP_KERNEL);
--
-+	pi_state = kzalloc(sizeof(*pi_state), GFP_KERNEL);
- 	if (!pi_state)
- 		return -ENOMEM;
+Thanks for your replys.
 
--	memset(pi_state, 0, sizeof(*pi_state));
- 	INIT_LIST_HEAD(&pi_state->list);
- 	/* pi_mutex gets initialized later */
- 	pi_state->owner = NULL;
-diff --git a/kernel/kexec.c b/kernel/kexec.c
-index fcdd5d2..d43692c 100644
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -108,11 +108,10 @@ static int do_kimage_alloc(struct kimage
-
- 	/* Allocate a controlling structure */
- 	result = -ENOMEM;
--	image = kmalloc(sizeof(*image), GFP_KERNEL);
-+	image = kzalloc(sizeof(*image), GFP_KERNEL);
- 	if (!image)
- 		goto out;
-
--	memset(image, 0, sizeof(*image));
- 	image->head = 0;
- 	image->entry = &image->head;
- 	image->last_entry = &image->head;

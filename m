@@ -1,80 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756677AbWLCQZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1756305AbWLCQ3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1756677AbWLCQZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 11:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756498AbWLCQZ7
+	id S1756305AbWLCQ3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 11:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756548AbWLCQ3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 11:25:59 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:32708 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1756677AbWLCQZ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 11:25:57 -0500
-Subject: Re: [PATCH 32/36] driver core: Introduce device_move(): move a
-	device to a new parent.
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-In-Reply-To: <11650154311175-git-send-email-greg@kroah.com>
-References: <20061201231620.GA7560@kroah.com>
-	 <11650153262399-git-send-email-greg@kroah.com>
-	 <11650153293531-git-send-email-greg@kroah.com>
-	 <1165015333344-git-send-email-greg@kroah.com>
-	 <11650153362310-git-send-email-greg@kroah.com>
-	 <11650153392022-git-send-email-greg@kroah.com>
-	 <11650153432284-git-send-email-greg@kroah.com>
-	 <11650153463092-git-send-email-greg@kroah.com>
-	 <1165015349830-git-send-email-greg@kroah.com>
-	 <11650153522862-git-send-email-greg@kroah.com>
-	 <116501535622-git-send-email-greg@kroah.com>
-	 <11650153591876-git-send-email-greg@kroah.com>
-	 <11650153631070-git-send-email-greg@kroah.com>
-	 <1165015366759-git-send-email-greg@kroah.com>
-	 <11650153704007-git-send-email-greg@kroah.com>
-	 <11650153733277-git-send-email-greg@kroah.com>
-	 <11650153763330-git-send-email-greg@kroah.com>
-	 <11650153792132-git-send-email-greg@kroah.com>
-	 <11650153833896-git-send-email-greg@kroah.com>
-	 <11650153861854-git-send-email-greg@kroah.com>
-	 <11650153891878-git-send-email-greg@kroah.com>
-	 <11650153 922117-git-send-email-greg@kroah.com>
-	 <11650153961479-git-send-email-greg@kroah.com>
-	 <11650154001320-git-send-email-greg@kroah.com>
-	 <11650154032080-git-send-email-greg@kroah.com>
-	 <11650154071138-git-send-email-greg@kroah.com>
-	 <11650154123942-git-send-email-greg@kroah.com>
-	 <1165015415131-git-send-email-greg@kroah.com>
-	 <11650154181661-git-send-email-greg@kroah.com>
-	 <11650154221716-git-send-email-greg@kroah.com>
-	 <11650154251022-git-send-email-greg@kroah.com>
-	 <11650154282911-git-send-email-greg@kroah.com>
-	 <11650154311175-git-send-email-greg@kroah.com>
-Content-Type: text/plain
-Date: Sun, 03 Dec 2006 17:26:03 +0100
-Message-Id: <1165163163.19590.62.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Dec 2006 11:29:34 -0500
+Received: from mailer-b2.gwdg.de ([134.76.10.29]:55222 "EHLO mailer-b2.gwdg.de")
+	by vger.kernel.org with ESMTP id S1756305AbWLCQ3d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 11:29:33 -0500
+Date: Sun, 3 Dec 2006 17:03:35 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Steve Wise <swise@opengridcomputing.com>
+cc: rdreier@cisco.com, netdev@vger.kernel.org, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH  v2 02/13] Device Discovery and ULLD Linkage
+In-Reply-To: <20061202224937.27014.951.stgit@dell3.ogc.int>
+Message-ID: <Pine.LNX.4.61.0612031658160.25425@yvahk01.tjqt.qr>
+References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
+ <20061202224937.27014.951.stgit@dell3.ogc.int>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
-
-> Provide a function device_move() to move a device to a new parent device. Add
-> auxilliary functions kobject_move() and sysfs_move_dir().
-> kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
-> previous path (DEVPATH_OLD) in addition to the usual values. For this, a new
-> interface kobject_uevent_env() is created that allows to add further
-> environmental data to the uevent at the kobject layer.
-
-has this one been tested? I don't get it working. I always get an EINVAL
-when trying to move the TTY device of a Bluetooth RFCOMM link around.
-
-And shouldn't device_move(dev, NULL) re-attach it to the virtual device
-tree instead of failing?
-
-Regards
-
-Marcel
+Hi,
 
 
+
+Some questions,suggestions,:
+
+>+cxgb3_cpl_handler_func t3c_handlers[NUM_CPL_CMDS];
+
+Can it be static'ified? (I suppose not.)
+
+>+struct cxgb3_client t3c_client = {
+>+	.name = "iw_cxgb3",
+>+	.add = open_rnic_dev,
+>+	.remove = close_rnic_dev,
+>+	.handlers = t3c_handlers,
+>+	.redirect = iwch_ep_redirect
+>+};
+
+Can it be const'ified?
+
+>+static void rnic_init(struct iwch_dev *rnicp)
+>+{
+>+	PDBG("%s iwch_dev %p\n", __FUNCTION__,  rnicp);
+>+	idr_init(&rnicp->cqidr);
+>+	idr_init(&rnicp->qpidr);
+>+	idr_init(&rnicp->mmidr);
+>+	spin_lock_init(&rnicp->lock);
+>+
+>+	rnicp->attr.vendor_id = 0x168;
+>+	rnicp->attr.vendor_part_id = 7;
+
+Sugg.:
+
+   typeof(rnicp->attr) *a = &rnicp->attr; // replace typeof with proper thing
+   a->vendor_id = 0x168;
+   a->vendor_part_id = 7;
+
+shortens the lines a bit.
+
+>+	rnicp->attr.max_qps = T3_MAX_NUM_QP - 32;
+>+	rnicp->attr.max_wrs = (1UL << 24) - 1;
+>+	rnicp->attr.max_sge_per_wr = T3_MAX_SGE;
+>+	rnicp->attr.max_sge_per_rdma_write_wr = T3_MAX_SGE;
+>+	rnicp->attr.max_cqs = T3_MAX_NUM_CQ - 1;
+>+	rnicp->attr.max_cqes_per_cq = (1UL << 24) - 1;
+>+	rnicp->attr.max_mem_regs = cxio_num_stags(&rnicp->rdev);
+>+	rnicp->attr.max_phys_buf_entries = T3_MAX_PBL_SIZE;
+>+	rnicp->attr.max_pds = T3_MAX_NUM_PD - 1;
+>+	rnicp->attr.mem_pgsizes_bitmask = 0x7FFF;	/* 4KB-128MB */
+>+	rnicp->attr.can_resize_wq = 0;
+>+	rnicp->attr.max_rdma_reads_per_qp = 8;
+>+	rnicp->attr.max_rdma_read_resources =
+>+	    rnicp->attr.max_rdma_reads_per_qp * rnicp->attr.max_qps;
+>+	rnicp->attr.max_rdma_read_qp_depth = 8;	/* IRD */
+>+	rnicp->attr.max_rdma_read_depth =
+>+	    rnicp->attr.max_rdma_read_qp_depth * rnicp->attr.max_qps;
+>+	rnicp->attr.rq_overflow_handled = 0;
+>+	rnicp->attr.can_modify_ird = 0;
+>+	rnicp->attr.can_modify_ord = 0;
+>+	rnicp->attr.max_mem_windows = rnicp->attr.max_mem_regs - 1;
+>+	rnicp->attr.stag0_value = 1;
+>+	rnicp->attr.zbva_support = 1;
+>+	rnicp->attr.local_invalidate_fence = 1;
+>+	rnicp->attr.cq_overflow_detection = 1;
+>+	return;
+>+}
+>+
+>--- /dev/null
+>+++ b/drivers/infiniband/hw/cxgb3/iwch.h
+>+static inline int t3b_device(struct iwch_dev *rhp)
+>+{
+>+	return (rhp->rdev.t3cdev_p->type == T3B);
+>+}
+>+
+>+static inline int t3a_device(struct iwch_dev *rhp)
+>+{
+>+	return (rhp->rdev.t3cdev_p->type == T3A);
+>+}
+
+These two can be constified for sure: static inline int t3a_device(const 
+struct iwch_dev *rhp)
+
+>+
+>+static inline struct iwch_cq *get_chp(struct iwch_dev *rhp, u32 cqid)
+>+{
+>+	return idr_find(&rhp->cqidr, cqid);
+>+}
+>+
+>+static inline struct iwch_qp *get_qhp(struct iwch_dev *rhp, u32 qpid)
+>+{
+>+	return idr_find(&rhp->qpidr, qpid);
+>+}
+>+
+>+static inline struct iwch_mr *get_mhp(struct iwch_dev *rhp, u32 mmid)
+>+{
+>+	return idr_find(&rhp->mmidr, mmid);
+>+}
+
+Here I am not sure.
+
+
+
+
+	-`J'
+-- 

@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936678AbWLCI3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936679AbWLCIas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936678AbWLCI3d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 03:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936679AbWLCI3d
+	id S936679AbWLCIas (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 03:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936680AbWLCIas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 03:29:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:21182 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S936678AbWLCI3c (ORCPT
+	Sun, 3 Dec 2006 03:30:48 -0500
+Received: from 1wt.eu ([62.212.114.60]:21765 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S936679AbWLCIar (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 03:29:32 -0500
-Date: Sun, 3 Dec 2006 01:24:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] FW_LOADER should select HOTPLUG
-Message-Id: <20061203012401.3cc30232.akpm@osdl.org>
-In-Reply-To: <20061203081552.GC11084@stusta.de>
-References: <20061202194022.GY11084@stusta.de>
-	<20061203071637.GA11084@stusta.de>
-	<20061203005824.37bd8e0f.akpm@osdl.org>
-	<20061203081552.GC11084@stusta.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 3 Dec 2006 03:30:47 -0500
+Date: Sun, 3 Dec 2006 09:30:31 +0100
+From: Willy Tarreau <w@1wt.eu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
+Subject: Re: Mounting NFS root FS
+Message-ID: <20061203083031.GB900@1wt.eu>
+References: <4571CE06.4040800@popdial.com> <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr> <20061202211522.GB24090@1wt.eu> <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr> <20061202225528.GA27342@1wt.eu> <1165113438.5698.5.camel@lade.trondhjem.org> <20061203060208.GA900@1wt.eu> <1165129510.5745.14.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165129510.5745.14.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Dec 2006 09:15:52 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
-
-> On Sun, Dec 03, 2006 at 12:58:24AM -0800, Andrew Morton wrote:
-> > On Sun, 3 Dec 2006 08:16:37 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
+On Sun, Dec 03, 2006 at 02:05:10AM -0500, Trond Myklebust wrote:
+> On Sun, 2006-12-03 at 07:02 +0100, Willy Tarreau wrote:
+> 
+> > That's a valid point, but in fact, building with NFS client and serial
+> > port support in the kernel on some archs is as common as building with
+> > IDE driver and VGA console in the kernel on x86. With some architectures
+> > used in light networked workstations, it's very common to boot from the
+> > network (sparc & parisc come to mind, sorry to those I forgot), hence
+> > this common practise.
+> 
+> I have no influence over the distributions' choice of kernel compiler
+> options. The fact is, though, that few of them support nfsroot out of
+> the box. AFAICS FC-6 is one of those that appears not to.
+> 
+> > > As for the initramfs support, hpa has assured me that his klibc
+> > > distribution already has a full solution for NFS mounting on current
+> > > kernels.
 > > 
-> > > Since FW_LOADER is an option that is always select'ed by the code using 
-> > > it, it mustn't depend on HOTPLUG.
-> > > 
-> > > It's only relevant in the EMBEDDED=y case, but this might have resulted 
-> > > in illegal FW_LOADER=, HOTPLUG=n configurations.
-> > > 
-> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > > 
-> > > --- linux-2.6.19-rc6-mm2/drivers/base/Kconfig.old	2006-12-02 20:36:49.000000000 +0100
-> > > +++ linux-2.6.19-rc6-mm2/drivers/base/Kconfig	2006-12-02 20:37:03.000000000 +0100
-> > > @@ -19,8 +19,8 @@
-> > >  	  If unsure say Y here.
-> > >  
-> > >  config FW_LOADER
-> > > -	tristate "Userspace firmware loading support"
-> > > -	depends on HOTPLUG
-> > > +	tristate
-> > > +	select HOTPLUG
+> > That's again where we see the limits of this ever-developping 2.6.
+> > I'm not saying that doing this from initramfs+tools is a bad solution,
+> > since it solves lots of problems, it's just that it is *much* different
+> > from what was previously done.
 > > 
-> > It would be a retrograde step to start selecting HOTPLUG - we've managed to
-> > avoid it thus far.
+> > People who have installed a distro on their machines will not be
+> > able to upgrade their kernel past a certain point by hand. Upgrading
+> > distro packages in such environments is generally not always an
+> > option (particularly boot packages such as boot loader and kernel),
+> > because the boot server is not necessarily running on the same
+> > OS/distro, and sometimes the kernel needs different build options.
 > 
-> $ grep -r "select HOTPLUG" * | wc -l
-> 4
-> $ 
-> 
-> > It'd be better to make those drivers which select FW_LOADER dependent upon
-> > HOTPLUG.
-> 
-> $ grep -r "select FW_LOADER" * | wc -l
-> 71
+> Most people that run nfsroot systems do so because that makes
+> provisioning of new machines easy: if you only have one system image,
+> then upgrading it is less of a challenge.
 
-46 actually.  And it's immaterial.
+It's one use, but another one is for diskless terminals, often built
+from old systems. In this case, it's to avoid the cost, noise, power
+consumption and failures associated to disks. It's quite often done
+one radically different archs/OS between the server and the clients,
+making the upgrade more complicated.
 
-> 
-> And since the only case where depends<->select makes a difference is 
-> CONFIG_EMBEDDED=y, people will always continue to forget the dependency 
-> on HOTPLUG when select'ing FW_LOADER.
-
-I realise that.  But having HOTPLUG magically and mysteriously turn itself
-back on again is a pita.
+Willy
 

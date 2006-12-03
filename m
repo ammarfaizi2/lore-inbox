@@ -1,120 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760064AbWLCUbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760073AbWLCUhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760064AbWLCUbx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 15:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760073AbWLCUbx
+	id S1760073AbWLCUhU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 15:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760076AbWLCUhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 15:31:53 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:9154 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1760064AbWLCUbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 15:31:52 -0500
-Date: Sun, 3 Dec 2006 12:31:49 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-Subject: What's in ocfs2.git
-Message-ID: <20061203203149.GC19617@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+	Sun, 3 Dec 2006 15:37:20 -0500
+Received: from ms.trustica.cz ([82.208.32.68]:16276 "EHLO ms.trustica.cz")
+	by vger.kernel.org with ESMTP id S1760073AbWLCUhT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 15:37:19 -0500
+Message-ID: <4573353E.2060307@assembler.cz>
+Date: Sun, 03 Dec 2006 21:36:14 +0100
+From: Rudolf Marek <r.marek@assembler.cz>
+User-Agent: Icedove 1.5.0.8 (X11/20061123)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: pata_via report
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This e-mail describes the OCFS2 patches which I intend to push
-upstream to Linus for 2.6.20.
+Hello Alan,
 
-* Various ocfs2 cleanups, including a patchset by me intended to clean up
-  some of the internal ocfs2 journal api. Mostly this revolves around
-  removing the ocfs2_journal_handle wrapper around handle_t. The immediate
-  benefits are better readability and a slightly smaller memory footprint
-  for open journal transactions.
+I would like to report my experience with new pata_via driver.
 
+Short version: works (no data were trashed, during the investigation), but the 
+bits to detect the cable type are not set by BIOS.
+There is also a bug in my BIOS, which kills the UDMA register.
 
-* Configfs gets some small cleanups and some mutex annotations.
+Long version:
+I have 80pin cable on primary master with western digital drive on it as slave. 
+No other device on primary master. Secondary master is NEC DVDRW. I have two 
+SATA drives, from which I boot the system.
 
+ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xCC00 irq 14
+ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xCC08 irq 15
+scsi2 : pata_via
+DEBUG ATA66: 0x07e1e607
+ATA: abnormal status 0x8 on port 0x1F7
+ATA: abnormal status 0x8 on port 0x1F7
 
-* Atime updates - thanks to Tiger Yang <tiger.yang@oracle.com>, ocfs2 now
-  writes to the inode atime field. This doesn't require any disk changes,
-  and is completely backwards compatible with older ocfs2 versions. An
-  inodes Atime is only updated if it hasn't changed within a certain
-  quantum. The user can define their own value at mount time, with 0
-  indicating that atime should always be updated. This is very similar to
-  the scheme implemented by gfs2. In the future, I'd like to see a "relative
-  atime" mode, which functions in the manner described by Valerie Henson at:
+When kernel boots it produces this messages. I already found out why, the BIOS 
+incorrectly programs the 0x50 DWORD in PCI space (the UDMA register) so its 
+value is somewhat mirrored like it is above. (I know it is a BIOS bug, I tried 
+to dump the register in PCI init function) If I set the drive to master, then it 
+is programmed correctly.
 
-http://lkml.org/lkml/2006/8/25/380
+However my BIOS do not program the 80wire cable info, so I receive:
+ata3.01: ATA-6, max UDMA/100, 390721968 sectors: LBA48
+ata3.01: ata3: dev 1 multi count 16
+ata3.01: configured for UDMA/33
 
+I checked docs if VIA has some internal register/pin for the cable sense, but it 
+does not. It is routed to some GPIO and the BIOS did not update this register.
 
-* sys_splice - ocfs2 now has splice read and write support. Thanks again to
-  Tiger for the bulk of this functionality. Mostly we make use of the
-  generic_splice_read() and generic_file_splice_write_nolock() functions
-  provided already in fs/splice.c.
+My board is A8V-E SE, ASUS, I already wrote to their support, so I may have some 
+news on this in future.
 
- - There is one patch in the ocfs2 splice() series external to fs/ocfs2 - a
-   simple export of should_remove_suid(). This is done for code reuse
-   purposes. That particular patch can be seen at:
+I think I'm not the only one with buggy BIOS, maybe the old is >UDMA33 active 
+method will work for more people. Other solution would be to test the cable 
+status via WORD 93 in IDENTIFY command, but this must be done "post" somehow,
+I dont know if this is even possible or planed feature of libsata.
 
-http://ftp.kernel.org/pub/linux/kernel/people/mfasheh/ocfs2/ocfs2_git_patches/ocfs2-upstream-linus-20061201/0025-Export-should_remove_suid.txt
+As for the wrong PCI register value, I think I would be able to develop some 
+code test to detect this, but I dont know if you will accept it into the driver. 
+Do we care about sane values?
 
-   I'll also attach it to this mail for review purposes.
+There is no problem with secondary DVDRW drive, thanks to libsata, it recovers 
+from media errors nicely.
 
+Oh and one more thing. The cable sensing stuff is supported from newer VIA 
+chipsets, older datasheets says "read as 0" but do NOT trust them. Often many 
+VIA registers "read as 0" read as whatever. Maybe some check for chipset version
+is necessary.
 
-* Last in the list of notable patches is a somewhat involved fix by Kurt
-  Hackel <kurt.hackel@oracle.com> within the ocfs2 dlm. We had temporarily
-  disable automatic migration of certain lock types because it was causing
-  us problems during stress testing. This patch fixes those problems and
-  re-enables migration. Overall this should reduce memory usage of the ocfs2
-  dlm.
+I hope it helps,
 
+Rudolf
 
-The patches can be found in
+Please CC me on LKML posts.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git upstream-linus
+00:0f.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00: 06 11 71 05 07 00 90 02 06 8a 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 cc 00 00 00 00 00 00 00 00 00 00 43 10 ed 80
+30: 00 00 00 00 c0 00 00 00 00 00 00 00 02 01 00 00
+40: 3b f2 09 05 18 8c c0 00 5d 20 5d 20 ff 00 20 20
+50: 07 e6 07 e1 0c 00 00 00 a8 a8 a8 a8 00 00 00 00
+60: 00 02 00 00 00 00 00 00 00 02 00 00 00 00 00 00
+70: 02 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00
+80: 00 a0 b9 3f 00 00 00 00 00 50 b2 3f 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 06 00 71 05 43 10 ed 80 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 09 00 00 00 00 00 00 00 00 00
 
-Additionally, broken out patches are available at:
+Version: ASUS A8V-E SE ACPI BIOS Revision 1010
+   _NEC     DVD_RW ND-3520AW 3.06
+     ATA      WDC WD2000JB-00G
 
-http://ftp.kernel.org/pub/linux/kernel/people/mfasheh/ocfs2/ocfs2_git_patches/ocfs2-upstream-linus-20060924/
-
-Thanks,
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
-
-
-[PATCH] Export should_remove_suid()
-
-This helps us avoid replicating the same logic within file system drivers.
-
-Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
-
----
-
- mm/filemap.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-d23a147bb6e8d467e8df73b6589888717da3b9ce
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 7b84dc8..13df01c 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1893,6 +1893,7 @@ int should_remove_suid(struct dentry *de
- 
- 	return 0;
- }
-+EXPORT_SYMBOL(should_remove_suid);
- 
- int __remove_suid(struct dentry *dentry, int kill)
- {
--- 
-1.3.3
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge 
+[KT600/K8T800/K8T890 South]
 

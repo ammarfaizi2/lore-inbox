@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424927AbWLCE3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936661AbWLCEa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424927AbWLCE3d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 23:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424928AbWLCE3d
+	id S936661AbWLCEa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 23:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936663AbWLCEa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 23:29:33 -0500
-Received: from mail1.webmaster.com ([216.152.64.169]:63245 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1424927AbWLCE3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 23:29:32 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Cc: <schwab@suse.de>
-Subject: RE: [patch 2.6.19-rc6] Stop gcc 4.1.0 optimizing wait_hpet_tick away
-Date: Sat, 2 Dec 2006 20:29:28 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEMLABAC.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Sat, 2 Dec 2006 23:30:58 -0500
+Received: from main.gmane.org ([80.91.229.2]:54915 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S936661AbWLCEa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 23:30:57 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: CD/DVD drive errors and lost ticks
+Date: Sun, 3 Dec 2006 04:30:40 +0000 (UTC)
+Message-ID: <loom.20061203T052147-81@post.gmane.org>
+References: <45724DDA.1020007@scientia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <E9F17630-A879-4EEC-8ACB-5E339DB0C79F@mac.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sat, 02 Dec 2006 21:32:41 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sat, 02 Dec 2006 21:32:42 -0800
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 68.61.60.54 (Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5 (like Gecko))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Anton Mitterer <calestyo <at> scientia.net> writes:
 
-> > It comes down to just what those guarantees GCC provides actually are.
+> Dec  3 04:12:16 euler kernel: hdb: irq timeout: status=0xd0 { Busy }
+> Dec  3 04:12:16 euler kernel: ide: failed opcode was: unknown
+> Dec  3 04:12:16 euler kernel: hdb: DMA disabled
+> Dec  3 04:12:16 euler kernel: hdb: ATAPI reset complete
+> Dec  3 04:12:18 euler kernel: hdb: irq timeout: status=0x80 { Busy }
+> Dec  3 04:12:18 euler kernel: ide: failed opcode was: unknown
+> Dec  3 04:12:18 euler kernel: hdb: ATAPI reset complete
+> Dec  3 04:20:05 euler kernel: warning: many lost ticks.
+> Dec  3 04:20:05 euler kernel: Your time source seems to be instable or
+> some driver is hogging interupts
+> Dec  3 04:20:05 euler kernel: rip _spin_unlock_irqrestore+0x8/0x30
+> Dec  3 04:51:49 euler kernel: hdb: irq timeout: status=0xd0 { Busy }
+> Dec  3 04:51:49 euler kernel: ide: failed opcode was: unknown
+> Dec  3 04:51:49 euler kernel: hdb: ATAPI reset complete
+> Dec  3 04:51:51 euler kernel: hdb: irq timeout: status=0x80 { Busy }
+> Dec  3 04:51:51 euler kernel: ide: failed opcode was: unknown
+> Dec  3 04:51:51 euler kernel: hdb: ATAPI reset complete
+> 
+> Any idea what the reason is? Could it be the firmware? Or a hardware
+> damage (if so which hardware is likely?)?
+>
+Kernel is having trouble with hdb (which seems to be your DVD drive.) After 
+running into problems the kernel has disabled DMA on the drive and when it 
+does that there is bound to be some problems with watching DVDs because the 
+CPU is used for memory transfers as well as for watching the DVD (can't do 
+both at a time without running into problems).
 
-> This is the first correct statement in your email.  In any case the
-> documented GCC guarantees have always been much stronger than you
-> have been trying to persuade us they should be.  I would argue that
-> the C standard somewhat indirectly specifies those guarantees but I
-> really don't have the heart for any more language-lawyering so I'm
-> going to leave it at that.
+> And what is tha lost ticks? How would a defect DVD/CD drive has
+> influence on the ticks (if that means CPU ticks).
+> 
 
-I have tried to find any documentation of the guarantees gcc actually
-provides and have been unable to do so. Where are these "documented GCC
-guarantees" documented?
+Lost ticks look like they are direct result of the problems with your DVD 
+drive. 
 
-DS
+If you post your kernel version, .config and hardware information (Which IDE 
+controller specifically) some one will be able to look into the problem.
 
+HTH
+Parag
 

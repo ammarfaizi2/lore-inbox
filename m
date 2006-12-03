@@ -1,90 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935138AbWLCORs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936707AbWLCOZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935138AbWLCORs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 09:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935199AbWLCORs
+	id S936707AbWLCOZT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 09:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936705AbWLCOZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 09:17:48 -0500
-Received: from twister.ispgateway.de ([80.67.18.17]:27551 "EHLO
-	twister.ispgateway.de") by vger.kernel.org with ESMTP
-	id S935138AbWLCORr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 09:17:47 -0500
-Date: Sun, 3 Dec 2006 15:17:44 +0100
-From: Steffen Moser <lists@steffen-moser.de>
-To: "Kurtis D. Rader" <krader@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives
-Message-ID: <20061203141744.GB7266@steffen-moser.de>
-Mail-Followup-To: "Kurtis D. Rader" <krader@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <4570CF26.8070800@scientia.net> <20061203011737.GA2729@us.ibm.com>
-Mime-Version: 1.0
+	Sun, 3 Dec 2006 09:25:18 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:25488 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S935231AbWLCOZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 09:25:17 -0500
+X-Sasl-enc: CtqrkHNPGAh2u3YdAyJbXw+q4CBwY4SvR+BX9rxZuUx0 1165155916
+Date: Sun, 3 Dec 2006 12:24:52 -0200
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [PATCH] backlight: do not power off backlight when unregistering (try 3)
+Message-ID: <20061203142452.GA23662@khazad-dum.debian.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061203011737.GA2729@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+X-Sieve: CMU Sieve 2.3
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ACPI drivers like ibm-acpi are moving to the backlight sysfs infrastructure.
+During ibm-acpi testing, I have noticed that backlight_device_unregister()
+sets the display brightness and power to zero.
 
-* On Sat, Dec 02, 2006 at 05:17 PM (-0800), Kurtis D. Rader wrote:
+This causes the display to be dimmed on ibm-acpi module removal.  It will
+affect all other ACPI drivers that are being converted to use the backlight
+class, as well.  It also affects a number of framebuffer devices that are
+used on desktops and laptops which might also not want such behaviour.
 
-> On Sat, 2006-12-02 01:56:06, Christoph Anton Mitterer wrote:
-> > The issue was basically the following: I found a severe bug mainly by
-> > fortune because it occurs very rarely.  My test looks like the following:
-> > I have about 30GB of testing data on my harddisk,... I repeat verifying
-> > sha512 sums on these files and check if errors occur.  One test pass
-> > verifies the 30GB 50 times,... about one to four differences are found in
-> > each pass.
-> 
-> I'm also experiencing silent data corruption on writes to SATA disks
-> connected to a Nvidia controller (nForce 4 chipset). The problem is
-> 100% reproducible. Details of my configuration (mainboard model, lspci,
-> etc.) are near the bottom of this message. What follows is a summation
-> of my findings.
-> 
-> I have confirmed the corruption is occurring on the writes and not the
-> reads. Furthermore, if I compare the original and copy while both are
-> still cached in memory no corruption is found. But as soon as I flush the
-> pagecache (by reading another file larger than memory) to force the copy
-> of the file to be read from disk the corruption is seen. The corruption
-> occurs with direct I/O and normal buffered filesystem I/O (ext3).
-> 
-> Booting with "mem=1g" (system has 4 GiB installed) makes no difference.
-> So it isn't due to remapping memory above the 4 GiB boundary.  Booting to
-> single user and ensuring no unnecessary modules (video, etc.) are loaded
-> also makes no difference.
-> 
-> The problem affects both disks attached to the nVidia SATA controller but
-> not the two disks attached to the PATA side of the same controller. All
-> four disks are different models. The same SATA disks attached to
-> the Silicon Image 3114 SATA RAID controller (on the same mainboard)
-> experiences the same corruption but at a lower probability.  The same
-> disks attached to a Promise TX2 SATA controller (in the same system)
-> experience no corruption.
-> 
-> The system has run memtest86 for 24 hours with no errors.
+Since working around this behaviour requires undesireable hacks, Richard
+Purdie decided that we would be better off reverting the changes in the
+sysfs class, and adding the code to dim and power off the backlight device
+to the drivers that want it.  This patch is my attempt to do so.
 
-Although your problem report seems rather clearly to be related to 
-the disk sub-system (e.g. as it only seems to appear at writings), 
-I would just like to point out that running "memtest86" for some 
-time without getting any errors does not necessarily state that the 
-memory is faultless. 
+Patch against latest linux-2.6.git.  Changes untested, as I lack the
+required hardware.  Still, they are trivial enough that, apart from typos,
+there is little chance of getting them wrong.
 
-I recently had one case where a machine (Athlon XP 2200+) crashed
-irregularly. "memtest86", running several days, didn't find anything,
-but running the "stress test" of "Prime95" [1] for a few minutes 
-clearly showed that the machine just miscalculated (Prime95's stress
-test stops in this case).
+Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Acked-by: Richard Purdie <rpurdie@rpsys.net>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+---
 
-Just removing and reinserting the two memory modules (2 x 256 MB 
-DDR-RAM) fixed it. The machine is now stable and "Prime95" hasn't 
-stopped due to computational errors anymore since then. I suppose 
-that one of the modules wasn't seated in its socket correctly, but 
-I don't know why "memtest86" (and "memtest86+") didn't find it.
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 27597c5..de5a6b3 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -259,12 +259,6 @@ void backlight_device_unregister(struct
+ 					 &bl_class_device_attributes[i]);
+ 
+ 	down(&bd->sem);
+-	if (likely(bd->props && bd->props->update_status)) {
+-		bd->props->brightness = 0;
+-		bd->props->power = 0;
+-		bd->props->update_status(bd);
+-	}
+-
+ 	bd->props = NULL;
+ 	up(&bd->sem);
+ 
+diff --git a/drivers/video/backlight/corgi_bl.c b/drivers/video/backlight/corgi_bl.c
+index d07ecb5..61587ca 100644
+--- a/drivers/video/backlight/corgi_bl.c
++++ b/drivers/video/backlight/corgi_bl.c
+@@ -135,6 +135,10 @@ static int corgibl_probe(struct platform
+ 
+ static int corgibl_remove(struct platform_device *dev)
+ {
++	corgibl_data.power = 0;
++	corgibl_data.brightness = 0;
++	corgibl_send_intensity(corgi_backlight_device);
++
+ 	backlight_device_unregister(corgi_backlight_device);
+ 
+ 	printk("Corgi Backlight Driver Unloaded\n");
+diff --git a/drivers/video/backlight/hp680_bl.c b/drivers/video/backlight/hp680_bl.c
+index e399321..1c569fb 100644
+--- a/drivers/video/backlight/hp680_bl.c
++++ b/drivers/video/backlight/hp680_bl.c
+@@ -117,6 +117,10 @@ static int __init hp680bl_probe(struct p
+ 
+ static int hp680bl_remove(struct platform_device *dev)
+ {
++	hp680bl_data.brightness = 0;
++	hp680bl_data.power = 0;
++	hp680bl_send_intensity(hp680_backlight_device);
++
+ 	backlight_device_unregister(hp680_backlight_device);
+ 
+ 	return 0;
+diff --git a/drivers/video/backlight/locomolcd.c b/drivers/video/backlight/locomolcd.c
+index 628571c..2d79054 100644
+--- a/drivers/video/backlight/locomolcd.c
++++ b/drivers/video/backlight/locomolcd.c
+@@ -200,6 +200,10 @@ static int locomolcd_remove(struct locom
+ {
+ 	unsigned long flags;
+ 
++	locomobl_data.brightness = 0;
++	locomobl_data.power = 0;
++	locomolcd_set_intensity(locomolcd_bl_device);
++
+ 	backlight_device_unregister(locomolcd_bl_device);
+ 	local_irq_save(flags);
+ 	locomolcd_dev = NULL;
 
-Bye,
-Steffen
-
-[1] http://www.mersenne.org/freesoft.htm
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

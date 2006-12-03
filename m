@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936642AbWLCDfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936655AbWLCEJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936642AbWLCDfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 22:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936643AbWLCDfJ
+	id S936655AbWLCEJE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 23:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936656AbWLCEJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 22:35:09 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:42187 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S936642AbWLCDfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 22:35:06 -0500
-Date: Sat, 2 Dec 2006 19:35:03 -0800
-From: "Kurtis D. Rader" <krader@us.ibm.com>
+	Sat, 2 Dec 2006 23:09:04 -0500
+Received: from mail1.key-systems.net ([81.3.43.253]:64938 "HELO
+	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
+	id S936655AbWLCEJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Dec 2006 23:09:01 -0500
+Message-ID: <45724DDA.1020007@scientia.net>
+Date: Sun, 03 Dec 2006 05:08:58 +0100
+From: Christoph Anton Mitterer <calestyo@scientia.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives
-Message-ID: <20061203033503.GB2729@us.ibm.com>
-References: <4570CF26.8070800@scientia.net> <20061203011737.GA2729@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061203011737.GA2729@us.ibm.com>
-User-Agent: Mutt/1.4.2.2i
+Subject: CD/DVD drive errors and lost ticks
+Content-Type: multipart/mixed;
+ boundary="------------060300090203000405080309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-12-02 17:17:37, Kurtis D. Rader wrote:
-> The same disks attached to a Promise TX2 SATA controller (in the same
-> system) experience no corruption.
+This is a multi-part message in MIME format.
+--------------060300090203000405080309
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-I spoke too soon. Corruption is occurring with the disks attached to the
-Promise TX2 SATA controller but much less frequently. With the drives
-attached to the nVidia controller copying certain 2 GiB files would
-result in at least five bytes, and as many as thirty, being corrupted
-every single time. On the Promise controller a given copy is likely to be
-good. And when corruption does occur fewer bytes are being affected ---
-as little as a single byte in a 2 GiB file. But still, some files never
-show corruption while others do.
+Hi.
 
-The Promise controller in a PCI slot is measurably slower than the nVidia
-on the baseboard so the speed of the transfers appears to be a factor. In
-addition to the pattern of data. My hunch is this is a nVidia nForce 4
-chipset design defect involving buss crosstalk or something similar. Which
-may be why I'm not seeing it when writing to my relatively slow PATA disks.
+I have a Plextor PX-760A DVD/CD drive,.. and some days ago I've updated
+to firmaware 1.05 (which is the most recent).
+Since that I have problems reading many DVDs but this is not what I'm
+asking here....
 
--- 
-Kurtis D. Rader, Linux level 3 support  email: krader@us.ibm.com
-IBM Integrated Technology Services      DID: +1 503-578-3714
-15300 SW Koll Pkwy, MS RHE2-O2          service: 800-IBM-SERV
-Beaverton, OR 97006-6063                http://www.ibm.com
+Some of the DVD-Videos work and I watched one some minutes ago.
+
+Suddenly the soundoutput went crazy... totally disturbed with lots of
+very high tones.
+
+The crazy sound didn't stop although that may be bacause xine was locked
+and I could not quit it,... I halted my system and after reboot the
+crazy sound was away.
+
+dmesg shows this:
+Dec  3 04:12:16 euler kernel: hdb: irq timeout: status=0xd0 { Busy }
+Dec  3 04:12:16 euler kernel: ide: failed opcode was: unknown
+Dec  3 04:12:16 euler kernel: hdb: DMA disabled
+Dec  3 04:12:16 euler kernel: hdb: ATAPI reset complete
+Dec  3 04:12:18 euler kernel: hdb: irq timeout: status=0x80 { Busy }
+Dec  3 04:12:18 euler kernel: ide: failed opcode was: unknown
+Dec  3 04:12:18 euler kernel: hdb: ATAPI reset complete
+Dec  3 04:20:05 euler kernel: warning: many lost ticks.
+Dec  3 04:20:05 euler kernel: Your time source seems to be instable or
+some driver is hogging interupts
+Dec  3 04:20:05 euler kernel: rip _spin_unlock_irqrestore+0x8/0x30
+Dec  3 04:51:49 euler kernel: hdb: irq timeout: status=0xd0 { Busy }
+Dec  3 04:51:49 euler kernel: ide: failed opcode was: unknown
+Dec  3 04:51:49 euler kernel: hdb: ATAPI reset complete
+Dec  3 04:51:51 euler kernel: hdb: irq timeout: status=0x80 { Busy }
+Dec  3 04:51:51 euler kernel: ide: failed opcode was: unknown
+Dec  3 04:51:51 euler kernel: hdb: ATAPI reset complete
+
+
+Any idea what the reason is? Could it be the firmware? Or a hardware
+damage (if so which hardware is likely?)?
+
+And what is tha lost ticks? How would a defect DVD/CD drive has
+influence on the ticks (if that means CPU ticks).
+
+Thanks,
+Chris.
+
+--------------060300090203000405080309
+Content-Type: text/x-vcard; charset=utf-8;
+ name="calestyo.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="calestyo.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk1pdHRlcmVyLCBDaHJpc3RvcGggQW50b24NCm46TWl0dGVyZXI7
+Q2hyaXN0b3BoIEFudG9uDQplbWFpbDtpbnRlcm5ldDpjYWxlc3R5b0BzY2llbnRpYS5uZXQN
+CngtbW96aWxsYS1odG1sOlRSVUUNCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------060300090203000405080309--

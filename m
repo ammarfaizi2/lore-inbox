@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933568AbWLCNwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936704AbWLCOQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933568AbWLCNwm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 08:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759684AbWLCNwm
+	id S936704AbWLCOQm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 09:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936706AbWLCOQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 08:52:42 -0500
-Received: from mx3.mail.ru ([194.67.23.149]:14670 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S1759681AbWLCNwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 08:52:41 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.19: ACPI reports AC not present after resume from STD
-Date: Sun, 3 Dec 2006 16:52:36 +0300
-User-Agent: KMail/1.9.5
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200612031526.00861.arvidjaar@mail.ru> <20061203131124.GG4773@ucw.cz>
-In-Reply-To: <20061203131124.GG4773@ucw.cz>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 3 Dec 2006 09:16:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:56279 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S936703AbWLCOQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 09:16:41 -0500
+Subject: Re: [PATCH 2.6.19 2/3] sata_promise: new EH conversion
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Mikael Pettersson <mikpe@it.uu.se>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4572CEE7.502@gmail.com>
+References: <200612010958.kB19wGbg002454@alkaid.it.uu.se>
+	 <4572CA7A.6010103@gmail.com> <4572CB2B.8050406@garzik.org>
+	 <4572CEE7.502@gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 03 Dec 2006 15:16:07 +0100
+Message-Id: <1165155367.3233.220.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612031652.38155.arvidjaar@mail.ru>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Sunday 03 December 2006 16:11, Pavel Machek wrote:
-> Hi!
->
-> > I started to notice it some time ago; I can't say exactly if this was not
-> > present in earlier versions because recently I switched from STR (which
-> > gave me no end of troubles) to STD. So I may have not seen it before.
-> >
-> > Suspend to disk while on battery. Plug in AC, resume. ACPI continues to
-> > show AC adapter as not present:
-> >
-> > {pts/0}% cat /proc/acpi/ac_adapter/ADP1/state
-> > state:                   off-line
-> >
-> > replugging AC correctly changes state to on-line.
->
-> try echo platform > /sys/power/disk.
+> But, having those flushes won't hurt either.  What was the conclusion of
+> mmio <-> spinlock sync discussion?  I always feel kind of uncomfortable
+> about readl() flushes.  I think they're too subtle.
 
-Nope.
+those are orthogonal!
+The posting flushes have nothing to do with spinlock-vs-mmio; that
+discussion was about the CPU, while posting flushes are about the
+chipset / bridges / etc....
 
-{pts/0}% pmsuspend disk
-... after resume
-{pts/0}% cat /sys/power/disk
-platform
-{pts/0}% cat /proc/acpi/ac_adapter/ADP1/state
-state:                   off-line
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+> 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-iD8DBQFFctamR6LMutpd94wRAqnCAJwKi4wXUj2FRkD2tyq+c0gqAghnrgCgyKYZ
-lep/19gowY3OTGIkpzcasfU=
-=4Cgb
------END PGP SIGNATURE-----

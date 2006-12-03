@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424995AbWLCGSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425009AbWLCHFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424995AbWLCGSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 01:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424996AbWLCGSe
+	id S1425009AbWLCHFy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 02:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425011AbWLCHFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 01:18:34 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:55492 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1424995AbWLCGSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 01:18:33 -0500
-Message-Id: <200612030618.kB36IMxU003340@ms-smtp-02.texas.rr.com>
-Reply-To: <Aucoin@Houston.RR.com>
-From: "Aucoin" <Aucoin@Houston.RR.com>
-To: <akpm@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <clameter@sgi.com>
-Subject: RE: la la la la ... swappiness
-Date: Sun, 3 Dec 2006 00:18:26 -0600
-Organization: home
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 3 Dec 2006 02:05:54 -0500
+Received: from pat.uio.no ([129.240.10.15]:10978 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1425009AbWLCHFx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 02:05:53 -0500
+Subject: Re: Mounting NFS root FS
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061203060208.GA900@1wt.eu>
+References: <4571CE06.4040800@popdial.com>
+	 <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr>
+	 <20061202211522.GB24090@1wt.eu>
+	 <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr>
+	 <20061202225528.GA27342@1wt.eu>
+	 <1165113438.5698.5.camel@lade.trondhjem.org>  <20061203060208.GA900@1wt.eu>
+Content-Type: text/plain
+Date: Sun, 03 Dec 2006 02:05:10 -0500
+Message-Id: <1165129510.5745.14.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AccWopbH3gQk/oKlTd2nr0VLkKgi1QAACm3g
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-In-Reply-To: 
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.316, required 12,
+	autolearn=disabled, AWL 1.55, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-12-03 at 07:02 +0100, Willy Tarreau wrote:
 
-Reformatted as plain text.
+> That's a valid point, but in fact, building with NFS client and serial
+> port support in the kernel on some archs is as common as building with
+> IDE driver and VGA console in the kernel on x86. With some architectures
+> used in light networked workstations, it's very common to boot from the
+> network (sparc & parisc come to mind, sorry to those I forgot), hence
+> this common practise.
 
-________________________________________
-From: Aucoin [mailto:Aucoin@Houston.RR.com] 
-Sent: Sunday, December 03, 2006 12:17 AM
-To: 'akpm@osdl.org'; 'torvalds@osdl.org'; 'linux-kernel@vger.kernel.org';
-'clameter@sgi.com'
-Subject: la la la la ... swappiness
+I have no influence over the distributions' choice of kernel compiler
+options. The fact is, though, that few of them support nfsroot out of
+the box. AFAICS FC-6 is one of those that appears not to.
 
-I set swappiness to zero and it doesn't do what I want!
+> > As for the initramfs support, hpa has assured me that his klibc
+> > distribution already has a full solution for NFS mounting on current
+> > kernels.
+> 
+> That's again where we see the limits of this ever-developping 2.6.
+> I'm not saying that doing this from initramfs+tools is a bad solution,
+> since it solves lots of problems, it's just that it is *much* different
+> from what was previously done.
+> 
+> People who have installed a distro on their machines will not be
+> able to upgrade their kernel past a certain point by hand. Upgrading
+> distro packages in such environments is generally not always an
+> option (particularly boot packages such as boot loader and kernel),
+> because the boot server is not necessarily running on the same
+> OS/distro, and sometimes the kernel needs different build options.
 
-I have a system that runs as a Linux based data server 24x7 and occasionally
-I need to apply an update or patch. It's a BIIIG patch to the tune of
-several hundred megabytes, let's say 600MB for a good round number. The
-server software itself runs on very tight memory boundaries, I've
-preallocated a large chunk of memory that is shared amongst several
-processes as a form of application cache, there is barely 15% spare memory
-floating around.
+Most people that run nfsroot systems do so because that makes
+provisioning of new machines easy: if you only have one system image,
+then upgrading it is less of a challenge.
 
-The update is delivered to the server as a tar file. In order to minimize
-down time I untar this update and verify the contents landed correctly
-before switching over to the updated software.
+> Then the remaining solution to get stability and security fixes
+> is often to [cross-]compile a more recent kernel, and to put it
+> on the boot server. Fortunately Adrian maintains 2.6.16 :-/
 
-The problem is when I attempt to untar the payload disk I/O starts caching,
-the inactive page count reels wildly out of control, the system starts
-swapping, OOM fires and there goes my 4 9's uptime. My system just suffered
-a catastrophic failure because I can't control pagecache due to disk I/O.
-I need a pagecache throttle, what do you suggest?
+No comment.
 
-
-
+Trond
 

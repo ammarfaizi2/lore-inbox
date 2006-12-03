@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424987AbWLCGCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424995AbWLCGSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424987AbWLCGCY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 01:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424988AbWLCGCX
+	id S1424995AbWLCGSe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 01:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424996AbWLCGSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 01:02:23 -0500
-Received: from 1wt.eu ([62.212.114.60]:20741 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1424987AbWLCGCW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 01:02:22 -0500
-Date: Sun, 3 Dec 2006 07:02:08 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       William Estrada <MrUmunhum@popdial.com>, linux-kernel@vger.kernel.org
-Subject: Re: Mounting NFS root FS
-Message-ID: <20061203060208.GA900@1wt.eu>
-References: <4571CE06.4040800@popdial.com> <Pine.LNX.4.61.0612022006170.25553@yvahk01.tjqt.qr> <20061202211522.GB24090@1wt.eu> <Pine.LNX.4.61.0612022253280.25553@yvahk01.tjqt.qr> <20061202225528.GA27342@1wt.eu> <1165113438.5698.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165113438.5698.5.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.11
+	Sun, 3 Dec 2006 01:18:34 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:55492 "EHLO
+	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1424995AbWLCGSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 01:18:33 -0500
+Message-Id: <200612030618.kB36IMxU003340@ms-smtp-02.texas.rr.com>
+Reply-To: <Aucoin@Houston.RR.com>
+From: "Aucoin" <Aucoin@Houston.RR.com>
+To: <akpm@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <clameter@sgi.com>
+Subject: RE: la la la la ... swappiness
+Date: Sun, 3 Dec 2006 00:18:26 -0600
+Organization: home
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AccWopbH3gQk/oKlTd2nr0VLkKgi1QAACm3g
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 02, 2006 at 09:37:18PM -0500, Trond Myklebust wrote:
-> On Sat, 2006-12-02 at 23:55 +0100, Willy Tarreau wrote:
-> > I'm not saying initramfs is not powerful, and indeed your example is
-> > the common way of parsing cmdline for me too. What I'm saying is that
-> > before nfsroot stops being supported, we'll need a working replacement
-> > (and not "### further parse $arg"), if possible within the kernel tree
-> > so that people who used to build kernels to boot such machines will
-> > still be able to build kernels for them, even if this implies using
-> > an initramfs with some tools in it.
-> > 
-> > The real danger of removing support for in-kernel features like this
-> > is to leave people with no solution at all (because they don't know
-> > how to proceed), and their workarounds are often worse than the
-> > problem that we tried to fix in the first place.
-> 
-> It hasn't been removed yet. However most distributions choose not to
-> enable it because that would force them to compile the NFS client into
-> the main kernel instead of leaving it as a module.
 
-That's a valid point, but in fact, building with NFS client and serial
-port support in the kernel on some archs is as common as building with
-IDE driver and VGA console in the kernel on x86. With some architectures
-used in light networked workstations, it's very common to boot from the
-network (sparc & parisc come to mind, sorry to those I forgot), hence
-this common practise.
+Reformatted as plain text.
 
-> As for the initramfs support, hpa has assured me that his klibc
-> distribution already has a full solution for NFS mounting on current
-> kernels.
+________________________________________
+From: Aucoin [mailto:Aucoin@Houston.RR.com] 
+Sent: Sunday, December 03, 2006 12:17 AM
+To: 'akpm@osdl.org'; 'torvalds@osdl.org'; 'linux-kernel@vger.kernel.org';
+'clameter@sgi.com'
+Subject: la la la la ... swappiness
 
-That's again where we see the limits of this ever-developping 2.6.
-I'm not saying that doing this from initramfs+tools is a bad solution,
-since it solves lots of problems, it's just that it is *much* different
-from what was previously done.
+I set swappiness to zero and it doesn't do what I want!
 
-People who have installed a distro on their machines will not be
-able to upgrade their kernel past a certain point by hand. Upgrading
-distro packages in such environments is generally not always an
-option (particularly boot packages such as boot loader and kernel),
-because the boot server is not necessarily running on the same
-OS/distro, and sometimes the kernel needs different build options.
+I have a system that runs as a Linux based data server 24x7 and occasionally
+I need to apply an update or patch. It's a BIIIG patch to the tune of
+several hundred megabytes, let's say 600MB for a good round number. The
+server software itself runs on very tight memory boundaries, I've
+preallocated a large chunk of memory that is shared amongst several
+processes as a form of application cache, there is barely 15% spare memory
+floating around.
 
-Then the remaining solution to get stability and security fixes
-is often to [cross-]compile a more recent kernel, and to put it
-on the boot server. Fortunately Adrian maintains 2.6.16 :-/
+The update is delivered to the server as a tar file. In order to minimize
+down time I untar this update and verify the contents landed correctly
+before switching over to the updated software.
 
-> Trond
+The problem is when I attempt to untar the payload disk I/O starts caching,
+the inactive page count reels wildly out of control, the system starts
+swapping, OOM fires and there goes my 4 9's uptime. My system just suffered
+a catastrophic failure because I can't control pagecache due to disk I/O.
+I need a pagecache throttle, what do you suggest?
 
-Regards,
-Willy
+
+
 

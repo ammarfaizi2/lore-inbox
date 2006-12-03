@@ -1,87 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758395AbWLCXFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758792AbWLCXIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758395AbWLCXFF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 18:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758779AbWLCXFF
+	id S1758792AbWLCXIE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 18:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758801AbWLCXIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 18:05:05 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34948 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1758395AbWLCXFD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 18:05:03 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Peter Stuge <stuge-linuxbios@cdy.org>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, linuxbios@linuxbios.org
-Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
-References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com>
-	<20061201191916.GB3539@suse.de> <20061201204249.28842.qmail@cdy.org>
-	<m164cvgvwz.fsf@ebiederm.dsl.xmission.com>
-	<20061201214631.6991.qmail@cdy.org>
-	<m1wt5bfces.fsf@ebiederm.dsl.xmission.com>
-	<20061203170046.28314.qmail@cdy.org>
-Date: Sun, 03 Dec 2006 16:03:55 -0700
-In-Reply-To: <20061203170046.28314.qmail@cdy.org> (Peter Stuge's message of
-	"Sun, 3 Dec 2006 18:00:46 +0100")
-Message-ID: <m1r6vgeg4k.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 3 Dec 2006 18:08:04 -0500
+Received: from sp604001mt.neufgp.fr ([84.96.92.60]:52369 "EHLO Smtp.neuf.fr")
+	by vger.kernel.org with ESMTP id S1758792AbWLCXIB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 18:08:01 -0500
+Date: Mon, 04 Dec 2006 00:08:01 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: PATCH? rcu_do_batch: fix a pure theoretical memory ordering race
+In-reply-to: <20061203221227.GA468@oleg>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org
+Message-id: <457358D1.3050601@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <20061202212517.GA1199@oleg> <45730AAD.1050006@cosmosbay.com>
+ <20061203200153.GA107@oleg> <457334C4.8010604@cosmosbay.com>
+ <20061203221227.GA468@oleg>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Stuge <stuge-linuxbios@cdy.org> writes:
+Oleg Nesterov a écrit :
+> On 12/03, Eric Dumazet wrote:
+>> Oleg Nesterov a ?crit :
+>>
+>> Yes, but how is it related to RCU ?
+>> I mean, rcu_do_batch() is just a loop like others in kernel.
+>> The loop itself is not buggy, but can call a buggy function, you are right.
+> 
+> 	int start_me_again;
+> 
+> 	struct rcu_head rcu_head;
+> 
+> 	void rcu_func(struct rcu_head *rcu)
+> 	{
+> 		start_me_again = 1;
+> 	}
+> 
+> 	// could be called on arbitrary CPU
+> 	void check_start_me_again(void)
+> 	{
+> 		static spinlock_t lock;
+> 
+> 		spin_lock(lock);
+> 		if (start_me_again) {
+> 			start_me_again = 0;
+> 			call_rcu(&rcu_head, rcu_func);
+> 		}
+> 		spin_unlock(lock);
+> 	}
+> 
+> I'd say this code is not buggy.
 
-> On Fri, Dec 01, 2006 at 04:02:03PM -0700, Eric W. Biederman wrote:
->> >> Sure, I will send it out shortly.  I currently have a working
->> >> user space libusb thing (easy, but useful for my debug)
->> >
->> > Hm - for driving which end?
->> 
->> Either.  The specific device we are talking about doesn't care.
->
-> Which device do you have?
+Are you sure ? Can you prove it ? :)
 
-Well it is built by PLX, and from lsusb I see are:
-0525:127a Netchip Technology, Inc. 
+I do think your rcu_func() misses some sync primitive, *after* start_me_again=1;
+You seem to rely on some undocumented side effect.
+Adding smp_rmb() before calling rcu_func() wont help.
 
-The hardware is a little rectangular pcb board a little smaller
-then a business card.  Wrapped in a blue case, with vertical vents
-on both of the long sides, and gets a little warm when you have been
-running it for a while.  The device has what appears to be 2 normal
-host to slave cables running into it.
+> 
+> In case it was not clear. I do not claim we need this patch (I don't know).
+> And yes, I very much doubt we can hit this problem in practice (even if I am
+> right).
+> 
+> What I don't agree with is that it is callback which should take care of this
+> problem.
+> 
+>> A smp_rmb() wont avoid all possible bugs...
+> 
+> For example?
 
-The picture at the bottom of:
-http://advdbg.org/blogs/advdbg_system/articles/64.aspx
+A smp_rmb() wont avoid stores pending on this CPU to be committed to memory 
+after another cpu takes the object for itself. Those stores could overwrite 
+stores done by the other cpu as well.
 
-Looks like what I have.  I'm curious about the whole plug both
-ends into the host before plugging it into the client, and about
-the strange target system BIOS requirements.
+So in theory you could design a buggy callback function even after your patch 
+applied.
 
-I think I succeeded in making it work without out that by just putting
-in a reset.  It does make the whole setup of the device a pain though.
+Any function that can transfer an object from CPU A scope to CPU B scope must 
+take care of memory barrier by itself. The caller *cannot* possibly do the 
+job, especially if it used an indirect call. However, in some cases it is 
+possible some clever algos are doing the reverse, ie doing the memory barrier 
+in the callers.
 
->> > The debug port isn't really supposed to be used with anything but
->> > a debug device - which can't be enumerated normally anyway.
->> 
->> It depends.  If you have a debug cable with magic ends and a
->> hardcoded address of 127 the normal enumeration doesn't work.  I
->> don't think anyone actually makes one of those.
->
-> Only one of the ports on Stefan's PLX NET20DC that I had a look at
-> during the LinuxBIOS symposium enumerated for me.
+Kernel is full of such constructs :
 
-Very odd.  I'm pretty certain we are talking same thing.  But I do
-know it has a couple of weird quirks, so maybe you just ran up against
-that.
+for (ptr = head; ptr != NULL ; ptr = next) {
+	next = ptr->next;
+	some_subsys_delete(ptr);
+}
 
->> Debug devices are also allowed to be normal devices that just
->> support the debug descriptor.  Which is what I'm working with.
->
-> Aye. I would be happy if we could get something out, as you have
-> done! :) Looking forward to trying it, I hope I get my device soon.
+And we dont need to add smp_rmb() before the call to some_subsys_delete(), it 
+would be a nightmare, and would slow down modern cpus.
 
-Well at least this means after it works I can probably forget about
-it and let someone else maintain the code ;)
+When the callback function dont need a memory barrier, why should we force a 
+generic one in the caller ?
 
-Eric
+AFAIK most kfree() calls dont need a barrier, since slab just queue the 
+pointer into the cpu's array_cache if there is one available slot.
+
+

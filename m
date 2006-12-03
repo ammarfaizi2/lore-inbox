@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935644AbWLCKrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935790AbWLCK4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935644AbWLCKrY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 05:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935788AbWLCKrY
+	id S935790AbWLCK4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 05:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935788AbWLCK4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 05:47:24 -0500
-Received: from vervifontaine.sonytel.be ([80.88.33.193]:25790 "EHLO
+	Sun, 3 Dec 2006 05:56:43 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:45758 "EHLO
 	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
-	id S935644AbWLCKrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 05:47:23 -0500
-Date: Sun, 3 Dec 2006 11:47:19 +0100 (CET)
+	id S935793AbWLCK4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 05:56:42 -0500
+Date: Sun, 3 Dec 2006 11:56:40 +0100 (CET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Sam Creasey <sammy@sammy.net>,
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Adrian Bunk <bunk@stusta.de>, Linux/m68k <linux-m68k@vger.kernel.org>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: MAINTAINERS: remove the non-existing sun3 list
-In-Reply-To: <20061201115818.GX11084@stusta.de>
-Message-ID: <Pine.LNX.4.62.0612031146200.20605@pademelon.sonytel.be>
-References: <20061201115818.GX11084@stusta.de>
+Subject: Re: [2.6 patch] cleanup asm/setup.h userspace visibility
+In-Reply-To: <20061202180233.GA26111@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.62.0612031154220.20605@pademelon.sonytel.be>
+References: <20061202175539.GV11084@stusta.de> <20061202180233.GA26111@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2006, Adrian Bunk wrote:
-> sun3-list@redhat.com does no longer exist.
+On Sat, 2 Dec 2006, Russell King wrote:
+> On Sat, Dec 02, 2006 at 06:55:39PM +0100, Adrian Bunk wrote:
+> > This patch makes the contents of the userspace asm/setup.h header 
+> > consistent on all architectures:
+> > - export setup.h to userspace on all architectures
+> > - export only COMMAND_LINE_SIZE to userspace
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.19-rc6-mm2/MAINTAINERS.old	2006-12-01 12:56:19.000000000 +0100
-> +++ linux-2.6.19-rc6-mm2/MAINTAINERS	2006-12-01 12:56:39.000000000 +0100
-> @@ -2994,7 +2994,6 @@
->  SUN3/3X
->  P:	Sam Creasey
->  M:	sammy@sammy.net
-> -L:	sun3-list@redhat.com
->  W:	http://sammy.net/sun3/
->  S:	Maintained
+> On ARM, all the ATAGs are exported to userspace because they are an API
+> for boot loaders to use.  Everything down to the comment "Memory map
+> description" should be exported.
 
-Please replace broken m68k port lists with linux-m68k@lists.linux-m68k.org.
+Same for m68k: at least MACH_*, CPU*, MMU*, and FPU* are needed to compile
+m68kboot.
 
 Gr{oetje,eeting}s,
 

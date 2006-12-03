@@ -1,93 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935701AbWLCJRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759618AbWLCKeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935701AbWLCJRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 04:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935708AbWLCJRM
+	id S1759618AbWLCKeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 05:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759619AbWLCKeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 04:17:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53258 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S935701AbWLCJRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 04:17:11 -0500
-Date: Sun, 3 Dec 2006 10:17:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] FW_LOADER should select HOTPLUG
-Message-ID: <20061203091715.GA3442@stusta.de>
-References: <20061202194022.GY11084@stusta.de> <20061203071637.GA11084@stusta.de> <20061203005824.37bd8e0f.akpm@osdl.org> <20061203081552.GC11084@stusta.de> <20061203012401.3cc30232.akpm@osdl.org>
+	Sun, 3 Dec 2006 05:34:10 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:37536 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S1759618AbWLCKeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 05:34:08 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Sun, 3 Dec 2006 05:30:34 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] configfs.h: Remove dead macro definitions.
+Message-ID: <Pine.LNX.4.64.0612030524100.2655@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061203012401.3cc30232.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, TW_GF 0.08)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 01:24:01AM -0800, Andrew Morton wrote:
-> On Sun, 3 Dec 2006 09:15:52 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > On Sun, Dec 03, 2006 at 12:58:24AM -0800, Andrew Morton wrote:
-> > > On Sun, 3 Dec 2006 08:16:37 +0100
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > 
-> > > > Since FW_LOADER is an option that is always select'ed by the code using 
-> > > > it, it mustn't depend on HOTPLUG.
-> > > > 
-> > > > It's only relevant in the EMBEDDED=y case, but this might have resulted 
-> > > > in illegal FW_LOADER=, HOTPLUG=n configurations.
-> > > > 
-> > > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > > > 
-> > > > --- linux-2.6.19-rc6-mm2/drivers/base/Kconfig.old	2006-12-02 20:36:49.000000000 +0100
-> > > > +++ linux-2.6.19-rc6-mm2/drivers/base/Kconfig	2006-12-02 20:37:03.000000000 +0100
-> > > > @@ -19,8 +19,8 @@
-> > > >  	  If unsure say Y here.
-> > > >  
-> > > >  config FW_LOADER
-> > > > -	tristate "Userspace firmware loading support"
-> > > > -	depends on HOTPLUG
-> > > > +	tristate
-> > > > +	select HOTPLUG
-> > > 
-> > > It would be a retrograde step to start selecting HOTPLUG - we've managed to
-> > > avoid it thus far.
-> > 
-> > $ grep -r "select HOTPLUG" * | wc -l
-> > 4
-> > $ 
-> > 
-> > > It'd be better to make those drivers which select FW_LOADER dependent upon
-> > > HOTPLUG.
-> > 
-> > $ grep -r "select FW_LOADER" * | wc -l
-> > 71
-> 
-> 46 actually.  And it's immaterial.
 
-Sorry, I had some .old and .orig files in my tree...
+  Delete the __ATTR-related macro definitions since these are now
+defined in include/linux/sysfs.h.
 
-> > And since the only case where depends<->select makes a difference is 
-> > CONFIG_EMBEDDED=y, people will always continue to forget the dependency 
-> > on HOTPLUG when select'ing FW_LOADER.
-> 
-> I realise that.  But having HOTPLUG magically and mysteriously turn itself
-> back on again is a pita.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-In practice, it's already always turned on (except for CONFIG_EMBEDDED=n).
+---
 
-Unless Kconfig gets changed to automatically inherit dependencies of 
-select'ed symbols, FW_LOADER not select'ing HOTPLUG is simply a constant 
-source of bugs.
+diff --git a/include/linux/configfs.h b/include/linux/configfs.h
+index a7f0150..fef6f3d 100644
+--- a/include/linux/configfs.h
++++ b/include/linux/configfs.h
+@@ -160,31 +160,6 @@ struct configfs_group_operations {
+ 	void (*drop_item)(struct config_group *group, struct config_item *item);
+ };
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-
+-
+-/**
+- * Use these macros to make defining attributes easier. See include/linux/device.h
+- * for examples..
+- */
+-
+-#if 0
+-#define __ATTR(_name,_mode,_show,_store) { \
+-	.attr = {.ca_name = __stringify(_name), .ca_mode = _mode, .ca_owner = THIS_MODULE },	\
+-	.show	= _show,					\
+-	.store	= _store,					\
+-}
+-
+-#define __ATTR_RO(_name) { \
+-	.attr	= { .ca_name = __stringify(_name), .ca_mode = 0444, .ca_owner = THIS_MODULE },	\
+-	.show	= _name##_show,	\
+-}
+-
+-#define __ATTR_NULL { .attr = { .name = NULL } }
+-
+-#define attr_name(_attr) (_attr).attr.name
+-#endif
+-
+-
+ struct configfs_subsystem {
+ 	struct config_group	su_group;
+ 	struct semaphore	su_sem;

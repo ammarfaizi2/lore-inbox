@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759618AbWLCKeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935706AbWLCKke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759618AbWLCKeK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 05:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759619AbWLCKeK
+	id S935706AbWLCKke (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 05:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935736AbWLCKke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 05:34:10 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:37536 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S1759618AbWLCKeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 05:34:08 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Sun, 3 Dec 2006 05:30:34 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] configfs.h: Remove dead macro definitions.
-Message-ID: <Pine.LNX.4.64.0612030524100.2655@localhost.localdomain>
+	Sun, 3 Dec 2006 05:40:34 -0500
+Received: from astra.telenet-ops.be ([195.130.132.58]:32727 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S935706AbWLCKkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 05:40:33 -0500
+Date: Sun, 3 Dec 2006 11:40:27 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Yan Burman <burman.yan@gmail.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>, trivial@kernel.org
+Subject: Re: [PATCH 2.6.19] m68k: replace kmalloc+memset with kzalloc
+In-Reply-To: <1165058964.4523.30.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612031140010.397@anakin>
+References: <1165058964.4523.30.camel@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, TW_GF 0.08)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2 Dec 2006, Yan Burman wrote:
+> Replace kmalloc+memset with kzalloc 
+> 
+> Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-  Delete the __ATTR-related macro definitions since these are now
-defined in include/linux/sysfs.h.
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+> diff -rubp linux-2.6.19-rc5_orig/arch/m68k/amiga/chipram.c linux-2.6.19-rc5_kzalloc/arch/m68k/amiga/chipram.c
+> --- linux-2.6.19-rc5_orig/arch/m68k/amiga/chipram.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/arch/m68k/amiga/chipram.c	2006-11-11 22:44:04.000000000 +0200
+> @@ -52,10 +52,9 @@ void *amiga_chip_alloc(unsigned long siz
+>  #ifdef DEBUG
+>      printk("amiga_chip_alloc: allocate %ld bytes\n", size);
+>  #endif
+> -    res = kmalloc(sizeof(struct resource), GFP_KERNEL);
+> +    res = kzalloc(sizeof(struct resource), GFP_KERNEL);
+>      if (!res)
+>  	return NULL;
+> -    memset(res, 0, sizeof(struct resource));
+>      res->name = name;
+>  
+>      if (allocate_resource(&chipram_res, res, size, 0, UINT_MAX, PAGE_SIZE, NULL, NULL) < 0) {
+> 
+> diff -rubp linux-2.6.19-rc5_orig/arch/m68k/atari/hades-pci.c linux-2.6.19-rc5_kzalloc/arch/m68k/atari/hades-pci.c
+> --- linux-2.6.19-rc5_orig/arch/m68k/atari/hades-pci.c	2006-11-09 12:16:21.000000000 +0200
+> +++ linux-2.6.19-rc5_kzalloc/arch/m68k/atari/hades-pci.c	2006-11-11 22:44:04.000000000 +0200
+> @@ -375,10 +375,9 @@ struct pci_bus_info * __init init_hades_
+>  	 * Allocate memory for bus info structure.
+>  	 */
+>  
+> -	bus = kmalloc(sizeof(struct pci_bus_info), GFP_KERNEL);
+> +	bus = kzalloc(sizeof(struct pci_bus_info), GFP_KERNEL);
+>  	if (!bus)
+>  		return NULL;
+> -	memset(bus, 0, sizeof(struct pci_bus_info));
+>  
+>  	/*
+>  	 * Claim resources. The m68k has no separate I/O space, both
+> 
+> 
+> 
 
----
+Gr{oetje,eeting}s,
 
-diff --git a/include/linux/configfs.h b/include/linux/configfs.h
-index a7f0150..fef6f3d 100644
---- a/include/linux/configfs.h
-+++ b/include/linux/configfs.h
-@@ -160,31 +160,6 @@ struct configfs_group_operations {
- 	void (*drop_item)(struct config_group *group, struct config_item *item);
- };
+						Geert
 
--
--
--/**
-- * Use these macros to make defining attributes easier. See include/linux/device.h
-- * for examples..
-- */
--
--#if 0
--#define __ATTR(_name,_mode,_show,_store) { \
--	.attr = {.ca_name = __stringify(_name), .ca_mode = _mode, .ca_owner = THIS_MODULE },	\
--	.show	= _show,					\
--	.store	= _store,					\
--}
--
--#define __ATTR_RO(_name) { \
--	.attr	= { .ca_name = __stringify(_name), .ca_mode = 0444, .ca_owner = THIS_MODULE },	\
--	.show	= _name##_show,	\
--}
--
--#define __ATTR_NULL { .attr = { .name = NULL } }
--
--#define attr_name(_attr) (_attr).attr.name
--#endif
--
--
- struct configfs_subsystem {
- 	struct config_group	su_group;
- 	struct semaphore	su_sem;
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936692AbWLCLwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936694AbWLCL6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936692AbWLCLwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 06:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936694AbWLCLwV
+	id S936694AbWLCL6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 06:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936696AbWLCL6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 06:52:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6125 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S936692AbWLCLwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 06:52:20 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: yhlu <yinghailu@gmail.com>
-Cc: "Stefan Reinauer" <stepan@coresystems.de>,
-       "Peter Stuge" <stuge-linuxbios@cdy.org>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org
-Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
-References: <5986589C150B2F49A46483AC44C7BCA490727C@ssvlexmb2.amd.com>
-	<m1irgufl9q.fsf@ebiederm.dsl.xmission.com>
-	<2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com>
-Date: Sun, 03 Dec 2006 04:51:15 -0700
-In-Reply-To: <2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com>
-	(yinghailu@gmail.com's message of "Sat, 2 Dec 2006 12:47:18 -0800")
-Message-ID: <m1ejrhfb9o.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Sun, 3 Dec 2006 06:58:41 -0500
+Received: from mail.syneticon.net ([213.239.212.131]:33478 "EHLO
+	mail2.syneticon.net") by vger.kernel.org with ESMTP id S936694AbWLCL6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 06:58:41 -0500
+Message-ID: <4572BBE0.4010801@wpkg.org>
+Date: Sun, 03 Dec 2006 12:58:24 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why can't I remove a kernel module (or: what uses a given module)?
+References: <4572B30F.9020605@wpkg.org> <jewt592oxf.fsf@sykes.suse.de>
+In-Reply-To: <jewt592oxf.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yhlu <yinghailu@gmail.com> writes:
+Andreas Schwab wrote:
+> Tomasz Chmielewski <mangoo@wpkg.org> writes:
+> 
+>> What was using the module in the first scenario (I couldn't remove the
+>> module)?
+> 
+> Check lsmod for modules depending on this one.
 
-> On 12/2/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Please yank the direct out of the filename if you are making something
->> like this out of it.  That was my note I was going direct to hardware
->> which is pretty much assumed if you are in LinuxBIOS.
->
-> Yes, I adapted the code to used in LinuxBIOS, including CAR stage code
-> and RAM satge code.
->
-> I didn't have debug cable plugged yet.
+You mean the "Used by" column? No, it's not used by any other module 
+according to lsmod output.
 
-Even if you did it wouldn't work right now.  My initial
-version does initialize the ehci properly so it won't
-find any usb devices.  I almost have that fixed,
-but it looks like for the usb device reset I need
-a usable delay function, so I can delay 50ms.  Grr...
+Any other methods of checking what uses /dev/sda*?
 
-> BTW in kernel earlyprintk or prink, you could use
-> read_pci_config/write_pci_config before PCI system is loaded.
 
-Yep thanks that seems to be working.  Now I just need
-to find an early delay and I can try this mess out!
-
-Eric
-
+-- 
+Tomasz Chmielewski
+http://wpkg.org

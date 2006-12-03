@@ -1,56 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424902AbWLCA2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424649AbWLCBRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424902AbWLCA2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 19:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424900AbWLCA2N
+	id S1424649AbWLCBRl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 20:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936612AbWLCBRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 19:28:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:9446 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1424898AbWLCA2M (ORCPT
+	Sat, 2 Dec 2006 20:17:41 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:5841 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S936611AbWLCBRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 19:28:12 -0500
-Message-ID: <4572194F.8060309@osdl.org>
-Date: Sat, 02 Dec 2006 16:24:47 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Steve Wise <swise@opengridcomputing.com>, rdreier@cisco.com,
-       netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v2 00/13] 2.6.20 Chelsio T3 RDMA Driver
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int> <20061202231329.GA10719@electric-eye.fr.zoreil.com>
-In-Reply-To: <20061202231329.GA10719@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Dec 2006 20:17:40 -0500
+Date: Sat, 2 Dec 2006 17:17:37 -0800
+From: "Kurtis D. Rader" <krader@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives
+Message-ID: <20061203011737.GA2729@us.ibm.com>
+References: <4570CF26.8070800@scientia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4570CF26.8070800@scientia.net>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> Steve Wise <swise@opengridcomputing.com> :
-> [...]
->   
->> Version 2 changes:
->>
->> - Make code sparse endian clean
->> - Use IDRs for mapping QP and CQ IDs to structure pointers instead of arrays
->> - Clean up confusing bitfields
->> - Use random32() instead of local random function
->> - Use krefs to track endpoint reference counts
->> - Misc nits
->>
->> -----
->>
->> The following series implements the Chelsio T3 iWARP/RDMA Driver to
->> be considered for inclusion in 2.6.20.  It depends on the Chelsio T3
->> Ethernet Driver which is also under review now for 2.6.20. See:
->>     
->
-> I understood that Stephen expressed some doubts regarding the inclusion
-> of TOE enabled features.
->
-> Was his point addressed ?
->
->   
+On Sat, 2006-12-02 01:56:06, Christoph Anton Mitterer wrote:
+> The issue was basically the following: I found a severe bug mainly by
+> fortune because it occurs very rarely.  My test looks like the following:
+> I have about 30GB of testing data on my harddisk,... I repeat verifying
+> sha512 sums on these files and check if errors occur.  One test pass
+> verifies the 30GB 50 times,... about one to four differences are found in
+> each pass.
 
-My comments were about different hardware.
+I'm also experiencing silent data corruption on writes to SATA disks
+connected to a Nvidia controller (nForce 4 chipset). The problem is
+100% reproducible. Details of my configuration (mainboard model, lspci,
+etc.) are near the bottom of this message. What follows is a summation
+of my findings.
+
+I have confirmed the corruption is occurring on the writes and not the
+reads. Furthermore, if I compare the original and copy while both are
+still cached in memory no corruption is found. But as soon as I flush the
+pagecache (by reading another file larger than memory) to force the copy
+of the file to be read from disk the corruption is seen. The corruption
+occurs with direct I/O and normal buffered filesystem I/O (ext3).
+
+Booting with "mem=1g" (system has 4 GiB installed) makes no difference.
+So it isn't due to remapping memory above the 4 GiB boundary.  Booting to
+single user and ensuring no unnecessary modules (video, etc.) are loaded
+also makes no difference.
+
+The problem affects both disks attached to the nVidia SATA controller but
+not the two disks attached to the PATA side of the same controller. All
+four disks are different models. The same SATA disks attached to
+the Silicon Image 3114 SATA RAID controller (on the same mainboard)
+experiences the same corruption but at a lower probability.  The same
+disks attached to a Promise TX2 SATA controller (in the same system)
+experience no corruption.
+
+The system has run memtest86 for 24 hours with no errors.
+
+The corruption occurs with a 32-bit kernel.org 2.6.12 kernel (from a
+Knoppix CD), 64-bit kernel.org 2.6.18.1, and 64-bit kernel.org 2.6.19.
+
+The only pattern I can discern is that the corruption only affects the
+second four byte block of a sixteen byte aligned region. That is, the
+offset of the corrupted bytes always falls in the range 0x...4 to 0x...7.
+For example, here are a few representative offsets of corrupted bytes
+from one test of many:
+
+    0x020f4554
+    0x020f4555
+    0x020f4556
+    0x020f4557
+    0x020f4555
+    0x1597f1d4
+    0x23034ee5
+    0x2dfd08d4
+    0x33690b14
+    0x33690b15
+    0x33690b16
+    0x33690b17
+
+Approximately half the corruption involves all four bytes of the second
+four byte word of the 16 by aligned region. The remaining instances show
+one, two or three bytes being corrupted. There is no pattern that I can
+discern to the corruption. It is definitely not anything as simple as the
+correct bytes being replaced with zeros or specific bits being forced to
+a zero or one state or flipped.  Copying a 2 GiB file typically results
+in between five and thirty bytes being corrupted. Back to back tests
+copying the same file results in different bytes being corrupted.
+
+The problem appears to be sensitive to the data pattern. Some files can be
+copied repeatedly without corruption. But others will exhibit corruption
+100% of the time when attached to the nVidia SATA controller and over 50%
+of the time when connected to the Sil 3114 controller.
+
+I have tried direct I/O with varying transfer sizes from 1 KiB to 128 KiB
+(I have not tried single sector I/O).  Corruption occurs with all block
+sizes. If I execute an I/O loop like this the corruption does not appear
+to occur:
+
+    while direct read 64 KiB original
+        direct write copy
+        direct read + verify copy
+    done
+
+But that is tentative as I've only done two such tests at this time.
+
+A coworker has hypothesized that this may be a consequence of bus
+crosstalk. That it doesn't happen when using the Promise TX2 controller
+suggests that if it is a HW bus problem it isn't a hypertransport or
+memory bus problem.
+
+Configuration Details
+=====================
+Mainboard: ASUS A8N-SLI Deluxe with nForce 4 chipset
+BIOS:      1016 (original) and 1805 (upgraded to in attempt to resolve)
+CPU:       AMD Athlon 64 X2 Dual Core Processor 4400+ stepping 02
+Memory:    4 x 1 GiB Kingston matched pairs lifetime warranty
+Kernel:    2.6.19 kernel.org (as well as others)
+Disks:     Western Digital WD740GD-00FL (10000 rpm "Raptor" disk) 
+           Western Digital WD1600JD-32H (7200 rpm)
+
+00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
+	Subsystem: ASUSTeK Computer Inc. Unknown device 815a
+	Flags: bus master, 66MHz, fast devsel, latency 0
+	Capabilities: [44] HyperTransport: Slave or Primary Interface
+	Capabilities: [e0] HyperTransport: MSI Mapping
+
+00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev f3)
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0
+
+00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: 66MHz, fast devsel, IRQ 3
+	I/O ports at e000 [size=32]
+	I/O ports at 4c00 [size=64]
+	I/O ports at 4c40 [size=64]
+	Capabilities: [44] Power Management version 2
+
+00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2) (prog-if 10 [OHCI])
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 5
+	Memory at d4003000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [44] Power Management version 2
+
+00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3) (prog-if 20 [EHCI])
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 7
+	Memory at feb00000 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [44] Debug port
+	Capabilities: [80] Power Management version 2
+
+00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 11
+	I/O ports at d800 [size=256]
+	I/O ports at dc00 [size=256]
+	Memory at d4002000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [44] Power Management version 2
+
+00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2) (prog-if 8a [Master SecP PriP])
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0
+	I/O ports at f000 [size=16]
+	Capabilities: [44] Power Management version 2
+
+00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85 [Master SecO PriO])
+	Subsystem: ASUSTeK Computer Inc. Unknown device 815a
+	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 11
+	I/O ports at 09f0 [size=8]
+	I/O ports at 0bf0 [size=4]
+	I/O ports at 0970 [size=8]
+	I/O ports at 0b70 [size=4]
+	I/O ports at d400 [size=16]
+	Memory at d4001000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [44] Power Management version 2
+
+00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85 [Master SecO PriO])
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 5
+	I/O ports at 09e0 [size=8]
+	I/O ports at 0be0 [size=4]
+	I/O ports at 0960 [size=8]
+	I/O ports at 0b60 [size=4]
+	I/O ports at c000 [size=16]
+	Memory at d4000000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [44] Power Management version 2
+
+00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev f2) (prog-if 01 [Subtractive decode])
+	Flags: bus master, 66MHz, fast devsel, latency 0
+	Bus: primary=00, secondary=05, subordinate=05, sec-latency=128
+	I/O behind bridge: 00007000-00009fff
+	Memory behind bridge: d2000000-d3ffffff
+	Prefetchable memory behind bridge: d4100000-d42fffff
+
+00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev f3) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=04, subordinate=04, sec-latency=0
+	Capabilities: [40] Power Management version 2
+	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+	Capabilities: [58] HyperTransport: MSI Mapping
+	Capabilities: [80] Express Root Port (Slot+) IRQ 0
+	Capabilities: [100] Virtual Channel
+
+00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev f3) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=03, subordinate=03, sec-latency=0
+	Capabilities: [40] Power Management version 2
+	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+	Capabilities: [58] HyperTransport: MSI Mapping
+	Capabilities: [80] Express Root Port (Slot+) IRQ 0
+	Capabilities: [100] Virtual Channel
+
+00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev f3) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
+	Capabilities: [40] Power Management version 2
+	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+	Capabilities: [58] HyperTransport: MSI Mapping
+	Capabilities: [80] Express Root Port (Slot+) IRQ 0
+	Capabilities: [100] Virtual Channel
+
+00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000a000-0000afff
+	Memory behind bridge: d0000000-d1ffffff
+	Prefetchable memory behind bridge: 00000000c0000000-00000000cff00000
+	Capabilities: [40] Power Management version 2
+	Capabilities: [48] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+	Capabilities: [58] HyperTransport: MSI Mapping
+	Capabilities: [80] Express Root Port (Slot+) IRQ 0
+	Capabilities: [100] Virtual Channel
+
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+	Flags: fast devsel
+	Capabilities: [80] HyperTransport: Host or Secondary Interface
+
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+	Flags: fast devsel
+
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+	Flags: fast devsel
+
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+	Flags: fast devsel
+
+01:00.0 VGA compatible controller: ATI Technologies Inc RV530 [Radeon X1600] (prog-if 00 [VGA])
+	Subsystem: VISIONTEK Unknown device 1890
+	Flags: bus master, fast devsel, latency 0, IRQ 3
+	Memory at c0000000 (64-bit, prefetchable) [size=256M]
+	Memory at d1000000 (64-bit, non-prefetchable) [size=64K]
+	I/O ports at a000 [size=256]
+	Expansion ROM at d0000000 [disabled] [size=128K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] Express Endpoint IRQ 0
+	Capabilities: [80] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+
+01:00.1 Display controller: ATI Technologies Inc RV530 [Radeon X1600] (Secondary)
+	Subsystem: VISIONTEK Unknown device 1891
+	Flags: fast devsel
+	Memory at d1010000 (64-bit, non-prefetchable) [disabled] [size=64K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] Express Endpoint IRQ 0
+
+05:07.0 Mass storage controller: Promise Technology, Inc. PDC20375 (SATA150 TX2plus) (rev 02)
+	Subsystem: Promise Technology, Inc. PDC20375 (SATA150 TX2plus)
+	Flags: bus master, 66MHz, medium devsel, latency 96, IRQ 5
+	I/O ports at 7000 [size=64]
+	I/O ports at 7400 [size=16]
+	I/O ports at 7800 [size=128]
+	Memory at d3124000 (32-bit, non-prefetchable) [size=4K]
+	Memory at d3100000 (32-bit, non-prefetchable) [size=128K]
+	Expansion ROM at d4280000 [disabled] [size=16K]
+	Capabilities: [60] Power Management version 2
+
+05:08.0 Ethernet controller: Intel Corporation 82557/8/9 [Ethernet Pro 100] (rev 08)
+	Subsystem: IBM Netfinity 10/100
+	Flags: bus master, medium devsel, latency 32, IRQ 3
+	Memory at d3127000 (32-bit, non-prefetchable) [size=4K]
+	I/O ports at 7c00 [size=64]
+	Memory at d3000000 (32-bit, non-prefetchable) [size=1M]
+	Expansion ROM at d4100000 [disabled] [size=1M]
+	Capabilities: [dc] Power Management version 2
+
+05:0a.0 RAID bus controller: Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
+	Subsystem: ASUSTeK Computer Inc. Unknown device 8167
+	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 7
+	I/O ports at 8000 [size=8]
+	I/O ports at 8400 [size=4]
+	I/O ports at 8800 [size=8]
+	I/O ports at 8c00 [size=4]
+	I/O ports at 9000 [size=16]
+	Memory at d3125000 (32-bit, non-prefetchable) [size=1K]
+	Expansion ROM at d4200000 [disabled] [size=512K]
+	Capabilities: [60] Power Management version 2
+
+05:0b.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link) (prog-if 10 [OHCI])
+	Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+	Flags: bus master, medium devsel, latency 32, IRQ 3
+	Memory at d3126000 (32-bit, non-prefetchable) [size=2K]
+	Memory at d3120000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: [44] Power Management version 2
+
+-- 
+Kurtis D. Rader, Linux level 3 support  email: krader@us.ibm.com
+IBM Integrated Technology Services      DID: +1 503-578-3714
+15300 SW Koll Pkwy, MS RHE2-O2          service: 800-IBM-SERV
+Beaverton, OR 97006-6063                http://www.ibm.com

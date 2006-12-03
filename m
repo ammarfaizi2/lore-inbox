@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936691AbWLCL1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935864AbWLCLej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936691AbWLCL1W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 06:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936692AbWLCL1W
+	id S935864AbWLCLej (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 06:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935867AbWLCLej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 06:27:22 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15888 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S936691AbWLCL1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 06:27:21 -0500
-Date: Sun, 3 Dec 2006 11:27:07 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
-       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061203112706.GA12722@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home> <20061203102108.GA1724@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061203102108.GA1724@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sun, 3 Dec 2006 06:34:39 -0500
+Received: from mail.suse.de ([195.135.220.2]:17077 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S935864AbWLCLei (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 06:34:38 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Tomasz Chmielewski <mangoo@wpkg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why can't I remove a kernel module (or: what uses a given module)?
+References: <4572B30F.9020605@wpkg.org>
+X-Yow: I wonder if I should put myself in ESCROW!!
+Date: Sun, 03 Dec 2006 12:34:36 +0100
+In-Reply-To: <4572B30F.9020605@wpkg.org> (Tomasz Chmielewski's message of
+	"Sun, 03 Dec 2006 12:20:47 +0100")
+Message-ID: <jewt592oxf.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 11:21:09AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > The other alternative has real _practical_ value in almost every case, 
-> > > > which I very much prefer. What's wrong with that?
-> > > 
-> > > Lack of any type safety whatsoever, magic boilerplates in callback instances,
-> > > rules more complex than "your callback should take a pointer, don't cast
-> > > anything, it's just a way to arrange for a delayed call, nothing magical
-> > > needed"?
-> > 
-> > I admit the compile check in SETUP_TIMER() is clever, but this way all the
-> > magic is in this place and is it really worth it? You're only adding _one_ 
-> > extra typecheck for mostly simple cases anyway.
-> 
-> Well, there are so many of these simple changes, that SETUP_TIMER()
-> with its clever trick looks very useful.
+Tomasz Chmielewski <mangoo@wpkg.org> writes:
 
-I agree with Al, Matthew and Pavel.  The current timer stuff is a pita
-and needs fixing, and it seems Al has come up with a good way to do it
-without adding additional crap into every single user of timers.
+> What was using the module in the first scenario (I couldn't remove the
+> module)?
 
-There *are* times when having the additional space for storing a pointer
-is cheaper (in terms of number of bytes) than code to calculate an offset,
-and those who have read the assembly code probably know this all too well.
+Check lsmod for modules depending on this one.
 
-Al - I look forward to your changes.
+Andreas.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

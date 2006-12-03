@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760143AbWLCWyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760155AbWLCXDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760143AbWLCWyr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 17:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760141AbWLCWyq
+	id S1760155AbWLCXDH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 18:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760156AbWLCXDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 17:54:46 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:413 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1760136AbWLCWyq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 17:54:46 -0500
-Date: Sun, 3 Dec 2006 23:52:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Pavel Machek <pavel@ucw.cz>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
-       Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
-       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-In-Reply-To: <20061203210113.GF9876@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.64.0612032348580.1867@scrub.home>
-References: <1165084076.24604.56.camel@localhost.localdomain>
- <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org>
- <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home>
- <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home>
- <20061203102108.GA1724@elf.ucw.cz> <20061203112706.GA12722@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612031602570.1867@scrub.home> <20061203210113.GF9876@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 3 Dec 2006 18:03:07 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56210 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1760155AbWLCXDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 18:03:04 -0500
+Date: Sun, 3 Dec 2006 23:10:21 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lib: Convert kmalloc()+memset() to kzalloc()
+Message-ID: <20061203231021.5e5cd949@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612031132220.4502@localhost.localdomain>
+References: <Pine.LNX.4.64.0612031132220.4502@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 3 Dec 2006 11:35:49 -0500 (EST)
+"Robert P. J. Day" <rpjday@mindspring.com> wrote:
 
-On Sun, 3 Dec 2006, Pavel Machek wrote:
-
-> > What exactly is the pita here? Al only came up with some rather 
-> > theoretical problems with no practical relevance.
 > 
-> Lack of type-checking in timers is ugly.
+>   Convert the single obvious instance in lib/ of kmalloc() + memset()
+> to kzalloc().
+> 
+> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-It's a matter of perspective, a bit more type checking would be nice, but 
-breaking the API just for that is ugly as well. Unless there is a bad need 
-for it, I don't think it's worth it...
-
-bye, Roman
+Acked-by: Alan Cox <alan@redhat.com>

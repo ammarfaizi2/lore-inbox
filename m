@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935778AbWLCKqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935644AbWLCKrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935778AbWLCKqw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 05:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935644AbWLCKqw
+	id S935644AbWLCKrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 05:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935788AbWLCKrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 05:46:52 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:53420 "EHLO
-	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
-	id S935778AbWLCKqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 05:46:51 -0500
-X-Originating-Ip: 74.109.98.100
-Date: Sun, 3 Dec 2006 05:43:21 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: any value to "struct configfs_attribute" anymore?
-Message-ID: <Pine.LNX.4.64.0612030534070.2710@localhost.localdomain>
+	Sun, 3 Dec 2006 05:47:24 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:25790 "EHLO
+	vervifontaine.sonycom.com") by vger.kernel.org with ESMTP
+	id S935644AbWLCKrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 05:47:23 -0500
+Date: Sun, 3 Dec 2006 11:47:19 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Sam Creasey <sammy@sammy.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: MAINTAINERS: remove the non-existing sun3 list
+In-Reply-To: <20061201115818.GX11084@stusta.de>
+Message-ID: <Pine.LNX.4.62.0612031146200.20605@pademelon.sonytel.be>
+References: <20061201115818.GX11084@stusta.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00, TW_GF 0.08)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Dec 2006, Adrian Bunk wrote:
+> sun3-list@redhat.com does no longer exist.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.19-rc6-mm2/MAINTAINERS.old	2006-12-01 12:56:19.000000000 +0100
+> +++ linux-2.6.19-rc6-mm2/MAINTAINERS	2006-12-01 12:56:39.000000000 +0100
+> @@ -2994,7 +2994,6 @@
+>  SUN3/3X
+>  P:	Sam Creasey
+>  M:	sammy@sammy.net
+> -L:	sun3-list@redhat.com
+>  W:	http://sammy.net/sun3/
+>  S:	Maintained
 
-  as a followup to my previous patch submission, is there any value to
-the definition of "struct configfs_attribute" in configfs.h anymore,
-given a similar structure in sysfs.h?
+Please replace broken m68k port lists with linux-m68k@lists.linux-m68k.org.
 
-configfs.h:
------------
+Gr{oetje,eeting}s,
 
-struct configfs_attribute {
-        const char              *ca_name;
-        struct module           *ca_owner;
-        mode_t                  ca_mode;
-};
+						Geert
 
-sysfs.h:
---------
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-struct attribute {
-        const char              * name;
-        struct module           * owner;
-        mode_t                  mode;
-};
-
-  if these two structs are *necessarily* identical, then it would make
-sense to remove the few remaining uses of the former and replace them
-with references to the latter, no?  there are only a few files that
-appear to still make reference to the former:
-
-fs/configfs/inode.c
-fs/ocfs2/cluster/heartbeat.c
-fs/ocfs2/cluster/nodemanager.c
-fs/dlm/config.c
-
-so standardizing on the latter would be fairly easy.  or is there a
-reason why those two structures still have to be treated
-independently?
-
-rday
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

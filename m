@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759647AbWLCNFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759659AbWLCNGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759647AbWLCNFb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 08:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759649AbWLCNFb
+	id S1759659AbWLCNGj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 08:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759662AbWLCNGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 08:05:31 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:20941 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1759647AbWLCNFa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 08:05:30 -0500
-Message-ID: <4572CB98.6050700@garzik.org>
-Date: Sun, 03 Dec 2006 08:05:28 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@it.uu.se>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19 1/3] sata_promise: PHYMODE4 fixup
-References: <200612010955.kB19twqh002446@alkaid.it.uu.se>
-In-Reply-To: <200612010955.kB19twqh002446@alkaid.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 3 Dec 2006 08:06:39 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:31427 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1759658AbWLCNGi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 08:06:38 -0500
+Subject: Re: [linux-usb-devel] [GIT PATCH] USB patches for 2.6.19
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.44L0.0612021555530.20254-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0612021555530.20254-100000@netrider.rowland.org>
+Content-Type: text/plain
+Date: Sun, 03 Dec 2006 14:06:00 +0100
+Message-Id: <1165151160.19590.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> This patch adds code to fix up the PHYMODE4 "align timing"
-> register value on second-generation Promise SATA chips.
-> Failure to correct this value on non-x86 machines makes
-> drive detection prone to failure due to timeouts. (I've
-> observed about 50% detection failure rates on SPARC64.)
-> 
-> The HW boots with a bad value in this register, but on x86
-> machines the Promise BIOS corrects it to the value recommended
-> by the manual, so most people have been unaffected by this issue.
-> 
-> After developing the patch I checked Promise's SATAII driver,
-> and discovered that it also corrects PHYMODE4 just like this
-> patch does.
-> 
-> This patch depends on the sata_promise SATAII updates
-> patch I sent recently.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+Hi Alan,
 
-applied
+> > > Here are a bunch of USB patches for 2.6.19.
+> > > 
+> > > They contain:
+> > > 	- new driver for usb debug device (client side only so far)
+> > > 	- helper functions to find usb endpoints easier
+> > > 	- minor bugfixes
+> > > 	- new device support
+> > > 	- usb core rework for autosuspend logic
+> > > 	- autosuspend logic that should now save a lot of power when no
+> > > 	  one is using a USB device.
+> > 
+> > So we can now go to C3, extending battery life by about 2 hours on
+> > x60? Good.
+> 
+> Try it and see.  You have to turn on CONFIG_USB_SUSPEND.
+> 
+> You also have to have autosuspend support in all the USB drivers for the
+> attached devices.  Right now autosuspend is present only in the host
+> controller drivers and the hub driver -- it is not available in USBHID
+> (under development).  But if you have a USB device with no driver bound,
+> or you unload its driver, then the device will automatically be suspended.
+
+about the USBHID part. Jiri Kosina is just about to finally split the
+HID parser and make it available for Bluetooth and USB as an independent
+subsystem. This might conflict with any autosuspend changes for the
+USBHID. It might be better that this waits until Jiri's patches are
+merged.
+
+Regards
+
+Marcel
+
 

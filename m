@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758818AbWLCXMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758849AbWLCXP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758818AbWLCXMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 18:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758826AbWLCXMK
+	id S1758849AbWLCXP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 18:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758846AbWLCXP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 18:12:10 -0500
-Received: from mail.gmx.net ([213.165.64.20]:19173 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1758818AbWLCXMJ (ORCPT
+	Sun, 3 Dec 2006 18:15:27 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6113 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1758834AbWLCXP1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 18:12:09 -0500
-X-Authenticated: #5039886
-Date: Mon, 4 Dec 2006 00:12:06 +0100
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: Device naming randomness (udev?)
-Message-ID: <20061203231206.GA4413@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Greg Kroah-Hartman <gregkh@suse.de>
-References: <45735230.7030504@mbligh.org>
+	Sun, 3 Dec 2006 18:15:27 -0500
+Date: Mon, 4 Dec 2006 00:15:16 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Al Viro <viro@ftp.linux.org.uk>,
+       Thomas Gleixner <tglx@linutronix.de>, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Message-ID: <20061203231516.GG9876@elf.ucw.cz>
+References: <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home> <20061203102108.GA1724@elf.ucw.cz> <20061203112706.GA12722@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612031602570.1867@scrub.home> <20061203210113.GF9876@elf.ucw.cz> <Pine.LNX.4.64.0612032348580.1867@scrub.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <45735230.7030504@mbligh.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+In-Reply-To: <Pine.LNX.4.64.0612032348580.1867@scrub.home>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.12.03 14:39:44 -0800, Martin J. Bligh wrote:
-> This PC has 1 ethernet interface, an e1000. Ubuntu Dapper.
+On Sun 2006-12-03 23:52:54, Roman Zippel wrote:
+> Hi,
 > 
-> On 2.6.14, my e1000 interface appears as eth0.
-> On 2.6.15 to 2.6.18, my e1000 interface appears as eth1.
+> On Sun, 3 Dec 2006, Pavel Machek wrote:
 > 
-> In both cases, there are no other ethX interfaces listed in
-> "ifconfig -a". There are no modules involved, just a static
-> kernel build.
+> > > What exactly is the pita here? Al only came up with some rather 
+> > > theoretical problems with no practical relevance.
+> > 
+> > Lack of type-checking in timers is ugly.
 > 
-> Is this a bug in udev, or the kernel? I'm presuming udev,
-> but seems odd it changes over a kernel release boundary.
-> Any ideas on how I get rid of it? Makes automatic switching
-> between kernel versions a royal pain in the ass.
+> It's a matter of perspective, a bit more type checking would be nice, but 
+> breaking the API just for that is ugly as well. Unless there is a bad need 
+> for it, I don't think it's worth it...
 
-Just a wild guess here... Debian's (and I guess Ubuntu's) udev rules
-contain a generator for persistent interface name rules. Maybe these
-start working with 2.6.15 and thus the switch (ie. the kernel would call
-it eth0, but udev renames it to eth1).
-The generated rules are written to
-/etc/udev/rules.d/z25_persistent-net.rules on Debian, not sure if its
-the same for Ubuntu. Editing/removing the rules should fix your problem.
-
-HTH
-Björn
+I do not think Al is breaking anything. He's adding that typechecking,
+old interface can still stay for a while.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

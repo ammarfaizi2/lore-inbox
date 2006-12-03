@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757648AbWLCMw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758433AbWLCMyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757648AbWLCMw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 07:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757935AbWLCMwz
+	id S1758433AbWLCMyp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 07:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758446AbWLCMyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 07:52:55 -0500
-Received: from khepri.openbios.org ([80.190.231.112]:12689 "EHLO
-	khepri.openbios.org") by vger.kernel.org with ESMTP
-	id S1757648AbWLCMwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 07:52:55 -0500
-Date: Sun, 3 Dec 2006 13:52:50 +0100
-From: Stefan Reinauer <stepan@coresystems.de>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Peter Stuge <stuge-linuxbios@cdy.org>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org
-Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
-Message-ID: <20061203125250.GA17019@coresystems.de>
-References: <5986589C150B2F49A46483AC44C7BCA490727C@ssvlexmb2.amd.com> <m1irgufl9q.fsf@ebiederm.dsl.xmission.com> <2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com> <m1ejrhfb9o.fsf@ebiederm.dsl.xmission.com> <20061203120130.GA32458@coresystems.de> <77E505A2-6E0B-422F-92AB-97395730A522@kernel.crashing.org>
+	Sun, 3 Dec 2006 07:54:44 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:24454 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1758349AbWLCMyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 07:54:44 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [patch] PM: suspend/resume debugging should depend on SOFTWARE_SUSPEND
+Date: Sun, 3 Dec 2006 13:49:46 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>
+References: <fa.U3NcOE+DHLOUMSq6HkaGglGl7hQ@ifi.uio.no> <200611261113.12826.rjw@sisk.pl> <4569F957.4090100@shaw.ca>
+In-Reply-To: <4569F957.4090100@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <77E505A2-6E0B-422F-92AB-97395730A522@kernel.crashing.org>
-X-Operating-System: Linux 2.6.18.2-4-default on an x86_64
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200612031349.47434.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Segher Boessenkool <segher@kernel.crashing.org> [061203 13:42]:
-> On LPC, yes -- or 0.5us or something like that.  On ISA it's
-> a lot faster, on PCI too -- better do 20 or so outb's to be
-> safe.
+On Sunday, 26 November 2006 21:30, Robert Hancock wrote:
+> Rafael J. Wysocki wrote:
+> >> btw, I have some code almost ready for sata_nv to add proper 
+> >> suspend/resume support. Unfortunately I have trouble testing it, since 
+> >> STR doesn't work on my machine since, guess what - the video doesn't 
+> >> come back! It doesn't even take the monitor out of standby mode. None of 
+> >> the acpi_sleep options seem to work, and vbetool appears to helpfully 
+> >> segfault on any operation so that's out.
+> > 
+> > I guess it's x86-64?  Which version of vbetool?
+> 
+> Yes, it's x86-64, with whatever version of vbetool comes with Fedora Core 5.
+> 
+> > 
+> >> This is an NVIDIA SLI setup so that probably makes things a bit more
+> >> complicated.
+> > 
+> > Ouch.
+> > 
+> >> In any case, it should be better than what we have right now for 
+> >> suspend/resume support in sata_nv, namely the "do nothing, won't work 
+> >> (at least not for CK804 and later)" implementation..
+> > 
+> > I think I can test it if you send me the patch.
+> > 
+> > Greetings,
+> > Rafael
+> 
+> Here it is attached. This patch needs to be applied to 2.6.19-rc6-mm1 on 
+> top of the other one I just submitted, "[PATCH -mm] sata_nv: fix ATAPI 
+> in ADMA mode". I don't think it's too horribly broken since it did what 
+> it should have on some aborted suspend-to-disk attempts. (It looks like 
+> STD doesn't work either, it complains there is no swap available even 
+> though there is.. maybe because there's 2GB of RAM and 2GB of swap? It 
+> should still fit though, I would think, as not all RAM is in use..) In 
+> any case, if it works out OK then I can submit this formally.
 
-The value's actually something we have been using as a rule of thumb
-while doing outb to port 80. Don't think these are routed to LPC, are
-they?
+I coudn't test it earlier, sorry.
+
+On top of 2.6.19-rc6-mm2 applies and works (although the box also resumes
+just fine without it ;-)).
+
+Greetings,
+Rafael
+
 
 -- 
-coresystems GmbH • Brahmsstr. 16 • D-79104 Freiburg i. Br.
-      Tel.: +49 761 7668825 • Fax: +49 761 7664613
-Email: info@coresystems.de  • http://www.coresystems.de/
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

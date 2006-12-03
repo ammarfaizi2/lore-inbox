@@ -1,138 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758270AbWLCRmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758267AbWLCRmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758270AbWLCRmS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 12:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758258AbWLCRmS
+	id S1758267AbWLCRmx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 12:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758275AbWLCRmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 12:42:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12774 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1758239AbWLCRmR (ORCPT
+	Sun, 3 Dec 2006 12:42:53 -0500
+Received: from mailer-b2.gwdg.de ([134.76.10.29]:19656 "EHLO mailer-b2.gwdg.de")
+	by vger.kernel.org with ESMTP id S1758267AbWLCRmw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 12:42:17 -0500
-Message-ID: <45730E36.10309@redhat.com>
-Date: Sun, 03 Dec 2006 12:49:42 -0500
-From: Wendy Cheng <wcheng@redhat.com>
-Reply-To: wcheng@redhat.com
-Organization: Red Hat
-User-Agent: Mozilla Thunderbird 1.0.8-1.4.1 (X11/20060420)
-X-Accept-Language: en-us, en
+	Sun, 3 Dec 2006 12:42:52 -0500
+Date: Sun, 3 Dec 2006 18:42:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ipc:  Convert kmalloc()+memset() to kzalloc() in ipc/.
+In-Reply-To: <Pine.LNX.4.64.0612031211560.4877@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0612031842140.25425@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0612031211560.4877@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] prune_icache_sb
-References: <4564C28B.30604@redhat.com>	<20061122153603.33c2c24d.akpm@osdl.org>	<456B7A5A.1070202@redhat.com>	<20061127165239.9616cbc9.akpm@osdl.org>	<456CACF3.7030200@redhat.com>	<20061128162144.8051998a.akpm@osdl.org>	<456D2259.1050306@redhat.com>	<456F014C.5040200@redhat.com> <20061201132329.4050d6cd.akpm@osdl.org>
-In-Reply-To: <20061201132329.4050d6cd.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->On Thu, 30 Nov 2006 11:05:32 -0500
->Wendy Cheng <wcheng@redhat.com> wrote:
+>diff --git a/ipc/sem.c b/ipc/sem.c
+>index 21b3289..3c23dc9 100644
+>--- a/ipc/sem.c
+>+++ b/ipc/sem.c
+>@@ -1070,14 +1070,13 @@ static struct sem_undo *find_undo(struct
+> 	ipc_rcu_getref(sma);
+> 	sem_unlock(sma);
 >
->  
->
->>
->>The idea is, instead of unconditionally dropping every buffer associated 
->>with the particular mount point (that defeats the purpose of page 
->>caching), base kernel exports the "drop_pagecache_sb()" call that allows 
->>page cache to be trimmed. More importantly, it is changed to offer the 
->>choice of not randomly purging any buffer but the ones that seem to be 
->>unused (i_state is NULL and i_count is zero). This will encourage 
->>filesystem(s) to pro actively response to vm memory shortage if they 
->>choose so.
->>    
->>
->
->argh.
->  
->
-I read this as "It is ok to give system admin(s) commands (that this 
-"drop_pagecache_sb() call" is all about) to drop page cache. It is, 
-however, not ok to give filesystem developer(s) this very same function 
-to trim their own page cache if the filesystems choose to do so" ?
+>-	new = (struct sem_undo *) kmalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
+>+	new = (struct sem_undo *) kzalloc(sizeof(struct sem_undo) + sizeof(short)*nsems, GFP_KERNEL);
 
->In Linux a filesystem is a dumb layer which sits between the VFS and the
->I/O layer and provides dumb services such as reading/writing inodes,
->reading/writing directory entries, mapping pagecache offsets to disk
->blocks, etc.  (This model is to varying degrees incorrect for every
->post-ext2 filesystem, but that's the way it is).
->  
->
-Linux kernel, particularly the VFS layer, is starting to show signs of 
-inadequacy as the software components built upon it keep growing. I have 
-doubts that it can keep up and handle this complexity with a development 
-policy like you just described (filesystem is a dumb layer ?). Aren't 
-these DIO_xxx_LOCKING flags inside __blockdev_direct_IO() a perfect 
-example why trying to do too many things inside vfs layer for so many 
-filesystems is a bad idea ? By the way, since we're on this subject, 
-could we discuss a little bit about vfs rename call (or I can start 
-another new discussion thread) ?
+You can drop the case in one go.
 
-Note that linux do_rename() starts with the usual lookup logic, followed 
-by "lock_rename", then a final round of dentry lookup, and finally comes 
-to filesystem's i_op->rename call. Since lock_rename() only calls for 
-vfs layer locks that are local to this particular machine, for a cluster 
-filesystem, there exists a huge window between the final lookup and 
-filesystem's i_op->rename calls such that the file could get deleted 
-from another node before fs can do anything about it. Is it possible 
-that we could get a new function pointer (lock_rename) in 
-inode_operations structure so a cluster filesystem can do proper locking ?
 
->>From our end (cluster locks are expensive - that's why we cache them), 
->>one of our kernel daemons will invoke this newly exported call based on 
->>a set of pre-defined tunables. It is then followed by a lock reclaim 
->>logic to trim the locks by checking the page cache associated with the 
->>inode (that this cluster lock is created for). If nothing is attached to 
->>the inode (based on i_mapping->nrpages count), we know it is a good 
->>candidate for trimming and will subsequently drop this lock (instead of 
->>waiting until the end of vfs inode life cycle).
->>    
->>
->
->Again, I don't understand why you're tying the lifetime of these locks to
->the VFS inode reclaim mechanisms.  Seems odd.
->  
->
-Cluster locks are expensive because:
 
-1. Every node in the cluster has to agree about it upon granting the 
-request (communication overhead).
-2. It involves disk flushing if bouncing between nodes. Say one node 
-requests a read lock after another node's write... before the read lock 
-can be granted, the write node needs to flush the data to the disk (disk 
-io overhead).
-
-For optimization purpose, we want to refrain the disk flush after writes 
-and hope (and encourage) the next person who requests the lock to be on 
-the very same node (to take the advantage of OS write-back logic). 
-That's why the locks are cached on the very same node. It will not get 
-removed unless necessary.
-What would be better to build the lock caching on top of the existing 
-inode cache logic - since these are the objects that the cluster locks 
-are created for in the first place.
-
->If you want to put an upper bound on the number of in-core locks, why not
->string them on a list and throw away the old ones when the upper bound is
->reached?
->  
->
-Don't take me wrong. DLM *has* a tunable to set the max lock counts. We 
-do drop the locks but to drop the right locks, we need a little bit help 
-from VFS layer. Latency requirement is difficult to manage.
-
->Did you look at improving that lock-lookup algorithm, btw?  Core kernel has
->no problem maintaining millions of cached VFS objects - is there any reason
->why your lock lookup cannot be similarly efficient?
->  
->
-Don't be so confident. I did see some complaints from ext3 based mail 
-servers in the past - when the storage size was large enough, people had 
-to explicitly umount the filesystem from time to time to rescue their 
-performance. I don't recall the details at this moment though.
-
-For us with this particular customer, it is a 15TB storage.
-
--- Wendy
+	-`J'
+-- 

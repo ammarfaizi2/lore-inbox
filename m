@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424856AbWLCC4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936642AbWLCDfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424856AbWLCC4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Dec 2006 21:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424828AbWLCC4g
+	id S936642AbWLCDfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Dec 2006 22:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936643AbWLCDfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Dec 2006 21:56:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24252 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1424805AbWLCC4g (ORCPT
+	Sat, 2 Dec 2006 22:35:09 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:42187 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S936642AbWLCDfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Dec 2006 21:56:36 -0500
-Message-ID: <45723CDB.1060304@redhat.com>
-Date: Sat, 02 Dec 2006 21:56:27 -0500
-From: Jeff Layton <jlayton@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Brad Boyer <flar@allandria.com>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] ensure i_ino uniqueness in filesystems without permanent
- inode numbers (via idr)
-References: <457040C4.1000002@redhat.com> <20061201085227.2463b185.randy.dunlap@oracle.com> <20061201172136.GA11669@dantu.rdu.redhat.com> <20061202053013.GC26389@cynthia.pants.nu>
-In-Reply-To: <20061202053013.GC26389@cynthia.pants.nu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Dec 2006 22:35:06 -0500
+Date: Sat, 2 Dec 2006 19:35:03 -0800
+From: "Kurtis D. Rader" <krader@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: data corruption with nvidia chipsets and IDE/SATA drives
+Message-ID: <20061203033503.GB2729@us.ibm.com>
+References: <4570CF26.8070800@scientia.net> <20061203011737.GA2729@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061203011737.GA2729@us.ibm.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Boyer wrote:
-> On Fri, Dec 01, 2006 at 12:21:36PM -0500, Jeff Layton wrote:
->> Here's an updated (but untested) patch based on your suggestions. I also went
->> ahead and made the exported symbols GPL-only since that seems like it would be
->> appropriate here. Any further thoughts on it?
-> 
+On Sat, 2006-12-02 17:17:37, Kurtis D. Rader wrote:
+> The same disks attached to a Promise TX2 SATA controller (in the same
+> system) experience no corruption.
 
-> This seems like exactly the sort of thing that should be a generic
-> service available to all filesystem implementors whether it's GPL or
-> not. The usual justification for GPL-only is that it's something
-> random modules shouldn't be touching anyway, but it's something that
-> some part of the tree which could be a module needs.
+I spoke too soon. Corruption is occurring with the disks attached to the
+Promise TX2 SATA controller but much less frequently. With the drives
+attached to the nVidia controller copying certain 2 GiB files would
+result in at least five bytes, and as many as thirty, being corrupted
+every single time. On the Promise controller a given copy is likely to be
+good. And when corruption does occur fewer bytes are being affected ---
+as little as a single byte in a 2 GiB file. But still, some files never
+show corruption while others do.
 
-My main reasoning for doing this was that the structures involved are 
-per-superblock. There is virtually no reason that a filesystem would 
-ever need to touch these structures in another filesystem.
+The Promise controller in a PCI slot is measurably slower than the nVidia
+on the baseboard so the speed of the transfers appears to be a factor. In
+addition to the pattern of data. My hunch is this is a nVidia nForce 4
+chipset design defect involving buss crosstalk or something similar. Which
+may be why I'm not seeing it when writing to my relatively slow PATA disks.
 
-So, this is essentially a service to make it easy for filesystems to 
-implement i_ino uniqueness. I'm not terribly interested in making things 
-easier for proprietary filesystems, so I don't see a real reason to make 
-this available to them. They can always implement their own scheme to do 
-this.
-
-I'm certainly open to discussion though. Is there a compelling reason to 
-open this up to proprietary software authors?
-
--- Jeff
-
+-- 
+Kurtis D. Rader, Linux level 3 support  email: krader@us.ibm.com
+IBM Integrated Technology Services      DID: +1 503-578-3714
+15300 SW Koll Pkwy, MS RHE2-O2          service: 800-IBM-SERV
+Beaverton, OR 97006-6063                http://www.ibm.com

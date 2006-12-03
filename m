@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935706AbWLCKke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935778AbWLCKqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935706AbWLCKke (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 05:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935736AbWLCKke
+	id S935778AbWLCKqw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 05:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935644AbWLCKqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 05:40:34 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:32727 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S935706AbWLCKkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 05:40:33 -0500
-Date: Sun, 3 Dec 2006 11:40:27 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Yan Burman <burman.yan@gmail.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>, trivial@kernel.org
-Subject: Re: [PATCH 2.6.19] m68k: replace kmalloc+memset with kzalloc
-In-Reply-To: <1165058964.4523.30.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0612031140010.397@anakin>
-References: <1165058964.4523.30.camel@localhost>
+	Sun, 3 Dec 2006 05:46:52 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:53420 "EHLO
+	rubicon.netdirect.ca") by vger.kernel.org with ESMTP
+	id S935778AbWLCKqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 05:46:51 -0500
+X-Originating-Ip: 74.109.98.100
+Date: Sun, 3 Dec 2006 05:43:21 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: any value to "struct configfs_attribute" anymore?
+Message-ID: <Pine.LNX.4.64.0612030534070.2710@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.723, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00, TW_GF 0.08)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Dec 2006, Yan Burman wrote:
-> Replace kmalloc+memset with kzalloc 
-> 
-> Signed-off-by: Yan Burman <burman.yan@gmail.com>
 
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+  as a followup to my previous patch submission, is there any value to
+the definition of "struct configfs_attribute" in configfs.h anymore,
+given a similar structure in sysfs.h?
 
-> diff -rubp linux-2.6.19-rc5_orig/arch/m68k/amiga/chipram.c linux-2.6.19-rc5_kzalloc/arch/m68k/amiga/chipram.c
-> --- linux-2.6.19-rc5_orig/arch/m68k/amiga/chipram.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/arch/m68k/amiga/chipram.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -52,10 +52,9 @@ void *amiga_chip_alloc(unsigned long siz
->  #ifdef DEBUG
->      printk("amiga_chip_alloc: allocate %ld bytes\n", size);
->  #endif
-> -    res = kmalloc(sizeof(struct resource), GFP_KERNEL);
-> +    res = kzalloc(sizeof(struct resource), GFP_KERNEL);
->      if (!res)
->  	return NULL;
-> -    memset(res, 0, sizeof(struct resource));
->      res->name = name;
->  
->      if (allocate_resource(&chipram_res, res, size, 0, UINT_MAX, PAGE_SIZE, NULL, NULL) < 0) {
-> 
-> diff -rubp linux-2.6.19-rc5_orig/arch/m68k/atari/hades-pci.c linux-2.6.19-rc5_kzalloc/arch/m68k/atari/hades-pci.c
-> --- linux-2.6.19-rc5_orig/arch/m68k/atari/hades-pci.c	2006-11-09 12:16:21.000000000 +0200
-> +++ linux-2.6.19-rc5_kzalloc/arch/m68k/atari/hades-pci.c	2006-11-11 22:44:04.000000000 +0200
-> @@ -375,10 +375,9 @@ struct pci_bus_info * __init init_hades_
->  	 * Allocate memory for bus info structure.
->  	 */
->  
-> -	bus = kmalloc(sizeof(struct pci_bus_info), GFP_KERNEL);
-> +	bus = kzalloc(sizeof(struct pci_bus_info), GFP_KERNEL);
->  	if (!bus)
->  		return NULL;
-> -	memset(bus, 0, sizeof(struct pci_bus_info));
->  
->  	/*
->  	 * Claim resources. The m68k has no separate I/O space, both
-> 
-> 
-> 
+configfs.h:
+-----------
 
-Gr{oetje,eeting}s,
+struct configfs_attribute {
+        const char              *ca_name;
+        struct module           *ca_owner;
+        mode_t                  ca_mode;
+};
 
-						Geert
+sysfs.h:
+--------
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+struct attribute {
+        const char              * name;
+        struct module           * owner;
+        mode_t                  mode;
+};
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+  if these two structs are *necessarily* identical, then it would make
+sense to remove the few remaining uses of the former and replace them
+with references to the latter, no?  there are only a few files that
+appear to still make reference to the former:
+
+fs/configfs/inode.c
+fs/ocfs2/cluster/heartbeat.c
+fs/ocfs2/cluster/nodemanager.c
+fs/dlm/config.c
+
+so standardizing on the latter would be fairly easy.  or is there a
+reason why those two structures still have to be treated
+independently?
+
+rday

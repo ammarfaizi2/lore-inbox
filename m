@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936756AbWLCPAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936751AbWLCO7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936756AbWLCPAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 10:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936753AbWLCPAH
+	id S936751AbWLCO7w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 09:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936752AbWLCO7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 10:00:07 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:25591 "EHLO
+	Sun, 3 Dec 2006 09:59:52 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:9189 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S936752AbWLCPAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 10:00:03 -0500
+	id S936751AbWLCO7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 09:59:51 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.19: Filesystem capabilities 0.16
+Subject: [PATCH] 2.6.19: access permission filesystem 0.19
 From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sun, 03 Dec 2006 16:00:02 +0100
-Message-ID: <871wnhqb2l.fsf@goat.bogus.local>
+Date: Sun, 03 Dec 2006 15:59:49 +0100
+Message-ID: <87ac25qb2y.fsf@goat.bogus.local>
 User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Constant Variable,
  linux)
 MIME-Version: 1.0
@@ -22,13 +22,18 @@ X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements filesystem capabilities. It allows to
-run privileged executables without the need for suid root.
+This patch adds a new permission managing file system.
+Furthermore, it adds two modules, which make use of this file system.
+
+One module allows granting capabilities based on user-/groupid. The
+second module allows to grant access to lower numbered ports based on
+user-/groupid, too.
 
 Changes:
 - updated to 2.6.19
+- state license more precisely as GPL v2
 
 This patch is available at:
-<http://www.olafdietsche.de/linux/capability/>
+<http://www.olafdietsche.de/linux/accessfs/>
 
 Regards, Olaf.

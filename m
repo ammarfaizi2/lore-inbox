@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936698AbWLCLva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936692AbWLCLwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936698AbWLCLva (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 06:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936696AbWLCLva
+	id S936692AbWLCLwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 06:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936694AbWLCLwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 06:51:30 -0500
-Received: from [83.101.158.156] ([83.101.158.156]:21120 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S936693AbWLCLv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 06:51:29 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC][PATCH] ensure i_ino uniqueness in filesystems without permanent inode numbers (via idr)
-Date: Sun, 3 Dec 2006 14:52:25 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <457040C4.1000002@redhat.com> <45723CDB.1060304@redhat.com> <20061202125851.GA30187@cynthia.pants.nu>
-In-Reply-To: <20061202125851.GA30187@cynthia.pants.nu>
+	Sun, 3 Dec 2006 06:52:21 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6125 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S936692AbWLCLwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 06:52:20 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: yhlu <yinghailu@gmail.com>
+Cc: "Stefan Reinauer" <stepan@coresystems.de>,
+       "Peter Stuge" <stuge-linuxbios@cdy.org>, linux-kernel@vger.kernel.org,
+       linuxbios@linuxbios.org
+Subject: Re: [LinuxBIOS] #57: libusb host program for PLX NET20DC debug device
+References: <5986589C150B2F49A46483AC44C7BCA490727C@ssvlexmb2.amd.com>
+	<m1irgufl9q.fsf@ebiederm.dsl.xmission.com>
+	<2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com>
+Date: Sun, 03 Dec 2006 04:51:15 -0700
+In-Reply-To: <2ea3fae10612021247v33cfaa4evbc8ad1d5eaf196ba@mail.gmail.com>
+	(yinghailu@gmail.com's message of "Sat, 2 Dec 2006 12:47:18 -0800")
+Message-ID: <m1ejrhfb9o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612031452.25361.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Boyer wrote:
-> To be honest, I think it looks bad for someone associated with redhat
-> to be suggesting that life should be made more difficult for those
-> who write proprietary software on Linux. The support from commercial
-> software is a major reason for the success of the RHEL product line.
+yhlu <yinghailu@gmail.com> writes:
 
-The real reason for the success of the RHEL product line is that its been GPL 
-from the beginning.  And commercial software saw it fit to leverage this 
-GPL-pool, which is OK, but to then come around and say that "The support 
-from commercial software is a major reason for the success of the RHEL 
-product line" is trying to portray the situation up-side-down.
+> On 12/2/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> Please yank the direct out of the filename if you are making something
+>> like this out of it.  That was my note I was going direct to hardware
+>> which is pretty much assumed if you are in LinuxBIOS.
+>
+> Yes, I adapted the code to used in LinuxBIOS, including CAR stage code
+> and RAM satge code.
+>
+> I didn't have debug cable plugged yet.
 
-This does not mean that we shouldn't allow non-GPL linkage, on the contrary, 
-I am even calling for a stable API for the benefit of everyone, but it's 
-probably the closed-source market's arrogant behavior that forces 
-GPL-developers to respond in kind.  Which is rather sad, if you think about 
-it.
+Even if you did it wouldn't work right now.  My initial
+version does initialize the ehci properly so it won't
+find any usb devices.  I almost have that fixed,
+but it looks like for the usb device reset I need
+a usable delay function, so I can delay 50ms.  Grr...
 
+> BTW in kernel earlyprintk or prink, you could use
+> read_pci_config/write_pci_config before PCI system is loaded.
 
-Thanks!
+Yep thanks that seems to be working.  Now I just need
+to find an early delay and I can try this mess out!
 
---
-Al
+Eric
 

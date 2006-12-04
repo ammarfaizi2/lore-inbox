@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936168AbWLDLvq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759057AbWLDMGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936168AbWLDLvq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 06:51:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936175AbWLDLvq
+	id S1759057AbWLDMGx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759031AbWLDMGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 06:51:46 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:28153 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S936168AbWLDLvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 06:51:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f/aFaUPrGP25WBPTPMAm/ZRfitpWaRnSrrgFT7+Qr2/KC+p/10LxjP9J4iUmEMPpxl9fZLCS00XxJeP/6Gq1wvQKjEpNLoi89iwNY69jmInnmIi/pE6uz5tQ7XLyKp/p2jyA07T2Sl0JQ8wWWhmktwvZr9qT7cIK6PwrCtIJPPE=
-Message-ID: <24c1515f0612040351p6056101frc12db8eb86063213@mail.gmail.com>
-Date: Mon, 4 Dec 2006 13:51:44 +0200
-From: "Janne Karhunen" <janne.karhunen@gmail.com>
-To: MrUmunhum@popdial.com
-Subject: Re: Mounting NFS root FS
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4571CE06.4040800@popdial.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4571CE06.4040800@popdial.com>
+	Mon, 4 Dec 2006 07:06:53 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:26592 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S936182AbWLDMGx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:06:53 -0500
+Message-Id: <200612041206.kB4C61ia004849@laptop13.inf.utfsm.cl>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+cc: Bela Lubkin <blubkin@vmware.com>, Andrew Morton <akpm@osdl.org>,
+       Corey Minyard <minyard@acm.org>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Joseph Barnett <jbarnett@motorola.com>
+Subject: Re: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff 
+In-Reply-To: Message from Randy Dunlap <randy.dunlap@oracle.com> 
+   of "Sun, 03 Dec 2006 20:01:56 -0800." <45739DB4.6000806@oracle.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Mon, 04 Dec 2006 09:06:01 -0300
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 04 Dec 2006 09:06:02 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/2/06, William Estrada <MrUmunhum@popdial.com> wrote:
-> Hi guys,
->
->   I have been trying to make FC5's kernel do a boot
-> with an NFS root file system.  I see the support is in the
-> kernel(?).
+Randy Dunlap <randy.dunlap@oracle.com> wrote:
+> Bela Lubkin wrote:
+> > Andrew Morton wrote:
+> >
+> >>> Sometime, please go through the IPMI code looking for all these
+> >>> statically-allocated things which are initialised to 0 or NULL and remove
+> >>> all those intialisations?  They're unneeded, they increase the vmlinux
+> >>> image size and there are quite a number of them.  Thanks.
+> > Randy Dunlop replied:
+> >
+> >> I was just about to send that patch.  Here it is,
+> >> on top of the series-of-12.
+> > ...
+> >> -static int bt_debug = BT_DEBUG_OFF;
+> >> +static int bt_debug;
+> > Is it wise to significantly degrade code readability to work around
+> > a minor
+> > compiler / linker bug?
+> 
+> Is that the only one that is a problem?
+> 
+> I don't think it's a problem.  We *know* that static data areas
+> are init to 0.  Everything depends on that.  If that didn't work
+> it would all break.
 
-Is this really properly possible (with read/write access and
-locking in place)? AFAIK NFS client lock state data seems
-to require persistent storage .. ?
+Right. And we know NULL == 0.
 
+> I could say that it's a nice coincidence that BT_DEBUG_OFF == 0,
+> but I think that it's more than coincidence.
 
+I'd have had to look over the code to find out what it was initialized
+to. In cases where it is not an explicit 0/NULL, I'd leave it as is. It
+could also break if somebody later on changes the value of BT_DEBUG_OFF
+(yes, very unlikely, but...).
+
+Bug your friendly GCC guy to loose static initializations to zero
+(shouldn't be /that/ hard to do...) instead of obfuscating kernel's code.
 -- 
-// Janne
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

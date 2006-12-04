@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759111AbWLDRnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935199AbWLDRtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759111AbWLDRnM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 12:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759125AbWLDRnM
+	id S935199AbWLDRtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 12:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935370AbWLDRtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 12:43:12 -0500
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:61352 "EHLO
-	ms-smtp-03.texas.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759029AbWLDRnL (ORCPT
+	Mon, 4 Dec 2006 12:49:12 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:2107 "EHLO
+	kraid.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S935199AbWLDRtL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 12:43:11 -0500
-Message-Id: <200612041742.kB4HgpfA005705@ms-smtp-03.texas.rr.com>
-Reply-To: <Aucoin@Houston.RR.com>
-From: "Aucoin" <Aucoin@Houston.RR.com>
-To: "'David Lang'" <dlang@digitalinsight.com>,
-       "'Kyle Moffett'" <mrmacman_g4@mac.com>
-Cc: "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <clameter@sgi.com>
-Subject: RE: la la la la ... swappiness
-Date: Mon, 4 Dec 2006 11:42:50 -0600
-Organization: home
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Mon, 4 Dec 2006 12:49:11 -0500
+Date: Mon, 4 Dec 2006 18:49:08 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Komal Shah <komal_shah802003@yahoo.com>,
+       David Brownell <david-b@pacbell.net>, r-woodruff2@ti.com,
+       linux-kernel@vger.kernel.org, i2c@lm-sensors.org
+Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #3
+Message-Id: <20061204184908.909bad9b.khali@linux-fr.org>
+In-Reply-To: <20060810131925.GJ30195@atomide.com>
+References: <1154689868.12791.267626769@webmail.messagingengine.com>
+	<20060805103113.058ce8fe.khali@linux-fr.org>
+	<20060807145832.GF10387@atomide.com>
+	<20060810102944.a12329b9.khali@linux-fr.org>
+	<20060810131925.GJ30195@atomide.com>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-reply-to: <Pine.LNX.4.63.0612040733390.6970@qynat.qvtvafvgr.pbz>
-Thread-Index: AccXvovMUwQQIk8DQ5muG5RQQqpFJwAC79ww
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: David Lang [mailto:dlang@digitalinsight.com]
-> I think that I am seeing two seperate issues here that are getting mixed
-> up.
+Hi Tony, all,
 
-Fair enough.
+On Thu, 10 Aug 2006 16:19:26 +0300, Tony Lindgren wrote:
+> * Jean Delvare <khali@linux-fr.org> [060810 11:30]:
+> > I've now taken Komal's patch (#4). Here is a proposed patch which brings
+> > the prescaler computation formula in line with your comment and table
+> > above. It could be applied on top of Komal's patch unless it causes a
+> > problem on some of the OMAP systems. For XOR = 13 MHz, it changes the
+> > prescaler from 0 to 1. For XOR = 19.2 MHz it changes the prescaler from
+> > 2 to 1.
+> 
+> OK cool. As far as I'm concerned, I'm fine with it too:
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+>  
+> > I don't have any hardware to test it, though. If it happens to be
+> > better to be slightly over 12 MHz than slightly below 7 MHz, the
+> > "> 12000000" condition below can be replaced with "> 14000000".
+> 
+> Thanks, we'll test it on various omaps and let you know if it works.
 
-> however the real problem that Aucoin is running into is patching process
-> (tar, etc) kicks off the system is choosing to use it's
+Any news on this? I still have this patch in my local tree. Should I
+push it into Linux 2.6.20?
 
-First name Louis, yes but we haven't resorted to echoing 3 in a loop at
-drop_caches yet.
+i2c: Fix OMAP clock prescaler to match the comment
 
-> from the documentation on swappiness it seems like setting it to 0 would
-> do what he wants
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-That's what I thought, but some responses would seem to indicate that these
-two "types" of memory are completely independent of each other and
-swappiness has no impact on the type that is currently annoying me. It just
-doesn't seem like a fair way to run a kernel when you have a dial dial to
-control swappiness but then there's this rogue memory consumption that lives
-outside the control of the swappiness dial and you end up swapping anyway.
-
-> this is the same type of problem that people run into with the nightly
-> updatedb
-
-I would imagine so, yes. But take that example and instead of programs going
-in active over night substitute programs that go inactive for only a few
-seconds ... swap thrash, oom-killer, game over.
-
-> IIRC there is a flag that can be passed to the open that tells the system
-> that
-
-I'll check into it.
+--- linux-2.6.18-rc4.orig/drivers/i2c/busses/i2c-omap.c	2006-08-10 09:56:54.000000000 +0200
++++ linux-2.6.18-rc4/drivers/i2c/busses/i2c-omap.c	2006-08-10 10:12:03.000000000 +0200
+@@ -231,8 +231,8 @@
+ 		 * 13		2		1
+ 		 * 19.2		2		1
+ 		 */
+-		if (fclk_rate > 16000000)
+-			psc = (fclk_rate + 8000000) / 12000000;
++		if (fclk_rate > 12000000)
++			psc = fclk_rate / 12000000;
+ 	}
+ 
+ 	/* Setup clock prescaler to obtain approx 12MHz I2C module clock: */
 
 
+-- 
+Jean Delvare

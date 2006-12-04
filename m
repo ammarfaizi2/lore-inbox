@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937227AbWLDRJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757669AbWLDRMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937227AbWLDRJF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 12:09:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937228AbWLDRJE
+	id S1757669AbWLDRMl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 12:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759494AbWLDRMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 12:09:04 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:44308
-	"EHLO gnuppy.monkey.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937227AbWLDRJC (ORCPT
+	Mon, 4 Dec 2006 12:12:41 -0500
+Received: from mail.kolumbus.fi ([193.229.0.46]:45201 "EHLO mail.kolumbus.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757669AbWLDRMk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 12:09:02 -0500
-Date: Mon, 4 Dec 2006 09:08:56 -0800
-To: bert hubert <bert.hubert@netherlabs.nl>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Cc: "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH 0/4] lock stat for 2.6.19-rt1
-Message-ID: <20061204170856.GA32398@gnuppy.monkey.org>
-References: <20061204015323.GA28519@gnuppy.monkey.org> <20061204122129.GA2626@outpost.ds9a.nl>
+	Mon, 4 Dec 2006 12:12:40 -0500
+From: Janne Karhunen <Janne.Karhunen@gmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Mounting NFS root FS
+Date: Mon, 4 Dec 2006 19:12:29 +0200
+User-Agent: KMail/1.9.5
+Cc: MrUmunhum@popdial.com, linux-kernel@vger.kernel.org
+References: <4571CE06.4040800@popdial.com> <24c1515f0612040351p6056101frc12db8eb86063213@mail.gmail.com> <1165246177.711.179.camel@lade.trondhjem.org>
+In-Reply-To: <1165246177.711.179.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061204122129.GA2626@outpost.ds9a.nl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Message-Id: <200612041912.30527.Janne.Karhunen@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 01:21:29PM +0100, bert hubert wrote:
-> On Sun, Dec 03, 2006 at 05:53:23PM -0800, Bill Huey wrote:
-> 
-> > [8264, 996648, 0]		{inode_init_once, fs/inode.c, 196}
-> > [8552, 996648, 0]		{inode_init_once, fs/inode.c, 193}
-> 
-> Impressive, Bill!
-> 
-> How tightly is your work bound to -rt? Iow, any chance of separating the
-> two? Or should we even want to?
+On Monday 04 December 2006 17:29, Trond Myklebust wrote:
 
-Right now, it's solely dependent on -rt, but the basic mechanisms of how
-it works is pretty much the same as lockdep. Parts of it should be
-moveable across to regular kernels. The only remaining parts would be
-altering the lock structure (spinlock, mutex, etc...) to have a pointer
-that it can use to do the statistical tracking. If it's NULL then it's
-dunamically allocated and handled differently and allocated when the
-lock is contended against.
+> > >   I have been trying to make FC5's kernel do a boot
+> > > with an NFS root file system.  I see the support is in the
+> > > kernel(?).
+> >
+> > Is this really properly possible (with read/write access and
+> > locking in place)? AFAIK NFS client lock state data seems
+> > to require persistent storage .. ?
+>
+> 1) Yes, but not on the root partition (unless you use an initrd to start
+> rpc.statd before mounting the NFS partition).
 
-There's other uses for it as well. Think about RCU algorithms that need
-to spin-try to make sure the update of an element or the validation of
-it's data is safe to do. If an object was created to detect those spins
-it'll track what is effectively contention as well as it is represented
-in that algorithm. I've seen an RCU radix tree implementation do something
-like that.
+Ok. 
 
-> > The first column is the number of the times that object was contented against.
-> > The second is the number of times this lock object was initialized. The third
-> > is the annotation scheme that directly attaches the lock object (spinlock,
-> > etc..) in line with the function initializer to avoid the binary tree lookup.
-> 
-> I don't entirely get the third item, can you elaborate a bit?
 
-I hate the notion of a search, so I directly set the pointer to a
-object that's statically defined. It means that the object is directly
-connected to what is suppose to backing it without doing a runtime
-search.  When that's done, all of the numbers from the second column
-get moved to the third.
- 
-> Do you have a feeling of the runtime overhead?
+> 2) NFS provides persistent storage.
 
-There's minimal runtime overhead I believe since it's only doing an
-atomic increment of the stats during the slowpath before the thread
-is actually shoved into a wait queue. That's something that happpens
-seldomly.
+To me this sounds like a chicken and an egg problem. It 
+both depends and provides this at the same time :/. But 
+hey, if it's supposed to work then OK.
 
-bill
+Anyhoo, I tried this at some stage and failed as random
+clients seemed to occasionally get stuck in insmod¹ at
+boot (infinite wait on lock that never gets released). 
+At that stage guess was that server could not properly 
+recognize client reboot given stale client lock data.
+But if it's supposed to work I guess I have to give it 
+another shot and do better analysis on it.
 
+What about NLM/NSM protocol issues - do they properly 
+deal with packet loss and clients that stay down (client 
+holding a lock crashing and staying down; will the lock 
+ever be released)?
+
+¹ And why does insmod require a lock on module at load??
+
+
+-- 
+// Janne

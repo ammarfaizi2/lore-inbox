@@ -1,58 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967751AbWLDXNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759764AbWLDXOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967751AbWLDXNA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:13:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967752AbWLDXNA
+	id S1759764AbWLDXOS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758878AbWLDXOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:13:00 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:39115 "EHLO mail.dvmed.net"
+	Mon, 4 Dec 2006 18:14:18 -0500
+Received: from mail.suse.de ([195.135.220.2]:41027 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967751AbWLDXM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 18:12:59 -0500
-Message-ID: <4574AB78.40102@garzik.org>
-Date: Mon, 04 Dec 2006 18:12:56 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	id S1758562AbWLDXOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 18:14:17 -0500
+Date: Mon, 4 Dec 2006 15:13:59 -0800
+From: Greg KH <greg@kroah.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Jeff Garzik <jeff@garzik.org>
+Subject: Re: 2.6.19-rc6-mm2: uli526x only works after reload
+Message-ID: <20061204231359.GB9413@kroah.com>
+References: <20061128020246.47e481eb.akpm@osdl.org> <20061130131240.21b1e889.akpm@osdl.org> <200611302232.03608.rjw@sisk.pl> <200612010208.29331.rjw@sisk.pl>
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata: Simulate REPORT LUNS for ATAPI devices when not supported
-References: <4574A90E.5010801@us.ibm.com>
-In-Reply-To: <4574A90E.5010801@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612010208.29331.rjw@sisk.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
-> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
-> response to a REPORT LUNS packet.  If this happens to an ATAPI device
-> that is attached to a SAS controller (this is the case with sas_ata),
-> the device does not load because SCSI won't touch a "SCSI device"
-> that won't report its LUNs.  If we see this command fail, we should
-> simulate a response that indicates the presence of LUN 0.
+On Fri, Dec 01, 2006 at 02:08:28AM +0100, Rafael J. Wysocki wrote:
+> On Thursday, 30 November 2006 22:32, Rafael J. Wysocki wrote:
+> > [Trimmed the Cc list a bit.]
+> > 
+> > On Thursday, 30 November 2006 22:12, Andrew Morton wrote:
+> > > On Thu, 30 Nov 2006 21:21:27 +0100
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > 
+> > > > On Thursday, 30 November 2006 02:04, Rafael J. Wysocki wrote:
+> > > > > On Thursday, 30 November 2006 00:26, Andrew Morton wrote:
+> > > > > > On Thu, 30 Nov 2006 00:08:21 +0100
+> > > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > > 
+> > > > > > > On Wednesday, 29 November 2006 22:31, Rafael J. Wysocki wrote:
+> > > > > > > > On Wednesday, 29 November 2006 22:30, Andrew Morton wrote:
+> > > > > > > > > On Wed, 29 Nov 2006 21:08:00 +0100
+> > > > > > > > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > > > > > > > 
+> > > > > > > > > > On Wednesday, 29 November 2006 20:54, Rafael J. Wysocki wrote:
+> > > > > > > > > > > On Tuesday, 28 November 2006 11:02, Andrew Morton wrote:
+> > > > > > > > > > > > 
+> > > > > > > > > > > > Temporarily at
+> > > > > > > > > > > > 
+> > > > > > > > > > > > http://userweb.kernel.org/~akpm/2.6.19-rc6-mm2/
+> > > > > > > > > > > > 
+> > > > > > > > > > > > Will appear eventually at
+> > > > > > > > > > > > 
+> > > > > > > > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.19-rc6/2.6.19-rc6-mm2/
+> > > > > > > > > > > 
+> > > > > > > > > > > A minor issue: on one of my (x86-64) test boxes the uli526x driver doesn't
+> > > > > > > > > > > work when it's first loaded.  I have to rmmod and modprobe it to make it work.
+> > > > > > > > > 
+> > > > > > > > > That isn't a minor issue.
+> > > > > > > > > 
+> > > > > > > > > > > It worked just fine on -mm1, so something must have happened to it recently.
+> > > > > > > > > > 
+> > > > > > > > > > Sorry, I was wrong.  The driver doesn't work at all, even after reload.
+> > > > > > > > > > 
+> > > > > > > > > 
+> > > > > > > > > tulip-dmfe-carrier-detection-fix.patch was added in rc6-mm2.  But you're
+> > > > > > > > > not using that (corrent?)
+> > > > > > > > > 
+> > > > > > > > > git-netdev-all changes drivers/net/tulip/de2104x.c, but you're not using
+> > > > > > > > > that either.
+> > > > > > > > > 
+> > > > > > > > > git-powerpc(!) alters drivers/net/tulip/de4x5.c, but you're not using that.
+> > > > > > > > > 
+> > > > > > > > > Beats me, sorry.  Perhaps it's due to changes in networking core.  It's
+> > > > > > > > > presumably a showstopper for statically-linked-uli526x users.  If you could
+> > > > > > > > > bisect it, please?  I'd start with git-netdev-all, then tulip-*.
+> > > > > > > > 
+> > > > > > > > OK, but it'll take some time.
+> > > > > > > 
+> > > > > > > OK, done.
+> > > > > > > 
+> > > > > > > It's one of these (the first one alone doesn't compile):
+> > > > > > > 
+> > > > > > > git-netdev-all.patch
+> > > > > > > git-netdev-all-fixup.patch
+> > > > > > > libphy-dont-do-that.patch
+> > > > 
+> > > > Hm, all of these patches are the same as in -mm1 which hasn't caused any
+> > > > problems to appear on this box.
+> > > > 
+> > > > So, it seems there's another change between -mm1 and -mm2 that causes this
+> > > > to happen.
+> > > > 
+> > > 
+> > > It would be nice to eliminate libphy-dont-do-that.patch if poss - that was
+> > > a rogue akpm patch aimed at some incomprehensible gobbledigook in the
+> > > netdev tree (and to fix the current_is_keventd-not-exported-to-modules
+> > > bug).
+> > 
+> > Unfortunately the kernel doesn't compile without it ...
+> > 
+> > Well, I think I'll try to find the patch that contains the change which has
+> > triggered this.
 > 
-> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+> It looks like the winner is:
+> 
+> gregkh-driver-driver-core-fixes-sysfs_create_link-retval-checks-in-core.c.patch
+> 
+> Without this patch there are no problems, with this patch applied the problems
+> (with uli526x, when it's the second interface and the first one is not used)
+> occur, almost 100% of the time.
 
-I think the answer to this issue lies in the behavior of the majority of 
-ATAPI devices when responding to REPORT LUNS.  Regardless of SAS or SATA 
-or whatever bus the device is using.
+Ok, I've now removed this from my tree.
 
-ISTR that REPORT LUNS can make ATAPI devices croak, so it might be wise 
-and more safe to simply simulate REPORT LUNS by default for all ATAPI 
-devices.  Then readdress the issue if someone has a burning need to 
-support the rare multi-LUN ATAPI devices.  I have one, but I'm not 
-highly motivated to dig it out.
+thanks,
 
-	Jeff
-
-
-
-
-
+greg k-h

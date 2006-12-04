@@ -1,88 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937438AbWLDWfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937434AbWLDWi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937438AbWLDWfk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 17:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937441AbWLDWfk
+	id S937434AbWLDWi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 17:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937442AbWLDWi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 17:35:40 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45527 "EHLO smtp.osdl.org"
+	Mon, 4 Dec 2006 17:38:28 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:38770 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937438AbWLDWfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 17:35:39 -0500
-Date: Mon, 4 Dec 2006 14:34:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: clameter@sgi.com, Andy Whitcroft <apw@shadowen.org>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-Message-Id: <20061204143435.6ab587db.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612041946460.26428@skynet.skynet.ie>
-References: <20061130170746.GA11363@skynet.ie>
-	<20061130173129.4ebccaa2.akpm@osdl.org>
-	<Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-	<20061201110103.08d0cf3d.akpm@osdl.org>
-	<20061204140747.GA21662@skynet.ie>
-	<20061204113051.4e90b249.akpm@osdl.org>
-	<Pine.LNX.4.64.0612041946460.26428@skynet.skynet.ie>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S937434AbWLDWi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 17:38:27 -0500
+Message-ID: <4574A35E.60007@pobox.com>
+Date: Mon, 04 Dec 2006 17:38:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] pata_it8213: Add new driver for the IT8213 card.
+References: <20061204164931.7d36d744@localhost.localdomain>	<20061204124344.a7c21221.akpm@osdl.org> <20061204215558.63bc4e90@localhost.localdomain>
+In-Reply-To: <20061204215558.63bc4e90@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 20:34:29 +0000 (GMT)
-Mel Gorman <mel@csn.ul.ie> wrote:
-
-> > IOW: big-picture where-do-we-go-from-here stuff.
-> >
+Alan wrote:
+>> Was the duplication of timings[] deliberate?
 > 
-> Start with lumpy reclaim,
+> It's actually duplicated in all the PIIX/ICH-alike drivers. I could move
+> it in them all. Jeff - its copied from your piix driver - shall I move
+> them all ?
 
-I had lumpy-reclaim in my todo-queue but it seems to have gone away.  I
-think I need a lumpy-reclaim resend, please.
+Please do...
 
-> then I'd like to merge page clustering piece by 
-> piece, ideally with one of the people with e1000 problems testing to see 
-> does it make a difference.
-> 
-> Assuming they are shown to help, where we'd go from there would be stuff 
-> like;
-> 
-> 1. Keep non-movable and reapable allocations at the lower PFNs as much as
->     possible. This is so DIMMS for higher PFNs can be removed (doesn't
->     exist)
-
-"as much as possible" won't suffice, I suspect.  If there's any chance at
-all that a non-moveable page can land in a hot-unpluggable region then
-there will be failure scenarios.  Easy-to-hit ones, I suspect.
-
-> 2. Use page migration to compact memory rather than depending solely on
->     reclaim (doesn't exist)
-
-Yup.
-
-> 3. Introduce a mechanism for marking a group of pages as being offlined so
->     that they are not reallocated (code that does something like this
->     exists)
-
-yup.
-
-> 4. Resurrect the hotplug-remove code (exists, but probably very stale)
-
-I don't even remember what that looks like.
-
-> 5. Allow allocations for hugepages outside of the pool as long as the
->     process remains with it's locked_vm limits (patches were posted to
->     libhugetlbfs last Friday. will post to linux-mm tomorrow).
-
-hm.
+	Jeff
 
 
-I'm not saying that we need to do memory hot-unplug immediately.  But the
-overlaps between this and anti-frag and lumpiness are sufficient that I do
-think that we need to work out how we'll implement hot-unplug, so we don't
-screw ourselves up later on.
 

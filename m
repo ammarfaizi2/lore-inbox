@@ -1,130 +1,379 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758332AbWLDByv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758388AbWLDByu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758332AbWLDByv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 20:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758371AbWLDByv
+	id S1758388AbWLDByu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 20:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758430AbWLDByu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 20:54:51 -0500
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:44701 "EHLO
-	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1758332AbWLDByt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 20:54:50 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:5039
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1758371AbWLDByt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 3 Dec 2006 20:54:49 -0500
-Message-Id: <200612040154.kB41sadx019068@ms-smtp-03.texas.rr.com>
-Reply-To: <Aucoin@Houston.RR.com>
-From: "Aucoin" <Aucoin@Houston.RR.com>
-To: <Aucoin@Houston.RR.com>, "'Tim Schmielau'" <tim@physik3.uni-rostock.de>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <clameter@sgi.com>
-Subject: RE: la la la la ... swappiness
-Date: Sun, 3 Dec 2006 19:54:41 -0600
-Organization: home
+Date: Sun, 3 Dec 2006 17:54:38 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: [PATCH 1/4] lock stat for 2.6.19-rt1
+Message-ID: <20061204015438.GB28519@gnuppy.monkey.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AccXHCFif5GC8F1LTyK9O/h/c7XcKwAFpk5AAAS+68A=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Content-Type: multipart/mixed; boundary="+JUInw4efm7IfTNU"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I should also have made it clear that under a full load OOM kills critical
-data moving processes because of (what appears to be) the out of control
-memory consumption by disk I/O cache related to the tar.
-
-As a side note, even now, *hours* after the tar has completed and even
-though I have swappiness set to 0, cache pressure set to 9999, all dirty
-timeouts set to 1 and all dirty ratios set to 1, I still have a 360+K
-inactive page count and my "free" memory is less than 10% of normal. I'm not
-pretending to understand what's happening here but shouldn't some kind of
-expiration have kicked in by now and freed up all those inactive pages? The
-*instant* I manually push a "3" into drop_caches I have 100% of my normal
-free memory and the inactive page count drops below 2K. Maybe I completely
-misunderstood the purpose of all those dials but I really did get the
-feeling that twisting them all tight would make the housekeeping algorithms
-more aggressive.
-
-What, if anything, besides manually echoing a "3" to drop_caches will cause
-all those inactive pages to be put back on the free list ?
-
------Original Message-----
-From: Aucoin [mailto:Aucoin@Houston.RR.com] 
-Sent: Sunday, December 03, 2006 5:57 PM
-To: 'Tim Schmielau'
-Cc: 'Andrew Morton'; 'torvalds@osdl.org'; 'linux-kernel@vger.kernel.org';
-'clameter@sgi.com'
-Subject: RE: la la la la ... swappiness
-
-We want it to swap less for this particular operation because it is low
-priority compared to the rest of what's going on inside the box.
-
-We've considered both artificially manipulating swap on the fly similar to
-your suggestion as well a parallel thread that pumps a 3 into drop_caches
-every few seconds while the update is running, but these seem too much like
-hacks for our liking. Mind you, if we don't have a choice we'll do what we
-need to get the job done but there's a nagging voice in our conscience that
-says keep looking for a more elegant solution and work *with* the kernel
-rather than working against it or trying to trick it into doing what we
-want. 
-
-We've already disabled OOM so we can at least keep our testing alive while
-searching for a more elegant solution. Although we want to avoid swap in
-this particular instance for this particular reason, in our hearts we agree
-with Andrew that swap can be your friend and get you out of a jam once in a
-while. Even more, we'd like to leave OOM active if we can because we want to
-be told when somebody's not being a good memory citizen.
-
-Some background, what we've done is carve up a huge chunk of memory that is
-shared between three resident processes as write cache for a proprietary
-block system layout that is part of a scalable storage architecture
-currently capable of RAID 0, 1, 5 (soon 6) virtualized across multiple
-chassis's, essentially treating each machine as a "disk" and providing
-multipath I/O to multiple iSCSI targets as part of a grid/array storage
-solution. Whew! We also have a version that leverages a battery backed write
-cache for higher performance at an additional cost. This software is
-installable on any commodity platform with 4-N disks supported by Linux,
-I've even put it on an Optiplex with 4 simulated disks. Yawn ... yet another
-iSCSI storage solution, but this one scales linearly in capacity as well as
-performance. As such, we have no user level apps on the boxes and precious
-little disk to spare for additional swap so our version of the swap
-manipulation solution is to turn swap completely off for the duration of the
-update.
-
-I hope I haven't muddied things up even more but basically what we want to
-do is find a way to limit the number of cached pages for disk I/O on the OS
-filesystem, even if it drastically slows down the untar and verify process
-because the disk I/O we really care about is not on any of the OS
-partitions.
-
-Louis Aucoin
-
------Original Message-----
-From: Tim Schmielau [mailto:tim@physik3.uni-rostock.de] 
-Sent: Sunday, December 03, 2006 2:47 PM
-To: Aucoin
-Cc: 'Andrew Morton'; torvalds@osdl.org; linux-kernel@vger.kernel.org;
-clameter@sgi.com
-Subject: RE: la la la la ... swappiness
-
-On Sun, 3 Dec 2006, Aucoin wrote:
-
-> during tar extraction ... inactive pages reaches levels as high as ~375000
-
-So why do you want the system to swap _less_? You need to find some free 
-memory for the additional processes to run in, and you have lots of 
-inactive pages, so I think you want to swap out _more_ pages.
-
-I'd suggest to temporarily add a swapfile before you update your system. 
-This can even help in bringing your memory use to the state before if you 
-do it like this
-  - swapon additional swapfile
-  - update your database software
-  - swapoff swap partition
-  - swapon swap partition
-  - swapoff additional swapfile
-
-Tim
+--+JUInw4efm7IfTNU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+This hooks into the preexisting lock definitions in the -rt kernel and
+hijacks parts of lockdep for the object hash key.
+
+bill
+
+
+--+JUInw4efm7IfTNU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="lockpatch.diff"
+
+============================================================
+--- include/linux/mutex.h	d231debc2848a8344e1b04055ef22e489702e648
++++ include/linux/mutex.h	734c89362a3d77d460eb20eec3107e7b76fed938
+@@ -15,6 +15,7 @@
+ #include <linux/rt_lock.h>
+ #include <linux/linkage.h>
+ #include <linux/lockdep.h>
++#include <linux/lock_stat.h>
+ 
+ #include <asm/atomic.h>
+ 
+@@ -35,7 +36,8 @@ extern void
+ 	}
+ 
+ extern void
+-_mutex_init(struct mutex *lock, char *name, struct lock_class_key *key);
++_mutex_init(struct mutex *lock, char *name, struct lock_class_key *key
++					__COMMA_LOCK_STAT_NOTE_PARAM_DECL);
+ 
+ extern void __lockfunc _mutex_lock(struct mutex *lock);
+ extern int __lockfunc _mutex_lock_interruptible(struct mutex *lock);
+@@ -56,11 +58,15 @@ extern void __lockfunc _mutex_unlock(str
+ # define mutex_lock_nested(l, s)	_mutex_lock(l)
+ #endif
+ 
++#define __mutex_init(l,n)		__rt_mutex_init(&(l)->mutex,	\
++					n				\
++					__COMMA_LOCK_STAT_NOTE)
++
+ # define mutex_init(mutex)				\
+ do {							\
+ 	static struct lock_class_key __key;		\
+ 							\
+-	_mutex_init((mutex), #mutex, &__key);		\
++	_mutex_init((mutex), #mutex, &__key __COMMA_LOCK_STAT_NOTE);	\
+ } while (0)
+ 
+ #else
+============================================================
+--- include/linux/rt_lock.h	d7515027865666075d3e285bcec8c36e9b6cfc47
++++ include/linux/rt_lock.h	297792307de5b4aef2c7e472e2a32c727e5de3f1
+@@ -13,6 +13,7 @@
+ #include <linux/rtmutex.h>
+ #include <asm/atomic.h>
+ #include <linux/spinlock_types.h>
++#include <linux/lock_stat.h>
+ 
+ #ifdef CONFIG_PREEMPT_RT
+ /*
+@@ -28,8 +29,8 @@ typedef struct {
+ 
+ #ifdef CONFIG_DEBUG_RT_MUTEXES
+ # define __SPIN_LOCK_UNLOCKED(name) \
+-	(spinlock_t) { { .wait_lock = _RAW_SPIN_LOCK_UNLOCKED(name) \
+-	, .save_state = 1, .file = __FILE__, .line = __LINE__ } }
++	(spinlock_t) { .lock = { .wait_lock = _RAW_SPIN_LOCK_UNLOCKED(name) \
++	, .save_state = 1, .file = __FILE__, .line = __LINE__ __COMMA_LOCK_STAT_INITIALIZER} }
+ #else
+ # define __SPIN_LOCK_UNLOCKED(name) \
+ 	(spinlock_t) { { .wait_lock = _RAW_SPIN_LOCK_UNLOCKED(name) } }
+@@ -92,7 +93,7 @@ typedef struct {
+ # ifdef CONFIG_DEBUG_RT_MUTEXES
+ #  define __RW_LOCK_UNLOCKED(name) (rwlock_t) \
+ 	{ .lock = { .wait_lock = _RAW_SPIN_LOCK_UNLOCKED(name), \
+-	 .save_state = 1, .file = __FILE__, .line = __LINE__ } }
++	 .save_state = 1, .file = __FILE__, .line = __LINE__ __COMMA_LOCK_STAT_INITIALIZER } }
+ # else
+ #  define __RW_LOCK_UNLOCKED(name) (rwlock_t) \
+ 	{ .lock = { .wait_lock = _RAW_SPIN_LOCK_UNLOCKED(name) } }
+@@ -139,14 +140,16 @@ struct semaphore name = \
+  */
+ #define DECLARE_MUTEX_LOCKED COMPAT_DECLARE_MUTEX_LOCKED
+ 
+-extern void fastcall __sema_init(struct semaphore *sem, int val, char *name, char *file, int line);
++extern void fastcall __sema_init(struct semaphore *sem, int val, char *name
++				__COMMA_LOCK_STAT_FN_DECL, char *_file, int _line);
+ 
+ #define rt_sema_init(sem, val) \
+-		__sema_init(sem, val, #sem, __FILE__, __LINE__)
++		__sema_init(sem, val, #sem __COMMA_LOCK_STAT_NOTE_FN, __FILE__, __LINE__)
+ 
+-extern void fastcall __init_MUTEX(struct semaphore *sem, char *name, char *file, int line);
++extern void fastcall __init_MUTEX(struct semaphore *sem, char *name
++				__COMMA_LOCK_STAT_FN_DECL, char *_file, int _line);
+ #define rt_init_MUTEX(sem) \
+-		__init_MUTEX(sem, #sem, __FILE__, __LINE__)
++		__init_MUTEX(sem, #sem __COMMA_LOCK_STAT_NOTE_FN, __FILE__, __LINE__)
+ 
+ extern void there_is_no_init_MUTEX_LOCKED_for_RT_semaphores(void);
+ 
+@@ -247,13 +250,14 @@ extern void fastcall __rt_rwsem_init(str
+ 	struct rw_semaphore lockname = __RWSEM_INITIALIZER(lockname)
+ 
+ extern void fastcall __rt_rwsem_init(struct rw_semaphore *rwsem, char *name,
+-				     struct lock_class_key *key);
++				     struct lock_class_key *key
++					__COMMA_LOCK_STAT_NOTE_PARAM_DECL);
+ 
+ # define rt_init_rwsem(sem)				\
+ do {							\
+ 	static struct lock_class_key __key;		\
+ 							\
+-	__rt_rwsem_init((sem), #sem, &__key);		\
++	__rt_rwsem_init((sem), #sem, &__key __COMMA_LOCK_STAT_NOTE);		\
+ } while (0)
+ 
+ extern void fastcall rt_down_write(struct rw_semaphore *rwsem);
+============================================================
+--- include/linux/rtmutex.h	e6fa10297e6c20d27edba172aeb078a60c64488e
++++ include/linux/rtmutex.h	55cd2de44a52e049fa8a0da63bde6449cefeb8fe
+@@ -15,6 +15,7 @@
+ #include <linux/linkage.h>
+ #include <linux/plist.h>
+ #include <linux/spinlock_types.h>
++#include <linux/lock_stat.h>
+ 
+ /*
+  * The rt_mutex structure
+@@ -33,6 +34,9 @@ struct rt_mutex {
+ 	int			line;
+ 	void			*magic;
+ #endif
++#ifdef CONFIG_LOCK_STAT
++	struct lock_stat	*lock_stat;
++#endif
+ };
+ 
+ struct rt_mutex_waiter;
+@@ -54,11 +58,13 @@ struct hrtimer_sleeper;
+ #ifdef CONFIG_DEBUG_RT_MUTEXES
+ # define __DEBUG_RT_MUTEX_INITIALIZER(mutexname) \
+ 	, .name = #mutexname, .file = __FILE__, .line = __LINE__
+-# define rt_mutex_init(mutex)			__rt_mutex_init(mutex, __FUNCTION__)
++# define rt_mutex_init(mutex)		__rt_mutex_init(mutex, __FUNCTION__ \
++						__COMMA_LOCK_STAT_NOTE_DECL_FLLN)
+  extern void rt_mutex_debug_task_free(struct task_struct *tsk);
+ #else
+ # define __DEBUG_RT_MUTEX_INITIALIZER(mutexname)
+-# define rt_mutex_init(mutex)			__rt_mutex_init(mutex, NULL)
++# define rt_mutex_init(mutex)		__rt_mutex_init(mutex, NULL		\
++						__COMMA_LOCK_STAT_NOTE_DECL_FLLN)
+ # define rt_mutex_debug_task_free(t)			do { } while (0)
+ #endif
+ 
+@@ -66,6 +72,7 @@ struct hrtimer_sleeper;
+ 	{ .wait_lock = RAW_SPIN_LOCK_UNLOCKED(mutexname) \
+ 	, .wait_list = PLIST_HEAD_INIT(mutexname.wait_list, mutexname.wait_lock) \
+ 	, .owner = NULL \
++	__COMMA_LOCK_STAT_INITIALIZER	\
+ 	__DEBUG_RT_MUTEX_INITIALIZER(mutexname)}
+ 
+ #define DEFINE_RT_MUTEX(mutexname) \
+@@ -82,10 +89,19 @@ static inline int rt_mutex_is_locked(str
+ 	return lock->owner != NULL;
+ }
+ 
+-extern void __rt_mutex_init(struct rt_mutex *lock, const char *name);
++extern void __rt_mutex_init(struct rt_mutex *lock,
++				const char *name
++				__COMMA_LOCK_STAT_NOTE_PARAM_DECL);
++#ifdef CONFIG_LOCK_STAT
++extern void __rt_mutex_init_annotated(struct rt_mutex *lock, const char *name,
++					LOCK_STAT_NOTE_PARAM_DECL,
++					struct lock_stat *lsobject);
++#endif
++
+ extern void rt_mutex_destroy(struct rt_mutex *lock);
+ 
+ extern void rt_mutex_lock(struct rt_mutex *lock);
++
+ extern int rt_mutex_lock_interruptible(struct rt_mutex *lock,
+ 						int detect_deadlock);
+ extern int rt_mutex_timed_lock(struct rt_mutex *lock,
+@@ -96,6 +112,20 @@ extern void rt_mutex_unlock(struct rt_mu
+ 
+ extern void rt_mutex_unlock(struct rt_mutex *lock);
+ 
++#ifdef CONFIG_LOCK_STAT
++extern void rt_mutex_lock_with_ip(struct rt_mutex *lock,
++					unsigned long ip);
++extern int rt_mutex_lock_interruptible_with_ip(struct rt_mutex *lock,
++						int detect_deadlock,
++						unsigned long ip);
++extern int rt_mutex_timed_lock_with_ip(struct rt_mutex *lock,
++					struct hrtimer_sleeper *timeout,
++					int detect_deadlock,
++					unsigned long ip);
++extern int rt_mutex_trylock_with_ip(struct rt_mutex *lock,
++					unsigned long ip);
++#endif
++
+ #ifdef CONFIG_RT_MUTEXES
+ # define INIT_RT_MUTEXES(tsk)						\
+ 	.pi_waiters	= PLIST_HEAD_INIT(tsk.pi_waiters, tsk.pi_lock),	\
+============================================================
+--- include/linux/spinlock.h	14bc1c854dc566f95ef972f0821415de7630a573
++++ include/linux/spinlock.h	f373183297a6575c36da57dbeed5d8631a7c604a
+@@ -90,6 +90,7 @@
+ #include <linux/cache.h>
+ #include <linux/stringify.h>
+ #include <linux/irqflags.h>
++#include <linux/lock_stat.h>
+ 
+ #include <asm/system.h>
+ 
+@@ -152,8 +153,17 @@ extern void
+ extern int __bad_rwlock_type(void);
+ 
+ extern void
+-__rt_spin_lock_init(spinlock_t *lock, char *name, struct lock_class_key *key);
++__rt_spin_lock_init(spinlock_t *lock, char *name, struct lock_class_key *key
++			__COMMA_LOCK_STAT_NOTE_PARAM_DECL);
+ 
++#ifdef CONFIG_LOCK_STAT
++extern void
++__rt_spin_lock_init_annotated(spinlock_t *lock, char *name,
++				struct lock_class_key *key,
++				LOCK_STAT_NOTE_PARAM_DECL,
++				struct lock_stat *lsobject);
++#endif
++
+ extern void __lockfunc rt_spin_lock(spinlock_t *lock);
+ extern void __lockfunc rt_spin_lock_nested(spinlock_t *lock, int subclass);
+ extern void __lockfunc rt_spin_unlock(spinlock_t *lock);
+@@ -170,6 +180,10 @@ extern void __lockfunc __rt_spin_unlock(
+ extern void __lockfunc __rt_spin_lock(struct rt_mutex *lock);
+ extern void __lockfunc __rt_spin_unlock(struct rt_mutex *lock);
+ 
++#ifdef CONFIG_LOCK_STAT
++extern void __lockfunc __rt_spin_lock_with_ip(struct rt_mutex *lock, unsigned long _ip);
++#endif
++
+ #ifdef CONFIG_PREEMPT_RT
+ # define _spin_lock(l)			rt_spin_lock(l)
+ # define _spin_lock_nested(l, s)	rt_spin_lock_nested(l, s)
+@@ -216,9 +230,18 @@ do {							\
+ do {							\
+ 	static struct lock_class_key __key;		\
+ 							\
+-	__rt_spin_lock_init(sl, n, &__key);		\
++	__rt_spin_lock_init(sl, n, &__key __COMMA_LOCK_STAT_NOTE);		\
+ } while (0)
+ 
++#ifdef CONFIG_LOCK_STAT
++#define _spin_lock_init_annotated(sl, n, f, l, lsobj)	\
++do {							\
++	static struct lock_class_key __key;		\
++							\
++	__rt_spin_lock_init_annotated(sl, n, &__key, f, __func__, l, lsobj);		\
++} while (0)
++#endif
++
+ # ifdef CONFIG_PREEMPT_RT
+ #  define _spin_can_lock(l)		(!rt_mutex_is_locked(&(l)->lock))
+ #  define _spin_is_locked(l)		rt_mutex_is_locked(&(l)->lock)
+@@ -299,15 +322,31 @@ extern void
+ extern unsigned long __lockfunc rt_write_lock_irqsave(rwlock_t *rwlock);
+ extern unsigned long __lockfunc rt_read_lock_irqsave(rwlock_t *rwlock);
+ extern void
+-__rt_rwlock_init(rwlock_t *rwlock, char *name, struct lock_class_key *key);
++__rt_rwlock_init(rwlock_t *rwlock, char *name, struct lock_class_key *key
++					__COMMA_LOCK_STAT_NOTE_PARAM_DECL);
+ 
+ #define _rwlock_init(rwl, n, f, l)			\
+ do {							\
+ 	static struct lock_class_key __key;		\
+ 							\
+-	__rt_rwlock_init(rwl, n, &__key);		\
++	__rt_rwlock_init(rwl, n, &__key __COMMA_LOCK_STAT_NOTE);		\
+ } while (0)
+ 
++#ifdef CONFIG_LOCK_STAT
++extern void
++__rt_rwlock_init_annotated(rwlock_t *rwlock, char *name,
++				struct lock_class_key *key,
++				LOCK_STAT_NOTE_PARAM_DECL,
++				struct lock_stat *lsobject);
++
++#define _rwlock_init_annotated(rwl, n, f, l, lsobject)	\
++do {							\
++	static struct lock_class_key __key;		\
++							\
++	__rt_rwlock_init(rwl, n, &__key, LOCK_STAT_NOTE, lsobject);		\
++} while (0)
++#endif
++
+ #ifdef CONFIG_PREEMPT_RT
+ # define rt_read_can_lock(rwl)	(!rt_mutex_is_locked(&(rwl)->lock))
+ # define rt_write_can_lock(rwl)	(!rt_mutex_is_locked(&(rwl)->lock))
+@@ -425,6 +464,19 @@ do {									\
+ 
+ #define spin_lock_init(lock)		PICK_OP_INIT(_lock_init, lock)
+ 
++#ifdef CONFIG_LOCK_STAT
++#define PICK_OP_INIT_ANNOTATED(op, lock, lsobj)				\
++do {									\
++	if (TYPE_EQUAL((lock), raw_spinlock_t))				\
++		_raw_spin##op((raw_spinlock_t *)(lock));		\
++	else if (TYPE_EQUAL(lock, spinlock_t))				\
++		_spin##op##_annotated((spinlock_t *)(lock), #lock, __FILE__, __LINE__, lsobj); \
++	else __bad_spinlock_type();					\
++} while (0)
++
++#define spin_lock_init_annotated(lock, lsobj)	PICK_OP_INIT_ANNOTATED(_lock_init, lock, lsobj)
++#endif
++
+ #ifdef CONFIG_DEBUG_SPINLOCK
+   extern void __raw_rwlock_init(raw_rwlock_t *lock, const char *name,
+ 				struct lock_class_key *key);
+============================================================
+--- include/linux/wait.h	12da8de69f1f2660443a04c3df199e5d851ea2ca
++++ include/linux/wait.h	9b7448af82583bd11d18032aedfa8f2af44345f4
+@@ -81,7 +81,7 @@ extern void init_waitqueue_head(wait_que
+ 
+ extern void init_waitqueue_head(wait_queue_head_t *q);
+ 
+-#ifdef CONFIG_LOCKDEP
++#if defined(CONFIG_LOCKDEP) || defined(CONFIG_LOCK_STAT)
+ # define __WAIT_QUEUE_HEAD_INIT_ONSTACK(name) \
+ 	({ init_waitqueue_head(&name); name; })
+ # define DECLARE_WAIT_QUEUE_HEAD_ONSTACK(name) \
+============================================================
+--- init/main.c	268ab0d5f5bdc422e2864cadf35a7bb95958de10
++++ init/main.c	9d14ac66cb0fe3b90334512c0659146aec5e241c
+@@ -608,6 +608,7 @@ asmlinkage void __init start_kernel(void
+ #ifdef CONFIG_PROC_FS
+ 	proc_root_init();
+ #endif
++	lock_stat_sys_init(); //--billh
+ 	cpuset_init();
+ 	taskstats_init_early();
+ 	delayacct_init();
+
+--+JUInw4efm7IfTNU--

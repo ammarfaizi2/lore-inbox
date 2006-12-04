@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936531AbWLDSDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936577AbWLDSDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936531AbWLDSDK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 13:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936547AbWLDSDK
+	id S936577AbWLDSDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 13:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936604AbWLDSDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 13:03:10 -0500
-Received: from gateway-1237.mvista.com ([63.81.120.155]:8719 "EHLO
-	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S936544AbWLDSDI (ORCPT
+	Mon, 4 Dec 2006 13:03:46 -0500
+Received: from wmail-1.airmail.net ([209.196.70.86]:50064 "EHLO
+	wmail-1.airmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936593AbWLDSDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 13:03:08 -0500
-Message-ID: <45746338.7050903@ru.mvista.com>
-Date: Mon, 04 Dec 2006 21:04:40 +0300
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Mon, 4 Dec 2006 13:03:45 -0500
+From: "Art Haas" <ahaas@airmail.net>
+Date: Mon, 4 Dec 2006 12:03:11 -0600
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] Remove 'volatile' from spinlocks
+Message-ID: <20061204180311.GD22454@artsapartment.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t	in	latency_trace.c
- (take 3)
-References: <200611132252.58818.sshtylyov@ru.mvista.com>	<457326A2.2020402@ru.mvista.com> <20061204095131.GE7872@elte.hu> <4574149B.5070602@ru.mvista.com>
-In-Reply-To: <4574149B.5070602@ru.mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi.
 
-Sergei Shtylyov wrote:
+Months ago two patches were posted by Ingo Molnar that removed
+the 'volatile' keyword from the 'raw_spinlock_t' and 'raw_rwlock_t'
+structures in the i386 and x86-64 ports. The link below takes you to
+the initial (?) posting of the patches:
 
->>Why is cycles_t 32-bits on some 
->>of the arches to begin with?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115217423929806&w=2
 
->     I guess this was done for speed reasons.
+I've been build and running SMP kernels on a dual PIII machine with
+the i386 version of the patch since then and the kernels have worked
+well. Perhaps the patch(es) can make it into the 2.6.20 kernel?
 
-    The whole 64-bit timebase can't be rad atomically on PPC32. ARM probably 
-has stricter limitations...
+The i386 version of the patch is below, the x86-64 patch is identical.
 
->>	Ingo
+Art Haas
 
-WBR, Sergei
+diff --git a/include/asm-i386/spinlock_types.h b/include/asm-i386/spinlock_types.h
+index 59efe84..4da9345 100644
+--- a/include/asm-i386/spinlock_types.h
++++ b/include/asm-i386/spinlock_types.h
+@@ -6,13 +6,13 @@ # error "please don't include this file 
+ #endif
+ 
+ typedef struct {
+-	volatile unsigned int slock;
++	unsigned int slock;
+ } raw_spinlock_t;
+ 
+ #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
+ 
+ typedef struct {
+-	volatile unsigned int lock;
++	unsigned int lock;
+ } raw_rwlock_t;
+ 
+ #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }
+
+-- 
+Man once surrendering his reason, has no remaining guard against absurdities
+the most monstrous, and like a ship without rudder, is the sport of every wind.
+
+-Thomas Jefferson to James Smith, 1822

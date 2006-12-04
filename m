@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937106AbWLDQeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937099AbWLDQfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937106AbWLDQeF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937099AbWLDQeF
+	id S937099AbWLDQfK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 11:35:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937107AbWLDQfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:34:05 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:34924 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937102AbWLDQeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:34:03 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
-Date: Mon, 4 Dec 2006 17:35:13 +0100
-User-Agent: KMail/1.8
-Cc: Maneesh Soni <maneesh@in.ibm.com>, gregkh@suse.com,
-       linux-usb-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0612041101410.3606-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0612041101410.3606-100000@iolanthe.rowland.org>
+	Mon, 4 Dec 2006 11:35:10 -0500
+Received: from mga02.intel.com ([134.134.136.20]:6641 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937099AbWLDQfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 11:35:08 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,494,1157353200"; 
+   d="scan'208"; a="169962201:sNHT93237754183"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "'Zach Brown'" <zach.brown@oracle.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [patch] kill pointless ki_nbytes assignment in aio_setup_single_vector
+Date: Mon, 4 Dec 2006 08:34:25 -0800
+Message-ID: <000101c717c2$0fe26ce0$2589030a@amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612041735.13615.oliver@neukum.org>
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccXwg9dufCrETuuSnyDr9e0TIxV4w==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 4. Dezember 2006 17:06 schrieb Alan Stern:
-> On Mon, 4 Dec 2006, Maneesh Soni wrote:
-> 
-> > hmm, I guess Greg has to say the final word. The question is either to fail
-> > the IO (-ENODEV) or fail the file removal (-EBUSY). If we are not going to
-> > fail the removal then your patch is the way to go.
-> > 
-> > Greg?
-> 
-> Oliver is right that we cannot allow device_remove_file() to fail.  In 
-> fact we can't even allow it to block until all the existing open file 
-> references are closed.
+io_submit_one assigns ki_left = ki_nbytes = iocb->aio_nbytes, then
+calls down to aio_setup_iocb, then to aio_setup_single_vector. In there,
+ki_nbytes is reassigned to the same value it got two call stack above it.
+There is no need to do so.
 
-Yes, we must have an upper bound with respect to time.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-> Our major questions have to do with the details of the patch itself.  In 
-> particular, we are worried about possible races with the VFS and the 
-> handling of the inode's usage count.  Can you examine the patch carefully 
-> to see if it is okay?
-> 
-> Also, Oliver, it looks like the latest version of your patch makes an 
-> unnecessary change to sysfs_remove_file().
 
-Code like:
+diff -Nurp linux-2.6.19/fs/aio.c linux-2.6.19.ken/fs/aio.c
+--- linux-2.6.19/fs/aio.c	2006-12-03 17:16:52.000000000 -0800
++++ linux-2.6.19.ken/fs/aio.c	2006-12-03 17:19:06.000000000 -0800
+@@ -1415,7 +1415,6 @@ static ssize_t aio_setup_single_vector(s
+ 	kiocb->ki_iovec->iov_len = kiocb->ki_left;
+ 	kiocb->ki_nr_segs = 1;
+ 	kiocb->ki_cur_seg = 0;
+-	kiocb->ki_nbytes = kiocb->ki_left;
+ 	if (unlikely((ssize_t) kiocb->ki_nbytes < 0))
+ 		return -EINVAL;
+ 	return 0;
 
-int d(int a, int b)
-{
-	return a + b;
-}
-
-int c(int a, int b)
-{
-	return d(a, b);
-}
-
-is a detrimental to correct understanding and thence coding.
-In fact reading sysfs source code is like jumping all around the kernel
-tree. Such changes made it readable by normal people. I have to
-understand which method I am coding on to do reasonable work. ;-)
-
-	Regards
-		Oliver

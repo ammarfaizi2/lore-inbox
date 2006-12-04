@@ -1,74 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966975AbWLDUhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966970AbWLDUny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966975AbWLDUhN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966980AbWLDUhN
+	id S966970AbWLDUny (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966877AbWLDUny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:37:13 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26892 "EHLO mga02.intel.com"
+	Mon, 4 Dec 2006 15:43:54 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44346 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S966975AbWLDUhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:37:11 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,494,1157353200"; 
-   d="scan'208"; a="170081931:sNHT3482351509"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <jens.axboe@oracle.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] speed up single bio_vec allocation
-Date: Mon, 4 Dec 2006 12:36:56 -0800
-Message-ID: <000601c717e3$f098a8a0$2589030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id S966875AbWLDUnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:43:52 -0500
+Date: Mon, 4 Dec 2006 12:43:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] pata_it8213: Add new driver for the IT8213 card.
+Message-Id: <20061204124344.a7c21221.akpm@osdl.org>
+In-Reply-To: <20061204164931.7d36d744@localhost.localdomain>
+References: <20061204164931.7d36d744@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccX36pXZLGai6tdTpCUApdBEeUGQgAAq4og
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20061204200645.GN4392@kernel.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote on Monday, December 04, 2006 12:07 PM
-> On Mon, Dec 04 2006, Chen, Kenneth W wrote:
-> > On 64-bit arch like x86_64, struct bio is 104 byte.  Since bio slab is
-> > created with SLAB_HWCACHE_ALIGN flag, there are usually spare memory
-> > available at the end of bio.  I think we can utilize that memory for
-> > bio_vec allocation.  The purpose is not so much on saving memory consumption
-> > for bio_vec, instead, I'm attempting to optimize away a call to bvec_alloc_bs.
-> > 
-> > So here is a patch to do just that for 1 segment bio_vec (we currently only
-> > have space for 1 on 2.6.19).  And the detection whether there are spare space
-> > available is dynamically calculated at compile time.  If there are no space
-> > available, there will be no run time cost at all because gcc simply optimize
-> > away all the code added in this patch.  If there are space available, the only
-> > run time check is to see what the size of iovec is and we do appropriate
-> > assignment to bio->bi_io_Vec etc.  The cost is minimal and we gain a whole
-> > lot back from not calling bvec_alloc_bs() function.
-> > 
-> > I tried to use cache_line_size() to find out the alignment of struct bio, but
-> > stumbled on that it is a runtime function for x86_64. So instead I made bio
-> > to hint to the slab allocator to align on 32 byte (slab will use the larger
-> > value of hw cache line and caller hints of "align").  I think it is a sane
-> > number for majority of the CPUs out in the world.
+On Mon, 4 Dec 2006 16:49:31 +0000
+Alan <alan@lxorguk.ukuu.org.uk> wrote:
+
+> Add a driver for the IT8213 which is a single channel ICH-ish PATA
+> controller. As it is very different to the IT8211/2 it gets its own
+> driver. There is a legacy drivers/ide driver also available and I'll post
+> that once I get time to test it all out (probably early January). If
+> anyone else needs the drivers/ide driver and wants to do the merge for
+> drivers/ide (Bart ??) then I'll forward it.
 > 
-> Any benchmarks for this one?
+> ...
+>
+> +static void it8213_set_piomode (struct ata_port *ap, struct ata_device *adev)
+> +{
+> +	unsigned int pio	= adev->pio_mode - XFER_PIO_0;
+> +	struct pci_dev *dev	= to_pci_dev(ap->host->dev);
+> +	unsigned int idetm_port= ap->port_no ? 0x42 : 0x40;
+> +	u16 idetm_data;
+> +	int control = 0;
+> +
+> +	/*
+> +	 *	See Intel Document 298600-004 for the timing programing rules
+> +	 *	for PIIX/ICH. The 8213 is a clone so very similar
+> +	 */
+> +
+> +	static const	 /* ISP  RTC */
+> +	u8 timings[][2]	= { { 0, 0 },
+> +			    { 0, 0 },
+> +			    { 1, 0 },
+> +			    { 2, 1 },
+> +			    { 2, 3 }, };
+>
+> ...
+>
+> +
+> +static void it8213_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> +{
+> +	struct pci_dev *dev	= to_pci_dev(ap->host->dev);
+> +	u16 master_data;
+> +	u8 speed		= adev->dma_mode;
+> +	int devid		= adev->devno;
+> +	u8 udma_enable;
+> +
+> +	static const	 /* ISP  RTC */
+> +	u8 timings[][2]	= { { 0, 0 },
+> +			    { 0, 0 },
+> +			    { 1, 0 },
+> +			    { 2, 1 },
+> +			    { 2, 3 }, };
 
-About 0.2% on database transaction processing benchmark.  It was done a while
-back on top of a major Linux vendor kernel. I will retest it again for 2.6.19.
+Was the duplication of timings[] deliberate?
 
+> +		const unsigned int needed_pio[3] = {
+> +			XFER_PIO_0, XFER_PIO_3, XFER_PIO_4
+> +		};
 
-> [...]
-> 
-> Another idea would be to kill SLAB_HWCACHE_ALIGN (it's pretty pointless,
-> I bet), and always alloc sizeof(*bio) + sizeof(*bvl) in one go when a
-> bio is allocated. It doesn't add a lot of overhead even for the case
-> where we do > 1 page bios, and it gets rid of the dual allocation for
-> the 1 page bio.
+I made this static (save the world and all that).
 
-I will try that too.  I'm a bit touchy about sharing a cache line for different
-bio.  But given that there are 200,000 I/O per second we are currently pushing
-the kernel, the chances of two cpu working on two bio that sits in the same
-cache line are pretty small.
+> +static const struct pci_device_id it8213_pci_tbl[] = {
+> +	{ PCI_VDEVICE(ITE, PCI_DEVICE_ID_ITE_8213), },
 
-- Ken
+drivers/ata/pata_it8213.c:323: error: 'PCI_DEVICE_ID_ITE_8213' undeclared here (not in a function)
+
+I went out on a limb and...
+
+--- a/drivers/ata/pata_it8213.c~pata_it8213-add-new-driver-for-the-it8213-card-tidy
++++ a/drivers/ata/pata_it8213.c
+@@ -194,7 +194,7 @@ static void it8213_set_dmamode (struct a
+ 		unsigned int mwdma	= adev->dma_mode - XFER_MW_DMA_0;
+ 		unsigned int control;
+ 		u8 slave_data;
+-		const unsigned int needed_pio[3] = {
++		static const unsigned int needed_pio[3] = {
+ 			XFER_PIO_0, XFER_PIO_3, XFER_PIO_4
+ 		};
+ 		int pio = needed_pio[mwdma] - XFER_PIO_0;
+@@ -352,4 +352,3 @@ MODULE_DESCRIPTION("SCSI low-level drive
+ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(pci, it8213_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+-
+diff -puN include/linux/pci_ids.h~pata_it8213-add-new-driver-for-the-it8213-card-tidy include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h~pata_it8213-add-new-driver-for-the-it8213-card-tidy
++++ a/include/linux/pci_ids.h
+@@ -1622,6 +1622,7 @@
+ #define PCI_VENDOR_ID_ITE		0x1283
+ #define PCI_DEVICE_ID_ITE_8211		0x8211
+ #define PCI_DEVICE_ID_ITE_8212		0x8212
++#define PCI_DEVICE_ID_ITE_8213		0x8213
+ #define PCI_DEVICE_ID_ITE_8872		0x8872
+ #define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
+ 
+_
+

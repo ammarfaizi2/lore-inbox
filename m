@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936225AbWLDMVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936260AbWLDMYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936225AbWLDMVc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:21:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936230AbWLDMVc
+	id S936260AbWLDMYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936257AbWLDMYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:21:32 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:64137 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S936225AbWLDMVb (ORCPT
+	Mon, 4 Dec 2006 07:24:00 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52357 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S936250AbWLDMX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:21:31 -0500
-Date: Mon, 4 Dec 2006 13:21:29 +0100
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] lock stat for 2.6.19-rt1
-Message-ID: <20061204122129.GA2626@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Bill Huey <billh@gnuppy.monkey.org>, Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org
-References: <20061204015323.GA28519@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061204015323.GA28519@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 4 Dec 2006 07:23:59 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061204114851.GA25859@elte.hu> 
+References: <20061204114851.GA25859@elte.hu>  <20061201172149.GC3078@ftp.linux.org.uk> <1165064370.24604.36.camel@localhost.localdomain> <20061202140521.GJ3078@ftp.linux.org.uk> <1165070713.24604.50.camel@localhost.localdomain> <20061202160252.GQ14076@parisc-linux.org> <1165082803.24604.54.camel@localhost.localdomain> <20061202181957.GK3078@ftp.linux.org.uk> 
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] timers, pointers to functions and type safety 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 04 Dec 2006 12:22:44 +0000
+Message-ID: <28665.1165234964@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 05:53:23PM -0800, Bill Huey wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
 
-> [8264, 996648, 0]		{inode_init_once, fs/inode.c, 196}
-> [8552, 996648, 0]		{inode_init_once, fs/inode.c, 193}
+> the question is: which is more important, the type safety of a 
+> container_of() [or type cast], which if we get it wrong produces a 
+> /very/ trivial crash that is trivial to fix - or embedded timers data 
+> structure size all around the kernel? I believe the latter is more 
+> important.
 
-Impressive, Bill!
+Indeed yes.
 
-How tightly is your work bound to -rt? Iow, any chance of separating the
-two? Or should we even want to?
+Using container_of() and ditching the data value, you generally have to have
+one extra instruction per timer handler, if that, but you are able to discard
+one instruction or more from __run_timers() and struct timer_list discards a
+word.
 
-> The first column is the number of the times that object was contented against.
-> The second is the number of times this lock object was initialized. The third
-> is the annotation scheme that directly attaches the lock object (spinlock,
-> etc..) in line with the function initializer to avoid the binary tree lookup.
+You will almost certainly have far more timer_list structs in the kernel than
+timer handler functions, therefore it's a space win, and possibly also a time
+win (if the reduction of __run_timers() is greater than the increase in the
+timer handler).
 
-I don't entirely get the third item, can you elaborate a bit?
+And that extra instruction in the timer handler is usually going to be an
+addition or subtraction of a small immediate value - which may be zero (in
+which case the insn is dropped) or which may be folded directly into memory
+access instruction offsets.
 
-Do you have a feeling of the runtime overhead?
-
-Thanks.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+David

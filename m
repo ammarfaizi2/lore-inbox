@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936260AbWLDMYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936202AbWLDM1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936260AbWLDMYA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936257AbWLDMYA
+	id S936202AbWLDM1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936254AbWLDM1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:24:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52357 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S936250AbWLDMX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:23:59 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061204114851.GA25859@elte.hu> 
-References: <20061204114851.GA25859@elte.hu>  <20061201172149.GC3078@ftp.linux.org.uk> <1165064370.24604.36.camel@localhost.localdomain> <20061202140521.GJ3078@ftp.linux.org.uk> <1165070713.24604.50.camel@localhost.localdomain> <20061202160252.GQ14076@parisc-linux.org> <1165082803.24604.54.camel@localhost.localdomain> <20061202181957.GK3078@ftp.linux.org.uk> 
+	Mon, 4 Dec 2006 07:27:43 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:37660 "EHLO
+	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S936202AbWLDM1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:27:43 -0500
+Message-ID: <4574149B.5070602@ru.mvista.com>
+Date: Mon, 04 Dec 2006 15:29:15 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 04 Dec 2006 12:22:44 +0000
-Message-ID: <28665.1165234964@redhat.com>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in	latency_trace.c
+ (take 3)
+References: <200611132252.58818.sshtylyov@ru.mvista.com> <457326A2.2020402@ru.mvista.com> <20061204095131.GE7872@elte.hu>
+In-Reply-To: <20061204095131.GE7872@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+Hello.
 
-> the question is: which is more important, the type safety of a 
-> container_of() [or type cast], which if we get it wrong produces a 
-> /very/ trivial crash that is trivial to fix - or embedded timers data 
-> structure size all around the kernel? I believe the latter is more 
-> important.
+Ingo Molnar wrote:
 
-Indeed yes.
+>>   What was the destiny of that patch? I haven't seen it accepted, 
+>>haven't seen any comments... while this is not a mere warning fix. 
+>>What am I expected to do to get it accepted -- recast it against 
+>>2.6.19-rt1?
 
-Using container_of() and ditching the data value, you generally have to have
-one extra instruction per timer handler, if that, but you are able to discard
-one instruction or more from __run_timers() and struct timer_list discards a
-word.
+> i'd suggest to redo it - but please keep it simple and clean. Those 
+> dozens of casts to u64 are quite ugly.
 
-You will almost certainly have far more timer_list structs in the kernel than
-timer handler functions, therefore it's a space win, and possibly also a time
-win (if the reduction of __run_timers() is greater than the increase in the
-timer handler).
+    Alas, there's *nothing* I can do about it with 32-bit cycles_t. And if you 
+look at the kernel, this is not the only case of such "ugliness", look at this 
+commit for example:
 
-And that extra instruction in the timer handler is usually going to be an
-addition or subtraction of a small immediate value - which may be zero (in
-which case the insn is dropped) or which may be folded directly into memory
-access instruction offsets.
+http://www.kernel.org/git/?p=linux/kernel/git/paulus/powerpc.git;a=commit;h=685143ac1f7a579a3fac9c7f2ac8f82e95af6864
 
-David
+> Why is cycles_t 32-bits on some 
+> of the arches to begin with?
+
+    I guess this was done for speed reasons. That's not a qustion for me 
+although...
+
+> 	Ingo
+
+WBR, Sergei

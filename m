@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937016AbWLDP3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937021AbWLDPa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937016AbWLDP3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 10:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937017AbWLDP3A
+	id S937021AbWLDPa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 10:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937023AbWLDPa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 10:29:00 -0500
-Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:37018 "HELO sapo.pt"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S937016AbWLDP27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 10:28:59 -0500
-X-AntiVirus: PTMail-AV 0.3-0.88.6
-Subject: 100000 interrupts problem Re: linux 2.6.19 still crashing
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4573CFBB.1030107@dungeon.inka.de>
-References: <4571AFED.8060200@dungeon.inka.de>
-	 <1165200588.9189.1.camel@monteirov>  <4573CFBB.1030107@dungeon.inka.de>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 04 Dec 2006 15:28:59 +0000
-Message-Id: <1165246139.4546.7.camel@localhost.localdomain>
+	Mon, 4 Dec 2006 10:30:26 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:9186 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937021AbWLDPaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 10:30:24 -0500
+Subject: Re: [S390] cio: Make ccw_dev_id_is_equal() more robust.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
+In-Reply-To: <20061204152348.GA30961@filer.fsl.cs.sunysb.edu>
+References: <20061204145624.GB32059@skybase>
+	 <20061204152348.GA30961@filer.fsl.cs.sunysb.edu>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Mon, 04 Dec 2006 16:30:18 +0100
+Message-Id: <1165246218.8364.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-04 at 08:35 +0100, Andreas Jellinghaus wrote:
-> or I can send you the kernel patch as file and the xen hypervisor:
-> -rw-r--r-- 1 root root  244694 2006-04-19 12:14 /boot/xen-3.0.2-2.gz
-> -rw-r--r-- 1 root root  604942 2006-04-19 12:14 
-> /usr/src/kernel-patches/diffs/xen/linux-2.6.16-xen.patch.gz
+On Mon, 2006-12-04 at 10:23 -0500, Josef Sipek wrote:
+> > diff -urpN linux-2.6/include/asm-s390/cio.h linux-2.6-patched/include/asm-s390/cio.h
+> > --- linux-2.6/include/asm-s390/cio.h	2006-12-04 14:50:48.000000000 +0100
+> > +++ linux-2.6-patched/include/asm-s390/cio.h	2006-12-04 14:51:00.000000000 +0100
+> > @@ -278,7 +278,10 @@ struct ccw_dev_id {
+> >  static inline int ccw_dev_id_is_equal(struct ccw_dev_id *dev_id1,
+> >  				      struct ccw_dev_id *dev_id2)
+> >  {
+> > -	return !memcmp(dev_id1, dev_id2, sizeof(struct ccw_dev_id));
+> > +	if ((dev_id1->ssid == dev_id2->ssid) &&
+> > +	    (dev_id1->devno == dev_id2->devno))
+> > +		return 1;
+> > +	return 0;
+> >  }
 > 
-> it applies clean against 2.6.16, but if with 2.6.16.31 I had
-> to manually fix two rejects. 
+> Why not just:
+> 
+> return ((dev_id1->ssid == ......) && (...));
 
-Send me this (patches) please I like to try it, I work with rpms , so
-don't send me debs.
+Yes, why not. It would be a little bit shorter. The compiler probably
+won't care and generate the same code..
 
-yesterday, I had try 2.6.19-rt1
-( http://people.redhat.com/mingo/realtime-preempt/ )
-which don't show the 100000 interrupts problem anymore, but was just a
-preliminary test.
+-- 
+blue skies,
+  Martin.
 
-Thanks,
---
-Sérgio M. B. 
-  
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

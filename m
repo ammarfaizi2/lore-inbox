@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966599AbWLDUJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937054AbWLDUJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966599AbWLDUJe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937351AbWLDUJe
+	id S937054AbWLDUJB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937351AbWLDUJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:09:34 -0500
-Received: from smtp.nokia.com ([131.228.20.173]:56822 "EHLO
+	Mon, 4 Dec 2006 15:09:00 -0500
+Received: from smtp.nokia.com ([131.228.20.173]:56643 "EHLO
 	mgw-ext14.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937359AbWLDUJb (ORCPT
+	with ESMTP id S966602AbWLDUI7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:09:31 -0500
-Message-ID: <4574814E.1020803@indt.org.br>
-Date: Mon, 04 Dec 2006 16:13:02 -0400
+	Mon, 4 Dec 2006 15:08:59 -0500
+Message-ID: <45748122.9030509@indt.org.br>
+Date: Mon, 04 Dec 2006 16:12:18 -0400
 From: Anderson Briglia <anderson.briglia@indt.org.br>
 User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
@@ -21,209 +21,207 @@ CC: "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
        "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
        Tony Lindgren <tony@atomide.com>,
        ext David Brownell <david-b@pacbell.net>
-Subject: [PATCH 3/4] Add MMC Password Protection (lock/unlock) support V8:
- mmc_lock_unlock.diff
+Subject: [PATCH 2/4] Add MMC Password Protection (lock/unlock) support V8:
+ mmc_key_retention.diff
 Content-Type: multipart/mixed;
- boundary="------------080603090308070907000606"
-X-OriginalArrivalTime: 04 Dec 2006 20:08:47.0027 (UTC) FILETIME=[01991030:01C717E0]
-X-eXpurgate-Category: 1/0
-X-eXpurgate-ID: 149371::061204220906-05186BB0-49894C1F/0-0/0-1
+ boundary="------------020406020903060408080408"
+X-OriginalArrivalTime: 04 Dec 2006 20:08:03.0293 (UTC) FILETIME=[E787C8D0:01C717DF]
 X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080603090308070907000606
+--------------020406020903060408080408
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
 
-
---------------080603090308070907000606
+--------------020406020903060408080408
 Content-Type: text/plain;
- name="mmc_lock_unlock.diff"
+ name="mmc_key_retention.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="mmc_lock_unlock.diff"
+ filename="mmc_key_retention.diff"
 
-Implement card lock/unlock operation, using the MMC_LOCK_UNLOCK command.
+Implement key retention operations.
 
 Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar <at> indt.org.br>
 Signed-off-by: Anderson Lizardo <anderson.lizardo <at> indt.org.br>
 Signed-off-by: Anderson Briglia <anderson.briglia <at> indt.org.br>
 
+Index: linux-linus-2.6/drivers/mmc/Kconfig
+===================================================================
+--- linux-linus-2.6.orig/drivers/mmc/Kconfig	2006-12-04 14:57:42.000000000 -0400
++++ linux-linus-2.6/drivers/mmc/Kconfig	2006-12-04 15:26:05.000000000 -0400
+@@ -19,6 +19,19 @@ config MMC_DEBUG
+ 	  This is an option for use by developers; most people should
+ 	  say N here.  This enables MMC core and driver debugging.
+ 
++config MMC_PASSWORDS
++	boolean "MMC card lock/unlock passwords (EXPERIMENTAL)"
++	depends on MMC && EXPERIMENTAL
++	select KEYS
++	help
++	  Say Y here to enable the use of passwords to lock and unlock
++	  MMC cards.  This uses the access key retention support, using
++	  request_key to look up the key associated with each card.
++
++	  For example, if you have an MMC card that was locked using
++	  Symbian OS on your cell phone, you won't be able to read it
++	  on Linux without this support.
++
+ config MMC_BLOCK
+ 	tristate "MMC block device driver"
+ 	depends on MMC && BLOCK
 Index: linux-linus-2.6/drivers/mmc/mmc.h
 ===================================================================
---- linux-linus-2.6.orig/drivers/mmc/mmc.h	2006-12-04 15:26:05.000000000 -0400
-+++ linux-linus-2.6/drivers/mmc/mmc.h	2006-12-04 15:27:09.000000000 -0400
-@@ -27,6 +27,10 @@ struct mmc_key_payload {
- 	char		data[0];	/* actual data */
- };
+--- linux-linus-2.6.orig/drivers/mmc/mmc.h	2006-11-22 10:44:30.000000000 -0400
++++ linux-linus-2.6/drivers/mmc/mmc.h	2006-12-04 15:34:07.000000000 -0400
+@@ -19,6 +19,14 @@ int mmc_add_host_sysfs(struct mmc_host *
+ void mmc_remove_host_sysfs(struct mmc_host *host);
+ void mmc_free_host_sysfs(struct mmc_host *host);
  
-+struct key;
-+
-+extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
++/* core-internal data */
++extern struct key_type mmc_key_type;
++struct mmc_key_payload {
++	struct rcu_head	rcu;		/* RCU destructor */
++	unsigned short	datalen;	/* length of this data */
++	char		data[0];	/* actual data */
++};
 +
  int mmc_schedule_work(struct work_struct *work);
  int mmc_schedule_delayed_work(struct work_struct *work, unsigned long delay);
  void mmc_flush_scheduled_work(void);
-Index: linux-linus-2.6/include/linux/mmc/protocol.h
+Index: linux-linus-2.6/drivers/mmc/mmc_sysfs.c
 ===================================================================
---- linux-linus-2.6.orig/include/linux/mmc/protocol.h	2006-12-04 14:57:43.000000000 -0400
-+++ linux-linus-2.6/include/linux/mmc/protocol.h	2006-12-04 15:27:09.000000000 -0400
-@@ -312,5 +312,13 @@ struct _mmc_csd {
- #define SD_BUS_WIDTH_1      0
- #define SD_BUS_WIDTH_4      2
- 
-+/*
-+ * MMC_LOCK_UNLOCK modes
-+ */
-+#define MMC_LOCK_MODE_ERASE	(1<<3)
-+#define MMC_LOCK_MODE_UNLOCK	(0<<2)
-+#define MMC_LOCK_MODE_CLR_PWD	(1<<1)
-+#define MMC_LOCK_MODE_SET_PWD	(1<<0)
-+
- #endif  /* MMC_MMC_PROTOCOL_H */
- 
-Index: linux-linus-2.6/drivers/mmc/mmc.c
-===================================================================
---- linux-linus-2.6.orig/drivers/mmc/mmc.c	2006-12-04 15:16:57.000000000 -0400
-+++ linux-linus-2.6/drivers/mmc/mmc.c	2006-12-04 15:33:50.000000000 -0400
-@@ -5,6 +5,8 @@
-  *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
-  *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
-  *  MMCv4 support Copyright (C) 2006 Philip Langdale, All Rights Reserved.
+--- linux-linus-2.6.orig/drivers/mmc/mmc_sysfs.c	2006-12-04 15:16:57.000000000 -0400
++++ linux-linus-2.6/drivers/mmc/mmc_sysfs.c	2006-12-04 15:34:03.000000000 -0400
+@@ -2,6 +2,8 @@
+  *  linux/drivers/mmc/mmc_sysfs.c
+  *
+  *  Copyright (C) 2003 Russell King, All Rights Reserved.
 + *  MMC password protection (C) 2006 Instituto Nokia de Tecnologia (INdT),
-+ *	All Rights Reserved.
++ *     All Rights Reserved.
   *
   * This program is free software; you can redistribute it and/or modify
   * it under the terms of the GNU General Public License version 2 as
-@@ -20,6 +22,7 @@
- #include <linux/err.h>
- #include <asm/scatterlist.h>
- #include <linux/scatterlist.h>
+@@ -14,6 +16,7 @@
+ #include <linux/device.h>
+ #include <linux/idr.h>
+ #include <linux/workqueue.h>
 +#include <linux/key.h>
  
  #include <linux/mmc/card.h>
  #include <linux/mmc/host.h>
-@@ -1413,6 +1416,116 @@ static void mmc_setup(struct mmc_host *h
- 		mmc_process_ext_csds(host);
+@@ -266,6 +269,71 @@ static struct class mmc_host_class = {
+ static DEFINE_IDR(mmc_host_idr);
+ static DEFINE_SPINLOCK(mmc_host_lock);
+ 
++#ifdef  CONFIG_MMC_PASSWORDS
++
++#define MMC_KEYLEN_MAXBYTES 32
++
++static int mmc_key_instantiate(struct key *key, const void *data, size_t datalen)
++{
++	struct mmc_key_payload *mpayload, *zap;
++	int ret;
++
++	zap = NULL;
++	ret = -EINVAL;
++	if (datalen <= 0 || datalen > MMC_KEYLEN_MAXBYTES || !data) {
++		pr_debug("Invalid data\n");
++		goto error;
++	}
++
++	ret = key_payload_reserve(key, datalen);
++	if (ret < 0) {
++		pr_debug("ret = %d\n", ret);
++		goto error;
++	}
++
++	ret = -ENOMEM;
++	mpayload = kmalloc(sizeof(*mpayload) + datalen, GFP_KERNEL);
++	if (!mpayload) {
++		pr_debug("Unable to allocate mpayload structure\n");
++		goto error;
++	}
++	mpayload->datalen = datalen;
++	memcpy(mpayload->data, data, datalen);
++
++	rcu_assign_pointer(key->payload.data, mpayload);
++
++	/* ret = 0 if there is no error */
++	ret = 0;
++
++error:
++	return ret;
++}
++
++static int mmc_key_match(const struct key *key, const void *description)
++{
++	return strcmp(key->description, description) == 0;
++}
++
++/*
++ * dispose of the data dangling from the corpse of a mmc key
++ */
++static void mmc_key_destroy(struct key *key)
++{
++	struct mmc_key_payload *mpayload = key->payload.data;
++
++	kfree(mpayload);
++}
++
++struct key_type mmc_key_type = {
++	.name		= "mmc",
++	.def_datalen	= MMC_KEYLEN_MAXBYTES,
++	.instantiate	= mmc_key_instantiate,
++	.match		= mmc_key_match,
++	.destroy	= mmc_key_destroy,
++};
++
++#endif
++
+ /*
+  * Internal function. Allocate a new MMC host.
+  */
+@@ -363,16 +431,31 @@ static int __init mmc_init(void)
+ 		return -ENOMEM;
+ 
+ 	ret = bus_register(&mmc_bus_type);
+-	if (ret == 0) {
+-		ret = class_register(&mmc_host_class);
+-		if (ret)
+-			bus_unregister(&mmc_bus_type);
++	if (ret)
++		goto error_bus;
++	ret = class_register(&mmc_host_class);
++	if (ret)
++		goto error_class;
++#ifdef	CONFIG_MMC_PASSWORDS
++	ret = register_key_type(&mmc_key_type);
++	if (ret) {
++		class_unregister(&mmc_host_class);
++		goto error_class;
+ 	}
++#endif
++	return 0;
++
++error_class:
++	bus_unregister(&mmc_bus_type);
++error_bus:
+ 	return ret;
  }
  
-+/**
-+ *	mmc_lock_unlock - send LOCK_UNLOCK command to a specific card.
-+ *	@card: card to which the LOCK_UNLOCK command should be sent
-+ *	@key: key containing the MMC password
-+ *	@mode: LOCK_UNLOCK mode
-+ *
-+ */
-+int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode)
-+{
-+	struct mmc_request mrq;
-+	struct mmc_command cmd;
-+	struct mmc_data data;
-+	struct scatterlist sg;
-+	struct mmc_key_payload *mpayload;
-+	unsigned long erase_timeout;
-+	int err, data_size;
-+	u8 *data_buf;
-+
-+	mpayload = NULL;
-+	data_size = 1;
-+	if (mode != MMC_LOCK_MODE_ERASE) {
-+		mpayload = rcu_dereference(key->payload.data);
-+		data_size = 2 + mpayload->datalen;
-+	}
-+
-+	data_buf = kmalloc(data_size, GFP_KERNEL);
-+	if (!data_buf)
-+		return -ENOMEM;
-+	memset(data_buf, 0, data_size);
-+
-+	data_buf[0] = mode;
-+	if (mode != MMC_LOCK_MODE_ERASE) {
-+		data_buf[1] = mpayload->datalen;
-+		memcpy(data_buf + 2, mpayload->data, mpayload->datalen);
-+	}
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_SET_BLOCKLEN;
-+	cmd.arg = data_size;
-+	cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
-+	err = mmc_wait_for_cmd(card->host, &cmd, CMD_RETRIES);
-+	if (err != MMC_ERR_NONE)
-+		goto out;
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_LOCK_UNLOCK;
-+	cmd.arg = 0;
-+	cmd.flags = MMC_RSP_R1B | MMC_CMD_ADTC;
-+
-+	memset(&data, 0, sizeof(struct mmc_data));
-+
-+	mmc_set_data_timeout(&data, card, 1);
-+
-+	data.blksz = data_size;
-+	data.blocks = 1;
-+	data.flags = MMC_DATA_WRITE;
-+	data.sg = &sg;
-+	data.sg_len = 1;
-+
-+	memset(&mrq, 0, sizeof(struct mmc_request));
-+
-+	mrq.cmd = &cmd;
-+	mrq.data = &data;
-+
-+	sg_init_one(&sg, data_buf, data_size);
-+	err = mmc_wait_for_req(card->host, &mrq);
-+	if (err != MMC_ERR_NONE)
-+		goto out;
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_SEND_STATUS;
-+	cmd.arg = card->rca << 16;
-+	cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
-+
-+	/* set timeout for forced erase operation to 3 min. (see MMC spec) */
-+	erase_timeout = jiffies + 180 * HZ;
-+	do {
-+		/* we cannot use "retries" here because the
-+		 * R1_LOCK_UNLOCK_FAILED bit is cleared by subsequent reads to
-+		 * the status register, hiding the error condition */
-+		err = mmc_wait_for_cmd(card->host, &cmd, 0);
-+		if (err != MMC_ERR_NONE)
-+			break;
-+		/* the other modes don't need timeout checking */
-+		if (mode != MMC_LOCK_MODE_ERASE)
-+			continue;
-+		if (time_after(jiffies, erase_timeout)) {
-+			dev_dbg(&card->dev, "forced erase timed out\n");
-+			err = MMC_ERR_TIMEOUT;
-+			break;
-+		}
-+	} while (!(cmd.resp[0] & R1_READY_FOR_DATA));
-+	if (cmd.resp[0] & R1_LOCK_UNLOCK_FAILED) {
-+		dev_dbg(&card->dev, "LOCK_UNLOCK operation failed\n");
-+		err = MMC_ERR_FAILED;
-+	}
-+
-+	if (cmd.resp[0] & R1_CARD_IS_LOCKED)
-+		mmc_card_set_locked(card);
-+	else
-+		mmc_card_clear_locked(card);
-+
-+out:
-+	kfree(data_buf);
-+
-+	return err;
-+}
- 
- /**
-  *	mmc_detect_change - process change of state on a MMC socket
+ static void __exit mmc_exit(void)
+ {
++#ifdef	CONFIG_MMC_PASSWORDS
++	unregister_key_type(&mmc_key_type);
++#endif
+ 	class_unregister(&mmc_host_class);
+ 	bus_unregister(&mmc_bus_type);
+ 	destroy_workqueue(workqueue);
 
---------------080603090308070907000606--
+--------------020406020903060408080408--

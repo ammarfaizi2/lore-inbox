@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937064AbWLDQQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937072AbWLDQTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937064AbWLDQQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937067AbWLDQQ4
+	id S937072AbWLDQTj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 11:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937071AbWLDQTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:16:56 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60139 "EHLO
-	turing-police.cc.vt.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937065AbWLDQQz (ORCPT
-	<RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:16:55 -0500
-Message-Id: <200612041615.kB4GF7lx031249@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Jan Glauber <jan.glauber@de.ibm.com>
-Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Pseudo-random number generator
-In-Reply-To: Your message of "Fri, 01 Dec 2006 14:19:15 +0100."
-             <1164979155.5882.23.camel@bender>
-From: Valdis.Kletnieks@vt.edu
-References: <1164979155.5882.23.camel@bender>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1165248906_15310P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 4 Dec 2006 11:19:38 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:8283 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S937072AbWLDQTf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 11:19:35 -0500
+Message-ID: <45744AF5.2040508@ru.mvista.com>
+Date: Mon, 04 Dec 2006 19:21:09 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in	latency_trace.c
+ (take 3)
+References: <200611132252.58818.sshtylyov@ru.mvista.com> <457326A2.2020402@ru.mvista.com> <20061204095131.GE7872@elte.hu> <4574149B.5070602@ru.mvista.com> <20061204153949.GA9350@elte.hu>
+In-Reply-To: <20061204153949.GA9350@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 04 Dec 2006 11:15:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1165248906_15310P
-Content-Type: text/plain; charset=us-ascii
+Hello.
 
-On Fri, 01 Dec 2006 14:19:15 +0100, Jan Glauber said:
-> New s390 machines have hardware support for the generation of pseudo-random
-> numbers. This patch implements a simple char driver that exports this numbers
-> to user-space. Other possible implementations would have been:
+Ingo Molnar wrote:
 
-> +	for (i = 0; i < 16; i++) {
-> +		entropy[0] = get_clock();
-> +		entropy[1] = get_clock();
-> +		entropy[2] = get_clock();
-> +		entropy[3] = get_clock();
+>>>i'd suggest to redo it - but please keep it simple and clean. Those 
+>>>dozens of casts to u64 are quite ugly.
 
-By the time this loop completes, we'll have done 64 get_clock() - and if an
-attacker has a good estimate of what the system clock has in it, they'll be
-able to guess all 64 values, since each pass through the loop will have fairly
-predictable timing.  So as a result, the pseudo-random stream will be a *lot*
-less random than one would hope for...
+>>   Alas, there's *nothing* I can do about it with 32-bit cycles_t. 
+>>[...]
 
-> +		/*
-> +		 * It shouldn't weaken the quality of the random numbers
-> +		 * passing the full 16 bytes from STCKE to the generator.
-> +		 */
+> there's *always* a way to do such things more cleanly - such as the 
+> patch below. Could you try to fix it up for 32-bit cycles_t platforms? I 
+> bet the hackery will be limited to now() and maybe the conversion 
+> routines, instead of spreading all around latency_trace.c.
 
-As long as you realize that probably 12 or 13 or even more of those 16 bytes
-are likely predictable (depending exactly how fast the hardware clock ticks),
-and as a result the output stream will also be predictable.
+    I'm not sure what you want me to do... You've switched to clocksource 
+specific cycle_t (which is u64), do you want me to use the clocksource 
+interface to get the cycles from now on?
 
-I think this needs to either find a way to stir in entropy from sources other
-than the clock, or make it clear that the returned data is pseudo-random but
-likely predictable by a determined attacker.  As such, it's probably a bad
-choice for many things that /dev/urandom is usable for, such as session keys
-and the like.
+> Index: linux/kernel/latency_trace.c
+> ===================================================================
+> --- linux.orig/kernel/latency_trace.c
+> +++ linux/kernel/latency_trace.c
+[...]
+> @@ -1721,7 +1722,7 @@ check_critical_timing(int cpu, struct cp
+>  	T2 = get_monotonic_cycles();
+>  
+>  	/* check for buggy clocks, handling wrap for 32-bit clocks */
+> -	if (TYPE_EQUAL(cycles_t, unsigned long)) {
+> +	if (TYPE_EQUAL(cycle_t, unsigned long)) {
+>  		if (time_after((unsigned long)T1, (unsigned long)T2))
+>  			printk("bug: %08lx < %08lx!\n",
+>  				(unsigned long)T2, (unsigned long)T1);
 
+    This earlier fix by Kevin woulnd't have sense anymore with cycle_t...
 
---==_Exmh_1165248906_15310P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFdEmKcC3lWbTT17ARAtDOAKCyT6QBEvka6Mq5RO09eh/yjeI3cgCg/hBw
-yA47YSNRwrBdDljzCNmaazY=
-=OhHi
------END PGP SIGNATURE-----
-
---==_Exmh_1165248906_15310P--
+WBR, Sergei

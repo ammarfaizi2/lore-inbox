@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937148AbWLDQ5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937214AbWLDREb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937148AbWLDQ5K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:57:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937149AbWLDQ5K
+	id S937214AbWLDREb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 12:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937215AbWLDREa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:57:10 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:41012 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S937148AbWLDQ5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:57:08 -0500
-Date: Mon, 4 Dec 2006 11:57:07 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Oliver Neukum <oliver@neukum.org>
-cc: Maneesh Soni <maneesh@in.ibm.com>, <gregkh@suse.com>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
-In-Reply-To: <200612041735.13615.oliver@neukum.org>
-Message-ID: <Pine.LNX.4.44L0.0612041153160.3642-100000@iolanthe.rowland.org>
+	Mon, 4 Dec 2006 12:04:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39951 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937214AbWLDRE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 12:04:29 -0500
+Date: Mon, 4 Dec 2006 09:03:59 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, Aucoin@houston.rr.com,
+       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
+       linux-kernel@vger.kernel.org, pj@sgi.com
+Subject: Re: la la la la ... swappiness
+In-Reply-To: <Pine.LNX.4.64.0612032111280.3476@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64.0612040900210.31485@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.63.0612032137380.17489@gockel.physik3.uni-rostock.de>
+ <200612032356.kB3NuPc0010673@ms-smtp-04.texas.rr.com> <20061203205649.98df030b.akpm@osdl.org>
+ <Pine.LNX.4.64.0612032111280.3476@woody.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006, Oliver Neukum wrote:
+On Sun, 3 Dec 2006, Linus Torvalds wrote:
 
-> > Also, Oliver, it looks like the latest version of your patch makes an 
-> > unnecessary change to sysfs_remove_file().
+> Wouldn't it be much nicer to just lower the dirty-page limit?
 > 
-> Code like:
-> 
-> int d(int a, int b)
-> {
-> 	return a + b;
-> }
-> 
-> int c(int a, int b)
-> {
-> 	return d(a, b);
-> }
-> 
-> is a detrimental to correct understanding and thence coding.
-> In fact reading sysfs source code is like jumping all around the kernel
-> tree. Such changes made it readable by normal people. I have to
-> understand which method I am coding on to do reasonable work. ;-)
+> 	echo 1 > /proc/sys/vm/dirty_background_ratio
+> 	echo 2 > /proc/sys/vm/dirty_ratio
 
-I was referring to sysfs_remove_file(), not sysfs_open_file() -- I agree 
-that getting rid of the check_perm() routine is good.  But this isn't:
+Dirty ratio cannot be set to less than 5%. See 
+mm/page-writeback.c:get_dirty_limits().
 
->  void sysfs_remove_file(struct kobject * kobj, const struct attribute * attr)
->  {
-> -       sysfs_hash_and_remove(kobj->dentry,attr->name);
-> +       struct dentry *d = kobj->dentry;
-> +
-> +       sysfs_hash_and_remove(d, attr->name);
->  }
+> or something. Which we already discussed in another thread and almost 
+> already decided we should lower the values for big-mem machines..
 
-There's no apparent advantage to introducing the local variable d, either 
-in terms of execution speed or readability.  (Although the original source 
-line should have a space after the comma.)
-
-Alan Stern
-
+We also have an issue with cpusets. Dirty page throttling does not work in 
+a cpuset if it is relatively small to the total memory on the system since 
+we calculate the percentage of the total memory and not a percentage of 
+the memory the process is allowed to use.

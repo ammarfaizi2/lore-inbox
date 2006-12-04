@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936855AbWLDNqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936857AbWLDNsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936855AbWLDNqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 08:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936856AbWLDNqr
+	id S936857AbWLDNsb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 08:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936858AbWLDNsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 08:46:47 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:44983 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S936855AbWLDNqr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 08:46:47 -0500
-Date: Mon, 4 Dec 2006 13:46:40 +0000
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD oddities with VIA PATA
-Message-ID: <20061204134640.GA18837@deepthought.linux.bogus>
-References: <20061201220134.GA22909@deepthought.linux.bogus> <20061201224240.GB22909@deepthought.linux.bogus> <el0a7s$soj$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 4 Dec 2006 08:48:31 -0500
+Received: from mpemail.mpe-garching.mpg.de ([130.183.137.110]:22934 "EHLO
+	mpemail.mpe.mpg.de") by vger.kernel.org with ESMTP id S936857AbWLDNsa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 08:48:30 -0500
+From: "Martin A. Fink" <fink@mpe.mpg.de>
+Organization: MPE
+To: linux-kernel@vger.kernel.org
+Subject: SATA-performance with AHCI
+Date: Mon, 4 Dec 2006 14:48:20 +0100
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <el0a7s$soj$1@sea.gmane.org>
-User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
+Message-Id: <200612041448.20176.fink@mpe.mpg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 09:03:53PM -0800, Joshua Kwan wrote:
-> On 12/01/2006 02:42 PM, Ken Moffat wrote:
-> > On Fri, Dec 01, 2006 at 10:01:34PM +0000, Ken Moffat wrote:
-> >> (i.) cdparanoia (9.8) works for root, but for a user it complains
-> >> that the ioctl isn't cooked and refuses to run.  For test purposes,
-> >> it runs ok for a user as suid root, but I imagine that increases
-> >> the likelihood of unspeakable things happening.  (Fortunately, I
-> >> don't have a dachshund)
-> 
-> For the record,
-> cdparanoia III release 10pre0 (August 29, 2006)
-> 
-> works for me. My particular IDE adapter is:
-> 
-> 00:0f.1 IDE interface: VIA Technologies, Inc.
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> (prog-if 8a [Master SecP PriP])
-> 
-> I have not tried older versions (yet). Could you try this and see if
-> things are still broken?
-> 
-> -- 
-> Joshua Kwan
-> 
- I had tried it, but it turns out my trial used the old installed
-libcdda_* libraries.  Now that I've got it using the new versions of
-these, it looks as if 10pre0, with the debian patches, works ok for a
-normal user (on x86_64 it needs the patch to be able to configure).
+Dear all,
 
- Thanks for the pointer.  FWIW I can no longer replicate the failure
-to mount a CD it had burned, will be doing more tests later.
+now I was able to do a performance test with an Intel ICH6R chipset.
 
-Ken
--- 
-das eine Mal als Tragödie, das andere Mal als Farce
+Basic hardware data:
+- Intel Pentium 4 Xeon at 3.2 GHz
+- Intel ICH6R chipset, AHCI enabled
+- Intel Hyperthreading On and Off
+- 1 GB SDDR RAM
+- SATA controller onboard (4x)
+- SATA harddisks 250 GB
+
+I used SuSE Linux 9.3 with Linux kernel 2.6.11.4-21.14-smp.
+
+I tried to put data from memory to harddisk by writing blocks of 1 MB size 
+with 2 GB overall filesize. And I got the following results:
+
+SuSE 9.3 - 32-bit Installation - Hyperthreading Off:
+ - CPU time 16% (sys, approx. 0% user) - Write speed 40-45 MB/s
+SuSE 9.3 - 64-bit Installation - Hyperthreading Off:
+ - CPU time 14% (sys, approx. 0% user) - Write speed 50-60 MB/s
+SuSE 9.3 - 64-bit Installation - Hyperthreading ON:
+ - CPU time 16% (sys, approx. 0% user) - Write speed 40-50 MB/s
+
+Compared to ICH6R with AHCI OFF the only difference I can see is that with 
+AHCI the system seems to reac much faster on keyboard events and screen 
+redraw seems to be as fast as normal. It looks like that CPU usage has not 
+decreased that dramatically as I would have expected it.
+
+Thus I did a small calculation:
+Assuming that the processor gives workloads of (a) 1B (b) 1kB (c) 64kB to the 
+DMA controller in AHCI mode to write 45 MB/s to disk, I calculate for 10% CPU 
+time usage of the 3.2 GHz Pentium
+(a) 10% * 3.2GHz / 45M calls = 7.3 CPU cycles per 1B call to DMA
+(b) 10% * 3.2GHz / 45k calls = 7.4E+03 CPU cycles per 1kB call to DMA
+(c) 10% * 3.2GHz / 720 calls = 4.8E+05 CPU cycles per 64kB call to DMA
+
+For me (a) looks reasonable (some overhead per byte), but stupid - if 
+implemented. Giving bigger packages like (b) and (c) looks better to me, but 
+then I can't understand that huge overhead (1E3 to 1E5 cpu cycles per 
+package) for one package.
+
+Is this normal or do I still have something wrong in my system?
+
+Thank you for your help,
+
+Martin

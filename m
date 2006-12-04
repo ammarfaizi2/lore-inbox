@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934378AbWLDGgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758292AbWLDGoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934378AbWLDGgy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 01:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934422AbWLDGgy
+	id S1758292AbWLDGoM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 01:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758356AbWLDGoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 01:36:54 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:20651 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S934378AbWLDGgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 01:36:53 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: maneesh@in.ibm.com
-Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
-Date: Mon, 4 Dec 2006 07:38:00 +0100
-User-Agent: KMail/1.8
-Cc: gregkh@suse.com, Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <200612012343.07251.oliver@neukum.org> <20061204044344.GB10078@in.ibm.com>
-In-Reply-To: <20061204044344.GB10078@in.ibm.com>
+	Mon, 4 Dec 2006 01:44:11 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:26587 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1758292AbWLDGoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 01:44:10 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] MAINTAINERS remove the v850 entry
+References: <20061202180939.GW11084@stusta.de>
+From: Miles Bader <miles.bader@necel.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Mon, 04 Dec 2006 15:41:53 +0900
+In-Reply-To: <20061202180939.GW11084@stusta.de> (Adrian Bunk's message of "Sat\, 2 Dec 2006 19\:09\:39 +0100")
+Message-Id: <buozma4tb66.fsf@dhapc248.dev.necel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612040738.00923.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 4. Dezember 2006 05:43 schrieb Maneesh Soni:
-> On Fri, Dec 01, 2006 at 11:43:06PM +0100, Oliver Neukum wrote:
-> > Hi,
-> > 
-> > Alan Stern has discovered a race in sysfs, whereby driver callbacks could be
-> > called after sysfs_remove_file() has run. The attached patch should fix it.
-> > 
-> > It introduces a new data structure acting as a collection of all sysfs_buffers
-> > associated with an attribute. Upon removal of an attribute the buffers are
-> > marked orphaned and IO on them returns -ENODEV. Thus sysfs_remove_file()
-> > makes sure that sysfs won't bother a driver after that call, making it safe
-> > to free the associated data structures and to unload the driver.
-> > 
-> > 	Regards
-> > 		Oliver
-> 
-> Hi Oliver,
-> 
-> Thanks for the explaining the patch but some description about the race
-> would also help here. At the least the callpath to the race would be useful.
-> 
-> 
-> Thanks
-> Maneesh
+Adrian Bunk <bunk@stusta.de> writes:
+> One bouncing email address and two non-existing URLs - we need either 
+> updated information or this patch applied...
 
-We have code like this:
- static void tv_disconnect(struct usb_interface *interface)
-{
-	struct trancevibrator *dev;
+I don't know the status of that email address/website (the NEC network
+has moved around a lot recently), but I'm reachable the address you
+apparently already found:
 
-	dev = usb_get_intfdata (interface);
-	device_remove_file(&interface->dev, &dev_attr_speed);
-	usb_set_intfdata(interface, NULL);
-	usb_put_dev(dev->udev);
-	kfree(dev);
-}
+  miles.bader@necel.com
 
-This has a race:
+That will do for now.
 
-CPU A				CPU B
-open sysfs
-					device_remove_file
-					kfree
-reading attr
-
-We cannot do refcounting as sysfs doesn't export open/close. Therefore
-we must be sure that device_remove_file() makes sure that sysfs will
-leave a driver alone after the return of device_remove_file(). Currently
-open will fail, but IO on an already opened file will work. The patch makes
-sure it will fail with -ENODEV without calling into the driver, which may
-indeed be already unloaded.
-
-	Regards
-		Oliver
+-Miles
+-- 
+.Numeric stability is probably not all that important when you're guessing.

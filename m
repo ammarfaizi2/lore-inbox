@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937021AbWLDPa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937020AbWLDPaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937021AbWLDPa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 10:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937023AbWLDPa0
+	id S937020AbWLDPaE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 10:30:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937017AbWLDPaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 10:30:26 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:9186 "EHLO
-	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937021AbWLDPaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 10:30:24 -0500
-Subject: Re: [S390] cio: Make ccw_dev_id_is_equal() more robust.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
-In-Reply-To: <20061204152348.GA30961@filer.fsl.cs.sunysb.edu>
-References: <20061204145624.GB32059@skybase>
-	 <20061204152348.GA30961@filer.fsl.cs.sunysb.edu>
+	Mon, 4 Dec 2006 10:30:03 -0500
+Received: from pat.uio.no ([129.240.10.15]:53962 "EHLO pat.uio.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937020AbWLDPaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 10:30:00 -0500
+Subject: Re: Mounting NFS root FS
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Janne Karhunen <janne.karhunen@gmail.com>
+Cc: MrUmunhum@popdial.com, linux-kernel@vger.kernel.org
+In-Reply-To: <24c1515f0612040351p6056101frc12db8eb86063213@mail.gmail.com>
+References: <4571CE06.4040800@popdial.com>
+	 <24c1515f0612040351p6056101frc12db8eb86063213@mail.gmail.com>
 Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 04 Dec 2006 16:30:18 +0100
-Message-Id: <1165246218.8364.3.camel@localhost>
+Date: Mon, 04 Dec 2006 10:29:37 -0500
+Message-Id: <1165246177.711.179.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+X-Mailer: Evolution 2.8.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.381, required 12,
+	autolearn=disabled, AWL 1.48, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-04 at 10:23 -0500, Josef Sipek wrote:
-> > diff -urpN linux-2.6/include/asm-s390/cio.h linux-2.6-patched/include/asm-s390/cio.h
-> > --- linux-2.6/include/asm-s390/cio.h	2006-12-04 14:50:48.000000000 +0100
-> > +++ linux-2.6-patched/include/asm-s390/cio.h	2006-12-04 14:51:00.000000000 +0100
-> > @@ -278,7 +278,10 @@ struct ccw_dev_id {
-> >  static inline int ccw_dev_id_is_equal(struct ccw_dev_id *dev_id1,
-> >  				      struct ccw_dev_id *dev_id2)
-> >  {
-> > -	return !memcmp(dev_id1, dev_id2, sizeof(struct ccw_dev_id));
-> > +	if ((dev_id1->ssid == dev_id2->ssid) &&
-> > +	    (dev_id1->devno == dev_id2->devno))
-> > +		return 1;
-> > +	return 0;
-> >  }
+On Mon, 2006-12-04 at 13:51 +0200, Janne Karhunen wrote:
+> On 12/2/06, William Estrada <MrUmunhum@popdial.com> wrote:
+> > Hi guys,
+> >
+> >   I have been trying to make FC5's kernel do a boot
+> > with an NFS root file system.  I see the support is in the
+> > kernel(?).
 > 
-> Why not just:
-> 
-> return ((dev_id1->ssid == ......) && (...));
+> Is this really properly possible (with read/write access and
+> locking in place)? AFAIK NFS client lock state data seems
+> to require persistent storage .. ?
 
-Yes, why not. It would be a little bit shorter. The compiler probably
-won't care and generate the same code..
+1) Yes, but not on the root partition (unless you use an initrd to start
+rpc.statd before mounting the NFS partition).
 
--- 
-blue skies,
-  Martin.
+2) NFS provides persistent storage.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
+Trond
 

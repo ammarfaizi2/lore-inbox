@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936927AbWLDOuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936924AbWLDOuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936927AbWLDOuf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936928AbWLDOue
+	id S936924AbWLDOuY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936930AbWLDOuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:50:34 -0500
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:32790 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S936927AbWLDOub
+	Mon, 4 Dec 2006 09:50:23 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:55871 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S936924AbWLDOuV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:50:31 -0500
-Date: Mon, 4 Dec 2006 15:50:21 +0100
+	Mon, 4 Dec 2006 09:50:21 -0500
+Date: Mon, 4 Dec 2006 15:50:08 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] Add __must_check to uaccess functions.
-Message-ID: <20061204145021.GD32059@skybase>
+Subject: [S390] Remove unused GENERIC_BUST_SPINLOCK from Kconfig.
+Message-ID: <20061204145008.GC32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,94 +23,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] Add __must_check to uaccess functions.
-
-Follow other architectures and add __must_check to uaccess functions.
+[S390] Remove unused GENERIC_BUST_SPINLOCK from Kconfig.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/asm-s390/uaccess.h |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
+ arch/s390/Kconfig |    3 ---
+ 1 files changed, 3 deletions(-)
 
-diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
---- linux-2.6/include/asm-s390/uaccess.h	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/uaccess.h	2006-12-04 14:50:32.000000000 +0100
-@@ -201,7 +201,7 @@ extern int __get_user_bad(void) __attrib
-  * Returns number of bytes that could not be copied.
-  * On success, this will be zero.
-  */
--static inline unsigned long
-+static inline unsigned long __must_check
- __copy_to_user(void __user *to, const void *from, unsigned long n)
- {
- 	if (__builtin_constant_p(n) && (n <= 256))
-@@ -226,7 +226,7 @@ __copy_to_user(void __user *to, const vo
-  * Returns number of bytes that could not be copied.
-  * On success, this will be zero.
-  */
--static inline unsigned long
-+static inline unsigned long __must_check
- copy_to_user(void __user *to, const void *from, unsigned long n)
- {
- 	might_sleep();
-@@ -252,7 +252,7 @@ copy_to_user(void __user *to, const void
-  * If some data could not be copied, this function will pad the copied
-  * data to the requested size using zero bytes.
-  */
--static inline unsigned long
-+static inline unsigned long __must_check
- __copy_from_user(void *to, const void __user *from, unsigned long n)
- {
- 	if (__builtin_constant_p(n) && (n <= 256))
-@@ -277,7 +277,7 @@ __copy_from_user(void *to, const void __
-  * If some data could not be copied, this function will pad the copied
-  * data to the requested size using zero bytes.
-  */
--static inline unsigned long
-+static inline unsigned long __must_check
- copy_from_user(void *to, const void __user *from, unsigned long n)
- {
- 	might_sleep();
-@@ -288,13 +288,13 @@ copy_from_user(void *to, const void __us
- 	return n;
- }
+diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/arch/s390/Kconfig	2006-12-04 14:50:31.000000000 +0100
+@@ -33,9 +33,6 @@ config GENERIC_CALIBRATE_DELAY
+ config GENERIC_TIME
+ 	def_bool y
  
--static inline unsigned long
-+static inline unsigned long __must_check
- __copy_in_user(void __user *to, const void __user *from, unsigned long n)
- {
- 	return uaccess.copy_in_user(n, to, from);
- }
+-config GENERIC_BUST_SPINLOCK
+-	bool
+-
+ mainmenu "Linux Kernel Configuration"
  
--static inline unsigned long
-+static inline unsigned long __must_check
- copy_in_user(void __user *to, const void __user *from, unsigned long n)
- {
- 	might_sleep();
-@@ -306,7 +306,7 @@ copy_in_user(void __user *to, const void
- /*
-  * Copy a null terminated string from userspace.
-  */
--static inline long
-+static inline long __must_check
- strncpy_from_user(char *dst, const char __user *src, long count)
- {
-         long res = -EFAULT;
-@@ -343,13 +343,13 @@ strnlen_user(const char __user * src, un
-  * Zero Userspace
-  */
- 
--static inline unsigned long
-+static inline unsigned long __must_check
- __clear_user(void __user *to, unsigned long n)
- {
- 	return uaccess.clear_user(n, to);
- }
- 
--static inline unsigned long
-+static inline unsigned long __must_check
- clear_user(void __user *to, unsigned long n)
- {
- 	might_sleep();
+ config S390

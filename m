@@ -1,62 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937173AbWLDTTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759261AbWLDTW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937173AbWLDTTa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937316AbWLDTTa
+	id S1759261AbWLDTW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759310AbWLDTW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:19:30 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:43221 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937173AbWLDTT2 (ORCPT
+	Mon, 4 Dec 2006 14:22:58 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:46938 "EHLO
+	saraswathi.solana.com" rhost-flags-FAIL-??-OK-OK) by vger.kernel.org
+	with ESMTP id S1759125AbWLDTW4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:19:28 -0500
-Subject: Re: PMTMR running too fast
-From: john stultz <johnstul@us.ibm.com>
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <1165153834.5499.40.camel@localhost.localdomain>
-References: <1165153834.5499.40.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 04 Dec 2006 11:19:22 -0800
-Message-Id: <1165259962.6152.5.camel@localhost.localdomain>
+	Mon, 4 Dec 2006 14:22:56 -0500
+Message-Id: <200612041918.kB4JIdRf023003@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: [PATCH] x86_64/i386 - Kernel-mode faults pollute current->thead
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 04 Dec 2006 14:18:39 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-12-03 at 13:50 +0000, Ian Campbell wrote:
-> In older kernels arch/i386/kernel/timers/timer_pm.c:verify_pmtmr_rate
-> contained a check for sensible PMTMR rate and disabled that clocksource
-> if it was found to be out of spec[0]. This check seems to have been lost
-> in the transition to drivers/clocksource/acpi_pm.c, the removal is in
-> 61743fe445213b87fb55a389c8d073785323ca3e "Time: i386 Conversion - part
-> 4: Remove Old timer_opts Code"[1] and the check is not present in the
-> replacement 5d0cf410e94b1f1ff852c3f210d22cc6c5a27ffa "Time: i386
-> Clocksource Drivers"[2].
+Kernel-mode traps on x86_64 can pollute the trap information for a previous
+userspace trap for which the signal has not yet been delivered to the process.
 
-Fedora has a bug covering this:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=211902
+do_trap and do_general_protection set task->thread.error_code and .trapno
+for kernel traps.  If a kernel-mode trap arrives between the arrival of a
+userspace trap and the delivery of the associated SISGEGV to the process,
+the process will get the kernel trap information in its sigcontext.
 
+This causes UML process segfaults, as the trapno that the UML kernel sees is
+13, rather than the 14 for normal page faults.  So, the UML kernel passes the
+SIGSEGV along to its process.
 
-> Is there a specific reason the check was removed (I couldn't see on in
-> the archives) or was it simply overlooked? Without it I need to pass
-> clocksource=tsc to have 2.6.18 work correctly on an older K6 system with
-> an Aladdin chipset (will dig out the precise details if required). Would
-> a patch to reintroduce the check be acceptable or would some sort of
-> blacklist based solution be more acceptable?
+I don't claim to fully understand the problem.  On the one hand, a check in
+do_general_protection for a pending SIGSEGV turned up nothing.  On the other
+hand, this patch fixed the UML process segfault problem.
 
-If I recall correctly, it was pulled because there was some question as
-to if it was actually needed (x86_64 didn't need it) and it slows down
-the boot time (although not by much). 
+The patch below moves the setting of error_code and trapno so that that only
+happens in the case of userspace faults.  As a side-effect, this should speed
+up kernel-mode fault handling a tiny bit.
 
-I'm fine just re-adding it. Although if the number of affected systems
-are small we could just blacklist it (Ian, mind sending dmidecode
-output?).
+I looked at i386, and there is a similar situation.  In this case, there is
+duplicate code setting task->thread.error_code and trapno.  I deleted one,
+leaving the copy that runs in the case of a userspace fault.
 
-Andi, your thoughts?
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-thanks
--john
-
+Index: linux-2.6.17.i686/arch/i386/kernel/traps.c
+===================================================================
+--- linux-2.6.17.i686.orig/arch/i386/kernel/traps.c	2006-11-08 15:03:17.000000000 -0500
++++ linux-2.6.17.i686/arch/i386/kernel/traps.c	2006-12-04 12:38:49.000000000 -0500
+@@ -444,8 +444,6 @@ static void __kprobes do_trap(int trapnr
+ 			      siginfo_t *info)
+ {
+ 	struct task_struct *tsk = current;
+-	tsk->thread.error_code = error_code;
+-	tsk->thread.trap_no = trapnr;
+ 
+ 	if (regs->eflags & VM_MASK) {
+ 		if (vm86)
+@@ -457,6 +455,9 @@ static void __kprobes do_trap(int trapnr
+ 		goto kernel_trap;
+ 
+ 	trap_signal: {
++		tsk->thread.error_code = error_code;
++		tsk->thread.trap_no = trapnr;
++
+ 		if (info)
+ 			force_sig_info(signr, info, tsk);
+ 		else
+@@ -646,9 +647,6 @@ fastcall void __kprobes do_general_prote
+ 		return;
+ 	}
+ 
+-	current->thread.error_code = error_code;
+-	current->thread.trap_no = 13;
+-
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
+ 
+Index: linux-2.6.17.i686/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-2.6.17.i686.orig/arch/x86_64/kernel/traps.c	2006-11-08 15:03:17.000000000 -0500
++++ linux-2.6.17.i686/arch/x86_64/kernel/traps.c	2006-12-04 12:38:49.000000000 -0500
+@@ -490,10 +490,10 @@ static void __kprobes do_trap(int trapnr
+ {
+ 	struct task_struct *tsk = current;
+ 
+-	tsk->thread.error_code = error_code;
+-	tsk->thread.trap_no = trapnr;
+-
+ 	if (user_mode(regs)) {
++		tsk->thread.error_code = error_code;
++		tsk->thread.trap_no = trapnr;
++
+ 		if (exception_trace && unhandled_signal(tsk, signr))
+ 			printk(KERN_INFO
+ 			       "%s[%d] trap %s rip:%lx rsp:%lx error:%lx\n",
+@@ -591,10 +591,10 @@ asmlinkage void __kprobes do_general_pro
+ 
+ 	conditional_sti(regs);
+ 
+-	tsk->thread.error_code = error_code;
+-	tsk->thread.trap_no = 13;
+-
+ 	if (user_mode(regs)) {
++		tsk->thread.error_code = error_code;
++		tsk->thread.trap_no = 13;
++
+ 		if (exception_trace && unhandled_signal(tsk, SIGSEGV))
+ 			printk(KERN_INFO
+ 		       "%s[%d] general protection rip:%lx rsp:%lx error:%lx\n",
 

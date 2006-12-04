@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937199AbWLDXFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967751AbWLDXNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937199AbWLDXFW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937448AbWLDXFW
+	id S967751AbWLDXNA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967752AbWLDXNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:05:22 -0500
-Received: from cantor.suse.de ([195.135.220.2]:40567 "EHLO mx1.suse.de"
+	Mon, 4 Dec 2006 18:13:00 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:39115 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937199AbWLDXFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 18:05:21 -0500
-Date: Mon, 4 Dec 2006 15:05:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 32/36] driver core: Introduce device_move(): move a device to a new parent.
-Message-ID: <20061204230511.GA9382@kroah.com>
-References: <11650154123942-git-send-email-greg@kroah.com> <1165015415131-git-send-email-greg@kroah.com> <11650154181661-git-send-email-greg@kroah.com> <11650154221716-git-send-email-greg@kroah.com> <11650154251022-git-send-email-greg@kroah.com> <11650154282911-git-send-email-greg@kroah.com> <11650154311175-git-send-email-greg@kroah.com> <1165163163.19590.62.camel@localhost> <20061204195859.GB29637@kroah.com> <1165266903.12640.35.camel@localhost>
+	id S967751AbWLDXM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 18:12:59 -0500
+Message-ID: <4574AB78.40102@garzik.org>
+Date: Mon, 04 Dec 2006 18:12:56 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165266903.12640.35.camel@localhost>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+CC: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: libata: Simulate REPORT LUNS for ATAPI devices when not supported
+References: <4574A90E.5010801@us.ibm.com>
+In-Reply-To: <4574A90E.5010801@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 10:15:03PM +0100, Marcel Holtmann wrote:
-> Hi Greg,
+Darrick J. Wong wrote:
+> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
+> response to a REPORT LUNS packet.  If this happens to an ATAPI device
+> that is attached to a SAS controller (this is the case with sas_ata),
+> the device does not load because SCSI won't touch a "SCSI device"
+> that won't report its LUNs.  If we see this command fail, we should
+> simulate a response that indicates the presence of LUN 0.
 > 
-> > > > Provide a function device_move() to move a device to a new parent device. Add
-> > > > auxilliary functions kobject_move() and sysfs_move_dir().
-> > > > kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
-> > > > previous path (DEVPATH_OLD) in addition to the usual values. For this, a new
-> > > > interface kobject_uevent_env() is created that allows to add further
-> > > > environmental data to the uevent at the kobject layer.
-> > > 
-> > > has this one been tested? I don't get it working. I always get an EINVAL
-> > > when trying to move the TTY device of a Bluetooth RFCOMM link around.
-> > 
-> > I relied on Cornelia to test this.  I think some s390 patches depend on
-> > this change, right?
-> 
-> my pre-condition is that the TTY device has no parent and then we move
-> it to a Bluetooth ACL link as child. This however is not working or the
-> TTY change to use device instead of class_device has broken something.
+> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
 
-Hm, I don't think the class_device stuff has broken anything, but if you
-think so, please let me know.
+I think the answer to this issue lies in the behavior of the majority of 
+ATAPI devices when responding to REPORT LUNS.  Regardless of SAS or SATA 
+or whatever bus the device is using.
 
-> > > And shouldn't device_move(dev, NULL) re-attach it to the virtual device
-> > > tree instead of failing?
-> > 
-> > Yes, that would be good to have.
-> 
-> Cornelia, please fix this, because otherwise we can't detach a device
-> from its parent. Storing the current virtual parent looks racy to me.
+ISTR that REPORT LUNS can make ATAPI devices croak, so it might be wise 
+and more safe to simply simulate REPORT LUNS by default for all ATAPI 
+devices.  Then readdress the issue if someone has a burning need to 
+support the rare multi-LUN ATAPI devices.  I have one, but I'm not 
+highly motivated to dig it out.
 
-You can always restore the previous "virtual" parent from the
-information given to you in the device itself.  That is what the code
-does when it first registers the device.
+	Jeff
 
-And yes, I too think it should be fixed.
 
-thanks,
 
-greg k-h
+
+

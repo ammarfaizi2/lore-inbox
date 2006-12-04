@@ -1,31 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935999AbWLDLZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936043AbWLDL3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935999AbWLDLZb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 06:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936000AbWLDLZb
+	id S936043AbWLDL3x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 06:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936044AbWLDL3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 06:25:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45730 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S935999AbWLDLZb (ORCPT
+	Mon, 4 Dec 2006 06:29:53 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:35723 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S936043AbWLDL3w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 06:25:31 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061203181642.GA226@oleg> 
-References: <20061203181642.GA226@oleg> 
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386/kernel/smp.c: don't use set_irq_regs() 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 04 Dec 2006 11:24:58 +0000
-Message-ID: <27132.1165231498@redhat.com>
+	Mon, 4 Dec 2006 06:29:52 -0500
+Date: Mon, 4 Dec 2006 11:58:46 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [RFC] Include ACPI DSDT from INITRD patch into mainline
+Message-ID: <20061204105846.GA17953@suse.de>
+References: <1164998179.5257.953.camel@gullible> <20061201185657.0b4b5af7@localhost.localdomain> <1165001705.5257.959.camel@gullible> <1165002345.3233.104.camel@laptopd505.fenrus.org> <1165006868.5257.972.camel@gullible> <1165009747.3233.108.camel@laptopd505.fenrus.org> <1165012538.5257.992.camel@gullible> <1165045552.3233.132.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1165045552.3233.132.camel@laptopd505.fenrus.org>
+X-Operating-System: openSUSE 10.2 (i586), Kernel 2.6.18.2-34-default
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> wrote:
+On Sat, Dec 02, 2006 at 08:45:52AM +0100, Arjan van de Ven wrote:
 
-> We don't need to setup _irq_regs in smp_xxx_interrupt (except apic timer).
-> These handlers run with irqs disabled and do not call functions which need
-> "struct pt_regs".
+> now here's another question...
 
-Acked-By: David Howells <dhowells@redhat.com>
+And a good one, indeed.
+
+> the ACPI layer got improved over the last
+> 18 months bigtime to behave more like windows in many ways. How much of
+> this is still really needed? 
+
+I have not used a machine that really needed this for quite some time now.
+Usually even DSDTs that do not pass the "disassemble, then recompile with
+iasl"-test seem to work much better in practice than they did before.
+
+And seeing what stupid ideas people come up with (sharing DSDTs on
+acpi.sf.net _is_ stupid, since the DSDT usually depends on things you
+configured in your BIOS settings, memory size, etc.pp) it is probably
+a good idea to keep this patch out of mainline.
+
+It is usefull for debugging, sure, but somebody who can debug on this
+level should also be able to patch his kernel :-)
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

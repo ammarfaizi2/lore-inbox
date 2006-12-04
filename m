@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936980AbWLDPc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937025AbWLDPfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936980AbWLDPc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 10:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936998AbWLDPc6
+	id S937025AbWLDPfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 10:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937027AbWLDPfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 10:32:58 -0500
-Received: from il.qumranet.com ([62.219.232.206]:44571 "EHLO il.qumranet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936980AbWLDPc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 10:32:57 -0500
-Message-ID: <45743FA7.1030102@qumranet.com>
-Date: Mon, 04 Dec 2006 17:32:55 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 4 Dec 2006 10:35:20 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:53279 "EHLO iradimed.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937025AbWLDPfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 10:35:18 -0500
+Message-ID: <45744051.5070901@cfl.rr.com>
+Date: Mon, 04 Dec 2006 10:35:45 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-To: "Renato S. Yamane" <renatoyamane@mandic.com.br>
-CC: kvm-devel@lists.sourceforge.net, akpm@osdl.org, mingo@elte.hu,
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: alan@lxorguk.ukuu.org.uk, matthew.garman@gmail.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KVM: mmu: honor global bit on huge pages
-References: <20061204145735.89391A0016@il.qumranet.com> <45743E0C.6090705@mandic.com.br> <45743ECD.9050105@qumranet.com>
-In-Reply-To: <45743ECD.9050105@qumranet.com>
+Subject: Re: What happened to CONFIG_TCP_NAGLE_OFF?
+References: <E1GqLZ0-0006iY-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1GqLZ0-0006iY-00@gondolin.me.apana.org.au>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2006 15:35:22.0487 (UTC) FILETIME=[CFBAE870:01C717B9]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14852.003
+X-TM-AS-Result: No--10.897000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
->>
->> Whats wrong? :-(
->>   
->
-> This patch is for kvm, which lives in the -mm kernel.  Apply the 
-> latest -mm patch first.
->
->
+Herbert Xu wrote:
+> Congestion control is always appropriate in a shared network.  Please
+> note that congestion control does not conflict with the objectives of
+> UDP.  For UDP, congestion control can simply mean dropping packets at
+> the source.  DCCP is a good replacement for UDP that has congestion
+> control.
 
-Oh, and visit http://kvm.sourceforge.net first :)
+That is why I said that the application should implement its own 
+congestion control, just in a different way than TCP does that is more 
+appropriate to the specific needs of the application.
 
--- 
-error compiling committee.c: too many arguments to function
 

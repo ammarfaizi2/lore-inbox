@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936396AbWLDMic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936393AbWLDMhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936396AbWLDMic (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936370AbWLDMgR
+	id S936393AbWLDMhE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936374AbWLDMg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:36:17 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:2783 "EHLO
+	Mon, 4 Dec 2006 07:36:59 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:21983 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936335AbWLDMfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:23 -0500
+	id S936335AbWLDMgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:36:44 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 15/35] Unionfs: Common file operations
-Date: Mon,  4 Dec 2006 07:30:48 -0500
-Message-Id: <11652354702903-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 12/35] Unionfs: Documentation
+Date: Mon,  4 Dec 2006 07:30:45 -0500
+Message-Id: <11652354701616-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,608 +25,204 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains helper functions used through the rest of the code which
-pertains to files.
+This patch contains documentation for Unionfs. You will find several files
+outlining basic unification concepts and rename semantics.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/commonfops.c |  587 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 587 insertions(+), 0 deletions(-)
+ Documentation/filesystems/00-INDEX             |    2 +
+ Documentation/filesystems/unionfs/00-INDEX     |    8 +++
+ Documentation/filesystems/unionfs/concepts.txt |   68 ++++++++++++++++++++++++
+ Documentation/filesystems/unionfs/rename.txt   |   31 +++++++++++
+ Documentation/filesystems/unionfs/usage.txt    |   41 ++++++++++++++
+ 5 files changed, 150 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/commonfops.c b/fs/unionfs/commonfops.c
+diff --git a/Documentation/filesystems/00-INDEX b/Documentation/filesystems/00-INDEX
+index 4dc28cc..c737e3e 100644
+--- a/Documentation/filesystems/00-INDEX
++++ b/Documentation/filesystems/00-INDEX
+@@ -82,6 +82,8 @@ udf.txt
+ 	- info and mount options for the UDF filesystem.
+ ufs.txt
+ 	- info on the ufs filesystem.
++unionfs/
++	- info on the unionfs filesystem
+ v9fs.txt
+ 	- v9fs is a Unix implementation of the Plan 9 9p remote fs protocol.
+ vfat.txt
+diff --git a/Documentation/filesystems/unionfs/00-INDEX b/Documentation/filesystems/unionfs/00-INDEX
 new file mode 100644
-index 0000000..92f9bbc
+index 0000000..fa87f83
 --- /dev/null
-+++ b/fs/unionfs/commonfops.c
-@@ -0,0 +1,587 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include "union.h"
-+
-+/* 1) Copyup the file
-+ * 2) Rename the file to '.unionfs<original inode#><counter>' - obviously
-+ * stolen from NFS's silly rename
-+ */
-+static int copyup_deleted_file(struct file *file, struct dentry *dentry,
-+			       int bstart, int bindex)
-+{
-+	static unsigned int counter;
-+	const int i_inosize = sizeof(dentry->d_inode->i_ino) * 2;
-+	const int countersize = sizeof(counter) * 2;
-+	const int nlen = sizeof(".unionfs") + i_inosize + countersize - 1;
-+	char name[nlen + 1];
-+
-+	int err;
-+	struct dentry *tmp_dentry = NULL;
-+	struct dentry *hidden_dentry = NULL;
-+	struct dentry *hidden_dir_dentry = NULL;
-+
-+	hidden_dentry = unionfs_lower_dentry_idx(dentry, bstart);
-+
-+	sprintf(name, ".unionfs%*.*lx",
-+			i_inosize, i_inosize, hidden_dentry->d_inode->i_ino);
-+
-+	tmp_dentry = NULL;
-+	do {
-+		char *suffix = name + nlen - countersize;
-+
-+		dput(tmp_dentry);
-+		counter++;
-+		sprintf(suffix, "%*.*x", countersize, countersize, counter);
-+
-+		printk(KERN_DEBUG "unionfs: trying to rename %s to %s\n",
-+				dentry->d_name.name, name);
-+
-+		tmp_dentry = lookup_one_len(name, hidden_dentry->d_parent,
-+					    UNIONFS_TMPNAM_LEN);
-+		if (IS_ERR(tmp_dentry)) {
-+			err = PTR_ERR(tmp_dentry);
-+			goto out;
-+		}
-+	} while (tmp_dentry->d_inode != NULL);	/* need negative dentry */
-+
-+	err = copyup_named_file(dentry->d_parent->d_inode, file, name, bstart,
-+				bindex, file->f_dentry->d_inode->i_size);
-+	if (err)
-+		goto out;
-+
-+	/* bring it to the same state as an unlinked file */
-+	hidden_dentry = unionfs_lower_dentry_idx(dentry, dbstart(dentry));
-+	hidden_dir_dentry = lock_parent(hidden_dentry);
-+	err = vfs_unlink(hidden_dir_dentry->d_inode, hidden_dentry);
-+	unlock_dir(hidden_dir_dentry);
-+
-+out:
-+	return err;
-+}
-+
-+/* put all references held by upper struct file and free lower file pointer
-+ * array */
-+static void cleanup_file(struct file *file)
-+{
-+	int bindex, bstart, bend;
-+	struct file **lf;
-+
-+	lf = UNIONFS_F(file)->lower_files;
-+	bstart = fbstart(file);
-+	bend = fbend(file);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		if (unionfs_lower_file_idx(file, bindex)) {
-+			branchput(file->f_dentry->d_sb, bindex);
-+			fput(unionfs_lower_file_idx(file, bindex));
-+		}
-+	}
-+
-+	UNIONFS_F(file)->lower_files = NULL;
-+	kfree(lf);
-+}
-+
-+/* open all lower files for a given file */
-+static int open_all_files(struct file *file)
-+{
-+	int bindex, bstart, bend, err = 0;
-+	struct file *hidden_file;
-+	struct dentry *hidden_dentry;
-+	struct dentry *dentry = file->f_dentry;
-+	struct super_block *sb = dentry->d_sb;
-+
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry)
-+			continue;
-+
-+		dget(hidden_dentry);
-+		mntget(unionfs_lower_mnt_idx(dentry, bindex));
-+		branchget(sb, bindex);
-+
-+		hidden_file = dentry_open(hidden_dentry,
-+				unionfs_lower_mnt_idx(dentry, bindex),
-+				file->f_flags);
-+		if (IS_ERR(hidden_file)) {
-+			err = PTR_ERR(hidden_file);
-+			goto out;
-+		} else
-+			unionfs_set_lower_file_idx(file, bindex, hidden_file);
-+	}
-+out:
-+	return err;
-+}
-+
-+/* open the highest priority file for a given upper file */
-+static int open_highest_file(struct file *file, int willwrite)
-+{
-+	int bindex, bstart, bend, err = 0;
-+	struct file *hidden_file;
-+	struct dentry *hidden_dentry;
-+
-+	struct dentry *dentry = file->f_dentry;
-+	struct inode *parent_inode = dentry->d_parent->d_inode;
-+	struct super_block *sb = dentry->d_sb;
-+	size_t inode_size = dentry->d_inode->i_size;
-+
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+	if (willwrite && IS_WRITE_FLAG(file->f_flags) && is_robranch(dentry)) {
-+		for (bindex = bstart - 1; bindex >= 0; bindex--) {
-+			err = copyup_file(parent_inode, file, bstart, bindex,
-+					  inode_size);
-+			if (!err)
-+				break;
-+		}
-+		atomic_set(&UNIONFS_F(file)->generation,
-+			atomic_read(&UNIONFS_I(dentry->d_inode)->generation));
-+		goto out;
-+	}
-+
-+	dget(hidden_dentry);
-+	mntget(unionfs_lower_mnt_idx(dentry, bstart));
-+	branchget(sb, bstart);
-+	hidden_file = dentry_open(hidden_dentry,
-+			unionfs_lower_mnt_idx(dentry, bstart), file->f_flags);
-+	if (IS_ERR(hidden_file)) {
-+		err = PTR_ERR(hidden_file);
-+		goto out;
-+	}
-+	unionfs_set_lower_file(file, hidden_file);
-+	/* Fix up the position. */
-+	hidden_file->f_pos = file->f_pos;
-+
-+	memcpy(&hidden_file->f_ra, &file->f_ra, sizeof(struct file_ra_state));
-+out:
-+	return err;
-+}
-+
-+static int do_delayed_copyup(struct file *file, struct dentry *dentry)
-+{
-+	int bindex, bstart, bend, err = 0;
-+	struct inode *parent_inode = dentry->d_parent->d_inode;
-+	loff_t inode_size = file->f_dentry->d_inode->i_size;
-+
-+	bstart = fbstart(file);
-+	bend = fbend(file);
-+
-+	BUG_ON(!S_ISREG(file->f_dentry->d_inode->i_mode));
-+
-+	for (bindex = bstart - 1; bindex >= 0; bindex--) {
-+		if (!d_deleted(file->f_dentry))
-+			err = copyup_file(parent_inode, file, bstart,
-+					bindex, inode_size);
-+		else
-+			err = copyup_deleted_file(file, dentry, bstart, bindex);
-+
-+		if (!err)
-+			break;
-+	}
-+	if (!err && (bstart > fbstart(file))) {
-+		bend = fbend(file);
-+		for (bindex = bstart; bindex <= bend; bindex++) {
-+			if (unionfs_lower_file_idx(file, bindex)) {
-+				branchput(dentry->d_sb, bindex);
-+				fput(unionfs_lower_file_idx(file, bindex));
-+				unionfs_set_lower_file_idx(file, bindex, NULL);
-+			}
-+		}
-+		fbend(file) = bend;
-+	}
-+	return err;
-+}
-+
-+/* revalidate the stuct file */
-+int unionfs_file_revalidate(struct file *file, int willwrite)
-+{
-+	struct super_block *sb;
-+	struct dentry *dentry;
-+	int sbgen, fgen, dgen;
-+	int bstart, bend;
-+	int size;
-+
-+	int err = 0;
-+
-+	dentry = file->f_dentry;
-+	lock_dentry(dentry);
-+	sb = dentry->d_sb;
-+	unionfs_read_lock(sb);
-+	if (!unionfs_d_revalidate(dentry, NULL) && !d_deleted(dentry)) {
-+		err = -ESTALE;
-+		goto out;
-+	}
-+
-+	sbgen = atomic_read(&UNIONFS_SB(sb)->generation);
-+	dgen = atomic_read(&UNIONFS_D(dentry)->generation);
-+	fgen = atomic_read(&UNIONFS_F(file)->generation);
-+
-+	BUG_ON(sbgen > dgen);
-+
-+	/* There are two cases we are interested in.  The first is if the
-+	 * generation is lower than the super-block.  The second is if someone
-+	 * has copied up this file from underneath us, we also need to refresh
-+	 * things. */
-+	if (!d_deleted(dentry) &&
-+	    (sbgen > fgen || dbstart(dentry) != fbstart(file))) {
-+		/* First we throw out the existing files. */
-+		cleanup_file(file);
-+
-+		/* Now we reopen the file(s) as in unionfs_open. */
-+		bstart = fbstart(file) = dbstart(dentry);
-+		bend = fbend(file) = dbend(dentry);
-+
-+		size = sizeof(struct file *) * sbmax(sb);
-+		UNIONFS_F(file)->lower_files = kzalloc(size, GFP_KERNEL);
-+		if (!UNIONFS_F(file)->lower_files) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+
-+		if (S_ISDIR(dentry->d_inode->i_mode)) {
-+			/* We need to open all the files. */
-+			err = open_all_files(file);
-+			if (err)
-+				goto out;
-+		} else {
-+			/* We only open the highest priority branch. */
-+			err = open_highest_file(file, willwrite);
-+			if (err)
-+				goto out;
-+		}
-+		atomic_set(&UNIONFS_F(file)->generation,
-+			   atomic_read(&UNIONFS_I(dentry->d_inode)->
-+				       generation));
-+	}
-+
-+	/* Copyup on the first write to a file on a readonly branch. */
-+	if (willwrite && IS_WRITE_FLAG(file->f_flags) &&
-+	    !IS_WRITE_FLAG(unionfs_lower_file(file)->f_flags) &&
-+	    is_robranch(dentry)) {
-+		printk(KERN_DEBUG "Doing delayed copyup of a read-write "
-+				  "file on a read-only branch.\n");
-+		err = do_delayed_copyup(file, dentry);
-+	}
-+
-+out:
-+	unlock_dentry(dentry);
-+	unionfs_read_unlock(dentry->d_sb);
-+	return err;
-+}
-+
-+/* unionfs_open helper function: open a directory */
-+static inline int __open_dir(struct inode *inode, struct file *file)
-+{
-+	struct dentry *hidden_dentry;
-+	struct file *hidden_file;
-+	int bindex, bstart, bend;
-+
-+	bstart = fbstart(file) = dbstart(file->f_dentry);
-+	bend = fbend(file) = dbend(file->f_dentry);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = unionfs_lower_dentry_idx(file->f_dentry, bindex);
-+		if (!hidden_dentry)
-+			continue;
-+
-+		dget(hidden_dentry);
-+		mntget(unionfs_lower_mnt_idx(file->f_dentry, bindex));
-+		hidden_file = dentry_open(hidden_dentry,
-+				unionfs_lower_mnt_idx(file->f_dentry, bindex),
-+				file->f_flags);
-+		if (IS_ERR(hidden_file))
-+			return PTR_ERR(hidden_file);
-+
-+		unionfs_set_lower_file_idx(file, bindex, hidden_file);
-+
-+		/* The branchget goes after the open, because otherwise
-+		 * we would miss the reference on release. */
-+		branchget(inode->i_sb, bindex);
-+	}
-+
-+	return 0;
-+}
-+
-+/* unionfs_open helper function: open a file */
-+static inline int __open_file(struct inode *inode, struct file *file)
-+{
-+	struct dentry *hidden_dentry;
-+	struct file *hidden_file;
-+	int hidden_flags;
-+	int bindex, bstart, bend;
-+
-+	hidden_dentry = unionfs_lower_dentry(file->f_dentry);
-+	hidden_flags = file->f_flags;
-+
-+	bstart = fbstart(file) = dbstart(file->f_dentry);
-+	bend = fbend(file) = dbend(file->f_dentry);
-+
-+	/* check for the permission for hidden file.  If the error is COPYUP_ERR,
-+	 * copyup the file.
-+	 */
-+	if (hidden_dentry->d_inode && is_robranch(file->f_dentry)) {
-+		/* if the open will change the file, copy it up otherwise defer it. */
-+		if (hidden_flags & O_TRUNC) {
-+			int size = 0;
-+			int err = -EROFS;
-+
-+			/* copyup the file */
-+			for (bindex = bstart - 1; bindex >= 0; bindex--) {
-+				err = copyup_file(file->f_dentry->d_parent->d_inode,
-+						file, bstart, bindex, size);
-+				if (!err)
-+					break;
-+			}
-+			return err;
-+		} else
-+			hidden_flags &= ~(OPEN_WRITE_FLAGS);
-+	}
-+
-+	dget(hidden_dentry);
-+
-+	/* dentry_open will decrement mnt refcnt if err.
-+	 * otherwise fput() will do an mntput() for us upon file close.
-+	 */
-+	mntget(unionfs_lower_mnt_idx(file->f_dentry, bstart));
-+	hidden_file = dentry_open(hidden_dentry,
-+				  unionfs_lower_mnt_idx(file->f_dentry, bstart),
-+				  hidden_flags);
-+	if (IS_ERR(hidden_file))
-+		return PTR_ERR(hidden_file);
-+
-+	unionfs_set_lower_file(file, hidden_file);
-+	branchget(inode->i_sb, bstart);
-+
-+	return 0;
-+}
-+
-+int unionfs_open(struct inode *inode, struct file *file)
-+{
-+	int err = 0;
-+	struct file *hidden_file = NULL;
-+	struct dentry *dentry = NULL;
-+	int bindex = 0, bstart = 0, bend = 0;
-+	int size;
-+
-+	file->private_data = kzalloc(sizeof(struct unionfs_file_info), GFP_KERNEL);
-+	if (!UNIONFS_F(file)) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	fbstart(file) = -1;
-+	fbend(file) = -1;
-+	atomic_set(&UNIONFS_F(file)->generation,
-+		   atomic_read(&UNIONFS_I(inode)->generation));
-+
-+	size = sizeof(struct file *) * sbmax(inode->i_sb);
-+	UNIONFS_F(file)->lower_files = kzalloc(size, GFP_KERNEL);
-+	if (!UNIONFS_F(file)->lower_files) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	dentry = file->f_dentry;
-+	lock_dentry(dentry);
-+	unionfs_read_lock(inode->i_sb);
-+
-+	bstart = fbstart(file) = dbstart(dentry);
-+	bend = fbend(file) = dbend(dentry);
-+
-+	/* increment, so that we can flush appropriately */
-+	atomic_inc(&UNIONFS_I(dentry->d_inode)->totalopens);
-+
-+	/* open all directories and make the unionfs file struct point to
-+	 * these hidden file structs */
-+	if (S_ISDIR(inode->i_mode))
-+		err = __open_dir(inode, file);	/* open a dir */
-+	else
-+		err = __open_file(inode, file);	/* open a file */
-+
-+	/* freeing the allocated resources, and fput the opened files */
-+	if (err) {
-+		for (bindex = bstart; bindex <= bend; bindex++) {
-+			hidden_file = unionfs_lower_file_idx(file, bindex);
-+			if (!hidden_file)
-+				continue;
-+
-+			branchput(file->f_dentry->d_sb, bindex);
-+			/* fput calls dput for hidden_dentry */
-+			fput(hidden_file);
-+		}
-+	}
-+
-+	unlock_dentry(dentry);
-+	unionfs_read_unlock(inode->i_sb);
-+
-+out:
-+	if (err) {
-+		kfree(UNIONFS_F(file)->lower_files);
-+		kfree(UNIONFS_F(file));
-+	}
-+
-+	return err;
-+}
-+
-+/* release all lower object references & free the file info structure */
-+int unionfs_file_release(struct inode *inode, struct file *file)
-+{
-+	struct file *hidden_file = NULL;
-+	struct unionfs_file_info *fileinfo = UNIONFS_F(file);
-+	struct unionfs_inode_info *inodeinfo = UNIONFS_I(inode);
-+	int bindex, bstart, bend;
-+	int fgen;
-+
-+	/* fput all the hidden files */
-+	fgen = atomic_read(&fileinfo->generation);
-+	bstart = fbstart(file);
-+	bend = fbend(file);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_file = unionfs_lower_file_idx(file, bindex);
-+
-+		if (hidden_file) {
-+			fput(hidden_file);
-+			unionfs_read_lock(inode->i_sb);
-+			branchput(inode->i_sb, bindex);
-+			unionfs_read_unlock(inode->i_sb);
-+		}
-+	}
-+	kfree(fileinfo->lower_files);
-+
-+	if (fileinfo->rdstate) {
-+		fileinfo->rdstate->access = jiffies;
-+		printk(KERN_DEBUG "Saving rdstate with cookie %u [%d.%lld]\n",
-+		       fileinfo->rdstate->cookie,
-+		       fileinfo->rdstate->bindex,
-+		       (long long)fileinfo->rdstate->dirpos);
-+		spin_lock(&inodeinfo->rdlock);
-+		inodeinfo->rdcount++;
-+		list_add_tail(&fileinfo->rdstate->cache,
-+			      &inodeinfo->readdircache);
-+		mark_inode_dirty(inode);
-+		spin_unlock(&inodeinfo->rdlock);
-+		fileinfo->rdstate = NULL;
-+	}
-+	kfree(fileinfo);
-+	return 0;
-+}
-+
-+/* pass the ioctl to the lower fs */
-+static inline long do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	struct file *hidden_file;
-+	int err;
-+
-+	hidden_file = unionfs_lower_file(file);
-+
-+	err = security_file_ioctl(hidden_file, cmd, arg);
-+	if (err)
-+		goto out;
-+
-+	err = -ENOTTY;
-+	if (!hidden_file || !hidden_file->f_op)
-+		goto out;
-+	if (hidden_file->f_op->unlocked_ioctl) {
-+		err = hidden_file->f_op->unlocked_ioctl(hidden_file, cmd, arg);
-+	} else if (hidden_file->f_op->ioctl) {
-+		lock_kernel();
-+		err = hidden_file->f_op->ioctl(hidden_file->f_dentry->d_inode,
-+					       hidden_file, cmd, arg);
-+		unlock_kernel();
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+long unionfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	long err;
-+
-+	if ((err = unionfs_file_revalidate(file, 1)))
-+		goto out;
-+
-+	/* check if asked for local commands */
-+	switch (cmd) {
-+		case UNIONFS_IOCTL_INCGEN:
-+			/* Increment the superblock generation count */
-+			err = -EACCES;
-+			if (!capable(CAP_SYS_ADMIN))
-+				goto out;
-+			err = unionfs_ioctl_incgen(file, cmd, arg);
-+			break;
-+
-+		case UNIONFS_IOCTL_QUERYFILE:
-+			/* Return list of branches containing the given file */
-+			err = unionfs_ioctl_queryfile(file, cmd, arg);
-+			break;
-+
-+		default:
-+			/* pass the ioctl down */
-+			err = do_ioctl(file, cmd, arg);
-+			break;
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+int unionfs_flush(struct file *file, fl_owner_t id)
-+{
-+	int err = 0;
-+	struct file *hidden_file = NULL;
-+	struct dentry *dentry = file->f_dentry;
-+	int bindex, bstart, bend;
-+
-+	if ((err = unionfs_file_revalidate(file, 1)))
-+		goto out;
-+	if (!atomic_dec_and_test(&UNIONFS_I(dentry->d_inode)->totalopens))
-+		goto out;
-+
-+	lock_dentry(dentry);
-+
-+	bstart = fbstart(file);
-+	bend = fbend(file);
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_file = unionfs_lower_file_idx(file, bindex);
-+
-+		if (hidden_file && hidden_file->f_op && hidden_file->f_op->flush) {
-+			err = hidden_file->f_op->flush(hidden_file, id);
-+			if (err)
-+				goto out_lock;
-+
-+			/* if there are no more references to the dentry, dput it */
-+			if (d_deleted(dentry)) {
-+				dput(unionfs_lower_dentry_idx(dentry, bindex));
-+				unionfs_set_lower_dentry_idx(dentry, bindex, NULL);
-+			}
-+		}
-+
-+	}
-+
-+out_lock:
-+	unlock_dentry(dentry);
-+out:
-+	return err;
-+}
++++ b/Documentation/filesystems/unionfs/00-INDEX
+@@ -0,0 +1,8 @@
++00-INDEX
++	- this file.
++concepts.txt
++	- A brief introduction of concepts
++rename.txt
++	- Information regarding rename operations
++usage.txt
++	- Usage & known limitations
+diff --git a/Documentation/filesystems/unionfs/concepts.txt b/Documentation/filesystems/unionfs/concepts.txt
+new file mode 100644
+index 0000000..0b9bcc9
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/concepts.txt
+@@ -0,0 +1,68 @@
++This file describes the concepts needed by a namespace unification file system.
++
++Branch Priority:
++================
++
++Each branch is assigned a unique priority - starting from 0 (highest priority).
++No two branches can have the same priority.
++
++
++Branch Mode:
++============
++
++Each branch is assigned a mode - read-write or read-only. This allows
++directories on media mounted read-write to be used in a read-only manner.
++
++
++Whiteouts:
++==========
++
++A whiteout removes a file name from the namespace. Whiteouts are needed when
++one attempts to remove a file on a read-only branch.
++
++Suppose we have a two-branch union, where branch 0 is read-write and branch 1
++is read-only. And a file 'foo' on branch 1:
++
++./b0/
++./b1/
++./b1/foo
++
++The unified view would simply be:
++
++./union/
++./union/foo
++
++Since 'foo' is stored on a read-only branch, it cannot be removed. A whiteout
++is used to remove the name 'foo' from the unified namespace. Again, since
++branch 1 is read-only, the whiteout cannot be created there. So, we try on a
++higher priority (lower numerically) branch. And there we create the whiteout.
++
++./b0/
++./b0/.wh.foo
++./b1/
++./b1/foo
++
++Later, when Unionfs traverses branches (due to lookup or readdir), it eliminate
++'foo' from the namespace (as well as the whiteout itself.)
++
++
++Duplicate Elimination:
++======================
++
++It is possible for files on different branches to have the same name. Unionfs
++then has to select which instance of the file to show to the user. Given the
++fact that each branch has a priority associated with it, the simplest
++solution is to take the instance from the highest priority (lowest numerical
++value) and "hide" the others.
++
++
++Copyup:
++=======
++
++When a change is made to the contents of a file's data or meta-data, they
++have to be stored somewhere. The best way is to create a copy of the
++original file on a branch that is writable, and then redirect the write
++though to this copy. The copy must be made on a higher priority branch so
++that lookup & readdir return this newer "version" of the file rather than
++the original (see duplicate elimination).
++
+diff --git a/Documentation/filesystems/unionfs/rename.txt b/Documentation/filesystems/unionfs/rename.txt
+new file mode 100644
+index 0000000..e20bb82
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/rename.txt
+@@ -0,0 +1,31 @@
++Rename is a complex beast. The following table shows which rename(2) operations
++should succeed and which should fail.
++
++o: success
++E: error (either unionfs or vfs)
++X: EXDEV
++
++none = file does not exist
++file = file is a file
++dir  = file is a empty directory
++child= file is a non-empty directory
++wh   = file is a directory containing only whiteouts; this makes it logically
++		empty
++
++                      none    file    dir     child   wh
++file                  o       o       E       E       E
++dir                   o       E       o       E       o
++child                 X       E       X       E       X
++wh                    o       E       o       E       o
++
++
++Renaming directories:
++=====================
++
++Whenever a empty (either physically or logically) directory is being renamed,
++the following sequence of events should take place:
++
++1) Remove whiteouts from both source and destination directory
++2) Rename source to destination
++3) Make destination opaque to prevent anything under it from showing up
++
+diff --git a/Documentation/filesystems/unionfs/usage.txt b/Documentation/filesystems/unionfs/usage.txt
+new file mode 100644
+index 0000000..8db9158
+--- /dev/null
++++ b/Documentation/filesystems/unionfs/usage.txt
+@@ -0,0 +1,41 @@
++Unionfs is a stackable unification file system, which can appear to merge the
++contents of several directories (branches), while keeping their physical
++content separate. Unionfs is useful for unified source tree management, merged
++contents of split CD-ROM, merged separate software package directories, data
++grids, and more. Unionfs allows any mix of read-only and read-write branches,
++as well as insertion and deletion of branches anywhere in the fan-out. To
++maintain unix semantics, Unionfs handles elimination of duplicates,
++partial-error conditions, and more.
++
++mount -t unionfs -o branch-option[,union-options[,...]] none MOUNTPOINT
++
++The available branch-option for the mount command is:
++
++dirs=branch[=ro|=rw][:...]
++specifies a separated list of which directories compose the union.  Directories
++that come earlier in the list have a higher precedence than those which come
++later. Additionally, read-only or read-write permissions of the branch can be
++specified by appending =ro or =rw (default) to each directory.
++
++Syntax:
++dirs=/branch1[=ro|=rw]:/branch2[=ro|=rw]:...:/branchN[=ro|=rw]
++
++Example:
++dirs=/writable_branch=rw:/read-only_branch=ro
++
++
++KNOWN ISSUES:
++=============
++
++The NFS server returns -EACCES for read-only exports, instead of -EROFS.  This
++means we can't reliably detect a read-only NFS export.
++
++Modifying a Unionfs branch directly, while the union is mounted is currently
++unsupported.  Any such change can cause Unionfs to oops, however it could even
++RESULT IN DATA LOSS.
++
++Unionfs shouldn't use lookup_one_len on the underlying fs as it confuses
++NFS. Currently, unionfs_lookup passes lookup intents to the lower
++filesystem, this eliminates part of the problem. The remaining calls to
++lookup_one_len may need to be changed to pass an intent.
 +
 -- 
 1.4.3.3

@@ -1,318 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759761AbWLDEoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759778AbWLDE47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759761AbWLDEoG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 23:44:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759767AbWLDEoG
+	id S1759778AbWLDE47 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 23:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759796AbWLDE47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 23:44:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56536 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1759761AbWLDEoD (ORCPT
+	Sun, 3 Dec 2006 23:56:59 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:29620 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1759771AbWLDE46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 23:44:03 -0500
-Date: Mon, 4 Dec 2006 10:13:44 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: gregkh@suse.com, Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
-Message-ID: <20061204044344.GB10078@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200612012343.07251.oliver@neukum.org>
+	Sun, 3 Dec 2006 23:56:58 -0500
+Date: Sun, 3 Dec 2006 20:56:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: <Aucoin@Houston.RR.com>
+Cc: "'Tim Schmielau'" <tim@physik3.uni-rostock.de>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <clameter@sgi.com>
+Subject: Re: la la la la ... swappiness
+Message-Id: <20061203205649.98df030b.akpm@osdl.org>
+In-Reply-To: <200612032356.kB3NuPc0010673@ms-smtp-04.texas.rr.com>
+References: <Pine.LNX.4.63.0612032137380.17489@gockel.physik3.uni-rostock.de>
+	<200612032356.kB3NuPc0010673@ms-smtp-04.texas.rr.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612012343.07251.oliver@neukum.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 11:43:06PM +0100, Oliver Neukum wrote:
-> Hi,
-> 
-> Alan Stern has discovered a race in sysfs, whereby driver callbacks could be
-> called after sysfs_remove_file() has run. The attached patch should fix it.
-> 
-> It introduces a new data structure acting as a collection of all sysfs_buffers
-> associated with an attribute. Upon removal of an attribute the buffers are
-> marked orphaned and IO on them returns -ENODEV. Thus sysfs_remove_file()
-> makes sure that sysfs won't bother a driver after that call, making it safe
-> to free the associated data structures and to unload the driver.
-> 
-> 	Regards
-> 		Oliver
+On Sun, 3 Dec 2006 17:56:30 -0600
+"Aucoin" <Aucoin@Houston.RR.com> wrote:
 
-Hi Oliver,
+> I hope I haven't muddied things up even more but basically what we want to
+> do is find a way to limit the number of cached pages for disk I/O on the OS
+> filesystem, even if it drastically slows down the untar and verify process
+> because the disk I/O we really care about is not on any of the OS
+> partitions.
 
-Thanks for the explaining the patch but some description about the race
-would also help here. At the least the callpath to the race would be useful.
-
-
-Thanks
-Maneesh
-
-> --- linux-2.6.19-rc6/fs/sysfs/file.c	2006-11-25 23:49:07.000000000 +0100
-> +++ sysfs/fs/sysfs/file.c	2006-12-01 09:47:24.000000000 +0100
-> @@ -7,6 +7,7 @@
->  #include <linux/kobject.h>
->  #include <linux/namei.h>
->  #include <linux/poll.h>
-> +#include <linux/list.h>
->  #include <asm/uaccess.h>
->  #include <asm/semaphore.h>
-> 
-> @@ -50,17 +51,29 @@
->  	.store	= subsys_attr_store,
->  };
-> 
-> +/**
-> + *	add_to_collection - add buffer to a collection
-> + *	@buffer:	buffer to be added
-> + *	@node		inode of set to add to
-> + */
-> 
-> -struct sysfs_buffer {
-> -	size_t			count;
-> -	loff_t			pos;
-> -	char			* page;
-> -	struct sysfs_ops	* ops;
-> -	struct semaphore	sem;
-> -	int			needs_read_fill;
-> -	int			event;
-> -};
-> +static inline void
-> +add_to_collection(struct sysfs_buffer *buffer, struct inode *node)
-> +{
-> +	struct sysfs_buffer_collection *set = node->i_private;
-> +
-> +	mutex_lock(&node->i_mutex);
-> +	list_add(&buffer->associates, &set->associates);
-> +	mutex_unlock(&node->i_mutex);
-> +}
-> 
-> +static inline void
-> +remove_from_collection(struct sysfs_buffer *buffer, struct inode *node)
-> +{
-> +	mutex_lock(&node->i_mutex);
-> +	list_del(&buffer->associates);
-> +	mutex_unlock(&node->i_mutex);
-> +}
-> 
->  /**
->   *	fill_read_buffer - allocate and fill buffer from object.
-> @@ -153,6 +166,10 @@
->  	ssize_t retval = 0;
-> 
->  	down(&buffer->sem);
-> +	if (buffer->orphaned) {
-> +		retval = -ENODEV;
-> +		goto out;
-> +	}
->  	if (buffer->needs_read_fill) {
->  		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
->  			goto out;
-> @@ -165,7 +182,6 @@
->  	return retval;
->  }
-> 
-> -
->  /**
->   *	fill_write_buffer - copy buffer from userspace.
->   *	@buffer:	data buffer for file.
-> @@ -240,19 +256,25 @@
->  	ssize_t len;
-> 
->  	down(&buffer->sem);
-> +	if (buffer->orphaned) {
-> +		len = -ENODEV;
-> +		goto out;
-> +	}
->  	len = fill_write_buffer(buffer, buf, count);
->  	if (len > 0)
->  		len = flush_write_buffer(file->f_dentry, buffer, len);
->  	if (len > 0)
->  		*ppos += len;
-> +out:
->  	up(&buffer->sem);
->  	return len;
->  }
-> 
-> -static int check_perm(struct inode * inode, struct file * file)
-> +static int sysfs_open_file(struct inode * inode, struct file * file)
->  {
->  	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
->  	struct attribute * attr = to_attr(file->f_dentry);
-> +	struct sysfs_buffer_collection *set;
->  	struct sysfs_buffer * buffer;
->  	struct sysfs_ops * ops = NULL;
->  	int error = 0;
-> @@ -282,6 +304,18 @@
->  	if (!ops)
->  		goto Eaccess;
-> 
-> +	/* make sure we have a collection to add our buffers to */
-> +	mutex_lock(&inode->i_mutex);
-> +	if (!(set = inode->i_private)) {
-> +		if (!(set = inode->i_private = kmalloc(sizeof(struct sysfs_buffer_collection), GFP_KERNEL))) {
-> +			error = -ENOMEM;
-> +			goto Done;
-> +		} else {
-> +			INIT_LIST_HEAD(&set->associates);
-> +		}
-> +	}
-> +	mutex_unlock(&inode->i_mutex);
-> +
->  	/* File needs write support.
->  	 * The inode's perms must say it's ok,
->  	 * and we must have a store method.
-> @@ -307,9 +341,11 @@
->  	 */
->  	buffer = kzalloc(sizeof(struct sysfs_buffer), GFP_KERNEL);
->  	if (buffer) {
-> +		INIT_LIST_HEAD(&buffer->associates);
->  		init_MUTEX(&buffer->sem);
->  		buffer->needs_read_fill = 1;
->  		buffer->ops = ops;
-> +		add_to_collection(buffer, inode);
->  		file->private_data = buffer;
->  	} else
->  		error = -ENOMEM;
-> @@ -327,11 +363,6 @@
->  	return error;
->  }
-> 
-> -static int sysfs_open_file(struct inode * inode, struct file * filp)
-> -{
-> -	return check_perm(inode,filp);
-> -}
-> -
->  static int sysfs_release(struct inode * inode, struct file * filp)
->  {
->  	struct kobject * kobj = to_kobj(filp->f_dentry->d_parent);
-> @@ -339,6 +370,8 @@
->  	struct module * owner = attr->owner;
->  	struct sysfs_buffer * buffer = filp->private_data;
-> 
-> +	if (buffer)
-> +		remove_from_collection(buffer, inode);
->  	if (kobj)
->  		kobject_put(kobj);
->  	/* After this point, attr should not be accessed. */
-> @@ -545,7 +578,9 @@
-> 
->  void sysfs_remove_file(struct kobject * kobj, const struct attribute * attr)
->  {
-> -	sysfs_hash_and_remove(kobj->dentry,attr->name);
-> +	struct dentry *d = kobj->dentry;
-> +
-> +	sysfs_hash_and_remove(d, attr->name);
->  }
-> 
-> 
-> --- linux-2.6.19-rc6/fs/sysfs/sysfs.h	2006-11-16 05:03:40.000000000 +0100
-> +++ sysfs/fs/sysfs/sysfs.h	2006-12-01 09:47:44.000000000 +0100
-> @@ -33,6 +33,22 @@
->  	struct kobject * target_kobj;
->  };
-> 
-> +struct sysfs_buffer {
-> +	struct list_head		associates;
-> +	size_t				count;
-> +	loff_t				pos;
-> +	char				* page;
-> +	struct sysfs_ops		* ops;
-> +	struct semaphore		sem;
-> +	int				orphaned;
-> +	int				needs_read_fill;
-> +	int				event;
-> +};
-> +
-> +struct sysfs_buffer_collection {
-> +	struct list_head	associates;
-> +};
-> +
->  static inline struct kobject * to_kobj(struct dentry * dentry)
->  {
->  	struct sysfs_dirent * sd = dentry->d_fsdata;
-> @@ -95,4 +111,3 @@
->  	if (atomic_dec_and_test(&sd->s_count))
->  		release_sysfs_dirent(sd);
->  }
-> -
-> --- linux-2.6.19-rc6/fs/sysfs/mount.c	2006-11-16 05:03:40.000000000 +0100
-> +++ sysfs/fs/sysfs/mount.c	2006-11-26 14:00:13.000000000 +0100
-> @@ -18,9 +18,12 @@
->  struct super_block * sysfs_sb = NULL;
->  kmem_cache_t *sysfs_dir_cachep;
-> 
-> +static void sysfs_clear_inode(struct inode *inode);
-> +
->  static struct super_operations sysfs_ops = {
->  	.statfs		= simple_statfs,
->  	.drop_inode	= generic_delete_inode,
-> +	.clear_inode	= sysfs_clear_inode,
->  };
-> 
->  static struct sysfs_dirent sysfs_root = {
-> @@ -31,6 +34,11 @@
->  	.s_iattr	= NULL,
->  };
-> 
-> +static void sysfs_clear_inode(struct inode *inode)
-> +{
-> +	kfree(inode->i_private);
-> +}
-> +
->  static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
->  {
->  	struct inode *inode;
-> --- linux-2.6.19-rc6/fs/sysfs/inode.c	2006-11-16 05:03:40.000000000 +0100
-> +++ sysfs/fs/sysfs/inode.c	2006-12-01 09:48:11.000000000 +0100
-> @@ -209,6 +209,22 @@
->  	return NULL;
->  }
-> 
-> +static inline void orphan_all_buffers(struct inode *node)
-> +{
-> +	struct sysfs_buffer_collection *set = node->i_private;
-> +	struct sysfs_buffer *buf;
-> +
-> +	mutex_lock(&node->i_mutex);
-> +	if (node->i_private) {
-> +		list_for_each_entry(buf, &set->associates, associates) {
-> +			down(&buf->sem);
-> +			buf->orphaned = 1;
-> +			up(&buf->sem);
-> +		}
-> +	}
-> +	mutex_unlock(&node->i_mutex);
-> +}
-> +
-> 
->  /*
->   * Unhashes the dentry corresponding to given sysfs_dirent
-> @@ -217,16 +233,23 @@
->  void sysfs_drop_dentry(struct sysfs_dirent * sd, struct dentry * parent)
->  {
->  	struct dentry * dentry = sd->s_dentry;
-> +	struct inode *inode;
-> 
->  	if (dentry) {
->  		spin_lock(&dcache_lock);
->  		spin_lock(&dentry->d_lock);
->  		if (!(d_unhashed(dentry) && dentry->d_inode)) {
-> +			inode = dentry->d_inode;
-> +			spin_lock(&inode->i_lock);
-> +			__iget(inode);
-> +			spin_unlock(&inode->i_lock);
->  			dget_locked(dentry);
->  			__d_drop(dentry);
->  			spin_unlock(&dentry->d_lock);
->  			spin_unlock(&dcache_lock);
->  			simple_unlink(parent->d_inode, dentry);
-> +			orphan_all_buffers(inode);
-> +			iput(inode);
->  		} else {
->  			spin_unlock(&dentry->d_lock);
->  			spin_unlock(&dcache_lock);
-
+Try mounting that fs with `-o sync'.

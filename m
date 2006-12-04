@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937371AbWLDUXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937369AbWLDUXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937371AbWLDUXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937370AbWLDUXW
+	id S937369AbWLDUXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937370AbWLDUXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:23:22 -0500
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39097 "EHLO
-	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937371AbWLDUXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:23:21 -0500
-Message-ID: <457483B5.8060205@drzeus.cx>
-Date: Mon, 04 Dec 2006 21:23:17 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
+	Mon, 4 Dec 2006 15:23:10 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:61381 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937369AbWLDUXI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:23:08 -0500
+Message-ID: <45748388.9030400@oracle.com>
+Date: Mon, 04 Dec 2006 12:22:32 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Anderson Briglia <anderson.briglia@indt.org.br>
-CC: "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       ext David Brownell <david-b@pacbell.net>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/5] [RFC] Add MMC Password Protection (lock/unlock) support
- V7: mmc_lock_unlock.diff
-References: <4564640B.1070004@indt.org.br> <45680308.4040809@drzeus.cx> <45746CD3.1000604@indt.org.br>
-In-Reply-To: <45746CD3.1000604@indt.org.br>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kill pointless ki_nbytes assignment in aio_setup_single_vector
+References: <000101c717c2$0fe26ce0$2589030a@amr.corp.intel.com>
+In-Reply-To: <000101c717c2$0fe26ce0$2589030a@amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anderson Briglia wrote:
->
-> Actually they represent the bits regarding the modes and it is used
-> when we
-> have to send the LOCK/UNLOCK mode on the command data block, according
-> to the MMC Spec.
-> If you take a look at mmc_lock_unlock function, we use those modes to
-> set the right bit
-> when composing the command data block.
-> This definition makes the code more legible and simple.
+Chen, Kenneth W wrote:
+> io_submit_one assigns ki_left = ki_nbytes = iocb->aio_nbytes, then
+> calls down to aio_setup_iocb, then to aio_setup_single_vector. In there,
+> ki_nbytes is reassigned to the same value it got two call stack above it.
+> There is no need to do so.
+> 
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-In that case you need to change the code to make sure it is clear that
-it is bits and not values. Also, your definition for
-MMC_LOCK_MODE_UNLOCK is wrong.
+That seems to be the case, indeed.
 
-Rgds
+Acked-by: Zach Brown <zach.brown@oracle.com>
 
--- 
-     -- Pierre Ossman
-
-  Linux kernel, MMC maintainer        http://www.kernel.org
-  PulseAudio, core developer          http://pulseaudio.org
-  rdesktop, core developer          http://www.rdesktop.org
-
+- z

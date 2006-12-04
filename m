@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937343AbWLDTp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937340AbWLDTpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937343AbWLDTp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937338AbWLDTp1
+	id S937340AbWLDTpP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937338AbWLDTpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:45:27 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:13954 "EHLO
+	Mon, 4 Dec 2006 14:45:15 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:16818 "EHLO
 	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937339AbWLDTpS (ORCPT
+	with ESMTP id S937337AbWLDTpH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:45:18 -0500
-Date: Mon, 4 Dec 2006 11:45:03 -0800
+	Mon, 4 Dec 2006 14:45:07 -0500
+Date: Mon, 4 Dec 2006 11:44:53 -0800
 From: divy@chelsio.com
-Message-Id: <200612041945.kB4Jj3fR009094@localhost.localdomain>
+Message-Id: <200612041944.kB4JirOu009083@localhost.localdomain>
 To: jeff@garzik.org
-Subject: [PATCH 4/10] cxgb3 - HW access routines - part 2
+Subject: [PATCH 3/10] cxgb3 - HW access routines - part 1
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

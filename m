@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936577AbWLDSDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936832AbWLDSIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936577AbWLDSDq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 13:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936604AbWLDSDq
+	id S936832AbWLDSIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 13:08:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934022AbWLDSIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 13:03:46 -0500
-Received: from wmail-1.airmail.net ([209.196.70.86]:50064 "EHLO
-	wmail-1.airmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936593AbWLDSDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 13:03:45 -0500
-From: "Art Haas" <ahaas@airmail.net>
-Date: Mon, 4 Dec 2006 12:03:11 -0600
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] Remove 'volatile' from spinlocks
-Message-ID: <20061204180311.GD22454@artsapartment.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 4 Dec 2006 13:08:25 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:46988 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936832AbWLDSIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 13:08:24 -0500
+Date: Mon, 4 Dec 2006 10:06:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+Cc: Aucoin@Houston.RR.com, "'Kyle Moffett'" <mrmacman_g4@mac.com>,
+       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: la la la la ... swappiness
+Message-Id: <20061204100656.793d8d6a.akpm@osdl.org>
+In-Reply-To: <200612041707.kB4H7Mnh020665@laptop13.inf.utfsm.cl>
+References: <200612041439.kB4EdGFn025092@ms-smtp-03.texas.rr.com>
+	<200612041707.kB4H7Mnh020665@laptop13.inf.utfsm.cl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 04 Dec 2006 14:07:22 -0300
+"Horst H. von Brand" <vonbrand@inf.utfsm.cl> wrote:
 
-Months ago two patches were posted by Ingo Molnar that removed
-the 'volatile' keyword from the 'raw_spinlock_t' and 'raw_rwlock_t'
-structures in the i386 and x86-64 ports. The link below takes you to
-the initial (?) posting of the patches:
+> Please explain again:
+> 
+> - What you are doing, step by step
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115217423929806&w=2
+That 2GB machine apparently has a 1.6GB shm segment which is mlocked.  That will
+cause the VM to do one heck of a lot of pointless scanning and could, I guess,
+cause false oom decisions.  It's also an ia32 highmem machine, which adds to the
+fun.
 
-I've been build and running SMP kernels on a dual PIII machine with
-the i386 version of the patch since then and the kernels have worked
-well. Perhaps the patch(es) can make it into the 2.6.20 kernel?
+We could scan more:
 
-The i386 version of the patch is below, the x86-64 patch is identical.
-
-Art Haas
-
-diff --git a/include/asm-i386/spinlock_types.h b/include/asm-i386/spinlock_types.h
-index 59efe84..4da9345 100644
---- a/include/asm-i386/spinlock_types.h
-+++ b/include/asm-i386/spinlock_types.h
-@@ -6,13 +6,13 @@ # error "please don't include this file 
- #endif
+--- a/mm/vmscan.c~a
++++ a/mm/vmscan.c
+@@ -918,6 +918,7 @@ static unsigned long shrink_zone(int pri
+ 	 * slowly sift through the active list.
+ 	 */
+ 	zone->nr_scan_active += (zone->nr_active >> priority) + 1;
++	zone->nr_scan_active *= 2;
+ 	nr_active = zone->nr_scan_active;
+ 	if (nr_active >= sc->swap_cluster_max)
+ 		zone->nr_scan_active = 0;
+@@ -925,6 +926,7 @@ static unsigned long shrink_zone(int pri
+ 		nr_active = 0;
  
- typedef struct {
--	volatile unsigned int slock;
-+	unsigned int slock;
- } raw_spinlock_t;
- 
- #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
- 
- typedef struct {
--	volatile unsigned int lock;
-+	unsigned int lock;
- } raw_rwlock_t;
- 
- #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }
+ 	zone->nr_scan_inactive += (zone->nr_inactive >> priority) + 1;
++	zone->nr_scan_inactive *= 2;
+ 	nr_inactive = zone->nr_scan_inactive;
+ 	if (nr_inactive >= sc->swap_cluster_max)
+ 		zone->nr_scan_inactive = 0;
+_
 
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
-
--Thomas Jefferson to James Smith, 1822
+but that's rather dumb.  Better would be to remove mlocked pages from the
+LRU.

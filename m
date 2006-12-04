@@ -1,120 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759021AbWLDCuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759064AbWLDCy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759021AbWLDCuA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Dec 2006 21:50:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759019AbWLDCuA
+	id S1759064AbWLDCy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Dec 2006 21:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759067AbWLDCy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Dec 2006 21:50:00 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:22053 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1758940AbWLDCt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Dec 2006 21:49:59 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AgAAAKcbc0VThFhodGdsb2JhbACBZosEAQ
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(83.132.128.87):SA:0(0.2/5.0):. Processed in 3.11258 secs Process 22727)
-Subject: Re: linux 2.6.19 still crashing
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4571AFED.8060200@dungeon.inka.de>
-References: <4571AFED.8060200@dungeon.inka.de>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-teuLQTA6dklgQd+Nu8Ln"
-Date: Mon, 04 Dec 2006 02:49:48 +0000
-Message-Id: <1165200588.9189.1.camel@monteirov>
+	Sun, 3 Dec 2006 21:54:26 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:22452 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1759033AbWLDCyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Dec 2006 21:54:25 -0500
+Date: Sun, 3 Dec 2006 18:54:42 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
+       Joseph Barnett <jbarnett@motorola.com>
+Subject: Re: [PATCH 9/12] IPMI: add pigeonpoint poweroff
+Message-Id: <20061203185442.33faf1c0.randy.dunlap@oracle.com>
+In-Reply-To: <45738959.1000209@acm.org>
+References: <20061202043746.GE30531@localdomain>
+	<20061203132618.d7d58f59.akpm@osdl.org>
+	<45738959.1000209@acm.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-X-OriginalArrivalTime: 04 Dec 2006 02:49:57.0507 (UTC) FILETIME=[E24F1530:01C7174E]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 03 Dec 2006 20:35:05 -0600 Corey Minyard wrote:
 
---=-teuLQTA6dklgQd+Nu8Ln
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+> Andrew Morton wrote:
+> > On Fri, 1 Dec 2006 22:37:46 -0600
+> > Corey Minyard <minyard@acm.org> wrote:
+> >
+> >   
+> >> +static void (*atca_oem_poweroff_hook)(ipmi_user_t user) = NULL;
+> >>     
+> >
+> > Sometime, please go through the IPMI code looking for all these
+> > statically-allocated things which are initialised to 0 or NULL and remove
+> > all those intialisations?  They're unneeded, they increase the vmlinux
+> > image size and there are quite a number of them.  Thanks.
+> >   
+> I'll do that, thanks, and I'll work on the other changes you suggest.
+> 
+> Do you prefer patches to fold into the existing patches or new versions?
 
-Hi,
-1st you should put this information on http://bugzilla.kernel.org/
-(choose enter a new bug, may choose Category ACPI with component
-config-interrupts ) for better organization, instead make your own bug
-documentation.
+I was just about to send that patch.  Here it is,
+on top of the series-of-12.
 
-The documentation is very good  you should attach the same information
-on bugzilla
+---
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-your bug kept me the attention because on bad interrupts  you have :
+Remove all =0 and =NULL from static initializers.
+They are not needed and removing them saves space in the object files.
 
-21:     100000   IO-APIC-fasteoi   ohci1394
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/char/ipmi/ipmi_bt_sm.c      |    2 +-
+ drivers/char/ipmi/ipmi_devintf.c    |    2 +-
+ drivers/char/ipmi/ipmi_msghandler.c |    6 +++---
+ drivers/char/ipmi/ipmi_poweroff.c   |    6 +++---
+ drivers/char/ipmi/ipmi_si_intf.c    |   12 ++++++------
+ drivers/char/ipmi/ipmi_watchdog.c   |   18 +++++++++---------
+ 6 files changed, 23 insertions(+), 23 deletions(-)
 
-Exactly oops on 100000 interrupts, I had seen this before .
-I have my bug on http://bugzilla.kernel.org/show_bug.cgi?id=3D6419
-which one of the bugs looks like similar to yours.=20
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_bt_sm.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_bt_sm.c
+@@ -38,7 +38,7 @@
+ #define BT_DEBUG_MSG	2	/* Prints all request/response buffers */
+ #define BT_DEBUG_STATES	4	/* Verbose look at state changes */
+ 
+-static int bt_debug = BT_DEBUG_OFF;
++static int bt_debug;
+ 
+ module_param(bt_debug, int, 0644);
+ MODULE_PARM_DESC(bt_debug, "debug bitmask, 1=enable, 2=messages, 4=states");
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_devintf.c
+@@ -834,7 +834,7 @@ static const struct file_operations ipmi
+ 
+ #define DEVICE_NAME     "ipmidev"
+ 
+-static int ipmi_major = 0;
++static int ipmi_major;
+ module_param(ipmi_major, int, 0);
+ MODULE_PARM_DESC(ipmi_major, "Sets the major number of the IPMI device.  By"
+ 		 " default, or if you set it to zero, it will choose the next"
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_msghandler.c
+@@ -53,10 +53,10 @@
+ static struct ipmi_recv_msg *ipmi_alloc_recv_msg(void);
+ static int ipmi_init_msghandler(void);
+ 
+-static int initialized = 0;
++static int initialized;
+ 
+ #ifdef CONFIG_PROC_FS
+-static struct proc_dir_entry *proc_ipmi_root = NULL;
++static struct proc_dir_entry *proc_ipmi_root;
+ #endif /* CONFIG_PROC_FS */
+ 
+ /* Remain in auto-maintenance mode for this amount of time (in ms). */
+@@ -4041,7 +4041,7 @@ static void send_panic_events(char *str)
+ }
+ #endif /* CONFIG_IPMI_PANIC_EVENT */
+ 
+-static int has_panicked = 0;
++static int has_panicked;
+ 
+ static int panic_event(struct notifier_block *this,
+ 		       unsigned long         event,
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_poweroff.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_poweroff.c
+@@ -58,10 +58,10 @@ static int poweroff_powercycle;
+ static int ifnum_to_use = -1;
+ 
+ /* Our local state. */
+-static int ready = 0;
++static int ready;
+ static ipmi_user_t ipmi_user;
+ static int ipmi_ifnum;
+-static void (*specific_poweroff_func)(ipmi_user_t user) = NULL;
++static void (*specific_poweroff_func)(ipmi_user_t user);
+ 
+ /* Holds the old poweroff function so we can restore it on removal. */
+ static void (*old_poweroff_func)(void);
+@@ -182,7 +182,7 @@ static int ipmi_request_in_rc_mode(ipmi_
+ #define IPMI_MOTOROLA_MANUFACTURER_ID		0x0000A1
+ #define IPMI_MOTOROLA_PPS_IPMC_PRODUCT_ID	0x0051
+ 
+-static void (*atca_oem_poweroff_hook)(ipmi_user_t user) = NULL;
++static void (*atca_oem_poweroff_hook)(ipmi_user_t user);
+ 
+ static void pps_poweroff_atca (ipmi_user_t user)
+ {
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_si_intf.c
+@@ -845,7 +845,7 @@ static void request_events(void *send_in
+ 	atomic_set(&smi_info->req_events, 1);
+ }
+ 
+-static int initialized = 0;
++static int initialized;
+ 
+ static void smi_timeout(unsigned long data)
+ {
+@@ -1018,13 +1018,13 @@ static int num_ports;
+ static int           irqs[SI_MAX_PARMS];
+ static int num_irqs;
+ static int           regspacings[SI_MAX_PARMS];
+-static int num_regspacings = 0;
++static int num_regspacings;
+ static int           regsizes[SI_MAX_PARMS];
+-static int num_regsizes = 0;
++static int num_regsizes;
+ static int           regshifts[SI_MAX_PARMS];
+-static int num_regshifts = 0;
++static int num_regshifts;
+ static int slave_addrs[SI_MAX_PARMS];
+-static int num_slave_addrs = 0;
++static int num_slave_addrs;
+ 
+ #define IPMI_IO_ADDR_SPACE  0
+ #define IPMI_MEM_ADDR_SPACE 1
+@@ -1668,7 +1668,7 @@ static __devinit void hardcode_find_bmc(
+ /* Once we get an ACPI failure, we don't try any more, because we go
+    through the tables sequentially.  Once we don't find a table, there
+    are no more. */
+-static int acpi_failure = 0;
++static int acpi_failure;
+ 
+ /* For GPE-type interrupts. */
+ static u32 ipmi_acpi_gpe(void *context)
+--- linux-2.6.19-git4.orig/drivers/char/ipmi/ipmi_watchdog.c
++++ linux-2.6.19-git4/drivers/char/ipmi/ipmi_watchdog.c
+@@ -134,14 +134,14 @@
+ 
+ static int nowayout = WATCHDOG_NOWAYOUT;
+ 
+-static ipmi_user_t watchdog_user = NULL;
++static ipmi_user_t watchdog_user;
+ static int watchdog_ifnum;
+ 
+ /* Default the timeout to 10 seconds. */
+ static int timeout = 10;
+ 
+ /* The pre-timeout is disabled by default. */
+-static int pretimeout = 0;
++static int pretimeout;
+ 
+ /* Default action is to reset the board on a timeout. */
+ static unsigned char action_val = WDOG_TIMEOUT_RESET;
+@@ -156,10 +156,10 @@ static unsigned char preop_val = WDOG_PR
+ 
+ static char preop[16] = "preop_none";
+ static DEFINE_SPINLOCK(ipmi_read_lock);
+-static char data_to_read = 0;
++static char data_to_read;
+ static DECLARE_WAIT_QUEUE_HEAD(read_q);
+-static struct fasync_struct *fasync_q = NULL;
+-static char pretimeout_since_last_heartbeat = 0;
++static struct fasync_struct *fasync_q;
++static char pretimeout_since_last_heartbeat;
+ static char expect_close;
+ 
+ static int ifnum_to_use = -1;
+@@ -177,7 +177,7 @@ static void ipmi_unregister_watchdog(int
+ 
+ /* If true, the driver will start running as soon as it is configured
+    and ready. */
+-static int start_now = 0;
++static int start_now;
+ 
+ static int set_param_int(const char *val, struct kernel_param *kp)
+ {
+@@ -300,16 +300,16 @@ MODULE_PARM_DESC(nowayout, "Watchdog can
+ static unsigned char ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
+ 
+ /* If shutting down via IPMI, we ignore the heartbeat. */
+-static int ipmi_ignore_heartbeat = 0;
++static int ipmi_ignore_heartbeat;
+ 
+ /* Is someone using the watchdog?  Only one user is allowed. */
+-static unsigned long ipmi_wdog_open = 0;
++static unsigned long ipmi_wdog_open;
+ 
+ /* If set to 1, the heartbeat command will set the state to reset and
+    start the timer.  The timer doesn't normally run when the driver is
+    first opened until the heartbeat is set the first time, this
+    variable is used to accomplish this. */
+-static int ipmi_start_timer_on_heartbeat = 0;
++static int ipmi_start_timer_on_heartbeat;
+ 
+ /* IPMI version of the BMC. */
+ static unsigned char ipmi_version_major;
 
-So, You are saying with kernel 2.6.16.31 with xen 3.0.2, you don't have
-this problem , I like to try it, how or where you build this Xenified
-kernel ?=20
-
-Thanks,=20
-
-
-On Sat, 2006-12-02 at 17:55 +0100, Andreas Jellinghaus wrote:=20
-> my msi s270 laptop. but all vanilla kernel I ever tried do
-> that, also the debian and ubuntu kernel are instable too.
-
-> But: xen 3.0.2 plus xen'ified linux 2.6.16.31 are rock solid.
-> any idea what the issue could be? I'm running 64bit kernel,
-> 64bit userland (plus some 32bit apps), and the cpu is a turion
-> mt-40 (sempron users seem to not have this problem).
->=20
-
---=20
-S=E9rgio M.B.
-
---=-teuLQTA6dklgQd+Nu8Ln
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjEyMDQwMjQ5NDNaMCMGCSqGSIb3DQEJBDEWBBTdShi4z3b43DM0ASoVR8VC
-2UnwpjANBgkqhkiG9w0BAQEFAASCAQCRYjb0BkgyzPsGeWqoystvAGNNB9paXSNnaqBxiYKekes0
-oZ0fyKJ6/A+tPem7C4C6HD5QfViG49aoynm4EY3ey7e41uKg3wDFNw7u4qdnWrEPRT1o+NZ/QBzc
-6+PRQgRQEdzdm2KlIdnlRiKagNZpmrgb3KGi+PZ3NUBve/+TJMC7vRqQGOj5DeyPT/CNeCqg11zF
-XCJyAA7rvgbC/bt6qicYgj7O73huB4NUHIaa3gu7chartcI0YHxL9X7+cl18lZVyA1k3+NIXdh+D
-EjBicfmkf5tAlqH/NGvVBQAKXm+ZvHOwesYBb1e8SLqDVg8yCcNquYhWfZVbbOquw9EkAAAAAAAA
-
-
-
---=-teuLQTA6dklgQd+Nu8Ln--

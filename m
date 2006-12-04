@@ -1,971 +1,461 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936301AbWLDMoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936774AbWLDMvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936301AbWLDMoF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936333AbWLDMnG
+	id S936774AbWLDMvo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:51:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936740AbWLDMvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:43:06 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:64734 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936314AbWLDMfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:16 -0500
-From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
-       Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 21/35] Unionfs: Inode operations
-Date: Mon,  4 Dec 2006 07:30:54 -0500
-Message-Id: <11652354711835-git-send-email-jsipek@cs.sunysb.edu>
-X-Mailer: git-send-email 1.4.3.3
-In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
-References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+	Mon, 4 Dec 2006 07:51:43 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:2822 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S936600AbWLDMvl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:51:41 -0500
+Date: Mon, 4 Dec 2006 13:51:37 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Alan <alan@lxorguk.ukuu.org.uk>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]: first proposal for pci resume quirk interface
+Message-Id: <20061204135137.f2877516.khali@linux-fr.org>
+In-Reply-To: <20061114175510.6e7c7119@localhost.localdomain>
+References: <20061114175510.6e7c7119@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Hi Alan, Carl-Daniel,
 
-This patch provides the inode operations for Unionfs.
+Any progress on this? I'd like to see this patch in -mm so that it gets
+wider testing. One thing that needs to be fixed is that the Asus SMBus
+quirks are currently ifdef'd out when suspend support (ACPI sleep
+states) is enabled, so this part of the patch is not actually doing
+anything. Alan, could you please fix this and resend the patch to
+Andrew?
 
-Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
----
- fs/unionfs/inode.c |  926 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 926 insertions(+), 0 deletions(-)
+Thanks.
 
-diff --git a/fs/unionfs/inode.c b/fs/unionfs/inode.c
-new file mode 100644
-index 0000000..c7806e9
---- /dev/null
-+++ b/fs/unionfs/inode.c
-@@ -0,0 +1,926 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include "union.h"
-+
-+/* declarations added for "sparse" */
-+extern struct dentry *unionfs_lookup(struct inode *, struct dentry *,
-+				     struct nameidata *);
-+extern int unionfs_readlink(struct dentry *dentry, char __user * buf,
-+			    int bufsiz);
-+extern void unionfs_put_link(struct dentry *dentry, struct nameidata *nd,
-+			     void *cookie);
-+
-+static int unionfs_create(struct inode *parent, struct dentry *dentry,
-+			  int mode, struct nameidata *nd)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry = NULL;
-+	struct dentry *whiteout_dentry = NULL;
-+	struct dentry *new_hidden_dentry;
-+	struct dentry *hidden_parent_dentry = NULL;
-+	int bindex = 0, bstart;
-+	char *name = NULL;
-+
-+	lock_dentry(dentry);
-+
-+	/* We start out in the leftmost branch. */
-+	bstart = dbstart(dentry);
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	/* check if whiteout exists in this branch, i.e. lookup .wh.foo first */
-+	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	whiteout_dentry =
-+	    lookup_one_len(name, hidden_dentry->d_parent,
-+			   dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(whiteout_dentry)) {
-+		err = PTR_ERR(whiteout_dentry);
-+		whiteout_dentry = NULL;
-+		goto out;
-+	}
-+
-+	if (whiteout_dentry->d_inode) {
-+		/* .wh.foo has been found. */
-+		/* First truncate it and then rename it to foo (hence having
-+		 * the same overall effect as a normal create.
-+		 */
-+		struct dentry *hidden_dir_dentry;
-+		struct iattr newattrs;
-+
-+		mutex_lock(&whiteout_dentry->d_inode->i_mutex);
-+		newattrs.ia_valid = ATTR_CTIME | ATTR_MODE | ATTR_ATIME
-+		    | ATTR_MTIME | ATTR_UID | ATTR_GID | ATTR_FORCE
-+		    | ATTR_KILL_SUID | ATTR_KILL_SGID;
-+
-+		newattrs.ia_mode = mode & ~current->fs->umask;
-+		newattrs.ia_uid = current->fsuid;
-+		newattrs.ia_gid = current->fsgid;
-+
-+		if (whiteout_dentry->d_inode->i_size != 0) {
-+			newattrs.ia_valid |= ATTR_SIZE;
-+			newattrs.ia_size = 0;
-+		}
-+
-+		err = notify_change(whiteout_dentry, &newattrs);
-+
-+		mutex_unlock(&whiteout_dentry->d_inode->i_mutex);
-+
-+		if (err)
-+			printk(KERN_WARNING "unionfs: %s:%d: notify_change "
-+				"failed: %d, ignoring..\n",
-+				__FILE__, __LINE__, err);
-+
-+		new_hidden_dentry = unionfs_lower_dentry(dentry);
-+		dget(new_hidden_dentry);
-+
-+		hidden_dir_dentry = dget_parent(whiteout_dentry);
-+		lock_rename(hidden_dir_dentry, hidden_dir_dentry);
-+
-+		if (!(err = is_robranch_super(dentry->d_sb, bstart))) {
-+			err =
-+			    vfs_rename(hidden_dir_dentry->d_inode,
-+				       whiteout_dentry,
-+				       hidden_dir_dentry->d_inode,
-+				       new_hidden_dentry);
-+		}
-+		if (!err) {
-+			fsstack_copy_attr_times(parent,
-+					new_hidden_dentry->d_parent->d_inode);
-+			fsstack_copy_inode_size(parent,
-+					new_hidden_dentry->d_parent->d_inode);
-+			parent->i_nlink = unionfs_get_nlinks(parent);
-+		}
-+
-+		unlock_rename(hidden_dir_dentry, hidden_dir_dentry);
-+		dput(hidden_dir_dentry);
-+
-+		dput(new_hidden_dentry);
-+
-+		if (err) {
-+			/* exit if the error returned was NOT -EROFS */
-+			if (!IS_COPYUP_ERR(err))
-+				goto out;
-+			/* We were not able to create the file in this branch,
-+			 * so, we try to create it in one branch to left
-+			 */
-+			bstart--;
-+		} else {
-+			/* reset the unionfs dentry to point to the .wh.foo entry. */
-+
-+			/* Discard any old reference. */
-+			dput(unionfs_lower_dentry(dentry));
-+
-+			/* Trade one reference to another. */
-+			unionfs_set_lower_dentry_idx(dentry, bstart, whiteout_dentry);
-+			whiteout_dentry = NULL;
-+
-+			err = unionfs_interpose(dentry, parent->i_sb, 0);
-+			goto out;
-+		}
-+	}
-+
-+	for (bindex = bstart; bindex >= 0; bindex--) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry) {
-+			/* if hidden_dentry is NULL, create the entire
-+			 * dentry directory structure in branch 'bindex'.
-+			 * hidden_dentry will NOT be null when bindex == bstart
-+			 * because lookup passed as a negative unionfs dentry
-+			 * pointing to a lone negative underlying dentry */
-+			hidden_dentry = create_parents(parent, dentry, bindex);
-+			if (!hidden_dentry || IS_ERR(hidden_dentry)) {
-+				if (IS_ERR(hidden_dentry))
-+					err = PTR_ERR(hidden_dentry);
-+				continue;
-+			}
-+		}
-+
-+		hidden_parent_dentry = lock_parent(hidden_dentry);
-+		if (IS_ERR(hidden_parent_dentry)) {
-+			err = PTR_ERR(hidden_parent_dentry);
-+			goto out;
-+		}
-+		/* We shouldn't create things in a read-only branch. */
-+		if (!(err = is_robranch_super(dentry->d_sb, bindex)))
-+			err = vfs_create(hidden_parent_dentry->d_inode,
-+					 hidden_dentry, mode, nd);
-+
-+		if (err || !hidden_dentry->d_inode) {
-+			unlock_dir(hidden_parent_dentry);
-+
-+			/* break out of for loop if the error wasn't  -EROFS */
-+			if (!IS_COPYUP_ERR(err))
-+				break;
-+		} else {
-+			err = unionfs_interpose(dentry, parent->i_sb, 0);
-+			if (!err) {
-+				fsstack_copy_attr_times(parent,
-+						hidden_parent_dentry->d_inode);
-+				fsstack_copy_inode_size(parent,
-+						hidden_parent_dentry->d_inode);
-+				/* update number of links on parent directory */
-+				parent->i_nlink = unionfs_get_nlinks(parent);
-+			}
-+			unlock_dir(hidden_parent_dentry);
-+			break;
-+		}
-+	}
-+
-+out:
-+	dput(whiteout_dentry);
-+	kfree(name);
-+
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+struct dentry *unionfs_lookup(struct inode *parent, struct dentry *dentry,
-+			      struct nameidata *nd)
-+{
-+	struct nameidata lowernd;
-+
-+	if (nd)
-+		memcpy(&lowernd, nd, sizeof(struct nameidata));
-+	else
-+		memset(&lowernd, 0, sizeof(struct nameidata));
-+
-+	/* The locking is done by unionfs_lookup_backend. */
-+	return unionfs_lookup_backend(dentry, &lowernd, INTERPOSE_LOOKUP);
-+}
-+
-+static int unionfs_link(struct dentry *old_dentry, struct inode *dir,
-+			struct dentry *new_dentry)
-+{
-+	int err = 0;
-+	struct dentry *hidden_old_dentry = NULL;
-+	struct dentry *hidden_new_dentry = NULL;
-+	struct dentry *hidden_dir_dentry = NULL;
-+	struct dentry *whiteout_dentry;
-+	char *name = NULL;
-+
-+	double_lock_dentry(new_dentry, old_dentry);
-+
-+	hidden_new_dentry = unionfs_lower_dentry(new_dentry);
-+
-+	/* check if whiteout exists in the branch of new dentry, i.e. lookup
-+	 * .wh.foo first. If present, delete it */
-+	name = alloc_whname(new_dentry->d_name.name, new_dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	whiteout_dentry = lookup_one_len(name, hidden_new_dentry->d_parent,
-+				new_dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(whiteout_dentry)) {
-+		err = PTR_ERR(whiteout_dentry);
-+		goto out;
-+	}
-+
-+	if (!whiteout_dentry->d_inode) {
-+		dput(whiteout_dentry);
-+		whiteout_dentry = NULL;
-+	} else {
-+		/* found a .wh.foo entry, unlink it and then call vfs_link() */
-+		hidden_dir_dentry = lock_parent(whiteout_dentry);
-+		err = is_robranch_super(new_dentry->d_sb, dbstart(new_dentry));
-+		if (!err)
-+			err = vfs_unlink(hidden_dir_dentry->d_inode,
-+				       whiteout_dentry);
-+
-+		fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+		dir->i_nlink = unionfs_get_nlinks(dir);
-+		unlock_dir(hidden_dir_dentry);
-+		hidden_dir_dentry = NULL;
-+		dput(whiteout_dentry);
-+		if (err)
-+			goto out;
-+	}
-+
-+	if (dbstart(old_dentry) != dbstart(new_dentry)) {
-+		hidden_new_dentry =
-+		    create_parents(dir, new_dentry, dbstart(old_dentry));
-+		err = PTR_ERR(hidden_new_dentry);
-+		if (IS_COPYUP_ERR(err))
-+			goto docopyup;
-+		if (!hidden_new_dentry || IS_ERR(hidden_new_dentry))
-+			goto out;
-+	}
-+	hidden_new_dentry = unionfs_lower_dentry(new_dentry);
-+	hidden_old_dentry = unionfs_lower_dentry(old_dentry);
-+
-+	BUG_ON(dbstart(old_dentry) != dbstart(new_dentry));
-+	hidden_dir_dentry = lock_parent(hidden_new_dentry);
-+	if (!(err = is_robranch(old_dentry)))
-+		err = vfs_link(hidden_old_dentry, hidden_dir_dentry->d_inode,
-+			     hidden_new_dentry);
-+	unlock_dir(hidden_dir_dentry);
-+
-+docopyup:
-+	if (IS_COPYUP_ERR(err)) {
-+		int old_bstart = dbstart(old_dentry);
-+		int bindex;
-+
-+		for (bindex = old_bstart - 1; bindex >= 0; bindex--) {
-+			err =
-+			    copyup_dentry(old_dentry->d_parent->
-+					  d_inode, old_dentry,
-+					  old_bstart, bindex, NULL,
-+					  old_dentry->d_inode->i_size);
-+			if (!err) {
-+				hidden_new_dentry =
-+				    create_parents(dir, new_dentry, bindex);
-+				hidden_old_dentry = unionfs_lower_dentry(old_dentry);
-+				hidden_dir_dentry =
-+				    lock_parent(hidden_new_dentry);
-+				/* do vfs_link */
-+				err = vfs_link(hidden_old_dentry,
-+					     hidden_dir_dentry->d_inode,
-+					     hidden_new_dentry);
-+				unlock_dir(hidden_dir_dentry);
-+				goto check_link;
-+			}
-+		}
-+		goto out;
-+	}
-+
-+check_link:
-+	if (err || !hidden_new_dentry->d_inode)
-+		goto out;
-+
-+	/* Its a hard link, so use the same inode */
-+	new_dentry->d_inode = igrab(old_dentry->d_inode);
-+	d_instantiate(new_dentry, new_dentry->d_inode);
-+	fsstack_copy_attr_all(dir, hidden_new_dentry->d_parent->d_inode,
-+					unionfs_get_nlinks);
-+	/* propagate number of hard-links */
-+	old_dentry->d_inode->i_nlink = unionfs_get_nlinks(old_dentry->d_inode);
-+
-+out:
-+	if (!new_dentry->d_inode)
-+		d_drop(new_dentry);
-+
-+	kfree(name);
-+
-+	unlock_dentry(new_dentry);
-+	unlock_dentry(old_dentry);
-+
-+	return err;
-+}
-+
-+static int unionfs_symlink(struct inode *dir, struct dentry *dentry,
-+			   const char *symname)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry = NULL;
-+	struct dentry *whiteout_dentry = NULL;
-+	struct dentry *hidden_dir_dentry = NULL;
-+	umode_t mode;
-+	int bindex = 0, bstart;
-+	char *name = NULL;
-+
-+	lock_dentry(dentry);
-+
-+	/* We start out in the leftmost branch. */
-+	bstart = dbstart(dentry);
-+
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	/* check if whiteout exists in this branch, i.e. lookup .wh.foo
-+	 * first. If present, delete it */
-+	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	whiteout_dentry =
-+	    lookup_one_len(name, hidden_dentry->d_parent,
-+			   dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(whiteout_dentry)) {
-+		err = PTR_ERR(whiteout_dentry);
-+		goto out;
-+	}
-+
-+	if (!whiteout_dentry->d_inode) {
-+		dput(whiteout_dentry);
-+		whiteout_dentry = NULL;
-+	} else {
-+		/* found a .wh.foo entry, unlink it and then call vfs_symlink() */
-+		hidden_dir_dentry = lock_parent(whiteout_dentry);
-+
-+		if (!(err = is_robranch_super(dentry->d_sb, bstart)))
-+			err = vfs_unlink(hidden_dir_dentry->d_inode,
-+				       whiteout_dentry);
-+		dput(whiteout_dentry);
-+
-+		fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+		/* propagate number of hard-links */
-+		dir->i_nlink = unionfs_get_nlinks(dir);
-+
-+		unlock_dir(hidden_dir_dentry);
-+
-+		if (err) {
-+			/* exit if the error returned was NOT -EROFS */
-+			if (!IS_COPYUP_ERR(err))
-+				goto out;
-+			/* should now try to create symlink in the another branch */
-+			bstart--;
-+		}
-+	}
-+
-+	/* deleted whiteout if it was present, now do a normal vfs_symlink()
-+	 * with possible recursive directory creation */
-+	for (bindex = bstart; bindex >= 0; bindex--) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry) {
-+			/* if hidden_dentry is NULL, create the entire
-+			 * dentry directory structure in branch 'bindex'.
-+			 * hidden_dentry will NOT be null when bindex ==
-+			 * bstart because lookup passed as a negative
-+			 * unionfs dentry pointing to a lone negative
-+			 * underlying dentry */
-+			hidden_dentry = create_parents(dir, dentry, bindex);
-+			if (!hidden_dentry || IS_ERR(hidden_dentry)) {
-+				if (IS_ERR(hidden_dentry))
-+					err = PTR_ERR(hidden_dentry);
-+
-+				printk(KERN_DEBUG "hidden dentry NULL (or error)"
-+					"for bindex = %d\n", bindex);
-+				continue;
-+			}
-+		}
-+
-+		hidden_dir_dentry = lock_parent(hidden_dentry);
-+
-+		if (!(err = is_robranch_super(dentry->d_sb, bindex))) {
-+			mode = S_IALLUGO;
-+			err =
-+			    vfs_symlink(hidden_dir_dentry->d_inode,
-+					hidden_dentry, symname, mode);
-+		}
-+		unlock_dir(hidden_dir_dentry);
-+
-+		if (err || !hidden_dentry->d_inode) {
-+			/* break out of for loop if error returned was NOT -EROFS */
-+			if (!IS_COPYUP_ERR(err))
-+				break;
-+		} else {
-+			err = unionfs_interpose(dentry, dir->i_sb, 0);
-+			if (!err) {
-+				fsstack_copy_attr_times(dir,
-+						hidden_dir_dentry->d_inode);
-+				fsstack_copy_inode_size(dir,
-+						hidden_dir_dentry->d_inode);
-+				/* update number of links on parent directory */
-+				dir->i_nlink = unionfs_get_nlinks(dir);
-+			}
-+			break;
-+		}
-+	}
-+
-+out:
-+	if (!dentry->d_inode)
-+		d_drop(dentry);
-+
-+	kfree(name);
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+static int unionfs_mkdir(struct inode *parent, struct dentry *dentry, int mode)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry = NULL, *whiteout_dentry = NULL;
-+	struct dentry *hidden_parent_dentry = NULL;
-+	int bindex = 0, bstart;
-+	char *name = NULL;
-+	int whiteout_unlinked = 0;
-+	struct sioq_args args;
-+
-+	lock_dentry(dentry);
-+	bstart = dbstart(dentry);
-+
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	/* check if whiteout exists in this branch, i.e. lookup .wh.foo first */
-+	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	whiteout_dentry = lookup_one_len(name, hidden_dentry->d_parent,
-+			   dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(whiteout_dentry)) {
-+		err = PTR_ERR(whiteout_dentry);
-+		goto out;
-+	}
-+
-+	if (!whiteout_dentry->d_inode) {
-+		dput(whiteout_dentry);
-+		whiteout_dentry = NULL;
-+	} else {
-+		hidden_parent_dentry = lock_parent(whiteout_dentry);
-+
-+		/* found a.wh.foo entry, remove it then do vfs_mkdir */
-+		if (!(err = is_robranch_super(dentry->d_sb, bstart))) {
-+			args.unlink.parent = hidden_parent_dentry->d_inode;
-+			args.unlink.dentry = whiteout_dentry;
-+			run_sioq(__unionfs_unlink, &args);
-+			err = args.err;
-+		}
-+		dput(whiteout_dentry);
-+
-+		unlock_dir(hidden_parent_dentry);
-+
-+		if (err) {
-+			/* exit if the error returned was NOT -EROFS */
-+			if (!IS_COPYUP_ERR(err))
-+				goto out;
-+			bstart--;
-+		} else
-+			whiteout_unlinked = 1;
-+	}
-+
-+	for (bindex = bstart; bindex >= 0; bindex--) {
-+		int i;
-+		int bend = dbend(dentry);
-+
-+		if (is_robranch_super(dentry->d_sb, bindex))
-+			continue;
-+
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry) {
-+			hidden_dentry = create_parents(parent, dentry, bindex);
-+			if (!hidden_dentry || IS_ERR(hidden_dentry)) {
-+				printk(KERN_DEBUG "hidden dentry NULL for "
-+					"bindex = %d\n", bindex);
-+				continue;
-+			}
-+		}
-+
-+		hidden_parent_dentry = lock_parent(hidden_dentry);
-+
-+		if (IS_ERR(hidden_parent_dentry)) {
-+			err = PTR_ERR(hidden_parent_dentry);
-+			goto out;
-+		}
-+
-+		err = vfs_mkdir(hidden_parent_dentry->d_inode, hidden_dentry, mode);
-+
-+		unlock_dir(hidden_parent_dentry);
-+
-+		/* did the mkdir suceed? */
-+		if (err)
-+			break;
-+
-+		for (i = bindex + 1; i < bend; i++) {
-+			if (unionfs_lower_dentry_idx(dentry, i)) {
-+				dput(unionfs_lower_dentry_idx(dentry, i));
-+				unionfs_set_lower_dentry_idx(dentry, i, NULL);
-+			}
-+		}
-+		set_dbend(dentry, bindex);
-+
-+		err = unionfs_interpose(dentry, parent->i_sb, 0);
-+		if (!err) {
-+			fsstack_copy_attr_times(parent,
-+					hidden_parent_dentry->d_inode);
-+			fsstack_copy_inode_size(parent,
-+					hidden_parent_dentry->d_inode);
-+
-+			/* update number of links on parent directory */
-+			parent->i_nlink = unionfs_get_nlinks(parent);
-+		}
-+
-+		err = make_dir_opaque(dentry, dbstart(dentry));
-+		if (err) {
-+			printk(KERN_ERR "mkdir: error creating "
-+				".wh.__dir_opaque: %d\n", err);
-+			goto out;
-+		}
-+
-+		/* we are done! */
-+		break;
-+	}
-+
-+out:
-+	if (!dentry->d_inode)
-+		d_drop(dentry);
-+
-+	kfree(name);
-+
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+static int unionfs_mknod(struct inode *dir, struct dentry *dentry, int mode,
-+			 dev_t dev)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry = NULL, *whiteout_dentry = NULL;
-+	struct dentry *hidden_parent_dentry = NULL;
-+	int bindex = 0, bstart;
-+	char *name = NULL;
-+	int whiteout_unlinked = 0;
-+
-+	lock_dentry(dentry);
-+	bstart = dbstart(dentry);
-+
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	/* check if whiteout exists in this branch, i.e. lookup .wh.foo first */
-+	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	whiteout_dentry = lookup_one_len(name, hidden_dentry->d_parent,
-+				dentry->d_name.len + UNIONFS_WHLEN);
-+	if (IS_ERR(whiteout_dentry)) {
-+		err = PTR_ERR(whiteout_dentry);
-+		goto out;
-+	}
-+
-+	if (!whiteout_dentry->d_inode) {
-+		dput(whiteout_dentry);
-+		whiteout_dentry = NULL;
-+	} else {
-+		/* found .wh.foo, unlink it */
-+		hidden_parent_dentry = lock_parent(whiteout_dentry);
-+
-+		/* found a.wh.foo entry, remove it then do vfs_mkdir */
-+		if (!(err = is_robranch_super(dentry->d_sb, bstart)))
-+			err = vfs_unlink(hidden_parent_dentry->d_inode,
-+					 whiteout_dentry);
-+		dput(whiteout_dentry);
-+
-+		unlock_dir(hidden_parent_dentry);
-+
-+		if (err) {
-+			if (!IS_COPYUP_ERR(err))
-+				goto out;
-+
-+			bstart--;
-+		} else
-+			whiteout_unlinked = 1;
-+	}
-+
-+	for (bindex = bstart; bindex >= 0; bindex--) {
-+		if (is_robranch_super(dentry->d_sb, bindex))
-+			continue;
-+
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry) {
-+			hidden_dentry = create_parents(dir, dentry, bindex);
-+			if (IS_ERR(hidden_dentry)) {
-+				printk(KERN_DEBUG
-+				       "failed to create parents on %d, err = %ld\n",
-+				       bindex, PTR_ERR(hidden_dentry));
-+				continue;
-+			}
-+		}
-+
-+		hidden_parent_dentry = lock_parent(hidden_dentry);
-+		if (IS_ERR(hidden_parent_dentry)) {
-+			err = PTR_ERR(hidden_parent_dentry);
-+			goto out;
-+		}
-+
-+		err = vfs_mknod(hidden_parent_dentry->d_inode,
-+				hidden_dentry, mode, dev);
-+
-+		if (err) {
-+			unlock_dir(hidden_parent_dentry);
-+			break;
-+		}
-+
-+		err = unionfs_interpose(dentry, dir->i_sb, 0);
-+		if (!err) {
-+			fsstack_copy_attr_times(dir,
-+					hidden_parent_dentry->d_inode);
-+			fsstack_copy_inode_size(dir,
-+					hidden_parent_dentry->d_inode);
-+			/* update number of links on parent directory */
-+			dir->i_nlink = unionfs_get_nlinks(dir);
-+		}
-+		unlock_dir(hidden_parent_dentry);
-+
-+		break;
-+	}
-+
-+out:
-+	if (!dentry->d_inode)
-+		d_drop(dentry);
-+
-+	kfree(name);
-+
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+int unionfs_readlink(struct dentry *dentry, char __user * buf, int bufsiz)
-+{
-+	int err;
-+	struct dentry *hidden_dentry;
-+
-+	lock_dentry(dentry);
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	if (!hidden_dentry->d_inode->i_op ||
-+	    !hidden_dentry->d_inode->i_op->readlink) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	err = hidden_dentry->d_inode->i_op->readlink(hidden_dentry, buf, bufsiz);
-+	if (err > 0)
-+		fsstack_copy_attr_atime(dentry->d_inode, hidden_dentry->d_inode);
-+
-+out:
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+/* We don't lock the dentry here, because readlink does the heavy lifting. */
-+static void *unionfs_follow_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	char *buf;
-+	int len = PAGE_SIZE, err;
-+	mm_segment_t old_fs;
-+
-+	/* This is freed by the put_link method assuming a successful call. */
-+	buf = kmalloc(len, GFP_KERNEL);
-+	if (!buf) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* read the symlink, and then we will follow it */
-+	old_fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	err = dentry->d_inode->i_op->readlink(dentry, (char __user *)buf, len);
-+	set_fs(old_fs);
-+	if (err < 0) {
-+		kfree(buf);
-+		buf = NULL;
-+		goto out;
-+	}
-+	buf[err] = 0;
-+	nd_set_link(nd, buf);
-+	err = 0;
-+
-+out:
-+	return ERR_PTR(err);
-+}
-+
-+void unionfs_put_link(struct dentry *dentry, struct nameidata *nd, void *cookie)
-+{
-+	kfree(nd_get_link(nd));
-+}
-+
-+/* Basically copied from the kernel vfs permission(), but we've changed
-+ * the following: (1) the IS_RDONLY check is skipped, and (2) if you set
-+ * the mount option `nfsperms=insceure', we assume that -EACCES means that
-+ * the export is read-only and we should check standard Unix permissions.
-+ * This means that NFS ACL checks (or other advanced permission features)
-+ * are bypassed.
-+ */
-+static int inode_permission(struct inode *inode, int mask, struct nameidata *nd,
-+			    int bindex)
-+{
-+	int retval, submask;
-+
-+	if (mask & MAY_WRITE) {
-+		/* The first branch is allowed to be really readonly. */
-+		if (bindex == 0) {
-+			umode_t mode = inode->i_mode;
-+			if (IS_RDONLY(inode) && (S_ISREG(mode) || S_ISDIR(mode)
-+						 || S_ISLNK(mode)))
-+				return -EROFS;
-+		}
-+		/*
-+		 * Nobody gets write access to an immutable file.
-+		 */
-+		if (IS_IMMUTABLE(inode))
-+			return -EACCES;
-+	}
-+
-+	/* Ordinary permission routines do not understand MAY_APPEND. */
-+	submask = mask & ~MAY_APPEND;
-+	if (inode->i_op && inode->i_op->permission) {
-+		retval = inode->i_op->permission(inode, submask, nd);
-+		if ((retval == -EACCES) && (submask & MAY_WRITE) &&
-+		    (!strcmp("nfs", (inode)->i_sb->s_type->name)) &&
-+		    (nd) && (nd->mnt) && (nd->mnt->mnt_sb) &&
-+		    (branchperms(nd->mnt->mnt_sb, bindex) & MAY_NFSRO)) {
-+			retval = generic_permission(inode, submask, NULL);
-+		}
-+	} else
-+		retval = generic_permission(inode, submask, NULL);
-+
-+	if (retval && retval != -EROFS)	/* ignore EROFS */
-+		return retval;
-+
-+	retval = security_inode_permission(inode, mask, nd);
-+	return ((retval == -EROFS) ? 0 : retval);	/* ignore EROFS */
-+}
-+
-+static int unionfs_permission(struct inode *inode, int mask,
-+			      struct nameidata *nd)
-+{
-+	struct inode *hidden_inode = NULL;
-+	int err = 0;
-+	int bindex, bstart, bend;
-+	const int is_file = !S_ISDIR(inode->i_mode);
-+	const int write_mask = (mask & MAY_WRITE) && !(mask & MAY_READ);
-+
-+	bstart = ibstart(inode);
-+	bend = ibend(inode);
-+
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_inode = unionfs_lower_inode_idx(inode, bindex);
-+		if (!hidden_inode)
-+			continue;
-+
-+		/* check the condition for D-F-D underlying files/directories,
-+		 * we dont have to check for files, if we are checking for
-+		 * directories.
-+		 */
-+		if (!is_file && !S_ISDIR(hidden_inode->i_mode))
-+			continue;
-+
-+		/* We use our own special version of permission, such that
-+		 * only the first branch returns -EROFS. */
-+		err = inode_permission(hidden_inode, mask, nd, bindex);
-+
-+		/* The permissions are an intersection of the overall directory
-+		 * permissions, so we fail if one fails. */
-+		if (err)
-+			goto out;
-+
-+		/* only the leftmost file matters. */
-+		if (is_file || write_mask) {
-+			if (is_file && write_mask) {
-+				err = get_write_access(hidden_inode);
-+				if (!err)
-+					put_write_access(hidden_inode);
-+			}
-+			break;
-+		}
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+static int unionfs_setattr(struct dentry *dentry, struct iattr *ia)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry;
-+	struct inode *inode = NULL;
-+	struct inode *hidden_inode = NULL;
-+	int bstart, bend, bindex;
-+	int i;
-+	int copyup = 0;
-+
-+	lock_dentry(dentry);
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+	inode = dentry->d_inode;
-+
-+	for (bindex = bstart; (bindex <= bend) || (bindex == bstart); bindex++) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry)
-+			continue;
-+		BUG_ON(hidden_dentry->d_inode == NULL);
-+
-+		/* If the file is on a read only branch */
-+		if (is_robranch_super(dentry->d_sb, bindex)
-+		    || IS_RDONLY(hidden_dentry->d_inode)) {
-+			if (copyup || (bindex != bstart))
-+				continue;
-+			/* Only if its the leftmost file, copyup the file */
-+			for (i = bstart - 1; i >= 0; i--) {
-+				loff_t size = dentry->d_inode->i_size;
-+				if (ia->ia_valid & ATTR_SIZE)
-+					size = ia->ia_size;
-+				err = copyup_dentry(dentry->d_parent->d_inode,
-+						    dentry, bstart, i, NULL,
-+						    size);
-+
-+				if (!err) {
-+					copyup = 1;
-+					hidden_dentry = unionfs_lower_dentry(dentry);
-+					break;
-+				}
-+				/* if error is in the leftmost branch, pass it up */
-+				if (i == 0)
-+					goto out;
-+			}
-+
-+		}
-+		err = notify_change(hidden_dentry, ia);
-+		if (err)
-+			goto out;
-+		break;
-+	}
-+
-+	/* get the size from the first hidden inode */
-+	hidden_inode = unionfs_lower_inode(dentry->d_inode);
-+	fsstack_copy_attr_all(inode, hidden_inode, unionfs_get_nlinks);
-+
-+out:
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+struct inode_operations unionfs_symlink_iops = {
-+	.readlink = unionfs_readlink,
-+	.permission = unionfs_permission,
-+	.follow_link = unionfs_follow_link,
-+	.setattr = unionfs_setattr,
-+	.put_link = unionfs_put_link,
-+};
-+
-+struct inode_operations unionfs_dir_iops = {
-+	.create = unionfs_create,
-+	.lookup = unionfs_lookup,
-+	.link = unionfs_link,
-+	.unlink = unionfs_unlink,
-+	.symlink = unionfs_symlink,
-+	.mkdir = unionfs_mkdir,
-+	.rmdir = unionfs_rmdir,
-+	.mknod = unionfs_mknod,
-+	.rename = unionfs_rename,
-+	.permission = unionfs_permission,
-+	.setattr = unionfs_setattr,
-+};
-+
-+struct inode_operations unionfs_main_iops = {
-+	.permission = unionfs_permission,
-+	.setattr = unionfs_setattr,
-+};
-+
+On Tue, 14 Nov 2006 17:55:10 +0000, Alan wrote:
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm1/arch/i386/pci/fixup.c linux-2.6.19-rc5-mm1/arch/i386/pci/fixup.c
+> --- linux.vanilla-2.6.19-rc5-mm1/arch/i386/pci/fixup.c	2006-11-10 10:38:25.000000000 +0000
+> +++ linux-2.6.19-rc5-mm1/arch/i386/pci/fixup.c	2006-11-14 15:13:03.000000000 +0000
+> @@ -117,7 +117,7 @@
+>  #define VIA_8363_KL133_REVISION_ID 0x81
+>  #define VIA_8363_KM133_REVISION_ID 0x84
+>  
+> -static void __devinit pci_fixup_via_northbridge_bug(struct pci_dev *d)
+> +static void pci_fixup_via_northbridge_bug(struct pci_dev *d)
+>  {
+>  	u8 v;
+>  	u8 revision;
+> @@ -153,6 +153,10 @@
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8622, pci_fixup_via_northbridge_bug);
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8361, pci_fixup_via_northbridge_bug);
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8367_0, pci_fixup_via_northbridge_bug);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8363_0, pci_fixup_via_northbridge_bug);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8622, pci_fixup_via_northbridge_bug);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8361, pci_fixup_via_northbridge_bug);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8367_0, pci_fixup_via_northbridge_bug);
+>  
+>  /*
+>   * For some reasons Intel decided that certain parts of their
+> @@ -183,7 +187,7 @@
+>   * issue another HALT within 80 ns of the initial HALT, the failure condition
+>   * is avoided.
+>   */
+> -static void __init pci_fixup_nforce2(struct pci_dev *dev)
+> +static void pci_fixup_nforce2(struct pci_dev *dev)
+>  {
+>  	u32 val;
+>  
+> @@ -206,6 +210,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2, pci_fixup_nforce2);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2, pci_fixup_nforce2);
+>  
+>  /* Max PCI Express root ports */
+>  #define MAX_PCIEROOT	6
+> @@ -421,7 +426,7 @@
+>   * Prevent the BIOS trapping accesses to the Cyrix CS5530A video device
+>   * configuration space.
+>   */
+> -static void __devinit pci_early_fixup_cyrix_5530(struct pci_dev *dev)
+> +static void pci_early_fixup_cyrix_5530(struct pci_dev *dev)
+>  {
+>  	u8 r;
+>  	/* clear 'F4 Video Configuration Trap' bit */
+> @@ -431,3 +436,5 @@
+>  }
+>  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY,
+>  			pci_early_fixup_cyrix_5530);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY,
+> +			pci_early_fixup_cyrix_5530);
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm1/drivers/pci/pci-driver.c linux-2.6.19-rc5-mm1/drivers/pci/pci-driver.c
+> --- linux.vanilla-2.6.19-rc5-mm1/drivers/pci/pci-driver.c	2006-11-10 10:38:26.000000000 +0000
+> +++ linux-2.6.19-rc5-mm1/drivers/pci/pci-driver.c	2006-11-14 15:29:20.000000000 +0000
+> @@ -357,6 +357,8 @@
+>  	struct pci_dev * pci_dev = to_pci_dev(dev);
+>  	struct pci_driver * drv = pci_dev->driver;
+>  
+> +	pci_fixup_device(pci_fixup_resume, pci_dev);
+> +	
+>  	if (drv && drv->resume_early)
+>  		error = drv->resume_early(pci_dev);
+>  	return error;
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm1/drivers/pci/quirks.c linux-2.6.19-rc5-mm1/drivers/pci/quirks.c
+> --- linux.vanilla-2.6.19-rc5-mm1/drivers/pci/quirks.c	2006-11-10 10:38:26.000000000 +0000
+> +++ linux-2.6.19-rc5-mm1/drivers/pci/quirks.c	2006-11-14 15:44:23.000000000 +0000
+> @@ -36,7 +36,7 @@
+>  
+>  /* Deal with broken BIOS'es that neglect to enable passive release,
+>     which can cause problems in combination with the 82441FX/PPro MTRRs */
+> -static void __devinit quirk_passive_release(struct pci_dev *dev)
+> +static void quirk_passive_release(struct pci_dev *dev)
+>  {
+>  	struct pci_dev *d = NULL;
+>  	unsigned char dlc;
+> @@ -53,6 +53,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82441,	quirk_passive_release );
+>  
+>  /*  The VIA VP2/VP3/MVP3 seem to have some 'features'. There may be a workaround
+>      but VIA don't answer queries. If you happen to have good contacts at VIA
+> @@ -134,7 +135,7 @@
+>   *	Updated based on further information from the site and also on
+>   *	information provided by VIA 
+>   */
+> -static void __devinit quirk_vialatency(struct pci_dev *dev)
+> +static void quirk_vialatency(struct pci_dev *dev)
+>  {
+>  	struct pci_dev *p;
+>  	u8 rev;
+> @@ -185,6 +186,10 @@
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	quirk_vialatency );
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8371_1,	quirk_vialatency );
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8361,		quirk_vialatency );
+> +/* Must restore this on a resume from RAM */
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	quirk_vialatency );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8371_1,	quirk_vialatency );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8361,		quirk_vialatency );
+>  
+>  /*
+>   *	VIA Apollo VP3 needs ETBF on BT848/878
+> @@ -532,7 +537,7 @@
+>   * TODO: When we have device-specific interrupt routers,
+>   * this code will go away from quirks.
+>   */
+> -static void __devinit quirk_via_ioapic(struct pci_dev *dev)
+> +static void quirk_via_ioapic(struct pci_dev *dev)
+>  {
+>  	u8 tmp;
+>  	
+> @@ -548,6 +553,7 @@
+>  	pci_write_config_byte (dev, 0x58, tmp);
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686,	quirk_via_ioapic );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686,	quirk_via_ioapic );
+>  
+>  /*
+>   * VIA 8237: Some BIOSs don't set the 'Bypass APIC De-Assert Message' Bit.
+> @@ -555,7 +561,7 @@
+>   * Set this bit to get rid of cycle wastage.
+>   * Otherwise uncritical.
+>   */
+> -static void __devinit quirk_via_vt8237_bypass_apic_deassert(struct pci_dev *dev)
+> +static void quirk_via_vt8237_bypass_apic_deassert(struct pci_dev *dev)
+>  {
+>  	u8 misc_control2;
+>  #define BYPASS_APIC_DEASSERT 8
+> @@ -567,6 +573,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237,		quirk_via_vt8237_bypass_apic_deassert);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237,		quirk_via_vt8237_bypass_apic_deassert);
+>  
+>  /*
+>   * The AMD io apic can hang the box when an apic irq is masked.
+> @@ -600,7 +607,7 @@
+>  #define AMD8131_revB0        0x11
+>  #define AMD8131_MISC         0x40
+>  #define AMD8131_NIOAMODE_BIT 0
+> -static void __init quirk_amd_8131_ioapic(struct pci_dev *dev) 
+> +static void quirk_amd_8131_ioapic(struct pci_dev *dev) 
+>  { 
+>          unsigned char revid, tmp;
+>          
+> @@ -616,6 +623,7 @@
+>          }
+>  } 
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_ioapic);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_ioapic);
+>  #endif /* CONFIG_X86_IO_APIC */
+>  
+>  
+> @@ -720,13 +747,14 @@
+>   * do this even if the Linux CardBus driver is not loaded, because
+>   * the Linux i82365 driver does not (and should not) handle CardBus.
+>   */
+> -static void __devinit quirk_cardbus_legacy(struct pci_dev *dev)
+> +static void quirk_cardbus_legacy(struct pci_dev *dev)
+>  {
+>  	if ((PCI_CLASS_BRIDGE_CARDBUS << 8) ^ dev->class)
+>  		return;
+>  	pci_write_config_dword(dev, PCI_CB_LEGACY_MODE_BASE, 0);
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, quirk_cardbus_legacy);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_ANY_ID, PCI_ANY_ID, quirk_cardbus_legacy);
+>  
+>  /*
+>   * Following the PCI ordering rules is optional on the AMD762. I'm not
+> @@ -735,7 +763,7 @@
+>   * To be fair to AMD, it follows the spec by default, its BIOS people
+>   * who turn it off!
+>   */
+> -static void __devinit quirk_amd_ordering(struct pci_dev *dev)
+> +static void quirk_amd_ordering(struct pci_dev *dev)
+>  {
+>  	u32 pcic;
+>  	pci_read_config_dword(dev, 0x4C, &pcic);
+> @@ -749,6 +777,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_FE_GATE_700C, quirk_amd_ordering );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_AMD,	PCI_DEVICE_ID_AMD_FE_GATE_700C, quirk_amd_ordering );
+>  
+>  /*
+>   *	DreamWorks provided workaround for Dunord I-3000 problem
+> @@ -784,7 +813,7 @@
+>   * datasheets found at http://www.national.com/ds/GX for info on what
+>   * these bits do.  <christer@weinigel.se>
+>   */
+> -static void __init quirk_mediagx_master(struct pci_dev *dev)
+> +static void quirk_mediagx_master(struct pci_dev *dev)
+>  {
+>  	u8 reg;
+>  	pci_read_config_byte(dev, 0x41, &reg);
+> @@ -795,13 +824,14 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
+>  
+>  /*
+>   *	Ensure C0 rev restreaming is off. This is normally done by
+>   *	the BIOS but in the odd case it is not the results are corruption
+>   *	hence the presence of a Linux check
+>   */
+> -static void __init quirk_disable_pxb(struct pci_dev *pdev)
+> +static void quirk_disable_pxb(struct pci_dev *pdev)
+>  {
+>  	u16 config;
+>  	u8 rev;
+> @@ -817,6 +847,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454NX,	quirk_disable_pxb );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454NX,	quirk_disable_pxb );
+>  
+>  
+>  /*
+> @@ -874,7 +905,7 @@
+>   * runs everywhere at present we suppress the printk output in most
+>   * irrelevant cases.
+>   */
+> -static void __init k8t_sound_hostbridge(struct pci_dev *dev)
+> +static void k8t_sound_hostbridge(struct pci_dev *dev)
+>  {
+>  	unsigned char val;
+>  
+> @@ -893,6 +924,7 @@
+>  	}
+>  }
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, k8t_sound_hostbridge);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237, k8t_sound_hostbridge);
+>  
+>  #ifndef CONFIG_ACPI_SLEEP
+>  /*
+> @@ -1019,7 +1051,7 @@
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82855GM_HB,	asus_hides_smbus_hostbridge );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82915GM_HB, asus_hides_smbus_hostbridge );
+>  
+> -static void __init asus_hides_smbus_lpc(struct pci_dev *dev)
+> +static void asus_hides_smbus_lpc(struct pci_dev *dev)
+>  {
+>  	u16 val;
+>  	
+> @@ -1042,8 +1074,14 @@
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_12,	asus_hides_smbus_lpc );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_0,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801BA_0,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_0,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_12,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
+>  
+> -static void __init asus_hides_smbus_lpc_ich6(struct pci_dev *dev)
+> +static void asus_hides_smbus_lpc_ich6(struct pci_dev *dev)
+>  {
+>  	u32 val, rcba;
+>  	void __iomem *base;
+> @@ -1059,13 +1097,14 @@
+>  	printk(KERN_INFO "PCI: Enabled ICH6/i801 SMBus device\n");
+>  }
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc_ich6 );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ICH6_1,	asus_hides_smbus_lpc_ich6 );
+>  
+>  #endif
+>  
+>  /*
+>   * SiS 96x south bridge: BIOS typically hides SMBus device...
+>   */
+> -static void __init quirk_sis_96x_smbus(struct pci_dev *dev)
+> +static void quirk_sis_96x_smbus(struct pci_dev *dev)
+>  {
+>  	u8 val = 0;
+>  	printk(KERN_INFO "Enabling SiS 96x SMBus.\n");
+> @@ -1086,7 +1125,7 @@
+>  
+>  #define SIS_DETECT_REGISTER 0x40
+>  
+> -static void __init quirk_sis_503(struct pci_dev *dev)
+> +static void quirk_sis_503(struct pci_dev *dev)
+>  {
+>  	u8 reg;
+>  	u16 devid;
+> @@ -1122,13 +1161,14 @@
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_735,		quirk_sis_96x_compatible );
+>  
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_503,		quirk_sis_503 );
+>  /*
+>   * On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
+>   * and MC97 modem controller are disabled when a second PCI soundcard is
+>   * present. This patch, tweaking the VT8237 ISA bridge, enables them.
+>   * -- bjd
+>   */
+> -static void __init asus_hides_ac97_lpc(struct pci_dev *dev)
+> +static void asus_hides_ac97_lpc(struct pci_dev *dev)
+>  {
+>  	u8 val;
+>  	int asus_hides_ac97 = 0;
+> @@ -1159,6 +1199,14 @@
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
+>  
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237, asus_hides_ac97_lpc );
+> +
+> +
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_961,		quirk_sis_96x_smbus );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_962,		quirk_sis_96x_smbus );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
+> +
+>  #if defined(CONFIG_ATA) || defined(CONFIG_ATA_MODULE)
+>  
+>  /*
+> @@ -1167,7 +1215,7 @@
+>   *	the PCI scanning.
+>   */
+>  
+> -static void __devinit quirk_jmicron_dualfn(struct pci_dev *pdev)
+> +static void quirk_jmicron_dualfn(struct pci_dev *pdev)
+>  {
+>  	u32 conf;
+>  	u8 hdr;
+> @@ -1205,6 +1253,7 @@
+>  }
+>  
+>  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, quirk_jmicron_dualfn);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, quirk_jmicron_dualfn);
+>  
+>  #endif
+>  
+> @@ -1532,6 +1581,8 @@
+>  extern struct pci_fixup __end_pci_fixups_final[];
+>  extern struct pci_fixup __start_pci_fixups_enable[];
+>  extern struct pci_fixup __end_pci_fixups_enable[];
+> +extern struct pci_fixup __start_pci_fixups_resume[];
+> +extern struct pci_fixup __end_pci_fixups_resume[];
+>  
+>  
+>  void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev)
+> @@ -1559,6 +1610,11 @@
+>  		end = __end_pci_fixups_enable;
+>  		break;
+>  
+> +	case pci_fixup_resume:
+> +		start = __start_pci_fixups_resume;
+> +		end = __end_pci_fixups_resume;
+> +		break;
+> +
+>  	default:
+>  		/* stupid compiler warning, you would think with an enum... */
+>  		return;
+> @@ -1596,7 +1652,7 @@
+>   * Force it to be linked by setting the corresponding control bit in the
+>   * config space.
+>   */
+> -static void __devinit quirk_nvidia_ck804_pcie_aer_ext_cap(struct pci_dev *dev)
+> +static void quirk_nvidia_ck804_pcie_aer_ext_cap(struct pci_dev *dev)
+>  {
+>  	uint8_t b;
+>  	if (pci_read_config_byte(dev, 0xf41, &b) == 0) {
+> @@ -1610,6 +1666,8 @@
+>  }
+>  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA,  PCI_DEVICE_ID_NVIDIA_CK804_PCIE,
+>  			quirk_nvidia_ck804_pcie_aer_ext_cap);
+> +DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_NVIDIA,  PCI_DEVICE_ID_NVIDIA_CK804_PCIE,
+> +			quirk_nvidia_ck804_pcie_aer_ext_cap);
+>  
+>  #ifdef CONFIG_PCI_MSI
+>  /* To disable MSI globally */
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm1/include/asm-generic/vmlinux.lds.h linux-2.6.19-rc5-mm1/include/asm-generic/vmlinux.lds.h
+> --- linux.vanilla-2.6.19-rc5-mm1/include/asm-generic/vmlinux.lds.h	2006-11-10 10:38:28.000000000 +0000
+> +++ linux-2.6.19-rc5-mm1/include/asm-generic/vmlinux.lds.h	2006-11-14 16:06:08.000000000 +0000
+> @@ -35,6 +35,9 @@
+>  		VMLINUX_SYMBOL(__start_pci_fixups_enable) = .;		\
+>  		*(.pci_fixup_enable)					\
+>  		VMLINUX_SYMBOL(__end_pci_fixups_enable) = .;		\
+> +		VMLINUX_SYMBOL(__start_pci_fixups_resume) = .;		\
+> +		*(.pci_fixup_resume)					\
+> +		VMLINUX_SYMBOL(__end_pci_fixups_resume) = .;		\
+>  	}								\
+>  									\
+>  	/* RapidIO route ops */						\
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc5-mm1/include/linux/pci.h linux-2.6.19-rc5-mm1/include/linux/pci.h
+> --- linux.vanilla-2.6.19-rc5-mm1/include/linux/pci.h	2006-11-10 10:38:28.000000000 +0000
+> +++ linux-2.6.19-rc5-mm1/include/linux/pci.h	2006-11-14 15:44:11.000000000 +0000
+> @@ -786,6 +804,7 @@
+>  	pci_fixup_header,	/* After reading configuration header */
+>  	pci_fixup_final,	/* Final phase of device fixups */
+>  	pci_fixup_enable,	/* pci_enable_device() time */
+> +	pci_fixup_resume,	/* pci_enable_device() time */
+>  };
+>  
+>  /* Anonymous variables would be nice... */
+> @@ -804,6 +823,9 @@
+>  #define DECLARE_PCI_FIXUP_ENABLE(vendor, device, hook)			\
+>  	DECLARE_PCI_FIXUP_SECTION(.pci_fixup_enable,			\
+>  			vendor##device##hook, vendor, device, hook)
+> +#define DECLARE_PCI_FIXUP_RESUME(vendor, device, hook)			\
+> +	DECLARE_PCI_FIXUP_SECTION(.pci_fixup_resume,			\
+> +			resume##vendor##device##hook, vendor, device, hook)
+>  
+>  
+>  void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
 -- 
-1.4.3.3
-
+Jean Delvare

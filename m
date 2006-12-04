@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967754AbWLDXRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967800AbWLDXXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967754AbWLDXRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:17:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759830AbWLDXQ0
+	id S967800AbWLDXXG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967802AbWLDXXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:16:26 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:47872 "EHLO
-	saraswathi.solana.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759835AbWLDXQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 18:16:22 -0500
-Message-Id: <200612042312.kB4NCJ2Q024556@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 1/4] UML - include stddef.h correctly
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Dec 2006 18:12:19 -0500
-From: Jeff Dike <jdike@addtoit.com>
+	Mon, 4 Dec 2006 18:23:05 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:39330 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967800AbWLDXXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 18:23:02 -0500
+Message-ID: <4574ADD0.4060803@pobox.com>
+Date: Mon, 04 Dec 2006 18:22:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: andersen@codepoet.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make sata_promise PATA ports work
+References: <20061204194737.GA24311@codepoet.org> <20061204201601.06933372@localhost.localdomain>
+In-Reply-To: <20061204201601.06933372@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were not including stddef.h in files that used offsetof.
+Alan wrote:
+> On Mon, 4 Dec 2006 12:47:37 -0700
+> Erik Andersen <andersen@codepoet.org> wrote:
+> 
+>> This patch vs 2.6.19, based on the not-actually-working-for-me
+>> code lurking in libata-dev.git#promise-sata-pata, makes the PATA
+>> ports on my promise sata card actually work.  Since the plan as
+> 
+> Nice, this is pretty much what is needed to polish up the other split
+> PATA/SATA cases.
 
-One file was also including linux/stddef.h for no perciptible reason.
+Disagree.  Internal libata is set up so that you can have different 
+ata_port::flags and ata_port::ops for each port, which is what enables 
+proper hardware sharing between SATA and PATA.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Two things need to happen:
 
-Index: linux-2.6.18-mm/arch/um/sys-i386/ldt.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/sys-i386/ldt.c	2006-12-04 14:25:45.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/sys-i386/ldt.c	2006-12-04 14:26:12.000000000 -0500
-@@ -3,7 +3,6 @@
-  * Licensed under the GPL
-  */
- 
--#include "linux/stddef.h"
- #include "linux/sched.h"
- #include "linux/slab.h"
- #include "linux/types.h"
-Index: linux-2.6.18-mm/arch/um/sys-i386/ptrace_user.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/sys-i386/ptrace_user.c	2006-12-04 14:25:45.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/sys-i386/ptrace_user.c	2006-12-04 14:26:12.000000000 -0500
-@@ -4,9 +4,9 @@
-  */
- 
- #include <stdio.h>
-+#include <stddef.h>
- #include <errno.h>
- #include <unistd.h>
--#include <linux/stddef.h>
- #include "ptrace_user.h"
- /* Grr, asm/user.h includes asm/ptrace.h, so has to follow ptrace_user.h */
- #include <asm/user.h>
-Index: linux-2.6.18-mm/arch/um/sys-i386/user-offsets.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/sys-i386/user-offsets.c	2006-12-04 14:25:45.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/sys-i386/user-offsets.c	2006-12-04 14:26:12.000000000 -0500
-@@ -2,7 +2,7 @@
- #include <signal.h>
- #include <asm/ptrace.h>
- #include <asm/user.h>
--#include <linux/stddef.h>
-+#include <stddef.h>
- #include <sys/poll.h>
- 
- #define DEFINE(sym, val) \
+1) probe_ent needs to permit a driver to supply multiple flags/ops 
+pairs, not just one for the whole driver, and pass that through to the 
+proper data structures during ata_port init.
+
+2) a VERY FEW details like ->irq_clear() are really ata_host level 
+hooks, but they live in ata_port_operations because there is no 
+ata_host_operations.  Fix these.
+
+Once those issues are fixed, PATA+SATA can be easily support on the 
+combinations of hardware that have been desperately wanting it: 
+sata_promise, sata_sis, sata_via (sata_uli too?)
+
+	Jeff
+
+
 

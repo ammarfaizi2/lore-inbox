@@ -1,43 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937316AbWLDTgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937322AbWLDThA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937316AbWLDTgP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759457AbWLDTgP
+	id S937322AbWLDThA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759339AbWLDThA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:36:15 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:59746 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759442AbWLDTgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:36:14 -0500
-Date: Mon, 4 Dec 2006 11:36:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Zach Brown'" <zach.brown@oracle.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove redundant iov segment check
-Message-Id: <20061204113609.753069b9.akpm@osdl.org>
-In-Reply-To: <000001c717c0$f82b5ea0$2589030a@amr.corp.intel.com>
-References: <000001c717c0$f82b5ea0$2589030a@amr.corp.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Dec 2006 14:37:00 -0500
+Received: from smtp.nokia.com ([131.228.20.171]:59412 "EHLO
+	mgw-ext12.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937322AbWLDTg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 14:36:59 -0500
+Message-ID: <457479B4.9090501@indt.org.br>
+Date: Mon, 04 Dec 2006 15:40:36 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       Tony Lindgren <tony@atomide.com>,
+       ext David Brownell <david-b@pacbell.net>
+Subject: [PATCH 0/4] Add MMC Password Protection (lock/unlock) support V8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2006 19:36:21.0067 (UTC) FILETIME=[79B721B0:01C717DB]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 08:26:36 -0800
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+Hi all,
 
-> So it's not possible to call down to generic_file_aio_read/write with invalid
-> iov segment.  Patch proposed to delete these redundant code.
+New in this version:
 
-erp, please don't touch that code.
+- mmc_sysfs.c: "change" and "assign" code merged to avoid code
+duplication.
+- OMAP specific patch not include on this series.
+- mmc_lock_unlock function: now, the host is claimed before
+mmc_lock_unlock is called.
+- Version according the latest mainline git repository.
 
-The writev deadlock fixes which went into 2.6.17 trashed writev()
-performance and Nick and I are slowly trying to get it back, while fixing
-the has-been-there-forever pagefault-in-write() deadlock.
+This series of patches add support for MultiMediaCard (MMC) password
+protection, as described in the MMC Specification v4.1. This feature is
+supported by all compliant MMC cards, and used by some devices such as
+Symbian OS cell phones to optionally protect MMC cards with a password.
 
-This is all proving very hard to do, and we don't need sweeping code
-cleanups happening under our feet ;)
+By default, a MMC card with no password assigned is always in "unlocked"
+state. After password assignment, in the next power cycle the card
+switches to a "locked" state where only the "basic" and "lock card"
+command classes are accepted by the card. Only after unlocking it with
+the correct password the card can be normally used for operations like
+block I/O.
 
-I'll bring those patches back in next -mm, but not very confidently.
+Password management and caching is done through the "Kernel Key
+Retention Service" mechanism and the sysfs filesystem. A new sysfs
+attribute was added to the MMC driver for unlocking the card, assigning
+a password to an unlocked card, change a card's password, remove the
+password and check locked/unlocked status.
+
+A sample text-mode reference UI written in shell script (using the
+keyctl command from the keyutils package), can be found at:
+
+http://www.indt.org.br/10le/mmc_pwd/mmc_reference_ui-20060130.tar.bz2
+
+
+TODO:
+
+- Ongoing: Extend the MMC PWD Scheme to SD Cards.
+
+- Password caching: when inserting a locked card, the driver should try
+   to unlock it with the currently stored password (if any), and if it
+   fails, revoke the key containing it and fallback to the normal "no
+   password present" situation.
+
+Known Issue:
+
+- Some cards have an incorrect behaviour (hardware bug?) regarding
+   password acceptance: if an affected card has password <pwd>, it
+   accepts <pwd><xxx> as the correct password too, where <xxx> is any
+   sequence of characters, of any length. In other words, on these cards
+   only the first <password length> bytes need to match the correct
+   password.
+
+
+Comments and suggestions are always welcome.
+
+-- 
+Anderson Briglia
+
+Embedded Linux Lab - 10LE
+Nokia Institute of Technology - INdT
+Manaus - Brazil
+--
+_______________________________________________
+Linux-omap-open-source mailing list
+Linux-omap-open-source@linux.omap.com
+http://linux.omap.com/mailman/listinfo/linux-omap-open-source
+

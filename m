@@ -1,106 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935086AbWLDJsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934996AbWLDJtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935086AbWLDJsc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 04:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935285AbWLDJsc
+	id S934996AbWLDJtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 04:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935292AbWLDJtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 04:48:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36520 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S935086AbWLDJsc (ORCPT
+	Mon, 4 Dec 2006 04:49:09 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38577 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S935244AbWLDJtH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 04:48:32 -0500
-Subject: Re: [GFS2] Change argument to gfs2_dinode_in [18/70]
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1164999598.1194.74.camel@xenon.msp.redhat.com>
-References: <1164888939.3752.340.camel@quoit.chygwyn.com>
-	 <1164999598.1194.74.camel@xenon.msp.redhat.com>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 04 Dec 2006 09:50:40 +0000
-Message-Id: <1165225840.3752.601.camel@quoit.chygwyn.com>
+	Mon, 4 Dec 2006 04:49:07 -0500
+Date: Mon, 4 Dec 2006 10:48:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386/kernel/smp.c: don't use set_irq_regs()
+Message-ID: <20061204094835.GD7872@elte.hu>
+References: <20061203181642.GA226@oleg>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061203181642.GA226@oleg>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0004]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 2006-12-01 at 12:59 -0600, Russell Cattelan wrote:
-> On Thu, 2006-11-30 at 12:15 +0000, Steven Whitehouse wrote:
-> > >From 891ea14712da68e282de8583e5fa14f0d3f3731e Mon Sep 17 00:00:00 2001
-> > From: Steven Whitehouse <swhiteho@redhat.com>
-> > Date: Tue, 31 Oct 2006 15:22:10 -0500
-> > Subject: [PATCH] [GFS2] Change argument to gfs2_dinode_in
-> > 
-> > This is a preliminary patch to enable the removal of fields
-> > in gfs2_dinode_host which are duplicated in struct inode.
-> Deferred till the complete "cleanup" work is done?
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+
+> We don't need to setup _irq_regs in smp_xxx_interrupt (except apic 
+> timer). These handlers run with irqs disabled and do not call 
+> functions which need "struct pt_regs".
 > 
-> 
-It can't be deferred - its a prerequisite of most of the cleanup work so
-it needs to go in near the start of the patch series,
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Steve.
+yeah. These are leftover inefficiencies from the ptregs conversion, 
+which just added a regs variable to every arch-level irq handler 
+blindly.
 
-> > 
-> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-> > ---
-> >  fs/gfs2/inode.c             |    2 +-
-> >  fs/gfs2/ondisk.c            |    4 ++--
-> >  include/linux/gfs2_ondisk.h |    2 +-
-> >  3 files changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-> > index b861ddb..9875e93 100644
-> > --- a/fs/gfs2/inode.c
-> > +++ b/fs/gfs2/inode.c
-> > @@ -229,7 +229,7 @@ int gfs2_inode_refresh(struct gfs2_inode
-> >  		return -EIO;
-> >  	}
-> >  
-> > -	gfs2_dinode_in(&ip->i_di, dibh->b_data);
-> > +	gfs2_dinode_in(ip, dibh->b_data);
-> >  
-> >  	brelse(dibh);
-> >  
-> > diff --git a/fs/gfs2/ondisk.c b/fs/gfs2/ondisk.c
-> > index 2c50fa0..edf8756 100644
-> > --- a/fs/gfs2/ondisk.c
-> > +++ b/fs/gfs2/ondisk.c
-> > @@ -155,8 +155,9 @@ void gfs2_quota_in(struct gfs2_quota_hos
-> >  	qu->qu_value = be64_to_cpu(str->qu_value);
-> >  }
-> >  
-> > -void gfs2_dinode_in(struct gfs2_dinode_host *di, const void *buf)
-> > +void gfs2_dinode_in(struct gfs2_inode *ip, const void *buf)
-> >  {
-> > +	struct gfs2_dinode_host *di = &ip->i_di;
-> >  	const struct gfs2_dinode *str = buf;
-> >  
-> >  	gfs2_meta_header_in(&di->di_header, buf);
-> > @@ -186,7 +187,6 @@ void gfs2_dinode_in(struct gfs2_dinode_h
-> >  	di->di_entries = be32_to_cpu(str->di_entries);
-> >  
-> >  	di->di_eattr = be64_to_cpu(str->di_eattr);
-> > -
-> >  }
-> >  
-> >  void gfs2_dinode_out(const struct gfs2_inode *ip, void *buf)
-> > diff --git a/include/linux/gfs2_ondisk.h b/include/linux/gfs2_ondisk.h
-> > index 550effa..08d8240 100644
-> > --- a/include/linux/gfs2_ondisk.h
-> > +++ b/include/linux/gfs2_ondisk.h
-> > @@ -534,8 +534,8 @@ extern void gfs2_rindex_out(const struct
-> >  extern void gfs2_rgrp_in(struct gfs2_rgrp_host *rg, const void *buf);
-> >  extern void gfs2_rgrp_out(const struct gfs2_rgrp_host *rg, void *buf);
-> >  extern void gfs2_quota_in(struct gfs2_quota_host *qu, const void *buf);
-> > -extern void gfs2_dinode_in(struct gfs2_dinode_host *di, const void *buf);
-> >  struct gfs2_inode;
-> > +extern void gfs2_dinode_in(struct gfs2_inode *ip, const void *buf);
-> >  extern void gfs2_dinode_out(const struct gfs2_inode *ip, void *buf);
-> >  extern void gfs2_ea_header_in(struct gfs2_ea_header *ea, const void *buf);
-> >  extern void gfs2_ea_header_out(const struct gfs2_ea_header *ea, void *buf);
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
+	Ingo

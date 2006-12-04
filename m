@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758769AbWLDHgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759056AbWLDICp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758769AbWLDHgS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 02:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758795AbWLDHgS
+	id S1759056AbWLDICp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 03:02:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759060AbWLDICp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 02:36:18 -0500
-Received: from quechua.inka.de ([193.197.184.2]:15241 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1758769AbWLDHgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 02:36:17 -0500
-Message-ID: <4573CFBB.1030107@dungeon.inka.de>
-Date: Mon, 04 Dec 2006 08:35:23 +0100
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+	Mon, 4 Dec 2006 03:02:45 -0500
+Received: from mail.syneticon.net ([213.239.212.131]:33226 "EHLO
+	mail2.syneticon.net") by vger.kernel.org with ESMTP
+	id S1759056AbWLDICp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 03:02:45 -0500
+Message-ID: <4573D5FE.3070902@wpkg.org>
+Date: Mon, 04 Dec 2006 09:02:06 +0100
+From: Tomasz Chmielewski <mangoo@wpkg.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061128)
 MIME-Version: 1.0
-To: sergio@sergiomb.no-ip.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.6.19 still crashing
-References: <4571AFED.8060200@dungeon.inka.de> <1165200588.9189.1.camel@monteirov>
-In-Reply-To: <1165200588.9189.1.camel@monteirov>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: why can't I remove a kernel module (or: what uses a given module)?
+References: <4572B30F.9020605@wpkg.org> <jewt592oxf.fsf@sykes.suse.de> <4572BBE0.4010801@wpkg.org> <20061203154936.GB26669@kallisti.us> <45732C8E.4060801@wpkg.org> <20061203234202.GL7114@grifter.jdc.home>
+In-Reply-To: <20061203234202.GL7114@grifter.jdc.home>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Ciphire-Security: plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
-> Hi,
-> 1st you should put this information on http://bugzilla.kernel.org/
-
-ok, thanks.
-
-> your bug kept me the attention because on bad interrupts  you have :
+Jim Crilly wrote:
+> On 12/03/06 08:59:10PM +0100, Tomasz Chmielewski wrote:
+>> Ross Vandegrift wrote:
+>>> On Sun, Dec 03, 2006 at 12:58:24PM +0100, Tomasz Chmielewski wrote:
+>>>> You mean the "Used by" column? No, it's not used by any other module 
+>>>> according to lsmod output.
+>>>>
+>>>> Any other methods of checking what uses /dev/sda*?
+>>> There's a good chance that if it was loaded at system boot, hald or
+>>> udev may be doing something with it.
+>> This machine doesn't have hal; when I kill udevd still doesn't help.
+>>
+>> Yes, something's using that drive, be it a program, a module (unlikely), 
+>> or something that is compiled directly in the kernel (for example, 
+>> md/raid1).
+>> But what is it?
+>>
+>> Kernel knows it, as it refuses to remove the module (via rmmod), but how 
+>> to tell kernel to share this knowledge with me?
+>>
 > 
-> 21:     100000   IO-APIC-fasteoi   ohci1394
-> 
-> Exactly oops on 100000 interrupts, I had seen this before .
-> I have my bug on http://bugzilla.kernel.org/show_bug.cgi?id=6419
-> which one of the bugs looks like similar to yours. 
-> 
-> So, You are saying with kernel 2.6.16.31 with xen 3.0.2, you don't have
-> this problem , I like to try it, how or where you build this Xenified
-> kernel ? 
+> Have you checked to make sure there's no swap partitions on it being
+> automatically activated at boot? Also, have you checked the output of lsof?
 
-The package source were available at , but they no longer are :(
-http://debian.thoughtcrime.co.nz/ubuntu/
+The machine doesn't even have swap, so no, no swap on that device 
+(confirmed by th output of free with 0 swap).
+The device doesn't also show up in /etc/fstab.
 
-I can send you my copies (either parts or all), if you don't mind
-getting big emails
--rw-r--r--  1 aj aj  342068 2006-04-19 12:14 libxen3.0_3.0.2-2r7_amd64.deb
--rw-r--r--  1 aj aj  106440 2006-04-19 12:14 libxen-dev_3.0.2-2r7_amd64.deb
--rw-r--r--  1 aj aj  155186 2006-04-19 12:14 
-libxen-python_3.0.2-2r7_amd64.deb
--rw-r--r--  1 aj aj  620946 2006-04-19 12:14 
-linux-patch-xen_3.0.2-2r7_amd64.deb
-drwxr-xr-x 10 aj aj    4096 2006-04-19 12:14 xen-3.0.2
--rw-r--r--  1 aj aj   12926 2006-04-19 12:14 xen_3.0.2-2r7_amd64.deb
--rw-r--r--  1 aj aj  656745 2006-04-19 12:12 xen_3.0.2-2r7.diff.gz
--rw-r--r--  1 aj aj     645 2006-04-19 12:12 xen_3.0.2-2r7.dsc
--rw-r--r--  1 aj aj       0 2006-04-19 12:14 xen_3.0.2-2r7.dsc.asc
--rw-r--r--  1 aj aj 4933621 2006-04-19 11:36 xen_3.0.2.orig.tar.gz
--rw-r--r--  1 aj aj  531232 2006-04-19 12:14 xen-docs_3.0.2-2r7_all.deb
--rw-r--r--  1 aj aj 1479866 2006-04-19 12:14 
-xen-hypervisor-3.0_3.0.2-2r7_amd64.deb
--rw-r--r--  1 aj aj  180526 2006-04-19 12:14 
-xen-utils-3.0_3.0.2-2r7_amd64.deb
+And "lsof -n | grep sd" doesn't show anything.
 
-only *dsc *diff.gz and *orig.tar.gz are needed, then you can recompile
-the rest yourself ("dpkg-source -x *dsc; cd xen-*/; dpkg-buildpackage 
--rfakeroot").
 
-or I can send you the kernel patch as file and the xen hypervisor:
--rw-r--r-- 1 root root  244694 2006-04-19 12:14 /boot/xen-3.0.2-2.gz
--rw-r--r-- 1 root root  604942 2006-04-19 12:14 
-/usr/src/kernel-patches/diffs/xen/linux-2.6.16-xen.patch.gz
-
-it applies clean against 2.6.16, but if with 2.6.16.31 I had
-to manually fix two rejects.
-
-Regards, Andreas
+-- 
+Tomasz Chmielewski
+http://wpkg.org

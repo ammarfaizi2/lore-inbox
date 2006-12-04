@@ -1,274 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759915AbWLDJdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759931AbWLDJhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759915AbWLDJdX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 04:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759922AbWLDJdX
+	id S1759931AbWLDJhR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 04:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759932AbWLDJhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 04:33:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12446 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1759915AbWLDJdW (ORCPT
+	Mon, 4 Dec 2006 04:37:16 -0500
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:41157 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1759931AbWLDJhP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 04:33:22 -0500
-Subject: Re: [GFS2] Simplify glops functions [53/70]
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Russell Cattelan <cattelan@thebarn.com>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1164998615.1194.60.camel@xenon.msp.redhat.com>
-References: <1164889293.3752.411.camel@quoit.chygwyn.com>
-	 <1164998615.1194.60.camel@xenon.msp.redhat.com>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 04 Dec 2006 09:35:32 +0000
-Message-Id: <1165224932.3752.587.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Dec 2006 04:37:15 -0500
+Message-ID: <365225031.05635@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Mon, 4 Dec 2006 17:37:18 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: drop_pagecache: Possible circular locking dependency
+Message-ID: <20061204093718.GA7243@mail.ustc.edu.cn>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <365219737.01594@ustc.edu.cn> <20061204003217.c0f05e00.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061204003217.c0f05e00.akpm@osdl.org>
+X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 2006-12-01 at 12:43 -0600, Russell Cattelan wrote:
-> On Thu, 2006-11-30 at 12:21 +0000, Steven Whitehouse wrote:
-> > >From 1a14d3a68f04527546121eb7b45187ff6af63151 Mon Sep 17 00:00:00 2001
-> > From: Steven Whitehouse <swhiteho@redhat.com>
-> > Date: Mon, 20 Nov 2006 10:37:45 -0500
-> > Subject: [PATCH] [GFS2] Simplify glops functions
-> > 
-> > The go_sync callback took two flags, but one of them was set on every
-> > call, so this patch removes once of the flags and makes the previously
-> > conditional operations (on this flag), unconditional.
-> > 
-> > The go_inval callback took three flags, each of which was set on every
-> > call to it. This patch removes the flags and makes the operations
-> > unconditional, which makes the logic rather more obvious.
+On Mon, Dec 04, 2006 at 12:32:17AM -0800, Andrew Morton wrote:
+> On Mon, 4 Dec 2006 16:09:02 +0800
+> Fengguang Wu <fengguang.wu@gmail.com> wrote:
 > 
-> I get really nervous about making these type of interfaces changes
-> until the problem is understood.
+> > Got the following message when doing some benchmarks.
+> > I guess we should not hold inode_lock on calling invalidate_inode_pages().
+> > Any ideas?
+> > 
+> > Fengguang Wu
+> > 
+> > =======================================================
+> > [ INFO: possible circular locking dependency detected ]
+> > 2.6.19-rc6-mm2 #3
+> > -------------------------------------------------------
+> > rabench.sh/7467 is trying to acquire lock:
+> >  (&journal->j_list_lock){--..}, at: [<ffffffff8113bdbc>] journal_try_to_free_buffers+0xdc/0x1c0
+> > 
+> > but task is already holding lock:
+> >  (inode_lock){--..}, at: [<ffffffff810fe857>] drop_pagecache+0x67/0x120
+> > 
+> > which lock already depends on the new lock.
+> > 
 > 
-The problem can by understood by the simple use of grep.
-
-> Given the the rather non-function and incomplete state of GFS2 it
-> seems premature to just remove flags states on the observation
-> that they are not CURRENTLY used.
+> drat, I was afraid someone would notice.
 > 
-I disagree, I don't want the code to be littered with functions
-containing code which is never called as its very confusing,
-particularly for those who are unable to devote their full time to
-working on gfs2 but still need to understand the code.
+> It's Hard To Fix.  Removing /proc/sys/vm/drop_pagecache would in fact be 
+> my preferred fix.
 
-If a use is ever found for this code (which I very much doubt) then we
-can always put it back at that time. In the mean time, simpler code is
-easier to debug,
+Or fix drop_pagecache_sb():
+        Repeat until all possible pages freed:
+                grab and save some inodes to a buffer
+                zip their pages outside of inode_lock
 
-Steve.
+Takes much more code though.
 
-> > 
-> > Two now unused flags are also removed from incore.h.
-> > 
-> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-> > ---
-> >  fs/gfs2/glock.c  |   10 +++++-----
-> >  fs/gfs2/glops.c  |   42 +++++++++++-------------------------------
-> >  fs/gfs2/incore.h |   25 +++++++++++--------------
-> >  fs/gfs2/super.c  |    2 +-
-> >  4 files changed, 28 insertions(+), 51 deletions(-)
-> > 
-> > diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-> > index edc21c8..b8ba4d5 100644
-> > --- a/fs/gfs2/glock.c
-> > +++ b/fs/gfs2/glock.c
-> > @@ -847,12 +847,12 @@ static void xmote_bh(struct gfs2_glock *
-> >  
-> >  	if (prev_state != LM_ST_UNLOCKED && !(ret & LM_OUT_CACHEABLE)) {
-> >  		if (glops->go_inval)
-> > -			glops->go_inval(gl, DIO_METADATA | DIO_DATA);
-> > +			glops->go_inval(gl, DIO_METADATA);
-> >  	} else if (gl->gl_state == LM_ST_DEFERRED) {
-> >  		/* We might not want to do this here.
-> >  		   Look at moving to the inode glops. */
-> >  		if (glops->go_inval)
-> > -			glops->go_inval(gl, DIO_DATA);
-> > +			glops->go_inval(gl, 0);
-> >  	}
-> >  
-> >  	/*  Deal with each possible exit condition  */
-> > @@ -954,7 +954,7 @@ void gfs2_glock_xmote_th(struct gfs2_glo
-> >  	gfs2_assert_warn(sdp, state != gl->gl_state);
-> >  
-> >  	if (gl->gl_state == LM_ST_EXCLUSIVE && glops->go_sync)
-> > -		glops->go_sync(gl, DIO_METADATA | DIO_DATA | DIO_RELEASE);
-> > +		glops->go_sync(gl);
-> >  
-> >  	gfs2_glock_hold(gl);
-> >  	gl->gl_req_bh = xmote_bh;
-> > @@ -995,7 +995,7 @@ static void drop_bh(struct gfs2_glock *g
-> >  	state_change(gl, LM_ST_UNLOCKED);
-> >  
-> >  	if (glops->go_inval)
-> > -		glops->go_inval(gl, DIO_METADATA | DIO_DATA);
-> > +		glops->go_inval(gl, DIO_METADATA);
-> >  
-> >  	if (gh) {
-> >  		spin_lock(&gl->gl_spin);
-> > @@ -1041,7 +1041,7 @@ void gfs2_glock_drop_th(struct gfs2_gloc
-> >  	gfs2_assert_warn(sdp, gl->gl_state != LM_ST_UNLOCKED);
-> >  
-> >  	if (gl->gl_state == LM_ST_EXCLUSIVE && glops->go_sync)
-> > -		glops->go_sync(gl, DIO_METADATA | DIO_DATA | DIO_RELEASE);
-> > +		glops->go_sync(gl);
-> >  
-> >  	gfs2_glock_hold(gl);
-> >  	gl->gl_req_bh = drop_bh;
-> > diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-> > index b92de0a..60561ca 100644
-> > --- a/fs/gfs2/glops.c
-> > +++ b/fs/gfs2/glops.c
-> > @@ -173,23 +173,18 @@ static void gfs2_page_writeback(struct g
-> >  /**
-> >   * meta_go_sync - sync out the metadata for this glock
-> >   * @gl: the glock
-> > - * @flags: DIO_*
-> >   *
-> >   * Called when demoting or unlocking an EX glock.  We must flush
-> >   * to disk all dirty buffers/pages relating to this glock, and must not
-> >   * not return to caller to demote/unlock the glock until I/O is complete.
-> >   */
-> >  
-> > -static void meta_go_sync(struct gfs2_glock *gl, int flags)
-> > +static void meta_go_sync(struct gfs2_glock *gl)
-> >  {
-> > -	if (!(flags & DIO_METADATA))
-> > -		return;
-> > -
-> >  	if (test_and_clear_bit(GLF_DIRTY, &gl->gl_flags)) {
-> >  		gfs2_log_flush(gl->gl_sbd, gl);
-> >  		gfs2_meta_sync(gl);
-> > -		if (flags & DIO_RELEASE)
-> > -			gfs2_ail_empty_gl(gl);
-> > +		gfs2_ail_empty_gl(gl);
-> >  	}
-> >  
-> >  }
-> > @@ -264,31 +259,18 @@ static void inode_go_drop_th(struct gfs2
-> >  /**
-> >   * inode_go_sync - Sync the dirty data and/or metadata for an inode glock
-> >   * @gl: the glock protecting the inode
-> > - * @flags:
-> >   *
-> >   */
-> >  
-> > -static void inode_go_sync(struct gfs2_glock *gl, int flags)
-> > +static void inode_go_sync(struct gfs2_glock *gl)
-> >  {
-> > -	int meta = (flags & DIO_METADATA);
-> > -	int data = (flags & DIO_DATA);
-> > -
-> >  	if (test_bit(GLF_DIRTY, &gl->gl_flags)) {
-> > -		if (meta && data) {
-> > -			gfs2_page_writeback(gl);
-> > -			gfs2_log_flush(gl->gl_sbd, gl);
-> > -			gfs2_meta_sync(gl);
-> > -			gfs2_page_wait(gl);
-> > -			clear_bit(GLF_DIRTY, &gl->gl_flags);
-> > -		} else if (meta) {
-> > -			gfs2_log_flush(gl->gl_sbd, gl);
-> > -			gfs2_meta_sync(gl);
-> > -		} else if (data) {
-> > -			gfs2_page_writeback(gl);
-> > -			gfs2_page_wait(gl);
-> > -		}
-> > -		if (flags & DIO_RELEASE)
-> > -			gfs2_ail_empty_gl(gl);
-> > +		gfs2_page_writeback(gl);
-> > +		gfs2_log_flush(gl->gl_sbd, gl);
-> > +		gfs2_meta_sync(gl);
-> > +		gfs2_page_wait(gl);
-> > +		clear_bit(GLF_DIRTY, &gl->gl_flags);
-> > +		gfs2_ail_empty_gl(gl);
-> >  	}
-> >  }
-> >  
-> > @@ -302,15 +284,13 @@ static void inode_go_sync(struct gfs2_gl
-> >  static void inode_go_inval(struct gfs2_glock *gl, int flags)
-> >  {
-> >  	int meta = (flags & DIO_METADATA);
-> > -	int data = (flags & DIO_DATA);
-> >  
-> >  	if (meta) {
-> >  		struct gfs2_inode *ip = gl->gl_object;
-> >  		gfs2_meta_inval(gl);
-> >  		set_bit(GIF_INVALID, &ip->i_flags);
-> >  	}
-> > -	if (data)
-> > -		gfs2_page_inval(gl);
-> > +	gfs2_page_inval(gl);
-> >  }
-> >  
-> >  /**
-> > @@ -494,7 +474,7 @@ static void trans_go_xmote_bh(struct gfs
-> >  	if (gl->gl_state != LM_ST_UNLOCKED &&
-> >  	    test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags)) {
-> >  		gfs2_meta_cache_flush(GFS2_I(sdp->sd_jdesc->jd_inode));
-> > -		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA | DIO_DATA);
-> > +		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
-> >  
-> >  		error = gfs2_find_jhead(sdp->sd_jdesc, &head);
-> >  		if (error)
-> > diff --git a/fs/gfs2/incore.h b/fs/gfs2/incore.h
-> > index 227a74d..734421e 100644
-> > --- a/fs/gfs2/incore.h
-> > +++ b/fs/gfs2/incore.h
-> > @@ -14,8 +14,6 @@ #include <linux/fs.h>
-> >  
-> >  #define DIO_WAIT	0x00000010
-> >  #define DIO_METADATA	0x00000020
-> > -#define DIO_DATA	0x00000040
-> > -#define DIO_RELEASE	0x00000080
-> >  #define DIO_ALL		0x00000100
-> >  
-> >  struct gfs2_log_operations;
-> > @@ -103,18 +101,17 @@ struct gfs2_bufdata {
-> >  };
-> >  
-> >  struct gfs2_glock_operations {
-> > -	void (*go_xmote_th) (struct gfs2_glock * gl, unsigned int state,
-> > -			     int flags);
-> > -	void (*go_xmote_bh) (struct gfs2_glock * gl);
-> > -	void (*go_drop_th) (struct gfs2_glock * gl);
-> > -	void (*go_drop_bh) (struct gfs2_glock * gl);
-> > -	void (*go_sync) (struct gfs2_glock * gl, int flags);
-> > -	void (*go_inval) (struct gfs2_glock * gl, int flags);
-> > -	int (*go_demote_ok) (struct gfs2_glock * gl);
-> > -	int (*go_lock) (struct gfs2_holder * gh);
-> > -	void (*go_unlock) (struct gfs2_holder * gh);
-> > -	void (*go_callback) (struct gfs2_glock * gl, unsigned int state);
-> > -	void (*go_greedy) (struct gfs2_glock * gl);
-> > +	void (*go_xmote_th) (struct gfs2_glock *gl, unsigned int state, int flags);
-> > +	void (*go_xmote_bh) (struct gfs2_glock *gl);
-> > +	void (*go_drop_th) (struct gfs2_glock *gl);
-> > +	void (*go_drop_bh) (struct gfs2_glock *gl);
-> > +	void (*go_sync) (struct gfs2_glock *gl);
-> > +	void (*go_inval) (struct gfs2_glock *gl, int flags);
-> > +	int (*go_demote_ok) (struct gfs2_glock *gl);
-> > +	int (*go_lock) (struct gfs2_holder *gh);
-> > +	void (*go_unlock) (struct gfs2_holder *gh);
-> > +	void (*go_callback) (struct gfs2_glock *gl, unsigned int state);
-> > +	void (*go_greedy) (struct gfs2_glock *gl);
-> >  	const int go_type;
-> >  };
-> >  
-> > diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-> > index 0ef8317..1408c5f 100644
-> > --- a/fs/gfs2/super.c
-> > +++ b/fs/gfs2/super.c
-> > @@ -517,7 +517,7 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp
-> >  		return error;
-> >  
-> >  	gfs2_meta_cache_flush(ip);
-> > -	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA | DIO_DATA);
-> > +	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
-> >  
-> >  	error = gfs2_find_jhead(sdp->sd_jdesc, &head);
-> >  	if (error)
+I'd like to move this sysctl interface to the upcoming /proc/filecache. 
+Being a module, it helps reduce the kernel size :)
 
+Fengguang Wu

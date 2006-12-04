@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937058AbWLDQL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937007AbWLDQNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937058AbWLDQL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937059AbWLDQL3
+	id S937007AbWLDQNS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 11:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937057AbWLDQNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:11:29 -0500
-Received: from zrtps0kp.nortel.com ([47.140.192.56]:55689 "EHLO
-	zrtps0kp.nortel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937058AbWLDQL2 (ORCPT
+	Mon, 4 Dec 2006 11:13:18 -0500
+Received: from smtp.nokia.com ([131.228.20.170]:32807 "EHLO
+	mgw-ext11.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937007AbWLDQNR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:11:28 -0500
-Message-ID: <4574487F.7040805@nortel.com>
-Date: Mon, 04 Dec 2006 10:10:39 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Mon, 4 Dec 2006 11:13:17 -0500
+Message-ID: <457449CD.3040108@indt.org.br>
+Date: Mon, 04 Dec 2006 12:16:13 -0400
+From: Anderson Briglia <anderson.briglia@indt.org.br>
+User-Agent: Icedove 1.5.0.7 (X11/20061013)
 MIME-Version: 1.0
-To: Aucoin@Houston.RR.com
-CC: "'Kyle Moffett'" <mrmacman_g4@mac.com>,
-       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: la la la la ... swappiness
-References: <200612041439.kB4EdGFn025092@ms-smtp-03.texas.rr.com>
-In-Reply-To: <200612041439.kB4EdGFn025092@ms-smtp-03.texas.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: ext Pierre Ossman <drzeus-list@drzeus.cx>
+CC: "Linux-omap-open-source@linux.omap.com" 
+	<linux-omap-open-source@linux.omap.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>,
+       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
+       ext David Brownell <david-b@pacbell.net>,
+       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/5] [RFC] Add MMC Password Protection (lock/unlock) support
+ V7: mmc_sysfs.diff
+References: <45646457.1060203@indt.org.br> <45680555.1000406@drzeus.cx> <456ACC9E.2030105@indt.org.br> <45709B95.9000009@drzeus.cx>
+In-Reply-To: <45709B95.9000009@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Dec 2006 16:10:50.0906 (UTC) FILETIME=[C45DDFA0:01C717BE]
+X-OriginalArrivalTime: 04 Dec 2006 16:11:59.0849 (UTC) FILETIME=[ED75BD90:01C717BE]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aucoin wrote:
+ext Pierre Ossman wrote:
+> Anderson Briglia wrote:
+>> Hi Pierre,
+>>
+>> ext Pierre Ossman wrote:
+>>> Patch looks ok. But I never got an answer what the difference between
+>>> "change" and "assign" is.
+>> You're right, the command is the same, but the difference is the
+>> password's
+>> length and password itself sent to the card.
+>> According to MMC spec 4.1, when a password replacement is done, the
+>> length value
+>> (PWD_LEN) shall include both passwords, the old and the new one, and
+>> the password
+>> (PWD) shall include the old (currently) followed by the new password.
+> 
+> So shouldn't this be something that userspace handles?
+> 
 
-> The definition of perfectly good here may be up for debate or
-> someone can explain it to me. This perfectly good data was
-> cached under the tar yet hours after the tar has completed the
-> pages are still cached.
+I merged the code for "change" and "assign". But the action (returned from kernel
+to user space application continues as "change" and "assign" separately.
 
-If nothing else has asked for that memory since the tar, there is no 
-reason to evict the pages from the cache.  The inactive memory is 
-basically "free, but still contains the previous data".
-
-If anything asks for memory, those pages will be filled with zeros or 
-the new information.  In the meantime, the kernel keeps them in the 
-cache in case anyone wants the old information.
-
-It doesn't hurt anything to keep the pages around with the old data in 
-them--and it might help.
-
-Chris
+Anderson Briglia

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936269AbWLDMdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936271AbWLDMec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936269AbWLDMdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936263AbWLDMdh
+	id S936271AbWLDMec (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936263AbWLDMec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:33:37 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:30686 "EHLO
+	Mon, 4 Dec 2006 07:34:32 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:42462 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936266AbWLDMdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:33:35 -0500
+	id S936271AbWLDMeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:34:31 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 06/35] struct path: Rename DM's struct path
-Date: Mon,  4 Dec 2006 07:30:39 -0500
-Message-Id: <116523546971-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 35/35] Unionfs: Extended Attributes support
+Date: Mon,  4 Dec 2006 07:31:08 -0500
+Message-Id: <1165235473964-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,238 +25,332 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Rename DM's struct path to struct dm_path.
+Extended attribute support.
 
-Cc: dm-devel@redhat.com
-Cc: mingo@redhat.com
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- drivers/md/dm-emc.c           |   10 +++++-----
- drivers/md/dm-hw-handler.h    |    2 +-
- drivers/md/dm-mpath.c         |    6 +++---
- drivers/md/dm-mpath.h         |    4 ++--
- drivers/md/dm-path-selector.h |   12 ++++++------
- drivers/md/dm-round-robin.c   |   12 ++++++------
- 6 files changed, 23 insertions(+), 23 deletions(-)
+ fs/Kconfig          |    9 ++++
+ fs/unionfs/Makefile |    2 +
+ fs/unionfs/copyup.c |   75 +++++++++++++++++++++++++++++++
+ fs/unionfs/inode.c  |   12 +++++
+ fs/unionfs/union.h  |   15 ++++++
+ fs/unionfs/xattr.c  |  123 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 236 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/md/dm-emc.c b/drivers/md/dm-emc.c
-index 2b2d45d..265c467 100644
---- a/drivers/md/dm-emc.c
-+++ b/drivers/md/dm-emc.c
-@@ -40,7 +40,7 @@ static inline void free_bio(struct bio *
+diff --git a/fs/Kconfig b/fs/Kconfig
+index 4b31ea4..b8b8e45 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1567,6 +1567,15 @@ config UNION_FS
  
- static int emc_endio(struct bio *bio, unsigned int bytes_done, int error)
- {
--	struct path *path = bio->bi_private;
-+	struct dm_path *path = bio->bi_private;
+ 	  See <http://www.unionfs.org> for details
  
- 	if (bio->bi_size)
- 		return 1;
-@@ -61,7 +61,7 @@ static int emc_endio(struct bio *bio, un
- 	return 0;
- }
++config UNION_FS_XATTR
++	bool "Unionfs extended attributes"
++	depends on UNION_FS
++	help
++	  Extended attributes are name:value pairs associated with inodes by
++	  the kernel or by users (see the attr(5) manual page).
++
++	  If unsure, say N.
++
+ endmenu
  
--static struct bio *get_failover_bio(struct path *path, unsigned data_size)
-+static struct bio *get_failover_bio(struct dm_path *path, unsigned data_size)
- {
- 	struct bio *bio;
- 	struct page *page;
-@@ -96,7 +96,7 @@ static struct bio *get_failover_bio(stru
- }
+ menu "Network File Systems"
+diff --git a/fs/unionfs/Makefile b/fs/unionfs/Makefile
+index 25dd78f..7c98325 100644
+--- a/fs/unionfs/Makefile
++++ b/fs/unionfs/Makefile
+@@ -3,3 +3,5 @@ obj-$(CONFIG_UNION_FS) += unionfs.o
+ unionfs-y := subr.o dentry.o file.o inode.o main.o super.o \
+ 	stale_inode.o branchman.o rdstate.o copyup.o dirhelper.o \
+ 	rename.o unlink.o lookup.o commonfops.o dirfops.o sioq.o
++
++unionfs-$(CONFIG_UNION_FS_XATTR) += xattr.o
+diff --git a/fs/unionfs/copyup.c b/fs/unionfs/copyup.c
+index 0557c02..ec1c649 100644
+--- a/fs/unionfs/copyup.c
++++ b/fs/unionfs/copyup.c
+@@ -18,6 +18,75 @@
  
- static struct request *get_failover_req(struct emc_handler *h,
--					struct bio *bio, struct path *path)
-+					struct bio *bio, struct dm_path *path)
- {
- 	struct request *rq;
- 	struct block_device *bdev = bio->bi_bdev;
-@@ -133,7 +133,7 @@ static struct request *get_failover_req(
- }
+ #include "union.h"
  
- static struct request *emc_trespass_get(struct emc_handler *h,
--					struct path *path)
-+					struct dm_path *path)
- {
- 	struct bio *bio;
- 	struct request *rq;
-@@ -191,7 +191,7 @@ static struct request *emc_trespass_get(
- }
++#ifdef CONFIG_UNION_FS_XATTR
++/* copyup all extended attrs for a given dentry */
++static int copyup_xattrs(struct dentry *old_hidden_dentry,
++			 struct dentry *new_hidden_dentry)
++{
++	int err = 0;
++	ssize_t list_size = -1;
++	char *name_list = NULL;
++	char *attr_value = NULL;
++	char *name_list_orig = NULL;
++
++	list_size = vfs_listxattr(old_hidden_dentry, NULL, 0);
++
++	if (list_size <= 0) {
++		err = list_size;
++		goto out;
++	}
++
++	name_list = xattr_alloc(list_size + 1, XATTR_LIST_MAX);
++	if (!name_list || IS_ERR(name_list)) {
++		err = PTR_ERR(name_list);
++		goto out;
++	}
++	list_size = vfs_listxattr(old_hidden_dentry, name_list, list_size);
++	attr_value = xattr_alloc(XATTR_SIZE_MAX, XATTR_SIZE_MAX);
++	if (!attr_value || IS_ERR(attr_value)) {
++		err = PTR_ERR(name_list);
++		goto out;
++	}
++	name_list_orig = name_list;
++	while (*name_list) {
++		ssize_t size;
++
++		//We need to lock here since vfs_getxattr doesn't lock for us.
++		mutex_lock(&old_hidden_dentry->d_inode->i_mutex);
++		size = vfs_getxattr(old_hidden_dentry, name_list,
++				    attr_value, XATTR_SIZE_MAX);
++		mutex_unlock(&old_hidden_dentry->d_inode->i_mutex);
++		if (size < 0) {
++			err = size;
++			goto out;
++		}
++
++		if (size > XATTR_SIZE_MAX) {
++			err = -E2BIG;
++			goto out;
++		}
++		//We don't need to lock here since vfs_setxattr does it for us.
++		err = vfs_setxattr(new_hidden_dentry, name_list, attr_value,
++				   size, 0);
++
++		if (err < 0)
++			goto out;
++		name_list += strlen(name_list) + 1;
++	}
++      out:
++	name_list = name_list_orig;
++
++	if (name_list)
++		xattr_free(name_list, list_size + 1);
++	if (attr_value)
++		xattr_free(attr_value, XATTR_SIZE_MAX);
++	/* It is no big deal if this fails, we just roll with the punches. */
++	if (err == -ENOTSUPP || err == -EOPNOTSUPP)
++		err = 0;
++	return err;
++}
++#endif /* CONFIG_UNION_FS_XATTR */
++
+ /* Determine the mode based on the copyup flags, and the existing dentry. */
+ static int copyup_permissions(struct super_block *sb,
+ 			      struct dentry *old_hidden_dentry,
+@@ -343,6 +412,12 @@ int copyup_named_dentry(struct inode *di
+ 	if ((err = copyup_permissions(sb, old_hidden_dentry, new_hidden_dentry)))
+ 		goto out_unlink;
  
- static void emc_pg_init(struct hw_handler *hwh, unsigned bypassed,
--			struct path *path)
-+			struct dm_path *path)
- {
- 	struct request *rq;
- 	struct request_queue *q = bdev_get_queue(path->dev->bdev);
-diff --git a/drivers/md/dm-hw-handler.h b/drivers/md/dm-hw-handler.h
-index 15f5629..32eff28 100644
---- a/drivers/md/dm-hw-handler.h
-+++ b/drivers/md/dm-hw-handler.h
-@@ -32,7 +32,7 @@ struct hw_handler_type {
- 	void (*destroy) (struct hw_handler *hwh);
- 
- 	void (*pg_init) (struct hw_handler *hwh, unsigned bypassed,
--			 struct path *path);
-+			 struct dm_path *path);
- 	unsigned (*error) (struct hw_handler *hwh, struct bio *bio);
- 	int (*status) (struct hw_handler *hwh, status_type_t type,
- 		       char *result, unsigned int maxlen);
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index d754e0b..b5348b1 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -31,7 +31,7 @@ struct pgpath {
- 	struct priority_group *pg;	/* Owning PG */
- 	unsigned fail_count;		/* Cumulative failure count */
- 
--	struct path path;
-+	struct dm_path path;
++#ifdef CONFIG_UNION_FS_XATTR
++ 	/* Selinux uses extended attributes for permissions. */
++ 	if ((err = copyup_xattrs(old_hidden_dentry, new_hidden_dentry)))
++		goto out_unlink;
++#endif
++
+ 	/* do not allow files getting deleted to be reinterposed */
+ 	if (!d_deleted(dentry))
+ 		unionfs_reinterpose(dentry);
+diff --git a/fs/unionfs/inode.c b/fs/unionfs/inode.c
+index c7806e9..2e45fb0 100644
+--- a/fs/unionfs/inode.c
++++ b/fs/unionfs/inode.c
+@@ -917,10 +917,22 @@ struct inode_operations unionfs_dir_iops
+ 	.rename = unionfs_rename,
+ 	.permission = unionfs_permission,
+ 	.setattr = unionfs_setattr,
++#ifdef CONFIG_UNION_FS_XATTR
++	.setxattr = unionfs_setxattr,
++	.getxattr = unionfs_getxattr,
++	.removexattr = unionfs_removexattr,
++	.listxattr = unionfs_listxattr,
++#endif
  };
  
- #define path_to_pgpath(__pgp) container_of((__pgp), struct pgpath, path)
-@@ -229,7 +229,7 @@ static void __switch_pg(struct multipath
- 
- static int __choose_path_in_pg(struct multipath *m, struct priority_group *pg)
- {
--	struct path *path;
-+	struct dm_path *path;
- 
- 	path = pg->ps.type->select_path(&pg->ps, &m->repeat_count);
- 	if (!path)
-@@ -955,7 +955,7 @@ static int bypass_pg_num(struct multipat
- /*
-  * pg_init must call this when it has completed its initialisation
-  */
--void dm_pg_init_complete(struct path *path, unsigned err_flags)
-+void dm_pg_init_complete(struct dm_path *path, unsigned err_flags)
- {
- 	struct pgpath *pgpath = path_to_pgpath(path);
- 	struct priority_group *pg = pgpath->pg;
-diff --git a/drivers/md/dm-mpath.h b/drivers/md/dm-mpath.h
-index 8a4bf2b..b9cdcbb 100644
---- a/drivers/md/dm-mpath.h
-+++ b/drivers/md/dm-mpath.h
-@@ -11,7 +11,7 @@
- 
- struct dm_dev;
- 
--struct path {
-+struct dm_path {
- 	struct dm_dev *dev;	/* Read-only */
- 	unsigned is_active;	/* Read-only */
- 
-@@ -20,6 +20,6 @@ struct path {
+ struct inode_operations unionfs_main_iops = {
+ 	.permission = unionfs_permission,
+ 	.setattr = unionfs_setattr,
++#ifdef CONFIG_UNION_FS_XATTR
++	.setxattr = unionfs_setxattr,
++	.getxattr = unionfs_getxattr,
++	.removexattr = unionfs_removexattr,
++	.listxattr = unionfs_listxattr,
++#endif
  };
  
- /* Callback for hwh_pg_init_fn to use when complete */
--void dm_pg_init_complete(struct path *path, unsigned err_flags);
-+void dm_pg_init_complete(struct dm_path *path, unsigned err_flags);
+diff --git a/fs/unionfs/union.h b/fs/unionfs/union.h
+index ff0b814..58e0cfb 100644
+--- a/fs/unionfs/union.h
++++ b/fs/unionfs/union.h
+@@ -40,6 +40,7 @@
+ #include <linux/string.h>
+ #include <linux/vmalloc.h>
+ #include <linux/writeback.h>
++#include <linux/xattr.h>
+ #include <linux/fs_stack.h>
  
- #endif
-diff --git a/drivers/md/dm-path-selector.h b/drivers/md/dm-path-selector.h
-index 732d06a..27357b8 100644
---- a/drivers/md/dm-path-selector.h
-+++ b/drivers/md/dm-path-selector.h
-@@ -44,7 +44,7 @@ struct path_selector_type {
- 	 * Add an opaque path object, along with some selector specific
- 	 * path args (eg, path priority).
- 	 */
--	int (*add_path) (struct path_selector *ps, struct path *path,
-+	int (*add_path) (struct path_selector *ps, struct dm_path *path,
- 			 int argc, char **argv, char **error);
+ #include <linux/union_fs.h>
+@@ -315,6 +316,20 @@ int unionfs_ioctl_queryfile(struct file
+ /* Verify that a branch is valid. */
+ int check_branch(struct nameidata *nd);
  
- 	/*
-@@ -55,27 +55,27 @@ struct path_selector_type {
- 	 * calling the function again.  0 means don't call it again unless
- 	 * the path fails.
- 	 */
--	struct path *(*select_path) (struct path_selector *ps,
-+	struct dm_path *(*select_path) (struct path_selector *ps,
- 				     unsigned *repeat_count);
- 
- 	/*
- 	 * Notify the selector that a path has failed.
- 	 */
--	void (*fail_path) (struct path_selector *ps, struct path *p);
-+	void (*fail_path) (struct path_selector *ps, struct dm_path *p);
- 
- 	/*
- 	 * Ask selector to reinstate a path.
- 	 */
--	int (*reinstate_path) (struct path_selector *ps, struct path *p);
-+	int (*reinstate_path) (struct path_selector *ps, struct dm_path *p);
- 
- 	/*
- 	 * Table content based on parameters added in ps_add_path_fn
- 	 * or path selector status
- 	 */
--	int (*status) (struct path_selector *ps, struct path *path,
-+	int (*status) (struct path_selector *ps, struct dm_path *path,
- 		       status_type_t type, char *result, unsigned int maxlen);
- 
--	int (*end_io) (struct path_selector *ps, struct path *path);
-+	int (*end_io) (struct path_selector *ps, struct dm_path *path);
- };
- 
- /* Register a path selector */
-diff --git a/drivers/md/dm-round-robin.c b/drivers/md/dm-round-robin.c
-index 6f9fcd4..a348a97 100644
---- a/drivers/md/dm-round-robin.c
-+++ b/drivers/md/dm-round-robin.c
-@@ -21,7 +21,7 @@
-  *---------------------------------------------------------------*/
- struct path_info {
- 	struct list_head list;
--	struct path *path;
-+	struct dm_path *path;
- 	unsigned repeat_count;
- };
- 
-@@ -80,7 +80,7 @@ static void rr_destroy(struct path_selec
- 	ps->context = NULL;
- }
- 
--static int rr_status(struct path_selector *ps, struct path *path,
-+static int rr_status(struct path_selector *ps, struct dm_path *path,
- 		     status_type_t type, char *result, unsigned int maxlen)
++#ifdef CONFIG_UNION_FS_XATTR
++/* Extended attribute functions. */
++extern void *xattr_alloc(size_t size, size_t limit);
++extern void xattr_free(void *ptr, size_t size);
++
++extern ssize_t unionfs_getxattr(struct dentry *dentry, const char *name,
++		void *value, size_t size);
++extern int unionfs_removexattr(struct dentry *dentry, const char *name);
++extern ssize_t unionfs_listxattr(struct dentry *dentry, char *list,
++		size_t size);
++extern int unionfs_setxattr(struct dentry *dentry, const char *name,
++		const void *value, size_t size, int flags);
++#endif /* CONFIG_UNION_FS_XATTR */
++
+ /* The root directory is unhashed, but isn't deleted. */
+ static inline int d_deleted(struct dentry *d)
  {
- 	struct path_info *pi;
-@@ -106,7 +106,7 @@ static int rr_status(struct path_selecto
-  * Called during initialisation to register each path with an
-  * optional repeat_count.
-  */
--static int rr_add_path(struct path_selector *ps, struct path *path,
-+static int rr_add_path(struct path_selector *ps, struct dm_path *path,
- 		       int argc, char **argv, char **error)
- {
- 	struct selector *s = (struct selector *) ps->context;
-@@ -141,7 +141,7 @@ static int rr_add_path(struct path_selec
- 	return 0;
- }
- 
--static void rr_fail_path(struct path_selector *ps, struct path *p)
-+static void rr_fail_path(struct path_selector *ps, struct dm_path *p)
- {
- 	struct selector *s = (struct selector *) ps->context;
- 	struct path_info *pi = p->pscontext;
-@@ -149,7 +149,7 @@ static void rr_fail_path(struct path_sel
- 	list_move(&pi->list, &s->invalid_paths);
- }
- 
--static int rr_reinstate_path(struct path_selector *ps, struct path *p)
-+static int rr_reinstate_path(struct path_selector *ps, struct dm_path *p)
- {
- 	struct selector *s = (struct selector *) ps->context;
- 	struct path_info *pi = p->pscontext;
-@@ -159,7 +159,7 @@ static int rr_reinstate_path(struct path
- 	return 0;
- }
- 
--static struct path *rr_select_path(struct path_selector *ps,
-+static struct dm_path *rr_select_path(struct path_selector *ps,
- 				   unsigned *repeat_count)
- {
- 	struct selector *s = (struct selector *) ps->context;
+diff --git a/fs/unionfs/xattr.c b/fs/unionfs/xattr.c
+new file mode 100644
+index 0000000..9f804bf
+--- /dev/null
++++ b/fs/unionfs/xattr.c
+@@ -0,0 +1,123 @@
++/*
++ * Copyright (c) 2003-2006 Erez Zadok
++ * Copyright (c) 2003-2006 Charles P. Wright
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005      Arun M. Krishnakumar
++ * Copyright (c) 2004-2006 David P. Quigley
++ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
++ * Copyright (c) 2003      Puja Gupta
++ * Copyright (c) 2003      Harikesavan Krishnan
++ * Copyright (c) 2003-2006 Stony Brook University
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York*
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "union.h"
++
++/* This is lifted from fs/xattr.c */
++void *xattr_alloc(size_t size, size_t limit)
++{
++	void *ptr;
++
++	if (size > limit)
++		return ERR_PTR(-E2BIG);
++
++	if (!size)		/* size request, no buffer is needed */
++		return NULL;
++	else if (size <= PAGE_SIZE)
++		ptr = kmalloc(size, GFP_KERNEL);
++	else
++		ptr = vmalloc(size);
++	if (!ptr)
++		return ERR_PTR(-ENOMEM);
++	return ptr;
++}
++
++void xattr_free(void *ptr, size_t size)
++{
++	if (!size)		/* size request, no buffer was needed */
++		return;
++	else if (size <= PAGE_SIZE)
++		kfree(ptr);
++	else
++		vfree(ptr);
++}
++
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++ssize_t unionfs_getxattr(struct dentry * dentry, const char *name, void *value,
++		size_t size)
++{
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
++
++	lock_dentry(dentry);
++
++	hidden_dentry = unionfs_lower_dentry(dentry);
++
++	err = vfs_getxattr(hidden_dentry, (char*) name, value, size);
++
++	unlock_dentry(dentry);
++	return err;
++}
++
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++int unionfs_setxattr(struct dentry *dentry, const char *name, const void *value,
++		 size_t size, int flags)
++{
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
++
++	lock_dentry(dentry);
++	hidden_dentry = unionfs_lower_dentry(dentry);
++
++	err = vfs_setxattr(hidden_dentry, (char*) name, (void*) value, size, flags);
++
++	unlock_dentry(dentry);
++	return err;
++}
++
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++int unionfs_removexattr(struct dentry *dentry, const char *name)
++{
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
++
++	lock_dentry(dentry);
++	hidden_dentry = unionfs_lower_dentry(dentry);
++
++	err = vfs_removexattr(hidden_dentry, (char*) name);
++
++	unlock_dentry(dentry);
++	return err;
++}
++
++/* BKL held by caller.
++ * dentry->d_inode->i_mutex locked
++ */
++ssize_t unionfs_listxattr(struct dentry * dentry, char *list, size_t size)
++{
++	struct dentry *hidden_dentry = NULL;
++	int err = -EOPNOTSUPP;
++	char *encoded_list = NULL;
++
++	lock_dentry(dentry);
++
++	hidden_dentry = unionfs_lower_dentry(dentry);
++
++	encoded_list = list;
++	err = vfs_listxattr(hidden_dentry, encoded_list, size);
++
++	unlock_dentry(dentry);
++	return err;
++}
++
 -- 
 1.4.3.3
 

@@ -1,103 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759793AbWLDXQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967753AbWLDXQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759793AbWLDXQX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759849AbWLDXQX
+	id S967753AbWLDXQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967750AbWLDXQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:16:23 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:47871 "EHLO
+	Mon, 4 Dec 2006 18:16:28 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:47869 "EHLO
 	saraswathi.solana.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759830AbWLDXQW (ORCPT
+	with ESMTP id S1759827AbWLDXQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 4 Dec 2006 18:16:22 -0500
-Message-Id: <200612042312.kB4NCNiN024571@ccure.user-mode-linux.org>
+Message-Id: <200612042312.kB4NCMck024566@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org
 cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 4/4] UML - Use get_random_bytes after random pool is seeded
+Subject: [PATCH 3/4] UML - Size register files correctly
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Dec 2006 18:12:23 -0500
+Date: Mon, 04 Dec 2006 18:12:22 -0500
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When the UML network driver generates random MACs for its devices, it was
-possible for a number of UMLs to get the same MACs because the ethernet 
-initialization was done before the random pool was properly seeded.
-
-This patch moves the initialization later so that it gets better randomness.
+We were using the wrong symbol to size register files.
 
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.18-mm/arch/um/drivers/daemon_kern.c
+Index: linux-2.6.18-mm/arch/um/include/sysdep-i386/ptrace.h
 ===================================================================
---- linux-2.6.18-mm.orig/arch/um/drivers/daemon_kern.c	2006-11-24 14:29:57.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/drivers/daemon_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -98,4 +98,4 @@ static int register_daemon(void)
- 	return 0;
- }
- 
--__initcall(register_daemon);
-+late_initcall(register_daemon);
-Index: linux-2.6.18-mm/arch/um/drivers/mcast_kern.c
+--- linux-2.6.18-mm.orig/arch/um/include/sysdep-i386/ptrace.h	2006-11-27 18:55:15.000000000 -0500
++++ linux-2.6.18-mm/arch/um/include/sysdep-i386/ptrace.h	2006-11-29 04:39:05.000000000 -0500
+@@ -75,7 +75,7 @@ union uml_pt_regs {
+ #endif
+ #ifdef UML_CONFIG_MODE_SKAS
+ 	struct skas_regs {
+-		unsigned long regs[HOST_FRAME_SIZE];
++		unsigned long regs[MAX_REG_NR];
+ 		unsigned long fp[HOST_FP_SIZE];
+ 		unsigned long xfp[HOST_XFP_SIZE];
+                 struct faultinfo faultinfo;
+Index: linux-2.6.18-mm/arch/um/include/sysdep-x86_64/ptrace.h
 ===================================================================
---- linux-2.6.18-mm.orig/arch/um/drivers/mcast_kern.c	2006-11-24 14:29:57.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/drivers/mcast_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -127,4 +127,4 @@ static int register_mcast(void)
- 	return 0;
- }
- 
--__initcall(register_mcast);
-+late_initcall(register_mcast);
-Index: linux-2.6.18-mm/arch/um/drivers/pcap_kern.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/drivers/pcap_kern.c	2006-11-24 14:29:57.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/drivers/pcap_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -109,4 +109,4 @@ static int register_pcap(void)
- 	return 0;
- }
- 
--__initcall(register_pcap);
-+late_initcall(register_pcap);
-Index: linux-2.6.18-mm/arch/um/drivers/slip_kern.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/drivers/slip_kern.c	2006-11-27 18:55:16.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/drivers/slip_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -95,4 +95,4 @@ static int register_slip(void)
- 	return 0;
- }
- 
--__initcall(register_slip);
-+late_initcall(register_slip);
-Index: linux-2.6.18-mm/arch/um/drivers/slirp_kern.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/drivers/slirp_kern.c	2006-11-27 18:55:16.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/drivers/slirp_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -119,4 +119,4 @@ static int register_slirp(void)
- 	return 0;
- }
- 
--__initcall(register_slirp);
-+late_initcall(register_slirp);
-Index: linux-2.6.18-mm/arch/um/os-Linux/drivers/ethertap_kern.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/os-Linux/drivers/ethertap_kern.c	2006-11-27 18:55:16.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/os-Linux/drivers/ethertap_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -105,4 +105,4 @@ static int register_ethertap(void)
- 	return 0;
- }
- 
--__initcall(register_ethertap);
-+late_initcall(register_ethertap);
-Index: linux-2.6.18-mm/arch/um/os-Linux/drivers/tuntap_kern.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/os-Linux/drivers/tuntap_kern.c	2006-11-27 18:55:16.000000000 -0500
-+++ linux-2.6.18-mm/arch/um/os-Linux/drivers/tuntap_kern.c	2006-12-04 12:08:52.000000000 -0500
-@@ -90,4 +90,4 @@ static int register_tuntap(void)
- 	return 0;
- }
- 
--__initcall(register_tuntap);
-+late_initcall(register_tuntap);
+--- linux-2.6.18-mm.orig/arch/um/include/sysdep-x86_64/ptrace.h	2006-11-27 18:55:15.000000000 -0500
++++ linux-2.6.18-mm/arch/um/include/sysdep-x86_64/ptrace.h	2006-11-29 04:38:13.000000000 -0500
+@@ -108,7 +108,7 @@ union uml_pt_regs {
+ 		 * file size, while i386 uses FRAME_SIZE.  Therefore, we need
+ 		 * to use UM_FRAME_SIZE here instead of HOST_FRAME_SIZE.
+ 		 */
+-		unsigned long regs[UM_FRAME_SIZE];
++		unsigned long regs[MAX_REG_NR];
+ 		unsigned long fp[HOST_FP_SIZE];
+                 struct faultinfo faultinfo;
+ 		long syscall;
 

@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937215AbWLDRHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937220AbWLDRIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937215AbWLDRHA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 12:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937219AbWLDRHA
+	id S937220AbWLDRIY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 12:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937224AbWLDRIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 12:07:00 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:36384 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937215AbWLDRG7 (ORCPT
+	Mon, 4 Dec 2006 12:08:24 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.155]:8502 "EHLO
+	imap.sh.mvista.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S937220AbWLDRIX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 12:06:59 -0500
-Date: Mon, 4 Dec 2006 22:43:13 +0530
-From: Bharata B Rao <bharata@in.ibm.com>
-To: =?iso-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH -mm 3/5][AIO] - export good_sigevent()
-Message-ID: <20061204171313.GB27379@in.ibm.com>
-Reply-To: bharata@in.ibm.com
-References: <20061129112441.745351c9@frecb000686> <20061129113234.38c12911@frecb000686>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20061129113234.38c12911@frecb000686>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 4 Dec 2006 12:08:23 -0500
+Message-ID: <45745664.5040404@ru.mvista.com>
+Date: Mon, 04 Dec 2006 20:09:56 +0300
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, dwalker@mvista.com,
+       khilman@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in	latency_trace.c
+ (take 3)
+References: <200611132252.58818.sshtylyov@ru.mvista.com> <457326A2.2020402@ru.mvista.com> <20061204095131.GE7872@elte.hu> <4574149B.5070602@ru.mvista.com> <20061204153949.GA9350@elte.hu> <45744AF5.2040508@ru.mvista.com> <20061204162300.GA23800@elte.hu>
+In-Reply-To: <20061204162300.GA23800@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2006 at 11:32:34AM +0100, Sébastien Dugué wrote:
-> 
-> <snip> 
-> +/***
-> + * good_sigevent - check and get target task from a sigevent.
-> + * @event: the sigevent to be checked
-> + *
-> + * This function must be called with tasklist_lock held for reading.
-> + */
-> +struct task_struct * good_sigevent(sigevent_t * event)
-> +{
-> +	struct task_struct *rtn = current->group_leader;
-> +
-> +	if ((event->sigev_notify & SIGEV_THREAD_ID ) &&
-> +		(!(rtn = find_task_by_pid(event->sigev_notify_thread_id)) ||
-> +		 rtn->tgid != current->tgid ||
-> +		 (event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL))
-> +		return NULL;
-> +
-> +	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-> +	    ((event->sigev_signo <= 0) || (event->sigev_signo > SIGRTMAX)))
-> +		return NULL;
-> +
-> +	return rtn;
-> +}
+Hello.
 
-Here good_sigevent() doesn't take care of SIGEV_THREAD. From this comment
-from include/asm-generic/siginfo.h,
+Ingo Molnar wrote:
 
-"It seems likely that SIGEV_THREAD will have to be handled from 
-userspace, libpthread transmuting it to SIGEV_SIGNAL, which the
-thread manager then catches and does the appropriate nonsense.
- However, everything is written out here so as to not get lost."
+>>>	/* check for buggy clocks, handling wrap for 32-bit clocks */
+>>>-	if (TYPE_EQUAL(cycles_t, unsigned long)) {
+>>>+	if (TYPE_EQUAL(cycle_t, unsigned long)) {
+>>>		if (time_after((unsigned long)T1, (unsigned long)T2))
+>>>			printk("bug: %08lx < %08lx!\n",
+>>>				(unsigned long)T2, (unsigned long)T1);
 
-it looks like SIGEV_THREAD should never come into kernel. But atleast
-libposix-aio does send SIGEV_THREAD all the way up to kernel.
+>>   This earlier fix by Kevin woulnd't have sense anymore with cycle_t...
 
-Regards,
-Bharata.
+> yeah, indeed - i've zapped this one too.
+
+    Moreover, it was somewhat incorrect from the very start since 'unsigned 
+long' is 64-bit on 64-bit machines, and cycles_t is 'unsigned long' on both 
+PPC32 and PPC64, so else branch would've *never* be executed...
+
+> basically, what i'd like is the 32-bit clocks/cycles be handled 
+> intelligently, and not adding to the cruft that already is in 
+> kernel/latency_tracing.c.
+
+    Yeah, I've looked at 2.6.19-rt2 and saw the new approach. But what's left 
+to fix there, only the case of using PPC32 raw cycles? I guess you only need 
+to cast a result of get_cycles() to cycle_t... wait, it'll be explicitly cast 
+in the return stmt, won't it?
+
+> 	Ingo
+
+WBR, Sergei

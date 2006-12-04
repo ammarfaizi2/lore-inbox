@@ -1,123 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966206AbWLDTrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937348AbWLDTrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966206AbWLDTrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965914AbWLDTqo
+	id S937348AbWLDTrx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937338AbWLDTru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:46:44 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:30805 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937334AbWLDTp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:45:56 -0500
-From: Divy Le Ray <None@chelsio.com>
-Subject: [PATCH 10/10] cxgb3 - build files and versioning
-Date: Mon, 04 Dec 2006 11:45:51 -0800
-To: jeff@garzik.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <20061204194550.9163.33966.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
+	Mon, 4 Dec 2006 14:47:50 -0500
+Received: from codepoet.org ([166.70.99.138]:38950 "EHLO codepoet.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966222AbWLDTri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 14:47:38 -0500
+Date: Mon, 4 Dec 2006 12:47:37 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] make sata_promise PATA ports work
+Message-ID: <20061204194737.GA24311@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	linux-kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+	alan@lxorguk.ukuu.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Divy Le Ray <divy@chelsio.com>
+This patch vs 2.6.19, based on the not-actually-working-for-me
+code lurking in libata-dev.git#promise-sata-pata, makes the PATA
+ports on my promise sata card actually work.  Since the plan as
+checked into git, is to drive the PATA ports as if they were
+SATA, we have to teach sata_scr_read() to lie for the PATA ports
+which don't to that, lest the various places that call
+ata_port_offline() and ata_port_online() should fail and leave
+the ports offline and inaccessible.
 
-This patch implements build files and versioning for the 
-Chelsio T3 network adapter's driver.
+This patch gets both SATA and PATA working for me with the
+sata_promise driver on a PDC20375.  Performace seems to be about
+what I would expect, so this (or something very much like it)
+should be applied upstream.
 
-Signed-off-by: Divy Le Ray <divy@chelsio.com>
----
+Signed-off-by: Erik Andersen <andersen@codepoet.org>
 
- drivers/net/Kconfig         |   18 ++++++++++++++++++
- drivers/net/Makefile        |    1 +
- drivers/net/cxgb3/Makefile  |    8 ++++++++
- drivers/net/cxgb3/version.h |   24 ++++++++++++++++++++++++
- 4 files changed, 51 insertions(+), 0 deletions(-)
+ -Erik
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 9de0eed..7fdf4ca 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2384,6 +2384,24 @@ config CHELSIO_T1_1G
-           Enables support for Chelsio's gigabit Ethernet PCI cards.  If you
-           are using only 10G cards say 'N' here.
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--
+
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 915a55a..d0ab733 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -5298,13 +5298,13 @@ void ata_port_init(struct ata_port *ap, 
+ 		ap->pio_mask = ent->pinfo2->pio_mask;
+ 		ap->mwdma_mask = ent->pinfo2->mwdma_mask;
+ 		ap->udma_mask = ent->pinfo2->udma_mask;
+-		ap->flags |= ent->pinfo2->flags;
++		ap->flags |= ent->pinfo2->flags | ent->_port_flags[port_no];
+ 		ap->ops = ent->pinfo2->port_ops;
+ 	} else {
+ 		ap->pio_mask = ent->pio_mask;
+ 		ap->mwdma_mask = ent->mwdma_mask;
+ 		ap->udma_mask = ent->udma_mask;
+-		ap->flags |= ent->port_flags;
++		ap->flags |= ent->port_flags | ent->_port_flags[port_no];
+ 		ap->ops = ent->port_ops;
+ 	}
+ 	ap->hw_sata_spd_limit = UINT_MAX;
+diff --git a/drivers/ata/sata_promise.c b/drivers/ata/sata_promise.c
+index 72eda51..543e6a4 100644
+--- a/drivers/ata/sata_promise.c
++++ b/drivers/ata/sata_promise.c
+@@ -175,7 +175,7 @@ static const struct ata_port_info pdc_po
+ 	/* board_2037x */
+ 	{
+ 		.sht		= &pdc_ata_sht,
+-		.flags		= PDC_COMMON_FLAGS | ATA_FLAG_SATA,
++		.flags		= PDC_COMMON_FLAGS,
+ 		.pio_mask	= 0x1f, /* pio0-4 */
+ 		.mwdma_mask	= 0x07, /* mwdma0-2 */
+ 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
+@@ -355,23 +355,27 @@ static void pdc_reset_port(struct ata_po
+ static void pdc_sata_phy_reset(struct ata_port *ap)
+ {
+ 	pdc_reset_port(ap);
+-	sata_phy_reset(ap);
++	if (ap->flags & ATA_FLAG_SATA)
++		sata_phy_reset(ap);
++	else
++		pdc_pata_phy_reset(ap);
+ }
  
-+config CHELSIO_T3
-+        tristate "Chelsio Communications T3 10Gb Ethernet support"
-+        depends on PCI
-+        help
-+          This driver supports Chelsio T3-based gigabit and 10Gb Ethernet
-+          adapters.
+ static void pdc_pata_cbl_detect(struct ata_port *ap)
+ {
+ 	u8 tmp;
+-	void __iomem *mmio = (void __iomem *) ap->ioaddr.cmd_addr + PDC_CTLSTAT + 0x03;
++	void __iomem *mmio =
++		(void __iomem *) ap->ioaddr.cmd_addr + PDC_CTLSTAT + 0x03;
+ 
+ 	tmp = readb(mmio);
+-
++	
+ 	if (tmp & 0x01) {
+ 		ap->cbl = ATA_CBL_PATA40;
+ 		ap->udma_mask &= ATA_UDMA_MASK_40C;
+ 	} else
+ 		ap->cbl = ATA_CBL_PATA80;
+ }
+-
++		
+ static void pdc_pata_phy_reset(struct ata_port *ap)
+ {
+ 	pdc_pata_cbl_detect(ap);
+@@ -384,6 +388,20 @@ static u32 pdc_sata_scr_read (struct ata
+ {
+ 	if (sc_reg > SCR_CONTROL)
+ 		return 0xffffffffU;
++	if (ap->flags & ATA_FLAG_SLAVE_POSS)
++	{
++		switch (sc_reg) {
++			case SCR_STATUS:
++				return 0x113;
++			case SCR_CONTROL:
++				return 0x300;
++			case SCR_ERROR:
++			case SCR_ACTIVE:
++			default:
++				return 0xffffffffU;
++		}
++	}
 +
-+          For general information about Chelsio and our products, visit
-+          our website at <http://www.chelsio.com>.
-+
-+          For customer support, please visit our customer support page at
-+          <http://www.chelsio.com/support.htm>.
-+
-+          Please send feedback to <linux-bugs@chelsio.com>.
-+
-+          To compile this driver as a module, choose M here: the module
-+          will be called cxgb3.
-+
- config EHEA
- 	tristate "eHEA Ethernet support"
- 	depends on IBMEBUS
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 4c0d4e5..5c66643 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -6,6 +6,7 @@ obj-$(CONFIG_E1000) += e1000/
- obj-$(CONFIG_IBM_EMAC) += ibm_emac/
- obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3/
- obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
-diff --git a/drivers/net/cxgb3/Makefile b/drivers/net/cxgb3/Makefile
-new file mode 100755
-index 0000000..3434679
---- /dev/null
-+++ b/drivers/net/cxgb3/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Chelsio T3 driver
-+#
-+
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3.o
-+
-+cxgb3-objs := cxgb3_main.o ael1002.o vsc8211.o t3_hw.o mc5.o \
-+	      xgmac.o sge.o l2t.o cxgb3_offload.o
-diff --git a/drivers/net/cxgb3/version.h b/drivers/net/cxgb3/version.h
-new file mode 100755
-index 0000000..5a29475
---- /dev/null
-+++ b/drivers/net/cxgb3/version.h
-@@ -0,0 +1,24 @@
-+/*****************************************************************************
-+ *                                                                           *
-+ * File:                                                                     *
-+ *  version.h                                                                *
-+ *                                                                           *
-+ * Description:                                                              *
-+ *  Chelsio driver version defines.                                          *
-+ *                                                                           *
-+ * Copyright (c) 2003 - 2006 Chelsio Communications, Inc.                    *
-+ * All rights reserved.                                                      *
-+ *                                                                           *
-+ * Maintainers: maintainers@chelsio.com                                      *
-+ *                                                                           *
-+ * http://www.chelsio.com                                                    *
-+ *                                                                           *
-+ ****************************************************************************/
-+/* $Date: 2006/10/31 18:57:51 $ $RCSfile: version.h,v $ $Revision: 1.3 $ */
-+#ifndef __CHELSIO_VERSION_H
-+#define __CHELSIO_VERSION_H
-+#define DRV_DESC "Chelsio T3 Network Driver"
-+#define DRV_NAME "cxgb3"
-+// Driver version
-+#define DRV_VERSION "1.0"
-+#endif				//__CHELSIO_VERSION_H
+ 	return readl((void __iomem *) ap->ioaddr.scr_addr + (sc_reg * 4));
+ }
+ 
+@@ -391,7 +409,7 @@ static u32 pdc_sata_scr_read (struct ata
+ static void pdc_sata_scr_write (struct ata_port *ap, unsigned int sc_reg,
+ 			       u32 val)
+ {
+-	if (sc_reg > SCR_CONTROL)
++	if ((sc_reg > SCR_CONTROL) || (ap->flags & ATA_FLAG_SLAVE_POSS))
+ 		return;
+ 	writel(val, (void __iomem *) ap->ioaddr.scr_addr + (sc_reg * 4));
+ }
+@@ -679,6 +697,7 @@ static int pdc_ata_init_one (struct pci_
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
+ 	int pci_dev_busy = 0;
+ 	int rc;
++	u8 tmp;
+ 
+ 	if (!printed_version++)
+ 		dev_printk(KERN_DEBUG, &pdev->dev, "version " DRV_VERSION "\n");
+@@ -743,6 +762,9 @@ static int pdc_ata_init_one (struct pci_
+ 	probe_ent->port[0].scr_addr = base + 0x400;
+ 	probe_ent->port[1].scr_addr = base + 0x500;
+ 
++	probe_ent->_port_flags[0] = ATA_FLAG_SATA;
++	probe_ent->_port_flags[1] = ATA_FLAG_SATA;
++	
+ 	/* notice 4-port boards */
+ 	switch (board_idx) {
+ 	case board_40518:
+@@ -757,13 +779,27 @@ static int pdc_ata_init_one (struct pci_
+ 
+ 		probe_ent->port[2].scr_addr = base + 0x600;
+ 		probe_ent->port[3].scr_addr = base + 0x700;
++	
++		probe_ent->_port_flags[2] = ATA_FLAG_SATA;
++		probe_ent->_port_flags[3] = ATA_FLAG_SATA;
+ 		break;
+ 	case board_2057x:
+ 		/* Override hotplug offset for SATAII150 */
+ 		hp->hotplug_offset = PDC2_SATA_PLUG_CSR;
+ 		/* Fall through */
+ 	case board_2037x:
++		/* Some boards have also PATA port */
+ 		probe_ent->n_ports = 2;
++		probe_ent->_port_flags[0] = ATA_FLAG_SATA;
++		probe_ent->_port_flags[1] = ATA_FLAG_SATA;
++		tmp = readb(mmio_base + PDC_FLASH_CTL+1);
++		if (!(tmp & 0x80))
++		{
++			probe_ent->n_ports = 3;
++			pdc_ata_setup_port(&probe_ent->port[2], base + 0x300);
++			probe_ent->_port_flags[2] = ATA_FLAG_SLAVE_POSS;
++			printk(KERN_INFO DRV_NAME " PATA port found\n");
++		}
+ 		break;
+ 	case board_20771:
+ 		probe_ent->n_ports = 2;
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index abd2deb..aa8c822 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -377,6 +377,7 @@ struct ata_probe_ent {
+ 	unsigned int		irq_flags;
+ 	unsigned long		port_flags;
+ 	unsigned long		_host_flags;
++	unsigned long		_port_flags[ATA_MAX_PORTS];
+ 	void __iomem		*mmio_base;
+ 	void			*private_data;
+ 

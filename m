@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937328AbWLDTl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937051AbWLDTnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937328AbWLDTl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937329AbWLDTl5
+	id S937051AbWLDTnw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937166AbWLDTnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:41:57 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:44377 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S937328AbWLDTl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:41:56 -0500
-Date: Mon, 4 Dec 2006 11:41:42 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Mel Gorman <mel@skynet.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-In-Reply-To: <20061204113051.4e90b249.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com>
-References: <20061130170746.GA11363@skynet.ie> <20061130173129.4ebccaa2.akpm@osdl.org>
- <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie> <20061201110103.08d0cf3d.akpm@osdl.org>
- <20061204140747.GA21662@skynet.ie> <20061204113051.4e90b249.akpm@osdl.org>
+	Mon, 4 Dec 2006 14:43:52 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:14242 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937051AbWLDTnv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 14:43:51 -0500
+Message-ID: <45747A6B.7010301@chelsio.com>
+Date: Mon, 04 Dec 2006 11:43:39 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 0/10] cxgb3: Chelsio T3 1G/10G ethernet device driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Dec 2006 19:43:42.0086 (UTC) FILETIME=[80954A60:01C717DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006, Andrew Morton wrote:
+Hi,
 
-> My concern is that __GFP_MOVABLE is useful for fragmentation-avoidance, but
-> useless for memory hot-unplug.  So that if/when hot-unplug comes along
-> we'll add more gunk which is a somewhat-superset of the GFP_MOVABLE
-> infrastructure, hence we didn't need the GFP_MOVABLE code.  Or something.
+I resubmit the patch supporting the latest Chelsio T3 adapter.
+It incoporpates feedbacks from Stephen and Jan.
 
-It is useless for memory unplug until we implement limits for unmovable 
-pages in a zone (per MA_ORDER area? That would fit nicely into the anti 
-frag scheme) or until we have logic that makes !GFP_MOVABLE allocations 
-fall back to a node that is not removable.
+This patch adds support for the latest Chelsio adapter, T3. It is built
+against 2.6.19.
 
-> That depends on how we do hot-unplug, if we do it.  I continue to suspect
-> that it'll be done via memory zones: effectively by resurrecting
-> GFP_HIGHMEM.  In which case there's little overlap with anti-frag.  (btw, I
-> have a suspicion that the most important application of memory hot-unplug
-> will be power management: destructively turning off DIMMs).
+A corresponding monolithic patch against 2.6.19 is posted at the
+following URL: http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
 
-There are numerous other uses as well (besides DIMM and node unplug):
+We wish this patch to be considered for inclusion in 2.6.20. This driver
+is required by the Chelsio T3 RDMA driver which was updated on 12/02/2006.
 
-1. Faulty DIMM isolation
-2. Virtual memory managers can reduce memory without resorting to 
-   balloons.
-3. Physical removal and exchange of memory while a system is running
-   (Likely necessary to complement hotplug cpu, cpus usually come
-   with memory).
+Cheers,
+Divy
 
-The multi zone approach does not work with NUMA. NUMA only supports a 
-single zone for memory policy control etc. Also multiple zones carry with 
-it a management overhead that is unnecessary for the MOVABLE/UNMOVABLE
-distinction.
- 
-> perhaps not for the hugetlbpage problem.  Whereas anti-fragmentation adds
-> vastly more code, but can address both problems?  Or something.
-
-I'd favor adding full defragmentation.

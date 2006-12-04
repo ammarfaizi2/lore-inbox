@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936325AbWLDMnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936312AbWLDMpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936325AbWLDMnB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:43:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936333AbWLDMnA
+	id S936312AbWLDMpO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:45:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936275AbWLDMoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:43:00 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:65246 "EHLO
+	Mon, 4 Dec 2006 07:44:46 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:56286 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936325AbWLDMfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:16 -0500
+	id S936312AbWLDMfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:35:01 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 33/35] Unionfs: Unlink
-Date: Mon,  4 Dec 2006 07:31:06 -0500
-Message-Id: <1165235472979-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 13/35] lookup_one_len_nd - lookup_one_len with nameidata argument
+Date: Mon,  4 Dec 2006 07:30:46 -0500
+Message-Id: <11652354701586-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,183 +25,72 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch provides unlink functionality for Unionfs.
+This patch renames lookup_one_len to lookup_one_len_nd, and adds a nameidata
+argument. An inline function, lookup_one_len (which calls lookup_one_len_nd
+with nd == NULL) preserves original behavior.
+
+The following Unionfs patches depend on this one.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/unlink.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 162 insertions(+), 0 deletions(-)
+ fs/namei.c            |    8 ++++----
+ include/linux/namei.h |   10 +++++++++-
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/fs/unionfs/unlink.c b/fs/unionfs/unlink.c
-new file mode 100644
-index 0000000..844835f
---- /dev/null
-+++ b/fs/unionfs/unlink.c
-@@ -0,0 +1,162 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
+diff --git a/fs/namei.c b/fs/namei.c
+index 8a7b923..76de391 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -1290,8 +1290,8 @@ static struct dentry *lookup_hash(struct
+ 	return __lookup_hash(&nd->last, nd->dentry, nd);
+ }
+ 
+-/* SMP-safe */
+-struct dentry * lookup_one_len(const char * name, struct dentry * base, int len)
++struct dentry * lookup_one_len_nd(const char *name, struct dentry * base,
++				  int len, struct nameidata *nd)
+ {
+ 	unsigned long hash;
+ 	struct qstr this;
+@@ -1311,7 +1311,7 @@ struct dentry * lookup_one_len(const cha
+ 	}
+ 	this.hash = end_name_hash(hash);
+ 
+-	return __lookup_hash(&this, base, NULL);
++	return __lookup_hash(&this, base, nd);
+ access:
+ 	return ERR_PTR(-EACCES);
+ }
+@@ -2756,7 +2756,7 @@ EXPORT_SYMBOL(follow_up);
+ EXPORT_SYMBOL(get_write_access); /* binfmt_aout */
+ EXPORT_SYMBOL(getname);
+ EXPORT_SYMBOL(lock_rename);
+-EXPORT_SYMBOL(lookup_one_len);
++EXPORT_SYMBOL(lookup_one_len_nd);
+ EXPORT_SYMBOL(page_follow_link_light);
+ EXPORT_SYMBOL(page_put_link);
+ EXPORT_SYMBOL(page_readlink);
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index d39a5a6..8551806 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -81,7 +81,15 @@ extern struct file *lookup_instantiate_f
+ extern struct file *nameidata_to_filp(struct nameidata *nd, int flags);
+ extern void release_open_intent(struct nameidata *);
+ 
+-extern struct dentry * lookup_one_len(const char *, struct dentry *, int);
++extern struct dentry * lookup_one_len_nd(const char *,
++			struct dentry *, int, struct nameidata *);
 +
-+#include "union.h"
-+
-+/* unlink a file by creating a whiteout */
-+static int unionfs_unlink_whiteout(struct inode *dir, struct dentry *dentry)
++/* SMP-safe */
++static inline struct dentry *lookup_one_len(const char *name,
++			struct dentry *dir, int len)
 +{
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_dir_dentry;
-+	int bindex;
-+	int err = 0;
-+
-+	if ((err = unionfs_partial_lookup(dentry)))
-+		goto out;
-+
-+	bindex = dbstart(dentry);
-+
-+	hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+	if (!hidden_dentry)
-+		goto out;
-+
-+	hidden_dir_dentry = lock_parent(hidden_dentry);
-+
-+	/* avoid destroying the hidden inode if the file is in use */
-+	dget(hidden_dentry);
-+	if (!(err = is_robranch_super(dentry->d_sb, bindex)))
-+		err = vfs_unlink(hidden_dir_dentry->d_inode, hidden_dentry);
-+	dput(hidden_dentry);
-+	fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+	unlock_dir(hidden_dir_dentry);
-+
-+	if (err && !IS_COPYUP_ERR(err))
-+		goto out;
-+
-+	if (err) {
-+		if (dbstart(dentry) == 0)
-+			goto out;
-+
-+		err = create_whiteout(dentry, dbstart(dentry) - 1);
-+	} else if (dbopaque(dentry) != -1)
-+		/* There is a hidden lower-priority file with the same name. */
-+		err = create_whiteout(dentry, dbopaque(dentry));
-+	else
-+		err = create_whiteout(dentry, dbstart(dentry));
-+
-+out:
-+	if (!err)
-+		dentry->d_inode->i_nlink--;
-+
-+	/* We don't want to leave negative leftover dentries for revalidate. */
-+	if (!err && (dbopaque(dentry) != -1))
-+		update_bstart(dentry);
-+
-+	return err;
++	return lookup_one_len_nd(name, dir, len, NULL);
 +}
-+
-+int unionfs_unlink(struct inode *dir, struct dentry *dentry)
-+{
-+	int err = 0;
-+
-+	lock_dentry(dentry);
-+
-+	err = unionfs_unlink_whiteout(dir, dentry);
-+	/* call d_drop so the system "forgets" about us */
-+	if (!err)
-+		d_drop(dentry);
-+
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
-+static int unionfs_rmdir_first(struct inode *dir, struct dentry *dentry,
-+			       struct unionfs_dir_state *namelist)
-+{
-+	int err;
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_dir_dentry = NULL;
-+
-+	/* Here we need to remove whiteout entries. */
-+	err = delete_whiteouts(dentry, dbstart(dentry), namelist);
-+	if (err)
-+		goto out;
-+
-+	hidden_dentry = unionfs_lower_dentry(dentry);
-+
-+	hidden_dir_dentry = lock_parent(hidden_dentry);
-+
-+	/* avoid destroying the hidden inode if the file is in use */
-+	dget(hidden_dentry);
-+	if (!(err = is_robranch(dentry)))
-+		err = vfs_rmdir(hidden_dir_dentry->d_inode, hidden_dentry);
-+	dput(hidden_dentry);
-+
-+	fsstack_copy_attr_times(dir, hidden_dir_dentry->d_inode);
-+	/* propagate number of hard-links */
-+	dentry->d_inode->i_nlink = unionfs_get_nlinks(dentry->d_inode);
-+
-+out:
-+	if (hidden_dir_dentry)
-+		unlock_dir(hidden_dir_dentry);
-+	return err;
-+}
-+
-+int unionfs_rmdir(struct inode *dir, struct dentry *dentry)
-+{
-+	int err = 0;
-+	struct unionfs_dir_state *namelist = NULL;
-+
-+	lock_dentry(dentry);
-+
-+	/* check if this unionfs directory is empty or not */
-+	err = check_empty(dentry, &namelist);
-+	if (err)
-+		goto out;
-+
-+	err = unionfs_rmdir_first(dir, dentry, namelist);
-+	/* create whiteout */
-+	if (!err)
-+		err = create_whiteout(dentry, dbstart(dentry));
-+	else {
-+		int new_err;
-+
-+		if (dbstart(dentry) == 0)
-+			goto out;
-+
-+		/* exit if the error returned was NOT -EROFS */
-+		if (!IS_COPYUP_ERR(err))
-+			goto out;
-+
-+		new_err = create_whiteout(dentry, dbstart(dentry) - 1);
-+		if (new_err != -EEXIST)
-+			err = new_err;
-+	}
-+
-+out:
-+	/* call d_drop so the system "forgets" about us */
-+	if (!err)
-+		d_drop(dentry);
-+
-+	if (namelist)
-+		free_rdstate(namelist);
-+
-+	unlock_dentry(dentry);
-+	return err;
-+}
-+
+ 
+ extern int follow_down(struct vfsmount **, struct dentry **);
+ extern int follow_up(struct vfsmount **, struct dentry **);
 -- 
 1.4.3.3
 

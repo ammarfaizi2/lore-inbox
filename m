@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936372AbWLDMlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936331AbWLDMl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936372AbWLDMlP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936334AbWLDMfT
+	id S936331AbWLDMl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:41:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936320AbWLDMly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:35:19 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:62942 "EHLO
+	Mon, 4 Dec 2006 07:41:54 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:479 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936294AbWLDMfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:12 -0500
+	id S936329AbWLDMfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:35:17 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 26/35] Unionfs: Privileged operations workqueue
-Date: Mon,  4 Dec 2006 07:30:59 -0500
-Message-Id: <1165235471170-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 30/35] Unionfs: Helper macros/inlines
+Date: Mon,  4 Dec 2006 07:31:03 -0500
+Message-Id: <11652354723312-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,28 +25,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Workqueue & helper functions used to perform privileged operations on
-behalf of the user process.
+This patch contains many macros and inline functions used thoughout Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/sioq.c |  115 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/unionfs/sioq.h |   79 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 194 insertions(+), 0 deletions(-)
+ fs/unionfs/fanout.h |  177 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 177 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/sioq.c b/fs/unionfs/sioq.c
+diff --git a/fs/unionfs/fanout.h b/fs/unionfs/fanout.h
 new file mode 100644
-index 0000000..187ad87
+index 0000000..309c881
 --- /dev/null
-+++ b/fs/unionfs/sioq.c
-@@ -0,0 +1,115 @@
++++ b/fs/unionfs/fanout.h
+@@ -0,0 +1,177 @@
 +/*
 + * Copyright (c) 2003-2006 Erez Zadok
 + * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005-2006 Josef Sipek
 + * Copyright (c) 2005      Arun M. Krishnakumar
 + * Copyright (c) 2004-2006 David P. Quigley
 + * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
@@ -60,188 +57,166 @@ index 0000000..187ad87
 + * published by the Free Software Foundation.
 + */
 +
-+#include "union.h"
++#ifndef _FANOUT_H_
++#define _FANOUT_H_
 +
-+struct workqueue_struct *sioq;
-+
-+int __init init_sioq(void)
++/* Inode to private data */
++static inline struct unionfs_inode_info *UNIONFS_I(const struct inode *inode)
 +{
-+	int err;
-+
-+	sioq = create_workqueue("unionfs_siod");
-+	if (!IS_ERR(sioq))
-+		return 0;
-+
-+	err = PTR_ERR(sioq);
-+	printk(KERN_ERR "create_workqueue failed %d\n", err);
-+	sioq = NULL;
-+	return err;
++	return container_of(inode, struct unionfs_inode_info, vfs_inode);
 +}
 +
-+void fin_sioq(void)
++#define ibstart(ino) (UNIONFS_I(ino)->bstart)
++#define ibend(ino) (UNIONFS_I(ino)->bend)
++
++/* Superblock to private data */
++#define UNIONFS_SB(super) ((struct unionfs_sb_info *)(super)->s_fs_info)
++#define sbstart(sb) 0
++#define sbend(sb) UNIONFS_SB(sb)->bend
++#define sbmax(sb) (UNIONFS_SB(sb)->bend + 1)
++
++/* File to private Data */
++#define UNIONFS_F(file) ((struct unionfs_file_info *)((file)->private_data))
++#define fbstart(file) (UNIONFS_F(file)->bstart)
++#define fbend(file) (UNIONFS_F(file)->bend)
++
++/* File to lower file. */
++static inline struct file *unionfs_lower_file(struct file *f)
 +{
-+	if (sioq)
-+		destroy_workqueue(sioq);
++	return UNIONFS_F(f)->lower_files[fbstart(f)];
 +}
 +
-+void run_sioq(void (*func)(void *arg), struct sioq_args *args)
++static inline struct file *unionfs_lower_file_idx(const struct file *f, int index)
 +{
-+	DECLARE_WORK(wk, func, &args->comp);
-+
-+	init_completion(&args->comp);
-+	while (!queue_work(sioq, &wk)) {
-+		/* TODO: do accounting if needed */
-+		schedule();
-+	}
-+	wait_for_completion(&args->comp);
++	return UNIONFS_F(f)->lower_files[index];
 +}
 +
-+void __unionfs_create(void *data)
++static inline void unionfs_set_lower_file_idx(struct file *f, int index, struct file *val)
 +{
-+	struct sioq_args *args = data;
-+	struct create_args *c = &args->create;
-+
-+	args->err = vfs_create(c->parent, c->dentry, c->mode, c->nd);
-+	complete(&args->comp);
++	UNIONFS_F(f)->lower_files[index] = val;
 +}
 +
-+void __unionfs_mkdir(void *data)
++static inline void unionfs_set_lower_file(struct file *f, struct file *val)
 +{
-+	struct sioq_args *args = data;
-+	struct mkdir_args *m = &args->mkdir;
-+
-+	args->err = vfs_mkdir(m->parent, m->dentry, m->mode);
-+	complete(&args->comp);
++	UNIONFS_F(f)->lower_files[fbstart(f)] = val;
 +}
 +
-+void __unionfs_mknod(void *data)
++/* Inode to lower inode. */
++static inline struct inode *unionfs_lower_inode(const struct inode *i)
 +{
-+	struct sioq_args *args = data;
-+	struct mknod_args *m = &args->mknod;
-+
-+	args->err = vfs_mknod(m->parent, m->dentry, m->mode, m->dev);
-+	complete(&args->comp);
++	return UNIONFS_I(i)->lower_inodes[ibstart(i)];
 +}
-+void __unionfs_symlink(void *data)
++
++static inline struct inode *unionfs_lower_inode_idx(const struct inode *i, int index)
 +{
-+	struct sioq_args *args = data;
-+	struct symlink_args *s = &args->symlink;
-+
-+	args->err = vfs_symlink(s->parent, s->dentry, s->symbuf, s->mode);
-+	complete(&args->comp);
++	return UNIONFS_I(i)->lower_inodes[index];
 +}
 +
-+void __unionfs_unlink(void *data)
++static inline void unionfs_set_lower_inode_idx(struct inode *i, int index,
++				   struct inode *val)
 +{
-+	struct sioq_args *args = data;
-+	struct unlink_args *u = &args->unlink;
-+
-+	args->err = vfs_unlink(u->parent, u->dentry);
-+	complete(&args->comp);
++	UNIONFS_I(i)->lower_inodes[index] = val;
 +}
 +
-+void __delete_whiteouts(void *data) {
-+	struct sioq_args *args = data;
-+	struct deletewh_args *d = &args->deletewh;
-+
-+	args->err = do_delete_whiteouts(d->dentry, d->bindex, d->namelist);
-+	complete(&args->comp);
-+}
-+
-+void __is_opaque_dir(void *data)
++static inline void unionfs_set_lower_inode(struct inode *i, struct inode *val)
 +{
-+	struct sioq_args *args = data;
-+
-+	args->ret = lookup_one_len(UNIONFS_DIR_OPAQUE, args->isopaque.dentry,
-+				sizeof(UNIONFS_DIR_OPAQUE) - 1);
-+	complete(&args->comp);
++	UNIONFS_I(i)->lower_inodes[ibstart(i)] = val;
 +}
 +
-diff --git a/fs/unionfs/sioq.h b/fs/unionfs/sioq.h
-new file mode 100644
-index 0000000..628d214
---- /dev/null
-+++ b/fs/unionfs/sioq.h
-@@ -0,0 +1,79 @@
-+#ifndef _SIOQ_H
-+#define _SIOQ_H
++/* Superblock to lower superblock. */
++static inline struct super_block *unionfs_lower_super(const struct super_block *sb)
++{
++	return UNIONFS_SB(sb)->data[sbstart(sb)].sb;
++}
 +
-+struct deletewh_args {
-+	struct unionfs_dir_state *namelist;
-+	struct dentry *dentry;
-+	int bindex;
-+};
++static inline struct super_block *unionfs_lower_super_idx(const struct super_block *sb, int index)
++{
++	return UNIONFS_SB(sb)->data[index].sb;
++}
 +
-+struct isopaque_args {
-+	struct dentry *dentry;
-+};
++static inline void unionfs_set_lower_super_idx(struct super_block *sb, int index,
++				   struct super_block *val)
++{
++	UNIONFS_SB(sb)->data[index].sb = val;
++}
 +
-+struct create_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+	struct nameidata *nd;
-+};
++static inline void unionfs_set_lower_super(struct super_block *sb, struct super_block *val)
++{
++	UNIONFS_SB(sb)->data[sbstart(sb)].sb = val;
++}
 +
-+struct mkdir_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+};
++/* Branch count macros. */
++static inline int branch_count(struct super_block *sb, int index)
++{
++	return atomic_read(&UNIONFS_SB(sb)->data[index].sbcount);
++}
 +
-+struct mknod_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	umode_t mode;
-+	dev_t dev;
-+};
++static inline void set_branch_count(struct super_block *sb, int index, int val)
++{
++	atomic_set(&UNIONFS_SB(sb)->data[index].sbcount, val);
++}
 +
-+struct symlink_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+	char *symbuf;
-+	umode_t mode;
-+};
++static inline void branchget(struct super_block *sb, int index)
++{
++	atomic_inc(&UNIONFS_SB(sb)->data[index].sbcount);
++}
 +
-+struct unlink_args {
-+	struct inode *parent;
-+	struct dentry *dentry;
-+};
++static inline void branchput(struct super_block *sb, int index)
++{
++	atomic_dec(&UNIONFS_SB(sb)->data[index].sbcount);
++}
 +
++/* Dentry macros */
++static inline struct unionfs_dentry_info *UNIONFS_D(const struct dentry *dent)
++{
++	return dent->d_fsdata;
++}
 +
-+struct sioq_args {
++#define dbstart(dent) (UNIONFS_D(dent)->bstart)
++#define set_dbstart(dent, val) do { UNIONFS_D(dent)->bstart = val; } while(0)
++#define dbend(dent) (UNIONFS_D(dent)->bend)
++#define set_dbend(dent, val) do { UNIONFS_D(dent)->bend = val; } while(0)
++#define dbopaque(dent) (UNIONFS_D(dent)->bopaque)
++#define set_dbopaque(dent, val) do { UNIONFS_D(dent)->bopaque = val; } while (0)
 +
-+	struct completion comp;
-+	int err;
-+	void *ret;
++static inline void unionfs_set_lower_dentry_idx(struct dentry *dent, int index,
++				   struct dentry *val)
++{
++	UNIONFS_D(dent)->lower_paths[index].dentry = val;
++}
 +
-+	union {
-+		struct deletewh_args deletewh;
-+		struct isopaque_args isopaque;
-+		struct create_args create;
-+		struct mkdir_args mkdir;
-+		struct mknod_args mknod;
-+		struct symlink_args symlink;
-+		struct unlink_args unlink;
-+	};
-+};
++static inline struct dentry *unionfs_lower_dentry_idx(const struct dentry *dent, int index)
++{
++	return UNIONFS_D(dent)->lower_paths[index].dentry;
++}
 +
-+extern struct workqueue_struct *sioq;
-+int __init init_sioq(void);
-+extern void fin_sioq(void);
-+extern void run_sioq(void (*func)(void *arg), struct sioq_args *args);
++static inline struct dentry *unionfs_lower_dentry(const struct dentry *dent)
++{
++	return unionfs_lower_dentry_idx(dent, dbstart(dent));
++}
 +
-+/* Extern definitions for our privledge escalation helpers */
-+extern void __unionfs_create(void *data);
-+extern void __unionfs_mkdir(void *data);
-+extern void __unionfs_mknod(void *data);
-+extern void __unionfs_symlink(void *data);
-+extern void __unionfs_unlink(void *data);
-+extern void __delete_whiteouts(void *data);
-+extern void __is_opaque_dir(void *data);
++static inline void unionfs_set_lower_mnt_idx(struct dentry *dent, int index,
++				   struct vfsmount *mnt)
++{
++	UNIONFS_D(dent)->lower_paths[index].mnt = mnt;
++}
 +
-+#endif /* _SIOQ_H */
++static inline struct vfsmount *unionfs_lower_mnt_idx(const struct dentry *dent, int index)
++{
++	return UNIONFS_D(dent)->lower_paths[index].mnt;
++}
 +
++static inline struct vfsmount *unionfs_lower_mnt(const struct dentry *dent)
++{
++	return unionfs_lower_mnt_idx(dent,dbstart(dent));
++}
++
++/* Macros for locking a dentry. */
++#define lock_dentry(d)		down(&UNIONFS_D(d)->sem)
++#define unlock_dentry(d)	up(&UNIONFS_D(d)->sem)
++#define verify_locked(d)
++
++#endif	/* _FANOUT_H */
 -- 
 1.4.3.3
 

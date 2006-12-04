@@ -1,75 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937260AbWLDSrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937261AbWLDSsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937260AbWLDSrx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 13:47:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937262AbWLDSrx
+	id S937261AbWLDSsE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 13:48:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937262AbWLDSsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 13:47:53 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:50099 "EHLO inti.inf.utfsm.cl"
+	Mon, 4 Dec 2006 13:48:04 -0500
+Received: from cantor.suse.de ([195.135.220.2]:53052 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937261AbWLDSrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 13:47:52 -0500
-Message-Id: <200612041846.kB4Ikx2F026455@laptop13.inf.utfsm.cl>
-To: Aucoin@Houston.RR.com
-cc: "'Horst H. von Brand'" <vonbrand@inf.utfsm.cl>,
-       "'Kyle Moffett'" <mrmacman_g4@mac.com>,
-       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-Subject: Re: la la la la ... swappiness 
-In-Reply-To: Message from "Aucoin" <Aucoin@Houston.RR.com> 
-   of "Mon, 04 Dec 2006 11:49:12 MDT." <200612041749.kB4HnDNw008901@ms-smtp-02.texas.rr.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Mon, 04 Dec 2006 15:46:59 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 04 Dec 2006 15:46:59 -0300 (CLST)
+	id S937261AbWLDSsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 13:48:01 -0500
+Date: Mon, 4 Dec 2006 10:47:50 -0800
+From: Greg KH <gregkh@suse.de>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
+Message-ID: <20061204184750.GA22139@suse.de>
+References: <200612012343.07251.oliver@neukum.org> <20061204044344.GB10078@in.ibm.com> <200612040738.00923.oliver@neukum.org> <20061204130406.GA2314@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061204130406.GA2314@in.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aucoin <Aucoin@Houston.RR.com> wrote:
-> From: Horst H. von Brand [mailto:vonbrand@inf.utfsm.cl]
-> > That means that there isn't a need for that memory at all (and so they
-
-> In the current isolated non-production, not actually bearing a load test
-> case yes. But if I can't get it to not swap on an idle system I have no hope
-> of avoiding OOM on a loaded system.
-
-How do you /know/ it won't just be recycled in the production case?
-
-> > In any case, how do you know it is the tar data that stays around, and not
-> > just that the number of pages "in use" stays roughly constant?
+On Mon, Dec 04, 2006 at 06:34:06PM +0530, Maneesh Soni wrote:
+> On Mon, Dec 04, 2006 at 07:38:00AM +0100, Oliver Neukum wrote:
+> > Am Montag, 4. Dezember 2006 05:43 schrieb Maneesh Soni:
+> > > On Fri, Dec 01, 2006 at 11:43:06PM +0100, Oliver Neukum wrote:
+> > > > Hi,
+> > > >
+> > > > Alan Stern has discovered a race in sysfs, whereby driver callbacks could be
+> > > > called after sysfs_remove_file() has run. The attached patch should fix it.
+> > > >
+> > > > It introduces a new data structure acting as a collection of all sysfs_buffers
+> > > > associated with an attribute. Upon removal of an attribute the buffers are
+> > > > marked orphaned and IO on them returns -ENODEV. Thus sysfs_remove_file()
+> > > > makes sure that sysfs won't bother a driver after that call, making it safe
+> > > > to free the associated data structures and to unload the driver.
+> > > >
+> > > > 	Regards
+> > > > 		Oliver
+> > >
+> > > Hi Oliver,
+> > >
+> > > Thanks for the explaining the patch but some description about the race
+> > > would also help here. At the least the callpath to the race would be useful.
+> > >
+> > >
+> > > Thanks
+> > > Maneesh
+> > 
+> > We have code like this:
+> >  static void tv_disconnect(struct usb_interface *interface)
+> > {
+> > 	struct trancevibrator *dev;
+> > 
+> > 	dev = usb_get_intfdata (interface);
+> > 	device_remove_file(&interface->dev, &dev_attr_speed);
+> > 	usb_set_intfdata(interface, NULL);
+> > 	usb_put_dev(dev->udev);
+> > 	kfree(dev);
+> > }
+> > 
+> > This has a race:
+> > 
+> > CPU A				CPU B
+> > open sysfs
+> > 					device_remove_file
+> > 					kfree
+> > reading attr
+> > 
+> > We cannot do refcounting as sysfs doesn't export open/close. Therefore
+> > we must be sure that device_remove_file() makes sure that sysfs will
+> > leave a driver alone after the return of device_remove_file(). Currently
+> > open will fail, but IO on an already opened file will work. The patch makes
+> > sure it will fail with -ENODEV without calling into the driver, which may
+> > indeed be already unloaded.
+> > 
+> > 	Regards
+> > 		Oliver
 > 
-> I'm not dumping the contents of memory so I don't.
+> hmm, I guess Greg has to say the final word. The question is either to fail
+> the IO (-ENODEV) or fail the file removal (-EBUSY). If we are not going to
+> fail the removal then your patch is the way to go.
 
-OK.
+We can't fail the removal, as we just aren't allowed to do that at times
+(the device is physically removed).
 
-> > - What you are doing, step by step
-> 
-> Trying to deliver a high availability, linearly scalable, clustered iSCSI
-> storage solution that can be upgraded with minimum downtime.
+So failing the IO is the way to go.
 
-That is your ultimate goal, not what you are doing, step by step.
+thanks,
 
-> > - What are your exact requirements
-
-> OOM not to kill anything.
-
-Can't ever guarantee that (unless you have the exact memory requirements
-beforehand, and enough RAM for the worst case).
-
-> > - In what exact way is it missbehaving. Please tell /in detail/ how you
-
-> OOM kills important stuff.
-
-What "important stuff"? How come OOM kills it, when there is plenty of
-free(able) memory around? Is this in the production setting, or are you
-just afraid it could happen by what you see in the "current isolated
-non-production, not actually bearing a load test" case?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
-
-
-
+greg k-h

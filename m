@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936365AbWLDMgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936399AbWLDMi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936365AbWLDMgN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936370AbWLDMgM
+	id S936399AbWLDMi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936361AbWLDMgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:36:12 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:3551 "EHLO
+	Mon, 4 Dec 2006 07:36:07 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:11999 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936313AbWLDMfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:25 -0500
+	id S936350AbWLDMfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:35:52 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 27/35] Unionfs: Handling of stale inodes
-Date: Mon,  4 Dec 2006 07:31:00 -0500
-Message-Id: <11652354722515-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 18/35] Unionfs: File operations
+Date: Mon,  4 Dec 2006 07:30:51 -0500
+Message-Id: <1165235470144-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,134 +25,278 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Provides nicer handling of stale inodes.
+This patch provides the file operations for Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
 Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/stale_inode.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 114 insertions(+), 0 deletions(-)
+ fs/unionfs/file.c |  258 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 258 insertions(+), 0 deletions(-)
 
-diff --git a/fs/unionfs/stale_inode.c b/fs/unionfs/stale_inode.c
+diff --git a/fs/unionfs/file.c b/fs/unionfs/file.c
 new file mode 100644
-index 0000000..4255dfd
+index 0000000..3dc9f8f
 --- /dev/null
-+++ b/fs/unionfs/stale_inode.c
-@@ -0,0 +1,114 @@
++++ b/fs/unionfs/file.c
+@@ -0,0 +1,258 @@
 +/*
-+ *  Adpated from linux/fs/bad_inode.c
++ * Copyright (c) 2003-2006 Erez Zadok
++ * Copyright (c) 2003-2006 Charles P. Wright
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005      Arun M. Krishnakumar
++ * Copyright (c) 2004-2006 David P. Quigley
++ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
++ * Copyright (c) 2003      Puja Gupta
++ * Copyright (c) 2003      Harikesavan Krishnan
++ * Copyright (c) 2003-2006 Stony Brook University
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
 + *
-+ *  Copyright (C) 1997, Stephen Tweedie
-+ *
-+ *  Provide stub functions for "stale" inodes, a bit friendlier than the
-+ *  -EIO that bad_inode.c does.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + */
 +
-+#include <linux/version.h>
++#include "union.h"
 +
-+#include <linux/fs.h>
-+#include <linux/stat.h>
-+#include <linux/sched.h>
++/* declarations for sparse */
++extern ssize_t unionfs_read(struct file *, char __user *, size_t, loff_t *);
++extern ssize_t unionfs_write(struct file *, const char __user *, size_t,
++			     loff_t *);
 +
-+static struct address_space_operations unionfs_stale_aops;
++/*******************
++ * File Operations *
++ *******************/
 +
-+/* declarations for "sparse */
-+extern struct inode_operations stale_inode_ops;
-+
-+/*
-+ * The follow_link operation is special: it must behave as a no-op
-+ * so that a stale root inode can at least be unmounted. To do this
-+ * we must dput() the base and return the dentry with a dget().
-+ */
-+static void *stale_follow_link(struct dentry *dent, struct nameidata *nd)
++static loff_t unionfs_llseek(struct file *file, loff_t offset, int origin)
 +{
-+	return ERR_PTR(vfs_follow_link(nd, ERR_PTR(-ESTALE)));
++	loff_t err;
++	struct file *hidden_file = NULL;
++
++	if ((err = unionfs_file_revalidate(file, 0)))
++		goto out;
++
++	hidden_file = unionfs_lower_file(file);
++	/* always set hidden position to this one */
++	hidden_file->f_pos = file->f_pos;
++
++	memcpy(&hidden_file->f_ra, &file->f_ra, sizeof(struct file_ra_state));
++
++	if (hidden_file->f_op && hidden_file->f_op->llseek)
++		err = hidden_file->f_op->llseek(hidden_file, offset, origin);
++	else
++		err = generic_file_llseek(hidden_file, offset, origin);
++
++	if (err < 0)
++		goto out;
++	if (err != file->f_pos) {
++		file->f_pos = err;
++		file->f_version++;
++	}
++out:
++	return err;
 +}
 +
-+static int return_ESTALE(void)
++ssize_t unionfs_read(struct file * file, char __user * buf, size_t count,
++		     loff_t * ppos)
 +{
-+	return -ESTALE;
++	struct file *hidden_file;
++	loff_t pos = *ppos;
++	int err;
++
++	if ((err = unionfs_file_revalidate(file, 0)))
++		goto out;
++
++	err = -EINVAL;
++	hidden_file = unionfs_lower_file(file);
++	if (!hidden_file->f_op || !hidden_file->f_op->read)
++		goto out;
++
++	err = hidden_file->f_op->read(hidden_file, buf, count, &pos);
++	*ppos = pos;
++
++out:
++	return err;
 +}
 +
-+#define ESTALE_ERROR ((void *) (return_ESTALE))
++ssize_t __unionfs_write(struct file * file, const char __user * buf,
++			size_t count, loff_t * ppos)
++{
++	int err = -EINVAL;
++	struct file *hidden_file = NULL;
++	struct inode *inode;
++	struct inode *hidden_inode;
++	loff_t pos = *ppos;
++	int bstart, bend;
 +
-+static struct file_operations stale_file_ops = {
-+	.llseek = ESTALE_ERROR,
-+	.read = ESTALE_ERROR,
-+	.write = ESTALE_ERROR,
-+	.readdir = ESTALE_ERROR,
-+	.poll = ESTALE_ERROR,
-+	.ioctl = ESTALE_ERROR,
-+	.mmap = ESTALE_ERROR,
-+	.open = ESTALE_ERROR,
-+	.flush = ESTALE_ERROR,
-+	.release = ESTALE_ERROR,
-+	.fsync = ESTALE_ERROR,
-+	.fasync = ESTALE_ERROR,
-+	.lock = ESTALE_ERROR,
++	inode = file->f_dentry->d_inode;
++
++	bstart = fbstart(file);
++	bend = fbend(file);
++
++	BUG_ON(bstart == -1);
++
++	hidden_file = unionfs_lower_file(file);
++	hidden_inode = hidden_file->f_dentry->d_inode;
++
++	if (!hidden_file->f_op || !hidden_file->f_op->write)
++		goto out;
++
++	/* adjust for append -- seek to the end of the file */
++	if (file->f_flags & O_APPEND)
++		pos = inode->i_size;
++
++	err = hidden_file->f_op->write(hidden_file, buf, count, &pos);
++
++	/*
++	 * copy ctime and mtime from lower layer attributes
++	 * atime is unchanged for both layers
++	 */
++	if (err >= 0)
++		fsstack_copy_attr_times(inode, hidden_inode);
++
++	*ppos = pos;
++
++	/* update this inode's size */
++	if (pos > inode->i_size)
++		inode->i_size = pos;
++out:
++	return err;
++}
++
++ssize_t unionfs_write(struct file * file, const char __user * buf, size_t count,
++		      loff_t * ppos)
++{
++	int err = 0;
++
++	if ((err = unionfs_file_revalidate(file, 1)))
++		goto out;
++
++	err = __unionfs_write(file, buf, count, ppos);
++
++out:
++	return err;
++}
++
++static int unionfs_file_readdir(struct file *file, void *dirent,
++				filldir_t filldir)
++{
++	return -ENOTDIR;
++}
++
++static unsigned int unionfs_poll(struct file *file, poll_table * wait)
++{
++	unsigned int mask = DEFAULT_POLLMASK;
++	struct file *hidden_file = NULL;
++
++	if (unionfs_file_revalidate(file, 0)) {
++		/* We should pretend an error happend. */
++		mask = POLLERR | POLLIN | POLLOUT;
++		goto out;
++	}
++
++	hidden_file = unionfs_lower_file(file);
++
++	if (!hidden_file->f_op || !hidden_file->f_op->poll)
++		goto out;
++
++	mask = hidden_file->f_op->poll(hidden_file, wait);
++
++out:
++	return mask;
++}
++
++static int __do_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	int err;
++	struct file *hidden_file;
++
++	hidden_file = unionfs_lower_file(file);
++
++	err = -ENODEV;
++	if (!hidden_file->f_op || !hidden_file->f_op->mmap)
++		goto out;
++
++	vma->vm_file = hidden_file;
++	err = hidden_file->f_op->mmap(hidden_file, vma);
++	get_file(hidden_file);	/* make sure it doesn't get freed on us */
++	fput(file);		/* no need to keep extra ref on ours */
++out:
++	return err;
++}
++
++static int unionfs_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	int err = 0;
++	int willwrite;
++
++	/* This might could be deferred to mmap's writepage. */
++	willwrite = ((vma->vm_flags | VM_SHARED | VM_WRITE) == vma->vm_flags);
++	if ((err = unionfs_file_revalidate(file, willwrite)))
++		goto out;
++
++	err = __do_mmap(file, vma);
++
++out:
++	return err;
++}
++
++static int unionfs_fsync(struct file *file, struct dentry *dentry, int datasync)
++{
++	int err;
++	struct file *hidden_file = NULL;
++
++	if ((err = unionfs_file_revalidate(file, 1)))
++		goto out;
++
++	hidden_file = unionfs_lower_file(file);
++
++	err = -EINVAL;
++	if (!hidden_file->f_op || !hidden_file->f_op->fsync)
++		goto out;
++
++	mutex_lock(&hidden_file->f_dentry->d_inode->i_mutex);
++	err = hidden_file->f_op->fsync(hidden_file, hidden_file->f_dentry,
++				       datasync);
++	mutex_unlock(&hidden_file->f_dentry->d_inode->i_mutex);
++
++out:
++	return err;
++}
++
++/* SP: disabled as none of the other in kernel fs's seem to use it */
++static int unionfs_fasync(int fd, struct file *file, int flag)
++{
++	int err = 0;
++	struct file *hidden_file = NULL;
++
++	if ((err = unionfs_file_revalidate(file, 1)))
++		goto out;
++
++	hidden_file = unionfs_lower_file(file);
++
++	if (hidden_file->f_op && hidden_file->f_op->fasync)
++		err = hidden_file->f_op->fasync(fd, hidden_file, flag);
++
++out:
++	return err;
++}
++
++struct file_operations unionfs_main_fops = {
++	.llseek = unionfs_llseek,
++	.read = unionfs_read,
++	.write = unionfs_write,
++	.readdir = unionfs_file_readdir,
++	.poll = unionfs_poll,
++	.unlocked_ioctl = unionfs_ioctl,
++	.mmap = unionfs_mmap,
++	.open = unionfs_open,
++	.flush = unionfs_flush,
++	.release = unionfs_file_release,
++	.fsync = unionfs_fsync,
++	.fasync = unionfs_fasync,
 +};
-+
-+struct inode_operations stale_inode_ops = {
-+	.create = ESTALE_ERROR,
-+	.lookup = ESTALE_ERROR,
-+	.link = ESTALE_ERROR,
-+	.unlink = ESTALE_ERROR,
-+	.symlink = ESTALE_ERROR,
-+	.mkdir = ESTALE_ERROR,
-+	.rmdir = ESTALE_ERROR,
-+	.mknod = ESTALE_ERROR,
-+	.rename = ESTALE_ERROR,
-+	.readlink = ESTALE_ERROR,
-+	.follow_link = stale_follow_link,
-+	.truncate = ESTALE_ERROR,
-+	.permission = ESTALE_ERROR,
-+};
-+
-+/*
-+ * When a filesystem is unable to read an inode due to an I/O error in
-+ * its read_inode() function, it can call make_stale_inode() to return a
-+ * set of stubs which will return ESTALE errors as required.
-+ *
-+ * We only need to do limited initialisation: all other fields are
-+ * preinitialised to zero automatically.
-+ */
-+
-+/**
-+ *	make_stale_inode - mark an inode stale due to an I/O error
-+ *	@inode: Inode to mark stale
-+ *
-+ *	When an inode cannot be read due to a media or remote network
-+ *	failure this function makes the inode "stale" and causes I/O operations
-+ *	on it to fail from this point on.
-+ */
-+
-+void make_stale_inode(struct inode *inode)
-+{
-+	inode->i_mode = S_IFREG;
-+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+	inode->i_op = &stale_inode_ops;
-+	inode->i_fop = &stale_file_ops;
-+	inode->i_mapping->a_ops = &unionfs_stale_aops;
-+}
-+
-+/*
-+ * This tests whether an inode has been flagged as stale. The test uses
-+ * &stale_inode_ops to cover the case of invalidated inodes as well as
-+ * those created by make_stale_inode() above.
-+ */
-+
-+/**
-+ *	is_stale_inode - is an inode errored
-+ *	@inode: inode to test
-+ *
-+ *	Returns true if the inode in question has been marked as stale.
-+ */
-+
-+int is_stale_inode(struct inode *inode)
-+{
-+	return (inode->i_op == &stale_inode_ops);
-+}
 +
 -- 
 1.4.3.3

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936294AbWLDMkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936410AbWLDMkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936294AbWLDMkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936272AbWLDMkX
+	id S936410AbWLDMkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936352AbWLDMf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:40:23 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:2271 "EHLO
+	Mon, 4 Dec 2006 07:35:59 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:6879 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936294AbWLDMfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:22 -0500
+	id S936343AbWLDMfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:35:31 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 11/35] fsstack: Fix up ecryptfs's fsstack usage
-Date: Mon,  4 Dec 2006 07:30:44 -0500
-Message-Id: <11652354693808-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 32/35] Unionfs: Include file
+Date: Mon,  4 Dec 2006 07:31:05 -0500
+Message-Id: <1165235472347-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,50 +25,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Fix up a stray ecryptfs_copy_attr_all call and remove prototypes for
-ecryptfs_copy_* as they no longer exist.
+Global include file - can be included from userspace by utilities.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/ecryptfs/dentry.c          |    2 +-
- fs/ecryptfs/ecryptfs_kernel.h |    4 +---
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ include/linux/union_fs.h |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
 
-diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
-index 52d1e36..b0352d8 100644
---- a/fs/ecryptfs/dentry.c
-+++ b/fs/ecryptfs/dentry.c
-@@ -61,7 +61,7 @@ static int ecryptfs_d_revalidate(struct
- 		struct inode *lower_inode =
- 			ecryptfs_inode_to_lower(dentry->d_inode);
- 
--		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
-+		fsstack_copy_attr_all(dentry->d_inode, lower_inode, NULL);
- 	}
- out:
- 	return rc;
-diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
-index 870a65b..afb64bd 100644
---- a/fs/ecryptfs/ecryptfs_kernel.h
-+++ b/fs/ecryptfs/ecryptfs_kernel.h
-@@ -28,6 +28,7 @@
- 
- #include <keys/user-type.h>
- #include <linux/fs.h>
-+#include <linux/fs_stack.h>
- #include <linux/namei.h>
- #include <linux/scatterlist.h>
- 
-@@ -413,9 +414,6 @@ int ecryptfs_encode_filename(struct ecry
- 			     const char *name, int length,
- 			     char **encoded_name);
- struct dentry *ecryptfs_lower_dentry(struct dentry *this_dentry);
--void ecryptfs_copy_attr_atime(struct inode *dest, const struct inode *src);
--void ecryptfs_copy_attr_all(struct inode *dest, const struct inode *src);
--void ecryptfs_copy_inode_size(struct inode *dst, const struct inode *src);
- void ecryptfs_dump_hex(char *data, int bytes);
- int virt_to_scatterlist(const void *addr, int size, struct scatterlist *sg,
- 			int sg_size);
+diff --git a/include/linux/union_fs.h b/include/linux/union_fs.h
+new file mode 100644
+index 0000000..e76d3cf
+--- /dev/null
++++ b/include/linux/union_fs.h
+@@ -0,0 +1,20 @@
++#ifndef _LINUX_UNION_FS_H
++#define _LINUX_UNION_FS_H
++
++#define UNIONFS_VERSION  "2.0"
++/*
++ * DEFINITIONS FOR USER AND KERNEL CODE:
++ * (Note: ioctl numbers 1--9 are reserved for fistgen, the rest
++ *  are auto-generated automatically based on the user's .fist file.)
++ */
++# define UNIONFS_IOCTL_INCGEN		_IOR(0x15, 11, int)
++# define UNIONFS_IOCTL_QUERYFILE	_IOR(0x15, 15, int)
++
++/* We don't support normal remount, but unionctl uses it. */
++# define UNIONFS_REMOUNT_MAGIC		0x4a5a4380
++
++/* should be at least LAST_USED_UNIONFS_PERMISSION<<1 */
++#define MAY_NFSRO			16
++
++#endif /* _LINUX_UNIONFS_H */
++
 -- 
 1.4.3.3
 

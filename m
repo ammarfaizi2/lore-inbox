@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758915AbWLDHWd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758769AbWLDHgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758915AbWLDHWd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 02:22:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758931AbWLDHWd
+	id S1758769AbWLDHgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 02:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758795AbWLDHgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 02:22:33 -0500
-Received: from smtpout.mac.com ([17.250.248.174]:38124 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1758915AbWLDHWd (ORCPT
+	Mon, 4 Dec 2006 02:36:18 -0500
+Received: from quechua.inka.de ([193.197.184.2]:15241 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1758769AbWLDHgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 02:22:33 -0500
-In-Reply-To: <200612040154.kB41sadx019068@ms-smtp-03.texas.rr.com>
-References: <200612040154.kB41sadx019068@ms-smtp-03.texas.rr.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <5E2B4840-C384-48E2-A5C2-ED3C84FA7A48@mac.com>
-Cc: "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
+	Mon, 4 Dec 2006 02:36:17 -0500
+Message-ID: <4573CFBB.1030107@dungeon.inka.de>
+Date: Mon, 04 Dec 2006 08:35:23 +0100
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061115)
+MIME-Version: 1.0
+To: sergio@sergiomb.no-ip.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.6.19 still crashing
+References: <4571AFED.8060200@dungeon.inka.de> <1165200588.9189.1.camel@monteirov>
+In-Reply-To: <1165200588.9189.1.camel@monteirov>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: la la la la ... swappiness
-Date: Mon, 4 Dec 2006 02:22:05 -0500
-To: Aucoin@Houston.RR.com
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAA==
-X-Brightmail-scanned: yes
-X-Proofpoint-Virus-Version: vendor=fsecure engine=4.65.5446:2.3.11,1.2.37,4.0.164 definitions=2006-12-04_02:2006-12-01,2006-12-02,2006-12-04 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 ipscore=0 adultscore=0 classifier=spam adjust=0 reason=mlx engine=3.1.0-0610180000 definitions=main-0612030026
+X-Ciphire-Security: plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 03, 2006, at 20:54:41, Aucoin wrote:
-> As a side note, even now, *hours* after the tar has completed and  
-> even though I have swappiness set to 0, cache pressure set to 9999,  
-> all dirty timeouts set to 1 and all dirty ratios set to 1, I still  
-> have a 360+K inactive page count and my "free" memory is less than  
-> 10% of normal.
+Sergio Monteiro Basto wrote:
+> Hi,
+> 1st you should put this information on http://bugzilla.kernel.org/
 
-The point you're missing is that an "inactive" page is a free page  
-that happens to have known clean data on it corresponding to  
-something on disk.  If you need to use the inactive page for  
-something all you have to do is either zero it or fill it with data  
-from elsewhere.  There is _no_ practical reason for the kernel to  
-turn an "inactive" page into a "free" page.  On my Linux systems  
-after heavy local-disk and network intensive read-only load I have no  
-more than 2% "free" memory, most of the rest is "inactive" (in one  
-case some 2GB of it).  There's nothing _wrong_ with that much  
-"inactive" memory, it just means that you were using it for data at  
-one point, then didn't need it anymore and haven't reused it since.
+ok, thanks.
 
-> I'm not pretending to understand what's happening here but  
-> shouldn't some kind of expiration have kicked in by now and freed  
-> up all those inactive pages?
+> your bug kept me the attention because on bad interrupts  you have :
+> 
+> 21:     100000   IO-APIC-fasteoi   ohci1394
+> 
+> Exactly oops on 100000 interrupts, I had seen this before .
+> I have my bug on http://bugzilla.kernel.org/show_bug.cgi?id=6419
+> which one of the bugs looks like similar to yours. 
+> 
+> So, You are saying with kernel 2.6.16.31 with xen 3.0.2, you don't have
+> this problem , I like to try it, how or where you build this Xenified
+> kernel ? 
 
-Nope; the pages will continue to contain valid data until you  
-overwrite them with new data somehow.  Now, if they were "dirty"  
-pages, containing unwritten data, then you would be correct.
+The package source were available at , but they no longer are :(
+http://debian.thoughtcrime.co.nz/ubuntu/
 
-> The *instant* I manually push a "3" into drop_caches I have 100% of  
-> my normal free memory and the inactive page count drops below 2K.  
-> Maybe I completely misunderstood the purpose of all those dials but  
-> I really did get the feeling that twisting them all tight would  
-> make the housekeeping algorithms more aggressive.
+I can send you my copies (either parts or all), if you don't mind
+getting big emails
+-rw-r--r--  1 aj aj  342068 2006-04-19 12:14 libxen3.0_3.0.2-2r7_amd64.deb
+-rw-r--r--  1 aj aj  106440 2006-04-19 12:14 libxen-dev_3.0.2-2r7_amd64.deb
+-rw-r--r--  1 aj aj  155186 2006-04-19 12:14 
+libxen-python_3.0.2-2r7_amd64.deb
+-rw-r--r--  1 aj aj  620946 2006-04-19 12:14 
+linux-patch-xen_3.0.2-2r7_amd64.deb
+drwxr-xr-x 10 aj aj    4096 2006-04-19 12:14 xen-3.0.2
+-rw-r--r--  1 aj aj   12926 2006-04-19 12:14 xen_3.0.2-2r7_amd64.deb
+-rw-r--r--  1 aj aj  656745 2006-04-19 12:12 xen_3.0.2-2r7.diff.gz
+-rw-r--r--  1 aj aj     645 2006-04-19 12:12 xen_3.0.2-2r7.dsc
+-rw-r--r--  1 aj aj       0 2006-04-19 12:14 xen_3.0.2-2r7.dsc.asc
+-rw-r--r--  1 aj aj 4933621 2006-04-19 11:36 xen_3.0.2.orig.tar.gz
+-rw-r--r--  1 aj aj  531232 2006-04-19 12:14 xen-docs_3.0.2-2r7_all.deb
+-rw-r--r--  1 aj aj 1479866 2006-04-19 12:14 
+xen-hypervisor-3.0_3.0.2-2r7_amd64.deb
+-rw-r--r--  1 aj aj  180526 2006-04-19 12:14 
+xen-utils-3.0_3.0.2-2r7_amd64.deb
 
-In this case you're telling the kernel to go beyond its normal  
-housekeeping and delete perfectly good data from memory.  The only  
-reason to do that is usually to make benchmarks mildly more  
-repeatable and doing it on a regular basis tends to kill performance.
+only *dsc *diff.gz and *orig.tar.gz are needed, then you can recompile
+the rest yourself ("dpkg-source -x *dsc; cd xen-*/; dpkg-buildpackage 
+-rfakeroot").
 
-Cheers,
-Kyle Moffett
+or I can send you the kernel patch as file and the xen hypervisor:
+-rw-r--r-- 1 root root  244694 2006-04-19 12:14 /boot/xen-3.0.2-2.gz
+-rw-r--r-- 1 root root  604942 2006-04-19 12:14 
+/usr/src/kernel-patches/diffs/xen/linux-2.6.16-xen.patch.gz
 
-> [copy of long previous email snipped]
+it applies clean against 2.6.16, but if with 2.6.16.31 I had
+to manually fix two rejects.
 
-PS: No need to put a copy of the entire message you are replying to  
-at the end of your post, it just chews up space.  If anything please  
-quote inline immediately before the appropriate portion of your reply  
-so we can get the gist, much as I have done above.
-
-
+Regards, Andreas

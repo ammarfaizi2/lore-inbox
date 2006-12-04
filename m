@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936947AbWLDOyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936934AbWLDOw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936947AbWLDOyO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936937AbWLDOxr
+	id S936934AbWLDOw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936943AbWLDOw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:53:47 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:12981 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S936929AbWLDOxJ
+	Mon, 4 Dec 2006 09:52:57 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:8471 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S936934AbWLDOw1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:53:09 -0500
-Date: Mon, 4 Dec 2006 15:53:04 +0100
+	Mon, 4 Dec 2006 09:52:27 -0500
+Date: Mon, 4 Dec 2006 15:52:22 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] extmem unbalanced spin_lock.
-Message-ID: <20061204145304.GN32059@skybase>
+To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
+Subject: [S390] Use diag instead of ccw reipl.
+Message-ID: <20061204145222.GK32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,33 +21,31 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-[S390] extmem unbalanced spin_lock.
+[S390] Use diag instead of ccw reipl.
 
-segment save will exit with a lock held if the passed segment doesn't
-exist. Any subsequent call to segment_save will lead to a deadlock.
-Fix this and give up the lock before returning.
+Since the diag 308 reipl method is superior to the ccw method, we should
+use it whenever it is possible. We can do that, if the user has not
+specified a new reipl ccw device and the system has been ipled from
+a ccw device.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/mm/extmem.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kernel/ipl.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-diff -urpN linux-2.6/arch/s390/mm/extmem.c linux-2.6-patched/arch/s390/mm/extmem.c
---- linux-2.6/arch/s390/mm/extmem.c	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6-patched/arch/s390/mm/extmem.c	2006-12-04 14:50:45.000000000 +0100
-@@ -563,8 +563,9 @@ segment_save(char *name)
- 	seg = segment_by_name (name);
- 
- 	if (seg == NULL) {
--		PRINT_ERR ("could not find segment %s in segment_save, please report to linux390@de.ibm.com\n",name);
--		return;
-+		PRINT_ERR("could not find segment %s in segment_save, please "
-+			  "report to linux390@de.ibm.com\n", name);
-+		goto out;
- 	}
- 
- 	startpfn = seg->start_addr >> PAGE_SHIFT;
+diff -urpN linux-2.6/arch/s390/kernel/ipl.c linux-2.6-patched/arch/s390/kernel/ipl.c
+--- linux-2.6/arch/s390/kernel/ipl.c	2006-12-04 14:50:39.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/ipl.c	2006-12-04 14:50:41.000000000 +0100
+@@ -664,6 +664,8 @@ void do_reipl(void)
+ 	switch (reipl_method) {
+ 	case IPL_METHOD_CCW_CIO:
+ 		devid.devno = reipl_block_ccw->ipl_info.ccw.devno;
++		if (ipl_get_type() == IPL_TYPE_CCW && devid.devno == ipl_devno)
++			diag308(DIAG308_IPL, NULL);
+ 		devid.ssid  = 0;
+ 		reipl_ccw_dev(&devid);
+ 		break;

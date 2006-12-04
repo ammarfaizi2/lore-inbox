@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936926AbWLDOt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936931AbWLDOvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936926AbWLDOt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936928AbWLDOt5
+	id S936931AbWLDOvB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936932AbWLDOvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:49:57 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:42503 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S936926AbWLDOtz
+	Mon, 4 Dec 2006 09:51:01 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:53172 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S936931AbWLDOu7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:49:55 -0500
-Date: Mon, 4 Dec 2006 15:49:49 +0100
+	Mon, 4 Dec 2006 09:50:59 -0500
+Date: Mon, 4 Dec 2006 15:50:40 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, horst.hummel@de.ibm.com
-Subject: [S390] handle incorrect values when writing to dasd sysfs attributes.
-Message-ID: <20061204144949.GB32059@skybase>
+To: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
+Subject: [S390] Add ipl/reipl loadparm attribute.
+Message-ID: <20061204145040.GE32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,113 +21,191 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+From: Michael Holzheu <holzheu@de.ibm.com>
 
-[S390] handle incorrect values when writing to dasd sysfs attributes.
+[S390] Add ipl/reipl loadparm attribute.
 
-When writing to dasd attributes (e.g. readonly), all values besides '1'
-are handled like '0'.
-Other sysfs-attributes like 'online' are checking for '1' and for '0'
-and do not accept other values. Therefore enhanced checking and error
-handling in dasd_devmap attribute store functions.
+If multiple kernel images are installed on one DASD, the loadparm can be used
+to select the boot configuration. This patch introduces the following two new
+sysfs attributes:
 
-Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
+/sys/firmware/ipl/loadparm: shows loadparm of current system (ro)
+/sys/firmware/reipl/ccw/loadparm: loadparm used for next reboot (rw)
+
+Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/block/dasd_devmap.c |   43 ++++++++++++++++++++++++++-------------
- 1 files changed, 29 insertions(+), 14 deletions(-)
+ arch/s390/kernel/ipl.c |   98 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 94 insertions(+), 4 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
---- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-12-04 14:50:29.000000000 +0100
-@@ -684,21 +684,26 @@ dasd_ro_store(struct device *dev, struct
- 	      const char *buf, size_t count)
- {
- 	struct dasd_devmap *devmap;
--	int ro_flag;
-+	int val;
-+	char *endp;
+diff -urpN linux-2.6/arch/s390/kernel/ipl.c linux-2.6-patched/arch/s390/kernel/ipl.c
+--- linux-2.6/arch/s390/kernel/ipl.c	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/ipl.c	2006-12-04 14:50:33.000000000 +0100
+@@ -13,12 +13,20 @@
+ #include <linux/device.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
++#include <linux/ctype.h>
+ #include <asm/smp.h>
+ #include <asm/setup.h>
+ #include <asm/cpcmd.h>
+ #include <asm/cio.h>
++#include <asm/ebcdic.h>
  
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
--	ro_flag = buf[0] == '1';
+ #define IPL_PARM_BLOCK_VERSION 0
++#define LOADPARM_LEN 8
 +
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
-+		return -EINVAL;
-+
- 	spin_lock(&dasd_devmap_lock);
--	if (ro_flag)
-+	if (val)
- 		devmap->features |= DASD_FEATURE_READONLY;
- 	else
- 		devmap->features &= ~DASD_FEATURE_READONLY;
- 	if (devmap->device)
- 		devmap->device->features = devmap->features;
- 	if (devmap->device && devmap->device->gdp)
--		set_disk_ro(devmap->device->gdp, ro_flag);
-+		set_disk_ro(devmap->device->gdp, val);
- 	spin_unlock(&dasd_devmap_lock);
- 	return count;
- }
-@@ -729,17 +734,22 @@ dasd_use_diag_store(struct device *dev, 
- {
- 	struct dasd_devmap *devmap;
- 	ssize_t rc;
--	int use_diag;
-+	int val;
-+	char *endp;
++extern char s390_readinfo_sccb[];
++#define SCCB_VALID (*((__u16*)&s390_readinfo_sccb[6]) == 0x0010)
++#define SCCB_LOADPARM (&s390_readinfo_sccb[24])
++#define SCCB_FLAG (s390_readinfo_sccb[91])
  
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
--	use_diag = buf[0] == '1';
-+
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
-+		return -EINVAL;
-+
- 	spin_lock(&dasd_devmap_lock);
- 	/* Changing diag discipline flag is only allowed in offline state. */
- 	rc = count;
- 	if (!devmap->device) {
--		if (use_diag)
-+		if (val)
- 			devmap->features |= DASD_FEATURE_USEDIAG;
- 		else
- 			devmap->features &= ~DASD_FEATURE_USEDIAG;
-@@ -854,20 +864,25 @@ dasd_eer_store(struct device *dev, struc
- 	       const char *buf, size_t count)
- {
- 	struct dasd_devmap *devmap;
--	int rc;
-+	int val, rc;
-+	char *endp;
+ enum ipl_type {
+ 	IPL_TYPE_NONE	 = 1,
+@@ -289,9 +297,25 @@ static struct attribute_group ipl_fcp_at
  
- 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
- 	if (IS_ERR(devmap))
- 		return PTR_ERR(devmap);
- 	if (!devmap->device)
--		return count;
--	if (buf[0] == '1') {
-+		return -ENODEV;
+ /* CCW ipl device attributes */
+ 
++static ssize_t ipl_ccw_loadparm_show(struct subsystem *subsys, char *page)
++{
++	char loadparm[LOADPARM_LEN + 1] = {};
 +
-+	val = simple_strtoul(buf, &endp, 0);
-+	if (((endp + 1) < (buf + count)) || (val > 1))
++	if (!SCCB_VALID)
++		return sprintf(page, "#unknown#\n");
++	memcpy(loadparm, SCCB_LOADPARM, LOADPARM_LEN);
++	EBCASC(loadparm, LOADPARM_LEN);
++	strstrip(loadparm);
++	return sprintf(page, "%s\n", loadparm);
++}
++
++static struct subsys_attribute sys_ipl_ccw_loadparm_attr =
++	__ATTR(loadparm, 0444, ipl_ccw_loadparm_show, NULL);
++
+ static struct attribute *ipl_ccw_attrs[] = {
+ 	&sys_ipl_type_attr.attr,
+ 	&sys_ipl_device_attr.attr,
++	&sys_ipl_ccw_loadparm_attr.attr,
+ 	NULL,
+ };
+ 
+@@ -348,8 +372,57 @@ static struct attribute_group reipl_fcp_
+ DEFINE_IPL_ATTR_RW(reipl_ccw, device, "0.0.%04llx\n", "0.0.%llx\n",
+ 	reipl_block_ccw->ipl_info.ccw.devno);
+ 
++static void reipl_get_ascii_loadparm(char *loadparm)
++{
++	memcpy(loadparm, &reipl_block_ccw->ipl_info.ccw.load_param,
++	       LOADPARM_LEN);
++	EBCASC(loadparm, LOADPARM_LEN);
++	loadparm[LOADPARM_LEN] = 0;
++	strstrip(loadparm);
++}
++
++static ssize_t reipl_ccw_loadparm_show(struct subsystem *subsys, char *page)
++{
++	char buf[LOADPARM_LEN + 1];
++
++	reipl_get_ascii_loadparm(buf);
++	return sprintf(page, "%s\n", buf);
++}
++
++static ssize_t reipl_ccw_loadparm_store(struct subsystem *subsys,
++					const char *buf, size_t len)
++{
++	int i, lp_len;
++
++	/* ignore trailing newline */
++	lp_len = len;
++	if ((len > 0) && (buf[len - 1] == '\n'))
++		lp_len--;
++	/* loadparm can have max 8 characters and must not start with a blank */
++	if ((lp_len > LOADPARM_LEN) || ((lp_len > 0) && (buf[0] == ' ')))
 +		return -EINVAL;
++	/* loadparm can only contain "a-z,A-Z,0-9,SP,." */
++	for (i = 0; i < lp_len; i++) {
++		if (isalpha(buf[i]) || isdigit(buf[i]) || (buf[i] == ' ') ||
++		    (buf[i] == '.'))
++			continue;
++		return -EINVAL;
++	}
++	/* initialize loadparm with blanks */
++	memset(&reipl_block_ccw->ipl_info.ccw.load_param, ' ', LOADPARM_LEN);
++	/* copy and convert to ebcdic */
++	memcpy(&reipl_block_ccw->ipl_info.ccw.load_param, buf, lp_len);
++	ASCEBC(reipl_block_ccw->ipl_info.ccw.load_param, LOADPARM_LEN);
++	return len;
++}
 +
-+	rc = count;
-+	if (val)
- 		rc = dasd_eer_enable(devmap->device);
--		if (rc)
--			return rc;
--	} else
++static struct subsys_attribute sys_reipl_ccw_loadparm_attr =
++	__ATTR(loadparm, 0644, reipl_ccw_loadparm_show,
++	       reipl_ccw_loadparm_store);
++
+ static struct attribute *reipl_ccw_attrs[] = {
+ 	&sys_reipl_ccw_device_attr.attr,
++	&sys_reipl_ccw_loadparm_attr.attr,
+ 	NULL,
+ };
+ 
+@@ -571,11 +644,14 @@ void do_reipl(void)
+ {
+ 	struct ccw_dev_id devid;
+ 	static char buf[100];
++	char loadparm[LOADPARM_LEN + 1];
+ 
+ 	switch (reipl_type) {
+ 	case IPL_TYPE_CCW:
++		reipl_get_ascii_loadparm(loadparm);
+ 		printk(KERN_EMERG "reboot on ccw device: 0.0.%04x\n",
+ 			reipl_block_ccw->ipl_info.ccw.devno);
++		printk(KERN_EMERG "loadparm = '%s'\n", loadparm);
+ 		break;
+ 	case IPL_TYPE_FCP:
+ 		printk(KERN_EMERG "reboot on fcp device:\n");
+@@ -592,7 +668,12 @@ void do_reipl(void)
+ 		reipl_ccw_dev(&devid);
+ 		break;
+ 	case IPL_METHOD_CCW_VM:
+-		sprintf(buf, "IPL %X", reipl_block_ccw->ipl_info.ccw.devno);
++		if (strlen(loadparm) == 0)
++			sprintf(buf, "IPL %X",
++				reipl_block_ccw->ipl_info.ccw.devno);
++		else
++			sprintf(buf, "IPL %X LOADPARM '%s'",
++				reipl_block_ccw->ipl_info.ccw.devno, loadparm);
+ 		cpcmd(buf, NULL, 0, NULL);
+ 		break;
+ 	case IPL_METHOD_CCW_DIAG:
+@@ -746,6 +827,17 @@ static int __init reipl_ccw_init(void)
+ 	reipl_block_ccw->hdr.version = IPL_PARM_BLOCK_VERSION;
+ 	reipl_block_ccw->hdr.blk0_len = sizeof(reipl_block_ccw->ipl_info.ccw);
+ 	reipl_block_ccw->hdr.pbt = DIAG308_IPL_TYPE_CCW;
++	/* check if read scp info worked and set loadparm */
++	if (SCCB_VALID)
++		memcpy(reipl_block_ccw->ipl_info.ccw.load_param,
++		       SCCB_LOADPARM, LOADPARM_LEN);
 +	else
- 		dasd_eer_disable(devmap->device);
--	return count;
-+	return rc;
++		/* read scp info failed: set empty loadparm (EBCDIC blanks) */
++		memset(reipl_block_ccw->ipl_info.ccw.load_param, 0x40,
++		       LOADPARM_LEN);
++	/* FIXME: check for diag308_set_works when enabling diag ccw reipl */
++	if (!MACHINE_IS_VM)
++		sys_reipl_ccw_loadparm_attr.attr.mode = S_IRUGO;
+ 	if (ipl_get_type() == IPL_TYPE_CCW)
+ 		reipl_block_ccw->ipl_info.ccw.devno = ipl_devno;
+ 	reipl_capabilities |= IPL_TYPE_CCW;
+@@ -827,13 +919,11 @@ static int __init dump_ccw_init(void)
+ 	return 0;
  }
  
- static DEVICE_ATTR(eer_enabled, 0644, dasd_eer_show, dasd_eer_store);
+-extern char s390_readinfo_sccb[];
+-
+ static int __init dump_fcp_init(void)
+ {
+ 	int rc;
+ 
+-	if(!(s390_readinfo_sccb[91] & 0x2))
++	if(!(SCCB_FLAG & 0x2) || !SCCB_VALID)
+ 		return 0; /* LDIPL DUMP is not installed */
+ 	if (!diag308_set_works)
+ 		return 0;

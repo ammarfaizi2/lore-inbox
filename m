@@ -1,315 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936427AbWLDMmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936313AbWLDMlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936427AbWLDMmY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936350AbWLDMlu
+	id S936313AbWLDMlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936332AbWLDMlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:41:50 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:735 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936331AbWLDMfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:35:17 -0500
-From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
-       linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
-       Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 20/35] Unionfs: Directory manipulation helper functions
-Date: Mon,  4 Dec 2006 07:30:53 -0500
-Message-Id: <11652354711791-git-send-email-jsipek@cs.sunysb.edu>
-X-Mailer: git-send-email 1.4.3.3
-In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
-References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+	Mon, 4 Dec 2006 07:41:45 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:148 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S936313AbWLDMlg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:41:36 -0500
+Date: Mon, 4 Dec 2006 12:47:43 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Kurtis D. Rader" <krader@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: data corruption with nvidia nForce 4 chipsets and IDE/SATA
+ drives
+Message-ID: <20061204124743.240bb9ea@localhost.localdomain>
+In-Reply-To: <20061204015808.GA2800@us.ibm.com>
+References: <4570CF26.8070800@scientia.net>
+	<20061203011737.GA2729@us.ibm.com>
+	<20061204015808.GA2800@us.ibm.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> The key question is whether this is a HW quirk of the nForce 4 chipset
+> that the kernel can and should be working around? What tests can I run that
+> will help narrow the field of investigation or provide more useful data?
 
-This patch contains directory manipulation helper functions.
-
-Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
----
- fs/unionfs/dirhelper.c |  270 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 270 insertions(+), 0 deletions(-)
-
-diff --git a/fs/unionfs/dirhelper.c b/fs/unionfs/dirhelper.c
-new file mode 100644
-index 0000000..714af2d
---- /dev/null
-+++ b/fs/unionfs/dirhelper.c
-@@ -0,0 +1,270 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include "union.h"
-+
-+/* Delete all of the whiteouts in a given directory for rmdir.
-+ *
-+ * hidden directory inode should be locked
-+ */
-+int do_delete_whiteouts(struct dentry *dentry, int bindex,
-+		     struct unionfs_dir_state *namelist)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dir_dentry = NULL;
-+	struct dentry *hidden_dentry;
-+	char *name = NULL, *p;
-+	struct inode *hidden_dir;
-+
-+	int i;
-+	struct list_head *pos;
-+	struct filldir_node *cursor;
-+
-+	/* Find out hidden parent dentry */
-+	hidden_dir_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+	BUG_ON(!S_ISDIR(hidden_dir_dentry->d_inode->i_mode));
-+	hidden_dir = hidden_dir_dentry->d_inode;
-+	BUG_ON(!S_ISDIR(hidden_dir->i_mode));
-+
-+	err = -ENOMEM;
-+	name = __getname();
-+	if (!name)
-+		goto out;
-+	strcpy(name, UNIONFS_WHPFX);
-+	p = name + UNIONFS_WHLEN;
-+
-+	err = 0;
-+	for (i = 0; !err && i < namelist->size; i++) {
-+		list_for_each(pos, &namelist->list[i]) {
-+			cursor =
-+			    list_entry(pos, struct filldir_node, file_list);
-+			/* Only operate on whiteouts in this branch. */
-+			if (cursor->bindex != bindex)
-+				continue;
-+			if (!cursor->whiteout)
-+				continue;
-+
-+			strcpy(p, cursor->name);
-+			hidden_dentry =
-+			    lookup_one_len(name, hidden_dir_dentry,
-+					   cursor->namelen + UNIONFS_WHLEN);
-+			if (IS_ERR(hidden_dentry)) {
-+				err = PTR_ERR(hidden_dentry);
-+				break;
-+			}
-+			if (hidden_dentry->d_inode)
-+				err = vfs_unlink(hidden_dir, hidden_dentry);
-+			dput(hidden_dentry);
-+			if (err)
-+				break;
-+		}
-+	}
-+
-+	__putname(name);
-+
-+	/* After all of the removals, we should copy the attributes once. */
-+	fsstack_copy_attr_times(dentry->d_inode, hidden_dir_dentry->d_inode);
-+
-+out:
-+	return err;
-+}
-+
-+/* delete whiteouts in a dir (for rmdir operation) using sioq if necessary */
-+int delete_whiteouts(struct dentry *dentry, int bindex,
-+		     struct unionfs_dir_state *namelist)
-+{
-+	int err;
-+	struct super_block *sb;
-+	struct dentry *hidden_dir_dentry;
-+	struct inode *hidden_dir;
-+
-+	struct sioq_args args;
-+
-+	sb = dentry->d_sb;
-+	unionfs_read_lock(sb);
-+
-+	BUG_ON(!S_ISDIR(dentry->d_inode->i_mode));
-+	BUG_ON(bindex < dbstart(dentry));
-+	BUG_ON(bindex > dbend(dentry));
-+	err = is_robranch_super(sb, bindex);
-+	if (err)
-+		goto out;
-+
-+	hidden_dir_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+	BUG_ON(!S_ISDIR(hidden_dir_dentry->d_inode->i_mode));
-+	hidden_dir = hidden_dir_dentry->d_inode;
-+	BUG_ON(!S_ISDIR(hidden_dir->i_mode));
-+
-+	mutex_lock(&hidden_dir->i_mutex);
-+	if (!permission(hidden_dir, MAY_WRITE | MAY_EXEC, NULL))
-+		err = do_delete_whiteouts(dentry, bindex, namelist);
-+	else {
-+		args.deletewh.namelist = namelist;
-+		args.deletewh.dentry = dentry;
-+		args.deletewh.bindex = bindex;
-+		run_sioq(__delete_whiteouts, &args);
-+		err = args.err;
-+	}
-+	mutex_unlock(&hidden_dir->i_mutex);
-+
-+out:
-+	unionfs_read_unlock(sb);
-+	return err;
-+}
-+
-+#define RD_NONE 0
-+#define RD_CHECK_EMPTY 1
-+/* The callback structure for check_empty. */
-+struct unionfs_rdutil_callback {
-+	int err;
-+	int filldir_called;
-+	struct unionfs_dir_state *rdstate;
-+	int mode;
-+};
-+
-+/* This filldir function makes sure only whiteouts exist within a directory. */
-+static int readdir_util_callback(void *dirent, const char *name, int namelen,
-+				 loff_t offset, u64 ino, unsigned int d_type)
-+{
-+	int err = 0;
-+	struct unionfs_rdutil_callback *buf = dirent;
-+	int whiteout = 0;
-+	struct filldir_node *found;
-+
-+	buf->filldir_called = 1;
-+
-+	if (name[0] == '.'
-+	    && (namelen == 1 || (name[1] == '.' && namelen == 2)))
-+		goto out;
-+
-+	if (namelen > UNIONFS_WHLEN && !strncmp(name, UNIONFS_WHPFX, UNIONFS_WHLEN)) {
-+		namelen -= UNIONFS_WHLEN;
-+		name += UNIONFS_WHLEN;
-+		whiteout = 1;
-+	}
-+
-+	found = find_filldir_node(buf->rdstate, name, namelen);
-+	/* If it was found in the table there was a previous whiteout. */
-+	if (found)
-+		goto out;
-+
-+	/* If it wasn't found and isn't a whiteout, the directory isn't empty. */
-+	err = -ENOTEMPTY;
-+	if ((buf->mode == RD_CHECK_EMPTY) && !whiteout)
-+		goto out;
-+
-+	err = add_filldir_node(buf->rdstate, name, namelen,
-+			       buf->rdstate->bindex, whiteout);
-+
-+out:
-+	buf->err = err;
-+	return err;
-+}
-+
-+/* Is a directory logically empty? */
-+int check_empty(struct dentry *dentry, struct unionfs_dir_state **namelist)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry = NULL;
-+	struct super_block *sb;
-+	struct file *hidden_file;
-+	struct unionfs_rdutil_callback *buf = NULL;
-+	int bindex, bstart, bend, bopaque;
-+
-+	sb = dentry->d_sb;
-+
-+	unionfs_read_lock(sb);
-+
-+	BUG_ON(!S_ISDIR(dentry->d_inode->i_mode));
-+
-+	if ((err = unionfs_partial_lookup(dentry)))
-+		goto out;
-+
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+	bopaque = dbopaque(dentry);
-+	if (0 <= bopaque && bopaque < bend)
-+		bend = bopaque;
-+
-+	buf = kmalloc(sizeof(struct unionfs_rdutil_callback), GFP_KERNEL);
-+	if (!buf) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	buf->err = 0;
-+	buf->mode = RD_CHECK_EMPTY;
-+	buf->rdstate = alloc_rdstate(dentry->d_inode, bstart);
-+	if (!buf->rdstate) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* Process the hidden directories with rdutil_callback as a filldir. */
-+	for (bindex = bstart; bindex <= bend; bindex++) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+		if (!hidden_dentry)
-+			continue;
-+		if (!hidden_dentry->d_inode)
-+			continue;
-+		if (!S_ISDIR(hidden_dentry->d_inode->i_mode))
-+			continue;
-+
-+		dget(hidden_dentry);
-+		mntget(unionfs_lower_mnt_idx(dentry, bindex));
-+		branchget(sb, bindex);
-+		hidden_file =
-+		    dentry_open(hidden_dentry, unionfs_lower_mnt_idx(dentry, bindex),
-+				O_RDONLY);
-+		if (IS_ERR(hidden_file)) {
-+			err = PTR_ERR(hidden_file);
-+			dput(hidden_dentry);
-+			branchput(sb, bindex);
-+			goto out;
-+		}
-+
-+		do {
-+			buf->filldir_called = 0;
-+			buf->rdstate->bindex = bindex;
-+			err = vfs_readdir(hidden_file,
-+					  readdir_util_callback, buf);
-+			if (buf->err)
-+				err = buf->err;
-+		} while ((err >= 0) && buf->filldir_called);
-+
-+		/* fput calls dput for hidden_dentry */
-+		fput(hidden_file);
-+		branchput(sb, bindex);
-+
-+		if (err < 0)
-+			goto out;
-+	}
-+
-+out:
-+	if (buf) {
-+		if (namelist && !err)
-+			*namelist = buf->rdstate;
-+		else if (buf->rdstate)
-+			free_rdstate(buf->rdstate);
-+		kfree(buf);
-+	}
-+
-+	unionfs_read_unlock(sb);
-+
-+	return err;
-+}
-+
--- 
-1.4.3.3
+Really it would need information from Nvidia on the problem, non-problem,
+possible errata and/or chipset flaws. In the absence of that I don't see
+a good way to debug it further than you have already.
 

@@ -1,279 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759457AbWLDTkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937328AbWLDTl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759457AbWLDTkx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759489AbWLDTkx
+	id S937328AbWLDTl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937329AbWLDTl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:40:53 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:19813 "EHLO
-	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759457AbWLDTkw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:40:52 -0500
-From: Ian Campbell <ijc@hellion.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <1165259962.6152.5.camel@localhost.localdomain>
-References: <1165153834.5499.40.camel@localhost.localdomain>
-	 <1165259962.6152.5.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-U8icZ7hSASJTqAKaAODz"
-Date: Mon, 04 Dec 2006 19:40:26 +0000
-Message-Id: <1165261226.5499.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-X-SA-Exim-Connect-IP: 192.168.1.5
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: PMTMR running too fast
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+	Mon, 4 Dec 2006 14:41:57 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44377 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937328AbWLDTl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 14:41:56 -0500
+Date: Mon, 4 Dec 2006 11:41:42 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Mel Gorman <mel@skynet.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+In-Reply-To: <20061204113051.4e90b249.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com>
+References: <20061130170746.GA11363@skynet.ie> <20061130173129.4ebccaa2.akpm@osdl.org>
+ <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie> <20061201110103.08d0cf3d.akpm@osdl.org>
+ <20061204140747.GA21662@skynet.ie> <20061204113051.4e90b249.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Dec 2006, Andrew Morton wrote:
 
---=-U8icZ7hSASJTqAKaAODz
-Content-Type: multipart/mixed; boundary="=-Gaz+G9PCTlepq4V6GzRC"
+> My concern is that __GFP_MOVABLE is useful for fragmentation-avoidance, but
+> useless for memory hot-unplug.  So that if/when hot-unplug comes along
+> we'll add more gunk which is a somewhat-superset of the GFP_MOVABLE
+> infrastructure, hence we didn't need the GFP_MOVABLE code.  Or something.
 
+It is useless for memory unplug until we implement limits for unmovable 
+pages in a zone (per MA_ORDER area? That would fit nicely into the anti 
+frag scheme) or until we have logic that makes !GFP_MOVABLE allocations 
+fall back to a node that is not removable.
 
---=-Gaz+G9PCTlepq4V6GzRC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> That depends on how we do hot-unplug, if we do it.  I continue to suspect
+> that it'll be done via memory zones: effectively by resurrecting
+> GFP_HIGHMEM.  In which case there's little overlap with anti-frag.  (btw, I
+> have a suspicion that the most important application of memory hot-unplug
+> will be power management: destructively turning off DIMMs).
 
-On Mon, 2006-12-04 at 11:19 -0800, john stultz wrote:
-> On Sun, 2006-12-03 at 13:50 +0000, Ian Campbell wrote:
-> > In older kernels arch/i386/kernel/timers/timer_pm.c:verify_pmtmr_rate
-> > contained a check for sensible PMTMR rate and disabled that clocksource
-> > if it was found to be out of spec[0]. This check seems to have been los=
-t
-> > in the transition to drivers/clocksource/acpi_pm.c, the removal is in
-> > 61743fe445213b87fb55a389c8d073785323ca3e "Time: i386 Conversion - part
-> > 4: Remove Old timer_opts Code"[1] and the check is not present in the
-> > replacement 5d0cf410e94b1f1ff852c3f210d22cc6c5a27ffa "Time: i386
-> > Clocksource Drivers"[2].
->=20
-> Fedora has a bug covering this:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D211902
+There are numerous other uses as well (besides DIMM and node unplug):
 
-> > Is there a specific reason the check was removed (I couldn't see on in
-> > the archives) or was it simply overlooked? Without it I need to pass
-> > clocksource=3Dtsc to have 2.6.18 work correctly on an older K6 system w=
-ith
-> > an Aladdin chipset (will dig out the precise details if required). Woul=
-d
-> > a patch to reintroduce the check be acceptable or would some sort of
-> > blacklist based solution be more acceptable?
->=20
-> If I recall correctly, it was pulled because there was some question as
-> to if it was actually needed (x86_64 didn't need it) and it slows down
-> the boot time (although not by much).=20
->=20
-> I'm fine just re-adding it. Although if the number of affected systems
-> are small we could just blacklist it (Ian, mind sending dmidecode
-> output?).
+1. Faulty DIMM isolation
+2. Virtual memory managers can reduce memory without resorting to 
+   balloons.
+3. Physical removal and exchange of memory while a system is running
+   (Likely necessary to complement hotplug cpu, cpus usually come
+   with memory).
 
-dmidecode.txt is attached.
+The multi zone approach does not work with NUMA. NUMA only supports a 
+single zone for memory policy control etc. Also multiple zones carry with 
+it a management overhead that is unnecessary for the MOVABLE/UNMOVABLE
+distinction.
+ 
+> perhaps not for the hugetlbpage problem.  Whereas anti-fragmentation adds
+> vastly more code, but can address both problems?  Or something.
 
-Cheers,
-Ian.
-
---=20
-Ian Campbell
-
-Felson's Law:
-	To steal ideas from one person is plagiarism; to steal from
-	many is research.
-
---=-Gaz+G9PCTlepq4V6GzRC
-Content-Disposition: attachment; filename=dmidecode.txt
-Content-Type: text/plain; name=dmidecode.txt; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
-
-IyBkbWlkZWNvZGUgMi42DQpTTUJJT1MgMi4yIHByZXNlbnQuDQozMiBzdHJ1Y3R1cmVzIG9jY3Vw
-eWluZyA3OTggYnl0ZXMuDQpUYWJsZSBhdCAweDAwMEYwODAwLg0KSGFuZGxlIDB4MDAwMA0KCURN
-SSB0eXBlIDAsIDE5IGJ5dGVzLg0KCUJJT1MgSW5mb3JtYXRpb24NCgkJVmVuZG9yOiBBd2FyZCBT
-b2Z0d2FyZSBJbnRlcm5hdGlvbmFsLCBJbmMuDQoJCVZlcnNpb246IDQuNTEgUEcNCgkJUmVsZWFz
-ZSBEYXRlOiAwOS8xOS8wMA0KCQlBZGRyZXNzOiAweEUwMDAwDQoJCVJ1bnRpbWUgU2l6ZTogMTI4
-IGtCDQoJCVJPTSBTaXplOiAxMjgga0INCgkJQ2hhcmFjdGVyaXN0aWNzOg0KCQkJSVNBIGlzIHN1
-cHBvcnRlZA0KCQkJUENJIGlzIHN1cHBvcnRlZA0KCQkJUE5QIGlzIHN1cHBvcnRlZA0KCQkJQVBN
-IGlzIHN1cHBvcnRlZA0KCQkJQklPUyBpcyB1cGdyYWRlYWJsZQ0KCQkJQklPUyBzaGFkb3dpbmcg
-aXMgYWxsb3dlZA0KCQkJRVNDRCBzdXBwb3J0IGlzIGF2YWlsYWJsZQ0KCQkJQm9vdCBmcm9tIENE
-IGlzIHN1cHBvcnRlZA0KCQkJU2VsZWN0YWJsZSBib290IGlzIHN1cHBvcnRlZA0KCQkJQklPUyBS
-T00gaXMgc29ja2V0ZWQNCgkJCUVERCBpcyBzdXBwb3J0ZWQNCgkJCTUuMjUiLzM2MCBLQiBmbG9w
-cHkgc2VydmljZXMgYXJlIHN1cHBvcnRlZCAoaW50IDEzaCkNCgkJCTUuMjUiLzEuMiBNQiBmbG9w
-cHkgc2VydmljZXMgYXJlIHN1cHBvcnRlZCAoaW50IDEzaCkNCgkJCTMuNSIvNzIwIEtCIGZsb3Bw
-eSBzZXJ2aWNlcyBhcmUgc3VwcG9ydGVkIChpbnQgMTNoKQ0KCQkJMy41Ii8yLjg4IE1CIGZsb3Bw
-eSBzZXJ2aWNlcyBhcmUgc3VwcG9ydGVkIChpbnQgMTNoKQ0KCQkJUHJpbnQgc2NyZWVuIHNlcnZp
-Y2UgaXMgc3VwcG9ydGVkIChpbnQgNWgpDQoJCQk4MDQyIGtleWJvYXJkIHNlcnZpY2VzIGFyZSBz
-dXBwb3J0ZWQgKGludCA5aCkNCgkJCVNlcmlhbCBzZXJ2aWNlcyBhcmUgc3VwcG9ydGVkIChpbnQg
-MTRoKQ0KCQkJUHJpbnRlciBzZXJ2aWNlcyBhcmUgc3VwcG9ydGVkIChpbnQgMTdoKQ0KCQkJQ0dB
-L21vbm8gdmlkZW8gc2VydmljZXMgYXJlIHN1cHBvcnRlZCAoaW50IDEwaCkNCgkJCUFDUEkgaXMg
-c3VwcG9ydGVkDQoJCQlVU0IgbGVnYWN5IGlzIHN1cHBvcnRlZA0KCQkJQUdQIGlzIHN1cHBvcnRl
-ZA0KCQkJTFMtMTIwIGJvb3QgaXMgc3VwcG9ydGVkDQoJCQlBVEFQSSBaaXAgZHJpdmUgYm9vdCBp
-cyBzdXBwb3J0ZWQNCkhhbmRsZSAweDAwMDENCglETUkgdHlwZSAxLCAyNSBieXRlcy4NCglTeXN0
-ZW0gSW5mb3JtYXRpb24NCgkJTWFudWZhY3R1cmVyOiAgDQoJCVByb2R1Y3QgTmFtZTogIA0KCQlW
-ZXJzaW9uOiAgDQoJCVNlcmlhbCBOdW1iZXI6ICANCgkJVVVJRDogTm90IFNldHRhYmxlDQoJCVdh
-a2UtdXAgVHlwZTogUmVzZXJ2ZWQNCkhhbmRsZSAweDAwMDINCglETUkgdHlwZSAyLCA4IGJ5dGVz
-Lg0KCUJhc2UgQm9hcmQgSW5mb3JtYXRpb24NCgkJTWFudWZhY3R1cmVyOiAgDQoJCVByb2R1Y3Qg
-TmFtZTogQUxBRERJTjUNCgkJVmVyc2lvbjogIA0KCQlTZXJpYWwgTnVtYmVyOiAgDQpIYW5kbGUg
-MHgwMDAzDQoJRE1JIHR5cGUgMywgMTMgYnl0ZXMuDQoJQ2hhc3NpcyBJbmZvcm1hdGlvbg0KCQlN
-YW51ZmFjdHVyZXI6ICANCgkJVHlwZTogVW5rbm93bg0KCQlMb2NrOiBOb3QgUHJlc2VudA0KCQlW
-ZXJzaW9uOiAgDQoJCVNlcmlhbCBOdW1iZXI6ICANCgkJQXNzZXQgVGFnOiAgDQoJCUJvb3QtdXAg
-U3RhdGU6IFVua25vd24NCgkJUG93ZXIgU3VwcGx5IFN0YXRlOiBVbmtub3duDQoJCVRoZXJtYWwg
-U3RhdGU6IFVua25vd24NCgkJU2VjdXJpdHkgU3RhdHVzOiBVbmtub3duDQpIYW5kbGUgMHgwMDA0
-DQoJRE1JIHR5cGUgNCwgMzIgYnl0ZXMuDQoJUHJvY2Vzc29yIEluZm9ybWF0aW9uDQoJCVNvY2tl
-dCBEZXNpZ25hdGlvbjogU29ja2V0IDcNCgkJVHlwZTogQ2VudHJhbCBQcm9jZXNzb3INCgkJRmFt
-aWx5OiBLNQ0KCQlNYW51ZmFjdHVyZXI6IEFNRA0KCQlJRDogOTEgMDUgMDAgMDAgQkYgMjEgODAg
-MDANCgkJU2lnbmF0dXJlOiBGYW1pbHkgNSwgTW9kZWwgOSwgU3RlcHBpbmcgMQ0KCQlGbGFnczoN
-CgkJCUZQVSAoRmxvYXRpbmctcG9pbnQgdW5pdCBvbi1jaGlwKQ0KCQkJVk1FIChWaXJ0dWFsIG1v
-ZGUgZXh0ZW5zaW9uKQ0KCQkJREUgKERlYnVnZ2luZyBleHRlbnNpb24pDQoJCQlQU0UgKFBhZ2Ug
-c2l6ZSBleHRlbnNpb24pDQoJCQlUU0MgKFRpbWUgc3RhbXAgY291bnRlcikNCgkJCU1TUiAoTW9k
-ZWwgc3BlY2lmaWMgcmVnaXN0ZXJzKQ0KCQkJTUNFIChNYWNoaW5lIGNoZWNrIGV4Y2VwdGlvbikN
-CgkJCUNYOCAoQ01QWENIRzggaW5zdHJ1Y3Rpb24gc3VwcG9ydGVkKQ0KCQkJUEdFIChQYWdlIGds
-b2JhbCBlbmFibGUpDQoJCQlNTVggKE1NWCB0ZWNobm9sb2d5IHN1cHBvcnRlZCkNCgkJVmVyc2lv
-bjogQU1ELUs2DQoJCVZvbHRhZ2U6IDIuNCBWDQoJCUV4dGVybmFsIENsb2NrOiAxMDAgTUh6DQoJ
-CU1heCBTcGVlZDogNTAwIE1Ieg0KCQlDdXJyZW50IFNwZWVkOiA0NTAgTUh6DQoJCVN0YXR1czog
-UG9wdWxhdGVkLCBFbmFibGVkDQoJCVVwZ3JhZGU6IFpJRiBTb2NrZXQNCgkJTDEgQ2FjaGUgSGFu
-ZGxlOiAweDAwMDANCgkJTDIgQ2FjaGUgSGFuZGxlOiAweDAwMDANCgkJTDMgQ2FjaGUgSGFuZGxl
-OiAweDAwMDANCkhhbmRsZSAweDAwMDUNCglETUkgdHlwZSA1LCAyOCBieXRlcy4NCglNZW1vcnkg
-Q29udHJvbGxlciBJbmZvcm1hdGlvbg0KCQlFcnJvciBEZXRlY3RpbmcgTWV0aG9kOiA4LWJpdCBQ
-YXJpdHkNCgkJRXJyb3IgQ29ycmVjdGluZyBDYXBhYmlsaXRpZXM6DQoJCQlOb25lDQoJCVN1cHBv
-cnRlZCBJbnRlcmxlYXZlOiBPbmUtd2F5IEludGVybGVhdmUNCgkJQ3VycmVudCBJbnRlcmxlYXZl
-OiBPbmUtd2F5IEludGVybGVhdmUNCgkJTWF4aW11bSBNZW1vcnkgTW9kdWxlIFNpemU6IDUxMiBN
-Qg0KCQlNYXhpbXVtIFRvdGFsIE1lbW9yeSBTaXplOiAzMDcyIE1CDQoJCVN1cHBvcnRlZCBTcGVl
-ZHM6DQoJCQk3MCBucw0KCQkJNjAgbnMNCgkJU3VwcG9ydGVkIE1lbW9yeSBUeXBlczoNCgkJCVN0
-YW5kYXJkDQoJCQlGUE0NCgkJCUVETw0KCQkJU0RSQU0NCgkJTWVtb3J5IE1vZHVsZSBWb2x0YWdl
-OiA1LjAgViAzLjMgVg0KCQlBc3NvY2lhdGVkIE1lbW9yeSBTbG90czogNg0KCQkJMHgwMDA2DQoJ
-CQkweDAwMDcNCgkJCTB4MDAwOA0KCQkJMHgwMDA5DQoJCQkweDAwMEENCgkJCTB4MDAwQg0KCQlF
-bmFibGVkIEVycm9yIENvcnJlY3RpbmcgQ2FwYWJpbGl0aWVzOiBOb25lDQpIYW5kbGUgMHgwMDA2
-DQoJRE1JIHR5cGUgNiwgMTIgYnl0ZXMuDQoJTWVtb3J5IE1vZHVsZSBJbmZvcm1hdGlvbg0KCQlT
-b2NrZXQgRGVzaWduYXRpb246IEEwDQoJCUJhbmsgQ29ubmVjdGlvbnM6IDAgMQ0KCQlDdXJyZW50
-IFNwZWVkOiA2MCBucw0KCQlUeXBlOiBQYXJpdHkgRUNDIERJTU0gU0RSQU0NCgkJSW5zdGFsbGVk
-IFNpemU6IDEyOCBNQiAoU2luZ2xlLWJhbmsgQ29ubmVjdGlvbikNCgkJRW5hYmxlZCBTaXplOiAx
-MjggTUIgKFNpbmdsZS1iYW5rIENvbm5lY3Rpb24pDQoJCUVycm9yIFN0YXR1czogT0sNCkhhbmRs
-ZSAweDAwMDcNCglETUkgdHlwZSA2LCAxMiBieXRlcy4NCglNZW1vcnkgTW9kdWxlIEluZm9ybWF0
-aW9uDQoJCVNvY2tldCBEZXNpZ25hdGlvbjogQTENCgkJQmFuayBDb25uZWN0aW9uczogMCAxDQoJ
-CUN1cnJlbnQgU3BlZWQ6IDYwIG5zDQoJCVR5cGU6IFBhcml0eSBFQ0MgRElNTSBTRFJBTQ0KCQlJ
-bnN0YWxsZWQgU2l6ZTogMTI4IE1CIChTaW5nbGUtYmFuayBDb25uZWN0aW9uKQ0KCQlFbmFibGVk
-IFNpemU6IDEyOCBNQiAoU2luZ2xlLWJhbmsgQ29ubmVjdGlvbikNCgkJRXJyb3IgU3RhdHVzOiBP
-Sw0KSGFuZGxlIDB4MDAwOA0KCURNSSB0eXBlIDYsIDEyIGJ5dGVzLg0KCU1lbW9yeSBNb2R1bGUg
-SW5mb3JtYXRpb24NCgkJU29ja2V0IERlc2lnbmF0aW9uOiBBMg0KCQlCYW5rIENvbm5lY3Rpb25z
-OiAyIDMNCgkJQ3VycmVudCBTcGVlZDogNjAgbnMNCgkJVHlwZTogRlBNIFBhcml0eSBFQ0MNCgkJ
-SW5zdGFsbGVkIFNpemU6IDY0IE1CIChTaW5nbGUtYmFuayBDb25uZWN0aW9uKQ0KCQlFbmFibGVk
-IFNpemU6IDY0IE1CIChTaW5nbGUtYmFuayBDb25uZWN0aW9uKQ0KCQlFcnJvciBTdGF0dXM6IE9L
-DQpIYW5kbGUgMHgwMDA5DQoJRE1JIHR5cGUgNiwgMTIgYnl0ZXMuDQoJTWVtb3J5IE1vZHVsZSBJ
-bmZvcm1hdGlvbg0KCQlTb2NrZXQgRGVzaWduYXRpb246IEEzDQoJCUJhbmsgQ29ubmVjdGlvbnM6
-IDIgMw0KCQlDdXJyZW50IFNwZWVkOiA2MCBucw0KCQlUeXBlOiBGUE0gUGFyaXR5IEVDQw0KCQlJ
-bnN0YWxsZWQgU2l6ZTogNjQgTUIgKFNpbmdsZS1iYW5rIENvbm5lY3Rpb24pDQoJCUVuYWJsZWQg
-U2l6ZTogNjQgTUIgKFNpbmdsZS1iYW5rIENvbm5lY3Rpb24pDQoJCUVycm9yIFN0YXR1czogT0sN
-CkhhbmRsZSAweDAwMEENCglETUkgdHlwZSA2LCAxMiBieXRlcy4NCglNZW1vcnkgTW9kdWxlIElu
-Zm9ybWF0aW9uDQoJCVNvY2tldCBEZXNpZ25hdGlvbjogQTQNCgkJQmFuayBDb25uZWN0aW9uczog
-NCA1DQoJCUN1cnJlbnQgU3BlZWQ6IDYwIG5zDQoJCVR5cGU6IFVua25vd24NCgkJSW5zdGFsbGVk
-IFNpemU6IE5vdCBJbnN0YWxsZWQNCgkJRW5hYmxlZCBTaXplOiBOb3QgSW5zdGFsbGVkDQoJCUVy
-cm9yIFN0YXR1czogT0sNCkhhbmRsZSAweDAwMEINCglETUkgdHlwZSA2LCAxMiBieXRlcy4NCglN
-ZW1vcnkgTW9kdWxlIEluZm9ybWF0aW9uDQoJCVNvY2tldCBEZXNpZ25hdGlvbjogQTUNCgkJQmFu
-ayBDb25uZWN0aW9uczogNCA1DQoJCUN1cnJlbnQgU3BlZWQ6IDYwIG5zDQoJCVR5cGU6IFVua25v
-d24NCgkJSW5zdGFsbGVkIFNpemU6IE5vdCBJbnN0YWxsZWQNCgkJRW5hYmxlZCBTaXplOiBOb3Qg
-SW5zdGFsbGVkDQoJCUVycm9yIFN0YXR1czogT0sNCkhhbmRsZSAweDAwMEMNCglETUkgdHlwZSA3
-LCAxOSBieXRlcy4NCglDYWNoZSBJbmZvcm1hdGlvbg0KCQlTb2NrZXQgRGVzaWduYXRpb246IElu
-dGVybmFsIENhY2hlDQoJCUNvbmZpZ3VyYXRpb246IEVuYWJsZWQsIE5vdCBTb2NrZXRlZCwgTGV2
-ZWwgMQ0KCQlPcGVyYXRpb25hbCBNb2RlOiBXcml0ZSBCYWNrDQoJCUxvY2F0aW9uOiBJbnRlcm5h
-bA0KCQlJbnN0YWxsZWQgU2l6ZTogNjQgS0INCgkJTWF4aW11bSBTaXplOiA2NCBLQg0KCQlTdXBw
-b3J0ZWQgU1JBTSBUeXBlczoNCgkJCVN5bmNocm9ub3VzDQoJCUluc3RhbGxlZCBTUkFNIFR5cGU6
-IFN5bmNocm9ub3VzDQoJCVNwZWVkOiBVbmtub3duDQoJCUVycm9yIENvcnJlY3Rpb24gVHlwZTog
-VW5rbm93bg0KCQlTeXN0ZW0gVHlwZTogVW5rbm93bg0KCQlBc3NvY2lhdGl2aXR5OiBVbmtub3du
-DQpIYW5kbGUgMHgwMDBEDQoJRE1JIHR5cGUgNywgMTkgYnl0ZXMuDQoJQ2FjaGUgSW5mb3JtYXRp
-b24NCgkJU29ja2V0IERlc2lnbmF0aW9uOiBFeHRlcm5hbCBDYWNoZQ0KCQlDb25maWd1cmF0aW9u
-OiBFbmFibGVkLCBOb3QgU29ja2V0ZWQsIExldmVsIDINCgkJT3BlcmF0aW9uYWwgTW9kZTogV3Jp
-dGUgQmFjaw0KCQlMb2NhdGlvbjogRXh0ZXJuYWwNCgkJSW5zdGFsbGVkIFNpemU6IDUxMiBLQg0K
-CQlNYXhpbXVtIFNpemU6IDEwMjQgS0INCgkJU3VwcG9ydGVkIFNSQU0gVHlwZXM6DQoJCQlTeW5j
-aHJvbm91cw0KCQlJbnN0YWxsZWQgU1JBTSBUeXBlOiBTeW5jaHJvbm91cw0KCQlTcGVlZDogVW5r
-bm93bg0KCQlFcnJvciBDb3JyZWN0aW9uIFR5cGU6IFVua25vd24NCgkJU3lzdGVtIFR5cGU6IFVu
-a25vd24NCgkJQXNzb2NpYXRpdml0eTogVW5rbm93bg0KSGFuZGxlIDB4MDAwRQ0KCURNSSB0eXBl
-IDgsIDkgYnl0ZXMuDQoJUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVm
-ZXJlbmNlIERlc2lnbmF0b3I6IFBSSU1BUlkgSURFDQoJCUludGVybmFsIENvbm5lY3RvciBUeXBl
-OiBPbiBCb2FyZCBJREUNCgkJRXh0ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6ICANCgkJRXh0
-ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE5vbmUNCgkJUG9ydCBUeXBlOiBPdGhlcg0KSGFuZGxlIDB4
-MDAwRg0KCURNSSB0eXBlIDgsIDkgYnl0ZXMuDQoJUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24N
-CgkJSW50ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6IFNFQ09OREFSWSBJREUNCgkJSW50ZXJu
-YWwgQ29ubmVjdG9yIFR5cGU6IE9uIEJvYXJkIElERQ0KCQlFeHRlcm5hbCBSZWZlcmVuY2UgRGVz
-aWduYXRvcjogIA0KCQlFeHRlcm5hbCBDb25uZWN0b3IgVHlwZTogTm9uZQ0KCQlQb3J0IFR5cGU6
-IE90aGVyDQpIYW5kbGUgMHgwMDEwDQoJRE1JIHR5cGUgOCwgOSBieXRlcy4NCglQb3J0IENvbm5l
-Y3RvciBJbmZvcm1hdGlvbg0KCQlJbnRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogRkREDQoJ
-CUludGVybmFsIENvbm5lY3RvciBUeXBlOiBPbiBCb2FyZCBGbG9wcHkNCgkJRXh0ZXJuYWwgUmVm
-ZXJlbmNlIERlc2lnbmF0b3I6ICANCgkJRXh0ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE5vbmUNCgkJ
-UG9ydCBUeXBlOiA4MjUxIEZJRk8gQ29tcGF0aWJsZQ0KSGFuZGxlIDB4MDAxMQ0KCURNSSB0eXBl
-IDgsIDkgYnl0ZXMuDQoJUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVm
-ZXJlbmNlIERlc2lnbmF0b3I6IENPTTENCgkJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IDkgUGlu
-IER1YWwgSW5saW5lIChwaW4gMTAgY3V0KQ0KCQlFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRv
-cjogIA0KCQlFeHRlcm5hbCBDb25uZWN0b3IgVHlwZTogREItOSBtYWxlDQoJCVBvcnQgVHlwZTog
-U2VyaWFsIFBvcnQgMTY1NTAgQ29tcGF0aWJsZQ0KSGFuZGxlIDB4MDAxMg0KCURNSSB0eXBlIDgs
-IDkgYnl0ZXMuDQoJUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVmZXJl
-bmNlIERlc2lnbmF0b3I6IENPTTINCgkJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IDkgUGluIER1
-YWwgSW5saW5lIChwaW4gMTAgY3V0KQ0KCQlFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjog
-IA0KCQlFeHRlcm5hbCBDb25uZWN0b3IgVHlwZTogREItOSBtYWxlDQoJCVBvcnQgVHlwZTogU2Vy
-aWFsIFBvcnQgMTY1NTAgQ29tcGF0aWJsZQ0KSGFuZGxlIDB4MDAxMw0KCURNSSB0eXBlIDgsIDkg
-Ynl0ZXMuDQoJUG9ydCBDb25uZWN0b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVmZXJlbmNl
-IERlc2lnbmF0b3I6IExQVDENCgkJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IERCLTI1IGZlbWFs
-ZQ0KCQlFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogIA0KCQlFeHRlcm5hbCBDb25uZWN0
-b3IgVHlwZTogREItMjUgZmVtYWxlDQoJCVBvcnQgVHlwZTogUGFyYWxsZWwgUG9ydCBFQ1AvRVBQ
-DQpIYW5kbGUgMHgwMDE0DQoJRE1JIHR5cGUgOCwgOSBieXRlcy4NCglQb3J0IENvbm5lY3RvciBJ
-bmZvcm1hdGlvbg0KCQlJbnRlcm5hbCBSZWZlcmVuY2UgRGVzaWduYXRvcjogS2V5Ym9hcmQNCgkJ
-SW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IE90aGVyDQoJCUV4dGVybmFsIFJlZmVyZW5jZSBEZXNp
-Z25hdG9yOiAgDQoJCUV4dGVybmFsIENvbm5lY3RvciBUeXBlOiBQUy8yDQoJCVBvcnQgVHlwZTog
-S2V5Ym9hcmQgUG9ydA0KSGFuZGxlIDB4MDAxNQ0KCURNSSB0eXBlIDgsIDkgYnl0ZXMuDQoJUG9y
-dCBDb25uZWN0b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6
-IFBTLzIgTW91c2UNCgkJSW50ZXJuYWwgQ29ubmVjdG9yIFR5cGU6IFBTLzINCgkJRXh0ZXJuYWwg
-UmVmZXJlbmNlIERlc2lnbmF0b3I6IE5vIERldGVjdGVkDQoJCUV4dGVybmFsIENvbm5lY3RvciBU
-eXBlOiBQUy8yDQoJCVBvcnQgVHlwZTogTW91c2UgUG9ydA0KSGFuZGxlIDB4MDAxNg0KCURNSSB0
-eXBlIDksIDEzIGJ5dGVzLg0KCVN5c3RlbSBTbG90IEluZm9ybWF0aW9uDQoJCURlc2lnbmF0aW9u
-OiBJU0ENCgkJVHlwZTogMTYtYml0IElTQQ0KCQlDdXJyZW50IFVzYWdlOiBVbmtub3duDQoJCUxl
-bmd0aDogTG9uZw0KCQlDaGFyYWN0ZXJpc3RpY3M6DQoJCQk1LjAgViBpcyBwcm92aWRlZA0KSGFu
-ZGxlIDB4MDAxNw0KCURNSSB0eXBlIDksIDEzIGJ5dGVzLg0KCVN5c3RlbSBTbG90IEluZm9ybWF0
-aW9uDQoJCURlc2lnbmF0aW9uOiBJU0ENCgkJVHlwZTogMTYtYml0IElTQQ0KCQlDdXJyZW50IFVz
-YWdlOiBVbmtub3duDQoJCUxlbmd0aDogTG9uZw0KCQlDaGFyYWN0ZXJpc3RpY3M6DQoJCQk1LjAg
-ViBpcyBwcm92aWRlZA0KSGFuZGxlIDB4MDAxOA0KCURNSSB0eXBlIDksIDEzIGJ5dGVzLg0KCVN5
-c3RlbSBTbG90IEluZm9ybWF0aW9uDQoJCURlc2lnbmF0aW9uOiBQQ0kNCgkJVHlwZTogMzItYml0
-IFBDSQ0KCQlDdXJyZW50IFVzYWdlOiBJbiBVc2UNCgkJTGVuZ3RoOiBMb25nDQoJCUlEOiA4DQoJ
-CUNoYXJhY3RlcmlzdGljczoNCgkJCTUuMCBWIGlzIHByb3ZpZGVkDQpIYW5kbGUgMHgwMDE5DQoJ
-RE1JIHR5cGUgOSwgMTMgYnl0ZXMuDQoJU3lzdGVtIFNsb3QgSW5mb3JtYXRpb24NCgkJRGVzaWdu
-YXRpb246IFBDSQ0KCQlUeXBlOiAzMi1iaXQgUENJDQoJCUN1cnJlbnQgVXNhZ2U6IEluIFVzZQ0K
-CQlMZW5ndGg6IExvbmcNCgkJSUQ6IDkNCgkJQ2hhcmFjdGVyaXN0aWNzOg0KCQkJNS4wIFYgaXMg
-cHJvdmlkZWQNCkhhbmRsZSAweDAwMUENCglETUkgdHlwZSA5LCAxMyBieXRlcy4NCglTeXN0ZW0g
-U2xvdCBJbmZvcm1hdGlvbg0KCQlEZXNpZ25hdGlvbjogUENJDQoJCVR5cGU6IDMyLWJpdCBQQ0kN
-CgkJQ3VycmVudCBVc2FnZTogSW4gVXNlDQoJCUxlbmd0aDogTG9uZw0KCQlJRDogMTANCgkJQ2hh
-cmFjdGVyaXN0aWNzOg0KCQkJNS4wIFYgaXMgcHJvdmlkZWQNCkhhbmRsZSAweDAwMUINCglETUkg
-dHlwZSA5LCAxMyBieXRlcy4NCglTeXN0ZW0gU2xvdCBJbmZvcm1hdGlvbg0KCQlEZXNpZ25hdGlv
-bjogUENJDQoJCVR5cGU6IDMyLWJpdCBQQ0kNCgkJQ3VycmVudCBVc2FnZTogQXZhaWxhYmxlDQoJ
-CUxlbmd0aDogTG9uZw0KCQlJRDogMTENCgkJQ2hhcmFjdGVyaXN0aWNzOg0KCQkJNS4wIFYgaXMg
-cHJvdmlkZWQNCkhhbmRsZSAweDAwMUMNCglETUkgdHlwZSA5LCAxMyBieXRlcy4NCglTeXN0ZW0g
-U2xvdCBJbmZvcm1hdGlvbg0KCQlEZXNpZ25hdGlvbjogUENJDQoJCVR5cGU6IDMyLWJpdCBQQ0kN
-CgkJQ3VycmVudCBVc2FnZTogSW4gVXNlDQoJCUxlbmd0aDogTG9uZw0KCQlJRDogMTINCgkJQ2hh
-cmFjdGVyaXN0aWNzOg0KCQkJNS4wIFYgaXMgcHJvdmlkZWQNCkhhbmRsZSAweDAwMUQNCglETUkg
-dHlwZSA5LCAxMyBieXRlcy4NCglTeXN0ZW0gU2xvdCBJbmZvcm1hdGlvbg0KCQlEZXNpZ25hdGlv
-bjogQUdQDQoJCVR5cGU6IDMyLWJpdCBBR1ANCgkJQ3VycmVudCBVc2FnZTogSW4gVXNlDQoJCUxl
-bmd0aDogTG9uZw0KCQlJRDogMA0KCQlDaGFyYWN0ZXJpc3RpY3M6DQoJCQk1LjAgViBpcyBwcm92
-aWRlZA0KSGFuZGxlIDB4MDAxRQ0KCURNSSB0eXBlIDgsIDkgYnl0ZXMuDQoJUG9ydCBDb25uZWN0
-b3IgSW5mb3JtYXRpb24NCgkJSW50ZXJuYWwgUmVmZXJlbmNlIERlc2lnbmF0b3I6IFVTQg0KCQlJ
-bnRlcm5hbCBDb25uZWN0b3IgVHlwZTogTm9uZQ0KCQlFeHRlcm5hbCBSZWZlcmVuY2UgRGVzaWdu
-YXRvcjogIA0KCQlFeHRlcm5hbCBDb25uZWN0b3IgVHlwZTogT3RoZXINCgkJUG9ydCBUeXBlOiBV
-U0INCkhhbmRsZSAweDAwMUYNCglETUkgdHlwZSAxMywgMjIgYnl0ZXMuDQoJQklPUyBMYW5ndWFn
-ZSBJbmZvcm1hdGlvbg0KCQlJbnN0YWxsYWJsZSBMYW5ndWFnZXM6IDMNCgkJCW58VVN8aXNvODg1
-OS0xDQoJCQlyfENBfGlzbzg4NTktMQ0KCQkJYXxKUHx1bmljb2RlDQoJCUN1cnJlbnRseSBJbnN0
-YWxsZWQgTGFuZ3VhZ2U6IG58VVN8aXNvODg1OS0xDQo=
-
-
---=-Gaz+G9PCTlepq4V6GzRC--
-
---=-U8icZ7hSASJTqAKaAODz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFdHmqM0+0qS9rzVkRAsR4AKCt9QDCtzUDLJskS+QWq+2lqs4FGgCbB94w
-9JOxP4BrxlR7WydleLJeZfk=
-=N0rR
------END PGP SIGNATURE-----
-
---=-U8icZ7hSASJTqAKaAODz--
-
+I'd favor adding full defragmentation.

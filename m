@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937417AbWLDV7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937425AbWLDV74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937417AbWLDV7e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 16:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937420AbWLDV7e
+	id S937425AbWLDV74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 16:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937423AbWLDV74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 16:59:34 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:59174 "EHLO iradimed.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S937417AbWLDV7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 16:59:32 -0500
-Message-ID: <45749A63.1040009@cfl.rr.com>
-Date: Mon, 04 Dec 2006 17:00:03 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Bernard Pidoux <pidoux@ccr.jussieu.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why SCSI module needed for PCI-IDE ATA only disks ?
-References: <457492B2.2050107@ccr.jussieu.fr>
-In-Reply-To: <457492B2.2050107@ccr.jussieu.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Dec 2006 21:59:47.0233 (UTC) FILETIME=[8363D910:01C717EF]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14854.000
-X-TM-AS-Result: No--6.510100-5.000000-31
+	Mon, 4 Dec 2006 16:59:56 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57802 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937427AbWLDV7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 16:59:55 -0500
+Date: Mon, 4 Dec 2006 22:58:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Sergei Shtylyov <sshtylyov@ru.mvista.com>, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [PATCH] 2.6.18-rt7: fix more issues with 32-bit cycles_t in	latency_trace.c (take 3)
+Message-ID: <20061204215840.GA23604@elte.hu>
+References: <200611132252.58818.sshtylyov@ru.mvista.com> <4574149B.5070602@ru.mvista.com> <20061204153949.GA9350@elte.hu> <200612042256.51823.zippel@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612042256.51823.zippel@linux-m68k.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=none autolearn=no SpamAssassin version=3.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernard Pidoux wrote:
-> I am asking why need to compile the following modules while I do not
-> have any SCSI device ?
 
-Because your hardware is driven by a libata based driver.  This means it 
-is a scsi bus driver and thus, requires mod_scsi and the scsi disk 
-module to access disks on the bus.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
+> While I'm not against this patch, but on m68k I prefer a 32bit cycle 
+> type (however it's called), so it doesn't solve the original problem.
 
+i havent changed the cycles_t type - it's still 32-bit. I agree with you 
+that we dont want to bloat 32-bit arch-level code by artificially 
+forcing everyone to a 64-bit cycles_t.
+
+	Ingo

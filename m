@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936362AbWLDMjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936296AbWLDMkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936362AbWLDMjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936367AbWLDMi7
+	id S936296AbWLDMkS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:40:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936272AbWLDMfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:38:59 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:17119 "EHLO
+	Mon, 4 Dec 2006 07:35:21 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:63198 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936362AbWLDMgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:36:09 -0500
+	id S936313AbWLDMfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:35:13 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 28/35] Unionfs: Miscellaneous helper functions
-Date: Mon,  4 Dec 2006 07:31:01 -0500
-Message-Id: <11652354723615-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 08/35] struct path: make eCryptfs a user of struct path
+Date: Mon,  4 Dec 2006 07:30:41 -0500
+Message-Id: <11652354692470-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,191 +25,68 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-This patch contains miscellaneous helper functions used thoughout Unionfs.
+Convert eCryptfs dentry-vfsmount pairs in dentry private data to struct
+path.
 
+Cc: Michael Halcrow <mhalcrow@us.ibm.com>
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
-Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/unionfs/subr.c |  170 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 170 insertions(+), 0 deletions(-)
+ fs/ecryptfs/ecryptfs_kernel.h |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/unionfs/subr.c b/fs/unionfs/subr.c
-new file mode 100644
-index 0000000..f002f19
---- /dev/null
-+++ b/fs/unionfs/subr.c
-@@ -0,0 +1,170 @@
-+/*
-+ * Copyright (c) 2003-2006 Erez Zadok
-+ * Copyright (c) 2003-2006 Charles P. Wright
-+ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
-+ * Copyright (c) 2005-2006 Junjiro Okajima
-+ * Copyright (c) 2005      Arun M. Krishnakumar
-+ * Copyright (c) 2004-2006 David P. Quigley
-+ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
-+ * Copyright (c) 2003      Puja Gupta
-+ * Copyright (c) 2003      Harikesavan Krishnan
-+ * Copyright (c) 2003-2006 Stony Brook University
-+ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include "union.h"
-+
-+/* Pass an unionfs dentry and an index.  It will try to create a whiteout
-+ * for the filename in dentry, and will try in branch 'index'.  On error,
-+ * it will proceed to a branch to the left.
-+ */
-+int create_whiteout(struct dentry *dentry, int start)
-+{
-+	int bstart, bend, bindex;
-+	struct dentry *hidden_dir_dentry;
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_wh_dentry;
-+	char *name = NULL;
-+	int err = -EINVAL;
-+
-+	verify_locked(dentry);
-+
-+	bstart = dbstart(dentry);
-+	bend = dbend(dentry);
-+
-+	/* create dentry's whiteout equivalent */
-+	name = alloc_whname(dentry->d_name.name, dentry->d_name.len);
-+	if (IS_ERR(name)) {
-+		err = PTR_ERR(name);
-+		goto out;
-+	}
-+
-+	for (bindex = start; bindex >= 0; bindex--) {
-+		hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+
-+		if (!hidden_dentry) {
-+			/* if hidden dentry is not present, create the entire
-+			 * hidden dentry directory structure and go ahead.
-+			 * Since we want to just create whiteout, we only want
-+			 * the parent dentry, and hence get rid of this dentry.
-+			 */
-+			hidden_dentry = create_parents(dentry->d_inode,
-+						       dentry, bindex);
-+			if (!hidden_dentry || IS_ERR(hidden_dentry)) {
-+				printk(KERN_DEBUG "create_parents failed for "
-+						"bindex = %d\n", bindex);
-+				continue;
-+			}
-+		}
-+
-+		hidden_wh_dentry = lookup_one_len(name, hidden_dentry->d_parent,
-+					dentry->d_name.len + UNIONFS_WHLEN);
-+		if (IS_ERR(hidden_wh_dentry))
-+			continue;
-+
-+		/* The whiteout already exists. This used to be impossible, but
-+		 * now is possible because of opaqueness. */
-+		if (hidden_wh_dentry->d_inode) {
-+			dput(hidden_wh_dentry);
-+			err = 0;
-+			goto out;
-+		}
-+
-+		hidden_dir_dentry = lock_parent(hidden_wh_dentry);
-+		if (!(err = is_robranch_super(dentry->d_sb, bindex))) {
-+			err = vfs_create(hidden_dir_dentry->d_inode,
-+				       hidden_wh_dentry,
-+				       ~current->fs->umask & S_IRWXUGO, NULL);
-+
-+		}
-+		unlock_dir(hidden_dir_dentry);
-+		dput(hidden_wh_dentry);
-+
-+		if (!err || !IS_COPYUP_ERR(err))
-+			break;
-+	}
-+
-+	/* set dbopaque  so that lookup will not proceed after this branch */
-+	if (!err)
-+		set_dbopaque(dentry, bindex);
-+
-+out:
-+	kfree(name);
-+	return err;
-+}
-+
-+/* This is a helper function for rename, which ends up with hosed over dentries
-+ * when it needs to revert. */
-+int unionfs_refresh_hidden_dentry(struct dentry *dentry, int bindex)
-+{
-+	struct dentry *hidden_dentry;
-+	struct dentry *hidden_parent;
-+	int err = 0;
-+
-+	verify_locked(dentry);
-+
-+	lock_dentry(dentry->d_parent);
-+	hidden_parent = unionfs_lower_dentry_idx(dentry->d_parent, bindex);
-+	unlock_dentry(dentry->d_parent);
-+
-+	BUG_ON(!S_ISDIR(hidden_parent->d_inode->i_mode));
-+
-+	hidden_dentry = lookup_one_len(dentry->d_name.name, hidden_parent,
-+				dentry->d_name.len);
-+	if (IS_ERR(hidden_dentry)) {
-+		err = PTR_ERR(hidden_dentry);
-+		goto out;
-+	}
-+
-+	dput(unionfs_lower_dentry_idx(dentry, bindex));
-+	iput(unionfs_lower_inode_idx(dentry->d_inode, bindex));
-+	unionfs_set_lower_inode_idx(dentry->d_inode, bindex, NULL);
-+
-+	if (!hidden_dentry->d_inode) {
-+		dput(hidden_dentry);
-+		unionfs_set_lower_dentry_idx(dentry, bindex, NULL);
-+	} else {
-+		unionfs_set_lower_dentry_idx(dentry, bindex, hidden_dentry);
-+		unionfs_set_lower_inode_idx(dentry->d_inode, bindex,
-+				igrab(hidden_dentry->d_inode));
-+	}
-+
-+out:
-+	return err;
-+}
-+
-+int make_dir_opaque(struct dentry *dentry, int bindex)
-+{
-+	int err = 0;
-+	struct dentry *hidden_dentry, *diropq;
-+	struct inode *hidden_dir;
-+
-+	hidden_dentry = unionfs_lower_dentry_idx(dentry, bindex);
-+	hidden_dir = hidden_dentry->d_inode;
-+	BUG_ON(!S_ISDIR(dentry->d_inode->i_mode) ||
-+	       !S_ISDIR(hidden_dir->i_mode));
-+
-+	mutex_lock(&hidden_dir->i_mutex);
-+	diropq = lookup_one_len(UNIONFS_DIR_OPAQUE, hidden_dentry,
-+				sizeof(UNIONFS_DIR_OPAQUE) - 1);
-+	if (IS_ERR(diropq)) {
-+		err = PTR_ERR(diropq);
-+		goto out;
-+	}
-+
-+	if (!diropq->d_inode)
-+		err = vfs_create(hidden_dir, diropq, S_IRUGO, NULL);
-+	if (!err)
-+		set_dbopaque(dentry, bindex);
-+
-+	dput(diropq);
-+
-+out:
-+	mutex_unlock(&hidden_dir->i_mutex);
-+	return err;
-+}
-+
+diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
+index f992533..870a65b 100644
+--- a/fs/ecryptfs/ecryptfs_kernel.h
++++ b/fs/ecryptfs/ecryptfs_kernel.h
+@@ -28,6 +28,7 @@
+ 
+ #include <keys/user-type.h>
+ #include <linux/fs.h>
++#include <linux/namei.h>
+ #include <linux/scatterlist.h>
+ 
+ /* Version verification for shared data structures w/ userspace */
+@@ -227,8 +228,7 @@ struct ecryptfs_inode_info {
+ /* dentry private data. Each dentry must keep track of a lower
+  * vfsmount too. */
+ struct ecryptfs_dentry_info {
+-	struct dentry *wdi_dentry;
+-	struct vfsmount *lower_mnt;
++	struct path lower_path;
+ 	struct ecryptfs_crypt_stat *crypt_stat;
+ };
+ 
+@@ -355,26 +355,26 @@ ecryptfs_set_dentry_private(struct dentr
+ static inline struct dentry *
+ ecryptfs_dentry_to_lower(struct dentry *dentry)
+ {
+-	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry;
++	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.dentry;
+ }
+ 
+ static inline void
+ ecryptfs_set_dentry_lower(struct dentry *dentry, struct dentry *lower_dentry)
+ {
+-	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->wdi_dentry =
++	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.dentry =
+ 		lower_dentry;
+ }
+ 
+ static inline struct vfsmount *
+ ecryptfs_dentry_to_lower_mnt(struct dentry *dentry)
+ {
+-	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_mnt;
++	return ((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.mnt;
+ }
+ 
+ static inline void
+ ecryptfs_set_dentry_lower_mnt(struct dentry *dentry, struct vfsmount *lower_mnt)
+ {
+-	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_mnt =
++	((struct ecryptfs_dentry_info *)dentry->d_fsdata)->lower_path.mnt =
+ 		lower_mnt;
+ }
+ 
 -- 
 1.4.3.3
 

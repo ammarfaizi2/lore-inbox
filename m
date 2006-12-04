@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967399AbWLDVsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937132AbWLDV4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967399AbWLDVsV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 16:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967405AbWLDVsV
+	id S937132AbWLDV4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 16:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937178AbWLDV4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 16:48:21 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:33787 "EHLO lxorguk.ukuu.org.uk"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S967399AbWLDVsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 16:48:21 -0500
-Date: Mon, 4 Dec 2006 21:53:27 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Thomas Meyer <thomas@m3y3r.de>, linux-kernel@vger.kernel.org
-Subject: Re: ata_piix multithreaded device probes breaks detection of SCSI
- device
-Message-ID: <20061204215327.343cc81f@localhost.localdomain>
-In-Reply-To: <45748984.2080006@garzik.org>
-References: <4574865A.6030508@m3y3r.de>
-	<45748984.2080006@garzik.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Mon, 4 Dec 2006 16:56:24 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:50462
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S937132AbWLDV4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 16:56:23 -0500
+Date: Mon, 04 Dec 2006 13:56:25 -0800 (PST)
+Message-Id: <20061204.135625.48528445.davem@davemloft.net>
+To: dada1@cosmosbay.com
+Cc: akpm@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SLAB : use a multiply instead of a divide in
+ obj_to_index()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <45749465.6030601@cosmosbay.com>
+References: <200612041918.29682.dada1@cosmosbay.com>
+	<20061204114954.165107b6.akpm@osdl.org>
+	<45749465.6030601@cosmosbay.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Dec 2006 15:48:04 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
+From: Eric Dumazet <dada1@cosmosbay.com>
+Date: Mon, 04 Dec 2006 22:34:29 +0100
 
-> Thomas Meyer wrote:
-> > head: d916faace3efc0bf19fe9a615a1ab8fa1a24cd93
-> > 
-> > Here a sequential probe, that boots fine:
-> 
-> Known problem, unfortunately, for a -great- many drivers.
-> 
-> Please turn off this option until the authors fix it.
+> On a 200 MHz sparcv9 machine, the division takes 64 cycles instead of 1 cycle
+> for a multiply.
 
-I've aksed Linus to disable it for IDE (locking not safe) and Watchdog
-(link order dependancy) already, really it has so many && !FOO it should
-be removed and buried for now.
+For UltraSPARC I and II (which is what this 200mhz guy probably is),
+it's 4 cycle latency for a multiply (32-bit or 64-bit) and 68 cycles
+for a 64-bit divide (32-bit divide is 37 cycles).
 
+UltraSPARC-III and IV are worse, 6 cycles for multiply and 40/71
+cycles (32/64-bit) for integer divides.
+
+Niagara is even worse :-)  11 cycle integer multiply and a 72 cycle
+integer divide (regardless of 32-bit or 64-bit).
+
+(more details in gcc/config/sparc/sparc.c:{ultrasparc,ultrasparc3,niagara}_cost).
+
+So this change has tons of merit for sparc64 chips at least :-)
+
+Also, the multiply can parallelize with other operations but it
+seems that integer divide stalls the pipe for most of the duration
+of the calculation.  So this makes the divide even worse.

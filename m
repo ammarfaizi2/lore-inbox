@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936291AbWLDMqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936590AbWLDMoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936291AbWLDMqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936305AbWLDMqf
+	id S936590AbWLDMoh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936300AbWLDMfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:46:35 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:46302 "EHLO
+	Mon, 4 Dec 2006 07:35:12 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:53982 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S936291AbWLDMeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:34:37 -0500
+	id S936301AbWLDMe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:34:57 -0500
 From: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
 To: linux-kernel@vger.kernel.org
 Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
        linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com,
        Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Subject: [PATCH 03/35] eCryptfs: Use fsstack's generic copy inode attr functions
-Date: Mon,  4 Dec 2006 07:30:36 -0500
-Message-Id: <11652354681162-git-send-email-jsipek@cs.sunysb.edu>
+Subject: [PATCH 29/35] Unionfs: Superblock operations
+Date: Mon,  4 Dec 2006 07:31:02 -0500
+Message-Id: <11652354723550-git-send-email-jsipek@cs.sunysb.edu>
 X-Mailer: git-send-email 1.4.3.3
 In-Reply-To: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
 References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
@@ -25,235 +25,363 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
 
-Replace eCryptfs specific code & calls with the more generic fsstack
-equivalents and remove the eCryptfs specific functions.
+This patch contains the superblock operations for Unionfs.
 
 Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-Cc: Michael Halcrow <mhalcrow@us.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: David Quigley <dquigley@fsl.cs.sunysb.edu>
+Signed-off-by: Erez Zadok <ezk@cs.sunysb.edu>
 ---
- fs/ecryptfs/file.c  |    3 +-
- fs/ecryptfs/inode.c |   75 +++++++++++++--------------------------------------
- fs/ecryptfs/main.c  |    5 ++-
- 3 files changed, 24 insertions(+), 59 deletions(-)
+ fs/unionfs/super.c |  342 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 342 insertions(+), 0 deletions(-)
 
-diff --git a/fs/ecryptfs/file.c b/fs/ecryptfs/file.c
-index a92ef05..a961a0c 100644
---- a/fs/ecryptfs/file.c
-+++ b/fs/ecryptfs/file.c
-@@ -30,6 +30,7 @@
- #include <linux/security.h>
- #include <linux/smp_lock.h>
- #include <linux/compat.h>
-+#include <linux/fs_stack.h>
- #include "ecryptfs_kernel.h"
- 
- /**
-@@ -192,7 +193,7 @@ retry:
- 		goto retry;
- 	file->f_pos = lower_file->f_pos;
- 	if (rc >= 0)
--		ecryptfs_copy_attr_atime(inode, lower_file->f_dentry->d_inode);
-+		fsstack_copy_attr_atime(inode, lower_file->f_dentry->d_inode);
- 	return rc;
- }
- 
-diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
-index dfcc684..3e2a786 100644
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -30,6 +30,7 @@
- #include <linux/namei.h>
- #include <linux/mount.h>
- #include <linux/crypto.h>
-+#include <linux/fs_stack.h>
- #include "ecryptfs_kernel.h"
- 
- static struct dentry *lock_parent(struct dentry *dentry)
-@@ -53,48 +54,6 @@ static void unlock_dir(struct dentry *di
- 	dput(dir);
- }
- 
--void ecryptfs_copy_inode_size(struct inode *dst, const struct inode *src)
--{
--	i_size_write(dst, i_size_read((struct inode *)src));
--	dst->i_blocks = src->i_blocks;
--}
--
--void ecryptfs_copy_attr_atime(struct inode *dest, const struct inode *src)
--{
--	dest->i_atime = src->i_atime;
--}
--
--static void ecryptfs_copy_attr_times(struct inode *dest,
--				     const struct inode *src)
--{
--	dest->i_atime = src->i_atime;
--	dest->i_mtime = src->i_mtime;
--	dest->i_ctime = src->i_ctime;
--}
--
--static void ecryptfs_copy_attr_timesizes(struct inode *dest,
--					 const struct inode *src)
--{
--	dest->i_atime = src->i_atime;
--	dest->i_mtime = src->i_mtime;
--	dest->i_ctime = src->i_ctime;
--	ecryptfs_copy_inode_size(dest, src);
--}
--
--void ecryptfs_copy_attr_all(struct inode *dest, const struct inode *src)
--{
--	dest->i_mode = src->i_mode;
--	dest->i_nlink = src->i_nlink;
--	dest->i_uid = src->i_uid;
--	dest->i_gid = src->i_gid;
--	dest->i_rdev = src->i_rdev;
--	dest->i_atime = src->i_atime;
--	dest->i_mtime = src->i_mtime;
--	dest->i_ctime = src->i_ctime;
--	dest->i_blkbits = src->i_blkbits;
--	dest->i_flags = src->i_flags;
--}
--
- /**
-  * ecryptfs_create_underlying_file
-  * @lower_dir_inode: inode of the parent in the lower fs of the new file
-@@ -171,8 +130,8 @@ ecryptfs_do_create(struct inode *directo
- 		ecryptfs_printk(KERN_ERR, "Failure in ecryptfs_interpose\n");
- 		goto out_lock;
- 	}
--	ecryptfs_copy_attr_timesizes(directory_inode,
--				     lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_times(directory_inode, lower_dir_dentry->d_inode);
-+	fsstack_copy_inode_size(directory_inode, lower_dir_dentry->d_inode);
- out_lock:
- 	unlock_dir(lower_dir_dentry);
- out:
-@@ -365,7 +324,7 @@ static struct dentry *ecryptfs_lookup(st
-        		"d_name.name = [%s]\n", lower_dentry,
- 		lower_dentry->d_name.name);
- 	lower_inode = lower_dentry->d_inode;
--	ecryptfs_copy_attr_atime(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_atime(dir, lower_dir_dentry->d_inode);
- 	BUG_ON(!atomic_read(&lower_dentry->d_count));
- 	ecryptfs_set_dentry_private(dentry,
- 				    kmem_cache_alloc(ecryptfs_dentry_info_cache,
-@@ -462,7 +421,8 @@ static int ecryptfs_link(struct dentry *
- 	rc = ecryptfs_interpose(lower_new_dentry, new_dentry, dir->i_sb, 0);
- 	if (rc)
- 		goto out_lock;
--	ecryptfs_copy_attr_timesizes(dir, lower_new_dentry->d_inode);
-+	fsstack_copy_attr_times(dir, lower_new_dentry->d_inode);
-+	fsstack_copy_inode_size(dir, lower_new_dentry->d_inode);
- 	old_dentry->d_inode->i_nlink =
- 		ecryptfs_inode_to_lower(old_dentry->d_inode)->i_nlink;
- 	i_size_write(new_dentry->d_inode, file_size_save);
-@@ -488,7 +448,7 @@ static int ecryptfs_unlink(struct inode
- 		printk(KERN_ERR "Error in vfs_unlink; rc = [%d]\n", rc);
- 		goto out_unlock;
- 	}
--	ecryptfs_copy_attr_times(dir, lower_dir_inode);
-+	fsstack_copy_attr_times(dir, lower_dir_inode);
- 	dentry->d_inode->i_nlink =
- 		ecryptfs_inode_to_lower(dentry->d_inode)->i_nlink;
- 	dentry->d_inode->i_ctime = dir->i_ctime;
-@@ -527,7 +487,8 @@ static int ecryptfs_symlink(struct inode
- 	rc = ecryptfs_interpose(lower_dentry, dentry, dir->i_sb, 0);
- 	if (rc)
- 		goto out_lock;
--	ecryptfs_copy_attr_timesizes(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_times(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_inode_size(dir, lower_dir_dentry->d_inode);
- out_lock:
- 	unlock_dir(lower_dir_dentry);
- 	dput(lower_dentry);
-@@ -550,7 +511,8 @@ static int ecryptfs_mkdir(struct inode *
- 	rc = ecryptfs_interpose(lower_dentry, dentry, dir->i_sb, 0);
- 	if (rc)
- 		goto out;
--	ecryptfs_copy_attr_timesizes(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_times(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_inode_size(dir, lower_dir_dentry->d_inode);
- 	dir->i_nlink = lower_dir_dentry->d_inode->i_nlink;
- out:
- 	unlock_dir(lower_dir_dentry);
-@@ -573,7 +535,7 @@ static int ecryptfs_rmdir(struct inode *
- 	dput(lower_dentry);
- 	if (!rc)
- 		d_delete(lower_dentry);
--	ecryptfs_copy_attr_times(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_times(dir, lower_dir_dentry->d_inode);
- 	dir->i_nlink = lower_dir_dentry->d_inode->i_nlink;
- 	unlock_dir(lower_dir_dentry);
- 	if (!rc)
-@@ -597,7 +559,8 @@ ecryptfs_mknod(struct inode *dir, struct
- 	rc = ecryptfs_interpose(lower_dentry, dentry, dir->i_sb, 0);
- 	if (rc)
- 		goto out;
--	ecryptfs_copy_attr_timesizes(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_attr_times(dir, lower_dir_dentry->d_inode);
-+	fsstack_copy_inode_size(dir, lower_dir_dentry->d_inode);
- out:
- 	unlock_dir(lower_dir_dentry);
- 	if (!dentry->d_inode)
-@@ -626,9 +589,9 @@ ecryptfs_rename(struct inode *old_dir, s
- 			lower_new_dir_dentry->d_inode, lower_new_dentry);
- 	if (rc)
- 		goto out_lock;
--	ecryptfs_copy_attr_all(new_dir, lower_new_dir_dentry->d_inode);
-+	fsstack_copy_attr_all(new_dir, lower_new_dir_dentry->d_inode);
- 	if (new_dir != old_dir)
--		ecryptfs_copy_attr_all(old_dir, lower_old_dir_dentry->d_inode);
-+		fsstack_copy_attr_all(old_dir, lower_old_dir_dentry->d_inode);
- out_lock:
- 	unlock_rename(lower_old_dir_dentry, lower_new_dir_dentry);
- 	dput(lower_new_dentry->d_parent);
-@@ -684,8 +647,8 @@ ecryptfs_readlink(struct dentry *dentry,
- 				rc = -EFAULT;
- 		}
- 		kfree(decoded_name);
--		ecryptfs_copy_attr_atime(dentry->d_inode,
--					 lower_dentry->d_inode);
-+		fsstack_copy_attr_atime(dentry->d_inode,
-+					lower_dentry->d_inode);
- 	}
- out_free_lower_buf:
- 	kfree(lower_buf);
-@@ -915,7 +878,7 @@ static int ecryptfs_setattr(struct dentr
- 	}
- 	rc = notify_change(lower_dentry, ia);
- out:
--	ecryptfs_copy_attr_all(inode, lower_inode);
-+	fsstack_copy_attr_all(inode, lower_inode);
- 	return rc;
- }
- 
-diff --git a/fs/ecryptfs/main.c b/fs/ecryptfs/main.c
-index a78d87d..5982931 100644
---- a/fs/ecryptfs/main.c
-+++ b/fs/ecryptfs/main.c
-@@ -35,6 +35,7 @@
- #include <linux/pagemap.h>
- #include <linux/key.h>
- #include <linux/parser.h>
-+#include <linux/fs_stack.h>
- #include "ecryptfs_kernel.h"
- 
- /**
-@@ -112,10 +113,10 @@ int ecryptfs_interpose(struct dentry *lo
- 		d_add(dentry, inode);
- 	else
- 		d_instantiate(dentry, inode);
--	ecryptfs_copy_attr_all(inode, lower_inode);
-+	fsstack_copy_attr_all(inode, lower_inode);
- 	/* This size will be overwritten for real files w/ headers and
- 	 * other metadata */
--	ecryptfs_copy_inode_size(inode, lower_inode);
-+	fsstack_copy_inode_size(inode, lower_inode);
- out:
- 	return rc;
- }
+diff --git a/fs/unionfs/super.c b/fs/unionfs/super.c
+new file mode 100644
+index 0000000..9920079
+--- /dev/null
++++ b/fs/unionfs/super.c
+@@ -0,0 +1,342 @@
++/*
++ * Copyright (c) 2003-2006 Erez Zadok
++ * Copyright (c) 2003-2006 Charles P. Wright
++ * Copyright (c) 2005-2006 Josef 'Jeff' Sipek
++ * Copyright (c) 2005-2006 Junjiro Okajima
++ * Copyright (c) 2005      Arun M. Krishnakumar
++ * Copyright (c) 2004-2006 David P. Quigley
++ * Copyright (c) 2003-2004 Mohammad Nayyer Zubair
++ * Copyright (c) 2003      Puja Gupta
++ * Copyright (c) 2003      Harikesavan Krishnan
++ * Copyright (c) 2003-2006 Stony Brook University
++ * Copyright (c) 2003-2006 The Research Foundation of State University of New York
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include "union.h"
++
++/* The inode cache is used with alloc_inode for both our inode info and the
++ * vfs inode.  */
++static struct kmem_cache *unionfs_inode_cachep;
++
++static void unionfs_read_inode(struct inode *inode)
++{
++	static struct address_space_operations unionfs_empty_aops;
++	int size;
++	struct unionfs_inode_info *info = UNIONFS_I(inode);
++
++	if (!info) {
++		printk(KERN_ERR "No kernel memory when allocating inode "
++				"private data!\n");
++		BUG();
++	}
++
++	memset(info, 0, offsetof(struct unionfs_inode_info, vfs_inode));
++	info->bstart = -1;
++	info->bend = -1;
++	atomic_set(&info->generation,
++		   atomic_read(&UNIONFS_SB(inode->i_sb)->generation));
++	spin_lock_init(&info->rdlock);
++	info->rdcount = 1;
++	info->hashsize = -1;
++	INIT_LIST_HEAD(&info->readdircache);
++
++	size = sbmax(inode->i_sb) * sizeof(struct inode *);
++	info->lower_inodes = kzalloc(size, GFP_KERNEL);
++	if (!info->lower_inodes) {
++		printk(KERN_ERR "No kernel memory when allocating lower-"
++				"pointer array!\n");
++		BUG();
++	}
++
++	inode->i_version++;
++	inode->i_op = &unionfs_main_iops;
++	inode->i_fop = &unionfs_main_fops;
++
++	/* I don't think ->a_ops is ever allowed to be NULL */
++	inode->i_mapping->a_ops = &unionfs_empty_aops;
++}
++
++static void unionfs_put_inode(struct inode *inode)
++{
++	/*
++	 * This is really funky stuff:
++	 * Basically, if i_count == 1, iput will then decrement it and this
++	 * inode will be destroyed.  It is currently holding a reference to the
++	 * hidden inode.  Therefore, it needs to release that reference by
++	 * calling iput on the hidden inode.  iput() _will_ do it for us (by
++	 * calling our clear_inode), but _only_ if i_nlink == 0.  The problem
++	 * is, NFS keeps i_nlink == 1 for silly_rename'd files.  So we must for
++	 * our i_nlink to 0 here to trick iput() into calling our clear_inode.
++	 */
++
++	if (atomic_read(&inode->i_count) == 1)
++		inode->i_nlink = 0;
++}
++
++/*
++ * we now define delete_inode, because there are two VFS paths that may
++ * destroy an inode: one of them calls clear inode before doing everything
++ * else that's needed, and the other is fine.  This way we truncate the inode
++ * size (and its pages) and then clear our own inode, which will do an iput
++ * on our and the lower inode.
++ */
++static void unionfs_delete_inode(struct inode *inode)
++{
++	inode->i_size = 0;	/* every f/s seems to do that */
++
++	clear_inode(inode);
++}
++
++/* final actions when unmounting a file system */
++static void unionfs_put_super(struct super_block *sb)
++{
++	int bindex, bstart, bend;
++	struct unionfs_sb_info *spd;
++
++	spd = UNIONFS_SB(sb);
++	if (!spd)
++		return;
++		
++	bstart = sbstart(sb);
++	bend = sbend(sb);
++
++	/* Make sure we have no leaks of branchget/branchput. */
++	for (bindex = bstart; bindex <= bend; bindex++)
++		BUG_ON(branch_count(sb, bindex) != 0);
++
++	kfree(spd->data);
++	kfree(spd);
++	sb->s_fs_info = NULL;
++}
++
++/* Since people use this to answer the "How big of a file can I write?"
++ * question, we report the size of the highest priority branch as the size of
++ * the union. */
++static int unionfs_statfs(struct dentry *dentry, struct kstatfs *buf)
++{
++	int err	= 0;
++	struct super_block *sb, *hidden_sb;
++
++	sb = dentry->d_sb;
++
++	hidden_sb = unionfs_lower_super_idx(sb, sbstart(sb));
++	err = vfs_statfs(hidden_sb->s_root, buf);
++
++	buf->f_type = UNIONFS_SUPER_MAGIC;
++	buf->f_namelen -= UNIONFS_WHLEN;
++
++	memset(&buf->f_fsid, 0, sizeof(__kernel_fsid_t));
++	memset(&buf->f_spare, 0, sizeof(buf->f_spare));
++
++	return err;
++}
++
++/* We don't support a standard text remount. Eventually it would be nice to
++ * support a full-on remount, so that you can have all of the directories
++ * change at once, but that would require some pretty complicated matching
++ * code. */
++static int unionfs_remount_fs(struct super_block *sb, int *flags, char *data)
++{
++	return -ENOSYS;
++}
++
++/*
++ * Called by iput() when the inode reference count reached zero
++ * and the inode is not hashed anywhere.  Used to clear anything
++ * that needs to be, before the inode is completely destroyed and put
++ * on the inode free list.
++ */
++static void unionfs_clear_inode(struct inode *inode)
++{
++	int bindex, bstart, bend;
++	struct inode *hidden_inode;
++	struct list_head *pos, *n;
++	struct unionfs_dir_state *rdstate;
++
++	list_for_each_safe(pos, n, &UNIONFS_I(inode)->readdircache) {
++		rdstate = list_entry(pos, struct unionfs_dir_state, cache);
++		list_del(&rdstate->cache);
++		free_rdstate(rdstate);
++	}
++
++	/* Decrement a reference to a hidden_inode, which was incremented
++	 * by our read_inode when it was created initially.  */
++	bstart = ibstart(inode);
++	bend = ibend(inode);
++	if (bstart >= 0) {
++		for (bindex = bstart; bindex <= bend; bindex++) {
++			hidden_inode = unionfs_lower_inode_idx(inode, bindex);
++			if (!hidden_inode)
++				continue;
++			iput(hidden_inode);
++		}
++	}
++
++	kfree(UNIONFS_I(inode)->lower_inodes);
++	UNIONFS_I(inode)->lower_inodes = NULL;
++}
++
++static struct inode *unionfs_alloc_inode(struct super_block *sb)
++{
++	struct unionfs_inode_info *i;
++
++	i = kmem_cache_alloc(unionfs_inode_cachep, SLAB_KERNEL);
++	if (!i)
++		return NULL;
++
++	/* memset everything up to the inode to 0 */
++	memset(i, 0, offsetof(struct unionfs_inode_info, vfs_inode));
++
++	i->vfs_inode.i_version = 1;
++	return &i->vfs_inode;
++}
++
++static void unionfs_destroy_inode(struct inode *inode)
++{
++	kmem_cache_free(unionfs_inode_cachep, UNIONFS_I(inode));
++}
++
++/* unionfs inode cache constructor */
++static void init_once(void *v, struct kmem_cache * cachep, unsigned long flags)
++{
++	struct unionfs_inode_info *i = v;
++
++	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
++	    SLAB_CTOR_CONSTRUCTOR)
++		inode_init_once(&i->vfs_inode);
++}
++
++int init_inode_cache(void)
++{
++	int err = 0;
++
++	unionfs_inode_cachep =
++	    kmem_cache_create("unionfs_inode_cache",
++			      sizeof(struct unionfs_inode_info), 0,
++			      SLAB_RECLAIM_ACCOUNT, init_once, NULL);
++	if (!unionfs_inode_cachep)
++		err = -ENOMEM;
++	return err;
++}
++
++void destroy_inode_cache(void)
++{
++	if (unionfs_inode_cachep)
++		kmem_cache_destroy(unionfs_inode_cachep);
++}
++
++/* Called when we have a dirty inode, right here we only throw out
++ * parts of our readdir list that are too old.
++ */
++static int unionfs_write_inode(struct inode *inode, int sync)
++{
++	struct list_head *pos, *n;
++	struct unionfs_dir_state *rdstate;
++
++	spin_lock(&UNIONFS_I(inode)->rdlock);
++	list_for_each_safe(pos, n, &UNIONFS_I(inode)->readdircache) {
++		rdstate = list_entry(pos, struct unionfs_dir_state, cache);
++		/* We keep this list in LRU order. */
++		if ((rdstate->access + RDCACHE_JIFFIES) > jiffies)
++			break;
++		UNIONFS_I(inode)->rdcount--;
++		list_del(&rdstate->cache);
++		free_rdstate(rdstate);
++	}
++	spin_unlock(&UNIONFS_I(inode)->rdlock);
++
++	return 0;
++}
++
++/*
++ * Used only in nfs, to kill any pending RPC tasks, so that subsequent
++ * code can actually succeed and won't leave tasks that need handling.
++ */
++static void unionfs_umount_begin(struct vfsmount *mnt, int flags)
++{
++	struct super_block *sb, *hidden_sb;
++	struct vfsmount *hidden_mnt;
++	int bindex, bstart, bend;
++
++	if (!(flags & MNT_FORCE))
++		/* we are not being MNT_FORCEd, therefore we should emulate
++		 * old behaviour
++		 */
++		return;
++
++	sb = mnt->mnt_sb;
++
++	bstart = sbstart(sb);
++	bend = sbend(sb);
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		hidden_mnt = unionfs_lower_mnt_idx(sb->s_root, bindex);
++		hidden_sb = unionfs_lower_super_idx(sb, bindex);
++
++		if (hidden_mnt && hidden_sb && hidden_sb->s_op &&
++		    hidden_sb->s_op->umount_begin)
++			hidden_sb->s_op->umount_begin(hidden_mnt, flags);
++	}
++}
++
++static int unionfs_show_options(struct seq_file *m, struct vfsmount *mnt)
++{
++	struct super_block *sb = mnt->mnt_sb;
++	int ret = 0;
++	char *tmp_page;
++	char *path;
++	int bindex, bstart, bend;
++	int perms;
++
++	lock_dentry(sb->s_root);
++
++	tmp_page = (char*) __get_free_page(GFP_KERNEL);
++	if (!tmp_page) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	bstart = sbstart(sb);
++	bend = sbend(sb);
++
++	seq_printf(m, ",dirs=");
++	for (bindex = bstart; bindex <= bend; bindex++) {
++		path = d_path(unionfs_lower_dentry_idx(sb->s_root, bindex),
++			   unionfs_lower_mnt_idx(sb->s_root, bindex), tmp_page,
++			   PAGE_SIZE);
++		perms = branchperms(sb, bindex);
++
++		seq_printf(m, "%s=%s", path,
++			   perms & MAY_WRITE ? "rw" : "ro");
++		if (bindex != bend) {
++			seq_printf(m, ":");
++		}
++	}
++
++out:
++	if (tmp_page)
++		free_page((unsigned long) tmp_page);
++
++	unlock_dentry(sb->s_root);
++
++	return ret;
++}
++
++struct super_operations unionfs_sops = {
++	.read_inode = unionfs_read_inode,
++	.put_inode = unionfs_put_inode,
++	.delete_inode = unionfs_delete_inode,
++	.put_super = unionfs_put_super,
++	.statfs = unionfs_statfs,
++	.remount_fs = unionfs_remount_fs,
++	.clear_inode = unionfs_clear_inode,
++	.umount_begin = unionfs_umount_begin,
++	.show_options = unionfs_show_options,
++	.write_inode = unionfs_write_inode,
++	.alloc_inode = unionfs_alloc_inode,
++	.destroy_inode = unionfs_destroy_inode,
++};
++
 -- 
 1.4.3.3
 

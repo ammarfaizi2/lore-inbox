@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759803AbWLDFDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759825AbWLDFET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759803AbWLDFDz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 00:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759811AbWLDFDz
+	id S1759825AbWLDFET (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 00:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759831AbWLDFES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 00:03:55 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:43702 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1759803AbWLDFDz (ORCPT
+	Mon, 4 Dec 2006 00:04:18 -0500
+Received: from main.gmane.org ([80.91.229.2]:18652 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1759820AbWLDFER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 00:03:55 -0500
-Date: Sun, 3 Dec 2006 21:03:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
-       Joseph Barnett <jbarnett@motorola.com>
-Subject: Re: [PATCH 9/12] IPMI: add pigeonpoint poweroff
-Message-Id: <20061203210340.9292061d.akpm@osdl.org>
-In-Reply-To: <45738959.1000209@acm.org>
-References: <20061202043746.GE30531@localdomain>
-	<20061203132618.d7d58f59.akpm@osdl.org>
-	<45738959.1000209@acm.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 4 Dec 2006 00:04:17 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: CD oddities with VIA PATA
+Date: Sun, 03 Dec 2006 21:03:53 -0800
+Message-ID: <el0a7s$soj$1@sea.gmane.org>
+References: <20061201220134.GA22909@deepthought.linux.bogus> <20061201224240.GB22909@deepthought.linux.bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pub-148.casa-z.org
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.8) Gecko/20061129 Thunderbird/1.5.0.8 Mnenhy/0.7.4.0
+In-Reply-To: <20061201224240.GB22909@deepthought.linux.bogus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 03 Dec 2006 20:35:05 -0600
-Corey Minyard <minyard@acm.org> wrote:
+On 12/01/2006 02:42 PM, Ken Moffat wrote:
+> On Fri, Dec 01, 2006 at 10:01:34PM +0000, Ken Moffat wrote:
+>> (i.) cdparanoia (9.8) works for root, but for a user it complains
+>> that the ioctl isn't cooked and refuses to run.  For test purposes,
+>> it runs ok for a user as suid root, but I imagine that increases
+>> the likelihood of unspeakable things happening.  (Fortunately, I
+>> don't have a dachshund)
 
-> Do you prefer patches to fold into the existing patches or new versions?
+For the record,
+cdparanoia III release 10pre0 (August 29, 2006)
 
-Incremental updates are preferred where it makes sense, please.  That way
-we can see what changed.  I often will convert updated patches into
-incremental patches just to see what happened.  I've caught bugs that way..
+works for me. My particular IDE adapter is:
+
+00:0f.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+(prog-if 8a [Master SecP PriP])
+
+I have not tried older versions (yet). Could you try this and see if
+things are still broken?
+
+-- 
+Joshua Kwan
+

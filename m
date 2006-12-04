@@ -1,28 +1,24 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759163AbWLDIfU (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 4 Dec 2006 03:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759257AbWLDIfT
+	id S936909AbWLDOjl (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 4 Dec 2006 09:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936912AbWLDOjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 03:35:19 -0500
-Received: from mail2.ebmpapst.com ([62.159.30.28]:5391 "EHLO
-	mail2.ebmpapst.com") by vger.kernel.org with ESMTP id S1759163AbWLDIfS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 03:35:18 -0500
-Message-ID: <4573DDD3.7010501@mvl.de>
-Date: Mon, 04 Dec 2006 09:35:31 +0100
-From: Christian Zehring <christian.zehring@mvl.de>
-Reply-To: christian.zehring@de.ebmpapst.com
-Organization: ebm-papst Landshut GmbH
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (kein Betreff)
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Mon, 4 Dec 2006 09:39:41 -0500
+Received: from wx-out-0506.google.com ([66.249.82.237]:3092 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S936909AbWLDOjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 09:39:40 -0500
+Mime-Version: 1.0 (Apple Message framework v752.2)
 Content-Transfer-Encoding: 7bit
+Message-Id: <0BAC75A2-B9A4-4923-95FC-345D3CE48AC9@gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: 
+Date: Mon, 4 Dec 2006 09:39:34 -0500
+X-Mailer: Apple Mail (2.752.2)
+From: Ricardo Lugo <ricardolugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1759163AbWLDIfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S936909AbWLDOjl@vger.kernel.org>
 
-help
-
-
+unsubscribe linux-kernel

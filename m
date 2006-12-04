@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937171AbWLDT23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759315AbWLDTbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937171AbWLDT23 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759157AbWLDT23
+	id S1759315AbWLDTbI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759421AbWLDTbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:28:29 -0500
-Received: from mga02.intel.com ([134.134.136.20]:17688 "EHLO mga02.intel.com"
+	Mon, 4 Dec 2006 14:31:07 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:58809 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759310AbWLDT22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:28:28 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,494,1157353200"; 
-   d="scan'208"; a="170050003:sNHT49528066"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <jens.axboe@oracle.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: [patch] speed up single bio_vec allocation
-Date: Mon, 4 Dec 2006 11:27:32 -0800
-Message-ID: <000301c717da$3ecf4970$2589030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id S1759315AbWLDTbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 14:31:06 -0500
+Date: Mon, 4 Dec 2006 11:30:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: mel@skynet.ie (Mel Gorman)
+Cc: clameter@sgi.com, Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+Message-Id: <20061204113051.4e90b249.akpm@osdl.org>
+In-Reply-To: <20061204140747.GA21662@skynet.ie>
+References: <20061130170746.GA11363@skynet.ie>
+	<20061130173129.4ebccaa2.akpm@osdl.org>
+	<Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
+	<20061201110103.08d0cf3d.akpm@osdl.org>
+	<20061204140747.GA21662@skynet.ie>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccX2j5+fBLikAGjQCqkOdjveIWCiw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 64-bit arch like x86_64, struct bio is 104 byte.  Since bio slab is
-created with SLAB_HWCACHE_ALIGN flag, there are usually spare memory
-available at the end of bio.  I think we can utilize that memory for
-bio_vec allocation.  The purpose is not so much on saving memory consumption
-for bio_vec, instead, I'm attempting to optimize away a call to bvec_alloc_bs.
+On Mon, 4 Dec 2006 14:07:47 +0000
+mel@skynet.ie (Mel Gorman) wrote:
 
-So here is a patch to do just that for 1 segment bio_vec (we currently only
-have space for 1 on 2.6.19).  And the detection whether there are spare space
-available is dynamically calculated at compile time.  If there are no space
-available, there will be no run time cost at all because gcc simply optimize
-away all the code added in this patch.  If there are space available, the only
-run time check is to see what the size of iovec is and we do appropriate
-assignment to bio->bi_io_Vec etc.  The cost is minimal and we gain a whole
-lot back from not calling bvec_alloc_bs() function.
+> o copy_strings() and variants are no longer setting the flag as the pages
+>   are not obviously movable when I took a much closer look.
+> 
+> o The arch function alloc_zeroed_user_highpage() is now called
+>   __alloc_zeroed_user_highpage and takes flags related to
+>   movability that will be applied.  alloc_zeroed_user_highpage()
+>   calls __alloc_zeroed_user_highpage() with no additional flags to
+>   preserve existing behavior of the API for out-of-tree users and
+>   alloc_zeroed_user_highpage_movable() sets the __GFP_MOVABLE flag.
+> 
+> o new_inode() documents that it uses GFP_HIGH_MOVABLE and callers are expected
+>   to call mapping_set_gfp_mask() if that is not suitable.
 
-I tried to use cache_line_size() to find out the alignment of struct bio, but
-stumbled on that it is a runtime function for x86_64. So instead I made bio
-to hint to the slab allocator to align on 32 byte (slab will use the larger
-value of hw cache line and caller hints of "align").  I think it is a sane
-number for majority of the CPUs out in the world.
+umm, OK.  Could we please have some sort of statement pinning down the
+exact semantics of __GFP_MOVABLE, and what its envisaged applications are?
 
+My concern is that __GFP_MOVABLE is useful for fragmentation-avoidance, but
+useless for memory hot-unplug.  So that if/when hot-unplug comes along
+we'll add more gunk which is a somewhat-superset of the GFP_MOVABLE
+infrastructure, hence we didn't need the GFP_MOVABLE code.  Or something.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+That depends on how we do hot-unplug, if we do it.  I continue to suspect
+that it'll be done via memory zones: effectively by resurrecting
+GFP_HIGHMEM.  In which case there's little overlap with anti-frag.  (btw, I
+have a suspicion that the most important application of memory hot-unplug
+will be power management: destructively turning off DIMMs).
 
+I'd also like to pin down the situation with lumpy-reclaim versus
+anti-fragmentation.  No offence, but I would of course prefer to avoid
+merging the anti-frag patches simply based on their stupendous size.  It
+seems to me that lumpy-reclaim is suitable for the e1000 problem, but
+perhaps not for the hugetlbpage problem.  Whereas anti-fragmentation adds
+vastly more code, but can address both problems?  Or something.
 
---- ./fs/bio.c.orig	2006-12-03 17:20:36.000000000 -0800
-+++ ./fs/bio.c	2006-12-03 21:29:20.000000000 -0800
-@@ -29,11 +29,14 @@
- #include <scsi/sg.h>		/* for struct sg_iovec */
- 
- #define BIO_POOL_SIZE 256
--
-+#define BIO_ALIGN 32		/* minimal bio structure alignment */
- static kmem_cache_t *bio_slab __read_mostly;
- 
- #define BIOVEC_NR_POOLS 6
- 
-+#define BIOVEC_FIT_INSIDE_BIO_CACHE_LINE				\
-+	(ALIGN(sizeof(struct bio), BIO_ALIGN) ==			\
-+	 ALIGN(sizeof(struct bio) + sizeof(struct bio_vec), BIO_ALIGN))
- /*
-  * a small number of entries is fine, not going to be performance critical.
-  * basically we just need to survive
-@@ -113,7 +116,8 @@ void bio_free(struct bio *bio, struct bi
- 
- 	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
- 
--	mempool_free(bio->bi_io_vec, bio_set->bvec_pools[pool_idx]);
-+	if (!BIOVEC_FIT_INSIDE_BIO_CACHE_LINE || pool_idx)
-+		mempool_free(bio->bi_io_vec, bio_set->bvec_pools[pool_idx]);
- 	mempool_free(bio, bio_set->bio_pool);
- }
- 
-@@ -166,7 +170,15 @@ struct bio *bio_alloc_bioset(gfp_t gfp_m
- 		struct bio_vec *bvl = NULL;
- 
- 		bio_init(bio);
--		if (likely(nr_iovecs)) {
-+
-+		/*
-+		 * if bio_vec can fit into remaining cache line of struct
-+		 * bio, go ahead use it and skip mempool allocation.
-+		 */
-+		if (nr_iovecs == 1 && BIOVEC_FIT_INSIDE_BIO_CACHE_LINE) {
-+			bvl = (struct bio_vec*) (bio + 1);
-+			bio->bi_max_vecs = 1;
-+		} else if (likely(nr_iovecs)) {
- 			unsigned long idx = 0; /* shut up gcc */
- 
- 			bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
-@@ -1204,7 +1216,7 @@ static void __init biovec_init_slabs(voi
- 		struct biovec_slab *bvs = bvec_slabs + i;
- 
- 		size = bvs->nr_vecs * sizeof(struct bio_vec);
--		bvs->slab = kmem_cache_create(bvs->name, size, 0,
-+		bvs->slab = kmem_cache_create(bvs->name, size, BIO_ALIGN,
-                                 SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- 	}
- }
+IOW: big-picture where-do-we-go-from-here stuff.

@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937162AbWLDSjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937256AbWLDSoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937162AbWLDSjr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 13:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937241AbWLDSjr
+	id S937256AbWLDSoP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 13:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937257AbWLDSoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 13:39:47 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:51559 "EHLO mail.mnsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937162AbWLDSjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 13:39:46 -0500
-Message-ID: <45746B1B.5060809@mnsu.edu>
-Date: Mon, 04 Dec 2006 12:38:19 -0600
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
-MIME-Version: 1.0
-To: Aucoin@houston.rr.com
-CC: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+	Mon, 4 Dec 2006 13:44:15 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:18306 "EHLO
+	gockel.physik3.uni-rostock.de" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S937256AbWLDSoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 13:44:14 -0500
+Date: Mon, 4 Dec 2006 19:44:13 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Aucoin <Aucoin@Houston.RR.com>
+cc: "'Horst H. von Brand'" <vonbrand@inf.utfsm.cl>,
        "'Kyle Moffett'" <mrmacman_g4@mac.com>,
-       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, dcn@sgi.com
-Subject: Re: la la la la ... swappiness
-References: <200612041439.kB4EdGFn025092@ms-smtp-03.texas.rr.com> <200612041707.kB4H7Mnh020665@laptop13.inf.utfsm.cl> <20061204100656.793d8d6a.akpm@osdl.org> <Pine.LNX.4.64.0612041012010.32156@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0612041012010.32156@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+       "'Andrew Morton'" <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: RE: la la la la ... swappiness
+In-Reply-To: <200612041749.kB4HnDNw008901@ms-smtp-02.texas.rr.com>
+Message-ID: <Pine.LNX.4.63.0612041932360.23702@gockel.physik3.uni-rostock.de>
+References: <200612041749.kB4HnDNw008901@ms-smtp-02.texas.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 4 Dec 2006, Aucoin wrote:
 
-Please forgive me if this is naive.  It seems that you could recompile 
-your tar and patch commands to use the POSIX_FADVISE(2) feature with the 
-POSIX_FADV_NOREUSE flags.  It seems these would cause the tar and patch 
-commands to not clutter the page cache at all.
+> > From: Horst H. von Brand [mailto:vonbrand@inf.utfsm.cl]
+> > That means that there isn't a need for that memory at all (and so they
+> 
+> In the current isolated non-production, not actually bearing a load test
+> case yes. But if I can't get it to not swap on an idle system I have no hope
+> of avoiding OOM on a loaded system.
 
-It'd be nice to be able to make a wrapper out of this kind of like the 
-fakeroot(1) command like such as:
+I don't think that assumption is correct. If you have no load on your 
+system and the pages in the shared application cache are not actually 
+touched, it is perfectly reasonable for the kernel to push out these 
+unused pages to swap space to have even more RAM available (e.g. for 
+caching the pages more recently accessed by the tar and patch commands). 
 
-nocachesuck tar xvfz kernel.tar.gz
+I believe your OOM problem is not connected to these observations. There 
+might be a problem in the handling of OOM situations in Linux. But before 
+coming to that conclusion, I would suggest trying your simulated software 
+upgrade scenario with plenty of swap space available and without playing
+any tricks with MM settings.
 
-ya know what I mean?
-
--- 
-Jeffrey Hundstad
+Tim

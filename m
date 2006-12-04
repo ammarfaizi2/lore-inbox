@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934223AbWLDG22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934378AbWLDGgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934223AbWLDG22 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 01:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934202AbWLDG22
+	id S934378AbWLDGgy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 01:36:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934422AbWLDGgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 01:28:28 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:968 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S933840AbWLDG21 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 01:28:27 -0500
-Date: Sun, 3 Dec 2006 22:28:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: wcheng@redhat.com
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] prune_icache_sb
-Message-Id: <20061203222816.aaef93a3.akpm@osdl.org>
-In-Reply-To: <4573B8DE.20205@redhat.com>
-References: <4564C28B.30604@redhat.com>
-	<20061122153603.33c2c24d.akpm@osdl.org>
-	<456B7A5A.1070202@redhat.com>
-	<20061127165239.9616cbc9.akpm@osdl.org>
-	<456CACF3.7030200@redhat.com>
-	<20061128162144.8051998a.akpm@osdl.org>
-	<456D2259.1050306@redhat.com>
-	<456F014C.5040200@redhat.com>
-	<20061201132329.4050d6cd.akpm@osdl.org>
-	<45730E36.10309@redhat.com>
-	<20061203124752.15e35357.akpm@osdl.org>
-	<4573B8DE.20205@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Dec 2006 01:36:54 -0500
+Received: from smtp-out001.kontent.com ([81.88.40.215]:20651 "EHLO
+	smtp-out.kontent.com") by vger.kernel.org with ESMTP
+	id S934378AbWLDGgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 01:36:53 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: maneesh@in.ibm.com
+Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
+Date: Mon, 4 Dec 2006 07:38:00 +0100
+User-Agent: KMail/1.8
+Cc: gregkh@suse.com, Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>
+References: <200612012343.07251.oliver@neukum.org> <20061204044344.GB10078@in.ibm.com>
+In-Reply-To: <20061204044344.GB10078@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612040738.00923.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Dec 2006 00:57:50 -0500
-Wendy Cheng <wcheng@redhat.com> wrote:
+Am Montag, 4. Dezember 2006 05:43 schrieb Maneesh Soni:
+> On Fri, Dec 01, 2006 at 11:43:06PM +0100, Oliver Neukum wrote:
+> > Hi,
+> > 
+> > Alan Stern has discovered a race in sysfs, whereby driver callbacks could be
+> > called after sysfs_remove_file() has run. The attached patch should fix it.
+> > 
+> > It introduces a new data structure acting as a collection of all sysfs_buffers
+> > associated with an attribute. Upon removal of an attribute the buffers are
+> > marked orphaned and IO on them returns -ENODEV. Thus sysfs_remove_file()
+> > makes sure that sysfs won't bother a driver after that call, making it safe
+> > to free the associated data structures and to unload the driver.
+> > 
+> > 	Regards
+> > 		Oliver
+> 
+> Hi Oliver,
+> 
+> Thanks for the explaining the patch but some description about the race
+> would also help here. At the least the callpath to the race would be useful.
+> 
+> 
+> Thanks
+> Maneesh
 
-> >  
-> >
-> >>>Did you look at improving that lock-lookup algorithm, btw?  Core kernel has
-> >>>no problem maintaining millions of cached VFS objects - is there any reason
-> >>>why your lock lookup cannot be similarly efficient?
-> >>> 
-> >>>      
-> >>>
-> Yes, just found the new DLM uses "jhash" call (include/linux/jhash.h). 
-> I'm on an older version of DLM that uses FNV hash algorithm 
-> (http://www.isthe.com/chongo/tech/comp/fnv/). Will do some performance 
-> test runs to compare these two methods.
+We have code like this:
+ static void tv_disconnect(struct usb_interface *interface)
+{
+	struct trancevibrator *dev;
 
-I'd be surprised if the choice of hash algorithm itself makes much difference.
-But we can't say much about it unless we can see the code (ie: your code).
+	dev = usb_get_intfdata (interface);
+	device_remove_file(&interface->dev, &dev_attr_speed);
+	usb_set_intfdata(interface, NULL);
+	usb_put_dev(dev->udev);
+	kfree(dev);
+}
 
-Is it a simple old hash-to-find-the-bucket-then-walk-a-list implementation?
-If so, what does the bucket count distribution look like?  What is the average
-walk length?  Does it use a single lock, or hashed locking, or a lock-per-bucket?
+This has a race:
 
-etc.
+CPU A				CPU B
+open sysfs
+					device_remove_file
+					kfree
+reading attr
+
+We cannot do refcounting as sysfs doesn't export open/close. Therefore
+we must be sure that device_remove_file() makes sure that sysfs will
+leave a driver alone after the return of device_remove_file(). Currently
+open will fail, but IO on an already opened file will work. The patch makes
+sure it will fail with -ENODEV without calling into the driver, which may
+indeed be already unloaded.
+
+	Regards
+		Oliver

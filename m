@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937369AbWLDUXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965885AbWLDU1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937369AbWLDUXL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937370AbWLDUXK
+	id S965885AbWLDU1z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:27:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937356AbWLDU1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:23:10 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:61381 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937369AbWLDUXI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:23:08 -0500
-Message-ID: <45748388.9030400@oracle.com>
-Date: Mon, 04 Dec 2006 12:22:32 -0800
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Mon, 4 Dec 2006 15:27:55 -0500
+Received: from mail.kolumbus.fi ([193.229.0.46]:34405 "EHLO mail.kolumbus.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937380AbWLDU1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:27:54 -0500
+From: Janne Karhunen <Janne.Karhunen@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Mounting NFS root FS
+Date: Mon, 4 Dec 2006 22:27:43 +0200
+User-Agent: KMail/1.9.5
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, MrUmunhum@popdial.com,
+       linux-kernel@vger.kernel.org
+References: <4571CE06.4040800@popdial.com> <200612041912.30527.Janne.Karhunen@gmail.com> <Pine.LNX.4.61.0612042100570.29300@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0612042100570.29300@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] kill pointless ki_nbytes assignment in aio_setup_single_vector
-References: <000101c717c2$0fe26ce0$2589030a@amr.corp.intel.com>
-In-Reply-To: <000101c717c2$0fe26ce0$2589030a@amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Disposition: inline
+Message-Id: <200612042227.43751.Janne.Karhunen@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> io_submit_one assigns ki_left = ki_nbytes = iocb->aio_nbytes, then
-> calls down to aio_setup_iocb, then to aio_setup_single_vector. In there,
-> ki_nbytes is reassigned to the same value it got two call stack above it.
-> There is no need to do so.
-> 
-> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+On Monday 04 December 2006 22:03, Jan Engelhardt wrote:
 
-That seems to be the case, indeed.
+> >> 2) NFS provides persistent storage.
+> >
+> >To me this sounds like a chicken and an egg problem. It
+> >both depends and provides this at the same time :/. But
+> >hey, if it's supposed to work then OK.
+>
+> Way 1:
+>
+> mount -nt tmpfs none /var/lib/nfs;
+> mount -nt nfs fserve:/tftpboot/linux /mnt;
+> mount -n --move /var/lib/nfs /mnt/var/lib/nfs/;
+> ./run_init -c /mnt /sbin/init; # or similar
 
-Acked-by: Zach Brown <zach.brown@oracle.com>
+Statd should probably be started before nfs mount to get it 
+right. But doesn't statd require state data ( some sort of 
+generation number ) from persistent storage to work? This 
+would start with a blank slate.
 
-- z
+
+-- 
+// Janne

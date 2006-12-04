@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935606AbWLDKTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935663AbWLDKVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935606AbWLDKTd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 05:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935631AbWLDKTd
+	id S935663AbWLDKVL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 05:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935664AbWLDKVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 05:19:33 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:30067 "HELO
+	Mon, 4 Dec 2006 05:21:10 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:44661 "HELO
 	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S935606AbWLDKTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 05:19:32 -0500
+	id S935663AbWLDKVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 05:21:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=loORQJRMfs4g7JMWx9hTk/U0S2dg9KBQVS7VzCKJSWreQrpoEnwhCM0NbZ40VUe+BiQI5bhl38M2RvB11C2cJcXDPqAJAnnzhC3dPUTM27HjlN+wp8ujTH9TzgPJ1LLm0p9HPaa7+kCBmjghAbEmk8oOXWoCeHky+OjahRF3BkI=  ;
-X-YMail-OSG: uVSafhgVM1n4.HSHm9zIzPMQZfxqxw7dkSd49jx.toX0o0jJMVSV1kw54hUUKWs.m7Tm_pIZWoADZBo_8i4_bvuP9baiMfiOf9CKP4WGLFMhlZBL5Dzc8mFBd69u4KyDvo8tpCfsdS2ELzc-
-Message-ID: <4573F600.50306@yahoo.com.au>
-Date: Mon, 04 Dec 2006 21:18:40 +1100
+  b=YvaFMTxfpQfS0PS/KfQYre71s3WLEcCJeykzDFI3+FX8+p2CwRe1v9ox7m9xB3I6gbSRZP+B//trE0XWVtLDbJLCf7sDgyuOK+9X+uUlTe0XuD0UTRcQRsQPnaYoQOJfABcYgztNcfulY/H0B4bJce7z23Ze2YcHT6ClCZa4Ddk=  ;
+X-YMail-OSG: GNNx1R0VM1kCQHs3xFAIa5j.f1M1kW78JfTQ6h1QCqGZrzAN3yZ3dnabQKsKdYRWa_sEhuDMvwZWPlhqX6jZ3Nx5jzTQd8fmb9giFAFpgWrFl2DUdRsWxONG5FO29PrrKnbBR88MBsxMig--
+Message-ID: <4573F665.4080105@yahoo.com.au>
+Date: Mon, 04 Dec 2006 21:20:21 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Frank van Maarseveen <frankvm@frankvm.com>
-CC: linux-kernel@vger.kernel.org, WU Fengguang <wfg@mail.ustc.edu.cn>,
-       Andrew Morton <akpm@google.com>
-Subject: Re: radix-tree.c:__lookup_slot() dead code removal
-References: <20061203170231.GA20298@janus>
-In-Reply-To: <20061203170231.GA20298@janus>
+To: Fengguang Wu <fengguang.wu@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: drop_pagecache: Possible circular locking dependency
+References: <365219737.01594@ustc.edu.cn> <20061204003217.c0f05e00.akpm@osdl.org> <365225031.05635@ustc.edu.cn>
+In-Reply-To: <365225031.05635@ustc.edu.cn>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank van Maarseveen wrote:
-> Most of the code suggests that it is valid to insert a NULL item,
-> possibly a zero item with pointer cast. However, in __lookup_slot()
-> whether or not the slot is found seems to depend on the actual value
-> of the item in one special case. But further on it doesn't make any
-> difference so to remove some dead code:
-> 
-> --- a/lib/radix-tree.c	2006-12-03 13:23:00.000000000 +0100
-> +++ b/lib/radix-tree.c	2006-12-03 17:57:03.000000000 +0100
-> @@ -319,9 +319,6 @@ static inline void **__lookup_slot(struc
->  	if (index > radix_tree_maxindex(height))
->  		return NULL;
->  
-> -	if (height == 0 && root->rnode)
-> -		return (void **)&root->rnode;
-> -
->  	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
->  	slot = &root->rnode;
+Fengguang Wu wrote:
 
-I would say it is not valid to insert a NULL item (because NULL
-means an unsuccessful lookup, you may as well just delete the
-item).
+> I'd like to move this sysctl interface to the upcoming /proc/filecache. 
+> Being a module, it helps reduce the kernel size :)
 
-Also, I don't see how this is dead code anyway. height == 0
-radix-trees are a special case and do not have a radix_tree_node
-at ->rnode.
+What's /proc/filecache?
 
 -- 
 SUSE Labs, Novell Inc.

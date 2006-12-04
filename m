@@ -1,127 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759815AbWLDJJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759865AbWLDJS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759815AbWLDJJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 04:09:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759822AbWLDJJ6
+	id S1759865AbWLDJS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 04:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759870AbWLDJS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 04:09:58 -0500
-Received: from fogou.chygwyn.com ([195.171.2.24]:24706 "EHLO fogou.chygwyn.com")
-	by vger.kernel.org with ESMTP id S1759814AbWLDJJ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 04:09:57 -0500
-Subject: Re: [Cluster-devel] Re: [GFS2] Fix incorrect fs sync behaviour
-	[2/5]
-From: Steven Whitehouse <steve@chygwyn.com>
-To: Russell Cattelan <cattelan@redhat.com>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1164995853.1194.42.camel@xenon.msp.redhat.com>
-References: <1162811279.18219.32.camel@quoit.chygwyn.com>
-	 <1164995853.1194.42.camel@xenon.msp.redhat.com>
-Content-Type: text/plain
-Organization: ChyGwyn Limited
-Date: Mon, 04 Dec 2006 09:12:12 +0000
-Message-Id: <1165223532.3752.561.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "fogou.chygwyn.com", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Fri, 2006-12-01 at 11:57 -0600, Russell Cattelan
-	wrote: > On Mon, 2006-11-06 at 11:07 +0000, Steven Whitehouse wrote: > >
-	>From 4a221953ed121692aa25998451a57c7f4be8b4f6 Mon Sep 17 00:00:00 2001
-	> > From: Steven Whitehouse <swhiteho@redhat.com> > > Date: Wed, 1 Nov
-	2006 09:57:57 -0500 > > Subject: [PATCH] [GFS2] Fix incorrect fs sync
-	behaviour. > > > > This adds a sync_fs superblock operation for GFS2 and
-	removes > > the journal flush from write_super in favour of sync_fs
-	where it > > ought to be. This is more or less identical to the way in
-	which ext3 > > does this. > > > > This bug was pointed out by Russell
-	Cattelan <cattelan@redhat.com> > > > > Cc: Russell Cattelan
-	<cattelan@redhat.com> > > Signed-off-by: Steven Whitehouse
-	<swhiteho@redhat.com> > > --- > > fs/gfs2/ops_super.c | 44
-	++++++++++++++++++++++++++++ > > 1 files changed, 28 insertions(+), 16
-	deletions(-) > > > > diff --git a/fs/gfs2/ops_super.c
-	b/fs/gfs2/ops_super.c > > index 06f06f7..b47d959 100644 > > ---
-	a/fs/gfs2/ops_super.c > > +++ b/fs/gfs2/ops_super.c > > @@ -138,16
-	+138,27 @@ static void gfs2_put_super(struct super_ > > } > > > > /** >
-	> - * gfs2_write_super - disk commit all incore transactions > > - *
-	@sb: the filesystem > > + * gfs2_write_super > > + * @sb: the superblock
-	> > * > > - * This function is called every time sync(2) is called. > >
-	- * After this exits, all dirty buffers are synced. > > */ > > > >
-	static void gfs2_write_super(struct super_block *sb) > > { > > +
-	sb->s_dirt = 0; > This is a bit different than my original patch? This
-	was largely taken from the ext3 code as an example, rather than your
-	patch. [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	Mon, 4 Dec 2006 04:18:56 -0500
+Received: from nz-out-0506.google.com ([64.233.162.239]:56029 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1759865AbWLDJSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 04:18:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=hqyO20VeqmMBWa1bp8NAIwe1EE1wm9jSDm3HGHCCeY43aZXf9B7bmfQIQmoTOwWkK10QXZcqLJwaaWqNaEU7GJBgP0NUEStmcgZpVxW81enKd1HCMtkNrZj3N5L4ywTqDS2TNzCX6+uFtpgAxzqzWI2oGiJKaWUFgjjKvR+zQ5s=
+Message-ID: <85e7c2fc0612040118r36f3ff9cw82a93ac2b7b53ad8@mail.gmail.com>
+Date: Mon, 4 Dec 2006 17:18:54 +0800
+From: "zhang bob" <zhanglinbao@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: About watch dog timer limit of CPU (Xscale ->IXP425) How can I set more long time ?
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_33034_3571341.1165223934791"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+------=_Part_33034_3571341.1165223934791
+Content-Type: text/plain; charset=GB2312; format=flowed
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-On Fri, 2006-12-01 at 11:57 -0600, Russell Cattelan wrote:
-> On Mon, 2006-11-06 at 11:07 +0000, Steven Whitehouse wrote:
-> > >From 4a221953ed121692aa25998451a57c7f4be8b4f6 Mon Sep 17 00:00:00 2001
-> > From: Steven Whitehouse <swhiteho@redhat.com>
-> > Date: Wed, 1 Nov 2006 09:57:57 -0500
-> > Subject: [PATCH] [GFS2] Fix incorrect fs sync behaviour.
-> > 
-> > This adds a sync_fs superblock operation for GFS2 and removes
-> > the journal flush from write_super in favour of sync_fs where it
-> > ought to be. This is more or less identical to the way in which ext3
-> > does this.
-> > 
-> > This bug was pointed out by Russell Cattelan <cattelan@redhat.com>
-> > 
-> > Cc: Russell Cattelan <cattelan@redhat.com>
-> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-> > ---
-> >  fs/gfs2/ops_super.c |   44 ++++++++++++++++++++++++++++----------------
-> >  1 files changed, 28 insertions(+), 16 deletions(-)
-> > 
-> > diff --git a/fs/gfs2/ops_super.c b/fs/gfs2/ops_super.c
-> > index 06f06f7..b47d959 100644
-> > --- a/fs/gfs2/ops_super.c
-> > +++ b/fs/gfs2/ops_super.c
-> > @@ -138,16 +138,27 @@ static void gfs2_put_super(struct super_
-> >  }
-> >  
-> >  /**
-> > - * gfs2_write_super - disk commit all incore transactions
-> > - * @sb: the filesystem
-> > + * gfs2_write_super
-> > + * @sb: the superblock
-> >   *
-> > - * This function is called every time sync(2) is called.
-> > - * After this exits, all dirty buffers are synced.
-> >   */
-> >  
-> >  static void gfs2_write_super(struct super_block *sb)
-> >  {
-> > +	sb->s_dirt = 0;
-> This is a bit different than my original patch?
-This was largely taken from the ext3 code as an example, rather than
-your patch.
+SGVsbG8gYWxsICwKCiAgICBNeSBlbWJlZGVkIGJvYXJkIGhhcmR3YXJlIGNvbmZpZ3VyYXRpb24g
+aXMgbGlrZSB0aGlzIDoKIyBjYXQgL3Byb2MvY3B1aW5mbwpQcm9jZXNzb3IgICAgICAgOiBYU2Nh
+bGUtSVhQNDI1L0lYQzExMDAgcmV2IDEgKHY1YikKQm9nb01JUFMgICAgICAgIDogMjY2LjI0CkZl
+YXR1cmVzICAgICAgICA6IHN3cCBoYWxmIHRodW1iIGZhc3RtdWx0IGVkc3AKCkhhcmR3YXJlICAg
+ICAgICA6IEludGVsIElYRFA0MjUgRGV2ZWxvcG1lbnQgUGxhdGZvcm0KUmV2aXNpb24gICAgICAg
+IDogMDAwMApTZXJpYWwgICAgICAgICAgOiAwMDAwMDAwMDAwMDAwMDAwCgpUaHJvdWdoIHJlYWRp
+bmcgZGF0YXNoZWV0IG9mIGl4cDR4eCAsSSBrbm93IGl0IGhhcyBvd24gd2F0Y2hkb2cgZnVuY3Rp
+b25zICwKcGxlYXNlIHNlZSBhdHRjaG1lbnQgOjE1IFRpbWVyCgpJIGZpbmQgYSBkcml2ZXIgYnkg
+Z29vbGUgLApzZWUgYXR0YWNobWVudCAuCgoKV2F0Y2hkb2cgdGltZXIgY291bnRlciBpcyAzMiBi
+aXQgcmVnaXN0ZXIgLCBpdHMgbWF4IHZhbHVlIGlzIDI8PDMyIC0xCgojZGVmaW5lIFRJTUVSX0ZS
+RVEgNjYwMDAwMDAgLyogNjYgTUhaIHRpbWVyICovCiNkZWZpbmUgVElNRVJfS0VZIDB4NDgyZQoj
+ZGVmaW5lIFRJTUVSX01BUkdJTiA2MCAgLyogKHNlY3MpIERlZmF1bHQgaXMgMSBtaW51dGUgKi8K
+Ly9JIHdhbnQgdG8gbW9kaWZ5IGl0ICxJIGZpbmQgaXRzIG1heCB2YWx1ZSBpcyA2NQoKc3RhdGlj
+IGludCBpeHA0MjVfbWFyZ2luID0gVElNRVJfTUFSR0lOOyAvKiBpbiBzZWNvbmRzICovCnN0YXRp
+YyBpbnQgaXhwNDI1d2R0X3VzZXJzOwovL3N0YXRpYyBpbnQgcHJlX21hcmdpbjsgIC8vSVhQNDI1
+IENQVSAncyB3YXRjaCBkb2cgdGltZXIgaXMgMzIgYml0ICwKLy9zbyBJIGRlZmluZSBpdCB0byBi
+ZSB1bnNpZ25lZCBpbnQgLS1ib2IKc3RhdGljIHVuc2lnbmVkIGludCBwcmVfbWFyZ2luOwpwcmVf
+bWFyZ2luID0gVElNRVJfRlJFUSAqICBUSU1FUl9NQVJHSU4KKklYUDQyNV9PU1dUID0gcHJlX21h
+cmdpbjsKCmlmIEkgbmVlZCBvbmUgbWludXRlcyAsCipJWFA0MjVfT1NXVCA9IDY2MDAwMDAwICog
+NjAgPSAgMzk2MDAwMDAwICAsbm90IG92ZXJmbG93CgppZiBJIG5lZWQgdHdvIG1pbnV0ZXMgLAoq
+SVhQNDI1X09TV1QgPSA2NjAwMDAwMCAqIDEyMCA9IDc5MjAwMDAwMCAgKCB3aGljaCBoYXMgYmVl
+biA+ICAyPDwzMi0xCiAsIG92ZXJmbG93CgpTbyBJIGNvbXB1dGUgdGhlIG1heCB0aW1lIEkgY2Fu
+IHNldCA6CiBUX21heCA9IDI8PDMyLTEgLyA2NjAwMDAwMCAgICA9ICA2NSBzZWNvbmRzIKGjCgoK
+LS0tLS0tLS0tLS0tLS0tLS0tLS0KTXkgcXVlc3Rpb246CgppZiBuZWVkIG1vcmUgc2Vjb25kcyAo
+IGZvciBleGFtcGxlICwgNSBtaW51dGVzICkgLHdoYXQgc2hvdWxkIEkgZG8gPwoKSSBoYXZlIGEg
+bWV0aG9kIGJhc2VkIG9uIGRhdGFzaGVldCAoaXhwNHh4KSAsYnV0IEkgZG9uJ3Qga25vdyBpZiBp
+dAp3aWxsIHN1Y2Nlc3NlZCB3aGVuIHN5c3RlbSBjcmFzaAoKSG93IGNhbiBJIGRvIHRvIGJyZWFr
+IHRoZSBsaW1pdCBvZiBoYXJkd2FyZSA/ClRoYW5rcyBhaGVhZCAhCgotLQpCZXN0IFJlZ2FyZHMK
+Ym9iCg==
+------=_Part_33034_3571341.1165223934791
+Content-Type: application/octet-stream; name=ixp425_wdt.c
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_evao7dqn
+Content-Disposition: attachment; filename="ixp425_wdt.c"
 
->  
-> Are you sure we don't need the s_lock here?
-> 
-Yes. See linux-2.6/Documentation/filesystems/Locking:
-
-
-locking rules:
-        All may block.
-                        BKL     s_lock  s_umount
-[snip]
-write_super:            no      yes     read
-
-it is already held on entry to write_super,
-
-Steve.
-
-
+LyoKICoJV2F0Y2hkb2cgZHJpdmVyIGZvciB0aGUgSVhQMjQwMC9JWFAyODAwIGJhc2VkIHBsYXRm
+b3JtcwogKgogKiAgICAgIChjKSBDb3B5cmlnaHQgMjAwMCBJbnRlbCBDb3BvcmF0aW9uCiAqICAg
+ICAgICAgIEJhc2VkIG9uIFNvZnREb2cgZHJpdmVyIGJ5IEFsYW4gQ294IDxhbGFuQHJlZGhhdC5j
+b20+CiAqCiAqCVRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJp
+YnV0ZSBpdCBhbmQvb3IKICoJbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdl
+bmVyYWwgUHVibGljIExpY2Vuc2UKICoJYXMgcHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJl
+IEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uCiAqCTIgb2YgdGhlIExpY2Vuc2UsIG9yIChhdCB5
+b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCiAqCiAqCU5laXRoZXIgT2xlZyBEcm9raW4g
+bm9yIGlYY2VsZXJhdG9yLmNvbSBhZG1pdCBsaWFiaWxpdHkgbm9yIHByb3ZpZGUKICoJd2FycmFu
+dHkgZm9yIGFueSBvZiB0aGlzIHNvZnR3YXJlLiBUaGlzIG1hdGVyaWFsIGlzIHByb3ZpZGVkCiAq
+CSJBUy1JUyIgYW5kIGF0IG5vIGNoYXJnZS4KICoKICoJSGFyb2xkIFlhbmcgPGhhcm9sZC55YW5n
+QGludGVsLmNvbT4KICoJU3RhbmxleSBXYW5nIDxzdGFubGV5LndhbmdAaW50ZWwuY29tPgogKgog
+Ki8KCiNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgoj
+aW5jbHVkZSA8bGludXgvdHlwZXMuaD4KI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgojaW5jbHVk
+ZSA8bGludXgvZnMuaD4KI2luY2x1ZGUgPGxpbnV4L21tLmg+CiNpbmNsdWRlIDxsaW51eC9taXNj
+ZGV2aWNlLmg+CiNpbmNsdWRlIDxsaW51eC93YXRjaGRvZy5oPgojaW5jbHVkZSA8bGludXgvcmVi
+b290Lmg+CiNpbmNsdWRlIDxsaW51eC9zbXBfbG9jay5oPgojaW5jbHVkZSA8bGludXgvaW5pdC5o
+PgojaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KI2luY2x1ZGUgPGFzbS9oYXJkd2FyZS5oPgojaW5j
+bHVkZSA8YXNtL2JpdG9wcy5oPgojaW5jbHVkZSA8YXNtL2FyY2gvaXhwNDI1Lmg+CgojZGVmaW5l
+IE1ZX05BTUUgIklYUDQyNSBXYXRjaGRvZyBUaW1lciIKCi8qIHlvdSBtdXN0IGRlZmluZSBpdCAs
+b3RoZXJ3aXNlICx0aGUgdGltZXIgd2lsbCBzdG9wIGFmdGVyIHdyaXRlKCkgLHJlYWQoKSAgKi8K
+Ly8jZGVmaW5lIENPTkZJR19XQVRDSERPR19OT1dBWU9VVAoKLyogeW91IGNhbiBjb21tZW50IGl0
+ICxpZiB5b3UgZG9uJ3QgZGVidWcgKi8KI2RlZmluZSBDT05GSUdfSVhQNDI1X1dUREVCVUcKCiNp
+ZmRlZiBDT05GSUdfSVhQNDI1X1dUREVCVUcKI2RlZmluZSBkYmcoZm9ybWF0LCBhcmcuLi4pICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKCWRvIHsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAoJCXByaW50aygiPDA+IiAiJXM6
+ICIgZm9ybWF0LAkJXAoJCQkJTVlfTkFNRSAsICMjIGFyZyk7ICAgICAgICAgICAgICBcCiAgICAg
+ICAgfSB3aGlsZSAoMCkKI2Vsc2UKI2RlZmluZSBkYmcoZm9ybWF0LCBhcmcuLi4pCiNlbmRpZgoK
+I2RlZmluZSBUSU1FUl9GUkVRCTY2MDAwMDAwCS8qIDY2IE1IWiB0aW1lciAqLwojZGVmaW5lIFRJ
+TUVSX0tFWQkweDQ4MmUKI2RlZmluZSBUSU1FUl9NQVJHSU4JNjYJCS8qIChzZWNzKSBEZWZhdWx0
+IGlzIDEgbWludXRlICovCgpzdGF0aWMgaW50IGl4cDQyNV9tYXJnaW4gPSBUSU1FUl9NQVJHSU47
+CS8qIGluIHNlY29uZHMgKi8Kc3RhdGljIGludCBpeHA0MjV3ZHRfdXNlcnM7Ci8vc3RhdGljIGlu
+dCBwcmVfbWFyZ2luOyAgLy9JWFA0MjUgQ1BVICdzIHdhdGNoIGRvZyB0aW1lciBpcyAzMiBiaXQg
+LCBzbyBJIGRlZmluZSBpdCB0byBiZSB1bnNpZ25lZCBpbnQgLS1ib2IKc3RhdGljIHVuc2lnbmVk
+IGludCBwcmVfbWFyZ2luOwoKLyoKICoJQWxsb3cgb25seSBvbmUgcGVyc29uIHRvIGhvbGQgaXQg
+b3BlbgogKi8KCnN0YXRpYyBpbnQgaXhwNDI1ZG9nX29wZW4oc3RydWN0IGlub2RlICppbm9kZSwg
+c3RydWN0IGZpbGUgKmZpbGUpCnsKCWlmKHRlc3RfYW5kX3NldF9iaXQoMSwmaXhwNDI1d2R0X3Vz
+ZXJzKSkKCQlyZXR1cm4gLUVCVVNZOwoJTU9EX0lOQ19VU0VfQ09VTlQ7CglkYmcoIlxuXG5pbiBv
+cGVuICgpIGZ1bmN0aW9uICAsICpJWFA0MjVfT1NXVCA9ICV1XG4iLCpJWFA0MjVfT1NXVCk7Cglk
+YmcoIml4cDQyNV9tYXJnaW49JWRcbiIsaXhwNDI1X21hcmdpbik7CgkvKiBBY3RpdmF0ZSBJWFA0
+MjUgV2F0Y2hkb2cgdGltZXIgKi8KCXByZV9tYXJnaW49VElNRVJfRlJFUSAqIGl4cDQyNV9tYXJn
+aW47CgkqSVhQNDI1X09TV0sgPSBUSU1FUl9LRVk7IAkvKiBVbmxvY2sgdGhlIHdhdGNoIGRvZyB0
+aW1lciAqLwoJKklYUDQyNV9PU1dUID0gcHJlX21hcmdpbjsJCglkYmcoImluIG9wZW4gZnVuY3Rp
+b24gcHJlX21hcmdpbiA9ICV1XG4iLHByZV9tYXJnaW4pOwoJKklYUDQyNV9PU1dFID0gMHg1OyAg
+Ly9iaXQgMDpyZXNldCA7IGJpdCAxOmludGVydXB0OyBiaXQgMjpjb3VudGVyIGRvd24gZW5hYmxl
+IAoJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJcmV0
+dXJuIDA7Cn0KCnN0YXRpYyBpbnQgaXhwNDI1ZG9nX3JlbGVhc2Uoc3RydWN0IGlub2RlICppbm9k
+ZSwgc3RydWN0IGZpbGUgKmZpbGUpCnsKCS8qCgkgKglTaHV0IG9mZiB0aGUgdGltZXIuCgkgKiAJ
+TG9jayBpdCBpbiBpZiBpdCdzIGEgbW9kdWxlIGFuZCB3ZSBkZWZpbmVkIC4uLk5PV0FZT1VUCgkg
+Ki8KCSpJWFA0MjVfT1NXSyA9IFRJTUVSX0tFWTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRp
+bWVyICovCgkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwojaWZuZGVmIENPTkZJR19XQVRDSERP
+R19OT1dBWU9VVAoJKklYUDQyNV9PU1dFID0gMHgwOwojZW5kaWYKCSpJWFA0MjVfT1NXSyA9IDA7
+CQkvKiBMb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCWl4cDQyNXdkdF91c2VycyA9IDA7CglN
+T0RfREVDX1VTRV9DT1VOVDsKCXJldHVybiAwOwp9CgpzdGF0aWMgc3NpemVfdCBpeHA0MjVkb2df
+d3JpdGUoc3RydWN0IGZpbGUgKmZpbGUsIGNvbnN0IGNoYXIgKmRhdGEsIHNpemVfdCBsZW4sIGxv
+ZmZfdCAqcHBvcykKewoJLyogIENhbid0IHNlZWsgKHB3cml0ZSkgb24gdGhpcyBkZXZpY2UgICov
+CglpZiAocHBvcyAhPSAmZmlsZS0+Zl9wb3MpCgkJcmV0dXJuIC1FU1BJUEU7CgoJLyogUmVmcmVz
+aCBPU01SMyB0aW1lci4gKi8KCWlmKGxlbikgewoJCWRiZygiaGFzIGludG8gd3JpdGUgZnVuY3Rp
+b24gbGVuICE9MCAgLCAqSVhQNDI1X09TV1QgPSAldVxuIiwqSVhQNDI1X09TV1QpOwoJCWRiZygi
+anVzdCBJWFA0MjVfT1NXVCB3aWxsIHNldCB0byBiZSAldSBcbiIscHJlX21hcmdpbik7CgkJKklY
+UDQyNV9PU1dLID0gVElNRVJfS0VZOyAJLyogVW5sb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8K
+CQkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwoJCSpJWFA0MjVfT1NXSyA9IDA7CQkvKiBMb2Nr
+IHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCQlyZXR1cm4gMTsKCX0KCXJldHVybiAwOwp9CgovKiBp
+dCBpcyBvbmx5IHVzZWQgdG8gdGVzdCB0aGUgSVhQNDI1X09TV1QgcmVnaXN0ZXIncyB2YWx1ZSAK
+ICAtLUJPQiAqLwpzdGF0aWMgc3NpemVfdCBpeHA0MjVkb2dfcmVhZChzdHJ1Y3QgZmlsZSAqZmls
+ZSwgY2hhciAqZGF0YSwgc2l6ZV90IGxlbiwgbG9mZl90ICpwcG9zKQp7CgkKCS8qIHJlYWQgT1NN
+UjMgdGltZXIuICovCglpbnQgY3VycmVudF90aW1lciA9IDA7CgljaGFyIGJ1ZmZlclsxMF0gPSB7
+J1wwJ307CgkKCWRiZygiaGFzIGludG8gcmVhZCgpIGZ1bmN0aW9uICAsICpJWFA0MjVfT1NXVCA9
+ICV1XG4iLCpJWFA0MjVfT1NXVCk7CgkvLypJWFA0MjVfT1NXSyA9IFRJTUVSX0tFWTsgCS8qIFVu
+bG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgljdXJyZW50X3RpbWVyID0gKklYUDQyNV9PU1dU
+IDsKCS8vKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJ
+Ly8tLT4KCXNucHJpbnRmKGJ1ZmZlcixzaXplb2YoYnVmZmVyKS0xLCIlZCIsY3VycmVudF90aW1l
+cik7Cgljb3B5X3RvX3VzZXIoZGF0YSxidWZmZXIsc3RybGVuKGJ1ZmZlcikpOwoJCn0KCgoKc3Rh
+dGljIGludCBpeHA0MjVkb2dfaW9jdGwoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUg
+KmZpbGUsCgl1bnNpZ25lZCBpbnQgY21kLCB1bnNpZ25lZCBsb25nIGFyZykKewoJaW50IG5ld19t
+YXJnaW47CglpbnQgb3B0aW9ucyA9IDA7CglzdGF0aWMgc3RydWN0IHdhdGNoZG9nX2luZm8gaWRl
+bnQgPSB7CgkJaWRlbnRpdHk6ICJJWFA0MjUgV2F0Y2hkb2cgVGltZXIiLAoJCW9wdGlvbnM6IFdE
+SU9GX1NFVFRJTUVPVVQgfCBXRElPRl9LRUVQQUxJVkVQSU5HIHwgV0RJT0ZfQ0FSRFJFU0VULAoJ
+fTsKCglzd2l0Y2goY21kKXsKCWRlZmF1bHQ6CgkJcmV0dXJuIC1FTk9JT0NUTENNRDsKCWNhc2Ug
+V0RJT0NfR0VUU1VQUE9SVDoKCQlyZXR1cm4gY29weV90b191c2VyKChzdHJ1Y3Qgd2F0Y2hkb2df
+aW5mbyAqKWFyZywgJmlkZW50LCBzaXplb2YoaWRlbnQpKTsKCWNhc2UgV0RJT0NfR0VUU1RBVFVT
+OgoJCXJldHVybiBwdXRfdXNlcigwLChpbnQgKilhcmcpOwoJY2FzZSBXRElPQ19HRVRCT09UU1RB
+VFVTOgoJCXJldHVybiBwdXRfdXNlcigoKklYUDQyNV9PU1NUICYgMHgwMDAwMDAxMCkgPyBXRElP
+Rl9DQVJEUkVTRVQgOiAwLCAoaW50ICopYXJnKTsKCWNhc2UgV0RJT0NfR0VUVEVNUDoKCQlyZXR1
+cm4gLUVOT0lPQ1RMQ01EOwoJY2FzZSBXRElPQ19TRVRPUFRJT05TOgoJCWlmIChnZXRfdXNlcihv
+cHRpb25zLCAoaW50ICopYXJnKSkKCQkJcmV0dXJuIC1FRkFVTFQ7CgkJc3dpdGNoKG9wdGlvbnMp
+IHsKCQkJY2FzZSBXRElPU19ESVNBQkxFQ0FSRDoKCQkJCSpJWFA0MjVfT1NXSyA9IFRJTUVSX0tF
+WTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgkJCQkqSVhQNDI1X09TV0UgPSAw
+eDA7IAoJCQkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAq
+LwoJCQkJcmV0dXJuIDA7CgkJCWNhc2UgV0RJT1NfRU5BQkxFQ0FSRDoKCQkJCSpJWFA0MjVfT1NX
+SyA9IFRJTUVSX0tFWTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgkJCQkqSVhQ
+NDI1X09TV0UgPSAweDU7IAoJCQkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNo
+IGRvZyB0aW1lciAqLwoJCQkJcmV0dXJuIDA7CgkJCWRlZmF1bHQ6CQoJCQkJcmV0dXJuIC1FTk9J
+T0NUTENNRDsJCQoJCX0KCWNhc2UgV0RJT0NfU0VUVElNRU9VVDoKCQlpZiAoZ2V0X3VzZXIobmV3
+X21hcmdpbiwgKGludCAqKWFyZykpCgkJCXJldHVybiAtRUZBVUxUOwoJCWlmIChuZXdfbWFyZ2lu
+IDwgMSkKCQkJcmV0dXJuIC1FSU5WQUw7CgkJaXhwNDI1X21hcmdpbiA9IG5ld19tYXJnaW47CgkJ
+cHJlX21hcmdpbj1USU1FUl9GUkVRICogaXhwNDI1X21hcmdpbjsKCQkqSVhQNDI1X09TV0sgPSBU
+SU1FUl9LRVk7IAkvKiBVbmxvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJCSpJWFA0MjVfT1NX
+VCA9IHByZV9tYXJnaW47CgkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRv
+ZyB0aW1lciAqLwoJCXJldHVybiAwOwoJY2FzZSBXRElPQ19HRVRUSU1FT1VUOgoJCXB1dF91c2Vy
+KGl4cDQyNV9tYXJnaW4sIChpbnQgKilhcmcpOwoJCXJldHVybiAwOwoJY2FzZSBXRElPQ19LRUVQ
+QUxJVkU6CgkJKklYUDQyNV9PU1dLID0gVElNRVJfS0VZOyAJLyogVW5sb2NrIHRoZSB3YXRjaCBk
+b2cgdGltZXIgKi8KCQkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwoJCSpJWFA0MjVfT1NXSyA9
+IDA7CQkvKiBMb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCQlyZXR1cm4gMDsKCX0KfQoKc3Rh
+dGljIHN0cnVjdCBmaWxlX29wZXJhdGlvbnMgaXhwNDI1ZG9nX2ZvcHM9CnsKCW93bmVyOgkJVEhJ
+U19NT0RVTEUsCglyZWFkOgkJaXhwNDI1ZG9nX3JlYWQsCgl3cml0ZToJCWl4cDQyNWRvZ193cml0
+ZSwKCWlvY3RsOgkJaXhwNDI1ZG9nX2lvY3RsLAoJb3BlbjoJCWl4cDQyNWRvZ19vcGVuLAoJcmVs
+ZWFzZToJaXhwNDI1ZG9nX3JlbGVhc2UsCn07CgpzdGF0aWMgc3RydWN0IG1pc2NkZXZpY2UgaXhw
+NDI1ZG9nX21pc2NkZXY9CnsKCVdBVENIRE9HX01JTk9SLAoJIklYUDQyNSB3YXRjaGRvZyIsCgkm
+aXhwNDI1ZG9nX2ZvcHMKfTsKCnN0YXRpYyBpbnQgX19pbml0IGl4cDQyNWRvZ19pbml0KHZvaWQp
+CnsKCWludCByZXQ7CglkYmcoIldBVENIRE9HX01JTk9SID0gJWRcbiIsV0FUQ0hET0dfTUlOT1Ip
+OwoJcmV0ID0gbWlzY19yZWdpc3RlcigmaXhwNDI1ZG9nX21pc2NkZXYpOwoJZGJnKCJyZXQgb2Yg
+bWlzY19yZWdpc3RlcigpID0gJWRcbiIscmV0KTsJCglpZiAocmV0KQoJCXJldHVybiByZXQ7CgoJ
+ZGJnKCJ0aW1lciBtYXJnaW4gJWQgc2VjXG4iLCBpeHA0MjVfbWFyZ2luKTsKCglyZXR1cm4gMDsK
+fQoKc3RhdGljIHZvaWQgX19leGl0IGl4cDQyNWRvZ19leGl0KHZvaWQpCnsKCW1pc2NfZGVyZWdp
+c3RlcigmaXhwNDI1ZG9nX21pc2NkZXYpOwp9Cgptb2R1bGVfaW5pdChpeHA0MjVkb2dfaW5pdCk7
+Cm1vZHVsZV9leGl0KGl4cDQyNWRvZ19leGl0KTsKCk1PRFVMRV9BVVRIT1IoIlN0YW5lbHkgV2Fu
+ZyIpOwpNT0RVTEVfTElDRU5TRSgiR1BMIik7Ck1PRFVMRV9QQVJNKGl4cDQyNV9tYXJnaW4sImki
+KTsKTU9EVUxFX1BBUk1fREVTQyhpeHA0MjVfbWFyZ2luLCJJWFA0MjUgV2F0Y2hkb2cgVGltZXIn
+cyBleHBpcmluZyB0aW1lLiIpOwpNT0RVTEVfREVTQ1JJUFRJT04oIklYUDQyNSBXYXRjaGRvZyBU
+aW1lciBkcml2ZXIuIik7Ck1PRFVMRV9TVVBQT1JURURfREVWSUNFKCJJWENEUDExMDAgZGV2IGJv
+YXJkLiIpOwo=
+------=_Part_33034_3571341.1165223934791--

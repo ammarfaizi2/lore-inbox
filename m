@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937134AbWLDQtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937119AbWLDQu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937134AbWLDQtK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937131AbWLDQtK
+	id S937119AbWLDQu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 11:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937130AbWLDQu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:49:10 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:53012 "EHLO madara.hpl.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936880AbWLDQtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:49:06 -0500
-Date: Mon, 4 Dec 2006 08:46:44 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: perfmon@napali.hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, perfctr-devel@lists.sourceforge.net,
-       oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: 2.6.19 new perfmon code base + libpfm + pfmon
-Message-ID: <20061204164644.GO31914@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
+	Mon, 4 Dec 2006 11:50:58 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:60864 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S937119AbWLDQu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 11:50:57 -0500
+Subject: Re: [PATCH  v2 03/13] Provider Methods and Data Structures
+From: Steve Wise <swise@opengridcomputing.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <adaodqjip91.fsf@cisco.com>
+References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
+	 <20061202224947.27014.59189.stgit@dell3.ogc.int>
+	 <1165147639.3233.211.camel@laptopd505.fenrus.org>
+	 <1165249706.32724.35.camel@stevo-desktop>  <adaodqjip91.fsf@cisco.com>
+Content-Type: text/plain
+Date: Mon, 04 Dec 2006 10:50:48 -0600
+Message-Id: <1165251048.32724.37.camel@stevo-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2006-12-04 at 08:45 -0800, Roland Dreier wrote:
+>  > Roland, I think at one time we were talking about changing the Core to
+>  > better handle this?  Either with attributes/capabilities that the low
+>  > level driver can set, or by set these method ptrs to NULL and the core
+>  > should handle it in the wrapper function...
+> 
+> Yes, it would make sense to change the midlayer so we have different
+> sets of mandatory functions for IB and iWARP drivers.  For example,
+> the iwcm functions probably should be mandatory for iWARP devices, right?
+> 
 
-I have released another version of the perfmon new code base packages.
+Yes. The iWARP devices must all support the iwcm methods for sure.
 
-There is no major updates in this version compared to 061127. This is 
-a convenience release so that people can use plain 2.6.19.
 
-The perfmon2 kernel changes are:
-	- fix UP exit bug in system-wide mode where the active context
-	  accounting was done incorrectly.
-	- MIPS update to correct register hardware addresses (Phil Mucci)
 
-I have also released a new libpfm, libpfm-3.2-061204 with the
-following changes:
-	- updated MIPS processor detection code
-
-Also a new version of pfmon, pfmon-3.2-061204 with the following changes:
-	- fix various perfmon v2.0 compatibility bugs for IA-64
-	- fortify return values for read() (will Cohen)
-	
-Both libpfm and pfmon releases work with kernel-patch 061127 or 061204.
-
-You can grab the new packages at our web site:
-
-	 http://perfmon2.sf.net
-
-Enjoy,
-
--- 
--Stephane

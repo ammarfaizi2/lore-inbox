@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758522AbWLDWpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759766AbWLDWuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758522AbWLDWpO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 17:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759741AbWLDWpO
+	id S1759766AbWLDWuT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 17:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759769AbWLDWuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 17:45:14 -0500
-Received: from sp604001mt.neufgp.fr ([84.96.92.60]:54924 "EHLO Smtp.neuf.fr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1758522AbWLDWpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 17:45:12 -0500
-Date: Mon, 04 Dec 2006 23:45:28 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] SLAB : use a multiply instead of a divide in obj_to_index()
-In-reply-to: <20061204.135625.48528445.davem@davemloft.net>
-To: David Miller <davem@davemloft.net>
-Cc: akpm@osdl.org, clameter@sgi.com, linux-kernel@vger.kernel.org
-Message-id: <4574A508.1090805@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <200612041918.29682.dada1@cosmosbay.com>
- <20061204114954.165107b6.akpm@osdl.org> <45749465.6030601@cosmosbay.com>
- <20061204.135625.48528445.davem@davemloft.net>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Mon, 4 Dec 2006 17:50:18 -0500
+Received: from mga09.intel.com ([134.134.136.24]:11130 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759759AbWLDWuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 17:50:16 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,494,1157353200"; 
+   d="scan'208"; a="22968370:sNHT123880428"
+Date: Mon, 4 Dec 2006 14:50:17 -0800
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Prarit Bhargava <prarit@redhat.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Subject: [patch 3/3] acpi: Fix symbol conflict between acpiphp and dock
+Message-Id: <20061204145017.b5f558a3.kristen.c.accardi@intel.com>
+In-Reply-To: <20061204224037.713257809@localhost.localdomain>
+References: <20061204224037.713257809@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller a écrit :
-> From: Eric Dumazet <dada1@cosmosbay.com>
-> Date: Mon, 04 Dec 2006 22:34:29 +0100
-> 
->> On a 200 MHz sparcv9 machine, the division takes 64 cycles instead of 1 cycle
->> for a multiply.
-> 
-> For UltraSPARC I and II (which is what this 200mhz guy probably is),
-> it's 4 cycle latency for a multiply (32-bit or 64-bit) and 68 cycles
-> for a 64-bit divide (32-bit divide is 37 cycles).
+From: Prarit Bhargava <prarit@redhat.com>
 
-I must have Ultra-2 (running Solaris :( )
+Fix bug which will cause acpiphp to not be able to load when dock.ko
+cannot load.
 
-         for (ui = 0 ; ui < 100000000 ; ui++)
-                 val += reciprocal_divide(ui, reciproc);
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-    100000cb0:   83 31 20 00     srl  %g4, 0, %g1
-    100000cb4:   82 48 40 12     mulx  %g1, %l2, %g1
-    100000cb8:   83 30 70 20     srlx  %g1, 0x20, %g1
-    100000cbc:   88 01 20 01     inc  %g4
-    100000cc0:   80 a1 00 05     cmp  %g4, %g5
-    100000cc4:   08 4f ff fb     bleu  %icc, 100000cb0
-    100000cc8:   b0 06 00 01     add  %i0, %g1, %i0
+---
+ drivers/acpi/dock.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-I confirm that this block uses 20 cycles/iteration,
-while next one uses 72 cycles/iteration
+--- kristen-2.6.orig/drivers/acpi/dock.c
++++ kristen-2.6/drivers/acpi/dock.c
+@@ -443,6 +443,9 @@ static int dock_in_progress(struct dock_
+  */
+ int register_dock_notifier(struct notifier_block *nb)
+ {
++	if (!dock_station)
++		return -ENODEV;
++
+ 	return atomic_notifier_chain_register(&dock_notifier_list, nb);
+ }
+ 
+@@ -454,6 +457,9 @@ EXPORT_SYMBOL_GPL(register_dock_notifier
+  */
+ void unregister_dock_notifier(struct notifier_block *nb)
+ {
++	if (!dock_station)
++		return;
++
+ 	atomic_notifier_chain_unregister(&dock_notifier_list, nb);
+ }
+ 
+@@ -806,7 +812,7 @@ static int __init dock_init(void)
+ 			    ACPI_UINT32_MAX, find_dock, &num, NULL);
+ 
+ 	if (!num)
+-		return -ENODEV;
++		printk(KERN_INFO "No dock devices found.\n");
+ 
+ 	return 0;
+ }
 
-         for (ui = 0 ; ui < 100000000 ; ui++)
-                 val += ui / value;
-
-    100000ca8:   83 31 20 00     srl  %g4, 0, %g1
-    100000cac:   82 68 40 11     udivx  %g1, %l1, %g1
-    100000cb0:   88 01 20 01     inc  %g4
-    100000cb4:   80 a1 00 05     cmp  %g4, %g5
-    100000cb8:   08 4f ff fc     bleu  %icc, 100000ca8
-    100000cbc:   b0 06 00 01     add  %i0, %g1, %i0
-
-
-> 
-> UltraSPARC-III and IV are worse, 6 cycles for multiply and 40/71
-> cycles (32/64-bit) for integer divides.
-> 
-> Niagara is even worse :-)  11 cycle integer multiply and a 72 cycle
-> integer divide (regardless of 32-bit or 64-bit).
-> 
-> (more details in gcc/config/sparc/sparc.c:{ultrasparc,ultrasparc3,niagara}_cost).
-> 
-> So this change has tons of merit for sparc64 chips at least :-)
-> 
-> Also, the multiply can parallelize with other operations but it
-> seems that integer divide stalls the pipe for most of the duration
-> of the calculation.  So this makes the divide even worse.
-
-
+--

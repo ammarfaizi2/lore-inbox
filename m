@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936958AbWLDO4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936971AbWLDO6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936958AbWLDO4H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936965AbWLDO4G
+	id S936971AbWLDO6H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936964AbWLDO5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:56:06 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:46519 "EHLO
-	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936958AbWLDOzt (ORCPT
+	Mon, 4 Dec 2006 09:57:36 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:6309 "EHLO
+	mtagate6.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936973AbWLDO52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:55:49 -0500
-Date: Mon, 4 Dec 2006 15:55:39 +0100
+	Mon, 4 Dec 2006 09:57:28 -0500
+Date: Mon, 4 Dec 2006 15:57:24 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] lockdep: show held locks when showing a stackdump
-Message-ID: <20061204145539.GY32059@skybase>
+To: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
+Subject: [S390] cio: Use device_reprobe() instead of bus_rescan_devices().
+Message-ID: <20061204145724.GG32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,41 +22,42 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-[S390] lockdep: show held locks when showing a stackdump
+[S390] cio: Use device_reprobe() instead of bus_rescan_devices().
 
-Follow i386/x86_64:
-lockdep can be used to print held locks when printing a
-backtrace. This can be useful when debugging things like
-'scheduling while atomic' asserts.
+In io_subchannel_register(), it is better to just reprobe the current
+device if it hasn't a driver yet than to rescan the whole bus.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/traps.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/s390/cio/device.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/traps.c linux-2.6-patched/arch/s390/kernel/traps.c
---- linux-2.6/arch/s390/kernel/traps.c	2006-12-04 14:50:55.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/traps.c	2006-12-04 14:50:57.000000000 +0100
-@@ -129,7 +129,7 @@ __show_trace(unsigned long sp, unsigned 
+diff -urpN linux-2.6/drivers/s390/cio/device.c linux-2.6-patched/drivers/s390/cio/device.c
+--- linux-2.6/drivers/s390/cio/device.c	2006-12-04 14:51:06.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/device.c	2006-12-04 14:51:06.000000000 +0100
+@@ -687,8 +687,20 @@ io_subchannel_register(void *data)
+ 	cdev = data;
+ 	sch = to_subchannel(cdev->dev.parent);
+ 
++	/*
++	 * io_subchannel_register() will also be called after device
++	 * recognition has been done for a boxed device (which will already
++	 * be registered). We need to reprobe since we may now have sense id
++	 * information.
++	 */
+ 	if (klist_node_attached(&cdev->dev.knode_parent)) {
+-		bus_rescan_devices(&ccw_bus_type);
++		if (!cdev->drv) {
++			ret = device_reprobe(&cdev->dev);
++			if (ret)
++				/* We can't do much here. */
++				dev_info(&cdev->dev, "device_reprobe() returned"
++					 " %d\n", ret);
++		}
+ 		goto out;
  	}
- }
- 
--void show_trace(struct task_struct *task, unsigned long * stack)
-+void show_trace(struct task_struct *task, unsigned long *stack)
- {
- 	register unsigned long __r15 asm ("15");
- 	unsigned long sp;
-@@ -151,6 +151,9 @@ void show_trace(struct task_struct *task
- 		__show_trace(sp, S390_lowcore.thread_info,
- 			     S390_lowcore.thread_info + THREAD_SIZE);
- 	printk("\n");
-+	if (!task)
-+		task = current;
-+	debug_show_held_locks(task);
- }
- 
- void show_stack(struct task_struct *task, unsigned long *sp)
+ 	/* make it known to the system */

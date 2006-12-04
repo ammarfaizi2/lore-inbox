@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937037AbWLDQEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937055AbWLDQGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937037AbWLDQEa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 11:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937053AbWLDQEa
+	id S937055AbWLDQGq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 11:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937053AbWLDQGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 11:04:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2752 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S937037AbWLDQEa (ORCPT
+	Mon, 4 Dec 2006 11:06:46 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:60391 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S937055AbWLDQGp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 11:04:30 -0500
-Date: Mon, 4 Dec 2006 17:04:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: George Talusan <gstalusan@uwaterloo.ca>, perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: sound/isa/cmi8330.c: dead ENABLE_SB_MIXER code
-Message-ID: <20061204160434.GF30290@stusta.de>
+	Mon, 4 Dec 2006 11:06:45 -0500
+Date: Mon, 4 Dec 2006 11:06:41 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: Oliver Neukum <oliver@neukum.org>, <gregkh@suse.com>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: race in sysfs between sysfs_remove_file() and read()/write() #2
+In-Reply-To: <20061204130406.GA2314@in.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0612041101410.3606-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In sound/isa/cmi8330.c, the ENABLE_SB_MIXER code is currently never 
-used.
+On Mon, 4 Dec 2006, Maneesh Soni wrote:
 
-What's the story behind this?
-Should ENABLE_SB_MIXER be enabled?
-Or the code be removed?
+> hmm, I guess Greg has to say the final word. The question is either to fail
+> the IO (-ENODEV) or fail the file removal (-EBUSY). If we are not going to
+> fail the removal then your patch is the way to go.
+> 
+> Greg?
 
-cu
-Adrian
+Oliver is right that we cannot allow device_remove_file() to fail.  In 
+fact we can't even allow it to block until all the existing open file 
+references are closed.
 
--- 
+Our major questions have to do with the details of the patch itself.  In 
+particular, we are worried about possible races with the VFS and the 
+handling of the inode's usage count.  Can you examine the patch carefully 
+to see if it is okay?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Also, Oliver, it looks like the latest version of your patch makes an 
+unnecessary change to sysfs_remove_file().
+
+Alan Stern
 

@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966979AbWLDUhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966975AbWLDUhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966979AbWLDUhf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966980AbWLDUhf
+	id S966975AbWLDUhN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966980AbWLDUhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:37:35 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:22384 "EHLO
-	amsfep13-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S966979AbWLDUhe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:37:34 -0500
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
-	may be migrated
-From: Peter Zijlstra <peter@programming.kicks-ass.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mel Gorman <mel@skynet.ie>, clameter@sgi.com,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <20061204113051.4e90b249.akpm@osdl.org>
-References: <20061130170746.GA11363@skynet.ie>
-	 <20061130173129.4ebccaa2.akpm@osdl.org>
-	 <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-	 <20061201110103.08d0cf3d.akpm@osdl.org> <20061204140747.GA21662@skynet.ie>
-	 <20061204113051.4e90b249.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 04 Dec 2006 21:37:20 +0100
-Message-Id: <1165264640.23363.18.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Mon, 4 Dec 2006 15:37:13 -0500
+Received: from mga02.intel.com ([134.134.136.20]:26892 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S966975AbWLDUhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:37:11 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,494,1157353200"; 
+   d="scan'208"; a="170081931:sNHT3482351509"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Jens Axboe'" <jens.axboe@oracle.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] speed up single bio_vec allocation
+Date: Mon, 4 Dec 2006 12:36:56 -0800
+Message-ID: <000601c717e3$f098a8a0$2589030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccX36pXZLGai6tdTpCUApdBEeUGQgAAq4og
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20061204200645.GN4392@kernel.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-12-04 at 11:30 -0800, Andrew Morton wrote:
+Jens Axboe wrote on Monday, December 04, 2006 12:07 PM
+> On Mon, Dec 04 2006, Chen, Kenneth W wrote:
+> > On 64-bit arch like x86_64, struct bio is 104 byte.  Since bio slab is
+> > created with SLAB_HWCACHE_ALIGN flag, there are usually spare memory
+> > available at the end of bio.  I think we can utilize that memory for
+> > bio_vec allocation.  The purpose is not so much on saving memory consumption
+> > for bio_vec, instead, I'm attempting to optimize away a call to bvec_alloc_bs.
+> > 
+> > So here is a patch to do just that for 1 segment bio_vec (we currently only
+> > have space for 1 on 2.6.19).  And the detection whether there are spare space
+> > available is dynamically calculated at compile time.  If there are no space
+> > available, there will be no run time cost at all because gcc simply optimize
+> > away all the code added in this patch.  If there are space available, the only
+> > run time check is to see what the size of iovec is and we do appropriate
+> > assignment to bio->bi_io_Vec etc.  The cost is minimal and we gain a whole
+> > lot back from not calling bvec_alloc_bs() function.
+> > 
+> > I tried to use cache_line_size() to find out the alignment of struct bio, but
+> > stumbled on that it is a runtime function for x86_64. So instead I made bio
+> > to hint to the slab allocator to align on 32 byte (slab will use the larger
+> > value of hw cache line and caller hints of "align").  I think it is a sane
+> > number for majority of the CPUs out in the world.
+> 
+> Any benchmarks for this one?
 
-> I'd also like to pin down the situation with lumpy-reclaim versus
-> anti-fragmentation.  No offence, but I would of course prefer to avoid
-> merging the anti-frag patches simply based on their stupendous size.  It
-> seems to me that lumpy-reclaim is suitable for the e1000 problem, but
-> perhaps not for the hugetlbpage problem.  Whereas anti-fragmentation adds
-> vastly more code, but can address both problems?  Or something.
+About 0.2% on database transaction processing benchmark.  It was done a while
+back on top of a major Linux vendor kernel. I will retest it again for 2.6.19.
 
->From my understanding they complement each other nicely. Without some
-form of anti fragmentation there is no guarantee lumpy reclaim will ever
-free really high order pages. Although it might succeed nicely for the
-network sized allocations we now have problems with.
 
-- Andy, do you have any number on non largepage order allocations? 
+> [...]
+> 
+> Another idea would be to kill SLAB_HWCACHE_ALIGN (it's pretty pointless,
+> I bet), and always alloc sizeof(*bio) + sizeof(*bvl) in one go when a
+> bio is allocated. It doesn't add a lot of overhead even for the case
+> where we do > 1 page bios, and it gets rid of the dual allocation for
+> the 1 page bio.
 
-But anti fragmentation as per Mel's patches is not good enough to
-provide largepage allocations since we would need to shoot down most of
-the LRU to obtain such a large contiguous area. Lumpy reclaim however
-can quickly achieve these sizes.
+I will try that too.  I'm a bit touchy about sharing a cache line for different
+bio.  But given that there are 200,000 I/O per second we are currently pushing
+the kernel, the chances of two cpu working on two bio that sits in the same
+cache line are pretty small.
 
+- Ken

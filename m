@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937019AbWLDP3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937016AbWLDP3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937019AbWLDP3W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 10:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937018AbWLDP3V
+	id S937016AbWLDP3A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 10:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937017AbWLDP3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 10:29:21 -0500
-Received: from il.qumranet.com ([62.219.232.206]:44566 "EHLO il.qumranet.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937020AbWLDP3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 10:29:20 -0500
-Message-ID: <45743ECD.9050105@qumranet.com>
-Date: Mon, 04 Dec 2006 17:29:17 +0200
-From: Avi Kivity <avi@qumranet.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: "Renato S. Yamane" <renatoyamane@mandic.com.br>
-CC: kvm-devel@lists.sourceforge.net, akpm@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KVM: mmu: honor global bit on huge pages
-References: <20061204145735.89391A0016@il.qumranet.com> <45743E0C.6090705@mandic.com.br>
-In-Reply-To: <45743E0C.6090705@mandic.com.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Dec 2006 10:29:00 -0500
+Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:37018 "HELO sapo.pt"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S937016AbWLDP27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 10:28:59 -0500
+X-AntiVirus: PTMail-AV 0.3-0.88.6
+Subject: 100000 interrupts problem Re: linux 2.6.19 still crashing
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4573CFBB.1030107@dungeon.inka.de>
+References: <4571AFED.8060200@dungeon.inka.de>
+	 <1165200588.9189.1.camel@monteirov>  <4573CFBB.1030107@dungeon.inka.de>
+Content-Type: text/plain; charset=utf-8
+Date: Mon, 04 Dec 2006 15:28:59 +0000
+Message-Id: <1165246139.4546.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Renato S. Yamane wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Em 04-12-2006 12:57, Avi Kivity escreveu:
->   
->> The kvm mmu attempts to cache global translations, however it misses on
->> global huge page translation (which is what most global pages are).
->>
->> By caching global huge page translations, boot time of fc5 i386 on i386
->> is reduced from ~35 seconds to ~24 seconds.
->>     
->
-> I try use this patch in Kernel 2.6.19-git5, but I receive an error message:
->
-> /linux-2.6.19# patch -p1 < /home/yamane/Desktop/kernel/kvm.patch
-> can't find file to patch at input line 3
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this was:
-> - --------------------------
-> |--- linux-2.6.orig/drivers/kvm/paging_tmpl.h
-> |+++ linux-2.6/drivers/kvm/paging_tmpl.h
-> - --------------------------
-> File to patch:
->
-> Whats wrong? :-(
->   
+On Mon, 2006-12-04 at 08:35 +0100, Andreas Jellinghaus wrote:
+> or I can send you the kernel patch as file and the xen hypervisor:
+> -rw-r--r-- 1 root root  244694 2006-04-19 12:14 /boot/xen-3.0.2-2.gz
+> -rw-r--r-- 1 root root  604942 2006-04-19 12:14 
+> /usr/src/kernel-patches/diffs/xen/linux-2.6.16-xen.patch.gz
+> 
+> it applies clean against 2.6.16, but if with 2.6.16.31 I had
+> to manually fix two rejects. 
 
-This patch is for kvm, which lives in the -mm kernel.  Apply the latest 
--mm patch first.
+Send me this (patches) please I like to try it, I work with rpms , so
+don't send me debs.
 
+yesterday, I had try 2.6.19-rt1
+( http://people.redhat.com/mingo/realtime-preempt/ )
+which don't show the 100000 interrupts problem anymore, but was just a
+preliminary test.
 
--- 
-error compiling committee.c: too many arguments to function
+Thanks,
+--
+Sérgio M. B. 
+  
 

@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937286AbWLDTBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937291AbWLDTBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937286AbWLDTBb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 14:01:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937288AbWLDTBb
+	id S937291AbWLDTBt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 14:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937294AbWLDTBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 14:01:31 -0500
-Received: from [212.33.163.154] ([212.33.163.154]:33086 "EHLO
-	localhost.localdomain" rhost-flags-FAIL-??-OK-FAIL) by vger.kernel.org
-	with ESMTP id S937286AbWLDTBa (ORCPT
+	Mon, 4 Dec 2006 14:01:49 -0500
+Received: from torrent.CC.McGill.CA ([132.206.27.49]:46274 "EHLO
+	torrent.cc.mcgill.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937291AbWLDTBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 14:01:30 -0500
-From: Al Boldi <a1426z@gawab.com>
+	Mon, 4 Dec 2006 14:01:47 -0500
+Subject: hda-intel broken under 2.6.19
+From: David Ronis <ronis@ronispc.chem.mcgill.ca>
+Reply-To: David.Ronis@mcgill.ca
 To: linux-kernel@vger.kernel.org
-Subject: Re: la la la la ... swappiness
-Date: Mon, 4 Dec 2006 22:02:17 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Cc: linux-sound@vger.kernel.org
+Content-Type: text/plain
+Organization: Chemistry Department, McGill University
+Date: Mon, 04 Dec 2006 14:01:34 -0500
+Message-Id: <1165258894.5776.9.camel@ronispc.chem.mcgill.ca>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612042202.17200.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a workaround try this:
+I've just upgraded a i686 dual box from 2.6.18.3 to 2.6.19 on a .  (I
+had been running ALSA 1.0.13.rc3 and also upgraded to the release for
+for library and utility programs).  The hda-intel driver had problems
+with initializing the mic (e.g., using skype for linux), but played
+sound properly.  Since upgrading, that no longer works (e.g, using aplay
+or mpg123).
 
-echo 2 > /proc/sys/vm/overcommit_memory
-echo 0 > /proc/sys/vm/overcommit_ratio
+I've reconfigured alsa, and upgraded the libs and utils to the 1.0.13
+release.
 
-Hopefully someone can fix this intrinsic swap before drop behaviour.
+Anybody else have this problem?  Any suggestions?
+
+David
 
 
-Thanks!
-
---
-Al
 

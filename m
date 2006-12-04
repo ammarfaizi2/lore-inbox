@@ -1,98 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937406AbWLDWXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937439AbWLDWek@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937406AbWLDWXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 17:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937422AbWLDWXT
+	id S937439AbWLDWek (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 17:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937440AbWLDWek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 17:23:19 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:42002 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937406AbWLDWXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 17:23:18 -0500
-Date: Mon, 4 Dec 2006 14:22:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Mel Gorman <mel@skynet.ie>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-Message-Id: <20061204142259.3cdda664.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com>
-References: <20061130170746.GA11363@skynet.ie>
-	<20061130173129.4ebccaa2.akpm@osdl.org>
-	<Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-	<20061201110103.08d0cf3d.akpm@osdl.org>
-	<20061204140747.GA21662@skynet.ie>
-	<20061204113051.4e90b249.akpm@osdl.org>
-	<Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com>
-	<20061204120611.4306024e.akpm@osdl.org>
-	<Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com>
-	<20061204131959.bdeeee41.akpm@osdl.org>
-	<Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 4 Dec 2006 17:34:40 -0500
+Received: from MAIL.13thfloor.at ([213.145.232.33]:39487 "EHLO
+	MAIL.13thfloor.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937439AbWLDWej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 17:34:39 -0500
+Date: Mon, 4 Dec 2006 23:32:48 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Containers <containers@lists.osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix linux banner utsname information
+Message-ID: <20061204223248.GA31399@MAIL.13thfloor.at>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Containers <containers@lists.osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <m1hcwlmqmp.fsf@ebiederm.dsl.xmission.com> <20061127202211.GB26108@MAIL.13thfloor.at> <m1y7pwldi4.fsf@ebiederm.dsl.xmission.com> <20061128143250.GA23131@MAIL.13thfloor.at> <m1y7pvinta.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1y7pvinta.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 13:43:44 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
 
-> On Mon, 4 Dec 2006, Andrew Morton wrote:
-> 
-> > What happens when we need to run reclaim against just a section of a zone?
-> > Lumpy-reclaim could be used here; perhaps that's Mel's approach too?
-> 
-> Why would we run reclaim against a section of a zone?
+utsname information is shown in the linux banner, which
+also is used for /proc/version (which can have different
+utsname values inside a uts namespaces). this patch
+makes the varying data arguments and changes the string
+to a format string, using those arguments.
 
-Strange question.  Because all the pages are in use for something else.
+best,
+Herbert
 
-> > We'd need new infrastructure to perform the
-> > section-of-a-zone<->physical-memory-block mapping, and to track various
-> > states of the section-of-a-zone.  This will be complex, and buggy.  It will
-> > probably require the introduction of some sort of "sub-zone" structure.  At
-> > which stage people would be justified in asking "why didn't you just use
-> > zones - that's what they're for?"
-> 
-> Mel aready has that for anti-frag. The sections are per MAX_ORDER area 
-> and the only states are movable unmovable and reclaimable. There is 
-> nothing more to it. No other state information should be added. Why would 
-> we need sub zones? For what purpose?
+Signed-off-by: Herbert Poetzl <herbert@13thfloor.at>
 
-You're proposing that for memory hot-unplug, we take a single zone and by
-some means subdivide that into sections which correspond to physically
-hot-unpluggable memory.  That certainly does not map onto MAX_ORDER
-sections.
-
-> > > Then we should be doing some work to cut down the number of unmovable 
-> > > allocations.
-> > 
-> > That's rather pointless.  A feature is either reliable or it is not.  We'll
-> > never be able to make all kernel allocations reclaimable/moveable so we'll
-> > never be reliable with this approach.  I don't see any alternative to the
-> > never-allocate-kernel-objects-in-removeable-memory approach.  
-> 
-> What feature are you talking about?
-
-Memory hot-unplug, of course.
-
-> Why would all allocations need to be movable when we have a portion for 
-> unmovable allocations?
-
-So you're proposing that we take a single zone, then divide that zone up
-into two sections.  One section is non-hot-unpluggable and is for
-un-moveable allocations.  The other section is hot-unpluggable and only
-moveable allocations may be performed there.
-
-If so, then this will require addition of new infrastructure which will be
-to some extent duplicative of zones and I see no reason to do that: it'd be
-simpler to divide the physical memory arena into two separate zones.
-
-If that is not what you are proposing then please tell us what you are
-proposing, completely, and with sufficient detail for us to work out what
-the heck you're trying to tell us.  Please try to avoid uninformative
-rhetorical questions, for they are starting to get quite irritating. 
-Thanks.
-
+--- linux-2.6.19/fs/proc/proc_misc.c	2006-11-30 21:19:28 +0100
++++ linux-2.6.19/fs/proc/proc_misc.c	2006-12-04 07:16:28 +0100
+@@ -252,8 +252,8 @@ static int version_read_proc(char *page,
+ {
+ 	int len;
+ 
+-	strcpy(page, linux_banner);
+-	len = strlen(page);
++	len = sprintf(page, linux_banner,
++		utsname()->release, utsname()->version);
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+ 
+--- linux-2.6.19/init/main.c	2006-11-30 21:19:43 +0100
++++ linux-2.6.19/init/main.c	2006-12-04 07:18:44 +0100
+@@ -501,7 +501,7 @@ asmlinkage void __init start_kernel(void
+ 	boot_cpu_init();
+ 	page_address_init();
+ 	printk(KERN_NOTICE);
+-	printk(linux_banner);
++	printk(linux_banner, UTS_RELEASE, UTS_VERSION);
+ 	setup_arch(&command_line);
+ 	unwind_setup();
+ 	setup_per_cpu_areas();
+--- linux-2.6.19/init/version.c	2006-11-30 21:19:43 +0100
++++ linux-2.6.19/init/version.c	2006-12-04 07:14:19 +0100
+@@ -35,5 +35,6 @@ struct uts_namespace init_uts_ns = {
+ EXPORT_SYMBOL_GPL(init_uts_ns);
+ 
+ const char linux_banner[] =
+-	"Linux version " UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+-	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION "\n";
++	"Linux version %s (" LINUX_COMPILE_BY "@"
++	LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") %s\n";
++

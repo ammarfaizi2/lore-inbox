@@ -1,70 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759057AbWLDMGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936183AbWLDMQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759057AbWLDMGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 07:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759031AbWLDMGx
+	id S936183AbWLDMQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 07:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936178AbWLDMQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 07:06:53 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:26592 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S936182AbWLDMGx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 07:06:53 -0500
-Message-Id: <200612041206.kB4C61ia004849@laptop13.inf.utfsm.cl>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Bela Lubkin <blubkin@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       Corey Minyard <minyard@acm.org>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Joseph Barnett <jbarnett@motorola.com>
-Subject: Re: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff 
-In-Reply-To: Message from Randy Dunlap <randy.dunlap@oracle.com> 
-   of "Sun, 03 Dec 2006 20:01:56 -0800." <45739DB4.6000806@oracle.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Mon, 04 Dec 2006 09:06:01 -0300
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 04 Dec 2006 09:06:02 -0300 (CLST)
+	Mon, 4 Dec 2006 07:16:33 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:9997 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S936183AbWLDMQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 07:16:32 -0500
+Date: Mon, 4 Dec 2006 12:16:18 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Roman Zippel <zippel@linux-m68k.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] timers, pointers to functions and type safety
+Message-ID: <20061204121618.GB17507@flint.arm.linux.org.uk>
+Mail-Followup-To: David Howells <dhowells@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Roman Zippel <zippel@linux-m68k.org>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20061201172149.GC3078@ftp.linux.org.uk> <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home> <20061203102108.GA1724@elf.ucw.cz> <26864.1165230869@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26864.1165230869@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap <randy.dunlap@oracle.com> wrote:
-> Bela Lubkin wrote:
-> > Andrew Morton wrote:
-> >
-> >>> Sometime, please go through the IPMI code looking for all these
-> >>> statically-allocated things which are initialised to 0 or NULL and remove
-> >>> all those intialisations?  They're unneeded, they increase the vmlinux
-> >>> image size and there are quite a number of them.  Thanks.
-> > Randy Dunlop replied:
-> >
-> >> I was just about to send that patch.  Here it is,
-> >> on top of the series-of-12.
-> > ...
-> >> -static int bt_debug = BT_DEBUG_OFF;
-> >> +static int bt_debug;
-> > Is it wise to significantly degrade code readability to work around
-> > a minor
-> > compiler / linker bug?
+On Mon, Dec 04, 2006 at 11:14:29AM +0000, David Howells wrote:
+> All it generally takes is two instances of a timer_list struct that use one
+> common handler function for the removal of the data member from the timer_list
+> to be a win on pretty much every platform.
 > 
-> Is that the only one that is a problem?
+> Consider: you replace:
 > 
-> I don't think it's a problem.  We *know* that static data areas
-> are init to 0.  Everything depends on that.  If that didn't work
-> it would all break.
+> 	struct timer_list {
+> 		void (*func)(unsigned long data);
+> 		unsigned long data;
+> 	};
+> 
+> 	void handler(unsigned long data)
+> 	{
+> 		struct *foo = (struct foo *) data;
+> 		...
+> 	}
+> 
+> with:
+> 
+> 	struct timer_list {
+> 		void (*func)(struct timer_list *timer);
+> 		unsigned long data;
 
-Right. And we know NULL == 0.
+I assume you wanted to delete "data" ?
 
-> I could say that it's a nice coincidence that BT_DEBUG_OFF == 0,
-> but I think that it's more than coincidence.
+> 	};
+> 
+> 	void handler(struct timer_list *timer)
+> 	{
+> 		struct *foo = container_of(timer, struct foo, mytimer);
+> 		...
+> 	}
 
-I'd have had to look over the code to find out what it was initialized
-to. In cases where it is not an explicit 0/NULL, I'd leave it as is. It
-could also break if somebody later on changes the value of BT_DEBUG_OFF
-(yes, very unlikely, but...).
+Your premise is two timer_lists which use one common handler.
 
-Bug your friendly GCC guy to loose static initializations to zero
-(shouldn't be /that/ hard to do...) instead of obfuscating kernel's code.
+	struct foo {
+		struct timer_list timer1;
+		strucr timer_list timer2;
+	};
+
+would preclude using a common handler for both timers.  You need two
+separate handlers, one which knows the offset of timer1 and the other
+the offset of timer2.
+
+In this case, you are removing 2 * sizeof(unsigned long) from struct
+foo, but you're adding a two add/sub instructions to each handler,
+but worse than that, this would force two veneer handlers to call the
+common handler.
+
+The point here is that we can all dream up cases where some particular
+way is a win or not.  Whether it really _is_ a win depends on the uses
+in the kernel.
+
+The only real way to find that out is to try it.  Generate a patch.
+Build it.  See what happens to the kernel code and data sizes.
+
+I strongly suggest that we do that rather than speculating. 8)  Words
+(and emails) are cheap but in the end are not really constructive.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

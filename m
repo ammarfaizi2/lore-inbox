@@ -1,189 +1,279 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759865AbWLDJS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759871AbWLDJTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759865AbWLDJS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 04:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759870AbWLDJS4
+	id S1759871AbWLDJTt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 04:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759874AbWLDJTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 04:18:56 -0500
-Received: from nz-out-0506.google.com ([64.233.162.239]:56029 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1759865AbWLDJSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 04:18:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=hqyO20VeqmMBWa1bp8NAIwe1EE1wm9jSDm3HGHCCeY43aZXf9B7bmfQIQmoTOwWkK10QXZcqLJwaaWqNaEU7GJBgP0NUEStmcgZpVxW81enKd1HCMtkNrZj3N5L4ywTqDS2TNzCX6+uFtpgAxzqzWI2oGiJKaWUFgjjKvR+zQ5s=
-Message-ID: <85e7c2fc0612040118r36f3ff9cw82a93ac2b7b53ad8@mail.gmail.com>
-Date: Mon, 4 Dec 2006 17:18:54 +0800
-From: "zhang bob" <zhanglinbao@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: About watch dog timer limit of CPU (Xscale ->IXP425) How can I set more long time ?
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_33034_3571341.1165223934791"
+	Mon, 4 Dec 2006 04:19:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40086 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1759875AbWLDJTs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 04:19:48 -0500
+Subject: Re: [GFS2] Shrink gfs2_inode (5) - di_nlink [25/70]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Russell Cattelan <cattelan@thebarn.com>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1164996843.1194.48.camel@xenon.msp.redhat.com>
+References: <1164888978.3752.354.camel@quoit.chygwyn.com>
+	 <1164996843.1194.48.camel@xenon.msp.redhat.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 04 Dec 2006 09:21:52 +0000
+Message-Id: <1165224112.3752.570.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_33034_3571341.1165223934791
-Content-Type: text/plain; charset=GB2312; format=flowed
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+Hi,
 
-SGVsbG8gYWxsICwKCiAgICBNeSBlbWJlZGVkIGJvYXJkIGhhcmR3YXJlIGNvbmZpZ3VyYXRpb24g
-aXMgbGlrZSB0aGlzIDoKIyBjYXQgL3Byb2MvY3B1aW5mbwpQcm9jZXNzb3IgICAgICAgOiBYU2Nh
-bGUtSVhQNDI1L0lYQzExMDAgcmV2IDEgKHY1YikKQm9nb01JUFMgICAgICAgIDogMjY2LjI0CkZl
-YXR1cmVzICAgICAgICA6IHN3cCBoYWxmIHRodW1iIGZhc3RtdWx0IGVkc3AKCkhhcmR3YXJlICAg
-ICAgICA6IEludGVsIElYRFA0MjUgRGV2ZWxvcG1lbnQgUGxhdGZvcm0KUmV2aXNpb24gICAgICAg
-IDogMDAwMApTZXJpYWwgICAgICAgICAgOiAwMDAwMDAwMDAwMDAwMDAwCgpUaHJvdWdoIHJlYWRp
-bmcgZGF0YXNoZWV0IG9mIGl4cDR4eCAsSSBrbm93IGl0IGhhcyBvd24gd2F0Y2hkb2cgZnVuY3Rp
-b25zICwKcGxlYXNlIHNlZSBhdHRjaG1lbnQgOjE1IFRpbWVyCgpJIGZpbmQgYSBkcml2ZXIgYnkg
-Z29vbGUgLApzZWUgYXR0YWNobWVudCAuCgoKV2F0Y2hkb2cgdGltZXIgY291bnRlciBpcyAzMiBi
-aXQgcmVnaXN0ZXIgLCBpdHMgbWF4IHZhbHVlIGlzIDI8PDMyIC0xCgojZGVmaW5lIFRJTUVSX0ZS
-RVEgNjYwMDAwMDAgLyogNjYgTUhaIHRpbWVyICovCiNkZWZpbmUgVElNRVJfS0VZIDB4NDgyZQoj
-ZGVmaW5lIFRJTUVSX01BUkdJTiA2MCAgLyogKHNlY3MpIERlZmF1bHQgaXMgMSBtaW51dGUgKi8K
-Ly9JIHdhbnQgdG8gbW9kaWZ5IGl0ICxJIGZpbmQgaXRzIG1heCB2YWx1ZSBpcyA2NQoKc3RhdGlj
-IGludCBpeHA0MjVfbWFyZ2luID0gVElNRVJfTUFSR0lOOyAvKiBpbiBzZWNvbmRzICovCnN0YXRp
-YyBpbnQgaXhwNDI1d2R0X3VzZXJzOwovL3N0YXRpYyBpbnQgcHJlX21hcmdpbjsgIC8vSVhQNDI1
-IENQVSAncyB3YXRjaCBkb2cgdGltZXIgaXMgMzIgYml0ICwKLy9zbyBJIGRlZmluZSBpdCB0byBi
-ZSB1bnNpZ25lZCBpbnQgLS1ib2IKc3RhdGljIHVuc2lnbmVkIGludCBwcmVfbWFyZ2luOwpwcmVf
-bWFyZ2luID0gVElNRVJfRlJFUSAqICBUSU1FUl9NQVJHSU4KKklYUDQyNV9PU1dUID0gcHJlX21h
-cmdpbjsKCmlmIEkgbmVlZCBvbmUgbWludXRlcyAsCipJWFA0MjVfT1NXVCA9IDY2MDAwMDAwICog
-NjAgPSAgMzk2MDAwMDAwICAsbm90IG92ZXJmbG93CgppZiBJIG5lZWQgdHdvIG1pbnV0ZXMgLAoq
-SVhQNDI1X09TV1QgPSA2NjAwMDAwMCAqIDEyMCA9IDc5MjAwMDAwMCAgKCB3aGljaCBoYXMgYmVl
-biA+ICAyPDwzMi0xCiAsIG92ZXJmbG93CgpTbyBJIGNvbXB1dGUgdGhlIG1heCB0aW1lIEkgY2Fu
-IHNldCA6CiBUX21heCA9IDI8PDMyLTEgLyA2NjAwMDAwMCAgICA9ICA2NSBzZWNvbmRzIKGjCgoK
-LS0tLS0tLS0tLS0tLS0tLS0tLS0KTXkgcXVlc3Rpb246CgppZiBuZWVkIG1vcmUgc2Vjb25kcyAo
-IGZvciBleGFtcGxlICwgNSBtaW51dGVzICkgLHdoYXQgc2hvdWxkIEkgZG8gPwoKSSBoYXZlIGEg
-bWV0aG9kIGJhc2VkIG9uIGRhdGFzaGVldCAoaXhwNHh4KSAsYnV0IEkgZG9uJ3Qga25vdyBpZiBp
-dAp3aWxsIHN1Y2Nlc3NlZCB3aGVuIHN5c3RlbSBjcmFzaAoKSG93IGNhbiBJIGRvIHRvIGJyZWFr
-IHRoZSBsaW1pdCBvZiBoYXJkd2FyZSA/ClRoYW5rcyBhaGVhZCAhCgotLQpCZXN0IFJlZ2FyZHMK
-Ym9iCg==
-------=_Part_33034_3571341.1165223934791
-Content-Type: application/octet-stream; name=ixp425_wdt.c
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_evao7dqn
-Content-Disposition: attachment; filename="ixp425_wdt.c"
+On Fri, 2006-12-01 at 12:14 -0600, Russell Cattelan wrote:
+> On Thu, 2006-11-30 at 12:16 +0000, Steven Whitehouse wrote:
+> > >From 4f56110a00af5fb2e22fbccfcaf944d62cae8fcf Mon Sep 17 00:00:00 2001
+> > From: Steven Whitehouse <swhiteho@redhat.com>
+> > Date: Wed, 1 Nov 2006 14:04:17 -0500
+> > Subject: [PATCH] [GFS2] Shrink gfs2_inode (5) - di_nlink
+> > 
+> > Remove the di_nlink field in favour of inode->i_nlink and
+> > update the nlink handling to use the proper macros. This
+> > saves 4 bytes.
+> 
+> This patch seems like is one in a bigger series of patches
+> that should be done all at once?
+> 
+I'm not sure what you are saying? Are you suggesting that I should merge
+this patch series into one patch? I can't see any reason to do that.
+This patch stands on its own in the sense that both before and after it
+the tree compiles and runs correctly.
 
-LyoKICoJV2F0Y2hkb2cgZHJpdmVyIGZvciB0aGUgSVhQMjQwMC9JWFAyODAwIGJhc2VkIHBsYXRm
-b3JtcwogKgogKiAgICAgIChjKSBDb3B5cmlnaHQgMjAwMCBJbnRlbCBDb3BvcmF0aW9uCiAqICAg
-ICAgICAgIEJhc2VkIG9uIFNvZnREb2cgZHJpdmVyIGJ5IEFsYW4gQ294IDxhbGFuQHJlZGhhdC5j
-b20+CiAqCiAqCVRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJp
-YnV0ZSBpdCBhbmQvb3IKICoJbW9kaWZ5IGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdl
-bmVyYWwgUHVibGljIExpY2Vuc2UKICoJYXMgcHVibGlzaGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJl
-IEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uCiAqCTIgb2YgdGhlIExpY2Vuc2UsIG9yIChhdCB5
-b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCiAqCiAqCU5laXRoZXIgT2xlZyBEcm9raW4g
-bm9yIGlYY2VsZXJhdG9yLmNvbSBhZG1pdCBsaWFiaWxpdHkgbm9yIHByb3ZpZGUKICoJd2FycmFu
-dHkgZm9yIGFueSBvZiB0aGlzIHNvZnR3YXJlLiBUaGlzIG1hdGVyaWFsIGlzIHByb3ZpZGVkCiAq
-CSJBUy1JUyIgYW5kIGF0IG5vIGNoYXJnZS4KICoKICoJSGFyb2xkIFlhbmcgPGhhcm9sZC55YW5n
-QGludGVsLmNvbT4KICoJU3RhbmxleSBXYW5nIDxzdGFubGV5LndhbmdAaW50ZWwuY29tPgogKgog
-Ki8KCiNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgoj
-aW5jbHVkZSA8bGludXgvdHlwZXMuaD4KI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgojaW5jbHVk
-ZSA8bGludXgvZnMuaD4KI2luY2x1ZGUgPGxpbnV4L21tLmg+CiNpbmNsdWRlIDxsaW51eC9taXNj
-ZGV2aWNlLmg+CiNpbmNsdWRlIDxsaW51eC93YXRjaGRvZy5oPgojaW5jbHVkZSA8bGludXgvcmVi
-b290Lmg+CiNpbmNsdWRlIDxsaW51eC9zbXBfbG9jay5oPgojaW5jbHVkZSA8bGludXgvaW5pdC5o
-PgojaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KI2luY2x1ZGUgPGFzbS9oYXJkd2FyZS5oPgojaW5j
-bHVkZSA8YXNtL2JpdG9wcy5oPgojaW5jbHVkZSA8YXNtL2FyY2gvaXhwNDI1Lmg+CgojZGVmaW5l
-IE1ZX05BTUUgIklYUDQyNSBXYXRjaGRvZyBUaW1lciIKCi8qIHlvdSBtdXN0IGRlZmluZSBpdCAs
-b3RoZXJ3aXNlICx0aGUgdGltZXIgd2lsbCBzdG9wIGFmdGVyIHdyaXRlKCkgLHJlYWQoKSAgKi8K
-Ly8jZGVmaW5lIENPTkZJR19XQVRDSERPR19OT1dBWU9VVAoKLyogeW91IGNhbiBjb21tZW50IGl0
-ICxpZiB5b3UgZG9uJ3QgZGVidWcgKi8KI2RlZmluZSBDT05GSUdfSVhQNDI1X1dUREVCVUcKCiNp
-ZmRlZiBDT05GSUdfSVhQNDI1X1dUREVCVUcKI2RlZmluZSBkYmcoZm9ybWF0LCBhcmcuLi4pICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKCWRvIHsgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAoJCXByaW50aygiPDA+IiAiJXM6
-ICIgZm9ybWF0LAkJXAoJCQkJTVlfTkFNRSAsICMjIGFyZyk7ICAgICAgICAgICAgICBcCiAgICAg
-ICAgfSB3aGlsZSAoMCkKI2Vsc2UKI2RlZmluZSBkYmcoZm9ybWF0LCBhcmcuLi4pCiNlbmRpZgoK
-I2RlZmluZSBUSU1FUl9GUkVRCTY2MDAwMDAwCS8qIDY2IE1IWiB0aW1lciAqLwojZGVmaW5lIFRJ
-TUVSX0tFWQkweDQ4MmUKI2RlZmluZSBUSU1FUl9NQVJHSU4JNjYJCS8qIChzZWNzKSBEZWZhdWx0
-IGlzIDEgbWludXRlICovCgpzdGF0aWMgaW50IGl4cDQyNV9tYXJnaW4gPSBUSU1FUl9NQVJHSU47
-CS8qIGluIHNlY29uZHMgKi8Kc3RhdGljIGludCBpeHA0MjV3ZHRfdXNlcnM7Ci8vc3RhdGljIGlu
-dCBwcmVfbWFyZ2luOyAgLy9JWFA0MjUgQ1BVICdzIHdhdGNoIGRvZyB0aW1lciBpcyAzMiBiaXQg
-LCBzbyBJIGRlZmluZSBpdCB0byBiZSB1bnNpZ25lZCBpbnQgLS1ib2IKc3RhdGljIHVuc2lnbmVk
-IGludCBwcmVfbWFyZ2luOwoKLyoKICoJQWxsb3cgb25seSBvbmUgcGVyc29uIHRvIGhvbGQgaXQg
-b3BlbgogKi8KCnN0YXRpYyBpbnQgaXhwNDI1ZG9nX29wZW4oc3RydWN0IGlub2RlICppbm9kZSwg
-c3RydWN0IGZpbGUgKmZpbGUpCnsKCWlmKHRlc3RfYW5kX3NldF9iaXQoMSwmaXhwNDI1d2R0X3Vz
-ZXJzKSkKCQlyZXR1cm4gLUVCVVNZOwoJTU9EX0lOQ19VU0VfQ09VTlQ7CglkYmcoIlxuXG5pbiBv
-cGVuICgpIGZ1bmN0aW9uICAsICpJWFA0MjVfT1NXVCA9ICV1XG4iLCpJWFA0MjVfT1NXVCk7Cglk
-YmcoIml4cDQyNV9tYXJnaW49JWRcbiIsaXhwNDI1X21hcmdpbik7CgkvKiBBY3RpdmF0ZSBJWFA0
-MjUgV2F0Y2hkb2cgdGltZXIgKi8KCXByZV9tYXJnaW49VElNRVJfRlJFUSAqIGl4cDQyNV9tYXJn
-aW47CgkqSVhQNDI1X09TV0sgPSBUSU1FUl9LRVk7IAkvKiBVbmxvY2sgdGhlIHdhdGNoIGRvZyB0
-aW1lciAqLwoJKklYUDQyNV9PU1dUID0gcHJlX21hcmdpbjsJCglkYmcoImluIG9wZW4gZnVuY3Rp
-b24gcHJlX21hcmdpbiA9ICV1XG4iLHByZV9tYXJnaW4pOwoJKklYUDQyNV9PU1dFID0gMHg1OyAg
-Ly9iaXQgMDpyZXNldCA7IGJpdCAxOmludGVydXB0OyBiaXQgMjpjb3VudGVyIGRvd24gZW5hYmxl
-IAoJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJcmV0
-dXJuIDA7Cn0KCnN0YXRpYyBpbnQgaXhwNDI1ZG9nX3JlbGVhc2Uoc3RydWN0IGlub2RlICppbm9k
-ZSwgc3RydWN0IGZpbGUgKmZpbGUpCnsKCS8qCgkgKglTaHV0IG9mZiB0aGUgdGltZXIuCgkgKiAJ
-TG9jayBpdCBpbiBpZiBpdCdzIGEgbW9kdWxlIGFuZCB3ZSBkZWZpbmVkIC4uLk5PV0FZT1VUCgkg
-Ki8KCSpJWFA0MjVfT1NXSyA9IFRJTUVSX0tFWTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRp
-bWVyICovCgkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwojaWZuZGVmIENPTkZJR19XQVRDSERP
-R19OT1dBWU9VVAoJKklYUDQyNV9PU1dFID0gMHgwOwojZW5kaWYKCSpJWFA0MjVfT1NXSyA9IDA7
-CQkvKiBMb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCWl4cDQyNXdkdF91c2VycyA9IDA7CglN
-T0RfREVDX1VTRV9DT1VOVDsKCXJldHVybiAwOwp9CgpzdGF0aWMgc3NpemVfdCBpeHA0MjVkb2df
-d3JpdGUoc3RydWN0IGZpbGUgKmZpbGUsIGNvbnN0IGNoYXIgKmRhdGEsIHNpemVfdCBsZW4sIGxv
-ZmZfdCAqcHBvcykKewoJLyogIENhbid0IHNlZWsgKHB3cml0ZSkgb24gdGhpcyBkZXZpY2UgICov
-CglpZiAocHBvcyAhPSAmZmlsZS0+Zl9wb3MpCgkJcmV0dXJuIC1FU1BJUEU7CgoJLyogUmVmcmVz
-aCBPU01SMyB0aW1lci4gKi8KCWlmKGxlbikgewoJCWRiZygiaGFzIGludG8gd3JpdGUgZnVuY3Rp
-b24gbGVuICE9MCAgLCAqSVhQNDI1X09TV1QgPSAldVxuIiwqSVhQNDI1X09TV1QpOwoJCWRiZygi
-anVzdCBJWFA0MjVfT1NXVCB3aWxsIHNldCB0byBiZSAldSBcbiIscHJlX21hcmdpbik7CgkJKklY
-UDQyNV9PU1dLID0gVElNRVJfS0VZOyAJLyogVW5sb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8K
-CQkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwoJCSpJWFA0MjVfT1NXSyA9IDA7CQkvKiBMb2Nr
-IHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCQlyZXR1cm4gMTsKCX0KCXJldHVybiAwOwp9CgovKiBp
-dCBpcyBvbmx5IHVzZWQgdG8gdGVzdCB0aGUgSVhQNDI1X09TV1QgcmVnaXN0ZXIncyB2YWx1ZSAK
-ICAtLUJPQiAqLwpzdGF0aWMgc3NpemVfdCBpeHA0MjVkb2dfcmVhZChzdHJ1Y3QgZmlsZSAqZmls
-ZSwgY2hhciAqZGF0YSwgc2l6ZV90IGxlbiwgbG9mZl90ICpwcG9zKQp7CgkKCS8qIHJlYWQgT1NN
-UjMgdGltZXIuICovCglpbnQgY3VycmVudF90aW1lciA9IDA7CgljaGFyIGJ1ZmZlclsxMF0gPSB7
-J1wwJ307CgkKCWRiZygiaGFzIGludG8gcmVhZCgpIGZ1bmN0aW9uICAsICpJWFA0MjVfT1NXVCA9
-ICV1XG4iLCpJWFA0MjVfT1NXVCk7CgkvLypJWFA0MjVfT1NXSyA9IFRJTUVSX0tFWTsgCS8qIFVu
-bG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgljdXJyZW50X3RpbWVyID0gKklYUDQyNV9PU1dU
-IDsKCS8vKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJ
-Ly8tLT4KCXNucHJpbnRmKGJ1ZmZlcixzaXplb2YoYnVmZmVyKS0xLCIlZCIsY3VycmVudF90aW1l
-cik7Cgljb3B5X3RvX3VzZXIoZGF0YSxidWZmZXIsc3RybGVuKGJ1ZmZlcikpOwoJCn0KCgoKc3Rh
-dGljIGludCBpeHA0MjVkb2dfaW9jdGwoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUg
-KmZpbGUsCgl1bnNpZ25lZCBpbnQgY21kLCB1bnNpZ25lZCBsb25nIGFyZykKewoJaW50IG5ld19t
-YXJnaW47CglpbnQgb3B0aW9ucyA9IDA7CglzdGF0aWMgc3RydWN0IHdhdGNoZG9nX2luZm8gaWRl
-bnQgPSB7CgkJaWRlbnRpdHk6ICJJWFA0MjUgV2F0Y2hkb2cgVGltZXIiLAoJCW9wdGlvbnM6IFdE
-SU9GX1NFVFRJTUVPVVQgfCBXRElPRl9LRUVQQUxJVkVQSU5HIHwgV0RJT0ZfQ0FSRFJFU0VULAoJ
-fTsKCglzd2l0Y2goY21kKXsKCWRlZmF1bHQ6CgkJcmV0dXJuIC1FTk9JT0NUTENNRDsKCWNhc2Ug
-V0RJT0NfR0VUU1VQUE9SVDoKCQlyZXR1cm4gY29weV90b191c2VyKChzdHJ1Y3Qgd2F0Y2hkb2df
-aW5mbyAqKWFyZywgJmlkZW50LCBzaXplb2YoaWRlbnQpKTsKCWNhc2UgV0RJT0NfR0VUU1RBVFVT
-OgoJCXJldHVybiBwdXRfdXNlcigwLChpbnQgKilhcmcpOwoJY2FzZSBXRElPQ19HRVRCT09UU1RB
-VFVTOgoJCXJldHVybiBwdXRfdXNlcigoKklYUDQyNV9PU1NUICYgMHgwMDAwMDAxMCkgPyBXRElP
-Rl9DQVJEUkVTRVQgOiAwLCAoaW50ICopYXJnKTsKCWNhc2UgV0RJT0NfR0VUVEVNUDoKCQlyZXR1
-cm4gLUVOT0lPQ1RMQ01EOwoJY2FzZSBXRElPQ19TRVRPUFRJT05TOgoJCWlmIChnZXRfdXNlcihv
-cHRpb25zLCAoaW50ICopYXJnKSkKCQkJcmV0dXJuIC1FRkFVTFQ7CgkJc3dpdGNoKG9wdGlvbnMp
-IHsKCQkJY2FzZSBXRElPU19ESVNBQkxFQ0FSRDoKCQkJCSpJWFA0MjVfT1NXSyA9IFRJTUVSX0tF
-WTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgkJCQkqSVhQNDI1X09TV0UgPSAw
-eDA7IAoJCQkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAq
-LwoJCQkJcmV0dXJuIDA7CgkJCWNhc2UgV0RJT1NfRU5BQkxFQ0FSRDoKCQkJCSpJWFA0MjVfT1NX
-SyA9IFRJTUVSX0tFWTsgCS8qIFVubG9jayB0aGUgd2F0Y2ggZG9nIHRpbWVyICovCgkJCQkqSVhQ
-NDI1X09TV0UgPSAweDU7IAoJCQkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNo
-IGRvZyB0aW1lciAqLwoJCQkJcmV0dXJuIDA7CgkJCWRlZmF1bHQ6CQoJCQkJcmV0dXJuIC1FTk9J
-T0NUTENNRDsJCQoJCX0KCWNhc2UgV0RJT0NfU0VUVElNRU9VVDoKCQlpZiAoZ2V0X3VzZXIobmV3
-X21hcmdpbiwgKGludCAqKWFyZykpCgkJCXJldHVybiAtRUZBVUxUOwoJCWlmIChuZXdfbWFyZ2lu
-IDwgMSkKCQkJcmV0dXJuIC1FSU5WQUw7CgkJaXhwNDI1X21hcmdpbiA9IG5ld19tYXJnaW47CgkJ
-cHJlX21hcmdpbj1USU1FUl9GUkVRICogaXhwNDI1X21hcmdpbjsKCQkqSVhQNDI1X09TV0sgPSBU
-SU1FUl9LRVk7IAkvKiBVbmxvY2sgdGhlIHdhdGNoIGRvZyB0aW1lciAqLwoJCSpJWFA0MjVfT1NX
-VCA9IHByZV9tYXJnaW47CgkJKklYUDQyNV9PU1dLID0gMDsJCS8qIExvY2sgdGhlIHdhdGNoIGRv
-ZyB0aW1lciAqLwoJCXJldHVybiAwOwoJY2FzZSBXRElPQ19HRVRUSU1FT1VUOgoJCXB1dF91c2Vy
-KGl4cDQyNV9tYXJnaW4sIChpbnQgKilhcmcpOwoJCXJldHVybiAwOwoJY2FzZSBXRElPQ19LRUVQ
-QUxJVkU6CgkJKklYUDQyNV9PU1dLID0gVElNRVJfS0VZOyAJLyogVW5sb2NrIHRoZSB3YXRjaCBk
-b2cgdGltZXIgKi8KCQkqSVhQNDI1X09TV1QgPSBwcmVfbWFyZ2luOwoJCSpJWFA0MjVfT1NXSyA9
-IDA7CQkvKiBMb2NrIHRoZSB3YXRjaCBkb2cgdGltZXIgKi8KCQlyZXR1cm4gMDsKCX0KfQoKc3Rh
-dGljIHN0cnVjdCBmaWxlX29wZXJhdGlvbnMgaXhwNDI1ZG9nX2ZvcHM9CnsKCW93bmVyOgkJVEhJ
-U19NT0RVTEUsCglyZWFkOgkJaXhwNDI1ZG9nX3JlYWQsCgl3cml0ZToJCWl4cDQyNWRvZ193cml0
-ZSwKCWlvY3RsOgkJaXhwNDI1ZG9nX2lvY3RsLAoJb3BlbjoJCWl4cDQyNWRvZ19vcGVuLAoJcmVs
-ZWFzZToJaXhwNDI1ZG9nX3JlbGVhc2UsCn07CgpzdGF0aWMgc3RydWN0IG1pc2NkZXZpY2UgaXhw
-NDI1ZG9nX21pc2NkZXY9CnsKCVdBVENIRE9HX01JTk9SLAoJIklYUDQyNSB3YXRjaGRvZyIsCgkm
-aXhwNDI1ZG9nX2ZvcHMKfTsKCnN0YXRpYyBpbnQgX19pbml0IGl4cDQyNWRvZ19pbml0KHZvaWQp
-CnsKCWludCByZXQ7CglkYmcoIldBVENIRE9HX01JTk9SID0gJWRcbiIsV0FUQ0hET0dfTUlOT1Ip
-OwoJcmV0ID0gbWlzY19yZWdpc3RlcigmaXhwNDI1ZG9nX21pc2NkZXYpOwoJZGJnKCJyZXQgb2Yg
-bWlzY19yZWdpc3RlcigpID0gJWRcbiIscmV0KTsJCglpZiAocmV0KQoJCXJldHVybiByZXQ7CgoJ
-ZGJnKCJ0aW1lciBtYXJnaW4gJWQgc2VjXG4iLCBpeHA0MjVfbWFyZ2luKTsKCglyZXR1cm4gMDsK
-fQoKc3RhdGljIHZvaWQgX19leGl0IGl4cDQyNWRvZ19leGl0KHZvaWQpCnsKCW1pc2NfZGVyZWdp
-c3RlcigmaXhwNDI1ZG9nX21pc2NkZXYpOwp9Cgptb2R1bGVfaW5pdChpeHA0MjVkb2dfaW5pdCk7
-Cm1vZHVsZV9leGl0KGl4cDQyNWRvZ19leGl0KTsKCk1PRFVMRV9BVVRIT1IoIlN0YW5lbHkgV2Fu
-ZyIpOwpNT0RVTEVfTElDRU5TRSgiR1BMIik7Ck1PRFVMRV9QQVJNKGl4cDQyNV9tYXJnaW4sImki
-KTsKTU9EVUxFX1BBUk1fREVTQyhpeHA0MjVfbWFyZ2luLCJJWFA0MjUgV2F0Y2hkb2cgVGltZXIn
-cyBleHBpcmluZyB0aW1lLiIpOwpNT0RVTEVfREVTQ1JJUFRJT04oIklYUDQyNSBXYXRjaGRvZyBU
-aW1lciBkcml2ZXIuIik7Ck1PRFVMRV9TVVBQT1JURURfREVWSUNFKCJJWENEUDExMDAgZGV2IGJv
-YXJkLiIpOwo=
-------=_Part_33034_3571341.1165223934791--
+> While creating a patches on a per field basis is good
+> having partial changes checked in like this is confusing.
+> Since now the use of data structures is inconsistent.
+> 
+Inconsistent with what exactly?
+ 
+> What do -1 and -2 represent? I assume that is a special
+> state or the inode? maybe some comments or use of 
+> descriptive macros.
+> 
+There is only one occurrence of -2 in the code and its being removed so
+I don't see how I should comment it or make it into a macro... I think
+its reasonable enough to assume that someone reading the function call
+gfs2_change_nlink(ip, -1) will realise that the -1 refers to the change
+to the link count. In any case the comment before the function itself
+gives this information should that not be clear from the context,
+
+Steve.
+
+> 
+> > 
+> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+> > ---
+> >  fs/gfs2/inode.c             |   37 ++++++++++++++++++++++++-------------
+> >  fs/gfs2/ondisk.c            |    3 +--
+> >  fs/gfs2/ops_inode.c         |   12 ++++++------
+> >  include/linux/gfs2_ondisk.h |    1 -
+> >  4 files changed, 31 insertions(+), 22 deletions(-)
+> > 
+> > diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+> > index 0de9b22..7112039 100644
+> > --- a/fs/gfs2/inode.c
+> > +++ b/fs/gfs2/inode.c
+> > @@ -51,7 +51,6 @@ void gfs2_inode_attr_in(struct gfs2_inod
+> >  	struct gfs2_dinode_host *di = &ip->i_di;
+> >  
+> >  	inode->i_ino = ip->i_num.no_addr;
+> > -	inode->i_nlink = di->di_nlink;
+> >  	i_size_write(inode, di->di_size);
+> >  	inode->i_atime.tv_sec = di->di_atime;
+> >  	inode->i_mtime.tv_sec = di->di_mtime;
+> > @@ -214,7 +213,12 @@ static int gfs2_dinode_in(struct gfs2_in
+> >  
+> >  	ip->i_inode.i_uid = be32_to_cpu(str->di_uid);
+> >  	ip->i_inode.i_gid = be32_to_cpu(str->di_gid);
+> > -	di->di_nlink = be32_to_cpu(str->di_nlink);
+> > +	/*
+> > +	 * We will need to review setting the nlink count here in the
+> > +	 * light of the forthcoming ro bind mount work. This is a reminder
+> > +	 * to do that.
+> > +	 */
+> > +	ip->i_inode.i_nlink = be32_to_cpu(str->di_nlink);
+> >  	di->di_size = be64_to_cpu(str->di_size);
+> >  	di->di_blocks = be64_to_cpu(str->di_blocks);
+> >  	di->di_atime = be64_to_cpu(str->di_atime);
+> > @@ -336,12 +340,12 @@ int gfs2_change_nlink(struct gfs2_inode 
+> >  	u32 nlink;
+> >  	int error;
+> >  
+> > -	BUG_ON(ip->i_di.di_nlink != ip->i_inode.i_nlink);
+> > -	nlink = ip->i_di.di_nlink + diff;
+> > +	BUG_ON(diff != 1 && diff != -1);
+> > +	nlink = ip->i_inode.i_nlink + diff;
+> >  
+> >  	/* If we are reducing the nlink count, but the new value ends up being
+> >  	   bigger than the old one, we must have underflowed. */
+> > -	if (diff < 0 && nlink > ip->i_di.di_nlink) {
+> > +	if (diff < 0 && nlink > ip->i_inode.i_nlink) {
+> >  		if (gfs2_consist_inode(ip))
+> >  			gfs2_dinode_print(ip);
+> >  		return -EIO;
+> > @@ -351,16 +355,19 @@ int gfs2_change_nlink(struct gfs2_inode 
+> >  	if (error)
+> >  		return error;
+> >  
+> > -	ip->i_di.di_nlink = nlink;
+> > +	if (diff > 0)
+> > +		inc_nlink(&ip->i_inode);
+> > +	else
+> > +		drop_nlink(&ip->i_inode);
+> > +
+> >  	ip->i_di.di_ctime = get_seconds();
+> > -	ip->i_inode.i_nlink = nlink;
+> >  
+> >  	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
+> >  	gfs2_dinode_out(ip, dibh->b_data);
+> >  	brelse(dibh);
+> >  	mark_inode_dirty(&ip->i_inode);
+> >  
+> > -	if (ip->i_di.di_nlink == 0) {
+> > +	if (ip->i_inode.i_nlink == 0) {
+> >  		struct gfs2_rgrpd *rgd;
+> >  		struct gfs2_holder ri_gh, rg_gh;
+> >  
+> > @@ -375,7 +382,6 @@ int gfs2_change_nlink(struct gfs2_inode 
+> >  		if (error)
+> >  			goto out_norgrp;
+> >  
+> > -		clear_nlink(&ip->i_inode);
+> >  		gfs2_unlink_di(&ip->i_inode); /* mark inode unlinked */
+> >  		gfs2_glock_dq_uninit(&rg_gh);
+> >  out_norgrp:
+> > @@ -586,7 +592,7 @@ static int create_ok(struct gfs2_inode *
+> >  		return error;
+> >  
+> >  	/*  Don't create entries in an unlinked directory  */
+> > -	if (!dip->i_di.di_nlink)
+> > +	if (!dip->i_inode.i_nlink)
+> >  		return -EPERM;
+> >  
+> >  	error = gfs2_dir_search(&dip->i_inode, name, NULL, NULL);
+> > @@ -602,7 +608,7 @@ static int create_ok(struct gfs2_inode *
+> >  
+> >  	if (dip->i_di.di_entries == (u32)-1)
+> >  		return -EFBIG;
+> > -	if (S_ISDIR(mode) && dip->i_di.di_nlink == (u32)-1)
+> > +	if (S_ISDIR(mode) && dip->i_inode.i_nlink == (u32)-1)
+> >  		return -EMLINK;
+> >  
+> >  	return 0;
+> > @@ -808,7 +814,7 @@ static int link_dinode(struct gfs2_inode
+> >  	error = gfs2_meta_inode_buffer(ip, &dibh);
+> >  	if (error)
+> >  		goto fail_end_trans;
+> > -	ip->i_di.di_nlink = 1;
+> > +	ip->i_inode.i_nlink = 1;
+> >  	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
+> >  	gfs2_dinode_out(ip, dibh->b_data);
+> >  	brelse(dibh);
+> > @@ -1016,7 +1022,12 @@ int gfs2_rmdiri(struct gfs2_inode *dip, 
+> >  	if (error)
+> >  		return error;
+> >  
+> > -	error = gfs2_change_nlink(ip, -2);
+> > +	/* It looks odd, but it really should be done twice */
+> > +	error = gfs2_change_nlink(ip, -1);
+> > +	if (error)
+> > +		return error;
+> > +
+> > +	error = gfs2_change_nlink(ip, -1);
+> >  	if (error)
+> >  		return error;
+> >  
+> > diff --git a/fs/gfs2/ondisk.c b/fs/gfs2/ondisk.c
+> > index e224f6a..b4e354b 100644
+> > --- a/fs/gfs2/ondisk.c
+> > +++ b/fs/gfs2/ondisk.c
+> > @@ -164,7 +164,7 @@ void gfs2_dinode_out(const struct gfs2_i
+> >  	str->di_mode = cpu_to_be32(ip->i_inode.i_mode);
+> >  	str->di_uid = cpu_to_be32(ip->i_inode.i_uid);
+> >  	str->di_gid = cpu_to_be32(ip->i_inode.i_gid);
+> > -	str->di_nlink = cpu_to_be32(di->di_nlink);
+> > +	str->di_nlink = cpu_to_be32(ip->i_inode.i_nlink);
+> >  	str->di_size = cpu_to_be64(di->di_size);
+> >  	str->di_blocks = cpu_to_be64(di->di_blocks);
+> >  	str->di_atime = cpu_to_be64(di->di_atime);
+> > @@ -191,7 +191,6 @@ void gfs2_dinode_print(const struct gfs2
+> >  
+> >  	gfs2_inum_print(&ip->i_num);
+> >  
+> > -	pv(di, di_nlink, "%u");
+> >  	printk(KERN_INFO "  di_size = %llu\n", (unsigned long long)di->di_size);
+> >  	printk(KERN_INFO "  di_blocks = %llu\n", (unsigned long long)di->di_blocks);
+> >  	printk(KERN_INFO "  di_atime = %lld\n", (long long)di->di_atime);
+> > diff --git a/fs/gfs2/ops_inode.c b/fs/gfs2/ops_inode.c
+> > index efbcec3..06176de 100644
+> > --- a/fs/gfs2/ops_inode.c
+> > +++ b/fs/gfs2/ops_inode.c
+> > @@ -169,7 +169,7 @@ static int gfs2_link(struct dentry *old_
+> >  	}
+> >  
+> >  	error = -EINVAL;
+> > -	if (!dip->i_di.di_nlink)
+> > +	if (!dip->i_inode.i_nlink)
+> >  		goto out_gunlock;
+> >  	error = -EFBIG;
+> >  	if (dip->i_di.di_entries == (u32)-1)
+> > @@ -178,10 +178,10 @@ static int gfs2_link(struct dentry *old_
+> >  	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+> >  		goto out_gunlock;
+> >  	error = -EINVAL;
+> > -	if (!ip->i_di.di_nlink)
+> > +	if (!ip->i_inode.i_nlink)
+> >  		goto out_gunlock;
+> >  	error = -EMLINK;
+> > -	if (ip->i_di.di_nlink == (u32)-1)
+> > +	if (ip->i_inode.i_nlink == (u32)-1)
+> >  		goto out_gunlock;
+> >  
+> >  	alloc_required = error = gfs2_diradd_alloc_required(dir, &dentry->d_name);
+> > @@ -386,7 +386,7 @@ static int gfs2_mkdir(struct inode *dir,
+> >  
+> >  	ip = ghs[1].gh_gl->gl_object;
+> >  
+> > -	ip->i_di.di_nlink = 2;
+> > +	ip->i_inode.i_nlink = 2;
+> >  	ip->i_di.di_size = sdp->sd_sb.sb_bsize - sizeof(struct gfs2_dinode);
+> >  	ip->i_di.di_flags |= GFS2_DIF_JDATA;
+> >  	ip->i_di.di_payload_format = GFS2_FORMAT_DE;
+> > @@ -636,7 +636,7 @@ static int gfs2_rename(struct inode *odi
+> >  		};
+> >  
+> >  		if (odip != ndip) {
+> > -			if (!ndip->i_di.di_nlink) {
+> > +			if (!ndip->i_inode.i_nlink) {
+> >  				error = -EINVAL;
+> >  				goto out_gunlock;
+> >  			}
+> > @@ -645,7 +645,7 @@ static int gfs2_rename(struct inode *odi
+> >  				goto out_gunlock;
+> >  			}
+> >  			if (S_ISDIR(ip->i_inode.i_mode) &&
+> > -			    ndip->i_di.di_nlink == (u32)-1) {
+> > +			    ndip->i_inode.i_nlink == (u32)-1) {
+> >  				error = -EMLINK;
+> >  				goto out_gunlock;
+> >  			}
+> > diff --git a/include/linux/gfs2_ondisk.h b/include/linux/gfs2_ondisk.h
+> > index 896c7f8..c61517b 100644
+> > --- a/include/linux/gfs2_ondisk.h
+> > +++ b/include/linux/gfs2_ondisk.h
+> > @@ -322,7 +322,6 @@ struct gfs2_dinode {
+> >  };
+> >  
+> >  struct gfs2_dinode_host {
+> > -	__u32 di_nlink;	/* number of links to this file */
+> >  	__u64 di_size;	/* number of bytes in file */
+> >  	__u64 di_blocks;	/* number of blocks in file */
+> >  	__u64 di_atime;	/* time last accessed */
+

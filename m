@@ -1,68 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758998AbWLDXQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759793AbWLDXQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758998AbWLDXQO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759808AbWLDXQO
+	id S1759793AbWLDXQX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759849AbWLDXQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:16:14 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:56390 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758998AbWLDXQN (ORCPT
+	Mon, 4 Dec 2006 18:16:23 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:47871 "EHLO
+	saraswathi.solana.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759830AbWLDXQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 18:16:13 -0500
-Date: Mon, 4 Dec 2006 15:13:24 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Adrian Bunk <bunk@stusta.de>, dbrownell@users.sourceforge.net
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] USB_RTL8150 must select MII
-Message-Id: <20061204151324.15288113.randy.dunlap@oracle.com>
-In-Reply-To: <20061204200206.GA7027@stusta.de>
-References: <20061204200206.GA7027@stusta.de>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Mon, 4 Dec 2006 18:16:22 -0500
+Message-Id: <200612042312.kB4NCNiN024571@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 4/4] UML - Use get_random_bytes after random pool is seeded
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 04 Dec 2006 18:12:23 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 21:02:06 +0100 Adrian Bunk wrote:
+When the UML network driver generates random MACs for its devices, it was
+possible for a number of UMLs to get the same MACs because the ethernet 
+initialization was done before the random pool was properly seeded.
 
-> USB_RTL8150 must select MII to avoid link errors.
-> 
-> Stolen from a patch by Randy Dunlap.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This patch moves the initialization later so that it gets better randomness.
 
-Thanks, Adrian.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-David B. may prefer a patch similar to the one that was
-merged for USB_NET_MCS7830, which does:
+Index: linux-2.6.18-mm/arch/um/drivers/daemon_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/daemon_kern.c	2006-11-24 14:29:57.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/daemon_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -98,4 +98,4 @@ static int register_daemon(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_daemon);
++late_initcall(register_daemon);
+Index: linux-2.6.18-mm/arch/um/drivers/mcast_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/mcast_kern.c	2006-11-24 14:29:57.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/mcast_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -127,4 +127,4 @@ static int register_mcast(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_mcast);
++late_initcall(register_mcast);
+Index: linux-2.6.18-mm/arch/um/drivers/pcap_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/pcap_kern.c	2006-11-24 14:29:57.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/pcap_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -109,4 +109,4 @@ static int register_pcap(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_pcap);
++late_initcall(register_pcap);
+Index: linux-2.6.18-mm/arch/um/drivers/slip_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/slip_kern.c	2006-11-27 18:55:16.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/slip_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -95,4 +95,4 @@ static int register_slip(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_slip);
++late_initcall(register_slip);
+Index: linux-2.6.18-mm/arch/um/drivers/slirp_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/slirp_kern.c	2006-11-27 18:55:16.000000000 -0500
++++ linux-2.6.18-mm/arch/um/drivers/slirp_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -119,4 +119,4 @@ static int register_slirp(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_slirp);
++late_initcall(register_slirp);
+Index: linux-2.6.18-mm/arch/um/os-Linux/drivers/ethertap_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/drivers/ethertap_kern.c	2006-11-27 18:55:16.000000000 -0500
++++ linux-2.6.18-mm/arch/um/os-Linux/drivers/ethertap_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -105,4 +105,4 @@ static int register_ethertap(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_ethertap);
++late_initcall(register_ethertap);
+Index: linux-2.6.18-mm/arch/um/os-Linux/drivers/tuntap_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/os-Linux/drivers/tuntap_kern.c	2006-11-27 18:55:16.000000000 -0500
++++ linux-2.6.18-mm/arch/um/os-Linux/drivers/tuntap_kern.c	2006-12-04 12:08:52.000000000 -0500
+@@ -90,4 +90,4 @@ static int register_tuntap(void)
+ 	return 0;
+ }
+ 
+-__initcall(register_tuntap);
++late_initcall(register_tuntap);
 
-	select USB_USBNET_MII
-
-although I don't see why...
-
-> ---
-> 
-> This patch was already sent on:
-> - 4 Nov 2006
-> 
-> --- linux-2619-rc3-pv.orig/drivers/usb/net/Kconfig
-> +++ linux-2619-rc3-pv/drivers/usb/net/Kconfig
-> @@ -84,6 +84,7 @@ config USB_PEGASUS
->  config USB_RTL8150
->  	tristate "USB RTL8150 based ethernet device support (EXPERIMENTAL)"
->  	depends on EXPERIMENTAL
-> +	select MII
->  	help
->  	  Say Y here if you have RTL8150 based usb-ethernet adapter.
->  	  Send me <petkan@users.sourceforge.net> any comments you may have.
-
----
-~Randy

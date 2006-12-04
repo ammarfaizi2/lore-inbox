@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936923AbWLDOtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936926AbWLDOt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936923AbWLDOtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936925AbWLDOtn
+	id S936926AbWLDOt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936928AbWLDOt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:49:43 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:45434 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S936923AbWLDOtm
+	Mon, 4 Dec 2006 09:49:57 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:42503 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S936926AbWLDOtz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:49:42 -0500
-Date: Mon, 4 Dec 2006 15:49:33 +0100
+	Mon, 4 Dec 2006 09:49:55 -0500
+Date: Mon, 4 Dec 2006 15:49:49 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, cborntra@de.ibm.com
-Subject: [S390] remove salipl memory detection.
-Message-ID: <20061204144933.GA32059@skybase>
+To: linux-kernel@vger.kernel.org, horst.hummel@de.ibm.com
+Subject: [S390] handle incorrect values when writing to dasd sysfs attributes.
+Message-ID: <20061204144949.GB32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,58 +21,113 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christian Borntraeger <cborntra@de.ibm.com>
+From: Horst Hummel <horst.hummel@de.ibm.com>
 
-[S390] remove salipl memory detection.
+[S390] handle incorrect values when writing to dasd sysfs attributes.
 
-The SALIPL entry point has an needless memory detection routine as we
-later check the memory size again. The SALIPL code also uses diagnose
-0x060 if we are running under VM, but this diagnose is not compatible
-with the 64 bit addressing mode. The solution is to get rid of this
-code and rely on the memory detection in the startup code.
+When writing to dasd attributes (e.g. readonly), all values besides '1'
+are handled like '0'.
+Other sysfs-attributes like 'online' are checking for '1' and for '0'
+and do not accept other values. Therefore enhanced checking and error
+handling in dasd_devmap attribute store functions.
 
-Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
+Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/head.S |   21 ---------------------
- 1 files changed, 21 deletions(-)
+ drivers/s390/block/dasd_devmap.c |   43 ++++++++++++++++++++++++++-------------
+ 1 files changed, 29 insertions(+), 14 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/head.S linux-2.6-patched/arch/s390/kernel/head.S
---- linux-2.6/arch/s390/kernel/head.S	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/head.S	2006-12-04 14:50:28.000000000 +0100
-@@ -418,24 +418,6 @@ start:
- .gotr:
- 	l	%r10,.tbl		# EBCDIC to ASCII table
- 	tr	0(240,%r8),0(%r10)
--	stidp	__LC_CPUID		# Are we running on VM maybe
--	cli	__LC_CPUID,0xff
--	bnz	.test
--	.long	0x83300060		# diag 3,0,x'0060' - storage size
--	b	.done
--.test:
--	mvc	0x68(8),.pgmnw		# set up pgm check handler
--	l	%r2,.fourmeg
--	lr	%r3,%r2
--	bctr	%r3,%r0			# 4M-1
--.loop:	iske	%r0,%r3
--	ar	%r3,%r2
--.pgmx:
--	sr	%r3,%r2
--	la	%r3,1(%r3)
--.done:
--	l	%r1,.memsize
--	st	%r3,ARCH_OFFSET(%r1)
- 	slr	%r0,%r0
- 	st	%r0,INITRD_SIZE+ARCH_OFFSET-PARMAREA(%r11)
- 	st	%r0,INITRD_START+ARCH_OFFSET-PARMAREA(%r11)
-@@ -443,9 +425,6 @@ start:
- .tbl:	.long	_ebcasc			# translate table
- .cmd:	.long	COMMAND_LINE		# address of command line buffer
- .parm:	.long	PARMAREA
--.memsize: .long memory_size
--.fourmeg: .long 0x00400000      	# 4M
--.pgmnw:	.long	0x00080000,.pgmx
- .lowcase:
- 	.byte 0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07
- 	.byte 0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f
+diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
+--- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-12-04 14:50:29.000000000 +0100
+@@ -684,21 +684,26 @@ dasd_ro_store(struct device *dev, struct
+ 	      const char *buf, size_t count)
+ {
+ 	struct dasd_devmap *devmap;
+-	int ro_flag;
++	int val;
++	char *endp;
+ 
+ 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(devmap))
+ 		return PTR_ERR(devmap);
+-	ro_flag = buf[0] == '1';
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (((endp + 1) < (buf + count)) || (val > 1))
++		return -EINVAL;
++
+ 	spin_lock(&dasd_devmap_lock);
+-	if (ro_flag)
++	if (val)
+ 		devmap->features |= DASD_FEATURE_READONLY;
+ 	else
+ 		devmap->features &= ~DASD_FEATURE_READONLY;
+ 	if (devmap->device)
+ 		devmap->device->features = devmap->features;
+ 	if (devmap->device && devmap->device->gdp)
+-		set_disk_ro(devmap->device->gdp, ro_flag);
++		set_disk_ro(devmap->device->gdp, val);
+ 	spin_unlock(&dasd_devmap_lock);
+ 	return count;
+ }
+@@ -729,17 +734,22 @@ dasd_use_diag_store(struct device *dev, 
+ {
+ 	struct dasd_devmap *devmap;
+ 	ssize_t rc;
+-	int use_diag;
++	int val;
++	char *endp;
+ 
+ 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(devmap))
+ 		return PTR_ERR(devmap);
+-	use_diag = buf[0] == '1';
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (((endp + 1) < (buf + count)) || (val > 1))
++		return -EINVAL;
++
+ 	spin_lock(&dasd_devmap_lock);
+ 	/* Changing diag discipline flag is only allowed in offline state. */
+ 	rc = count;
+ 	if (!devmap->device) {
+-		if (use_diag)
++		if (val)
+ 			devmap->features |= DASD_FEATURE_USEDIAG;
+ 		else
+ 			devmap->features &= ~DASD_FEATURE_USEDIAG;
+@@ -854,20 +864,25 @@ dasd_eer_store(struct device *dev, struc
+ 	       const char *buf, size_t count)
+ {
+ 	struct dasd_devmap *devmap;
+-	int rc;
++	int val, rc;
++	char *endp;
+ 
+ 	devmap = dasd_devmap_from_cdev(to_ccwdev(dev));
+ 	if (IS_ERR(devmap))
+ 		return PTR_ERR(devmap);
+ 	if (!devmap->device)
+-		return count;
+-	if (buf[0] == '1') {
++		return -ENODEV;
++
++	val = simple_strtoul(buf, &endp, 0);
++	if (((endp + 1) < (buf + count)) || (val > 1))
++		return -EINVAL;
++
++	rc = count;
++	if (val)
+ 		rc = dasd_eer_enable(devmap->device);
+-		if (rc)
+-			return rc;
+-	} else
++	else
+ 		dasd_eer_disable(devmap->device);
+-	return count;
++	return rc;
+ }
+ 
+ static DEVICE_ATTR(eer_enabled, 0644, dasd_eer_show, dasd_eer_store);

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966417AbWLDUnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967007AbWLDUqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966417AbWLDUnL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937379AbWLDUnK
+	id S967007AbWLDUqg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967016AbWLDUqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:43:10 -0500
-Received: from brick.kernel.dk ([62.242.22.158]:25136 "EHLO kernel.dk"
+	Mon, 4 Dec 2006 15:46:35 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:37649 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937362AbWLDUnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:43:09 -0500
-Date: Mon, 4 Dec 2006 21:43:51 +0100
-From: Jens Axboe <jens.axboe@oracle.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] speed up single bio_vec allocation
-Message-ID: <20061204204351.GO4392@kernel.dk>
-References: <20061204200645.GN4392@kernel.dk> <000601c717e3$f098a8a0$2589030a@amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000601c717e3$f098a8a0$2589030a@amr.corp.intel.com>
+	id S967007AbWLDUqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:46:34 -0500
+Message-ID: <45748928.908@garzik.org>
+Date: Mon, 04 Dec 2006 15:46:32 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Alan <alan@lxorguk.ukuu.org.uk>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pata_ali: small fixes
+References: <20061204163605.51dc4353@localhost.localdomain>
+In-Reply-To: <20061204163605.51dc4353@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04 2006, Chen, Kenneth W wrote:
-> > [...]
-> > 
-> > Another idea would be to kill SLAB_HWCACHE_ALIGN (it's pretty pointless,
-> > I bet), and always alloc sizeof(*bio) + sizeof(*bvl) in one go when a
-> > bio is allocated. It doesn't add a lot of overhead even for the case
-> > where we do > 1 page bios, and it gets rid of the dual allocation for
-> > the 1 page bio.
+Alan wrote:
+> Switch to pci_get_bus_and_slot because some x86 systems seem to be
+> handing us a device with dev->bus = NULL. Also don't apply the isa fixup
+> to revision C6 and later of the chip. 
 > 
-> I will try that too.  I'm a bit touchy about sharing a cache line for
-> different bio.  But given that there are 200,000 I/O per second we are
-> currently pushing the kernel, the chances of two cpu working on two
-> bio that sits in the same cache line are pretty small.
+> Really we need to work out wtf is handing us pdev->bus = NULL, but firstly
+> and more importantly we need the drivers working.
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-Yep I really think so. Besides, it's not like we are repeatedly writing
-to these objects in the first place.
+applied
 
--- 
-Jens Axboe
 

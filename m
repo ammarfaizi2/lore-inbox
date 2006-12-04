@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936837AbWLDN3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936855AbWLDNqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936837AbWLDN3d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 08:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936834AbWLDN3d
+	id S936855AbWLDNqr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 08:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936856AbWLDNqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 08:29:33 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27661 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S936837AbWLDN3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 08:29:32 -0500
-Date: Mon, 4 Dec 2006 13:29:16 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Roman Zippel <zippel@linux-m68k.org>,
-       Al Viro <viro@ftp.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061204132916.GA24634@flint.arm.linux.org.uk>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	Pavel Machek <pavel@ucw.cz>, Roman Zippel <zippel@linux-m68k.org>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <1165084076.24604.56.camel@localhost.localdomain> <20061202184035.GL3078@ftp.linux.org.uk> <200612022243.58348.zippel@linux-m68k.org> <20061202215941.GN3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022306360.1867@scrub.home> <20061202224018.GO3078@ftp.linux.org.uk> <Pine.LNX.4.64.0612022345520.1867@scrub.home> <20061203102108.GA1724@elf.ucw.cz> <26864.1165230869@redhat.com> <29346.1165237409@redhat.com>
+	Mon, 4 Dec 2006 08:46:47 -0500
+Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:44983 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S936855AbWLDNqr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 08:46:47 -0500
+Date: Mon, 4 Dec 2006 13:46:40 +0000
+From: Ken Moffat <zarniwhoop@ntlworld.com>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD oddities with VIA PATA
+Message-ID: <20061204134640.GA18837@deepthought.linux.bogus>
+References: <20061201220134.GA22909@deepthought.linux.bogus> <20061201224240.GB22909@deepthought.linux.bogus> <el0a7s$soj$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <29346.1165237409@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <el0a7s$soj$1@sea.gmane.org>
+User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 01:03:29PM +0000, David Howells wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > I assume you wanted to delete "data" ?
+On Sun, Dec 03, 2006 at 09:03:53PM -0800, Joshua Kwan wrote:
+> On 12/01/2006 02:42 PM, Ken Moffat wrote:
+> > On Fri, Dec 01, 2006 at 10:01:34PM +0000, Ken Moffat wrote:
+> >> (i.) cdparanoia (9.8) works for root, but for a user it complains
+> >> that the ioctl isn't cooked and refuses to run.  For test purposes,
+> >> it runs ok for a user as suid root, but I imagine that increases
+> >> the likelihood of unspeakable things happening.  (Fortunately, I
+> >> don't have a dachshund)
 > 
-> Yes.
+> For the record,
+> cdparanoia III release 10pre0 (August 29, 2006)
 > 
-> > Your premise is two timer_lists which use one common handler.
-> > 
-> > 	struct foo {
-> > 		struct timer_list timer1;
-> > 		strucr timer_list timer2;
-> > 	};
+> works for me. My particular IDE adapter is:
 > 
-> That's not what I was thinking of.  I was thinking of something much simpler:
+> 00:0f.1 IDE interface: VIA Technologies, Inc.
+> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+> (prog-if 8a [Master SecP PriP])
 > 
-> 	struct foo {
-> 		struct timer_list timer;
-> 	};
+> I have not tried older versions (yet). Could you try this and see if
+> things are still broken?
 > 
+> -- 
+> Joshua Kwan
 > 
-> 	...
-> 		struct foo *a = kmalloc(sizeof(struct foo), GFP_KERNEL);
-> 		a->timer.fn = do_foo_timer;
-> 	...
-> 		struct foo *b = kmalloc(sizeof(struct foo), GFP_KERNEL);
-> 		b->timer.fn = do_foo_timer;
-> 	...
-> 		struct foo *c = kmalloc(sizeof(struct foo), GFP_KERNEL);
-> 		c->timer.fn = do_foo_timer;
-> 	...
-> 		struct foo *d = kmalloc(sizeof(struct foo), GFP_KERNEL);
-> 		d->timer.fn = do_foo_timer;
-> 	...
-> 
-> You've now got four copies of struct timer_list, but only one handler.
+ I had tried it, but it turns out my trial used the old installed
+libcdda_* libraries.  Now that I've got it using the new versions of
+these, it looks as if 10pre0, with the debian patches, works ok for a
+normal user (on x86_64 it needs the patch to be able to configure).
 
-<re-insert last paragraph of my message until read, understood and
-actioned.>
+ Thanks for the pointer.  FWIW I can no longer replicate the failure
+to mount a CD it had burned, will be doing more tests later.
 
+Ken
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+das eine Mal als Tragödie, das andere Mal als Farce

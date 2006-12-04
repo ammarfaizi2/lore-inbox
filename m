@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936932AbWLDOvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936927AbWLDOuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936932AbWLDOvg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 09:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936929AbWLDOvg
+	id S936927AbWLDOuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 09:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936928AbWLDOue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 09:51:36 -0500
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:36438 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S936934AbWLDOvW
+	Mon, 4 Dec 2006 09:50:34 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:32790 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S936927AbWLDOub
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 09:51:22 -0500
-Date: Mon, 4 Dec 2006 15:51:18 +0100
+	Mon, 4 Dec 2006 09:50:31 -0500
+Date: Mon, 4 Dec 2006 15:50:21 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
-Subject: [S390] termio <-> termios conversion error handling.
-Message-ID: <20061204145118.GG32059@skybase>
+Subject: [S390] Add __must_check to uaccess functions.
+Message-ID: <20061204145021.GD32059@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,63 +23,94 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] termio <-> termios conversion error handling.
+[S390] Add __must_check to uaccess functions.
 
-Get rid of our own user_termio_to_kernel_termios() and
-kernel_termios_to_user_termio() macros which didn't check for errors
-on user space accesses. Instead use the generic functions which
-handle this properly.
-In addition the generic version of user_termio_to_kernel_termios()
-also copies the c_line member which was missing in our variant.
+Follow other architectures and add __must_check to uaccess functions.
 
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- include/asm-s390/termios.h |   34 +---------------------------------
- 1 files changed, 1 insertion(+), 33 deletions(-)
+ include/asm-s390/uaccess.h |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
-diff -urpN linux-2.6/include/asm-s390/termios.h linux-2.6-patched/include/asm-s390/termios.h
---- linux-2.6/include/asm-s390/termios.h	2006-11-29 22:57:37.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/termios.h	2006-12-04 14:50:36.000000000 +0100
-@@ -75,39 +75,7 @@ struct termio {
- */
- #define INIT_C_CC "\003\034\177\025\004\0\1\0\021\023\032\0\022\017\027\026\0"
+diff -urpN linux-2.6/include/asm-s390/uaccess.h linux-2.6-patched/include/asm-s390/uaccess.h
+--- linux-2.6/include/asm-s390/uaccess.h	2006-11-29 22:57:37.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/uaccess.h	2006-12-04 14:50:32.000000000 +0100
+@@ -201,7 +201,7 @@ extern int __get_user_bad(void) __attrib
+  * Returns number of bytes that could not be copied.
+  * On success, this will be zero.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+ 	if (__builtin_constant_p(n) && (n <= 256))
+@@ -226,7 +226,7 @@ __copy_to_user(void __user *to, const vo
+  * Returns number of bytes that could not be copied.
+  * On success, this will be zero.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+ 	might_sleep();
+@@ -252,7 +252,7 @@ copy_to_user(void __user *to, const void
+  * If some data could not be copied, this function will pad the copied
+  * data to the requested size using zero bytes.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	if (__builtin_constant_p(n) && (n <= 256))
+@@ -277,7 +277,7 @@ __copy_from_user(void *to, const void __
+  * If some data could not be copied, this function will pad the copied
+  * data to the requested size using zero bytes.
+  */
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
+@@ -288,13 +288,13 @@ copy_from_user(void *to, const void __us
+ 	return n;
+ }
  
--/*
-- * Translate a "termio" structure into a "termios". Ugh.
-- */
--#define SET_LOW_TERMIOS_BITS(termios, termio, x) { \
--	unsigned short __tmp; \
--	get_user(__tmp,&(termio)->x); \
--	(termios)->x = (0xffff0000 & ((termios)->x)) | __tmp; \
--}
--
--#define user_termio_to_kernel_termios(termios, termio) \
--({ \
--	SET_LOW_TERMIOS_BITS(termios, termio, c_iflag); \
--	SET_LOW_TERMIOS_BITS(termios, termio, c_oflag); \
--	SET_LOW_TERMIOS_BITS(termios, termio, c_cflag); \
--	SET_LOW_TERMIOS_BITS(termios, termio, c_lflag); \
--	copy_from_user((termios)->c_cc, (termio)->c_cc, NCC); \
--})
--
--/*
-- * Translate a "termios" structure into a "termio". Ugh.
-- */
--#define kernel_termios_to_user_termio(termio, termios) \
--({ \
--	put_user((termios)->c_iflag, &(termio)->c_iflag); \
--	put_user((termios)->c_oflag, &(termio)->c_oflag); \
--	put_user((termios)->c_cflag, &(termio)->c_cflag); \
--	put_user((termios)->c_lflag, &(termio)->c_lflag); \
--	put_user((termios)->c_line,  &(termio)->c_line); \
--	copy_to_user((termio)->c_cc, (termios)->c_cc, NCC); \
--})
--
--#define user_termios_to_kernel_termios(k, u) copy_from_user(k, u, sizeof(struct termios))
--#define kernel_termios_to_user_termios(u, k) copy_to_user(u, k, sizeof(struct termios))
-+#include <asm-generic/termios.h>
+-static inline unsigned long
++static inline unsigned long __must_check
+ __copy_in_user(void __user *to, const void __user *from, unsigned long n)
+ {
+ 	return uaccess.copy_in_user(n, to, from);
+ }
  
- #endif	/* __KERNEL__ */
+-static inline unsigned long
++static inline unsigned long __must_check
+ copy_in_user(void __user *to, const void __user *from, unsigned long n)
+ {
+ 	might_sleep();
+@@ -306,7 +306,7 @@ copy_in_user(void __user *to, const void
+ /*
+  * Copy a null terminated string from userspace.
+  */
+-static inline long
++static inline long __must_check
+ strncpy_from_user(char *dst, const char __user *src, long count)
+ {
+         long res = -EFAULT;
+@@ -343,13 +343,13 @@ strnlen_user(const char __user * src, un
+  * Zero Userspace
+  */
  
+-static inline unsigned long
++static inline unsigned long __must_check
+ __clear_user(void __user *to, unsigned long n)
+ {
+ 	return uaccess.clear_user(n, to);
+ }
+ 
+-static inline unsigned long
++static inline unsigned long __must_check
+ clear_user(void __user *to, unsigned long n)
+ {
+ 	might_sleep();

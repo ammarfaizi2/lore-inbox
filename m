@@ -1,70 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759931AbWLDJhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934422AbWLDJjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759931AbWLDJhR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 04:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759932AbWLDJhQ
+	id S934422AbWLDJjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 04:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933351AbWLDJjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 04:37:16 -0500
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:41157 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1759931AbWLDJhP (ORCPT
+	Mon, 4 Dec 2006 04:39:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10914 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S934422AbWLDJjS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 04:37:15 -0500
-Message-ID: <365225031.05635@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Mon, 4 Dec 2006 17:37:18 +0800
-From: Fengguang Wu <fengguang.wu@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: drop_pagecache: Possible circular locking dependency
-Message-ID: <20061204093718.GA7243@mail.ustc.edu.cn>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <365219737.01594@ustc.edu.cn> <20061204003217.c0f05e00.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061204003217.c0f05e00.akpm@osdl.org>
-X-GPG-Fingerprint: 53D2 DDCE AB5C 8DC6 188B  1CB1 F766 DA34 8D8B 1C6D
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 4 Dec 2006 04:39:18 -0500
+Subject: Re: [GFS2] Reduce number of arguments to meta_io.c:getbuf() [58/70]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Russell Cattelan <cattelan@thebarn.com>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1164999019.1194.66.camel@xenon.msp.redhat.com>
+References: <1164889331.3752.421.camel@quoit.chygwyn.com>
+	 <1164999019.1194.66.camel@xenon.msp.redhat.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 04 Dec 2006 09:41:27 +0000
+Message-Id: <1165225287.3752.592.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 12:32:17AM -0800, Andrew Morton wrote:
-> On Mon, 4 Dec 2006 16:09:02 +0800
-> Fengguang Wu <fengguang.wu@gmail.com> wrote:
+Hi,
+
+On Fri, 2006-12-01 at 12:50 -0600, Russell Cattelan wrote:
+> On Thu, 2006-11-30 at 12:22 +0000, Steven Whitehouse wrote:
+> > >From cb4c03131836a55bf95e1c165409244ac6b4f39f Mon Sep 17 00:00:00 2001
+> > From: Steven Whitehouse <swhiteho@redhat.com>
+> > Date: Thu, 23 Nov 2006 11:16:32 -0500
+> > Subject: [PATCH] [GFS2] Reduce number of arguments to meta_io.c:getbuf()
+> > 
+> > Since the superblock and the address_space are determined by the
+> > glock, we might as well just pass that as the argument since all
+> > the callers already have that available.
 > 
-> > Got the following message when doing some benchmarks.
-> > I guess we should not hold inode_lock on calling invalidate_inode_pages().
-> > Any ideas?
-> > 
-> > Fengguang Wu
-> > 
-> > =======================================================
-> > [ INFO: possible circular locking dependency detected ]
-> > 2.6.19-rc6-mm2 #3
-> > -------------------------------------------------------
-> > rabench.sh/7467 is trying to acquire lock:
-> >  (&journal->j_list_lock){--..}, at: [<ffffffff8113bdbc>] journal_try_to_free_buffers+0xdc/0x1c0
-> > 
-> > but task is already holding lock:
-> >  (inode_lock){--..}, at: [<ffffffff810fe857>] drop_pagecache+0x67/0x120
-> > 
-> > which lock already depends on the new lock.
-> > 
+> This taking a poorly named function with a questionable api 
+> and making is worse.
+> If getbuf does not have a need for a glock structure then
+> there is no point in passing it in.
+> Simply reducing the number of arguments in this case serves
+> no purpose.
 > 
-> drat, I was afraid someone would notice.
+> The existing parameters seem correct but the function 
+> should probably be named something like gfs2_get_bh.
 > 
-> It's Hard To Fix.  Removing /proc/sys/vm/drop_pagecache would in fact be 
-> my preferred fix.
 
-Or fix drop_pagecache_sb():
-        Repeat until all possible pages freed:
-                grab and save some inodes to a buffer
-                zip their pages outside of inode_lock
+So send me a patch or propose something better if you really don't like
+it that much... The reason for passing the glock is that the function is
+getting metadata blocks, and in gfs2 those are directly associated with
+a glock. It makes more sense to pass that directly to the function than
+to pass the superblock and address space as separate items,
 
-Takes much more code though.
+Steve.
 
-I'd like to move this sysctl interface to the upcoming /proc/filecache. 
-Being a module, it helps reduce the kernel size :)
+> 
+> > 
+> > Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+> > ---
+> >  fs/gfs2/meta_io.c |   26 ++++++++++++--------------
+> >  1 files changed, 12 insertions(+), 14 deletions(-)
+> > 
+> > diff --git a/fs/gfs2/meta_io.c b/fs/gfs2/meta_io.c
+> > index fbeba81..0e34d99 100644
+> > --- a/fs/gfs2/meta_io.c
+> > +++ b/fs/gfs2/meta_io.c
+> > @@ -127,17 +127,17 @@ void gfs2_meta_sync(struct gfs2_glock *g
+> >  
+> >  /**
+> >   * getbuf - Get a buffer with a given address space
+> > - * @sdp: the filesystem
+> > - * @aspace: the address space
+> > + * @gl: the glock
+> >   * @blkno: the block number (filesystem scope)
+> >   * @create: 1 if the buffer should be created
+> >   *
+> >   * Returns: the buffer
+> >   */
+> >  
+> > -static struct buffer_head *getbuf(struct gfs2_sbd *sdp, struct inode *aspace,
+> > -				  u64 blkno, int create)
+> > +static struct buffer_head *getbuf(struct gfs2_glock *gl, u64 blkno, int create)
+> >  {
+> > +	struct address_space *mapping = gl->gl_aspace->i_mapping;
+> > +	struct gfs2_sbd *sdp = gl->gl_sbd;
+> >  	struct page *page;
+> >  	struct buffer_head *bh;
+> >  	unsigned int shift;
+> > @@ -150,13 +150,13 @@ static struct buffer_head *getbuf(struct
+> >  
+> >  	if (create) {
+> >  		for (;;) {
+> > -			page = grab_cache_page(aspace->i_mapping, index);
+> > +			page = grab_cache_page(mapping, index);
+> >  			if (page)
+> >  				break;
+> >  			yield();
+> >  		}
+> >  	} else {
+> > -		page = find_lock_page(aspace->i_mapping, index);
+> > +		page = find_lock_page(mapping, index);
+> >  		if (!page)
+> >  			return NULL;
+> >  	}
+> > @@ -202,7 +202,7 @@ static void meta_prep_new(struct buffer_
+> >  struct buffer_head *gfs2_meta_new(struct gfs2_glock *gl, u64 blkno)
+> >  {
+> >  	struct buffer_head *bh;
+> > -	bh = getbuf(gl->gl_sbd, gl->gl_aspace, blkno, CREATE);
+> > +	bh = getbuf(gl, blkno, CREATE);
+> >  	meta_prep_new(bh);
+> >  	return bh;
+> >  }
+> > @@ -220,7 +220,7 @@ struct buffer_head *gfs2_meta_new(struct
+> >  int gfs2_meta_read(struct gfs2_glock *gl, u64 blkno, int flags,
+> >  		   struct buffer_head **bhp)
+> >  {
+> > -	*bhp = getbuf(gl->gl_sbd, gl->gl_aspace, blkno, CREATE);
+> > +	*bhp = getbuf(gl, blkno, CREATE);
+> >  	if (!buffer_uptodate(*bhp))
+> >  		ll_rw_block(READ_META, 1, bhp);
+> >  	if (flags & DIO_WAIT) {
+> > @@ -379,11 +379,10 @@ void gfs2_unpin(struct gfs2_sbd *sdp, st
+> >  void gfs2_meta_wipe(struct gfs2_inode *ip, u64 bstart, u32 blen)
+> >  {
+> >  	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
+> > -	struct inode *aspace = ip->i_gl->gl_aspace;
+> >  	struct buffer_head *bh;
+> >  
+> >  	while (blen) {
+> > -		bh = getbuf(sdp, aspace, bstart, NO_CREATE);
+> > +		bh = getbuf(ip->i_gl, bstart, NO_CREATE);
+> >  		if (bh) {
+> >  			struct gfs2_bufdata *bd = bh->b_private;
+> >  
+> > @@ -484,7 +483,7 @@ int gfs2_meta_indirect_buffer(struct gfs
+> >  	spin_unlock(&ip->i_spin);
+> >  
+> >  	if (!bh)
+> > -		bh = getbuf(gl->gl_sbd, gl->gl_aspace, num, CREATE);
+> > +		bh = getbuf(gl, num, CREATE);
+> >  
+> >  	if (!bh)
+> >  		return -ENOBUFS;
+> > @@ -535,7 +534,6 @@ err:
+> >  struct buffer_head *gfs2_meta_ra(struct gfs2_glock *gl, u64 dblock, u32 extlen)
+> >  {
+> >  	struct gfs2_sbd *sdp = gl->gl_sbd;
+> > -	struct inode *aspace = gl->gl_aspace;
+> >  	struct buffer_head *first_bh, *bh;
+> >  	u32 max_ra = gfs2_tune_get(sdp, gt_max_readahead) >>
+> >  			  sdp->sd_sb.sb_bsize_shift;
+> > @@ -547,7 +545,7 @@ struct buffer_head *gfs2_meta_ra(struct 
+> >  	if (extlen > max_ra)
+> >  		extlen = max_ra;
+> >  
+> > -	first_bh = getbuf(sdp, aspace, dblock, CREATE);
+> > +	first_bh = getbuf(gl, dblock, CREATE);
+> >  
+> >  	if (buffer_uptodate(first_bh))
+> >  		goto out;
+> > @@ -558,7 +556,7 @@ struct buffer_head *gfs2_meta_ra(struct 
+> >  	extlen--;
+> >  
+> >  	while (extlen) {
+> > -		bh = getbuf(sdp, aspace, dblock, CREATE);
+> > +		bh = getbuf(gl, dblock, CREATE);
+> >  
+> >  		if (!buffer_uptodate(bh) && !buffer_locked(bh))
+> >  			ll_rw_block(READA, 1, &bh);
+> > -- 
+> > 1.4.1
+> > 
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 
-Fengguang Wu

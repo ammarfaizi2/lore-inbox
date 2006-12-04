@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965885AbWLDU1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936885AbWLDU1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965885AbWLDU1z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 15:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937356AbWLDU1z
+	id S936885AbWLDU1b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 15:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937379AbWLDU1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 15:27:55 -0500
-Received: from mail.kolumbus.fi ([193.229.0.46]:34405 "EHLO mail.kolumbus.fi"
+	Mon, 4 Dec 2006 15:27:30 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:43720 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937380AbWLDU1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 15:27:54 -0500
-From: Janne Karhunen <Janne.Karhunen@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Mounting NFS root FS
-Date: Mon, 4 Dec 2006 22:27:43 +0200
-User-Agent: KMail/1.9.5
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, MrUmunhum@popdial.com,
-       linux-kernel@vger.kernel.org
-References: <4571CE06.4040800@popdial.com> <200612041912.30527.Janne.Karhunen@gmail.com> <Pine.LNX.4.61.0612042100570.29300@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0612042100570.29300@yvahk01.tjqt.qr>
+	id S936885AbWLDU13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 15:27:29 -0500
+Date: Mon, 4 Dec 2006 12:26:35 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: kernel-packagers@vger.kernel.org
+Subject: New mailing list for Linux kernel packagers
+Message-ID: <20061204202635.GA30075@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612042227.43751.Janne.Karhunen@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 December 2006 22:03, Jan Engelhardt wrote:
+Hi,
 
-> >> 2) NFS provides persistent storage.
-> >
-> >To me this sounds like a chicken and an egg problem. It
-> >both depends and provides this at the same time :/. But
-> >hey, if it's supposed to work then OK.
->
-> Way 1:
->
-> mount -nt tmpfs none /var/lib/nfs;
-> mount -nt nfs fserve:/tftpboot/linux /mnt;
-> mount -n --move /var/lib/nfs /mnt/var/lib/nfs/;
-> ./run_init -c /mnt /sbin/init; # or similar
+I'd like to announce a new mailing list that has been just set up.
 
-Statd should probably be started before nfs mount to get it 
-right. But doesn't statd require state data ( some sort of 
-generation number ) from persistent storage to work? This 
-would start with a blank slate.
+It is oriented toward anyone who is responsible for, or involved with,
+the packing up of the Linux kernel for a distro or other group of users.
+
+The list is located at kernel-packagers@vger.kernel.org, and
+instructions on how to subscribe to it can be found at
+http://vger.kernel.org/ (it's the "standard" majordomo interface.)
+
+The "charter" of the group is below.
+
+If there are any questions about it, please let me know.
+
+Please feel free to forward this information on to anyone that you
+thinks would find it useful.
+
+thanks,
+
+greg k-h
+
+---------------------------------
+
+I'd like to propose a new mailing list for anyone involved in packaging
+up the Linux kernel for a distro or for any other group of users.
+
+In talking with a lot of different people who do this kind of thing,
+I've noticed a real need for a place for everyone to come together to
+try to share things that make their jobs easier.  Such topics can
+include:
+	- information about specific bugs that other distros might want
+	  to know about
+	- general discussion or coordination between distro maintainers
+	  and -stable maintainers.
+	- issues that are seen in packaging and other usages that might
+	  not pertain to upstream due to the age of the kernel that is
+	  being used.
+	- discussions about how a distro can help out more with working
+	  with upstream.
+	- possibly discussions about unifying bugzilla issues with the
+	  kernel.org bugzilla, although I think that might be better
+	  served on linux-kernel still.
+
+This will be a vendor-neutral place, hopefully hosted in a neutral
+location to help foster some communication that today seems to be spread
+across irc channels and private email queries.
+
+Also, a number of vendors (non-distros) have expressed interest in such
+a list, so I also think it would be acceptable to use it for:
+	- a way for a single vendor to point out to all distros that
+	  they might want to pick up a specific bug fix that affects
+	  them.
+It is only acceptable for the engineers of these vendors to use this
+channel, not any marketing or product management types.  This will _not_
+replace any existing procedures that the different distros have in
+place for doing feature requests or bug reports to the different
+distros.  It will only be a place where bugs that have already been
+fixed might be gently pointed out.
+
+If the vendors (non-distros) abuse this list, I have no qualms about
+removing them from the list.  Kernel packagers' conversations take much
+higher priority over individual company issues and concerns.
 
 
--- 
-// Janne
+Note, this is NOT a place to announce security issues that should be
+embargoed, or coordinated.  Or for security issues pertaining to the
+upstream kernel release.  Or for patches that should be sent added to
+the -stable kernel tree.  All of those things are already well covered
+by existing mailing lists today (vendor-sec, security@kernel.org and
+stable@kernel.org respectively.)

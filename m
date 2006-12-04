@@ -1,106 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967790AbWLDX0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967759AbWLDX1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967790AbWLDX0R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 18:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967759AbWLDX0R
+	id S967759AbWLDX1V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 18:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967808AbWLDX1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 18:26:17 -0500
-Received: from ug-out-1314.google.com ([66.249.92.168]:26344 "EHLO
+	Mon, 4 Dec 2006 18:27:21 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:27840 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967810AbWLDX0P (ORCPT
+	with ESMTP id S967759AbWLDX1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 18:26:15 -0500
+	Mon, 4 Dec 2006 18:27:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kLT3iaTaPNOFfRcFVzmyasdh/8Cp4beGpv7r7YWmzsVivfIpmSCQRcMUrV0SbaOJ2DND99EYqaoBDcjxm/vEqYsQd5SPFg6ZNufY/Yee44F+OsILYcu0kfU5rC76Nc4awjRjG1MsL8zS3nS1U6znYnU2vLSpsSDw7NPi59S4tlw=
-Message-ID: <4807377b0612041526k1bace33ag5d4f75826716a87@mail.gmail.com>
-Date: Mon, 4 Dec 2006 15:26:11 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Brandeburg, Jesse" <jesse.brandeburg@intel.com>
-Subject: Re: Intel 82559 NIC corrupted EEPROM
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       auke-jan.h.kok@intel.com, bunk@stusta.de, jgarzik@pobox.com,
-       saw@saw.sw.com.sg
-In-Reply-To: <45704001.9040108@privacy.net>
+        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=KQybd2ICOlfcgpI06rhdZC/bXxuxR5yMr4QAJ5Woklm57wAMVcBzyNeip7sZEENZMUX3eEqQWNicM7xdNqqT06C70ofMmrt/0+Jw0VT7mG6BAAX5QZx7pW9x5o9pyTWpwqoTPgF3MFm5Z0LAbTlUjdVAuOzeU6n4ENldk4c0lMs=
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
+Date: Tue, 5 Dec 2006 00:27:14 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       "John Linville" <linville@tuxdriver.com>, "Jiri Benc" <jbenc@suse.cz>,
+       "Lennart Poettering" <lennart@poettering.net>,
+       "Johannes Berg" <johannes@sipsolutions.net>,
+       "Larry Finger" <Larry.Finger@lwfinger.net>
+References: <200612031936.34343.IvDoorn@gmail.com> <d120d5000612041415r2f471e78s4feb86d22b7706d5@mail.gmail.com>
+In-Reply-To: <d120d5000612041415r2f471e78s4feb86d22b7706d5@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <454B7C3A.3000308@privacy.net> <454BF0F1.5050700@zytor.com>
-	 <45506C9A.5010009@privacy.net> <4551B7B8.8080601@privacy.net>
-	 <4807377b0611080926x21bd6326xc5e7683100d20948@mail.gmail.com>
-	 <45533801.7000809@privacy.net>
-	 <4807377b0611291055o6e28c66ft9edeb3c8363dd49b@mail.gmail.com>
-	 <45704001.9040108@privacy.net>
+Message-Id: <200612050027.15253.IvDoorn@gmail.com>
+From: Ivo van Doorn <ivdoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/1/06, John <me@privacy.net> wrote:
-> > can you try adding mdelay(100); in e100_eeprom_load before the for loop,
-> > and then change the multiple udelay(4) to mdelay(1) in e100_eeprom_read
->
-> I applied the attached patch.
->
-> Loading the driver now takes around one minute :-)
+Hi,
 
-ouch, but yep, thats what happens when you use "super extra delay"
+> > This patch is a resend of a patch I has been send to the linux kernel
+> > and netdev list earlier. The most recent version of a few weeks back
+> > didn't compile since I missed 1 line in my patch that changed
+> > include/linux/input.h.
+> >
+> > This patch will offer the handling of radiokeys on a laptop.
+> > Such keys often control the wireless devices on the radio
+> > like the wifi, bluetooth and irda.
+> >
+> > The rfkill works as follows, when the user presses the hardware key
+> > to control the wireless (wifi, bluetooth or irda) radio a signal will
+> > go to rfkill. This happens by the hardware driver sending a signal
+> > to rfkill, or rfkill polling for the button status.
+> > The key signal will then be processed by rfkill, each key will have
+> > its own input device, if this input device has not been openened
+> > by the user, rfkill will keep the signal and either turn the radio
+> > on or off based on the key status.
+> > If the input device has been opened, rfkill will send the signal to
+> > userspace and do nothing further. The user is in charge of controlling
+> > the radio.
+> >
+> > This driver (if accepted and applied) will be usefull for the rt2x00 drivers
+> > (rt2400pci, rt2500pci, rt2500usb, rt61pci and rt73usb) in the wireless-dev
+> > tree and the MSI laptop driver from Lennart Poettering in the main
+> > linux kernel tree.
+> >
+> > Before this patch can be applied to any tree, I first wish to hear
+> > if the patch is acceptable. Since the previous time it was send I have made
+> > several fixes based on the feedback like adding the sysfs entries for
+> > reading the status.
+> >
+> 
+> Hi Ivo,
+> 
+> I apologize for not responding to your post earlier, it was a busy week.
 
-> I ran 'source load_unload' 25 times in a loop.
->
-> The first 12 times were successful. The last 13 times failed.
-> (cf. attached archive)
->
-> I noticed something very strange.
->
-> The number of words obviously in error (0xFFFF) returned by the EEPROM
-> on 00:09.0 is not constant.
+No problem, it didn't compile anyway. And this time I have CC'ed all
+people that have previously shown interest in rfkill, so they are now
+updated about rfkill as well. ;)
 
-That is very strange, I would think that maybe you have something else
-on the bus with the e100 that may be hogging bus cycles you have
-failing hardware (maybe a bad eeprom, or possibly a bad mac chip)
+> I am still not sure that tight coupling of input device with rfkill
+> structure is such a good idea. Quite often the button is separated
+> from the device itself and radio control is done via BIOS SMM (see
+> wistron driver) or there is no special button at all and users might
+> want to assign one of their standard keyboard buttons to be an RF
+> switch.
 
-> $ grep -c 0xFFFF insmod*
-> insmod_300.txt:0
-> insmod_301.txt:0
-> insmod_302.txt:0
-> insmod_303.txt:0
-> insmod_304.txt:0
-> insmod_305.txt:0
-> insmod_306.txt:0
-> insmod_307.txt:0
-> insmod_308.txt:0
-> insmod_309.txt:0
-> insmod_310.txt:0
-> insmod_311.txt:0
-> insmod_312.txt:1
-> insmod_313.txt:5
-> insmod_314.txt:24
-> insmod_315.txt:45
-> insmod_316.txt:243
-> insmod_317.txt:256
-> insmod_318.txt:256
-> insmod_319.txt:256
-> insmod_320.txt:256
-> insmod_321.txt:256
-> insmod_322.txt:256
-> insmod_323.txt:253
-> insmod_324.txt:240
+Making sure rfkill supports keys that are not handled by the driver
+is a bit hard. Just as drivers that can only check if the button is
+toggled and not what the current state is.
+The problem is that it is hard to make a clean split between the
+2 different button controls. Not all drivers allow the radio to be
+enabled while the button status are indicating the radio should
+be off.
+The buttons that are already integrated into the keyboard,
+by example by using a Fn key combo don't control the device
+directly. So the driver cannot offer anything to the rfkill driver.
+Such buttons should be mapped in userspace without the help of rfkill,
+since the kernel cannot detect if that key belonged to a radio
+control key or not.
 
-this is even stranger, does it cycle back down (sine wave) to zero
-again?  The delays did seem to work, at least sometimes.  This
-indicates that something needs that extra delay to successfully read
-the eeprom.  I might try changing all the udelay(4) to udelay(40) (x10
-increase) and see if that gives you a happy medium of "most times
-driver loads without error"
+> I think it would be better if there was an rfkill class listing all
+> controlled devices (preferrably grouped by their type - WiFi, BT,
+> IRDA, etc) and if every group would provide an attribute allowing to
+> control state of the whole group (do we realistically need to kill
+> just one interface? Wouldn't ifconfig be suitable for that?). The
 
-John, this problem seems to be very specific to your hardware.  I know
-that you have put in a lot of time debugging this, but I'm not sure
-what we can do from here.  If this were a generic code problem more
-people would be reporting the issue.
+There have been mixed feelings on the netdev list about what should
+exactly happen when the button is pressed. The possible options are:
 
-What would you like to do?  At this stage I would like e100 to work
-better than it is, but I'm not sure what to do next.
+1 - rfkill will kill all interfaces
+2 - rfkill will kill all interfaces of the same type (wifi, bt, irda)
+3 - rfkill will kill the interface it belongs to
+ 
+Personally I would favour the second option, but used the third after hearing
+objections to the second method. So since there are also fans of
+the third option I think there should be a decision made about what the
+correct option is, so rfkill can follow that method.
 
-Thanks for your patience on this issue,
-  Jesse
+> attribute should be a tri-state on/off/auto, "auto" meaning the driver
+> itself manages radio state. This would avoid another tacky IMHO point
+> that in your implementation mere opening of an input device takes over
+> RF driver. Explicit control allow applications "snoop" RF state
+> without disturbing it.
+
+Currently userspace can always check the state of the button whenever
+they like by checking the sysfs entry. 
+
+
+> If there are concerns that drivers will have to re-implement most of
+> the button handling you are still free to create a simple
+> implementation of polled RF button (I don't think that interrupt
+> driver RF buttons would share alot of code) so that users would only
+> need to implement a polling function.
+
+Isn't the current interface to the driver not clean enough?
+It only asks for the (optional) poll method, and the enable/disable method.
+I believe this should not add too much code into the drivers, especially when
+all methods are optional.
+
+Ivo

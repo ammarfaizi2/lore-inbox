@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758882AbWLEFyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936197AbWLEFyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758882AbWLEFyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 00:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758890AbWLEFyj
+	id S936197AbWLEFyl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758979AbWLEFyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 00:54:39 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:32425 "HELO
-	smtp107.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1758882AbWLEFyj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 00:54:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=iMnib8E7p5og17+UP1ykeUgMI+IN9ae8ViVbxxcJwai0/z23D+Dlx9sdJxLsMA19JFnaDlmkPrQtDFIPOQ4P+En2p3robC5Cl9SRWw/1NvQbJLs7Sm6h1QukrgNd77AAlqHZid8Mf9IKBsIkd8Lp4mEWlNEcToDncCtpJv0p39M=  ;
-X-YMail-OSG: 9tOtD9IVM1mERnHpZEYjNcMqg9woAuc_NU9FCrSCspXMzstmVvOCOJR35_SZlzjd1rnO7x5g526omooClr44YiM2ohx1YvJrakOarpzBT7bRK79ZzkAyWbUkdMIFmR2ukLRtH.2OsHUCnw--
-Message-ID: <4575096F.1030603@yahoo.com.au>
-Date: Tue, 05 Dec 2006 16:53:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans for 2.6.20
-References: <20061204204024.2401148d.akpm@osdl.org>	<17781.27.369430.322758@cargo.ozlabs.ibm.com> <20061204214229.2070548a.akpm@osdl.org>
-In-Reply-To: <20061204214229.2070548a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 00:54:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49316 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758890AbWLEFyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:54:40 -0500
+Date: Mon, 4 Dec 2006 21:54:04 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Kristian =?UTF-8?B?SMO4Z3NiZXJnIg==?= <krh@redhat.com>"@redhat.com
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: [PATCH 2/3] Import fw-ohci driver.
+Message-Id: <20061204215404.eacb95be.zaitcev@redhat.com>
+In-Reply-To: <20061205052245.7213.39098.stgit@dinky.boston.redhat.com>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+	<20061205052245.7213.39098.stgit@dinky.boston.redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 5 Dec 2006 16:14:03 +1100
-> Paul Mackerras <paulus@samba.org> wrote:
-> 
-> 
->>>radix-tree-rcu-lockless-readside.patch
->>>
->>> There's no reason to merge this yet.
->>
->>We want to use it in some powerpc arch code.  Currently we use a
->>per-cpu array of spinlocks, and this patch would let us get rid of
->>that array.
-> 
-> 
-> ok, let's merge it then.
+On Tue, 05 Dec 2006 00:22:45 -0500, "Kristian Høgsberg" <krh@redhat.com> wrote:
 
-Well that wasn't as hard as I thought ;) No arguments from me!
+Your wonderful crossed-o might be ok here (or it would've been if only
+your mailer worked -- notice that the name is right in the "On" tag
+line above):
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Signed-off-by: Kristian HÃ¸gsberg <krh@redhat.com>
+> ---
+
+But it's very much NOT OK here:
+
+> + * fw-ohci.c - Driver for OHCI 1394 boards
+> + * Copyright (C) 2003 Kristian HÃ¸gsberg <krh@bitplanet.net>
+
+And you know why? Because the C code in kernel has no character set.
+
+Even if the holy penguin declares "we use UTF-8 now", it's still not ok,
+because people routinely send patches in e-mail.
+
+So, please don't do that. I do not put "Copyright (c) 2006 Петр Зайцев"
+in my patches out of courtesy to you. You might not even have fonts
+for that. Now I expect the same from you.
+
+-- Pete

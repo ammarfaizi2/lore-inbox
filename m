@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757005AbWLEXvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1757674AbWLEXwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1757005AbWLEXvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 18:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757046AbWLEXvh
+	id S1757674AbWLEXwT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 18:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1757050AbWLEXwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 18:51:37 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42701 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1756986AbWLEXvg (ORCPT
+	Tue, 5 Dec 2006 18:52:19 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:5869 "EHLO
+	sj-iport-5.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757734AbWLEXwR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 18:51:36 -0500
-Date: Tue, 5 Dec 2006 23:57:01 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       "Tejun Heo" <htejun@gmail.com>, "Jeff Garzik" <jgarzik@pobox.com>
-Subject: Re: [PATCH] ide-cd: Handle strange interrupt on the Intel ESB2
-Message-ID: <20061205235701.74b4c07b@localhost.localdomain>
-In-Reply-To: <58cb370e0612051523t2feba049rae830c9fa593b1c1@mail.gmail.com>
-References: <20061204163057.2f27a12a@localhost.localdomain>
-	<58cb370e0612051523t2feba049rae830c9fa593b1c1@mail.gmail.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 18:52:17 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Fleming <afleming@freescale.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+X-Message-Flag: Warning: May contain useful information
+References: <1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+	<20061205123958.497a7bd6.akpm@osdl.org>
+	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+	<20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
+	<20061205135753.9c3844f8.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 05 Dec 2006 15:52:13 -0800
+In-Reply-To: <20061205135753.9c3844f8.akpm@osdl.org> (Andrew Morton's message of "Tue, 5 Dec 2006 13:57:53 -0800")
+Message-ID: <adaejrdc34i.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 05 Dec 2006 23:52:14.0435 (UTC) FILETIME=[6372EB30:01C718C8]
+Authentication-Results: sj-dkim-4; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim4002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 00:23:03 +0100
-"Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com> wrote:
+ > Ah.  The point is that the phy code doesn't want to flush _all_ pending
+ > callbacks.  It only wants to flush its own one.  And its own one doesn't
+ > take rtnl_lock().
 
-> Looks good but aren't this trying to fix the same ICH
-> issue that is fixed in libata by ap->ops->irq_clear(ap)?
-> 
-> [ please see Tejun's mail: http://lkml.org/lkml/2006/11/15/94 ]
-> 
-> If so shouldn't we apply this fix for all ICH5/6/7/8 chipsets?
+OK, got it.  You're absolutely correct.
 
-Possibly. Thats one reason I made it a quirk bit. I'd certainly expect it
-to be a group of related chipsets.
+ > Maybe the lesson here is that flush_scheduled_work() is a bad function.
+ > It should really be flush_this_work(struct work_struct *w).  That is in
+ > fact what approximately 100% of the flush_scheduled_work() callers actually
+ > want to do.
 
-> Also shouldn't the fix be in IRQ handler?  Currently the fix is limited
-> to ide-cd driver which seems to be the wrong place as the problem
-> is supposed to happen also when using other IDE device drivers
-> or/and other ATA/ATAPI devices?
+I think flush_this_work() runs into trouble if it means "make sure
+everything up to <this work> has completed" because it still syncs
+with everything before <this work>, which has the same risk of
+deadlock.  And I'm not totally sure everyone who does
+flush_scheduled_work() really means "cancel my work" -- they might mean
+"finish up my work".
 
-The problem has only be observed with CD devices doing PIO ATAPI
-commands. I am not aware of an Intel errata document that characterises
-this errata so anything else so cannot guess further. Perhaps Intel can
-advise ?
+For example I would have to do some archeology to remember exactly
+what I needed flush_scheduled_work() when I wrote drivers/infiniband/ulp/ipoib
 
-Alan
+ - R.

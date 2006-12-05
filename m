@@ -1,47 +1,1136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968372AbWLEF1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937341AbWLEF1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968372AbWLEF1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 00:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967723AbWLEF1V
+	id S937341AbWLEF1G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937358AbWLEF1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 00:27:21 -0500
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:24994 "EHLO
-	sj-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967562AbWLEF1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 00:27:18 -0500
-X-IronPort-AV: i="4.09,496,1157353200"; 
-   d="scan'208"; a="89749087:sNHT41335038"
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Steve Wise <swise@opengridcomputing.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v2 04/13] Connection Manager
-X-Message-Flag: Warning: May contain useful information
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
-	<20061202224958.27014.65970.stgit@dell3.ogc.int>
-	<20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
-	<20061205050725.GA26033@2ka.mipt.ru> <ada3b7uhqlk.fsf@cisco.com>
-	<20061205051657.GB26845@2ka.mipt.ru>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 04 Dec 2006 21:27:09 -0800
-In-Reply-To: <20061205051657.GB26845@2ka.mipt.ru> (Evgeniy Polyakov's message of "Tue, 5 Dec 2006 08:16:58 +0300")
-Message-ID: <aday7pmgbf6.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 05 Dec 2006 05:27:12.0109 (UTC) FILETIME=[042ED9D0:01C7182E]
-Authentication-Results: sj-dkim-8; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim8002 verified; ); 
+	Tue, 5 Dec 2006 00:27:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42566 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937341AbWLEF07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:26:59 -0500
+From: "=?UTF-8?Q?Kristian_H=C3=B8gsberg?=" <krh@redhat.com>
+Subject: [PATCH 3/3] Import fw-sbp2 driver.
+Date: Tue, 05 Dec 2006 00:22:53 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Message-Id: <20061205052253.7213.41796.stgit@dinky.boston.redhat.com>
+In-Reply-To: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > So will each new NIC implement some parts of TCP stack in theirs drivers?
+Pull in the fw-sbp2 driver for firewire storage devices.
 
-I hope not.  The driver we merged (amso1100) did it completely in FW,
-with a separate MAC and IP interface for the RDMA connections.  I
-think we better understand the Chelsio driver pretty well and think it
-over carefully before we merge it.
+Signed-off-by: Kristian Høgsberg <krh@redhat.com>
+---
 
-Thanks for pointing this stuff out.
+ drivers/fw/fw-ohci.c |    2 
+ drivers/fw/fw-sbp2.c | 1083 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1084 insertions(+), 1 deletions(-)
 
- - R.
+diff --git a/drivers/fw/fw-ohci.c b/drivers/fw/fw-ohci.c
+index 78e0324..444e8f0 100644
+--- a/drivers/fw/fw-ohci.c
++++ b/drivers/fw/fw-ohci.c
+@@ -594,7 +594,7 @@ static void bus_reset_tasklet(unsigned l
+ 				 self_id_count, ohci->self_id_buffer);
+ }
+ 
+-static irqreturn_t irq_handler(int irq, void *data, struct pt_regs *unused)
++static irqreturn_t irq_handler(int irq, void *data)
+ {
+ 	struct fw_ohci *ohci = data;
+ 	u32 event, iso_event;
+diff --git a/drivers/fw/fw-sbp2.c b/drivers/fw/fw-sbp2.c
+new file mode 100644
+index 0000000..e0e7590
+--- /dev/null
++++ b/drivers/fw/fw-sbp2.c
+@@ -0,0 +1,1083 @@
++/*						-*- c-basic-offset: 8 -*-
++ * fw-sbp2.c -- SBP2 driver (SCSI over IEEE1394)
++ *
++ * Copyright © 2005  Kristian Høgsberg <krh@bitplanet.net>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/dma-mapping.h>
++
++#include <scsi/scsi.h>
++#include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_dbg.h>
++#include <scsi/scsi_device.h>
++#include <scsi/scsi_host.h>
++
++#include "fw-transaction.h"
++#include "fw-topology.h"
++#include "fw-device.h"
++
++/* I don't know why the SCSI stack doesn't define something like this... */
++typedef void (*scsi_done_fn_t) (struct scsi_cmnd *);
++
++static const char sbp2_driver_name[] = "sbp2";
++
++struct sbp2_device {
++	struct fw_address_handler address_handler;
++	struct list_head orb_list;
++	u64 management_agent_address;
++	u64 command_block_agent_address;
++	u32 workarounds;
++	int login_id;
++
++	/* We cache these addresses and only update them once we've
++	 * logged in or reconnected to the sbp2 device.  That way, any
++	 * IO to the device will automatically fail and get retried if
++	 * it happens in a window where the device is not ready to
++	 * handle it (e.g. after a bus reset but before we reconnect). */
++	int node_id;
++	int address_high;
++	int generation;
++
++	struct work_struct work;
++	struct Scsi_Host *scsi_host;
++};
++
++#define SBP2_MAX_SG_ELEMENT_LENGTH	0xf000
++#define SBP2_MAX_SECTORS		255	/* Max sectors supported */
++#define SBP2_MAX_CMDS			8	/* This should be safe */
++
++#define SBP2_ORB_NULL			0x80000000
++
++#define SBP2_DIRECTION_TO_MEDIA		0x0
++#define SBP2_DIRECTION_FROM_MEDIA	0x1
++
++/* Unit directory keys */
++#define SBP2_COMMAND_SET_SPECIFIER	0x38
++#define SBP2_COMMAND_SET		0x39
++#define SBP2_COMMAND_SET_REVISION	0x3b
++#define SBP2_FIRMWARE_REVISION		0x3c
++
++/* Flags for detected oddities and brokeness */
++#define SBP2_WORKAROUND_128K_MAX_TRANS	0x1
++#define SBP2_WORKAROUND_INQUIRY_36	0x2
++#define SBP2_WORKAROUND_MODE_SENSE_8	0x4
++#define SBP2_WORKAROUND_FIX_CAPACITY	0x8
++#define SBP2_WORKAROUND_OVERRIDE	0x100
++
++/* Management orb opcodes */
++#define SBP2_LOGIN_REQUEST		0x0
++#define SBP2_QUERY_LOGINS_REQUEST	0x1
++#define SBP2_RECONNECT_REQUEST		0x3
++#define SBP2_SET_PASSWORD_REQUEST	0x4
++#define SBP2_LOGOUT_REQUEST		0x7
++#define SBP2_ABORT_TASK_REQUEST		0xb
++#define SBP2_ABORT_TASK_SET		0xc
++#define SBP2_LOGICAL_UNIT_RESET		0xe
++#define SBP2_TARGET_RESET_REQUEST	0xf
++
++/* Offsets for command block agent registers */
++#define SBP2_AGENT_STATE		0x00
++#define SBP2_AGENT_RESET		0x04
++#define SBP2_ORB_POINTER		0x08
++#define SBP2_DOORBELL			0x10
++#define SBP2_UNSOLICITED_STATUS_ENABLE	0x14
++
++/* Status write response codes */
++#define SBP2_STATUS_REQUEST_COMPLETE	0x0
++#define SBP2_STATUS_TRANSPORT_FAILURE	0x1
++#define SBP2_STATUS_ILLEGAL_REQUEST	0x2
++#define SBP2_STATUS_VENDOR_DEPENDENT	0x3
++
++struct sbp2_status {
++	unsigned int orb_high:16;
++	unsigned int sbp_status:8;
++	unsigned int len:3;
++	unsigned int dead:1;
++	unsigned int response:2;
++	unsigned int source:2;
++	u32 orb_low;
++	u8 data[24];
++};
++
++struct sbp2_orb {
++	struct fw_transaction t;
++	dma_addr_t request_bus;
++	int rcode;
++	u32 pointer[2];
++	void (*callback) (struct sbp2_orb * orb, struct sbp2_status * status);
++	struct list_head link;
++};
++
++struct sbp2_management_orb {
++	struct sbp2_orb base;
++	struct {
++		u32 password_high;
++		u32 password_low;
++		u32 response_high;
++		u32 response_low;
++		unsigned int lun:16;
++		unsigned int function:4;
++		unsigned int reconnect:4;
++		unsigned int reserved:4;
++		unsigned int exclusive:1;
++		unsigned int request_format:2;
++		unsigned int notify:1;
++		unsigned int response_length:16;
++		unsigned int password_length:16;
++		u32 status_fifo_high;
++		u32 status_fifo_low;
++	} request;
++	u32 response[4];
++	dma_addr_t response_bus;
++	struct completion done;
++	struct sbp2_status status;
++};
++
++struct sbp2_login_response {
++	u16 login_id;
++	u16 length;
++	u32 command_block_agent_high;
++	u32 command_block_agent_low;
++	u32 reconnect_hold;
++};
++
++struct sbp2_command_orb {
++	struct sbp2_orb base;
++	struct {
++		u32 next_high;
++		u32 next_low;
++		u32 data_descriptor_high;
++		u32 data_descriptor_low;
++		u32 data_size:16;
++		u32 page_size:3;
++		u32 page_table_present:1;
++		u32 max_payload:4;
++		u32 speed:3;
++		u32 direction:1;
++		u32 reserved:1;
++		u32 request_format:2;
++		u32 notify:1;
++		u8 command_block[12];
++	} request;
++	struct scsi_cmnd *cmd;
++	scsi_done_fn_t done;
++	struct fw_unit *unit;
++
++	struct {
++		u16 segment_base_high;
++		u16 length;
++		u32 segment_base_low;
++	} page_table[SG_ALL];
++	dma_addr_t page_table_bus;
++	dma_addr_t request_buffer_bus;
++};
++
++/*
++ * List of devices with known bugs.
++ *
++ * The firmware_revision field, masked with 0xffff00, is the best
++ * indicator for the type of bridge chip of a device.  It yields a few
++ * false positives but this did not break correctly behaving devices
++ * so far.  We use ~0 as a wildcard, since the 24 bit values we get
++ * from the config rom can never match that.
++ */
++static const struct {
++	u32 firmware_revision;
++	u32 model;
++	unsigned workarounds;
++} sbp2_workarounds_table[] = {
++	/* DViCO Momobay CX-1 with TSB42AA9 bridge */ {
++		.firmware_revision	= 0x002800,
++		.model			= 0x001010,
++		.workarounds		= SBP2_WORKAROUND_INQUIRY_36 |
++					  SBP2_WORKAROUND_MODE_SENSE_8,
++	},
++	/* Initio bridges, actually only needed for some older ones */ {
++		.firmware_revision	= 0x000200,
++		.model			= ~0,
++		.workarounds		= SBP2_WORKAROUND_INQUIRY_36,
++	},
++	/* Symbios bridge */ {
++		.firmware_revision	= 0xa0b800,
++		.model			= ~0,
++		.workarounds		= SBP2_WORKAROUND_128K_MAX_TRANS,
++	},
++	/*
++	 * Note about the following Apple iPod blacklist entries:
++	 *
++	 * There are iPods (2nd gen, 3rd gen) with model_id==0.  Since our
++	 * matching logic treats 0 as a wildcard, we cannot match this ID
++	 * without rewriting the matching routine.  Fortunately these iPods
++	 * do not feature the read_capacity bug according to one report.
++	 * Read_capacity behaviour as well as model_id could change due to
++	 * Apple-supplied firmware updates though.
++	 */
++	/* iPod 4th generation */ {
++		.firmware_revision	= 0x0a2700,
++		.model			= 0x000021,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
++	},
++	/* iPod mini */ {
++		.firmware_revision	= 0x0a2700,
++		.model			= 0x000023,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
++	},
++	/* iPod Photo */ {
++		.firmware_revision	= 0x0a2700,
++		.model			= 0x00007e,
++		.workarounds		= SBP2_WORKAROUND_FIX_CAPACITY,
++	}
++};
++
++static void
++sbp2_status_write(struct fw_card *card, struct fw_request *request,
++		  int tcode, int destination, int source,
++		  int generation, int speed,
++		  unsigned long long offset,
++		  u32 * payload, size_t length, void *callback_data)
++{
++	struct fw_unit *unit = (struct fw_unit *)callback_data;
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct sbp2_orb *orb;
++	struct sbp2_status status;
++	size_t header_size;
++	unsigned long flags;
++
++	if (tcode != TCODE_WRITE_BLOCK_REQUEST ||
++	    length == 0 || length > sizeof status) {
++		fw_send_response(card, request, RCODE_TYPE_ERROR);
++		return;
++	}
++
++	header_size = min(length, 2 * sizeof(u32));
++	fw_memcpy_from_be32(&status, payload, header_size);
++	if (length > header_size)
++		memcpy(status.data, &payload[2], length - header_size);
++	if (status.source == 2 || status.source == 3) {
++		fw_notify("non-orb related status write, not handled\n");
++		fw_send_response(card, request, RCODE_COMPLETE);
++		return;
++	}
++
++	/* Lookup the orb corresponding to this status write. */
++	spin_lock_irqsave(&card->lock, flags);
++	list_for_each_entry(orb, &sd->orb_list, link) {
++		if (status.orb_high == 0 &&
++		    status.orb_low == orb->request_bus) {
++			list_del(&orb->link);
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&card->lock, flags);
++
++	if (&orb->link != &sd->orb_list)
++		orb->callback(orb, &status);
++	else
++		fw_error("status write for unknown orb\n");
++
++	fw_send_response(card, request, RCODE_COMPLETE);
++}
++
++static void
++complete_transaction(struct fw_card *card, int rcode,
++		     u32 *payload, size_t length, void *data)
++{
++	struct sbp2_orb *orb = data;
++	unsigned long flags;
++
++	orb->rcode = rcode;
++	if (rcode != RCODE_COMPLETE) {
++		spin_lock_irqsave(&card->lock, flags);
++		list_del(&orb->link);
++		spin_unlock_irqrestore(&card->lock, flags);
++		orb->callback(orb, NULL);
++	}
++}
++
++static void
++sbp2_send_orb(struct sbp2_orb *orb, struct fw_unit *unit,
++	      int node_id, int generation, u64 offset)
++{
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	unsigned long flags;
++
++	orb->pointer[0] = 0;
++	orb->pointer[1] = orb->request_bus;
++	fw_memcpy_to_be32(orb->pointer, orb->pointer, sizeof orb->pointer);
++
++	spin_lock_irqsave(&device->card->lock, flags);
++	list_add_tail(&orb->link, &sd->orb_list);
++	spin_unlock_irqrestore(&device->card->lock, flags);
++
++	fw_send_request(device->card, &orb->t, TCODE_WRITE_BLOCK_REQUEST,
++			node_id | LOCAL_BUS, generation,
++			device->node->max_speed, offset,
++			orb->pointer, sizeof orb->pointer,
++			complete_transaction, orb);
++}
++
++static void sbp2_cancel_orbs(struct fw_unit *unit)
++{
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct sbp2_orb *orb, *next;
++	struct list_head list;
++	unsigned long flags;
++
++	INIT_LIST_HEAD(&list);
++	spin_lock_irqsave(&device->card->lock, flags);
++	list_splice_init(&sd->orb_list, &list);
++	spin_unlock_irqrestore(&device->card->lock, flags);
++
++	list_for_each_entry_safe(orb, next, &list, link) {
++		orb->rcode = RCODE_CANCELLED;
++		orb->callback(orb, NULL);
++	}
++}
++
++static void
++complete_management_orb(struct sbp2_orb *base_orb, struct sbp2_status *status)
++{
++	struct sbp2_management_orb *orb =
++	    (struct sbp2_management_orb *)base_orb;
++
++	if (status)
++		memcpy(&orb->status, status, sizeof *status);
++	complete(&orb->done);
++}
++
++static int
++sbp2_send_management_orb(struct fw_unit *unit, int node_id, int generation,
++			 int function, int lun, void *response)
++{
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct sbp2_management_orb *orb;
++	unsigned long timeout;
++	int retval = -EIO;
++
++	orb = kzalloc(sizeof *orb, GFP_ATOMIC);
++	if (orb == NULL)
++		return -ENOMEM;
++
++	/* The sbp2 device is going to send a block read request to
++	 * read out the request from host memory, so map it for
++	 * dma. */
++	orb->base.request_bus =
++		dma_map_single(device->card->device, &orb->request,
++			       sizeof orb->request, DMA_TO_DEVICE);
++
++	orb->response_bus =
++		dma_map_single(device->card->device, &orb->response,
++			       sizeof orb->response, DMA_FROM_DEVICE);
++
++	orb->request.response_high    = 0;
++	orb->request.response_low     = orb->response_bus;
++	orb->request.notify           = 1;
++	orb->request.function         = function;
++	orb->request.lun              = lun;
++	orb->request.response_length  = sizeof orb->response;
++	orb->request.status_fifo_high = sd->address_handler.offset >> 32;
++	orb->request.status_fifo_low  = sd->address_handler.offset;
++
++	/* FIXME: Yeah, ok this isn't elegant, we hardwire exclusive
++	 * login and 1 second reconnect time.  The reconnect setting
++	 * is probably fine, but the exclusive login should be an
++	 * option. */
++	if (function == SBP2_LOGIN_REQUEST) {
++		orb->request.exclusive = 1;
++		orb->request.reconnect = 0;
++	}
++
++	fw_memcpy_to_be32(&orb->request, &orb->request, sizeof orb->request);
++
++	init_completion(&orb->done);
++	orb->base.callback = complete_management_orb;
++	sbp2_send_orb(&orb->base, unit,
++		      node_id, generation, sd->management_agent_address);
++
++	timeout = wait_for_completion_timeout(&orb->done, 10 * HZ);
++
++	/* FIXME: Handle bus reset race here. */
++
++	if (orb->base.rcode != RCODE_COMPLETE) {
++		fw_error("management write failed, rcode 0x%02x\n",
++			 orb->base.rcode);
++		goto out;
++	}
++
++	if (timeout == 0) {
++		fw_error("orb reply timed out, rcode=0x%02x\n",
++			 orb->base.rcode);
++		goto out;
++	}
++
++	if (orb->status.response != 0 || orb->status.sbp_status != 0) {
++		fw_error("error status: %d:%d\n",
++			 orb->status.response, orb->status.sbp_status);
++		goto out;
++	}
++
++	retval = 0;
++ out:
++	dma_unmap_single(device->card->device, orb->base.request_bus,
++			 sizeof orb->request, DMA_TO_DEVICE);
++	dma_unmap_single(device->card->device, orb->response_bus,
++			 sizeof orb->response, DMA_FROM_DEVICE);
++
++	if (response)
++		fw_memcpy_from_be32(response,
++				    orb->response, sizeof orb->response);
++
++	kfree(orb);
++
++	return retval;
++}
++
++static void
++complete_agent_reset_write(struct fw_card *card, int rcode,
++			   u32 *payload, size_t length, void *data)
++{
++	struct fw_transaction *t = data;
++
++	fw_notify("agent reset write rcode=%d\n", rcode);
++	kfree(t);
++}
++
++static int sbp2_agent_reset(struct fw_unit *unit)
++{
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct fw_transaction *t;
++	static u32 zero;
++
++	t = kzalloc(sizeof *t, GFP_ATOMIC);
++	if (t == NULL)
++		return -ENOMEM;
++
++	fw_send_request(device->card, t, TCODE_WRITE_QUADLET_REQUEST,
++			sd->node_id | LOCAL_BUS, sd->generation, SCODE_400,
++			sd->command_block_agent_address + SBP2_AGENT_RESET,
++			&zero, sizeof zero, complete_agent_reset_write, t);
++
++	return 0;
++}
++
++static int add_scsi_devices(struct fw_unit *unit);
++static void remove_scsi_devices(struct fw_unit *unit);
++
++static int sbp2_probe(struct device *dev)
++{
++	struct fw_unit *unit = fw_unit(dev);
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd;
++	struct fw_csr_iterator ci;
++	int i, key, value, lun, retval;
++	int node_id, generation, local_node_id;
++	struct sbp2_login_response response;
++	u32 model, firmware_revision;
++
++	sd = kzalloc(sizeof *sd, GFP_KERNEL);
++	if (sd == NULL)
++		return -ENOMEM;
++
++	unit->device.driver_data = sd;
++	INIT_LIST_HEAD(&sd->orb_list);
++
++	sd->address_handler.length = 0x100;
++	sd->address_handler.address_callback = sbp2_status_write;
++	sd->address_handler.callback_data = unit;
++
++	if (fw_core_add_address_handler(&sd->address_handler,
++					&fw_high_memory_region) < 0) {
++		kfree(sd);
++		return -EBUSY;
++	}
++
++	if (fw_device_enable_phys_dma(device) < 0) {
++		fw_core_remove_address_handler(&sd->address_handler);
++		kfree(sd);
++		return -EBUSY;
++	}
++
++	/* Scan unit directory to get management agent address,
++	 * firmware revison and model.  Initialize firmware_revision
++	 * and model to values that wont match anything in our table. */
++	firmware_revision = 0xff000000;
++	model = 0xff000000;
++	fw_csr_iterator_init(&ci, unit->directory);
++	while (fw_csr_iterator_next(&ci, &key, &value)) {
++		switch (key) {
++		case CSR_DEPENDENT_INFO | CSR_OFFSET:
++			sd->management_agent_address =
++				0xfffff0000000ULL + 4 * value;
++			break;
++		case SBP2_FIRMWARE_REVISION:
++			firmware_revision = value;
++			break;
++		case CSR_MODEL:
++			model = value;
++			break;
++		}
++	}
++
++	for (i = 0; i < ARRAY_SIZE(sbp2_workarounds_table); i++) {
++		if (sbp2_workarounds_table[i].firmware_revision !=
++		    (firmware_revision & 0xffffff00))
++			continue;
++		if (sbp2_workarounds_table[i].model != model)
++			continue;
++		sd->workarounds |= sbp2_workarounds_table[i].workarounds;
++		break;
++	}
++
++	if (sd->workarounds)
++		fw_notify("Workarounds for node %s: 0x%x "
++			  "(firmware_revision 0x%06x, model_id 0x%06x)\n",
++			  unit->device.bus_id,
++			  sd->workarounds, firmware_revision, model);
++
++	/* FIXME: Make this work for multi-lun devices. */
++	lun = 0;
++
++	generation    = device->card->generation;
++	node_id       = device->node->node_id;
++	local_node_id = device->card->local_node->node_id;
++
++	/* FIXME: We should probably do this from a keventd callback
++	 * and handle retries by rescheduling the work. */
++	if (sbp2_send_management_orb(unit, node_id, generation,
++				     SBP2_LOGIN_REQUEST, lun, &response) < 0) {
++		fw_core_remove_address_handler(&sd->address_handler);
++		kfree(sd);
++		return -EBUSY;
++	}
++
++	sd->generation   = generation;
++	sd->node_id      = node_id;
++	sd->address_high = (LOCAL_BUS | local_node_id) << 16;
++
++	/* Get command block agent offset and login id. */
++	sd->command_block_agent_address =
++		((u64) response.command_block_agent_high << 32) |
++		response.command_block_agent_low;
++	sd->login_id = response.login_id;
++
++	fw_notify("logged in to sbp2 unit %s\n", unit->device.bus_id);
++	fw_notify(" - management_agent_address: 0x%012llx\n",
++		  sd->management_agent_address);
++	fw_notify(" - command_block_agent_address: 0x%012llx\n",
++		  sd->command_block_agent_address);
++	fw_notify(" - status write address: 0x%012llx\n",
++		  sd->address_handler.offset);
++
++#if 0
++	/* FIXME: The linux1394 sbp2 does these last few steps. */
++	sbp2_set_busy_timeout(scsi_id);
++
++	sbp2_max_speed_and_size(scsi_id);
++#endif
++
++	sbp2_agent_reset(unit);
++
++	retval = add_scsi_devices(unit);
++	if (retval < 0) {
++		sbp2_send_management_orb(unit, sd->node_id, sd->generation,
++					 SBP2_LOGOUT_REQUEST, sd->login_id,
++					 NULL);
++		fw_core_remove_address_handler(&sd->address_handler);
++		kfree(sd);
++		return retval;
++	}
++
++	return 0;
++}
++
++static int sbp2_remove(struct device *dev)
++{
++	struct fw_unit *unit = fw_unit(dev);
++	struct sbp2_device *sd = unit->device.driver_data;
++
++	sbp2_send_management_orb(unit, sd->node_id, sd->generation,
++				 SBP2_LOGOUT_REQUEST, sd->login_id, NULL);
++
++	remove_scsi_devices(unit);
++
++	fw_core_remove_address_handler(&sd->address_handler);
++	kfree(sd);
++
++	fw_notify("removed sbp2 unit %s\n", dev->bus_id);
++
++	return 0;
++}
++
++static void sbp2_reconnect(void *data)
++{
++	struct fw_unit *unit = data;
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	int generation, node_id, local_node_id;
++
++	fw_notify("in sbp2_reconnect, reconnecting to unit %s\n",
++		  unit->device.bus_id);
++
++	generation    = device->card->generation;
++	node_id       = device->node->node_id;
++	local_node_id = device->card->local_node->node_id;
++
++	sbp2_send_management_orb(unit, node_id, generation,
++				 SBP2_RECONNECT_REQUEST, sd->login_id, NULL);
++
++	/* FIXME: handle reconnect failures. */
++
++	sbp2_cancel_orbs(unit);
++
++	sd->generation   = generation;
++	sd->node_id      = node_id;
++	sd->address_high = (LOCAL_BUS | local_node_id) << 16;
++}
++
++static void sbp2_update(struct fw_unit *unit)
++{
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++
++	fw_device_enable_phys_dma(device);
++
++	INIT_WORK(&sd->work, sbp2_reconnect, unit);
++	schedule_work(&sd->work);
++}
++
++#define SBP2_UNIT_SPEC_ID_ENTRY	0x0000609e
++#define SBP2_SW_VERSION_ENTRY	0x00010483
++
++static struct fw_device_id sbp2_id_table[] = {
++	{
++		.match_flags  = FW_MATCH_SPECIFIER_ID | FW_MATCH_VERSION,
++		.specifier_id = SBP2_UNIT_SPEC_ID_ENTRY,
++		.version      = SBP2_SW_VERSION_ENTRY
++	},
++	{ }
++};
++
++static struct fw_driver sbp2_driver = {
++	.driver   = {
++		.owner  = THIS_MODULE,
++		.name   = sbp2_driver_name,
++		.bus    = &fw_bus_type,
++		.probe  = sbp2_probe,
++		.remove = sbp2_remove,
++	},
++	.update   = sbp2_update,
++	.id_table = sbp2_id_table,
++};
++
++static unsigned int sbp2_status_to_sense_data(u8 * sbp2_status, u8 * sense_data)
++{
++	sense_data[0] = 0x70;
++	sense_data[1] = 0x0;
++	sense_data[2] = sbp2_status[1];
++	sense_data[3] = sbp2_status[4];
++	sense_data[4] = sbp2_status[5];
++	sense_data[5] = sbp2_status[6];
++	sense_data[6] = sbp2_status[7];
++	sense_data[7] = 10;
++	sense_data[8] = sbp2_status[8];
++	sense_data[9] = sbp2_status[9];
++	sense_data[10] = sbp2_status[10];
++	sense_data[11] = sbp2_status[11];
++	sense_data[12] = sbp2_status[2];
++	sense_data[13] = sbp2_status[3];
++	sense_data[14] = sbp2_status[12];
++	sense_data[15] = sbp2_status[13];
++
++	switch (sbp2_status[0] & 0x3f) {
++	case SAM_STAT_GOOD:
++		return DID_OK;
++
++	case SAM_STAT_CHECK_CONDITION:
++		/* return CHECK_CONDITION << 1 | DID_OK << 16; */
++		return DID_OK;
++
++	case SAM_STAT_BUSY:
++		return DID_BUS_BUSY;
++
++	case SAM_STAT_CONDITION_MET:
++	case SAM_STAT_RESERVATION_CONFLICT:
++	case SAM_STAT_COMMAND_TERMINATED:
++	default:
++		return DID_ERROR;
++	}
++}
++
++static void
++complete_command_orb(struct sbp2_orb *base_orb, struct sbp2_status *status)
++{
++	struct sbp2_command_orb *orb = (struct sbp2_command_orb *)base_orb;
++	struct fw_unit *unit = orb->unit;
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct scatterlist *sg;
++	int result;
++
++	if (status != NULL) {
++		if (status->dead) {
++			fw_notify("agent died, issuing agent reset\n");
++			sbp2_agent_reset(unit);
++		}
++
++		switch (status->response) {
++		case SBP2_STATUS_REQUEST_COMPLETE:
++			result = DID_OK;
++			break;
++		case SBP2_STATUS_TRANSPORT_FAILURE:
++			result = DID_BUS_BUSY;
++			break;
++		case SBP2_STATUS_ILLEGAL_REQUEST:
++		case SBP2_STATUS_VENDOR_DEPENDENT:
++		default:
++			result = DID_ERROR;
++			break;
++		}
++
++		if (result == DID_OK && status->len > 1)
++			result = sbp2_status_to_sense_data(status->data,
++							   orb->cmd->sense_buffer);
++	} else {
++		/* If the orb completes with status == NULL, something
++		 * went wrong, typically a bus reset happened mid-orb
++		 * or when sending the write (less likely). */
++		fw_notify("no command orb status, rcode=%d\n",
++			  orb->base.rcode);
++		result = DID_ERROR;
++	}
++
++	dma_unmap_single(device->card->device, orb->base.request_bus,
++			 sizeof orb->request, DMA_TO_DEVICE);
++
++	if (orb->cmd->use_sg > 0) {
++		sg = (struct scatterlist *)orb->cmd->request_buffer;
++		dma_unmap_sg(device->card->device, sg, orb->cmd->use_sg,
++			     orb->cmd->sc_data_direction);
++	}
++
++	if (orb->page_table_bus != 0)
++		dma_unmap_single(device->card->device, orb->page_table_bus,
++				 sizeof orb->page_table_bus, DMA_TO_DEVICE);
++
++	if (orb->request_buffer_bus != 0)
++		dma_unmap_single(device->card->device, orb->request_buffer_bus,
++				 sizeof orb->request_buffer_bus,
++				 DMA_FROM_DEVICE);
++
++	orb->cmd->result = result << 16;
++	orb->done(orb->cmd);
++
++	kfree(orb);
++}
++
++static void sbp2_command_orb_map_scatterlist(struct sbp2_command_orb *orb)
++{
++	struct fw_unit *unit =
++		(struct fw_unit *)orb->cmd->device->host->hostdata[0];
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct scatterlist *sg;
++	int sg_len, l, i, j, count;
++	size_t size;
++	dma_addr_t sg_addr;
++
++	sg = (struct scatterlist *)orb->cmd->request_buffer;
++	count = dma_map_sg(device->card->device, sg, orb->cmd->use_sg,
++			   orb->cmd->sc_data_direction);
++
++	/* Handle the special case where there is only one element in
++	 * the scatter list by converting it to an immediate block
++	 * request. This is also a workaround for broken devices such
++	 * as the second generation iPod which doesn't support page
++	 * tables. */
++	if (count == 1 && sg_dma_len(sg) < SBP2_MAX_SG_ELEMENT_LENGTH) {
++		orb->request.data_descriptor_high = sd->address_high;
++		orb->request.data_descriptor_low  = sg_dma_address(sg);
++		orb->request.page_table_present   = 0;
++		orb->request.data_size            = sg_dma_len(sg);
++		return;
++	}
++
++	/* Convert the scatterlist to an sbp2 page table.  If any
++	 * scatterlist entries are too big for sbp2 we split the as we go. */
++	for (i = 0, j = 0; i < count; i++) {
++		sg_len = sg_dma_len(sg + i);
++		sg_addr = sg_dma_address(sg + i);
++		while (sg_len) {
++			l = min(sg_len, SBP2_MAX_SG_ELEMENT_LENGTH);
++			orb->page_table[j].segment_base_low = sg_addr;
++			orb->page_table[j].segment_base_high = 0;
++			orb->page_table[j].length = l;
++			sg_addr += l;
++			sg_len -= l;
++			j++;
++		}
++	}
++
++	size = sizeof orb->page_table[0] * j;
++
++	/* The data_descriptor pointer is the one case where we need
++	 * to fill in the node ID part of the address.  All other
++	 * pointers assume that the data referenced reside on the
++	 * initiator (i.e. us), but data_descriptor can refer to data
++	 * on other nodes so we need to put our ID in descriptor_high. */
++
++	orb->page_table_bus =
++		dma_map_single(device->card->device, orb->page_table,
++			       size, DMA_TO_DEVICE);
++	orb->request.data_descriptor_high = sd->address_high;
++	orb->request.data_descriptor_low  = orb->page_table_bus;
++	orb->request.page_table_present   = 1;
++	orb->request.data_size            = j;
++
++	fw_memcpy_to_be32(orb->page_table, orb->page_table, size);
++}
++
++static void sbp2_command_orb_map_buffer(struct sbp2_command_orb *orb)
++{
++	struct fw_unit *unit =
++		(struct fw_unit *)orb->cmd->device->host->hostdata[0];
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++
++	/* As for map_scatterlist, we need to fill in the high bits of
++	 * the data_descriptor pointer. */
++
++	orb->request_buffer_bus =
++		dma_map_single(device->card->device,
++			       orb->cmd->request_buffer,
++			       orb->cmd->request_bufflen,
++			       orb->cmd->sc_data_direction);
++	orb->request.data_descriptor_high = sd->address_high;
++	orb->request.data_descriptor_low  = orb->request_buffer_bus;
++	orb->request.page_table_present   = 0;
++	orb->request.data_size            = orb->cmd->request_bufflen;
++}
++
++static void sbp2_send_command_orb(struct scsi_cmnd *cmd, scsi_done_fn_t done)
++{
++	struct fw_unit *unit = (struct fw_unit *)cmd->device->host->hostdata[0];
++	struct fw_device *device = fw_device(unit->device.parent);
++	struct sbp2_device *sd = unit->device.driver_data;
++	struct sbp2_command_orb *orb;
++
++	orb = kzalloc(sizeof *orb, GFP_ATOMIC);
++	if (orb == NULL) {
++		fw_notify("failed to alloc orb\n");
++		cmd->result = DID_NO_CONNECT << 16;
++		done(cmd);
++		return;
++	}
++
++	orb->base.request_bus =
++		dma_map_single(device->card->device, &orb->request,
++			       sizeof orb->request, DMA_TO_DEVICE);
++
++	orb->unit = unit;
++	orb->done = done;
++	orb->cmd  = cmd;
++
++	orb->request.next_high   = SBP2_ORB_NULL;
++	orb->request.next_low    = 0x0;
++	/* FIXME: Calculate real payload here. */
++	orb->request.max_payload = 12;	/* 2 ^ (12 + 2) = 4096 */
++	orb->request.speed       = device->node->max_speed;
++	orb->request.notify      = 1;
++
++	if (cmd->sc_data_direction == DMA_FROM_DEVICE)
++		orb->request.direction = SBP2_DIRECTION_FROM_MEDIA;
++	else if (cmd->sc_data_direction == DMA_TO_DEVICE)
++		orb->request.direction = SBP2_DIRECTION_TO_MEDIA;
++
++	if (cmd->use_sg) {
++		sbp2_command_orb_map_scatterlist(orb);
++	} else if (cmd->request_bufflen > SBP2_MAX_SG_ELEMENT_LENGTH) {
++		/* FIXME: Need to split this into a sg list... but
++		 * could we get the scsi or blk layer to do that by
++		 * reporting our max supported block size? */
++		fw_error("command > 64k\n");
++		cmd->result = DID_ERROR << 16;
++		done(cmd);
++		return;
++	} else if (cmd->request_bufflen > 0) {
++		sbp2_command_orb_map_buffer(orb);
++	}
++
++	fw_memcpy_to_be32(&orb->request, &orb->request, sizeof orb->request);
++
++	memset(orb->request.command_block,
++	       0, sizeof orb->request.command_block);
++	memcpy(orb->request.command_block, cmd->cmnd, COMMAND_SIZE(*cmd->cmnd));
++
++	orb->base.callback = complete_command_orb;
++
++	sbp2_send_orb(&orb->base, unit, sd->node_id, sd->generation,
++		      sd->command_block_agent_address + SBP2_ORB_POINTER);
++}
++
++/* SCSI stack integration */
++
++static int sbp2_scsi_queuecommand(struct scsi_cmnd *cmd, scsi_done_fn_t done)
++{
++	if (cmd->cmnd[0] == REQUEST_SENSE) {
++		fw_notify("request_sense");
++		memcpy(cmd->request_buffer, cmd->sense_buffer, cmd->request_bufflen);
++		memset(cmd->sense_buffer, 0, sizeof(cmd->sense_buffer));
++		cmd->result = DID_OK << 16;
++		done(cmd);
++		return 0;
++	}
++
++	/* Bidirectional commands are not yet implemented, and unknown
++	 * transfer direction not handled. */
++	if (cmd->sc_data_direction == DMA_BIDIRECTIONAL) {
++		fw_error("Cannot handle DMA_BIDIRECTIONAL - rejecting command");
++		cmd->result = DID_ERROR << 16;
++		done(cmd);
++		return 0;
++	}
++
++	sbp2_send_command_orb(cmd, done);
++
++	return 0;
++}
++
++static int sbp2_scsi_slave_configure(struct scsi_device *sdev)
++{
++	struct fw_unit *unit = (struct fw_unit *)sdev->host->hostdata[0];
++	struct sbp2_device *sd = unit->device.driver_data;
++
++	if (sdev->type == TYPE_DISK &&
++	    sd->workarounds & SBP2_WORKAROUND_MODE_SENSE_8)
++		sdev->skip_ms_page_8 = 1;
++	if (sd->workarounds & SBP2_WORKAROUND_FIX_CAPACITY) {
++		fw_notify("setting fix_capacity for %s\n", unit->device.bus_id);
++		sdev->fix_capacity = 1;
++	}
++
++	return 0;
++}
++
++/*
++ * Called by scsi stack when something has really gone wrong.  Usually
++ * called when a command has timed-out for some reason.
++ */
++static int sbp2_scsi_abort(struct scsi_cmnd *cmd)
++{
++	struct fw_unit *unit = (struct fw_unit *)cmd->device->host->hostdata[0];
++
++	fw_notify("sbp2_scsi_abort\n");
++
++	sbp2_cancel_orbs(unit);
++
++	return SUCCESS;
++}
++
++static struct scsi_host_template scsi_driver_template = {
++	.module			= THIS_MODULE,
++	.name			= "SBP-2 IEEE-1394",
++	.proc_name		= (char *)sbp2_driver_name,
++	.queuecommand		= sbp2_scsi_queuecommand,
++	.slave_configure	= sbp2_scsi_slave_configure,
++	.eh_abort_handler	= sbp2_scsi_abort,
++	.this_id		= -1,
++	.sg_tablesize		= SG_ALL,
++	.use_clustering		= ENABLE_CLUSTERING,
++	.cmd_per_lun		= 1,	/* SBP2_MAX_CMDS, */
++	.can_queue		= 1,		/* SBP2_MAX_CMDS, */
++	.emulated		= 1,
++};
++
++static int add_scsi_devices(struct fw_unit *unit)
++{
++	struct sbp2_device *sd = unit->device.driver_data;
++	int retval, lun;
++
++	sd->scsi_host = scsi_host_alloc(&scsi_driver_template,
++					sizeof(unsigned long));
++	if (sd->scsi_host == NULL) {
++		fw_error("failed to register scsi host\n");
++		return -1;
++	}
++
++	sd->scsi_host->hostdata[0] = (unsigned long)unit;
++	retval = scsi_add_host(sd->scsi_host, &unit->device);
++	if (retval < 0) {
++		fw_error("failed to add scsi host\n");
++		scsi_host_put(sd->scsi_host);
++		return retval;
++	}
++
++	/* FIXME: Loop over luns here. */
++	lun = 0;
++	retval = scsi_add_device(sd->scsi_host, 0, 0, lun);
++	if (retval < 0) {
++		fw_error("failed to add scsi device\n");
++		scsi_remove_host(sd->scsi_host);
++		scsi_host_put(sd->scsi_host);
++		return retval;
++	}
++
++	return 0;
++}
++
++static void remove_scsi_devices(struct fw_unit *unit)
++{
++	struct sbp2_device *sd = unit->device.driver_data;
++
++	scsi_remove_host(sd->scsi_host);
++	scsi_host_put(sd->scsi_host);
++}
++
++MODULE_AUTHOR("Kristian Høgsberg <krh@bitplanet.net>");
++MODULE_DESCRIPTION("SCSI over IEEE1394");
++MODULE_LICENSE("GPL");
++MODULE_DEVICE_TABLE(ieee1394, sbp2_id_table);
++
++static int __init sbp2_init(void)
++{
++	int retval;
++
++	retval = driver_register(&sbp2_driver.driver);
++	if (retval) {
++		fw_error("Failed to load fw-sbp2 driver.\n");
++		return retval;
++	}
++
++	fw_notify("Loaded fw-sbp2 driver.\n");
++
++	return 0;
++}
++
++static void __exit sbp2_cleanup(void)
++{
++	driver_unregister(&sbp2_driver.driver);
++
++	fw_notify("Unloaded fw-sbp2 driver.\n");
++}
++
++module_init(sbp2_init);
++module_exit(sbp2_cleanup);

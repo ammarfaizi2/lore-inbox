@@ -1,61 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968305AbWLEPjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968309AbWLEPkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968305AbWLEPjP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968309AbWLEPjP
+	id S968309AbWLEPkA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968314AbWLEPkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:39:15 -0500
-Received: from mga03.intel.com ([143.182.124.21]:2389 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968305AbWLEPjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:39:14 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,501,1157353200"; 
-   d="scan'208"; a="154073490:sNHT41894559"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       "'Christoph Lameter'" <clameter@sgi.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [-mm patch] sched remove lb_stopbalance counter
-Date: Tue, 5 Dec 2006 07:38:54 -0800
-Message-ID: <000101c71883$78e626c0$a884030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 5 Dec 2006 10:40:00 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:39676 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S968310AbWLEPj7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 10:39:59 -0500
+Subject: Re: [PATCH  v2 04/13] Connection Manager
+From: Steve Wise <swise@opengridcomputing.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061205151905.GA18275@2ka.mipt.ru>
+References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
+	 <20061202224958.27014.65970.stgit@dell3.ogc.int>
+	 <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
+	 <20061205050725.GA26033@2ka.mipt.ru>
+	 <1165330925.16087.13.camel@stevo-desktop>
+	 <20061205151905.GA18275@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Tue, 05 Dec 2006 09:39:58 -0600
+Message-Id: <1165333198.16087.53.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccYgucJtLom3vdaQt6HrIPDbBGF6AAABReA
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20061205153224.GA3204@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote on Tuesday, December 05, 2006 7:32 AM
-> * Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-> > in -mm tree: I would like to revert the change on adding 
-> > lb_stopbalance counter.  This count can be calculated by: lb_balanced 
-> > - lb_nobusyg - lb_nobusyq.  There is no need to create gazillion 
-> > counters while we can derive the value.  I'm more of against changing 
-> > sched-stat format unless it is absolutely necessary as all user land 
-> > tool parsing /proc/schedstat needs to be updated and it's a real pain 
-> > trying to keep multiple versions of it.
+On Tue, 2006-12-05 at 18:19 +0300, Evgeniy Polyakov wrote:
+> On Tue, Dec 05, 2006 at 09:02:05AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
+> > > >  > This and a lot of other changes in this driver definitely says you
+> > > >  > implement your own stack of protocols on top of infiniband hardware.
+> > > > 
+> > > > ...but I do know this driver is for 10-gig ethernet HW.
+> > > 
+> > > It is for iwarp/rdma from description.
+> > > If it is 10ge, then why does it parse incomping packet headers and
+> > > implements initial tcp state machine?
+> > > 
 > > 
-> > Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+> > Its not implementing the TCP state machine at all. Its implementing the
+> > MPA state machine (see the iWARP internet drafts).  These packets are
+> > TCP payload.  MPA is used to negotiate RDMA mode on a TCP connection.
+> > This entails an exchange of 2 messages on the TCP connection.  Once this
+> > is exchanged and both side agree, the connection is bound to an RDMA QP
+> > and the connection moved into RDMA mode.  From that point on, all IO is
+> > done via the post_send() and post_recv().
 > 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+> And why does rdma require window scaling, keep alive, nagle and other
+> interesting options from TCP spec?
 > 
-> but, please:
-> 
-> > -#define SCHEDSTAT_VERSION 13
-> > +#define SCHEDSTAT_VERSION 12
-> 
-> change this to 14 instead. Versions should only go upwards, even if we 
-> revert to an earlier output format.
 
-Really?  sched-decrease-number-of-load-balances.patch has not yet hit the
-mainline and I think it's in -mm for only a couple of weeks.  I'm trying
-to back out the change after brief reviewing the patch.
+The connection setup messages sent to the hardware need to have these
+parameters so the TCP engine on the HW knows how to do connection
+options, windows, etc.
 
-- Ken
+> This really looks like initial implementation of TCP in hardware - you
+> setup flags like doing the same using setsockopt() and then hardware
+> manages the flow like network stack manages TCP state machine changes.
+> 
+> According to draft-culley-iwarp-mpa-03.txt this layer can do a lot of
+> things with valid TCP flow like
+> 
+>    5.  The TCP sender puts the FPDUs into the TCP stream.  If the TCP
+>        Sender is MPA-aware, it segments the TCP stream in such a way
+>        that a TCP Segment boundary is also the boundary of an FPDU.  
+>        TCP then passes each segment to the IP layer for transmission.
+> 
+> Phrases like "MPA-aware TCP" rises a lot of questions - briefly saying
+> that hardware (even if it is called ethernet driver) can create and work
+> with own TCP flows potentially modified in the way it likes which is seen 
+> in driver. Likely such flows will not be seen by upper layers like OS 
+> network stack according to hardware descriptions.
+> 
+> Is it correct?
+> 
+
+I don't quite get your point about the driver aspect of this?
+
+The HW manages the iWARP connection including data flow.  It adheres to
+the MPA, RDDP, and RDMAP protocol specification IDs from the IETF.  The
+HW manages how data gets pushed out in the RDMA stream.   The RDMA
+Driver just requests a TCP connection and does the MPA exchange.  Then
+tells the hardware to move the connection into RDMA mode.  From that
+point on, the driver simply suffles IO work requests from the consumer
+application to the hardware and handles asynchronous events while the
+connection is up and running.
+
+Steve.
+
+
+
+

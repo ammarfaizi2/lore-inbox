@@ -1,74 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030724AbWLETvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030730AbWLETvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030724AbWLETvw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 14:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030726AbWLETvw
+	id S1030730AbWLETvg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 14:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030709AbWLETvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 14:51:52 -0500
-Received: from mail.tmr.com ([64.65.253.246]:48081 "EHLO gaimboi.tmr.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030724AbWLETvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 14:51:51 -0500
-Message-ID: <4575CEAC.2010503@tmr.com>
-Date: Tue, 05 Dec 2006 14:55:24 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061105 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: Jaswinder Singh <jaswinderrajput@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PREEMPT is messing with everyone
-References: <aa5953d60612050610l1f2657c3ie073467a2b2a7126@mail.gmail.com>	 <45758B57.6040107@stud.feec.vutbr.cz> <aa5953d60612050850v240b382fm172702b1d28934a1@mail.gmail.com>
-In-Reply-To: <aa5953d60612050850v240b382fm172702b1d28934a1@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 14:51:36 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:55718 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030629AbWLETve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 14:51:34 -0500
+Date: Tue, 5 Dec 2006 14:50:13 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 26/35] Unionfs: Privileged operations workqueue
+Message-ID: <20061205195013.GE2240@filer.fsl.cs.sunysb.edu>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu> <1165235471170-git-send-email-jsipek@cs.sunysb.edu> <Pine.LNX.4.61.0612052020420.18570@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0612052020420.18570@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaswinder Singh wrote:
-> On 12/5/06, Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->> Jaswinder Singh wrote:
->> > Hi,
->> >
->> > preempt stuff SHOULD only stay in #ifdef CONFIG_PREEMP_* , but it is
->> > messing with everyone even though not defined.
->> >
->> > e.g.
->> >
->> > 1. linux-2.6.19/kernel/spinlock.c
->> >
->> > Line 18: #include <linux/preempt.h>
->> >
->> > Line 26:  preempt_disable();
->> >
->> > Line 32:  preempt_disable();
->> >
->> > and so on .
->>
->> Don't worry. These compile into "do { } while (0)" (i.e. nothing) when
->> CONFIG_PREEMPT is not set.
->>
+On Tue, Dec 05, 2006 at 08:27:51PM +0100, Jan Engelhardt wrote:
 > 
-> Yes, Compiler will remove it but this looks ugly and confusing.
+> On Dec 4 2006 07:30, Josef 'Jeff' Sipek wrote:
+> >+#include "union.h"
+> >+
+> >+struct workqueue_struct *sioq;
+> >+
+> >+int __init init_sioq(void)
 > 
-> Why dont we use like this :-
+> Although it's just me, I'd prefer sioq_init(), sioq_exit(),
+> sioq_run(), etc. to go in hand with what most drivers use as naming
+> (i.e. <modulename> "_" <function>).
 
-Because it's ugly and confusing.
-> 
-> #ifdef CONFIG_PREEMPT
-> #include <linux/preempt.h>
-> #endif
-> 
-> #ifdef CONFIG_PREEMPT
-> preempt_disable();
-> #endif
-> 
-> #ifdef CONFIG_PREEMPT
-> preempt_enable();
-> #endif
+That makes sense.
 
+> >+	sioq = create_workqueue("unionfs_siod");
+> 
+> Beat me: what does SIO stand for?
+
+Super-user IO - sometimes we need to perform actions which would fail due to
+the unix permissions on the parent directory (e.g., rmdir a directory which
+appears empty, but in reality contains whiteouts).
+
+> >+void fin_sioq(void)
+> 
+> No __exit tag?
+
+Good catch.
+
+> >+void __unionfs_mknod(void *data)
+> >+{
+> >+	struct sioq_args *args = data;
+> >+	struct mknod_args *m = &args->mknod;
+> 
+> Care to make that: const struct mknod_args *m = &args->mknod;?
+> (Same for other places)
+ 
+Right.
+ 
+> >+
+> >+	args->err = vfs_mknod(m->parent, m->dentry, m->mode, m->dev);
+> >+	complete(&args->comp);
+> >+}
+> >+void __unionfs_symlink(void *data)
+> >+{
+> 
+> Hah, missing free line :^)
+
+:)
+
+> >+	struct sioq_args *args = data;
+> >+	struct symlink_args *s = &args->symlink;
+> >+
+> >+	args->err = vfs_symlink(s->parent, s->dentry, s->symbuf, s->mode);
+> >+	complete(&args->comp);
+> >+}
+> >+
+> 
+> >+++ b/fs/unionfs/sioq.h
+> >+struct isopaque_args {
+> >+	struct dentry *dentry;
+> >+};
+> 
+> This name puzzled me at first. iso - paque - "same (o)paque"?
+> Try is_opaque_args.
+
+Will do.
+
+> >+/* Extern definitions for our privledge escalation helpers */
+> 
+> -> privilege
+
+Why do I keep misspelling that?
+
+Thanks for the comments.
+
+Josef "Jeff" Sipek.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Bad pun of the week: The formula 1 control computer suffered from a race
+condition

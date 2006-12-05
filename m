@@ -1,103 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967131AbWLEXXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967748AbWLEXZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967131AbWLEXXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 18:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967745AbWLEXXJ
+	id S967748AbWLEXZm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 18:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967752AbWLEXZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 18:23:09 -0500
-Received: from ug-out-1314.google.com ([66.249.92.170]:14632 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966119AbWLEXXF (ORCPT
+	Tue, 5 Dec 2006 18:25:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47618 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967748AbWLEXZl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 18:23:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jTv/2ihSK+jhwh7KwMr2u8WxeTS233DCYeb6q5HZVB7PhE1LSPDB+8N7wmwUoxKe8U87QiInJKxVGv+TUsUskUz9tPaIjoLAJgaUVXsMDIi/PtaNw1ARkQL4j73vLOJM52mww36QgM0WksQnwrSsAICZS9ONrV1fTLu0/IC1C/8=
-Message-ID: <58cb370e0612051523t2feba049rae830c9fa593b1c1@mail.gmail.com>
-Date: Wed, 6 Dec 2006 00:23:03 +0100
-From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] ide-cd: Handle strange interrupt on the Intel ESB2
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
-       "Jeff Garzik" <jgarzik@pobox.com>, "Tejun Heo" <htejun@gmail.com>
-In-Reply-To: <20061204163057.2f27a12a@localhost.localdomain>
+	Tue, 5 Dec 2006 18:25:41 -0500
+Message-ID: <4575FF08.2030100@redhat.com>
+Date: Tue, 05 Dec 2006 18:21:44 -0500
+From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061204163057.2f27a12a@localhost.localdomain>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+CC: linux-kernel@vger.kernel.org, Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205184921.GA5029@martell.zuzino.mipt.ru>
+In-Reply-To: <20061205184921.GA5029@martell.zuzino.mipt.ru>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ added Jeff and Tejun to cc: ]
+Alexey Dobriyan wrote:
+> On Tue, Dec 05, 2006 at 12:22:29AM -0500, Kristian Høgsberg wrote:
+>> I'm announcing an alternative firewire stack that I've been working on 
+>> the last few weeks.
+> 
+> Is mainline firewire so hopeless, that you've decided to rewrite it? Could
+> you show some ugly places in it?
 
-On 12/4/06, Alan <alan@lxorguk.ukuu.org.uk> wrote:
-> The ESB2 appears to emit spurious DMA interrupts when configured for
-> native mode and handling ATAPI devices. Stratus were able to pin this bug
-> down and produce a patch. This is a rework which applies the fixup only
-> to the ESB2 (for now). We can apply it to other chips later if the same
-> problem is found.
+Yes.  I'm not doing this lightheartedly.  It's a lot of work and it will
+introduce regressions and instability for a little while.
 
-Looks good but aren't this trying to fix the same ICH
-issue that is fixed in libata by ap->ops->irq_clear(ap)?
+My main point about ohci1394 (the old stacks PCI driver) is, that if you
+really want to fix the issues with this driver, you have to shuffle the code
+around so much that you'll introduce as many regressions as a clean rewrite.
+The big problems in the ohci1394 drivers is the irq_handler, bus reset
+handling and config rom handling.  These are some of the strong points of
+fw-ohci.c:
 
-[ please see Tejun's mail: http://lkml.org/lkml/2006/11/15/94 ]
+  - Rock solid handling of generations and node IDs around bus resets.
+    The only way to handle this atomically is to pass the generation
+    count along all the way to the transmit function in the low-level
+    driver.  The linux1394 low level driver API is broken in this
+    respect.
 
-If so shouldn't we apply this fix for all ICH5/6/7/8 chipsets?
+  - Better handling of self ID receive and possible recursive bus
+    resets.  Successive bus resets could overwrite the self ID DMA
+    buffer, while we read out the contents.  The OHCI specification
+    recommends a method similiar to linux/seqlock.h for reading out
+    self IDs, to ensure we get a consistent result.
 
-> This code has been tested and confirmed to fix the problem on the tested
-> systems.
+  - Much simpler bus reset handling; we only subscribe to the
+    selfIDComplete interrupt and don't use the troublesome busReset
+    interrupt.  Rely on async transmit context to not send data while
+    busReset event bit is set.
 
-Also shouldn't the fix be in IRQ handler?  Currently the fix is limited
-to ide-cd driver which seems to be the wrong place as the problem
-is supposed to happen also when using other IDE device drivers
-or/and other ATA/ATAPI devices?
+  - Atomic updates of config rom contents as specified in section 5.5.6
+    in the OHCI specification. The contents of the ConfigROMheader,
+    BusOptions and ConfigROMmap registers are updated atomically by the
+    controller after a reset.
 
-> Signed-off-by: Alan Cox <alan@redhat.com>
-> (Most of the hard work done by Stratus however)
->
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc6-mm1/drivers/ide/ide-cd.c linux-2.6.19-rc6-mm1/drivers/ide/ide-cd.c
-> --- linux.vanilla-2.6.19-rc6-mm1/drivers/ide/ide-cd.c   2006-11-24 13:58:06.000000000 +0000
-> +++ linux-2.6.19-rc6-mm1/drivers/ide/ide-cd.c   2006-12-01 19:24:58.000000000 +0000
-> @@ -687,8 +687,15 @@
->  static int cdrom_decode_status(ide_drive_t *drive, int good_stat, int *stat_ret)
->  {
->         struct request *rq = HWGROUP(drive)->rq;
-> +       ide_hwif_t *hwif = HWIF(drive);
->         int stat, err, sense_key;
->
-> +       /* We may have bogus DMA interrupts in PIO state here */
-> +       if (HWIF(drive)->dma_status && hwif->atapi_irq_bogon) {
-> +               stat = hwif->INB(hwif->dma_status);
-> +               /* Should we force the bit as well ? */
-> +               hwif->OUTB(stat, hwif->dma_status);
-> +       }
->         /* Check for errors. */
->         stat = HWIF(drive)->INB(IDE_STATUS_REG);
->         if (stat_ret)
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc6-mm1/drivers/ide/pci/piix.c linux-2.6.19-rc6-mm1/drivers/ide/pci/piix.c
-> --- linux.vanilla-2.6.19-rc6-mm1/drivers/ide/pci/piix.c 2006-11-24 13:58:29.000000000 +0000
-> +++ linux-2.6.19-rc6-mm1/drivers/ide/pci/piix.c 2006-12-01 19:20:46.000000000 +0000
-> @@ -473,6 +473,10 @@
->                 /* This is a painful system best to let it self tune for now */
->                 return;
->         }
-> +       /* ESB2 appears to generate spurious DMA interrupts in PIO mode
-> +          when in native mode */
-> +       if (hwif->pci_dev->device == PCI_DEVICE_ID_INTEL_ESB2_18)
-> +               hwif->atapi_irq_bogon = 1;
->
->         hwif->autodma = 0;
->         hwif->tuneproc = &piix_tune_drive;
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.19-rc6-mm1/include/linux/ide.h linux-2.6.19-rc6-mm1/include/linux/ide.h
-> --- linux.vanilla-2.6.19-rc6-mm1/include/linux/ide.h    2006-11-24 13:58:12.000000000 +0000
-> +++ linux-2.6.19-rc6-mm1/include/linux/ide.h    2006-12-01 19:16:27.000000000 +0000
-> @@ -796,6 +796,7 @@
->         unsigned        sg_mapped  : 1; /* sg_table and sg_nents are ready */
->         unsigned        no_io_32bit : 1; /* 1 = can not do 32-bit IO ops */
->         unsigned        err_stops_fifo : 1; /* 1=data FIFO is cleared by an error */
-> +       unsigned        atapi_irq_bogon : 1; /* Generates spurious DMA interrupts in PIO mode */
->
->         struct device   gendev;
->         struct completion gendev_rel_comp; /* To deal with device release() */
+The OHCI specification describes a number of the techniques to ensure race
+free operation for the above cases, but the ohci1394 driver generally doesn't
+use any of these.  If you want to see ugly code look at the ohci1394 irq
+handler.  Much of the uglyness comes from trying to handle the busReset
+interrupt, so that the mid-level linux1394 stack can fail I/O while the bus
+reset takes place.  Now, OHCI hardware already reliably fails I/O during bus
+reset, so there is no need to complicate the core stack with this extra state,
+and the OHCI driver becomes much simpler and more reliable, since we now just
+need to know when a bus reset has successfully completed.
+
+Fixing this problem requires significant changes to the ohci1394 driver and
+the mid-level stack, and will destabilize things until we've figure out how to
+work around the odd flaky device out there.  Similar problems exists related
+to sending packets without bus reset races, updating the config rom, and
+reporting self ID packets and all require significant changes to the core
+stack and ohci1394.  All taken together the scale tips towards a rewrite.
+
+Another point is the various streaming drivers.  There used to be 5 different
+userspace streaming APIs in the linux1394: raw1394, video1394, amdtp, dv1394
+and rawiso.  Recently, amdtp (audio streaming) has been removed, since with
+the rawiso interface, this can be done in userspace.  However the remaining 4
+interfaces have slightly disjoint feature sets and can't really be phased out.
+  In the long run, supporting 4 different interfaces that does almost the same
+thing isn't feasible.  The streaming interface in my new stack (only
+transmission implemented at this point) can replace all of these interfaces.
+
+Finally, some parts aren't actually rewritten, just ported over and
+refactored.  This is the case for the SBP-2 driver.  Functionally, my
+fw-sbp2.c is identical to sbp2.c in the current stack, but I've changed it to
+work with the new interfaces and cleaned up some of the redundancy.
+
+> We can end up with two not quite working sets of firewire drivers your way.
+> 
+You can patch up the current stack to be less flaky, and Stefan has been doing
+a great job at that lately, but it's still fundamentally broken in the ways
+described above.
+
+While my stack may less stable for the first couple of weeks, these are
+transient issues, such as, say, lack of big endian testing, that are easily
+fixed.  In the long run this new stack is much more maintainable and has a
+bigger potential for stability.
+
+Kristian
+

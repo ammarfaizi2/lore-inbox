@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936389AbWLEWXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936740AbWLEW2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936389AbWLEWXd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936571AbWLEWXd
+	id S936740AbWLEW2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 17:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936673AbWLEW2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:23:33 -0500
-Received: from ns2.suse.de ([195.135.220.15]:37760 "EHLO mx2.suse.de"
+	Tue, 5 Dec 2006 17:28:37 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:41719 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936389AbWLEWXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:23:32 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: "Leisner, Martin" <Martin.Leisner@xerox.com>
-Cc: "Marty Leisner" <linux@rochester.rr.com>, <linux-kernel@vger.kernel.org>,
-       <bug-cpio@gnu.org>
-Subject: Re: ownership/permissions of cpio initrd
-References: <556445368AFA1C438794ABDA8901891C03445640@usa0300ms03.na.xerox.net>
-X-Yow: ..  Should I get locked in the PRINCIPAL'S OFFICE today --
- or have a VASECTOMY??
-Date: Tue, 05 Dec 2006 23:23:22 +0100
-In-Reply-To: <556445368AFA1C438794ABDA8901891C03445640@usa0300ms03.na.xerox.net>
-	(Martin Leisner's message of "Tue, 5 Dec 2006 16:56:26 -0500")
-Message-ID: <jed56y0yp1.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id S936740AbWLEW2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 17:28:36 -0500
+Date: Tue, 5 Dec 2006 14:28:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] fsstack: Fix up ecryptfs's fsstack usage
+Message-Id: <20061205142831.9cb3e91c.akpm@osdl.org>
+In-Reply-To: <20061205192231.GD2240@filer.fsl.cs.sunysb.edu>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	<20061205191824.GB2240@filer.fsl.cs.sunysb.edu>
+	<20061205192231.GD2240@filer.fsl.cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Leisner, Martin" <Martin.Leisner@xerox.com> writes:
+On Tue, 5 Dec 2006 14:22:32 -0500
+Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
 
-> hmmm...I looked at that -- that's extract and passthrough, but not create...
+> Fix up a stray ecryptfs_copy_attr_all call and remove prototypes for
+> ecryptfs_copy_* as they no longer exist.
+> 
+> Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
+> ---
+>  fs/ecryptfs/dentry.c          |    2 +-
+>  fs/ecryptfs/ecryptfs_kernel.h |    4 +---
+>  2 files changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
+> index 52d1e36..b0352d8 100644
+> --- a/fs/ecryptfs/dentry.c
+> +++ b/fs/ecryptfs/dentry.c
+> @@ -61,7 +61,7 @@ static int ecryptfs_d_revalidate(struct
+>  		struct inode *lower_inode =
+>  			ecryptfs_inode_to_lower(dentry->d_inode);
+>  
+> -		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
+> +		fsstack_copy_attr_all(dentry->d_inode, lower_inode, NULL);
 
-No, it's copy-out and copy-pass.  It does not make sense for copy-in.
+I fixed that two weeks ago.
 
-Andreas.
+When your patches are queued in -mm please do test them there, and review
+others' changes to them, and raise patches against them.  Raising patches
+against one's private tree and not testing the code which is planned to be
+merged can introduce errors.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

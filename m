@@ -1,183 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937379AbWLEGsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966640AbWLEGwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937379AbWLEGsg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 01:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937413AbWLEGsg
+	id S966640AbWLEGwx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 01:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937455AbWLEGwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 01:48:36 -0500
-Received: from nf-out-0910.google.com ([64.233.182.185]:38592 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937379AbWLEGsf (ORCPT
+	Tue, 5 Dec 2006 01:52:53 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:29361 "HELO
+	smtp107.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S937424AbWLEGww (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 01:48:35 -0500
+	Tue, 5 Dec 2006 01:52:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
-        b=dKZ17xGfACMJne0HVuKDuvsBEPoOTQsQqK5NhSTjkKLw/TG7iVgxrLyuMVwo5djufofV8ph1ABWKmjN56/JVHkA8/L7e6zogccHuFJ4s8IT4xFGWFUIY04It3XExhoSaLF+0qQ1EIEu3Q0lQ9KD98kg/5ZGCzBOFrSNMYyFMxgs=
-Message-ID: <bcfd8020612042248l31a7e053n6cf69ef80f0fed0b@mail.gmail.com>
-Date: Tue, 5 Dec 2006 08:48:33 +0200
-From: "Honkala Mikko" <honkkis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: in HP nx8220 S3 resume does not work in stock kernels 2.6.15-2.6.19. Ide light stays on.
-In-Reply-To: <bcfd8020612010936h276a1d04mf2cc574cf62cd242@mail.gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:Content-Type:Content-Transfer-Encoding;
+  b=DbS441x9UksABcoSmrN2owOyp8NinXJ226rMY/7j5afg5HjudtJq2LPw8pBQPJoL6D+R1pCveMKbQR9a6dYhiwc9FQ1xp+iS14CzEbjSqNH/Q8Y2LmI5YUN/5VKYVDlykTX5shH1mlrv+68KIxT4WB865UMAxKw0+TRtDewN/dQ=  ;
+X-YMail-OSG: 5lhXjFMVM1kkqadjJQlf45GIgR0q6XRnE7GsIZ025u6n68kvJyukv2khQbuZ2Jdl3Hot09BXv_kNE4jeeGeDPU.xX5uN8DSRUA.Ih9emQU1zLkIFeh4ub_Clg_OpnuQ2vojdL7yVxvnVI9A-
+Message-ID: <45751712.80301@yahoo.com.au>
+Date: Tue, 05 Dec 2006 17:52:02 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_93802_14306406.1165301313507"
-References: <bcfd8020612010936h276a1d04mf2cc574cf62cd242@mail.gmail.com>
+To: Linux Memory Management <linux-mm@kvack.org>,
+       linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+CC: Mark Fasheh <mark.fasheh@oracle.com>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@google.com>
+Subject: Status of buffered write path (deadlock fixes)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_93802_14306406.1165301313507
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
 Hi,
 
-in HP nx8220 S3 resume does not work in stock kernels 2.6.15-2.6.19.
-Ide light stays on.
+I'd like to try to state where we are WRT the buffered write patches,
+and ask for comments. Sorry for the wide cc list, but this is an
+important issue which hasn't had enough review.
 
-The attached patch for ide.c for 2.6.18.2 fixes this for me, but the
-patch does not apply anymore in  2.6.19.
+Well the next -mm will include everything we've done so far. I won't
+repost patches unless someone would like to comment on a specific one.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=2039
-http://bugzilla.kernel.org/show_bug.cgi?id=5604
+I think the core generic_file_buffered_write is fairly robust, after
+fixing the efault and zerolength iov problems picked up in testing
+(thanks, very helpful!).
 
--honkkis
+So now I *believe* we have an approach that solves the deadlock and
+doesn't expose transient or stale data, transient zeroes, or anything
+like that.
 
-------=_Part_93802_14306406.1165301313507
-Content-Type: text/plain; name=linux-2.6.18.2_ide-gtm-stm.diff; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ev6vo3wf
-Content-Disposition: attachment; filename="linux-2.6.18.2_ide-gtm-stm.diff"
+Error handling is getting close, but there may be cases that nobody
+has picked up, and I've noticed a couple which I'll explain below.
 
-LS0tIGxpbnV4LTIuNi4xOC4yLW9yaWcvZHJpdmVycy9pZGUvaWRlLmMJMjAwNi0xMS0wNCAwMzoz
-Mzo1OC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOC4yL2RyaXZlcnMvaWRlL2lkZS5j
-CTIwMDYtMTEtMTEgMDA6NDQ6NDQuMDAwMDAwMDAwICswMjAwCkBAIC0xMjA3LDYgKzEyMDcsMjM3
-IEBACiAKIEVYUE9SVF9TWU1CT0woc3lzdGVtX2J1c19jbG9jayk7CiAKKyNpZiAxCisjaW5jbHVk
-ZSA8bGludXgvYWNwaS5oPgorI2RlZmluZSBEQkcoeC4uLikgcHJpbnRrKHgpCitzdGF0aWMgaW50
-IGlkZV9hY3BpX2ZpbmRfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldiwgYWNwaV9oYW5kbGUgKmhh
-bmRsZSkKK3sKKwlpbnQgaSwgdG1wOworCWFjcGlfaW50ZWdlciBhZGRyOworCisJaWYgKHNzY2Fu
-ZihkZXYtPmJ1c19pZCwgIiV1LiV1IiwgJnRtcCwgJmkpICE9IDIpCisJCXJldHVybiAtRU5PREVW
-OworCisJYWRkciA9IGk7CisJKmhhbmRsZSA9IGFjcGlfZ2V0X2NoaWxkKERFVklDRV9BQ1BJX0hB
-TkRMRShkZXYtPnBhcmVudCksIGFkZHIpOworCWlmICghKmhhbmRsZSkKKwkJcmV0dXJuIC1FTk9E
-RVY7CisJcmV0dXJuIDA7Cit9CisKKy8qIFRoaXMgYXNzdW1lcyB0aGUgaWRlIGNvbnRyb2xsZXIg
-aXMgYSBQQ0kgZGV2aWNlICovCitzdGF0aWMgaW50IGlkZV9hY3BpX2ZpbmRfY2hhbm5lbChzdHJ1
-Y3QgZGV2aWNlICpkZXYsIGFjcGlfaGFuZGxlICpoYW5kbGUpCit7CisJaW50IG51bTsKKwlpbnQg
-Y2hhbm5lbDsKKwlhY3BpX2ludGVnZXIgYWRkcjsKKworCW51bSA9IHNzY2FuZihkZXYtPmJ1c19p
-ZCwgImlkZSV4IiwgJmNoYW5uZWwpOworCisJaWYgKG51bSAhPSAxIHx8ICFkZXYtPnBhcmVudCkK
-KwkJcmV0dXJuIC1FTk9ERVY7CisJYWRkciA9IGNoYW5uZWw7CisJKmhhbmRsZSA9IGFjcGlfZ2V0
-X2NoaWxkKERFVklDRV9BQ1BJX0hBTkRMRShkZXYtPnBhcmVudCksIGFkZHIpOworCWlmICghKmhh
-bmRsZSkKKwkJcmV0dXJuIC1FTk9ERVY7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBzdHJ1Y3Qg
-YWNwaV9idXNfdHlwZSBpZGVfYWNwaV9idXMgPSB7CisJLmJ1cyA9ICZpZGVfYnVzX3R5cGUsCisJ
-LmZpbmRfZGV2aWNlID0gaWRlX2FjcGlfZmluZF9kZXZpY2UsCisJLmZpbmRfYnJpZGdlID0gaWRl
-X2FjcGlfZmluZF9jaGFubmVsLAorfTsKKworc3RhdGljIGludCBfX2luaXQgaWRlX2FjcGlfaW5p
-dCh2b2lkKQoreworCXJldHVybiByZWdpc3Rlcl9hY3BpX2J1c190eXBlKCZpZGVfYWNwaV9idXMp
-OworfQorCisjZGVmaW5lIE1BWF9ERVZJQ0VTIDEwCisjZGVmaW5lIEdUTV9MRU4gKHNpemVvZih1
-MzIpICogNSkKK3N0YXRpYyBzdHJ1Y3QgYWNwaV9pZGVfc3RhdCB7CisJYWNwaV9oYW5kbGUgaGFu
-ZGxlOyAvKiBjaGFubmVsIGRldmljZSJzIGhhbmRsZSAqLworCXUzMglndG1bR1RNX0xFTi9zaXpl
-b2YodTMyKV07IC8qIGluZm8gZnJvbSBfR1RNICovCisJc3RydWN0IGhkX2RyaXZlaWQgaWRfYnVm
-ZlsyXTsKKwlpbnQgY2hhbm5lbF9oYW5kbGVkOworfSBkZXZpY2Vfc3RhdGVbTUFYX0RFVklDRVNd
-OworCitzdGF0aWMgc3RydWN0IGFjcGlfaWRlX3N0YXQgKmlkZV9nZXRfYWNwaV9zdGF0ZShhY3Bp
-X2hhbmRsZSBoYW5kbGUpCit7CisJaW50IGk7CisJZm9yIChpID0gMDsgaSA8IE1BWF9ERVZJQ0VT
-OyBpICsrKQorCQlpZiAoZGV2aWNlX3N0YXRlW2ldLmhhbmRsZSA9PSBoYW5kbGUpCisJCQlicmVh
-azsKKwlpZiAoaSA8IE1BWF9ERVZJQ0VTKQorCQlyZXR1cm4gJmRldmljZV9zdGF0ZVtpXTsKKwlm
-b3IgKGkgPSAwOyBpIDwgTUFYX0RFVklDRVM7IGkgKyspCisJCWlmIChkZXZpY2Vfc3RhdGVbaV0u
-aGFuZGxlID09IE5VTEwpCisJCQlicmVhazsKKwlpZiAoaSA+PSBNQVhfREVWSUNFUykKKwkJcmV0
-dXJuIE5VTEw7CisKKwltZW1zZXQoJmRldmljZV9zdGF0ZVtpXSwgMCwgc2l6ZW9mKHN0cnVjdCBh
-Y3BpX2lkZV9zdGF0KSk7CisJcmV0dXJuICZkZXZpY2Vfc3RhdGVbaV07Cit9CisKK2ludCBhY3Bp
-X2lkZV9zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikKK3sKKwlhY3BpX2hhbmRsZSBoYW5kbGUs
-IHBhcmVudF9oYW5kbGU7CisJc3RydWN0IGFjcGlfaWRlX3N0YXQgKnN0YXQ7CisJYWNwaV9zdGF0
-dXMJc3RhdHVzOworCXN0cnVjdCBhY3BpX2J1ZmZlciBidWZmZXIgPSB7QUNQSV9BTExPQ0FURV9C
-VUZGRVIsIE5VTEx9OworCXVuaW9uIGFjcGlfb2JqZWN0ICpwYWNrYWdlOworCWlkZV9kcml2ZV90
-ICpkcml2ZSA9IGRldi0+ZHJpdmVyX2RhdGE7CisJaW50IGRyaXZlX2lkID0gMDsKKworCWhhbmRs
-ZSA9IERFVklDRV9BQ1BJX0hBTkRMRShkZXYpOworCWlmICghaGFuZGxlKSB7CisJCURCRygiSURF
-IGRldmljZSBBQ1BJIGhhbmRsZXIgaXMgTlVMTFxuIik7CisJCXJldHVybiAtRU5PREVWOworCX0K
-KwlpZiAoQUNQSV9GQUlMVVJFKGFjcGlfZ2V0X3BhcmVudChoYW5kbGUsICZwYXJlbnRfaGFuZGxl
-KSkpIHsKKwkJcHJpbnRrKEtFUk5fRVJSICJBQ1BJIGdldCBwYXJlbnQgaGFuZGxlciBlcnJvclxu
-Iik7CisJCXJldHVybiAtRU5PREVWOworCX0KKwlzdGF0ID0gaWRlX2dldF9hY3BpX3N0YXRlKHBh
-cmVudF9oYW5kbGUpOworCWlmIChzdGF0ID09IE5VTEwpCisJCXJldHVybiAtRU5PREVWOworCWlm
-IChzdGF0LT5jaGFubmVsX2hhbmRsZWQpIHsKKwkJZHJpdmVfaWQgPSAxOworCQlnb3RvIGlkOwor
-CX0KKworCXN0YXR1cyA9IGFjcGlfZXZhbHVhdGVfb2JqZWN0KHBhcmVudF9oYW5kbGUsICJfR1RN
-IiwgTlVMTCwgJmJ1ZmZlcik7CisJaWYgKEFDUElfRkFJTFVSRShzdGF0dXMpKSB7CisJCXByaW50
-ayhLRVJOX0VSUiAiRXJyb3IgZXZhbHVhdGluZyBfR1RNXG4iKTsKKwkJcmV0dXJuIC1FTk9ERVY7
-CisJfQorCXBhY2thZ2UgPSAodW5pb24gYWNwaV9vYmplY3QgKikgYnVmZmVyLnBvaW50ZXI7CisJ
-aWYgKHBhY2thZ2UtPmJ1ZmZlci5sZW5ndGggIT0gR1RNX0xFTikgeworCQlwcmludGsoS0VSTl9F
-UlIgIkJ1ZmZlciBsZW5ndGggcmV0dXJuZWQgYnkgX0dUTSBpcyB3cm9uZ1xuIik7CisJCWtmcmVl
-KGJ1ZmZlci5wb2ludGVyKTsKKwkJcmV0dXJuIC1FTk9ERVY7CisJfQorCW1lbWNweShzdGF0LT5n
-dG0sIHBhY2thZ2UtPmJ1ZmZlci5wb2ludGVyLCBHVE1fTEVOKTsKKwlzdGF0LT5oYW5kbGUgPSBw
-YXJlbnRfaGFuZGxlOworCXN0YXQtPmNoYW5uZWxfaGFuZGxlZCA9IDE7CisJa2ZyZWUoYnVmZmVy
-LnBvaW50ZXIpOworaWQ6CisJdGFza2ZpbGVfbGliX2dldF9pZGVudGlmeShkcml2ZSwgJnN0YXQt
-PmlkX2J1ZmZbZHJpdmVfaWRdKTsKKwlEQkcoIkdUTSBpbmZvICV4LCV4LCV4LCV4LCV4XG4iLCBz
-dGF0LT5ndG1bMF0sCisJCXN0YXQtPmd0bVsxXSwgc3RhdC0+Z3RtWzJdLAorCQlzdGF0LT5ndG1b
-M10sIHN0YXQtPmd0bVs0XSk7CisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBpbnQgYWNwaV9pZGVf
-c3RtKHN0cnVjdCBhY3BpX2lkZV9zdGF0ICpzdGF0KQoreworCXN0cnVjdCBhY3BpX29iamVjdF9s
-aXN0IGlucHV0OworCXVuaW9uIGFjcGlfb2JqZWN0IHBhcmFtc1szXTsKKwlhY3BpX3N0YXR1cyBz
-dGF0dXM7CisKKwlpbnB1dC5jb3VudCA9IDM7CisJaW5wdXQucG9pbnRlciA9IHBhcmFtczsKKwlw
-YXJhbXNbMF0udHlwZSA9IEFDUElfVFlQRV9CVUZGRVI7CisJcGFyYW1zWzBdLmJ1ZmZlci5sZW5n
-dGggPSBzaXplb2Yoc3RhdC0+Z3RtKTsKKwlwYXJhbXNbMF0uYnVmZmVyLnBvaW50ZXIgPSAoY2hh
-ciopc3RhdC0+Z3RtOworCisJcGFyYW1zWzFdLnR5cGUgPSBBQ1BJX1RZUEVfQlVGRkVSOworCXBh
-cmFtc1sxXS5idWZmZXIubGVuZ3RoID0gc2l6ZW9mKHN0YXQtPmlkX2J1ZmZbMF0pOworCXBhcmFt
-c1sxXS5idWZmZXIucG9pbnRlciA9IChjaGFyICopJnN0YXQtPmlkX2J1ZmZbMF07CisKKwlwYXJh
-bXNbMl0udHlwZSA9IEFDUElfVFlQRV9CVUZGRVI7CisJcGFyYW1zWzJdLmJ1ZmZlci5sZW5ndGgg
-PSBzaXplb2Yoc3RhdC0+aWRfYnVmZlsxXSk7CisJcGFyYW1zWzJdLmJ1ZmZlci5wb2ludGVyID0g
-KGNoYXIgKikmc3RhdC0+aWRfYnVmZlsxXTsKKworCXN0YXR1cyA9IGFjcGlfZXZhbHVhdGVfb2Jq
-ZWN0KHN0YXQtPmhhbmRsZSwgIl9TVE0iLCAmaW5wdXQsIE5VTEwpOworCWlmIChBQ1BJX0ZBSUxV
-UkUoc3RhdHVzKSkgeworCQlwcmludGsoS0VSTl9FUlIgIkV2YWx1YXRpbmcgX1NUTSBlcnJvclxu
-Iik7CisJCXJldHVybiAtRU5PREVWOworCX0KKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCBh
-Y3BpX2lkZV9ndGYoYWNwaV9oYW5kbGUgaGFuZGxlLCBpZGVfZHJpdmVfdCAqZHJpdmUpCit7CisJ
-c3RydWN0IGFjcGlfYnVmZmVyCW91dHB1dCA9IHtBQ1BJX0FMTE9DQVRFX0JVRkZFUiwgTlVMTH07
-CisJaWRlX3Rhc2tfdAlhcmdzOworCWludCBpbmRleCA9IDA7CisJdW5zaWduZWQgY2hhciAqZGF0
-YTsKKwl1bmlvbiBhY3BpX29iamVjdAkqcGFja2FnZSA9IE5VTEw7CisJYWNwaV9zdGF0dXMgc3Rh
-dHVzOworCisJc3RhdHVzID0gYWNwaV9ldmFsdWF0ZV9vYmplY3QoaGFuZGxlLCAiX0dURiIsIE5V
-TEwsICZvdXRwdXQpOworCWlmIChBQ1BJX0ZBSUxVUkUoc3RhdHVzKSkgeworCQlwcmludGsoS0VS
-Tl9FUlIgImV2YWx1YXRlIF9HVEYgZXJyb3JcbiIpOworCQlyZXR1cm4gLUVOT0RFVjsKKwl9CisJ
-cGFja2FnZSA9ICh1bmlvbiBhY3BpX29iamVjdCAqKSBvdXRwdXQucG9pbnRlcjsKKwlpZiAocGFj
-a2FnZS0+dHlwZSAhPSBBQ1BJX1RZUEVfQlVGRkVSCisJCXx8IChwYWNrYWdlLT5idWZmZXIubGVu
-Z3RoICUgNykgIT0gMCkgeworCQlrZnJlZShvdXRwdXQucG9pbnRlcik7CisJCXByaW50ayhLRVJO
-X0VSUiAiX0dURiByZXR1cm5lZCB2YWx1ZSBpcyB3cm9uZ1xuIik7CisJCXJldHVybiAtRU5PREVW
-OworCX0KKwlwcmludGsoInN0YXJ0IEdURlxuIik7CisKKwlkYXRhID0gcGFja2FnZS0+YnVmZmVy
-LnBvaW50ZXI7CisJd2hpbGUgKGluZGV4IDwgcGFja2FnZS0+YnVmZmVyLmxlbmd0aCkgeworCQlt
-ZW1zZXQoJmFyZ3MsIDAsIHNpemVvZihpZGVfdGFza190KSk7CisJCWFyZ3MudGZSZWdpc3RlcltJ
-REVfRVJST1JfT0ZGU0VUXSA9IGRhdGFbaW5kZXhdOworCQlhcmdzLnRmUmVnaXN0ZXJbSURFX05T
-RUNUT1JfT0ZGU0VUXSA9IGRhdGFbaW5kZXggKyAxXTsKKwkJYXJncy50ZlJlZ2lzdGVyW0lERV9T
-RUNUT1JfT0ZGU0VUXSA9IGRhdGFbaW5kZXggKyAyXTsKKwkJYXJncy50ZlJlZ2lzdGVyW0lERV9M
-Q1lMX09GRlNFVF0gPSBkYXRhW2luZGV4ICsgM107CisJCWFyZ3MudGZSZWdpc3RlcltJREVfSENZ
-TF9PRkZTRVRdID0gZGF0YVtpbmRleCArIDRdOworCQlhcmdzLnRmUmVnaXN0ZXJbSURFX1NFTEVD
-VF9PRkZTRVRdID0gZGF0YVtpbmRleCArIDVdOworCQlhcmdzLnRmUmVnaXN0ZXJbSURFX1NUQVRV
-U19PRkZTRVRdID0gZGF0YVtpbmRleCArIDZdOworCQlhcmdzLmNvbW1hbmRfdHlwZSA9IElERV9E
-UklWRV9UQVNLX05PX0RBVEE7CisJCWFyZ3MuaGFuZGxlciA9ICZ0YXNrX25vX2RhdGFfaW50cjsK
-KwkJcHJpbnRrKCJkYXRhICV4LCV4LCV4LCV4LCV4LCV4LCV4XG4iLAorCQkJZGF0YVtpbmRleF0s
-IGRhdGFbaW5kZXgrMV0sIGRhdGFbaW5kZXgrMl0sCisJCQlkYXRhW2luZGV4KzNdLGRhdGFbaW5k
-ZXgrNF0sZGF0YVtpbmRleCs1XSwKKwkJCWRhdGFbaW5kZXgrNl0pOworCQkvKiBzdWJtaXQgY29t
-bWFuZCByZXF1ZXN0ICovCisvLwkJcHJpbnRrKCJyZXR1cm4gdmFsdWUgJWRcbiIsIGlkZV9yYXdf
-dGFza2ZpbGUoZHJpdmUsICZhcmdzLCBOVUxMKSk7CisJCWluZGV4ICs9IDc7CisJfQorCWtmcmVl
-KG91dHB1dC5wb2ludGVyKTsKKwlyZXR1cm4gMDsKK30KKworaW50IGFjcGlfaWRlX3Jlc3VtZShz
-dHJ1Y3QgZGV2aWNlICpkZXYpCit7CisJYWNwaV9oYW5kbGUgaGFuZGxlLCBwYXJlbnRfaGFuZGxl
-OworCXN0cnVjdCBhY3BpX2lkZV9zdGF0ICpzdGF0OworCWlkZV9kcml2ZV90ICpkcml2ZSA9IGRl
-di0+ZHJpdmVyX2RhdGE7CisKKwloYW5kbGUgPSBERVZJQ0VfQUNQSV9IQU5ETEUoZGV2KTsKKwlp
-ZiAoIWhhbmRsZSkgeworCQlEQkcoIklERSBkZXZpY2UgQUNQSSBoYW5kbGVyIGlzIE5VTExcbiIp
-OworCQlyZXR1cm4gLUVOT0RFVjsKKwl9CisJaWYgKEFDUElfRkFJTFVSRShhY3BpX2dldF9wYXJl
-bnQoaGFuZGxlLCAmcGFyZW50X2hhbmRsZSkpKSB7CisJCXByaW50ayhLRVJOX0VSUiAiQUNQSSBn
-ZXQgcGFyZW50IGhhbmRsZXIgZXJyb3JcbiIpOworCQlyZXR1cm4gLUVOT0RFVjsKKwl9CisJc3Rh
-dCA9IGlkZV9nZXRfYWNwaV9zdGF0ZShwYXJlbnRfaGFuZGxlKTsKKwlpZiAoc3RhdCA9PSBOVUxM
-IHx8IHN0YXQtPmhhbmRsZSAhPSBwYXJlbnRfaGFuZGxlKQorCQlyZXR1cm4gLUVOT0RFVjsKKwor
-CWlmIChzdGF0LT5jaGFubmVsX2hhbmRsZWQgPT0gMCkgeworCQlzdGF0LT5oYW5kbGUgPSBOVUxM
-OworCQlnb3RvIGd0ZjsKKwl9CitEQkcoIlN0YXJ0IFNUTVxuIik7CisJaWYgKGFjcGlfaWRlX3N0
-bShzdGF0KSkKKwkJcmV0dXJuIC1FTk9ERVY7CisJc3RhdC0+Y2hhbm5lbF9oYW5kbGVkID0gMDsK
-K2d0ZjoKKwlyZXR1cm4gYWNwaV9pZGVfZ3RmKGhhbmRsZSwgZHJpdmUpOworfQorI2VuZGlmCisK
-IHN0YXRpYyBpbnQgZ2VuZXJpY19pZGVfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYsIHBtX21l
-c3NhZ2VfdCBzdGF0ZSkKIHsKIAlpZGVfZHJpdmVfdCAqZHJpdmUgPSBkZXYtPmRyaXZlcl9kYXRh
-OwpAQCAtMTIyMyw2ICsxNDU0LDcgQEAKIAlycXBtLnBtX3N0ZXAgPSBpZGVfcG1fc3RhdGVfc3Rh
-cnRfc3VzcGVuZDsKIAlycXBtLnBtX3N0YXRlID0gc3RhdGUuZXZlbnQ7CiAKKwlhY3BpX2lkZV9z
-dXNwZW5kKGRldik7CiAJcmV0dXJuIGlkZV9kb19kcml2ZV9jbWQoZHJpdmUsICZycSwgaWRlX3dh
-aXQpOwogfQogCkBAIC0xMjMyLDcgKzE0NjQsNyBAQAogCXN0cnVjdCByZXF1ZXN0IHJxOwogCXN0
-cnVjdCByZXF1ZXN0X3BtX3N0YXRlIHJxcG07CiAJaWRlX3Rhc2tfdCBhcmdzOwotCisJYWNwaV9p
-ZGVfcmVzdW1lKGRldik7CiAJbWVtc2V0KCZycSwgMCwgc2l6ZW9mKHJxKSk7CiAJbWVtc2V0KCZy
-cXBtLCAwLCBzaXplb2YocnFwbSkpOwogCW1lbXNldCgmYXJncywgMCwgc2l6ZW9mKGFyZ3MpKTsK
-QEAgLTE5OTQsNiArMjIyNiw3IEBACiAJcHJpbnRrKEtFUk5fSU5GTyAiVW5pZm9ybSBNdWx0aS1Q
-bGF0Zm9ybSBFLUlERSBkcml2ZXIgIiBSRVZJU0lPTiAiXG4iKTsKIAlzeXN0ZW1fYnVzX3NwZWVk
-ID0gaWRlX3N5c3RlbV9idXNfc3BlZWQoKTsKIAoraWRlX2FjcGlfaW5pdCgpOwogCWJ1c19yZWdp
-c3RlcigmaWRlX2J1c190eXBlKTsKIAogCWluaXRfaWRlX2RhdGEoKTsK
-------=_Part_93802_14306406.1165301313507--
+I think we do the right thing WRT pagecache error handling: a
+!uptodate page remains !uptodate, an uptodate page can handle the
+write being done in several parts. Comments in the patches attempt
+to explain how this works. I think it is pretty straightforward.
+
+But WRT block allocation in the case of errors, it needs more review.
+
+Block allocation:
+- prepare_write can allocate blocks
+- prepare_write doesn't need to initialize the pagecache on top of
+   these blocks where it is within the range specified in prepare_write
+   (because the copy_from_user will initialise it correctly)
+- In the case of a !uptodate page, unless the page is brought uptodate
+   (ie the copy_from_user completely succeeds) and marked dirty, then
+   a read that sneaks in after we unlock the page (to retry the write)
+   will try to bring it uptodate by pulling in the uninitialised blocks.
+
+Problem 1:
+I think that allocating blocks outside i_size is OK WRT uninitialised
+data, because we update i_size only after a successful copy. However,
+I don't think we trim these blocks off (eg. perhaps the "prepare_write
+may have instantiated a few blocks" path should be the normal error
+path for both the copy_from_user and the commit_write error cases as
+well?)
+
+We allocate blocks within holes, but these don't need to be trimmed: it
+is enough to just zero out any new buffers. It might be nicer if we had
+some kind of way to punch a hole, but it is a rare corner case.
+
+Problem 2:
+nobh error handling[*]. We have just a single buffer that is used for
+each block in the prepare_write path, so the "zero new buffers" trick
+doesn't work.
+
+I think one solution to this could be to allocate all buffers for the
+page like normal, and then strip them off when commit_write succeeds?
+This would allow the zero_new_buffers path to work properly.
+
+[*] Actually I think there is a problem with the mainline nobh error
+handling in that a whole page of blocks will get zeroed on failure,
+even valid data that isn't being touched by the write.
+
+Finally, filesystems. Only OGAWA Hirofumi and Mark Fasheh have given much
+feedback so far. I've tried to grok ext2/3 and think they'll work OK, and
+have at least *looked* at all the rest. However in the worst case, there
+might be many subtle and different problems :( Filesystem developers need
+to review this, please. I don't want to cc every filesystem dev list, but
+if anybody thinks it would be helpful to forward this then please do.
+
+Well, that's about where its at. Block allocation problems 1 and 2
+shouldn't be too hard to fix, but I would like confirmation / suggestions.
+
+Thanks,
+Nick
+
+--
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968054AbWLEDcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968057AbWLEDdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968054AbWLEDcm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 22:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968057AbWLEDcm
+	id S968057AbWLEDdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 22:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968059AbWLEDdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 22:32:42 -0500
-Received: from nz-out-0506.google.com ([64.233.162.228]:64000 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S968054AbWLEDcl convert rfc822-to-8bit (ORCPT
+	Mon, 4 Dec 2006 22:33:16 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:50551 "EHLO
+	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S968057AbWLEDdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 22:32:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:x-mailer:x-url:date:message-id:subject:mime-version:content-type:content-transfer-encoding;
-        b=Z3RI0a8/JE6FcNMn+nJ02NdpfzMqcykxew5dvIU+vtjJISPHvYt3SiHS85ZU9yRZhS+CH9nDGpgVRcWEd3pc/cTYqItX9PO5zkgGKG6iF/v9r5TMiwS/x5X90em1m0nhm0om2GpNMoB8gzbrbmC4qu8PtPVNpowbpIKoHH1YOpQ=
-From: Bob Zhang <zhanglinbao@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 4.1 (3650) - EVALUATION VERSION
-X-URL: http://www.pocomail.com/
-Date: Tue, 5 Dec 2006 11:32:30 +0800
-Message-ID: <2006125113230.203524@9BobZhang1>
-Subject: About watch dog timer limit of  CPU (Xscale ->IXP425) How can I set more long time ?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 4 Dec 2006 22:33:15 -0500
+Message-ID: <4574E86B.10403@lwfinger.net>
+Date: Mon, 04 Dec 2006 21:32:59 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Benoit Boissinot <bboissin@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19-rc5-mm1 progression
+References: <456718F6.8040902@lwfinger.net> <40f323d00611240836q6bcf7374gd47c7a97d1d4f8e3@mail.gmail.com> <20061125112437.3d46eff4.akpm@osdl.org>
+In-Reply-To: <20061125112437.3d46eff4.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all , 
+Andrew Morton wrote:
+> On Fri, 24 Nov 2006 17:36:27 +0100
+> "Benoit Boissinot" <bboissin@gmail.com> wrote:
+> 
+>> On 11/24/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+>>> Is there the equivalent of 'git bisect' for the -mmX kernels?
+>>>
+>> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+>>
+> 
+> Please take the time to do that.  Yours is an interesting report - I'm not
+> aware of anything in there which was expected to cause a change of this
+> mature.
+> 
 
-    My embeded board hardware configuration is like this :
-# cat /proc/cpuinfo
-Processor       : XScale-IXP425/IXC1100 rev 1 (v5b)
-BogoMIPS        : 266.24
-Features        : swp half thumb fastmult edsp 
+There are at least two patches in 2.6.19-rc5-mm2 that make my system much more responsive for 
+interactive jobs. The one that has the majority of the effect is:
 
-Hardware        : Intel IXDP425 Development Platform
-Revision        : 0000
-Serial          : 0000000000000000
+radix-tree-rcu-lockless-readside.patch
 
-Through reading datasheet of ixp4xx ,I know it has own watchdog functions ,
-please see attchment :15 Timer 
+I have not been able to isolate the second patch, which has the lesser effect. All I can say is that 
+it occurred before the above patch in patches/series. This patch was tested against 2.6.19 and fixed 
+most of the problem on that version.
 
-I find a driver by goole , 
-see attachment .
-
-
-Watchdog timer counter is 32 bit register , its max value is 2<<32 -1 
-
-#define TIMER_FREQ 66000000 /* 66 MHZ timer */
-#define TIMER_KEY 0x482e
-#define TIMER_MARGIN 60  /* (secs) Default is 1 minute */     
-//I want to modify it ,I find its max value is 65
-
-static int ixp425_margin = TIMER_MARGIN; /* in seconds */
-static int ixp425wdt_users;
-//static int pre_margin;  //IXP425 CPU 's watch dog timer is 32 bit , 
-//so I define it to be unsigned int --bob
-static unsigned int pre_margin;   
-pre_margin = TIMER_FREQ *  TIMER_MARGIN 
-*IXP425_OSWT = pre_margin; 
-
-if I need one minutes , 
-*IXP425_OSWT = 66000000 * 60 =  396000000  ,not overflow  
-
-if I need two minutes , 
-*IXP425_OSWT = 66000000 * 120 = 792000000  ( which has been >  2<<32-1  , overflow 
-
-So I compute the max time I can set :
- T_max = 2<<32-1 / 66000000    =  65 seconds ¡£  
+Larry Finger
 
 
---------------------
-My question:
-
-if need more seconds ( for example , 5 minutes ) ,what should I do ? 
-
-I have a method based on datasheet (ixp4xx) ,but I don't know if it will successed when system crash 
-
-How can I do to break the limit of hardware ? 
-Thanks ahead ! 
-
---
-Best Regards
-bob

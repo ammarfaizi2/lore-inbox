@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759760AbWLEVsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759712AbWLEVva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759760AbWLEVsX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759819AbWLEVsX
+	id S1759712AbWLEVva (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759753AbWLEVva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:48:23 -0500
-Received: from gate.crashing.org ([63.228.1.57]:57071 "EHLO gate.crashing.org"
+	Tue, 5 Dec 2006 16:51:30 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:36158 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758499AbWLEVsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:48:06 -0500
-Subject: Re: [PATCH 0/3] New firewire stack
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@redhat.com>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-In-Reply-To: <4575BF51.1070109@s5r6.in-berlin.de>
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
-	 <1165297363.29784.54.camel@localhost.localdomain>
-	 <20061204.230502.35014139.davem@davemloft.net>
-	 <4575A170.2030805@redhat.com>  <4575BF51.1070109@s5r6.in-berlin.de>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 06 Dec 2006 08:41:49 +1100
-Message-Id: <1165354909.5469.11.camel@localhost.localdomain>
+	id S1759710AbWLEVv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 16:51:28 -0500
+Date: Tue, 5 Dec 2006 13:50:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, hch@infradead.org, viro@ftp.linux.org.uk,
+       linux-fsdevel@vger.kernel.org, mhalcrow@us.ibm.com
+Subject: Re: [PATCH 21/35] Unionfs: Inode operations
+Message-Id: <20061205135017.3be94142.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0612052222190.18570@yvahk01.tjqt.qr>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+	<11652354711835-git-send-email-jsipek@cs.sunysb.edu>
+	<Pine.LNX.4.61.0612052222190.18570@yvahk01.tjqt.qr>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 19:49 +0100, Stefan Richter wrote:
-> Kristian Høgsberg wrote:
-> > David Miller wrote:
-> >> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> >>>  DO NOT USE BITFIELDS FOR DATA ON THE WIRE !!!
+On Tue, 5 Dec 2006 22:27:10 +0100 (MET)
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+
 > 
-> Actually we do so in some places of the existing FireWire drivers.
-> Didn't go wrong so far. :-)
+> On Dec 4 2006 07:30, Josef 'Jeff' Sipek wrote:
+> >+	if (!hidden_dentry) {
+> >+		/* if hidden_dentry is NULL, create the entire
+> >+		 * dentry directory structure in branch 'bindex'.
+> >+		 * hidden_dentry will NOT be null when bindex == bstart
+> >+		 * because lookup passed as a negative unionfs dentry
+> >+		 * pointing to a lone negative underlying dentry */
+> >+		hidden_dentry = create_parents(parent, dentry, bindex);
+> 
+> Someone refresh me: what's the correct[preferred] kdoc style?
 
-Yeah, because you used 
+This isn't part of kernel-doc, if that's what you mean.
 
-#if defined __BIG_ENDIAN_BITFIELD
+> (A)
+> 	/* Lorem ipsum dolor sit amet, consectetur
+> 	 * adipisicing elit, sed do eiusmod tempor
+> 	 * incididunt ut labore et dolore magna aliqua. */
+> 
+> (B)
+> 	/* Lorem ipsum dolor sit amet, consectetur
+> 	   adipisicing elit, sed do eiusmod tempor
+> 	   incididunt ut labore et dolore magna aliqua. */
+> 
+> (C)
+> 	/* Lorem ipsum dolor sit amet, consectetur
+> 	adipisicing elit, sed do eiusmod tempor incididunt
+> 	ut labore et dolore magna aliqua. */
 
-and
+You forgot (D), (E), (F), (G) and a whole lot more besides.
 
-#if defined __LITTLE_ENDIAN_BITFIELD
+It doesn't matter a lot what we do, but we should do it one way and not 38
+ways.
 
-which relies on the fact that it -seems- that by luck, gcc only has two
-representations around and they match little/big endian archs (though
-have we verified that is always correct, especially between 32 and 64
-bits archs ?)
+Documentation/CodingStyle doesn't mention commenting at all (eyes roll
+heavenwards).
 
-It's still wrong to do.
+This
 
-Cheers,
-Ben.
+	/*
+	 * Lorem ipsum dolor sit amet, consectetur
+	 * adipisicing elit, sed do eiusmod tempor
+	 * incididunt ut labore et dolore magna aliqua.
+	 */
 
-
+is probably the most common, and is what I use when forced to descrog
+comments.

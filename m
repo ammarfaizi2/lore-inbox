@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968558AbWLESOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968561AbWLESTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968558AbWLESOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 13:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968556AbWLESOQ
+	id S968561AbWLESTP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 13:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968563AbWLESTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 13:14:16 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:51671 "EHLO
-	saraswathi.solana.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968558AbWLESOP (ORCPT
+	Tue, 5 Dec 2006 13:19:15 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:51484 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968561AbWLESTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 13:14:15 -0500
-Date: Tue, 5 Dec 2006 13:10:17 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `make checkstack' and cross-compilation
-Message-ID: <20061205181017.GA5666@ccure.user-mode-linux.org>
-References: <Pine.LNX.4.62.0612011455040.19178@pademelon.sonytel.be> <20061201153021.GA4332@ccure.user-mode-linux.org> <Pine.LNX.4.62.0612011708550.30940@pademelon.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0612011708550.30940@pademelon.sonytel.be>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 5 Dec 2006 13:19:14 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4575B804.1060006@s5r6.in-berlin.de>
+Date: Tue, 05 Dec 2006 19:18:44 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: =?UTF-8?B?S3Jpc3RpYW4gSMO4Z3NiZXJn?= <krh@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Import fw-sbp2 driver.
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205052253.7213.41796.stgit@dinky.boston.redhat.com> <45750C9A.607@garzik.org>
+In-Reply-To: <45750C9A.607@garzik.org>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 05:09:17PM +0100, Geert Uytterhoeven wrote:
-> On Fri, 1 Dec 2006, Jeff Dike wrote:
-> > And, do you have a cross-compilation environment which tests this?
+Jeff Garzik wrote:
+> Kristian Høgsberg wrote:
+>> +struct sbp2_status {
+>> +    unsigned int orb_high:16;
 > 
-> Yes :-)
+> unsigned short?  probably generates better code than a bitfield:16
+> 
+> 
+>> +    unsigned int sbp_status:8;
+> 
+> unsigned char?
+> 
+> 
+>> +    unsigned int len:3;
+>> +    unsigned int dead:1;
+>> +    unsigned int response:2;
+>> +    unsigned int source:2;
+>> +    u32 orb_low;
+>> +    u8 data[24];
+>> +};
 
-Can you test this patch?  It works for UML and native x86_64 - if it works
-for your cross-build, I'll send it in.
+This as well as ORBs and responses are series of u32 that go in or out
+in big endian byte order.
 
-				Jeff
+The old FireWire drivers have two styles to deal with such data
+structures: Define them as a struct or array of u32 and manipulate bits
+by arithmetic expressions, or define them as bitfields similarly to what
+you see above. Of course either approach has to account for host byte
+order in one or another way.
 
-Index: linux-2.6.18-mm/Makefile
-===================================================================
---- linux-2.6.18-mm.orig/Makefile	2006-11-24 14:36:32.000000000 -0500
-+++ linux-2.6.18-mm/Makefile	2006-12-05 13:08:20.000000000 -0500
-@@ -1390,12 +1390,18 @@ endif #ifeq ($(mixed-targets),1)
- 
- PHONY += checkstack kernelrelease kernelversion
- 
--# Use $(SUBARCH) here instead of $(ARCH) so that this works for UML.
--# In the UML case, $(SUBARCH) is the name of the underlying
--# architecture, while for all other arches, it is the same as $(ARCH).
-+# UML needs a little special treatment here.  It wants to use the host
-+# toolchain, so needs $(SUBARCH) passed to checkstack.pl.  Everyone
-+# else wants $(ARCH), including people doing cross-builds, which means
-+# that $(SUBARCH) doesn't work here.
-+ifeq ($(ARCH), um)
-+CHECKSTACK_ARCH := $(SUBARCH)
-+else
-+CHECKSTACK_ARCH := $(ARCH)
-+endif
- checkstack:
- 	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
--	$(PERL) $(src)/scripts/checkstack.pl $(SUBARCH)
-+	$(PERL) $(src)/scripts/checkstack.pl $(CHECKSTACK_ARCH)
- 
- kernelrelease:
- 	$(if $(wildcard include/config/kernel.release), $(Q)echo $(KERNELRELEASE), \
+...
+>> +
+>> +    /* FIXME: Make this work for multi-lun devices. */
+>> +    lun = 0;
+> 
+> doesn't allowing the stack to issue REPORT LUNS take care of this?
 
+SBP-2 LUs and their LUNs are obtained from the ISO/IEC 13213
+configuration ROM of the target.
 
+The FIXME comment is misleadingly worded, at least as far as the "old"
+sbp2 driver is concerned, which AFAIU served as a starting point for
+fw-sbp2. The sbp2 driver supports multi-unit targets; it just represents
+each LU behind an own Scsi_Host. This had several reasons, most of them
+historic now. I am considering to make sbp2 use a single Scsi_Host for
+all its LUs and perhaps join LUs of the same target beneath a single
+scsi_target. But this project doesn't have priority for me.
 -- 
-Work email - jdike at linux dot intel dot com
+Stefan Richter
+-=====-=-==- ==-- --=-=
+http://arcgraph.de/sr/

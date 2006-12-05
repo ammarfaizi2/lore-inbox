@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968268AbWLEPHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968277AbWLEPIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968268AbWLEPHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968272AbWLEPHe
+	id S968277AbWLEPIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968279AbWLEPIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:07:34 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:53597 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S968268AbWLEPHd (ORCPT
+	Tue, 5 Dec 2006 10:08:16 -0500
+Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:63057 "EHLO
+	fest.stud.feec.vutbr.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968277AbWLEPIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:07:33 -0500
-Subject: Re: [PATCH  v2 04/13] Connection Manager
-From: Steve Wise <swise@opengridcomputing.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061205051356.GA26845@2ka.mipt.ru>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
-	 <20061202224958.27014.65970.stgit@dell3.ogc.int>
-	 <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
-	 <1165249251.32724.26.camel@stevo-desktop>
-	 <20061205051356.GA26845@2ka.mipt.ru>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 09:07:33 -0600
-Message-Id: <1165331253.16087.21.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Tue, 5 Dec 2006 10:08:15 -0500
+Message-ID: <45758B57.6040107@stud.feec.vutbr.cz>
+Date: Tue, 05 Dec 2006 16:08:07 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: Jaswinder Singh <jaswinderrajput@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PREEMPT is messing with everyone
+References: <aa5953d60612050610l1f2657c3ie073467a2b2a7126@mail.gmail.com>
+In-Reply-To: <aa5953d60612050610l1f2657c3ie073467a2b2a7126@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.177 () FROM_ENDS_IN_NUMS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 08:13 +0300, Evgeniy Polyakov wrote:
-> On Mon, Dec 04, 2006 at 10:20:51AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
-> > >  > This and a lot of other changes in this driver definitely says you
-> > >  > implement your own stack of protocols on top of infiniband hardware.
-> > > 
-> > > ...but I do know this driver is for 10-gig ethernet HW.
-> > > 
-> > 
-> > There is no SW TCP stack in this driver.  The HW supports RDMA over
-> > TCP/IP/10GbE in HW and this is required for zero-copy RDMA over Ethernet
-> > (aka iWARP).  The device is a 10 GbE device, not Infiniband.  The
-> > Ethernet driver, upon which the rdma driver depends, acts both like a
-> > traditional Ethernet NIC for the Linux stack as well as a TCP offload
-> > device for the RDMA driver allowing establishment of RDMA connections.
-> > The Connection Manager (patch 04/13) sends/receives messages from the
-> > Ethernet driver that sets up HW TCP connections for doing RDMA.  While
-> > this is indeed implementing TCP offload, it is _not_ integrating it with
-> > the sockets layer nor the linux stack and offloading sockets
-> > connections.  Its only supporting offload connections for the RDMA
-> > driver to do iWARP.   The Ammasso device is another example of this
-> > (drivers/infiniband/hw/amso1100).  Deep iSCSI adapters are another
-> > example of this.
+Jaswinder Singh wrote:
+> Hi,
 > 
-> So what will happen when application will create a socket, bind it to
-> that NIC, and then try to establish a TCP connection? How NIC will
-> decide that received packets are from socket but not for internal TCP
-> state machine handled by that device?
+> preempt stuff SHOULD only stay in #ifdef CONFIG_PREEMP_* , but it is
+> messing with everyone even though not defined.
+> 
+> e.g.
+> 
+> 1. linux-2.6.19/kernel/spinlock.c
+> 
+> Line 18: #include <linux/preempt.h>
+> 
+> Line 26:  preempt_disable();
+> 
+> Line 32:  preempt_disable();
+> 
+> and so on .
 
-The HW knows which TCP connections are offloaded by virtue of the fact
-that they were setup via the RDMA subsystem.  Any other TCP traffic (and
-all other non TCP traffic) gets passed to the host stack.
+Don't worry. These compile into "do { } while (0)" (i.e. nothing) when 
+CONFIG_PREEMPT is not set.
 
 > 
-> As a side note, does all iwarp devices _require_ to have very
-> limited TCP engine implemented it in its hardware, or it is possible
-> to work with external SW stack?
+> 2. linux-2.6.19/kernel/sched.c
+> 
+> Line 1096:  int preempted;
+> 
+> Line 1104:   preempted = !task_running(rq, p);
+> 
+> Line 1106:   if (preempted)
+> 
+> Line 2059:  if (TASK_PREEMPTS_CURR(p, this_rq))
 
-It is possible, but not very interesting.
+Linux always does preemptive multitasking of user tasks. These have 
+nothing to do with CONFIG_PREEMPT.
 
-One could implement an all-software iWARP stack.  The iWARP protocols
-are just TCP payload and _could_ be implemented in user mode on top of a
-socket.  However, this isn't very interesting:  the goal of iWARP (and
-RDMA for that matter) is to allow direct placement of data into user
-memory with 0 copies done by the host CPU.  low latency.
+> Line 3355:    current->comm, preempt_count(), current->pid);
+> 
+> Line 3342:  preempt_disable();
+> 
+> Line 3375:  if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
 
-Steve.
+preempt_count() is useful in !CONFIG_PREEMPT kernels too. It stores 
+information about the current context (hardirq, softirq, ...).
 
+> [...]
+> 
+> 70 to 80 % of this code is removed when compiled.
+> 
+> but 20 to 30 % code left in binary kernel image.
+> 
+> Why Linux kernel is wasting its resources which is not defined at all.
 
+I don't think that's the case.
+
+> Any solution ?
+> 
+> Thank you,
+> 
+> Best Regards,
+> 
+> Jaswinder Singh.
+
+Michal

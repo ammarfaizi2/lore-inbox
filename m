@@ -1,68 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936851AbWLEWiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936859AbWLEWka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936851AbWLEWiP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936829AbWLEWiP
+	id S936859AbWLEWka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 17:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936870AbWLEWk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:38:15 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:60782 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936851AbWLEWiN (ORCPT
+	Tue, 5 Dec 2006 17:40:29 -0500
+Received: from wr-out-0506.google.com ([64.233.184.230]:31357 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936859AbWLEWk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:38:13 -0500
-Date: Tue, 5 Dec 2006 17:38:07 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] fsstack: Fix up ecryptfs's fsstack usage
-Message-ID: <20061205223807.GA7300@filer.fsl.cs.sunysb.edu>
-References: <20061204204024.2401148d.akpm@osdl.org> <20061205191824.GB2240@filer.fsl.cs.sunysb.edu> <20061205192231.GD2240@filer.fsl.cs.sunysb.edu> <20061205142831.9cb3e91c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Dec 2006 17:40:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l2hP5UsoZh5WeJm5/dSxjph52Beh32fU4u45k6rwsuJRgoGfAyeQAF723lZQlt7FUbrlojeOxHgcafSvO8N9EdQMp0Nfu+wd8+Lke5I/rDkgc8tEDBmjU8p/q6UvPTz5mvADvsXhEin8inpQeGYIlxCoklFeG5AKY1/G8eeHwxA=
+Message-ID: <9a8748490612051440v81372dcia879acdf718047bb@mail.gmail.com>
+Date: Tue, 5 Dec 2006 23:40:28 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Corey Minyard" <minyard@acm.org>
+Subject: Re: [PATCH 7/12] IPMI: add poll delay
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "OpenIPMI Developers" <openipmi-developer@lists.sourceforge.net>
+In-Reply-To: <4575779C.1050204@acm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061205142831.9cb3e91c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+References: <20061202043520.GC30531@localdomain>
+	 <20061203132610.471786ca.akpm@osdl.org> <4575779C.1050204@acm.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 02:28:31PM -0800, Andrew Morton wrote:
-> On Tue, 5 Dec 2006 14:22:32 -0500
-> Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
-> 
-> > Fix up a stray ecryptfs_copy_attr_all call and remove prototypes for
-> > ecryptfs_copy_* as they no longer exist.
-> > 
-> > Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> > ---
-> >  fs/ecryptfs/dentry.c          |    2 +-
-> >  fs/ecryptfs/ecryptfs_kernel.h |    4 +---
-> >  2 files changed, 2 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
-> > index 52d1e36..b0352d8 100644
-> > --- a/fs/ecryptfs/dentry.c
-> > +++ b/fs/ecryptfs/dentry.c
-> > @@ -61,7 +61,7 @@ static int ecryptfs_d_revalidate(struct
-> >  		struct inode *lower_inode =
-> >  			ecryptfs_inode_to_lower(dentry->d_inode);
-> >  
-> > -		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
-> > +		fsstack_copy_attr_all(dentry->d_inode, lower_inode, NULL);
-> 
-> I fixed that two weeks ago.
-> 
-> When your patches are queued in -mm please do test them there, and review
-> others' changes to them, and raise patches against them.  Raising patches
-> against one's private tree and not testing the code which is planned to be
-> merged can introduce errors.
+On 05/12/06, Corey Minyard <minyard@acm.org> wrote:
+> Andrew Morton wrote:
+> > On Fri, 1 Dec 2006 22:35:20 -0600
+> > Corey Minyard <minyard@acm.org> wrote:
+> >
+> >
+> >> Make sure to delay a little in the IPMI poll routine so we can pass in
+> >> a timeout time and thus time things out.
+> >>
+> >> Signed-off-by: Corey Minyard <minyard@acm.org>
+> >>
+> >> Index: linux-2.6.19-rc6/drivers/char/ipmi/ipmi_si_intf.c
+> >> ===================================================================
+> >> --- linux-2.6.19-rc6.orig/drivers/char/ipmi/ipmi_si_intf.c
+> >> +++ linux-2.6.19-rc6/drivers/char/ipmi/ipmi_si_intf.c
+> >> @@ -807,7 +807,12 @@ static void poll(void *send_info)
+> >>  {
+> >>      struct smi_info *smi_info = send_info;
+> >>
+> >> -    smi_event_handler(smi_info, 0);
+> >> +    /*
+> >> +     * Make sure there is some delay in the poll loop so we can
+> >> +     * drive time forward and timeout things.
+> >> +     */
+> >> +    udelay(10);
+> >> +    smi_event_handler(smi_info, 10);
+> >>  }
+> >>
+> >
+> > I don't understand what this patch is doing.  It looks fishy.  More
+> > details, please?
+> >
+> Yeah, it does look a little fishy.  This is a poll routine that is only
+> called at panic
+> time; it is used to force things to happen in the driver without
+> scheduling or
+> timers.  The driver does this so it can set watchdog parameters and store
+> panic information in the event log at panic time.
+>
+> Without this change, if something goes wrong in the BMC the driver will
+> never
+> time out the operation since it doesn't see time being driven forward.
+> So this
+> makes sure the driver sees time advancing as it should.
+>
 
-Sorry about that. I noticed your fix, and the one by Adrian. And I did add
-them to my fsstack queue.
-
-I must have dropped it accidentally.
-
-Josef "Jeff" Sipek.
+Hmm, I wonder if this could explain why some of my IBM servers become
+unreachable via IPMI after a kernel crash.
 
 -- 
-If I have trouble installing Linux, something is wrong. Very wrong.
-		- Linus Torvalds
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

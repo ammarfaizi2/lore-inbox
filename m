@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968641AbWLETe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968665AbWLETfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968641AbWLETe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 14:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968664AbWLETe3
+	id S968665AbWLETfN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 14:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968666AbWLETfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 14:34:29 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4063 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S968641AbWLETe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 14:34:28 -0500
-Date: Tue, 5 Dec 2006 19:33:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Subject: More ARM binutils fuckage
-Message-ID: <20061205193357.GF24038@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Sam Ravnborg <sam@ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 5 Dec 2006 14:35:13 -0500
+Received: from mailer.gwdg.de ([134.76.10.26]:47898 "EHLO mailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968664AbWLETfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 14:35:10 -0500
+Date: Tue, 5 Dec 2006 20:27:51 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 26/35] Unionfs: Privileged operations workqueue
+In-Reply-To: <1165235471170-git-send-email-jsipek@cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0612052020420.18570@yvahk01.tjqt.qr>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+ <1165235471170-git-send-email-jsipek@cs.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's not much to say about this, other than scream and go hide in the
-corner.  ARM toolchains are just basically fscked.
 
-  arm-linux-ld -EL  -p --no-undefined -X -o .tmp_vmlinux1 -T
- arch/arm/kernel/vmlinux.lds arch/arm/kernel/head.o
- arch/arm/kernel/init_task.o  init/built-in.o --start-group
-  usr/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o
-  arch/arm/common/built-in.o  arch/arm/mach-versatile/built-in.o
-  arch/arm/nwfpe/built-in.o  arch/arm/vfp/built-in.o  kernel/built-in.o
-  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o
-  crypto/built-in.o  block/built-in.o  arch/arm/lib/lib.a  lib/lib.a
-  arch/arm/lib/built-in.o  lib/built-in.o  drivers/built-in.o
-  sound/built-in.o  net/built-in.o --end-group
+On Dec 4 2006 07:30, Josef 'Jeff' Sipek wrote:
+>+#include "union.h"
+>+
+>+struct workqueue_struct *sioq;
+>+
+>+int __init init_sioq(void)
 
-Produces no error, but:
+Although it's just me, I'd prefer sioq_init(), sioq_exit(),
+sioq_run(), etc. to go in hand with what most drivers use as naming
+(i.e. <modulename> "_" <function>).
 
-$ arm-linux-nm ../build/versatile/.tmp_vmlinux1 |grep ' U '
-         U __divdi3
-         U __udivdi3
-         U __umoddi3
+>+	sioq = create_workqueue("unionfs_siod");
 
-Duh.
+Beat me: what does SIO stand for?
 
-Result is you get successful kernel builds without any error, but a *bad*
-incomplete image.  IOW, you do not know whether or not your kernel is
-_safe_ to execute.
+>+void fin_sioq(void)
 
-That's binutils 2.17.  binutils 2.16 had this problem and I tried to get a
-patch into the kernel to use 'nm' to detect this fsckage.  We *need* this
-patch in the kernel.
+No __exit tag?
 
-Sam, can we resurrect my attempts to do this please?
+>+void __unionfs_mknod(void *data)
+>+{
+>+	struct sioq_args *args = data;
+>+	struct mknod_args *m = &args->mknod;
 
+Care to make that: const struct mknod_args *m = &args->mknod;?
+(Same for other places)
+
+>+
+>+	args->err = vfs_mknod(m->parent, m->dentry, m->mode, m->dev);
+>+	complete(&args->comp);
+>+}
+>+void __unionfs_symlink(void *data)
+>+{
+
+Hah, missing free line :^)
+
+>+	struct sioq_args *args = data;
+>+	struct symlink_args *s = &args->symlink;
+>+
+>+	args->err = vfs_symlink(s->parent, s->dentry, s->symbuf, s->mode);
+>+	complete(&args->comp);
+>+}
+>+
+
+>+++ b/fs/unionfs/sioq.h
+>+struct isopaque_args {
+>+	struct dentry *dentry;
+>+};
+
+This name puzzled me at first. iso - paque - "same (o)paque"?
+Try is_opaque_args.
+
+>+/* Extern definitions for our privledge escalation helpers */
+
+-> privilege
+
+
+	-`J'
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:

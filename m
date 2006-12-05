@@ -1,119 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968630AbWLES6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968636AbWLETE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968630AbWLES6R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 13:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968631AbWLES6R
+	id S968636AbWLETE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 14:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968633AbWLETE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 13:58:17 -0500
-Received: from az33egw01.freescale.net ([192.88.158.102]:50493 "EHLO
-	az33egw01.freescale.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968630AbWLES6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 13:58:16 -0500
-In-Reply-To: <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org> <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0ECFB207-7AC9-4D0D-AC9B-EEFF5A1A41EA@freescale.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ben Collins <ben.collins@ubuntu.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>
-Content-Transfer-Encoding: 7bit
-From: Andy Fleming <afleming@freescale.com>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-Date: Tue, 5 Dec 2006 12:57:47 -0600
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-X-Mailer: Apple Mail (2.752.2)
+	Tue, 5 Dec 2006 14:04:27 -0500
+Received: from mailer.gwdg.de ([134.76.10.26]:35112 "EHLO mailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967880AbWLETE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 14:04:26 -0500
+Date: Tue, 5 Dec 2006 20:02:32 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Matthew Wilcox <matthew@wil.cx>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Centralise definitions of sector_t and blkcnt_t
+In-Reply-To: <Pine.LNX.4.64.0612041941220.3476@woody.osdl.org>
+Message-ID: <Pine.LNX.4.61.0612051958550.18570@yvahk01.tjqt.qr>
+References: <20061204103830.GA3013@parisc-linux.org>
+ <Pine.LNX.4.64.0612041941220.3476@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 5, 2006, at 11:48, Maciej W. Rozycki wrote:
-
+On Dec 4 2006 19:44, Linus Torvalds wrote:
 >
->  Essentially there is a race when disconnecting from a PHY, because
-> interrupt delivery uses the event queue for processing.  The  
-> function to
-> handle interrupts that is called from the event queue is phy_change().
-> It takes a pointer to a structure that is associated with the PHY.   
-> At the
-> time phy_stop_interrupts() is called there may be one or more calls to
-> phy_change() still pending on the event queue.  They may not be  
-> able to be
-> processed until the structure passed to phy_change() have been  
-> freed, at
-> which point calling the function is wrong.
+>[...]allow even 64-bit architectures to say that they only want 32-bit 
+>sector_t's and page indexes [...]
 >
->  One way of avoiding it is calling flush_scheduled_work() from
-> phy_stop_interrupts().  This is fine as long as a caller of
-> phy_stop_interrupts() (not necessarily the immediate one calling into
-> libphy) does not hold the netlink lock.
+>I don't know how big a deal it is, but I could imagine that we could 
+>actually save memory in a smaller "struct page", for example, on 64bit 
+>architectures by just using a 4-byte index.
 >
->  If a caller indeed holds the netlink lock, then a driver effectively
-> calling phy_stop_interrupts() may arrange for the function to be  
-> itself
-> scheduled through the event queue.  This has the effect of avoiding  
-> the
-> race as well, as the queue is processed in order, except it causes  
-> more
-> hassle for the driver.  Hence the choice was left to the driver's  
-> author
-> -- if a driver "knows" the netlink lock is not going to be held at  
-> that 
-> point, it may call phy_stop_interrupts() directly, otherwise it  
-> shall use
-> the event queue.
+>For now, the !64BIT makes sense simply because a 64-bit architecture 
+>probably doesn't care, and might as well just use 64 bits anyway (ie you 
+>tend to have tons of memory there anyway). And I suspect it doesn't 
+>actually even help on 64-bits due to structure alignment etc issues, but 
+>am too lazy to go check.
+
+sparc could benefit from this (someone go correct me if I am wrong).
+Not only in struct sizes, but maybe also a little in execution time.
 
 
-We need to make sure there are no more pending phy_change()  
-invocations in the work queue, this is true, however I'm not  
-convinced that this avoids the problem.  And now that I come back to  
-this email after Linus's response, let me add that I agree with his  
-suggestion.  I still don't think it solves the original problem,  
-though.  Unless I'm missing something, Maciej's suggested fix (having  
-the driver invoke phy_stop_interrupts() from a work queue) doesn't  
-stop the race:
-
-* Schedule stop_interrupts and freeing of memory.
-* interrupt occurs, and schedules phy_change
-* work_queue triggers, and stop_interrupts is invoked.  It doesn't  
-call flush_scheduled_work, because it's being called from keventd.
-* The invoker of stop_interrupts (presumably some function in the  
-driver) frees up memory, including the phy_device.
-* phy_change is invoked() from the work queue, and starts accessing  
-freed memory
-
-Am I misunderstanding how work queues operate?
-
-If I'm right, an ugly solution would have to disable the PHY  
-interrupts before scheduling the cleanup.  But is there really no way  
-to tell the kernel to squash all pending work that came from *this*  
-work_queue?
-
-
-
->
->  With such an assumption in place the function has to check somehow
-> whether it has been scheduled through the queue or not and act
-> accordingly, which is why that "if" clause is there.
->
->  Now I gather the conclusion was the whole mess was going to be  
-> included
-> within libphy and not exposed to Ethernet MAC drivers.  This way the
-> library would schedule both phy_stop_interrupts() and  
-> mdiobus_unregister()
-> (which is actually the function freeing the PHY device structure)  
-> through
-> the event queue as needed without a MAC driver having to know.
-
-
-I suggested this, mostly so that drivers wouldn't have to be aware of  
-this.  But I'm not quite sure what happens when you unload a module.   
-Does some stuff stay behind if needed?  If you unload the ethernet  
-driver, that will usually remove the bus controller for the PHY,  
-which would prevent any scheduled code from accessing the PHY.
-
-
-Andy
-
-
+	-`J'
+-- 

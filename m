@@ -1,189 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935003AbWLEWTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935588AbWLEWUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935003AbWLEWTG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935292AbWLEWTG
+	id S935588AbWLEWUp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 17:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935370AbWLEWUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:19:06 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:42960 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935003AbWLEWTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:19:04 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.19-rc6-mm2: lockdep unhappy with disable_nonboot_cpus()
-Date: Tue, 5 Dec 2006 23:14:08 +0100
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
+	Tue, 5 Dec 2006 17:20:45 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:33881 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935588AbWLEWUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 17:20:43 -0500
+Date: Tue, 5 Dec 2006 14:20:27 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Valerie Henson <val_henson@linux.intel.com>
+Cc: Steven Whitehouse <steve@chygwyn.com>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Relative atime (was Re: What's in ocfs2.git)
+Message-ID: <20061205222027.GA4497@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20061203203149.GC19617@ca-server1.us.oracle.com> <1165229693.3752.629.camel@quoit.chygwyn.com> <20061205001007.GF19617@ca-server1.us.oracle.com> <20061205003619.GC8482@goober>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612052314.08840.rjw@sisk.pl>
+In-Reply-To: <20061205003619.GC8482@goober>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Dec 04, 2006 at 04:36:20PM -0800, Valerie Henson wrote:
+> > Last time I looked at them, things seemed to be in pretty good shape - it
+> > wasn't a very large patch series.
+> 
+> Yep, the relative atime patch is tiny and pretty much done - just
+> needs some soak time in -mm and a little more review (cc'd Viro and
+> fsdevel).  Kernel patch against 2.6.18-rc4 appended, patch to mount
+> following. (Note that my web server suffered a RAID failure and my
+> patches page is unavailable till the restore finishes.)
 
-When I try to suspend (echo disk > /sys/power/state) an SMP x86-64 box with a
-lockdep-enabled kernel, I get this (100% of the time):
+Well, here's what the ocfs2 patch would look like. If we care to push this
+forward, some time in -mm would be nice...
+	--Mark
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
-2.6.19-rc6-mm2 #62
--------------------------------------------------------
-bash/4519 is trying to acquire lock:
- (&policy->lock){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
+From: Mark Fasheh <mark.fasheh@oracle.com>
+Date: Tue, 5 Dec 2006 14:13:41 -0800
+Subject: [PATCH] ocfs2: relative atime support
 
-but task is already holding lock:
- (cache_chain_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
+Update ocfs2_should_update_atime() to understand the MNT_RELATIME flag and
+to test against mtime / ctime accordingly.
 
-which lock already depends on the new lock.
+Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
+---
+ fs/ocfs2/file.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
-
-the existing dependency chain (in reverse order) is:
-
--> #3 (cache_chain_mutex){--..}:
-       [<ffffffff802b1d1f>] add_lock_to_list+0x8f/0xd0
-       [<ffffffff802b469d>] __lock_acquire+0xa9d/0xc20
-       [<ffffffff802b48aa>] lock_acquire+0x8a/0xc0
-       [<ffffffff8026e39d>] __mutex_lock_slowpath+0xdd/0x280
-       [<ffffffff8026e565>] mutex_lock+0x25/0x30
-       [<ffffffff802e7305>] cpuup_callback+0x1e5/0x330
-       [<ffffffff802a51ef>] notifier_call_chain+0x3f/0x80
-       [<ffffffff802a5259>] __raw_notifier_call_chain+0x9/0x10
-       [<ffffffff802a5271>] raw_notifier_call_chain+0x11/0x20
-       [<ffffffff802b87cf>] _cpu_down+0x7f/0x290
-       [<ffffffff802b8c62>] disable_nonboot_cpus+0x92/0x130
-       [<ffffffff802be88b>] prepare_processes+0x1b/0xf0
-       [<ffffffff802beb8c>] pm_suspend_disk+0xc/0x180
-       [<ffffffff802bd3e5>] enter_state+0x65/0x220
-       [<ffffffff802bd61a>] state_store+0x7a/0xa0
-       [<ffffffff80318ab4>] subsys_attr_store+0x24/0x30
-       [<ffffffff80318e58>] sysfs_write_file+0xe8/0x120
-       [<ffffffff8021870f>] vfs_write+0xdf/0x1a0
-       [<ffffffff80219280>] sys_write+0x50/0x90
-       [<ffffffff8026825e>] system_call+0x7e/0x83
-       [<00002b4b9ff8bcb0>] 0x2b4b9ff8bcb0
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #2 (workqueue_mutex){--..}:
-       [<ffffffff802b1d1f>] add_lock_to_list+0x8f/0xd0
-       [<ffffffff802b469d>] __lock_acquire+0xa9d/0xc20
-       [<ffffffff802b48aa>] lock_acquire+0x8a/0xc0
-       [<ffffffff8026e39d>] __mutex_lock_slowpath+0xdd/0x280
-       [<ffffffff8026e565>] mutex_lock+0x25/0x30
-       [<ffffffff802a8db0>] __create_workqueue+0x80/0x1a0
-       [<ffffffff881c6550>] cpufreq_governor_dbs+0xd0/0x3b0 [cpufreq_ondemand]
-       [<ffffffff8047c385>] __cpufreq_governor+0xb5/0x120
-       [<ffffffff8047c587>] __cpufreq_set_policy+0x197/0x230
-       [<ffffffff8047c85c>] store_scaling_governor+0x19c/0x200
-       [<ffffffff8027c907>] store+0x57/0x80
-       [<ffffffff80318e58>] sysfs_write_file+0xe8/0x120
-       [<ffffffff8021870f>] vfs_write+0xdf/0x1a0
-       [<ffffffff80219280>] sys_write+0x50/0x90
-       [<ffffffff8026825e>] system_call+0x7e/0x83
-       [<00002b6437c31cb0>] 0x2b6437c31cb0
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #1 (dbs_mutex){--..}:
-       [<ffffffff802b1d1f>] add_lock_to_list+0x8f/0xd0
-       [<ffffffff802b469d>] __lock_acquire+0xa9d/0xc20
-       [<ffffffff802b48aa>] lock_acquire+0x8a/0xc0
-       [<ffffffff8026e39d>] __mutex_lock_slowpath+0xdd/0x280
-       [<ffffffff8026e565>] mutex_lock+0x25/0x30
-       [<ffffffff881c652e>] cpufreq_governor_dbs+0xae/0x3b0 [cpufreq_ondemand]
-       [<ffffffff8047c385>] __cpufreq_governor+0xb5/0x120
-       [<ffffffff8047c587>] __cpufreq_set_policy+0x197/0x230
-       [<ffffffff8047c85c>] store_scaling_governor+0x19c/0x200
-       [<ffffffff8027c907>] store+0x57/0x80
-       [<ffffffff80318e58>] sysfs_write_file+0xe8/0x120
-       [<ffffffff8021870f>] vfs_write+0xdf/0x1a0
-       [<ffffffff80219280>] sys_write+0x50/0x90
-       [<ffffffff8026825e>] system_call+0x7e/0x83
-       [<00002b6437c31cb0>] 0x2b6437c31cb0
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #0 (&policy->lock){--..}:
-       [<ffffffff802b2cc7>] print_circular_bug_tail+0x57/0xb0
-       [<ffffffff802b4584>] __lock_acquire+0x984/0xc20
-       [<ffffffff802b48aa>] lock_acquire+0x8a/0xc0
-       [<ffffffff8026e39d>] __mutex_lock_slowpath+0xdd/0x280
-       [<ffffffff8026e565>] mutex_lock+0x25/0x30
-       [<ffffffff8047cad4>] cpufreq_driver_target+0x44/0x80
-       [<ffffffff8047d354>] cpufreq_cpu_callback+0x64/0x80
-       [<ffffffff802a51ef>] notifier_call_chain+0x3f/0x80
-       [<ffffffff802a5259>] __raw_notifier_call_chain+0x9/0x10
-       [<ffffffff802a5271>] raw_notifier_call_chain+0x11/0x20
-       [<ffffffff802b87cf>] _cpu_down+0x7f/0x290
-       [<ffffffff802b8c62>] disable_nonboot_cpus+0x92/0x130
-       [<ffffffff802be88b>] prepare_processes+0x1b/0xf0
-       [<ffffffff802beb8c>] pm_suspend_disk+0xc/0x180
-       [<ffffffff802bd3e5>] enter_state+0x65/0x220
-       [<ffffffff802bd61a>] state_store+0x7a/0xa0
-       [<ffffffff80318ab4>] subsys_attr_store+0x24/0x30
-       [<ffffffff80318e58>] sysfs_write_file+0xe8/0x120
-       [<ffffffff8021870f>] vfs_write+0xdf/0x1a0
-       [<ffffffff80219280>] sys_write+0x50/0x90
-       [<ffffffff8026825e>] system_call+0x7e/0x83
-       [<00002b4b9ff8bcb0>] 0x2b4b9ff8bcb0
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
-other info that might help us debug this:
-
-5 locks held by bash/4519:
- #0:  (pm_mutex){--..}, at: [<ffffffff802bd3d2>] enter_state+0x52/0x220
- #1:  (cpu_add_remove_lock){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #2:  (sched_hotcpu_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #3:  (workqueue_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #4:  (cache_chain_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
-
-stack backtrace:
-
-Call Trace:
- [<ffffffff80274a3d>] dump_trace+0xcd/0x4b0
- [<ffffffff80274e63>] show_trace+0x43/0x70
- [<ffffffff80274ea5>] dump_stack+0x15/0x20
- [<ffffffff802b2d08>] print_circular_bug_tail+0x98/0xb0
- [<ffffffff802b4584>] __lock_acquire+0x984/0xc20
- [<ffffffff802b48aa>] lock_acquire+0x8a/0xc0
- [<ffffffff8026e39d>] __mutex_lock_slowpath+0xdd/0x280
- [<ffffffff8026e565>] mutex_lock+0x25/0x30
- [<ffffffff8047cad4>] cpufreq_driver_target+0x44/0x80
- [<ffffffff8047d354>] cpufreq_cpu_callback+0x64/0x80
- [<ffffffff802a51ef>] notifier_call_chain+0x3f/0x80
- [<ffffffff802a5259>] __raw_notifier_call_chain+0x9/0x10
- [<ffffffff802a5271>] raw_notifier_call_chain+0x11/0x20
- [<ffffffff802b87cf>] _cpu_down+0x7f/0x290
- [<ffffffff802b8c62>] disable_nonboot_cpus+0x92/0x130
- [<ffffffff802be88b>] prepare_processes+0x1b/0xf0
- [<ffffffff802beb8c>] pm_suspend_disk+0xc/0x180
- [<ffffffff802bd3e5>] enter_state+0x65/0x220
- [<ffffffff802bd61a>] state_store+0x7a/0xa0
- [<ffffffff80318ab4>] subsys_attr_store+0x24/0x30
- [<ffffffff80318e58>] sysfs_write_file+0xe8/0x120
- [<ffffffff8021870f>] vfs_write+0xdf/0x1a0
- [<ffffffff80219280>] sys_write+0x50/0x90
- [<ffffffff8026825e>] system_call+0x7e/0x83
- [<00002b4b9ff8bcb0>]
-
-5 locks held by bash/4519:
- #0:  (pm_mutex){--..}, at: [<ffffffff802bd3d2>] enter_state+0x52/0x220
- #1:  (cpu_add_remove_lock){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #2:  (sched_hotcpu_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #3:  (workqueue_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
- #4:  (cache_chain_mutex){--..}, at: [<ffffffff8026e565>] mutex_lock+0x25/0x30
-CPU 1 is now offline
-lockdep: not fixing up alternatives.
-CPU1 is down
-
-Greetings,
-Rafael
-
-
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index 8786b3c..16a9b5e 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -154,6 +154,15 @@ int ocfs2_should_update_atime(struct ino
+ 		return 0;
+ 
+ 	now = CURRENT_TIME;
++
++	if (vfsmnt->mnt_flags & MNT_RELATIME) {
++		if ((timespec_compare(&inode->i_atime, &inode->i_mtime) < 0) ||
++		    (timespec_compare(&inode->i_atime, &inode->i_ctime) < 0))
++			return 1;
++
++		return 0;
++	}
++
+ 	if ((now.tv_sec - inode->i_atime.tv_sec <= osb->s_atime_quantum))
+ 		return 0;
+ 	else
 -- 
-If you don't have the time to read,
-you don't have the time or the tools to write.
-		- Stephen King
+1.4.2.4
+

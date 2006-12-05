@@ -1,74 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937389AbWLEI0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967177AbWLEIaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937389AbWLEI0b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 03:26:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937486AbWLEI0b
+	id S967177AbWLEIaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 03:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937496AbWLEIaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 03:26:31 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44524 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937389AbWLEI0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 03:26:30 -0500
-Date: Tue, 5 Dec 2006 09:25:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <fzu@wemgehoertderstaat.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.6.19-rt1, yum/rpm
-Message-ID: <20061205082553.GA13000@elte.hu>
-References: <20061130083358.GA351@elte.hu> <200612050119.59113.fzu@wemgehoertderstaat.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612050119.59113.fzu@wemgehoertderstaat.de>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -4.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	1.4 AWL                    AWL: From: address is in the auto white-list
+	Tue, 5 Dec 2006 03:30:08 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:18381 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937494AbWLEIaH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 03:30:07 -0500
+Message-ID: <45752DF9.50002@chelsio.com>
+Date: Tue, 05 Dec 2006 00:29:45 -0800
+From: Divy Le Ray <divy@chelsio.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Divy Le Ray <None@chelsio.com>, jeff@garzik.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/10] cxgb3 - main source file
+References: <20061204194421.9061.66228.stgit@localhost.localdomain> <20061204130934.21b26a74@freekitty>
+In-Reply-To: <20061204130934.21b26a74@freekitty>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Dec 2006 08:29:48.0416 (UTC) FILETIME=[86A6A000:01C71847]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen,
 
-* Karsten Wiese <fzu@wemgehoertderstaat.de> wrote:
+Thanks for the review. Please see my replies inline.
 
-> I tweaked latency_trace.c to make freerunning work. Will post later.
+Stephen Hemminger wrote:
 
-ok, please do.
+> O
+>   
+>> + * If we have multiple receive queues per port serviced by NAPI we need one
+>> + * netdevice per queue as NAPI operates on netdevices.  We already have one
+>> + * netdevice, namely the one associated with the interface, so we use dummy
+>> + * ones for any additional queues.  Note that these netdevices exist purely
+>> + * so that NAPI has something to work with, they do not represent network
+>> + * ports and are not registered.
+>> + */
+>> +static int init_dummy_netdevs(struct adapter *adap)
+>> +{
+>> +	int i, j, dummy_idx = 0;
+>> +	struct net_device *nd;
+>> +
+>> +	for_each_port(adap, i) {
+>> +		const struct port_info *pi = &adap->port[i];
+>> +
+>> +		for (j = 0; j < pi->nqsets - 1; j++) {
+>> +			if (!adap->dummy_netdev[dummy_idx]) {
+>> +				nd = alloc_netdev(0, "", ether_setup);
+>> +				if (!nd)
+>> +					goto free_all;
+>> +
+>> +				nd->priv = adap;
+>> +				nd->weight = 64;
+>> +				set_bit(__LINK_STATE_START, &nd->state);
+>> +				adap->dummy_netdev[dummy_idx] = nd;
+>> +			}
+>> +			strcpy(adap->dummy_netdev[dummy_idx]->name,
+>> +			       pi->dev->name);
+>> +			dummy_idx++;
+>> +		}
+>> +	}
+>> +	return 0;
+>> +
+>> +free_all:
+>> +	while (--dummy_idx >= 0) {
+>> +		free_netdev(adap->dummy_netdev[dummy_idx]);
+>> +		adap->dummy_netdev[dummy_idx] = NULL;
+>> +	}
+>> +	return -ENOMEM;
+>> +}
+>>     
+>
+>
+> I understand this, but it seems more trouble than it is worth
+> and adds longterm maintance burden to NAPI and receive management code.
+>
+> You would be better off doing your own scheduling in a tasklet.
+>
+>   
+This code is directly inspired from the backlog_dev mechanism in 
+net/core/dev.c.
+NAPI provides fairness between adapters. Using our own scheduling would 
+conflict with this.
+>
+>   
+>> +	case SIOCCHIOCTL:
+>> +		return cxgb_extension_ioctl(dev, req->ifr_data);
+>>     
+>
+>
+> Adding a chelsio specific ioctl value isn't going to get accepted.
+> You need to use SIOCDEVPRIVATE, and figure out how to do 32bit/64bit
+> ioctl compatibility for it.
+>   
+SIOCCHIOCTL is defined as SIOCDEVPRIVATE in cxgb3_ioctl.h.
+>   
+>> +#ifdef CONFIG_NET_POLL_CONTROLLER
+>> +static void cxgb_netpoll(struct net_device *dev)
+>> +{
+>> +	unsigned long flags;
+>> +	struct adapter *adapter = dev->priv;
+>> +	struct sge_qset *qs = dev2qset(dev);
+>> +
+>> +	local_irq_save(flags);
+>> +	t3_intr_handler(adapter, qs->rspq.polling) (adapter->pdev->irq,
+>> +						    adapter);
+>> +	local_irq_restore(flags);
+>> +}
+>> +#endif
+>>     
+>
+> IRQ's are always disabled when netpoll is called.
+>   
+Okay, will fix.
+>   
+>> +	for (i = 0; i < ai->nports; ++i) {
+>> +		struct net_device *netdev;
+>> +
+>> +		netdev = alloc_etherdev(adapter ? 0 : sizeof(*adapter));
+>> +		if (!netdev) {
+>> +			err = -ENOMEM;
+>> +			goto out_free_dev;
+>> +		}
+>> +
+>> +		if (!adapter) {
+>> +			adapter = netdev->priv;
+>> +
+>> +			adapter->pdev = pdev;
+>> +			adapter->port[0].dev = netdev;	// so we don't leak it
+>> +
+>> +			adapter->regs = ioremap_nocache(mmio_start, mmio_len);
+>> +			if (!adapter->regs) {
+>> +				CH_ERR("%s: cannot map device registers\n",
+>> +				       pci_name(pdev));
+>> +				err = -ENOMEM;
+>> +				goto out_free_dev;
+>> +			}
+>> +
+>> +			adapter->name = pci_name(pdev);
+>> +			adapter->msg_enable = dflt_msg_enable;
+>> +			adapter->mmio_len = mmio_len;
+>> +			INIT_LIST_HEAD(&adapter->adapter_list);
+>> +			mutex_init(&adapter->mdio_lock);
+>> +			spin_lock_init(&adapter->work_lock);
+>> +			spin_lock_init(&adapter->stats_lock);
+>> +
+>> +			INIT_WORK(&adapter->ext_intr_handler_task,
+>> +				  ext_intr_task, adapter);
+>> +			INIT_WORK(&adapter->adap_check_task, t3_adap_check_task,
+>> +				  adapter);
+>> +
+>> +			pci_set_drvdata(pdev, netdev);
+>> +		}
+>>
+>>     
+>
+> It looks like you are repeating the same method of doing multi-port that you
+> did on cxgb2. It was wrong then, and it is wrong now:
+>
+> DON'T
+> 	use if_port to distinguish port. if_port is legacy field see IF_PORT_XXX
+> 	allocate adapter as part of 1st interface
+> 	set dev->priv differently on each port
+> 	don't use array in adapter structure for each port
+> DO
+> 	allocate adapter separately
+> 	use netdev_priv() for per port data
+> 	use port->adapter for adapter access
+>   
+We're fixing it.
 
-i'm trying to understand your trace:
+Cheers,
+Divy
 
-> Below the trace shows i_usX2Y_usbpcm_urb_complete() running under an 
-> alien context, and this is where jackd starts stalling:
-
-by 'alien context' do you mean softirq--4? That is the following kernel 
-thread:
-
-    4 ?        S      0:00 [softirq-high/0]
-
-handling HI_SOFTIRQ softirqs, which are the 'highprio' tasklets.
-
->   IRQ_17-308   0D..2 3411063us : deactivate_task <IRQ_17-308> (180 2)
-> softirq--4     0D..2 3411064us+: __schedule <IRQ_17-308> (180 101)
-> softirq--4     0.... 3411072us+: i_usX2Y_usbpcm_urb_complete (8 0 dd134)
-> softirq--4     0.... 3411078us : try_to_wake_up (c011b4ab 0 0)
-> softirq--4     0D..1 3411079us : __activate_task <jackd-2667> (173 1)
-> softirq--4     0Dn.1 3411079us : try_to_wake_up <jackd-2667> (173 101)
-> softirq--4     0Dn.1 3411080us : __schedule (c032a862 0 0)
->    jackd-2667  0D..2 3411081us+: __schedule <softirq--4> (101 173)
-
-it's running at SCHED_FIFO prio 80.
-
-it's probably this use in sound/usb/usbmidi.c:
-
-                tasklet_hi_schedule(&port->ep->tasklet);
-
-so what is your observation - if i_usX2Y_usbpcm_urb_complete() is 
-executed in this tasklet then you are seeing xruns/delays?
-
-	Ingo

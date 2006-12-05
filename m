@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967528AbWLEFpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967727AbWLEFuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967528AbWLEFpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 00:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967540AbWLEFpc
+	id S967727AbWLEFuk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967623AbWLEFuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 00:45:32 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:57684 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967528AbWLEFpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 00:45:32 -0500
-Date: Mon, 4 Dec 2006 21:45:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] add an iterator index in struct pagevec
-Message-Id: <20061204214519.2260855d.akpm@osdl.org>
-In-Reply-To: <000101c7182d$3a0b6a10$ba88030a@amr.corp.intel.com>
-References: <000101c7182d$3a0b6a10$ba88030a@amr.corp.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 5 Dec 2006 00:50:40 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:23474 "HELO
+	smtp110.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S967727AbWLEFuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:50:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=J2Gipq67tK1I3qYf/kw7/JBKev7wA5+I+/gnJQBRVCxOyVWaCFnJflfYNjlUzwI1PpxRZA8N3Qdtibtz2S0yp1z+brHIMOGxwnxh+0bx5fTbmQ11C45Y49JMgKdhIF+06P1Vs1NDCJdGJNCDn0G267HQLgkkK0koxUhTSxPY4gI=  ;
+X-YMail-OSG: IPuZYz4VM1lu.wihCc5QE2kwT66t.1yEwYcxlvUJA2bL5DvT2bSKAHqAsroYaWRTcdsIVgSuePSHv7gr5UzbRJh4.jM1VEghQhzV9nZjhSatn_Ke5ymk9ooPJUN0ZD354zRosBo0PEfPPhg-
+Message-ID: <4575087C.6050906@yahoo.com.au>
+Date: Tue, 05 Dec 2006 16:49:48 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Mackerras <paulus@samba.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: -mm merge plans for 2.6.20
+References: <20061204204024.2401148d.akpm@osdl.org> <17781.27.369430.322758@cargo.ozlabs.ibm.com>
+In-Reply-To: <17781.27.369430.322758@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 21:21:31 -0800
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+Paul Mackerras wrote:
+> Andrew Morton writes:
 
-> pagevec is never expected to be more than PAGEVEC_SIZE, I think a
-> unsigned char is enough to count them.  This patch makes nr, cold
-> to be unsigned char
-
-Is that on the right side of the speed/space tradeoff?
-
-> and also adds an iterator index. With that,
-> the size can be even bumped up by 1 to 15.
-> 
-> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+>>radix-tree-rcu-lockless-readside.patch
+>>
+>> There's no reason to merge this yet.
 > 
 > 
-> diff -Nurp linux-2.6.19/include/linux/pagevec.h linux-2.6.19.ken/include/linux/pagevec.h
-> --- linux-2.6.19/include/linux/pagevec.h	2006-11-29 13:57:37.000000000 -0800
-> +++ linux-2.6.19.ken/include/linux/pagevec.h	2006-12-04 19:18:21.000000000 -0800
-> @@ -8,15 +8,16 @@
->  #ifndef _LINUX_PAGEVEC_H
->  #define _LINUX_PAGEVEC_H
->  
-> -/* 14 pointers + two long's align the pagevec structure to a power of two */
-> -#define PAGEVEC_SIZE	14
-> +/* 15 pointers + 3 char's align the pagevec structure to a power of two */
-> +#define PAGEVEC_SIZE	15
->  
->  struct page;
->  struct address_space;
->  
->  struct pagevec {
-> -	unsigned long nr;
-> -	unsigned long cold;
-> +	unsigned char nr;
-> +	unsigned char cold;
-> +	unsigned char idx;
->  	struct page *pages[PAGEVEC_SIZE];
->  };
->  
+> We want to use it in some powerpc arch code.  Currently we use a
+> per-cpu array of spinlocks, and this patch would let us get rid of
+> that array.
 
-I'd have thought that pagevec_init() would want to be involved in this, no?
+I'd like to get another patch in here before going upstream if possible.
+It is not a correctness fix, but it is a bit of a rework.
 
-I must say I'm a bit skeptical about the need for this.  But I haven't
-looked closely at the blockdev-specific dio code yet.
+I also wouldn't mind getting the readahead path, if not the full
+pagecache readside, out from under tree_lock in -mm kernels to exercise
+the radix-tree concurrency a bit more.
 
+It's just been painfully slow, recently because of these more important
+buffered write vs deadlock and pagefault vs invalidate problems that
+I've been working on. I don't feel I can load up -mm with too much
+unrelated stuff that messes with mm/pagecache internals.
+
+I guess the per-cpu spinlocks are pretty reasonable for scalability,
+and you are mainly looking to eliminate the lock/unlock cost in your
+interrupt path?
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

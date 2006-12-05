@@ -1,73 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968508AbWLERqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968522AbWLERsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968508AbWLERqc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 12:46:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968519AbWLERqb
+	id S968522AbWLERsO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 12:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968525AbWLERsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 12:46:31 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.152]:59853 "EHLO
-	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968508AbWLERqb (ORCPT
+	Tue, 5 Dec 2006 12:48:14 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2933 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968522AbWLERsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 12:46:31 -0500
-Message-ID: <4575AC4B.4060008@wolfmountaingroup.com>
-Date: Tue, 05 Dec 2006 10:28:43 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
+	Tue, 5 Dec 2006 12:48:14 -0500
+Date: Tue, 5 Dec 2006 17:48:05 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+In-Reply-To: <20061203011625.60268114.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
 MIME-Version: 1.0
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scst support for kernels above 2.6.15
-References: <4574ABB1.8000301@wolfmountaingroup.com> <45754E27.9020609@vlnb.net>
-In-Reply-To: <45754E27.9020609@vlnb.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladislav Bolkhovitin wrote:
+On Sun, 3 Dec 2006, Andrew Morton wrote:
 
->Jeff V. Merkey wrote:
->  
->
->>I have noticed that scsi_do_req has apparently been obsoleted in 2.6.18 
->>and above.  Is scst and target support for FC-AL going to
->>remain supported and/or merged at some point?   If so, what is planned 
->>for scst support for later kernels?
->>    
->>
->
->Jeff, I don't know why you ask here and not in scst-devel mailing list,
->but SCST has beed updated to use scsi_execute_async() instead of
->scsi_do_req() in 2.6.18+ for quite a while. Yes, scst is going to be
->supported in the future.
->
->Vlad
->  
->
-The code is not at sourceforge on your project site with these updates 
-for 2.6.18. Where is the 2.6.18 version currently hosted?
+> wtf?  That code was merged?  This bug has been known for months and after
+> several unsuccessful attempts at trying to understand what on earth that
+> hackery is supposed to be doing I gave up on it and asked Jeff to look after
+> it.
 
-P.S. I will post this to the scsi list in the future.
+ I am surprised it got merged too -- my understanding from the discussion 
+was it was to be sorted out somehow within libphy, one way or another.
 
-Thanks
+> Maciej, please, in very small words written in a very large font, explain to
+> us what is going on in phy_stop_interrupts()?  Include pictures.
 
-Jeff
+ Would ASCII art qualify as pictures?  Regardless, I am providing a 
+textual description, which please feel free to skip to the conclusion 
+below if uninterested in the details.
 
->  
->
->>Jeff
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>    
->>
->
->
->  
->
+ Essentially there is a race when disconnecting from a PHY, because 
+interrupt delivery uses the event queue for processing.  The function to 
+handle interrupts that is called from the event queue is phy_change().  
+It takes a pointer to a structure that is associated with the PHY.  At the 
+time phy_stop_interrupts() is called there may be one or more calls to 
+phy_change() still pending on the event queue.  They may not be able to be 
+processed until the structure passed to phy_change() have been freed, at 
+which point calling the function is wrong.
 
+ One way of avoiding it is calling flush_scheduled_work() from 
+phy_stop_interrupts().  This is fine as long as a caller of 
+phy_stop_interrupts() (not necessarily the immediate one calling into 
+libphy) does not hold the netlink lock.
+
+ If a caller indeed holds the netlink lock, then a driver effectively 
+calling phy_stop_interrupts() may arrange for the function to be itself 
+scheduled through the event queue.  This has the effect of avoiding the 
+race as well, as the queue is processed in order, except it causes more 
+hassle for the driver.  Hence the choice was left to the driver's author 
+-- if a driver "knows" the netlink lock is not going to be held at that 
+point, it may call phy_stop_interrupts() directly, otherwise it shall use 
+the event queue.
+
+ With such an assumption in place the function has to check somehow 
+whether it has been scheduled through the queue or not and act 
+accordingly, which is why that "if" clause is there.
+
+ Now I gather the conclusion was the whole mess was going to be included 
+within libphy and not exposed to Ethernet MAC drivers.  This way the 
+library would schedule both phy_stop_interrupts() and mdiobus_unregister() 
+(which is actually the function freeing the PHY device structure) through 
+the event queue as needed without a MAC driver having to know.
+
+ And the whole question that remains is whether it is Andy (cc-ed) or me 
+who is more competent to implement this change. ;-)
+
+  Maciej

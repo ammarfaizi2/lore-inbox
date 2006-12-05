@@ -1,97 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968294AbWLEP0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968299AbWLEP0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968294AbWLEP0X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968297AbWLEP0W
+	id S968299AbWLEP0e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968304AbWLEP0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:26:22 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:53234 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968294AbWLEP0W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:26:22 -0500
-Subject: Re: [PATCH 32/36] driver core: Introduce device_move(): move a
-	device to a new parent.
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Cornelia Huck <cornelia.huck@de.ibm.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-In-Reply-To: <20061204230511.GA9382@kroah.com>
-References: <11650154123942-git-send-email-greg@kroah.com>
-	 <1165015415131-git-send-email-greg@kroah.com>
-	 <11650154181661-git-send-email-greg@kroah.com>
-	 <11650154221716-git-send-email-greg@kroah.com>
-	 <11650154251022-git-send-email-greg@kroah.com>
-	 <11650154282911-git-send-email-greg@kroah.com>
-	 <11650154311175-git-send-email-greg@kroah.com>
-	 <1165163163.19590.62.camel@localhost> <20061204195859.GB29637@kroah.com>
-	 <1165266903.12640.35.camel@localhost>  <20061204230511.GA9382@kroah.com>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 16:26:11 +0100
-Message-Id: <1165332371.2756.23.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 5 Dec 2006 10:26:34 -0500
+Received: from mga03.intel.com ([143.182.124.21]:14544 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968299AbWLEP0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 10:26:32 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,501,1157353200"; 
+   d="scan'208"; a="154068033:sNHT554703079"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Christoph Lameter'" <clameter@sgi.com>, "Ingo Molnar" <mingo@elte.hu>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [-mm patch] sched remove lb_stopbalance counter
+Date: Tue, 5 Dec 2006 07:21:48 -0800
+Message-ID: <000001c71881$1ad82850$a884030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccYgRUyCx4w7rxDS2eHwg+txC/jow==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Regarding to sched-decrease-number-of-load-balances.patch currently
+in -mm tree: I would like to revert the change on adding lb_stopbalance
+counter.  This count can be calculated by: lb_balanced - lb_nobusyg -
+lb_nobusyq.  There is no need to create gazillion counters while we
+can derive the value.  I'm more of against changing sched-stat format
+unless it is absolutely necessary as all user land tool parsing
+/proc/schedstat needs to be updated and it's a real pain trying to keep
+multiple versions of it.
 
-> > > > > Provide a function device_move() to move a device to a new parent device. Add
-> > > > > auxilliary functions kobject_move() and sysfs_move_dir().
-> > > > > kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
-> > > > > previous path (DEVPATH_OLD) in addition to the usual values. For this, a new
-> > > > > interface kobject_uevent_env() is created that allows to add further
-> > > > > environmental data to the uevent at the kobject layer.
-> > > > 
-> > > > has this one been tested? I don't get it working. I always get an EINVAL
-> > > > when trying to move the TTY device of a Bluetooth RFCOMM link around.
-> > > 
-> > > I relied on Cornelia to test this.  I think some s390 patches depend on
-> > > this change, right?
-> > 
-> > my pre-condition is that the TTY device has no parent and then we move
-> > it to a Bluetooth ACL link as child. This however is not working or the
-> > TTY change to use device instead of class_device has broken something.
-> 
-> Hm, I don't think the class_device stuff has broken anything, but if you
-> think so, please let me know.
 
-I was checking why device_move() fails and it seems that the check for
-is_registered is the problem here.
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-        if (!device_is_registered(dev)) {
-                error = -EINVAL;
-                goto out;
-        }
 
-The ACL link has been attached to the Bluetooth bus, but for some reason
-it still thinks that it is unregistered. Is this check really needed. I
-think it should be possible to also move devices that are not part of a
-bus, yet. And removing that check makes it work for me.
+--- ./include/linux/sched.h.orig	2006-12-05 07:56:11.000000000 -0800
++++ ./include/linux/sched.h	2006-12-05 07:57:55.000000000 -0800
+@@ -684,7 +684,6 @@ struct sched_domain {
+ 	unsigned long lb_hot_gained[MAX_IDLE_TYPES];
+ 	unsigned long lb_nobusyg[MAX_IDLE_TYPES];
+ 	unsigned long lb_nobusyq[MAX_IDLE_TYPES];
+-	unsigned long lb_stopbalance[MAX_IDLE_TYPES];
+ 
+ 	/* Active load balancing */
+ 	unsigned long alb_cnt;
+--- ./kernel/sched.c.orig	2006-12-05 07:56:31.000000000 -0800
++++ ./kernel/sched.c	2006-12-05 08:02:11.000000000 -0800
+@@ -428,7 +428,7 @@ static inline void task_rq_unlock(struct
+  * bump this up when changing the output format or the meaning of an existing
+  * format, so that tools can adapt (or abort)
+  */
+-#define SCHEDSTAT_VERSION 13
++#define SCHEDSTAT_VERSION 12
+ 
+ static int show_schedstat(struct seq_file *seq, void *v)
+ {
+@@ -466,7 +466,7 @@ static int show_schedstat(struct seq_fil
+ 			seq_printf(seq, "domain%d %s", dcnt++, mask_str);
+ 			for (itype = SCHED_IDLE; itype < MAX_IDLE_TYPES;
+ 					itype++) {
+-				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu",
++				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu",
+ 				    sd->lb_cnt[itype],
+ 				    sd->lb_balanced[itype],
+ 				    sd->lb_failed[itype],
+@@ -474,8 +474,7 @@ static int show_schedstat(struct seq_fil
+ 				    sd->lb_gained[itype],
+ 				    sd->lb_hot_gained[itype],
+ 				    sd->lb_nobusyq[itype],
+-				    sd->lb_nobusyg[itype],
+-				    sd->lb_stopbalance[itype]);
++				    sd->lb_nobusyg[itype]);
+ 			}
+ 			seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n",
+ 			    sd->alb_cnt, sd->alb_failed, sd->alb_pushed,
+@@ -2579,10 +2578,8 @@ redo:
+ 	group = find_busiest_group(sd, this_cpu, &imbalance, idle, &sd_idle,
+ 				   &cpus, balance);
+ 
+-	if (*balance == 0) {
+-		schedstat_inc(sd, lb_stopbalance[idle]);
++	if (*balance == 0)
+ 		goto out_balanced;
+-	}
+ 
+ 	if (!group) {
+ 		schedstat_inc(sd, lb_nobusyg[idle]);
 
-And btw. I can't see any s390 patches that are using device_move() at
-the moment.
-
-> > > > And shouldn't device_move(dev, NULL) re-attach it to the virtual device
-> > > > tree instead of failing?
-> > > 
-> > > Yes, that would be good to have.
-> > 
-> > Cornelia, please fix this, because otherwise we can't detach a device
-> > from its parent. Storing the current virtual parent looks racy to me.
-> 
-> You can always restore the previous "virtual" parent from the
-> information given to you in the device itself.  That is what the code
-> does when it first registers the device.
-> 
-> And yes, I too think it should be fixed.
-
-My knowledge of the driver model is still limited. Can you fix that
-quickly. This is really needed.
-
-Regards
-
-Marcel
 
 

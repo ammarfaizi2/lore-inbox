@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031519AbWLEVSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031561AbWLEVVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031519AbWLEVSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031531AbWLEVSS
+	id S1031561AbWLEVVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031560AbWLEVVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:18:18 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:9829 "EHLO iradimed.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1031519AbWLEVSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:18:17 -0500
-Message-ID: <4575E237.9090902@cfl.rr.com>
-Date: Tue, 05 Dec 2006 16:18:47 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Tue, 5 Dec 2006 16:21:12 -0500
+Received: from nf-out-0910.google.com ([64.233.182.189]:63026 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031549AbWLEVVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 16:21:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=ZgCrMsteGI7x0DKvPI9LDTqXYQBb5oMYhoWBcoUbT1ocJeUYCI1elksWblhozf9KIujIWIgDnFj/+t2yeFk9J7vHOgRLiU2WEILsslzD6pagmOe2hyYLuOQ4J+sQ60O5KnT6WUCr3A8NGHOhY4LPiMSvhhBAfyowIcYJHkHe+B0=
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
+Date: Tue, 5 Dec 2006 22:21:06 +0100
+User-Agent: KMail/1.9.5
+Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, John Linville <linville@tuxdriver.com>,
+       Jiri Benc <jbenc@suse.cz>, Lennart Poettering <lennart@poettering.net>,
+       Johannes Berg <johannes@sipsolutions.net>,
+       Larry Finger <Larry.Finger@lwfinger.net>
+References: <200612031936.34343.IvDoorn@gmail.com> <20061205103239.GA10312@infradead.org>
+In-Reply-To: <20061205103239.GA10312@infradead.org>
 MIME-Version: 1.0
-To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-aio@kvack.org
-Subject: Re: slow io_submit
-References: <5d96567b0612010904s361b799t8db72accc287ca54@mail.gmail.com>  <20061201172749.GZ5400@kernel.dk>  <5d96567b0612011340m410a2294w9b02b619a62888da@mail.gmail.com>  <45744101.2040904@cfl.rr.com> <5d96567b0612050823n225d4c43j35c7210e228d26@mail.gmail.com>
-In-Reply-To: <5d96567b0612050823n225d4c43j35c7210e228d26@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Dec 2006 21:18:31.0157 (UTC) FILETIME=[E9F26250:01C718B2]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14856.000
-X-TM-AS-Result: No--8.870500-5.000000-31
+Content-Disposition: inline
+Message-Id: <200612052221.07229.IvDoorn@gmail.com>
+From: Ivo van Doorn <ivdoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raz Ben-Jehuda(caro) wrote:
-> thanks Phiilip
-> But... hmmm ... should'nt an asynchronous operation act as
-> "send and forget" . isn't  "queue full" a problem that aio must at
-> least try and handle before returning to the user ?
+On Tuesday 05 December 2006 11:32, Christoph Hellwig wrote:
+> > +/*
+> > + * Function called by the key driver when the rfkill structure
+> > + * needs to be registered.
+> > + */
+> > +int rfkill_register_key(struct rfkill *rfkill, int init_status)
+> > +{
+> > +	struct rfkill_type *type = &master->type[rfkill->key_type];
+> > +	struct rfkill_key *key;
+> > +	int status;
+> > +
+> > +	if (!rfkill)
+> > +		return -EINVAL;	
+> > +
+> > +	if (rfkill->key_type >= KEY_TYPE_MAX)
+> > +		return -EINVAL;
+> > +
+> > +	/*
+> > +	 * Increase module use count to prevent this
+> > +	 * module to be unloaded while there are still
+> > +	 * registered keys.
+> > +	 */
+> > +	if (!try_module_get(THIS_MODULE))
+> > +		return -EBUSY;
+> 
+> This is obviously broken.  Please add a "struct module *owner;"
+> field to struct rfkill instead.
 
-It is handling it; by blocking until the queue is not full.  A better 
-way of handling it would be to return in such a way that the caller 
-knows the queue is full and needs to wait before it can submit more 
-requests, possibly doing some computation or submitting requests to 
-other devices in the mean time.
+Thanks, will fix this asap.
 
-
+Ivo

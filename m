@@ -1,59 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968214AbWLEODi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760035AbWLEOKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968214AbWLEODi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 09:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968216AbWLEODi
+	id S1760035AbWLEOKi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 09:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760042AbWLEOKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 09:03:38 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:33776 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968214AbWLEODh (ORCPT
+	Tue, 5 Dec 2006 09:10:37 -0500
+Received: from ug-out-1314.google.com ([66.249.92.173]:30359 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760035AbWLEOKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 09:03:37 -0500
-Date: Tue, 5 Dec 2006 09:02:52 -0500
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, magnus.damm@gmail.com,
-       fastboot@lists.osdl.org, ebiederm@xmission.com,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH 00/02] kexec: Move segment code to assembly files
-Message-ID: <20061205140252.GA7959@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20061205133757.25725.96929.sendpatchset@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Dec 2006 09:10:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=imcRexxZ3knef1DR+MYlWWsGhAvgTT92RpEnY+9HXlXGRylfC0d5vf0js1RRnE4T+M2dDWtE2UukdChh0RHXkez9CYDyGfN0ifR2mCFAdUeUky6l5vxVVlJHjrm21FoasrvrCMZIdlEihLScPqGkfJkeUKOQC5SkNhnGCWauNFw=
+Message-ID: <aa5953d60612050610l1f2657c3ie073467a2b2a7126@mail.gmail.com>
+Date: Tue, 5 Dec 2006 19:40:34 +0530
+From: "Jaswinder Singh" <jaswinderrajput@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PREEMPT is messing with everyone
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061205133757.25725.96929.sendpatchset@localhost>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 10:37:57PM +0900, Magnus Damm wrote:
-> kexec: Move segment code to assembly files
-> 
-> The following patches rearrange the lowlevel kexec code to perform idt,
-> gdt and segment setup code in assembly on the code page instead of doing
-> it in inline assembly in the C files.
-> 
+Hi,
 
-I don't think we should be doing this. I would rather prefer code to
-keep in C for easier debugging, readability and maintenance. 
+preempt stuff SHOULD only stay in #ifdef CONFIG_PREEMP_* , but it is
+messing with everyone even though not defined.
 
-> Our dom0 Xen port of kexec and kdump executes the code page from the
-> hypervisor when kexec:ing into a new kernel. Putting as much code as
-> possible on the code page allows us to keep the amount of duplicated
-> code low.
-> 
+e.g.
 
-Is Xen going upstream now? I heard now lhype+KVM seems to be the way. 
-Even if it is required, we should do it once Xen goes in.
+1. linux-2.6.19/kernel/spinlock.c
 
-You have already moved page table setup code to assembly and we should
-be getting rid of that code too. 
+Line 18: #include <linux/preempt.h>
 
-I would rather live with duplicated code than moving more code in assembly
-which can be written in C. Understanding and debugging assembly code
-is such a big pain.
+Line 26:  preempt_disable();
 
-Thanks
-Vivek
+Line 32:  preempt_disable();
+
+and so on .
+
+2. linux-2.6.19/kernel/sched.c
+
+Line 1096:  int preempted;
+
+Line 1104:   preempted = !task_running(rq, p);
+
+Line 1106:   if (preempted)
+
+Line 2059:  if (TASK_PREEMPTS_CURR(p, this_rq))
+
+Line 3355:    current->comm, preempt_count(), current->pid);
+
+Line 3342:  preempt_disable();
+
+Line 3375:  if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
+
+Line 3471:  preempt_enable_no_resched();
+
+3. linux-2.6.19/kernel/timer.c
+
+Line 444:     int preempt_count = preempt_count();
+
+Line 447:     if (preempt_count != preempt_count()) {
+
+4. linux-2.6.19/arch/i386/kernel/entry.S
+
+Line 240:  preempt_stop
+
+5. linux-2.6.19/arch/i386/irq.c
+
+Line 111:    irqctx->tinfo.preempt_count =
+
+Line 112:    (irqctx->tinfo.preempt_count & ~SOFTIRQ_MASK) |
+
+Line 113:    (curctx->tinfo.preempt_count & SOFTIRQ_MASK);
+
+Line 160:  irqctx->tinfo.preempt_count     = HARDIRQ_OFFSET;
+
+and so on.
+
+Similarly unnecessary preempt code is also written in other important files.
+
+70 to 80 % of this code is removed when compiled.
+
+but 20 to 30 % code left in binary kernel image.
+
+Why Linux kernel is wasting its resources which is not defined at all.
+
+Any solution ?
+
+Thank you,
+
+Best Regards,
+
+Jaswinder Singh.

@@ -1,41 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968689AbWLEUjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031330AbWLEUkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968689AbWLEUjI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 15:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968686AbWLEUjH
+	id S1031330AbWLEUkU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 15:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968690AbWLEUkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 15:39:07 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:41754 "EHLO
-	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968687AbWLEUjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 15:39:05 -0500
-Message-ID: <4575D8E2.3070708@us.ibm.com>
-Date: Tue, 05 Dec 2006 12:38:58 -0800
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-Organization: IBM LTC
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>
-Subject: Re: [PATCH] aic94xx: Don't call pci_map_sg for already-mapped	scatterlists
-References: <4555206C.8010909@us.ibm.com> <1165338091.2785.8.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1165338091.2785.8.camel@mulgrave.il.steeleye.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 5 Dec 2006 15:40:20 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55726 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968688AbWLEUkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 15:40:18 -0500
+Date: Tue, 5 Dec 2006 12:39:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Message-Id: <20061205123958.497a7bd6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+References: <1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+On Tue, 5 Dec 2006 17:48:05 +0000 (GMT)
+"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
 
-> Rather than introduce an extra flag, I think we can key of the protocol
-> flag:  libata is the only thing that initiates STP tasks.  How does this
-> look?
+>  Essentially there is a race when disconnecting from a PHY, because 
+> interrupt delivery uses the event queue for processing.  The function to 
+> handle interrupts that is called from the event queue is phy_change().  
+> It takes a pointer to a structure that is associated with the PHY.  At the 
+> time phy_stop_interrupts() is called there may be one or more calls to 
+> phy_change() still pending on the event queue.  They may not be able to be 
+> processed until the structure passed to phy_change() have been freed, at 
+> which point calling the function is wrong.
+> 
+>  One way of avoiding it is calling flush_scheduled_work() from 
+> phy_stop_interrupts().  This is fine as long as a caller of 
+> phy_stop_interrupts() (not necessarily the immediate one calling into 
+> libphy) does not hold the netlink lock.
 
-ACK.
+So let me try to rephrase...
 
---D
+- phy_change() is the workqueue callback function.  It is executed by
+  keventd.
+
+- Something under phy_change() takes rtnl_lock() (but what??)
+
+- phy_stop_interrupts() does flush_scheduled_work().  This has to
+  following logic:
+
+  - if I am kevetnd, run phy_change() directly.
+
+  - If I am not keventd, wait for keventd() to run phy_change()
+
+- So if the caller of phy_stop_interrupt() already holds rtnl_lock(),
+  and if that caller is keventd then it will recur onto rntl_lock() and
+  will deadlock.
+
+Problem is, if the caller of phy_stop_interrupt() is *not* keventd, that
+caller will still deadlock, because that caller is waiting for keventd to
+run phy_change(), and keventd cannot do that, because the not-keventd
+process already holds rtnl_lock.
+
+
+Now, afaict, there are only two callers of phy_stop_interrupts(): the
+close() handlers of gianfar.c and fs_enet-main.c (confusingly held in
+netdevice.stop (confusingly called by dev_close())).  Via phy_disconnect. 
+Did I miss anything?
+
+And the dev_close() caller holds rtnl_lock.
+
+
+Summary:
+
+a) Please tell us what code under phy_change() wants to take rtnl_lock
+
+b) I think it should deadlock whether or not the caller of
+   phy_stop_interrupt() is keventd.  What am I missing?

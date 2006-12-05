@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030843AbWLEUA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030735AbWLEUCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030843AbWLEUA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 15:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968664AbWLEUA5
+	id S1030735AbWLEUCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 15:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968668AbWLEUCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 15:00:57 -0500
-Received: from mailer.gwdg.de ([134.76.10.26]:54862 "EHLO mailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968660AbWLEUA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 15:00:56 -0500
-Date: Tue, 5 Dec 2006 20:59:18 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Janne Karhunen <Janne.Karhunen@gmail.com>, MrUmunhum@popdial.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Mounting NFS root FS
-In-Reply-To: <1165347465.5742.88.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.61.0612052059010.18570@yvahk01.tjqt.qr>
-References: <4571CE06.4040800@popdial.com>  <24c1515f0612040351p6056101frc12db8eb86063213@mail.gmail.com>
-  <1165246177.711.179.camel@lade.trondhjem.org>  <200612041912.30527.Janne.Karhunen@gmail.com>
-  <Pine.LNX.4.61.0612042100570.29300@yvahk01.tjqt.qr> 
- <1165265229.5698.21.camel@lade.trondhjem.org>  <Pine.LNX.4.61.0612051939180.18570@yvahk01.tjqt.qr>
- <1165347465.5742.88.camel@lade.trondhjem.org>
+	Tue, 5 Dec 2006 15:02:09 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54717 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S968664AbWLEUCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 15:02:06 -0500
+Date: Tue, 5 Dec 2006 12:01:57 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Mel Gorman <mel@skynet.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+In-Reply-To: <20061205112541.2a4b7414.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612051159510.18687@schroedinger.engr.sgi.com>
+References: <20061130170746.GA11363@skynet.ie> <20061130173129.4ebccaa2.akpm@osdl.org>
+ <Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie> <20061201110103.08d0cf3d.akpm@osdl.org>
+ <20061204140747.GA21662@skynet.ie> <20061204113051.4e90b249.akpm@osdl.org>
+ <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com>
+ <20061204120611.4306024e.akpm@osdl.org> <Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com>
+ <20061204131959.bdeeee41.akpm@osdl.org> <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com>
+ <20061204142259.3cdda664.akpm@osdl.org> <Pine.LNX.4.64.0612050754560.11213@schroedinger.engr.sgi.com>
+ <20061205112541.2a4b7414.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Dec 2006, Andrew Morton wrote:
 
->> >> ./run_init -c /mnt /sbin/init; # or similar
->> >> 
->> >> And you can also start locking after pivot_rooting to /mnt, that would 
->> >> not even require (/mnt)/var/lib/nfs to be a separate mount.
->> >
->> >Much better idea. You can delay starting rpc.statd until you have set up
->> >your filesystem provided that you are not running any programs that
->> >require NLM locking. If you do need to run such a program before you
->> >start rpc.statd, then you will have to use the '-onolock' mount option.
->> 
->> Since we're on the topic locking, is it because I am not running
->> statd on the client that my NFS client hangs during boot phase?
->
->If you have applications that try to set locks before rpc.statd is up
->and running, then that would explain it.
+> > We always run reclaim against the whole zone not against parts. Why 
+> > would we start running reclaim against a portion of a zone?
+> 
+> Oh for gawd's sake.
 
-Even if the nfs mount is mounted using -o ro,nolock?
+Yes indeed. Another failure to answer a simple question.
+ 
+> If you want to allocate a page from within the first 1/4 of a zone, and if
+> all those pages are in use for something else then you'll need to run
+> reclaim against the first 1/4 of that zone.  Or fail the allocation.  Or
+> run reclaim against the entire zone.  The second two options are
+> self-evidently dumb.
+
+Why would one want to allocate from the 1/4th of a zone? (Are we still 
+discussing Mel's antifrag scheme or what is this about?)
 
 
-	-`J'
--- 

@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968173AbWLELMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968093AbWLELN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968173AbWLELMx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 06:12:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968155AbWLELIl
+	id S968093AbWLELN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 06:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968159AbWLELIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 06:08:41 -0500
-Received: from gundega.hpl.hp.com ([192.6.19.190]:59836 "EHLO
+	Tue, 5 Dec 2006 06:08:34 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59837 "EHLO
 	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968140AbWLELIH (ORCPT
+	with ESMTP id S968158AbWLELIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 06:08:07 -0500
-Date: Tue, 5 Dec 2006 03:07:09 -0800
+	Tue, 5 Dec 2006 06:08:11 -0500
+Date: Tue, 5 Dec 2006 03:07:15 -0800
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200612051107.kB5B79hn017573@frankl.hpl.hp.com>
+Message-Id: <200612051107.kB5B7FVF017638@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 09/21] 2.6.19 perfmon2 : register read-write operations
+Subject: [PATCH 14/21] 2.6.19 perfmon2 : default sampling format
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the core read-write operations on the PMU registers
+
+This file implements the default sampling buffer format.
+
+in this format, the buffer is composed of two major sections:
+	- a buffer header
+	- the samples
+
+Each sample is composed of:
+	- a fixed size header
+	- an optional variable size body containing the values
+	  of PMDs of interest as specified by user per counter
+
+The sample header contains:
+	- the PID, TID
+	- CPU where the PMU interrupt occurred
+	- active event set number
+	- a unique timestamp for the CPU where the interrupt occurred
+	- the index of the PMD register that overflowed
+	- the last reset value of that overflowd PMD
+
+Samples are stored contiguously. No aggregation is made. When multiple
+counters overflow at the same time, multiple samples are written but
+they have the same timestamp.
+
+When the end of the buffer is reached, monitoring is stopped. A user
+notification may be requested. Otherwise the buffer has reached its
+saturation point until a pfm_restart() is issued.
+
+The format works for all architectures in both 32-bit and 64-bit.
+Samples for all events sets are store in the same buffer.
 
 
-The patch contains the following functions:
 
 
-__pfm_write_pmds(): implements write operations on a vector of PMD registers
-__pfm_read_pmds() : implements read operations on a vector of PMD registers
-__pfm_write_pmcs(): implements write operations on a vector of PMC registers
-
-
-There is no read operation on PMC because they are always set by the users.
-On some architectures, such as IA-64, Tsome PMCs may be set by hardware, but
-they are never exposed to users.
-
-
-
-
---- linux-2.6.19.base/perfmon/perfmon_rw.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.19/perfmon/perfmon_rw.c	2006-12-03 14:15:48.000000000 -0800
-@@ -0,0 +1,606 @@
+--- linux-2.6.19.base/perfmon/perfmon_dfl_smpl.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.19/perfmon/perfmon_dfl_smpl.c	2006-12-03 14:15:48.000000000 -0800
+@@ -0,0 +1,285 @@
 +/*
-+ * perfmon.c: perfmon2 PMC/PMD read/write system calls
-+ *
-+ * This file implements the perfmon2 interface which
-+ * provides access to the hardware performance counters
-+ * of the host processor.
-+ *
-+ * The initial version of perfmon.c was written by
-+ * Ganesh Venkitachalam, IBM Corp.
-+ *
-+ * Then it was modified for perfmon-1.x by Stephane Eranian and
-+ * David Mosberger, Hewlett Packard Co.
-+ *
-+ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
-+ * by Stephane Eranian, Hewlett Packard Co.
-+ *
 + * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * More information about perfmon available at:
-+ * 	http://perfmon2.sf.net/
++ * This file implements the new default sampling buffer format
++ * for the perfmon2 subsystem.
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of version 2 of the GNU General Public
@@ -79,572 +79,348 @@ they are never exposed to users.
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 + * 02111-1307 USA
 + */
-+#include <linux/module.h>
 +#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <linux/sysctl.h>
++
 +#include <linux/perfmon.h>
++#include <linux/perfmon_dfl_smpl.h>
 +
-+#define PFM_REGFL_PMC_ALL	(PFM_REGFL_NO_EMUL64|PFM_REG_RETFL_MASK)
-+#define PFM_REGFL_PMD_ALL	(PFM_REGFL_RANDOM     | \
-+				 PFM_REGFL_OVFL_NOTIFY| \
-+				 PFM_REG_RETFL_MASK)
-+/*
-+ * function called from sys_pfm_write_pmds() to write the 
-+ * requested PMD registers. The function succeeds whether the context is
-+ * attached or not. When attached to another thread, that thread must be
-+ * stopped.
-+ *
-+ * compat: is used only on IA-64 to maintain backward compatibility with v2.0
-+ *
-+ * The context is locked and interrupts are disabled.
-+ */
-+int __pfm_write_pmds(struct pfm_context *ctx, struct pfarg_pmd *req, int count,
-+		     int compat)
++MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
++MODULE_DESCRIPTION("new perfmon default sampling format");
++MODULE_LICENSE("GPL");
++
++static int pfm_dfl_fmt_validate(u32 ctx_flags, u16 npmds, void *data)
 +{
-+	struct pfm_event_set *set, *active_set;
-+	u64 value, hw_val, ovfl_mask;
-+	u64 *smpl_pmds, *reset_pmds, *impl_pmds;
-+	u32 req_flags, flags;
-+	u16 cnum, pmd_type, max_pmd, max_pmc;
-+	u16 set_id, prev_set_id;
-+	int i, can_access_pmu;
-+	int is_counter;
-+	int ret, error_code;
-+	pfm_pmd_check_t	wr_func;
++	struct pfm_dfl_smpl_arg *arg = data;
++	u64 min_buf_size;
 +
-+	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	active_set = ctx->active_set;
-+	max_pmd	= pfm_pmu_conf->max_pmd;
-+	max_pmc	= pfm_pmu_conf->max_pmc;
-+	impl_pmds = pfm_pmu_conf->impl_pmds;
-+	wr_func = pfm_pmu_conf->pmd_write_check;
-+	set = NULL;
-+
-+	prev_set_id = 0;
-+	can_access_pmu = 0;
-+
-+	/*
-+	 * we cannot access the actual PMD registers when monitoring is masked
-+	 */
-+	if (likely(ctx->state == PFM_CTX_LOADED))
-+		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
-+			       || ctx->flags.system;
-+
-+	error_code = PFM_REG_RETFL_EINVAL;
-+	ret = -EINVAL;
-+
-+	for (i = 0; i < count; i++, req++) {
-+
-+		cnum = req->reg_num;
-+		set_id = req->reg_set;
-+		req_flags = req->reg_flags;
-+		smpl_pmds = req->reg_smpl_pmds;
-+		reset_pmds = req->reg_reset_pmds;
-+		flags = 0;
-+
-+		if (unlikely(cnum >= max_pmd || !pfm_bv_isset(impl_pmds, cnum))) {
-+			PFM_DBG("pmd%u is not implemented/unaccessible", cnum);
-+			error_code  = PFM_REG_RETFL_NOTAVAIL;
-+			goto error;
-+		}
-+
-+		pmd_type = pfm_pmu_conf->pmd_desc[cnum].type;
-+		is_counter = pmd_type & PFM_REG_C64;
-+
-+		if (likely(!compat && is_counter)) {
-+			/*
-+			 * ensure only valid flags are set
-+			 */
-+			if (req_flags & ~(PFM_REGFL_PMD_ALL)) {
-+				PFM_DBG("pmd%u: invalid flags=0x%x",
-+						cnum, req_flags);
-+				goto error;
-+			}
-+
-+			if (req_flags & PFM_REGFL_OVFL_NOTIFY)
-+				flags |= PFM_REGFL_OVFL_NOTIFY;
-+			if (req_flags & PFM_REGFL_RANDOM)
-+				flags |= PFM_REGFL_RANDOM;
-+			/*
-+			 * verify validity of smpl_pmds
-+			 */
-+			if (unlikely(!bitmap_subset(ulp(smpl_pmds),
-+							ulp(impl_pmds),
-+							max_pmd))) {
-+				PFM_DBG("invalid smpl_pmds=0x%llx "
-+						"for pmd%u",
-+						(unsigned long long)smpl_pmds[0],
-+						cnum);
-+				goto error;
-+			}
-+			/*
-+			 * verify validity of reset_pmds
-+			 */
-+			if (unlikely(!bitmap_subset(ulp(reset_pmds),
-+							ulp(impl_pmds),
-+							max_pmd))) {
-+				PFM_DBG("invalid reset_pmds=0x%llx "
-+						"for pmd%u",
-+						(unsigned long long)reset_pmds[0],
-+						cnum);
-+				goto error;
-+			}
-+		}
-+
-+		/*
-+		 * locate event set
-+		 */
-+		if (i == 0 || set_id != prev_set_id) {
-+			set = pfm_find_set(ctx, set_id, 0);
-+			if (set == NULL) {
-+				PFM_DBG("event set%u does not exist",
-+					set_id);
-+				error_code = PFM_REG_RETFL_NOSET;
-+				goto error;
-+			}
-+		}
-+
-+		/*
-+		 * execute write checker, if any
-+		 */
-+		if (likely(wr_func && (pmd_type & PFM_REG_WC))) {
-+			ret = (*wr_func)(ctx, set, req);
-+			if (ret)
-+				goto error;
-+
-+		}
-+		hw_val = value = req->reg_value;
-+
-+		/*
-+		 * now commit changes to software state
-+		 */
-+		pfm_modview_begin(set);
-+
-+		if (likely(is_counter)) {
-+			if (likely(!compat)) {
-+
-+				set->pmds[cnum].flags = flags;
-+
-+				/*
-+				 * copy reset and sampling bitvectors
-+				 */
-+				bitmap_copy(ulp(set->pmds[cnum].reset_pmds),
-+					    ulp(reset_pmds),
-+					    max_pmd);
-+
-+				bitmap_copy(ulp(set->pmds[cnum].smpl_pmds),
-+					    ulp(smpl_pmds),
-+					    max_pmd);
-+
-+				set->pmds[cnum].eventid = req->reg_smpl_eventid;
-+
-+				/*
-+				 * Mark reset/smpl PMDS as used.
-+				 *
-+				 * We do not keep track of PMC because we have to
-+				 * systematically restore ALL of them.
-+				 */
-+				bitmap_or(ulp(set->used_pmds),
-+					  ulp(set->used_pmds),
-+					  ulp(reset_pmds), max_pmd);
-+
-+				bitmap_or(ulp(set->used_pmds),
-+					  ulp(set->used_pmds),
-+					  ulp(smpl_pmds), max_pmd);
-+
-+				/*
-+				 * we reprogrammed the PMD hence, clear any pending
-+				 * ovfl, switch based on the old value
-+				 * for restart we have already established new values
-+				 */
-+				if (pfm_bv_isset(set->povfl_pmds, cnum)) {
-+					set->npend_ovfls--;
-+					pfm_bv_clear(set->povfl_pmds, cnum);
-+				}
-+				pfm_bv_clear(set->ovfl_pmds, cnum);
-+
-+				/*
-+				 * update ovfl_notify
-+				 */
-+				if (flags & PFM_REGFL_OVFL_NOTIFY)
-+					pfm_bv_set(set->ovfl_notify, cnum);
-+				else
-+					pfm_bv_clear(set->ovfl_notify, cnum);
-+			}
-+			/*
-+			 * reset last value to new value
-+			 */
-+			set->pmds[cnum].lval = value;
-+
-+			hw_val = value & ovfl_mask;
-+
-+			/*
-+			 * establish new switch count
-+			 */
-+			set->pmds[cnum].ovflsw_thres = req->reg_ovfl_switch_cnt;
-+			set->pmds[cnum].ovflsw_ref_thres = req->reg_ovfl_switch_cnt;
-+		}
-+
-+		/*
-+		 * update reset values (not just for counters)
-+		 */
-+		set->pmds[cnum].long_reset = req->reg_long_reset;
-+		set->pmds[cnum].short_reset = req->reg_short_reset;
-+
-+		/*
-+		 * update randomization mask
-+		 */
-+		set->pmds[cnum].mask = req->reg_random_mask;
-+
-+		/*
-+		 * update set values
-+		 */
-+		set->view->set_pmds[cnum] = value;
-+
-+		pfm_modview_end(set);
-+
-+		pfm_bv_set(set->used_pmds, cnum);
-+
-+		if (set == active_set) {
-+			set->priv_flags |= PFM_SETFL_PRIV_MOD_PMDS;
-+			if (can_access_pmu)
-+				pfm_write_pmd(ctx, cnum, hw_val);
-+		}
-+
-+		/*
-+		 * update number of used PMD registers
-+		 */
-+		set->nused_pmds = bitmap_weight(ulp(set->used_pmds), max_pmd);
-+
-+		pfm_retflag_set(req->reg_flags, 0);
-+
-+		prev_set_id = set_id;
-+
-+		PFM_DBG("set%u pmd%u=0x%llx flags=0x%x a_pmu=%d "
-+			"hw_pmd=0x%llx ctx_pmd=0x%llx s_reset=0x%llx "
-+			"l_reset=0x%llx u_pmds=0x%llx nu_pmds=%u "
-+			"s_pmds=0x%llx r_pmds=0x%llx o_pmds=0x%llx "
-+			"o_thres=%llu compat=%d eventid=%llx",
-+			set->id,
-+			cnum,
-+			(unsigned long long)value,
-+			set->pmds[cnum].flags,
-+			can_access_pmu,
-+			(unsigned long long)hw_val,
-+			(unsigned long long)set->view->set_pmds[cnum],
-+			(unsigned long long)set->pmds[cnum].short_reset,
-+			(unsigned long long)set->pmds[cnum].long_reset,
-+			(unsigned long long)set->used_pmds[0],
-+			set->nused_pmds,
-+			(unsigned long long)set->pmds[cnum].smpl_pmds[0],
-+			(unsigned long long)set->pmds[cnum].reset_pmds[0],
-+			(unsigned long long)set->ovfl_pmds[0],
-+			(unsigned long long)set->pmds[cnum].ovflsw_thres,
-+			compat,
-+			(unsigned long long)set->pmds[cnum].eventid);
++	if (data == NULL) {
++		PFM_DBG("no argument passed");
++		return -EINVAL;
 +	}
 +
 +	/*
-+	 * make changes visible
++	 * sanity check in case size_t is smaller then u64
 +	 */
-+	if (can_access_pmu)
-+		pfm_arch_serialize();
++#if BITS_PER_LONG == 4
++#define MAX_SIZE_T	(1ULL<<(sizeof(size_t)<<3))
++	if (sizeof(size_t) < sizeof(arg->buf_size)) {
++		if (arg->buf_size >= MAX_SIZE_T)
++			return -ETOOBIG;
++	}
++#endif
++	
++	/*
++	 * compute min buf size. npmds is the maximum number
++	 * of implemented PMD registers.
++	 */
++	min_buf_size = sizeof(struct pfm_dfl_smpl_hdr)
++	             + (sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64)));
++
++	PFM_DBG("validate ctx_flags=0x%x flags=0x%x npmds=%u "
++		   "min_buf_size=%llu buf_size=%llu\n",
++		   ctx_flags,
++		   arg->buf_flags,
++		   npmds,
++		   (unsigned long long)min_buf_size,
++		   (unsigned long long)arg->buf_size);
++
++	/*
++	 * must hold at least the buffer header + one minimally sized entry
++	 */
++	if (arg->buf_size < min_buf_size)
++		return -EINVAL;
 +
 +	return 0;
++}
 +
-+error:
++static int pfm_dfl_fmt_get_size(u32 flags, void *data, size_t *size)
++{
++	struct pfm_dfl_smpl_arg *arg = data;
++
 +	/*
-+	 * for now, we have only one possibility for error
++	 * size has been validated in default_validate
++	 * we can never loose bits from buf_size.
 +	 */
-+	pfm_retflag_set(req->reg_flags, error_code);
-+	PFM_DBG("set%u pmd%u error=%d", set_id, cnum, error_code);
-+	return ret;
++	*size = (size_t)arg->buf_size;
++
++	return 0;
++}
++
++static int pfm_dfl_fmt_init(struct pfm_context *ctx, void *buf, u32 ctx_flags,
++			    u16 npmds, void *data)
++{
++	struct pfm_dfl_smpl_hdr *hdr;
++	struct pfm_dfl_smpl_arg *arg = data;
++
++	hdr = buf;
++
++	hdr->hdr_version = PFM_DFL_SMPL_VERSION;
++	hdr->hdr_buf_size = arg->buf_size;
++	hdr->hdr_buf_flags = arg->buf_flags;
++	hdr->hdr_cur_offs = sizeof(*hdr);
++	hdr->hdr_overflows = 0;
++	hdr->hdr_count = 0;
++	hdr->hdr_min_buf_space = sizeof(struct pfm_dfl_smpl_entry) + (npmds*sizeof(u64));
++
++	PFM_DBG("buffer=%p buf_size=%llu hdr_size=%zu hdr_version=%u.%u "
++		  "min_space=%llu npmds=%u",
++		  buf,
++		  (unsigned long long)hdr->hdr_buf_size,
++		  sizeof(*hdr),
++		  PFM_VERSION_MAJOR(hdr->hdr_version),
++		  PFM_VERSION_MINOR(hdr->hdr_version),
++		  (unsigned long long)hdr->hdr_min_buf_space,
++		  npmds);
++
++	return 0;
 +}
 +
 +/*
-+ * function called from sys_pfm_write_pmcs() to write the 
-+ * requested PMC registers. The function succeeds whether the context is
-+ * attached or not. When attached to another thread, that thread must be
-+ * stopped.
++ * called from pfm_overflow_handler() to record a new sample
 + *
-+ * The context is locked and interrupts are disabled.
++ * context is locked, interrupts are disabled (no preemption)
 + */
-+int __pfm_write_pmcs(struct pfm_context *ctx, struct pfarg_pmc *req, int count)
++static int pfm_dfl_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
++			       unsigned long ip, u64 tstamp, void *data)
 +{
-+	struct pfm_event_set *set, *active_set;
-+	u64 value, dfl_val, rsvd_msk;
-+	u64 *impl_pmcs;
-+	int i, can_access_pmu;
-+	int ret, error_code;
-+	u16 set_id, prev_set_id;
-+	u16 cnum, pmc_type, max_pmc;
-+	u32 flags;
-+	pfm_pmc_check_t	wr_func;
++	struct pfm_dfl_smpl_hdr *hdr;
++	struct pfm_dfl_smpl_entry *ent;
++	void *cur, *last;
++	u64 *e;
++	size_t entry_size, min_size;
++	u16 npmds, i;
++	u16 ovfl_pmd;
 +
-+	active_set = ctx->active_set;
-+
-+	wr_func = pfm_pmu_conf->pmc_write_check;
-+	max_pmc = pfm_pmu_conf->max_pmc;
-+	impl_pmcs = pfm_pmu_conf->impl_pmcs;
-+
-+	set = NULL;
-+	prev_set_id = 0;
-+	can_access_pmu = 0;
++	hdr = buf;
++	cur = buf+hdr->hdr_cur_offs;
++	last = buf+hdr->hdr_buf_size;
++	ovfl_pmd = arg->ovfl_pmd;
++	min_size = hdr->hdr_min_buf_space;
 +
 +	/*
-+	 * we cannot access the actual PMC registers when monitoring is masked
++	 * precheck for sanity
 +	 */
-+	if (likely(ctx->state == PFM_CTX_LOADED))
-+		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
-+			        || ctx->flags.system;
++	if ((last - cur) < min_size)
++		goto full;
 +
-+	error_code  = PFM_REG_RETFL_EINVAL;
++	npmds = arg->num_smpl_pmds;
 +
-+	for (i = 0; i < count; i++, req++) {
++	ent = (struct pfm_dfl_smpl_entry *)cur;
 +
-+		ret = -EINVAL;
-+		cnum = req->reg_num;
-+		set_id = req->reg_set;
-+		value = req->reg_value;
-+		flags = req->reg_flags;
++	entry_size = sizeof(*ent) + (npmds << 3);
 +
-+		/*
-+		 * no access to unimplemented PMC register
-+		 */
-+		if (unlikely(cnum >= max_pmc || !pfm_bv_isset(impl_pmcs, cnum))) {
-+			PFM_DBG("pmc%u is not implemented/unaccessible", cnum);
-+			error_code  = PFM_REG_RETFL_NOTAVAIL;
-+			goto error;
++	/* position for first pmd */
++	e = (u64 *)(ent+1);
++
++	hdr->hdr_count++;
++
++	PFM_DBG_ovfl("count=%llu cur=%p last=%p free_bytes=%zu ovfl_pmd=%d "
++		       "npmds=%u",
++		       (unsigned long long)hdr->hdr_count,
++		       cur, last,
++		       (last-cur),
++		       ovfl_pmd,
++		       npmds);
++
++	/*
++	 * current = task running at the time of the overflow.
++	 *
++	 * per-task mode:
++	 * 	- this is usually the task being monitored.
++	 * 	  Under certain conditions, it might be a different task
++	 *
++	 * system-wide:
++	 * 	- this is not necessarily the task controlling the session
++	 */
++	ent->pid = current->pid;
++	ent->ovfl_pmd = ovfl_pmd;
++	ent->last_reset_val = arg->pmd_last_reset;
++
++	/*
++	 * where did the fault happen (includes slot number)
++	 */
++	ent->ip = ip;
++
++	ent->tstamp = tstamp;
++	ent->cpu = smp_processor_id();
++	ent->set = arg->active_set;
++	ent->tgid = current->tgid;
++
++	/*
++	 * selectively store PMDs in increasing index number
++	 */
++	if (npmds) {
++		u64 *val = arg->smpl_pmds_values;
++		for(i=0; i < npmds; i++) {
++			*e++ = *val++;
 +		}
-+
-+		pmc_type = pfm_pmu_conf->pmc_desc[cnum].type;
-+		dfl_val = pfm_pmu_conf->pmc_desc[cnum].dfl_val;
-+		rsvd_msk = pfm_pmu_conf->pmc_desc[cnum].rsvd_msk;
-+
-+		/*
-+		 * ensure only valid flags are set
-+		 */
-+		if (flags & ~PFM_REGFL_PMC_ALL) {
-+			PFM_DBG("pmc%u: invalid flags=0x%x", cnum, flags);
-+			goto error;
-+		}
-+
-+		/*
-+		 * locate event set
-+		 */
-+		if (i == 0 || set_id != prev_set_id) {
-+			set = pfm_find_set(ctx, set_id, 0);
-+			if (set == NULL) {
-+				PFM_DBG("event set%u does not exist",
-+					set_id);
-+				error_code = PFM_REG_RETFL_NOSET;
-+				goto error;
-+			}
-+		}
-+
-+		/*
-+		 * set reserved bits to default values
-+		 * (reserved bits must be 1 in rsvd_msk)
-+		 */
-+		value = (value & ~rsvd_msk) | (dfl_val & rsvd_msk);
-+
-+		if (flags & PFM_REGFL_NO_EMUL64) {
-+			if (!(pmc_type & PFM_REG_NO64)) {
-+				PFM_DBG("pmc%u no support for "
-+					"PFM_REGFL_NO_EMUL64", cnum);
-+				goto error;
-+			}
-+			value &= ~pfm_pmu_conf->pmc_desc[cnum].no_emul64_msk;
-+		}
-+
-+		/*
-+		 * execute write checker, if any
-+		 */
-+		if (likely(wr_func && (pmc_type & PFM_REG_WC))) {
-+			req->reg_value = value;
-+			ret = (*wr_func)(ctx, set, req);
-+			if (ret)
-+				goto error;
-+			value = req->reg_value;
-+		}
-+
-+		/*
-+		 * Now we commit the changes
-+		 */
-+
-+		/*
-+		 * mark PMC register as used
-+		 * We do not track associated PMC register based on
-+		 * the fact that they will likely need to be written
-+		 * in order to become useful at which point the statement
-+		 * below will catch that.
-+		 *
-+		 * The used_pmcs bitmask is only useful on architectures where
-+		 * the PMC needs to be modified for particular bits, especially
-+		 * on overflow or to stop/start.
-+		 */
-+		if (!pfm_bv_isset(set->used_pmcs, cnum)) {
-+			pfm_bv_set(set->used_pmcs, cnum);
-+			set->nused_pmcs++;
-+		}
-+
-+		set->pmcs[cnum] = value;
-+
-+		if (set == active_set) {
-+			set->priv_flags |= PFM_SETFL_PRIV_MOD_PMCS;
-+			if (can_access_pmu)
-+				pfm_arch_write_pmc(ctx, cnum, value);
-+		}
-+
-+		pfm_retflag_set(req->reg_flags, 0);
-+
-+		prev_set_id = set_id;
-+
-+		PFM_DBG("set%u pmc%u=0x%llx a_pmu=%d "
-+			"u_pmcs=0x%llx nu_pmcs=%u",
-+			set->id,
-+			cnum,
-+			(unsigned long long)value,
-+			can_access_pmu,
-+			(unsigned long long)set->used_pmcs[0],
-+			set->nused_pmcs);
 +	}
++
 +	/*
-+	 * make sure the changes are visible
++	 * update position for next entry
 +	 */
-+	if (can_access_pmu)
-+		pfm_arch_serialize();
++	hdr->hdr_cur_offs += entry_size;
++	cur += entry_size;
++
++	/*
++	 * post check to avoid losing the last sample
++	 */
++	if ((last - cur) < min_size)
++		goto full;
++
++	/* reset before returning from interrupt handler */
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_RESET;
 +
 +	return 0;
-+error:
-+	pfm_retflag_set(req->reg_flags, error_code);
-+	PFM_DBG("set%u pmc%u error=%d", set_id, cnum, error_code);
-+	return ret;
++full:
++	PFM_DBG_ovfl("sampling buffer full free=%zu, count=%llu",
++		     last-cur,
++		     (unsigned long long)hdr->hdr_count);
++
++	/*
++	 * increment number of buffer overflows.
++	 * important to detect duplicate set of samples.
++	 */
++	hdr->hdr_overflows++;
++
++	/*
++	 * request notification and masking of monitoring.
++	 * Notification is still subject to the overflowed
++	 * register having the FL_NOTIFY flag set.
++	 */
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY| PFM_OVFL_CTRL_MASK;
++
++	return -ENOBUFS; /* we are full, sorry */
 +}
++
++static int pfm_dfl_fmt_restart(int is_active, u32 *ovfl_ctrl, void *buf)
++{
++	struct pfm_dfl_smpl_hdr *hdr;
++
++	hdr = buf;
++
++	hdr->hdr_count = 0;
++	hdr->hdr_cur_offs = sizeof(*hdr);
++
++	*ovfl_ctrl = PFM_OVFL_CTRL_RESET;
++
++	return 0;
++}
++
++static int pfm_dfl_fmt_exit(void *buf)
++{
++	return 0;
++}
++
++static struct pfm_smpl_fmt dfl_fmt={
++	.fmt_name = "default",
++	.fmt_version = 0x10000,
++	.fmt_arg_size = sizeof(struct pfm_dfl_smpl_arg),
++	.fmt_validate = pfm_dfl_fmt_validate,
++	.fmt_getsize = pfm_dfl_fmt_get_size,
++	.fmt_init = pfm_dfl_fmt_init,
++	.fmt_handler = pfm_dfl_fmt_handler,
++	.fmt_restart = pfm_dfl_fmt_restart,
++	.fmt_exit = pfm_dfl_fmt_exit,
++	.fmt_flags = PFM_FMT_BUILTIN_FLAG,
++	.owner = THIS_MODULE
++};
++
++static int pfm_dfl_fmt_init_module(void)
++{
++	return pfm_fmt_register(&dfl_fmt);
++}
++
++static void pfm_dfl_fmt_cleanup_module(void)
++{
++	pfm_fmt_unregister(&dfl_fmt);
++}
++
++module_init(pfm_dfl_fmt_init_module);
++module_exit(pfm_dfl_fmt_cleanup_module);
+--- linux-2.6.19.base/include/linux/perfmon_dfl_smpl.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.19/include/linux/perfmon_dfl_smpl.h	2006-12-03 14:15:48.000000000 -0800
+@@ -0,0 +1,78 @@
++/*
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ *               Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *
++ * This file implements the new dfl sampling buffer format
++ * for perfmon2 subsystem.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of version 2 of the GNU General Public
++ * License as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++ * 02111-1307 USA
++  */
++#ifndef __PERFMON_DFL_SMPL_H__
++#define __PERFMON_DFL_SMPL_H__ 1
 +
 +/*
-+ * function called from sys_pfm_read_pmds() to read the 64-bit value of
-+ * requested PMD registers. The function succeeds whether the context is
-+ * attached or not. When attached to another thread, that thread must be
-+ * stopped.
-+ *
-+ * The context is locked and interrupts are disabled.
++ * format specific parameters (passed at context creation)
 + */
-+int __pfm_read_pmds(struct pfm_context *ctx, struct pfarg_pmd *req, int count)
-+{
-+	u64 val = 0, lval, ovfl_mask, hw_val;
-+	u64 sw_cnt;
-+	u64 *impl_pmds;
-+	struct pfm_event_set *set, *active_set;
-+	int i, can_access_pmu = 0;
-+	int error_code;
-+	u16 cnum, pmd_type, set_id, prev_set_id, max_pmd;
++struct pfm_dfl_smpl_arg {
++	__u64 buf_size;		/* size of the buffer in bytes */
++	__u32 buf_flags;	/* buffer specific flags */
++	__u32 reserved1;	/* for future use */
++	__u64 reserved[6];	/* for future use */
++};
 +
-+	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	impl_pmds = pfm_pmu_conf->impl_pmds;
-+	max_pmd   = pfm_pmu_conf->max_pmd;
-+	active_set = ctx->active_set;
-+	set = NULL;
-+	prev_set_id = 0;
++/*
++ * This header is at the beginning of the sampling buffer returned to the user.
++ * It is directly followed by the first record.
++ */
++struct pfm_dfl_smpl_hdr {
++	__u64 hdr_count;	/* how many valid entries */
++	__u64 hdr_cur_offs;	/* current offset from top of buffer */
++	__u64 hdr_overflows;	/* #overflows for buffer */
++	__u64 hdr_buf_size;	/* bytes in the buffer */
++	__u64 hdr_min_buf_space;/* minimal buffer size (internal use) */
++	__u32 hdr_version;	/* smpl format version */
++	__u32 hdr_buf_flags;	/* copy of buf_flags */
++	__u64 hdr_reserved[10];	/* for future use */
++};
 +
-+	if (likely(ctx->state == PFM_CTX_LOADED)) {
-+		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
-+			       || ctx->flags.system;
++/*
++ * Entry header in the sampling buffer.  The header is directly followed
++ * with the values of the PMD registers of interest saved in increasing
++ * index order: PMD4, PMD5, and so on. How many PMDs are present depends
++ * on how the session was programmed.
++ *
++ * In the case where multiple counters overflow at the same time, multiple
++ * entries are written consecutively.
++ *
++ * last_reset_value member indicates the initial value of the overflowed PMD.
++ */
++struct pfm_dfl_smpl_entry {
++	__u32	pid;		/* thread id (for NPTL, this is gettid()) */
++	__u16	ovfl_pmd;	/* index of overflowed PMD for this sample */
++	__u16	reserved;	/* for future use */
++	__u64	last_reset_val;	/* initial value of overflowed PMD */
++	__u64	ip;		/* where did the overflow interrupt happened  */
++	__u64	tstamp;		/* overflow timetamp */
++	__u16	cpu;		/* cpu on which the overfow occurred */
++	__u16	set;		/* event set active when overflow ocurred   */
++	__u32	tgid;		/* thread group id (for NPTL, this is getpid())*/
++};
 +
-+		if (can_access_pmu)
-+			pfm_arch_serialize();
-+	}
-+	error_code = PFM_REG_RETFL_EINVAL;
++#define PFM_DFL_SMPL_VERSION_MAJ 1U
++#define PFM_DFL_SMPL_VERSION_MIN 0U
++#define PFM_DFL_SMPL_VERSION (((PFM_DFL_SMPL_VERSION_MAJ&0xffff)<<16)|\
++				(PFM_DFL_SMPL_VERSION_MIN & 0xffff))
 +
-+	/*
-+	 * on both UP and SMP, we can only read the PMD from the hardware
-+	 * register when the task is the owner of the local PMU.
-+	 */
-+	for (i = 0; i < count; i++, req++) {
-+
-+		cnum = req->reg_num;
-+		set_id = req->reg_set;
-+
-+		if (unlikely(cnum >= max_pmd || !pfm_bv_isset(impl_pmds, cnum))) {
-+			PFM_DBG("pmd%u is not implemented/unaccessible", cnum);
-+			error_code  = PFM_REG_RETFL_NOTAVAIL;
-+			goto error;
-+		}
-+
-+		pmd_type = pfm_pmu_conf->pmd_desc[cnum].type;
-+
-+		/*
-+		 * locate event set
-+		 */
-+		if (i == 0 || set_id != prev_set_id) {
-+			set = pfm_find_set(ctx, set_id, 0);
-+			if (set == NULL) {
-+				PFM_DBG("event set%u does not exist",
-+					set_id);
-+				error_code = PFM_REG_RETFL_NOSET;
-+				goto error;
-+			}
-+		}
-+		/*
-+		 * it is not possible to read a PMD which was not requested:
-+		 * 	- explicitly written via pfm_write_pmds()
-+		 * 	- provided as a reg_smpl_pmds[] to another PMD during
-+		 * 	  pfm_write_pmds()
-+		 *
-+		 * This is motivated by security and for optimizations purposes:
-+		 * 	- on context switch restore, we can restore only what we
-+		 * 	  use (except when regs directly readable at user level,
-+		 * 	  e.g., IA-64 self-monitoring, I386 RDTSC).
-+		 * 	- do not need to maintain PMC -> PMD dependencies
-+		 */
-+		if (unlikely(!pfm_bv_isset(set->used_pmds, cnum))) {
-+			PFM_DBG("pmd%u cannot be read, because never "
-+				"requested", cnum);
-+			goto error;
-+		}
-+
-+		/*
-+		 * it is possible to read PMD registers which have not
-+		 * explicitely been written by the application. In this case
-+		 * the default value is returned.
-+		 */
-+		val = set->view->set_pmds[cnum];
-+		lval = set->pmds[cnum].lval;
-+
-+		/*
-+		 * extract remaining ovfl to switch
-+		 */
-+		sw_cnt = set->pmds[cnum].ovflsw_thres;
-+
-+		/*
-+		 * If the task is not the current one, then we check if the
-+		 * PMU state is still in the local live register due to lazy
-+		 * ctxsw. If true, then we read directly from the registers.
-+		 */
-+		if (set == active_set && can_access_pmu) {
-+			hw_val = pfm_read_pmd(ctx, cnum);
-+			if (pmd_type & PFM_REG_C64)
-+				val = (val & ~ovfl_mask) | (hw_val & ovfl_mask);
-+			else
-+				val = hw_val;
-+		}
-+
-+		PFM_DBG("set%u pmd%u=0x%llx switch_thres=%llu",
-+			set->id,
-+			cnum,
-+			(unsigned long long)val,
-+			(unsigned long long)sw_cnt);
-+
-+		pfm_retflag_set(req->reg_flags, 0);
-+		req->reg_value = val;
-+		req->reg_last_reset_val = lval;
-+		req->reg_ovfl_switch_cnt = sw_cnt;
-+
-+		prev_set_id = set_id;
-+	}
-+	return 0;
-+
-+error:
-+	pfm_retflag_set(req->reg_flags, error_code);
-+	PFM_DBG("set%u pmd%u error=%d", set_id, cnum, error_code);
-+	return -EINVAL;
-+}
++#endif /* __PERFMON_DFL_SMPL_H__ */

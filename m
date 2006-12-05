@@ -1,41 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031549AbWLEVYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031567AbWLEVYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031549AbWLEVYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031567AbWLEVYK
+	id S1031567AbWLEVYY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031570AbWLEVYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:24:10 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:56211
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1031549AbWLEVYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:24:08 -0500
-Date: Tue, 05 Dec 2006 13:24:12 -0800 (PST)
-Message-Id: <20061205.132412.116353924.davem@davemloft.net>
-To: mattjreimer@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
-References: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 16:24:23 -0500
+Received: from mailer.gwdg.de ([134.76.10.26]:57531 "EHLO mailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1031567AbWLEVYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 16:24:22 -0500
+Date: Tue, 5 Dec 2006 22:17:14 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
+cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 19/35] Unionfs: Directory file operations
+In-Reply-To: <11652354702670-git-send-email-jsipek@cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0612052213530.18570@yvahk01.tjqt.qr>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+ <11652354702670-git-send-email-jsipek@cs.sunysb.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Matt Reimer" <mattjreimer@gmail.com>
-Date: Mon, 4 Dec 2006 23:38:13 -0800
 
-> In light of James Bottomsley's commit[1] declaring that kmap() and
-> friends now have to take care of coherency issues, is the patch "mm:
-> D-cache aliasing issue in cow_user_page"[2] correct, or could it
-> potentially cause a slowdown by calling flush_dcache_page() a second
-> time (i.e. once in an architecture-specific kmap() implementation, and
-> once in cow_user_page())?
 
-kmap() is a NOP unless HIGHMEM is configured.
+>+++ b/fs/unionfs/dirfops.c
 
-Therefore, it cannot possibly take care of D-cache aliasing issues
-across the board.
+>+/* This is not meant to be a generic repositioning function.  If you do
+>+ * things that aren't supported, then we return EINVAL.
+>+ *
+>+ * What is allowed:
+>+ *  (1) seeking to the same position that you are currently at
+>+ *	This really has no effect, but returns where you are.
+>+ *  (2) seeking to the end of the file, if you've read everything
+>+ *	This really has no effect, but returns where you are.
+>+ *  (3) seeking to the beginning of the file
+>+ *	This throws out all state, and lets you begin again.
+>+ */
+>+static loff_t unionfs_dir_llseek(struct file *file, loff_t offset, int origin)
+>+{
+[...]
+>+	/* We let users seek to their current position, but not anywhere else. */
+>+	if (!offset) {
+[...]
+>+		case SEEK_END:
+>+			/* Unsupported, because we would break everything.  */
+>+			err = -EINVAL;
+>+			break;
+[...]
+
+This SEEK_END implementation clashes with (2).
+
+>+	} else {
+[...]
+>+	}
+>+
+>+out:
+>+	return err;
+>+}
+>+
+>+/* Trimmed directory options, we shouldn't pass everything down since
+>+ * we don't want to operate on partial directories.
+>+ */
+>+struct file_operations unionfs_dir_fops = {
+>+	.llseek =		unionfs_dir_llseek,
+>+	.read =			generic_read_dir,
+>+	.readdir =		unionfs_readdir,
+>+	.unlocked_ioctl =	unionfs_ioctl,
+>+	.open =			unionfs_open,
+>+	.release =		unionfs_file_release,
+>+	.flush =		unionfs_flush,
+>+};
+
+Prefers
+
++struct file_operations unionfs_dir_fops = {
++	.llseek         = unionfs_dir_llseek,
++	.read           = generic_read_dir,
++	.readdir        = unionfs_readdir,
++	.unlocked_ioctl = unionfs_ioctl,
++	.open           = unionfs_open,
++	.release        = unionfs_file_release,
++	.flush          = unionfs_flush,
++};
+
+BTW, you could line up other structs too! :)
+
+
+
+	-`J'
+-- 

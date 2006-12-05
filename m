@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968300AbWLEP1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968295AbWLEPdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968300AbWLEP1r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968297AbWLEP1r
+	id S968295AbWLEPdp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968307AbWLEPdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:27:47 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:60969 "EHLO 2ka.mipt.ru"
+	Tue, 5 Dec 2006 10:33:45 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:59554 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968269AbWLEP1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:27:46 -0500
-Date: Tue, 5 Dec 2006 18:27:36 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v2 04/13] Connection Manager
-Message-ID: <20061205152736.GA2274@2ka.mipt.ru>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int> <20061202224958.27014.65970.stgit@dell3.ogc.int> <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com> <20061205050725.GA26033@2ka.mipt.ru> <ada3b7uhqlk.fsf@cisco.com> <20061205051657.GB26845@2ka.mipt.ru> <aday7pmgbf6.fsf@cisco.com> <1165331676.16087.29.camel@stevo-desktop>
+	id S968295AbWLEPdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 10:33:44 -0500
+Date: Tue, 5 Dec 2006 16:32:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Christoph Lameter'" <clameter@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm patch] sched remove lb_stopbalance counter
+Message-ID: <20061205153224.GA3204@elte.hu>
+References: <000001c71881$1ad82850$a884030a@amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1165331676.16087.29.camel@stevo-desktop>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 05 Dec 2006 18:27:37 +0300 (MSK)
+In-Reply-To: <000001c71881$1ad82850$a884030a@amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0003]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 09:14:36AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
-> Chelsio doesn't implement TCP stack in the driver.  Just like Ammasso,
-> it sends messages to the HW to setup connections.  It differs from
-> Ammasso in at least 2 ways:
-> 
-> 1) Ammasso does the MPA negotiations in FW/HW.  Chelsio does it in the
-> RDMA driver.  So there is code in the Chelsio driver to handle MPA
-> startup negotiation (the exchange of 2 packets over the TCP connection
-> while its still in streaming more).  BTW: This code _could_ be moved
-> into the core IWCM if we find it could be used by other rnic devices
-> (don't know yet).
-> 
-> 2) Ammasso implments a 100% deep adapter.  It does ARP, routing, IP,
-> TCP, and IWARP protocols all in firmware/hw.  It had 2 mac addresses
-> simulating 2 ethernet ports.  One exclusively for RDMA connections, and
-> one for host stack traffic.  Chelsio implements a shallower adapter that
-> only does TCP in HW.  ARP, for instance, is handled by the native stack
-> and the rdma driver uses netevents to maintain arp tables in the HW for
-> use by the offloaded TCP connections.
 
-So breifly saying - there is TCP stack implementation (including ARP and
-routing and other parts) in hardware/firmware/driver which is guaranteed
-to not be visible to host other than in form of high-level dataflow.
-Am I right here?
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
 
-> Steve.
+> in -mm tree: I would like to revert the change on adding 
+> lb_stopbalance counter.  This count can be calculated by: lb_balanced 
+> - lb_nobusyg - lb_nobusyq.  There is no need to create gazillion 
+> counters while we can derive the value.  I'm more of against changing 
+> sched-stat format unless it is absolutely necessary as all user land 
+> tool parsing /proc/schedstat needs to be updated and it's a real pain 
+> trying to keep multiple versions of it.
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
--- 
-	Evgeniy Polyakov
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+but, please:
+
+> -#define SCHEDSTAT_VERSION 13
+> +#define SCHEDSTAT_VERSION 12
+
+change this to 14 instead. Versions should only go upwards, even if we 
+revert to an earlier output format.
+
+	Ingo

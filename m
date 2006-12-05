@@ -1,41 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758462AbWLEJwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967417AbWLEKAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758462AbWLEJwY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 04:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759882AbWLEJwY
+	id S967417AbWLEKAn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 05:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967454AbWLEKAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 04:52:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59120 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758461AbWLEJwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 04:52:23 -0500
+	Tue, 5 Dec 2006 05:00:43 -0500
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:39125 "EHLO
+	smtp.drzeus.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967417AbWLEKAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 05:00:43 -0500
+Message-ID: <45754341.30500@drzeus.cx>
+Date: Tue, 05 Dec 2006 11:00:33 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20061027)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PULL] MMC update
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Christoph Hellwig <hch@lst.de>
-X-Fcc: ~/Mail/utrace
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: utrace comments
-In-Reply-To: Christoph Hellwig's message of  Monday, 27 November 2006 17:51:38 +0100 <20061127165138.GA2991@lst.de>
-X-Zippy-Says: Are we on STRIKE yet?
-Message-Id: <20061205095145.2A1431800E7@magilla.sf.frob.com>
-Date: Tue,  5 Dec 2006 01:51:45 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks very much for your interest in utrace and for your comments.
-Unfortunately, I cannot say exactly when I will be able to respond
-to them in detail.  I broke my arm in September and have had a
-difficult recovery, including a second surgery in November, two
-weeks ago.  I am now immobilized such that I cannot type properly,
-and will be unable to type much until some time in January.  Issues
-in getting utrace merged are indeed my top priority after fixing
-known bugs in the current utrace code.  My injury came at a quite
-inopportune time.  I do not want to start the discussion in earnest
-before I am again able to participate, and to hack on the code,
-with the vigor and verbosity I usually expect of myself.
+Linus, please pull from
 
+        git://git.kernel.org/pub/scm/linux/kernel/git/drzeus/mmc.git for-linus
 
-Thanks for your patience,
-Roland
+to receive the following updates:
+
+ drivers/mmc/au1xmmc.c |    2 +-
+ drivers/mmc/pxamci.c  |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+Sascha Hauer:
+      mmc: pxamci compilation fix
+
+Yoichi Yuasa:
+      mmc: fix au1xmmc build error
+
+diff --git a/drivers/mmc/au1xmmc.c b/drivers/mmc/au1xmmc.c
+index 447fba5..800527c 100644
+--- a/drivers/mmc/au1xmmc.c
++++ b/drivers/mmc/au1xmmc.c
+@@ -875,7 +875,7 @@ static void au1xmmc_init_dma(struct au1x
+        host->rx_chan = rxchan;
+ }
+
+-struct const mmc_host_ops au1xmmc_ops = {
++static const struct mmc_host_ops au1xmmc_ops = {
+        .request        = au1xmmc_request,
+        .set_ios        = au1xmmc_set_ios,
+ };
+diff --git a/drivers/mmc/pxamci.c b/drivers/mmc/pxamci.c
+index 471e9f4..45a9283 100644
+--- a/drivers/mmc/pxamci.c
++++ b/drivers/mmc/pxamci.c
+@@ -355,7 +355,7 @@ static int pxamci_get_ro(struct mmc_host
+        struct pxamci_host *host = mmc_priv(mmc);
+
+        if (host->pdata && host->pdata->get_ro)
+-               return host->pdata->get_ro(mmc->dev);
++               return host->pdata->get_ro(mmc_dev(mmc));
+        /* Host doesn't support read only detection so assume writeable */
+        return 0;
+ }
+@@ -383,7 +383,7 @@ static void pxamci_set_ios(struct mmc_ho
+                host->power_mode = ios->power_mode;
+
+                if (host->pdata && host->pdata->setpower)
+-                       host->pdata->setpower(mmc->dev, ios->vdd);
++                       host->pdata->setpower(mmc_dev(mmc), ios->vdd);
+
+                if (ios->power_mode == MMC_POWER_ON)
+                        host->cmdat |= CMDAT_INIT;
+
+-- 
+     -- Pierre Ossman
+
+  Linux kernel, MMC maintainer        http://www.kernel.org
+  PulseAudio, core developer          http://pulseaudio.org
+  rdesktop, core developer          http://www.rdesktop.org

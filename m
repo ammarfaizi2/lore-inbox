@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968370AbWLEFRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937324AbWLEFVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968370AbWLEFRS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 00:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968366AbWLEFRR
+	id S937324AbWLEFVf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:21:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937341AbWLEFVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 00:17:17 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:53588 "EHLO 2ka.mipt.ru"
+	Tue, 5 Dec 2006 00:21:35 -0500
+Received: from mga09.intel.com ([134.134.136.24]:3825 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967643AbWLEFRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 00:17:16 -0500
-Date: Tue, 5 Dec 2006 08:16:58 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Steve Wise <swise@opengridcomputing.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v2 04/13] Connection Manager
-Message-ID: <20061205051657.GB26845@2ka.mipt.ru>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int> <20061202224958.27014.65970.stgit@dell3.ogc.int> <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com> <20061205050725.GA26033@2ka.mipt.ru> <ada3b7uhqlk.fsf@cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <ada3b7uhqlk.fsf@cisco.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 05 Dec 2006 08:16:58 +0300 (MSK)
+	id S937324AbWLEFVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:21:34 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,496,1157353200"; 
+   d="scan'208"; a="23128534:sNHT1598359491"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [patch] add an iterator index in struct pagevec
+Date: Mon, 4 Dec 2006 21:21:31 -0800
+Message-ID: <000101c7182d$3a0b6a10$ba88030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccYLTjykWwauakwR1iWROV3GPJJQw==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 09:13:59PM -0800, Roland Dreier (rdreier@cisco.com) wrote:
->  > It is for iwarp/rdma from description.
-> 
-> Yes, iWARP on top of 10G ethernet.
-> 
->  > If it is 10ge, then why does it parse incomping packet headers and
->  > implements initial tcp state machine?
-> 
-> To establish connections to run RDMA over, I guess.  iWARP is RDMA
-> over TCP.
+pagevec is never expected to be more than PAGEVEC_SIZE, I think a
+unsigned char is enough to count them.  This patch makes nr, cold
+to be unsigned char and also adds an iterator index. With that,
+the size can be even bumped up by 1 to 15.
 
-So will each new NIC implement some parts of TCP stack in theirs drivers?
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
->  - R.
 
--- 
-	Evgeniy Polyakov
+diff -Nurp linux-2.6.19/include/linux/pagevec.h linux-2.6.19.ken/include/linux/pagevec.h
+--- linux-2.6.19/include/linux/pagevec.h	2006-11-29 13:57:37.000000000 -0800
++++ linux-2.6.19.ken/include/linux/pagevec.h	2006-12-04 19:18:21.000000000 -0800
+@@ -8,15 +8,16 @@
+ #ifndef _LINUX_PAGEVEC_H
+ #define _LINUX_PAGEVEC_H
+ 
+-/* 14 pointers + two long's align the pagevec structure to a power of two */
+-#define PAGEVEC_SIZE	14
++/* 15 pointers + 3 char's align the pagevec structure to a power of two */
++#define PAGEVEC_SIZE	15
+ 
+ struct page;
+ struct address_space;
+ 
+ struct pagevec {
+-	unsigned long nr;
+-	unsigned long cold;
++	unsigned char nr;
++	unsigned char cold;
++	unsigned char idx;
+ 	struct page *pages[PAGEVEC_SIZE];
+ };
+ 

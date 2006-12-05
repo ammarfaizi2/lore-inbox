@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968425AbWLEQRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968421AbWLEQTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968425AbWLEQRo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 11:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968424AbWLEQRo
+	id S968421AbWLEQTg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 11:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968423AbWLEQTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 11:17:44 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:49288 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S968405AbWLEQRn (ORCPT
+	Tue, 5 Dec 2006 11:19:35 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:56222 "EHLO
+	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968421AbWLEQTf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 11:17:43 -0500
-Subject: Re: [openib-general] [PATCH  v2 04/13] Connection Manager
-From: Steve Wise <swise@opengridcomputing.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: netdev@vger.kernel.org, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <1165335162.16087.79.camel@stevo-desktop>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
-	 <20061202224958.27014.65970.stgit@dell3.ogc.int>
-	 <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
-	 <20061205050725.GA26033@2ka.mipt.ru>
-	 <1165330925.16087.13.camel@stevo-desktop>
-	 <20061205151905.GA18275@2ka.mipt.ru>
-	 <1165333198.16087.53.camel@stevo-desktop>
-	 <20061205155932.GA32380@2ka.mipt.ru>
-	 <1165335162.16087.79.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 10:17:43 -0600
-Message-Id: <1165335463.16087.83.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 11:19:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff
+Date: Tue, 5 Dec 2006 08:19:34 -0800
+Message-ID: <FE74AC4E0A23124DA52B99F17F44159701DBC068@PA-EXCH03.vmware.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff
+Thread-Index: AccYg+eP9IsYYt30SeuDMUJ/Un6T9gABHSV4
+References: <20061202043746.GE30531@localdomain><20061203132618.d7d58f59.akpm@osdl.org> <45738959.1000209@acm.org> <20061203185442.33faf1c0.randy.dunlap@oracle.com> <FE74AC4E0A23124DA52B99F17F44159701DBC05B@PA-EXCH03.vmware.com> <45739DB4.6000806@oracle.com> <4573A04A.2030909@oracle.com> <45757BD2.7020706@acm.org>
+From: "Bela Lubkin" <blubkin@vmware.com>
+To: "Corey Minyard" <minyard@acm.org>,
+       "Randy Dunlap" <randy.dunlap@oracle.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "OpenIPMI Developers" <openipmi-developer@lists.sourceforge.net>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Joseph Barnett" <jbarnett@motorola.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 10:12 -0600, Steve Wise wrote:
-> On Tue, 2006-12-05 at 18:59 +0300, Evgeniy Polyakov wrote:
-> > On Tue, Dec 05, 2006 at 09:39:58AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
-> > > > Phrases like "MPA-aware TCP" rises a lot of questions - briefly saying
-> > > > that hardware (even if it is called ethernet driver) can create and work
-> > > > with own TCP flows potentially modified in the way it likes which is seen 
-> > > > in driver. Likely such flows will not be seen by upper layers like OS 
-> > > > network stack according to hardware descriptions.
-> > > > 
-> > > > Is it correct?
-> > > > 
-> > > 
-> > > I don't quite get your point about the driver aspect of this?
-> > > 
-> > > The HW manages the iWARP connection including data flow.  It adheres to
-> > > the MPA, RDDP, and RDMAP protocol specification IDs from the IETF.  The
-> > > HW manages how data gets pushed out in the RDMA stream.   The RDMA
-> > > Driver just requests a TCP connection and does the MPA exchange.  Then
-> > > tells the hardware to move the connection into RDMA mode.  From that
-> > > point on, the driver simply suffles IO work requests from the consumer
-> > > application to the hardware and handles asynchronous events while the
-> > > connection is up and running.
-> > 
-> > My main concern about this is the fact, that protocol handling is
-> > splitted into SF and HW parts, and actually until negotiation is
-> > completed those parts are completely unrelated to each other, so
-> > requested TCP connection can leak into main stack and main stack can
-> > send some packets which can be considered as MPA negotiation.
-> > 
-> 
-> Ah.  Data from an offloaded connection cannot leak into the main stack
-> nor vice-verse.  We can take an active RDMA connection establishment as
-> an example if you want:  Once the message is sent to the HW to "setup a
-> TCP connection from addr/port a.b to addr/port c.d", then packets on
-> that connection (that 4-tuple) will always be delivered to the RDMA
-> driver, not the native stack.  If the the packet received after the
-> connection is setup is -not- an MPA reply (in this example), then the
-> connection is aborted.  Once the connection is aborted.  
-                                                       ^ the 4 tuple can
-then be reused for rdma or native stack tcp connections.
+Corey Minyard wrote: 
+> Randy Dunlap wrote:
+>> Randy Dunlap wrote:
+>>> Bela Lubkin wrote:
+>>>> Andrew Morton wrote:
+>>>>
+>>>>>> Sometime, please go through the IPMI code looking for all these
+>>>>>> statically-allocated things which are initialised to 0 or NULL
+>>>>>> and remove all those intialisations?  They're unneeded, they
+>>>>>> increase the vmlinux image size and there are quite a number of
+>>>>>> them.  Thanks.
+>>>>
+>>>> Randy Dunlop replied:
+>>>>
+>>>>> I was just about to send that patch.  Here it is,
+>>>>> on top of the series-of-12.
+>>>> ...
+>>>>> -static int bt_debug = BT_DEBUG_OFF;
+>>>>> +static int bt_debug;
+>>>>
+>>>> Is it wise to significantly degrade code readability to work around
+>>>> a minor compiler / linker bug?
+>>>
+>>> Is that the only one that is a problem?
+>>>
+>>> I don't think it's a problem.  We *know* that static data areas
+>>> are init to 0.  Everything depends on that.  If that didn't work
+>>> it would all break.
+>>>
+>>> I could say that it's a nice coincidence that BT_DEBUG_OFF == 0,
+>>> but I think that it's more than coincidence.
+>>
+>> It's Corey's decision.  However, while code readability is also very
+>> important to me, I disagree with "significantly" above.
+>
+> I think the optimizations are probably important enough that this
+> should be done.  Let's take Randy's patch and I will add a comment to
+> BT_DEBUG_OFF that says that the value must be zero to correspond to
+> the default uninitialized value.
 
+Patch the declaration to:
 
+  static int bt_debug;  /* 0 == BT_DEBUG_OFF */
 
+Then any sort of grep / cscope / patch excerpts / etc. are self-
+documenting.
+
+>Bela<

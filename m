@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968155AbWLELMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968173AbWLELMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968155AbWLELMy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 06:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968158AbWLELIh
+	id S968173AbWLELMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 06:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968155AbWLELIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 06:08:37 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:64850 "EHLO madara.hpl.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968155AbWLELIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 06:08:11 -0500
-Date: Tue, 5 Dec 2006 03:07:05 -0800
+	Tue, 5 Dec 2006 06:08:41 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59836 "EHLO
+	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968140AbWLELIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 06:08:07 -0500
+Date: Tue, 5 Dec 2006 03:07:09 -0800
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200612051107.kB5B755I017521@frankl.hpl.hp.com>
+Message-Id: <200612051107.kB5B79hn017573@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 05/21] 2.6.19 perfmon2 : sampling format support
+Subject: [PATCH 09/21] 2.6.19 perfmon2 : register read-write operations
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This files contains the sampling format support.
+This patch contains the core read-write operations on the PMU registers
 
-Perfmon2 supports an in-kernel sampling buffer for performance
-reasons. Yet to ensure maximum flexibility to applications,
-the formats is which infmration is recorded into the kernel
-buffer is not specified by the interface. Instead it is
-delegated to a kernel plug-in modules called sampling formats.
 
-Each formats controls:
-	- what is recorded in the the sampling buffer
-	- how the information is recorded
-	- when to notify the application to extract the information
-	- how the buffer is exported to user level
-	- hoe the buffer is allocated
+The patch contains the following functions:
 
-Each format is identified via a 128-bit UUID which can be requested
-when the context is created with pfm_create_context().
 
-The interface comes with a simple default sampling format. It records
-information sequentially in the buffer. Each entry, called sample,
-is composed of a fixed size header and a variable size body where
-the values of PMDS can be recorded based upon the user's request.
+__pfm_write_pmds(): implements write operations on a vector of PMD registers
+__pfm_read_pmds() : implements read operations on a vector of PMD registers
+__pfm_write_pmcs(): implements write operations on a vector of PMC registers
 
-Sampling formats can be dynamically registered with perfmon. The management
-of sampling formats is implemented in perfmon_fmt.c:
 
-pfm_register_smpl_fmt(struct pfm_smpl_fmt *fmt):
-	- register a new sampling format
-		
-pfm_unregister_smpl_fmt(pfm_uuid_t uuid):
-	- unregister a sampling format
-
-It is possible to list the available formats by looking at /sys/kernel/perfmon/formats.
+There is no read operation on PMC because they are always set by the users.
+On some architectures, such as IA-64, Tsome PMCs may be set by hardware, but
+they are never exposed to users.
 
 
 
 
-
---- linux-2.6.19.base/perfmon/perfmon_fmt.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.19/perfmon/perfmon_fmt.c	2006-12-03 14:15:48.000000000 -0800
-@@ -0,0 +1,218 @@
+--- linux-2.6.19.base/perfmon/perfmon_rw.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.19/perfmon/perfmon_rw.c	2006-12-03 14:15:48.000000000 -0800
+@@ -0,0 +1,606 @@
 +/*
-+ * perfmon_fmt.c: perfmon2 sampling buffer format management
++ * perfmon.c: perfmon2 PMC/PMD read/write system calls
 + *
 + * This file implements the perfmon2 interface which
 + * provides access to the hardware performance counters
@@ -82,7 +63,7 @@ It is possible to list the available formats by looking at /sys/kernel/perfmon/f
 + *                David Mosberger-Tang <davidm@hpl.hp.com>
 + *
 + * More information about perfmon available at:
-+ * 	http://perfmon2.sf.net
++ * 	http://perfmon2.sf.net/
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of version 2 of the GNU General Public
@@ -97,276 +78,573 @@ It is possible to list the available formats by looking at /sys/kernel/perfmon/f
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 + * 02111-1307 USA
-+  */
++ */
 +#include <linux/module.h>
++#include <linux/kernel.h>
 +#include <linux/perfmon.h>
 +
-+static __cacheline_aligned_in_smp DEFINE_SPINLOCK(pfm_smpl_fmt_lock);
-+static LIST_HEAD(pfm_smpl_fmt_list);
-+
-+static inline int fmt_is_mod(struct pfm_smpl_fmt *f)
-+{
-+	return !(f->fmt_flags & PFM_FMTFL_IS_BUILTIN);
-+}
-+
-+static struct pfm_smpl_fmt *pfm_find_fmt(char *name)
-+{
-+	struct pfm_smpl_fmt * entry;
-+
-+	list_for_each_entry(entry, &pfm_smpl_fmt_list, fmt_list) {
-+		if (!strcmp(entry->fmt_name, name))
-+			return entry;
-+	}
-+	return NULL;
-+}
++#define PFM_REGFL_PMC_ALL	(PFM_REGFL_NO_EMUL64|PFM_REG_RETFL_MASK)
++#define PFM_REGFL_PMD_ALL	(PFM_REGFL_RANDOM     | \
++				 PFM_REGFL_OVFL_NOTIFY| \
++				 PFM_REG_RETFL_MASK)
 +/*
-+ * find a buffer format based on its name
++ * function called from sys_pfm_write_pmds() to write the 
++ * requested PMD registers. The function succeeds whether the context is
++ * attached or not. When attached to another thread, that thread must be
++ * stopped.
++ *
++ * compat: is used only on IA-64 to maintain backward compatibility with v2.0
++ *
++ * The context is locked and interrupts are disabled.
 + */
-+struct pfm_smpl_fmt *pfm_smpl_fmt_get(char *name)
++int __pfm_write_pmds(struct pfm_context *ctx, struct pfarg_pmd *req, int count,
++		     int compat)
 +{
-+	struct pfm_smpl_fmt * fmt;
++	struct pfm_event_set *set, *active_set;
++	u64 value, hw_val, ovfl_mask;
++	u64 *smpl_pmds, *reset_pmds, *impl_pmds;
++	u32 req_flags, flags;
++	u16 cnum, pmd_type, max_pmd, max_pmc;
++	u16 set_id, prev_set_id;
++	int i, can_access_pmu;
++	int is_counter;
++	int ret, error_code;
++	pfm_pmd_check_t	wr_func;
 +
-+	spin_lock(&pfm_smpl_fmt_lock);
++	ovfl_mask = pfm_pmu_conf->ovfl_mask;
++	active_set = ctx->active_set;
++	max_pmd	= pfm_pmu_conf->max_pmd;
++	max_pmc	= pfm_pmu_conf->max_pmc;
++	impl_pmds = pfm_pmu_conf->impl_pmds;
++	wr_func = pfm_pmu_conf->pmd_write_check;
++	set = NULL;
 +
-+	fmt = pfm_find_fmt(name);
-+
-+	/*
-+	 * increase module refcount
-+	 */
-+	if (fmt && fmt_is_mod(fmt) && !try_module_get(fmt->owner))
-+		fmt = NULL;
-+
-+	spin_unlock(&pfm_smpl_fmt_lock);
-+
-+	return fmt;
-+}
-+
-+void pfm_smpl_fmt_put(struct pfm_smpl_fmt *fmt)
-+{
-+	if (fmt == NULL || !fmt_is_mod(fmt))
-+		return;
-+	BUG_ON(fmt->owner == NULL);
-+
-+	spin_lock(&pfm_smpl_fmt_lock);
-+	module_put(fmt->owner);
-+	spin_unlock(&pfm_smpl_fmt_lock);
-+}
-+
-+int pfm_fmt_register(struct pfm_smpl_fmt *fmt)
-+{
-+	int ret = 0;
-+
-+	if (atomic_read(&perfmon_disabled)) {
-+		PFM_INFO("perfmon disabled, cannot add sampling format");
-+		return -ENOSYS;
-+	}
-+
-+	/* some sanity checks */
-+	if (fmt == NULL) {
-+		PFM_INFO("perfmon: NULL format for register");
-+		return -EINVAL;
-+	}
-+
-+	if (fmt->fmt_name == NULL) {
-+		PFM_INFO("perfmon: format has no name");
-+		return -EINVAL;
-+	}
-+
-+	if (fmt->fmt_qdepth > PFM_MSGS_COUNT) {
-+		PFM_INFO("perfmon: format %s requires %u msg queue depth (max %d)",
-+		       fmt->fmt_name,
-+		       fmt->fmt_qdepth,
-+		       PFM_MSGS_COUNT);
-+		return -EINVAL;
-+	}
++	prev_set_id = 0;
++	can_access_pmu = 0;
 +
 +	/*
-+	 * fmt is missing the initialization of .owner = THIS_MODULE
-+	 * this is only valid when format is compiled as a module
++	 * we cannot access the actual PMD registers when monitoring is masked
 +	 */
-+	if (fmt->owner == NULL && fmt_is_mod(fmt)) {
-+		PFM_INFO("format %s has no module owner", fmt->fmt_name);
-+		return -EINVAL;
++	if (likely(ctx->state == PFM_CTX_LOADED))
++		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
++			       || ctx->flags.system;
++
++	error_code = PFM_REG_RETFL_EINVAL;
++	ret = -EINVAL;
++
++	for (i = 0; i < count; i++, req++) {
++
++		cnum = req->reg_num;
++		set_id = req->reg_set;
++		req_flags = req->reg_flags;
++		smpl_pmds = req->reg_smpl_pmds;
++		reset_pmds = req->reg_reset_pmds;
++		flags = 0;
++
++		if (unlikely(cnum >= max_pmd || !pfm_bv_isset(impl_pmds, cnum))) {
++			PFM_DBG("pmd%u is not implemented/unaccessible", cnum);
++			error_code  = PFM_REG_RETFL_NOTAVAIL;
++			goto error;
++		}
++
++		pmd_type = pfm_pmu_conf->pmd_desc[cnum].type;
++		is_counter = pmd_type & PFM_REG_C64;
++
++		if (likely(!compat && is_counter)) {
++			/*
++			 * ensure only valid flags are set
++			 */
++			if (req_flags & ~(PFM_REGFL_PMD_ALL)) {
++				PFM_DBG("pmd%u: invalid flags=0x%x",
++						cnum, req_flags);
++				goto error;
++			}
++
++			if (req_flags & PFM_REGFL_OVFL_NOTIFY)
++				flags |= PFM_REGFL_OVFL_NOTIFY;
++			if (req_flags & PFM_REGFL_RANDOM)
++				flags |= PFM_REGFL_RANDOM;
++			/*
++			 * verify validity of smpl_pmds
++			 */
++			if (unlikely(!bitmap_subset(ulp(smpl_pmds),
++							ulp(impl_pmds),
++							max_pmd))) {
++				PFM_DBG("invalid smpl_pmds=0x%llx "
++						"for pmd%u",
++						(unsigned long long)smpl_pmds[0],
++						cnum);
++				goto error;
++			}
++			/*
++			 * verify validity of reset_pmds
++			 */
++			if (unlikely(!bitmap_subset(ulp(reset_pmds),
++							ulp(impl_pmds),
++							max_pmd))) {
++				PFM_DBG("invalid reset_pmds=0x%llx "
++						"for pmd%u",
++						(unsigned long long)reset_pmds[0],
++						cnum);
++				goto error;
++			}
++		}
++
++		/*
++		 * locate event set
++		 */
++		if (i == 0 || set_id != prev_set_id) {
++			set = pfm_find_set(ctx, set_id, 0);
++			if (set == NULL) {
++				PFM_DBG("event set%u does not exist",
++					set_id);
++				error_code = PFM_REG_RETFL_NOSET;
++				goto error;
++			}
++		}
++
++		/*
++		 * execute write checker, if any
++		 */
++		if (likely(wr_func && (pmd_type & PFM_REG_WC))) {
++			ret = (*wr_func)(ctx, set, req);
++			if (ret)
++				goto error;
++
++		}
++		hw_val = value = req->reg_value;
++
++		/*
++		 * now commit changes to software state
++		 */
++		pfm_modview_begin(set);
++
++		if (likely(is_counter)) {
++			if (likely(!compat)) {
++
++				set->pmds[cnum].flags = flags;
++
++				/*
++				 * copy reset and sampling bitvectors
++				 */
++				bitmap_copy(ulp(set->pmds[cnum].reset_pmds),
++					    ulp(reset_pmds),
++					    max_pmd);
++
++				bitmap_copy(ulp(set->pmds[cnum].smpl_pmds),
++					    ulp(smpl_pmds),
++					    max_pmd);
++
++				set->pmds[cnum].eventid = req->reg_smpl_eventid;
++
++				/*
++				 * Mark reset/smpl PMDS as used.
++				 *
++				 * We do not keep track of PMC because we have to
++				 * systematically restore ALL of them.
++				 */
++				bitmap_or(ulp(set->used_pmds),
++					  ulp(set->used_pmds),
++					  ulp(reset_pmds), max_pmd);
++
++				bitmap_or(ulp(set->used_pmds),
++					  ulp(set->used_pmds),
++					  ulp(smpl_pmds), max_pmd);
++
++				/*
++				 * we reprogrammed the PMD hence, clear any pending
++				 * ovfl, switch based on the old value
++				 * for restart we have already established new values
++				 */
++				if (pfm_bv_isset(set->povfl_pmds, cnum)) {
++					set->npend_ovfls--;
++					pfm_bv_clear(set->povfl_pmds, cnum);
++				}
++				pfm_bv_clear(set->ovfl_pmds, cnum);
++
++				/*
++				 * update ovfl_notify
++				 */
++				if (flags & PFM_REGFL_OVFL_NOTIFY)
++					pfm_bv_set(set->ovfl_notify, cnum);
++				else
++					pfm_bv_clear(set->ovfl_notify, cnum);
++			}
++			/*
++			 * reset last value to new value
++			 */
++			set->pmds[cnum].lval = value;
++
++			hw_val = value & ovfl_mask;
++
++			/*
++			 * establish new switch count
++			 */
++			set->pmds[cnum].ovflsw_thres = req->reg_ovfl_switch_cnt;
++			set->pmds[cnum].ovflsw_ref_thres = req->reg_ovfl_switch_cnt;
++		}
++
++		/*
++		 * update reset values (not just for counters)
++		 */
++		set->pmds[cnum].long_reset = req->reg_long_reset;
++		set->pmds[cnum].short_reset = req->reg_short_reset;
++
++		/*
++		 * update randomization mask
++		 */
++		set->pmds[cnum].mask = req->reg_random_mask;
++
++		/*
++		 * update set values
++		 */
++		set->view->set_pmds[cnum] = value;
++
++		pfm_modview_end(set);
++
++		pfm_bv_set(set->used_pmds, cnum);
++
++		if (set == active_set) {
++			set->priv_flags |= PFM_SETFL_PRIV_MOD_PMDS;
++			if (can_access_pmu)
++				pfm_write_pmd(ctx, cnum, hw_val);
++		}
++
++		/*
++		 * update number of used PMD registers
++		 */
++		set->nused_pmds = bitmap_weight(ulp(set->used_pmds), max_pmd);
++
++		pfm_retflag_set(req->reg_flags, 0);
++
++		prev_set_id = set_id;
++
++		PFM_DBG("set%u pmd%u=0x%llx flags=0x%x a_pmu=%d "
++			"hw_pmd=0x%llx ctx_pmd=0x%llx s_reset=0x%llx "
++			"l_reset=0x%llx u_pmds=0x%llx nu_pmds=%u "
++			"s_pmds=0x%llx r_pmds=0x%llx o_pmds=0x%llx "
++			"o_thres=%llu compat=%d eventid=%llx",
++			set->id,
++			cnum,
++			(unsigned long long)value,
++			set->pmds[cnum].flags,
++			can_access_pmu,
++			(unsigned long long)hw_val,
++			(unsigned long long)set->view->set_pmds[cnum],
++			(unsigned long long)set->pmds[cnum].short_reset,
++			(unsigned long long)set->pmds[cnum].long_reset,
++			(unsigned long long)set->used_pmds[0],
++			set->nused_pmds,
++			(unsigned long long)set->pmds[cnum].smpl_pmds[0],
++			(unsigned long long)set->pmds[cnum].reset_pmds[0],
++			(unsigned long long)set->ovfl_pmds[0],
++			(unsigned long long)set->pmds[cnum].ovflsw_thres,
++			compat,
++			(unsigned long long)set->pmds[cnum].eventid);
 +	}
++
 +	/*
-+	 * we need at least a handler
++	 * make changes visible
 +	 */
-+	if (fmt->fmt_handler == NULL) {
-+		PFM_INFO("format %s has no handler", fmt->fmt_name);
-+		return -EINVAL;
-+	}
++	if (can_access_pmu)
++		pfm_arch_serialize();
 +
++	return 0;
++
++error:
 +	/*
-+	 * format argument size cannot be bigger than PAGE_SIZE
++	 * for now, we have only one possibility for error
 +	 */
-+	if (fmt->fmt_arg_size > PAGE_SIZE) {
-+		PFM_INFO("format %s arguments too big", fmt->fmt_name);
-+		return -EINVAL;
-+	}
-+
-+	spin_lock(&pfm_smpl_fmt_lock);
-+
-+	/*
-+	 * because of sysfs, we cannot have two formats with the same name
-+	 */
-+	if (pfm_find_fmt(fmt->fmt_name)) {
-+		PFM_INFO("format %s already registered", fmt->fmt_name);
-+		ret = -EBUSY;
-+		goto out;
-+	}
-+
-+	ret = pfm_sysfs_add_fmt(fmt);
-+	if (ret) {
-+		PFM_INFO("sysfs cannot add format entry for %s", fmt->fmt_name);
-+		goto out;
-+	}
-+
-+	list_add(&fmt->fmt_list, &pfm_smpl_fmt_list);
-+
-+	PFM_INFO("added sampling format %s", fmt->fmt_name);
-+out:
-+	spin_unlock(&pfm_smpl_fmt_lock);
-+
++	pfm_retflag_set(req->reg_flags, error_code);
++	PFM_DBG("set%u pmd%u error=%d", set_id, cnum, error_code);
 +	return ret;
 +}
-+EXPORT_SYMBOL(pfm_fmt_register);
 +
-+int pfm_fmt_unregister(struct pfm_smpl_fmt *fmt)
++/*
++ * function called from sys_pfm_write_pmcs() to write the 
++ * requested PMC registers. The function succeeds whether the context is
++ * attached or not. When attached to another thread, that thread must be
++ * stopped.
++ *
++ * The context is locked and interrupts are disabled.
++ */
++int __pfm_write_pmcs(struct pfm_context *ctx, struct pfarg_pmc *req, int count)
 +{
-+	struct pfm_smpl_fmt *fmt2;
-+	int ret = 0;
++	struct pfm_event_set *set, *active_set;
++	u64 value, dfl_val, rsvd_msk;
++	u64 *impl_pmcs;
++	int i, can_access_pmu;
++	int ret, error_code;
++	u16 set_id, prev_set_id;
++	u16 cnum, pmc_type, max_pmc;
++	u32 flags;
++	pfm_pmc_check_t	wr_func;
 +
-+	if (!fmt || !fmt->fmt_name) {
-+		PFM_DBG("invalid fmt");
-+		return -EINVAL;
-+	}
++	active_set = ctx->active_set;
 +
-+	spin_lock(&pfm_smpl_fmt_lock);
++	wr_func = pfm_pmu_conf->pmc_write_check;
++	max_pmc = pfm_pmu_conf->max_pmc;
++	impl_pmcs = pfm_pmu_conf->impl_pmcs;
 +
-+	fmt2 = pfm_find_fmt(fmt->fmt_name);
-+	if (!fmt) {
-+		PFM_INFO("unregister failed, format not registered");
++	set = NULL;
++	prev_set_id = 0;
++	can_access_pmu = 0;
++
++	/*
++	 * we cannot access the actual PMC registers when monitoring is masked
++	 */
++	if (likely(ctx->state == PFM_CTX_LOADED))
++		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
++			        || ctx->flags.system;
++
++	error_code  = PFM_REG_RETFL_EINVAL;
++
++	for (i = 0; i < count; i++, req++) {
++
 +		ret = -EINVAL;
-+		goto out;
++		cnum = req->reg_num;
++		set_id = req->reg_set;
++		value = req->reg_value;
++		flags = req->reg_flags;
++
++		/*
++		 * no access to unimplemented PMC register
++		 */
++		if (unlikely(cnum >= max_pmc || !pfm_bv_isset(impl_pmcs, cnum))) {
++			PFM_DBG("pmc%u is not implemented/unaccessible", cnum);
++			error_code  = PFM_REG_RETFL_NOTAVAIL;
++			goto error;
++		}
++
++		pmc_type = pfm_pmu_conf->pmc_desc[cnum].type;
++		dfl_val = pfm_pmu_conf->pmc_desc[cnum].dfl_val;
++		rsvd_msk = pfm_pmu_conf->pmc_desc[cnum].rsvd_msk;
++
++		/*
++		 * ensure only valid flags are set
++		 */
++		if (flags & ~PFM_REGFL_PMC_ALL) {
++			PFM_DBG("pmc%u: invalid flags=0x%x", cnum, flags);
++			goto error;
++		}
++
++		/*
++		 * locate event set
++		 */
++		if (i == 0 || set_id != prev_set_id) {
++			set = pfm_find_set(ctx, set_id, 0);
++			if (set == NULL) {
++				PFM_DBG("event set%u does not exist",
++					set_id);
++				error_code = PFM_REG_RETFL_NOSET;
++				goto error;
++			}
++		}
++
++		/*
++		 * set reserved bits to default values
++		 * (reserved bits must be 1 in rsvd_msk)
++		 */
++		value = (value & ~rsvd_msk) | (dfl_val & rsvd_msk);
++
++		if (flags & PFM_REGFL_NO_EMUL64) {
++			if (!(pmc_type & PFM_REG_NO64)) {
++				PFM_DBG("pmc%u no support for "
++					"PFM_REGFL_NO_EMUL64", cnum);
++				goto error;
++			}
++			value &= ~pfm_pmu_conf->pmc_desc[cnum].no_emul64_msk;
++		}
++
++		/*
++		 * execute write checker, if any
++		 */
++		if (likely(wr_func && (pmc_type & PFM_REG_WC))) {
++			req->reg_value = value;
++			ret = (*wr_func)(ctx, set, req);
++			if (ret)
++				goto error;
++			value = req->reg_value;
++		}
++
++		/*
++		 * Now we commit the changes
++		 */
++
++		/*
++		 * mark PMC register as used
++		 * We do not track associated PMC register based on
++		 * the fact that they will likely need to be written
++		 * in order to become useful at which point the statement
++		 * below will catch that.
++		 *
++		 * The used_pmcs bitmask is only useful on architectures where
++		 * the PMC needs to be modified for particular bits, especially
++		 * on overflow or to stop/start.
++		 */
++		if (!pfm_bv_isset(set->used_pmcs, cnum)) {
++			pfm_bv_set(set->used_pmcs, cnum);
++			set->nused_pmcs++;
++		}
++
++		set->pmcs[cnum] = value;
++
++		if (set == active_set) {
++			set->priv_flags |= PFM_SETFL_PRIV_MOD_PMCS;
++			if (can_access_pmu)
++				pfm_arch_write_pmc(ctx, cnum, value);
++		}
++
++		pfm_retflag_set(req->reg_flags, 0);
++
++		prev_set_id = set_id;
++
++		PFM_DBG("set%u pmc%u=0x%llx a_pmu=%d "
++			"u_pmcs=0x%llx nu_pmcs=%u",
++			set->id,
++			cnum,
++			(unsigned long long)value,
++			can_access_pmu,
++			(unsigned long long)set->used_pmcs[0],
++			set->nused_pmcs);
 +	}
-+	list_del_init(&fmt->fmt_list);
++	/*
++	 * make sure the changes are visible
++	 */
++	if (can_access_pmu)
++		pfm_arch_serialize();
 +
-+	pfm_sysfs_remove_fmt(fmt);
-+
-+	PFM_INFO("removed sampling format: %s", fmt->fmt_name);
-+
-+out:
-+	spin_unlock(&pfm_smpl_fmt_lock);
++	return 0;
++error:
++	pfm_retflag_set(req->reg_flags, error_code);
++	PFM_DBG("set%u pmc%u error=%d", set_id, cnum, error_code);
 +	return ret;
-+
 +}
-+EXPORT_SYMBOL(pfm_fmt_unregister);
 +
 +/*
-+ * we defer adding the builtin formats to /sys/kernel/perfmon/formats
-+ * until after the pfm sysfs subsystem is initialized. This function
-+ * is called from pfm_sysfs_init()
++ * function called from sys_pfm_read_pmds() to read the 64-bit value of
++ * requested PMD registers. The function succeeds whether the context is
++ * attached or not. When attached to another thread, that thread must be
++ * stopped.
++ *
++ * The context is locked and interrupts are disabled.
 + */
-+void pfm_sysfs_builtin_fmt_add(void)
++int __pfm_read_pmds(struct pfm_context *ctx, struct pfarg_pmd *req, int count)
 +{
-+	struct pfm_smpl_fmt * entry;
++	u64 val = 0, lval, ovfl_mask, hw_val;
++	u64 sw_cnt;
++	u64 *impl_pmds;
++	struct pfm_event_set *set, *active_set;
++	int i, can_access_pmu = 0;
++	int error_code;
++	u16 cnum, pmd_type, set_id, prev_set_id, max_pmd;
++
++	ovfl_mask = pfm_pmu_conf->ovfl_mask;
++	impl_pmds = pfm_pmu_conf->impl_pmds;
++	max_pmd   = pfm_pmu_conf->max_pmd;
++	active_set = ctx->active_set;
++	set = NULL;
++	prev_set_id = 0;
++
++	if (likely(ctx->state == PFM_CTX_LOADED)) {
++		can_access_pmu = __get_cpu_var(pmu_owner) == ctx->task
++			       || ctx->flags.system;
++
++		if (can_access_pmu)
++			pfm_arch_serialize();
++	}
++	error_code = PFM_REG_RETFL_EINVAL;
 +
 +	/*
-+	 * locking not needed, kernel not fully booted
-+	 * when called
++	 * on both UP and SMP, we can only read the PMD from the hardware
++	 * register when the task is the owner of the local PMU.
 +	 */
-+	list_for_each_entry(entry, &pfm_smpl_fmt_list, fmt_list) {
-+		pfm_sysfs_add_fmt(entry);
++	for (i = 0; i < count; i++, req++) {
++
++		cnum = req->reg_num;
++		set_id = req->reg_set;
++
++		if (unlikely(cnum >= max_pmd || !pfm_bv_isset(impl_pmds, cnum))) {
++			PFM_DBG("pmd%u is not implemented/unaccessible", cnum);
++			error_code  = PFM_REG_RETFL_NOTAVAIL;
++			goto error;
++		}
++
++		pmd_type = pfm_pmu_conf->pmd_desc[cnum].type;
++
++		/*
++		 * locate event set
++		 */
++		if (i == 0 || set_id != prev_set_id) {
++			set = pfm_find_set(ctx, set_id, 0);
++			if (set == NULL) {
++				PFM_DBG("event set%u does not exist",
++					set_id);
++				error_code = PFM_REG_RETFL_NOSET;
++				goto error;
++			}
++		}
++		/*
++		 * it is not possible to read a PMD which was not requested:
++		 * 	- explicitly written via pfm_write_pmds()
++		 * 	- provided as a reg_smpl_pmds[] to another PMD during
++		 * 	  pfm_write_pmds()
++		 *
++		 * This is motivated by security and for optimizations purposes:
++		 * 	- on context switch restore, we can restore only what we
++		 * 	  use (except when regs directly readable at user level,
++		 * 	  e.g., IA-64 self-monitoring, I386 RDTSC).
++		 * 	- do not need to maintain PMC -> PMD dependencies
++		 */
++		if (unlikely(!pfm_bv_isset(set->used_pmds, cnum))) {
++			PFM_DBG("pmd%u cannot be read, because never "
++				"requested", cnum);
++			goto error;
++		}
++
++		/*
++		 * it is possible to read PMD registers which have not
++		 * explicitely been written by the application. In this case
++		 * the default value is returned.
++		 */
++		val = set->view->set_pmds[cnum];
++		lval = set->pmds[cnum].lval;
++
++		/*
++		 * extract remaining ovfl to switch
++		 */
++		sw_cnt = set->pmds[cnum].ovflsw_thres;
++
++		/*
++		 * If the task is not the current one, then we check if the
++		 * PMU state is still in the local live register due to lazy
++		 * ctxsw. If true, then we read directly from the registers.
++		 */
++		if (set == active_set && can_access_pmu) {
++			hw_val = pfm_read_pmd(ctx, cnum);
++			if (pmd_type & PFM_REG_C64)
++				val = (val & ~ovfl_mask) | (hw_val & ovfl_mask);
++			else
++				val = hw_val;
++		}
++
++		PFM_DBG("set%u pmd%u=0x%llx switch_thres=%llu",
++			set->id,
++			cnum,
++			(unsigned long long)val,
++			(unsigned long long)sw_cnt);
++
++		pfm_retflag_set(req->reg_flags, 0);
++		req->reg_value = val;
++		req->reg_last_reset_val = lval;
++		req->reg_ovfl_switch_cnt = sw_cnt;
++
++		prev_set_id = set_id;
 +	}
++	return 0;
++
++error:
++	pfm_retflag_set(req->reg_flags, error_code);
++	PFM_DBG("set%u pmd%u error=%d", set_id, cnum, error_code);
++	return -EINVAL;
 +}
---- linux-2.6.19.base/include/linux/perfmon_fmt.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.19/include/linux/perfmon_fmt.h	2006-12-03 14:15:48.000000000 -0800
-@@ -0,0 +1,88 @@
-+/*
-+ * Copyright (c) 2001-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ *
-+ * Interface for custom sampling buffer format modules
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of version 2 of the GNU General Public
-+ * License as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-+ * 02111-1307 USA
-+  */
-+#ifndef __PERFMON_FMT_H__
-+#define __PERFMON_FMT_H__ 1
-+
-+#include <linux/kobject.h>
-+
-+struct pfm_ovfl_arg {
-+	u16 ovfl_pmd;	/* index of overflowed PMD  */
-+	u16 active_set;	/* set active at the time of the overflow */
-+	u32 ovfl_ctrl;	/* control flags */
-+	u64 pmd_last_reset;	/* last reset value of overflowed PMD */
-+	u64 smpl_pmds_values[PFM_MAX_PMDS]; 	/* values of other PMDs */
-+	u64 pmd_eventid;	/* eventid associated with PMD */
-+	u16 num_smpl_pmds;	/* number of PMDS in smpl_pmd_values */
-+};
-+
-+/*
-+ * ovfl_ctrl bitmask of flags
-+ */
-+#define PFM_OVFL_CTRL_NOTIFY	0x1	/* notify user */
-+#define PFM_OVFL_CTRL_RESET	0x2	/* reset overflowed pmds */
-+#define PFM_OVFL_CTRL_MASK	0x4	/* mask monitoring */
-+
-+
-+typedef int (*fmt_validate_t )(u32 flags, u16 npmds, void *arg);
-+typedef	int (*fmt_getsize_t)(u32 flags, void *arg, size_t *size);
-+typedef int (*fmt_init_t)(struct pfm_context *ctx, void *buf, u32 flags, u16 nmpds, void *arg);
-+typedef int (*fmt_restart_t)(int is_active, u32 *ovfl_ctrl, void *buf);
-+typedef int (*fmt_exit_t)(void *buf);
-+typedef int (*fmt_handler_t)(void *buf, struct pfm_ovfl_arg *arg,
-+			     unsigned long ip, u64 stamp, void *data);
-+
-+struct pfm_smpl_fmt {
-+	char		*fmt_name;	/* name of the format (required) */
-+	size_t		fmt_arg_size;	/* size of fmt args for ctx create */
-+	u32		fmt_flags;	/* format specific flags */
-+	u32		fmt_version;	/* format version number */
-+
-+	fmt_validate_t	fmt_validate;	/* validate context flags */
-+	fmt_getsize_t	fmt_getsize;	/* get size for sampling buffer */
-+	fmt_init_t	fmt_init;	/* initialize buffer area */
-+	fmt_handler_t	fmt_handler;	/* overflow handler (required) */
-+	fmt_restart_t	fmt_restart;	/* restart after notification  */
-+	fmt_exit_t	fmt_exit;	/* context termination */
-+
-+	struct list_head fmt_list;	/* internal use only */
-+
-+	struct kobject	kobj;		/* sysfs internal use only */
-+	struct module	*owner;		/* pointer to module owner */
-+	u32		fmt_qdepth;	/* Max notify queue depth (required) */
-+};
-+#define to_smpl_fmt(n) container_of(n, struct pfm_smpl_fmt, kobj)
-+
-+#define PFM_FMTFL_IS_BUILTIN	0x1	/* fmt is compiled in */
-+/*
-+ * we need to know whether the format is builtin or compiled
-+ * as a module
-+ */
-+#ifdef MODULE
-+#define PFM_FMT_BUILTIN_FLAG	0	/* not built as a module */
-+#else
-+#define PFM_FMT_BUILTIN_FLAG	PFM_PMUFL_IS_BUILTIN /* built as a module */
-+#endif
-+
-+int pfm_fmt_register(struct pfm_smpl_fmt *fmt);
-+int pfm_fmt_unregister(struct pfm_smpl_fmt *fmt);
-+void pfm_sysfs_builtin_fmt_add(void);
-+
-+#endif /* __PERFMON_FMT_H__ */

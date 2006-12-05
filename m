@@ -1,82 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031544AbWLEVU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031549AbWLEVYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031544AbWLEVU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031531AbWLEVUz
+	id S1031549AbWLEVYK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031567AbWLEVYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:20:55 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:63127 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031543AbWLEVUy (ORCPT
+	Tue, 5 Dec 2006 16:24:10 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:56211
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1031549AbWLEVYI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:20:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=FdHW8IdzzBwPrEq7i/yt4adkIlz47jCTr76U4wFm+g+bTbn6u35MNrTGcFf/V6nP8HtXcCEVfnZGRoUXQPfyOfQjTYh0Bqw6x05m2HxTen7e2ks7FEFWP9iL2Zu19AzuukjoB0mmBuA18DQehQWEpug+uCR+gfqdzjsVS7UQ/fQ=
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Date: Tue, 5 Dec 2006 22:20:47 +0100
-User-Agent: KMail/1.9.5
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Dmitry Torokhov <dtor@insightbb.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, John Linville <linville@tuxdriver.com>,
-       Jiri Benc <jbenc@suse.cz>, Lennart Poettering <lennart@poettering.net>,
-       Johannes Berg <johannes@sipsolutions.net>,
-       Larry Finger <Larry.Finger@lwfinger.net>
-References: <200612031936.34343.IvDoorn@gmail.com> <200612032328.12093.IvDoorn@gmail.com> <20061204161842.a8673e6e.randy.dunlap@oracle.com>
-In-Reply-To: <20061204161842.a8673e6e.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 5 Dec 2006 16:24:08 -0500
+Date: Tue, 05 Dec 2006 13:24:12 -0800 (PST)
+Message-Id: <20061205.132412.116353924.davem@davemloft.net>
+To: mattjreimer@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
+References: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612052220.47816.IvDoorn@gmail.com>
-From: Ivo van Doorn <ivdoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
- 
-> > +/*
-> > + * Function called by the key driver to report the new status
-> > + * of the key.
-> > + */
-> > +void rfkill_report_event(struct rfkill *rfkill, int new_status)
-> > +{
-> > +	mutex_lock(&master->mutex);
-> > +
-> > +	if (rfkill_check_key(rfkill->key, new_status))
-> > +		schedule_work(&master->toggle_work);
-> > +
-> > +	mutex_unlock(&master->mutex);
-> > +}
-> > +EXPORT_SYMBOL_GPL(rfkill_report_event);
-> 
-> Please use kernel-doc notation for non-static functions.
-> See Documentation/kernel-doc-nano-HOWTO.txt for more info.
+From: "Matt Reimer" <mattjreimer@gmail.com>
+Date: Mon, 4 Dec 2006 23:38:13 -0800
 
-All kernel-doc notations were placed in the rfkill.h header.
-I'll move them to the rfkill.c file.
+> In light of James Bottomsley's commit[1] declaring that kmap() and
+> friends now have to take care of coherency issues, is the patch "mm:
+> D-cache aliasing issue in cow_user_page"[2] correct, or could it
+> potentially cause a slowdown by calling flush_dcache_page() a second
+> time (i.e. once in an architecture-specific kmap() implementation, and
+> once in cow_user_page())?
 
+kmap() is a NOP unless HIGHMEM is configured.
 
-[snip]
-
-> > + * @rfkill: rfkill structure to be deregistered
-> > + * @init_status: initial status of the key at the time this function is called
-> > + *
-> > + * This function should be called by the key driver when the rfkill structure
-> > + * needs to be registered. Immediately from registration the key driver
-> > + * should be able to receive calls through the poll, enable_radio and
-> > + * disable_radio handlers if those were registered.
-> > + */
-> > +int rfkill_register_key(struct rfkill *rfkill, int init_status);
-> > +
-> > +/**
-> > + * rfkill_deregister_key - Deregister a previously registered rfkill structre.
-> 
-> "structure"
-
-Thanks for the pointers. I'll fix them asap.
-
-Ivo
+Therefore, it cannot possibly take care of D-cache aliasing issues
+across the board.

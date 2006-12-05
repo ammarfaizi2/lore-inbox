@@ -1,81 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031350AbWLEU6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031382AbWLEU74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031350AbWLEU6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 15:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031360AbWLEU6m
+	id S1031382AbWLEU74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 15:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031360AbWLEU74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 15:58:42 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:56312 "EHLO mail.mnsu.edu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031350AbWLEU6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 15:58:41 -0500
-Message-ID: <4575DD73.9010008@mnsu.edu>
-Date: Tue, 05 Dec 2006 14:58:27 -0600
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Marty Leisner <linux@rochester.rr.com>, linux-kernel@vger.kernel.org,
-       bug-cpio@gnu.org, martin.leisner@xerox.com
-Subject: Re: ownership/permissions of cpio initrd
-References: <200612052024.kB5KOY1o023781@laptop13.inf.utfsm.cl> <4575D7F4.3060707@mnsu.edu> <Pine.LNX.4.61.0612052139180.18570@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0612052139180.18570@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 5 Dec 2006 15:59:56 -0500
+Received: from az33egw01.freescale.net ([192.88.158.102]:34662 "EHLO
+	az33egw01.freescale.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031384AbWLEU7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 15:59:55 -0500
+In-Reply-To: <20061205123958.497a7bd6.akpm@osdl.org>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org> <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl> <20061205123958.497a7bd6.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
 Content-Transfer-Encoding: 7bit
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Date: Tue, 5 Dec 2006 14:59:31 -0600
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> It appears to not be standard with fedora for sure... but while it origiginally
->> was/is a Debian package it looks like there is source if you'd like to build it
->> on other systems.  It was originally designed to tackle the exact problem you
->> are confronting.
+
+On Dec 5, 2006, at 14:39, Andrew Morton wrote:
+
+> On Tue, 5 Dec 2006 17:48:05 +0000 (GMT)
+> "Maciej W. Rozycki" <macro@linux-mips.org> wrote:
+>
+>>  Essentially there is a race when disconnecting from a PHY, because
+>> interrupt delivery uses the event queue for processing.  The  
+>> function to
+>> handle interrupts that is called from the event queue is phy_change 
+>> ().
+>> It takes a pointer to a structure that is associated with the  
+>> PHY.  At the
+>> time phy_stop_interrupts() is called there may be one or more  
+>> calls to
+>> phy_change() still pending on the event queue.  They may not be  
+>> able to be
+>> processed until the structure passed to phy_change() have been  
+>> freed, at
+>> which point calling the function is wrong.
 >>
->> See:
->> http://freshmeat.net/projects/fakeroot/
->>
->> About:
->> Fakeroot runs a command in an environment were it appears to have root
->> privileges for file manipulation, by setting LD_PRELOAD to a library with
->> alternative versions of getuid(), stat(), etc. This is useful for allowing
->> users to create archives (tar, ar, .deb .rpm etc.) with files in them with root
->> permissions/ownership. Without fakeroot one would have to have root privileges
->> to create the constituent files of the archives with the correct permissions
->> and ownership, and then pack them up, or one would have to construct the
->> archives directly, without using the archiver.
->>     
+>>  One way of avoiding it is calling flush_scheduled_work() from
+>> phy_stop_interrupts().  This is fine as long as a caller of
+>> phy_stop_interrupts() (not necessarily the immediate one calling into
+>> libphy) does not hold the netlink lock.
 >
-> Ugh that sounds even more than a hack. At least for one-user 
-> archives, I guess nobody at Debian knows that tar has a --user and 
-> --group option.
+> So let me try to rephrase...
+>
+> - phy_change() is the workqueue callback function.  It is executed by
+>   keventd.
+>
+> - Something under phy_change() takes rtnl_lock() (but what??)
+
+
+I don't think it's phy_change().  It's something else that may be  
+scheduled.
+
+
+>
+> - phy_stop_interrupts() does flush_scheduled_work().  This has to
+>   following logic:
+>
+>   - if I am kevetnd, run phy_change() directly.
+>
+>   - If I am not keventd, wait for keventd() to run phy_change()
+>
+> - So if the caller of phy_stop_interrupt() already holds rtnl_lock(),
+>   and if that caller is keventd then it will recur onto rntl_lock()  
+> and
+>   will deadlock.
+>
+> Problem is, if the caller of phy_stop_interrupt() is *not* keventd,  
+> that
+> caller will still deadlock, because that caller is waiting for  
+> keventd to
+> run phy_change(), and keventd cannot do that, because the not-keventd
+> process already holds rtnl_lock.
 >
 >
-> 	-`J'
->   
+> Now, afaict, there are only two callers of phy_stop_interrupts(): the
+> close() handlers of gianfar.c and fs_enet-main.c (confusingly held in
+> netdevice.stop (confusingly called by dev_close())).  Via  
+> phy_disconnect.
+> Did I miss anything?
 
-...It also let's you mknod and friends, and let's you set permissions to 
-files to more than just ONE user.  The whole point of the commands is to 
-let you make distribution files without root access.  Of course you can 
-fake all of this with a special archiver command.... I'm just throwing 
-out options.
 
-$ fakeroot
-# mkdir root
-# mkdir root/dev/
-# mknod root/dev/null c 1 3
-# mknod root/dev/sda1 b 8 1
-# chown root.disk root/dev/sda1
-# cd root
-# tar cvf ../root.tar ./
-# exit
-$ tar tvf root.tar
-drwxr-xr-x root/root         0 2006-12-05 14:54 ./
-drwxr-xr-x root/root         0 2006-12-05 14:54 ./dev/
-crw-r--r-- root/root       1,3 2006-12-05 14:54 ./dev/null
-brw-r--r-- root/disk       8,1 2006-12-05 14:54 ./dev/sda1
+Right now, that's probably about right.
 
--- 
-Jeffrey Hundstad
+
+>
+> And the dev_close() caller holds rtnl_lock.
+>
+
+
+Ok, I think this is the summary:
+
+- phy_change() is the work queue callback function (scheduled when a  
+PHY interrupt occurs)
+
+- dev_close() invokes the controller's stop/close/whatever function,  
+and it calls phy_disconnect()
+
+- phy_disconnect() calls phy_stop_interrupts().  To prevent any  
+pending phy_change() calls from getting confused, phy_stop_interrupts 
+() needs to flush the queue.  Otherwise, subsequent memory freeings  
+will leave phy_change() hanging.
+
+- If phy_stop_interrupts() calls flush_scheduled_work(), keventd will  
+execute its queues while rtnl_lock is held, providing opportunity for  
+other callbacks to deadlock.
+
+- innocent puppies are slaughtered, and the world mourns.
+
+
+Maciej's solution is to schedule phy_disconnect() to be called from a  
+work queue.  That solution should work, but it sounds like it doesn't  
+require the check for if keventd is running.
+
+Of course, my objection to it is that it now requires the ethernet  
+controller to be excessively aware of the details of how the PHY Lib  
+is handling the PHY interrupts (by scheduling them on a work queue).
+
+Andy
 
 

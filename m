@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968428AbWLEQ1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968429AbWLEQ27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968428AbWLEQ1O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 11:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968429AbWLEQ1N
+	id S968429AbWLEQ27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 11:28:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968430AbWLEQ27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 11:27:13 -0500
-Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:34815 "EHLO
-	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S968428AbWLEQ1M (ORCPT
+	Tue, 5 Dec 2006 11:28:59 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:32366 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968429AbWLEQ26 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 11:27:12 -0500
-Subject: Re: [openib-general] [PATCH  v2 04/13] Connection Manager
-From: Steve Wise <swise@opengridcomputing.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, netdev@vger.kernel.org,
-       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <1165334529.16087.69.camel@stevo-desktop>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int>
-	 <20061202224958.27014.65970.stgit@dell3.ogc.int>
-	 <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
-	 <1165249251.32724.26.camel@stevo-desktop> <45754DE3.1020505@ens-lyon.org>
-	 <1165334529.16087.69.camel@stevo-desktop>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 10:27:12 -0600
-Message-Id: <1165336032.16087.89.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 11:28:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HO0LNRMjfDOc8OogsZU4LUOzp35XoJ4ghBL0CKJLvPPM3I8hFi7OTo4eE207Ar9rjptS/pyOv4KVjiK7PlPnmgByLBtwYBTzkYNAEvfv2eQFGuqO4nj2xVVdfgOvJ91eGQJFJTyZYmscXucwnvvYvj4ZJ0rbbuWpi8VYJlUiB8c=
+Message-ID: <2c0942db0612050828s1780acefu53dcfd31c88116c0@mail.gmail.com>
+Date: Tue, 5 Dec 2006 08:28:55 -0800
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "=?ISO-8859-1?Q?Kristian_H=F8gsberg?=" <krh@redhat.com>
+Subject: Re: [PATCH 0/3] New firewire stack
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org,
+       "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+In-Reply-To: <45750FB6.8000304@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+	 <1165297363.29784.54.camel@localhost.localdomain>
+	 <45750FB6.8000304@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 10:02 -0600, Steve Wise wrote:
-> On Tue, 2006-12-05 at 11:45 +0100, Brice Goglin wrote:
-> > Steve Wise wrote:
-> > > There is no SW TCP stack in this driver.  The HW supports RDMA over
-> > > TCP/IP/10GbE in HW and this is required for zero-copy RDMA over Ethernet
-> > > (aka iWARP).  The device is a 10 GbE device, not Infiniband.
-> > 
-> > Then, I wonder why the driver goes in drivers/infiniband/ :)
-> 
-> drivers/infiniband support both IB and IWARP transports.
-> 
-> > Is there really no way to only keep the actual hw infiniband there, move
-> > iwarp/rdma drivers in drivers/net/something/ and the core stuff in
-> > net/something/ ?
-> > 
-> 
-> Sure, this _could_ be done, but what I think you're missing is that
-> applications use the interface exported by drivers/infiniband over both
-> IB -and- IWARP transports.  The application can be written to not care
-> which transport is used.   Examples of apps that can run over both
-> transports using the same common interface: 
-> 
-> user mode: MVAPICH2, OMPI, IMPI, HPMPI, 
-> kernel mode: NFS-RDMA, iSER.  
-> 
-> Note that the include directory used by drivers/infiniband is now
-> include/rdma.  Perhaps drivers/infiniband should be renamed to
-> drivers/rdma as well at some point...
+On 12/4/06, Kristian Høgsberg <krh@redhat.com> wrote:
+> Ok... I was planning to make big-endian versions of the structs so that the
+> endian issue would be solved.  But if the bit layout is not consistent, I
+> guess bitfields are useless for wire formats.  I didn't know that though, I
+> thought the C standard specified that the compiler should allocate bits out of
+> a word using the lower bits first.
 
+The C standard explicitly allows it to be implementation defined.
+Having been bit by this exact problem, I can also recommend never
+using bitfields for anything other than things kept solely in local
+memory.
 
-By the way, FYI:  The Chelsio T3 device support is split into 2 driver
-modules: the Ethernet driver and the RDMA driver.  The Ethernet driver
-lives in drivers/net/cxgb3 while the RDMA driver lives in
-drivers/infiniband/hw/cxgb3.  The Ethernet driver can be used
-stand-alone as a 10GbE high-performance NIC driver.  The RDMA driver has
-a config-time dependency on the Ethernet driver.
-
-The 2nd version of the Ethernet driver was posted yesterday.  See:
-
-http://www.spinics.net/lists/netdev/msg20464.html
-
-
-
-Steve.
-
+Ray

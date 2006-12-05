@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968607AbWLES1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968575AbWLEScI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968607AbWLES1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 13:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968605AbWLES1q
+	id S968575AbWLEScI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 13:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968612AbWLEScI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 13:27:46 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:33914 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968607AbWLES1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 13:27:45 -0500
-Date: Tue, 5 Dec 2006 10:26:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Mel Gorman <mel@csn.ul.ie>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, apw@shadowen.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-Message-Id: <20061205102654.19165150.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612050803000.11213@schroedinger.engr.sgi.com>
-References: <20061130170746.GA11363@skynet.ie>
-	<20061130173129.4ebccaa2.akpm@osdl.org>
-	<Pine.LNX.4.64.0612010948320.32594@skynet.skynet.ie>
-	<20061201110103.08d0cf3d.akpm@osdl.org>
-	<20061204140747.GA21662@skynet.ie>
-	<20061204113051.4e90b249.akpm@osdl.org>
-	<Pine.LNX.4.64.0612041946460.26428@skynet.skynet.ie>
-	<20061204143435.6ab587db.akpm@osdl.org>
-	<Pine.LNX.4.64.0612042338390.2108@skynet.skynet.ie>
-	<20061205101629.5cb78828.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0612050952500.11807@skynet.skynet.ie>
-	<Pine.LNX.4.64.0612050803000.11213@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 13:32:08 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2676 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968575AbWLEScF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 13:32:05 -0500
+Date: Tue, 5 Dec 2006 18:31:51 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, art@usfltd.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ben Collins <ben.collins@ubuntu.com>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: 2.6.19 git compile error - "current_is_keventd" [drivers/net/phy/libphy.ko]
+ undefined 
+In-Reply-To: <Pine.LNX.4.64.0612041934270.3476@woody.osdl.org>
+Message-ID: <Pine.LNX.4.64N.0612051824310.7108@blysk.ds.pg.gda.pl>
+References: <200612050129.kB51TBaC027403@laptop13.inf.utfsm.cl>
+ <Pine.LNX.4.64.0612041934270.3476@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006 08:05:16 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
+On Mon, 4 Dec 2006, Linus Torvalds wrote:
 
-> On Tue, 5 Dec 2006, Mel Gorman wrote:
+> > Also i686, sparc64. At drivers/net/phy/phy.c:590 is the lone reference to
+> > current_is_keventd in that directory.  Still present as of ff51a9...
 > 
-> > That is one possibility. There are people working on fake nodes for containers
-> > at the moment. If that pans out, the infrastructure would be available to
-> > create one node per DIMM.
-> 
-> Right that is a hack in use for one project.
+> Yeah, I'm waiting for this whole mess to be either explained or reverted. 
+> There are apparently bigegr issues with it than just the butt-ugly 
+> "current_is_keventd()" crud.
 
-Other projects can use it too.  It has the distinct advantage that it works
-with today's VM.
+ I am very surprised indeed "the mess" has been applied at all in the 
+first place.  The conclusion of the discussion a while ago was to sort out 
+the issue within libphy.  The change should be reverted.
 
-> We would be adding huge 
-> amounts of VM overhead if we do a node per DIMM.
-
-No we wouldn't.
-
-> So a desktop system with two dimms is to be treated like a NUMA 
-> system?
-
-Could do that.  Or make them separate zones.
-
-> Or how else do we deal with the multitude of load balancing 
-> situations that the additional nodes will generate?
-
-No such problems are known.
+  Maciej

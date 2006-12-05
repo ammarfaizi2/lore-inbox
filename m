@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968495AbWLER2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968501AbWLERc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968495AbWLER2K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 12:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968494AbWLER2K
+	id S968501AbWLERc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 12:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968502AbWLERc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 12:28:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47028 "EHLO mx1.redhat.com"
+	Tue, 5 Dec 2006 12:32:56 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:52271 "EHLO 2ka.mipt.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968485AbWLER2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 12:28:07 -0500
-Message-ID: <4575AB54.2050509@redhat.com>
-Date: Tue, 05 Dec 2006 12:24:36 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: eranian@hpl.hp.com
-CC: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       oprofile-list@lists.sourceforge.net,
-       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [perfmon] 2.6.19 new perfmon code base + libpfm + pfmon
-References: <20061204164644.GO31914@frankl.hpl.hp.com>
-In-Reply-To: <20061204164644.GO31914@frankl.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id S968501AbWLERcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 12:32:55 -0500
+Date: Tue, 5 Dec 2006 20:32:22 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Steve Wise <swise@opengridcomputing.com>
+Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH  v2 04/13] Connection Manager
+Message-ID: <20061205173221.GB24149@2ka.mipt.ru>
+References: <ada8xhnk6kv.fsf@cisco.com> <20061205050725.GA26033@2ka.mipt.ru> <1165330925.16087.13.camel@stevo-desktop> <20061205151905.GA18275@2ka.mipt.ru> <1165333198.16087.53.camel@stevo-desktop> <20061205155932.GA32380@2ka.mipt.ru> <1165335162.16087.79.camel@stevo-desktop> <20061205163008.GA30211@2ka.mipt.ru> <1165337245.16087.95.camel@stevo-desktop> <20061205172649.GA20229@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20061205172649.GA20229@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 05 Dec 2006 20:32:23 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian wrote:
-> Hello,
+On Tue, Dec 05, 2006 at 08:26:49PM +0300, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> On Tue, Dec 05, 2006 at 10:47:25AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
+> > > And if there were a dataflow between addr/port a.b to addr/port c.d
+> > > already, it will either terminated?
+> > > 
+> > > Considering the following sequence:
+> > > handlers->t3c_handlers->sched()->work_queue->work_handlers()->for
+> > > example CPL_PASS_ACCEPT_REQ->pass_accept_req() - it just parses incoming
+> > > skb and sets port/addr/route and other fields to be used as a base for rdma
+> > > connection. What if it just a usual network packet from kernelspace or 
+> > > userspace with the same payload as should be sent by remote rdma system?
+> > > 
+> > 
+> > That skb isn't a network packet.  Its a CPL_PASS_ACCEPT_REQ message (see
+> > struct cpl_pass_accept_req in the Ethernet driver t3_cpl.h).  If the
+> > RDMA driver hadn't registered to listen on that addr/port, it would
+> > never get this skb.  Once a connection is established, the MPA messages
+> > (and any TCP payload data) is delivered to the RDMA driver in the form
+> > of skb's containing struct cpl_rx_data.  So these skbs aren't just TCP
+> > packets at all.  They either control messages or TCP payload. Either way
+> > they are encapsulated in CPL message structures.
+> > 
+> > Does this make sense?
+>  
+> Almost - except the case about where those skbs are coming from?
+> It looks like they are obtained from network, since it is ethernet
+> driver, and if they match some set of rules, they are considered as valid 
+> MPA negotiation protocol.
 > 
-> I have released another version of the perfmon new code base packages.
-> 
-> There is no major updates in this version compared to 061127. This is 
-> a convenience release so that people can use plain 2.6.19.
-> 
-> The perfmon2 kernel changes are:
-> 	- fix UP exit bug in system-wide mode where the active context
-> 	  accounting was done incorrectly.
-> 	- MIPS update to correct register hardware addresses (Phil Mucci)
-> 
-> I have also released a new libpfm, libpfm-3.2-061204 with the
-> following changes:
-> 	- updated MIPS processor detection code
-> 
-> Also a new version of pfmon, pfmon-3.2-061204 with the following changes:
-> 	- fix various perfmon v2.0 compatibility bugs for IA-64
-> 	- fortify return values for read() (will Cohen)
-> 	
-> Both libpfm and pfmon releases work with kernel-patch 061127 or 061204.
-> 
-> You can grab the new packages at our web site:
-> 
-> 	 http://perfmon2.sf.net
-> 
-> Enjoy,
-> 
+> If it is correct, it means that any packet in the network can be
+> potentially 'stolen' by rdma hardware, although it was part of the usual
+> dataflow. 
+> If that packets are not from ethernet network, but from different
+> low-level, then there is a question (besides why this driver is called
+> ethernet if it manages different hardware) about how connection over
+> that different media is being setup and since packets contain perfectly
+> valid IP addresses and ports.
 
-Some of the ptrace functions (e.g. ptrace_may_attach in perfmon_syscall.c) 
-being used in the perfmon kernel patches will go away with the utrace patches: 
-http://people.redhat.com/roland/utrace/
+It looks like I've answered myself - it is _not_ ethernet driver, but
+rdma one, and although it gets all data through skbs from ethernet
+driver, the latter gets them not from ethernet network.
+And thus addresses and ports and all other information can not be mixed
+between the two.
 
-
--Will
+-- 
+	Evgeniy Polyakov

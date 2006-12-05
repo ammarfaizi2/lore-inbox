@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758461AbWLESFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968551AbWLESHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758461AbWLESFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 13:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968551AbWLESFo
+	id S968551AbWLESHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 13:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968552AbWLESHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 13:05:44 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4181 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758461AbWLESFn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 13:05:43 -0500
-Date: Tue, 5 Dec 2006 18:05:36 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Steve Fox <drfickle@linux.vnet.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, Ben Collins <ben.collins@ubuntu.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       afleming@freescale.com
+	Tue, 5 Dec 2006 13:07:41 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:59690 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968551AbWLESHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 13:07:41 -0500
+Date: Tue, 5 Dec 2006 10:07:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+cc: Andrew Morton <akpm@osdl.org>, Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jeff@garzik.org>
 Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <1165259836.23190.48.camel@flooterbu>
-Message-ID: <Pine.LNX.4.64N.0612051804200.7108@blysk.ds.pg.gda.pl>
-References: <1165125055.5320.14.camel@gullible>  <20061203011625.60268114.akpm@osdl.org>
- <1165259836.23190.48.camel@flooterbu>
+In-Reply-To: <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.64.0612051003430.3542@woody.osdl.org>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
+ <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006, Steve Fox wrote:
 
-> Unfortunately Maciej didn't get cc'ed correctly on your mail. Hopefully
-> I've added the right person to this post as well as Andy who has also
-> recently changed this code.
 
- Thanks -- my parser of the LKML does not always trigger.
+On Tue, 5 Dec 2006, Maciej W. Rozycki wrote:
+>
+>  One way of avoiding it is calling flush_scheduled_work() from 
+> phy_stop_interrupts().  This is fine as long as a caller of 
+> phy_stop_interrupts() (not necessarily the immediate one calling into 
+> libphy) does not hold the netlink lock.
+> 
+>  If a caller indeed holds the netlink lock, then a driver effectively 
+> calling phy_stop_interrupts() may arrange for the function to be itself 
+> scheduled through the event queue.  This has the effect of avoiding the 
+> race as well, as the queue is processed in order, except it causes more 
+> hassle for the driver.
 
-  Maciej
+I would personally be ok with "flush_scheduled_work()" _itself_ noticing 
+that it is actually waiting to flush "itself", and just being a no-op in 
+that case.
+
+However, having outside code do that detection for it seems to be ugly as 
+hell. And something like the network drievr layer shouldn't know about 
+keventd details like this.
+
+So if you can move that deadlock avoidance logic into 
+"flush_scheduled_work()" itself, we'd avoid the stupid export, and we'd 
+also avoid the driver layer having to care about these things. It would 
+still be _ugly_, but I think it would be less so.
+
+Hmm?
+
+		Linus

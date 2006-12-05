@@ -1,78 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937165AbWLEAph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758294AbWLEA5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937165AbWLEAph (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 19:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937212AbWLEAph
+	id S1758294AbWLEA5g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Dec 2006 19:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758366AbWLEA5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 19:45:37 -0500
-Received: from ns1.suse.de ([195.135.220.2]:46615 "EHLO mx1.suse.de"
+	Mon, 4 Dec 2006 19:57:35 -0500
+Received: from mga09.intel.com ([134.134.136.24]:14962 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937165AbWLEAph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 19:45:37 -0500
-Date: Mon, 4 Dec 2006 16:45:21 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Lu, Yinghai" <yinghai.lu@amd.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Stefan Reinauer <stepan@coresystems.de>,
-       Peter Stuge <stuge-linuxbios@cdy.org>, linuxbios@linuxbios.org,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [RFC][PATCH 2/2] x86_64: earlyprintk usb debug device support.
-Message-ID: <20061205004521.GA26035@suse.de>
-References: <5986589C150B2F49A46483AC44C7BCA4907280@ssvlexmb2.amd.com> <20061204203308.GA30307@suse.de> <m1bqmj8i8z.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
+	id S1756325AbWLEA5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Dec 2006 19:57:34 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,495,1157353200"; 
+   d="scan'208"; a="23029292:sNHT66661119"
+Date: Mon, 4 Dec 2006 16:56:18 -0800
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: Steven Whitehouse <steve@chygwyn.com>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Relative atime (was Re: What's in ocfs2.git)
+Message-ID: <20061205005617.GD8482@goober>
+References: <20061203203149.GC19617@ca-server1.us.oracle.com> <1165229693.3752.629.camel@quoit.chygwyn.com> <20061205001007.GF19617@ca-server1.us.oracle.com> <20061205003619.GC8482@goober>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1bqmj8i8z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20061205003619.GC8482@goober>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 02:26:52PM -0700, Eric W. Biederman wrote:
-> Greg KH <gregkh@suse.de> writes:
-> 
-> > On Mon, Dec 04, 2006 at 12:18:30PM -0800, Lu, Yinghai wrote:
-> >> -----Original Message-----
-> >> From: ebiederm@xmission.com [mailto:ebiederm@xmission.com] 
-> >> 
-> >> >arch/x86_64/kernel/early_printk.c |  574
-> >> +++++++++++++++++++++++++++++++++++++
-> >> > drivers/usb/host/ehci.h           |    8 +
-> >> > include/asm-x86_64/fixmap.h       |    1 
-> >> 
-> >> Can you separate usbdebug handle out from early_printk? 
-> >
-> > Yeah, at least tear it out of x86-64, so those of us stuck on different
-> > platforms can use this :)
-> >
-> > Other than that minor issue, this looks great.  I don't have a x86-64
-> > box set up here at the moment, so I can't test it, but it looks
-> > acceptable at first glance.
-> 
-> Makes sense.  I'm curious now what architecture do you have?
+On Mon, Dec 04, 2006 at 04:36:20PM -0800, Valerie Henson wrote:
+> On Mon, Dec 04, 2006 at 04:10:07PM -0800, Mark Fasheh wrote:
+> > Hi Steve,
+> > 
+> > On Mon, Dec 04, 2006 at 10:54:53AM +0000, Steven Whitehouse wrote:
+> > > > In the future, I'd like to see a "relative atime" mode, which functions
+> > > > in the manner described by Valerie Henson at:
+> > > > 
+> > > > http://lkml.org/lkml/2006/8/25/380
+> > > > 
+> > > I'd like to second that. [adding Val Henson to the "to"] What (if
+> > > anything) remains to be done before the relative atime patch is ready to
+> > > go upstream? I'm happy to help out here if required,
+> > Last time I looked at them, things seemed to be in pretty good shape - it
+> > wasn't a very large patch series.
 
-i386
+And the userland part.
 
-My main development box these days is a mac mini due to it's great form
-factor and ability to suspend to ram easily.  Unfortunately they don't
-come with a working 64bit processor just yet.
+-VAL
 
-> Anyway next time I touch this the project will be how to integrate
-> this into the kernel cleanly.  This round was to figure out how
-> to get some working code.
-> 
-> If someone beats me to the punch on generalizing this code I won't
-> mind.
-> 
-> The first pass was a success.  And the performance is reasonable
-> assuming you don't plug the end you are watching into a usb1 only
-> port.
-> 
-> Given that I didn't really know anything about usb a week ago I think
-> I did pretty well :)
+Add the "relatime" (relative atime) option support to mount.  Relative
+atime only updates the atime if the previous atime is older than the
+mtime or ctime.  Like noatime, but useful for applications like mutt
+that need to know when a file has been read since it was last
+modified.
 
-Yes, you certainly did, no complaint from me at all about that :)
+Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
 
-thanks,
+---
+ mount/mount.8           |    7 +++++++
+ mount/mount.c           |    6 ++++++
+ mount/mount_constants.h |    4 ++++
+ 3 files changed, 17 insertions(+)
+--- util-linux-2.13-pre7.orig/mount/mount.8
++++ util-linux-2.13-pre7/mount/mount.8
+@@ -586,6 +586,13 @@ access on the news spool to speed up new
+ .B nodiratime
+ Do not update directory inode access times on this filesystem.
+ .TP
++.B relatime
++Update inode access times relative to modify or change time.  Access
++time is only updated if the previous access time was earlier than the
++current modify or change time. (Similar to noatime, but doesn't break
++mutt or other applications that need to know if a file has been read
++since the last time it was modified.)
++.TP
+ .B noauto
+ Can only be mounted explicitly (i.e., the
+ .B \-a
+--- util-linux-2.13-pre7.orig/mount/mount.c
++++ util-linux-2.13-pre7/mount/mount.c
+@@ -164,6 +164,12 @@ static const struct opt_map opt_map[] =
+   { "diratime",	0, 1, MS_NODIRATIME },	/* Update dir access times */
+   { "nodiratime", 0, 0, MS_NODIRATIME },/* Do not update dir access times */
+ #endif
++#ifdef MS_RELATIME
++  { "relatime", 0, 0, MS_RELATIME },	/* Update access times relative to
++					   mtime/ctime */
++  { "norelatime", 0, 1, MS_RELATIME },	/* Update access time without regard
++					   to mtime/ctime */
++#endif
+   { NULL,	0, 0, 0		}
+ };
 
-greg k-h
+--- util-linux-2.13-pre7.orig/mount/mount_constants.h
++++ util-linux-2.13-pre7/mount/mount_constants.h
+@@ -57,6 +57,10 @@ if we have a stack or plain mount - moun
+ #ifndef MS_VERBOSE
+ #define MS_VERBOSE	0x8000	/* 32768 */
+ #endif
++#ifndef MS_RELATIME
++#define MS_RELATIME   0x200000	/* 200000: Update access times relative
++				   to mtime/ctime */
++#endif
+ /*
+  * Magic mount flag number. Had to be or-ed to the flag values.
+  */

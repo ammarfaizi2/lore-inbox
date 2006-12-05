@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968314AbWLEPln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968312AbWLEPmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968314AbWLEPln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968319AbWLEPln
+	id S968312AbWLEPmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968322AbWLEPmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:41:43 -0500
-Received: from mta15.mail.adelphia.net ([68.168.78.77]:35217 "EHLO
-	mta15.adelphia.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S968314AbWLEPlm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:41:42 -0500
-Message-ID: <45757BD2.7020706@acm.org>
-Date: Tue, 05 Dec 2006 08:01:54 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Icedove 1.5.0.8 (X11/20061116)
-MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>
-CC: Bela Lubkin <blubkin@vmware.com>, Andrew Morton <akpm@osdl.org>,
-       OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Joseph Barnett <jbarnett@motorola.com>
-Subject: Re: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff
-References: <20061202043746.GE30531@localdomain><20061203132618.d7d58f59.akpm@osdl.org> <45738959.1000209@acm.org> <20061203185442.33faf1c0.randy.dunlap@oracle.com> <FE74AC4E0A23124DA52B99F17F44159701DBC05B@PA-EXCH03.vmware.com> <45739DB4.6000806@oracle.com> <4573A04A.2030909@oracle.com>
-In-Reply-To: <4573A04A.2030909@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 10:42:35 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55134 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968312AbWLEPme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 10:42:34 -0500
+Date: Tue, 5 Dec 2006 16:41:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "'Andrew Morton'" <akpm@osdl.org>,
+       "'Christoph Lameter'" <clameter@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [-mm patch] sched remove lb_stopbalance counter
+Message-ID: <20061205154147.GA4865@elte.hu>
+References: <20061205153224.GA3204@elte.hu> <000101c71883$78e626c0$a884030a@amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000101c71883$78e626c0$a884030a@amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> Randy Dunlap wrote:
->> Bela Lubkin wrote:
->>> Andrew Morton wrote:
->>>
->>>>> Sometime, please go through the IPMI code looking for all these
->>>>> statically-allocated things which are initialised to 0 or NULL and
->>>>> remove
->>>>> all those intialisations?  They're unneeded, they increase the
->>>>> vmlinux
->>>>> image size and there are quite a number of them.  Thanks.
->>>
->>> Randy Dunlop replied:
->>>
->>>> I was just about to send that patch.  Here it is,
->>>> on top of the series-of-12.
->>> ...
->>>> -static int bt_debug = BT_DEBUG_OFF;
->>>> +static int bt_debug;
->>>
->>> Is it wise to significantly degrade code readability to work around
->>> a minor
->>> compiler / linker bug?
->>
->> Is that the only one that is a problem?
->>
->> I don't think it's a problem.  We *know* that static data areas
->> are init to 0.  Everything depends on that.  If that didn't work
->> it would all break.
->>
->> I could say that it's a nice coincidence that BT_DEBUG_OFF == 0,
->> but I think that it's more than coincidence.
->
-> It's Corey's decision.  However, while code readability is also very
-> important to me, I disagree with "significantly" above.
->
-I think the optimizations are probably important enough that this should
-be done.  Let's take Randy's patch and I will add a comment to
-BT_DEBUG_OFF that says that the value must be zero to correspond to
-the default uninitialized value.
 
--Corey
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
 
+> > but, please:
+> > 
+> > > -#define SCHEDSTAT_VERSION 13
+> > > +#define SCHEDSTAT_VERSION 12
+> > 
+> > change this to 14 instead. Versions should only go upwards, even if 
+> > we revert to an earlier output format.
+> 
+> Really?  sched-decrease-number-of-load-balances.patch has not yet hit 
+> the mainline and I think it's in -mm for only a couple of weeks.  I'm 
+> trying to back out the change after brief reviewing the patch.
+
+not a big issue but it costs nothing to go to version 14 - OTOH if any 
+utility has been updated to version 13 and is forgotten about, it might 
+break spuriously if we again go to 13 in the future.
+
+	Ingo

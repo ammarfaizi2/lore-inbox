@@ -1,95 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967865AbWLEGJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968039AbWLEGVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967865AbWLEGJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 01:09:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968039AbWLEGJa
+	id S968039AbWLEGVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 01:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968381AbWLEGVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 01:09:30 -0500
-Received: from gate.crashing.org ([63.228.1.57]:36370 "EHLO gate.crashing.org"
+	Tue, 5 Dec 2006 01:21:09 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:44044 "EHLO e5.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967865AbWLEGJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 01:09:29 -0500
-Subject: Re: [PATCH 2/3] Import fw-ohci driver.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@redhat.com>,
-       linux-kernel@vger.kernel.org,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-In-Reply-To: <45750A89.7000802@garzik.org>
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
-	 <20061205052245.7213.39098.stgit@dinky.boston.redhat.com>
-	 <45750A89.7000802@garzik.org>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 17:09:07 +1100
-Message-Id: <1165298947.29784.64.camel@localhost.localdomain>
+	id S968039AbWLEGVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 01:21:07 -0500
+Date: Mon, 4 Dec 2006 22:21:03 -0800
+From: "Kurtis D. Rader" <krader@us.ibm.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: "Robin H. Johnson" <robbat2@gentoo.org>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
+Message-ID: <20061205062103.GA2604@us.ibm.com>
+References: <20060914200500.GD27531@curie-int.orbis-terrarum.net> <4509AB2E.1030800@garzik.org> <20060914205050.GE27531@curie-int.orbis-terrarum.net> <20060916203812.GC30391@curie-int.orbis-terrarum.net> <20060916210857.GD30391@curie-int.orbis-terrarum.net> <20060917074929.GD25800@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060917074929.GD25800@htj.dyndns.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-09-17 16:49:29, Tejun Heo wrote:
+> Can you please try the attached patch?
 
-> > +struct descriptor {
-> > +	u32 req_count:16;
-> > +
-> > +	u32 wait:2;
-> > +	u32 branch:2;
-> > +	u32 irq:2;
-> > +	u32 yy:1;
-> > +	u32 ping:1;
-> > +
-> > +	u32 key:3;
-> > +	u32 status:1;
-> > +	u32 command:4;
-> > +
-> > +	u32 data_address;
-> > +	u32 branch_address;
-> > +
-> > +	u32 res_count:16;
-> > +	u32 transfer_status:16;
-> > +} __attribute__ ((aligned(16)));
-> 
-> you probably want __le32 annotations for sparse, right?
+I'm seeing the same problem reported by Robin Johnson: that is, the
+first two SATA disks are seen by the Linux kernel but the third is not.
+The third drive is seen by the BIOS.
 
-More than that... he wants no bitfields ! Right now, this code is broken
-on some endians (I suspect big, dunno on what Kristian tested).
+I attempted to apply the patch posted by Tejun Heo on 2006-09-17 but it
+won't apply against a 2.6.19 kernel. The patch-2.6.19-git6 diff doesn't
+contain the needed changes.
 
-> 
-> And for the last two fields, I bet that using the normal 'u16' type 
-> (__le16?) would generate much better code than a bitfield:16 ever would.
+Is there a patch compatible with the current source tree? The reason I
+ask is that I installed a Intel DP964LT mainboard in my worksation today
+(to resolve a SATA silent data corruption problem with a ASUS nVidia
+nForce 4 mainboard). Should I try to adapt the patch from September for
+the 2.6.19 kernel source or is there an easier option? I've already spent
+nearly a week debugging the silent data corruption problem that caused me
+to switch mainboards and CPUs and I'm eager to get back to my real job
+of solving my customer's problems rather than mine :-)
 
-Bah, it's endian broken anyway due to bitfield (ab)use.
-
-> 	enum {
-> 		constant1	= 1234,
-> 		constant2	= 5678,
-> 	};
-> 
-> for constants.  These actually have some type information attached by 
-> the compiler, and they show up as symbols in the debugger since they are 
-> not stripped out by the C pre-processor.
-
-Note that while this is true for small constants, beware of the fact
-that this is highly unrecommended for anything that doesn't fit in a
-signed int. gcc has some dodgy extensions allowing non-int enums but you
-don't want to go near them. Read a recent discussion with Linus & Viro
-(a few days ago iirc) on lkml about it.
-
-Since some of his constants have values up to 0x80000000, I'm not 100%
-confident enum is the way to go, but if you are careful with sign, it
-could still be.
-
-> > +static void ar_context_run(struct ar_context *ctx)
-> > +{
-> > +	reg_write(ctx->ohci, ctx->command_ptr, ctx->descriptor_bus | 1);
-> > +	reg_write(ctx->ohci, ctx->control_set, CONTEXT_RUN);
-> 
-> PCI posting?
-
-In that specific case (kicking the context), it doesn't matter much.
-It's not a bug per-se not to do it, though you might get better
-performances by making sure it's kicked right away.
-
-Ben.
-
-
+-- 
+Kurtis D. Rader, Linux level 3 support  email: krader@us.ibm.com
+IBM Integrated Technology Services      DID: +1 503-578-3714
+15300 SW Koll Pkwy, MS RHE2-O2          service: 800-IBM-SERV
+Beaverton, OR 97006-6063                http://www.ibm.com

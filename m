@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031283AbWLEURv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031262AbWLEUR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031283AbWLEURv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 15:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031294AbWLEURv
+	id S1031262AbWLEUR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 15:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031263AbWLEUR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 15:17:51 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:49267 "EHLO mail.mnsu.edu"
+	Tue, 5 Dec 2006 15:17:27 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52299 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031272AbWLEURu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 15:17:50 -0500
-Message-ID: <4575D3D2.20004@mnsu.edu>
-Date: Tue, 05 Dec 2006 14:17:22 -0600
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Icedove 1.5.0.8 (X11/20061128)
-MIME-Version: 1.0
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-CC: Marty Leisner <linux@rochester.rr.com>, linux-kernel@vger.kernel.org,
-       bug-cpio@gnu.org, martin.leisner@xerox.com
-Subject: Re: ownership/permissions of cpio initrd
-References: <200612052007.kB5K7ntk023359@laptop13.inf.utfsm.cl>
-In-Reply-To: <200612052007.kB5K7ntk023359@laptop13.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id S1031262AbWLEUR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 15:17:26 -0500
+Date: Tue, 5 Dec 2006 12:16:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, jdike@karaya.com,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: GIT pull on work_struct reduction tree
+Message-Id: <20061205121632.65572efb.akpm@osdl.org>
+In-Reply-To: <24327.1165348363@redhat.com>
+References: <20061122130222.24778.62947.stgit@warthog.cambridge.redhat.com>
+	<24327.1165348363@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can also use fakeroot(1).
+On Tue, 05 Dec 2006 19:52:43 +0000
+David Howells <dhowells@redhat.com> wrote:
 
-Start fakeroot.
-Change all of your permissions as you see fit.
-make your cpio
-exit fakeroot.
+> I've brought the work_struct reduction patches up to date.  They're in a GIT
+> tree for you to pull when you're ready.
 
-
-
-Horst H. von Brand wrote:
-> Marty Leisner <linux@rochester.rr.com> wrote:
->   
->> I'm working on an embedded system with the 2.6 kernel -- cpio
->> initrd was a new feature I'm looking at (and very welcome).
->>
->> The major advantage I see is you don't have MAKE a filesystem
->> on the build host (doing cross development).  So you don't have
->> to be root.
->>     
->
->   
->> But its "useful" to change permissions/ownership of the initrd
->> files at times...
->>     
->
->   
->> Since a cpio is just a userspace created string of bits, I suppose
->> you can apply a set of ownership/permissions to files IN the archive
->> by playing with the bits...
->>     
->
-> The easy way out is to unpack the initrd, fix permissions, and repack. That
-> requires root, though (it creates devices).
->
->   
->> Does such a tool exist?  Comments?  Seems very useful in order to
->> avoid being root...
->>     
->
-> I'd use sudo(1) + specially cooked commands to unpack/pack an initrd. It is
-> a bit more work, but gives you extra flexibility (i.e., not just futzing
-> around with permissions, can also add/replace/edit/rename/delete files, ...
-> using bog standard tools).
->   
+Given that I (and probably many others) now have a pile of build errors to
+fix, it would be nice to have a short-but-full description of what one must
+do to fix those up, please.

@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968643AbWLETO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968644AbWLETS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968643AbWLETO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 14:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968645AbWLETO6
+	id S968644AbWLETS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 14:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968646AbWLETS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 14:14:58 -0500
-Received: from nz-out-0506.google.com ([64.233.162.224]:43108 "EHLO
-	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S968643AbWLETO5 (ORCPT
+	Tue, 5 Dec 2006 14:18:29 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:54598 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968645AbWLETS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 14:14:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=glYubgeTTdb3AyBetfNG0rudwIeFs3j+AiJ1K7dA/WSmfdQhsbf+ZzzFrIurzfIY3XRadZOUZ2qcC8OufZ5zVX62Xsn4eyXU2LEUT8aTSecV0iEXOg3QtwihK26vGhMyKYArUqBck+y1AvQpdzhjZfJomOxmBymPyLi90EsgFD0=
-Message-ID: <5d96567b0612051114m21266529v779e34ffc492fc5e@mail.gmail.com>
-Date: Tue, 5 Dec 2006 21:14:56 +0200
-From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: irq/0/smp_affinity =3 doesn't seem to work
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1165336346.3233.382.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 14:18:28 -0500
+Date: Tue, 5 Dec 2006 14:18:24 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm merge plans for 2.6.20
+Message-ID: <20061205191824.GB2240@filer.fsl.cs.sunysb.edu>
+References: <20061204204024.2401148d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5d96567b0612050830s1b0c0708s3f796d85227f1285@mail.gmail.com>
-	 <1165336346.3233.382.camel@laptopd505.fenrus.org>
+In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/5/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Tue, 2006-12-05 at 18:30 +0200, Raz Ben-Jehuda(caro) wrote:
-> > hello.
-> >
-> > I have a dual cpu AMD machine, I noticed that
-> > only one timer0 is working in /proc/interrutps.
-> > setting proc/irq/0/smp_affinity to 3 does make
-> > any difference.
->
-> if you set it to 3 then the chipset gets to decide where the irq goes.
-> Many decide to send it to the first cpu.
->
-> (not that it matters, the timer is so low frequency that it can go
-> anywhere without problems)
->
-> --
-> if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-> Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
->
->
-thanks Arjan.
+On Mon, Dec 04, 2006 at 08:40:24PM -0800, Andrew Morton wrote:
+... 
+> fsstack-introduce-fsstack_copy_attrinode_.patch
+> fsstack-introduce-fsstack_copy_attrinode_-tidy.patch
+> fsstack-introduce-fsstack_copy_attrinode_-fs-stackc-should-include-linux-fs_stackh.patch
+> ecryptfs-use-fsstacks-generic-copy-inode-attr.patch
+> ecryptfs-use-fsstacks-generic-copy-inode-attr-tidy-fix.patch
+> ecryptfs-use-fsstacks-generic-copy-inode-attr-tidy-fix-fix.patch
+> struct-path-rename-reiserfss-struct-path.patch
+> struct-path-rename-dms-struct-path.patch
+> struct-path-move-struct-path-from-fs-nameic-into.patch
+> struct-path-make-ecryptfs-a-user-of-struct-path.patch
+> vfs-change-struct-file-to-use-struct-path.patch
+...
+> 
+>  Shall merge.  I guess.  Doesn't seem very useful.
 
-Yet something is not clear to me.
-To the best of my knowledge , each cpu run its own schedule routine.
-So, if only cpu0 gets timer0 interrupts, how does cpu1
-gets to run the schedule function ?
-what interrupts cpu1' current task  ?
+I have two more fixes for fsstack/ecryptfs. I'll send them as a reply to
+this email...
 
-raz
+Josef "Jeff" Sipek.
+
+-- 
+FORTUNE PROVIDES QUESTIONS FOR THE GREAT ANSWERS: #19
+A:      To be or not to be.
+Q:      What is the square root of 4b^2?

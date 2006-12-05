@@ -1,95 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936875AbWLEWqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936892AbWLEWtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936875AbWLEWqs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:46:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936890AbWLEWqs
+	id S936892AbWLEWtT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 17:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937005AbWLEWtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:46:48 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:44791 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936875AbWLEWqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:46:47 -0500
-Date: Tue, 5 Dec 2006 14:47:09 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] add ignore_loglevel boot option
-Message-Id: <20061205144709.9c50194d.randy.dunlap@oracle.com>
-In-Reply-To: <20061205120954.GA30154@elte.hu>
-References: <20061205120954.GA30154@elte.hu>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 5 Dec 2006 17:49:19 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:44295 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936892AbWLEWtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 17:49:18 -0500
+Date: Tue, 5 Dec 2006 14:49:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] fsstack: Fix up ecryptfs's fsstack usage
+Message-Id: <20061205144913.fea98946.akpm@osdl.org>
+In-Reply-To: <20061205223807.GA7300@filer.fsl.cs.sunysb.edu>
+References: <20061204204024.2401148d.akpm@osdl.org>
+	<20061205191824.GB2240@filer.fsl.cs.sunysb.edu>
+	<20061205192231.GD2240@filer.fsl.cs.sunysb.edu>
+	<20061205142831.9cb3e91c.akpm@osdl.org>
+	<20061205223807.GA7300@filer.fsl.cs.sunysb.edu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006 13:09:54 +0100 Ingo Molnar wrote:
+On Tue, 5 Dec 2006 17:38:07 -0500
+Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
 
-> Subject: [patch] add ignore_loglevel boot option
-> From: Ingo Molnar <mingo@elte.hu>
+> > When your patches are queued in -mm please do test them there, and review
+> > others' changes to them, and raise patches against them.  Raising patches
+> > against one's private tree and not testing the code which is planned to be
+> > merged can introduce errors.
 > 
-> sometimes the kernel prints something interesting while userspace
-> bootup keeps messages turned off via loglevel. Enable the printing
-> of /all/ kernel messages via the "ignore_loglevel" boot option.
-> Off by default.
+> Sorry about that. I noticed your fix, and the one by Adrian. And I did add
+> them to my fsstack queue.
 
-Hi,
+you don't have an fsstack queue any more ;)
 
-Is this equivalent to using the "debug" kernel parameter
-except that userspace (init scripts) cannot muck it up (modify
-the setting)?
-
-I've seen init scripts modify the loglevel, much to my
-dismay.
-
-I'd say that this is useful, but it's really userspace
-that needs to be fixed.
-
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  Documentation/kernel-parameters.txt |    4 ++++
->  kernel/printk.c                     |   14 +++++++++++++-
->  2 files changed, 17 insertions(+), 1 deletion(-)
-> 
-> Index: linux/kernel/printk.c
-> ===================================================================
-> --- linux.orig/kernel/printk.c
-> +++ linux/kernel/printk.c
-> @@ -352,13 +352,25 @@ static void __call_console_drivers(unsig
->  	touch_critical_timing();
->  }
->  
-> +static int __read_mostly ignore_loglevel;
-> +
-> +int __init ignore_loglevel_setup(char *str)
-> +{
-> +	ignore_loglevel = 1;
-> +	printk(KERN_INFO "debug: ignoring loglevel setting.\n");
-> +
-> +	return 1;
-> +}
-> +
-> +__setup("ignore_loglevel", ignore_loglevel_setup);
-> +
->  /*
->   * Write out chars from start to end - 1 inclusive
->   */
->  static void _call_console_drivers(unsigned long start,
->  				unsigned long end, int msg_log_level)
->  {
-> -	if (msg_log_level < console_loglevel &&
-> +	if ((msg_log_level < console_loglevel || ignore_loglevel) &&
->  			console_drivers && start != end) {
->  		if ((start & LOG_BUF_MASK) > (end & LOG_BUF_MASK)) {
->  			/* wrapped write */
-> -
-
----
-~Randy
+Please, I really do want developers to test their code in -mm once I've
+merged it.  What happens if there's some nasty interaction between your
+patch and someone else's?  We'll not find out about it and it'll get
+merged.

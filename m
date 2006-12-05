@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968381AbWLEGV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968384AbWLEGYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968381AbWLEGV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 01:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968382AbWLEGV5
+	id S968384AbWLEGYR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 01:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968385AbWLEGYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 01:21:57 -0500
-Received: from mga09.intel.com ([134.134.136.24]:37026 "EHLO mga09.intel.com"
+	Tue, 5 Dec 2006 01:24:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56024 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968381AbWLEGV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 01:21:56 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,496,1157353200"; 
-   d="scan'208"; a="23149832:sNHT51914205"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] add an iterator index in struct pagevec
-Date: Mon, 4 Dec 2006 22:21:43 -0800
-Message-ID: <000201c71835$a3e585d0$ba88030a@amr.corp.intel.com>
+	id S968384AbWLEGYQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 01:24:16 -0500
+Message-ID: <45750FB6.8000304@redhat.com>
+Date: Tue, 05 Dec 2006 01:20:38 -0500
+From: =?UTF-8?B?S3Jpc3RpYW4gSMO4Z3NiZXJn?= <krh@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccYMKqbUEP606tDQbuwM+gTFsrkIQAAzppg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20061204214519.2260855d.akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linux-kernel@vger.kernel.org, Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <1165297363.29784.54.camel@localhost.localdomain>
+In-Reply-To: <1165297363.29784.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote on Monday, December 04, 2006 9:45 PM
-> On Mon, 4 Dec 2006 21:21:31 -0800
-> "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+Benjamin Herrenschmidt wrote:
+> On Tue, 2006-12-05 at 00:22 -0500, Kristian Høgsberg wrote:
+>> Hi,
+>>
+>> I'm announcing an alternative firewire stack that I've been working on
+>> the last few weeks.  I'm aiming to implement feature parity with the
+>> current firewire stack, but not necessarily interface compatibility.
+>> For now, I have the low-level OHCI driver done, the mid-level
+>> transaction logic done, and the SBP-2 (storage) driver is basically
+>> done.  What's missing is a streaming interface (in progress) to allow
+>> reception and transmission of isochronous data and a userspace
+>> interface for controlling devices (much like raw1394 or libusb for
+>> usb).  I'm working out of this git repository:
 > 
-> > pagevec is never expected to be more than PAGEVEC_SIZE, I think a
-> > unsigned char is enough to count them.  This patch makes nr, cold
-> > to be unsigned char
+> A very very very quick look at the code shows that:
 > 
-> Is that on the right side of the speed/space tradeoff?
+>  - It looks nice / clear
 
-I haven't measured speed.  Size wise, making them char shrinks vmlinux
-text size by 112 bytes on x86_64 (using default config option).
+Great, good to hear.
 
+>  - It's horribly broken in at least two area :
+> 
+>  DO NOT USE BITFIELDS FOR DATA ON THE WIRE !!!
+> 
+>  and
+> 
+>  Where do you handle endianness ? (no need to shout for
+>  that one).
 
-> I must say I'm a bit skeptical about the need for this.  But I haven't
-> looked closely at the blockdev-specific dio code yet.
+Well, the code isn't big-endian safe yet, but the only place where I expect to 
+have to fix this is in fw-ohci.c.  I need to figure out how I want to set up 
+the OHCI controller to this - it has a couple of bits to control this.  All 
+data outside the low-level driver is cpu-endian, with the exception of payload 
+data.  IEEE1394 doesn't specify an endianness for the payload data, even 
+though most protocols use big-endian.    Some protocols have a mix of 
+byte-arrays and be32 words (eg SBP-2) so it's up to the protocol to byteswap 
+its data as appropriate.
 
-It was suggested to declare another struct that embeds pagevec to perform
-iteration.  But I prefer to have pagevec having the capability, it is
-more compact this way.
+> (Or in general, do not use bitfields period ....)
+> 
+> bitfields format is not guaranteed, and is not endian consistent. 
 
-It would be nice if you can review blockdev-specific dio code.  I would
-appreciate it very much.
+Ok... I was planning to make big-endian versions of the structs so that the 
+endian issue would be solved.  But if the bit layout is not consistent, I 
+guess bitfields are useless for wire formats.  I didn't know that though, I 
+thought the C standard specified that the compiler should allocate bits out of 
+a word using the lower bits first.  Is the problem that it allocates them out 
+of a 64-bit word on 64-bit platforms?
 
-- Ken
+cheers,
+Kristian
+

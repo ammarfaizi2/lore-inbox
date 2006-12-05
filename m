@@ -1,58 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936740AbWLEW2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936815AbWLEWhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936740AbWLEW2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936673AbWLEW2h
+	id S936815AbWLEWhM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 17:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936829AbWLEWhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:28:37 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:41719 "EHLO smtp.osdl.org"
+	Tue, 5 Dec 2006 17:37:12 -0500
+Received: from quechua.inka.de ([193.197.184.2]:55594 "EHLO mail.inka.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936740AbWLEW2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:28:36 -0500
-Date: Tue, 5 Dec 2006 14:28:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] fsstack: Fix up ecryptfs's fsstack usage
-Message-Id: <20061205142831.9cb3e91c.akpm@osdl.org>
-In-Reply-To: <20061205192231.GD2240@filer.fsl.cs.sunysb.edu>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<20061205191824.GB2240@filer.fsl.cs.sunysb.edu>
-	<20061205192231.GD2240@filer.fsl.cs.sunysb.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S936815AbWLEWhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 17:37:10 -0500
+Date: Tue, 05 Dec 2006 23:32:08 +0100
+From: Olaf Titz <Olaf.Titz@inka.de>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Olaf Titz <olaf@bigred.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19: OOPS in cat /proc/fs/nfs/exports
+References: <E1GrJH9-0003Hr-00@bigred.inka.de> <17780.62607.544405.181452@cse.unsw.edu.au>
+In-Reply-To: <17780.62607.544405.181452@cse.unsw.edu.au>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Message-ID: <E1Gripc-0004KC-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006 14:22:32 -0500
-Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Fix up a stray ecryptfs_copy_attr_all call and remove prototypes for
-> ecryptfs_copy_* as they no longer exist.
-> 
-> Signed-off-by: Josef "Jeff" Sipek <jsipek@cs.sunysb.edu>
-> ---
->  fs/ecryptfs/dentry.c          |    2 +-
->  fs/ecryptfs/ecryptfs_kernel.h |    4 +---
->  2 files changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fs/ecryptfs/dentry.c b/fs/ecryptfs/dentry.c
-> index 52d1e36..b0352d8 100644
-> --- a/fs/ecryptfs/dentry.c
-> +++ b/fs/ecryptfs/dentry.c
-> @@ -61,7 +61,7 @@ static int ecryptfs_d_revalidate(struct
->  		struct inode *lower_inode =
->  			ecryptfs_inode_to_lower(dentry->d_inode);
->  
-> -		ecryptfs_copy_attr_all(dentry->d_inode, lower_inode);
-> +		fsstack_copy_attr_all(dentry->d_inode, lower_inode, NULL);
+> There is a place where a failed kstrdup could lead to this, but that
+> is rather unlikely and wouldn't be as reproducible as this seems to
+> be.
+> If you boot up and then immediately shutdown does this error trigger,
+> it does it have to be up for a while?
 
-I fixed that two weeks ago.
+It happens right after booting.
 
-When your patches are queued in -mm please do test them there, and review
-others' changes to them, and raise patches against them.  Raising patches
-against one's private tree and not testing the code which is planned to be
-merged can introduce errors.
+I've since disabled the NFS server on that box, and just tried to
+manually start it, and it gives me this:
+# /usr/sbin/exportfs -r
+bigred:/video/rec: Cannot allocate memory
 
+That is the first and only export:
+
+# cat /etc/exports
+# /etc/exports: the access control list for filesystems which may be
+exported
+#               to NFS clients.  See exports(5).
+
+/video/rec      bigred(rw,sync)
+
+strace on exportfs shows this:nfsservctl(0x3, 0xbf875824, 0)          =
+- -1 ENOMEM
+
+After that, /proc/fs/nfs/export exists and gives the Oops, while
+/proc/fs/nfsd/export doesn't exist.
+
+I don't think however this box is particularly short on memory:
+
+MemTotal:       248704 kB
+MemFree:        102780 kB
+Buffers:         20520 kB
+Cached:          50692 kB
+SwapCached:          0 kB
+Active:          81712 kB
+Inactive:        25160 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:            1516 kB
+Writeback:           0 kB
+AnonPages:       35672 kB
+Mapped:          13104 kB
+Slab:             6960 kB
+SReclaimable:     3104 kB
+SUnreclaim:       3856 kB
+PageTables:        692 kB
+NFS_Unstable:        0 kB
+Bounce:              0 kB
+CommitLimit:    124352 kB
+Committed_AS:   124528 kB
+VmallocTotal:   786136 kB
+VmallocUsed:      7568 kB
+VmallocChunk:   778508 kB
+
+(this is right after booting, DVB drivers loaded and VDR running.)
+
+Will try your patch tomorrow.
+
+Olaf
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFdfNoGPw4gdAdiZ0RAjDdAJ4yPltxWuJe21yB9nc2zBooLWJ2TwCaAg1I
+tNsnDshD1gVpW/FYJ5P9J28=
+=1zag
+-----END PGP SIGNATURE-----

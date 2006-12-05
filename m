@@ -1,97 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031567AbWLEVYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031570AbWLEVZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031567AbWLEVYY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031570AbWLEVYX
+	id S1031570AbWLEVZH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031577AbWLEVZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:24:23 -0500
-Received: from mailer.gwdg.de ([134.76.10.26]:57531 "EHLO mailer.gwdg.de"
+	Tue, 5 Dec 2006 16:25:06 -0500
+Received: from mga09.intel.com ([134.134.136.24]:6126 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031567AbWLEVYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:24:22 -0500
-Date: Tue, 5 Dec 2006 22:17:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       mhalcrow@us.ibm.com
-Subject: Re: [PATCH 19/35] Unionfs: Directory file operations
-In-Reply-To: <11652354702670-git-send-email-jsipek@cs.sunysb.edu>
-Message-ID: <Pine.LNX.4.61.0612052213530.18570@yvahk01.tjqt.qr>
-References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
- <11652354702670-git-send-email-jsipek@cs.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1031572AbWLEVZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 16:25:02 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,501,1157353200"; 
+   d="scan'208"; a="23515322:sNHT1417925844"
+Date: Tue, 5 Dec 2006 12:59:09 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: -mm merge plans for 2.6.20, scheduler bits
+Message-ID: <20061205125909.E5313@unix-os.sc.intel.com>
+References: <20061204204024.2401148d.akpm@osdl.org> <20061205211723.GA7169@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061205211723.GA7169@elte.hu>; from mingo@elte.hu on Tue, Dec 05, 2006 at 10:17:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 05, 2006 at 10:17:23PM +0100, Ingo Molnar wrote:
+> > sched-decrease-number-of-load-balances.patch
+> 
+> this one goes away as per Ken's observation.
 
+Not really. Ken posted a cleanup patch on top of the above patch. Ken pointed
+one more cleanup which I will work on it and send it across in a day.
 
->+++ b/fs/unionfs/dirfops.c
-
->+/* This is not meant to be a generic repositioning function.  If you do
->+ * things that aren't supported, then we return EINVAL.
->+ *
->+ * What is allowed:
->+ *  (1) seeking to the same position that you are currently at
->+ *	This really has no effect, but returns where you are.
->+ *  (2) seeking to the end of the file, if you've read everything
->+ *	This really has no effect, but returns where you are.
->+ *  (3) seeking to the beginning of the file
->+ *	This throws out all state, and lets you begin again.
->+ */
->+static loff_t unionfs_dir_llseek(struct file *file, loff_t offset, int origin)
->+{
-[...]
->+	/* We let users seek to their current position, but not anywhere else. */
->+	if (!offset) {
-[...]
->+		case SEEK_END:
->+			/* Unsupported, because we would break everything.  */
->+			err = -EINVAL;
->+			break;
-[...]
-
-This SEEK_END implementation clashes with (2).
-
->+	} else {
-[...]
->+	}
->+
->+out:
->+	return err;
->+}
->+
->+/* Trimmed directory options, we shouldn't pass everything down since
->+ * we don't want to operate on partial directories.
->+ */
->+struct file_operations unionfs_dir_fops = {
->+	.llseek =		unionfs_dir_llseek,
->+	.read =			generic_read_dir,
->+	.readdir =		unionfs_readdir,
->+	.unlocked_ioctl =	unionfs_ioctl,
->+	.open =			unionfs_open,
->+	.release =		unionfs_file_release,
->+	.flush =		unionfs_flush,
->+};
-
-Prefers
-
-+struct file_operations unionfs_dir_fops = {
-+	.llseek         = unionfs_dir_llseek,
-+	.read           = generic_read_dir,
-+	.readdir        = unionfs_readdir,
-+	.unlocked_ioctl = unionfs_ioctl,
-+	.open           = unionfs_open,
-+	.release        = unionfs_file_release,
-+	.flush          = unionfs_flush,
-+};
-
-BTW, you could line up other structs too! :)
-
-
-
-	-`J'
--- 
+thanks,
+suresh

@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937392AbWLEGlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937386AbWLEGsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937392AbWLEGlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 01:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937386AbWLEGlY
+	id S937386AbWLEGsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 01:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937424AbWLEGsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 01:41:24 -0500
-Received: from ms-smtp-06.texas.rr.com ([24.93.47.45]:51489 "EHLO
-	ms-smtp-06.texas.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937362AbWLEGlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 01:41:21 -0500
-Message-Id: <200612050641.kB56f7wY018196@ms-smtp-06.texas.rr.com>
-Reply-To: <Aucoin@Houston.RR.com>
-From: "Aucoin" <Aucoin@Houston.RR.com>
-To: "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <clameter@sgi.com>
-Subject: RE: la la la la ... swappiness
-Date: Tue, 5 Dec 2006 00:41:07 -0600
-Organization: home
+	Tue, 5 Dec 2006 01:48:36 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:57790 "EHLO mout2.freenet.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937386AbWLEGsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 01:48:35 -0500
+From: Karsten Wiese <fzu@wemgehoertderstaat.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: v2.6.19-rt1, yum/rpm
+Date: Tue, 5 Dec 2006 07:48:50 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061130083358.GA351@elte.hu> <200612050119.59113.fzu@wemgehoertderstaat.de>
+In-Reply-To: <200612050119.59113.fzu@wemgehoertderstaat.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-reply-to: <Pine.LNX.4.64.0612042034060.3542@woody.osdl.org>
-Thread-Index: AccYKFlX15XVnIOPRHW+SUz5aoLFAQADyh3w
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Content-Disposition: inline
+Message-Id: <200612050748.50553.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Linus Torvalds [mailto:torvalds@osdl.org]
-> I actually suspect you should be _fairly_ close to such a situation
+Am Dienstag, 5. Dezember 2006 01:19 schrieb Karsten Wiese:
+> Am Donnerstag, 30. November 2006 09:33 schrieb Ingo Molnar:
+> > i have released the 2.6.19-rt1 tree, which can be downloaded from the
+> 
+> Hi Ingo,
+> 
+> here comes a freerunning trace explaining the weirdness I see here.
+> I tried max_latency tracing first, didn't see anything usefull,
+> went on with tracing freerunning with a user_trace_stop() at the spot,
+> where snd-usb-usx2y diagnoses hickup.
 
-We run with min_free_kbytes set around 4k to answer your earlier question.
+Seams to hickup when irq happens while uhci_hcd is busy doing some
+kind of timer triggered housekeeping.
+Will look into uhci code deeper ;-)
 
-> Louis, exactly how do you allocate that big 1.6GB shared area?
-
-Ummm, shm_open, ftruncate, mmap ? Is it a trick question ? The process
-responsible for initially setting up the shared area doesn't stay resident.
-
-
+      Karsten

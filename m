@@ -1,84 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967477AbWLEIaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967423AbWLEIem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967477AbWLEIaL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 03:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967466AbWLEIaL
+	id S967423AbWLEIem (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 03:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967493AbWLEIem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 03:30:11 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:60406 "EHLO
-	ecfrec.frec.bull.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937495AbWLEIaH convert rfc822-to-8bit (ORCPT
+	Tue, 5 Dec 2006 03:34:42 -0500
+Received: from ausmtp05.au.ibm.com ([202.81.18.154]:47079 "EHLO
+	ausmtp05.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S967423AbWLEIel (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 03:30:07 -0500
-Date: Tue, 5 Dec 2006 09:30:03 +0100
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: bharata@in.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@osdl.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-Subject: Re: [PATCH -mm 3/5][AIO] - export good_sigevent()
-Message-ID: <20061205093003.620d8b1b@frecb000686>
-In-Reply-To: <20061204171313.GB27379@in.ibm.com>
-References: <20061129112441.745351c9@frecb000686>
-	<20061129113234.38c12911@frecb000686>
-	<20061204171313.GB27379@in.ibm.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Tue, 5 Dec 2006 03:34:41 -0500
+Date: Tue, 5 Dec 2006 14:06:58 +0530
+From: Gautham R Shenoy <ego@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, vatsa@in.ibm.com, dipankar@in.ibm.com,
+       davej@redhat.com, torvalds@osdl.org
+Subject: Re: -mm merge plans for 2.6.20
+Message-ID: <20061205083658.GA18025@in.ibm.com>
+Reply-To: ego@in.ibm.com
+References: <20061204204024.2401148d.akpm@osdl.org>
 Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 05/12/2006 09:37:20,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 05/12/2006 09:37:24,
-	Serialize complete at 05/12/2006 09:37:24
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Dec 2006 22:43:13 +0530 Bharata B Rao <bharata@in.ibm.com> wrote:
+Hi Andrew,
 
-> On Wed, Nov 29, 2006 at 11:32:34AM +0100, Sébastien Dugué wrote:
-> > 
-> > <snip> 
-> > +/***
-> > + * good_sigevent - check and get target task from a sigevent.
-> > + * @event: the sigevent to be checked
-> > + *
-> > + * This function must be called with tasklist_lock held for reading.
-> > + */
-> > +struct task_struct * good_sigevent(sigevent_t * event)
-> > +{
-> > +	struct task_struct *rtn = current->group_leader;
-> > +
-> > +	if ((event->sigev_notify & SIGEV_THREAD_ID ) &&
-> > +		(!(rtn = find_task_by_pid(event->sigev_notify_thread_id)) ||
-> > +		 rtn->tgid != current->tgid ||
-> > +		 (event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL))
-> > +		return NULL;
-> > +
-> > +	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-> > +	    ((event->sigev_signo <= 0) || (event->sigev_signo > SIGRTMAX)))
-> > +		return NULL;
-> > +
-> > +	return rtn;
-> > +}
+> remove-hotplug-cpu-crap-from-cpufreq.patch
 > 
-> Here good_sigevent() doesn't take care of SIGEV_THREAD. From this comment
-> from include/asm-generic/siginfo.h,
-> 
-> "It seems likely that SIGEV_THREAD will have to be handled from 
-> userspace, libpthread transmuting it to SIGEV_SIGNAL, which the
-> thread manager then catches and does the appropriate nonsense.
->  However, everything is written out here so as to not get lost."
-> 
-> it looks like SIGEV_THREAD should never come into kernel. But atleast
-> libposix-aio does send SIGEV_THREAD all the way up to kernel.
+> Sent to cpufreq maintainer
 
-  That's right, I had to reflect that change into libposix-aio, i.e. transmuting
-SIGEV_THREAD into SIGEV_SIGNAL.
+I suspect that Davej posted this patch because he was getting lockdep
+warnings-reports from people complaining of ondemand-governor 
+performing spurious unlock_cpu_hotplug. 
+That problem has been fixed in the mainline by the commit
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=4b96b1a10cb00c867103b21f0f2a6c91b705db11
 
-  Sébastien.
+If there are any other issues with cpufreq-cpuhotplug in the mainline,
+I'm more than willing to help out fix them. As of now, I cannot seem 
+to spot anything serious in the mainline as such.
+Hence, merging this isn't an immediate need IMHO.
+
+> hotplug-cpu-clean-up-hotcpu_notifier-use.patch
+> hotplug-cpu-clean-up-hotcpu_notifier-use-vs-gregkh-driver-cpu-topology-consider-sysfs_create_group-return-value.patch
+
+> 
+> extend-notifier_call_chain-to-count-nr_calls-made.patch
+> extend-notifier_call_chain-to-count-nr_calls-made-fixes.patch
+> extend-notifier_call_chain-to-count-nr_calls-made-fixes-2.patch
+> define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release.patch
+> define-and-use-new-eventscpu_lock_acquire-and-cpu_lock_release-fix.patch
+> eliminate-lock_cpu_hotplug-in-kernel-schedc.patch
+> eliminate-lock_cpu_hotplug-in-kernel-schedc-fix.patch
+> handle-cpu_lock_acquire-and-cpu_lock_release-in-workqueue_cpu_callback.patch
+> 
+>  Shall merge.
+>
+
+Merging this would still give the circular-locking dependency warnings
+which I posted the other day. Unless we have a clean way to get
+cpu-hotplug-protection for cpufreq, I don't see a point in merging this
+stuff.
+
+Cpufreq hotplug-interactions can be sorted out.
+I have a few patches which I need to test out before posting them.
+
+Other than that, there are issues regarding the 
+workqueue-hotplug-"locking" which needs to be addressed,
+probably in a seperate thread.
+
+So could you please reconsider this decision to merge the
+hotplug-locking rework, and let it stabilize in -mm for sometime ?
+
+Thanks and Regards
+gautham.
+-- 
+Gautham R Shenoy
+Linux Technology Center
+IBM India.
+"Freedom comes with a price tag of responsibility, which is still a bargain,
+because Freedom is priceless!"

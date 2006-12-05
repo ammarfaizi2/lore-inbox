@@ -1,35 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759125AbWLEIzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937410AbWLEJ2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759125AbWLEIzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 03:55:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968107AbWLEIzX
+	id S937410AbWLEJ2V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 04:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937414AbWLEJ2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 03:55:23 -0500
-Received: from amsfep17-int.chello.nl ([62.179.120.12]:30431 "EHLO
-	amsfep17-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759029AbWLEIzW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 03:55:22 -0500
-Subject: Re: -mm merge plans for 2.6.20
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
-References: <20061204204024.2401148d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 05 Dec 2006 09:47:29 +0100
-Message-Id: <1165308449.9636.7.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Tue, 5 Dec 2006 04:28:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52066 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937410AbWLEJ2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 04:28:20 -0500
+Message-ID: <45753BB1.6030102@festi.info>
+Date: Tue, 05 Dec 2006 10:28:17 +0100
+From: Florian Festi <florian@festi.info>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Meaning of keycodes unclear
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am looking for the meaning of the following key codes as #defined in 
+include/linux/input.h. I need to know what hardware produces the keycode 
+and what happens/should happen when the corresponding key is pressed.
 
-> mm-call-into-direct-reclaim-without-pf_memalloc-set.patch
-> mm-cleanup-and-document-reclaim-recursion.patch
+KEY_AB
+KEY_ANGLE
+KEY_ARCHIVE
+KEY_CONNECT
+KEY_DIGITS
+KEY_MACRO
+KEY_ISO
+KEY_LIST
+KEY_POWER2
+KEY_QUESTION
+KEY_TEEN      # 1- ???
+KEY_TWEN      # 2- ???
+KEY_RED, KEY_GREEN, KEY_YELLOW, KEY_BLUE  # Video text navigation?
 
-Drop these, I'm not sure of them anymore. And I am starting to grow a
-nagging feeling they are wrong.
+I am currently trying to make all special keys just work by fixing the 
+whole keyboard/input stack from the kernel up to the desktop 
+environments. On part of this effort is to complete the mappings applied 
+to the keys during their way up.
 
+TIA
 
+	Florian Festi

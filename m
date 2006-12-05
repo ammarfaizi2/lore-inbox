@@ -1,121 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967571AbWLEHlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967711AbWLEHtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967571AbWLEHlx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 02:41:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967496AbWLEHlx
+	id S967711AbWLEHtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 02:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967725AbWLEHtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 02:41:53 -0500
-Received: from mtaout03-winn.ispmail.ntl.com ([81.103.221.49]:5013 "EHLO
-	mtaout03-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S967571AbWLEHlw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 02:41:52 -0500
-From: Ian Campbell <ijc@hellion.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <1165263296.6152.8.camel@localhost.localdomain>
-References: <1165153834.5499.40.camel@localhost.localdomain>
-	 <1165259962.6152.5.camel@localhost.localdomain>
-	 <1165261226.5499.54.camel@localhost.localdomain>
-	 <1165263296.6152.8.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ui24DhsqwC79Tv3iHA1c"
-Date: Tue, 05 Dec 2006 07:41:38 +0000
-Message-Id: <1165304498.5499.62.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-X-SA-Exim-Connect-IP: 192.168.1.5
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: PMTMR running too fast
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+	Tue, 5 Dec 2006 02:49:00 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:44907 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967711AbWLEHs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 02:48:59 -0500
+Date: Tue, 5 Dec 2006 08:48:30 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Neil Brown <neilb@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm2
+In-Reply-To: <17780.61551.896455.157225@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0612050844110.28502@twin.jikos.cz>
+References: <20061128020246.47e481eb.akpm@osdl.org>
+ <Pine.LNX.4.64.0611290147400.28502@twin.jikos.cz> <17780.52337.767875.963882@cse.unsw.edu.au>
+ <17780.61551.896455.157225@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Dec 2006, Neil Brown wrote:
 
---=-ui24DhsqwC79Tv3iHA1c
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> As Andrew correctly pointed out, this bit error is not a RAM problem. It 
+> is actually the low bit of a counter a spinlock that was decremented 
+> just before the WARN_ON.  So it simply indicates that the inode had 
+> already been freed, which I think we knew already. Unfortunately I still 
+> have no idea why that inode had been freed but was still referenced by a 
+> dentry.... How repeatable as this bug?  How did you narrow it down to 
+> that patch? Did you use git-bisect or something else?
 
-On Mon, 2006-12-04 at 12:14 -0800, john stultz wrote:
-> On Mon, 2006-12-04 at 19:40 +0000, Ian Campbell wrote:
-> > On Mon, 2006-12-04 at 11:19 -0800, john stultz wrote:
-> > > On Sun, 2006-12-03 at 13:50 +0000, Ian Campbell wrote:
-> > > > In older kernels arch/i386/kernel/timers/timer_pm.c:verify_pmtmr_ra=
-te
-> > > > contained a check for sensible PMTMR rate and disabled that clockso=
-urce
-> > > > if it was found to be out of spec[0]. This check seems to have been=
- lost
-> > > > in the transition to drivers/clocksource/acpi_pm.c, the removal is =
-in
-> > > > 61743fe445213b87fb55a389c8d073785323ca3e "Time: i386 Conversion - p=
-art
-> > > > 4: Remove Old timer_opts Code"[1] and the check is not present in t=
-he
-> > > > replacement 5d0cf410e94b1f1ff852c3f210d22cc6c5a27ffa "Time: i386
-> > > > Clocksource Drivers"[2].
-> > >=20
-> > > Fedora has a bug covering this:
-> > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D211902
-> >=20
-> > > > Is there a specific reason the check was removed (I couldn't see on=
- in
-> > > > the archives) or was it simply overlooked? Without it I need to pas=
-s
-> > > > clocksource=3Dtsc to have 2.6.18 work correctly on an older K6 syst=
-em with
-> > > > an Aladdin chipset (will dig out the precise details if required). =
-Would
-> > > > a patch to reintroduce the check be acceptable or would some sort o=
-f
-> > > > blacklist based solution be more acceptable?
-> > >=20
-> > > If I recall correctly, it was pulled because there was some question =
-as
-> > > to if it was actually needed (x86_64 didn't need it) and it slows dow=
-n
-> > > the boot time (although not by much).=20
-> > >=20
-> > > I'm fine just re-adding it. Although if the number of affected system=
-s
-> > > are small we could just blacklist it (Ian, mind sending dmidecode
-> > > output?).
->=20
-> I don't have a dev box to test on at the moment, but here's a quick hack
-> attempt at re-adding the code. Does the following work for you?=20
+When this happened, I just looked at the broken-out patches in -mm, which 
+ones touch the md subsystem, found your patch, reverse-applied it, and 
+this stopped happening.
 
-I get:
-        PM-Timer running at invalid rate: 200% of normal - aborting.
-        ...
-        Time: pit clocksource has been installed.
-       =20
-Without the clocksource parameter.
+It seemed to be 100% reproducible - happened on every boot of FC6 system, 
+so it was probably triggered by some raid/lvm command executed from init 
+scripts after boot, but I didn't examine it further.
 
-Should tsc be preferred to pit though?
+As soon as I get to the machine where this happens, I will try to narrow 
+it down to the exact userspace command that triggers it and will let you 
+know (probably this evening).
 
-/sys/devices/system/clocksource/clocksource0/available_clocksource now
-shows "jiffies tsc pit" and current_clocksource is "pit".
-
-Thanks,
-Ian.
-
---=20
-Ian Campbell
-
-love, n.:
-	When it's growing, you don't mind watering it with a few tears.
-
---=-ui24DhsqwC79Tv3iHA1c
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFdSKxM0+0qS9rzVkRAlLqAJ4pAbltnZ9E2Fsv7Z/Ro0uNjmbLIwCcD9uL
-WJHmlrQKypA2hUXUIonQqeo=
-=kDMa
------END PGP SIGNATURE-----
-
---=-ui24DhsqwC79Tv3iHA1c--
-
+-- 
+Jiri Kosina

@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937424AbWLEOAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968214AbWLEODi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937424AbWLEOAG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 09:00:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937457AbWLEOAF
+	id S968214AbWLEODi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 09:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968216AbWLEODi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 09:00:05 -0500
-Received: from hera.kernel.org ([140.211.167.34]:43270 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937424AbWLEOAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 09:00:02 -0500
-Date: Tue, 5 Dec 2006 14:00:00 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Linux 2.4.34-rc1
-Message-ID: <20061205140000.GA350@hera.kernel.org>
+	Tue, 5 Dec 2006 09:03:38 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:33776 "EHLO
+	e36.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968214AbWLEODh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 09:03:37 -0500
+Date: Tue, 5 Dec 2006 09:02:52 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, magnus.damm@gmail.com,
+       fastboot@lists.osdl.org, ebiederm@xmission.com,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH 00/02] kexec: Move segment code to assembly files
+Message-ID: <20061205140252.GA7959@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061205133757.25725.96929.sendpatchset@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061205133757.25725.96929.sendpatchset@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Tue, Dec 05, 2006 at 10:37:57PM +0900, Magnus Damm wrote:
+> kexec: Move segment code to assembly files
+> 
+> The following patches rearrange the lowlevel kexec code to perform idt,
+> gdt and segment setup code in assembly on the code page instead of doing
+> it in inline assembly in the C files.
+> 
 
-Here comes kernel 2.4.34-rc1.
-It contains a fix for CVE-2006-5871 (smbfs ignoring mount options).
-Thanks to Dann Frazier for the backport of the fix. Other fixes are
-mostly non-serious bugs, which constitute a good reason to produce
-a release candidate.
+I don't think we should be doing this. I would rather prefer code to
+keep in C for easier debugging, readability and maintenance. 
 
-Please test it and build it on several architectures if you can.
-I'll only merge build fixes and critical fixes in forth-coming
--rc if any.
+> Our dom0 Xen port of kexec and kdump executes the code page from the
+> hypervisor when kexec:ing into a new kernel. Putting as much code as
+> possible on the code page allows us to keep the amount of duplicated
+> code low.
+> 
 
-Regards,
-Willy
+Is Xen going upstream now? I heard now lhype+KVM seems to be the way. 
+Even if it is required, we should do it once Xen goes in.
 
-Summary of changes from v2.4.34-pre6 to v2.4.34-rc1
-============================================
+You have already moved page table setup code to assembly and we should
+be getting rid of that code too. 
 
-dann frazier (1):
-      smbfs : don't ignore uid/gid/mode mount opts w/ unix extensions
+I would rather live with duplicated code than moving more code in assembly
+which can be written in C. Understanding and debugging assembly code
+is such a big pain.
 
-Jean Delvare (6):
-      i2c cleanup : typos and whitespace
-      i2c cleanup : dead code removal
-      i2c cleanup : c99 struct init
-      i2c cleanup : simplify code
-      i2c cleanup : resync algo ids
-      i2c cleanup : warning fix
-
-Oliver Neukum (2):
-      fix for transient error in usb printer driver
-      task stte leak in pegasus usb driver
-
-Ralf Baechle (1):
-      Masking bug in 6pack driver
-
-Shaohua Li (1):
-      x86 microcode: dont check the size
-
-Willy Tarreau (8):
-      rio: typo in bitwise AND expression.
-      flashpoint: use '!' instead of '~' with EE_SYNC_MASK
-      jfs: incorrect use of "&&" instead of "&"
-      arm: incorrect use of "&&" instead of "&"
-      e100: incorrect use of "&&" instead of "&"
-      ps2esdi: typo may cause premature timeout
-      fbcon: incorrect use of "&&" instead of "&"
-      Change VERSION to 2.4.34-rc1
-
+Thanks
+Vivek

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760042AbWLEOXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937382AbWLEO1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760042AbWLEOXz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 09:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760136AbWLEOXz
+	id S937382AbWLEO1w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 09:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937376AbWLEO1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 09:23:55 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:58973 "EHLO
-	allen.werkleitz.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760042AbWLEOXy (ORCPT
+	Tue, 5 Dec 2006 09:27:52 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:53131 "EHLO
+	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759846AbWLEO1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 09:23:54 -0500
-Date: Tue, 5 Dec 2006 15:23:39 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Florian Festi <florian@festi.info>, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Message-ID: <20061205142339.GA31748@linuxtv.org>
-References: <45753BB1.6030102@festi.info> <20061205111541.GB6987@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061205111541.GB6987@elf.ucw.cz>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-SA-Exim-Connect-IP: 84.190.172.125
-Subject: Re: Meaning of keycodes unclear
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Tue, 5 Dec 2006 09:27:51 -0500
+Subject: Re: [PATCH 0/3] New firewire stack
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Richter <stefanr@s5r6.in-berlin.de>
+In-Reply-To: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+Content-Type: text/plain
+Date: Tue, 05 Dec 2006 09:46:40 +0100
+Message-Id: <1165308400.2756.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 12:15:41PM +0100, Pavel Machek wrote:
-> On Tue 2006-12-05 10:28:17, Florian Festi wrote:
-> > I am looking for the meaning of the following key codes as #defined in 
-> > include/linux/input.h. I need to know what hardware produces the keycode 
-> > and what happens/should happen when the corresponding key is pressed.
-> > 
-> > KEY_AB
+Hi Kristian,
 
-I'm guessing it's "A/B" key on (TV) remote control, e.g. to switch between
-two input sources
-
-> > KEY_ANGLE
-
-probably DVD or set-top-box remote control key to switch
-between alternate video streams (video viewing angle / camera position)
-
-> > KEY_LIST
-
-might be used on TV remote control for "channel list"
-
-> > KEY_RED, KEY_GREEN, KEY_YELLOW, KEY_BLUE  # Video text navigation?
+> I'm announcing an alternative firewire stack that I've been working on
+> the last few weeks.  I'm aiming to implement feature parity with the
+> current firewire stack, but not necessarily interface compatibility.
+> For now, I have the low-level OHCI driver done, the mid-level
+> transaction logic done, and the SBP-2 (storage) driver is basically
+> done.  What's missing is a streaming interface (in progress) to allow
+> reception and transmission of isochronous data and a userspace
+> interface for controlling devices (much like raw1394 or libusb for
+> usb).  I'm working out of this git repository:
 > 
-> Yes.
+>   http://gitweb.freedesktop.org/?p=users/krh/juju.git
+> 
+> but I'll be sending 3 patches for review after this mail: first the
+> core subsystem, then the OHCI driver and finally the SBP-2 (SCSI over
+> firewire) driver.  For people who want to test this out, the easiest
+> approach right now is to clone the git repo and run make.  This
+> requires the kernel-devel RPM on Fedora Core; I'm sure other distros
+> have a similar package.
 
-these are really application-defined multi-purpose keys,
-not just limited to teletext; present on every European
-TV or set-top-box remote control
+can you please use drivers/firewire/ if you want to start clean or
+aiming at replacing drivers/ieee1394/. Using "fw" as an abbreviation in
+the directory path is not really helpful.
+
+Regards
+
+Marcel
 
 
-HTH,
-Johannes

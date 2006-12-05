@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967382AbWLEFld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967484AbWLEFm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967382AbWLEFld (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 00:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967528AbWLEFld
+	id S967484AbWLEFm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967723AbWLEFm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 00:41:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:57261 "EHLO smtp.osdl.org"
+	Tue, 5 Dec 2006 00:42:56 -0500
+Received: from gate.crashing.org ([63.228.1.57]:57167 "EHLO gate.crashing.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S967382AbWLEFlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 00:41:32 -0500
-Date: Mon, 4 Dec 2006 21:41:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: -mm merge plans for 2.6.20
-Message-Id: <20061204214114.433485fc.akpm@osdl.org>
-In-Reply-To: <4574FC0A.8090607@garzik.org>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<4574FC0A.8090607@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	id S967717AbWLEFmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:42:55 -0500
+Subject: Re: [PATCH 0/3] New firewire stack
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kristian =?ISO-8859-1?Q?H=F8gsberg?= <krh@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Richter <stefanr@s5r6.in-berlin.de>
+In-Reply-To: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 05 Dec 2006 16:42:42 +1100
+Message-Id: <1165297363.29784.54.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 04 Dec 2006 23:56:42 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
-
-> Andrew Morton wrote:
-> > via-pata-controller-xfer-fixes.patch
-> > via-pata-controller-xfer-fixes-fix.patch
+On Tue, 2006-12-05 at 00:22 -0500, Kristian Høgsberg wrote:
+> Hi,
 > 
-> Tejun's 3d3cca37559e3ab2b574eda11ed5207ccdb8980a has been ack'd by the 
-> reporter as fixing things, so these two shouldn't be needed.
+> I'm announcing an alternative firewire stack that I've been working on
+> the last few weeks.  I'm aiming to implement feature parity with the
+> current firewire stack, but not necessarily interface compatibility.
+> For now, I have the low-level OHCI driver done, the mid-level
+> transaction logic done, and the SBP-2 (storage) driver is basically
+> done.  What's missing is a streaming interface (in progress) to allow
+> reception and transmission of isochronous data and a userspace
+> interface for controlling devices (much like raw1394 or libusb for
+> usb).  I'm working out of this git repository:
 
-OK thanks, I dropped it.
+A very very very quick look at the code shows that:
 
-> 
-> > libata_resume_fix.patch
-> 
-> I thought this was resolved long ago?  Are there still open reports that 
-> this solves, where upstream doesn't work?
+ - It looks nice / clear
+ - It's horribly broken in at least two area :
 
-Heck, I don't know.
+ DO NOT USE BITFIELDS FOR DATA ON THE WIRE !!!
 
-> 
-> > ahci-ati-sb600-sata-support-for-various-modes.patch
-> 
-> With the PCI quirk, I thought ATI was finally sorted?
+ and
 
-Was it?  I don't know that either.
+ Where do you handle endianness ? (no need to shout for
+ that one).
 
-I'll drop these too.
+(Or in general, do not use bitfields period ....)
+
+bitfields format is not guaranteed, and is not endian consistent. 
+
+Ben.
+
+

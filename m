@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S966430AbWLEW7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967244AbWLEXAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S966430AbWLEW7a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 17:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S966586AbWLEW7a
+	id S967244AbWLEXAH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 18:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967282AbWLEXAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 17:59:30 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51218 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S966430AbWLEW73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 17:59:29 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Peter Stuge <stuge-linuxbios@cdy.org>,
-       Stefan Reinauer <stepan@coresystems.de>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, "Lu, Yinghai" <yinghai.lu@amd.com>,
-       Andi Kleen <ak@suse.de>, linuxbios@linuxbios.org
-Subject: Re: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-References: <5986589C150B2F49A46483AC44C7BCA4907276@ssvlexmb2.amd.com>
-	<m13b7xf084.fsf@ebiederm.dsl.xmission.com>
-	<m1hcwcuu17.fsf_-_@ebiederm.dsl.xmission.com>
-	<200612042001.09808.david-b@pacbell.net>
-Date: Tue, 05 Dec 2006 04:18:30 -0700
-In-Reply-To: <200612042001.09808.david-b@pacbell.net> (David Brownell's
-	message of "Mon, 4 Dec 2006 20:01:08 -0800")
-Message-ID: <m1fybu7fqx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Tue, 5 Dec 2006 18:00:07 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:51560 "EHLO e6.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S967244AbWLEXAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 18:00:05 -0500
+Message-ID: <4575F929.9020708@us.ibm.com>
+Date: Tue, 05 Dec 2006 14:56:41 -0800
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Matthew Wilcox <matthew@wil.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIA and SiS AGP chipsets are x86-only
+References: <20061204104314.GB3013@parisc-linux.org>
+In-Reply-To: <20061204104314.GB3013@parisc-linux.org>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=AC84030F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell <david-b@pacbell.net> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sunday 03 December 2006 9:09 pm, Eric W. Biederman wrote:
->>
->> My driver should be sufficient to work with any EHCI in a realatively
->> clean state, and needs no special BIOS support just the hardware.
->> This appears to be different than the way the windows drivers are
->> using these debug devices.
->
-> I'm glad to see someone finally got progress on this ... :)
->
-> Separately, I forwarded some stuff I did last year ... maybe it'll help.
-> You seem to have gotten further.  Have you also observed that the
-> NetChip device seems to have polarity issues, such that only one
-> end behaves properly?
+Matthew Wilcox wrote:
+> There's no point in troubling the Alpha, IA-64, PowerPC and PARISC
+> people with SiS and VIA options.  Andrew thinks it helps find bugs,
+> but there's no evidence of that.
+> 
+> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+> 
+> diff --git a/drivers/char/agp/Kconfig b/drivers/char/agp/Kconfig
+> index c603bf2..a9f9c48 100644
+> --- a/drivers/char/agp/Kconfig
+> +++ b/drivers/char/agp/Kconfig
+> @@ -86,7 +86,7 @@ config AGP_NVIDIA
+> 
+>  config AGP_SIS
+>  	tristate "SiS chipset support"
+> -	depends on AGP
+> +	depends on AGP && X86
+>  	help
+>  	  This option gives you AGP support for the GLX component of
+>  	  X on Silicon Integrated Systems [SiS] chipsets.
+> @@ -103,7 +103,7 @@ config AGP_SWORKS
+> 
+>  config AGP_VIA
+>  	tristate "VIA chipset support"
+> -	depends on AGP
+> +	depends on AGP && X86
+>  	help
+>  	  This option gives you AGP support for the GLX component of
+>  	  X on VIA MVP3/Apollo Pro chipsets.
 
-I haven't yet.  But I don't think I have actually tried turning
-the cable around in a very meaningful way yet either.  Possibly
-this is something that has been fixed.  I know there are some
-odd issues that I have encountered.  Like occasionally I would
-need to stop the software on one side, or I would need to unplug
-it when things got sufficiently confused.
+I don't know about SiS, but this is certainly *not* true for Via.  There
+are some PowerPC and, IIRC, Alpha motherboards that have Via chipsets.
+My config-fu isn't quite what it should be, so this may be a dumb
+question.  Does the "& X86" requirement exclude x86-64?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-> Note that this should **NOT** be specific to x86_64, since pretty
-> much any PCI based EHCI can do this.  I wouldn't be able to use
-> this on my NForce2 box, for example ...
-
-So I took a quick look what it would take to do this truly generically
-and even initializing this generally when console code typically
-is registered looks like a problem.  Although only because we don't
-get around to setting up pci_config space access helpers in a timely
-manner.  To some extent that still sucks because you are still being
-initialized before the general ehci-hcd code.
-
-Regardless an arch specific i386 variant was easy to throw together.
-It still needs a bit of work but it basically worked.
-
-> As for EHCI registers, if this really _needs_ to live outside
-> of drivers/usb/host, then I'd suggest <linux/usb/ehci.h> for
-> the relevant declarations ... the <linux/usb/*.h> headers are
-> provided exactly for sharing such declaration between otherwise
-> unrelated parts of the tree.
-
-Yep that sounds like the right thing to do.  I think I at least
-need to be called from something outside of drivers/usb and may
-need the code there.
-
-Doing this in a truly generic fashion looks like a major pain.
-Because all of the infrastructure needs to be fixed.
-
-Eric
+iD8DBQFFdfkpX1gOwKyEAw8RAmh9AJ42g79Q9isQ0mzy87ILFn8pyW9AjACfWFdu
+DvPS3GGDJyFfYfaf/8b5H4Y=
+=NlmP
+-----END PGP SIGNATURE-----

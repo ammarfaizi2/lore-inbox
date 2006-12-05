@@ -1,212 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031508AbWLEVQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031500AbWLEVSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031508AbWLEVQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 16:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031503AbWLEVQ2
+	id S1031500AbWLEVSL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 16:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031519AbWLEVSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 16:16:28 -0500
-Received: from mailer.gwdg.de ([134.76.10.26]:46253 "EHLO mailer.gwdg.de"
+	Tue, 5 Dec 2006 16:18:10 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33716 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031494AbWLEVQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 16:16:27 -0500
-Date: Tue, 5 Dec 2006 22:09:19 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       hch@infradead.org, viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       mhalcrow@us.ibm.com
-Subject: Re: [PATCH 16/35] Unionfs: Copyup Functionality
-In-Reply-To: <1165235470298-git-send-email-jsipek@cs.sunysb.edu>
-Message-ID: <Pine.LNX.4.61.0612052202250.18570@yvahk01.tjqt.qr>
-References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
- <1165235470298-git-send-email-jsipek@cs.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1031500AbWLEVSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 16:18:07 -0500
+Date: Tue, 5 Dec 2006 22:17:23 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -mm merge plans for 2.6.20, scheduler bits
+Message-ID: <20061205211723.GA7169@elte.hu>
+References: <20061204204024.2401148d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0049]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 4 2006 07:30, Josef 'Jeff' Sipek wrote:
->+/* Determine the mode based on the copyup flags, and the existing dentry. */
->+static int copyup_permissions(struct super_block *sb,
->+			      struct dentry *old_hidden_dentry,
->+			      struct dentry *new_hidden_dentry)
->+{
->+	struct inode *i = old_hidden_dentry->d_inode;
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Screams for constification. (Or rather I do.)
+> schedc-correct-comment-for-this_rq_lock-routine.patch
+> sched-fix-migration-cost-estimator.patch
+> sched-domain-move-sched-group-allocations-to-percpu-area.patch
 
->+{
->+	int err = 0;
->+	umode_t old_mode = old_hidden_dentry->d_inode->i_mode;
+(already acked)
 
-Generel question for everybody: Why do we have two same (at least on i386
-that's the case) types, umode_t and mode_t?
+> move_task_off_dead_cpu-should-be-called-with-disabled-ints.patch
 
->+	} else if (S_ISBLK(old_mode)
->+		   || S_ISCHR(old_mode)
->+		   || S_ISFIFO(old_mode)
->+		   || S_ISSOCK(old_mode)) {
->+		args.mknod.parent = new_hidden_parent_dentry->d_inode;
->+		args.mknod.dentry = new_hidden_dentry;
->+		args.mknod.mode = old_mode;
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-I'd say the indent got screwed up, and it's not a mailer thing.
+> sched-domain-increase-the-smt-busy-rebalance-interval.patch
 
->+	} else if (S_ISBLK(old_mode)
->+	    || S_ISCHR(old_mode)
->+	    || S_ISFIFO(old_mode)
->+	    || S_ISSOCK(old_mode)) {
->+		args.mknod.parent = new_hidden_parent_dentry->d_inode;
->+		args.mknod.dentry = new_hidden_dentry;
->+		args.mknod.mode = old_mode;
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Try this ^^^. Or even this vvv:
+> sched-avoid-taking-rq-lock-in-wake_priority_sleeper.patch
 
->+	} else if (S_ISBLK(old_mode) || S_ISCHR(old_mode) ||
->+	    S_ISFIFO(old_mode) || S_ISSOCK(old_mode)) {
->+		args.mknod.parent = new_hidden_parent_dentry->d_inode;
->+		args.mknod.dentry = new_hidden_dentry;
->+		args.mknod.mode = old_mode;
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
+> sched-remove-staggering-of-load-balancing.patch
 
->+static inline int __copyup_reg_data(struct dentry *dentry,
->+				    struct dentry *new_hidden_dentry,
->+				    int new_bindex,
->+				    struct dentry *old_hidden_dentry,
->+				    int old_bindex,
->+				    struct file **copyup_file,
->+				    loff_t len)
->+{
->+	struct super_block *sb = dentry->d_sb;
->+	struct file *input_file;
->+	struct file *output_file;
->+	mm_segment_t old_fs;
->+	char *buf = NULL;
->+	ssize_t read_bytes, write_bytes;
->+	loff_t size;
->+	int err = 0;
->+
->+	/* open old file */
->+	mntget(unionfs_lower_mnt_idx(dentry, old_bindex));
->+	branchget(sb, old_bindex);
->+	input_file = dentry_open(old_hidden_dentry,
->+			unionfs_lower_mnt_idx(dentry, old_bindex), O_RDONLY | O_LARGEFILE);
->+	if (IS_ERR(input_file)) {
->+		dput(old_hidden_dentry);
->+		err = PTR_ERR(input_file);
->+		goto out;
->+	}
->+	if (!input_file->f_op || !input_file->f_op->read) {
->+		err = -EINVAL;
->+		goto out_close_in;
->+	}
->+
->+	/* open new file */
->+	dget(new_hidden_dentry);
->+	mntget(unionfs_lower_mnt_idx(dentry, new_bindex));
->+	branchget(sb, new_bindex);
->+	output_file = dentry_open(new_hidden_dentry,
->+			unionfs_lower_mnt_idx(dentry, new_bindex), O_WRONLY | O_LARGEFILE);
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Here we got an 80-column buster.
+> sched-disable-interrupts-for-locking-in-load_balance.patch
 
->+	if (IS_ERR(output_file)) {
->+		err = PTR_ERR(output_file);
->+		goto out_close_in2;
->+	}
->+	if (!output_file->f_op || !output_file->f_op->write) {
->+		err = -EINVAL;
->+		goto out_close_out;
->+	}
->+
->+	/* allocating a buffer */
->+	buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
->+	if (!buf) {
->+		err = -ENOMEM;
->+		goto out_close_out;
->+	}
->+
->+	input_file->f_pos = 0;
->+	output_file->f_pos = 0;
->+
->+	old_fs = get_fs();
->+	set_fs(KERNEL_DS);
->+
->+	size = len;
->+	err = 0;
->+	do {
->+		if (len >= PAGE_SIZE)
->+			size = PAGE_SIZE;
->+		else if ((len < PAGE_SIZE) && (len > 0))
->+			size = len;
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Some redundant () here.
+> sched-extract-load-calculation-from-rebalance_tick.patch
 
->+
->+		len -= PAGE_SIZE;
->+
->+		read_bytes =
->+		    input_file->f_op->read(input_file,
->+					   (char __user *)buf, size,
->+					   &input_file->f_pos);
->+		if (read_bytes <= 0) {
->+			err = read_bytes;
->+			break;
->+		}
->+
->+		write_bytes =
->+		    output_file->f_op->write(output_file,
->+					     (char __user *)buf,
->+					     read_bytes,
->+					     &output_file->f_pos);
->+		if (write_bytes < 0 || (write_bytes < read_bytes)) {
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-dit(t)o
+> sched-move-idle-status-calculation-into-rebalance_tick.patch
 
->+			err = write_bytes;
->+			break;
->+		}
->+	} while ((read_bytes > 0) && (len > 0));
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-~
+> sched-use-softirq-for-load-balancing.patch
 
->+
->+	set_fs(old_fs);
->+
->+	kfree(buf);
->+
->+	if (err)
->+		goto out_close_out;
->+	if (copyup_file) {
->+		*copyup_file = output_file;
->+		goto out_close_in;
->+	}
->+
->+out_close_out:
->+	fput(output_file);
->+
->+out_close_in2:
->+	branchput(sb, new_bindex);
->+
->+out_close_in:
->+	fput(input_file);
->+
->+out:
->+	branchput(sb, old_bindex);
->+
->+	return err;
->+}
->+
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
->+	/* TODO: should we reset the error to something like -EIO? */
+> sched-call-tasklet-less-frequently.patch
 
-Handle it :)  - if it does not take a paper.
+patch is misnamed, otherwise:
 
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
+> sched-add-option-to-serialize-load-balancing.patch
+> sched-add-option-to-serialize-load-balancing-fix.patch
 
+(please merge these two patches into one, the first one is not 
+bisectable.)
 
-	-`J'
--- 
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+> sched-improve-migration-accuracy.patch
+> sched-improve-migration-accuracy-tidy.patch
+> sched-improve-migration-accuracy-fix.patch
+
+please merge into one patch.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+> sched-decrease-number-of-load-balances.patch
+
+this one goes away as per Ken's observation.
+
+> sched-optimize-activate_task-for-rt-task.patch
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+> kernel-schedc-whitespace-cleanups.patch
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+i dont like these:
+
+-               cost1 += measure_one(cache, size - i*1024, cpu1, cpu2);
++               cost1 += measure_one(cache, size - i * 1024, cpu1, cpu2);
+
+as it's quite OK to have no spaces in "i*1024", just to indicate 
+precedence of arithmetic ops. But the good bits dominate in this patch 
+so lets have it and i'll undo the bad ones.
+
+> kernel-schedc-whitespace-cleanups-more.patch
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967391AbWLEXQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S967744AbWLEXXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S967391AbWLEXQa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 18:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967467AbWLEXQa
+	id S967744AbWLEXXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 18:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S967745AbWLEXXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 18:16:30 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:33621 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S967391AbWLEXQ3 (ORCPT
+	Tue, 5 Dec 2006 18:23:19 -0500
+Received: from mo-p07-ob.rzone.de ([81.169.146.188]:23107 "EHLO
+	mo-p07-ob.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S967744AbWLEXXR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 18:16:29 -0500
-Date: Tue, 5 Dec 2006 18:16:23 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] fsstack: Fix up ecryptfs's fsstack usage
-Message-ID: <20061205231623.GB7300@filer.fsl.cs.sunysb.edu>
-References: <20061204204024.2401148d.akpm@osdl.org> <20061205191824.GB2240@filer.fsl.cs.sunysb.edu> <20061205192231.GD2240@filer.fsl.cs.sunysb.edu> <20061205142831.9cb3e91c.akpm@osdl.org> <20061205223807.GA7300@filer.fsl.cs.sunysb.edu> <20061205144913.fea98946.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Dec 2006 18:23:17 -0500
+Date: Wed, 6 Dec 2006 00:23:02 +0100 (MET)
+From: Olaf Hering <olaf@aepfle.de>
+To: Kristian =?utf-8?B?SMO4Z3NiZXJn?= <krh@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+Message-ID: <20061205232154.GA14340@aepfle.de>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20061205144913.fea98946.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 02:49:13PM -0800, Andrew Morton wrote:
-> On Tue, 5 Dec 2006 17:38:07 -0500
-> Josef Sipek <jsipek@fsl.cs.sunysb.edu> wrote:
-> 
-> > > When your patches are queued in -mm please do test them there, and review
-> > > others' changes to them, and raise patches against them.  Raising patches
-> > > against one's private tree and not testing the code which is planned to be
-> > > merged can introduce errors.
-> > 
-> > Sorry about that. I noticed your fix, and the one by Adrian. And I did add
-> > them to my fsstack queue.
-> 
-> you don't have an fsstack queue any more ;)
+On Tue, Dec 05, Kristian Høgsberg wrote:
 
-Good point :)
+> I'm announcing an alternative firewire stack that I've been working on
 
-> Please, I really do want developers to test their code in -mm once I've
-> merged it.  What happens if there's some nasty interaction between your
-> patch and someone else's?  We'll not find out about it and it'll get
-> merged.
-
-Point taken.
-
-Josef "Jeff" Sipek.
-
--- 
-I already backed up the box once, I can do it again.
+I suggest you hash out the most obvious bugs in -mm.
+Once it you have it in a reasonable shape, replace the drivers in
+drivers/ieee1394 in one go.
+Its just not worth the pain to switch from module a.ko to module b.ko,
+keep the name a.ko because its the very same functionality after all.

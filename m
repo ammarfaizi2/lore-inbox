@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968355AbWLEE6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968352AbWLEFI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968355AbWLEE6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Dec 2006 23:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968362AbWLEE6P
+	id S968352AbWLEFI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 00:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968358AbWLEFI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Dec 2006 23:58:15 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:42392 "EHLO mail.dvmed.net"
+	Tue, 5 Dec 2006 00:08:59 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:2374 "EHLO tuxrocks.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968355AbWLEE6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Dec 2006 23:58:14 -0500
-Message-ID: <4574FC61.30804@garzik.org>
-Date: Mon, 04 Dec 2006 23:58:09 -0500
-From: Jeff Garzik <jeff@garzik.org>
+	id S968352AbWLEFI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 00:08:59 -0500
+Message-ID: <4574FEDF.2010205@tuxrocks.com>
+Date: Mon, 04 Dec 2006 23:08:47 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
 User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix up compiler warnings in megaraid driver
-References: <4574D8EB.1060104@google.com>
-In-Reply-To: <4574D8EB.1060104@google.com>
+To: art@usfltd.com
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] Re: 2.6.19 git compile error - "current_is_keventd"	[drivers/net/phy/libphy.ko]
+ undefined
+References: <20061204180731.jeedbekf4f0g8ww0@69.222.0.225>
+In-Reply-To: <20061204180731.jeedbekf4f0g8ww0@69.222.0.225>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> Fix up compiler warnings in megaraid driver
+art@usfltd.com wrote:
+> to: linux-kernel@vger.kernel.org
+> cc: torvalds@osdl.org
 > 
-> Signed-off-by: Martin J. Bligh <mbligh@google.com>
+> 2006/12/04/18:00 CST
 > 
+>   Building modules, stage 2.
+> Kernel: arch/x86_64/boot/bzImage is ready  (#2)
+>   MODPOST 1256 modules
+> WARNING: "current_is_keventd" [drivers/net/phy/libphy.ko] undefined!
+> make[1]: *** [__modpost] Error 1
+> make: *** [modules] Error 2
 > 
-> ------------------------------------------------------------------------
-> 
-> diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.19/drivers/scsi/megaraid.c 2.6.19-megaraid/drivers/scsi/megaraid.c
-> --- linux-2.6.19/drivers/scsi/megaraid.c	2006-12-04 17:52:00.000000000 -0800
-> +++ 2.6.19-megaraid/drivers/scsi/megaraid.c	2006-12-04 18:24:03.000000000 -0800
-> @@ -73,10 +73,14 @@ static unsigned short int max_mbox_busy_
->  module_param(max_mbox_busy_wait, ushort, 0);
->  MODULE_PARM_DESC(max_mbox_busy_wait, "Maximum wait for mailbox in microseconds if busy (default=MBOX_BUSY_WAIT=10)");
->  
-> -#define RDINDOOR(adapter)		readl((adapter)->base + 0x20)
-> -#define RDOUTDOOR(adapter)		readl((adapter)->base + 0x2C)
-> -#define WRINDOOR(adapter,value)		writel(value, (adapter)->base + 0x20)
-> -#define WROUTDOOR(adapter,value)	writel(value, (adapter)->base + 0x2C)
-> +#define RDINDOOR(adapter)		readl((volatile void __iomem *) \
-> +							(adapter)->base + 0x20)
-> +#define RDOUTDOOR(adapter)		readl((volatile void __iomem *) \
-> +							(adapter)->base + 0x2C)
-> +#define WRINDOOR(adapter,value)		writel(value, (volatile void __iomem *)\
-> +							(adapter)->base + 0x20)
-> +#define WROUTDOOR(adapter,value)	writel(value, (volatile void __iomem *)\
-> +							(adapter)->base + 0x2C)
->  
->  /*
->   * Global variables
+> xboom
 
-I posted a better fix just yesterday...
+Here's a patch with the easy fix, but I'm not certain it's a permanent fix.
 
-	Jeff
+Frank
 
+This patch fixes a compile error when CONFIG_PHYLIB is a module.
 
+Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
+
+---
+  kernel/workqueue.c |    1 +
+  1 file changed, 1 insertion(+)
+
+Index: linux-2.6.19-fs1/kernel/workqueue.c
+===================================================================
+--- linux-2.6.19-fs1.orig/kernel/workqueue.c	2006-12-04 
+22:21:06.000000000 -0600
++++ linux-2.6.19-fs1/kernel/workqueue.c	2006-12-04 22:59:55.000000000 -0600
+@@ -608,6 +608,7 @@
+  	return ret;
+
+  }
++EXPORT_SYMBOL_GPL(current_is_keventd);
+
+  #ifdef CONFIG_HOTPLUG_CPU
+  /* Take the work from this (downed) CPU. */

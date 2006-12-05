@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968272AbWLEPLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968279AbWLEPMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968272AbWLEPLy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 10:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968283AbWLEPLy
+	id S968279AbWLEPMt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 10:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968282AbWLEPMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 10:11:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47530 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968272AbWLEPLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 10:11:53 -0500
-Message-ID: <45758C16.5010905@redhat.com>
-Date: Tue, 05 Dec 2006 16:11:18 +0100
-From: Milan Broz <mbroz@redhat.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: stable@kernel.org, linux-kernel@vger.kernel.org
-CC: Alasdair G Kergon <agk@redhat.com>,
-       device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH][STABLE 2.6.18] dm snapshot: fix freeing pending exception
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Dec 2006 10:12:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1659 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S968279AbWLEPMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 10:12:47 -0500
+Date: Tue, 5 Dec 2006 14:42:00 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] SLAB : use a multiply instead of a divide in obj_to_index()
+Message-ID: <20061205144159.GB4388@ucw.cz>
+References: <4564C28B.30604@redhat.com> <4573B8DE.20205@redhat.com> <20061203222816.aaef93a3.akpm@osdl.org> <200612041741.51846.dada1@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612041741.51846.dada1@cosmosbay.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix oops when removing full snapshot
-kernel bugzilla bug 7040
+Hi!
 
-If a snapshot became invalid (full) while there is outstanding 
-pending_exception, pending_complete() forgets to remove
-the corresponding exception from its exception table before freeing it.
+> When some objects are allocated by one CPU but freed by another CPU we can 
+> consume lot of cycles doing divides in obj_to_index().
+> 
+> (Typical load on a dual processor machine where network interrupts are handled 
+> by one particular CPU (allocating skbufs), and the other CPU is running the 
+> application (consuming and freeing skbufs))
+> 
+> Here on one production server (dual-core AMD Opteron 285), I noticed this 
+> divide took 1.20 % of CPU_CLK_UNHALTED events in kernel. But Opteron are 
+> quite modern cpus and the divide is much more expensive on oldest 
+> architectures :
+> 
+> On a 200 MHz sparcv9 machine, the division takes 64 cycles instead of 1 cycle 
+> for a multiply.
+> 
+> Doing some math, we can use a reciprocal multiplication instead of a divide.
+> 
+> If we want to compute V = (A / B)  (A and B being u32 quantities)
+> we can instead use :
+> 
+> V = ((u64)A * RECIPROCAL(B)) >> 32 ;
+> 
+> where RECIPROCAL(B) is precalculated to ((1LL << 32) + (B - 1)) / B
 
-Already fixed in 2.6.19.
+Well, I guess it should be gcc doing this optimalization, not we by
+hand. And I believe gcc *is* smart enough to do it in some cases...
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
+							pavel
 
-Index: linux-2.6.18.5/drivers/md/dm-snap.c
-===================================================================
---- linux-2.6.18.5.orig/drivers/md/dm-snap.c	2006-12-02 01:13:05.000000000 +0100
-+++ linux-2.6.18.5/drivers/md/dm-snap.c	2006-12-04 17:55:28.000000000 +0100
-@@ -691,6 +691,7 @@ static void pending_complete(struct pend
- 
- 		free_exception(e);
- 
-+		remove_exception(&pe->e);
- 		error_snapshot_bios(pe);
- 		goto out;
- 	}
-
-
+-- 
+Thanks for all the (sleeping) penguins.

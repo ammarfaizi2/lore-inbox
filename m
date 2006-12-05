@@ -1,58 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937428AbWLEH1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937470AbWLEHeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937428AbWLEH1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 02:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937467AbWLEH1R
+	id S937470AbWLEHeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 02:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937469AbWLEHeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 02:27:17 -0500
-Received: from nf-out-0910.google.com ([64.233.182.188]:11495 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937428AbWLEH1Q (ORCPT
+	Tue, 5 Dec 2006 02:34:22 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:43402 "EHLO
+	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937467AbWLEHeV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 02:27:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=i7EOGIA4e/Ny7D8z4jROOwRIaimwxIF1qZq8w5AvG21Wocc+58SjtdrKFVqTOAHchnKCBqf3FHZ1yQ/bqFVkNChKDvNJHA+EN0y/hyL/+kY5KwlbdOFj9qS9ntOUbp1bvDJmWRnHdQFd6txcGtWYv4s6hoauzJrc2Nt+SdOOErs=
-Message-ID: <45751F19.9010208@gmail.com>
-Date: Tue, 05 Dec 2006 08:26:17 +0100
-From: Rene Herman <rene.herman@gmail.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+	Tue, 5 Dec 2006 02:34:21 -0500
+Message-ID: <4575212A.3020902@jp.fujitsu.com>
+Date: Tue, 05 Dec 2006 16:35:06 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Aucoin@Houston.RR.com, "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       clameter@sgi.com
-Subject: Re: la la la la ... swappiness
-References: <200612050641.kB56f7wY018196@ms-smtp-06.texas.rr.com> <45751955.8010506@yahoo.com.au>
-In-Reply-To: <45751955.8010506@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: linux-ia64@vger.kernel.org
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] CPEI gets warning at kernel/irq/migration.c:27/move_masked_irq()
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+Hi,
 
-> Aucoin wrote:
+While running my MCA test (hardware error injection) on 2.6.19,
+I got some warning like following:
 
->> Ummm, shm_open, ftruncate, mmap ? Is it a trick question ? The process
->> responsible for initially setting up the shared area doesn't stay 
->> resident.
-> 
-> The issue is that the shm pages should show up in the active and
-> inactive lists. But they aren't, and you seem to have about 1542524K
-> unacconted for. Weird.
-> 
-> Can you try getting the output of /proc/vmstat as well?
+> BUG: warning at kernel/irq/migration.c:27/move_masked_irq()
+>
+> Call Trace:
+>  [<a000000100013d20>] show_stack+0x40/0xa0
+>                                 sp=e00000006b2578d0 bsp=e00000006b2510b0
+>  [<a000000100013db0>] dump_stack+0x30/0x60
+>                                 sp=e00000006b257aa0 bsp=e00000006b251098
+>  [<a0000001000de430>] move_masked_irq+0xb0/0x240
+>                                 sp=e00000006b257aa0 bsp=e00000006b251070
+>  [<a0000001000de6a0>] move_native_irq+0xe0/0x180
+>                                 sp=e00000006b257aa0 bsp=e00000006b251040
+>  [<a00000010004ff50>] iosapic_end_level_irq+0x30/0xe0
+>                                 sp=e00000006b257aa0 bsp=e00000006b251020
+>  [<a0000001000d94d0>] __do_IRQ+0x170/0x400
+>                                 sp=e00000006b257aa0 bsp=e00000006b250fd8
+>  [<a0000001000116f0>] ia64_handle_irq+0x1b0/0x260
+>                                 sp=e00000006b257aa0 bsp=e00000006b250fa8
+>  [<a00000010000c3a0>] ia64_leave_kernel+0x0/0x280
+>                                 sp=e00000006b257aa0 bsp=e00000006b250fa8
+>  [<a000000100690cf0>] _spin_unlock_irqrestore+0x30/0x60
+>                                 sp=e00000006b257c70 bsp=e00000006b250f90
 
-Haven't followed along on this thread, but couldn't help notice the 
-ftruncate there and some similarity to a problem I once experienced 
-myself. Is ext3 involved? If so, maybe:
+It comes from:
 
-http://mail.nl.linux.org/linux-mm/2002-11/msg00110.html
+[kernel/irq/migration.c]
+  26         if (CHECK_IRQ_PER_CPU(desc->status)) {
+  27                 WARN_ON(1);
+  28                 return;
+  29         }
 
-is still or again being annoying?
+By putting some printk in kernel, I found that irqbalance is trying to
+move CPEI which is handled as PER_CPU irq. That's why.
 
-Rene.
+CPEI(Corrected Platform Error Interrupt) is ia64 specific irq, is
+allowed to pin to particular processor which selected by the platform, and
+even it is PER_CPU but it has set_affinity handler (=iosapic_set_affinity)
+as same as other IO-SAPIC-level interrupts. (I don't know why, but
+I guess that there would be typical situation where the handler for
+migration is needed, such as hotplug - the processor going to be
+offline/hot-removed.)
+
+To shut up this warning, there are 2 way at least:
+ a) fix CPEI stuff
+ b) prohibit setting affinity to PER_CPU irq
+
+I'm not sure what stuff of CPEI need to be fixed, but I think that
+returning error to attempting move PER_CPU irq is useful for all
+applications since it will never work.
+
+Following small patch takes b) style.
+It works, the warning disappeared and irqbalance still runs well.
+
+Thanks,
+H.Seto
+
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+
+---
+ kernel/irq/proc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.19/kernel/irq/proc.c
+===================================================================
+--- linux-2.6.19.orig/kernel/irq/proc.c
++++ linux-2.6.19/kernel/irq/proc.c
+@@ -54,7 +54,8 @@ static int irq_affinity_write_proc(struc
+ 	unsigned int irq = (int)(long)data, full_count = count, err;
+ 	cpumask_t new_value, tmp;
+
+-	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity)
++	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity ||
++				CHECK_IRQ_PER_CPU(irq_desc[irq].status))
+ 		return -EIO;
+
+ 	err = cpumask_parse_user(buffer, count, new_value);
+
 

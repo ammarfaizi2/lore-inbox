@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968442AbWLEQcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968443AbWLEQcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968442AbWLEQcV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 11:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968440AbWLEQcV
+	id S968443AbWLEQcc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 11:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968444AbWLEQcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 11:32:21 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:57203 "EHLO 2ka.mipt.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S968435AbWLEQcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 11:32:20 -0500
-Date: Tue, 5 Dec 2006 19:31:33 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Steve Wise <swise@opengridcomputing.com>
-Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH  v2 04/13] Connection Manager
-Message-ID: <20061205163008.GA30211@2ka.mipt.ru>
-References: <20061202224917.27014.15424.stgit@dell3.ogc.int> <20061202224958.27014.65970.stgit@dell3.ogc.int> <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com> <20061205050725.GA26033@2ka.mipt.ru> <1165330925.16087.13.camel@stevo-desktop> <20061205151905.GA18275@2ka.mipt.ru> <1165333198.16087.53.camel@stevo-desktop> <20061205155932.GA32380@2ka.mipt.ru> <1165335162.16087.79.camel@stevo-desktop>
+	Tue, 5 Dec 2006 11:32:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60580 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968443AbWLEQca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 11:32:30 -0500
+Subject: Re: irq/0/smp_affinity =3 doesn't seem to work
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <5d96567b0612050830s1b0c0708s3f796d85227f1285@mail.gmail.com>
+References: <5d96567b0612050830s1b0c0708s3f796d85227f1285@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 05 Dec 2006 17:32:26 +0100
+Message-Id: <1165336346.3233.382.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <1165335162.16087.79.camel@stevo-desktop>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 05 Dec 2006 19:32:01 +0300 (MSK)
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 10:12:42AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
-> Ah.  Data from an offloaded connection cannot leak into the main stack
-> nor vice-verse.  We can take an active RDMA connection establishment as
-> an example if you want:  Once the message is sent to the HW to "setup a
-> TCP connection from addr/port a.b to addr/port c.d", then packets on
-> that connection (that 4-tuple) will always be delivered to the RDMA
-> driver, not the native stack.  If the the packet received after the
-> connection is setup is -not- an MPA reply (in this example), then the
-> connection is aborted.  Once the connection is aborted.  So no leaking
-> can happen.
- 
-And if there were a dataflow between addr/port a.b to addr/port c.d
-already, it will either terminated?
+On Tue, 2006-12-05 at 18:30 +0200, Raz Ben-Jehuda(caro) wrote:
+> hello.
+> 
+> I have a dual cpu AMD machine, I noticed that
+> only one timer0 is working in /proc/interrutps.
+> setting proc/irq/0/smp_affinity to 3 does make
+> any difference.
 
-Considering the following sequence:
-handlers->t3c_handlers->sched()->work_queue->work_handlers()->for
-example CPL_PASS_ACCEPT_REQ->pass_accept_req() - it just parses incoming
-skb and sets port/addr/route and other fields to be used as a base for rdma
-connection. What if it just a usual network packet from kernelspace or 
-userspace with the same payload as should be sent by remote rdma system?
+if you set it to 3 then the chipset gets to decide where the irq goes.
+Many decide to send it to the first cpu. 
+
+(not that it matters, the timer is so low frequency that it can go
+anywhere without problems)
 
 -- 
-	Evgeniy Polyakov
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

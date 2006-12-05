@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968070AbWLENi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968209AbWLENuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968070AbWLENi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 08:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968185AbWLENi0
+	id S968209AbWLENuW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 08:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968210AbWLENuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 08:38:26 -0500
-Received: from fms-01.valinux.co.jp ([210.128.90.1]:60314 "EHLO
-	mail.valinux.co.jp" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S968070AbWLENiZ (ORCPT
+	Tue, 5 Dec 2006 08:50:22 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:61970 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968209AbWLENuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 08:38:25 -0500
-From: Magnus Damm <magnus@valinux.co.jp>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, magnus.damm@gmail.com,
-       fastboot@lists.osdl.org, Magnus Damm <magnus@valinux.co.jp>,
-       ebiederm@xmission.com, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>
-Date: Tue, 05 Dec 2006 22:37:57 +0900
-Message-Id: <20061205133757.25725.96929.sendpatchset@localhost>
-Subject: [PATCH 00/02] kexec: Move segment code to assembly files
+	Tue, 5 Dec 2006 08:50:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=j7aEtlQGMzXYQjYkw/NLmuXodq+lWxi2GchVQNFFDdF38Rr3lXmmrykS4goZxFNGz515JYzAv35lfVaBMKWPpowu9Yeq0JOTQau1qDEoDwItzFOJzSWIccADPCFBzJhIjBvOTrqAFn2Hbzli4nYpgzTVnYWPKGHZH88LInlDnz8=
+Message-ID: <457578E2.6040108@gmail.com>
+Date: Tue, 05 Dec 2006 14:49:22 +0100
+From: Rene Herman <rene.herman@gmail.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Aucoin@Houston.RR.com
+CC: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Tim Schmielau'" <tim@physik3.uni-rostock.de>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       clameter@sgi.com
+Subject: Re: la la la la ... swappiness
+References: <200612051327.kB5DRDwr011027@ms-smtp-01.texas.rr.com>
+In-Reply-To: <200612051327.kB5DRDwr011027@ms-smtp-01.texas.rr.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kexec: Move segment code to assembly files
+Aucoin wrote:
 
-The following patches rearrange the lowlevel kexec code to perform idt,
-gdt and segment setup code in assembly on the code page instead of doing 
-it in inline assembly in the C files.
+>> From: Rene Herman [mailto:rene.herman@gmail.com] ftruncate there
+>> and some similarity to a problem I once experienced
+> 
+> I can't honestly say I completely grasp the fundamentals of the issue
+> you experienced but we are using ext3 with data=journal
 
-Our dom0 Xen port of kexec and kdump executes the code page from the 
-hypervisor when kexec:ing into a new kernel. Putting as much code as
-possible on the code page allows us to keep the amount of duplicated 
-code low.
+Rereading I see ext3 isn't involved at all but perhaps the ftruncate 
+does something similar here as it did on ext3? Andrew? It's probably 
+best to igniore me, I also never quite understood what the problem on 
+ext3 was. Just thought I'd share the hunch anyway...
 
-These patches are part of the Xen port of kexec and kdump which recently 
-has been accepted into the xen-unstable.hg tree. Sending them upstream
-now is an attempt to simplify future porting work.
+Rene.
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
----
-
- Applies to 2.6.19.
-
- arch/i386/kernel/machine_kexec.c     |   59 ----------------------------------
- arch/i386/kernel/relocate_kernel.S   |   58 ++++++++++++++++++++++++++++++---
- arch/x86_64/kernel/machine_kexec.c   |   58 ---------------------------------
- arch/x86_64/kernel/relocate_kernel.S |   50 +++++++++++++++++++++++++---
- 4 files changed, 98 insertions(+), 127 deletions(-)

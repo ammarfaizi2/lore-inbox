@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1754278AbWLEXp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1755649AbWLEXtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1754278AbWLEXp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 18:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1755519AbWLEXp7
+	id S1755649AbWLEXtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 18:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1756548AbWLEXtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 18:45:59 -0500
-Received: from wr-out-0506.google.com ([64.233.184.228]:55028 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754278AbWLEXp6 (ORCPT
+	Tue, 5 Dec 2006 18:49:16 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:11062 "EHLO
+	sj-iport-2.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755649AbWLEXtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 18:45:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZYrrji3XL9nlL+YVy5WHjPQvFsBfEpzxWP8qzr0VJs/ozJZcZU0APWbY94wPKHMXzUc+L9mH+gsf9ZzT7ljRBREkPYZUD0WHoJvqfRDWA0S/Px+lopMJjn4Z7dHYLGv8hF2BRo48nr3GsGxmzq4OrrA9y4LSv6PZrkz0Fhp3p6w=
-Message-ID: <b3234d300612051545s7d765eaar3c07d30fd6e0462@mail.gmail.com>
-Date: Tue, 5 Dec 2006 17:45:57 -0600
-From: "JAK anon" <jakk127@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: xtables/iptables and atkbd.c Spurious ACK on isa0060/serio0
+	Tue, 5 Dec 2006 18:49:15 -0500
+X-IronPort-AV: i="4.09,501,1157353200"; 
+   d="scan'208"; a="351508595:sNHT43264644"
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Fleming <afleming@freescale.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+X-Message-Flag: Warning: May contain useful information
+References: <1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+	<20061205123958.497a7bd6.akpm@osdl.org>
+	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+	<20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
+	<20061205135753.9c3844f8.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 05 Dec 2006 15:49:09 -0800
+In-Reply-To: <20061205135753.9c3844f8.akpm@osdl.org> (Andrew Morton's message of "Tue, 5 Dec 2006 13:57:53 -0800")
+Message-ID: <adairgpc39m.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 05 Dec 2006 23:49:12.0431 (UTC) FILETIME=[F6F74FF0:01C718C7]
+Authentication-Results: sj-dkim-7; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com/sjdkim7002 verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I have posted this on a few forums,and some people suggested that
-I post it here to see if I could get any help. I recently complied a
-2.6.19 kernel. I realized that I needed to compile in support for
-iptables,so I put in xtables and iptables. However,when I booted up
-the kernel,I got the repeating message "atkbd.c Spurious ACK on
-isa0060/serio0" and the system hung. This can be fixed if I take out
-xtables support. I was wondering if anyone knew why xtables was
-causing this,I don't want to go online without having iptables. Thanks
-for your help.
+ > But running flush_scheduled_work() from within dev_close() is a very
+ > sensible thing to do, and dev_close is called under rtnl_lock().
+
+I can't argue with that -- this has actually bitten me in the past.
+
+Hmm, I'll try to understand why we need rtnl_lock() to cover dev_close...
+
+ - R.

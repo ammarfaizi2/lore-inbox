@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968421AbWLEQTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968424AbWLEQXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968421AbWLEQTg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 11:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968423AbWLEQTf
+	id S968424AbWLEQXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 11:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968427AbWLEQXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 11:19:35 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:56222 "EHLO
-	mailout1.vmware.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968421AbWLEQTf convert rfc822-to-8bit (ORCPT
+	Tue, 5 Dec 2006 11:23:20 -0500
+Received: from nz-out-0506.google.com ([64.233.162.234]:36824 "EHLO
+	nz-out-0102.google.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S968424AbWLEQXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 11:19:35 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 5 Dec 2006 11:23:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hyhXksVV5YJW4f0CNkmk36kItLpC4XA82gSFS3baq2gevTx6NVPjM1n17W0ffh3qFbGzs1GBjm6dgeVLuavXeT42OJlNQ+rB4Vpe0zd1gnSKGpwqwcVWpObvZBXlI87461P1rOlRoS4CE6hheA32DqzGxj6vfGiO4hZUHjjTjNo=
+Message-ID: <5d96567b0612050823n225d4c43j35c7210e228d26@mail.gmail.com>
+Date: Tue, 5 Dec 2006 18:23:17 +0200
+From: "Raz Ben-Jehuda(caro)" <raziebe@gmail.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: slow io_submit
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-aio@kvack.org
+In-Reply-To: <45744101.2040904@cfl.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff
-Date: Tue, 5 Dec 2006 08:19:34 -0800
-Message-ID: <FE74AC4E0A23124DA52B99F17F44159701DBC068@PA-EXCH03.vmware.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Openipmi-developer] [PATCH 9/12] IPMI: add pigeonpoint poweroff
-Thread-Index: AccYg+eP9IsYYt30SeuDMUJ/Un6T9gABHSV4
-References: <20061202043746.GE30531@localdomain><20061203132618.d7d58f59.akpm@osdl.org> <45738959.1000209@acm.org> <20061203185442.33faf1c0.randy.dunlap@oracle.com> <FE74AC4E0A23124DA52B99F17F44159701DBC05B@PA-EXCH03.vmware.com> <45739DB4.6000806@oracle.com> <4573A04A.2030909@oracle.com> <45757BD2.7020706@acm.org>
-From: "Bela Lubkin" <blubkin@vmware.com>
-To: "Corey Minyard" <minyard@acm.org>,
-       "Randy Dunlap" <randy.dunlap@oracle.com>
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "OpenIPMI Developers" <openipmi-developer@lists.sourceforge.net>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Joseph Barnett" <jbarnett@motorola.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5d96567b0612010904s361b799t8db72accc287ca54@mail.gmail.com>
+	 <20061201172749.GZ5400@kernel.dk>
+	 <5d96567b0612011340m410a2294w9b02b619a62888da@mail.gmail.com>
+	 <45744101.2040904@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard wrote: 
-> Randy Dunlap wrote:
->> Randy Dunlap wrote:
->>> Bela Lubkin wrote:
->>>> Andrew Morton wrote:
->>>>
->>>>>> Sometime, please go through the IPMI code looking for all these
->>>>>> statically-allocated things which are initialised to 0 or NULL
->>>>>> and remove all those intialisations?  They're unneeded, they
->>>>>> increase the vmlinux image size and there are quite a number of
->>>>>> them.  Thanks.
->>>>
->>>> Randy Dunlop replied:
->>>>
->>>>> I was just about to send that patch.  Here it is,
->>>>> on top of the series-of-12.
->>>> ...
->>>>> -static int bt_debug = BT_DEBUG_OFF;
->>>>> +static int bt_debug;
->>>>
->>>> Is it wise to significantly degrade code readability to work around
->>>> a minor compiler / linker bug?
->>>
->>> Is that the only one that is a problem?
->>>
->>> I don't think it's a problem.  We *know* that static data areas
->>> are init to 0.  Everything depends on that.  If that didn't work
->>> it would all break.
->>>
->>> I could say that it's a nice coincidence that BT_DEBUG_OFF == 0,
->>> but I think that it's more than coincidence.
->>
->> It's Corey's decision.  However, while code readability is also very
->> important to me, I disagree with "significantly" above.
+On 12/4/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> Raz Ben-Jehuda(caro) wrote:
+> > Who returns EGAIN to whom ?   I am not sure i understand what you mean
+> > here.
 >
-> I think the optimizations are probably important enough that this
-> should be done.  Let's take Randy's patch and I will add a comment to
-> BT_DEBUG_OFF that says that the value must be zero to correspond to
-> the default uninitialized value.
+> If the queue is full then io_sumbit() should return EAGAIN or some other
+> error to indicate that the queue is full, but right now it just blocks
+> instead.
+>
+thanks Phiilip
+But... hmmm ... should'nt an asynchronous operation act as
+"send and forget" . isn't  "queue full" a problem that aio must at
+least try and handle before returning to the user ?
 
-Patch the declaration to:
-
-  static int bt_debug;  /* 0 == BT_DEBUG_OFF */
-
-Then any sort of grep / cscope / patch excerpts / etc. are self-
-documenting.
-
->Bela<
+-- 
+Raz

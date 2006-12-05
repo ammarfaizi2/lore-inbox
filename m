@@ -1,481 +1,570 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968168AbWLELKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759961AbWLELJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968168AbWLELKl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 06:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968141AbWLELKO
+	id S1759961AbWLELJO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 06:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759945AbWLELIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 06:10:14 -0500
-Received: from madara.hpl.hp.com ([192.6.19.124]:64915 "EHLO madara.hpl.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759945AbWLELJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 06:09:19 -0500
-Date: Tue, 5 Dec 2006 03:07:20 -0800
+	Tue, 5 Dec 2006 06:08:51 -0500
+Received: from gundega.hpl.hp.com ([192.6.19.190]:59833 "EHLO
+	gundega.hpl.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S968124AbWLELID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 06:08:03 -0500
+Date: Tue, 5 Dec 2006 03:07:06 -0800
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200612051107.kB5B7KMe017703@frankl.hpl.hp.com>
+Message-Id: <200612051107.kB5B76FB017534@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 19/21] 2.6.19 perfmon2 : modified x86_64 files
+Subject: [PATCH 06/21] 2.6.19 perfmon2 : PMU interruption support
 Cc: eranian@hpl.hp.com
 X-HPL-MailScanner: Found to be clean
 X-HPL-MailScanner-From: eranian@frankl.hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the modified x86_64 files.
-
-The modified files are as follows:
-
-arch/x86_64/Kconfig:
-	- add link to configuration menu in arch/x86_64/perfmon/Kconfig
-
-arch/x86_64/Makefile:
-	- add perfmon subdir
-
-arch/x86_64/ia32/ia32entry.S:
-	- add system call entry points for 32-bit ABI
-	
-arch/x86_64/kernel/apic.c:
-	- add hook to call pfm_handle_switch_timeout() on timer tick for timeout based
-	  set multiplexing
-
-arch/x86_64/kernel/entry.S:
-	- add pmu_interrupt stub
-
-arch/x86_64/kernel/i8259.c:
-	- PMU interrupt vector gate initialization
-
-arch/x86_64/kernel/process.c:
-	- add hook in exit_thread() to cleanup perfmon2 context
-	- add hook in copy_thread() to cleanup perfmon2 context in child (perfmon2 context
-	  is never inherited)
-	- add hook in __switch_to() for PMU state save/restore
-	- split enter_idle() is two. Until we get to 2.6.20, we need to add enter_idle() to the tail
-	  of each interrupt handler due to idle loops. The loops are gone in 2.6.20.
-
-arch/x86_64/kernel/signal.c:
-	- add hook for extra work before kernel exit. Need to block a thread after a overflow with
-	  user level notification. Also needed to do some bookeeeping, such as reset certain counters
-	  and cleanup in some difficult corner cases
-
-arch/x86_64/kernel/nmi.c:
-	- use PERFCTR1 for architected PERFMON to allow PEBS use on Core-base processors
-
-include/asm-x86_64/hw_irq.h:
-	- define PMU interrupt vector
-
-include/asm-x86_64/irq.h:
-	- update FIRST_SYSTEM_VECTOR
-
-include/asm-x86_64/thread_info.h:
-	- add TIF_PERFMON which is used for PMU context switching in __switch_to()
-
-include/asm-x86_64/unistd.h:
-	- add new system calls
+This patch contains the PMU interruption support.
 
 
+Perfmon2 registers a interrupt handler for the PMU is order:
+	- to support 64-bit counter emulation
+	- to support event-based sampling
 
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/Kconfig linux-2.6.19/arch/x86_64/Kconfig
---- linux-2.6.19.base/arch/x86_64/Kconfig	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/Kconfig	2006-12-03 14:15:48.000000000 -0800
-@@ -587,6 +587,8 @@ config K8_NB
- 	def_bool y
- 	depends on AGP_AMD64 || IOMMU || (PCI && NUMA)
- 
-+source "arch/x86_64/perfmon/Kconfig"
-+
- endmenu
- 
- #
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/Makefile linux-2.6.19/arch/x86_64/Makefile
---- linux-2.6.19.base/arch/x86_64/Makefile	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/Makefile	2006-12-03 14:15:48.000000000 -0800
-@@ -81,6 +81,7 @@ core-y					+= arch/x86_64/kernel/ \
- 					   arch/x86_64/crypto/
- core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
- drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
-+drivers-$(CONFIG_PERFMON)		+= arch/x86_64/perfmon/
- drivers-$(CONFIG_OPROFILE)		+= arch/x86_64/oprofile/
- 
- boot := arch/x86_64/boot
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/ia32/ia32entry.S linux-2.6.19/arch/x86_64/ia32/ia32entry.S
---- linux-2.6.19.base/arch/x86_64/ia32/ia32entry.S	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/ia32/ia32entry.S	2006-12-03 14:15:48.000000000 -0800
-@@ -718,4 +718,16 @@ ia32_sys_call_table:
- 	.quad compat_sys_vmsplice
- 	.quad compat_sys_move_pages
- 	.quad sys_getcpu
-+  	.quad sys_pfm_create_context
-+  	.quad sys_pfm_write_pmcs
-+  	.quad sys_pfm_write_pmds
-+ 	.quad sys_pfm_read_pmds
-+ 	.quad sys_pfm_load_context
-+  	.quad sys_pfm_start
-+  	.quad sys_pfm_stop
-+  	.quad sys_pfm_restart
-+  	.quad sys_pfm_create_evtsets
-+  	.quad sys_pfm_getinfo_evtsets
-+  	.quad sys_pfm_delete_evtsets
-+  	.quad sys_pfm_unload_context
- ia32_syscall_end:		
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/apic.c linux-2.6.19/arch/x86_64/kernel/apic.c
---- linux-2.6.19.base/arch/x86_64/kernel/apic.c	2006-12-03 14:24:40.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/apic.c	2006-12-03 14:15:48.000000000 -0800
-@@ -25,6 +25,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/sysdev.h>
- #include <linux/module.h>
+Typically the PMU interrupt vector is very high priority to ensure
+better coverage when sampling.
+
+On PMU interrupt the handler, pfm_overflow_handler(), is invoked and:
+	- check which counter overflowed
+	- increment 64-bit software counter accordingly.
+	- if there the software 64-bit counter overflowed, then a counter overflow
+	  is declared, otherwise execution resumes
+	- on counter overflow, check if there is a samplinf format used and if so
+	  call its handler routine
+	- if notification uis requested, then a message is appedend to the context message
+	  queue, any potential waiter is woken up
+	- switches to a new event set if this is a requested by user (i.e., switch on overflow)
+
+--- linux-2.6.19.base/perfmon/perfmon_intr.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.19/perfmon/perfmon_intr.c	2006-12-03 14:15:48.000000000 -0800
+@@ -0,0 +1,523 @@
++/*
++ * perfmon_intr.c: perfmon2 interrupt handling
++ *
++ * This file implements the perfmon2 interface which
++ * provides access to the hardware performance counters
++ * of the host processor.
++ *
++ * The initial version of perfmon.c was written by
++ * Ganesh Venkitachalam, IBM Corp.
++ *
++ * Then it was modified for perfmon-1.x by Stephane Eranian and
++ * David Mosberger, Hewlett Packard Co.
++ *
++ * Version Perfmon-2.x is a complete rewrite of perfmon-1.x
++ * by Stephane Eranian, Hewlett Packard Co.
++ *
++ * Copyright (c) 1999-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ *                David Mosberger-Tang <davidm@hpl.hp.com>
++ *
++ * More information about perfmon available at:
++ * 	http://perfmon2.sf.net
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of version 2 of the GNU General Public
++ * License as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++ * 02111-1307 USA
++  */
++#include <linux/kernel.h>
 +#include <linux/perfmon.h>
- 
- #include <asm/atomic.h>
- #include <asm/smp.h>
-@@ -888,6 +889,7 @@ void setup_APIC_extened_lvt(unsigned cha
- void smp_local_timer_interrupt(void)
- {
- 	profile_tick(CPU_PROFILING);
-+  	pfm_handle_switch_timeout();
- #ifdef CONFIG_SMP
- 	update_process_times(user_mode(get_irq_regs()));
- #endif
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/entry.S linux-2.6.19/arch/x86_64/kernel/entry.S
---- linux-2.6.19.base/arch/x86_64/kernel/entry.S	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/entry.S	2006-12-03 14:15:48.000000000 -0800
-@@ -284,7 +284,7 @@ sysret_careful:
- sysret_signal:
- 	TRACE_IRQS_ON
- 	sti
--	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP),%edx
-+	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
- 	jz    1f
- 
- 	/* Really a signal */
-@@ -399,7 +399,7 @@ int_very_careful:
- 	jmp int_restore_rest
- 	
- int_signal:
--	testl $(_TIF_NOTIFY_RESUME|_TIF_SIGPENDING|_TIF_SINGLESTEP),%edx
-+	testl $(_TIF_NOTIFY_RESUME|_TIF_SIGPENDING|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
- 	jz 1f
- 	movq %rsp,%rdi		# &ptregs -> arg1
- 	xorl %esi,%esi		# oldset -> arg2
-@@ -623,7 +623,7 @@ retint_careful:
- 	jmp retint_check
- 	
- retint_signal:
--	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP),%edx
-+	testl $(_TIF_SIGPENDING|_TIF_NOTIFY_RESUME|_TIF_SINGLESTEP|_TIF_PERFMON_WORK),%edx
- 	jz    retint_swapgs
- 	TRACE_IRQS_ON
- 	sti
-@@ -712,7 +712,12 @@ END(error_interrupt)
- ENTRY(spurious_interrupt)
- 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
- END(spurious_interrupt)
--				
++#include <linux/module.h>
 +
-+#ifdef CONFIG_PERFMON
-+ENTRY(pmu_interrupt)
-+	apicinterrupt LOCAL_PERFMON_VECTOR,smp_pmu_interrupt
-+#endif
-+
- /*
-  * Exception entry points.
-  */ 		
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/i8259.c linux-2.6.19/arch/x86_64/kernel/i8259.c
---- linux-2.6.19.base/arch/x86_64/kernel/i8259.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/i8259.c	2006-12-03 14:15:48.000000000 -0800
-@@ -12,6 +12,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/sysdev.h>
- #include <linux/bitops.h>
-+#include <linux/perfmon.h>
- 
- #include <asm/acpi.h>
- #include <asm/atomic.h>
-@@ -551,7 +552,9 @@ void __init init_IRQ(void)
- 	/* IPI vectors for APIC spurious and error interrupts */
- 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
- 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
--
-+#ifdef CONFIG_PERFMON
-+	set_intr_gate(LOCAL_PERFMON_VECTOR, pmu_interrupt);
-+#endif
- 	/*
- 	 * Set the clock to HZ Hz, we already have a valid
- 	 * vector now:
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/irq.c linux-2.6.19/arch/x86_64/kernel/irq.c
---- linux-2.6.19.base/arch/x86_64/kernel/irq.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/irq.c	2006-12-03 14:15:48.000000000 -0800
-@@ -127,6 +127,7 @@ asmlinkage unsigned int do_IRQ(struct pt
- 	irq_exit();
- 
- 	set_irq_regs(old_regs);
-+	enter_idle();
- 	return 1;
- }
- 
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/nmi.c linux-2.6.19/arch/x86_64/kernel/nmi.c
---- linux-2.6.19.base/arch/x86_64/kernel/nmi.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/nmi.c	2006-12-04 07:45:45.000000000 -0800
-@@ -271,7 +271,7 @@ int __init check_nmi_watchdog (void)
- 		 * 32nd bit should be 1, for 33.. to be 1.
- 		 * Find the appropriate nmi_hz
- 		 */
--	 	if (wd->perfctr_msr == MSR_ARCH_PERFMON_PERFCTR0 &&
-+	 	if (wd->perfctr_msr == MSR_ARCH_PERFMON_PERFCTR1 &&
- 			((u64)cpu_khz * 1000) > 0x7fffffffULL) {
- 			nmi_hz = ((u64)cpu_khz * 1000) / 0x7fffffffUL + 1;
- 		}
-@@ -613,8 +613,8 @@ static int setup_intel_arch_watchdog(voi
- 	    (ebx & ARCH_PERFMON_UNHALTED_CORE_CYCLES_PRESENT))
- 		goto fail;
- 
--	perfctr_msr = MSR_ARCH_PERFMON_PERFCTR0;
--	evntsel_msr = MSR_ARCH_PERFMON_EVENTSEL0;
-+	perfctr_msr = MSR_ARCH_PERFMON_PERFCTR1;
-+	evntsel_msr = MSR_ARCH_PERFMON_EVENTSEL1;
- 
- 	if (!reserve_perfctr_nmi(perfctr_msr))
- 		goto fail;
-@@ -842,7 +842,7 @@ int __kprobes nmi_watchdog_tick(struct p
- 				dummy &= ~P4_CCCR_OVF;
- 	 			wrmsrl(wd->cccr_msr, dummy);
- 	 			apic_write(APIC_LVTPC, APIC_DM_NMI);
--	 		} else if (wd->perfctr_msr == MSR_ARCH_PERFMON_PERFCTR0) {
-+	 		} else if (wd->perfctr_msr == MSR_ARCH_PERFMON_PERFCTR1) {
- 				/*
- 				 * ArchPerfom/Core Duo needs to re-unmask
- 				 * the apic vector
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/process.c linux-2.6.19/arch/x86_64/kernel/process.c
---- linux-2.6.19.base/arch/x86_64/kernel/process.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/process.c	2006-12-03 14:15:48.000000000 -0800
-@@ -36,6 +36,7 @@
- #include <linux/random.h>
- #include <linux/notifier.h>
- #include <linux/kprobes.h>
-+#include <linux/perfmon.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -80,12 +81,22 @@ void idle_notifier_unregister(struct not
- }
- EXPORT_SYMBOL(idle_notifier_unregister);
- 
--void enter_idle(void)
-+static void __enter_idle(void)
- {
- 	write_pda(isidle, 1);
- 	atomic_notifier_call_chain(&idle_notifier, IDLE_START, NULL);
- }
- 
-+/* Called from interrupts to signify idle end */
-+void enter_idle(void)
++/*
++ * main overflow processing routine.
++ *
++ * set->num_ovfl_pmds is 0 when returning from this function even though
++ * set->ovfl_pmds[] may have bits set. When leaving set->num_ovfl_pmds
++ * must never be used to determine if there was a pending overflow.
++ */
++static void pfm_overflow_handler(struct pfm_context *ctx, struct pfm_event_set *set,
++				 unsigned long ip,
++				 struct pt_regs *regs)
 +{
-+	/* idle loop has pid 0 */
-+	if (current->pid)
++	struct pfm_ovfl_arg *ovfl_arg;
++	struct pfm_event_set *set_orig;
++	void *hdr;
++	u64 old_val, ovfl_mask, new_val, ovfl_thres;
++	u64 *ovfl_notify, *ovfl_pmds, *pend_ovfls;
++	u64 *smpl_pmds, *reset_pmds;
++	u64 now, *pmds, time_phase;
++	u32 ovfl_ctrl, num_ovfl, num_ovfl_orig;
++	u16 i, max_pmd, max_cnt_pmd, first_cnt_pmd;
++	u8 use_ovfl_switch, must_switch, has_64b_ovfl;
++	u8 ctx_block, has_notify;
++
++	now = sched_clock();
++	ovfl_mask = pfm_pmu_conf->ovfl_mask;
++	max_pmd = pfm_pmu_conf->max_pmd;
++	first_cnt_pmd = pfm_pmu_conf->first_cnt_pmd;
++	max_cnt_pmd = pfm_pmu_conf->max_cnt_pmd;
++	ovfl_pmds = set->ovfl_pmds;
++	set_orig = set;
++
++	if (unlikely(ctx->state == PFM_CTX_ZOMBIE))
++		goto stop_monitoring;
++
++	/*
++	 * initialized in caller function
++	 */
++	use_ovfl_switch = set->flags & PFM_SETFL_OVFL_SWITCH;
++	must_switch = 0;
++	num_ovfl = num_ovfl_orig = set->npend_ovfls;
++	has_64b_ovfl = 0;
++	pend_ovfls = set->povfl_pmds;
++
++	hdr = ctx->smpl_addr;
++
++	PFM_DBG_ovfl("ovfl_pmds=0x%llx ip=%p, blocking=%d "
++		     "u_pmds=0x%llx use_fmt=%u",
++		     (unsigned long long)pend_ovfls[0],
++		     (void *)ip,
++		     ctx->flags.block,
++		     (unsigned long long)set->used_pmds[0],
++		     hdr != NULL);
++
++	/*
++	 * initialize temporary bitvectors
++	 * we allocate bitvectors in the context
++	 * rather than on the stack to minimize stack
++	 * space consumption. PMU interrupt is very high
++	 * which implies possible deep nesting of interrupt
++	 * hence limited kernel stack space.
++	 *
++	 * This is safe because a context can only be in the
++	 * overflow handler once at a time
++	 */
++	reset_pmds = set->reset_pmds;
++	ovfl_notify = ctx->ovfl_ovfl_notify;
++	pmds = set->view->set_pmds;
++	bitmap_zero(ulp(reset_pmds), max_pmd);
++
++	pfm_modview_begin(set);
++
++	set->last_iip = ip;
++	/*
++	 * first we update the virtual counters
++	 *
++	 * we leverage num_ovfl to minimize number of
++	 * iterations of the loop.
++	 *
++	 * The i < max_cnt_pmd is just a sanity check
++	 */
++	for (i = first_cnt_pmd; num_ovfl && i < max_cnt_pmd; i++) {
++		/*
++		 * skip pmd which did not overflow
++		 */
++		if (!pfm_bv_isset(pend_ovfls, i))
++			continue;
++
++		num_ovfl--;
++
++		/*
++		 * Note that the pmd is not necessarily 0 at this point as
++		 * qualified events may have happened before the PMU was
++		 * frozen. The residual count is not taken into consideration
++		 * here but will be with any read of the pmd
++		 */
++		old_val = new_val = pmds[i];
++		ovfl_thres = set->pmds[i].ovflsw_thres;
++		new_val += 1 + ovfl_mask;
++		pmds[i] = new_val;
++
++		/*
++		 * on some PMU, it may be necessary to re-arm the PMD
++		 */
++		pfm_arch_ovfl_reset_pmd(ctx, i);
++
++		/*
++		 * check for overflow condition
++		 */
++		if (likely(old_val > new_val)) {
++
++			if (!has_64b_ovfl) {
++				set->last_ovfl_pmd = i;
++				set->last_ovfl_pmd_reset = set->pmds[i].lval;
++			}
++
++			has_64b_ovfl = 1;
++
++			if (use_ovfl_switch && ovfl_thres > 0) {
++				if (ovfl_thres == 1)
++					must_switch = 1;
++				set->pmds[i].ovflsw_thres = ovfl_thres - 1;
++			}
++
++			/*
++			 * what to reset because of this overflow
++			 */
++			pfm_bv_set(reset_pmds, i);
++
++			bitmap_or(ulp(reset_pmds),
++				  ulp(reset_pmds),
++				  ulp(set->pmds[i].reset_pmds),
++				  max_pmd);
++
++		} else {
++			/* only keep track of 64-bit overflows */
++			pfm_bv_clear(pend_ovfls, i);
++		}
++
++		PFM_DBG_ovfl("pmd%u=0x%llx old_val=0x%llx "
++			     "hw_pmd=0x%llx o_pmds=0x%llx must_switch=%u "
++			     "o_thres=%llu o_thres_ref=%llu",
++			     i,
++			     (unsigned long long)new_val,
++			     (unsigned long long)old_val,
++			     (unsigned long long)(pfm_read_pmd(ctx, i) & ovfl_mask),
++			     (unsigned long long)ovfl_pmds[0],
++			     must_switch,
++			     (unsigned long long)set->pmds[i].ovflsw_thres,
++			     (unsigned long long)set->pmds[i].ovflsw_ref_thres);
++	}
++	pfm_modview_end(set);
++
++	time_phase = sched_clock();
++	/*
++	 * ensure we do not come back twice for the same overflow
++	 */
++	set->npend_ovfls = 0;
++
++	ctx_block = ctx->flags.block;
++
++	/*
++	 * there was no 64-bit overflow, nothing else to do
++	 */
++	if (!has_64b_ovfl)
 +		return;
-+	__enter_idle();
++
++	/*
++	 * copy pending_ovfls to ovfl_pmd. It is used in
++	 * the notification message or getinfo_evtsets().
++	 *
++	 * pend_ovfls modified to reflect only 64-bit overflows
++	 */
++	bitmap_copy(ulp(ovfl_pmds),
++		    ulp(pend_ovfls),
++		    max_cnt_pmd);
++
++	/*
++	 * build ovfl_notify bitmask from ovfl_pmds
++	 */
++	bitmap_and(ulp(ovfl_notify),
++		   ulp(pend_ovfls),
++		   ulp(set->ovfl_notify),
++		   max_cnt_pmd);
++
++	has_notify = !bitmap_empty(ulp(ovfl_notify), max_cnt_pmd);
++	/*
++	 * must reset for next set of overflows
++	 */
++	bitmap_zero(ulp(pend_ovfls), max_cnt_pmd);
++
++	/*
++	 * check for format
++	 */
++	if (likely(ctx->smpl_fmt)) {
++		u64 start_cycles, end_cycles;
++		u64 *cnt_pmds;
++		int j, k, ret = 0;
++
++		ovfl_ctrl = 0;
++		num_ovfl = num_ovfl_orig;
++		ovfl_arg = &ctx->ovfl_arg;
++		cnt_pmds = pfm_pmu_conf->cnt_pmds;
++
++		ovfl_arg->active_set = set->id;
++
++		for (i = first_cnt_pmd; num_ovfl && !ret; i++) {
++
++			if (!pfm_bv_isset(ovfl_pmds, i))
++				continue;
++
++			num_ovfl--;
++
++			ovfl_arg->ovfl_pmd = i;
++			ovfl_arg->ovfl_ctrl = 0;
++
++			ovfl_arg->pmd_last_reset = set->pmds[i].lval;
++			ovfl_arg->pmd_eventid = set->pmds[i].eventid;
++
++			/*
++		 	 * copy values of pmds of interest.
++			 * Sampling format may use them
++			 * We do not initialize the unused smpl_pmds_values
++		 	 */
++			k = 0;
++			smpl_pmds = set->pmds[i].smpl_pmds;
++			if (!bitmap_empty(ulp(smpl_pmds), max_pmd)) {
++
++				for (j = 0; j < max_pmd; j++) {
++
++					if (!pfm_bv_isset(smpl_pmds, j))
++						continue;
++
++					new_val = pfm_read_pmd(ctx, j);
++
++					/* for counters, build 64-bit value */
++					if (pfm_bv_isset(cnt_pmds, j)) {
++						new_val = (set->view->set_pmds[j] & ~ovfl_mask)
++							| (new_val & ovfl_mask);
++					}
++					ovfl_arg->smpl_pmds_values[k++] = new_val;
++
++					PFM_DBG_ovfl("s_pmd_val[%u]="
++						     "pmd%u=0x%llx",
++						     k, j,
++						     (unsigned long long)new_val);
++				}
++			}
++			ovfl_arg->num_smpl_pmds = k;
++
++			__get_cpu_var(pfm_stats).pfm_fmt_handler_calls++;
++
++			start_cycles = sched_clock();
++
++			/*
++		 	 * call custom buffer format record (handler) routine
++		 	 */
++			ret = (*ctx->smpl_fmt->fmt_handler)(hdr,
++							    ovfl_arg,
++							    ip,
++							    now,
++							    regs);
++
++			end_cycles = sched_clock();
++
++			/*
++			 * for PFM_OVFL_CTRL_MASK and PFM_OVFL_CTRL_NOTIFY
++			 * we take the union
++			 *
++			 * PFM_OVFL_CTRL_RESET is ignored here
++			 *
++			 * The reset_pmds mask is constructed automatically
++			 * on overflow. When the actual reset takes place
++			 * depends on the masking, switch and notification
++			 * status. It may may deferred until pfm_restart().
++			 */
++			ovfl_ctrl |= ovfl_arg->ovfl_ctrl
++				   & (PFM_OVFL_CTRL_NOTIFY|PFM_OVFL_CTRL_MASK);
++
++			__get_cpu_var(pfm_stats).pfm_fmt_handler_ns += end_cycles
++							 	     - start_cycles;
++		}
++		/*
++		 * when the format cannot handle the rest of the overflow,
++		 * we abort right here
++		 */
++		if (ret) {
++			PFM_DBG_ovfl("handler aborted at PMD%u ret=%d",
++				     i, ret);
++		}
++	} else {
++		/*
++		 * When no sampling format is used, the default
++		 * is:
++		 * 	- mask monitoring
++		 * 	- notify user if requested
++		 *
++		 * If notification is not requested, monitoring is masked
++		 * and overflowed counters are not reset (saturation).
++		 * This mimics the behavior of the default sampling format.
++		 */
++		ovfl_ctrl = PFM_OVFL_CTRL_NOTIFY;
++
++		if (!must_switch || has_notify)
++			ovfl_ctrl |= PFM_OVFL_CTRL_MASK;
++	}
++
++	PFM_DBG_ovfl("set%u o_notify=0x%llx o_pmds=0x%llx "
++		     "r_pmds=0x%llx masking=%d notify=%d",
++		     set->id,
++		     (unsigned long long)ovfl_notify[0],
++		     (unsigned long long)ovfl_pmds[0],
++		     (unsigned long long)reset_pmds[0],
++		     (ovfl_ctrl & PFM_OVFL_CTRL_MASK)  != 0,
++		     (ovfl_ctrl & PFM_OVFL_CTRL_NOTIFY)!= 0);
++
++	/*
++	 * we only reset (short reset) when we are not masking. Otherwise
++	 * the reset is postponed until restart.
++	 */
++	if (likely(!(ovfl_ctrl & PFM_OVFL_CTRL_MASK))) {
++		/*
++		 * masking has priority over switching
++	 	 */
++		if (must_switch) {
++			/*
++			 * pfm_switch_sets() takes care
++			 * of resetting new set if needed
++			 */
++			pfm_switch_sets(ctx, NULL, PFM_PMD_RESET_SHORT, 0);
++
++			/*
++		 	 * update our view of the active set
++		 	 */
++			set = ctx->active_set;
++
++			must_switch = 0;
++		} else if (!bitmap_empty(ulp(reset_pmds), max_pmd))
++			pfm_reset_pmds(ctx, set, PFM_PMD_RESET_SHORT);
++		/*
++		 * do not block if not masked
++		 */
++		ctx_block = 0;
++	} else {
++		pfm_mask_monitoring(ctx);
++		ctx->state = PFM_CTX_MASKED;
++		ctx->flags.can_restart = 1;
++	}
++	/*
++	 * if we have not switched here, then remember for the
++	 * time monitoring is resumed
++	 */
++	if (must_switch)
++		set->priv_flags |= PFM_SETFL_PRIV_SWITCH;
++
++	/*
++	 * block only if CTRL_NOTIFY+CTRL_MASK and requested by user
++	 *
++	 * Defer notification until last operation in the handler
++	 * to avoid spinlock contention
++	 */
++	if (has_notify && (ovfl_ctrl & PFM_OVFL_CTRL_NOTIFY)) {
++		if (ctx_block) {
++			ctx->flags.work_type = PFM_WORK_BLOCK;
++			set_thread_flag(TIF_PERFMON_WORK);
++		}
++		pfm_ovfl_notify_user(ctx, set_orig, ip);
++	}
++
++	return;
++
++stop_monitoring:
++	/*
++	 * Does not happen for a system-wide context nor for a
++	 * self-monitored context. We cannot attach to kernel-only
++	 * thread, thus it is safe to set TIF bits, i.e., the thread
++	 * will eventually leave the kernel or die and either we will
++	 * catch the context and clean it up in pfm_handler_work() or
++	 * pfm_exit_thread().
++	 */
++	PFM_DBG_ovfl("ctx is zombie, converted to spurious");
++
++	__pfm_stop(ctx);
++	ctx->flags.work_type = PFM_WORK_ZOMBIE;
++	set_thread_flag(TIF_PERFMON_WORK);
 +}
 +
++/*
++ * interrupts are masked
++ *
++ * Context locking necessary to avoid concurrent accesses from other CPUs
++ * 	- For per-thread, we must prevent pfm_restart() which works when
++ * 	  context is LOADED or MASKED
++ */
++static void __pfm_interrupt_handler(unsigned long iip, struct pt_regs *regs)
++{
++	struct task_struct *task;
++	struct pfm_context *ctx;
++	struct pfm_event_set *set;
 +
- static void __exit_idle(void)
- {
- 	if (test_and_clear_bit_pda(0, isidle) == 0)
-@@ -219,7 +230,7 @@ void cpu_idle (void)
- 				idle = default_idle;
- 			if (cpu_is_offline(smp_processor_id()))
- 				play_dead();
--			enter_idle();
-+			__enter_idle();
- 			idle();
- 			/* In many cases the interrupt that ended idle
- 			   has already called exit_idle. But some idle
-@@ -370,6 +381,7 @@ void exit_thread(void)
- 		t->io_bitmap_max = 0;
- 		put_cpu();
- 	}
-+	pfm_exit_thread(me);
- }
- 
- void flush_thread(void)
-@@ -475,6 +487,8 @@ int copy_thread(int nr, unsigned long cl
- 	asm("mov %%es,%0" : "=m" (p->thread.es));
- 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
- 
-+	pfm_copy_thread(p);
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_all_count++;
 +
- 	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
- 		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
- 		if (!p->thread.io_bitmap_ptr) {
-@@ -545,6 +559,10 @@ static inline void __switch_to_xtra(stru
- 		 */
- 		memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
- 	}
++	task = __get_cpu_var(pmu_owner);
++	ctx = __get_cpu_var(pmu_ctx);
 +
-+	if (test_tsk_thread_flag(next_p, TIF_PERFMON_CTXSW)
-+	    || test_tsk_thread_flag(prev_p, TIF_PERFMON_CTXSW))
-+		pfm_ctxsw(prev_p, next_p);
- }
- 
- /*
-@@ -649,7 +667,7 @@ __switch_to(struct task_struct *prev_p, 
- 	 * Now maybe reload the debug registers and handle I/O bitmaps
- 	 */
- 	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
--	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-+  	    || (task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW))
- 		__switch_to_xtra(prev_p, next_p, tss);
- 
- 	/* If the task has used fpu the last 5 timeslices, just do a full
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/setup64.c linux-2.6.19/arch/x86_64/kernel/setup64.c
---- linux-2.6.19.base/arch/x86_64/kernel/setup64.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/setup64.c	2006-12-03 14:15:48.000000000 -0800
-@@ -11,6 +11,7 @@
- #include <linux/bootmem.h>
- #include <linux/bitops.h>
- #include <linux/module.h>
-+#include <linux/perfmon.h>
- #include <asm/bootsetup.h>
- #include <asm/pda.h>
- #include <asm/pgtable.h>
-@@ -285,4 +286,6 @@ void __cpuinit cpu_init (void)
- 	fpu_init(); 
- 
- 	raw_local_save_flags(kernel_eflags);
++	if (unlikely(ctx == NULL))
++		goto spurious;
 +
-+ 	pfm_init_percpu();
- }
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/signal.c linux-2.6.19/arch/x86_64/kernel/signal.c
---- linux-2.6.19.base/arch/x86_64/kernel/signal.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/signal.c	2006-12-03 14:15:48.000000000 -0800
-@@ -22,6 +22,7 @@
- #include <linux/stddef.h>
- #include <linux/personality.h>
- #include <linux/compiler.h>
-+#include <linux/perfmon.h>
- #include <asm/ucontext.h>
- #include <asm/uaccess.h>
- #include <asm/i387.h>
-@@ -466,13 +467,16 @@ do_notify_resume(struct pt_regs *regs, v
- 	printk("do_notify_resume flags:%x rip:%lx rsp:%lx caller:%lx pending:%lx\n",
- 	       thread_info_flags, regs->rip, regs->rsp, __builtin_return_address(0),signal_pending(current)); 
- #endif
--	       
++	BUG_ON(!irqs_disabled());
 +
- 	/* Pending single-step? */
- 	if (thread_info_flags & _TIF_SINGLESTEP) {
- 		regs->eflags |= TF_MASK;
- 		clear_thread_flag(TIF_SINGLESTEP);
- 	}
- 
-+	if (thread_info_flags & _TIF_PERFMON_WORK)
-+		pfm_handle_work();
++	spin_lock(&ctx->lock);
 +
- 	/* deal with pending signal delivery */
- 	if (thread_info_flags & (_TIF_SIGPENDING|_TIF_RESTORE_SIGMASK))
- 		do_signal(regs);
-diff --exclude=.git -urp linux-2.6.19.base/arch/x86_64/kernel/smpboot.c linux-2.6.19/arch/x86_64/kernel/smpboot.c
---- linux-2.6.19.base/arch/x86_64/kernel/smpboot.c	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/arch/x86_64/kernel/smpboot.c	2006-12-03 14:15:48.000000000 -0800
-@@ -49,6 +49,7 @@
- #include <linux/delay.h>
- #include <linux/mc146818rtc.h>
- #include <linux/smp.h>
-+#include <linux/perfmon.h>
- 
- #include <asm/mtrr.h>
- #include <asm/pgalloc.h>
-@@ -1255,6 +1256,7 @@ int __cpu_disable(void)
- 	spin_unlock(&vector_lock);
- 	remove_cpu_from_maps();
- 	fixup_irqs(cpu_online_map);
-+	pfm_cpu_disable();
- 	return 0;
- }
- 
-Only in linux-2.6.19/arch/x86_64: perfmon
-diff --exclude=.git -urp linux-2.6.19.base/include/asm-x86_64/hw_irq.h linux-2.6.19/include/asm-x86_64/hw_irq.h
---- linux-2.6.19.base/include/asm-x86_64/hw_irq.h	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/include/asm-x86_64/hw_irq.h	2006-12-03 14:15:48.000000000 -0800
-@@ -63,6 +63,7 @@
-  * sources per level' errata.
-  */
- #define LOCAL_TIMER_VECTOR	0xef
-+#define LOCAL_PERFMON_VECTOR	0xee
- 
- /*
-  * First APIC vector available to drivers: (vectors 0x30-0xee)
-Only in linux-2.6.19/include/asm-x86_64: perfmon.h
-Only in linux-2.6.19/include/asm-x86_64: perfmon_pebs_smpl.h
-diff --exclude=.git -urp linux-2.6.19.base/include/asm-x86_64/thread_info.h linux-2.6.19/include/asm-x86_64/thread_info.h
---- linux-2.6.19.base/include/asm-x86_64/thread_info.h	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/include/asm-x86_64/thread_info.h	2006-12-03 14:15:48.000000000 -0800
-@@ -115,6 +115,7 @@ static inline struct thread_info *stack_
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
- #define TIF_SECCOMP		8	/* secure computing */
- #define TIF_RESTORE_SIGMASK	9	/* restore signal mask in do_signal */
-+#define TIF_PERFMON_WORK	10	/* work for pfm_handle_work() */
- /* 16 free */
- #define TIF_IA32		17	/* 32bit process */ 
- #define TIF_FORK		18	/* ret_from_fork */
-@@ -122,6 +123,7 @@ static inline struct thread_info *stack_
- #define TIF_MEMDIE		20
- #define TIF_DEBUG		21	/* uses debug registers */
- #define TIF_IO_BITMAP		22	/* uses I/O bitmap */
-+#define TIF_PERFMON_CTXSW	23	/* perfmon needs ctxsw calls */
- 
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-@@ -137,6 +139,8 @@ static inline struct thread_info *stack_
- #define _TIF_ABI_PENDING	(1<<TIF_ABI_PENDING)
- #define _TIF_DEBUG		(1<<TIF_DEBUG)
- #define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
-+#define _TIF_PERFMON_WORK	(1<<TIF_PERFMON_WORK)
-+#define _TIF_PERFMON_CTXSW	(1<<TIF_PERFMON_CTXSW)
- 
- /* work to do on interrupt/exception return */
- #define _TIF_WORK_MASK \
-@@ -145,7 +149,7 @@ static inline struct thread_info *stack_
- #define _TIF_ALLWORK_MASK (0x0000FFFF & ~_TIF_SECCOMP)
- 
- /* flags to check in __switch_to() */
--#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
-+#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP|_TIF_PERFMON_CTXSW)
- 
- #define PREEMPT_ACTIVE     0x10000000
- 
-diff --exclude=.git -urp linux-2.6.19.base/include/asm-x86_64/unistd.h linux-2.6.19/include/asm-x86_64/unistd.h
---- linux-2.6.19.base/include/asm-x86_64/unistd.h	2006-11-29 13:57:37.000000000 -0800
-+++ linux-2.6.19/include/asm-x86_64/unistd.h	2006-12-03 14:15:48.000000000 -0800
-@@ -619,8 +619,32 @@ __SYSCALL(__NR_sync_file_range, sys_sync
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages		279
- __SYSCALL(__NR_move_pages, sys_move_pages)
-+#define __NR_pfm_create_context	280
-+__SYSCALL(__NR_pfm_create_context, sys_pfm_create_context)
-+#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
-+__SYSCALL(__NR_pfm_write_pmcs, sys_pfm_write_pmcs)
-+#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
-+__SYSCALL(__NR_pfm_write_pmds, sys_pfm_write_pmds)
-+#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
-+__SYSCALL(__NR_pfm_read_pmds, sys_pfm_read_pmds)
-+#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
-+__SYSCALL(__NR_pfm_load_context, sys_pfm_load_context)
-+#define __NR_pfm_start		(__NR_pfm_create_context+5)
-+__SYSCALL(__NR_pfm_start, sys_pfm_start)
-+#define __NR_pfm_stop		(__NR_pfm_create_context+6)
-+__SYSCALL(__NR_pfm_stop, sys_pfm_stop)
-+#define __NR_pfm_restart	(__NR_pfm_create_context+7)
-+__SYSCALL(__NR_pfm_restart, sys_pfm_restart)
-+#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
-+__SYSCALL(__NR_pfm_create_evtsets, sys_pfm_create_evtsets)
-+#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
-+__SYSCALL(__NR_pfm_getinfo_evtsets, sys_pfm_getinfo_evtsets)
-+#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
-+__SYSCALL(__NR_pfm_delete_evtsets, sys_pfm_delete_evtsets)
-+#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
-+__SYSCALL(__NR_pfm_unload_context, sys_pfm_unload_context)
- 
--#define __NR_syscall_max __NR_move_pages
-+#define __NR_syscall_max __NR_pfm_unload_context
- 
- #ifdef __KERNEL__
- #include <linux/err.h>
++	set = ctx->active_set;
++
++	/*
++	 * For SMP per-thread, it is not possible to have
++	 * owner != NULL && task != current.
++	 *
++	 * For UP per-thread, because of lazy save, it
++	 * is possible to receive an interrupt in another task
++	 * which is not using the PMU. This means
++	 * that the interrupt was in-flight at the
++	 * time of pfm_ctxswout_thread(). In that
++	 * case it will be replayed when the task
++	 * is scheduled again. Hence we convert to spurious.
++	 *
++	 * The basic rule is that an overflow is always
++	 * processed in the context of the task that
++	 * generated it for all per-thread contexts.
++	 *
++	 * for system-wide, task is always NULL
++	 */
++	if (unlikely(task && current->pfm_context != ctx)) {
++		PFM_DBG_ovfl("spurious: task is [%d]", task->pid);
++		goto spurious;
++	}
++
++	/*
++	 * freeze PMU and collect overflowed PMD registers
++	 * into set->povfl_pmds. Number of overflowed PMDs reported
++	 * in set->npend_ovfls
++	 */
++	pfm_arch_intr_freeze_pmu(ctx);
++
++	/*
++	 * check if we already have some overflows pending
++	 * from pfm_ctxswout_thread(). If so process those.
++	 * Otherwise, inspect PMU again to check for new
++	 * overflows.
++	 */
++	if (unlikely(!set->npend_ovfls))
++		goto spurious;
++
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_regular_count++;
++
++	pfm_overflow_handler(ctx, set, iip, regs);
++
++	pfm_arch_intr_unfreeze_pmu(ctx);
++
++	spin_unlock(&ctx->lock);
++	return;
++
++spurious:
++	/* ctx may be NULL */
++	pfm_arch_intr_unfreeze_pmu(ctx);
++	if (ctx)
++		spin_unlock(&ctx->lock);
++}
++
++void pfm_interrupt_handler(unsigned long iip, struct pt_regs *regs)
++{
++	u64 start;
++
++	BUG_ON(!irqs_disabled());
++
++	start = sched_clock();
++
++	__pfm_interrupt_handler(iip, regs);
++
++	__get_cpu_var(pfm_stats).pfm_ovfl_intr_ns += sched_clock() - start;
++}
++EXPORT_SYMBOL(pfm_interrupt_handler);
++

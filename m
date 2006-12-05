@@ -1,81 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968522AbWLERsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968529AbWLERvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968522AbWLERsO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 12:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968525AbWLERsO
+	id S968529AbWLERvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 12:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968527AbWLERvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 12:48:14 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2933 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968522AbWLERsO (ORCPT
+	Tue, 5 Dec 2006 12:51:41 -0500
+Received: from rrcs-24-153-217-226.sw.biz.rr.com ([24.153.217.226]:46550 "EHLO
+	smtp.opengridcomputing.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S968521AbWLERvk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 12:48:14 -0500
-Date: Tue, 5 Dec 2006 17:48:05 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <20061203011625.60268114.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Dec 2006 12:51:40 -0500
+Subject: Re: [PATCH  v2 04/13] Connection Manager
+From: Steve Wise <swise@opengridcomputing.com>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Roland Dreier <rdreier@cisco.com>, netdev@vger.kernel.org,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       Divy Le Ray <divy@chelsio.com>, Felix Marti <felix@chelsio.com>
+In-Reply-To: <20061205172649.GA20229@2ka.mipt.ru>
+References: <20061204110825.GA26251@2ka.mipt.ru> <ada8xhnk6kv.fsf@cisco.com>
+	 <20061205050725.GA26033@2ka.mipt.ru>
+	 <1165330925.16087.13.camel@stevo-desktop>
+	 <20061205151905.GA18275@2ka.mipt.ru>
+	 <1165333198.16087.53.camel@stevo-desktop>
+	 <20061205155932.GA32380@2ka.mipt.ru>
+	 <1165335162.16087.79.camel@stevo-desktop>
+	 <20061205163008.GA30211@2ka.mipt.ru>
+	 <1165337245.16087.95.camel@stevo-desktop>
+	 <20061205172649.GA20229@2ka.mipt.ru>
+Content-Type: text/plain
+Date: Tue, 05 Dec 2006 11:51:40 -0600
+Message-Id: <1165341100.16087.109.camel@stevo-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Dec 2006, Andrew Morton wrote:
+On Tue, 2006-12-05 at 20:26 +0300, Evgeniy Polyakov wrote:
+> On Tue, Dec 05, 2006 at 10:47:25AM -0600, Steve Wise (swise@opengridcomputing.com) wrote:
+> > > And if there were a dataflow between addr/port a.b to addr/port c.d
+> > > already, it will either terminated?
+> > > 
+> > > Considering the following sequence:
+> > > handlers->t3c_handlers->sched()->work_queue->work_handlers()->for
+> > > example CPL_PASS_ACCEPT_REQ->pass_accept_req() - it just parses incoming
+> > > skb and sets port/addr/route and other fields to be used as a base for rdma
+> > > connection. What if it just a usual network packet from kernelspace or 
+> > > userspace with the same payload as should be sent by remote rdma system?
+> > > 
+> > 
+> > That skb isn't a network packet.  Its a CPL_PASS_ACCEPT_REQ message (see
+> > struct cpl_pass_accept_req in the Ethernet driver t3_cpl.h).  If the
+> > RDMA driver hadn't registered to listen on that addr/port, it would
+> > never get this skb.  Once a connection is established, the MPA messages
+> > (and any TCP payload data) is delivered to the RDMA driver in the form
+> > of skb's containing struct cpl_rx_data.  So these skbs aren't just TCP
+> > packets at all.  They either control messages or TCP payload. Either way
+> > they are encapsulated in CPL message structures.
+> > 
+> > Does this make sense?
+>  
+> Almost - except the case about where those skbs are coming from?
+> It looks like they are obtained from network, since it is ethernet
+> driver, and if they match some set of rules, they are considered as valid 
+> MPA negotiation protocol.
 
-> wtf?  That code was merged?  This bug has been known for months and after
-> several unsuccessful attempts at trying to understand what on earth that
-> hackery is supposed to be doing I gave up on it and asked Jeff to look after
-> it.
+They come from the Ethernet driver, but that driver manages multiple HW
+queues and these packets come from an offload queue, not the NIC queue.
+So the HW demultiplexes.
 
- I am surprised it got merged too -- my understanding from the discussion 
-was it was to be sorted out somehow within libphy, one way or another.
+Perhaps Divy or Felix from Chelsio can expand on how the Ethernet driver
+manages this?
 
-> Maciej, please, in very small words written in a very large font, explain to
-> us what is going on in phy_stop_interrupts()?  Include pictures.
+> 
+> If it is correct, it means that any packet in the network can be
+> potentially 'stolen' by rdma hardware, although it was part of the usual
+> dataflow. 
+> If that packets are not from ethernet network, but from different
+> low-level, then there is a question (besides why this driver is called
+> ethernet if it manages different hardware) about how connection over
+> that different media is being setup and since packets contain perfectly
+> valid IP addresses and ports.
 
- Would ASCII art qualify as pictures?  Regardless, I am providing a 
-textual description, which please feel free to skip to the conclusion 
-below if uninterested in the details.
+The HW has different queues for offload vs native Ethernet frames.  I'm
+not an expert on the Ethernet driver, so you'll have to consult that
+code and ask questions of Divy and/or Felix.
 
- Essentially there is a race when disconnecting from a PHY, because 
-interrupt delivery uses the event queue for processing.  The function to 
-handle interrupts that is called from the event queue is phy_change().  
-It takes a pointer to a structure that is associated with the PHY.  At the 
-time phy_stop_interrupts() is called there may be one or more calls to 
-phy_change() still pending on the event queue.  They may not be able to be 
-processed until the structure passed to phy_change() have been freed, at 
-which point calling the function is wrong.
+> And, btw, not related question - does postponing the whole skb multiplexing 
+> to work queue result in lower latency and/or higher speed?
+> Since there are a lot of tricks introduced to minimize gap between
+> interrupt/napi polling and protocol processing, so such huge postponing
+> with the whole context switch looks strange.
+> 
 
- One way of avoiding it is calling flush_scheduled_work() from 
-phy_stop_interrupts().  This is fine as long as a caller of 
-phy_stop_interrupts() (not necessarily the immediate one calling into 
-libphy) does not hold the netlink lock.
+Neither.   The work queue makes the RDMA driver's life easier because it
+has context to allocate skbs, for instance.  Note all the work queue
+stuff is done _only_ for RDMA connection setup and teardown.  Once the
+connection is in RDMA mode, there's no work queues at all for IO, and CQ
+notifications happen in interrupt context.  RDMA operations are
+submitted to the hardware via iwch_post_send().  Completion notification
+is done in the interrupt context via iwch_ev_dispatch().  And completion
+entries reaped by the consumer application via iwch_poll_cq().
 
- If a caller indeed holds the netlink lock, then a driver effectively 
-calling phy_stop_interrupts() may arrange for the function to be itself 
-scheduled through the event queue.  This has the effect of avoiding the 
-race as well, as the queue is processed in order, except it causes more 
-hassle for the driver.  Hence the choice was left to the driver's author 
--- if a driver "knows" the netlink lock is not going to be held at that 
-point, it may call phy_stop_interrupts() directly, otherwise it shall use 
-the event queue.
 
- With such an assumption in place the function has to check somehow 
-whether it has been scheduled through the queue or not and act 
-accordingly, which is why that "if" clause is there.
+Steve.
 
- Now I gather the conclusion was the whole mess was going to be included 
-within libphy and not exposed to Ethernet MAC drivers.  This way the 
-library would schedule both phy_stop_interrupts() and mdiobus_unregister() 
-(which is actually the function freeing the PHY device structure) through 
-the event queue as needed without a MAC driver having to know.
-
- And the whole question that remains is whether it is Andy (cc-ed) or me 
-who is more competent to implement this change. ;-)
-
-  Maciej

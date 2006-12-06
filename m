@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936983AbWLFSHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937016AbWLFSMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936983AbWLFSHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 13:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936985AbWLFSHl
+	id S937016AbWLFSMS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 13:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937017AbWLFSMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 13:07:41 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:51736 "EHLO smtp.osdl.org"
+	Wed, 6 Dec 2006 13:12:18 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:53003 "EHLO aun.it.uu.se"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936983AbWLFSHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 13:07:40 -0500
-Date: Wed, 6 Dec 2006 10:07:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <457702E2.3000703@garzik.org>
-Message-ID: <Pine.LNX.4.64.0612060958250.3542@woody.osdl.org>
-References: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org> 
- <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org> <21690.1165426993@redhat.com>
- <457702E2.3000703@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S937016AbWLFSMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 13:12:17 -0500
+Date: Wed, 6 Dec 2006 19:12:00 +0100 (MET)
+Message-Id: <200612061812.kB6IC0Ve004856@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: andersen@codepoet.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make sata_promise PATA ports work
+Cc: alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Dec 2006, Jeff Garzik wrote:
+On Mon, 4 Dec 2006 12:47:37 -0700, Erik Andersen wrote:
+>This patch vs 2.6.19, based on the not-actually-working-for-me
+>code lurking in libata-dev.git#promise-sata-pata, makes the PATA
+>ports on my promise sata card actually work.  Since the plan as
+>checked into git, is to drive the PATA ports as if they were
+>SATA, we have to teach sata_scr_read() to lie for the PATA ports
+>which don't to that, lest the various places that call
+>ata_port_offline() and ata_port_online() should fail and leave
+>the ports offline and inaccessible.
 >
-> Honestly I wonder if some of these situations really want
-> "kill_scheduled_work_unless_it_is_already_running_right_now_if_so_wait_for_it"
+>This patch gets both SATA and PATA working for me with the
+>sata_promise driver on a PDC20375.  Performace seems to be about
+>what I would expect, so this (or something very much like it)
+>should be applied upstream.
 
-We could do that, and the code to do it would be fairly close to what the 
-"run it" code is. Just replace the
+This description doesn't match my experience.
 
-	if (!test_bit(WORK_STRUCT_NOAUTOREL, &work->management))
-		work_release(work);
-	f(work);
+The patch in #promise-sata-pata should work for 2037x chips.
+It doesn't work on 2057x chips because it doesn't remove
+ATA_FLAG_SATA from board_2057x. That omission causes libata
+to consider all ports on it as SATA, including the PATA port,
+and that's why sata_scr_read() etc get invoked.
 
-with an unconditional
+Applying the patch below on top of #promise-sata-pata fixes
+this, and is all I had to do to get working PATA on my 20575.
 
-	work_release(work);
+/Mikael
 
-instead.
-
-However, I think I'd prefer my patch for now, if only because that 
-"work_release()" thing kind of worries me. You're supposed to either do 
-the release yourself in the work function _after_ you've done all 
-book-keeping, or if the thing doesn't need any book-keeping at all, you 
-can do the "autorelease" thing. The "kill without running" breaks that 
-conceptual model.
-
-So a "kill_work()" usage should almost always end up being something like
-
-	if (kill_work(work))
-		release anything that running the work function would release
-
-but then for the (probably common) case where there is nothing that the 
-work function releases, that would obviously boil down to just a
-
-	kill_work(work);
-
-However, my point is that the _workqueue_ logic cannot know what the user 
-of the workqueue wants, so the "run_scheduled_work()" approach is much 
-saner in this respect.
-
-NOTE NOTE NOTE! In neither case can we do anything at all about a 
-workqueue entry that is actually _already_ running on another CPU. My 
-suggested patch will simply not run it at all synchronously (and return 
-0), and a "kill_work()" thing couldn't do anything either. The required 
-synchronization for something like that simply doesn't exist.
-
-		Linus
+--- linux-2.6.19/drivers/ata/sata_promise.c.~1~	2006-12-05 20:42:18.000000000 +0100
++++ linux-2.6.19/drivers/ata/sata_promise.c	2006-12-05 21:01:26.000000000 +0100
+@@ -213,7 +213,7 @@ static const struct ata_port_info pdc_po
+ 	/* board_2057x */
+ 	{
+ 		.sht		= &pdc_ata_sht,
+-		.flags		= PDC_COMMON_FLAGS | ATA_FLAG_SATA,
++		.flags		= PDC_COMMON_FLAGS /* | ATA_FLAG_SATA*/,
+ 		.pio_mask	= 0x1f, /* pio0-4 */
+ 		.mwdma_mask	= 0x07, /* mwdma0-2 */
+ 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */

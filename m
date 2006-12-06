@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936131AbWLFP5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936294AbWLFQAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936131AbWLFP5u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936127AbWLFP5u
+	id S936294AbWLFQAA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936279AbWLFQAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:57:50 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36531 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936100AbWLFP5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:57:49 -0500
-Date: Wed, 6 Dec 2006 07:57:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Roland Dreier <rdreier@cisco.com>, Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-Message-Id: <20061206075729.b2b6aa52.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
-References: <1165125055.5320.14.camel@gullible>
-	<20061203011625.60268114.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-	<20061205123958.497a7bd6.akpm@osdl.org>
-	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
-	<20061205132643.d16db23b.akpm@osdl.org>
-	<adaac22c9cu.fsf@cisco.com>
-	<20061205135753.9c3844f8.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 6 Dec 2006 11:00:00 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:35012 "EHLO
+	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S936202AbWLFP76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:59:58 -0500
+Subject: Re: Infinite retries reading the partition table
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ltuikov@yahoo.com, mdr@sgi.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20061205210853.e2661207.akpm@osdl.org>
+References: <4575D951.3010705@sgi.com>
+	 <794609.32071.qm@web31811.mail.mud.yahoo.com>
+	 <20061205210853.e2661207.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 06 Dec 2006 09:59:47 -0600
+Message-Id: <1165420788.2810.13.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 15:25:22 +0000 (GMT)
-"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
+On Tue, 2006-12-05 at 21:08 -0800, Andrew Morton wrote:
+>  	case MEDIUM_ERROR:
+> +		if (sshdr.asc == 0x11 || /* UNRECOVERED READ ERR */
+> +		    sshdr.asc == 0x13 || /* AMNF DATA FIELD */
+> +		    sshdr.asc == 0x14) { /* RECORD NOT FOUND */
+> +			return SUCCESS;
+> +		}
+>  		return NEEDS_RETRY;
 
-> > Maybe the lesson here is that flush_scheduled_work() is a bad function.
-> > It should really be flush_this_work(struct work_struct *w).  That is in
-> > fact what approximately 100% of the flush_scheduled_work() callers actually
-> > want to do.
-> 
->  There may be cases where flush_scheduled_work() is indeed needed, but 
-> likely outside drivers, and I agree such a specific call would be useful 
-> and work here.
+If the complaint is true; i.e. infinite retries, this is just a bandaid
+not a fix.  What it's doing is marking the unrecoverable medium errors
+for no retry.  However, what we really need to know is why NEEDS_RETRY
+isn't terminating after its allotted number of retries.  Can we please
+have a trace of this?
+ 
+> -	if (scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
+> +	if (good_bytes &&
+> +	    scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
+>  		return;
 
-I think so too.  But it would be imprudent to hang around waiting for me
-to write it :(
+What exactly is this supposed to be doing?  its result is identical to
+the code it's replacing (because of the way scsi_end_request() processes
+its second argument), so it can't have any effect on the stated problem.
+
+James
+
+

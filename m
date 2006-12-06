@@ -1,93 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760239AbWLFGKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760232AbWLFGMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760239AbWLFGKy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 01:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760243AbWLFGKx
+	id S1760232AbWLFGMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 01:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760238AbWLFGMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 01:10:53 -0500
-Received: from web31812.mail.mud.yahoo.com ([68.142.207.75]:42265 "HELO
-	web31812.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1760239AbWLFGKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 01:10:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
-  b=bWp/tJhxrulNGQvHXnv25v9u2NedEoVaOp2DrhgNJHIhDTXLDklkE6F4tzs0XkM04RcZ4jc+OeSHl2JwIWuGjfXMG10wxhMy6zRdWEDbu4r5p64VReHK/Q0o5jGRFv+MaJgloURcOG1vrCyVwUd+zvuc3bN1gVKFCEwbwtktuQs=;
-X-YMail-OSG: GN2PRw8VM1kV0uF66o9pLyYqfx2hoZtEcQaalFZKQDy4iCuu8Wzj46B2G79k59ygFyuwFZEgk1YnSkGMgn8uxTArchNj3_aPoV9mOq.ZgFNEwecTx_VBYODZ5ke8mAkpzKbl_WHTTWH8C2jZmdKlZ7bbh6h5cw--
-Date: Tue, 5 Dec 2006 22:10:47 -0800 (PST)
-From: Luben Tuikov <ltuikov@yahoo.com>
-Reply-To: ltuikov@yahoo.com
-Subject: Re: Infinite retries reading the partition table
-To: Andrew Morton <akpm@osdl.org>
-Cc: mdr@sgi.com, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20061205210853.e2661207.akpm@osdl.org>
-MIME-Version: 1.0
+	Wed, 6 Dec 2006 01:12:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:60771 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760232AbWLFGMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 01:12:01 -0500
+Date: Tue, 5 Dec 2006 22:11:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: Valerie Henson <val_henson@linux.intel.com>,
+       Steven Whitehouse <steve@chygwyn.com>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: Relative atime (was Re: What's in ocfs2.git)
+Message-Id: <20061205221145.53dab6bf.akpm@osdl.org>
+In-Reply-To: <20061205222027.GA4497@ca-server1.us.oracle.com>
+References: <20061203203149.GC19617@ca-server1.us.oracle.com>
+	<1165229693.3752.629.camel@quoit.chygwyn.com>
+	<20061205001007.GF19617@ca-server1.us.oracle.com>
+	<20061205003619.GC8482@goober>
+	<20061205222027.GA4497@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <866416.88416.qm@web31812.mail.mud.yahoo.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> > On Tue, 5 Dec 2006 21:00:20 -0800 (PST) Luben Tuikov <ltuikov@yahoo.com> wrote:
-> > --- Michael Reed <mdr@sgi.com> wrote:
-> > > Luben Tuikov wrote:
-> > > ...snip...
-> > > > This statement in scsi_io_completion() causes the infinite retry loop:
-> > > >    if (scsi_end_request(cmd, 1, good_bytes, !!result) == NULL)
-> > > >          return;
-> > > 
-> > > The code in 2.6.19 is "result==0", not "!!result", which is logically
-> > > the same as "result!=0".  Did you mean to change the logic here?
-> > > Am I missing something?
-> > 
-> > Hmm, I think my trees have !!result from an earlier patch I posted.
-> > 
-> > In this case it would appear that the second chunk of the patch
-> > wouldn't be necessary, since result==0 would be false, and it
-> > wouldn't retry.
-> > 
-> 
-> I fixed things up.  The below is as-intended, yes?
+On Tue, 5 Dec 2006 14:20:27 -0800
+Mark Fasheh <mark.fasheh@oracle.com> wrote:
 
-Yes, thanks!
-
-   Luben
-
+> Update ocfs2_should_update_atime() to understand the MNT_RELATIME flag and
+> to test against mtime / ctime accordingly.
 > 
-> 
-> diff -puN drivers/scsi/scsi_error.c~fix-sense-key-medium-error-processing-and-retry
-> drivers/scsi/scsi_error.c
-> --- a/drivers/scsi/scsi_error.c~fix-sense-key-medium-error-processing-and-retry
-> +++ a/drivers/scsi/scsi_error.c
-> @@ -359,6 +359,11 @@ static int scsi_check_sense(struct scsi_
->  		return SUCCESS;
+> ...
+>
+> --- a/fs/ocfs2/file.c
+> +++ b/fs/ocfs2/file.c
+> @@ -154,6 +154,15 @@ int ocfs2_should_update_atime(struct ino
+>  		return 0;
 >  
->  	case MEDIUM_ERROR:
-> +		if (sshdr.asc == 0x11 || /* UNRECOVERED READ ERR */
-> +		    sshdr.asc == 0x13 || /* AMNF DATA FIELD */
-> +		    sshdr.asc == 0x14) { /* RECORD NOT FOUND */
-> +			return SUCCESS;
-> +		}
->  		return NEEDS_RETRY;
->  
->  	case HARDWARE_ERROR:
-> diff -puN drivers/scsi/scsi_lib.c~fix-sense-key-medium-error-processing-and-retry
-> drivers/scsi/scsi_lib.c
-> --- a/drivers/scsi/scsi_lib.c~fix-sense-key-medium-error-processing-and-retry
-> +++ a/drivers/scsi/scsi_lib.c
-> @@ -871,7 +871,8 @@ void scsi_io_completion(struct scsi_cmnd
->  	 * are leftovers and there is some kind of error
->  	 * (result != 0), retry the rest.
->  	 */
-> -	if (scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
-> +	if (good_bytes &&
-> +	    scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
->  		return;
->  
->  	/* good_bytes = 0, or (inclusive) there were leftovers and
-> _
-> 
-> 
+>  	now = CURRENT_TIME;
+> +
+> +	if (vfsmnt->mnt_flags & MNT_RELATIME) {
+> +		if ((timespec_compare(&inode->i_atime, &inode->i_mtime) < 0) ||
+> +		    (timespec_compare(&inode->i_atime, &inode->i_ctime) < 0))
+> +			return 1;
+> +
+> +		return 0;
 
+So if atime == mtime == ctime, we don't update the atime.
+
+I think we should.  It seems risky to leave them all equal.

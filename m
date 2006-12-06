@@ -1,121 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937755AbWLFWg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937759AbWLFWi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937755AbWLFWg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937754AbWLFWg1
+	id S937759AbWLFWi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937758AbWLFWi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:36:27 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:49727 "EHLO smtp.osdl.org"
+	Wed, 6 Dec 2006 17:38:58 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:49847 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937750AbWLFWg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:36:26 -0500
-Date: Wed, 6 Dec 2006 14:36:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: conke.hu@gmail.com
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: -mm merge plans for 2.6.20
-Message-Id: <20061206143612.84642868.akpm@osdl.org>
-In-Reply-To: <1165432780.21881.20.camel@linux-qmhe.site>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<4574FC0A.8090607@garzik.org>
-	<20061204214114.433485fc.akpm@osdl.org>
-	<1165432780.21881.20.camel@linux-qmhe.site>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S937752AbWLFWi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:38:57 -0500
+Date: Wed, 6 Dec 2006 14:38:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       akpm@osdl.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0612061430420.3542@woody.osdl.org>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
+ <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 03:19:40 +0800
-Conke Hu <conke.hu@gmail.com> wrote:
 
-> On Mon, 2006-12-04 at 21:41 -0800, Andrew Morton wrote:
-> > On Mon, 04 Dec 2006 23:56:42 -0500
-> > Jeff Garzik <jeff@garzik.org> wrote:
-> > 
-> > > Andrew Morton wrote:
-> > > > via-pata-controller-xfer-fixes.patch
-> > > > via-pata-controller-xfer-fixes-fix.patch
-> > > 
-> > > Tejun's 3d3cca37559e3ab2b574eda11ed5207ccdb8980a has been ack'd by the 
-> > > reporter as fixing things, so these two shouldn't be needed.
-> > 
-> > OK thanks, I dropped it.
-> > 
-> > > 
-> > > > libata_resume_fix.patch
-> > > 
-> > > I thought this was resolved long ago?  Are there still open reports that 
-> > > this solves, where upstream doesn't work?
-> > 
-> > Heck, I don't know.
-> > 
-> > > 
-> > > > ahci-ati-sb600-sata-support-for-various-modes.patch
-> > > 
-> > > With the PCI quirk, I thought ATI was finally sorted?
-> > 
-> > Was it?  I don't know that either.
-> > 
-> > I'll drop these too.
-> > -
+
+On Wed, 6 Dec 2006, Christoph Lameter wrote:
 > 
-> Hi Jeff, Andrew
->     The following patch is ATI's final solution. It was ACKed by Alan.
->     Jeff, you're the maintainer of libata, but this patch is based on
-> pci/quirks.c, so I don't know who will apply this patch? You or somebody
-> else?
->     Andrew, could you please drop ATI's previous patch and add this one
-> in next -mm patch? The previous patch I sent
-> (ahci-ati-sb600-sata-support-for-various-modes.patch) is not as good as
-> this one :)
-> 
-> 
-> Best regards,
-> Conke @AMD/ATI
+> This means we tolerate the assignment race for SMP that was pointed out 
+> earlier?
 
-Please send a signed-off-by: for this work, and a changelog which tells us
-what it does and why the kernel needs this change.
+The assignment "race" doesn't really exist in real code, I suspect.
 
-I shall then remove the ifdef (it's __devinit, and other quirks don't do
-this, and vmlinux doesn't know whether or not this driver will later be
-loaded) and I shall fix up the word wrapping and I shall convert the spaces
-back into tabs and I shall then send it on to Greg, thanks.
+There's two cases of assignment:
 
+ - pure initialization. This one isn't racy, since it's literally the 
+   initial setting of some data structure, and if it's visible in 
+   uninitialized state on other CPU's before being initialized, you have 
+   bigger problems than some silly assignment race ;)
 
-> [------------------PATCH------------------]
-> 
-> --- linux-2.6.19-rc6-git4/drivers/pci/quirks.c.orig     2006-11-23
-> 19:45:49.000000000 +0800
-> +++ linux-2.6.19-rc6-git4/drivers/pci/quirks.c  2006-11-23
-> 19:34:23.000000000 +0800
-> @@ -795,6 +795,25 @@ static void __init quirk_mediagx_master(
->        }
->  }
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_CYRIX,
-> PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master );
-> +
-> +#if defined(CONFIG_SATA_AHCI) || defined(CONFIG_SATA_AHCI_MODULE)
-> +static void __devinit quirk_sb600_sata(struct pci_dev *pdev)
-> +{
-> +       /* set sb600 sata to ahci mode */
-> +       if ((pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
-> +               u8 tmp;
-> +
-> +               pci_read_config_byte(pdev, 0x40, &tmp);
-> +               pci_write_config_byte(pdev, 0x40, tmp|1);
-> +               pci_write_config_byte(pdev, 0x9, 1);
-> +               pci_write_config_byte(pdev, 0xa, 6);
-> +               pci_write_config_byte(pdev, 0x40, tmp);
-> +
-> +               pdev->class = 0x010601;
-> +       }
-> +}
-> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATI,
-> PCI_DEVICE_ID_ATI_IXP600_SATA, quirk_sb600_sata);
-> +#endif
+   So the race doesn't exist for this class of assignment at all, and 
+   that's the _common_ case of a pure assignment (ie the "we start out 
+   with this field having value X")
 
+ - mixing assignment on one CPU (and not using "atomic_set()") and using 
+   "cmpxchg()". 
 
+   This would be a problem on architectures that use an external spinlock 
+   or something, but I don't really see how it could be a valid code 
+   sequence ANYWAY.
+
+   Any code that does this had better have some _higherlevel_ 
+   serialization around that data structure, since while it's not a _bug_ 
+   on architectures that do "cmpxchg()" in hardware (as far as the cmpxchg 
+   itself is concerned), the fact is, in the absense of any other locking, 
+   what the hell is such code supposed to _mean_?
+
+In other words - the second case would be a bug in that it bypasses the 
+serialization of the spinlock, but why would you ever do that anyway? What 
+could _possibly_ be a valid use of such a "set value blindly" kind of 
+sequence? Since another CPU is clearly doing something to the value (ie 
+the cmpxchg), the "set it to value X" is just not a well-defined 
+operation in the first place, since you don't know what the end result is 
+(will it be "X", or will the "cmpxchg" on the other CPU have set it to 
+something else?).
+
+So I don't think the race really exists for any sane code anyway. Even if 
+people don't use "atomic_set()".
+
+But hey, maybe I'm just ignoring some really odd usage case.
+
+		Linus

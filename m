@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760033AbWLFEMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758877AbWLFEeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760033AbWLFEMj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 23:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759988AbWLFEMj
+	id S1758877AbWLFEeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 23:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759980AbWLFEeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 23:12:39 -0500
-Received: from mail.mcfarling.com ([12.192.21.194]:61427 "HELO 3CE20C48"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1759915AbWLFEMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 23:12:37 -0500
-Date: Wed, 06 Dec 2006 06:07:34 +0200
-Message-Id: <CFE8.9A4.3033398B8C@mopalinux.com>
-From: "Joshua Mckinnon" <MaryanneTH@msn.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-raid@vger.kernel.org, linux-net-owner@vger.kernel.org,
-       linux-laptop@vger.kernel.org, postmaster@vger.kernel.org,
-       2b54325@vger.kernel.org
-Subject: Guauarantee Winning Poker
+	Tue, 5 Dec 2006 23:34:16 -0500
+Received: from host86-132-175-179.range86-132.btcentralplus.com ([86.132.175.179]:4841
+	"HELO znakomstv.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with SMTP id S1758877AbWLFEeP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 23:34:15 -0500
+Message-ID: <94866B2E.326E4B93@znakomstv.ru>
+Date: Wed, 06 Dec 2006 17:28:47 +1200
+Reply-To: "irvin gilbert" <maegainlybir@znakomstv.ru>
+From: "irvin gilbert" <maegainlybir@znakomstv.ru>
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Myrle" <autoanswer@vger.kernel.org>
+Cc: "Sana" <linux-kernel@vger.kernel.org>
+Subject: Totally OutOfDebt Overnight
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Se1ect 1egal counse1 have found a loophole in the laws of the banking
+system. With this discovery, we've been 5uccessful at eliminating people's
+creditcarddebt with 0ut them paying one more cent. WeGuarantee that we can
+help you with this.
 
-Would you like to make a living playing poker?
-
-We have a computer program that plays multiple hands on
-your behalf and wins 93% of the time when it plays.
-Sounds fascinating right?
-
-On the market only one week now and only a few people have used
-it and are making BIG money. We are sending you this exclusive
-sneak-peak to get into the action before it's too late.
-You will make your investment back in ONE DAY!
-
-We guarantee it will work or cash back.
-Anyone can use it, that is the reason why you should act now
-before it gets overused. 99.9999% are not using this yet!
-
-"I designed this and I was the first to obviously use it.
-I am making $15,000+ a week playing and I am now sharing
-the wealth with you."
-
-Check us out:
-
-http://www.hauntedyou.biz/pkr/ron.html
+C0ntact us at
+1--313-263-2706
 
 
+There followed another band after this, which was called the Royal Court
+Band, because the members all lived in the palace. But at this season the
+hotel was almost empty, and when Rob protested that he had no other money
+the fat gentleman put the coins into his cash box with a resigned sigh and
+the waiter showed the boy to a little room at the very top of the building
 
--Roy S. Diaz, CEO
-Founder of PokerBotMax

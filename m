@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760559AbWLFMbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760556AbWLFMd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760559AbWLFMbV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 07:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760560AbWLFMbV
+	id S1760556AbWLFMd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 07:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760555AbWLFMd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 07:31:21 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2447 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760559AbWLFMbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 07:31:20 -0500
-Date: Wed, 6 Dec 2006 12:31:15 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andy Fleming <afleming@freescale.com>
-cc: Andrew Morton <akpm@osdl.org>, Ben Collins <ben.collins@ubuntu.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <0ECFB207-7AC9-4D0D-AC9B-EEFF5A1A41EA@freescale.com>
-Message-ID: <Pine.LNX.4.64N.0612061210530.29000@blysk.ds.pg.gda.pl>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <0ECFB207-7AC9-4D0D-AC9B-EEFF5A1A41EA@freescale.com>
+	Wed, 6 Dec 2006 07:33:56 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:47167 "EHLO scrub.xs4all.nl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760556AbWLFMdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 07:33:55 -0500
+Date: Wed, 6 Dec 2006 13:33:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, tglx@linutronix.de,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: -mm merge plans for 2.6.20
+In-Reply-To: <20061205203013.7073cb38.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612061312560.1867@scrub.home>
+References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612060348150.1868@scrub.home>
+ <20061205203013.7073cb38.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006, Andy Fleming wrote:
+Hi,
 
-> We need to make sure there are no more pending phy_change() invocations in the
-> work queue, this is true, however I'm not convinced that this avoids the
-> problem.  And now that I come back to this email after Linus's response, let
-> me add that I agree with his suggestion.  I still don't think it solves the
-> original problem, though.  Unless I'm missing something, Maciej's suggested
-> fix (having the driver invoke phy_stop_interrupts() from a work queue) doesn't
-> stop the race:
+On Tue, 5 Dec 2006, Andrew Morton wrote:
+
+> > IMO it least at needs one more iteration to address the comments that 
+> > were made (not just mine), in the short term the less it touches 
+> > unconditionally the less I care right now.
 > 
-> * Schedule stop_interrupts and freeing of memory.
-> * interrupt occurs, and schedules phy_change
-> * work_queue triggers, and stop_interrupts is invoked.  It doesn't call
-> flush_scheduled_work, because it's being called from keventd.
-> * The invoker of stop_interrupts (presumably some function in the driver)
-> frees up memory, including the phy_device.
-> * phy_change is invoked() from the work queue, and starts accessing freed
-> memory
+> I don't have a clue which review comments remain unaddressed - do you recall?
 
- This is not going to happen with my other changes to the file applied.  
-The reason is at the time phy_stop_interrupts() is called phy_stop() has 
-already run and switched the state of the PHY being handled to PHY_HALTED.  
-As a result any subsequent calls to phy_interrupt() that might have 
-happened after phy_stop() have not scheduled calls to phy_change() for 
-this PHY as will not any that may happen up until free_irq() have 
-unregistered the interrupt for the PHY.
+Outside clockevents I'd like to see at least the flag handling fixed 
+before it gets merged.
+Inside clockevents I could poke around forever...
 
-> I suggested this, mostly so that drivers wouldn't have to be aware of this.
-> But I'm not quite sure what happens when you unload a module.  Does some stuff
-> stay behind if needed?  If you unload the ethernet driver, that will usually
-> remove the bus controller for the PHY, which would prevent any scheduled code
-> from accessing the PHY.
+> > In the long term IMO this might need a major rework, the basic problem I 
+> > have is that I don't see how this usable beyond dynticks/hrtimer, e.g. how 
+> > to dynamically manage multiple timer.
+> 
+> I'm not sure I understand that.  Are you referring to multiple,
+> concurrently-operating hardware clock sources?  <wonders how that could
+> work> If so, that's more a clocksource thing than a dynticks/hrtimer thing,
+> isn't it?
 
- Hmm, I am unsure if there is anything that would ensure flushing of the 
-queue after its stop() call has finished and before a driver is removed 
-(its module_exit() call is invoked), probably nothing, and that is why I 
-put explicit flush_scheduled_work() in sb1250-mac.c:sbmac_remove() and the 
-driver's open() call checks whether a possible previous instance of the 
-structure used by phy_change() have not been freed yet.  There may be a 
-cleaner way of doing it, but I will have to think about it.
+A rather simple example would be profiling, where a separate timer is 
+useful to see stuff that runs from the main timer, which is currently 
+invisible.
+It's insofar a clocksource thing as clock source and clock events should 
+form a union, currently it's separate and that's a big problem. It's not 
+really problem to have multiple clock sources and they don't really have 
+to be synchronized with each other, but events _are_ connected to the 
+source they are coming from.
+In the end we could even expose multiple clocks via the posix clock/timer 
+interface, but with the current design I don't see how this is possible.
 
-  Maciej
+bye, Roman

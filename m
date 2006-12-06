@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760258AbWLFG2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760263AbWLFGgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760258AbWLFG2a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 01:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760257AbWLFG2a
+	id S1760263AbWLFGgX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 01:36:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760262AbWLFGgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 01:28:30 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:31182 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760255AbWLFG23 (ORCPT
+	Wed, 6 Dec 2006 01:36:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44781 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760257AbWLFGgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 01:28:29 -0500
-Date: Tue, 5 Dec 2006 22:28:09 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: linux-kernel@vger.kernel.org
-Cc: mm-commits@vger.kernel.org, akpm@osdl.org, hch@lst.de,
-       val_henson@linux.intel.com, viro@zeniv.linux.org.uk
-Subject: Re: + ocfs2-relative-atime-support-tweaks.patch added to -mm tree
-Message-ID: <20061206062809.GD4497@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <200612060612.kB66CjNW025289@shell0.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612060612.kB66CjNW025289@shell0.pdx.osdl.net>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+	Wed, 6 Dec 2006 01:36:22 -0500
+Subject: Re: [PATCH] CPEI gets warning at
+	kernel/irq/migration.c:27/move_masked_irq()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, linux-ia64@vger.kernel.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061205221913.1ef416f9.akpm@osdl.org>
+References: <4575212A.3020902@jp.fujitsu.com>
+	 <20061205221913.1ef416f9.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 06 Dec 2006 07:36:15 +0100
+Message-Id: <1165386976.3233.428.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 10:12:45PM -0800, akpm@osdl.org wrote:
-> ------------------------------------------------------
-> Subject: ocfs2-relative-atime-support-tweaks
-> From: Andrew Morton <akpm@osdl.org>
+
+> It'd be nice if we could just teach the userspace balancer to not try to
+> move perpcu IRQs?
 > 
-> methinks...
-Yeah, all good tweaks - thanks for catching those. And thanks for carrying
-the ocfs2 patch in -mm.
+> otoh, the patch is super-cheap.   Arjan?
 
-Acked-by: Mark Fasheh <mark.fasheh@oracle.com>
+I can fix irqbalance no problem, however I like the kernel approach as
+well, since it's not just irqbalance that moves irqs, sysadmins tend to
+do it as well....  so how about both?
 
-> diff -puN fs/ocfs2/file.c~ocfs2-relative-atime-support-tweaks fs/ocfs2/file.c
-> --- a/fs/ocfs2/file.c~ocfs2-relative-atime-support-tweaks
-> +++ a/fs/ocfs2/file.c
-> @@ -153,16 +153,15 @@ int ocfs2_should_update_atime(struct ino
->  	    ((vfsmnt->mnt_flags & MNT_NODIRATIME) && S_ISDIR(inode->i_mode)))
->  		return 0;
->  
-> -	now = CURRENT_TIME;
-> -
->  	if (vfsmnt->mnt_flags & MNT_RELATIME) {
-> -		if ((timespec_compare(&inode->i_atime, &inode->i_mtime) < 0) ||
-> -		    (timespec_compare(&inode->i_atime, &inode->i_ctime) < 0))
-> +		if ((timespec_compare(&inode->i_atime, &inode->i_mtime) <= 0) ||
-> +		    (timespec_compare(&inode->i_atime, &inode->i_ctime) <= 0))
->  			return 1;
-Hmm, should we fix up touch_atime() to use "<=" as well? Maybe I didn't read
-it correctly...
-	--Mark
+One thing we probably should do, and that would help irqbalance
+immensely, is to export a bitmask for which cpus an interrupt CAN go to,
+next to where the current binding interface is. I'll check into that
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Hidetoshi: would it be possible to send me a /proc/interrupts file of
+that machine?
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

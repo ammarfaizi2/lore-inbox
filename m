@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935390AbWLFPbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935436AbWLFPdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935390AbWLFPbs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935436AbWLFPbs
+	id S935436AbWLFPdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935706AbWLFPdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:31:48 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:11819 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935390AbWLFPbq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:31:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TOY0h+vixpNLCfMioKPj13LYWPX2iVanEPeSUEMMlh+oDO/iQ2LMzLkdUgjQwRRPA2fR+aGGIJak/gz/XDTQcHjO4dtwe8djR/YefLkWFosgwPoVuo1npgYU3xt5GioSBzvD+Vk0jYITVClRefvoSpJOTuN0/1Y5DA3Xhv+QB5I=
-Message-ID: <d120d5000612060731s3e1b4b6fnb8e93b970e91a852@mail.gmail.com>
-Date: Wed, 6 Dec 2006 10:31:44 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Jiri Kosina" <jkosina@suse.cz>
-Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
-Cc: "Marcel Holtmann" <marcel@holtmann.org>, "Li Yu" <raise.sail@gmail.com>,
-       "Greg Kroah Hartman" <greg@kroah.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Vincent Legoll" <vincentlegoll@gmail.com>,
-       "Zephaniah E. Hull" <warp@aehallh.com>, liyu <liyu@ccoss.com.cn>
-In-Reply-To: <Pine.LNX.4.64.0612061615080.29624@jikos.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 10:33:38 -0500
+Received: from iona.labri.fr ([147.210.8.143]:58262 "EHLO iona.labri.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935436AbWLFPdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:33:37 -0500
+Date: Wed, 6 Dec 2006 16:34:04 +0100
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux should define ENOTSUP
+Message-ID: <20061206153404.GU3927@implementation.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <4576DED7.10800@zytor.com> <20061206152542.GS3927@implementation.labri.fr> <4576E134.5020109@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <200612061803324532133@gmail.com>
-	 <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-	 <d120d5000612060624o15f608dk83f35a228b9a6d18@mail.gmail.com>
-	 <1165415924.2756.63.camel@localhost>
-	 <Pine.LNX.4.64.0612061549040.29624@jikos.suse.cz>
-	 <d120d5000612060713n5118b379w11dc7e65abae1c58@mail.gmail.com>
-	 <Pine.LNX.4.64.0612061615080.29624@jikos.suse.cz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4576E134.5020109@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/06, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 6 Dec 2006, Dmitry Torokhov wrote:
-> > Is there any reason why we can't mecanically move everything into
-> > drivers/hid right now? Then Greg could simply forward all patches he
-> > gets for HID your way and you won't have hard time merging your work
-> > with others...
->
-> That definitely would be a possible solution.
->
-> In fact, the patches for the split I sent to you and a few other people
-> two weeks ago or so, do exactly this - in some sense "mechanical" split of
-> the generic parts laying currently in USB hid, from the USB-specific ones,
-> and moving them around (sure, some changes are done, like introducing data
-> structures specific to usbhid, etc., but no rocket science yet).
->
+H. Peter Anvin, le Wed 06 Dec 2006 07:26:44 -0800, a écrit :
+> Samuel Thibault wrote:
+> >H. Peter Anvin, le Wed 06 Dec 2006 07:16:39 -0800, a écrit :
+> >>Arjan van de Ven wrote:
+> >>>>Is there any way to fix this?  Glibc people don't seem to want to fix it
+> >>>>on their part, see
+> >>>>http://sources.redhat.com/bugzilla/show_bug.cgi?id=2363
+> >>>Hi,
+> >>>
+> >>>Ulrich asked you to go to us once your time travel machine was
+> >>>finished.. is it finished yet ?  ;=)
+> >>>
+> >>>this is part of the ABI, so we can't change this in 2006...
+> >>>
+> >>If ENOTSUP is currently unused and is only there for completeness, then 
+> >>it should be fine to add it.
+> >
+> >The functions that should be returning it instead of EOPNOTSUP should be
+> >fixed too.
+> >
+> 
+> The two can't be done at the same time.  In fact, the two probably can't 
+> be done without a period of quite a few *years* between them.
 
-If Greg is OK with that I would start with truly mechanical merge (no
-now data structures, just move the files around) and merge this ASAP,
-before we hit -rc1 or -rc2 at the latest. Then you can start puling up
-your changesin the separate git tree.
+Not a reason for not doing it ;)
 
-> This would be nice to merge, if noone has any major objections, and do
-> other development on top of that.
-> I am currently trying to set up an account and git tree for this at
-> kernel.org ... request sent, waiting for reply :)
->
-
-Take up Marcel on his suggestion ;) I  could set up a tree too but I
-am afraid I won't have enought time at the moment.
-
--- 
-Dmitry
+Samuel

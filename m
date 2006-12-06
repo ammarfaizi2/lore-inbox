@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760386AbWLFJmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760389AbWLFJu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760386AbWLFJmo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 04:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760392AbWLFJmo
+	id S1760389AbWLFJu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 04:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760387AbWLFJu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 04:42:44 -0500
-Received: from pfx2.jmh.fr ([194.153.89.55]:55284 "EHLO pfx2.jmh.fr"
+	Wed, 6 Dec 2006 04:50:26 -0500
+Received: from iona.labri.fr ([147.210.8.143]:47962 "EHLO iona.labri.fr"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760376AbWLFJmn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 04:42:43 -0500
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Relative atime (was Re: What's in ocfs2.git)
-Date: Wed, 6 Dec 2006 10:42:58 +0100
-User-Agent: KMail/1.9.5
-Cc: Valerie Henson <val_henson@linux.intel.com>, mark.fasheh@oracle.com,
-       steve@chygwyn.com, linux-kernel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk
-References: <20061203203149.GC19617@ca-server1.us.oracle.com> <20061205003619.GC8482@goober> <20061205205802.92b91ce1.akpm@osdl.org>
-In-Reply-To: <20061205205802.92b91ce1.akpm@osdl.org>
+	id S1759288AbWLFJuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 04:50:25 -0500
+Message-ID: <45769256.1070400@ens-lyon.org>
+Date: Wed, 06 Dec 2006 10:50:14 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612061042.58595.dada1@cosmosbay.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: sparse errors in srcu.h
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 December 2006 05:58, Andrew Morton wrote:
-> > On Mon, 4 Dec 2006 16:36:20 -0800 Valerie Henson
-> > <val_henson@linux.intel.com> wrote: Add "relatime" (relative atime)
-> > support.  Relative atime only updates the atime if the previous atime is
-> > older than the mtime or ctime. Like noatime, but useful for applications
-> > like mutt that need to know when a file has been read since it was last
-> > modified.
->
-> That seems like a good idea.
->
-> I found touch_atime() to be rather putrid, so I hacked it around a bit. 
+Hi,
 
-I find this function full of tests...
+When running sparse checks on a file that ends up including srcu.h, we
+get the following warnings:
 
-> The end result:
->
-> void touch_atime(struct vfsmount *mnt, struct dentry *dentry)
-> {
-> 	struct inode *inode = dentry->d_inode;
-> 	struct timespec now;
->
-> 	if (IS_RDONLY(inode))
-> 		return;
+    include/linux/srcu.h:52:44: error: undefined identifier 'sp'
+    include/linux/srcu.h:52:44: error: bad constant expression
+    include/linux/srcu.h:53:56: error: undefined identifier 'sp'
+    include/linux/srcu.h:53:56: error: bad constant expression
 
-While we are adding new tests, we could try to be smart here testing both 
-MS_RDONLY and MS_NOATIME.
+It seems to be caused by the following lines:
 
-if (__IS_FLG(inode, MS_RDONLY | MS_NOATIME))
-	return;
+    int srcu_read_lock(struct srcu_struct *sp) __acquires(sp);
+    void srcu_read_unlock(struct srcu_struct *sp, int idx) __releases(sp);
 
-> 	if (inode->i_flags & S_NOATIME)
-> 		return;
+which come from the following commit.
 
-> 	if (inode->i_sb->s_flags & MS_NOATIME)
-> 		return;
-So that that one can be deleted.
+    commit 621934ee7ed5b073c7fd638b347e632c53572761
+    Author: Paul E. McKenney <paulmck@us.ibm.com>
+    Date:   Wed Oct 4 02:17:02 2006 -0700
 
->        if ((inode->i_sb->s_flags & MS_NODIRATIME) && S_ISDIR(inode->i_mode))
->                return;
+    [PATCH] srcu-3: RCU variant permitting read-side blocking
 
-	if (__IS_FLG(inode, MS_NODIRATIME) && S_ISDIR(inode->i_mode))
-		return;
 
-Eric
+I was wondering if there is a way to fix those errors...
+
+Thanks,
+Brice
+

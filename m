@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760672AbWLFTG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937116AbWLFTIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760672AbWLFTG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760613AbWLFTG0
+	id S937116AbWLFTIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760677AbWLFTIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:06:26 -0500
-Received: from wx-out-0506.google.com ([66.249.82.232]:28924 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759351AbWLFTGZ (ORCPT
+	Wed, 6 Dec 2006 14:08:37 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:59494 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760669AbWLFTIg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:06:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=b9xHxHMxRuOCcbNQIMKeTr/ugd++HrNHVbcl9gYAkVlyn3xfp48N1znp7sexnnCyq1rw2FpWU9HFDIChn9LQAzahP0jG/m6ngaLHLEfTXBWknsT2WBVAKDwKRuHquZUUT4mOdpbFuRxJoHrHkyZzU/7CA4yYOQ8ljW8aD+WRKl0=
-Message-ID: <653402b90612061106i2071ba75ka1a14de6829c85b5@mail.gmail.com>
-Date: Wed, 6 Dec 2006 20:06:24 +0100
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: jsimmons@infradead.org
-Subject: Re: Display class
-Cc: linux-kernel@vger.kernel.org, Luming.yu@intel.com, zap@homelink.ru,
-       randy.dunlap@oracle.com, kernel-discuss@handhelds.org
-In-Reply-To: <20061206194442.422c60d3.maxextreme@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 14:08:36 -0500
+Date: Wed, 6 Dec 2006 19:08:28 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
+Message-ID: <20061206190828.GE4587@ftp.linux.org.uk>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061206194442.422c60d3.maxextreme@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/06, Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
-> Ok, here is the patch (against git7+displayclass) which moves auxdisplay/*
-> to video/display/* and start using the display class.
->
-> It is just a draft, but there isn't much code changed from -mm2.
->
->   - I would remove "struct device *dev, void *devdata" of display_device_register()
->     Are they neccesary for other display drivers? I have to pass NULL right now.
->
->   - I would add a paramtere ("char *name") to display_device_register() so we
->     set the name when registering. Right now I have to set my name after inited,
->     and this is a Linux module and not a person borning, right? ;)
->
->   - I would add a read/writeable attr called "rate" for set/unset the refresh rate
->     of a display.
->
->   - I was going to maintain the drivers/auxdisplay/* tree.
->     Are you going to maintain the driver? I think so, just for being sure.
+On Wed, Dec 06, 2006 at 11:05:22AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 6 Dec 2006, Christoph Lameter wrote:
+> >
+> > I'd really appreciate a cmpxchg that is generically available for 
+> > all arches. It will allow lockless implementation for various performance 
+> > criticial portions of the kernel.
+> 
+> I suspect ARM may have been the last one without one, no?
 
-I meant display driver (display/*).
-
->
-> P.S.
->
->   When I was working at 2.6.19-rc6-mm2 it worked all fine, but now
->   I have copied it to git7 I'm getting some weird segmentation faults
->   (oops) when at cfag12864bfb_init, at mutex_lock() in
->   display_device_unregister module... I think unrelated (?), but I will
->
-
-I meant display_device_unregister function of display-sysfs.c
-
---
-
-The changes have been made in driver/video/display/cfag12864bfb.c, so
-please focus the review on it.
-
-Thanks
+No.  sparc32 doesn't have one, for instance.

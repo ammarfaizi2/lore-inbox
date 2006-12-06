@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937819AbWLFXza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937821AbWLFX4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937819AbWLFXza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 18:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937821AbWLFXz3
+	id S937821AbWLFX4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 18:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937823AbWLFX4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 18:55:29 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:59798 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937819AbWLFXz3 (ORCPT
+	Wed, 6 Dec 2006 18:56:41 -0500
+Received: from europa.lunarpages.com ([209.200.229.75]:38165 "EHLO
+	europa.lunarpages.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937821AbWLFX4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 18:55:29 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <45775861.9060507@s5r6.in-berlin.de>
-Date: Thu, 07 Dec 2006 00:55:13 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 0/3] New firewire stack
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205184921.GA5029@martell.zuzino.mipt.ru> <4575FF08.2030100@redhat.com> <45768116.8040804@s5r6.in-berlin.de> <457743E5.4010109@redhat.com>
-In-Reply-To: <457743E5.4010109@redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Dec 2006 18:56:40 -0500
+Subject: Obtaining a list of memory address ranges allocated to processes
+From: Stephen Torri <storri@torri.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 06 Dec 2006 17:56:26 -0600
+Message-Id: <1165449386.13079.30.camel@base.torri.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - europa.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - torri.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Høgsberg wrote:
-> Stefan Richter wrote:
->> You have to look at the matter not only from the POV of API design but
->> also of deployment and support.
-> 
-> My POV here *is* about deployment and support, but from the kernel side
-> of things.  If you commit yourself to long time support for the firewire
-> stack, would you prefer 4 slightly different streaming drivers with
-> different user space interfaces, or just one userspace driver with one
-> userspace interface, that enables the 4 different types of streaming to
-> be done in userspace?
+I am trying to create a custom ELF and Windows PE loader for the purpose
+of security research. I am having a difficult time finding how to
+allocate memory for a binary at the desired address in memory
+(especially if its non-relocatable). I would like to see why I cannot
+get memory allocated at the exact address request in the binary headers.
+Is there a program or system call that allows me to see a list of memory
+address ranges allocated to the running processes on a system?
 
-My own preference certainly came across during in the recent thread on
-linux1394-devel about deprecation dates... :-)
+Stephen
 
-> The design of the streaming interfaces have been
-> focused on enabling all these ad-hoc, in-kernel drivers to move to
-> userspace, to make it feasible to actually support the stack.
-
--- 
-Stefan Richter
--=====-=-==- ==-- --===
-http://arcgraph.de/sr/

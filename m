@@ -1,98 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937702AbWLFWFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937698AbWLFWEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937702AbWLFWFA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:05:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937707AbWLFWFA
+	id S937698AbWLFWEh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937703AbWLFWEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:05:00 -0500
-Received: from hu-out-0506.google.com ([72.14.214.233]:3075 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937702AbWLFWE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:04:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=irFh/jwOFIZsYyaghRGjAfPaXCTuFHDz4iLc4NkLlZVdkHsfeio2roMq5woyS6Ef9+bokR8NhNh7dfPTLpk/HTjzmJhHLxK8ADEnjX7Gq6pGhWvHJOVDD1mAZE9w9bT6/gBVCfk1UzClinWOKmjtPPbQcfKPvskcpnRhkWEE4GM=
-Message-ID: <d120d5000612061404x3f6e18e7qd3601c3b450a5f91@mail.gmail.com>
-Date: Wed, 6 Dec 2006 17:04:56 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Ivo van Doorn" <ivdoorn@gmail.com>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "John Linville" <linville@tuxdriver.com>, "Jiri Benc" <jbenc@suse.cz>,
-       "Lennart Poettering" <lennart@poettering.net>,
-       "Johannes Berg" <johannes@sipsolutions.net>,
-       "Larry Finger" <Larry.Finger@lwfinger.net>
-In-Reply-To: <200612062241.58476.IvDoorn@gmail.com>
+	Wed, 6 Dec 2006 17:04:37 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:42665 "EHLO e6.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937698AbWLFWEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:04:35 -0500
+Message-ID: <45773E85.8040505@us.ibm.com>
+Date: Wed, 06 Dec 2006 16:04:53 -0600
+From: Maynard Johnson <maynardj@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Luke Browning <lukeb@br.ibm.com>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+CC: Luke Browning <lukebrowning@us.ibm.com>, maynardj@linux.vnet.ibm.com,
+       linuxppc-dev-bounces+lukebrowning=us.ibm.com@ozlabs.org,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       oprofile-list@lists.sourceforge.net, cbe-oss-dev@ozlabs.org
+Subject: Re: [PATCH]Add notification for active Cell SPU tasks
+References: <OF9A01B09B.B62F8342-ON8325723C.006A9343-8325723C.006B2236@us.ibm.com>
+In-Reply-To: <OF9A01B09B.B62F8342-ON8325723C.006A9343-8325723C.006B2236@us.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612031936.34343.IvDoorn@gmail.com>
-	 <200612062031.57148.IvDoorn@gmail.com>
-	 <d120d5000612061218x4eac87e0jc18409f82bb7c99c@mail.gmail.com>
-	 <200612062241.58476.IvDoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+Luke Browning wrote:
+
+> linuxppc-dev-bounces+lukebrowning=us.ibm.com@ozlabs.org wrote on 
+> 12/04/2006 10:26:57:
 >
-> > >  2 - Hardware key that does not control the hardware radio and does not report anything to userspace
+> > linuxppc-dev-bounces+lukebrowning=us.ibm.com@ozlabs.org wrote on
+> > 01/12/2006 06:01:15 PM:
 > >
-> > Kind of uninteresting button ;)
->
-> And this is the button that rfkill was originally designed for.
-> Laptops with integrated WiFi cards from Ralink have a hardware button that don't send anything to
-> userspace (unless the ACPI event is read) and does not directly control the radio itself.
->
-
-So what does such a button do? I am confused here...
-
-...
->
-> And this event should be reported by a generic approach right? So it should
-> be similar as with your point 2 below. But this would mean that the driver
-> should create the input device. Or can a driver send the KEY_WIFI event
-> over a main layer without the need of a personal input device?
-> I am not that familiar with the input device layer in the kernel, and this is
-> my first attempt on creating something for it, so I might have missed something. ;)
-
-Yes, I think the driver should just create an input device. You may
-provide a generic implementation for a polled button and have driver
-instantiate it but I do not think that a single RFkill button device
-is needed - you won't have too many of them in a single system anyway
-(I think you will normally have 1, 2 at the most).
-
-...
-> > 3. A device without transmitter but with a button - just register with
-> > input core. Userspace will have to manage state of other devices with
-> > transmitters in response to button presses.
->
-> This is clear too. Rfkill is only intended for drivers that control a device with
-> a transmitter (WiFi, Bluetooth, IRDA) that have a button that is intended to
-> do something with the radio/transmitter.
->
-> > Does this make sense?
->
-> Yes, this was what I intended to do with rfkill, so at that point we have
-> the same goal.
->
-
-I think it is almost the same. I also want support RF devices that can
-control radio state but lack a button. This is covered by mixing 2)
-and 3) in kernel and for userspace looks exactly like 2) with a
-button.
-
-...
+> > >
+> > > Subject: Enable SPU switch notification to detect currently 
+> activeSPU tasks.
+> > >
+> > > From: Maynard Johnson <maynardj@us.ibm.com>
+> > >
+> > > This patch adds to the capability of spu_switch_event_register to 
+> notify the
+> > > caller of currently active SPU tasks.  It also exports
+> > > spu_switch_event_register
+> > > and spu_switch_event_unregister.
+> > >
+> > > Signed-off-by: Maynard Johnson <mpjohn@us.ibm.com>
+> > >
+> > >
+> > > Index: linux-2.6.19-rc6-
+> > > arnd1+patches/arch/powerpc/platforms/cell/spufs/sched.c
+> > > ===================================================================
+> > > --- linux-2.6.19-rc6-arnd1+patches.
+> > > orig/arch/powerpc/platforms/cell/spufs/sched.c   2006-11-24 11:34:
+> > > 44.884455680 -0600
+> > > +++ linux-2.6.19-rc6-
+> > > arnd1+patches/arch/powerpc/platforms/cell/spufs/sched.c   2006-12-01
+> > > 13:57:21.864583264 -0600
+> > > @@ -84,15 +84,37 @@
+> > >               ctx ? ctx->object_id : 0, spu);
+> > >  }
+> > >  
+> > > +static void notify_spus_active(void)
+> > > +{
+> > > +   int node;
+> > > +   for (node = 0; node < MAX_NUMNODES; node++) {
+> > > +      struct spu *spu;
+> > > +      mutex_lock(&spu_prio->active_mutex[node]);
+> > > +      list_for_each_entry(spu, &spu_prio->active_list[node], list) {
+> > > +              struct spu_context *ctx = spu->ctx;
+> > > +              blocking_notifier_call_chain(&spu_switch_notifier,
+> > > +                     ctx ? ctx->object_id : 0, spu);
+> > > +      }
+> > > +      mutex_unlock(&spu_prio->active_mutex[node]);
+> > > +    }
+> > > +
+> > > +}
+> > > +
+> > >  int spu_switch_event_register(struct notifier_block * n)
+> > >  {
+> > > -   return blocking_notifier_chain_register(&spu_switch_notifier, n);
+> > > +   int ret;
+> > > +   ret = blocking_notifier_chain_register(&spu_switch_notifier, n);
+> > > +   if (!ret)
+> > > +      notify_spus_active();
+> > > +   return ret;
+> > >  }
+> > > +EXPORT_SYMBOL_GPL(spu_switch_event_register);
+> > >  
+> > >  int spu_switch_event_unregister(struct notifier_block * n)
+> > >  {
+> > >     return 
+> blocking_notifier_chain_unregister(&spu_switch_notifier, n);
+> > >  }
+> > > +EXPORT_SYMBOL_GPL(spu_switch_event_unregister);
+> > >  
+> > >  
+> > >  static inline void bind_context(struct spu *spu, struct 
+> spu_context *ctx)
 > >
-> > I don't think a config option is a good idea unless by config option
-> > you mean a sysfs attribute.
+> > Is this really the right strategy?  First, it serializes all spu 
+> context
+> > switching at the node level.  Second, it performs 17 callouts for
 >
-> I indeed meant a sysfs attribute. I should have been more clear on this. :)
+I could be wrong, but I think if we moved the mutex_lock to be inside of 
+the list_for_each_entry loop, we could have a race condition.  For 
+example, we obtain the next spu item from the spu_prio->active_mutex 
+list, then wait on the mutex which is being held for the purpose of 
+removing the very spu context we just obtained.
+
+> > every context
+> > switch.  Can't oprofile internally derive the list of active spus 
+> from the  
+> > context switch callout. 
+>
+Arnd would certainly know the answer to this off the top of his head, 
+but when I initially discussed the idea for this patch with him 
+(probably a couple months ago or so), he didn't suggest a better 
+alternative.  Perhaps there is a way to do this with current SPUFS 
+code.  Arnd, any comments on this?
+
+> >
+> > Also, the notify_spus_active() callout is dependent on the return 
+> code of
+> > spu_switch_notify().  Should notification be hierarchical?  If I
+> > only register
+> > for the second one, should my notification be dependent on the 
+> return code
+> > of some non-related subsystem's handler. 
+>
+I'm not exactly sure what you're saying here.  Are you suggesting that a 
+user may only be interested in acitve SPU notification and, therefore, 
+shouldn't have to be depenent on the "standard" notification 
+registration succeeding?  There may be a case for adding a new 
+registration function, I suppose; although, I'm not aware of any other 
+users of the SPUFS notification mechanism besides OProfile and PDT, and 
+we need notification of both active and future SPU tasks.  But I would 
+not object to a new function.
+
+> >
+> > Does blocking_callchain_notifier internally check for the presence
+> > of registered
+> > handlers before it takes locks ...?  We should ensure that there is
+> > minimal overhead
+> > when there are no registered handlers.
+>
+I won't pretend to be expert enough to critique the performance of that 
+code.
+
+> >
+> > Regards,
+> > Luke___________________
+>
+> Any comments to my questions above.  Seems like oprofile / pdt could 
+> derive the
+> list of active spus from a single context switch callout.  This patch 
+> will have
+> a large impact on the performance of the system.
+>
+For OProfile, the registration is only done at the time when a user 
+starts the profiler to collect performance data, typically focusing on a 
+single application, so I don't see this as an impact on normal 
+production operations.  Since you must have root authority to run 
+OProfile, it cannot be invoked by just any user for nefarious purposes.
+
+-Maynard
+
+>
+> Luke
+>
+>------------------------------------------------------------------------
+>
+>_______________________________________________
+>Linuxppc-dev mailing list
+>Linuxppc-dev@ozlabs.org
+>https://ozlabs.org/mailman/listinfo/linuxppc-dev
 >
 
-OK :)
 
--- 
-Dmitry

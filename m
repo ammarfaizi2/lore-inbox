@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936933AbWLFRuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936951AbWLFRxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936933AbWLFRuk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 12:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936943AbWLFRuk
+	id S936951AbWLFRxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 12:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936957AbWLFRxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 12:50:40 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:57734 "EHLO mail.dvmed.net"
+	Wed, 6 Dec 2006 12:53:23 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:51257 "EHLO aun.it.uu.se"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936957AbWLFRuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 12:50:39 -0500
-Message-ID: <457702E2.3000703@garzik.org>
-Date: Wed, 06 Dec 2006 12:50:26 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-References: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>  <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org> <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl> <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com> <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com> <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl> <20061206075729.b2b6aa52.akpm@osdl.org> <21690.1165426993@redhat.com>
-In-Reply-To: <21690.1165426993@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	id S936951AbWLFRxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 12:53:23 -0500
+Date: Wed, 6 Dec 2006 18:52:39 +0100 (MET)
+Message-Id: <200612061752.kB6Hqd1J004450@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: hjl@lucon.org, rdunlap@xenotime.net
+Subject: Re: Change x86 prefix order
+Cc: gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Honestly I wonder if some of these situations really want 
-"kill_scheduled_work_unless_it_is_already_running_right_now_if_so_wait_for_it"
+On Wed, 6 Dec 2006 09:00:30 -0800, H. J. Lu wrote:
+>On Wed, Dec 06, 2006 at 08:43:17AM -0800, Randy Dunlap wrote:
+>> On Tue, 5 Dec 2006 23:00:14 -0800 H. J. Lu wrote:
+>> 
+>> > On x86, the order of prefix SEG_PREFIX, ADDR_PREFIX, DATA_PREFIX and
+>> > LOCKREP_PREFIX isn't fixed. Currently, gas generates
+>> > 
+>> > LOCKREP_PREFIX ADDR_PREFIX DATA_PREFIX SEG_PREFIX
+>> > 
+>> > I will check in a patch:
+>> > 
+>> > http://sourceware.org/ml/binutils/2006-12/msg00054.html
+>> > 
+>> > tomorrow and change gas to generate
+>> > 
+>> > SEG_PREFIX ADDR_PREFIX DATA_PREFIX LOCKREP_PREFIX
+>> 
+>> Hi,
+>> Could you provide a "why" for this in addition to the
+>> "what", please?
+>
+>LOCKREP_PREFIX is also used as SIMD prefix. DATA_PREFIX can be used as
+>either SIMD prefix or data size prefix for SIMD instructions. The new
+>order
+>
+>SEG_PREFIX ADDR_PREFIX DATA_PREFIX LOCKREP_PREFIX
+>
+>will make SIMD prefixes close to SIMD opcode.
 
-Since its during shutdown, usually the task just wants to know that the 
-code in the workqueue won't be touching the hardware or data structures 
-after <this> point.
+That's still just "what" and doesn't explain why
+this change is desirable.
 
-	Jeff
+Software x86 decoders clearly must handle any valid
+prefix order, so they shouldn't care. (I've written one
+recently. It's tedious but not rocket science.)
 
+If hardware x86 decoders (i.e., Intel or AMD processors)
+get measurably faster with the new order, that would be
+a good reason to change it.
 
-
+/Mikael

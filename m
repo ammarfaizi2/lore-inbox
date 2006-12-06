@@ -1,44 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936374AbWLFQcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936429AbWLFQkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936374AbWLFQcr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936399AbWLFQcr
+	id S936429AbWLFQkF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936467AbWLFQkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:32:47 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:41980 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936374AbWLFQcr (ORCPT
+	Wed, 6 Dec 2006 11:40:05 -0500
+Received: from gw-eur4.philips.com ([161.85.125.10]:30584 "EHLO
+	gw-eur4.philips.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936429AbWLFQkB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:32:47 -0500
-Message-ID: <4576F0AD.2010306@s5r6.in-berlin.de>
-Date: Wed, 06 Dec 2006 17:32:45 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
+	Wed, 6 Dec 2006 11:40:01 -0500
+To: linux-kernel@vger.kernel.org
+Subject: RFC [PATCH] 1/2 disable initramfs
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Marcel Holtmann <marcel@holtmann.org>,
-       =?ISO-8859-1?Q?Kristian_H=F8?= =?ISO-8859-1?Q?gsberg?= 
-	<krh@redhat.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/3] New firewire stack
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <1165308400.2756.2.camel@localhost>  <45758CB3.80701@redhat.com> <1165332650.2756.27.camel@localhost> <Pine.LNX.4.62.0612061720390.28483@pademelon.sonytel.be>
-In-Reply-To: <Pine.LNX.4.62.0612061720390.28483@pademelon.sonytel.be>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
+Message-ID: <OF91AC4AF4.2F9F0E34-ONC125723C.0059373C-C125723C.005B8B31@philips.com>
+From: Jean-Paul Saman <jean-paul.saman@nxp.com>
+Date: Wed, 6 Dec 2006 17:39:48 +0100
+X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF805 | August
+ 26, 2006) at 06/12/2006 17:39:51,
+	Serialize complete at 06/12/2006 17:39:51
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> On Tue, 5 Dec 2006, Marcel Holtmann wrote:
->> I personally would go with
->> "ieee1394", because that is the official name for it. Otherwise go with
->> "firewire" if you wanna separate yourself from the previous stack.
-> 
-> Which still leaves the opportunity for having a third stack in drivers/ilink
-> :-)
+The file init/initramfs.c is always compiled and linked in the kernel 
+vmlinux even when BLK_DEV_RAM and BLK_DEV_INITRD are disabled and the 
+system isn't using any form of an initramfs or initrd. In this situation 
+the code is only used to unpack a (static) default initial rootfilesystem. 
+The init/initramfs.c code compiles to a size of 60 kbytes.
 
-Wait for the real one, to appear in drivers/high_performance_serial_bus.
--- 
-Stefan Richter
--=====-=-==- ==-- --==-
-http://arcgraph.de/sr/
+This patch makes it configurable (CONFIG_BLK_DEV_INITRAMFS) to disable the 
+use of a initramfs (60 kbytes of code). Instead of the init/initramfs.c 
+code it uses a small routine in init/main.c to setup an initial static 
+environment for mounting a rootfilesystem later on in the kernel 
+initialisation process.
+
+Signed-off-by: Jean-Paul Saman <jean-paul.saman@nxp.com>
+
+Index: linux-2.6.git/drivers/block/Kconfig
+===================================================================
+--- linux-2.6.git.orig/drivers/block/Kconfig    2006-12-06 
+15:27:51.000000000 +0100
++++ linux-2.6.git/drivers/block/Kconfig 2006-12-06 16:35:40.000000000 
++0100
+@@ -411,19 +411,32 @@ config BLK_DEV_RAM_BLOCKSIZE
+          setups function - apparently needed by the rd_load_image routine
+          that supposes the filesystem in the image uses a 1024 blocksize.
+ 
++config BLK_DEV_INITRAMFS
++       bool "Enable RAM filesystem (initramfs) support"
++       default y
++       help
++         The initial RAM filesystem is a ramfs filesystem which can be
++         linked in the kernel and that is mounted as root before the 
+normal
++         boot procedure. It is typically used to load modules needed to 
+mount
++         the "real" root file system, etc. See 
+<file:Documentation/initrd.txt>
++         for details.
++
++         Enabling BLK_DEV_RAM and BLK_DEV_INITRD adds 60 kbytes size to 
+your kernel.
++
++         If unsure say Y.
++
+ config BLK_DEV_INITRD
+-       bool "Initial RAM filesystem and RAM disk (initramfs/initrd) 
+support"
+-       depends on BROKEN || !FRV
++       bool "Check for Initial RAM disk (initrd/initramfs) on kernel 
+boot"
++       depends on BLK_DEV_INITRAMFS && ( BROKEN || !FRV )
+        help
+-         The initial RAM filesystem is a ramfs which is loaded by the
++         The initial RAM disk is a ramfs filesystem which is loaded by 
+the
+          boot loader (loadlin or lilo) and that is mounted as root
+          before the normal boot procedure. It is typically used to
+          load modules needed to mount the "real" root file system,
+          etc. See <file:Documentation/initrd.txt> for details.
+ 
+          If RAM disk support (BLK_DEV_RAM) is also included, this
+-         also enables initial RAM disk (initrd) support.
+-
++         also enable initial RAM filesystem disk support as initrd.
+ 
+ config CDROM_PKTCDVD
+        tristate "Packet writing on CD/DVD media"
+Index: linux-2.6.git/init/Makefile
+===================================================================
+--- linux-2.6.git.orig/init/Makefile    2006-12-06 15:27:51.000000000 
++0100
++++ linux-2.6.git/init/Makefile 2006-12-06 15:27:54.000000000 +0100
+@@ -2,7 +2,8 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-obj-y                          := main.o version.o mounts.o initramfs.o
++obj-y                          := main.o version.o mounts.o
++obj-$(CONFIG_BLK_DEV_INITRAMFS) := initramfs.o
+ obj-$(CONFIG_GENERIC_CALIBRATE_DELAY) += calibrate.o
+ 
+ mounts-y                       := do_mounts.o
+Index: linux-2.6.git/init/main.c
+===================================================================
+--- linux-2.6.git.orig/init/main.c      2006-12-06 15:27:51.000000000 
++0100
++++ linux-2.6.git/init/main.c   2006-12-06 15:27:54.000000000 +0100
+@@ -86,7 +86,9 @@ extern void pidmap_init(void);
+ extern void prio_tree_init(void);
+ extern void radix_tree_init(void);
+ extern void free_initmem(void);
++#ifdef CONFIG_BLK_DEV_INITRAMFS
+ extern void populate_rootfs(void);
++#endif
+ extern void driver_init(void);
+ extern void prepare_namespace(void);
+ #ifdef CONFIG_ACPI
+@@ -705,6 +707,22 @@ static void run_init_process(char *init_
+        kernel_execve(init_filename, argv_init, envp_init);
+ }
+ 
++#ifndef CONFIG_BLK_DEV_INITRAMFS
++/*
++ * Create a simple rootfs that is similar to the default initramfs
++ */
++static void populate_rootfs(void)
++{
++        int mkdir_err = sys_mkdir("/dev", 0755);
++        int err = sys_mknod((const char __user *) "/dev/console",
++                                S_IFCHR | S_IRUSR | S_IWUSR,
++                                new_encode_dev(MKDEV(5, 1)));
++        if (err == -EROFS )
++               printk( "Warning: Failed to create a rootfs\n" );
++        mkdir_err = sys_mkdir("/root", 0700);
++}
++#endif
++
+ static int init(void * unused)
+ {
+        lock_kernel();
+@@ -741,6 +759,7 @@ static int init(void * unused)
+ 
+        do_basic_setup();
+ 
++#ifdef CONFIG_BLK_DEV_INITRAMFS
+        /*
+         * check if there is an early userspace init.  If yes, let it do 
+all
+         * the work
+@@ -753,7 +772,10 @@ static int init(void * unused)
+                ramdisk_execute_command = NULL;
+                prepare_namespace();
+        }
+-
++#else
++       ramdisk_execute_command = NULL;
++       prepare_namespace();
++#endif
+        /*
+         * Ok, we have completed the initial bootup, and
+         * we're essentially up and running. Get rid of the
+Index: linux-2.6.git/usr/Makefile
+===================================================================
+--- linux-2.6.git.orig/usr/Makefile     2006-12-06 15:27:51.000000000 
++0100
++++ linux-2.6.git/usr/Makefile  2006-12-06 15:27:54.000000000 +0100
+@@ -7,7 +7,7 @@ PHONY += klibcdirs
+ 
+ 
+ # Generate builtin.o based on initramfs_data.o
+-obj-y := initramfs_data.o
++obj-$(CONFIG_BLK_DEV_INITRAMFS) := initramfs_data.o
+ 
+ # initramfs_data.o contains the initramfs_data.cpio.gz image.
+ # The image is included using .incbin, a dependency which is not
+Index: linux-2.6.git/init/Kconfig
+===================================================================
+--- linux-2.6.git.orig/init/Kconfig     2006-12-06 15:27:51.000000000 
++0100
++++ linux-2.6.git/init/Kconfig  2006-12-06 15:27:54.000000000 +0100
+@@ -280,8 +280,12 @@ config RELAY
+ 
+          If unsure, say N.
+ 
++if CONFIG_BLK_DEV_INITRAMFS
++
+ source "usr/Kconfig"
+ 
++endif
++
+ config CC_OPTIMIZE_FOR_SIZE
+        bool "Optimize for size (Look out for broken compilers!)"
+        default y
+
+--------
+Kind greetings,
+
+Jean-Paul Saman
+
+NXP Semiconductors CTO/RTG DesignIP

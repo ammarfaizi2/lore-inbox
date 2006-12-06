@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758762AbWLFAYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758687AbWLFAZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758762AbWLFAYM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 19:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758614AbWLFAYM
+	id S1758687AbWLFAZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 19:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1758765AbWLFAZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 19:24:12 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:42333 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758543AbWLFAYK (ORCPT
+	Tue, 5 Dec 2006 19:25:45 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2325 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758687AbWLFAZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 19:24:10 -0500
-Date: Wed, 6 Dec 2006 00:24:03 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] timers, pointers to functions and type safety
-Message-ID: <20061206002403.GA4587@ftp.linux.org.uk>
-References: <20061204114851.GA25859@elte.hu> <20061201172149.GC3078@ftp.linux.org.uk> <1165064370.24604.36.camel@localhost.localdomain> <20061202140521.GJ3078@ftp.linux.org.uk> <1165070713.24604.50.camel@localhost.localdomain> <20061202160252.GQ14076@parisc-linux.org> <1165082803.24604.54.camel@localhost.localdomain> <20061202181957.GK3078@ftp.linux.org.uk> <28665.1165234964@redhat.com>
+	Tue, 5 Dec 2006 19:25:44 -0500
+Date: Wed, 6 Dec 2006 00:25:37 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: More ARM binutils fuckage
+Message-ID: <20061206002536.GL24038@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20061205193357.GF24038@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <28665.1165234964@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20061205193357.GF24038@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2006 at 12:22:44PM +0000, David Howells wrote:
-> Ingo Molnar <mingo@elte.hu> wrote:
+On Tue, Dec 05, 2006 at 07:33:57PM +0000, Russell King wrote:
+> There's not much to say about this, other than scream and go hide in the
+> corner.  ARM toolchains are just basically fscked.
 > 
-> > the question is: which is more important, the type safety of a 
-> > container_of() [or type cast], which if we get it wrong produces a 
-> > /very/ trivial crash that is trivial to fix
-
-The hell it is.  You get wrong fields of a big struct read and modified.
-Silently.
-
-Besides, I can show you fsckloads of cases when we do *NOT* pass a
-pointer to struct the timer is embedded into.  Some of them called directly
-(and no, the thing they get as argument doesn't point to anything that
-would contain a timer_list).
-
-> > structure size all around the kernel? I believe the latter is more 
-> > important.
+>   arm-linux-ld -EL  -p --no-undefined -X -o .tmp_vmlinux1 -T
+>  arch/arm/kernel/vmlinux.lds arch/arm/kernel/head.o
+>  arch/arm/kernel/init_task.o  init/built-in.o --start-group
+>   usr/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o
+>   arch/arm/common/built-in.o  arch/arm/mach-versatile/built-in.o
+>   arch/arm/nwfpe/built-in.o  arch/arm/vfp/built-in.o  kernel/built-in.o
+>   mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o
+>   crypto/built-in.o  block/built-in.o  arch/arm/lib/lib.a  lib/lib.a
+>   arch/arm/lib/built-in.o  lib/built-in.o  drivers/built-in.o
+>   sound/built-in.o  net/built-in.o --end-group
 > 
-> Indeed yes.
+> Produces no error, but:
+> 
+> $ arm-linux-nm ../build/versatile/.tmp_vmlinux1 |grep ' U '
+>          U __divdi3
+>          U __udivdi3
+>          U __umoddi3
+> 
+> Duh.
 
-Guys, please, look at actual users of that stuff.
+I'm lead to believe that these are due to gcc issuing .globl directives
+for these symbols, but not actually referencing them.  Hence the symbol
+is marked undefined in the symbol table, but no reloations actually
+exist.
+
+Hence why the linker (correctly) doesn't fail.
+
+Ergo, no problem.  Please ignore the previous mail.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

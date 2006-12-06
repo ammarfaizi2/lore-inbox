@@ -1,77 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935553AbWLFPSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934293AbWLFPWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935553AbWLFPSy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935072AbWLFPSc
+	id S934293AbWLFPWo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934378AbWLFPWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:18:32 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:54972 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935138AbWLFPST (ORCPT
+	Wed, 6 Dec 2006 10:22:44 -0500
+Received: from belize.chezphil.org ([80.68.91.122]:3708 "EHLO
+	belize.chezphil.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934293AbWLFPWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:18:19 -0500
-Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Li Yu <raise.sail@gmail.com>,
-       Greg Kroah Hartman <greg@kroah.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Vincent Legoll <vincentlegoll@gmail.com>,
-       "Zephaniah E. Hull" <warp@aehallh.com>, liyu <liyu@ccoss.com.cn>
-In-Reply-To: <d120d5000612060713n5118b379w11dc7e65abae1c58@mail.gmail.com>
-References: <200612061803324532133@gmail.com>
-	 <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-	 <d120d5000612060624o15f608dk83f35a228b9a6d18@mail.gmail.com>
-	 <1165415924.2756.63.camel@localhost>
-	 <Pine.LNX.4.64.0612061549040.29624@jikos.suse.cz>
-	 <d120d5000612060713n5118b379w11dc7e65abae1c58@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 16:18:37 +0100
-Message-Id: <1165418317.2756.75.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 10:22:43 -0500
+To: "Jan Blunck" <jblunck@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Wed, 06 Dec 2006 15:22:38 +0000
+Subject: Re: Subtleties of __attribute__((packed))
+Message-ID: <1165418558832@dmwebmail.belize.chezphil.org>
+In-Reply-To: <4de7f8a60612060704k7d7c1ea3o1d43bee6c5e372d4@mail.gmail.com>
+References: <4de7f8a60612060704k7d7c1ea3o1d43bee6c5e372d4@mail.gmail.com>
+X-Mailer: Decimail Webmail 3alpha14
+MIME-Version: 1.0
+Content-Type: text/plain; format="flowed"
+From: "Phil Endecott" <phil_arcwk_endecott@chezphil.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+Jan Blunck wrote:
+> On 12/6/06, Phil Endecott <phil_arcwk_endecott@chezphil.org> wrote:
+>> I used to think that this:
+>>
+>> struct foo {
+>>    int a  __attribute__((packed));
+>>    char b __attribute__((packed));
+>>    ... more fields, all packed ...
+>> };
+>>
+>> was exactly the same as this:
+>>
+>> struct foo {
+>>    int a;
+>>    char b;
+>>    ... more fields ...
+>> } __attribute__((packed));
+>>
+>> but it is not, in a subtle way.
+>>
+>
+> The same code is generated. [...]
 
-> > > > I still have the same objection - the "simple'" code will have to be
-> > > > compiled into the driver instead of being a separate module and
-> > > > eventyally will lead to a monster-size HID module. We have this issue
-> > > > with psmouse to a degree but with HID the growth potential is much
-> > > > bigger IMO.
-> >
-> > I guess that this paragraph wasn't for me, but rather for the author of
-> > the HID Simple Driver proposal, am I right?
-> 
-> Yes, mainly for him but also for you because we need to be able to do
-> what Li Yu is trying to do and be able to tweak HID interfaces.
-> 
-> ...
-> 
-> > This split is quite painful, as there are many things happening in USB all
-> > the time, so the best way seem to be just to perform big split (with
-> > needed changes) at once, and then develop other things on top of it (like
-> > hidraw).
-> 
-> Is there any reason why we can't mecanically move everything into
-> drivers/hid right now? Then Greg could simply forward all patches he
-> gets for HID your way and you won't have hard time merging your work
-> with others...
+I don't think so.  Example:
 
-I fully agree. Lets move and split the transports now and start the work
-on top of it. My only concern is to have a clean Git tree to the full
-history of HID changes stay intact and will trackable. Some quirk
-decisions and other stuff is not obvious and I assume will never be when
-it comes to broken HID devices.
+struct test {
+   int a __attribute__((packed));
+   int b __attribute__((packed));
+};
 
-So do you have pending HID patches. If yes, please sync them with Linus
-and Jiri can setup a clean tree for the move.
+char c = 1;
+struct test t = { .a=2, .b=3 };
 
-Regards
+$ arm-linux-gnu-gcc -O2 -S -W -Wall test1.c
 
-Marcel
+	.file	"test2.c"
+	.global	c
+	.data
+	.type	c, %object
+	.size	c, 1
+c:
+	.byte	1
+	.global	t
+	.align	2               <<<<<<<<===== t is aligned
+	.type	t, %object
+	.size	t, 8
+t:
+	.word	2
+	.word	3
+	.ident	"GCC: (GNU) 4.1.2 20061028 (prerelease) (Debian 4.1.1-19)"
+
+
+Compare with:
+
+struct test {
+   int a;
+   int b;
+} __attribute__((packed));
+
+char c = 1;
+struct test t = { .a=2, .b=3 };
+
+$ arm-linux-gnu-gcc -O2 -S -W -Wall test2.c
+
+	.file	"test1.c"
+	.global	c
+	.data
+	.type	c, %object
+	.size	c, 1
+c:
+	.byte	1
+	.global	t                    <<<<<<  "align" has gone, t is unaligned
+	.type	t, %object
+	.size	t, 8
+t:
+	.4byte	2
+	.4byte	3
+	.ident	"GCC: (GNU) 4.1.2 20061028 (prerelease) (Debian 4.1.1-19)"
+
+
+
+Phil.
+
+
+
 
 

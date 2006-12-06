@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937699AbWLFWGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937718AbWLFWF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937699AbWLFWGI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937706AbWLFWGI
+	id S937718AbWLFWF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937716AbWLFWF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:06:08 -0500
-Received: from ms.trustica.cz ([82.208.32.68]:54701 "EHLO ms.trustica.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937716AbWLFWGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:06:05 -0500
-Message-ID: <45773EB9.3060800@assembler.cz>
-Date: Wed, 06 Dec 2006 23:05:45 +0100
-From: Rudolf Marek <r.marek@assembler.cz>
-User-Agent: Icedove 1.5.0.7 (X11/20061014)
-MIME-Version: 1.0
-To: Rudmer van Dijk <rudmer.van.dijk@casema.nl>
-CC: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: pata_via report
-References: <4573353E.2060307@assembler.cz> <200612040035.30642.rudmer.van.dijk@casema.nl>
-In-Reply-To: <200612040035.30642.rudmer.van.dijk@casema.nl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Wed, 6 Dec 2006 17:05:56 -0500
+Received: from styx.suse.cz ([82.119.242.94]:39117 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937712AbWLFWFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:05:55 -0500
+Date: Wed, 6 Dec 2006 23:05:46 +0100
+From: Jiri Benc <jbenc@suse.cz>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: "Ivo van Doorn" <ivdoorn@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, "John Linville" <linville@tuxdriver.com>,
+       "Lennart Poettering" <lennart@poettering.net>,
+       "Johannes Berg" <johannes@sipsolutions.net>,
+       "Larry Finger" <Larry.Finger@lwfinger.net>
+Subject: Re: [RFC] rfkill - Add support for input key to control wireless
+ radio
+Message-ID: <20061206230546.41519771@logostar.upir.cz>
+In-Reply-To: <d120d5000612061218x4eac87e0jc18409f82bb7c99c@mail.gmail.com>
+References: <200612031936.34343.IvDoorn@gmail.com>
+	<200612050027.15253.IvDoorn@gmail.com>
+	<d120d5000612060637s69ff235fo85a2db923a728a00@mail.gmail.com>
+	<200612062031.57148.IvDoorn@gmail.com>
+	<d120d5000612061218x4eac87e0jc18409f82bb7c99c@mail.gmail.com>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> 1 Maxtor 6Y080P0 on primary IDE and 2 optical drives on secundary IDE (DVD-RW 
-> master, CD-RW slave). all are connected with 80pin cables:
+On Wed, 6 Dec 2006 15:18:12 -0500, Dmitry Torokhov wrote:
+> On 12/6/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+> > Ok, so input device opening should not block the rfkill signal and the rfkill handler
+> > should still go through with its work unless a different config option indicates that
+> > userspace wants to handle the event.
 > 
-> libata version 2.00 loaded.
-> pata_via 0000:00:0f.1: version 0.2.0
-> ata1: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFC00 irq 14
-> ata2: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFC08 irq 15
-> scsi0 : pata_via
-> ata1.00: ATA-7, max UDMA/133, 160086528 sectors: LBA 
-> ata1.00: ata1: dev 0 multi count 16
-> ata1.00: configured for UDMA/133
+> I don't think a config option is a good idea unless by config option
+> you mean a sysfs attribute.
 
-Anyone can help me check if I'm right?
+What about using EVIOCGRAB ioctl for this?
 
-Each byte is for each channel, LSB is secondary slave. Interesting bit is bit 4
-1 = 80PIN.
+ Jiri
 
-Mine:
-> 50: 07 e6 07 e1
-
-So: I have 40 40 40 40
-
- > 50: e6 e2 17 e0
-
-Yours: 40 40 80 40
-
-So the silly BIOS is doing something wrong :/ I would expect 40 40 80 80.
-I will try to play with the cables to see what I can get.
-
-regards
-Rudolf
-
-
+-- 
+Jiri Benc
+SUSE Labs

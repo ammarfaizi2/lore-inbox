@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936194AbWLFQNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936264AbWLFQN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936194AbWLFQNl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936264AbWLFQNl
+	id S936264AbWLFQN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936335AbWLFQN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:13:41 -0500
-Received: from iona.labri.fr ([147.210.8.143]:59391 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936194AbWLFQNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:13:40 -0500
-Date: Wed, 6 Dec 2006 17:14:05 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-Message-ID: <20061206161405.GV3927@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <4576DED7.10800@zytor.com> <20061206152542.GS3927@implementation.labri.fr> <4576E134.5020109@zytor.com> <20061206153404.GU3927@implementation.labri.fr> <4576E355.7080708@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4576E355.7080708@zytor.com>
-User-Agent: Mutt/1.5.11
+	Wed, 6 Dec 2006 11:13:59 -0500
+Received: from belize.chezphil.org ([80.68.91.122]:3834 "EHLO
+	belize.chezphil.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936264AbWLFQN6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 11:13:58 -0500
+To: "Jan Blunck" <jblunck@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Wed, 06 Dec 2006 16:13:56 +0000
+Subject: Re: Subtleties of __attribute__((packed))
+Message-ID: <1165421636345@dmwebmail.belize.chezphil.org>
+In-Reply-To: <20061206155439.GA6727@hasse.suse.de>
+References: <20061206155439.GA6727@hasse.suse.de>
+X-Mailer: Decimail Webmail 3alpha14
+MIME-Version: 1.0
+Content-Type: text/plain; format="flowed"
+From: "Phil Endecott" <phil_arcwk_endecott@chezphil.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin, le Wed 06 Dec 2006 07:35:49 -0800, a écrit :
-> Samuel Thibault wrote:
-> >>The two can't be done at the same time.  In fact, the two probably can't 
-> >>be done without a period of quite a few *years* between them.
-> >
-> >Not a reason for not doing it ;)
-> 
-> No, but breakage is.  There has to be a major benefit to justify the 
-> cost, and you, at least, have not provided such a justification.
+Jan Blunk wrote:
+> Maybe the arm backend is somehow broken. AFAIK (and I verfied it on S390 and
+> i386) the alignment shouldn't change.
 
-Well, as I said, existing code like
+To see a difference with your example structs you need to compare these two:
 
-switch(errno) {
-	case ENOTSUP:
-		foo();
-		break;
-	case EOPNOTSUP:
-		bar();
-		break;
-}
+struct wibble1 {
+   char c;
+   struct bar1 b1;
+};
 
-Samuel
+struct wibble2 {
+   char c;
+   struct bar2 b2;
+};
+
+struct wibble1 w1 = { 1, { 2, {3,4,5} } };
+struct wibble2 w2 = { 1, { 2, {3,4,5} } };
+
+Can you try that with your compilers?  I get:
+
+w1:
+	.byte	1
+	.space	3    <<<----
+	.byte	2
+	.4byte	3
+	.byte	4
+	.space	3
+	.4byte	5
+	.space	3
+	.global	w2
+	.align	2
+	.type	w2, %object
+	.size	w2, 16
+w2:
+	.byte	1
+	.byte	2
+	.4byte	3
+	.byte	4
+	.space	3
+	.4byte	5
+	.space	2
+
+
+Phil.
+
+
+
+

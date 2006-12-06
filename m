@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760575AbWLFM6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760585AbWLFNJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760575AbWLFM6J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 07:58:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760576AbWLFM6I
+	id S1760585AbWLFNJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 08:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760584AbWLFNJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 07:58:08 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:47562 "EHLO
-	pfepa.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760575AbWLFM6H (ORCPT
+	Wed, 6 Dec 2006 08:09:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1818 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1760585AbWLFNJ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 07:58:07 -0500
-Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ak@muc.de, vojtech@suse.cz
-In-Reply-To: <200612052134_MC3-1-D40B-A5DB@compuserve.com>
-References: <200612052134_MC3-1-D40B-A5DB@compuserve.com>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 13:58:00 +0100
-Message-Id: <1165409880.15706.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 08:09:58 -0500
+Date: Wed, 6 Dec 2006 14:10:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
+Message-ID: <20061206131003.GF24140@stusta.de>
+References: <1165405350.5954.213.camel@titan.tbdnetworks.com> <1165406299.3233.436.camel@laptopd505.fenrus.org> <1165407548.5954.224.camel@titan.tbdnetworks.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165407548.5954.224.camel@titan.tbdnetworks.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 21:31 -0500, Chuck Ebbert wrote:
-> In-Reply-To: <26586.1165356671@redhat.com>
-> 
-> On Tue, 05 Dec 2006 22:11:11 +0000, David Howells wrote:
-> 
-> > > I only have 32-bit userspace.  When I run your program against
-> > > a directory on a JFS filesystem (msdos ioctls not supported)
-> > > I get this on vanilla 2.6.19:
+On Wed, Dec 06, 2006 at 01:19:08PM +0100, Norbert Kiesel wrote:
+> On Wed, 2006-12-06 at 12:58 +0100, Arjan van de Ven wrote:
+> > On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
+> > > Hi,
+> > > 
+> > > I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
+> > > be optimal for a machine with exactly 1GB memory (like my current
+> > > desktop). Why is that option only prompted for after selecting EMBEDDED
+> > > (which I normally don't select for desktop machines
 > > 
-> > Can I just check?  You're using an x86_64 CPU in 64-bit mode with a 64-bit
-> > kernel, but with a completely 32-bit userspace?
+> > because it changes the userspace ABI and has some other caveats.... this
+> > is not something you should muck with lightly 
+> > 
 > 
-> It's FC5 i386 so there's no way any 64-bit userspace code is in there.
-> (I have a cross-compiler only for building kernels.)  Having a pure
-> 32-bit userspace lets me switch between i386 and x86_64 kernels
-> without having to maintain two separate Linux installs.
-> 
-> > A question for you: Why is userspace assuming that it'll get ENOTTY rather
-> > than EINVAL?
-> 
-> I'm not sure it is, but that's what it used to get.
-> 
-> Kasper, what problems (other that the annoying message) are you having?
-if it had only been the messages i wouldnt have complained.
-the thing is, when i get these messages, the app provoking them acts
-very strange, and in some cases, my system simply hardlocks.
+> Hmm, but it's also marked EXPERIMENTAL. Would that not be the
+> sufficient?  Assuming I don't use any external/binary drivers and a
+> self-compiled kernel w//o any additional patches: is there really any
+> downside?
 
-and i am very very sure its because of this, i can run with the kernel
-(atleast with rc5 i had that long) for 10 days, and then chroot in, run
-the 32bit apps, and within hours of using, hardlock.
+- Wine doesn't work (I'm not sure about VMSPLIT_3G_OPT, but
+                     VMSPLIT_2G definitely breaks Wine)
+- AFAIR some people reported problems with some Java programs
+  after fiddling with the vmsplit options
 
-wine seems to be worst at provoking hardlock, however i encountered one
-i am sure was caused by java(the 32bit one inside chroot).
+EMBEDDED isn't exactly the right way to hide it, but the vmsplit options 
+aren't something you can safely change.
 
-as i said in my post yesterday, my chroot doesent have access to my vfat
-partitions, so i dont believe thats it.
-> 
+> </nk>
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937637AbWLFU66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937631AbWLFVCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937637AbWLFU66 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 15:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937634AbWLFU66
+	id S937631AbWLFVCa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937638AbWLFVCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 15:58:58 -0500
-Received: from ns2.suse.de ([195.135.220.15]:56104 "EHLO mx2.suse.de"
+	Wed, 6 Dec 2006 16:02:30 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:44206 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937637AbWLFU65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 15:58:57 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Subject: Re: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-Date: Wed, 6 Dec 2006 21:58:39 +0100
-User-Agent: KMail/1.9.5
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "David Brownell" <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       "Stefan Reinauer" <stepan@coresystems.de>, "Greg KH" <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, linuxbios@linuxbios.org
-References: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com>
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com>
+	id S937631AbWLFVCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 16:02:30 -0500
+Date: Wed, 6 Dec 2006 22:00:55 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
+In-Reply-To: <1165412195.5954.239.camel@titan.tbdnetworks.com>
+Message-ID: <Pine.LNX.4.61.0612062158010.16042@yvahk01.tjqt.qr>
+References: <1165405350.5954.213.camel@titan.tbdnetworks.com> 
+ <1165406299.3233.436.camel@laptopd505.fenrus.org> 
+ <1165407548.5954.224.camel@titan.tbdnetworks.com> 
+ <1165409112.3233.441.camel@laptopd505.fenrus.org>
+ <1165412195.5954.239.camel@titan.tbdnetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612062158.39250.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 December 2006 21:43, Lu, Yinghai wrote:
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@suse.de] 
-> Sent: Wednesday, December 06, 2006 9:31 AM
-> 
-> >Also for usb console keep should be made default because the output
-> won't
-> >be duplicated.
-> 
-> Still need to tx_read to make console can take command?
-> 
-> Or transfer to generic usb_serial 
 
-I think the protocols are incompatible? 
+On Dec 6 2006 14:36, Norbert Kiesel wrote:
+>On Wed, 2006-12-06 at 13:45 +0100, Arjan van de Ven wrote:
+>> On Wed, 2006-12-06 at 13:19 +0100, Norbert Kiesel wrote:
+>> > On Wed, 2006-12-06 at 12:58 +0100, Arjan van de Ven wrote:
+>> > > On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
+>> > > > Hi,
+>> > > > 
+>> > > > I remember reading on LKML some time ago that using
+>> > > > VMSPLIT_3G_OPT would be optimal for a machine with
+>> > > > exactly 1GB memory (like my current desktop). Why is
+>> > > > that option only prompted for after selecting EMBEDDED
+>> > > > (which I normally don't select for desktop machines
+>> > > 
+>> > > because it changes the userspace ABI and has some other
+>> > > caveats.... this is not something you should muck with
+>> > > lightly
+>> > 
+>> > Hmm, but it's also marked EXPERIMENTAL. Would that not be
+>> > the sufficient?  Assuming I don't use any external/binary
+>> > drivers and a self-compiled kernel w//o any additional
+>> > patches: is there really any downside?
+>> 
+>> I said *userspace ABI*. You're changing something that
+>> userspace has known about and was documented since the start
+>> of Linux. So userspace application binaries can break, and at
+>> least you're changing the rules on them. That's fine if you
+>> know what you're doing.. but in a general system... not a
+>> good default, hence the EMBEDDED.
+>
+>Thanks for the reply. I was not asking to change the default, I
+>just want to see the option in e.g. menuconfig. And the help
+>text already has a very strong advise to leave it at
+>VMSPLIT_3G.
 
-> or usb_debug that Greg just added 
+I have not had yet any problems with VMSPLIT_3G_OPT ever since I
+used it -- which dates back to when it was a feature of Con
+Kolivas's patchset (known as LOWMEM1G), [even] before it got
+merged in mainline.
 
-Ah I didn't notice that. If there is a usb_debug that works later
-then yes it would need to be disabled.
+It only seem to break the VMware compilation process, but what
+they do in the makefiles is not really standard anyhow.
 
-However I see a certain advantage to keep using the early 
-usb console because it doesn't need any interrupts. So when the 
-kernel is very confused after an oops it might have a higher
-chance to still get the oops out.
+>Anyway, I don't want to stress this further: I'm happy enough with my
+>Kconfig that has "if EMBEDDED" removed for the prompt. 
 
-I haven't looked how the other usb_debug works -- if it's polled
-too then it wouldn't have much advantage.
 
-Ok one advantage of a non early usb_debug is that it will properly use pci 
-config space locking. The early implementation just ignores the port cf8 
-lock which might lead to corruption later. That's ok after
-an oops, but during normal output it can actually lead to
-data corruption if it interferes with somebody else's config write.
-Also on some systems cf8 is broken and doesn't work.
 
-Disadvantage of using the locks of course is that it can deadlock
-if an oops happen inside the critical region. So they might need
-to be added to bust_spinlocks()
-
-And it would be good if the late usb_debug still wouldn't rely
-on interrupts.
-
-But I agree it's probably better to transition to another usb_debug
-console and not do keep by default.
-
--Andi
+	-`J'
+-- 

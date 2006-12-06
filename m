@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760329AbWLFI7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760339AbWLFJBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760329AbWLFI7q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 03:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760341AbWLFI7q
+	id S1760339AbWLFJBR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 04:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760341AbWLFJBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 03:59:46 -0500
-Received: from mga09.intel.com ([134.134.136.24]:25511 "EHLO mga09.intel.com"
+	Wed, 6 Dec 2006 04:01:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48844 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760329AbWLFI7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 03:59:45 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,503,1157353200"; 
-   d="scan'208"; a="23751604:sNHT19790874"
-Date: Wed, 6 Dec 2006 00:58:27 -0800
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mark.fasheh@oracle.com, steve@chygwyn.com, linux-kernel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk
-Subject: Re: Relative atime (was Re: What's in ocfs2.git)
-Message-ID: <20061206085826.GF8482@goober>
-References: <20061203203149.GC19617@ca-server1.us.oracle.com> <1165229693.3752.629.camel@quoit.chygwyn.com> <20061205001007.GF19617@ca-server1.us.oracle.com> <20061205003619.GC8482@goober> <20061205205802.92b91ce1.akpm@osdl.org>
+	id S1760338AbWLFJBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 04:01:16 -0500
+Date: Wed, 6 Dec 2006 10:00:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] add ignore_loglevel boot option
+Message-ID: <20061206090026.GB28160@elte.hu>
+References: <20061205120954.GA30154@elte.hu> <20061205144709.9c50194d.randy.dunlap@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061205205802.92b91ce1.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20061205144709.9c50194d.randy.dunlap@oracle.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 08:58:02PM -0800, Andrew Morton wrote:
-> > On Mon, 4 Dec 2006 16:36:20 -0800 Valerie Henson <val_henson@linux.intel.com> wrote:
-> > Add "relatime" (relative atime) support.  Relative atime only updates
-> > the atime if the previous atime is older than the mtime or ctime.
-> > Like noatime, but useful for applications like mutt that need to know
-> > when a file has been read since it was last modified.
+
+* Randy Dunlap <randy.dunlap@oracle.com> wrote:
+
+> > sometimes the kernel prints something interesting while userspace 
+> > bootup keeps messages turned off via loglevel. Enable the printing 
+> > of /all/ kernel messages via the "ignore_loglevel" boot option. Off 
+> > by default.
 > 
-> That seems like a good idea.
+> Hi,
 > 
-> I found touch_atime() to be rather putrid, so I hacked it around a bit.  The
-> end result:
+> Is this equivalent to using the "debug" kernel parameter except that 
+> userspace (init scripts) cannot muck it up (modify the setting)?
 
-I like that rather better - add my:
+yeah.
 
-Signed-off-by: Valerie Henson <val_henson@linux.intel.com>
+> I've seen init scripts modify the loglevel, much to my dismay.
 
-> That's the easy part.   How are we going to get mount(8) patched?
+yeah - i once lost a few hours of debugging to such an incident.
 
-Well, the nodiratime documentation got in. (I was going to add that as
-part of this apatch, but lo and behold.)
+> I'd say that this is useful, but it's really userspace that needs to 
+> be fixed.
 
--VAL
+well, loglevel /can/ be managed by userspace, and sometimes an important 
+kernel message might have a too high loglevel. Also, sometimes the 
+kernel does spurious messages during hardware detect, etc., so userspace 
+naturally wants to prevent them from going to the console. So it's 
+really a mix of a problem and i wouldnt put the blame on user-space. 
+User-space used the only control they have to fix the situation.
+
+	Ingo

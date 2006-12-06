@@ -1,32 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759931AbWLFDxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759988AbWLFENE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759931AbWLFDxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 22:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759915AbWLFDxu
+	id S1759988AbWLFENE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 23:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759963AbWLFEND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 22:53:50 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:40322 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759896AbWLFDxt (ORCPT
+	Tue, 5 Dec 2006 23:13:03 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:20763 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759988AbWLFENA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 22:53:49 -0500
-Date: Tue, 5 Dec 2006 19:54:27 -0800
+	Tue, 5 Dec 2006 23:13:00 -0500
+Date: Tue, 5 Dec 2006 20:12:41 -0800
 From: Randy Dunlap <randy.dunlap@oracle.com>
-To: Ed Sweetman <safemode2@comcast.net>, jgarzik <jgarzik@pobox.com>,
-       ide <linux-ide@vger.kernel.org>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ata/kconfig: Re: Why SCSI module needed for PCI-IDE ATA
- only disks ?
-Message-Id: <20061205195427.b5c44f83.randy.dunlap@oracle.com>
-In-Reply-To: <45762F1E.4030805@comcast.net>
-References: <fa.juE97gahpb4n2kNNH/Todtcvh3s@ifi.uio.no>
-	<fa.IqtlZas3d+ZPuhF6S6N/ivdF8Wo@ifi.uio.no>
-	<fa.HDRhmOhDQliejH7ijqJBWw9Jw0o@ifi.uio.no>
-	<45761B2F.9060804@shaw.ca>
-	<457625CF.2080105@comcast.net>
-	<45762781.8020207@shaw.ca>
-	<45762F1E.4030805@comcast.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 21/35] Unionfs: Inode operations
+Message-Id: <20061205201241.55c1dd9f.randy.dunlap@oracle.com>
+In-Reply-To: <20061205135017.3be94142.akpm@osdl.org>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+	<11652354711835-git-send-email-jsipek@cs.sunysb.edu>
+	<Pine.LNX.4.61.0612052222190.18570@yvahk01.tjqt.qr>
+	<20061205135017.3be94142.akpm@osdl.org>
 Organization: Oracle Linux Eng.
 X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -39,38 +37,53 @@ X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Dec 2006 21:46:54 -0500 Ed Sweetman wrote:
+On Tue, 5 Dec 2006 13:50:17 -0800 Andrew Morton wrote:
 
--ETOOMANYWORDS && -ENOPATCH, so here is one to consider.
-Help text can also be added.  <supply text>
-This is similar to what USB storage already does.
+> On Tue, 5 Dec 2006 22:27:10 +0100 (MET)
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> 
+> > Someone refresh me: what's the correct[preferred] kdoc style?
+> 
+> This isn't part of kernel-doc, if that's what you mean.
+> 
+> > (A)
+> > 	/* Lorem ipsum dolor sit amet, consectetur
+> > 	 * adipisicing elit, sed do eiusmod tempor
+> > 	 * incididunt ut labore et dolore magna aliqua. */
+> > 
+> > (B)
+> > 	/* Lorem ipsum dolor sit amet, consectetur
+> > 	   adipisicing elit, sed do eiusmod tempor
+> > 	   incididunt ut labore et dolore magna aliqua. */
+> > 
+> > (C)
+> > 	/* Lorem ipsum dolor sit amet, consectetur
+> > 	adipisicing elit, sed do eiusmod tempor incididunt
+> > 	ut labore et dolore magna aliqua. */
+> 
+> You forgot (D), (E), (F), (G) and a whole lot more besides.
+> 
+> It doesn't matter a lot what we do, but we should do it one way and not 38
+> ways.
+> 
+> Documentation/CodingStyle doesn't mention commenting at all (eyes roll
+> heavenwards).
+
+I have several (probably 5-6) Doc/CodingStyle changes in my WIP
+(work-in-progress) folder that I will do in the next few days.
+
+
+
+> This
+> 
+> 	/*
+> 	 * Lorem ipsum dolor sit amet, consectetur
+> 	 * adipisicing elit, sed do eiusmod tempor
+> 	 * incididunt ut labore et dolore magna aliqua.
+> 	 */
+> 
+> is probably the most common, and is what I use when forced to descrog
+> comments.
 
 ---
-From: Randy Dunlap <randy.dunlap@oracle.com>
-
-Provide more clues about SCSI config options that are needed
-for libata (SATA/PATA) drivers.
-
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- drivers/ata/Kconfig |    9 +++++++++
- 1 file changed, 9 insertions(+)
-
---- linux-2.6.19-git7.orig/drivers/ata/Kconfig
-+++ linux-2.6.19-git7/drivers/ata/Kconfig
-@@ -17,6 +17,15 @@ config ATA
- 	  that "speaks" the ATA protocol, also called ATA controller),
- 	  because you will be asked for it.
- 
-+comment "NOTE: ATA enables basic SCSI support; *however*,"
-+	depends on ATA
-+comment "+ 'SCSI disk support', 'SCSI tape support', or '"
-+	depends on ATA
-+comment "+ 'SCSI CDROM support' may also be needed,"
-+	depends on ATA
-+comment "+ depending on your hardware configuration."
-+	depends on ATA
-+
- if ATA
- 
- config SATA_AHCI
+~Randy

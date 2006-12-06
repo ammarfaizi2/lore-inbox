@@ -1,50 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937714AbWLFWFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937710AbWLFWKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937714AbWLFWFg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937707AbWLFWFf
+	id S937710AbWLFWKc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937711AbWLFWKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:05:35 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:54471 "EHLO
-	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937705AbWLFWFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:05:33 -0500
-Date: Wed, 6 Dec 2006 15:05:32 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061206220532.GF3013@parisc-linux.org>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org> <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
+	Wed, 6 Dec 2006 17:10:32 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52953 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937710AbWLFWKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:10:32 -0500
+Date: Wed, 6 Dec 2006 23:10:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vladimir Ananiev <vovan888@gmail.com>
+Subject: [PATCH] ARM: OMAP: omap1501->15xx conversions needed for sx1
+Message-ID: <20061206221018.GA2012@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2006 at 01:52:20PM -0800, Christoph Lameter wrote:
-> On Wed, 6 Dec 2006, Matthew Wilcox wrote:
-> 
-> > And for those of us with only load-and-zero, that's simply:
-> > 
-> > #define load_locked(addr) spin_lock(hash(addr)), *addr
-> > #define store_exclusive(addr, old, new) \
-> > 			*addr = new, spin_unlock(hash(addr)), 0
-> > 
-> > which is also optimal for us.
-> 
-> This means we tolerate the assignment race for SMP that was pointed out 
-> earlier?
+From: Vladimir Ananiev <vovan888@gmail.com>
 
-What gave you that impression?  It simply wasn't part of this example.
+Convert 1501->15xx in generic omap code, so that sx1 can work.
 
-To be honest, it'd be much easier if we only defined these operations on
-atomic_t's.  We have all the infrastructure in place for them, and
-they're fairly well understood.  If you need different sizes, I'm OK
-with an atomic_pointer_t, or whatever.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
+diff --git a/arch/arm/mach-omap1/clock.c b/arch/arm/mach-omap1/clock.c
+index b84ba95..7e3b24f 100644
+--- a/arch/arm/mach-omap1/clock.c
++++ b/arch/arm/mach-omap1/clock.c
+@@ -691,7 +691,7 @@ #endif
+ 
+ 	info = omap_get_config(OMAP_TAG_CLOCK, struct omap_clock_config);
+ 	if (info != NULL) {
+-		if (!cpu_is_omap1510())
++		if (!cpu_is_omap15xx())
+ 			crystal_type = info->system_clock_type;
+ 	}
+ 
+diff --git a/arch/arm/plat-omap/dsp/dsp_common.c b/arch/arm/plat-omap/dsp/dsp_common.c
+index 44fa86a..0a6059e 100644
+--- a/arch/arm/plat-omap/dsp/dsp_common.c
++++ b/arch/arm/plat-omap/dsp/dsp_common.c
+@@ -273,7 +273,7 @@ static int __init omap_dsp_init(void)
+ 
+ 	dspmem_size = 0;
+ #ifdef CONFIG_ARCH_OMAP15XX
+-	if (cpu_is_omap1510()) {
++	if (cpu_is_omap15xx()) {
+ 		dspmem_base = OMAP1510_DSP_BASE;
+ 		dspmem_size = OMAP1510_DSP_SIZE;
+ 		daram_base = OMAP1510_DARAM_BASE;
+index 7e91779..4e5f9b7 100644
+--- a/arch/arm/plat-omap/mux.c
++++ b/arch/arm/plat-omap/mux.c
+@@ -127,7 +127,7 @@ #endif
+ 	}
+ 
+ 	/* Check for pull up or pull down selection on 1610 */
+-	if (!cpu_is_omap1510()) {
++	if (!cpu_is_omap15xx()) {
+ 		if (cfg->pu_pd_reg && cfg->pull_val) {
+ 			spin_lock_irqsave(&mux_spin_lock, flags);
+ 			pu_pd_orig = omap_readl(cfg->pu_pd_reg);
+@@ -183,7 +183,7 @@ #ifdef CONFIG_OMAP_MUX_DEBUG
+ 		printk("      %s (0x%08x) = 0x%08x -> 0x%08x\n",
+ 		       cfg->mux_reg_name, cfg->mux_reg, reg_orig, reg);
+ 
+-		if (!cpu_is_omap1510()) {
++		if (!cpu_is_omap15xx()) {
+ 			if (cfg->pu_pd_reg && cfg->pull_val) {
+ 				printk("      %s (0x%08x) = 0x%08x -> 0x%08x\n",
+ 				       cfg->pu_pd_name, cfg->pu_pd_reg,
+diff --git a/include/asm-arm/arch-omap/memory.h b/include/asm-arm/arch-omap/memory.h
+index a350f5f..14cba97 100644
+--- a/include/asm-arm/arch-omap/memory.h
++++ b/include/asm-arm/arch-omap/memory.h
+@@ -70,7 +70,7 @@ #define OMAP1510_LB_OFFSET	UL(0x30000000
+ 
+ #define virt_to_lbus(x)		((x) - PAGE_OFFSET + OMAP1510_LB_OFFSET)
+ #define lbus_to_virt(x)		((x) - OMAP1510_LB_OFFSET + PAGE_OFFSET)
+-#define is_lbus_device(dev)	(cpu_is_omap1510() && dev && (strncmp(dev->bus_id, "ohci", 4) == 0))
++#define is_lbus_device(dev)	(cpu_is_omap15xx() && dev && (strncmp(dev->bus_id, "ohci", 4) == 0))
+ 
+ #define __arch_page_to_dma(dev, page)	({is_lbus_device(dev) ? \
+ 					(dma_addr_t)virt_to_lbus(page_address(page)) : \
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

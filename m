@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936961AbWLFR6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936967AbWLFSAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936961AbWLFR6t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 12:58:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936972AbWLFR6t
+	id S936967AbWLFSAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 13:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936972AbWLFSAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 12:58:49 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:50599 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936961AbWLFR6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 12:58:49 -0500
-Date: Wed, 6 Dec 2006 09:58:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy 
-In-Reply-To: <Pine.LNX.4.64.0612060951150.3542@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612060955380.3542@woody.osdl.org>
-References: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org> 
- <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org>  <21690.1165426993@redhat.com>
- <Pine.LNX.4.64.0612060951150.3542@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Dec 2006 13:00:50 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:28393 "HELO
+	smtp112.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S936967AbWLFSAu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 13:00:50 -0500
+X-YMail-OSG: Cygc52wVM1kMqSIA9_bSxG2wUCFY6vX9Ab7QBs6DotfDdMPNm7wyP.i24aDrA_H.2rD0Cs2UOixeBv9vS89K5Hm8uMcHvsEpne3Hv7PyJn2T17N0GUZG6HkfWheuWlUeRWz2oprwpjxg5g--
+Date: Wed, 6 Dec 2006 10:00:47 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: rdunlap@xenotime.net, gcc@gcc.gnu.org, libc-alpha@sources.redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Change x86 prefix order
+Message-ID: <20061206180047.GA810@lucon.org>
+References: <200612061752.kB6Hqd1J004450@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200612061752.kB6Hqd1J004450@harpo.it.uu.se>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 6 Dec 2006, Linus Torvalds wrote:
+On Wed, Dec 06, 2006 at 06:52:39PM +0100, Mikael Pettersson wrote:
 > 
-> Gcc should do it for us, afaik. I didn't check, but gcc is generally 
-> pretty good at combining logical operations like this, because it's very 
-> common.
+> If hardware x86 decoders (i.e., Intel or AMD processors)
+> get measurably faster with the new order, that would be
+> a good reason to change it.
 
-Sadly, gcc doesn't do it in this case. Still, I'd rather keep the source 
-clean, and hope that the compiler improves eventually, than to make the 
-code uglier.
+I was told that AMD processors had no preferences and Intel processors
+preferred the proposed order.
 
-I replaced both of the "test_bit(WORK_STRUCT_PENDING, &work->management)" 
-with "work_pending(work)" in my tree.
 
-Now somebody who knows how to trigger this thing should just _test_ it.
-
-		Linus
+H.J.

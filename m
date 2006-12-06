@@ -1,68 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760600AbWLFNhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760621AbWLFNrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760600AbWLFNhM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 08:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760602AbWLFNhM
+	id S1760621AbWLFNrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 08:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760623AbWLFNrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 08:37:12 -0500
-Received: from mail.tbdnetworks.com ([204.13.84.99]:45560 "EHLO
-	mail.tbdnetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760600AbWLFNhK (ORCPT
+	Wed, 6 Dec 2006 08:47:24 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:34211 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760621AbWLFNrY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 08:37:10 -0500
-Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1165409112.3233.441.camel@laptopd505.fenrus.org>
-References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
-	 <1165406299.3233.436.camel@laptopd505.fenrus.org>
-	 <1165407548.5954.224.camel@titan.tbdnetworks.com>
-	 <1165409112.3233.441.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: TBD Networks
-Date: Wed, 06 Dec 2006 14:36:35 +0100
-Message-Id: <1165412195.5954.239.camel@titan.tbdnetworks.com>
+	Wed, 6 Dec 2006 08:47:24 -0500
+Date: Wed, 6 Dec 2006 13:41:43 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PCI legacy resource fix
+Message-ID: <20061206134143.GA6772@linux-mips.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-06 at 13:45 +0100, Arjan van de Ven wrote:
-> On Wed, 2006-12-06 at 13:19 +0100, Norbert Kiesel wrote:
-> > On Wed, 2006-12-06 at 12:58 +0100, Arjan van de Ven wrote:
-> > > On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
-> > > > Hi,
-> > > > 
-> > > > I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
-> > > > be optimal for a machine with exactly 1GB memory (like my current
-> > > > desktop). Why is that option only prompted for after selecting EMBEDDED
-> > > > (which I normally don't select for desktop machines
-> > > 
-> > > because it changes the userspace ABI and has some other caveats.... this
-> > > is not something you should muck with lightly 
-> > > 
-> > 
-> > Hmm, but it's also marked EXPERIMENTAL. Would that not be the
-> > sufficient?  Assuming I don't use any external/binary drivers and a
-> > self-compiled kernel w//o any additional patches: is there really any
-> > downside?
-> 
-> I said *userspace ABI*. You're changing something that userspace has
-> known about and was documented since the start of Linux. So userspace
-> application binaries can break, and at least you're changing the rules
-> on them. That's fine if you know what you're doing.. but in a general
-> system... not a good default, hence the EMBEDDED.
+Since commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f the kernel will try
+to update the non-writeable BAR registers 0..3 of PIIX4 IDE adapters if
+pci_assign_unassigned_resources() is used to do full resource assignment
+of the bus.  This fails because in the PIIX4 these BAR registers have
+implicitly assumed values and read back as zero; it used to work because
+the kernel used to just write zero to that register the read back value
+did match what was written.
 
-Thanks for the reply. I was not asking to change the default, I just
-want to see the option in e.g. menuconfig. And the help text already has
-a very strong advise to leave it at VMSPLIT_3G.
+The fix is a new resource flag IORESOURCE_PCI_FIXED used to mark a
+resource as non-movable.  This will also be useful to keep other import
+system resources from being moved around - for example system consoles
+on PCI busses.
 
-Anyway, I don't want to stress this further: I'm happy enough with my
-Kconfig that has "if EMBEDDED" removed for the prompt. 
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-Best,
-  Norbert
-
-
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 0eeac60..045ad71 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -649,6 +649,9 @@ static void pci_read_irq(struct pci_dev 
+  * Returns 0 on success and -1 if unknown type of device (not normal, bridge
+  * or CardBus).
+  */
++
++#define LEGACY_IO_RESOURCE	(IORESOURCE_IO | IORESOURCE_PCI_FIXED)
++
+ static int pci_setup_device(struct pci_dev * dev)
+ {
+ 	u32 class;
+@@ -692,18 +695,18 @@ static int pci_setup_device(struct pci_d
+ 			if ((progif & 1) == 0) {
+ 				dev->resource[0].start = 0x1F0;
+ 				dev->resource[0].end = 0x1F7;
+-				dev->resource[0].flags = IORESOURCE_IO;
++				dev->resource[0].flags = LEGACY_IO_RESOURCE;
+ 				dev->resource[1].start = 0x3F6;
+ 				dev->resource[1].end = 0x3F6;
+-				dev->resource[1].flags = IORESOURCE_IO;
++				dev->resource[1].flags = LEGACY_IO_RESOURCE;
+ 			}
+ 			if ((progif & 4) == 0) {
+ 				dev->resource[2].start = 0x170;
+ 				dev->resource[2].end = 0x177;
+-				dev->resource[2].flags = IORESOURCE_IO;
++				dev->resource[2].flags = LEGACY_IO_RESOURCE;
+ 				dev->resource[3].start = 0x376;
+ 				dev->resource[3].end = 0x376;
+-				dev->resource[3].flags = IORESOURCE_IO;
++				dev->resource[3].flags = LEGACY_IO_RESOURCE;
+ 			}
+ 		}
+ 		break;
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index ab78e4b..064b3f3 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -38,6 +38,13 @@ pci_update_resource(struct pci_dev *dev,
+ 	if (!res->flags)
+ 		return;
+ 
++	/* Ignore non-moveable resources.  This might be legacy resources for
++	   which no functional BAR register exists or another important
++	   system resource we should better not move around in system address
++	   space.  */
++	if (res->flags & IORESOURCE_PCI_FIXED)
++		return;
++
+ 	pcibios_resource_to_bus(dev, &region, res);
+ 
+ 	pr_debug("  got res [%llx:%llx] bus [%lx:%lx] flags %lx for "
+@@ -212,6 +219,10 @@ pdev_sort_resources(struct pci_dev *dev,
+ 		resource_size_t r_align;
+ 
+ 		r = &dev->resource[i];
++
++		if (r->flags & IORESOURCE_PCI_FIXED)
++			continue;
++
+ 		r_align = r->end - r->start;
+ 		
+ 		if (!(r->flags) || r->parent)
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index cf8696d..15228d7 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -91,6 +91,9 @@ #define IORESOURCE_ROM_SHADOW		(1<<1)	/*
+ #define IORESOURCE_ROM_COPY		(1<<2)	/* ROM is alloc'd copy, resource field overlaid */
+ #define IORESOURCE_ROM_BIOS_COPY	(1<<3)	/* ROM is BIOS copy, resource field overlaid */
+ 
++/* PCI control bits.  Shares IORESOURCE_BITS with above PCI ROM.  */
++#define IORESOURCE_PCI_FIXED		(1<<4)	/* Do not move resource */
++
+ /* PC/ISA/whatever - the normal PC address spaces: IO and memory */
+ extern struct resource ioport_resource;
+ extern struct resource iomem_resource;

@@ -1,44 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937620AbWLFU1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937625AbWLFU2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937620AbWLFU1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 15:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937619AbWLFU1e
+	id S937625AbWLFU2W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 15:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937624AbWLFU2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 15:27:34 -0500
-Received: from atlantis.8hz.com ([212.129.237.78]:62165 "EHLO atlantis.8hz.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937620AbWLFU1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 15:27:33 -0500
-Date: Wed, 6 Dec 2006 20:27:32 +0000
-From: Sean Young <sean@mess.org>
-To: Greg KH <gregkh@suse.de>, Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH][STABLE 2.6.19] Fix oops in PhidgetServo
-Message-ID: <20061206202732.GA91199@atlantis.8hz.com>
+	Wed, 6 Dec 2006 15:28:22 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:10376 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937619AbWLFU2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 15:28:20 -0500
+Date: Wed, 6 Dec 2006 12:28:30 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Miguel Ojeda <maxextreme@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Luming Yu <Luming.yu@intel.com>, Andrew Zabolotny <zap@homelink.ru>,
+       linux-acpi@vger.kernel.org, kernel-discuss@handhelds.org
+Subject: Re: Display class
+Message-Id: <20061206122830.1c5fda5b.randy.dunlap@oracle.com>
+In-Reply-To: <Pine.LNX.4.64.0612061443180.28745@pentafluge.infradead.org>
+References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org>
+	<653402b90611141426y6db15a3bh8ea59f89c8f1bb39@mail.gmail.com>
+	<Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org>
+	<Pine.LNX.4.64.0612051740250.2925@pentafluge.infradead.org>
+	<20061205171401.fd11160d.randy.dunlap@oracle.com>
+	<Pine.LNX.4.64.0612061443180.28745@pentafluge.infradead.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+On Wed, 6 Dec 2006 15:10:44 +0000 (GMT) James Simmons wrote:
 
-The PhidgetServo causes an Oops when any of its sysfs attributes are read
-or written too, making the driver useless.
+> 
+> > > of Mr. Yu for acpi. Also this class could in time replace the lcd class 
+> > > located in the backlight directory since a lcd is a type of display.
+> > > The final hope is that the purpose auxdisplay could fall under this 
+> > > catergory.
+> > > 
+> > > P.S
+> > >    I know the edid parsing would have to be pulled out of the fbdev layer.
+> 
+> That patch was rought draft for feedback. I applied your comments. This 
+> patch actually works. It includes my backlight fix as well.
 
-Signed-off-by: Sean Young <sean@mess.org>
+BTW, this patch version contains trailing whitespace
+which should be cleaned up:
+
+Warning: trailing whitespace in lines 33,158 of drivers/acpi/video.c
+Warning: trailing whitespace in line 10 of drivers/video/display/Kconfig
+Warning: trailing whitespace in line 41 of include/linux/display.h
+Warning: trailing whitespace in lines 49,1053,1084,1133 of drivers/video/Kconfig
+Warning: trailing whitespace in line 3 of drivers/video/display/Makefile
+
 ---
-Please consider this for inclusion in the next -stable, this issue is 
-affecting users.
-
---- linux-2.6.19/drivers/usb/misc/phidgetservo.c.orig	2006-11-29 21:57:37.000000000 +0000
-+++ linux-2.6.19/drivers/usb/misc/phidgetservo.c	2006-12-04 21:01:40.000000000 +0000
-@@ -282,6 +282,7 @@ servo_probe(struct usb_interface *interf
- 		dev->dev = NULL;
- 		goto out;
- 	}
-+	dev_set_drvdata(dev->dev, dev);
- 
- 	servo_count = dev->type & SERVO_COUNT_QUAD ? 4 : 1;
- 
+~Randy

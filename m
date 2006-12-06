@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937575AbWLFTsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937574AbWLFTuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937575AbWLFTsv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937574AbWLFTsu
+	id S937574AbWLFTuL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937577AbWLFTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:48:50 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38586 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S937568AbWLFTss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:48:48 -0500
-Date: Wed, 6 Dec 2006 11:47:40 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <20061206193641.GY3013@parisc-linux.org>
-Message-ID: <Pine.LNX.4.64.0612061147000.27534@schroedinger.engr.sgi.com>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org> <20061206192647.GW3013@parisc-linux.org>
- <Pine.LNX.4.64.0612061128340.27363@schroedinger.engr.sgi.com>
- <20061206193641.GY3013@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Dec 2006 14:50:11 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60179 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937574AbWLFTuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 14:50:09 -0500
+Date: Wed, 6 Dec 2006 19:50:06 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: ... and more...
+Message-ID: <20061206195006.GH4587@ftp.linux.org.uk>
+References: <20061206184145.GC4587@ftp.linux.org.uk> <20061206185140.GD4587@ftp.linux.org.uk> <20061206191820.GF4587@ftp.linux.org.uk> <20061206194641.GG4587@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061206194641.GG4587@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Matthew Wilcox wrote:
+On Wed, Dec 06, 2006 at 07:46:41PM +0000, Al Viro wrote:
 
-> On Wed, Dec 06, 2006 at 11:29:42AM -0800, Christoph Lameter wrote:
-> > On Wed, 6 Dec 2006, Matthew Wilcox wrote:
-> > 
-> > > It's just been pointed out to me that the parisc one isn't safe.
-> > > 
-> > > <dhowells> imagine variable X is set to 3
-> > > <dhowells> CPU A issues cmpxchg(&X, 3, 5)
-> > > <dhowells> you'd expect that to change X to 5
-> > > <dhowells> but what if CPU B assigns 6 to X between cmpxchg reading X
-> > > and it setting X?
-> > 
-> > The same could happen with a regular cmpxchg. Cmpxchg changes it to 5 and 
-> > then other cpu performs a store before the next instruction.
-> 
-> For someone who's advocating use of cmpxchg, it seems you don't
-> understand its semantics!  In the scenario dhowells pointed out, X would
-> be left set to 5.  X should have the value 6 under any legitimate
-> implementation:
+Gah...  Harmless but stupid: leftover netdev_priv(dev);
 
-Nope this is a UP implementation. There is no cpu B.
+diff --git a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
+index 2dd0a34..420377c 100644
+--- a/drivers/i2c/chips/m41t00.c
++++ b/drivers/i2c/chips/m41t00.c
+@@ -215,8 +215,15 @@ m41t00_set(void *arg)
+ }
+ 
+ static ulong new_time;
++/* well, isn't this API just _lovely_? */
++static void
++m41t00_barf(struct work_struct *unusable)
++{
++	m41t00_set(&new_time);
++}
++
+ static struct workqueue_struct *m41t00_wq;
+-static DECLARE_WORK(m41t00_work, m41t00_set, &new_time);
++static DECLARE_WORK(m41t00_work, m41t00_barf);
+ 
+ int
+ m41t00_set_rtc_time(ulong nowtime)
+diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
+index 21d0137..c41ae42 100644
+--- a/drivers/net/mv643xx_eth.c
++++ b/drivers/net/mv643xx_eth.c
+@@ -277,9 +277,11 @@ static void mv643xx_eth_tx_timeout(struc
+  *
+  * Actual routine to reset the adapter when a timeout on Tx has occurred
+  */
+-static void mv643xx_eth_tx_timeout_task(struct net_device *dev)
++static void mv643xx_eth_tx_timeout_task(struct work_struct *ugly)
+ {
+-	struct mv643xx_private *mp = netdev_priv(dev);
++	struct mv643xx_private *mp = container_of(ugly, struct mv643xx_private,
++						  tx_timeout_task);
++	struct net_device *dev = mp->mii.dev; /* yuck */
+ 
+ 	if (!netif_running(dev))
+ 		return;
+@@ -1360,8 +1362,7 @@ #endif
+ #endif
+ 
+ 	/* Configure the timeout task */
+-	INIT_WORK(&mp->tx_timeout_task,
+-			(void (*)(void *))mv643xx_eth_tx_timeout_task, dev);
++	INIT_WORK(&mp->tx_timeout_task, mv643xx_eth_tx_timeout_task);
+ 
+ 	spin_lock_init(&mp->lock);
+ 
 

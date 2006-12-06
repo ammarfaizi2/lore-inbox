@@ -1,139 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759467AbWLFBgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759618AbWLFBpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759467AbWLFBgy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 20:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759481AbWLFBgy
+	id S1759618AbWLFBpx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 20:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759491AbWLFBpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 20:36:54 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:14074 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759467AbWLFBgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 20:36:53 -0500
-Date: Tue, 5 Dec 2006 17:37:18 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: adaplas@pol.net, jsimmons@infradead.org, akpm <akpm@osdl.org>
-Subject: [PATCH] linux-fbdev-devel is subscribers-only
-Message-Id: <20061205173718.a676aed6.randy.dunlap@oracle.com>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Tue, 5 Dec 2006 20:45:53 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:58047 "EHLO palrel10.hp.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1759481AbWLFBpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 20:45:51 -0500
+Message-Id: <6.2.0.14.2.20061205172536.086fa438@esmail.cup.hp.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
+Date: Tue, 05 Dec 2006 17:27:14 -0800
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Steve Wise" <swise@opengridcomputing.com>
+From: Michael Krause <krause@cup.hp.com>
+Subject: Re: [openib-general] [PATCH  v2 04/13] Connection Manager
+Cc: netdev@vger.kernel.org, "Roland Dreier" <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       "Divy Le Ray" <divy@chelsio.com>
+In-Reply-To: <20061205180939.GA26384@2ka.mipt.ru>
+References: <20061205050725.GA26033@2ka.mipt.ru>
+ <1165330925.16087.13.camel@stevo-desktop>
+ <20061205151905.GA18275@2ka.mipt.ru>
+ <1165333198.16087.53.camel@stevo-desktop>
+ <20061205155932.GA32380@2ka.mipt.ru>
+ <1165335162.16087.79.camel@stevo-desktop>
+ <20061205163008.GA30211@2ka.mipt.ru>
+ <1165337245.16087.95.camel@stevo-desktop>
+ <20061205172649.GA20229@2ka.mipt.ru>
+ <1165341100.16087.109.camel@stevo-desktop>
+ <20061205180939.GA26384@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Update linux-fbdev mailing list to subscribers-only.
+If you require more details on how this all works - it was fully explored 
+in the IETF RDDP workgroup - may I suggest a reading of the RDMA Security 
+Considerations draft which goes through many of the issues on how one 
+relates to a host stack.   This complements the MPA spec and supports much 
+of what Steve has already responded to during this string of e-mails.  We 
+took a great deal of time and debate to insure this can work efficiently 
+and without confusion in terms of who owns what and when.
 
-Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
----
- MAINTAINERS |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
-
---- linux-2.6.19-git6.orig/MAINTAINERS
-+++ linux-2.6.19-git6/MAINTAINERS
-@@ -677,7 +677,7 @@ S:	Supported
- CIRRUS LOGIC GENERIC FBDEV DRIVER
- P:	Jeff Garzik
- M:	jgarzik@pobox.com
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Odd Fixes
- 
- CIRRUS LOGIC CS4280/CS461x SOUNDDRIVER
-@@ -784,7 +784,7 @@ S:	Maintained
- CYBLAFB FRAMEBUFFER DRIVER
- P:	Knut Petersen
- M:	Knut_Petersen@t-online.de
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- CYCLADES 2X SYNC CARD DRIVER
-@@ -1115,7 +1115,7 @@ S:	Supported
- FRAMEBUFFER LAYER
- P:	Antonino Daplas
- M:	adaplas@pol.net
--L:	linux-fbdev-devel@lists.sourceforge.net	
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- W:	http://linux-fbdev.sourceforge.net/
- S:	Maintained
- 
-@@ -1466,7 +1466,7 @@ S:	Maintained
- IMS TWINTURBO FRAMEBUFFER DRIVER
- P:	Paul Mundt
- M:	lethal@chaoticdreams.org
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- INFINIBAND SUBSYSTEM
-@@ -1499,13 +1499,13 @@ S:	Maintained
- INTEL FRAMEBUFFER DRIVER (excluding 810 and 815)
- P:	Sylvain Meyer
- M:	sylvain.meyer@worldonline.fr
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- INTEL 810/815 FRAMEBUFFER DRIVER
- P:	Antonino Daplas
- M:	adaplas@pol.net
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- INTEL APIC/IOAPIC, LOWLEVEL X86 SMP SUPPORT
-@@ -1951,7 +1951,7 @@ S:	Odd Fixes for 2.4; Maintained for 2.6
- MATROX FRAMEBUFFER DRIVER
- P:	Petr Vandrovec
- M:	vandrove@vc.cvut.cz
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- MEGARAID SCSI DRIVERS
-@@ -2197,7 +2197,7 @@ S:	Maintained
- NVIDIA (rivafb and nvidiafb) FRAMEBUFFER DRIVER
- P:	Antonino Daplas
- M:	adaplas@pol.net
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- OPENCORES I2C BUS DRIVER
-@@ -2474,13 +2474,13 @@ S:	Maintained
- RADEON FRAMEBUFFER DISPLAY DRIVER
- P:	Benjamin Herrenschmidt
- M:	benh@kernel.crashing.org
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- RAGE128 FRAMEBUFFER DISPLAY DRIVER
- P:	Paul Mackerras
- M:	paulus@samba.org
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- RAYLINK/WEBGEAR 802.11 WIRELESS LAN DRIVER
-@@ -2550,7 +2550,7 @@ S:	Orphan
- S3 SAVAGE FRAMEBUFFER DRIVER
- P:	Antonino Daplas
- M:	adaplas@pol.net
--L:	linux-fbdev-devel@lists.sourceforge.net
-+L:	linux-fbdev-devel@lists.sourceforge.net (subscribers-only)
- S:	Maintained
- 
- S390
+Mike
 
 
----
+
+At 10:09 AM 12/5/2006, Evgeniy Polyakov wrote:
+>On Tue, Dec 05, 2006 at 11:51:40AM -0600, Steve Wise 
+>(swise@opengridcomputing.com) wrote:
+> > > Almost - except the case about where those skbs are coming from?
+> > > It looks like they are obtained from network, since it is ethernet
+> > > driver, and if they match some set of rules, they are considered as 
+> valid
+> > > MPA negotiation protocol.
+> >
+> > They come from the Ethernet driver, but that driver manages multiple HW
+> > queues and these packets come from an offload queue, not the NIC queue.
+> > So the HW demultiplexes.
+>
+>Ok, thanks for explaination.
+>
+>--
+>         Evgeniy Polyakov
+>
+>_______________________________________________
+>openib-general mailing list
+>openib-general@openib.org
+>http://openib.org/mailman/listinfo/openib-general
+>
+>To unsubscribe, please visit 
+>http://openib.org/mailman/listinfo/openib-general
+
+

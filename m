@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937564AbWLFTsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937575AbWLFTsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937564AbWLFTsA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937568AbWLFTsA
+	id S937575AbWLFTsv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937574AbWLFTsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:48:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:50398 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937564AbWLFTr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:47:59 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061206191252.GH32748@xi.wantstofly.org> 
-References: <20061206191252.GH32748@xi.wantstofly.org>  <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> 
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 06 Dec 2006 19:47:22 +0000
-Message-ID: <28668.1165434442@redhat.com>
+	Wed, 6 Dec 2006 14:48:50 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38586 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937568AbWLFTss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 14:48:48 -0500
+Date: Wed, 6 Dec 2006 11:47:40 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061206193641.GY3013@parisc-linux.org>
+Message-ID: <Pine.LNX.4.64.0612061147000.27534@schroedinger.engr.sgi.com>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org> <20061206192647.GW3013@parisc-linux.org>
+ <Pine.LNX.4.64.0612061128340.27363@schroedinger.engr.sgi.com>
+ <20061206193641.GY3013@parisc-linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennert Buytenhek <buytenh@wantstofly.org> wrote:
+On Wed, 6 Dec 2006, Matthew Wilcox wrote:
 
-> > Pre-v6 ARM doesn't support SMP according to ARM's atomic.h,
+> On Wed, Dec 06, 2006 at 11:29:42AM -0800, Christoph Lameter wrote:
+> > On Wed, 6 Dec 2006, Matthew Wilcox wrote:
+> > 
+> > > It's just been pointed out to me that the parisc one isn't safe.
+> > > 
+> > > <dhowells> imagine variable X is set to 3
+> > > <dhowells> CPU A issues cmpxchg(&X, 3, 5)
+> > > <dhowells> you'd expect that to change X to 5
+> > > <dhowells> but what if CPU B assigns 6 to X between cmpxchg reading X
+> > > and it setting X?
+> > 
+> > The same could happen with a regular cmpxchg. Cmpxchg changes it to 5 and 
+> > then other cpu performs a store before the next instruction.
 > 
-> That's not quite true, there exist ARMv5 processors that in theory
-> can support SMP.
+> For someone who's advocating use of cmpxchg, it seems you don't
+> understand its semantics!  In the scenario dhowells pointed out, X would
+> be left set to 5.  X should have the value 6 under any legitimate
+> implementation:
 
-I meant that the Linux ARM arch doesn't support it:
+Nope this is a UP implementation. There is no cpu B.
 
-	#else /* ARM_ARCH_6 */
-
-	#include <asm/system.h>
-
-	#ifdef CONFIG_SMP
-	#error SMP not supported on pre-ARMv6 CPUs
-	#endif
-
-David

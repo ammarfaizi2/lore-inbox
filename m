@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760506AbWLFLnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760512AbWLFL4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760506AbWLFLnG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 06:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760499AbWLFLnG
+	id S1760512AbWLFL4g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 06:56:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760513AbWLFL4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 06:43:06 -0500
-Received: from mail.tbdnetworks.com ([204.13.84.99]:43547 "EHLO
-	mail.tbdnetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760506AbWLFLnF (ORCPT
+	Wed, 6 Dec 2006 06:56:36 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1268 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760511AbWLFL4f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 06:43:05 -0500
-Subject: Why is "Memory split" Kconfig option only for EMBEDDED?
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: TBD Networks
-Date: Wed, 06 Dec 2006 12:42:29 +0100
-Message-Id: <1165405350.5954.213.camel@titan.tbdnetworks.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 06:56:35 -0500
+Date: Wed, 6 Dec 2006 11:56:32 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Ingo Molnar <mingo@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.19] i386/io_apic: Fix a typo in an IRQ handler name
+Message-ID: <Pine.LNX.4.64N.0612061151010.29000@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ The "fasteoi" IRQ handler is named "fasteio" incorrectly.  This is a fix.
 
-I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
-be optimal for a machine with exactly 1GB memory (like my current
-desktop). Why is that option only prompted for after selecting EMBEDDED
-(which I normally don't select for desktop machines)?
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+---
+ It should be obvious.
 
-Best,
-  Norbert
+ Please apply.
 
+  Maciej
 
+patch-mips-2.6.19-rc2-20061023-fasteoi-0
+diff -up --recursive --new-file linux-mips-2.6.19-rc2-20061023.macro/arch/i386/kernel/io_apic.c linux-mips-2.6.19-rc2-20061023/arch/i386/kernel/io_apic.c
+--- linux-mips-2.6.19-rc2-20061023.macro/arch/i386/kernel/io_apic.c	2006-10-19 04:56:53.000000000 +0000
++++ linux-mips-2.6.19-rc2-20061023/arch/i386/kernel/io_apic.c	2006-12-06 00:10:05.000000000 +0000
+@@ -2236,7 +2236,7 @@ static inline void check_timer(void)
+ 
+ 	disable_8259A_irq(0);
+ 	set_irq_chip_and_handler_name(0, &lapic_chip, handle_fasteoi_irq,
+-				      "fasteio");
++				      "fasteoi");
+ 	apic_write_around(APIC_LVT0, APIC_DM_FIXED | vector);	/* Fixed mode */
+ 	enable_8259A_irq(0);
+ 

@@ -1,57 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935791AbWLFPlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935964AbWLFPyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935791AbWLFPlO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935871AbWLFPlO
+	id S935964AbWLFPyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936090AbWLFPyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:41:14 -0500
-Received: from styx.suse.cz ([82.119.242.94]:56119 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S935791AbWLFPlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:41:12 -0500
-Date: Wed, 6 Dec 2006 16:39:50 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marcel Holtmann <marcel@holtmann.org>, Li Yu <raise.sail@gmail.com>,
-       Greg Kroah Hartman <greg@kroah.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Vincent Legoll <vincentlegoll@gmail.com>,
-       "Zephaniah E. Hull" <warp@aehallh.com>, liyu <liyu@ccoss.com.cn>
-Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
-In-Reply-To: <d120d5000612060731s3e1b4b6fnb8e93b970e91a852@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0612061633230.29624@jikos.suse.cz>
-References: <200612061803324532133@gmail.com>  <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-  <d120d5000612060624o15f608dk83f35a228b9a6d18@mail.gmail.com> 
- <1165415924.2756.63.camel@localhost>  <Pine.LNX.4.64.0612061549040.29624@jikos.suse.cz>
-  <d120d5000612060713n5118b379w11dc7e65abae1c58@mail.gmail.com> 
- <Pine.LNX.4.64.0612061615080.29624@jikos.suse.cz>
- <d120d5000612060731s3e1b4b6fnb8e93b970e91a852@mail.gmail.com>
+	Wed, 6 Dec 2006 10:54:47 -0500
+Received: from mx2.suse.de ([195.135.220.15]:35851 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935964AbWLFPyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:54:46 -0500
+Date: Wed, 6 Dec 2006 16:54:39 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Phil Endecott <phil_arcwk_endecott@chezphil.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Subtleties of __attribute__((packed))
+Message-ID: <20061206155439.GA6727@hasse.suse.de>
+References: <4de7f8a60612060704k7d7c1ea3o1d43bee6c5e372d4@mail.gmail.com> <1165418558832@dmwebmail.belize.chezphil.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165418558832@dmwebmail.belize.chezphil.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Dmitry Torokhov wrote:
+On Wed, Dec 06, Phil Endecott wrote:
 
-> If Greg is OK with that I would start with truly mechanical merge (no 
-> now data structures, just move the files around) and merge this ASAP, 
-> before we hit -rc1 or -rc2 at the latest. Then you can start puling up 
-> your changesin the separate git tree.
+> I don't think so.  Example:
+> 
+> struct test {
+>   int a __attribute__((packed));
+>   int b __attribute__((packed));
+> };
+> 
+> char c = 1;
+> struct test t = { .a=2, .b=3 };
+> 
+> $ arm-linux-gnu-gcc -O2 -S -W -Wall test1.c
+> 
+> 	.file	"test2.c"
+> 	.global	c
+> 	.data
+> 	.type	c, %object
+> 	.size	c, 1
+> c:
+> 	.byte	1
+> 	.global	t
+> 	.align	2               <<<<<<<<===== t is aligned
+> 	.type	t, %object
+> 	.size	t, 8
+> t:
+> 	.word	2
+> 	.word	3
+> 	.ident	"GCC: (GNU) 4.1.2 20061028 (prerelease) (Debian 4.1.1-19)"
+> 
+> 
+> Compare with:
+> 
+> struct test {
+>   int a;
+>   int b;
+> } __attribute__((packed));
+> 
+> char c = 1;
+> struct test t = { .a=2, .b=3 };
+> 
+> $ arm-linux-gnu-gcc -O2 -S -W -Wall test2.c
+> 
+> 	.file	"test1.c"
+> 	.global	c
+> 	.data
+> 	.type	c, %object
+> 	.size	c, 1
+> c:
+> 	.byte	1
+> 	.global	t                    <<<<<<  "align" has gone, t is unaligned
+> 	.type	t, %object
+> 	.size	t, 8
+> t:
+> 	.4byte	2
+> 	.4byte	3
+> 	.ident	"GCC: (GNU) 4.1.2 20061028 (prerelease) (Debian 4.1.1-19)"
+> 
 
-The first of the 8 patches which currently exist just moves things around 
-physically. Just that is not enough, unfortunately, some tweaking is 
-needed anyway (static functions, new headers, Kconfig changes, etc), so I 
-think it might maybe be better to take the bunch of all 8 patches 
-initially as a whole, as they really don't do too intrusive changes to the 
-code, and could stay in tree for some testing (though I of course tested 
-them to some extent) together.
+Maybe the arm backend is somehow broken. AFAIK (and I verfied it on S390 and
+i386) the alignment shouldn't change.
 
-> Take up Marcel on his suggestion ;) I could set up a tree too but I am 
-> afraid I won't have enought time at the moment.
+struct foo {
+	int a;
+	char b;
+	int c;
+};
 
-:) Thanks
+struct bar1 {
+	char a __attribute__((__packed__));
+	struct foo b __attribute__((__packed__));
+};
 
--- 
-Jiri Kosina
-SUSE Labs
+struct bar2 {
+	char a;
+	struct foo b;
+} __attribute__((__packed__));
+
+struct bar3 {
+	char a;
+	struct foo b;
+};
+
+struct bar1 packed1 = { 10, { 20, 30, 40 } };
+struct bar2 packed2 = { 50, { 60, 70, 80 } };
+struct bar3 unpacked = { 90, { 100, 110, 120 } };
+
+s390x-linux-gcc -S packed2.c:
+packed2.c:9: warning: '__packed__' attribute ignored for field of type 'char'
+
+	.file	"packed2.c"
+.globl packed1
+.data
+	.align	2
+	.type	packed1, @object
+	.size	packed1, 13
+packed1:
+	.byte	10
+	.4byte	20
+	.byte	30
+	.zero	3
+	.4byte	40
+.globl packed2
+	.align	2
+	.type	packed2, @object
+	.size	packed2, 13
+packed2:
+	.byte	50
+	.4byte	60
+	.byte	70
+	.zero	3
+	.4byte	80
+.globl unpacked
+	.align	4
+	.type	unpacked, @object
+	.size	unpacked, 16
+unpacked:
+	.byte	90
+	.zero	3
+	.long	100
+	.byte	110
+	.zero	3
+	.long	120
+	.ident	"GCC: (GNU) 4.1.2 20060531 (prerelease) (SUSE Linux)"
+	.section	.note.GNU-stack,"",@progbits

@@ -1,174 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936910AbWLFRS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936932AbWLFRUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936910AbWLFRS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 12:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936922AbWLFRS4
+	id S936932AbWLFRUK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 12:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936934AbWLFRUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 12:18:56 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:45832 "EHLO smtp.osdl.org"
+	Wed, 6 Dec 2006 12:20:10 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:39855 "EHLO e2.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936910AbWLFRSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 12:18:55 -0500
-Date: Wed, 6 Dec 2006 09:17:46 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
-cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <20061206075729.b2b6aa52.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org>
+	id S936932AbWLFRUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 12:20:08 -0500
+Message-ID: <4576FAF8.8020701@us.ibm.com>
+Date: Wed, 06 Dec 2006 09:16:40 -0800
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH] VIA and SiS AGP chipsets are x86-only
+References: <20061204104314.GB3013@parisc-linux.org>	<4575F929.9020708@us.ibm.com>  <20061206034044.GS3013@parisc-linux.org> <1165382366.5469.78.camel@localhost.localdomain>
+In-Reply-To: <1165382366.5469.78.camel@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=AC84030F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-
-On Wed, 6 Dec 2006, Andrew Morton wrote:
+Benjamin Herrenschmidt wrote:
+> On Tue, 2006-12-05 at 20:40 -0700, Matthew Wilcox wrote:
+>> On Tue, Dec 05, 2006 at 02:56:41PM -0800, Ian Romanick wrote:
+>>> I don't know about SiS, but this is certainly *not* true for Via.  There
+>>> are some PowerPC and, IIRC, Alpha motherboards that have Via chipsets.
+>> Yes, but they don't have VIA *AGP*.  At least, that's what I've been
+>> told by people who know those architectures.
 > 
-> I think so too.  But it would be imprudent to hang around waiting for me
-> to write it :(
+> Yeah, I don't know of any VIA AGP chipset used on ppc...
+> 
+> Pegasos has a VIA southbridge but no AGP.
 
-How about something like this?
+I double checked, and you're right.  Please ignore my noise.
 
-This
- (a) depends on the just-merged "struct work" cleanup
- (b) is totally untested
- (c) probably kills you slowly and painfully
- (d) may breed frikken sharks with lasers on their frikken heads!
- (e) does compile, but I don't guarantee anything else.
- (f) may, in other words, be totally broken
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-And, btw: it may not work. Just in case that wasn't clear. This is a quick 
-hack from me just sitting down and seeing if I can still do kernel 
-programming, or whether I'm just relegated to merge other peoples code.
-
-		Linus
-
-PS. It might be broken.
-
-PPS. David Howells added to participant list, hopefully he can 
-double-check all my assumptions, since he's touched the workqueue code 
-last. Tag, you're it!
-
-----
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index 4044bb1..e175f39 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -587,8 +587,7 @@ int phy_stop_interrupts(struct phy_device *phydev)
- 	 * Finish any pending work; we might have been scheduled
- 	 * to be called from keventd ourselves, though.
- 	 */
--	if (!current_is_keventd())
--		flush_scheduled_work();
-+	run_scheduled_work(&phydev->phy_queue);
- 
- 	free_irq(phydev->irq, phydev);
- 
-diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-index 4a3ea83..a601ed5 100644
---- a/include/linux/workqueue.h
-+++ b/include/linux/workqueue.h
-@@ -160,6 +160,7 @@ extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
- 
- extern int FASTCALL(schedule_work(struct work_struct *work));
-+extern int FASTCALL(run_scheduled_work(struct work_struct *work));
- extern int FASTCALL(schedule_delayed_work(struct delayed_work *work, unsigned long delay));
- 
- extern int schedule_delayed_work_on(int cpu, struct delayed_work *work, unsigned long delay);
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 8d1e7cb..fcacf06 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -103,6 +103,79 @@ static inline void *get_wq_data(struct work_struct *work)
- 	return (void *) (work->management & WORK_STRUCT_WQ_DATA_MASK);
- }
- 
-+static int __run_work(struct cpu_workqueue_struct *cwq, struct work_struct *work)
-+{
-+	int ret = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&cwq->lock, flags);
-+	/*
-+	 * We need to re-validate the work info after we've gotten
-+	 * the cpu_workqueue lock. We can run the work now iff:
-+	 *
-+	 *  - the wq_data still matches the cpu_workqueue_struct
-+	 *  - AND the work is still marked pending
-+	 *  - AND the work is still on a list (which will be this
-+	 *    workqueue_struct list)
-+	 *
-+	 * All these conditions are important, because we
-+	 * need to protect against the work being run right
-+	 * now on another CPU (all but the last one might be
-+	 * true if it's currently running and has not been
-+	 * released yet, for example).
-+	 */
-+	if (get_wq_data(work) == cwq
-+	    && test_bit(WORK_STRUCT_PENDING, &work->management)
-+	    && !list_empty(&work->entry)) {
-+		work_func_t f = work->func;
-+		list_del_init(&work->entry);
-+		spin_unlock_irqrestore(&cwq->lock, flags);
-+
-+		if (!test_bit(WORK_STRUCT_NOAUTOREL, &work->management))
-+			work_release(work);
-+		f(work);
-+
-+		spin_lock_irqsave(&cwq->lock, flags);
-+		cwq->remove_sequence++;
-+		wake_up(&cwq->work_done);
-+		ret = 1;
-+	}
-+	spin_unlock_irqrestore(&cwq->lock, flags);
-+	return ret;
-+}
-+
-+/**
-+ * run_scheduled_work - run scheduled work synchronously
-+ * @work: work to run
-+ *
-+ * This checks if the work was pending, and runs it
-+ * synchronously if so. It returns a boolean to indicate
-+ * whether it had any scheduled work to run or not.
-+ *
-+ * NOTE! This _only_ works for normal work_structs. You
-+ * CANNOT use this for delayed work, because the wq data
-+ * for delayed work will not point properly to the per-
-+ * CPU workqueue struct, but will change!
-+ */
-+int fastcall run_scheduled_work(struct work_struct *work)
-+{
-+	for (;;) {
-+		struct cpu_workqueue_struct *cwq;
-+
-+		if (!test_bit(WORK_STRUCT_PENDING, &work->management))
-+			return 0;
-+		if (list_empty(&work->entry))
-+			return 0;
-+		/* NOTE! This depends intimately on __queue_work! */
-+		cwq = get_wq_data(work);
-+		if (!cwq)
-+			return 0;
-+		if (__run_work(cwq, work))
-+			return 1;
-+	}
-+}
-+EXPORT_SYMBOL(run_scheduled_work);
-+
- /* Preempt must be disabled. */
- static void __queue_work(struct cpu_workqueue_struct *cwq,
- 			 struct work_struct *work)
+iD8DBQFFdvr3X1gOwKyEAw8RAocaAJ4whaDqaAmCFzAgrnzyD+1bD/SRXACfb5eM
+TcFVnRBmMQUyU8wyOxLISHE=
+=ST0m
+-----END PGP SIGNATURE-----

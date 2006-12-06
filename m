@@ -1,103 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760299AbWLFIaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760308AbWLFIgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760299AbWLFIaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 03:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760300AbWLFIaq
+	id S1760308AbWLFIgy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 03:36:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760310AbWLFIgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 03:30:46 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:54420 "EHLO
-	mail.holtmann.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760299AbWLFIap (ORCPT
+	Wed, 6 Dec 2006 03:36:54 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:47952 "EHLO
+	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760308AbWLFIgx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 03:30:45 -0500
-Subject: Re: [PATCH 32/36] driver core: Introduce device_move(): move a
-	device to a new parent.
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Cornelia Huck <cornelia.huck@de.ibm.com>
-In-Reply-To: <20061206055843.GA12997@suse.de>
-References: <11650154181661-git-send-email-greg@kroah.com>
-	 <11650154221716-git-send-email-greg@kroah.com>
-	 <11650154251022-git-send-email-greg@kroah.com>
-	 <11650154282911-git-send-email-greg@kroah.com>
-	 <11650154311175-git-send-email-greg@kroah.com>
-	 <1165163163.19590.62.camel@localhost> <20061204195859.GB29637@kroah.com>
-	 <1165266903.12640.35.camel@localhost> <20061204230511.GA9382@kroah.com>
-	 <1165332371.2756.23.camel@localhost>  <20061206055843.GA12997@suse.de>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 09:29:39 +0100
-Message-Id: <1165393779.2756.38.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 03:36:53 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45768116.8040804@s5r6.in-berlin.de>
+Date: Wed, 06 Dec 2006 09:36:38 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux1394-devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205184921.GA5029@martell.zuzino.mipt.ru> <4575FF08.2030100@redhat.com>
+In-Reply-To: <4575FF08.2030100@redhat.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+(Adding Cc: linux1394-devel)
 
-> > > > > > > Provide a function device_move() to move a device to a new parent device. Add
-> > > > > > > auxilliary functions kobject_move() and sysfs_move_dir().
-> > > > > > > kobject_move() generates a new uevent of type KOBJ_MOVE, containing the
-> > > > > > > previous path (DEVPATH_OLD) in addition to the usual values. For this, a new
-> > > > > > > interface kobject_uevent_env() is created that allows to add further
-> > > > > > > environmental data to the uevent at the kobject layer.
-> > > > > > 
-> > > > > > has this one been tested? I don't get it working. I always get an EINVAL
-> > > > > > when trying to move the TTY device of a Bluetooth RFCOMM link around.
-> > > > > 
-> > > > > I relied on Cornelia to test this.  I think some s390 patches depend on
-> > > > > this change, right?
-> > > > 
-> > > > my pre-condition is that the TTY device has no parent and then we move
-> > > > it to a Bluetooth ACL link as child. This however is not working or the
-> > > > TTY change to use device instead of class_device has broken something.
-> > > 
-> > > Hm, I don't think the class_device stuff has broken anything, but if you
-> > > think so, please let me know.
-> > 
-> > I was checking why device_move() fails and it seems that the check for
-> > is_registered is the problem here.
-> > 
-> >         if (!device_is_registered(dev)) {
-> >                 error = -EINVAL;
-> >                 goto out;
-> >         }
-> > 
-> > The ACL link has been attached to the Bluetooth bus, but for some reason
-> > it still thinks that it is unregistered. Is this check really needed. I
-> > think it should be possible to also move devices that are not part of a
-> > bus, yet. And removing that check makes it work for me.
-> > 
-> > And btw. I can't see any s390 patches that are using device_move() at
-> > the moment.
-> > 
-> > > > > > And shouldn't device_move(dev, NULL) re-attach it to the virtual device
-> > > > > > tree instead of failing?
-> > > > > 
-> > > > > Yes, that would be good to have.
-> > > > 
-> > > > Cornelia, please fix this, because otherwise we can't detach a device
-> > > > from its parent. Storing the current virtual parent looks racy to me.
-> > > 
-> > > You can always restore the previous "virtual" parent from the
-> > > information given to you in the device itself.  That is what the code
-> > > does when it first registers the device.
-> > > 
-> > > And yes, I too think it should be fixed.
-> > 
-> > My knowledge of the driver model is still limited. Can you fix that
-> > quickly. This is really needed.
+Kristian Høgsberg wrote to linux-kernel:
+> Alexey Dobriyan wrote:
+>> On Tue, Dec 05, 2006 at 12:22:29AM -0500, Kristian Høgsberg wrote:
+>>> I'm announcing an alternative firewire stack that I've been working
+>>> on the last few weeks.
+>>
+>> Is mainline firewire so hopeless, that you've decided to rewrite it?
+>> Could you show some ugly places in it?
 > 
-> As Cornelia wrote this portion of code, I will wait a bit to recieve a
-> patch...
+> Yes.  I'm not doing this lightheartedly.  It's a lot of work and it will
+> introduce regressions and instability for a little while.
+> 
+> My main point about ohci1394 (the old stacks PCI driver) is, that if you
+> really want to fix the issues with this driver, you have to shuffle the code
+> around so much that you'll introduce as many regressions as a clean rewrite.
+> The big problems in the ohci1394 drivers is the irq_handler, bus reset
+> handling and config rom handling.  These are some of the strong points of
+> fw-ohci.c:
+> 
+>  - Rock solid handling of generations and node IDs around bus resets.
+>    The only way to handle this atomically is to pass the generation
+>    count along all the way to the transmit function in the low-level
+>    driver.  The linux1394 low level driver API is broken in this
+>    respect.
+> 
+>  - Better handling of self ID receive and possible recursive bus
+>    resets.  Successive bus resets could overwrite the self ID DMA
+>    buffer, while we read out the contents.  The OHCI specification
+>    recommends a method similiar to linux/seqlock.h for reading out
+>    self IDs, to ensure we get a consistent result.
+> 
+>  - Much simpler bus reset handling; we only subscribe to the
+>    selfIDComplete interrupt and don't use the troublesome busReset
+>    interrupt.  Rely on async transmit context to not send data while
+>    busReset event bit is set.
+> 
+>  - Atomic updates of config rom contents as specified in section 5.5.6
+>    in the OHCI specification. The contents of the ConfigROMheader,
+>    BusOptions and ConfigROMmap registers are updated atomically by the
+>    controller after a reset.
+> 
+> The OHCI specification describes a number of the techniques to ensure race
+> free operation for the above cases, but the ohci1394 driver generally doesn't
+> use any of these.  If you want to see ugly code look at the ohci1394 irq
+> handler.  Much of the uglyness comes from trying to handle the busReset
+> interrupt, so that the mid-level linux1394 stack can fail I/O while the bus
+> reset takes place.  Now, OHCI hardware already reliably fails I/O during bus
+> reset, so there is no need to complicate the core stack with this extra state,
+> and the OHCI driver becomes much simpler and more reliable, since we now just
+> need to know when a bus reset has successfully completed.
+> 
+> Fixing this problem requires significant changes to the ohci1394 driver and
+> the mid-level stack, and will destabilize things until we've figure out how to
+> work around the odd flaky device out there.  Similar problems exists related
+> to sending packets without bus reset races, updating the config rom, and
+> reporting self ID packets and all require significant changes to the core
+> stack and ohci1394.  All taken together the scale tips towards a rewrite.
+> 
+> Another point is the various streaming drivers.  There used to be 5 different
+> userspace streaming APIs in the linux1394: raw1394, video1394, amdtp, dv1394
+> and rawiso.  Recently, amdtp (audio streaming) has been removed, since with
+> the rawiso interface, this can be done in userspace.  However the remaining 4
+> interfaces have slightly disjoint feature sets and can't really be phased out.
 
-I have a patch ready for the Bluetooth subsystem that will make use of
-this and move around RFCOMM TTY devices to their ACL links when the
-connection has been established. So I can test this very easily.
+The old iso API of (lib)raw1394 has been marked deprecated and
+undocumented in libraw1394's documentation for some time, and will go
+away in 2007.
 
-Regards
+Dv1394 might go away in 2007 too if there is enough effort to move
+high-profile users over to rawiso a.k.a. the current iso API of
+(lib)raw1394.
 
-Marcel
+I suppose video1394 might get a viable migration path with your new
+driver, if you and interested developers put effort into development
+(and help with deployment) of a proper replacement.
 
+>  In the long run, supporting 4 different interfaces that does almost the same
+> thing isn't feasible.  The streaming interface in my new stack (only
+> transmission implemented at this point) can replace all of these interfaces.
 
+You have to look at the matter not only from the POV of API design but
+also of deployment and support.
+
+> Finally, some parts aren't actually rewritten, just ported over and
+> refactored.  This is the case for the SBP-2 driver.  Functionally, my
+> fw-sbp2.c is identical to sbp2.c in the current stack, but I've changed it to
+> work with the new interfaces and cleaned up some of the redundancy.
+> 
+>> We can end up with two not quite working sets of firewire drivers your
+>> way.
+>>
+> You can patch up the current stack to be less flaky, and Stefan has been doing
+> a great job at that lately, but it's still fundamentally broken in the ways
+> described above.
+> 
+> While my stack may less stable for the first couple of weeks, these are
+> transient issues, such as, say, lack of big endian testing, that are easily
+> fixed.  In the long run this new stack is much more maintainable and has a
+> bigger potential for stability.
+> 
+> Kristian
+> 
+
+I have to say, the really really old bug reports which piled up for
+ohci1394 (high latency of the reset event handler, streaming packets
+being mistaken as selfID packets...) and the recently reported ohci1394
+bugs (event mask being mysteriously blanked out...) and my lack of
+progress with these speak for themselves. (I don't have enough insight
+yet, nor enough spare time nor affected hardware to make reasonable
+headway.)
+-- 
+Stefan Richter
+-=====-=-==- ==-- --==-
+http://arcgraph.de/sr/

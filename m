@@ -1,42 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937821AbWLFX4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937823AbWLFX6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937821AbWLFX4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 18:56:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937823AbWLFX4l
+	id S937823AbWLFX6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 18:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937822AbWLFX6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 18:56:41 -0500
-Received: from europa.lunarpages.com ([209.200.229.75]:38165 "EHLO
-	europa.lunarpages.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937821AbWLFX4k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 18:56:40 -0500
-Subject: Obtaining a list of memory address ranges allocated to processes
-From: Stephen Torri <storri@torri.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 17:56:26 -0600
-Message-Id: <1165449386.13079.30.camel@base.torri.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 
+	Wed, 6 Dec 2006 18:58:19 -0500
+Received: from hera.kernel.org ([140.211.167.34]:36554 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937785AbWLFX6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 18:58:18 -0500
+From: Len Brown <len.brown@intel.com>
+Reply-To: Len Brown <lenb@kernel.org>
+Organization: Intel Open Source Technology Center
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] ACPI, i686, x86_64: fix laptop bootup hang in init_acpi()
+Date: Wed, 6 Dec 2006 18:57:29 -0500
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, ak@suse.de
+References: <20061206223025.GA17227@elte.hu>
+In-Reply-To: <20061206223025.GA17227@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - europa.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - torri.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Disposition: inline
+Message-Id: <200612061857.30248.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to create a custom ELF and Windows PE loader for the purpose
-of security research. I am having a difficult time finding how to
-allocate memory for a binary at the desired address in memory
-(especially if its non-relocatable). I would like to see why I cannot
-get memory allocated at the exact address request in the binary headers.
-Is there a program or system call that allows me to see a list of memory
-address ranges allocated to the running processes on a system?
+On Wednesday 06 December 2006 17:30, Ingo Molnar wrote:
+> Subject: [patch] ACPI, i686, x86_64: fix laptop bootup hang in init_acpi()
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> during kernel bootup, a new T60 laptop (CoreDuo, 32-bit) hangs about 
+> 10%-20% of the time in acpi_init():
+> 
+>  Calling initcall 0xc055ce1a: topology_init+0x0/0x2f()
+>  Calling initcall 0xc055d75e: mtrr_init_finialize+0x0/0x2c()
+>  Calling initcall 0xc05664f3: param_sysfs_init+0x0/0x175()
+>  Calling initcall 0xc014cb65: pm_sysrq_init+0x0/0x17()
+>  Calling initcall 0xc0569f99: init_bio+0x0/0xf4()
+>  Calling initcall 0xc056b865: genhd_device_init+0x0/0x50()
+>  Calling initcall 0xc056c4bd: fbmem_init+0x0/0x87()
+>  Calling initcall 0xc056dd74: acpi_init+0x0/0x1ee()
+> 
+> it's a hard hang that not even an NMI could punch through! 
+> Frustratingly, adding printks or function tracing to the ACPI code made 
+> the hangs go away ...
+> 
+> after some time an additional detail emerged: disabling the NMI watchdog 
+> made these occasional hangs go away.
+> 
+> So i spent the better part of today trying to debug this and trying out 
+> various theories when i finally found the likely reason for the hang: if 
+> acpi_ns_initialize_devices() executes an _INI AML method and an NMI 
+> happens to hit that AML execution in the wrong moment, the machine would 
+> hang.  (my theory is that this must be some sort of chipset setup method 
+> doing stores to chipset mmio registers?)
+> 
+> Unfortunately given the characteristics of the hang it was sheer 
+> impossible to figure out which of the numerous AML methods is impacted 
+> by this problem.
+> 
+> as a workaround i wrote an interface to disable chipset-based NMIs while 
+> executing _INI sections - and indeed this fixed the hang. I did a 
+> boot-loop of 100 separate reboots and none hung - while without the 
+> patch it would hang every 5-10 attempts. Out of caution i did not touch 
+> the nmi_watchdog=2 case (it's not related to the chipset anyway and 
+> didnt hang).
+> 
+> I implemented this for both x86_64 and i686, tested the i686 laptop both 
+> with nmi_watchdog=1 [which triggered the hangs] and nmi_watchdog=2, and 
+> tested an Athlon64 box with the 64-bit kernel as well. Everything builds 
+> and works with the patch applied.
 
-Stephen
+Good work root-causing this failure!
 
+Personally I have never been a big fan of having the NMI watchdog
+running by default on all systems -- but Andi insists that it helps him
+debug failures, so tick it does...
+
+Clearly this laptop was validated with Windows, and Windows doesn't
+have this problem -- suggesting that we may be somewhat out on a limb...
+
+Some alternatives to consider...
+a. don't enable NMI watchdog by default
+b. enable NMI watchdog, but later during kernel boot
+    (assumption here that the issue is only during _INI)
+c. disable the NMI whenever the ACPI interpeter is running
+   (who knows, maybe this isn't limited to the _INI case, but
+    could cause a hang at some other time -- only the
+    BIOS AML writers knows....)
+
+thoughts?
+-Len
+
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ---
+>  arch/i386/kernel/nmi.c          |   28 ++++++++++++++++++++++++++++
+>  arch/x86_64/kernel/nmi.c        |   27 +++++++++++++++++++++++++++
+>  drivers/acpi/namespace/nsinit.c |    9 +++++++++
+>  include/linux/nmi.h             |    9 ++++++++-
+>  4 files changed, 72 insertions(+), 1 deletion(-)
+> 
+> Index: linux/arch/i386/kernel/nmi.c
+> ===================================================================
+> --- linux.orig/arch/i386/kernel/nmi.c
+> +++ linux/arch/i386/kernel/nmi.c
+> @@ -376,6 +376,34 @@ void enable_timer_nmi_watchdog(void)
+>  	}
+>  }
+>  
+> +static void __acpi_nmi_disable(void *__unused)
+> +{
+> +	apic_write_around(APIC_LVT0, APIC_DM_NMI | APIC_LVT_MASKED);
+> +}
+> +
+> +/*
+> + * Disable timer based NMIs on all CPUs:
+> + */
+> +void acpi_nmi_disable(void)
+> +{
+> +	if (atomic_read(&nmi_active) && nmi_watchdog == NMI_IO_APIC)
+> +		on_each_cpu(__acpi_nmi_disable, NULL, 0, 1);
+> +}
+> +
+> +static void __acpi_nmi_enable(void *__unused)
+> +{
+> +	apic_write_around(APIC_LVT0, APIC_DM_NMI);
+> +}
+> +
+> +/*
+> + * Enable timer based NMIs on all CPUs:
+> + */
+> +void acpi_nmi_enable(void)
+> +{
+> +	if (atomic_read(&nmi_active) && nmi_watchdog == NMI_IO_APIC)
+> +		on_each_cpu(__acpi_nmi_enable, NULL, 0, 1);
+> +}
+> +
+>  #ifdef CONFIG_PM
+>  
+>  static int nmi_pm_active; /* nmi_active before suspend */
+> Index: linux/arch/x86_64/kernel/nmi.c
+> ===================================================================
+> --- linux.orig/arch/x86_64/kernel/nmi.c
+> +++ linux/arch/x86_64/kernel/nmi.c
+> @@ -360,6 +360,33 @@ void enable_timer_nmi_watchdog(void)
+>  	}
+>  }
+>  
+> +static void __acpi_nmi_disable(void *__unused)
+> +{
+> +	apic_write(APIC_LVT0, APIC_DM_NMI | APIC_LVT_MASKED);
+> +}
+> +
+> +/*
+> + * Disable timer based NMIs on all CPUs:
+> + */
+> +void acpi_nmi_disable(void)
+> +{
+> +	if (atomic_read(&nmi_active) && nmi_watchdog == NMI_IO_APIC)
+> +		on_each_cpu(__acpi_nmi_disable, NULL, 0, 1);
+> +}
+> +
+> +static void __acpi_nmi_enable(void *__unused)
+> +{
+> +	apic_write(APIC_LVT0, APIC_DM_NMI);
+> +}
+> +
+> +/*
+> + * Enable timer based NMIs on all CPUs:
+> + */
+> +void acpi_nmi_enable(void)
+> +{
+> +	if (atomic_read(&nmi_active) && nmi_watchdog == NMI_IO_APIC)
+> +		on_each_cpu(__acpi_nmi_enable, NULL, 0, 1);
+> +}
+>  #ifdef CONFIG_PM
+>  
+>  static int nmi_pm_active; /* nmi_active before suspend */
+> Index: linux/drivers/acpi/namespace/nsinit.c
+> ===================================================================
+> --- linux.orig/drivers/acpi/namespace/nsinit.c
+> +++ linux/drivers/acpi/namespace/nsinit.c
+> @@ -45,6 +45,7 @@
+>  #include <acpi/acnamesp.h>
+>  #include <acpi/acdispat.h>
+>  #include <acpi/acinterp.h>
+> +#include <linux/nmi.h>
+>  
+>  #define _COMPONENT          ACPI_NAMESPACE
+>  ACPI_MODULE_NAME("nsinit")
+> @@ -537,7 +538,15 @@ acpi_ns_init_one_device(acpi_handle obj_
+>  	info->parameter_type = ACPI_PARAM_ARGS;
+>  	info->flags = ACPI_IGNORE_RETURN_VALUE;
+>  
+> +	/*
+> +	 * Some hardware relies on this being executed as atomically
+> +	 * as possible (without an NMI being received in the middle of
+> +	 * this) - so disable NMIs and initialize the device:
+> +	 */
+> +	acpi_nmi_disable();
+>  	status = acpi_ns_evaluate(info);
+> +	acpi_nmi_enable();
+> +
+>  	if (ACPI_SUCCESS(status)) {
+>  		walk_info->num_INI++;
+>  
+> Index: linux/include/linux/nmi.h
+> ===================================================================
+> --- linux.orig/include/linux/nmi.h
+> +++ linux/include/linux/nmi.h
+> @@ -16,8 +16,15 @@
+>   */
+>  #ifdef ARCH_HAS_NMI_WATCHDOG
+>  extern void touch_nmi_watchdog(void);
+> +extern void acpi_nmi_disable(void);
+> +extern void acpi_nmi_enable(void);
+>  #else
+> -# define touch_nmi_watchdog() touch_softlockup_watchdog()
+> +static inline void touch_nmi_watchdog(void)
+> +{
+> +	touch_softlockup_watchdog();
+> +}
+> +static inline void acpi_nmi_disable(void) { }
+> +static inline void acpi_nmi_enable(void) { }
+>  #endif
+>  
+>  #endif
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

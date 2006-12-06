@@ -1,99 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760360AbWLFJ2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760371AbWLFJb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760360AbWLFJ2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 04:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760370AbWLFJ2E
+	id S1760371AbWLFJb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 04:31:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760376AbWLFJb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 04:28:04 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40350 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760360AbWLFJ2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 04:28:01 -0500
-Date: Wed, 6 Dec 2006 10:27:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] let WARN_ON() output the condition
-Message-ID: <20061206092714.GA31980@elte.hu>
-References: <Pine.LNX.4.64.0612060149220.28502@twin.jikos.cz> <20061206083730.GB24851@elte.hu> <Pine.LNX.4.64.0612060940130.28502@twin.jikos.cz> <20061206085428.GA28160@elte.hu> <Pine.LNX.4.64.0612060957180.28502@twin.jikos.cz> <20061206090715.GA30931@elte.hu> <Pine.LNX.4.64.0612061008370.28502@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612061008370.28502@twin.jikos.cz>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+	Wed, 6 Dec 2006 04:31:28 -0500
+Received: from calculon.skynet.ie ([193.1.99.88]:37000 "EHLO
+	calculon.skynet.ie" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760371AbWLFJb1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 04:31:27 -0500
+Date: Wed, 6 Dec 2006 09:31:25 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet.skynet.ie
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+In-Reply-To: <Pine.LNX.4.64.0612051521060.20570@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64.0612060903161.7238@skynet.skynet.ie>
+References: <20061204113051.4e90b249.akpm@osdl.org>
+ <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com>
+ <20061204120611.4306024e.akpm@osdl.org> <Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com>
+ <20061204131959.bdeeee41.akpm@osdl.org> <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com>
+ <20061204142259.3cdda664.akpm@osdl.org> <Pine.LNX.4.64.0612050754560.11213@schroedinger.engr.sgi.com>
+ <20061205112541.2a4b7414.akpm@osdl.org> <Pine.LNX.4.64.0612051159510.18687@schroedinger.engr.sgi.com>
+ <20061205214721.GE20614@skynet.ie> <Pine.LNX.4.64.0612051521060.20570@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Dec 2006, Christoph Lameter wrote:
 
-* Jiri Kosina <jikos@jikos.cz> wrote:
+> On Tue, 5 Dec 2006, Mel Gorman wrote:
+>
+>> There are times you want to reclaim just part of a zone - specifically
+>> satisfying a high-order allocations. See sitations 1 and 2 from elsewhere
+>> in this thread. On a similar vein, there will be times when you want to
+>> migrate a PFN range for similar reasons.
+>
+> This is confusing reclaim with defragmentation.
 
-> On Wed, 6 Dec 2006, Ingo Molnar wrote:
-> 
-> > i'll probably ack such a patch, it can be useful even when the line 
-> > number is unique: if someone reports a WARN_ON() from an old kernel i 
-> > dont have to dig up the exact source but can see it right from the 
-> > condition what happened. Useful redundancy in bug output can be quite 
-> > useful at times. Please post it and we'll see whether it's acceptable.
-> 
-> OK, thanks, I will send it later today.
-> 
-> BTW I still don't see how to distinguish it easily ... for example:
-> 
-> WARNING at kernel/mutex.c:132 __mutex_lock_common()
->  [<c0103d70>] dump_trace+0x68/0x1b5
->  [<c0103ed5>] show_trace_log_lvl+0x18/0x2c
->  [<c010445b>] show_trace+0xf/0x11
->  [<c01044cd>] dump_stack+0x12/0x14
->  [<c037523f>] __mutex_lock_slowpath+0xc6/0x261
->  [<c0199c61>] create_dir+0x24/0x1ba
->  [<c019a30b>] sysfs_create_dir+0x45/0x5f
->  [<c01f302b>] kobject_add+0xd6/0x18d
->  [<c01f31fb>] kobject_register+0x19/0x30
->  [<c02e771a>] md_probe+0x11a/0x124
->  [<c0267fa4>] kobj_lookup+0xe6/0x122
->  [<c01ec12e>] get_gendisk+0xe/0x1b
->  [<c018590e>] do_open+0x2e/0x298
->  [<c0185d0f>] blkdev_open+0x25/0x4d
->  [<c016451b>] __dentry_open+0xc3/0x17e
->  [<c0164650>] nameidata_to_filp+0x24/0x33
->  [<c0164691>] do_filp_open+0x32/0x39
->  [<c01646da>] do_sys_open+0x42/0xbe
->  [<c016478f>] sys_open+0x1c/0x1e
->  [<c0102dbc>] syscall_call+0x7/0xb
-> 
-> How can you see immediately which one of the two WARN_ONs in 
-> spin_lock_mutex() triggered?
+No, I'm not. What is important is the objective.
 
-yeah, i can tell that even without assembly or gdb, just from the 
-offset:
+Objective: Get contiguous block of free pages
+Required: Pages that can move
+Move means: Migrating them or reclaiming
+How we do it for high-order allocations: Take a page from the LRU, move
+ 	the pages within that high-order block
+How we do it for unplug: Take the pages within the range of interest, move
+ 	all the pages out of that range
 
->  [<c037523f>] __mutex_lock_slowpath+0xc6/0x261
+In both cases, you are taking a subsection of a zone and doing something 
+to it. In the beginning, we'll be reclaiming because it's easier and it's 
+relatively well understood. Once stable, then work can start on defrag 
+properly.
 
-there are 4 WARN_ON()s in __mutex_lock_slowpath(), distributed roughly 
-equally. Which makes the above one the second out of the four 
-WARN_ON()s, i.e.:
+> I think we are in
+> conceptually unclean territory because we mix the two. If you must use
+> reclaim to get a portion of contiguous memory free then yes we have this
+> problem.
 
-                DEBUG_LOCKS_WARN_ON(l->magic != l);     \
+The way I see it working is that defragmentation is a kernel thread starts 
+compacting memory (possibly kswapd) when external fragmentation gets above 
+a watermark. This is to avoid multiple defragment processes migrating into 
+each others area of interest which would be locking hilarity. When a 
+process fails to allocate a high-order block, it's because defragmentation 
+was ineffective, probably due to low memory, and it enters direct reclaim 
+as normal - just like a process enters direct reclaim because kswapd was 
+not able to keep enough free memory.
 
-Did i get it right? (but then again i guess i've got an unfair advantage 
-in interpreting locking related bug messages ;-)
+> If you can migrate pages then no there is no need for reclaiming
+> a part of a zone. You can occasionally shuffle pages around to
+> get a large continous chunk. If there is not enough memory then an
+> independent reclaim subsystem can take care of freeing a sufficient amount
+> of memory. Marrying the two seems to be getting a bit complex and maybe
+> very difficult to get right.
+>
 
-but it can also be told semantically, it cannot be the in_interrupt() 
-assert because this is clearly not IRQ context:
+I don't intend to marry the two. However, I intend to handle reclaim first 
+because it's needed whether defrag exists or not.
 
->  [<c037523f>] __mutex_lock_slowpath+0xc6/0x261
->  [<c0199c61>] create_dir+0x24/0x1ba
->  [<c019a30b>] sysfs_create_dir+0x45/0x5f
+> The classification of the memory allocations is useful
+> to find a potential starting point to reduce the minimum number of pages
+> to move to open up that hole.
+>
 
-but in such cases i'd rather suggest the use of inline functions instead 
-of macros and then it's a simple gdb lookup to figure out the call site. 
-So, which clown added that macro to mutex-debug.h ... oh, never mind.
+Agreed.
 
-	Ingo
+>>> Why would one want to allocate from the 1/4th of a zone? (Are we still
+>>> discussing Mel's antifrag scheme or what is this about?)
+>> Because you wanted contiguous blocks of pages.  This is related to anti-frag
+>> because with anti-frag, reclaiming memory or migration memory will free up
+>> contiguous blocks. Without it, you're probably wasting your time.
+>
+> I am still not sure how this should work. Reclaim in a portion of the
+> reclaimable/movable portion of the zone? Or pick a huge page and simply
+> reclaim all the pages in that range?
+>
+
+Reclaim in a portion of the reclaimable/movable portion of the zone by;
+
+1. Take a leader page from the LRU lists
+2. Move the pages within that order-aligned block
+
+> This is required for anti-frag regardless of additonal zones right?
+>
+
+Right.
+
+> BTW If one would successfully do this partial reclaim thing then we also
+> have no need anymore DMA zones because we can free up memory in the DMA
+> area of a zone at will if we run short on memory there.
+>
+
+Possibly, but probably not. As well as providing an easy way to reclaim 
+within a PFN range and have range-specific LRU lists, zones help keep 
+pages from a PFN range that could have used a different PFN range. If the 
+DMA range got filled with kmalloc() slab pages that could have been 
+allocated from ZONE_NORMAL, directed reclaim won't help you.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

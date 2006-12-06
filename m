@@ -1,164 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937654AbWLFVS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937656AbWLFVTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937654AbWLFVS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 16:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937653AbWLFVS3
+	id S937656AbWLFVTp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937652AbWLFVTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 16:18:29 -0500
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:58115 "EHLO
-	fed1rmmtao01.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937154AbWLFVS2 convert rfc822-to-8bit (ORCPT
+	Wed, 6 Dec 2006 16:19:44 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:28644 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937656AbWLFVTo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 16:18:28 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: What's in git.git (stable)
-cc: linux-kernel@vger.kernel.org
-X-maint-at: 49ed2bc4660c7cd0592cf21cc514080574d06320
-X-master-at: de51faf3888505fa3d661d4c35f32ecaf9fa1087
-Date: Wed, 06 Dec 2006 13:18:26 -0800
-Message-ID: <7vwt54yb8d.fsf@assigned-by-dhcp.cox.net>
+	Wed, 6 Dec 2006 16:19:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TyEIQSGFVgtQcE2Xdfu2zyWQaXDf8+wfMYlaTS9nSILWhuxhyhI0RgidEXOUmmM+/kMXe3i6w8o+43hRvf7WG2NNdZ7lulQt5z9RDG13ES/6Wz7W1BhJcck1llQjmzM0qvRynOHVaVGqLrl62miawb6P7zuq5tJK24FAXI8jpMw=
+Message-ID: <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
+Date: Wed, 6 Dec 2006 13:19:41 -0800
+From: "Matt Reimer" <mattjreimer@gmail.com>
+To: "David Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061205.165948.98864221.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
+	 <20061205.132412.116353924.davem@davemloft.net>
+	 <f383264b0612051657r2b62c7acnf10b2800934ab8b3@mail.gmail.com>
+	 <20061205.165948.98864221.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* The 'maint' branch has produced a new release 1.4.4.2
+On 12/5/06, David Miller <davem@davemloft.net> wrote:
+> From: "Matt Reimer" <mattjreimer@gmail.com>
+> Date: Tue, 5 Dec 2006 16:57:12 -0800
+>
+> > Right, but isn't he declaring that each architecture needs to take
+> > care of this? So, say, on ARM we'd need to make kunmap() not a NOP and
+> > call flush_dcache_page() ?
+>
+> No.  He is only solving a problem that occurs on HIGHMEM
+> configurations on systems which can have D-cache aliasing
+> issues.
 
-* In the 'master' branch:
+Are you sure? James specifically mentions "non-highmem architectures,"
+and "all architectures with coherence issues," which would seem to
+include ARM (which is my concern).
 
-  - we now officially favor 'remotes' information to be in
-    $GIT_DIR/config, and 'git clone' records origin in there,
-    not in $GIT_DIR/remotes/origin (thanks to Andy Parkins).
+For your convenience I quote the whole commit message below.
 
-  - "git send-pack $URL :refs/heads/$branch" can be used to
-    delete a remote branch (so does "git push $URL :$ref" over
-    git native protocols).
+Matt
 
-  - built-in shortlog lets you directly say "git shortlog
-    v2.6.18..master", instead of piping an output from the
-    corresponding "git log v2.6.18..master" into it.
+[PATCH] update to the kernel kmap/kunmap API
 
-  - git-svn updates
-  - gitweb updates
-  - gitk updates
-  - bash completion updates
+Give non-highmem architectures access to the kmap API for the purposes of
+overriding (this is what the attached patch does).
 
-The shortlog since the last announcement for 'master' is:
+The proposal is that we should now require all architectures with coherence
+issues to manage data coherence via the kmap/kunmap API.  Thus driver
+writers never have to write code like
 
-Alex Riesen (2):
-      git-blame: fix rev parameter handling.
-      Make perl/ build procedure ActiveState friendly.
+    kmap(page)
+    modify data in page
+    flush_kernel_dcache_page(page)
+    kunmap(page)
 
-Andreas Ericsson (2):
-      ls-files: Give hints when errors happen.
-      git-diff: Introduce --index and deprecate --cached.
+instead, kmap/kunmap will manage the coherence and driver (and filesystem)
+writers don't need to worry about how to flush between kmap and kunmap.
 
-Andy Parkins (3):
-      Use .git/config for storing "origin" shortcut repository
-      Document git-repo-config --bool/--int options.
-      De-emphasise the symbolic link documentation.
-
-David Miller (1):
-      Pass -M to diff in request-pull
-
-Eric Wong (10):
-      git-svn: use ~/.subversion config files when using SVN:: libraries
-      git-svn: enable delta transfers during fetches when using SVN:: libs
-      git-svn: update tests for recent changes
-      git-svn: error out when the SVN connection fails during a fetch
-      git-svn: fix output reporting from the delta fetcher
-      git-svn: color support for the log command
-      git-svn: documentation updates
-      git-svn: fix multi-init
-      git-svn: avoid fetching files twice in the same revision
-      git-svn: avoid network timeouts for long-running fetches
-
-Han-Wen Nienhuys (1):
-      ident.c: Trim hint printed when gecos is empty.
-
-J. Bruce Fields (1):
-      cvs-migration: improved section titles, better push/commit explanation
-
-Jakub Narebski (4):
-      gitweb: Fix Atom feed <logo>: it is $logo, not $logo_url
-      git-clone: Rename --use-immingled-remote option to --no-separate-remote
-      Document git-diff whitespace flags -b and -w
-      gitweb: Allow PNG, GIF, JPEG images to be displayed in "blob" view
-
-Jim Meyering (1):
-      Set permissions of each new file before "cvs add"ing it.
-
-Johannes Schindelin (10):
-      Build in shortlog
-      shortlog: do not crash on parsing "[PATCH"
-      shortlog: read mailmap from ./.mailmap again
-      shortlog: handle email addresses case-insensitively
-      shortlog: fix "-n"
-      shortlog: use pager
-      sha1_object_info(): be consistent with read_sha1_file()
-      git-mv: search more precisely for source directory in index
-      diff -b: ignore whitespace at end of line
-      cvs-migration document: make the need for "push" more obvious
-
-Junio C Hamano (24):
-      Store peeled refs in packed-refs file.
-      remove merge-recursive-old
-      git-merge: make it usable as the first class UI
-      merge: allow merging into a yet-to-be-born branch.
-      Store peeled refs in packed-refs (take 2).
-      git-fetch: reuse ls-remote result.
-      git-fetch: fix dumb protocol transport to fetch from pack-pruned ref
-      git-fetch: allow glob pattern in refspec
-      Allow git push to delete remote ref.
-      git-shortlog: fix common repository prefix abbreviation.
-      git-shortlog: make common repository prefix configurable with .mailmap
-      git-fetch: allow forcing glob pattern in refspec
-      fetch-pack: do not barf when duplicate re patterns are given
-      git-merge: tighten error checking.
-      git-merge: do not leak rev-parse output used for checking internally.
-      cvsimport: style fixup.
-      git blame -C: fix output format tweaks when crossing file boundary.
-      tutorial: talk about user.name early and don't start with commit -a
-      git-merge: fix confusion between tag and branch
-      receive-pack: do not insist on fast-forward outside refs/heads/
-      unpack-trees: make sure "df_conflict_entry.name" is NUL terminated.
-      git-reset to remove "$GIT_DIR/MERGE_MSG"
-      git-merge: squelch needless error message.
-      git-merge: fix "fix confusion between tag and branch" for real
-
-Michael Loeffler (1):
-      git-fetch: ignore dereferenced tags in expand_refs_wildcard
-
-Nicolas Pitre (2):
-      builtin git-shortlog is broken
-      pack-objects: remove redundent status information
-
-Paul Mackerras (1):
-      gitk: Fix enabling/disabling of menu items on Mac OS X
-
-René Scharfe (1):
-      shortlog: remove range check
-
-Sean Estabrooks (1):
-      Update documentation to remove incorrect GIT_DIFF_OPTS example.
-
-Shawn O. Pearce (15):
-      Teach git-completion.bash how to complete git-merge.
-      Hide plumbing/transport commands from bash completion.
-      Teach bash how to complete options for git-name-rev.
-      Add current branch in PS1 support to git-completion.bash.
-      Teach bash how to complete git-format-patch.
-      Teach bash how to complete git-cherry-pick.
-      Teach bash how to complete git-rebase.
-      Teach bash about git log/show/whatchanged options.
-      Support bash completion of refs/remote.
-      Teach bash about git-repo-config.
-      Support --strategy=x completion in addition to --strategy x.
-      Cache the list of merge strategies and available commands during load.
-      Teach bash about git-am/git-apply and their whitespace options.
-      Teach bash how to complete long options for git-commit.
-      Fix broken bash completion of local refs.
-
-
+For most architectures, the page only needs to be flushed if it was
+actually written to *and* there are user mappings of it, so the best
+implementation looks to be: clear the page dirty pte bit in the kernel page
+tables on kmap and on kunmap, check page->mappings for user maps, and then
+the dirty bit, and only flush if it both has user mappings and is dirty.

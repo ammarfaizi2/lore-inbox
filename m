@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760520AbWLFL6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760544AbWLFMRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760520AbWLFL6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 06:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760521AbWLFL6X
+	id S1760544AbWLFMRL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 07:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760543AbWLFMRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 06:58:23 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:55164 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760518AbWLFL6W (ORCPT
+	Wed, 6 Dec 2006 07:17:11 -0500
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:22928 "EHLO
+	mtagate5.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760544AbWLFMRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 06:58:22 -0500
-Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Norbert Kiesel <nkiesel@tbdnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1165405350.5954.213.camel@titan.tbdnetworks.com>
-References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 06 Dec 2006 12:58:19 +0100
-Message-Id: <1165406299.3233.436.camel@laptopd505.fenrus.org>
+	Wed, 6 Dec 2006 07:17:10 -0500
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200612051720.kB5HKU4i001616@dell2.home>
+From: rainer@de.ibm.com (Rainer Bawidamann)
+Subject: Re: ownership/permissions of cpio initrd
+To: linux-kernel@vger.kernel.org
+Cc: "Marty Leisner" <linux@rochester.rr.com>
+Content-Type: text/plain; charset=us-ascii
+Message-Id: <E1Grvi0-0002f9-9K@mogwai.local>
+Date: Wed, 06 Dec 2006 13:17:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
-> Hi,
+In article <200612051720.kB5HKU4i001616@dell2.home>,
+	"Marty Leisner" <linux@rochester.rr.com> writes:
+> But its "useful" to change permissions/ownership of the initrd
+> files at times...
 > 
-> I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
-> be optimal for a machine with exactly 1GB memory (like my current
-> desktop). Why is that option only prompted for after selecting EMBEDDED
-> (which I normally don't select for desktop machines
+> Since a cpio is just a userspace created string of bits, I suppose
+> you can apply a set of ownership/permissions to files IN the archive
+> by playing with the bits...
+> 
+> Does such a tool exist?  Comments?  Seems very useful in order to
+> avoid being root...
 
-because it changes the userspace ABI and has some other caveats.... this
-is not something you should muck with lightly 
+The kernel sources provide a program that should do what you want in
 
+	linux/usr/gen_init_cpio.c
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+Documentation is available in the source or from the command line.
 
+Rainer

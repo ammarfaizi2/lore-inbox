@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760491AbWLFLZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760504AbWLFLki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760491AbWLFLZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 06:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760493AbWLFLZk
+	id S1760504AbWLFLki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 06:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760505AbWLFLki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 06:25:40 -0500
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:48703 "EHLO
-	rwcrmhc12.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760488AbWLFLZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 06:25:39 -0500
-Message-ID: <4576A8B3.4090806@comcast.net>
-Date: Wed, 06 Dec 2006 06:25:39 -0500
-From: Ed Sweetman <safemode2@comcast.net>
-User-Agent: Icedove 1.5.0.8 (X11/20061129)
+	Wed, 6 Dec 2006 06:40:38 -0500
+Received: from mail.gmx.net ([213.165.64.20]:58120 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1760502AbWLFLkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 06:40:37 -0500
+Cc: linux-kernel@vger.kernel.org, adobriyan@gmail.com,
+       linux1394-devel@lists.sourceforge.net, krh@redhat.com
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Wed, 06 Dec 2006 12:40:36 +0100
+From: "Alexander Neundorf" <a.neundorf-work@gmx.net>
+In-Reply-To: <457685D1.1080501@s5r6.in-berlin.de>
+Message-ID: <20061206114036.130470@gmx.net>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Randy Dunlap <randy.dunlap@oracle.com>
-Subject: Re: [PATCH] ata/kconfig: Re: Why SCSI module needed for PCI-IDE ATA
- only disks ?
-References: <fa.juE97gahpb4n2kNNH/Todtcvh3s@ifi.uio.no>	<fa.IqtlZas3d+ZPuhF6S6N/ivdF8Wo@ifi.uio.no>	<fa.HDRhmOhDQliejH7ijqJBWw9Jw0o@ifi.uio.no>	<45761B2F.9060804@shaw.ca>	<457625CF.2080105@comcast.net>	<45762781.8020207@shaw.ca>	<45762F1E.4030805@comcast.net> <20061205195427.b5c44f83.randy.dunlap@oracle.com>
-In-Reply-To: <20061205195427.b5c44f83.randy.dunlap@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>	
+	<20061205184921.GA5029@martell.zuzino.mipt.ru>		<4575FF08.2030100@redhat.com>
+ <1165383349.7443.78.camel@gullible>  <457685D1.1080501@s5r6.in-berlin.de>
+Subject: Re:  Re: [PATCH 0/3] New firewire stack
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>, ben.collins@ubuntu.com
+X-Authenticated: #19207638
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> On Tue, 05 Dec 2006 21:46:54 -0500 Ed Sweetman wrote:
->
-> -ETOOMANYWORDS && -ENOPATCH, so here is one to consider.
-> Help text can also be added.  <supply text>
-> This is similar to what USB storage already does.
->
->   
-I provided a patch a couple weeks ago when I brought this topic up 
-myself, but it was largely ignored because it wasn't the "add something 
-to help dialog" solution... I figured that the wording would be changed 
-anyway by the ide / libata guys or anyone else really involved with the 
-kernel.  So I opted to provide a patch that did one of the other 
-solutions, namely, adding fake libata block devices in the libata 
-section that would merely enable the scsi blk dev variables as if you 
-had gone into the scsi section and did it the way it's currently done.  
-In any case, prior to this thread, I got basically no response on the 
-matter. 
+Hi,
 
-Your patch, however, should at least get into the next kernel revision 
-with any additional help text that may be of use. 
-Thanks.
+Von: Stefan Richter <stefanr@s5r6.in-berlin.de>
+
+...
+> bugs get fixed. Mainline's FireWire stack lost a lot of trust at
+> end-users and application developers because of periods of sometimes
+> very visible regressions.
+
+For us it's working well, with no major problems (there was a problem with SMP kernels and the arm mapping, but my kernel is not recent and I didn't find the time yet to update to current versions, so I could not report the bug). We have customers and it works for them.
+
+OTOH I heard from some people who wanted to use the 1394 stack for embedded devices without PCI and they didn't succeed to add support for their selected chipset. 
+
+Bye
+Alex
+
+-- 
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen! 
+Ideal für Modem und ISDN: http://www.gmx.net/de/go/smartsurfer

@@ -1,152 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937609AbWLFUSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937591AbWLFUZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937609AbWLFUSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 15:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937611AbWLFUSQ
+	id S937591AbWLFUZE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 15:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937617AbWLFUZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 15:18:16 -0500
-Received: from hu-out-0506.google.com ([72.14.214.235]:43657 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937609AbWLFUSO (ORCPT
+	Wed, 6 Dec 2006 15:25:04 -0500
+Received: from web31813.mail.mud.yahoo.com ([68.142.207.76]:34671 "HELO
+	web31813.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S937615AbWLFUZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 15:18:14 -0500
+	Wed, 6 Dec 2006 15:25:00 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J/EvTSqJqg0wlNegaRJp57Jw7Lma6vo5nYk8d3JlZRF1rXpX4QL5640txdviGVSEOXz2DdlDcRI3reBsBqNrcP3wFkIzMWysIfl5kgAZjJDbiz80rkLNWODu4U87bwcEKdI//LiEKzzfbZPgc3K3h5skOk/+XvLDnP4qwrUvJ+A=
-Message-ID: <d120d5000612061218x4eac87e0jc18409f82bb7c99c@mail.gmail.com>
-Date: Wed, 6 Dec 2006 15:18:12 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Ivo van Doorn" <ivdoorn@gmail.com>
-Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       "John Linville" <linville@tuxdriver.com>, "Jiri Benc" <jbenc@suse.cz>,
-       "Lennart Poettering" <lennart@poettering.net>,
-       "Johannes Berg" <johannes@sipsolutions.net>,
-       "Larry Finger" <Larry.Finger@lwfinger.net>
-In-Reply-To: <200612062031.57148.IvDoorn@gmail.com>
+  s=s1024; d=yahoo.com;
+  h=X-YMail-OSG:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-ID;
+  b=C621z6stBAvwmmMN7n7XnfpHAiX627ODkGnGLI9wY1391KvMDjmkiApxzDgy7V6pLPO1beOoaI9GWVQwPEcvWhlVMN8hSFcgGRhCukHGzLzywHqvd+0qDA6vXFzBHoU3eRzF+m4Q7eC/QQzk7o4m05EYjsgRgY/69u7Aet/EDOo=;
+X-YMail-OSG: W6K9eBwVM1kGZnF4Dl9lf4mdMUf6glh30hFxe_oTCFA_U.H3VnUSj6yitWHds8CI482IBsP08YV5VCHXDTqCCL859ne5IX8_ckpUGHuBa2REqs8i3bz_ZPzaq75Q_lXf9MI6I0.rORSI2sGF4XmpkUnIseT5.Q--
+Date: Wed, 6 Dec 2006 12:24:59 -0800 (PST)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: Infinite retries reading the partition table
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>
+Cc: ltuikov@yahoo.com, mdr@sgi.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1165420788.2810.13.camel@mulgrave.il.steeleye.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612031936.34343.IvDoorn@gmail.com>
-	 <200612050027.15253.IvDoorn@gmail.com>
-	 <d120d5000612060637s69ff235fo85a2db923a728a00@mail.gmail.com>
-	 <200612062031.57148.IvDoorn@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <265807.57572.qm@web31813.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
-> On Wednesday 06 December 2006 15:37, Dmitry Torokhov wrote:
-> > On 12/4/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
-> > > > I am still not sure that tight coupling of input device with rfkill
-> > > > structure is such a good idea. Quite often the button is separated
-> > > > from the device itself and radio control is done via BIOS SMM (see
-> > > > wistron driver) or there is no special button at all and users might
-> > > > want to assign one of their standard keyboard buttons to be an RF
-> > > > switch.
-> > >
-> > > Making sure rfkill supports keys that are not handled by the driver
-> > > is a bit hard. Just as drivers that can only check if the button is
-> > > toggled and not what the current state is.
-> > > The problem is that it is hard to make a clean split between the
-> > > 2 different button controls. Not all drivers allow the radio to be
-> > > enabled while the button status are indicating the radio should
-> > > be off.
-> >
-> > If they do not allow controlling the state of the radio
-> > programmatically then it should not be part of rfkill I am afraid. It
-> > is like the power switch - if you hold it for so long it kills the
-> > power to the box and there is nothing you can do about it.
->
-> Ok, this will give rfkill more possibilities as I could in that case
-> also allow the user to toggle the radio to the state that is different
-> than indicated by the key.
-> Currently this was not possible since I had to keep in mind that there
-> were keys that would directly control the radio.
->
-> > > The buttons that are already integrated into the keyboard,
-> > > by example by using a Fn key combo don't control the device
-> > > directly. So the driver cannot offer anything to the rfkill driver.
-> > > Such buttons should be mapped in userspace without the help of rfkill,
-> > > since the kernel cannot detect if that key belonged to a radio
-> > > control key or not.
-> > >
-> >
-> > That is my point. Given the fact that there are keys that are not
-> > directly connected with the radio switch userspace will have to handle
-> > them (wait for events then turn off radios somehow). You are
-> > advocating that userspace should also implement 2nd method for buttons
-> > that belong to rfkill interface. I do not understand the need for 2nd
-> > interface. If you separate radio switch from button code then
-> > userspace only need to implement 1st interface and be done with it.
-> > You will have set of cards that provide interface to enable/disable
-> > their transmitters and set of buttons that signal userspace desired
-> > state change. If both switch and button is implemented by the same
-> > driver then the driver can implement automatic button handling.
-> > Otherwise userspace help is necessary.
->
-> Well there are 3 possible hardware key approaches:
->
->  1 - Hardware key that controls the hardware radio, and does not report anything to userspace
+--- James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> On Tue, 2006-12-05 at 21:08 -0800, Andrew Morton wrote:
+> >  	case MEDIUM_ERROR:
+> > +		if (sshdr.asc == 0x11 || /* UNRECOVERED READ ERR */
+> > +		    sshdr.asc == 0x13 || /* AMNF DATA FIELD */
+> > +		    sshdr.asc == 0x14) { /* RECORD NOT FOUND */
+> > +			return SUCCESS;
+> > +		}
+> >  		return NEEDS_RETRY;
+> 
+> If the complaint is true; i.e. infinite retries, this is just a bandaid
+> not a fix.  What it's doing is marking the unrecoverable medium errors
+> for no retry.  However, what we really need to know is why NEEDS_RETRY
+> isn't terminating after its allotted number of retries.  Can we please
+> have a trace of this?
 
-Can't do anything here so just ignore it.
+NEEDS_RETRY _does_ terminate, after it exhausts the retries.  But since
+by the ASC value we know that no amount of retries is going to work,
+this chunk of the patch resolves it quicker, i.e. eliminates the
+"NEEDS_RETRY" pointless retries (given the SK/ASC combination).
 
->  2 - Hardware key that does not control the hardware radio and does not report anything to userspace
+> > -	if (scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
+> > +	if (good_bytes &&
+> > +	    scsi_end_request(cmd, 1, good_bytes, result == 0) == NULL)
+> >  		return;
+> 
+> What exactly is this supposed to be doing?  its result is identical to
+> the code it's replacing (because of the way scsi_end_request() processes
+> its second argument), so it can't have any effect on the stated problem.
 
-Kind of uninteresting button ;)
+I suppose this is true, but I'd rather it not even go in
+scsi_end_request as (cmd, uptodate=1, good_bytes=0, retry=0) and complete
+at the bottom as (cmd, uptodate=0, total_xfer, retry=0).
 
->  3 - Hardware key that does not control the hardware radio and reports the key to userspace
->
-> So rfkill should not be used in the case of (1) and (3), but we still need something to support (2)
-> or should the keys not be handled by userspace and always by the driver?
-> This is making rfkill moving slowly away from the generic approach for all rfkill keys as the initial
-> intention was.
->
+    Luben
 
-I my "vision" rfkill would represent userspace namageable radio
-switch. We have the followng possible configurations:
-
-1. A device that does not allow controlling its transmitter from
-userspace. The driver should not use/register with rfkill subsystem as
-userspace can't do anyhting with it. If device has a button killing
-the transmitter the driver can still signal userspace appropriate
-event (KEY_WIFI, KEY_BLUETOOTH, etc) if it can detect that button was
-presssed so userspace can monitor state of the transmitter and
-probably shut down other transmitters to keep everything in sync.
-
-2. A device that does allow controlling its transmitter. The driver
-may (should) register with rfkill subsystem. Additionally, if there is
-a button, the driver should register it with input subsystem. Driver
-should manage transmitter state in response to button presses unless
-userspace takes over the process.
-
-3. A device without transmitter but with a button - just register with
-input core. Userspace will have to manage state of other devices with
-transmitters in response to button presses.
-
-Does this make sense?
-
-> > > > attribute should be a tri-state on/off/auto, "auto" meaning the driver
-> > > > itself manages radio state. This would avoid another tacky IMHO point
-> > > > that in your implementation mere opening of an input device takes over
-> > > > RF driver. Explicit control allow applications "snoop" RF state
-> > > > without disturbing it.
-> > >
-> > > Currently userspace can always check the state of the button whenever
-> > > they like by checking the sysfs entry.
-> > >
-> >
-> > Unless the key is not directly connected to the driver (so there is no
-> > sysfs entry). Again you force 2 different interfaces.
->
-> Ok, so input device opening should not block the rfkill signal and the rfkill handler
-> should still go through with its work unless a different config option indicates that
-> userspace wants to handle the event.
->
-
-I don't think a config option is a good idea unless by config option
-you mean a sysfs attribute.
-
--- 
-Dmitry

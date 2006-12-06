@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936313AbWLFQGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936100AbWLFQMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936313AbWLFQGf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936317AbWLFQGf
+	id S936100AbWLFQMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936250AbWLFQMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:06:35 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:53446 "EHLO
-	pfepa.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936313AbWLFQGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:06:34 -0500
-Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: David Howells <dhowells@redhat.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ak@muc.de, vojtech@suse.cz
-In-Reply-To: <24125.1165410521@redhat.com>
-References: <1165409880.15706.9.camel@localhost>
-	 <200612052134_MC3-1-D40B-A5DB@compuserve.com> <24125.1165410521@redhat.com>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 17:06:23 +0100
-Message-Id: <1165421183.15706.14.camel@localhost>
+	Wed, 6 Dec 2006 11:12:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:38406 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936100AbWLFQMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 11:12:13 -0500
+Date: Wed, 6 Dec 2006 08:12:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Prarit Bhargava <prarit@redhat.com>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: [PATCH]: cpu hotplug locking fix
+Message-Id: <20061206081201.9fafe733.akpm@osdl.org>
+In-Reply-To: <20061206160429.6419.27617.sendpatchset@prarit.boston.redhat.com>
+References: <20061206160429.6419.27617.sendpatchset@prarit.boston.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-06 at 13:08 +0000, David Howells wrote:
-> Kasper Sandberg <lkml@metanurb.dk> wrote:
-> 
-> > and i am very very sure its because of this, i can run with the kernel
-> > (atleast with rc5 i had that long) for 10 days, and then chroot in, run
-> > the 32bit apps, and within hours of using, hardlock.
-> 
-> What do you mean by "hardlock"?  Do you mean the application has to be killed,
-> or do you mean the kernel is stuck and the machine has to be rebooted?
-i mean the kernel itself, two of the times it has happened to me, magic
-sysrq havent even been able to reboot for me, i had to hit the button on
-my tower.
+On Wed, 6 Dec 2006 11:04:29 -0500
+Prarit Bhargava <prarit@redhat.com> wrote:
 
-when i the very first time encountered this, it was with regedit, the
-app went nuts, and then it frooze, i had to kill -9 it, and then an hour
-later i noticed the kernel messages.
-> 
-> David
-> 
+> --- linux-2.6.18.ia64/kernel/cpu.c.orig	2006-10-31 10:57:37.000000000 -0500
+> +++ linux-2.6.18.ia64/kernel/cpu.c	2006-10-31 10:57:46.000000000 -0500
+> @@ -58,8 +58,8 @@ void unlock_cpu_hotplug(void)
+>  		recursive_depth--;
+>  		return;
+>  	}
+> -	mutex_unlock(&cpu_bitmask_lock);
+>  	recursive = NULL;
+> +	mutex_unlock(&cpu_bitmask_lock);
+>  }
 
+That's already in 2.6.19.

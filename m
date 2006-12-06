@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936340AbWLFQOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936325AbWLFQVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936340AbWLFQOT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936250AbWLFQOT
+	id S936325AbWLFQVg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936331AbWLFQVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:14:19 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:36723 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936340AbWLFQOQ (ORCPT
+	Wed, 6 Dec 2006 11:21:36 -0500
+Received: from vervifontaine.sonytel.be ([80.88.33.193]:60703 "EHLO
+	vervifontaine.sonycom.com" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S936325AbWLFQVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:14:16 -0500
-Date: Wed, 6 Dec 2006 08:15:37 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: sparse errors in srcu.h
-Message-ID: <20061206161537.GA2013@linux.vnet.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <45769256.1070400@ens-lyon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45769256.1070400@ens-lyon.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 6 Dec 2006 11:21:35 -0500
+Date: Wed, 6 Dec 2006 17:21:33 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: =?UTF-8?Q?Kristian_H=F8gsberg?= <krh@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+In-Reply-To: <1165332650.2756.27.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0612061720390.28483@pademelon.sonytel.be>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>
+ <1165308400.2756.2.camel@localhost>  <45758CB3.80701@redhat.com>
+ <1165332650.2756.27.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2006 at 10:50:14AM +0100, Brice Goglin wrote:
-> Hi,
-> 
-> When running sparse checks on a file that ends up including srcu.h, we
-> get the following warnings:
-> 
->     include/linux/srcu.h:52:44: error: undefined identifier 'sp'
->     include/linux/srcu.h:52:44: error: bad constant expression
->     include/linux/srcu.h:53:56: error: undefined identifier 'sp'
->     include/linux/srcu.h:53:56: error: bad constant expression
-> 
-> It seems to be caused by the following lines:
-> 
->     int srcu_read_lock(struct srcu_struct *sp) __acquires(sp);
->     void srcu_read_unlock(struct srcu_struct *sp, int idx) __releases(sp);
-> 
-> which come from the following commit.
-> 
->     commit 621934ee7ed5b073c7fd638b347e632c53572761
->     Author: Paul E. McKenney <paulmck@us.ibm.com>
->     Date:   Wed Oct 4 02:17:02 2006 -0700
-> 
->     [PATCH] srcu-3: RCU variant permitting read-side blocking
-> 
-> 
-> I was wondering if there is a way to fix those errors...
+On Tue, 5 Dec 2006, Marcel Holtmann wrote:
+> the only problem are public and exported interfaces and function. For
+> static code you can use whatever you want. I personally would go with
+> "ieee1394", because that is the official name for it. Otherwise go with
+> "firewire" if you wanna separate yourself from the previous stack.
 
-I believe that you need to update your version of sparse to 0.1.
-See http://lwn.net/Articles/208312/ for more info.
+Which still leaves the opportunity for having a third stack in drivers/ilink
+:-)
 
-							Thanx, Paul
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

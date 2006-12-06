@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937532AbWLFTgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937559AbWLFTk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937532AbWLFTgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937559AbWLFTgn
+	id S937559AbWLFTk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937561AbWLFTk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:36:43 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:42014 "EHLO
-	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937503AbWLFTgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:36:42 -0500
-Date: Wed, 6 Dec 2006 12:36:41 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061206193641.GY3013@parisc-linux.org>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org> <20061206192647.GW3013@parisc-linux.org> <Pine.LNX.4.64.0612061128340.27363@schroedinger.engr.sgi.com>
+	Wed, 6 Dec 2006 14:40:27 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:58643 "EHLO mail.dvmed.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937559AbWLFTk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 14:40:26 -0500
+Message-ID: <45771CA5.30106@garzik.org>
+Date: Wed, 06 Dec 2006 14:40:21 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612061128340.27363@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: conke.hu@gmail.com
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: -mm merge plans for 2.6.20
+References: <20061204204024.2401148d.akpm@osdl.org>	 <4574FC0A.8090607@garzik.org>  <20061204214114.433485fc.akpm@osdl.org> <1165432780.21881.20.camel@linux-qmhe.site>
+In-Reply-To: <1165432780.21881.20.camel@linux-qmhe.site>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2006 at 11:29:42AM -0800, Christoph Lameter wrote:
-> On Wed, 6 Dec 2006, Matthew Wilcox wrote:
-> 
-> > It's just been pointed out to me that the parisc one isn't safe.
-> > 
-> > <dhowells> imagine variable X is set to 3
-> > <dhowells> CPU A issues cmpxchg(&X, 3, 5)
-> > <dhowells> you'd expect that to change X to 5
-> > <dhowells> but what if CPU B assigns 6 to X between cmpxchg reading X
-> > and it setting X?
-> 
-> The same could happen with a regular cmpxchg. Cmpxchg changes it to 5 and 
-> then other cpu performs a store before the next instruction.
-
-For someone who's advocating use of cmpxchg, it seems you don't
-understand its semantics!  In the scenario dhowells pointed out, X would
-be left set to 5.  X should have the value 6 under any legitimate
-implementation:
-
-CPU A		CPU B
-cmpxchg(3,5)
-		X = 6
+Conke Hu wrote:
+>     The following patch is ATI's final solution. It was ACKed by Alan.
+>     Jeff, you're the maintainer of libata, but this patch is based on
+> pci/quirks.c, so I don't know who will apply this patch? You or somebody
+> else?
+>     Andrew, could you please drop ATI's previous patch and add this one
+> in next -mm patch? The previous patch I sent
+> (ahci-ati-sb600-sata-support-for-various-modes.patch) is not as good as
+> this one :)
 
 
-CPU A		CPU B
-		X = 6
-cmpxhcg(3,5)
+I ACK'd it as well, though probably Andrew or Greg should push it.
+
+	Jeff
 
 
-CPU A
-cmpxchg(3,
-		X = 6
-5)
-
-
-Given that even yourself got confused about how to use it, perhaps it's
-not a good idea to expose this primitive to most programmers anyway?

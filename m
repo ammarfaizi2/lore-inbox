@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937687AbWLFVm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937690AbWLFVwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937687AbWLFVm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 16:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937683AbWLFVm5
+	id S937690AbWLFVwp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937689AbWLFVwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 16:42:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58082 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937679AbWLFVmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 16:42:55 -0500
-Message-ID: <45773883.5040003@redhat.com>
-Date: Wed, 06 Dec 2006 16:39:15 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
-X-Accept-Language: en-us, en
+	Wed, 6 Dec 2006 16:52:45 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58613 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937686AbWLFVwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 16:52:44 -0500
+Date: Wed, 6 Dec 2006 13:52:20 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Matthew Wilcox <matthew@wil.cx>
+cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061206213626.GE3013@parisc-linux.org>
+Message-ID: <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: eranian@hpl.hp.com, perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       oprofile-list@lists.sourceforge.net,
-       perfctr-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [perfmon] 2.6.19 new perfmon code base + libpfm + pfmon
-References: <20061204164644.GO31914@frankl.hpl.hp.com> <4575AB54.2050509@redhat.com> <20061205222810.GA6385@infradead.org>
-In-Reply-To: <20061205222810.GA6385@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Dec 05, 2006 at 12:24:36PM -0500, William Cohen wrote:
-> 
->>Some of the ptrace functions (e.g. ptrace_may_attach in perfmon_syscall.c) 
->>being used in the perfmon kernel patches will go away with the utrace 
->>patches: http://people.redhat.com/roland/utrace/
-> 
-> 
-> At least for ptrace_may_attach that's not true in the lastest version
-> from Roland - in fact it's the last unconditional function in ptrace.c
-> in that version.  I suggested to him to rename and move it in my review,
-> though.
-> 
+On Wed, 6 Dec 2006, Matthew Wilcox wrote:
 
-Sorry. I meant the function ptrace_check_attach(). -Will
+> And for those of us with only load-and-zero, that's simply:
+> 
+> #define load_locked(addr) spin_lock(hash(addr)), *addr
+> #define store_exclusive(addr, old, new) \
+> 			*addr = new, spin_unlock(hash(addr)), 0
+> 
+> which is also optimal for us.
+
+This means we tolerate the assignment race for SMP that was pointed out 
+earlier?
+
+cmpxchg emulation may then also be tolerable just replace the irq 
+enable/disable in David's implementation with taking a spin lock?
+

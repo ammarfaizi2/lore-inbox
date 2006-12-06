@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759771AbWLFC7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759803AbWLFDNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759771AbWLFC7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 21:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759775AbWLFC7t
+	id S1759803AbWLFDNR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 22:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759814AbWLFDNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 21:59:49 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:46050 "EHLO scrub.xs4all.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759676AbWLFC7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 21:59:48 -0500
-Date: Wed, 6 Dec 2006 03:59:41 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, tglx@linutronix.de
-Subject: Re: -mm merge plans for 2.6.20
-In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612060348150.1868@scrub.home>
-References: <20061204204024.2401148d.akpm@osdl.org>
+	Tue, 5 Dec 2006 22:13:17 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:15727 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759776AbWLFDNQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 22:13:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Gf96/6yuzpzJyAbolKJmWe2lIjeyiz8+ByHJUCRFX/xt6SzzlFWIcHcoVnMBUIA/maQhDiK/Xs0ck5UyR6adrwYn7HSQJUXRyWGwk5efQfQKcSjGeX6aarCjT2S/g/vxYm1MddR/YdP4J0iDASUKSL5EuPr1FxlkzGygwXDJy74=
+Message-ID: <b3234d300612051913n2b1fefa8j125da6664594f0af@mail.gmail.com>
+Date: Tue, 5 Dec 2006 21:13:15 -0600
+From: "JAK anon" <jakk127@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re:can't boot : Spurious ACK with kernel 2.6.19
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>Based on the email "xtables/iptables and atkbd.c Spurious ACK on
+isa0060/serio0" from >jakk127@gmail.com I checked my configuration.
+And yes, I have >CONFIG_NETFILTER_XTABLES=m and
+CONFIG_IP_NF_IPTABLES=m as well.
 
-On Mon, 4 Dec 2006, Andrew Morton wrote:
+>-- Bernd
 
-> [dyntick]
-> 
->  Shall merge, I guess.  My confidence is low, but it's Kconfigurable and it
->  needs to get sorted out.
-
-IMO it least at needs one more iteration to address the comments that 
-were made (not just mine), in the short term the less it touches 
-unconditionally the less I care right now.
-In the long term IMO this might need a major rework, the basic problem I 
-have is that I don't see how this usable beyond dynticks/hrtimer, e.g. how 
-to dynamically manage multiple timer.
-
-bye, Roman
+If you try a recompile without xtables and iptables,will everything
+work? I'm hoping the next patch will resolve this issue.

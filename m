@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760279AbWLFHAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760275AbWLFHEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760279AbWLFHAx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 02:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760282AbWLFHAx
+	id S1760275AbWLFHEf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 02:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760278AbWLFHEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 02:00:53 -0500
-Received: from www.osadl.org ([213.239.205.134]:51149 "EHLO mail.tglx.de"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1760279AbWLFHAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 02:00:51 -0500
-Subject: Re: +
-	cpei-gets-warning-at-kernel-irq-migrationc27-move_masked_irq.patch added to
-	-mm tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: akpm@osdl.org
-Cc: seto.hidetoshi@jp.fujitsu.com, arjan@infradead.org, mingo@elte.hu,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200612060644.kB66ihYx025965@shell0.pdx.osdl.net>
-References: <200612060644.kB66ihYx025965@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 08:03:57 +0100
-Message-Id: <1165388637.24604.175.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 6 Dec 2006 02:04:35 -0500
+Received: from nf-out-0910.google.com ([64.233.182.187]:52243 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760275AbWLFHEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 02:04:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NK6nIr7YnU0npJdayKv2uJaM2B9wzmRw5A59KgFsEsS9tfMCrbTe1bBg1SsVP/uVt782AQjMZ4pBSIlR0GleRVKD8CTMxi/l1LGf7mO6v76qwe1GBD6uim6I10TdkDCGqrHP9558wPvq+00NmIpxmWoqQ432NGv9yBXId4OZKjA=
+Message-ID: <f383264b0612052304p52444392xf7ce9e22afed01ff@mail.gmail.com>
+Date: Tue, 5 Dec 2006 23:04:32 -0800
+From: "Matt Reimer" <mattjreimer@gmail.com>
+To: "David Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061205.165948.98864221.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
+	 <20061205.132412.116353924.davem@davemloft.net>
+	 <f383264b0612051657r2b62c7acnf10b2800934ab8b3@mail.gmail.com>
+	 <20061205.165948.98864221.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-12-05 at 22:44 -0800, akpm@osdl.org wrote:
-> It works, the warning disappeared and irqbalance still runs well.
-> 
-> Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-> Cc: Arjan van de Ven <arjan@infradead.org>
-> Cc: Ingo Molnar <mingo@elte.hu>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+On 12/5/06, David Miller <davem@davemloft.net> wrote:
+> From: "Matt Reimer" <mattjreimer@gmail.com>
+> Date: Tue, 5 Dec 2006 16:57:12 -0800
+>
+> > Right, but isn't he declaring that each architecture needs to take
+> > care of this? So, say, on ARM we'd need to make kunmap() not a NOP and
+> > call flush_dcache_page() ?
+>
+> No.  He is only solving a problem that occurs on HIGHMEM
+> configurations on systems which can have D-cache aliasing
+> issues.
 
-Good catch.
+Ok. Thanks for the clarification.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-
-> 
->  kernel/irq/proc.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff -puN kernel/irq/proc.c~cpei-gets-warning-at-kernel-irq-migrationc27-move_masked_irq kernel/irq/proc.c
-> --- a/kernel/irq/proc.c~cpei-gets-warning-at-kernel-irq-migrationc27-move_masked_irq
-> +++ a/kernel/irq/proc.c
-> @@ -54,7 +54,8 @@ static int irq_affinity_write_proc(struc
->  	unsigned int irq = (int)(long)data, full_count = count, err;
->  	cpumask_t new_value, tmp;
->  
-> -	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity)
-> +	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity ||
-> +				CHECK_IRQ_PER_CPU(irq_desc[irq].status))
->  		return -EIO;
->  
->  	err = cpumask_parse_user(buffer, count, new_value);
-> _
-> 
-> Patches currently in -mm which might be from seto.hidetoshi@jp.fujitsu.com are
-> 
-> cpei-gets-warning-at-kernel-irq-migrationc27-move_masked_irq.patch
-> 
-
+Matt

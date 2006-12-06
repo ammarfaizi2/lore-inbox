@@ -1,147 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760640AbWLFOXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760648AbWLFOYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760640AbWLFOXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 09:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760645AbWLFOXO
+	id S1760648AbWLFOYG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 09:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760647AbWLFOYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 09:23:14 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:39109 "EHLO
-	tirith.ics.muni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760640AbWLFOXO (ORCPT
+	Wed, 6 Dec 2006 09:24:06 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:63425 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760639AbWLFOYD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 09:23:14 -0500
-Message-id: <762111721879732035@fi.muni.cz>
-In-reply-to: <1165363148-XGI7ZY4B0EPYUYH@www.vabmail.com>
-Subject: [PATCH 1/1] Char: isicom, fix card locking
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Eric Fox <efox@einsteinindustries.com>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Wed,  6 Dec 2006 15:23:08 +0100 (CET)
-X-Muni-Spam-TestIP: 147.251.48.3
+	Wed, 6 Dec 2006 09:24:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gKuOkliXr97Tecr24EFme9cL5neL7m4PSobZhrS93DXKbnLwW0oWsJsYHYqsBkR/j6gyXUzEQDmqbtQIV17Em8lPx6Nno0Y0064xbBKbySrzTXbUW3y/KMFORIXJD6mEgqoElpXeQOMeBNhZBKvTrJ46uCDIDPgOXOKlmBd4AvE=
+Message-ID: <d120d5000612060624o15f608dk83f35a228b9a6d18@mail.gmail.com>
+Date: Wed, 6 Dec 2006 09:24:02 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Jiri Kosina" <jkosina@suse.cz>
+Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
+Cc: "Li Yu" <raise.sail@gmail.com>, "Greg Kroah Hartman" <greg@kroah.com>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Vincent Legoll" <vincentlegoll@gmail.com>,
+       "Zephaniah E. Hull" <warp@aehallh.com>, liyu <liyu@ccoss.com.cn>,
+       "Marcel Holtmann" <marcel@holtmann.org>
+In-Reply-To: <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200612061803324532133@gmail.com>
+	 <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Fox wrote:
-> Here is what i was able to capture from a terminal logged in to the machine
-> with the ISI board:
-> 
-> strace setserial -g /dev/ttyM0
-> execve("/bin/setserial", ["setserial", "-g", "/dev/ttyM0"], [/* 17 vars
-> */]) = 0
-> uname({sys="Linux", node="dialin-0.vab.com", ...}) = 0
-> brk(0)                                  = 0x804d000
-> access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or
-> directory)
-> open("/etc/ld.so.cache", O_RDONLY)      = 3
-> fstat64(3, {st_mode=S_IFREG|0644, st_size=19713, ...}) = 0
-> old_mmap(NULL, 19713, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f05000
-> close(3)                                = 0
-> open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-> read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\320\36"..., 512) =
-> 512
-> fstat64(3, {st_mode=S_IFREG|0755, st_size=1454802, ...}) = 0
-> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
-> 0) = 0xb7f04000
-> old_mmap(0x39d000, 1223900, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE,
-> 3, 0) = 0x39d000
-> old_mmap(0x4c2000, 16384, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x124000) = 0x4c2000
-> old_mmap(0x4c6000, 7388, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4c6000
-> close(3)                                = 0
-> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
-> 0) = 0xb7f03000
-> mprotect(0x4c2000, 4096, PROT_READ)     = 0
-> mprotect(0x399000, 4096, PROT_READ)     = 0
-> set_thread_area({entry_number:-1 -> 6, base_addr:0xb7f036c0, limit:1048575,
-> seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
-> seg_not_present:0, useable:1}) = 0
-> munmap(0xb7f05000, 19713)               = 0
-> open("/dev/ttyM0", O_RDWR|O_NONBLOCK
-> 
-> 
-> And, here is what I captured using minicom from another machine connected
-> to the serial port console of the machine with the ISI board (minicom.cap):
-> 
-> strace setserial -g /dev/ttyM0
-> execve("/bin/setserial", ["setserial", "-g", "/dev/ttyM0"], [/* 17 vars
-> */]) = 0
-> uname({sys="Linux", node="dialin-0.vab.com", ...BUG: soft lockup detected
-> on CPU#1!
->  [<c01041a3>] dump_trace+0x6b/0x1ab
->  [<c010436a>] show_trace_log_lvl+0x17/0x2b
->  [<c037ddb1>] __func__.5+0x84c/0x497af
-> DWARF2 unwinder stuck at __func__.5+0x84c/0x497af
-> 
-> Leftover inexact backtrace:
-> 
->  [<c010438d>] show_trace+0xf/0x11
->  [<c010446c>] dump_stack+0x13/0x15
->  [<c0138dca>] softlockup_tick+0xa1/0xaf
->  [<c0124bc2>] update_process_times+0x39/0x5c
->  [<c0111219>] smp_apic_timer_interrupt+0x8a/0xa2
->  [<c0103f0b>] apic_timer_interrupt+0x1f/0x24
->  [<c0365437>] _spin_lock_irqsave+0x16/0x27
->  [<f882407e>] lock_card_at_interrupt+0x17/0x47 [isicom]
->  [<f88241ca>] isicom_tx+0x64/0xe9 [isicom]
->  [<f8824166>] isicom_tx+0x0/0xe9 [isicom]
->  [<c0124d00>] run_timer_softirq+0x112/0x15c
->  [<c0120bd1>] __do_softirq+0x5e/0xba
->  [<c0120c5b>] do_softirq+0x2e/0x32
->  [<c011121e>] smp_apic_timer_interrupt+0x8f/0xa2
->  [<c0103f0b>] apic_timer_interrupt+0x1f/0x24
->  [<c0101973>] mwait_idle_with_hints+0x34/0x38
->  [<c0101983>] mwait_idle+0xc/0x1b
->  [<c010183f>] cpu_idle+0x66/0x7b
->  =======================
-> BUG: soft lockup detected on CPU#1!
->  [<c01041a3>] dump_trace+0x6b/0x1ab
->  [<c010436a>] show_trace_log_lvl+0x17/0x2b
->  [<c037ddb1>] __func__.5+0x84c/0x497af
-> DWARF2 unwinder stuck at __func__.5+0x84c/0x497af
-> 
-> 
-> Hope some of this will help.
+Hi,
 
-Certainly, it did, could you test the attached patch?
+On 12/6/06, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Wed, 6 Dec 2006, Li Yu wrote:
+>
+> >       1. Make hidinput_disconnect_core() be more robust, it can not
+> >          break anything even failed to allocate device struct.
+> >       2. Thanks new input device driver API, we need not the extra code
+> >          for support force-feed device yet, so say bye to
+> >          CONFIG_HID_SIMPLE_FF.
+> > Is this ready to merge? or What still is problem in them? Thanks.
+>
+> Hi,
+>
+> actually, I have prepared patches to split the USBHID code in two parts -
+> generic HID, which could be hooked by transport-specific HID layers (USB,
+> Bluetooth).
+>
+> I did not send them to lkml/linux-usb, as they are quite big (mainly
+> because a lot of code is being moved around). I am currently trying to
+> setup a git repository on kernel.org, hopefully kernel.org people will
+> react, so that the patches could be easily put into git repository and be
+> available for rewiew and easy merge. After that, they are planned to be
+> merged either into Greg's or Andrew's tree. I can send them to you if you
+> want.
+>
+> Do you think that you could wait a little bit more, after the split has
+> been done? (it's currently planned approximately after 2.6.20-rc1). It
+> seems to me that your patches will apply almost cleanly on top of the
+> split patches (you will have to change the pathnames, of course).
+>
 
---
-isicom, fix card locking
+I still have the same objection - the "simple'" code will have to be
+compiled into the driver instead of being a separate module and
+eventyally will lead to a monster-size HID module. We have this issue
+with psmouse to a degree but with HID the growth potential is much
+bigger IMO.
 
-Somebody omitted spin_unlock in interrupt handler and hence card causes
-dead-lock. Add two unlocks, before returning from handler, if the lock was
-acquired before.
-Thanks Eric Fox <efox@einsteinindustries.com> for pointing this out.
+Jiri, I have not looked at your patches yet (I need to do that) but
+what I was hoping to do (or have someone to do ;) ) is to provide
+ability to define HID transport drivers (we would have USB transport
+and bluetooth transport) and then say:
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+  device = hid_create_device(&my_transport);
+  device->event = my_event_handler;
+  ....
+  hid_start_device(device);
 
----
-commit 09a4c63d32367a615fc42a2e8455e5fd37f9c3ed
-tree 2c2a050cbc551021d09a581d5cc16fd6a7934c69
-parent e62438630ca37539c8cc1553710bbfaa3cf960a7
-author Jiri Slaby <jirislaby@gmail.com> Wed, 06 Dec 2006 15:13:18 +0100
-committer Jiri Slaby <jirislaby@gmail.com> Wed, 06 Dec 2006 15:18:43 +0100
+hid-create_device would parse all reports and create "standard" hid
+device. Then you have a chance to override and tweak it as you see
+fit.
 
- drivers/char/isicom.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+This way we could have several small drivers implementing quirks to
+the generic HID driver. Most of the code is still in hid core module
+but every individual driver is complete USB (or bluetooth) driver, has
+its own device table and is loaded via standard driver code bust
+matching/hotplug modalias mechanism.
 
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 58c955e..c55b359 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -592,6 +592,7 @@ static irqreturn_t isicom_interrupt(int 
- 			ClearInterrupt(base);
- 		else
- 			outw(0x0000, base+0x04); /* enable interrupts */
-+		spin_unlock(&card->card_lock);
- 		return IRQ_HANDLED;
- 	}
- 
-@@ -712,6 +713,7 @@ static irqreturn_t isicom_interrupt(int 
- 		ClearInterrupt(base);
- 	else
- 		outw(0x0000, base+0x04); /* enable interrupts */
-+	spin_unlock(&card->card_lock);
- 
- 	return IRQ_HANDLED;
- }
+Btw, I saw you moving it into drivers/hid, would not
+drivers/input/hid/ suit better?
+
+-- 
+Dmitry

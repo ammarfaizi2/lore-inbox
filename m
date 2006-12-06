@@ -1,117 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760661AbWLFOf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760634AbWLFOhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760661AbWLFOf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 09:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760660AbWLFOf2
+	id S1760634AbWLFOhO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 09:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760657AbWLFOhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 09:35:28 -0500
-Received: from wr-out-0506.google.com ([64.233.184.228]:31753 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760661AbWLFOf1 (ORCPT
+	Wed, 6 Dec 2006 09:37:14 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:13072 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760653AbWLFOhM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 09:35:27 -0500
+	Wed, 6 Dec 2006 09:37:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HE+VC92AUI53BXGMD2Uca9gmMTqn6q0e8AW5+Oe+hk35xgPZbf2ZpU/w/1q5l8ZtyX5BvcCHxkx54ZaxOOHkEAR2AlhVs8Nugz6imNKl7LNMMaOGqi8SmWkXyXn6zRGf9+eE4UE0hAk1uMFoO43z4fDRxYmcuTwLjL97ebFceQs=
-Message-ID: <aa5953d60612060635l43b79ed8g1196cfc0435c0cb1@mail.gmail.com>
-Date: Wed, 6 Dec 2006 20:05:25 +0530
-From: "Jaswinder Singh" <jaswinderrajput@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH] let WARN_ON() output the condition
-Cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       "Andrew Morton" <akpm@osdl.org>, "Jiri Kosina" <jkosina@suse.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061206135445.GA17224@elte.hu>
+        b=SMYOKG4g7Wnf50B6iIzeskza5orFBEGKJnoIqPSAKWvharrbIT2u54RR/NutQweUDhxeSpt31W5mWmogvKA5PY95CmVhAi05GiR02Hd56ztpGiNaBoDZh7mW1Wp/LdhykyP1eK4gzXjoGFrY53mG3X+J6+o+TknK/s1kMtB3gkw=
+Message-ID: <d120d5000612060637s69ff235fo85a2db923a728a00@mail.gmail.com>
+Date: Wed, 6 Dec 2006 09:37:10 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Ivo van Doorn" <ivdoorn@gmail.com>
+Subject: Re: [RFC] rfkill - Add support for input key to control wireless radio
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       "John Linville" <linville@tuxdriver.com>, "Jiri Benc" <jbenc@suse.cz>,
+       "Lennart Poettering" <lennart@poettering.net>,
+       "Johannes Berg" <johannes@sipsolutions.net>,
+       "Larry Finger" <Larry.Finger@lwfinger.net>
+In-Reply-To: <200612050027.15253.IvDoorn@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061205172737.14ecfeb3.akpm@osdl.org>
-	 <200612061252.kB6CqRYP008046@laptop13.inf.utfsm.cl>
-	 <20061206135445.GA17224@elte.hu>
+References: <200612031936.34343.IvDoorn@gmail.com>
+	 <d120d5000612041415r2f471e78s4feb86d22b7706d5@mail.gmail.com>
+	 <200612050027.15253.IvDoorn@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I am playing with linux kernel but kernel dumps on WARN_ON , when I
-commented WARN_ON in my code my kernel starts working but I get two
-sideeffects :-
-
-1. During Boot kernel Hangs sometimes in :-
-Updating /etc/motd...done.
-INIT: Entering runlevel: 3
-<<hangs>>
-
-2. Always Hangs in :-
-cat /proc/interrupts
-after showing interrupts
-<<hangs>>
-
-Are these side-effects of commenting WARN_ON.
-
-Sometimes I also gets :-
-
-<1>Unable to handle kernel NULL pointer dereference at virtual address 00000004
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-<1>pgd = c5810000
-pgd = c5810000
-<1>[00000004] *pgd=85844031[00000004] *pgd=85844031, *pte=00000000,
-*pte=00000000, *ppte=00000000, *ppte=00000000
-
-Internal error: Oops: 17 [#1]
-Internal error: Oops: 17 [#1]
-Modules linked in:Modules linked in:
-
-CPU: 0
-CPU: 0
-PC is at dequeue_task+0xc/0x78
-PC is at dequeue_task+0xc/0x78
-LR is at deactivate_task+0x24/0x30
-LR is at deactivate_task+0x24/0x30
-pc : [<c0037264>]    lr : [<c003759c>]    Not tainted
-sp : c545ddcc  ip : c545dddc  fp : c545ddd8
-pc : [<c0037264>]    lr : [<c003759c>]    Not tainted
-sp : c545ddcc  ip : c545dddc  fp : c545ddd8
-r10: c68fd340  r9 : c02e04d4  r8 : c028ccf8
-r10: c68fd340  r9 : c02e04d4  r8 : c028ccf8
-r7 : c028ded8  r6 : c028ccf4  r5 : c545c000  r4 : c68fd340
-r7 : c028ded8  r6 : c028ccf4  r5 : c545c000  r4 : c68fd340
-r3 : 00000002  r2 : 00000000  r1 : 00000000  r0 : c68fd340
-r3 : 00000002  r2 : 00000000  r1 : 00000000  r0 : c68fd340
-Flags: NzcvFlags: Nzcv  IRQs on  FIQs on  Mode SVC_32  Segment user
-  IRQs on  FIQs on  Mode SVC_32  Segment user
-Control: 5317F  Table: 85810000  DAC: 00000015
-Control: 5317F  Table: 85810000  DAC: 00000015
-Process X (pid: 1107, stack limit = 0xc545c198)
-Process X (pid: 1107, stack limit = 0xc545c198)
-Stack: (0xc545ddcc to 0xc545e000)
-Stack: (0xc545ddcc to 0xc545e000)
-
-How to get rid of dequeue_task issue.
-
-Thanks
-
-Jaswinder Singh.
-
-On 12/6/06, Ingo Molnar <mingo@elte.hu> wrote:
+On 12/4/06, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+> > I am still not sure that tight coupling of input device with rfkill
+> > structure is such a good idea. Quite often the button is separated
+> > from the device itself and radio control is done via BIOS SMM (see
+> > wistron driver) or there is no special button at all and users might
+> > want to assign one of their standard keyboard buttons to be an RF
+> > switch.
 >
-> * Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Making sure rfkill supports keys that are not handled by the driver
+> is a bit hard. Just as drivers that can only check if the button is
+> toggled and not what the current state is.
+> The problem is that it is hard to make a clean split between the
+> 2 different button controls. Not all drivers allow the radio to be
+> enabled while the button status are indicating the radio should
+> be off.
+
+If they do not allow controlling the state of the radio
+programmatically then it should not be part of rfkill I am afraid. It
+is like the power switch - if you hold it for so long it kills the
+power to the box and there is nothing you can do about it.
+
+> The buttons that are already integrated into the keyboard,
+> by example by using a Fn key combo don't control the device
+> directly. So the driver cannot offer anything to the rfkill driver.
+> Such buttons should be mapped in userspace without the help of rfkill,
+> since the kernel cannot detect if that key belonged to a radio
+> control key or not.
 >
-> > Why not just:
-> >
-> >     WARN_ON(debug_locks_off())
-> >
-> > here? Would give a more readable message too, IMHO.
+
+That is my point. Given the fact that there are keys that are not
+directly connected with the radio switch userspace will have to handle
+them (wait for events then turn off radios somehow). You are
+advocating that userspace should also implement 2nd method for buttons
+that belong to rfkill interface. I do not understand the need for 2nd
+interface. If you separate radio switch from button code then
+userspace only need to implement 1st interface and be done with it.
+You will have set of cards that provide interface to enable/disable
+their transmitters and set of buttons that signal userspace desired
+state change. If both switch and button is implemented by the same
+driver then the driver can implement automatic button handling.
+Otherwise userspace help is necessary.
+
+> > I think it would be better if there was an rfkill class listing all
+> > controlled devices (preferrably grouped by their type - WiFi, BT,
+> > IRDA, etc) and if every group would provide an attribute allowing to
+> > control state of the whole group (do we realistically need to kill
+> > just one interface? Wouldn't ifconfig be suitable for that?). The
 >
-> debug_locks_off() has a side-effect, and in general we dont like to put
-> stuff with side-effects witin WARN_ON().
+> There have been mixed feelings on the netdev list about what should
+> exactly happen when the button is pressed. The possible options are:
 >
->        Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 1 - rfkill will kill all interfaces
+> 2 - rfkill will kill all interfaces of the same type (wifi, bt, irda)
+> 3 - rfkill will kill the interface it belongs to
 >
+> Personally I would favour the second option, but used the third after hearing
+> objections to the second method. So since there are also fans of
+> the third option I think there should be a decision made about what the
+> correct option is, so rfkill can follow that method.
+
+Fans of the 3rd method, speak up ;)
+
+>
+> > attribute should be a tri-state on/off/auto, "auto" meaning the driver
+> > itself manages radio state. This would avoid another tacky IMHO point
+> > that in your implementation mere opening of an input device takes over
+> > RF driver. Explicit control allow applications "snoop" RF state
+> > without disturbing it.
+>
+> Currently userspace can always check the state of the button whenever
+> they like by checking the sysfs entry.
+>
+
+Unless the key is not directly connected to the driver (so there is no
+sysfs entry). Again you force 2 different interfaces.
+
+-- 
+Dmitry

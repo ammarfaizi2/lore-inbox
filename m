@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760650AbWLFOYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760645AbWLFOZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760650AbWLFOYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 09:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760649AbWLFOYq
+	id S1760645AbWLFOZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 09:25:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760646AbWLFOZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 09:24:46 -0500
-Received: from belize.chezphil.org ([80.68.91.122]:3593 "EHLO
-	belize.chezphil.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760650AbWLFOYo (ORCPT
+	Wed, 6 Dec 2006 09:25:19 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44579 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760645AbWLFOZR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 09:24:44 -0500
-To: "Frederik Deweerdt" <deweerdt@free.fr>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Wed, 06 Dec 2006 14:24:42 +0000
-Subject: Re: Subtleties of __attribute__((packed))
-Message-ID: <1165415082132@dmwebmail.belize.chezphil.org>
-In-Reply-To: <20061206140138.GA16350@slug>
-References: <20061206140138.GA16350@slug>
-X-Mailer: Decimail Webmail 3alpha14
-MIME-Version: 1.0
-Content-Type: text/plain; format="flowed"
-From: "Phil Endecott" <phil_arcwk_endecott@chezphil.org>
+	Wed, 6 Dec 2006 09:25:17 -0500
+Subject: Re: Linux should define ENOTSUP
+From: Arjan van de Ven <arjan@infradead.org>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061206135134.GJ3927@implementation.labri.fr>
+References: <20061206135134.GJ3927@implementation.labri.fr>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 06 Dec 2006 15:25:14 +0100
+Message-Id: <1165415115.3233.449.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederik Deweerdt wrote:
-> On Wed, Dec 06, 2006 at 01:20:41PM +0000, Phil Endecott wrote:
->> I used to think that this:
->> 
->> struct foo {
->>   int a  __attribute__((packed));
->>   char b __attribute__((packed));
->>   ... more fields, all packed ...
->> };
->> 
->> was exactly the same as this:
->> 
->> struct foo {
->>   int a;
->>   char b;
->>   ... more fields ...
->> } __attribute__((packed));
->> 
->> but it is not, in a subtle way.
->> 
-> This is likely a gcc bug isn't it? The gcc info page states:
->   Specifying this attribute for `struct' and `union' types is
->   equivalent to specifying the `packed' attribute on each of the
->   structure or union members.
 
-A gcc *documentation* bug?
+> Is there any way to fix this?  Glibc people don't seem to want to fix it
+> on their part, see
+> http://sources.redhat.com/bugzilla/show_bug.cgi?id=2363
 
-I asked on the gcc list about this before posting here, and although 
-replies are still coming in the first opinion was "it's doing exactly 
-what you asked it to do".
+Hi,
 
-Phil.
+Ulrich asked you to go to us once your time travel machine was
+finished.. is it finished yet ?  ;=)
 
 
+this is part of the ABI, so we can't change this in 2006...
 
+Greetings,
+   Arjan van de Ven
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

@@ -1,61 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937650AbWLFVRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937654AbWLFVS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937650AbWLFVRi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 16:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937652AbWLFVRi
+	id S937654AbWLFVS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937653AbWLFVS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 16:17:38 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:35666 "HELO
-	smtp110.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S937650AbWLFVRh (ORCPT
+	Wed, 6 Dec 2006 16:18:29 -0500
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:58115 "EHLO
+	fed1rmmtao01.cox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937154AbWLFVS2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 16:17:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:Received:Date:From:To:Subject:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=245mNVH0aJy1RJQZ+1h8F1V+X6IX1j3q+C5CadlcDtwR8G0SNslUXWsYiOgklYVUGFo7vKJHgHcnK1dszZjU8k0C8yblni8jv8YFPX1zD3rm207lyMf4Nr+l/w2MSENmRkjGAE5AjhH5cBmLws3Ktgz8ItSqqLbKrAjV8lMG0Mk=  ;
-X-YMail-OSG: AqnhiT4VM1lGKwkFUhbMg3Wr.Hn671mPHo4WP4hoGgGqNdyqGLl3XiEu6tzR7c1y6rHCYknp9.C_Ix6O5lxq0yq2idm9uJJ7acLshZEmfm8q.v2894ZY.1tq8ja37kmz6.dj9vYqkmmGSuY-
-Date: Wed, 06 Dec 2006 13:17:34 -0800
-From: David Brownell <david-b@pacbell.net>
-To: yinghai.lu@amd.com, ak@suse.de
-Subject: Re: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port 
- support.
-Cc: stuge-linuxbios@cdy.org, stepan@coresystems.de, linuxbios@linuxbios.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, ebiederm@xmission.com
-References: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com>
- <200612062158.39250.ak@suse.de>
-In-Reply-To: <200612062158.39250.ak@suse.de>
+	Wed, 6 Dec 2006 16:18:28 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: What's in git.git (stable)
+cc: linux-kernel@vger.kernel.org
+X-maint-at: 49ed2bc4660c7cd0592cf21cc514080574d06320
+X-master-at: de51faf3888505fa3d661d4c35f32ecaf9fa1087
+Date: Wed, 06 Dec 2006 13:18:26 -0800
+Message-ID: <7vwt54yb8d.fsf@assigned-by-dhcp.cox.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20061206211734.78DCB1E75FF@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > or usb_debug that Greg just added 
->
-> Ah I didn't notice that. If there is a usb_debug that works later
-> then yes it would need to be disabled.
+* The 'maint' branch has produced a new release 1.4.4.2
 
-I detect confusion here ... remember that there are potentially two
-distinct Linux systems involved here:
+* In the 'master' branch:
 
-  - Target, with some kind of console hooked up to the debug device;
-    runs this _new_ "early debug port" code.
+  - we now officially favor 'remotes' information to be in
+    $GIT_DIR/config, and 'git clone' records origin in there,
+    not in $GIT_DIR/remotes/origin (thanks to Andy Parkins).
 
-  - Host, to which that console connects (through the debug device);
-    runs usb_debug, much like any other usb-serial device
+  - "git send-pack $URL :refs/heads/$branch" can be used to
+    delete a remote branch (so does "git push $URL :$ref" over
+    git native protocols).
 
-It's analagous to debugging an embedded box using a serial console
-with a Linux host ... except the target here is a PC, not an ARM
-(or PPC, MIPS, etc) custom board.
+  - built-in shortlog lets you directly say "git shortlog
+    v2.6.18..master", instead of piping an output from the
+    corresponding "git log v2.6.18..master" into it.
 
+  - git-svn updates
+  - gitweb updates
+  - gitk updates
+  - bash completion updates
 
-Once the coexistence issues between the debug port and normal EHCI
-driver get worked, there's no reason not to keep using that debug
-port as a system console.  Heck, being able to do that might be a
-huge win with some of the nasty suspend/resume problems we've got.
+The shortlog since the last announcement for 'master' is:
 
-- Dave
+Alex Riesen (2):
+      git-blame: fix rev parameter handling.
+      Make perl/ build procedure ActiveState friendly.
+
+Andreas Ericsson (2):
+      ls-files: Give hints when errors happen.
+      git-diff: Introduce --index and deprecate --cached.
+
+Andy Parkins (3):
+      Use .git/config for storing "origin" shortcut repository
+      Document git-repo-config --bool/--int options.
+      De-emphasise the symbolic link documentation.
+
+David Miller (1):
+      Pass -M to diff in request-pull
+
+Eric Wong (10):
+      git-svn: use ~/.subversion config files when using SVN:: libraries
+      git-svn: enable delta transfers during fetches when using SVN:: libs
+      git-svn: update tests for recent changes
+      git-svn: error out when the SVN connection fails during a fetch
+      git-svn: fix output reporting from the delta fetcher
+      git-svn: color support for the log command
+      git-svn: documentation updates
+      git-svn: fix multi-init
+      git-svn: avoid fetching files twice in the same revision
+      git-svn: avoid network timeouts for long-running fetches
+
+Han-Wen Nienhuys (1):
+      ident.c: Trim hint printed when gecos is empty.
+
+J. Bruce Fields (1):
+      cvs-migration: improved section titles, better push/commit explanation
+
+Jakub Narebski (4):
+      gitweb: Fix Atom feed <logo>: it is $logo, not $logo_url
+      git-clone: Rename --use-immingled-remote option to --no-separate-remote
+      Document git-diff whitespace flags -b and -w
+      gitweb: Allow PNG, GIF, JPEG images to be displayed in "blob" view
+
+Jim Meyering (1):
+      Set permissions of each new file before "cvs add"ing it.
+
+Johannes Schindelin (10):
+      Build in shortlog
+      shortlog: do not crash on parsing "[PATCH"
+      shortlog: read mailmap from ./.mailmap again
+      shortlog: handle email addresses case-insensitively
+      shortlog: fix "-n"
+      shortlog: use pager
+      sha1_object_info(): be consistent with read_sha1_file()
+      git-mv: search more precisely for source directory in index
+      diff -b: ignore whitespace at end of line
+      cvs-migration document: make the need for "push" more obvious
+
+Junio C Hamano (24):
+      Store peeled refs in packed-refs file.
+      remove merge-recursive-old
+      git-merge: make it usable as the first class UI
+      merge: allow merging into a yet-to-be-born branch.
+      Store peeled refs in packed-refs (take 2).
+      git-fetch: reuse ls-remote result.
+      git-fetch: fix dumb protocol transport to fetch from pack-pruned ref
+      git-fetch: allow glob pattern in refspec
+      Allow git push to delete remote ref.
+      git-shortlog: fix common repository prefix abbreviation.
+      git-shortlog: make common repository prefix configurable with .mailmap
+      git-fetch: allow forcing glob pattern in refspec
+      fetch-pack: do not barf when duplicate re patterns are given
+      git-merge: tighten error checking.
+      git-merge: do not leak rev-parse output used for checking internally.
+      cvsimport: style fixup.
+      git blame -C: fix output format tweaks when crossing file boundary.
+      tutorial: talk about user.name early and don't start with commit -a
+      git-merge: fix confusion between tag and branch
+      receive-pack: do not insist on fast-forward outside refs/heads/
+      unpack-trees: make sure "df_conflict_entry.name" is NUL terminated.
+      git-reset to remove "$GIT_DIR/MERGE_MSG"
+      git-merge: squelch needless error message.
+      git-merge: fix "fix confusion between tag and branch" for real
+
+Michael Loeffler (1):
+      git-fetch: ignore dereferenced tags in expand_refs_wildcard
+
+Nicolas Pitre (2):
+      builtin git-shortlog is broken
+      pack-objects: remove redundent status information
+
+Paul Mackerras (1):
+      gitk: Fix enabling/disabling of menu items on Mac OS X
+
+René Scharfe (1):
+      shortlog: remove range check
+
+Sean Estabrooks (1):
+      Update documentation to remove incorrect GIT_DIFF_OPTS example.
+
+Shawn O. Pearce (15):
+      Teach git-completion.bash how to complete git-merge.
+      Hide plumbing/transport commands from bash completion.
+      Teach bash how to complete options for git-name-rev.
+      Add current branch in PS1 support to git-completion.bash.
+      Teach bash how to complete git-format-patch.
+      Teach bash how to complete git-cherry-pick.
+      Teach bash how to complete git-rebase.
+      Teach bash about git log/show/whatchanged options.
+      Support bash completion of refs/remote.
+      Teach bash about git-repo-config.
+      Support --strategy=x completion in addition to --strategy x.
+      Cache the list of merge strategies and available commands during load.
+      Teach bash about git-am/git-apply and their whitespace options.
+      Teach bash how to complete long options for git-commit.
+      Fix broken bash completion of local refs.
+
 

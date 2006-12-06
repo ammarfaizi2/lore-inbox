@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933606AbWLFPH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933385AbWLFPJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933606AbWLFPH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933843AbWLFPH5
+	id S933385AbWLFPJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933336AbWLFPJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:07:57 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:47382 "EHLO mout2.freenet.de"
+	Wed, 6 Dec 2006 10:09:25 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:57339 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S933835AbWLFPH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:07:56 -0500
-From: Karsten Wiese <fzu@wemgehoertderstaat.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH -rt 0/3] Make trace_freerunning work; Take 2
-Date: Wed, 6 Dec 2006 16:08:24 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <20061205220257.1AECF3E2420@elvis.elte.hu> <20061205221046.GB20587@elte.hu>
-In-Reply-To: <20061205221046.GB20587@elte.hu>
+	id S933385AbWLFPJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:09:24 -0500
+Date: Wed, 6 Dec 2006 16:08:39 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Jaswinder Singh <jaswinderrajput@gmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Andrew Morton <akpm@osdl.org>, Jiri Kosina <jkosina@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let WARN_ON() output the condition
+In-Reply-To: <aa5953d60612060635l43b79ed8g1196cfc0435c0cb1@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0612061603170.28502@twin.jikos.cz>
+References: <20061205172737.14ecfeb3.akpm@osdl.org> 
+ <200612061252.kB6CqRYP008046@laptop13.inf.utfsm.cl>  <20061206135445.GA17224@elte.hu>
+ <aa5953d60612060635l43b79ed8g1196cfc0435c0cb1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612061608.24556.fzu@wemgehoertderstaat.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 5. Dezember 2006 23:10 schrieb Ingo Molnar:
-> 
-> freerunning should behave the same way with regard to latency 
-> measurement. I.e. report_latency() is still needed, and the kernel will 
-> thus do a maximum search over all traces triggered via start/stop.
-> 
-> the difference is in the recording of the last-largest-latency:
-> 
-> - with !freerunning, the tracer stops recording after MAX_TRACE entries, 
->   i.e. the "head" of the trace is preserved in the trace buffer.
-> 
-> - with freerunning, the tracer never stops, it 'wraps around' after 
->   MAX_TRACE entries and starts overwriting the oldest entries. I.e. the  
->   "tail" of the trace is preserved in the trace buffer.
-> 
-> depending on the situation, freerunning or !freerunning might be the 
-> more useful mode.
-> 
-> but there should be no difference in measurement.
+On Wed, 6 Dec 2006, Jaswinder Singh wrote:
 
-Following 3 patches try to implement the above.
+> I am playing with linux kernel but kernel dumps on WARN_ON , when I 
+> commented WARN_ON in my code my kernel starts working but I get two 
+> sideeffects :-
 
-Tested on a UP only after this incantation:
-	echo 0 > /proc/sys/kernel/wakeup_timing
-	echo 1 > /proc/sys/kernel/trace_enabled
-	echo 1 > /proc/sys/kernel/trace_user_triggered
+Hi,
 
-and for half of tests:
-	echo 1 > /proc/sys/kernel/trace_freerunning
-or
-	echo 0 > /proc/sys/kernel/trace_freerunning
-.
+please, submit a proper bugreport, including all the needed data (see 
+REPORTING-BUGS document in the kernel sources), namely kernel version, HW 
+architecture, extra patches applied, configuration, loaded modules, etc.
 
-      Karsten
+Also, your issue is not related to this thread at all, could you please 
+start a new one with more descriptive name, so there is a chance that 
+someone responsible notices? This thread is about how WARN_ON is 
+implemented, not about problems with certain modules triggering WARN_ON 
+messages.
+
+> Internal error: Oops: 17 [#1]
+> Modules linked in:Modules linked in:
+> CPU: 0
+> CPU: 0
+> PC is at dequeue_task+0xc/0x78
+> PC is at dequeue_task+0xc/0x78
+> LR is at deactivate_task+0x24/0x30
+> LR is at deactivate_task+0x24/0x30
+> pc : [<c0037264>]    lr : [<c003759c>]    Not tainted
+> sp : c545ddcc  ip : c545dddc  fp : c545ddd8
+> pc : [<c0037264>]    lr : [<c003759c>]    Not tainted
+> sp : c545ddcc  ip : c545dddc  fp : c545ddd8
+> r10: c68fd340  r9 : c02e04d4  r8 : c028ccf8
+> r10: c68fd340  r9 : c02e04d4  r8 : c028ccf8
+> r7 : c028ded8  r6 : c028ccf4  r5 : c545c000  r4 : c68fd340
+> r7 : c028ded8  r6 : c028ccf4  r5 : c545c000  r4 : c68fd340
+> r3 : 00000002  r2 : 00000000  r1 : 00000000  r0 : c68fd340
+> r3 : 00000002  r2 : 00000000  r1 : 00000000  r0 : c68fd340
+> Flags: NzcvFlags: Nzcv  IRQs on  FIQs on  Mode SVC_32  Segment user
+>  IRQs on  FIQs on  Mode SVC_32  Segment user
+> Control: 5317F  Table: 85810000  DAC: 00000015
+> Control: 5317F  Table: 85810000  DAC: 00000015
+> Process X (pid: 1107, stack limit = 0xc545c198)
+> Process X (pid: 1107, stack limit = 0xc545c198)
+> Stack: (0xc545ddcc to 0xc545e000)
+> Stack: (0xc545ddcc to 0xc545e000)
+
+BTW seems really strange. Do you really get all the lines output twice?
+
+Thanks,
+
+-- 
+Jiri Kosina

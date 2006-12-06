@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760639AbWLFObf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760654AbWLFOc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760639AbWLFObf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 09:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760644AbWLFObf
+	id S1760654AbWLFOc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 09:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760655AbWLFOc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 09:31:35 -0500
-Received: from iona.labri.fr ([147.210.8.143]:56391 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760639AbWLFObd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 09:31:33 -0500
-Date: Wed, 6 Dec 2006 15:31:59 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-Message-ID: <20061206143159.GP3927@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1165415115.3233.449.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+	Wed, 6 Dec 2006 09:32:27 -0500
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:52186 "EHLO
+	mtiwmhc11.worldnet.att.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1760654AbWLFOc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 09:32:26 -0500
+Message-ID: <4576D475.6090802@lwfinger.net>
+Date: Wed, 06 Dec 2006 08:32:21 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: Andrew Morton <akpm@osdl.org>, Benoit Boissinot <bboissin@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.19-rc5-mm1 progression
+References: <456718F6.8040902@lwfinger.net> <40f323d00611240836q6bcf7374gd47c7a97d1d4f8e3@mail.gmail.com> <20061125112437.3d46eff4.akpm@osdl.org> <4574E86B.10403@lwfinger.net> <1165407170.12561.12.camel@twins>
+In-Reply-To: <1165407170.12561.12.camel@twins>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Arjan van de Ven, le Wed 06 Dec 2006 15:25:14 +0100, a écrit :
+Peter Zijlstra wrote:
+> On Mon, 2006-12-04 at 21:32 -0600, Larry Finger wrote:
+>> Andrew Morton wrote:
+>>> On Fri, 24 Nov 2006 17:36:27 +0100
+>>> "Benoit Boissinot" <bboissin@gmail.com> wrote:
+>>>
+>>>> On 11/24/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+>>>>> Is there the equivalent of 'git bisect' for the -mmX kernels?
+>>>>>
+>>>> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+>>>>
+>>> Please take the time to do that.  Yours is an interesting report - I'm not
+>>> aware of anything in there which was expected to cause a change of this
+>>> mature.
+>>>
+>> There are at least two patches in 2.6.19-rc5-mm2 that make my system much more responsive for 
+>> interactive jobs. The one that has the majority of the effect is:
+>>
+>> radix-tree-rcu-lockless-readside.patch
+>>
+>> I have not been able to isolate the second patch, which has the lesser effect. All I can say is that 
+>> it occurred before the above patch in patches/series. This patch was tested against 2.6.19 and fixed 
+>> most of the problem on that version.
 > 
-> > Is there any way to fix this?  Glibc people don't seem to want to fix it
-> > on their part, see
-> > http://sources.redhat.com/bugzilla/show_bug.cgi?id=2363
+> Curious...
 > 
-> Ulrich asked you to go to us once your time travel machine was
-> finished.. is it finished yet ?  ;=)
+> This patch introduces the direct pointer optimisation for single element
+> radix trees and makes the radix tree safe to read in a lock-less manner
+> which is not used -yet-. The only difference that that should have is
+> that the elements are freed using rcu callback instead of directly.
+> 
+> /me puzzled how this has a large effect on interactivity.
 
-;)
+I also wondered why this patch should have the effect as it didn't seem in an area that should be 
+important. I did test it on both 2.6.19-rc5-mm2 and vanilla 2.6.19. In both cases, it made 
+interactive response improve.
 
-> this is part of the ABI, so we can't change this in 2006...
+One single task that seems to have the biggest effect on my unpatched systems is the link step for a 
+new kernel. I am assuming that this process calls for lots of virtual memory. One other 
+characteristic of my system when it gets unresponsive is that kswapd is running regularly; however, 
+I have never observed any swap file usage.
 
-Ok, so Linux will never be fully posix compliant.
-
-Samuel
+Larry

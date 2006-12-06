@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937674AbWLFVg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937623AbWLFViW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937674AbWLFVg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 16:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937673AbWLFVg2
+	id S937623AbWLFViW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937660AbWLFViW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 16:36:28 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:42333 "EHLO
-	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937672AbWLFVg2 (ORCPT
+	Wed, 6 Dec 2006 16:38:22 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51859 "EHLO
+	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937623AbWLFViV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 16:36:28 -0500
-Date: Wed, 6 Dec 2006 14:36:27 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061206213626.GE3013@parisc-linux.org>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk>
+	Wed, 6 Dec 2006 16:38:21 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: David Brownell <david-b@pacbell.net>, yinghai.lu@amd.com,
+       stuge-linuxbios@cdy.org, stepan@coresystems.de, linuxbios@linuxbios.org,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port  support.
+References: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com>
+	<200612062158.39250.ak@suse.de>
+	<20061206211734.78DCB1E75FF@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+	<200612062224.33482.ak@suse.de>
+Date: Wed, 06 Dec 2006 14:37:29 -0700
+In-Reply-To: <200612062224.33482.ak@suse.de> (Andi Kleen's message of "Wed, 6
+	Dec 2006 22:24:33 +0100")
+Message-ID: <m1y7pk4sfa.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061206195820.GA15281@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2006 at 07:58:20PM +0000, Russell King wrote:
-> No.  If you read what I said, you'll see that you can _cheaply_ use
-> cmpxchg in a ll/sc based implementation.  Take an atomic increment
-> operation.
-> 
-> 	do {
-> 		old = load_locked(addr);
-> 	} while (store_exclusive(old, old + 1, addr);
+Andi Kleen <ak@suse.de> writes:
 
-[...]
+> \
+>>   - Host, to which that console connects (through the debug device);
+>>     runs usb_debug, much like any other usb-serial device
+>
+> My understanding was that the client could run in user 
+> space only on top of libusb.
 
-> Implementing ll/sc based accessor macros allows both ll/sc _and_ cmpxchg
-> architectures to produce optimal code.
-> 
-> Implementing an cmpxchg based accessor macro allows cmpxchg architectures
-> to produce optimal code and ll/sc non-optimal code.
+Looks like a normal serial port with greg's patch.
+I still need to try it though.
 
-And for those of us with only load-and-zero, that's simply:
+> One reason is the one I covered in my last mail -- locking of the PCI
+> type 1 ports.
+>
+> However I suppose it would be ok to switch Eric's code between early
+> pci access and locked one once the PCI subsystem is up and running.
+> Just don't forget bust_spinlocks()
 
-#define load_locked(addr) spin_lock(hash(addr)), *addr
-#define store_exclusive(addr, old, new) \
-			*addr = new, spin_unlock(hash(addr)), 0
+No pci access on that path.
 
-which is also optimal for us.
+Eric

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937722AbWLFWQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937709AbWLFWTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937722AbWLFWQN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937709AbWLFWQN
+	id S937709AbWLFWTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937713AbWLFWTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:16:13 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:59252 "EHLO omx1.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S937722AbWLFWQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:16:11 -0500
-Date: Wed, 6 Dec 2006 14:15:43 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <20061206220532.GF3013@parisc-linux.org>
-Message-ID: <Pine.LNX.4.64.0612061413001.28987@schroedinger.engr.sgi.com>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
- <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
- <20061206220532.GF3013@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Dec 2006 17:19:19 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:52861 "EHLO
+	pfepa.post.tele.dk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937709AbWLFWTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:19:19 -0500
+Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Andi Kleen <ak@muc.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+In-Reply-To: <20061206212915.GA31447@muc.de>
+References: <200612052134_MC3-1-D40B-A5DB@compuserve.com>
+	 <1165409880.15706.9.camel@localhost>  <20061206212915.GA31447@muc.de>
+Content-Type: text/plain
+Date: Wed, 06 Dec 2006 23:19:00 +0100
+Message-Id: <1165443540.31851.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Matthew Wilcox wrote:
+On Wed, 2006-12-06 at 22:29 +0100, Andi Kleen wrote:
+> > and i am very very sure its because of this, i can run with the kernel
+> > (atleast with rc5 i had that long) for 10 days, and then chroot in, run
+> > the 32bit apps, and within hours of using, hardlock.
+> 
+> Early AMD K8 platforms had a hardware bug that could have caused
+> such hardlocks when running 32bit code under 64bit (independent of anything 
+> the kernel does). If you have such a board/CPU try a BIOS update.
+well, 2.6.18 were 100% stable, none of these issues.
 
-> To be honest, it'd be much easier if we only defined these operations on
-> atomic_t's.  We have all the infrastructure in place for them, and
-> they're fairly well understood.  If you need different sizes, I'm OK
-> with an atomic_pointer_t, or whatever.
+however you have caught my attention, cause i have one of the first
+amd64's, a 3200+ 1mb cache, socket 754. and an asus board. ill try find
+a floppy and upgrade the bios if there are updates available.
+> 
+> -Andi
+> 
 
-An pointer is probably one of the most important entities to use with 
-cmpxchg (aside from the ints and longs that we already support).
-
-A pointer can be defined to point to any other type. So we would need
-atomic_pointer_t(<type_pointed_to>)?

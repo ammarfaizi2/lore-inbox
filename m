@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934378AbWLFPZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S934422AbWLFPZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S934378AbWLFPZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935226AbWLFPZS
+	id S934422AbWLFPZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S934996AbWLFPZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:25:18 -0500
-Received: from iona.labri.fr ([147.210.8.143]:58002 "EHLO iona.labri.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934378AbWLFPZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:25:15 -0500
-Date: Wed, 6 Dec 2006 16:25:42 +0100
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-Message-ID: <20061206152542.GS3927@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <4576DED7.10800@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4576DED7.10800@zytor.com>
-User-Agent: Mutt/1.5.11
+	Wed, 6 Dec 2006 10:25:32 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2991 "EHLO
+	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S934422AbWLFPZa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:25:30 -0500
+Date: Wed, 6 Dec 2006 15:25:22 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Roland Dreier <rdreier@cisco.com>, Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+In-Reply-To: <20061205135753.9c3844f8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
+ <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+ <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+ <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
+ <20061205135753.9c3844f8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin, le Wed 06 Dec 2006 07:16:39 -0800, a écrit :
-> Arjan van de Ven wrote:
-> >>Is there any way to fix this?  Glibc people don't seem to want to fix it
-> >>on their part, see
-> >>http://sources.redhat.com/bugzilla/show_bug.cgi?id=2363
-> >
-> >Hi,
-> >
-> >Ulrich asked you to go to us once your time travel machine was
-> >finished.. is it finished yet ?  ;=)
-> >
-> >this is part of the ABI, so we can't change this in 2006...
-> >
+On Tue, 5 Dec 2006, Andrew Morton wrote:
+
+> But running flush_scheduled_work() from within dev_close() is a very
+> sensible thing to do, and dev_close is called under rtnl_lock().
+> davem is -> thattaway ;)
+
+ And when within dev_close() there is quite a chance there is 
+linkwatch_event() somewhere in the event queue already. ;-)
+
+> Ah.  The point is that the phy code doesn't want to flush _all_ pending
+> callbacks.  It only wants to flush its own one.  And its own one doesn't
+> take rtnl_lock().
 > 
-> If ENOTSUP is currently unused and is only there for completeness, then 
-> it should be fine to add it.
+> IOW, the phy code has no interest in running some random other subsystem's
+> callback - it just wants to run its own.  Hence no deadlock.
 
-The functions that should be returning it instead of EOPNOTSUP should be
-fixed too.
+ Both are true.  It's linkwatch_event() that's somewhere in the queue 
+already that makes the trouble here.
 
-Samuel
+> Maybe the lesson here is that flush_scheduled_work() is a bad function.
+> It should really be flush_this_work(struct work_struct *w).  That is in
+> fact what approximately 100% of the flush_scheduled_work() callers actually
+> want to do.
+
+ There may be cases where flush_scheduled_work() is indeed needed, but 
+likely outside drivers, and I agree such a specific call would be useful 
+and work here.
+
+  Maciej

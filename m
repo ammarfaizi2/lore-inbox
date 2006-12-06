@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760512AbWLFL4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760520AbWLFL6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760512AbWLFL4g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 06:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760513AbWLFL4g
+	id S1760520AbWLFL6X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 06:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760521AbWLFL6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 06:56:36 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:1268 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760511AbWLFL4f (ORCPT
+	Wed, 6 Dec 2006 06:58:23 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:55164 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760518AbWLFL6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 06:56:35 -0500
-Date: Wed, 6 Dec 2006 11:56:32 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Ingo Molnar <mingo@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.19] i386/io_apic: Fix a typo in an IRQ handler name
-Message-ID: <Pine.LNX.4.64N.0612061151010.29000@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Dec 2006 06:58:22 -0500
+Subject: Re: Why is "Memory split" Kconfig option only for EMBEDDED?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1165405350.5954.213.camel@titan.tbdnetworks.com>
+References: <1165405350.5954.213.camel@titan.tbdnetworks.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 06 Dec 2006 12:58:19 +0100
+Message-Id: <1165406299.3233.436.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- The "fasteoi" IRQ handler is named "fasteio" incorrectly.  This is a fix.
+On Wed, 2006-12-06 at 12:42 +0100, Norbert Kiesel wrote:
+> Hi,
+> 
+> I remember reading on LKML some time ago that using VMSPLIT_3G_OPT would
+> be optimal for a machine with exactly 1GB memory (like my current
+> desktop). Why is that option only prompted for after selecting EMBEDDED
+> (which I normally don't select for desktop machines
 
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
----
- It should be obvious.
+because it changes the userspace ABI and has some other caveats.... this
+is not something you should muck with lightly 
 
- Please apply.
 
-  Maciej
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 
-patch-mips-2.6.19-rc2-20061023-fasteoi-0
-diff -up --recursive --new-file linux-mips-2.6.19-rc2-20061023.macro/arch/i386/kernel/io_apic.c linux-mips-2.6.19-rc2-20061023/arch/i386/kernel/io_apic.c
---- linux-mips-2.6.19-rc2-20061023.macro/arch/i386/kernel/io_apic.c	2006-10-19 04:56:53.000000000 +0000
-+++ linux-mips-2.6.19-rc2-20061023/arch/i386/kernel/io_apic.c	2006-12-06 00:10:05.000000000 +0000
-@@ -2236,7 +2236,7 @@ static inline void check_timer(void)
- 
- 	disable_8259A_irq(0);
- 	set_irq_chip_and_handler_name(0, &lapic_chip, handle_fasteoi_irq,
--				      "fasteio");
-+				      "fasteoi");
- 	apic_write_around(APIC_LVT0, APIC_DM_FIXED | vector);	/* Fixed mode */
- 	enable_8259A_irq(0);
- 

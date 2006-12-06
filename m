@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936390AbWLFQ0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936374AbWLFQcr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936390AbWLFQ0W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936393AbWLFQ0W
+	id S936374AbWLFQcr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:32:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936399AbWLFQcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:26:22 -0500
-Received: from ns1.suse.de ([195.135.220.2]:58482 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936390AbWLFQ0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:26:22 -0500
-Date: Wed, 6 Dec 2006 17:26:20 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Phil Endecott <phil_arcwk_endecott@chezphil.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Subtleties of __attribute__((packed))
-Message-ID: <20061206162620.GA4942@hasse.suse.de>
-References: <20061206155439.GA6727@hasse.suse.de> <1165421636345@dmwebmail.belize.chezphil.org>
+	Wed, 6 Dec 2006 11:32:47 -0500
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:41980 "EHLO
+	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936374AbWLFQcr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 11:32:47 -0500
+Message-ID: <4576F0AD.2010306@s5r6.in-berlin.de>
+Date: Wed, 06 Dec 2006 17:32:45 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165421636345@dmwebmail.belize.chezphil.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+CC: Marcel Holtmann <marcel@holtmann.org>,
+       =?ISO-8859-1?Q?Kristian_H=F8?= =?ISO-8859-1?Q?gsberg?= 
+	<krh@redhat.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <1165308400.2756.2.camel@localhost>  <45758CB3.80701@redhat.com> <1165332650.2756.27.camel@localhost> <Pine.LNX.4.62.0612061720390.28483@pademelon.sonytel.be>
+In-Reply-To: <Pine.LNX.4.62.0612061720390.28483@pademelon.sonytel.be>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, Phil Endecott wrote:
+Geert Uytterhoeven wrote:
+> On Tue, 5 Dec 2006, Marcel Holtmann wrote:
+>> I personally would go with
+>> "ieee1394", because that is the official name for it. Otherwise go with
+>> "firewire" if you wanna separate yourself from the previous stack.
+> 
+> Which still leaves the opportunity for having a third stack in drivers/ilink
+> :-)
 
-> 
-> To see a difference with your example structs you need to compare these two:
-> 
-> struct wibble1 {
->   char c;
->   struct bar1 b1;
-> };
-> 
-> struct wibble2 {
->   char c;
->   struct bar2 b2;
-> };
-> 
-> struct wibble1 w1 = { 1, { 2, {3,4,5} } };
-> struct wibble2 w2 = { 1, { 2, {3,4,5} } };
-> 
-> Can you try that with your compilers?  I get:
-> 
-
-As I expected, I get:
-
-	.file	"packed2a.c"
-.globl w1
-.data
-	.align	2
-	.type	w1, @object
-	.size	w1, 14
-w1:
-	.byte	1
-	.byte	2
-	.4byte	3
-	.byte	4
-	.zero	3
-	.4byte	5
-.globl w2
-	.align	2
-	.type	w2, @object
-	.size	w2, 14
-w2:
-	.byte	1
-	.byte	2
-	.4byte	3
-	.byte	4
-	.zero	3
-	.4byte	5
-	.ident	"GCC: (GNU) 4.1.2 20060531 (prerelease) (SUSE Linux)"
-	.section	.note.GNU-stack,"",@progbits
+Wait for the real one, to appear in drivers/high_performance_serial_bus.
+-- 
+Stefan Richter
+-=====-=-==- ==-- --==-
+http://arcgraph.de/sr/

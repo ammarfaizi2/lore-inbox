@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937628AbWLFUqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937618AbWLFUth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937628AbWLFUqp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 15:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937630AbWLFUqp
+	id S937618AbWLFUth (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 15:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937629AbWLFUth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 15:46:45 -0500
-Received: from wmail-2.airmail.net ([209.196.70.85]:58188 "EHLO
-	wmail-2.airmail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937628AbWLFUqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 15:46:45 -0500
-From: "Art Haas" <ahaas@airmail.net>
-Date: Wed, 6 Dec 2006 14:45:53 -0600
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH] Remove 'volatile' from spinlock_types
-Message-ID: <20061206204553.GC3107@artsapartment.org>
+	Wed, 6 Dec 2006 15:49:37 -0500
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:47674 "EHLO
+	outbound2-cpk-R.bigfish.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S937618AbWLFUtg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 15:49:36 -0500
+X-BigFish: VP
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Subject: RE: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug
+ port support.
+Date: Wed, 6 Dec 2006 12:43:08 -0800
+Message-ID: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug
+ port support.
+Thread-Index: AccZXktBtyNR4ocFQoC6aKn0Q0K7SgAF6Wgw
+From: "Lu, Yinghai" <yinghai.lu@amd.com>
+To: "Andi Kleen" <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>
+cc: "David Brownell" <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net,
+       "Peter Stuge" <stuge-linuxbios@cdy.org>,
+       "Stefan Reinauer" <stepan@coresystems.de>, "Greg KH" <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, linuxbios@linuxbios.org
+X-OriginalArrivalTime: 06 Dec 2006 20:43:09.0679 (UTC)
+ FILETIME=[23DC47F0:01C71977]
+X-WSS-ID: 6969F4D71WC2258864-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+-----Original Message-----
+From: Andi Kleen [mailto:ak@suse.de] 
+Sent: Wednesday, December 06, 2006 9:31 AM
 
-This is a resubmission of patches originally created by Ingo Molnar.
-The link below is the initial (?) posting of the patch.
+>Also for usb console keep should be made default because the output
+won't
+>be duplicated.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115217423929806&w=2
+Still need to tx_read to make console can take command?
 
-Remove 'volatile' from spinlock_types as it causes GCC to generate
-bad code (see link) and locking should be used on kernel data.
+Or transfer to generic usb_serial or usb_debug that Greg just added with
+console=ttyUSB0 to get tty? Then you still need to disable that
+early_console sometime later.
 
-Signed-off-by: Art Haas <ahaas@airmail.net>
----
-diff --git a/include/asm-i386/spinlock_types.h b/include/asm-i386/spinlock_types.h
-index 59efe84..4da9345 100644
---- a/include/asm-i386/spinlock_types.h
-+++ b/include/asm-i386/spinlock_types.h
-@@ -6,13 +6,13 @@
- #endif
- 
- typedef struct {
--	volatile unsigned int slock;
-+	unsigned int slock;
- } raw_spinlock_t;
- 
- #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
- 
- typedef struct {
--	volatile unsigned int lock;
-+	unsigned int lock;
- } raw_rwlock_t;
- 
- #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }
-diff --git a/include/asm-x86_64/spinlock_types.h b/include/asm-x86_64/spinlock_types.h
-index 59efe84..4da9345 100644
---- a/include/asm-x86_64/spinlock_types.h
-+++ b/include/asm-x86_64/spinlock_types.h
-@@ -6,13 +6,13 @@
- #endif
- 
- typedef struct {
--	volatile unsigned int slock;
-+	unsigned int slock;
- } raw_spinlock_t;
- 
- #define __RAW_SPIN_LOCK_UNLOCKED	{ 1 }
- 
- typedef struct {
--	volatile unsigned int lock;
-+	unsigned int lock;
- } raw_rwlock_t;
- 
- #define __RAW_RW_LOCK_UNLOCKED		{ RW_LOCK_BIAS }
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
+YH
 
--Thomas Jefferson to James Smith, 1822
+

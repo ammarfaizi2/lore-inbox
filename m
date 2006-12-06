@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759878AbWLFDqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759931AbWLFDxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759878AbWLFDqp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 22:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759900AbWLFDqp
+	id S1759931AbWLFDxu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 22:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759915AbWLFDxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 22:46:45 -0500
-Received: from quickstop.soohrt.org ([85.131.246.152]:42008 "EHLO
-	quickstop.soohrt.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759878AbWLFDqo (ORCPT
+	Tue, 5 Dec 2006 22:53:50 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:40322 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759896AbWLFDxt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 22:46:44 -0500
-Date: Wed, 6 Dec 2006 04:46:42 +0100
-From: Horst Schirmeier <horst@schirmeier.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, jpdenheijer@gmail.com,
-       Daniel Drake <dsd@gentoo.org>, sam@ravnborg.org, miraze@web.de,
-       zzam@gentoo.org
-Subject: Re: -mm merge plans for 2.6.20
-Message-ID: <20061206034642.GH3092@quickstop.soohrt.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Andi Kleen <ak@suse.de>, jpdenheijer@gmail.com,
-	Daniel Drake <dsd@gentoo.org>, sam@ravnborg.org, miraze@web.de,
-	zzam@gentoo.org
-References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612051516070.1868@scrub.home>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gvF4niNJ+uBMJnEh"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612051516070.1868@scrub.home>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 5 Dec 2006 22:53:49 -0500
+Date: Tue, 5 Dec 2006 19:54:27 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Ed Sweetman <safemode2@comcast.net>, jgarzik <jgarzik@pobox.com>,
+       ide <linux-ide@vger.kernel.org>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ata/kconfig: Re: Why SCSI module needed for PCI-IDE ATA
+ only disks ?
+Message-Id: <20061205195427.b5c44f83.randy.dunlap@oracle.com>
+In-Reply-To: <45762F1E.4030805@comcast.net>
+References: <fa.juE97gahpb4n2kNNH/Todtcvh3s@ifi.uio.no>
+	<fa.IqtlZas3d+ZPuhF6S6N/ivdF8Wo@ifi.uio.no>
+	<fa.HDRhmOhDQliejH7ijqJBWw9Jw0o@ifi.uio.no>
+	<45761B2F.9060804@shaw.ca>
+	<457625CF.2080105@comcast.net>
+	<45762781.8020207@shaw.ca>
+	<45762F1E.4030805@comcast.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 05 Dec 2006 21:46:54 -0500 Ed Sweetman wrote:
 
---gvF4niNJ+uBMJnEh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-ETOOMANYWORDS && -ENOPATCH, so here is one to consider.
+Help text can also be added.  <supply text>
+This is similar to what USB storage already does.
 
-Hi,
+---
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-On Tue, 05 Dec 2006, Roman Zippel wrote:
-> On Mon, 4 Dec 2006, Andrew Morton wrote:
-> > kbuild-dont-put-temp-files-in-the-source-tree.patch
-> > actually-delete-the-as-instr-ld-option-tmp-file.patch
->=20
-> Andi had objections about the mktemp usage and I agree with him.
-> The proposed patch in bugzilla didn't have this and no further=20
-> justification was given for why it's needed.
-> Below is a replacement patch with some improvements:
-> - kbuild doesn't use $(AS), so use $(CC)
-> - tmp dir needs only to be calculated once
-> - reformat a bit to keep it under 80 columns and to be more readable
->=20
-> bye, Roman
->=20
-> Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Provide more clues about SCSI config options that are needed
+for libata (SATA/PATA) drivers.
 
-This patch looks good to me, and I'd prefer it over the (twice
-corrected) one currently in -mm.
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ drivers/ata/Kconfig |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
--  It's close to what Daniel Drake proposed recently [1] (main
-   difference: corrects the very same problem for ld-option, which might
-   otherwise bite us later) and what's already in Gentoo's patchkernel,
-
--  it abstains from using mktemp, hopefully making Andi happy ;),
-
--  resolves the current Gentoo sandbox issues without touching more
-   kbuild code than necessary.
-
-Kind regards,
- Horst
-
-[1]Message-Id: <20061202194544.D9F057B40A0@zog.reactivated.net>
-
---=20
-PGP-Key 0xD40E0E7A
-
---gvF4niNJ+uBMJnEh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFdj0iB6mkGNQODnoRAk18AJ9TAi34+ZgCSvZELiroKpHbbTo9DQCfTPTD
-vXSHu1LYOdiSbaV1xX3/OFA=
-=dFzE
------END PGP SIGNATURE-----
-
---gvF4niNJ+uBMJnEh--
+--- linux-2.6.19-git7.orig/drivers/ata/Kconfig
++++ linux-2.6.19-git7/drivers/ata/Kconfig
+@@ -17,6 +17,15 @@ config ATA
+ 	  that "speaks" the ATA protocol, also called ATA controller),
+ 	  because you will be asked for it.
+ 
++comment "NOTE: ATA enables basic SCSI support; *however*,"
++	depends on ATA
++comment "+ 'SCSI disk support', 'SCSI tape support', or '"
++	depends on ATA
++comment "+ 'SCSI CDROM support' may also be needed,"
++	depends on ATA
++comment "+ depending on your hardware configuration."
++	depends on ATA
++
+ if ATA
+ 
+ config SATA_AHCI

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935845AbWLFP1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933835AbWLFP0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935845AbWLFP1e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935858AbWLFP1d
+	id S933835AbWLFP0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935436AbWLFP0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:27:33 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:34285 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S935845AbWLFP1c (ORCPT
+	Wed, 6 Dec 2006 10:26:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45164 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933835AbWLFPZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:27:32 -0500
-Message-ID: <4576E134.5020109@zytor.com>
-Date: Wed, 06 Dec 2006 07:26:44 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Wed, 6 Dec 2006 10:25:58 -0500
+Date: Wed, 6 Dec 2006 15:25:54 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
+       Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com
+Subject: Re: [PATCH] acpi: add backlight support to the sony_acpi driver (v2)
+In-Reply-To: <20061202162352.GD4773@ucw.cz>
+Message-ID: <Pine.LNX.4.64.0612061525140.28745@pentafluge.infradead.org>
+References: <20061127174328.30e8856e.alessandro.guido@gmail.com>
+ <20061201133520.GC4239@ucw.cz> <20061201194337.GA7773@khazad-dum.debian.net>
+ <20061202162352.GD4773@ucw.cz>
 MIME-Version: 1.0
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <4576DED7.10800@zytor.com> <20061206152542.GS3927@implementation.labri.fr>
-In-Reply-To: <20061206152542.GS3927@implementation.labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault wrote:
-> H. Peter Anvin, le Wed 06 Dec 2006 07:16:39 -0800, a écrit :
->> Arjan van de Ven wrote:
->>>> Is there any way to fix this?  Glibc people don't seem to want to fix it
->>>> on their part, see
->>>> http://sources.redhat.com/bugzilla/show_bug.cgi?id=2363
->>> Hi,
->>>
->>> Ulrich asked you to go to us once your time travel machine was
->>> finished.. is it finished yet ?  ;=)
->>>
->>> this is part of the ABI, so we can't change this in 2006...
->>>
->> If ENOTSUP is currently unused and is only there for completeness, then 
->> it should be fine to add it.
-> 
-> The functions that should be returning it instead of EOPNOTSUP should be
-> fixed too.
-> 
 
-The two can't be done at the same time.  In fact, the two probably can't 
-be done without a period of quite a few *years* between them.
+Its nice to see acpi moving to the backlight api. Will acpi also move to 
+hwmon and led class support ?
 
-	-hpa
+On Sat, 2 Dec 2006, Pavel Machek wrote:
+
+> Hi!
+> 
+> > > Looks okay to me. We really want unified interface for backlight.
+> > 
+> > Then I request some help to get
+> > http://article.gmane.org/gmane.linux.acpi.devel/19792
+> > merged.
+> > 
+> > Without it, the backlight interface becomes annoying on laptops.  Your
+> > screen will be powered off when you remove the modules providing the
+> > backlight interface.  This is not consistent with the needs of laptop
+> > backlight devices, or with the behaviour the drivers had before the
+> > backlight sysfs support was added.
+> 
+> Just retransmit it to akpm and list, and add acked-by headers with
+> people who said patch is okay... that included me IIRC.
+> 
+> 

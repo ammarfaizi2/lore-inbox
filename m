@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937086AbWLFSqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937100AbWLFSvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937086AbWLFSqN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 13:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937105AbWLFSqN
+	id S937100AbWLFSvn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 13:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937105AbWLFSvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 13:46:13 -0500
-Received: from mga09.intel.com ([134.134.136.24]:18263 "EHLO mga09.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937086AbWLFSqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 13:46:11 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,505,1157353200"; 
-   d="scan'208"; a="23944616:sNHT19251954"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <jens.axboe@oracle.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] speed up single bio_vec allocation
-Date: Wed, 6 Dec 2006 10:19:39 -0800
-Message-ID: <000001c71963$17d88130$ff0da8c0@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccZHnIaAavjHH94QdmLo2Oe1qdRtAAQicDw
-In-Reply-To: <20061206100847.GP4392@kernel.dk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 6 Dec 2006 13:51:43 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:45971 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937100AbWLFSvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 13:51:42 -0500
+Date: Wed, 6 Dec 2006 18:51:40 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: more work_struct-induced breakage
+Message-ID: <20061206185140.GD4587@ftp.linux.org.uk>
+References: <20061206184145.GC4587@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061206184145.GC4587@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote on Wednesday, December 06, 2006 2:09 AM
-> > > I will try that too.  I'm a bit touchy about sharing a cache line for
-> > > different bio.  But given that there are 200,000 I/O per second we are
-> > > currently pushing the kernel, the chances of two cpu working on two
-> > > bio that sits in the same cache line are pretty small.
-> > 
-> > Yep I really think so. Besides, it's not like we are repeatedly writing
-> > to these objects in the first place.
-> 
-> This is what I had in mind, in case it wasn't completely clear. Not
-> tested, other than it compiles. Basically it eliminates the small
-> bio_vec pool, and grows the bio by 16-bytes on 64-bit archs, or by
-> 12-bytes on 32-bit archs instead and uses the room at the end for the
-> bio_vec structure.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+diff --git a/drivers/net/hamradio/dmascc.c b/drivers/net/hamradio/dmascc.c
+index 0f8b9af..e6e721a 100644
+--- a/drivers/net/hamradio/dmascc.c
++++ b/drivers/net/hamradio/dmascc.c
+@@ -252,7 +252,7 @@ static inline void z8530_isr(struct scc_
+ static irqreturn_t scc_isr(int irq, void *dev_id);
+ static void rx_isr(struct scc_priv *priv);
+ static void special_condition(struct scc_priv *priv, int rc);
+-static void rx_bh(void *arg);
++static void rx_bh(struct work_struct *);
+ static void tx_isr(struct scc_priv *priv);
+ static void es_isr(struct scc_priv *priv);
+ static void tm_isr(struct scc_priv *priv);
+@@ -579,7 +579,7 @@ static int __init setup_adapter(int card
+ 		priv->param.clocks = TCTRxCP | RCRTxCP;
+ 		priv->param.persist = 256;
+ 		priv->param.dma = -1;
+-		INIT_WORK(&priv->rx_work, rx_bh, priv);
++		INIT_WORK(&priv->rx_work, rx_bh);
+ 		dev->priv = priv;
+ 		sprintf(dev->name, "dmascc%i", 2 * n + i);
+ 		dev->base_addr = card_base;
+@@ -1272,9 +1272,9 @@ static void special_condition(struct scc
+ }
+ 
+ 
+-static void rx_bh(void *arg)
++static void rx_bh(struct work_struct *ugli_api)
+ {
+-	struct scc_priv *priv = arg;
++	struct scc_priv *priv = container_of(ugli_api, struct scc_priv, rx_work);
+ 	int i = priv->rx_tail;
+ 	int cb;
+ 	unsigned long flags;
 
-Yeah, I had a very similar patch queued internally for the large benchmark
-measurement.  I will post the result as soon as I get it.
-
-
-> I still can't help but think we can do better than this, and that this
-> is nothing more than optimizing for a benchmark. For high performance
-> I/O, you will be doing > 1 page bio's anyway and this patch wont help
-> you at all. Perhaps we can just kill bio_vec slabs completely, and
-> create bio slabs instead with differing sizes. So instead of having 1
-> bio slab and 5 bio_vec slabs, change that to 5 bio slabs that leave room
-> for the bio_vec list at the end. That would always eliminate the extra
-> allocation, at the cost of blowing the 256-page case into a order 1 page
-> allocation (256*16 + sizeof(*bio) > PAGE_SIZE) for the 4kb 64-bit archs,
-> which is something I've always tried to avoid.
-
-I took a quick query of biovec-* slab stats on various production machines,
-majority of the allocation is on 1 and 4 segments, usages falls off quickly
-on 16 or more.  256 segment biovec allocation is really rare.  I think it
-makes sense to heavily bias towards smaller biovec allocation and have
-separate biovec allocation for really large ones.
-
-- Ken

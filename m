@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760462AbWLFKeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760474AbWLFKs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760462AbWLFKeL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 05:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760465AbWLFKeL
+	id S1760474AbWLFKs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 05:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760476AbWLFKs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 05:34:11 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60305 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1760461AbWLFKeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 05:34:09 -0500
-Date: Wed, 6 Dec 2006 10:38:48 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Ian Romanick <idr@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] VIA and SiS AGP chipsets are x86-only
-Message-ID: <20061206103848.4e3fb0cc@localhost.localdomain>
-In-Reply-To: <20061206034044.GS3013@parisc-linux.org>
-References: <20061204104314.GB3013@parisc-linux.org>
-	<4575F929.9020708@us.ibm.com>
-	<20061206034044.GS3013@parisc-linux.org>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Dec 2006 05:48:29 -0500
+Received: from siolinb.obspm.fr ([145.238.2.18]:49093 "EHLO siolinb.obspm.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760466AbWLFKs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 05:48:28 -0500
+Date: Wed, 6 Dec 2006 11:48:27 +0100 (CET)
+From: Etienne.Vogt@obspm.fr
+Reply-To: Etienne.Vogt@obspm.fr
+To: linux-scsi <linux-scsi@vger.kernel.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Infinite retries reading the partition table
+In-Reply-To: <20061130232916.6cbd1408.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612061144340.11674@siolinb.obspm.fr>
+References: <20061130214716.6306a586.akpm@osdl.org> <117439.97789.qm@web31803.mail.mud.yahoo.com>
+ <20061130232916.6cbd1408.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006 20:40:45 -0700
-Matthew Wilcox <matthew@wil.cx> wrote:
 
-> On Tue, Dec 05, 2006 at 02:56:41PM -0800, Ian Romanick wrote:
-> > I don't know about SiS, but this is certainly *not* true for Via.  There
-> > are some PowerPC and, IIRC, Alpha motherboards that have Via chipsets.
-> 
-> Yes, but they don't have VIA *AGP*.  At least, that's what I've been
-> told by people who know those architectures.
 
-VIA south gets used by a lot of the systems but the VIA North bridges
-I've got docs for cover only x86 variants, although one of the older ones
-implies it has both K7 and Alpha support (just as the AMD chipset does)
+On Thu, 30 Nov 2006, Andrew Morton wrote:
 
-Personally I'd rather know when I broke stuff by getting everything
-to compile that sanely compiles. Operating the ".config" file is not
-complex after all.
+> That looks like it prevents the IO error.  But why was an IO error causing
+> an infinite loop?   What piece of code was initiating the retries?
 
-Alan
+Maybe it's related to the infinite domain validation retry loop problem
+I reported on linux-scsi a few weeks ago ?
+
+-- 
+ 		Etienne Vogt (Etienne.vogt@obspm.fr)
+ 		Observatoire de Paris-Meudon, France

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760348AbWLFJLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760357AbWLFJNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760348AbWLFJLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 04:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760364AbWLFJLb
+	id S1760357AbWLFJNp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 04:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760353AbWLFJNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 04:11:31 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:38270 "EHLO twin.jikos.cz"
+	Wed, 6 Dec 2006 04:13:45 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:53456 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760348AbWLFJLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 04:11:30 -0500
-Date: Wed, 6 Dec 2006 10:11:20 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] let WARN_ON() output the condition
-In-Reply-To: <20061206090715.GA30931@elte.hu>
-Message-ID: <Pine.LNX.4.64.0612061008370.28502@twin.jikos.cz>
-References: <Pine.LNX.4.64.0612060149220.28502@twin.jikos.cz>
- <20061206083730.GB24851@elte.hu> <Pine.LNX.4.64.0612060940130.28502@twin.jikos.cz>
- <20061206085428.GA28160@elte.hu> <Pine.LNX.4.64.0612060957180.28502@twin.jikos.cz>
- <20061206090715.GA30931@elte.hu>
+	id S1760350AbWLFJNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 04:13:44 -0500
+Message-ID: <457689C5.5030201@garzik.org>
+Date: Wed, 06 Dec 2006 04:13:41 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: htejun@gmail.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.19 2/3] sata_promise: new EH conversion
+References: <200612060853.kB68r0Gg024641@harpo.it.uu.se>
+In-Reply-To: <200612060853.kB68r0Gg024641@harpo.it.uu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Ingo Molnar wrote:
+Mikael Pettersson wrote:
+> On Sun, 03 Dec 2006 22:00:42 +0900, Tejun Heo wrote:
+>> Mikael Pettersson wrote:
+>>> +}
+>>> +
+>>> +static void pdc_error_handler(struct ata_port *ap)
+>>> +{
+>>> +	struct ata_eh_context *ehc = &ap->eh_context;
+>>> +	ata_reset_fn_t hardreset;
+>>> +
+>>> +	/* stop DMA, mask IRQ, don't clobber anything else */
+>>> +	ata_eh_freeze_port(ap);
+>> Don't freeze port unconditionally.  You'll end up hardresetting on every
+>> error.  Just make sure DMA engine is stopped and the controller is in a
+>> sane state.  If that fails, then, the port should be frozen.
+> 
+> I'm looking into this now, but so far it seems only a reset
+> (what Promise calls software reset, I don't know if libata
+> considers it a soft or hard reset) of the ATA channel will do.
+> 
+>>> +	hardreset = NULL;
+>>> +	if (sata_scr_valid(ap)) {
+>>> +		ehc->i.action |= ATA_EH_HARDRESET;
+>> Why always force HARDRESET?
+> 
+> I based that on sata_sil24:
+> 
+> 	if (sil24_init_port(ap)) {
+> 		ata_eh_freeze_port(ap);
+> 		ehc->i.action |= ATA_EH_HARDRESET;
+> 	}
+> 
+> I interpreted the ATA_EH_HARDRESET as being required due to
+> the ata_eh_freeze_port(), but perhaps it's only there because
+> sil24_init_port() returned failure?
+> 
+> A different issue, but of practical importance, is which
+> libata branch I should base the EH conversion on: #upstream
+> or #ALL? Andrew Morton's -mm kernels include the ALL patches,
+> but they in turn include the promise-sata-pata patches, and
+> there is a conflict between the PATA patch and the EH conversion.
+> Currently my EH conversion is based on #upstream, and I've ported
+> the PATA patch to apply on top of it.
 
-> i'll probably ack such a patch, it can be useful even when the line 
-> number is unique: if someone reports a WARN_ON() from an old kernel i 
-> dont have to dig up the exact source but can see it right from the 
-> condition what happened. Useful redundancy in bug output can be quite 
-> useful at times. Please post it and we'll see whether it's acceptable.
+It's a tiered system ;-)
 
-OK, thanks, I will send it later today.
+* if at all possible, provide patches against the latest linux-2.6.git
 
-BTW I still don't see how to distinguish it easily ... for example:
+* if there are dependencies in #upstream-fixes or #upstream (i.e. I 
+already applied some of your patches), provide patches against 
+#upstream-fixes or #upstream
 
-WARNING at kernel/mutex.c:132 __mutex_lock_common()
- [<c0103d70>] dump_trace+0x68/0x1b5
- [<c0103ed5>] show_trace_log_lvl+0x18/0x2c
- [<c010445b>] show_trace+0xf/0x11
- [<c01044cd>] dump_stack+0x12/0x14
- [<c037523f>] __mutex_lock_slowpath+0xc6/0x261
- [<c0199c61>] create_dir+0x24/0x1ba
- [<c019a30b>] sysfs_create_dir+0x45/0x5f
- [<c01f302b>] kobject_add+0xd6/0x18d
- [<c01f31fb>] kobject_register+0x19/0x30
- [<c02e771a>] md_probe+0x11a/0x124
- [<c0267fa4>] kobj_lookup+0xe6/0x122
- [<c01ec12e>] get_gendisk+0xe/0x1b
- [<c018590e>] do_open+0x2e/0x298
- [<c0185d0f>] blkdev_open+0x25/0x4d
- [<c016451b>] __dentry_open+0xc3/0x17e
- [<c0164650>] nameidata_to_filp+0x24/0x33
- [<c0164691>] do_filp_open+0x32/0x39
- [<c01646da>] do_sys_open+0x42/0xbe
- [<c016478f>] sys_open+0x1c/0x1e
- [<c0102dbc>] syscall_call+0x7/0xb
+#ALL is a branch that is blown away at will, and is really more of a 
+testing and akpm sync point.  Don't worry about conflicts with 
+promise-sata-pata, I take care of those when I merge the #ALL branch 
+together.
 
-How can you see immediately which one of the two WARN_ONs in 
-spin_lock_mutex() triggered?
+	Jeff
 
--- 
-Jiri Kosina
+
+

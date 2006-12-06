@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937656AbWLFVTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937662AbWLFVYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937656AbWLFVTp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 16:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937652AbWLFVTo
+	id S937662AbWLFVYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 16:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937663AbWLFVYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 16:19:44 -0500
-Received: from ug-out-1314.google.com ([66.249.92.169]:28644 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937656AbWLFVTo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 16:19:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TyEIQSGFVgtQcE2Xdfu2zyWQaXDf8+wfMYlaTS9nSILWhuxhyhI0RgidEXOUmmM+/kMXe3i6w8o+43hRvf7WG2NNdZ7lulQt5z9RDG13ES/6Wz7W1BhJcck1llQjmzM0qvRynOHVaVGqLrl62miawb6P7zuq5tJK24FAXI8jpMw=
-Message-ID: <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
-Date: Wed, 6 Dec 2006 13:19:41 -0800
-From: "Matt Reimer" <mattjreimer@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061205.165948.98864221.davem@davemloft.net>
+	Wed, 6 Dec 2006 16:24:45 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58026 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937662AbWLFVYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 16:24:44 -0500
+From: Andi Kleen <ak@suse.de>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port  support.
+Date: Wed, 6 Dec 2006 22:24:33 +0100
+User-Agent: KMail/1.9.5
+Cc: yinghai.lu@amd.com, stuge-linuxbios@cdy.org, stepan@coresystems.de,
+       linuxbios@linuxbios.org, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, gregkh@suse.de, ebiederm@xmission.com
+References: <5986589C150B2F49A46483AC44C7BCA4907290@ssvlexmb2.amd.com> <200612062158.39250.ak@suse.de> <20061206211734.78DCB1E75FF@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+In-Reply-To: <20061206211734.78DCB1E75FF@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <f383264b0612042338y2609dd76w8ba562394800bbd0@mail.gmail.com>
-	 <20061205.132412.116353924.davem@davemloft.net>
-	 <f383264b0612051657r2b62c7acnf10b2800934ab8b3@mail.gmail.com>
-	 <20061205.165948.98864221.davem@davemloft.net>
+Message-Id: <200612062224.33482.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/5/06, David Miller <davem@davemloft.net> wrote:
-> From: "Matt Reimer" <mattjreimer@gmail.com>
-> Date: Tue, 5 Dec 2006 16:57:12 -0800
->
-> > Right, but isn't he declaring that each architecture needs to take
-> > care of this? So, say, on ARM we'd need to make kunmap() not a NOP and
-> > call flush_dcache_page() ?
->
-> No.  He is only solving a problem that occurs on HIGHMEM
-> configurations on systems which can have D-cache aliasing
-> issues.
+\
+>   - Host, to which that console connects (through the debug device);
+>     runs usb_debug, much like any other usb-serial device
 
-Are you sure? James specifically mentions "non-highmem architectures,"
-and "all architectures with coherence issues," which would seem to
-include ARM (which is my concern).
+My understanding was that the client could run in user 
+space only on top of libusb.
 
-For your convenience I quote the whole commit message below.
+> 
+> It's analagous to debugging an embedded box using a serial console
+> with a Linux host ... except the target here is a PC, not an ARM
+> (or PPC, MIPS, etc) custom board.
+> 
+> 
+> Once the coexistence issues between the debug port and normal EHCI
+> driver get worked, there's no reason not to keep using that debug
+> port as a system console.  
 
-Matt
+One reason is the one I covered in my last mail -- locking of the PCI
+type 1 ports.
 
-[PATCH] update to the kernel kmap/kunmap API
+However I suppose it would be ok to switch Eric's code between early
+pci access and locked one once the PCI subsystem is up and running.
+Just don't forget bust_spinlocks()
 
-Give non-highmem architectures access to the kmap API for the purposes of
-overriding (this is what the attached patch does).
-
-The proposal is that we should now require all architectures with coherence
-issues to manage data coherence via the kmap/kunmap API.  Thus driver
-writers never have to write code like
-
-    kmap(page)
-    modify data in page
-    flush_kernel_dcache_page(page)
-    kunmap(page)
-
-instead, kmap/kunmap will manage the coherence and driver (and filesystem)
-writers don't need to worry about how to flush between kmap and kunmap.
-
-For most architectures, the page only needs to be flushed if it was
-actually written to *and* there are user mappings of it, so the best
-implementation looks to be: clear the page dirty pte bit in the kernel page
-tables on kmap and on kunmap, check page->mappings for user maps, and then
-the dirty bit, and only flush if it both has user mappings and is dirty.
+-Andi

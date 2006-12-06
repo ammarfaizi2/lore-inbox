@@ -1,91 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759674AbWLFCNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759691AbWLFCPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759674AbWLFCNa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 21:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759680AbWLFCNa
+	id S1759691AbWLFCPn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 21:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759675AbWLFCPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 21:13:30 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:58156 "EHLO
-	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1759675AbWLFCN3 (ORCPT
+	Tue, 5 Dec 2006 21:15:43 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11031 "EHLO
+	pd4mo1so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759691AbWLFCPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 21:13:29 -0500
-Message-ID: <45762745.7010202@steeleye.com>
-Date: Tue, 05 Dec 2006 21:13:25 -0500
-From: Paul Clements <paul.clements@steeleye.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, wouter@grep.be
-Subject: [PATCH] nbd: show nbd client pid in sysfs
-Content-Type: multipart/mixed;
- boundary="------------030202050704080006060702"
+	Tue, 5 Dec 2006 21:15:42 -0500
+Date: Tue, 05 Dec 2006 20:14:25 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Why SCSI module needed for PCI-IDE ATA only disks ?
+In-reply-to: <457625CF.2080105@comcast.net>
+To: Ed Sweetman <safemode2@comcast.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <45762781.8020207@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.juE97gahpb4n2kNNH/Todtcvh3s@ifi.uio.no>
+ <fa.IqtlZas3d+ZPuhF6S6N/ivdF8Wo@ifi.uio.no>
+ <fa.HDRhmOhDQliejH7ijqJBWw9Jw0o@ifi.uio.no> <45761B2F.9060804@shaw.ca>
+ <457625CF.2080105@comcast.net>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030202050704080006060702
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Ed Sweetman wrote:
+> What's not a legitimate configuration is libata drivers, no low level 
+> scsi drivers, no ide drivers and no sd,sr,sg drivers.  Yet, that is the 
+> configuration the kernel currently gives you. How is that more correct 
+> than any of the 3 solutions I have suggested?
 
-This simple patch allows nbd to expose the nbd-client daemon's PID in 
-/sys/block/nbd<x>/pid. This is helpful for tracking connection status of 
-a device and for determining which nbd devices are currently in use.
+You can't build libata without low-level SCSI drivers. CONFIG_ATA 
+automatically selects CONFIG_SCSI.
 
-Tested against 2.6.19.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Thanks,
-Paul
 
---------------030202050704080006060702
-Content-Type: text/plain;
- name="nbd_pid_sysfs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd_pid_sysfs.diff"
-
---- ./drivers/block/nbd.c	Wed Nov 29 16:57:37 2006
-+++ ./drivers/block/nbd.c	Tue Nov 28 16:09:31 2006
-@@ -355,14 +389,30 @@ harderror:
- 	return NULL;
- }
- 
-+static ssize_t pid_show(struct gendisk *disk, char *page)
-+{
-+	return sprintf(page, "%ld\n",
-+		(long) ((struct nbd_device *)disk->private_data)->pid);
-+}
-+
-+static struct disk_attribute pid_attr = {
-+	.attr = { .name = "pid", .mode = S_IRUGO },
-+	.show = pid_show,
-+};
-+	
- static void nbd_do_it(struct nbd_device *lo)
- {
- 	struct request *req;
- 
- 	BUG_ON(lo->magic != LO_MAGIC);
- 
-+	lo->pid = current->pid;
-+	sysfs_create_file(&lo->disk->kobj, &pid_attr.attr);
-+
- 	while ((req = nbd_read_stat(lo)) != NULL)
- 		nbd_end_request(req);
-+
-+	sysfs_remove_file(&lo->disk->kobj, &pid_attr.attr);
- 	return;
- }
- 
---- ./include/linux/nbd.h	Wed Nov 29 16:57:37 2006
-+++ ./include/linux/nbd.h	Mon Dec  4 23:28:30 2006
-@@ -64,6 +64,7 @@ struct nbd_device {
- 	struct gendisk *disk;
- 	int blksize;
- 	u64 bytesize;
-+	pid_t pid; /* pid of nbd-client, if attached */
- };
- 
- #endif
-
---------------030202050704080006060702--

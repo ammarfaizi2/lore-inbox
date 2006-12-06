@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937711AbWLFWMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937721AbWLFWNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937711AbWLFWMX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937713AbWLFWMX
+	id S937721AbWLFWNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937717AbWLFWNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:12:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52956 "EHLO amd.ucw.cz"
+	Wed, 6 Dec 2006 17:13:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57594 "EHLO amd.ucw.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S937711AbWLFWMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:12:22 -0500
-Date: Wed, 6 Dec 2006 23:12:12 +0100
+	id S937721AbWLFWNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:13:23 -0500
+Date: Wed, 6 Dec 2006 23:13:15 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Tony Lindgren <tony@atomide.com>,
        kernel list <linux-kernel@vger.kernel.org>,
        Vladimir Ananiev <vovan888@gmail.com>
-Subject: [PATCH] ARM: OMAP: omap1501->15xx conversions needed for sx1, non-core
-Message-ID: <20061206221212.GA2028@elf.ucw.cz>
+Subject: [PATCH] ARM: OMAP: cleanup long lines in sx1 mixer
+Message-ID: <20061206221315.GA2038@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,140 +24,39 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Vladimir Ananiev <vovan888@gmail.com>
-
-Convert 1501->15xx in drivers omap code, so that sx1 can work.
+Fix too long lines in sound headers.
 
 Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-index 9c02177..46ac407 100644
---- a/drivers/usb/host/ohci-omap.c
-+++ b/drivers/usb/host/ohci-omap.c
-@@ -227,7 +227,7 @@ #endif
+diff --git a/sound/arm/omap/omap-alsa-sx1-mixer.h b/sound/arm/omap/omap-alsa-sx1-mixer.h
+index 02b8b6a..4004ae4 100644
+--- a/sound/arm/omap/omap-alsa-sx1-mixer.h
++++ b/sound/arm/omap/omap-alsa-sx1-mixer.h
+@@ -28,10 +28,11 @@ #define PLAYBACK_TARGET_LOUDSPEAKER	0x00
+ #define PLAYBACK_TARGET_HEADPHONE	0x01
+ #define PLAYBACK_TARGET_CELLPHONE	0x02
  
- 	omap_ohci_clock_power(1);
+-/* following are used for register 03h Mixer PGA control bits D7-D5 for selecting record source */
++/* following are used for register 03h Mixer PGA control bits
++   D7-D5 for selecting record source */
+ #define REC_SRC_TARGET_COUNT		0x08
+-#define REC_SRC_SINGLE_ENDED_MICIN_HED	0x00	/* oss code referred to MIXER_LINE */
+-#define REC_SRC_SINGLE_ENDED_MICIN_HND	0x01	/* oss code referred to MIXER_MIC */
++#define REC_SRC_SINGLE_ENDED_MICIN_HED	0x00 /* oss code referred to MIXER_LINE */
++#define REC_SRC_SINGLE_ENDED_MICIN_HND	0x01 /* oss code referred to MIXER_MIC */
+ #define REC_SRC_SINGLE_ENDED_AUX1	0x02
+ #define REC_SRC_SINGLE_ENDED_AUX2	0x03
+ #define REC_SRC_MICIN_HED_AND_AUX1	0x04
+@@ -39,7 +40,7 @@ #define REC_SRC_MICIN_HED_AND_AUX2	0x05
+ #define REC_SRC_MICIN_HND_AND_AUX1	0x06
+ #define REC_SRC_MICIN_HND_AND_AUX2	0x07
  
--	if (cpu_is_omap1510()) {
-+	if (cpu_is_omap15xx()) {
- 		omap_1510_local_bus_power(1);
- 		omap_1510_local_bus_init();
- 	}
-@@ -315,7 +315,7 @@ static int usb_hcd_omap_probe (const str
- 	if (IS_ERR(usb_host_ck))
- 		return PTR_ERR(usb_host_ck);
+-#define DEFAULT_OUTPUT_VOLUME		5	/* default output volume to dac dgc */
+-#define DEFAULT_INPUT_VOLUME		2	/* default record volume */
++#define DEFAULT_OUTPUT_VOLUME 5	/* default output volume to dac dgc */
++#define DEFAULT_INPUT_VOLUME  2	/* default record volume */
  
--	if (!cpu_is_omap1510())
-+	if (!cpu_is_omap15xx())
- 		usb_dc_ck = clk_get(0, "usb_dc_ck");
- 	else
- 		usb_dc_ck = clk_get(0, "lb_ck");
-diff --git a/drivers/video/omap/omapfb_main.c b/drivers/video/omap/omapfb_main.c
-index f658698..b2dce7b 100644
---- a/drivers/video/omap/omapfb_main.c
-+++ b/drivers/video/omap/omapfb_main.c
-@@ -459,7 +459,7 @@ static int set_fb_var(struct fb_info *fb
- 		xres_max = panel->x_res;
- 		yres_min = OMAPFB_PLANE_YRES_MIN;
- 		yres_max = panel->y_res;
--		if (cpu_is_omap1510()) {
-+		if (cpu_is_omap15xx()) {
- 			var->xres = panel->x_res;
- 			var->yres = panel->y_res;
- 		}
-@@ -470,7 +470,7 @@ static int set_fb_var(struct fb_info *fb
- 		xres_max = panel->y_res;
- 		yres_min = OMAPFB_PLANE_XRES_MIN;
- 		yres_max = panel->x_res;
--		if (cpu_is_omap1510()) {
-+		if (cpu_is_omap15xx()) {
- 			var->xres = panel->y_res;
- 			var->yres = panel->x_res;
- 		}
-@@ -552,7 +552,7 @@ static struct fb_var_screeninfo new_var;
- /* Set rotation (0, 90, 180, 270 degree), and switch to the new mode. */
- static void omapfb_rotate(struct fb_info *fbi, int rotate)
- {
--	if (cpu_is_omap1510() && rotate != fbi->var.rotate) {
-+	if (cpu_is_omap15xx() && rotate != fbi->var.rotate) {
- 		memcpy(&new_var, &fbi->var, sizeof(new_var));
- 		new_var.rotate = rotate;
- 		if (set_fb_var(fbi, &new_var) == 0 &&
-@@ -594,7 +594,7 @@ static int omapfb_mirror(struct fb_info 
- 	int r = 0;
- 
- 	mirror = mirror ? 1 : 0;
--	if (cpu_is_omap1510())
-+	if (cpu_is_omap15xx())
- 		r = -EINVAL;
- 	else if (mirror != plane->info.mirror) {
- 		plane->info.mirror = mirror;
-diff --git a/sound/oss/omap-audio-dma-intfc.c b/sound/oss/omap-audio-dma-intfc.c
-index 3974efc..146e288 100644
---- a/sound/oss/omap-audio-dma-intfc.c
-+++ b/sound/oss/omap-audio-dma-intfc.c
-@@ -312,7 +312,7 @@ omap_request_sound_dma(int device_id, co
- 	}
- 
- 	/* Chain the channels together */
--	if (!cpu_is_omap1510())
-+	if (!cpu_is_omap15xx())
- 		omap_sound_dma_link_lch(data);
- 
- 	spin_unlock(&dma_list_lock);
-@@ -362,7 +362,7 @@ int omap_free_sound_dma(void *data, int 
- 	}
- 	chan = (*channels);
- 
--	if (!cpu_is_omap1510())
-+	if (!cpu_is_omap15xx())
- 		omap_sound_dma_unlink_lch(data);
- 	for (i = 0; i < nr_linked_channels; i++) {
- 		int cur_chan = chan[i];
-@@ -555,7 +555,7 @@ int audio_sync(struct file *file)
- 		 * to complete. So it's need to unlink dma channels
- 		 * to avoid empty dma work.
- 		 */
--		if (!cpu_is_omap1510() && AUDIO_QUEUE_EMPTY(s))
-+		if (!cpu_is_omap15xx() && AUDIO_QUEUE_EMPTY(s))
- 			omap_sound_dma_unlink_lch(s);
- 
- 		shiftval = s->fragsize - b->offset;
-@@ -699,7 +699,7 @@ static int audio_set_dma_params_play(int
- 
- 	FN_IN;
- 
--	if (cpu_is_omap1510() || cpu_is_omap16xx()) {
-+	if (cpu_is_omap15xx() || cpu_is_omap16xx()) {
- 		dest_start = AUDIO_MCBSP_DATAWRITE;
- 		dest_port = OMAP_DMA_PORT_MPUI;
- 	}
-@@ -729,7 +729,7 @@ static int audio_set_dma_params_capture(
- 
- 	FN_IN;
- 
--	if (cpu_is_omap1510() || cpu_is_omap16xx()) {
-+	if (cpu_is_omap15xx() || cpu_is_omap16xx()) {
- 		src_start = AUDIO_MCBSP_DATAREAD;
- 		src_port = OMAP_DMA_PORT_MPUI;
- 	}
-@@ -871,7 +871,7 @@ #endif
- 		ch_status, dma_status, data);
- 
- 	if (dma_status & (DCSR_ERROR)) {
--		if (cpu_is_omap1510() || cpu_is_omap16xx())
-+		if (cpu_is_omap15xx() || cpu_is_omap16xx())
- 			OMAP_DMA_CCR_REG(sound_curr_lch) &= ~DCCR_EN;
- 		ERR("DCSR_ERROR!\n");
- 		FN_OUT(-1);
-@@ -952,7 +952,7 @@ dma_callback_t audio_get_dma_callback(vo
- 
- static int __init audio_dma_init(void)
- {
--	if (!cpu_is_omap1510())
-+	if (!cpu_is_omap15xx())
- 		nr_linked_channels = 2;
- 
- 	return 0;
+ #endif
 
 -- 
 (english) http://www.livejournal.com/~pavelmachek

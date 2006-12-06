@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936470AbWLFQpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936424AbWLFQtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936470AbWLFQpz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 11:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936424AbWLFQpy
+	id S936424AbWLFQtV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 11:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936483AbWLFQtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 11:45:54 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:51196 "EHLO
-	terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S936470AbWLFQpx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 11:45:53 -0500
-Message-ID: <4576F368.4070804@zytor.com>
-Date: Wed, 06 Dec 2006 08:44:24 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <4576DED7.10800@zytor.com> <20061206152542.GS3927@implementation.labri.fr> <4576E134.5020109@zytor.com> <20061206153404.GU3927@implementation.labri.fr> <4576E355.7080708@zytor.com> <20061206161405.GV3927@implementation.labri.fr>
-In-Reply-To: <20061206161405.GV3927@implementation.labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Dec 2006 11:49:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56038 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S936424AbWLFQtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 11:49:19 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1165421183.15706.14.camel@localhost> 
+References: <1165421183.15706.14.camel@localhost>  <1165409880.15706.9.camel@localhost> <200612052134_MC3-1-D40B-A5DB@compuserve.com> <24125.1165410521@redhat.com> 
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: David Howells <dhowells@redhat.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ak@muc.de, vojtech@suse.cz
+Subject: Re: BUG? atleast >=2.6.19-rc5, x86 chroot on x86_64 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 06 Dec 2006 16:48:30 +0000
+Message-ID: <20057.1165423710@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samuel Thibault wrote:
-> H. Peter Anvin, le Wed 06 Dec 2006 07:35:49 -0800, a écrit :
->> Samuel Thibault wrote:
->>>> The two can't be done at the same time.  In fact, the two probably can't 
->>>> be done without a period of quite a few *years* between them.
->>> Not a reason for not doing it ;)
->> No, but breakage is.  There has to be a major benefit to justify the 
->> cost, and you, at least, have not provided such a justification.
-> 
-> Well, as I said, existing code like
-> 
-> switch(errno) {
-> 	case ENOTSUP:
-> 		foo();
-> 		break;
-> 	case EOPNOTSUP:
-> 		bar();
-> 		break;
-> }
-> 
+Kasper Sandberg <lkml@metanurb.dk> wrote:
 
-That's pretty weak, though.
+> > What do you mean by "hardlock"?  Do you mean the application has to be killed,
+> > or do you mean the kernel is stuck and the machine has to be rebooted?
+> i mean the kernel itself, two of the times it has happened to me, magic
+> sysrq havent even been able to reboot for me, i had to hit the button on
+> my tower.
 
-	-hpa
+That's got to be some other problem.  There's no way this ioctl error message
+change should cause the kernel to die - applications, yes; but not the kernel.
+
+David

@@ -1,81 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937553AbWLFTq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937566AbWLFTqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937553AbWLFTq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:46:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937570AbWLFTqz
+	id S937566AbWLFTqh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937568AbWLFTqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:46:55 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58836 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937567AbWLFTqn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:46:43 -0500
-Date: Wed, 6 Dec 2006 19:46:41 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
+	Wed, 6 Dec 2006 14:46:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50116 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937566AbWLFTqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 14:46:35 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0612061130030.3542@woody.osdl.org> 
+References: <Pine.LNX.4.64.0612061130030.3542@woody.osdl.org>  <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org> <20061206192647.GW3013@parisc-linux.org> 
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: ... and more...
-Message-ID: <20061206194641.GG4587@ftp.linux.org.uk>
-References: <20061206184145.GC4587@ftp.linux.org.uk> <20061206185140.GD4587@ftp.linux.org.uk> <20061206191820.GF4587@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061206191820.GF4587@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Cc: Matthew Wilcox <matthew@wil.cx>, Christoph Lameter <clameter@sgi.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 06 Dec 2006 19:45:40 +0000
+Message-ID: <28631.1165434340@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-diff --git a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
-index 2dd0a34..420377c 100644
---- a/drivers/i2c/chips/m41t00.c
-+++ b/drivers/i2c/chips/m41t00.c
-@@ -215,8 +215,15 @@ m41t00_set(void *arg)
- }
- 
- static ulong new_time;
-+/* well, isn't this API just _lovely_? */
-+static void
-+m41t00_barf(struct work_struct *unusable)
-+{
-+	m41t00_set(&new_time);
-+}
-+
- static struct workqueue_struct *m41t00_wq;
--static DECLARE_WORK(m41t00_work, m41t00_set, &new_time);
-+static DECLARE_WORK(m41t00_work, m41t00_barf);
- 
- int
- m41t00_set_rtc_time(ulong nowtime)
-diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
-index 21d0137..4e8ff5e 100644
---- a/drivers/net/mv643xx_eth.c
-+++ b/drivers/net/mv643xx_eth.c
-@@ -277,9 +277,12 @@ static void mv643xx_eth_tx_timeout(struc
-  *
-  * Actual routine to reset the adapter when a timeout on Tx has occurred
-  */
--static void mv643xx_eth_tx_timeout_task(struct net_device *dev)
-+static void mv643xx_eth_tx_timeout_task(struct work_struct *ugly)
- {
--	struct mv643xx_private *mp = netdev_priv(dev);
-+	struct mv643xx_private *mp = container_of(ugly, struct mv643xx_private,
-+						  tx_timeout_task);
-+	struct net_device *dev = mp->mii.dev; /* yuck */
-+	netdev_priv(dev);
- 
- 	if (!netif_running(dev))
- 		return;
-@@ -1360,8 +1363,7 @@ #endif
- #endif
- 
- 	/* Configure the timeout task */
--	INIT_WORK(&mp->tx_timeout_task,
--			(void (*)(void *))mv643xx_eth_tx_timeout_task, dev);
-+	INIT_WORK(&mp->tx_timeout_task, mv643xx_eth_tx_timeout_task);
- 
- 	spin_lock_init(&mp->lock);
- 
+> Also, I don't see quite why you think "cmpxchg()" and "atomic_cmpxchg()" 
+> would be different. ANY cmpxchg() needs to be atomic - if it's not, 
+> there's no point to the operation at all, since you'd just write it as
 
+It's not that atomic_cmpxchg() is different to cmpxchg(), it's that
+atomic_set() is different to direct assignment.
+
+atomic_set() on PA-RISC, for example, has spinlocks in it.
+
+David

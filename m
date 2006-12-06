@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936888AbWLFRBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S936596AbWLFRC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S936888AbWLFRBU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 12:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936694AbWLFRBT
+	id S936596AbWLFRC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 12:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S936561AbWLFRBw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 12:01:19 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33699 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S936888AbWLFRAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 12:00:54 -0500
-Date: Wed, 6 Dec 2006 17:59:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans for 2.6.20
-Message-ID: <20061206165934.GA17527@elte.hu>
-References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612060348150.1868@scrub.home> <20061205203013.7073cb38.akpm@osdl.org> <1165393929.24604.222.camel@localhost.localdomain> <Pine.LNX.4.64.0612061334230.1867@scrub.home> <20061206131155.GA8558@elte.hu> <Pine.LNX.4.64.0612061422190.1867@scrub.home> <20061206152244.GA24613@elte.hu> <Pine.LNX.4.64.0612061633230.1867@scrub.home>
-Mime-Version: 1.0
+	Wed, 6 Dec 2006 12:01:52 -0500
+Received: from 40.150.104.212.access.eclipse.net.uk ([212.104.150.40]:53770
+	"EHLO localhost.localdomain" rhost-flags-OK-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S936919AbWLFRBU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 12:01:20 -0500
+Date: Wed, 6 Dec 2006 17:01:05 +0000
+To: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Mel Gorman <mel@csn.ul.ie>,
+       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 4/4] lumpy take the other active inactive pages in the area
+Message-ID: <4fe113c0c99477e6ccb24e1d848e7ae5@pinky>
+References: <exportbomb.1165424343@pinky>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612061633230.1867@scrub.home>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+InReply-To: <exportbomb.1165424343@pinky>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lumpy: take the other active/inactive pages in the area
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+When we scan an order N aligned area around our tag page take any
+other pages with a matching active state to that of the tag page.
+This will tend to demote areas of the order we are interested from
+the active list to the inactive list and from the end of the inactive
+list, increasing the chances of such areas coming free together.
 
-> > It cannot be had both ways: either we stay simpler and less 
-> > intrusive, or we go more generic but more intrusive.
-> 
-> You miss the point, I don't care how intrusive this is, [...]
-
-we do care about how intrusive this is. I guess we'll have to agree to 
-disagree on that.
-
-	Ingo
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 85f626b..fc23d87 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -710,7 +710,7 @@ static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
+ 			case 0:
+ 				list_move(&tmp->lru, dst);
+ 				nr_taken++;
+-				continue;
++				break;
+ 
+ 			case -EBUSY:
+ 				/* else it is being freed elsewhere */
+@@ -718,7 +718,6 @@ static unsigned long isolate_lru_pages(unsigned long nr_to_scan,
+ 			default:
+ 				break;
+ 			}
+-			break;
+ 		}
+ 	}
+ 

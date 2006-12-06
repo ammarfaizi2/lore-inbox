@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937229AbWLFTN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937327AbWLFTRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937229AbWLFTN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937202AbWLFTN4
+	id S937327AbWLFTRT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937295AbWLFTRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:13:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56667 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937201AbWLFTNy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:13:54 -0500
-Date: Wed, 6 Dec 2006 19:13:51 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Miguel Ojeda <maxextreme@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Luming Yu <Luming.yu@intel.com>, Andrew Zabolotny <zap@homelink.ru>,
-       linux-acpi@vger.kernel.org, kernel-discuss@handhelds.org
-Subject: Re: Display class
-In-Reply-To: <20061206105724.cf7b39bc.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.64.0612061859320.28745@pentafluge.infradead.org>
-References: <Pine.LNX.4.64.0611141939050.6957@pentafluge.infradead.org>
- <653402b90611141426y6db15a3bh8ea59f89c8f1bb39@mail.gmail.com>
- <Pine.LNX.4.64.0611150052180.13800@pentafluge.infradead.org>
- <Pine.LNX.4.64.0612051740250.2925@pentafluge.infradead.org>
- <20061205171401.fd11160d.randy.dunlap@oracle.com>
- <Pine.LNX.4.64.0612061443180.28745@pentafluge.infradead.org>
- <20061206101434.8acb229a.randy.dunlap@oracle.com>
- <Pine.LNX.4.64.0612061818540.28745@pentafluge.infradead.org>
- <20061206105724.cf7b39bc.randy.dunlap@oracle.com>
+	Wed, 6 Dec 2006 14:17:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:54360 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S937240AbWLFTRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 14:17:17 -0500
+Date: Wed, 6 Dec 2006 11:16:55 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061206190025.GC9959@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 6 Dec 2006, Russell King wrote:
 
-> > > > That patch was rought draft for feedback. I applied your comments. This 
-> > > > patch actually works. It includes my backlight fix as well.
-> > > 
-> > > Glad to hear it.  I had to make the following changes
-> > > in order for it to build.
-> > > However, I still have build errors for aty.
-> > 
-> > Ug. I see another problem. I had backlight completly compiled as a 
-> > module! Thus it hid these compile errors. So we need also a 
-> > CONFIG_BACKLIGHT_CLASS_DEVICE_MODULE check as well. Can sysfs handle this 
-> > well or would it be better the the backlight class be a boolean instead?
+> On Wed, Dec 06, 2006 at 10:56:14AM -0800, Christoph Lameter wrote:
+> > I'd really appreciate a cmpxchg that is generically available for 
+> > all arches. It will allow lockless implementation for various performance 
+> > criticial portions of the kernel.
 > 
-> SCSI works as a module and it uses sysfs.
-> See drivers/scsi/scsi_sysfs.c.
-> Does that answer your question?  I wasn't quite sure what
-> the question was.
-
-I'm scratching my head on how to configure a modular driver and 
-two modular sysfs classes. 
- 
-> Next question, based on:
-> drivers/built-in.o: In function `probe_edid':
-> (.text.probe_edid+0x42): undefined reference to `fb_edid_to_monspecs'
+> Let's recap on cmpxchg.
 > 
-> Should backlight and/or display support depend on
-> CONFIG_FB?  Right now they don't, so the above can happen...
+> For CPUs with no atomic operation other than SWP, it is not lockless.
 
-I already sent a patch to Andrew to make backlight/lcd work independent of
-CONFIG_FB. Display is still in the alpha stage. In time it will work 
-independent of CONFIG_FB.
+But then its also just requires disable/enable interrupts on UP which may 
+be cheaper than an atomic operation.
 
+> For CPUs with load locked + store conditional, it is expensive.
+
+Because it locks the bus? I am not that familiar with those architectures 
+but it seems that those will have a general problem anyways.
+
+> If you want an operation for performance critical portions of the
+> kernel, please allow architecture maintainers the freedom to use their
+> best performance enhancements.
+
+And thereby denying the kernel developers to use a simple atomic SMP 
+operation? Adding additional defines for each arch and each performance 
+critical piece of kernel logic?

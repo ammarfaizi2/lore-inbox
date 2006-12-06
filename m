@@ -1,68 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937099AbWLFSid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937084AbWLFSiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937099AbWLFSid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 13:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937097AbWLFSid
+	id S937084AbWLFSiA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 13:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937085AbWLFSiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 13:38:33 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55807 "EHLO smtp.osdl.org"
+	Wed, 6 Dec 2006 13:38:00 -0500
+Received: from mga03.intel.com ([143.182.124.21]:8522 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937089AbWLFSib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 13:38:31 -0500
-Date: Wed, 6 Dec 2006 10:37:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] Export current_is_keventd() for libphy 
-In-Reply-To: <Pine.LNX.4.64.0612061017220.3542@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612061033330.3542@woody.osdl.org>
-References: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org> 
- <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org>  <21690.1165426993@redhat.com>
- <Pine.LNX.4.64.0612060951150.3542@woody.osdl.org>
- <Pine.LNX.4.64.0612060955380.3542@woody.osdl.org>
- <Pine.LNX.4.64.0612061017220.3542@woody.osdl.org>
+	id S937084AbWLFSh7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 13:37:59 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,505,1157353200"; 
+   d="scan'208"; a="154705675:sNHT176158675"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Date: Wed, 6 Dec 2006 10:27:01 -0800
+Message-ID: <EB12A50964762B4D8111D55B764A8454FA8858@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
+Thread-Index: AccUdOrmnY9uSAmESEWwPBLUA1I2RQE7aNhw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <ego@in.ibm.com>, "Ingo Molnar" <mingo@elte.hu>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
+       <davej@redhat.com>, <dipankar@in.ibm.com>, <vatsa@in.ibm.com>
+X-OriginalArrivalTime: 06 Dec 2006 18:27:02.0993 (UTC) FILETIME=[2022E410:01C71964]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 6 Dec 2006, Linus Torvalds wrote:
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Gautham R Shenoy
+>Sent: Thursday, November 30, 2006 3:44 AM
+>To: Ingo Molnar
+>Cc: Gautham R Shenoy; akpm@osdl.org; 
+>linux-kernel@vger.kernel.org; torvalds@osdl.org; 
+>davej@redhat.com; dipankar@in.ibm.com; vatsa@in.ibm.com
+>Subject: Re: CPUFREQ-CPUHOTPLUG: Possible circular locking dependency
 >
-> and remove the "volatile" from all the bitop accessor functions.
+>On Thu, Nov 30, 2006 at 12:03:15PM +0100, Ingo Molnar wrote:
+>> 
+>> * Gautham R Shenoy <ego@in.ibm.com> wrote:
+>> 
+>> > a) cpufreq maintain's it's own cpumask in the variable
+>> > policy->affected_cpus and says : If a frequency change is issued to
+>> > any one of the cpu's in the affected_cpus mask, you change 
+>frequency
+>> > on all cpus in the mask. So this needs to be consistent with
+>> > cpu_online map and hence cpu hotplug aware. Furthermore, 
+>we don't want
+>> > cpus in this mask to go down when we are trying to change 
+>frequencies
+>> > on them. The function which drives the frequency change in
+>> > cpufreq-core is cpufreq_driver_target and it needs cpu-hotplug
+>> > protection.
+>> 
+>> couldnt this complexity be radically simplified by having new kernel
+>> infrastructure that does something like:
+>> 
+>>   " 'gather' all CPUs mentioned in <mask> via scheduling a separate
+>>     helper-kthread on every CPU that <mask> specifies, disable all
+>>    interrupts, and execute function <fn> once all CPUs have been
+>>    'gathered' - and release all CPUs once <fn> has executed 
+>on each of
+>>    them."
+>> 
+>> ?
+>
+>This is what is currently being done by cpufreq:
+>
+>a) get_some_cpu_hotplug_protection() [use either some global mechanism 
+>					or a persubsystem mutex]
+>
+>b) actual_freq_change_driver_function(mask) 
+>/* You can check out cpufreq_p4_target() in
+> * arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+> */
+>  
+>   {
+>	for_each_cpu_mask(i, mask) {
+>		cpumask_t this_cpu = cpumask_of_cpu(i);
+>         	set_cpus_allowed(current, this_cpu);
+>		function_to_change_frequency();
+>							
+>	}
+>  }
+>
 
-It might also be interesting to see if this would change code-size at all. 
+As there are many options being discussed here, let me propose one 
+more option that can eliminate the need for hotplug lock in 
+cpufreq_driver_target() path.
 
-There's a number of things that check different bits in the same word 
-right now, and they just reload the word unnecessarily and do multiple 
-tests. Some of the page flags functions obviously already work around this 
-by doing horrible things by hand instead, eg:
+As Gautham clearly explained before, today we have cpufreq calling
+cpufreq_driver_target() in each driver to change the CPU frequency
+And the driver internally uses set_cpus_allowed to reschedule onto
+different affected_cpus and change the frequency. That is the main
+reason why we need to disable hotplug in this path.
 
-                (page->flags & (
-                        1 << PG_lru     |
-                        1 << PG_private |
-                        1 << PG_locked  |
-                        1 << PG_active  |
-                        1 << PG_reclaim |
-                        1 << PG_slab    |
-                        1 << PG_swapcache |
-                        1 << PG_writeback |
-                        1 << PG_reserved |
-                        1 << PG_buddy ))
+But, if we make cpufreq more affected_cpus aware and have a per_cpu
+target()
+call by moving set_cpus_allowed() from driver into cpufreq core and
+define
+the target function to be atomic/non-sleeping type, then we really don't
+need a hotplug lock for the driver any more. Driver can have
+get_cpu/put_cpu
+pair to disable preemption and then change the frequency.
 
-in the free_pages_check() thing. It may make sense there, but we really 
-_should_ allow gcc to just do things like this for us, and just use the 
-proper functions to test bits.
+This means a lot of changes as we need new interface changes to cpufreq
+and
+rewrite of bunch of drivers. But, this looks to me as the least
+complicated solution.
 
-			Linus
+Thanks,
+Venki 

@@ -1,146 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760308AbWLFIgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760310AbWLFIiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760308AbWLFIgy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 03:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760310AbWLFIgy
+	id S1760310AbWLFIiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 03:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760305AbWLFIiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 03:36:54 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:47952 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760308AbWLFIgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 03:36:53 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <45768116.8040804@s5r6.in-berlin.de>
-Date: Wed, 06 Dec 2006 09:36:38 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.8) Gecko/20061202 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 0/3] New firewire stack
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205184921.GA5029@martell.zuzino.mipt.ru> <4575FF08.2030100@redhat.com>
-In-Reply-To: <4575FF08.2030100@redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 6 Dec 2006 03:38:21 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:47973 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760300AbWLFIiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 03:38:20 -0500
+Date: Wed, 6 Dec 2006 09:37:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let WARN_ON() output the condition
+Message-ID: <20061206083730.GB24851@elte.hu>
+References: <Pine.LNX.4.64.0612060149220.28502@twin.jikos.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612060149220.28502@twin.jikos.cz>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -4.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-4.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	1.4 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Adding Cc: linux1394-devel)
 
-Kristian Høgsberg wrote to linux-kernel:
-> Alexey Dobriyan wrote:
->> On Tue, Dec 05, 2006 at 12:22:29AM -0500, Kristian Høgsberg wrote:
->>> I'm announcing an alternative firewire stack that I've been working
->>> on the last few weeks.
->>
->> Is mainline firewire so hopeless, that you've decided to rewrite it?
->> Could you show some ugly places in it?
-> 
-> Yes.  I'm not doing this lightheartedly.  It's a lot of work and it will
-> introduce regressions and instability for a little while.
-> 
-> My main point about ohci1394 (the old stacks PCI driver) is, that if you
-> really want to fix the issues with this driver, you have to shuffle the code
-> around so much that you'll introduce as many regressions as a clean rewrite.
-> The big problems in the ohci1394 drivers is the irq_handler, bus reset
-> handling and config rom handling.  These are some of the strong points of
-> fw-ohci.c:
-> 
->  - Rock solid handling of generations and node IDs around bus resets.
->    The only way to handle this atomically is to pass the generation
->    count along all the way to the transmit function in the low-level
->    driver.  The linux1394 low level driver API is broken in this
->    respect.
-> 
->  - Better handling of self ID receive and possible recursive bus
->    resets.  Successive bus resets could overwrite the self ID DMA
->    buffer, while we read out the contents.  The OHCI specification
->    recommends a method similiar to linux/seqlock.h for reading out
->    self IDs, to ensure we get a consistent result.
-> 
->  - Much simpler bus reset handling; we only subscribe to the
->    selfIDComplete interrupt and don't use the troublesome busReset
->    interrupt.  Rely on async transmit context to not send data while
->    busReset event bit is set.
-> 
->  - Atomic updates of config rom contents as specified in section 5.5.6
->    in the OHCI specification. The contents of the ConfigROMheader,
->    BusOptions and ConfigROMmap registers are updated atomically by the
->    controller after a reset.
-> 
-> The OHCI specification describes a number of the techniques to ensure race
-> free operation for the above cases, but the ohci1394 driver generally doesn't
-> use any of these.  If you want to see ugly code look at the ohci1394 irq
-> handler.  Much of the uglyness comes from trying to handle the busReset
-> interrupt, so that the mid-level linux1394 stack can fail I/O while the bus
-> reset takes place.  Now, OHCI hardware already reliably fails I/O during bus
-> reset, so there is no need to complicate the core stack with this extra state,
-> and the OHCI driver becomes much simpler and more reliable, since we now just
-> need to know when a bus reset has successfully completed.
-> 
-> Fixing this problem requires significant changes to the ohci1394 driver and
-> the mid-level stack, and will destabilize things until we've figure out how to
-> work around the odd flaky device out there.  Similar problems exists related
-> to sending packets without bus reset races, updating the config rom, and
-> reporting self ID packets and all require significant changes to the core
-> stack and ohci1394.  All taken together the scale tips towards a rewrite.
-> 
-> Another point is the various streaming drivers.  There used to be 5 different
-> userspace streaming APIs in the linux1394: raw1394, video1394, amdtp, dv1394
-> and rawiso.  Recently, amdtp (audio streaming) has been removed, since with
-> the rawiso interface, this can be done in userspace.  However the remaining 4
-> interfaces have slightly disjoint feature sets and can't really be phased out.
+* Jiri Kosina <jkosina@suse.cz> wrote:
 
-The old iso API of (lib)raw1394 has been marked deprecated and
-undocumented in libraw1394's documentation for some time, and will go
-away in 2007.
-
-Dv1394 might go away in 2007 too if there is enough effort to move
-high-profile users over to rawiso a.k.a. the current iso API of
-(lib)raw1394.
-
-I suppose video1394 might get a viable migration path with your new
-driver, if you and interested developers put effort into development
-(and help with deployment) of a proper replacement.
-
->  In the long run, supporting 4 different interfaces that does almost the same
-> thing isn't feasible.  The streaming interface in my new stack (only
-> transmission implemented at this point) can replace all of these interfaces.
-
-You have to look at the matter not only from the POV of API design but
-also of deployment and support.
-
-> Finally, some parts aren't actually rewritten, just ported over and
-> refactored.  This is the case for the SBP-2 driver.  Functionally, my
-> fw-sbp2.c is identical to sbp2.c in the current stack, but I've changed it to
-> work with the new interfaces and cleaned up some of the redundancy.
+> [PATCH] let WARN_ON() output the condition
 > 
->> We can end up with two not quite working sets of firewire drivers your
->> way.
->>
-> You can patch up the current stack to be less flaky, and Stefan has been doing
-> a great job at that lately, but it's still fundamentally broken in the ways
-> described above.
-> 
-> While my stack may less stable for the first couple of weeks, these are
-> transient issues, such as, say, lack of big endian testing, that are easily
-> fixed.  In the long run this new stack is much more maintainable and has a
-> bigger potential for stability.
-> 
-> Kristian
-> 
+> It is possible, in some cases, that the output of WARN_ON() is 
+> ambiguous and can't be properly used to identify the exact condition 
+> which caused the warning to trigger. This happens whenever there is a 
+> macro that contains multiple WARN_ONs inside. Notable example is 
+> spin_lock_mutex(). If any of the two WARN_ONs trigger, we are not able 
+> to say which one was the cause (as we get only line number, which 
+> however belongs to the place where the macro was expanded).
 
-I have to say, the really really old bug reports which piled up for
-ohci1394 (high latency of the reset event handler, streaming packets
-being mistaken as selfID packets...) and the recently reported ohci1394
-bugs (event mask being mysteriously blanked out...) and my lack of
-progress with these speak for themselves. (I don't have enough insight
-yet, nor enough spare time nor affected hardware to make reasonable
-headway.)
--- 
-Stefan Richter
--=====-=-==- ==-- --==-
-http://arcgraph.de/sr/
+a WARN_ON() also triggers a stack dump, which should pinpoint the exact 
+location. (especially if combined with kallsyms) For example:
+
+posix_cpu_timer/13[CPU#1]: BUG in trace_stop_sched_switched at kernel/latency_trace.c:2142
+
+Call Trace:
+ [<ffffffff8020b272>] dump_trace+0xaf/0x3f4
+ [<ffffffff8020b5f6>] show_trace+0x3f/0x5d
+ [<ffffffff8020b8c1>] dump_stack+0x1a/0x1c
+ [<ffffffff8022ef09>] __WARN_ON+0x65/0x80
+ [<ffffffff80252c37>] trace_stop_sched_switched+0xad/0x30a
+ [<ffffffff804ae810>] thread_return+0xa5/0x123
+ [<ffffffff804aea15>] schedule+0xdd/0x101
+ [<ffffffff8024298f>] posix_cpu_timers_thread+0x86/0xe5
+ [<ffffffff80240c26>] kthread+0xd6/0x100
+ [<ffffffff8020a938>] child_rip+0xa/0x12
+
+here the "trace_stop_sched_switched+0xad/0x30a" is a perfect 
+identification of the WARN_ON() code location - if there's any doubt 
+about why the problem happened.
+
+> This patch lets WARN_ON() to output also the condition and fixes the 
+> DEBUG_LOCKS_WARN_ON() macro to pass the condition properly to WARN_ON. 
+> The possible drawback could be when someone passes a condition which 
+> has sideeffects. Then it would be evaluated twice, instead of current 
+> one evaluation. On the other hand, when anyone passes expression with 
+> sideeffects to WARN_ON(), he is asking for problems anyway.
+
+side-effects happen regularly in WARN_ON()s and while they should be 
+avoided, they are not noticed by the compiler and can cause nasty bugs 
+if executed twice. Do we really need this change?
+
+	Ingo

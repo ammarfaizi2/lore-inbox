@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S933835AbWLFP0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935738AbWLFP0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S933835AbWLFP0F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 10:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935436AbWLFP0E
+	id S935738AbWLFP0S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 10:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935706AbWLFP0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 10:26:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45164 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933835AbWLFPZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 10:25:58 -0500
-Date: Wed, 6 Dec 2006 15:25:54 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>,
-       Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: [PATCH] acpi: add backlight support to the sony_acpi driver (v2)
-In-Reply-To: <20061202162352.GD4773@ucw.cz>
-Message-ID: <Pine.LNX.4.64.0612061525140.28745@pentafluge.infradead.org>
-References: <20061127174328.30e8856e.alessandro.guido@gmail.com>
- <20061201133520.GC4239@ucw.cz> <20061201194337.GA7773@khazad-dum.debian.net>
- <20061202162352.GD4773@ucw.cz>
+	Wed, 6 Dec 2006 10:26:16 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:59935 "EHLO mout2.freenet.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935644AbWLFP0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 10:26:11 -0500
+From: Karsten Wiese <fzu@wemgehoertderstaat.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH -rt 3/3] Make trace_freerunning work; Take 2: change reset_trace_idx()
+Date: Wed, 6 Dec 2006 16:26:38 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <20061205220257.1AECF3E2420@elvis.elte.hu> <200612061612.53254.fzu@wemgehoertderstaat.de> <200612061618.51150.fzu@wemgehoertderstaat.de>
+In-Reply-To: <200612061618.51150.fzu@wemgehoertderstaat.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612061626.38945.fzu@wemgehoertderstaat.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Its nice to see acpi moving to the backlight api. Will acpi also move to 
-hwmon and led class support ?
+Move atomic_set(&tr->underrun, 0) and atomic_set(&tr->overrun, 0)
+occurrences into reset_trace_idx().
+Note this leads to under/overrun being reset more often than before:
+	- in the trace_all_cpus case.
+	- from under check_critical_timing()
 
-On Sat, 2 Dec 2006, Pavel Machek wrote:
+Signed-off-by: Karsten Wiese <fzu@wemgehoertderstaat.de>
 
-> Hi!
-> 
-> > > Looks okay to me. We really want unified interface for backlight.
-> > 
-> > Then I request some help to get
-> > http://article.gmane.org/gmane.linux.acpi.devel/19792
-> > merged.
-> > 
-> > Without it, the backlight interface becomes annoying on laptops.  Your
-> > screen will be powered off when you remove the modules providing the
-> > backlight interface.  This is not consistent with the needs of laptop
-> > backlight devices, or with the behaviour the drivers had before the
-> > backlight sysfs support was added.
-> 
-> Just retransmit it to akpm and list, and add acked-by headers with
-> people who said patch is okay... that included me IIRC.
-> 
-> 
+
+--- rt6-kw/kernel/latency_trace-tk2.2.c	2006-12-06 14:58:44.000000000 +0100
++++ rt6-kw/kernel/latency_trace.c	2006-12-06 15:37:08.000000000 +0100
+@@ -1695,10 +1695,17 @@ __setup("preempt_thresh=", setup_preempt
+ static inline void notrace reset_trace_idx(int cpu, struct cpu_trace *tr)
+ {
+ 	if (trace_all_cpus)
+-		for_each_online_cpu(cpu)
+-			cpu_traces[cpu].trace_idx = 0;
+-	else
++		for_each_online_cpu(cpu) {
++			tr = cpu_traces + cpu;
++			tr->trace_idx = 0;
++			atomic_set(&tr->underrun, 0);
++			atomic_set(&tr->overrun, 0);
++		}
++	else{
+ 		tr->trace_idx = 0;
++		atomic_set(&tr->underrun, 0);
++		atomic_set(&tr->overrun, 0);
++	}
+ }
+ 
+ #ifdef CONFIG_CRITICAL_TIMING
+@@ -1842,8 +1849,6 @@ __start_critical_timing(unsigned long ei
+ 	tr->critical_sequence = max_sequence;
+ 	tr->preempt_timestamp = get_monotonic_cycles();
+ 	tr->critical_start = eip;
+-	atomic_set(&tr->underrun, 0);
+-	atomic_set(&tr->overrun, 0);
+ 	reset_trace_idx(cpu, tr);
+ 	tr->latency_type = latency_type;
+ 	_trace_cmdline(cpu, tr);
+@@ -2221,8 +2226,6 @@ void __trace_start_sched_wakeup(struct t
+ 		tr->preempt_timestamp = get_monotonic_cycles();
+ 		tr->latency_type = WAKEUP_LATENCY;
+ 		tr->critical_start = CALLER_ADDR0;
+-		atomic_set(&tr->underrun, 0);
+-		atomic_set(&tr->overrun, 0);
+ 		_trace_cmdline(raw_smp_processor_id(), tr);
+ 		atomic_dec(&tr->disabled);
+ //	}
+@@ -2332,8 +2335,6 @@ long user_trace_start(void)
+ 	tr->critical_sequence = max_sequence;
+ 	tr->preempt_timestamp = get_monotonic_cycles();
+ 	tr->critical_start = CALLER_ADDR0;
+-	atomic_set(&tr->underrun, 0);
+-	atomic_set(&tr->overrun, 0);
+ 	_trace_cmdline(cpu, tr);
+ 	mcount();
+ 

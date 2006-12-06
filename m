@@ -1,78 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759618AbWLFBpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1759657AbWLFCIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759618AbWLFBpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 20:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759491AbWLFBpx
+	id S1759657AbWLFCIO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 21:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759661AbWLFCIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 20:45:53 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:58047 "EHLO palrel10.hp.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1759481AbWLFBpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 20:45:51 -0500
-Message-Id: <6.2.0.14.2.20061205172536.086fa438@esmail.cup.hp.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.0.14
-Date: Tue, 05 Dec 2006 17:27:14 -0800
-To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
-       "Steve Wise" <swise@opengridcomputing.com>
-From: Michael Krause <krause@cup.hp.com>
-Subject: Re: [openib-general] [PATCH  v2 04/13] Connection Manager
-Cc: netdev@vger.kernel.org, "Roland Dreier" <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       "Divy Le Ray" <divy@chelsio.com>
-In-Reply-To: <20061205180939.GA26384@2ka.mipt.ru>
-References: <20061205050725.GA26033@2ka.mipt.ru>
- <1165330925.16087.13.camel@stevo-desktop>
- <20061205151905.GA18275@2ka.mipt.ru>
- <1165333198.16087.53.camel@stevo-desktop>
- <20061205155932.GA32380@2ka.mipt.ru>
- <1165335162.16087.79.camel@stevo-desktop>
- <20061205163008.GA30211@2ka.mipt.ru>
- <1165337245.16087.95.camel@stevo-desktop>
- <20061205172649.GA20229@2ka.mipt.ru>
- <1165341100.16087.109.camel@stevo-desktop>
- <20061205180939.GA26384@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 5 Dec 2006 21:08:14 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:41291 "EHLO
+	rwcrmhc11.comcast.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759654AbWLFCIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Dec 2006 21:08:13 -0500
+Message-ID: <457625CF.2080105@comcast.net>
+Date: Tue, 05 Dec 2006 21:07:11 -0500
+From: Ed Sweetman <safemode2@comcast.net>
+User-Agent: Icedove 1.5.0.8 (X11/20061129)
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why SCSI module needed for PCI-IDE ATA only disks ?
+References: <fa.juE97gahpb4n2kNNH/Todtcvh3s@ifi.uio.no> <fa.IqtlZas3d+ZPuhF6S6N/ivdF8Wo@ifi.uio.no> <fa.HDRhmOhDQliejH7ijqJBWw9Jw0o@ifi.uio.no> <45761B2F.9060804@shaw.ca>
+In-Reply-To: <45761B2F.9060804@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-If you require more details on how this all works - it was fully explored 
-in the IETF RDDP workgroup - may I suggest a reading of the RDMA Security 
-Considerations draft which goes through many of the issues on how one 
-relates to a host stack.   This complements the MPA spec and supports much 
-of what Steve has already responded to during this string of e-mails.  We 
-took a great deal of time and debate to insure this can work efficiently 
-and without confusion in terms of who owns what and when.
-
-Mike
-
-
-
-At 10:09 AM 12/5/2006, Evgeniy Polyakov wrote:
->On Tue, Dec 05, 2006 at 11:51:40AM -0600, Steve Wise 
->(swise@opengridcomputing.com) wrote:
-> > > Almost - except the case about where those skbs are coming from?
-> > > It looks like they are obtained from network, since it is ethernet
-> > > driver, and if they match some set of rules, they are considered as 
-> valid
-> > > MPA negotiation protocol.
-> >
-> > They come from the Ethernet driver, but that driver manages multiple HW
-> > queues and these packets come from an offload queue, not the NIC queue.
-> > So the HW demultiplexes.
+Robert Hancock wrote:
+> Ed Sweetman wrote:
+>> Jeff Garzik wrote:
+>>> Bernard Pidoux wrote:
+>>>> I am asking why need to compile the following modules while I do not
+>>>> have any SCSI device ?
+>>>
+>>> libata uses SCSI to provide a lot of infrastructure that it would 
+>>> otherwise have to recreate.  Also, using SCSI meant that it 
+>>> automatically worked in existing installers.
+>>>
+>>>     Jeff
+>>>
+>> This confusion could easily be remedied by explaining the requirement 
+>> in the Help output for libata drivers/section.  Also, making a 
+>> dependency in the menu (since there is one) or automatically 
+>> selecting the required scsi items when you select a libata driver 
+>> would seem logical. As it is, nothing is said of scsi requirements in 
+>> menuconfig. Trying to boot a machine without compiling the scsi 
+>> drivers (something you're allowed to do) results in a system that 
+>> boots and initializes the ata busses but can't communicate to any of 
+>> the drives on them, (useless).
 >
->Ok, thanks for explaination.
+> You can't select libata drivers without the SCSI core. However, you 
+> can select libata drivers without the SCSI disk (sd) or the SCSI CD 
+> (sr) drivers. However, that's a legitimate configuration as you may 
+> have only hard disks, only CD drives, etc. and there would be no need 
+> to build the other module. This isn't a major problem for most 
+> standard configurations as those drivers are needed to handle things 
+> like USB and FireWire flash drives, external HDs/optical drives, etc. 
+> anyway.
 >
->--
->         Evgeniy Polyakov
->
->_______________________________________________
->openib-general mailing list
->openib-general@openib.org
->http://openib.org/mailman/listinfo/openib-general
->
->To unsubscribe, please visit 
->http://openib.org/mailman/listinfo/openib-general
+What's not a legitimate configuration is libata drivers, no low level 
+scsi drivers, no ide drivers and no sd,sr,sg drivers.  Yet, that is the 
+configuration the kernel currently gives you. How is that more correct 
+than any of the 3 solutions I have suggested?
+
+The point is there is nothing in the help section in libata to tell you 
+that these "scsi" drivers are needed for disk / cdrom / generic device 
+access in libata.  Indeed, there is no obvious connection to the two. 
+
+Either configuration options need to be put in the libata directory that 
+would just select the drivers (libata disk, cdrom, generic configuration 
+options which would just enable the appropriate config variable, in 
+other words in the menu config have two config directives which would 
+enable the same drivers but be under different submenus to avoid 
+confusion), or a short description in the help dialog to tell users that 
+they have to enable those scsi drivers under the scsi section to use 
+their drivers under the libata section.  
+
+It's not safe to assume people will have those drivers compiled because 
+of usb or firewire or flash drives.  Assuming that situation is 10 times 
+more problematic than any possible argument against just selecting those 
+scsi drivers automatically and letting the user  deselect them as needed 
+when they select a libata driver.
 
 
+Personaly, I prefer a help dialog blurb explaining that the user has to 
+enable certain scsi drivers to actually use their libata driven 
+devices.    That, at the very least, I believe is necessary and not 
+asking much.  
+
+I've made patches before that impliment these trivial features in 
+menuconfig. In the grand scheme of things this isn't that important to 
+kernel development, but it's going to get more and more feedback as more 
+people move to libata and eventually it will be fixed in some manner 
+similar to those i've mentioned, I think it would just be better to do 
+it now than wait until the mailing list is filled with end users asking 
+why they need scsi when they obviously only have sata/ide and want to 
+use libata.

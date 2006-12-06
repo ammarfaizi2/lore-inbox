@@ -1,81 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937805AbWLFXkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937795AbWLFXn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937805AbWLFXkc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 18:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937807AbWLFXkc
+	id S937795AbWLFXn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 18:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937814AbWLFXn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 18:40:32 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55214 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937805AbWLFXkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 18:40:31 -0500
-Date: Wed, 6 Dec 2006 15:40:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org, Yu Luming <luming.yu@gmail.com>,
-       Miguel Ojeda Sandonis <maxextreme@gmail.com>
-Subject: Re: -mm merge plans for 2.6.20
-Message-Id: <20061206154020.bdc0e09a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0612052131410.14114@pentafluge.infradead.org>
-References: <20061204204024.2401148d.akpm@osdl.org>
-	<Pine.LNX.4.64.0612051538280.15711@pentafluge.infradead.org>
-	<20061205100140.24888a96.akpm@osdl.org>
-	<Pine.LNX.4.64.0612051822140.7917@pentafluge.infradead.org>
-	<20061205114310.e85d4c7e.akpm@osdl.org>
-	<Pine.LNX.4.64.0612051946280.14114@pentafluge.infradead.org>
-	<20061205122057.c2b617f4.akpm@osdl.org>
-	<Pine.LNX.4.64.0612052131410.14114@pentafluge.infradead.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Dec 2006 18:43:59 -0500
+Received: from nf-out-0910.google.com ([64.233.182.186]:7995 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937795AbWLFXn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 18:43:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=LBAhImN548p+rMvl5n39kzxGwsDgL4JZ5KexeB6K/EJ1gFEtlPf6P3zcfFyjBl0RRSELXVp5TGs0SlKJoU/DGepRzEdwy4Ep+OazapVpAHU4TXLsJibbA/YzfaAINLKQAXFLHtWauTh15u6HbWm3SFBPwIRgIs+S9cy8wtk9pyY=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] A few small additions and corrections to README
+Date: Thu, 7 Dec 2006 00:45:58 +0100
+User-Agent: KMail/1.9.4
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612070045.58396.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2006 21:34:16 +0000 (GMT)
-James Simmons <jsimmons@infradead.org> wrote:
 
-> Here you go. This patch places the backlight before the framebuffers. You
-> will now be able to select using the backlight with various framebuffer 
-> drivers.
+Hi,
 
-This doesn't work right for me.  x86_64 allmodconfig enables
-CONFIG_FB_ATY_BACKLIGHT but fails to enable FB_BACKLIGHT so things won't
-build.
+here's a small patch which 
 
-drivers/video/aty/atyfb_base.c: In function 'aty_bl_get_level_brightness':
-drivers/video/aty/atyfb_base.c:2130: error: 'struct fb_info' has no member named 'bl_curve'
+ - adds a few archs to the current list of supported platforms.
+ - adds a few missing slashes at the end of URLs.
+ - adds a few references to additional documentation.
+ - adds "make config" to the list of possible configuration targets.
+ - makes a few other minor changes.
 
-I'm not sure how to fix it, either.  Are things like
-CONFIG_FB_ATY_BACKLIGHT _really_ supposed to be pmac-only?
+Please consider for inclusion.
 
-menuconfig says:
 
- Symbol: FB_BACKLIGHT [=FB_BACKLIGHT]
-	Selected by: PMAC_BACKLIGHT && (PPC || MAC) && ADB_PMU && FB=y && (BROKEN || !PPC64)
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ README                         |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
+diff --git a/README b/README
+index 3e26472..b656f00 100644
+--- a/README
++++ b/README
+@@ -1,4 +1,4 @@
+-	Linux kernel release 2.6.xx <http://kernel.org>
++	Linux kernel release 2.6.xx <http://kernel.org/>
  
+ These are the release notes for Linux version 2.6.  Read them carefully,
+ as they tell you what this is all about, explain how to install the
+@@ -22,15 +22,17 @@ ON WHAT HARDWARE DOES IT RUN?
+ 
+   Although originally developed first for 32-bit x86-based PCs (386 or higher),
+   today Linux also runs on (at least) the Compaq Alpha AXP, Sun SPARC and
+-  UltraSPARC, Motorola 68000, PowerPC, PowerPC64, ARM, Hitachi SuperH,
++  UltraSPARC, Motorola 68000, PowerPC, PowerPC64, ARM, Hitachi SuperH, Cell,
+   IBM S/390, MIPS, HP PA-RISC, Intel IA-64, DEC VAX, AMD x86-64, AXIS CRIS,
+-  and Renesas M32R architectures.
++  Cris, Xtensa and Renesas M32R architectures.
+ 
+   Linux is easily portable to most general-purpose 32- or 64-bit architectures
+   as long as they have a paged memory management unit (PMMU) and a port of the
+   GNU C compiler (gcc) (part of The GNU Compiler Collection, GCC). Linux has
+   also been ported to a number of architectures without a PMMU, although
+   functionality is then obviously somewhat limited.
++  Linux has also been ported to itself. You can now run the kernel as a
++  userspace application - this is called UserMode Linux (UML).
+ 
+ DOCUMENTATION:
+ 
+@@ -113,6 +115,7 @@ INSTALLING the kernel:
+    version 2.6.12.2 and want to jump to 2.6.12.3, you must first
+    reverse the 2.6.12.2 patch (that is, patch -R) _before_ applying
+    the 2.6.12.3 patch.
++   You can read more on this in Documentation/applying-patches.txt
+ 
+  - Make sure you have no stale .o files and dependencies lying around:
+ 
+@@ -161,6 +164,7 @@ CONFIGURING the kernel:
+    only ask you for the answers to new questions.
+ 
+  - Alternate configuration commands are:
++	"make config"      Plain text interface.
+ 	"make menuconfig"  Text based color menus, radiolists & dialogs.
+ 	"make xconfig"     X windows (Qt) based configuration tool.
+ 	"make gconfig"     X windows (Gtk) based configuration tool.
+@@ -303,8 +307,9 @@ IF SOMETHING GOES WRONG:
+ 
+  - If you compiled the kernel with CONFIG_KALLSYMS you can send the dump
+    as is, otherwise you will have to use the "ksymoops" program to make
+-   sense of the dump.  This utility can be downloaded from
+-   ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops.
++   sense of the dump (but compiling with CONFIG_KALLSYMS is usually preferred).
++   This utility can be downloaded from
++   ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/ .
+    Alternately you can do the dump lookup by hand:
+ 
+  - In debugging dumps like the above, it helps enormously if you can
+@@ -336,7 +341,7 @@ IF SOMETHING GOES WRONG:
+ 
+    If you for some reason cannot do the above (you have a pre-compiled
+    kernel image or similar), telling me as much about your setup as
+-   possible will help. 
++   possible will help.  Please read the REPORTING-BUGS document for details.
+ 
+  - Alternately, you can use gdb on a running kernel. (read-only; i.e. you
+    cannot change values or set break points.) To do this, first compile the
 
-Surely CONFIG_FB_ATY_BACKLIGHT should depend upon FB_BACKLIGHT?
-
-How come I have CONFIG_BACKLIGHT_CLASS_DEVICE and things like that but
-CONFIG_FB_BACKLIGHT=n?
-
-And a `make oldconfig' says
-
-drivers/macintosh/Kconfig:126:warning: 'select' used by config symbol 'PMAC_BACKLIGHT' refer to undefined symbol 'FB_BACKLIGHT'
 
 
-Here's what allmodconfig gave:
-
-akpm2:/usr/src/25> grep BACKL .config
-CONFIG_BACKLIGHT_LCD_SUPPORT=y
-CONFIG_BACKLIGHT_CLASS_DEVICE=m
-CONFIG_BACKLIGHT_DEVICE=y
-CONFIG_FB_NVIDIA_BACKLIGHT=y
-CONFIG_FB_RIVA_BACKLIGHT=y
-CONFIG_FB_RADEON_BACKLIGHT=y
-CONFIG_FB_ATY128_BACKLIGHT=y
-CONFIG_FB_ATY_BACKLIGHT=y
-
-
-Anyway, it seems all screwed up - I'll drop the patch.

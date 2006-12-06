@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937563AbWLFTqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937553AbWLFTq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937563AbWLFTqc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 14:46:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937566AbWLFTqc
+	id S937553AbWLFTq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 14:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937570AbWLFTqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 14:46:32 -0500
-Received: from mtaout01-winn.ispmail.ntl.com ([81.103.221.47]:5356 "EHLO
-	mtaout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S937563AbWLFTqb (ORCPT
+	Wed, 6 Dec 2006 14:46:55 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:58836 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937567AbWLFTqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 14:46:31 -0500
-From: Ian Campbell <ijc@hellion.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <1165347242.8326.15.camel@localhost>
-References: <1165153834.5499.40.camel@localhost.localdomain>
-	 <1165259962.6152.5.camel@localhost.localdomain>
-	 <1165261226.5499.54.camel@localhost.localdomain>
-	 <1165263296.6152.8.camel@localhost.localdomain>
-	 <1165304498.5499.62.camel@localhost.localdomain>
-	 <1165347242.8326.15.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HcxZAC35ei1qp+fLXCl5"
-Date: Wed, 06 Dec 2006 19:46:13 +0000
-Message-Id: <1165434373.28197.6.camel@localhost.localdomain>
+	Wed, 6 Dec 2006 14:46:43 -0500
+Date: Wed, 6 Dec 2006 19:46:41 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: ... and more...
+Message-ID: <20061206194641.GG4587@ftp.linux.org.uk>
+References: <20061206184145.GC4587@ftp.linux.org.uk> <20061206185140.GD4587@ftp.linux.org.uk> <20061206191820.GF4587@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-X-SA-Exim-Connect-IP: 192.168.1.5
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: PMTMR running too fast
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061206191820.GF4587@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
 
---=-HcxZAC35ei1qp+fLXCl5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2006-12-05 at 11:34 -0800, john stultz wrote:
->=20
-> > Should tsc be preferred to pit though?
->=20
-> Depends on your system. If C2/C3 or cpufreq state changes are
-> detected, we mark the tsc as unstable. =20
-
-Turns out I was seeing C2 states. I'll stick with PIT for now.
-
-Thanks,
-Ian.
-
---=20
-Ian Campbell
-
-If ignorance is bliss, why aren't there more happy people?
-
---=-HcxZAC35ei1qp+fLXCl5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFdx4EM0+0qS9rzVkRAjuSAJ9sXYBCYtWhsYzp5Vvn6SMdQhTffwCfbTLV
-3OJIJbhlaw38glcbECIo7qI=
-=ZjUF
------END PGP SIGNATURE-----
-
---=-HcxZAC35ei1qp+fLXCl5--
+diff --git a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
+index 2dd0a34..420377c 100644
+--- a/drivers/i2c/chips/m41t00.c
++++ b/drivers/i2c/chips/m41t00.c
+@@ -215,8 +215,15 @@ m41t00_set(void *arg)
+ }
+ 
+ static ulong new_time;
++/* well, isn't this API just _lovely_? */
++static void
++m41t00_barf(struct work_struct *unusable)
++{
++	m41t00_set(&new_time);
++}
++
+ static struct workqueue_struct *m41t00_wq;
+-static DECLARE_WORK(m41t00_work, m41t00_set, &new_time);
++static DECLARE_WORK(m41t00_work, m41t00_barf);
+ 
+ int
+ m41t00_set_rtc_time(ulong nowtime)
+diff --git a/drivers/net/mv643xx_eth.c b/drivers/net/mv643xx_eth.c
+index 21d0137..4e8ff5e 100644
+--- a/drivers/net/mv643xx_eth.c
++++ b/drivers/net/mv643xx_eth.c
+@@ -277,9 +277,12 @@ static void mv643xx_eth_tx_timeout(struc
+  *
+  * Actual routine to reset the adapter when a timeout on Tx has occurred
+  */
+-static void mv643xx_eth_tx_timeout_task(struct net_device *dev)
++static void mv643xx_eth_tx_timeout_task(struct work_struct *ugly)
+ {
+-	struct mv643xx_private *mp = netdev_priv(dev);
++	struct mv643xx_private *mp = container_of(ugly, struct mv643xx_private,
++						  tx_timeout_task);
++	struct net_device *dev = mp->mii.dev; /* yuck */
++	netdev_priv(dev);
+ 
+ 	if (!netif_running(dev))
+ 		return;
+@@ -1360,8 +1363,7 @@ #endif
+ #endif
+ 
+ 	/* Configure the timeout task */
+-	INIT_WORK(&mp->tx_timeout_task,
+-			(void (*)(void *))mv643xx_eth_tx_timeout_task, dev);
++	INIT_WORK(&mp->tx_timeout_task, mv643xx_eth_tx_timeout_task);
+ 
+ 	spin_lock_init(&mp->lock);
+ 
 

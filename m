@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760583AbWLFNMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760591AbWLFNNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760583AbWLFNMn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 08:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760591AbWLFNMn
+	id S1760591AbWLFNNY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 08:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760593AbWLFNNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 08:12:43 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47627 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760583AbWLFNMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 08:12:42 -0500
-Date: Wed, 6 Dec 2006 14:11:55 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: -mm merge plans for 2.6.20
-Message-ID: <20061206131155.GA8558@elte.hu>
-References: <20061204204024.2401148d.akpm@osdl.org> <Pine.LNX.4.64.0612060348150.1868@scrub.home> <20061205203013.7073cb38.akpm@osdl.org> <1165393929.24604.222.camel@localhost.localdomain> <Pine.LNX.4.64.0612061334230.1867@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612061334230.1867@scrub.home>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+	Wed, 6 Dec 2006 08:13:23 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:45153 "EHLO
+	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760588AbWLFNNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 08:13:22 -0500
+Message-ID: <4576C092.5030202@jp.fujitsu.com>
+Date: Wed, 06 Dec 2006 22:07:30 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>, tom.l.nguyen@intel.com
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [BUG][PATCH] pcieport-driver: remove invalid warning message
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+I got the following warning messages on some PCI Express ports.
 
-> On Wed, 6 Dec 2006, Thomas Gleixner wrote:
-> 
-> > If I understand it correctly, Roman wants clockevents to be usable 
-> > for other things aside hrtimer/dyntick, i.e. let other code request 
-> > unused timer event hardware for special purposes. I thought about 
-> > that in the originally but I stayed away from it, as there are no 
-> > users at the moment and I wanted to avoid the usual "who needs that" 
-> > comment.
-> 
-> Nonsense, [...]
+    pcie_portdrv_probe->Dev[1263:10cf] has invalid IRQ. Check vendor BIOS
 
-why do you call Thomas' observation nonsense? Fact: there is no current 
-user of such a facility. What we implemented, high-res timers and 
-dynticks does not need such a facility.
+I think this message is improper because those PCI Express ports don't
+use an interrupt pin. This message should not be displayed for devices
+which don't use an interrupt pin.
 
-we wholeheartedly agree that such a facility 'would be nice', and 'could 
-be used by existing kernel code' but we didnt want to chew too much at a 
-time.
+Thanks,
+Kenji Kaneshige
 
-> [...] one obvious user would be the scheduler, [...]
 
-But cleaning up the scheduler tick was not our purpose with high-res 
-timers nor with dynticks. One of your previous complaints was that the 
-patches are too intrusive to be trusted. Now they are too simple?
+The following warning message should not be displayed for devices
+which don't use an interrupt pin.
 
-We'll clean up the scheduler tick and profiling too, but not now.
+    pcie_portdrv_probe->Dev[XXXX:XXXX] has invalid IRQ. Check vendor BIOS
 
-> [...] the current scheduler tick emulation is rather ugly [...]
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
-i disagree with you and it's pretty low-impact anyway. There's still 
-quite many HZ/tick assumptions all around the time code (NTP being one 
-example), we'll deal with those via other patches.
+---
+ drivers/pci/pcie/portdrv_pci.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-	Ingo
+Index: linux-2.6.19/drivers/pci/pcie/portdrv_pci.c
+===================================================================
+--- linux-2.6.19.orig/drivers/pci/pcie/portdrv_pci.c	2006-12-06 21:31:32.000000000 +0900
++++ linux-2.6.19/drivers/pci/pcie/portdrv_pci.c	2006-12-06 21:31:38.000000000 +0900
+@@ -90,7 +90,7 @@
+ 		return -ENODEV;
+ 	
+ 	pci_set_master(dev);
+-        if (!dev->irq) {
++        if (!dev->irq && dev->pin) {
+ 		printk(KERN_WARNING 
+ 		"%s->Dev[%04x:%04x] has invalid IRQ. Check vendor BIOS\n", 
+ 		__FUNCTION__, dev->device, dev->vendor);
+
+

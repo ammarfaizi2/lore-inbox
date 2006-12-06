@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760452AbWLFKZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760462AbWLFKeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760452AbWLFKZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 05:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760456AbWLFKZK
+	id S1760462AbWLFKeL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 05:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760465AbWLFKeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 05:25:10 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:42313 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760452AbWLFKZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 05:25:08 -0500
-Date: Wed, 6 Dec 2006 11:24:35 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-X-X-Sender: jikos@twin.jikos.cz
-To: Li Yu <raise.sail@gmail.com>
-cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Greg Kroah Hartman <greg@kroah.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Vincent Legoll <vincentlegoll@gmail.com>,
-       "Zephaniah E. Hull" <warp@aehallh.com>, liyu <liyu@ccoss.com.cn>,
-       Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
-In-Reply-To: <200612061803324532133@gmail.com>
-Message-ID: <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-References: <200612061803324532133@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Dec 2006 05:34:11 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60305 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1760461AbWLFKeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 05:34:09 -0500
+Date: Wed, 6 Dec 2006 10:38:48 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Ian Romanick <idr@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] VIA and SiS AGP chipsets are x86-only
+Message-ID: <20061206103848.4e3fb0cc@localhost.localdomain>
+In-Reply-To: <20061206034044.GS3013@parisc-linux.org>
+References: <20061204104314.GB3013@parisc-linux.org>
+	<4575F929.9020708@us.ibm.com>
+	<20061206034044.GS3013@parisc-linux.org>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Li Yu wrote:
+On Tue, 5 Dec 2006 20:40:45 -0700
+Matthew Wilcox <matthew@wil.cx> wrote:
 
-> 	1. Make hidinput_disconnect_core() be more robust, it can not 
->          break anything even failed to allocate device struct.
-> 	2. Thanks new input device driver API, we need not the extra code 
->          for support force-feed device yet, so say bye to 
->          CONFIG_HID_SIMPLE_FF.
-> Is this ready to merge? or What still is problem in them? Thanks.
+> On Tue, Dec 05, 2006 at 02:56:41PM -0800, Ian Romanick wrote:
+> > I don't know about SiS, but this is certainly *not* true for Via.  There
+> > are some PowerPC and, IIRC, Alpha motherboards that have Via chipsets.
+> 
+> Yes, but they don't have VIA *AGP*.  At least, that's what I've been
+> told by people who know those architectures.
 
-Hi,
+VIA south gets used by a lot of the systems but the VIA North bridges
+I've got docs for cover only x86 variants, although one of the older ones
+implies it has both K7 and Alpha support (just as the AMD chipset does)
 
-actually, I have prepared patches to split the USBHID code in two parts - 
-generic HID, which could be hooked by transport-specific HID layers (USB, 
-Bluetooth). 
+Personally I'd rather know when I broke stuff by getting everything
+to compile that sanely compiles. Operating the ".config" file is not
+complex after all.
 
-I did not send them to lkml/linux-usb, as they are quite big (mainly 
-because a lot of code is being moved around). I am currently trying to 
-setup a git repository on kernel.org, hopefully kernel.org people will 
-react, so that the patches could be easily put into git repository and be 
-available for rewiew and easy merge. After that, they are planned to be 
-merged either into Greg's or Andrew's tree. I can send them to you if you 
-want.
-
-Do you think that you could wait a little bit more, after the split has 
-been done? (it's currently planned approximately after 2.6.20-rc1). It 
-seems to me that your patches will apply almost cleanly on top of the 
-split patches (you will have to change the pathnames, of course).
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Alan

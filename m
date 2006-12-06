@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937749AbWLFWdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937753AbWLFWfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937749AbWLFWdM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 17:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937750AbWLFWdM
+	id S937753AbWLFWfE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 17:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937750AbWLFWfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 17:33:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47210 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937749AbWLFWdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 17:33:10 -0500
-Message-ID: <457743E5.4010109@redhat.com>
-Date: Wed, 06 Dec 2006 17:27:49 -0500
-From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+	Wed, 6 Dec 2006 17:35:03 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:12857 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937746AbWLFWfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 17:35:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mtEFoURAo3cYxflKbB9FKRlrL0UGqZLpICDGgDOMR1D17dwuxMwT/t2uQNE7CBwr4cpXioHG5aZiIUp/VJU/csDPoZBouKbfALcJNiXuYNlxCBJpICUB4hRorTlyBYHHPmyp5uAfGzrKRMeVLc/9TqLIjLDJyiW7tcj/w1ml9Yo=
+Message-ID: <a36005b50612061434t6e64c4bfn8f9c53e3bdea19b4@mail.gmail.com>
+Date: Wed, 6 Dec 2006 14:34:59 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux should define ENOTSUP
+Cc: "Samuel Thibault" <samuel.thibault@ens-lyon.org>,
+       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <457731E7.6050000@zytor.com>
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
-       linux1394-devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 0/3] New firewire stack
-References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <20061205184921.GA5029@martell.zuzino.mipt.ru> <4575FF08.2030100@redhat.com> <45768116.8040804@s5r6.in-berlin.de>
-In-Reply-To: <45768116.8040804@s5r6.in-berlin.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061206135134.GJ3927@implementation.labri.fr>
+	 <1165415115.3233.449.camel@laptopd505.fenrus.org>
+	 <20061206143159.GP3927@implementation.labri.fr>
+	 <4576DF04.4000900@zytor.com>
+	 <a36005b50612061210q407ea90ew4a32328e65145bbf@mail.gmail.com>
+	 <457731E7.6050000@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-...
->> Another point is the various streaming drivers.  There used to be 5 different
->> userspace streaming APIs in the linux1394: raw1394, video1394, amdtp, dv1394
->> and rawiso.  Recently, amdtp (audio streaming) has been removed, since with
->> the rawiso interface, this can be done in userspace.  However the remaining 4
->> interfaces have slightly disjoint feature sets and can't really be phased out.
-> 
-> The old iso API of (lib)raw1394 has been marked deprecated and
-> undocumented in libraw1394's documentation for some time, and will go
-> away in 2007.
-> 
-> Dv1394 might go away in 2007 too if there is enough effort to move
-> high-profile users over to rawiso a.k.a. the current iso API of
-> (lib)raw1394.
-> 
-> I suppose video1394 might get a viable migration path with your new
-> driver, if you and interested developers put effort into development
-> (and help with deployment) of a proper replacement.
+On 12/6/06, H. Peter Anvin <hpa@zytor.com> wrote:
+> I'm quite aware of that, but I still think Sun has more resources to get
+> their particular viewpoint through the committee -- it's just a matter
+> of resources at hand.  I myself had to largely drop out due to other
+> pressures, for example.
 
-As discussed on linux1394-devel, it may be possible to do a thin video1394 
-compatibility driver for this one, but since the biggest user of this 
-interface is libdc1394, it is probably better to just write a new iso 
-streaming backend for this library. libdc1394 already supports different 
-streaming backends.  For non-libdc1394 users of video1394, the interface I'm 
-providing is very close to the video1394 ioctl interface, so porting should be 
-easy enough.
+But I'm still there, as are IBM, HP people and various other
+organizations.  Sun is represented by one person and all the direct
+influence the company has is in the OpenGroup vote (one of three).
+And here the field is even wider, many more companies have a vote
+(including Red Hat).  The other two organizations are IEEE (where the
+members of the balloting group make the decisions, individuals but
+also implementer votes) and ISO (which is entirely country based).
 
->>  In the long run, supporting 4 different interfaces that does almost the same
->> thing isn't feasible.  The streaming interface in my new stack (only
->> transmission implemented at this point) can replace all of these interfaces.
-> 
-> You have to look at the matter not only from the POV of API design but
-> also of deployment and support.
+It is simply not true that any OS manufacturer has any power like
+this.  At least not in the last 8 years or so.  And as I said before,
+if you can potentially say this about any OS then it is Linux.  The
+ENOTSUP issue is a good example.  There is no need for this change in
+any of the certified Unixes (since they got there errno assingments
+from SysV or at least tested against the Unix test suite early on).
+The pressure from the growing number of Linux users made this an issue
+and so it got changed.
 
-My POV here *is* about deployment and support, but from the kernel side of 
-things.  If you commit yourself to long time support for the firewire stack, 
-would you prefer 4 slightly different streaming drivers with different user 
-space interfaces, or just one userspace driver with one userspace interface, 
-that enables the 4 different types of streaming to be done in userspace?  The 
-design of the streaming interfaces have been focused on enabling all these 
-ad-hoc, in-kernel drivers to move to userspace, to make it feasible to 
-actually support the stack.
-
-Kristian
+And take a look at the next revision.  This is mostly an "align with
+Linux" edition since Linux already has all the proposed new
+functionality.  Solaris has only a small subset and none of the other
+OS have anything like it.

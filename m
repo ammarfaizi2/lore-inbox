@@ -1,42 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1758877AbWLFEeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1760043AbWLFEqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1758877AbWLFEeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Dec 2006 23:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759980AbWLFEeQ
+	id S1760043AbWLFEqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Dec 2006 23:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760047AbWLFEqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Dec 2006 23:34:16 -0500
-Received: from host86-132-175-179.range86-132.btcentralplus.com ([86.132.175.179]:4841
-	"HELO znakomstv.ru" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with SMTP id S1758877AbWLFEeP (ORCPT
+	Tue, 5 Dec 2006 23:46:31 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:49722 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760043AbWLFEqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Dec 2006 23:34:15 -0500
-Message-ID: <94866B2E.326E4B93@znakomstv.ru>
-Date: Wed, 06 Dec 2006 17:28:47 +1200
-Reply-To: "irvin gilbert" <maegainlybir@znakomstv.ru>
-From: "irvin gilbert" <maegainlybir@znakomstv.ru>
-X-Accept-Language: en-us
+	Tue, 5 Dec 2006 23:46:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=pkywY/tvTkv2Ydhqztv0i0wzN15r8YjZZAJc3V/nbk3RzKhie7c4HvhHKSpgcbfQ6kOzIKVElJBNJwIMw3PBwfUiSNbRrKRqUfkMqnvuQSJonxlA5CbXYEYukePMMSiHpCE8XZjc1kZchyU8xSDKbYYH2e7I2PmHkMuhgHH0Jnc=
+Message-ID: <e06498070612052046t5d1c56fdu7e3def1b73a81139@mail.gmail.com>
+Date: Tue, 5 Dec 2006 23:46:29 -0500
+From: "Steven Walter" <stevenrwalter@gmail.com>
+To: kraxel@bytesex.org
+Subject: [PATCH] saa7134: add support for the Encore ENL-TV
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "Myrle" <autoanswer@vger.kernel.org>
-Cc: "Sana" <linux-kernel@vger.kernel.org>
-Subject: Totally OutOfDebt Overnight
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_19322_33282123.1165380389713"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Se1ect 1egal counse1 have found a loophole in the laws of the banking
-system. With this discovery, we've been 5uccessful at eliminating people's
-creditcarddebt with 0ut them paying one more cent. WeGuarantee that we can
-help you with this.
+------=_Part_19322_33282123.1165380389713
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-C0ntact us at
-1--313-263-2706
+This patch adds a board definition for the Encore ENL-TV card, and
+adds its PCI subdevice to the ID table.  Patch is output from
+git-format-patch against Linus' git tree.
 
+Please let me know if there are any deficiencies in this submission.
+-- 
+-Steven Walter <stevenrwalter@gmail.com>
 
-There followed another band after this, which was called the Royal Court
-Band, because the members all lived in the palace. But at this season the
-hotel was almost empty, and when Rob protested that he had no other money
-the fat gentleman put the coins into his cash box with a resigned sigh and
-the waiter showed the boy to a little room at the very top of the building
+------=_Part_19322_33282123.1165380389713
+Content-Type: text/plain; 
+	name=0001-Add-support-for-the-Encore-ENL-TV-to-saa7134.txt; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_evd9bwm2
+Content-Disposition: attachment; filename="0001-Add-support-for-the-Encore-ENL-TV-to-saa7134.txt"
 
+RnJvbSBjOTc2OTk5YWJiZTEzOTNkZmE1MTFhNDNjYWIxNDVjMTcxMDNiYmRmIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGV2ZW4gV2FsdGVyIDxzdGV2ZW5yd2FsdGVyQGdtYWlsLmNv
+bT4KRGF0ZTogVHVlLCA1IERlYyAyMDA2IDIzOjQxOjU1IC0wNTAwClN1YmplY3Q6IFtQQVRDSF0g
+W1BBVENIXSBBZGQgc3VwcG9ydCBmb3IgdGhlIEVuY29yZSBFTkwtVFYgdG8gc2FhNzEzNAoKQ3Jl
+YXRlIGEgYm9hcmQgZGVmaW5pdGlvbiBmb3IgdGhlIEVOTC1UViwgYW5kIGFkZCBpdHMgc3ViZGV2
+aWNlIElEIHRvIHRoZQp0YWJsZS4KClNpZ25lZC1vZmYtYnk6IFN0ZXZlbiBXYWx0ZXIgPHN0ZXZl
+bnJ3YWx0ZXJAZ21haWwuY29tPgotLS0KIGRyaXZlcnMvbWVkaWEvdmlkZW8vc2FhNzEzNC9zYWE3
+MTM0LWNhcmRzLmMgfCAgIDI0ICsrKysrKysrKysrKysrKysrKysrKysrKwogZHJpdmVycy9tZWRp
+YS92aWRlby9zYWE3MTM0L3NhYTcxMzQuaCAgICAgICB8ICAgIDEgKwogMiBmaWxlcyBjaGFuZ2Vk
+LCAyNSBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+bWVkaWEvdmlkZW8vc2FhNzEzNC9zYWE3MTM0LWNhcmRzLmMgYi9kcml2ZXJzL21lZGlhL3ZpZGVv
+L3NhYTcxMzQvc2FhNzEzNC1jYXJkcy5jCmluZGV4IDUxZjBjZmQuLmRkMzc1OGEgMTAwNjQ0Ci0t
+LSBhL2RyaXZlcnMvbWVkaWEvdmlkZW8vc2FhNzEzNC9zYWE3MTM0LWNhcmRzLmMKKysrIGIvZHJp
+dmVycy9tZWRpYS92aWRlby9zYWE3MTM0L3NhYTcxMzQtY2FyZHMuYwpAQCAtMzAyMiw2ICszMDIy
+LDI0IEBAIHN0cnVjdCBzYWE3MTM0X2JvYXJkIHNhYTcxMzRfYm9hcmRzW10gPSAKIAkJCS5hbXV4
+ICAgPSBMSU5FMSwKIAkJfSwKIAl9LAorCVtTQUE3MTM0X0JPQVJEX0VOQ09SRV9FTkxUVl0gPSB7
+CisJCS8qIFN0ZXZlbiBXYWx0ZXIgPHN0ZXZlbnJ3YWx0ZXJAZ21haWwuY29tPiAqLworCQkubmFt
+ZSAgICAgICAgICAgPSAiRW5jb3JlIEVOTFRWIiwKKwkJLnR1bmVyX3R5cGUgICAgID0gVFVORVJf
+VE5GXzUzMzVNRiwKKwkJLnJhZGlvX3R5cGUgICAgID0gVU5TRVQsCisJCS50dW5lcl9hZGRyCT0g
+QUREUl9VTlNFVCwKKwkJLnJhZGlvX2FkZHIJPSBBRERSX1VOU0VULAorCQkuaW5wdXRzICAgICAg
+ICAgPSB7eworCQkgICAgICAgIC5uYW1lID0gbmFtZV90diwKKwkJICAgICAgICAudm11eCA9IDEs
+CisJCSAgICAgICAgLmFtdXggPSBMSU5FMiwKKwkJICAgICAgICAudHYgICA9IDEsCisJCX0sewor
+CQkgICAgICAgIC5uYW1lID0gbmFtZV9zdmlkZW8sCisJCSAgICAgICAgLnZtdXggPSA2LAorCQkg
+ICAgICAgIC5hbXV4ID0gTElORTEsCisJCX19LAorCX0sCiB9OwogCiBjb25zdCB1bnNpZ25lZCBp
+bnQgc2FhNzEzNF9iY291bnQgPSBBUlJBWV9TSVpFKHNhYTcxMzRfYm9hcmRzKTsKQEAgLTM2MzEs
+NiArMzY0OSwxMiBAQCBzdHJ1Y3QgcGNpX2RldmljZV9pZCBzYWE3MTM0X3BjaV90YmxbXSA9CiAJ
+CS5zdWJkZXZpY2UgICAgPSAweDQ4NjAsCiAJCS5kcml2ZXJfZGF0YSAgPSBTQUE3MTM0X0JPQVJE
+X0FTVVNfRVVST1BBMl9IWUJSSUQsCiAJfSx7CisJCS52ZW5kb3IgICAgICAgPSBQQ0lfVkVORE9S
+X0lEX1BISUxJUFMsCisJCS5kZXZpY2UgICAgICAgPSBQQ0lfREVWSUNFX0lEX1BISUxJUFNfU0FB
+NzEzMCwKKwkJLnN1YnZlbmRvciAgICA9IFBDSV9WRU5ET1JfSURfUEhJTElQUywKKwkJLnN1YmRl
+dmljZSAgICA9IDB4MjM0MiwKKwkJLmRyaXZlcl9kYXRhICA9IFNBQTcxMzRfQk9BUkRfRU5DT1JF
+X0VOTFRWLAorCX0sewogCQkvKiAtLS0gYm9hcmRzIHdpdGhvdXQgZWVwcm9tICsgc3Vic3lzdGVt
+IElEIC0tLSAqLwogCQkudmVuZG9yICAgICAgID0gUENJX1ZFTkRPUl9JRF9QSElMSVBTLAogCQku
+ZGV2aWNlICAgICAgID0gUENJX0RFVklDRV9JRF9QSElMSVBTX1NBQTcxMzQsCmRpZmYgLS1naXQg
+YS9kcml2ZXJzL21lZGlhL3ZpZGVvL3NhYTcxMzQvc2FhNzEzNC5oIGIvZHJpdmVycy9tZWRpYS92
+aWRlby9zYWE3MTM0L3NhYTcxMzQuaAppbmRleCA3Y2Y5NmI0Li44ZWUxNjVhIDEwMDY0NAotLS0g
+YS9kcml2ZXJzL21lZGlhL3ZpZGVvL3NhYTcxMzQvc2FhNzEzNC5oCisrKyBiL2RyaXZlcnMvbWVk
+aWEvdmlkZW8vc2FhNzEzNC9zYWE3MTM0LmgKQEAgLTIyNyw2ICsyMjcsNyBAQCAjZGVmaW5lIFNB
+QTcxMzRfQk9BUkRfRkxZRFZCU19MUjMwMCA5NwogI2RlZmluZSBTQUE3MTM0X0JPQVJEX1BST1RF
+VVNfMjMwOSA5OAogI2RlZmluZSBTQUE3MTM0X0JPQVJEX0FWRVJNRURJQV9BMTZBUiAgIDk5CiAj
+ZGVmaW5lIFNBQTcxMzRfQk9BUkRfQVNVU19FVVJPUEEyX0hZQlJJRCAxMDAKKyNkZWZpbmUgU0FB
+NzEzNF9CT0FSRF9FTkNPUkVfRU5MVFYgMTAxCiAKICNkZWZpbmUgU0FBNzEzNF9NQVhCT0FSRFMg
+OAogI2RlZmluZSBTQUE3MTM0X0lOUFVUX01BWCA4Ci0tIAoxLjQuMQoK
+------=_Part_19322_33282123.1165380389713--

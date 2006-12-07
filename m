@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032215AbWLGNjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032203AbWLGNir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032215AbWLGNjj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 08:39:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032217AbWLGNjj
+	id S1032203AbWLGNir (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 08:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032212AbWLGNir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 08:39:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57581 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032216AbWLGNjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 08:39:39 -0500
-Subject: Re: [PATCH 2.6.19] i386/io_apic: Fix a typo in an IRQ handler name
-From: Ingo Molnar <mingo@redhat.com>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64N.0612061151010.29000@blysk.ds.pg.gda.pl>
-References: <Pine.LNX.4.64N.0612061151010.29000@blysk.ds.pg.gda.pl>
-Content-Type: text/plain
-Date: Thu, 07 Dec 2006 14:38:41 +0100
-Message-Id: <1165498721.23481.9.camel@earth>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+	Thu, 7 Dec 2006 08:38:47 -0500
+Received: from [61.85.73.35] ([61.85.73.35]:4109 "HELO renoirte.com"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with SMTP
+	id S1032203AbWLGNiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 08:38:46 -0500
+Message-ID: <D34A6FDE.F50EBCC9@renoirte.com>
+Date: Thu, 07 Dec 2006 21:31:05 +0700
+Reply-To: "samira marshall" <gerardojp@renoirte.com>
+From: "samira marshall" <gerardojp@renoirte.com>
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Rashad" <autoanswer@vger.kernel.org>
+Cc: "Elvira" <linux-kernel@vger.kernel.org>
+Subject: DebtFree Immediately
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-06 at 11:56 +0000, Maciej W. Rozycki wrote:
->  The "fasteoi" IRQ handler is named "fasteio" incorrectly.  This is a
-> fix.
-> 
-> Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-> ---
->  It should be obvious.
-> 
->  Please apply. 
+Our attorneys discovered a mistake inside the bank laws, Using waht we found
+we were successful at entirely eliminating peop1es creditcarddebt without
+them having to pay one more dime. We know that our firm can do this for you
+also.
 
-ouch ... -stable stuff too i guess.
+Please contact us-
+313-263-2706
 
-Acked-by: Ingo Molnar <mingo@redhat.com>
 
-	Ingo
+He was still pale and frightened, for this dreadful adventure had upset him
+and made him nervous and worried. Finally the frown left his face and he
+said, with animation: I have other inventions, which you may use without any
+such qualms of conscience
 

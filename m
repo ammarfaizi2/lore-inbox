@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937837AbWLGAai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937838AbWLGAgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937837AbWLGAai (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 19:30:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937838AbWLGAai
+	id S937838AbWLGAgf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 19:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937840AbWLGAgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 19:30:38 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:58834 "EHLO smtp.osdl.org"
+	Wed, 6 Dec 2006 19:36:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55764 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937837AbWLGAah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 19:30:37 -0500
-Date: Wed, 6 Dec 2006 16:30:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Neuling <mikey@neuling.org>
-Cc: linux-kernel@vger.kernel.org, H Peter Anvin <hpa@zytor.com>,
-       Al Viro <viro@ftp.linux.org.uk>, fastboot@lists.osdl.org
-Subject: Re: [PATCH] free initrds boot option
-Message-Id: <20061206163021.f434f09b.akpm@osdl.org>
-In-Reply-To: <4410.1165450723@neuling.org>
-References: <4410.1165450723@neuling.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S937838AbWLGAge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 19:36:34 -0500
+Message-ID: <457760DD.5070601@redhat.com>
+Date: Wed, 06 Dec 2006 19:31:25 -0500
+From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060803)
+MIME-Version: 1.0
+To: Ben Collins <ben.collins@ubuntu.com>
+CC: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/3] New firewire stack
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com>	 <20061205184921.GA5029@martell.zuzino.mipt.ru>	 <4575FF08.2030100@redhat.com> <1165383349.7443.78.camel@gullible>	 <457685D1.1080501@s5r6.in-berlin.de> <1165416546.7443.111.camel@gullible>
+In-Reply-To: <1165416546.7443.111.camel@gullible>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 11:18:43 +1100
-Michael Neuling <mikey@neuling.org> wrote:
-
-> Add free_initrd= option to control freeing of initrd memory after
-> extraction.  By default, free memory as previously.
+Ben Collins wrote:
+...
+>> I would like to see new development efforts take cleanliness WRT host
+>> byte order and 64bit architectures into account from the ground up. (I
+>> understand though why Kristian made the announcement in this early
+>> phase, and I agree with him that this kind of development has to go into
+>> the open early.)
 > 
-> Signed-off-by: Michael Neuling <mikey@neuling.org>
-> ---
-> Useful for kexec when you want to reuse the same initrd.  Testing on
-> POWERPC with CPIOs 
-> 
-> --- linux-2.6-ozlabs.orig/init/initramfs.c
-> +++ linux-2.6-ozlabs/init/initramfs.c
-> @@ -487,6 +487,17 @@ static char * __init unpack_to_rootfs(ch
->  	return message;
->  }
->  
-> +static int do_free_initrd = 1;
-> +
-> +int __init free_initrd_param(char *p)
-> +{
-> +	if (p && strncmp(p, "0", 1) == 0)
-> +		do_free_initrd = 0;
-> +
-> +	return 0;
-> +}
-> +early_param("free_initrd", free_initrd_param);
-> +
->  extern char __initramfs_start[], __initramfs_end[];
->  #ifdef CONFIG_BLK_DEV_INITRD
->  #include <linux/initrd.h>
-> @@ -494,10 +505,13 @@ extern char __initramfs_start[], __initr
->  
->  static void __init free_initrd(void)
->  {
-> -#ifdef CONFIG_KEXEC
->  	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
->  	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
->  
-> +	if (!do_free_initrd)
-> +		goto skip;
-> +
-> +#ifdef CONFIG_KEXEC
->  	/*
->  	 * If the initrd region is overlapped with crashkernel reserved region,
->  	 * free only memory that is not part of crashkernel region.
-> @@ -515,7 +529,7 @@ static void __init free_initrd(void)
->  	} else
->  #endif
->  		free_initrd_mem(initrd_start, initrd_end);
-> -
-> +skip:
->  	initrd_start = 0;
->  	initrd_end = 0;
->  }
+> And yet endianness is not the focus from the ground up in Kristian's
+> work. That was my point.
 
-I'd have thought that an option `retain_initrd' would make more sense.
+I don't know what you base this on, it's not true.  Everything outside 
+fw-ohci.c is endian aware and I know the two things I need to look into for 
+fw-ohci: DMA programs and IEEE1394 headers.  My plan was to develop the stack 
+towards feature completeness and then test on big-endian and 64-bit platforms.
 
-Please always update Documentation/kernel-parameters.txt when adding boot
-options.
+If you're thinking of the bitfield problem BenH pointed out, that doesn't 
+imply I didn't have endianess in mind when writing the code.  As Stefan 
+already mentioned, we use bitfields for wire data in the current stack.  We 
+have to sets of structs, one for big endian architectures and one for little 
+endian architectures.  My plan was to write big endian versions of these 
+structs and then test on various architectures.
 
+So my bitfield approach doesn't work and I haven't gotten around to doing the 
+big-endian testing yet, but don't mistake that for lack of endianess 
+awareness.  Of course, big endian and 64-bit architectures *must* work, but I 
+contend that it can impact the overall design of the stack.  It's a detail 
+that you need to get right, not a design principle.  But let's not argue this 
+further, I'll post a new set of patches in a few days that work on big-endian 
+and 64-bit.
+
+cheers,
+Kristian

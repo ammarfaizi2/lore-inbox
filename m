@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937964AbWLGOgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937962AbWLGOi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937964AbWLGOgK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 09:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937965AbWLGOgK
+	id S937962AbWLGOi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 09:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937959AbWLGOi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 09:36:10 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:4752 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937964AbWLGOgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 09:36:07 -0500
-Date: Thu, 7 Dec 2006 15:36:03 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [0/5] PCI MMConfig per-chipset support
-Message-ID: <20061207143603.GA41804@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Thu, 7 Dec 2006 09:38:56 -0500
+Received: from smtp151.iad.emailsrvr.com ([207.97.245.151]:46778 "EHLO
+	smtp151.iad.emailsrvr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937962AbWLGOiz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 09:38:55 -0500
+Message-ID: <45782774.8060002@gentoo.org>
+Date: Thu, 07 Dec 2006 09:38:44 -0500
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061111)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Daniel Ritz <daniel.ritz@gmx.ch>, Jean Delvare <khali@linux-fr.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Bauke Jan Douma <bjdouma@xs4all.nl>,
+       Tomasz Koprowski <tomek@koprowski.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: RFC: PCI quirks update for 2.6.16
+References: <20061207132430.GF8963@stusta.de>
+In-Reply-To: <20061207132430.GF8963@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Done in 5 steps, at Andi's very reasonable request:
+Adrian Bunk wrote:
+> Daniel Drake (1):
+>       PCI: VIA IRQ quirk behaviour change
 
-1/5: PCI MMConfig: Share what's shareable.
-  Share code between i386 and x86-64
+Please drop this one, Alan isn't 100% on it and is working on getting a 
+better fix into mainline
 
-2/5: PCI MMConfig: Only call unreachable_devices() when type 1 is available.
-  Trivial fix.
-
-3/5: PCI MMConfig: Only map what's necessary.
-  Trivial fix too.
-
-4/5: PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
-  The actual per-chipset support.
-
-5/5: PCI MMConfig: Reserve resources but only when we're sure about them.
-  Add the resources in /proc/iomem when the chipset in known.
-
-  OG.
+Daniel
 

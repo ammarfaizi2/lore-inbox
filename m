@@ -1,171 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425434AbWLHMBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162553AbWLGR2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425434AbWLHMBn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:01:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425442AbWLHMBn
+	id S1162553AbWLGR2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 12:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162561AbWLGR2C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:01:43 -0500
-Received: from ns2.suse.de ([195.135.220.15]:51604 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425434AbWLHMBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:01:41 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 23:01:52 +1100
-Message-Id: <1061208120152.18136@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 13] knfsd: SUNRPC: update internal API: separate pmap register and temp sockets
-References: <20061208225655.17970.patches@notabene>
+	Thu, 7 Dec 2006 12:28:02 -0500
+Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:1343 "EHLO
+	smtp-vbr11.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1162553AbWLGR2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 12:28:00 -0500
+Message-ID: <45784F0C.7040005@xs4all.nl>
+Date: Thu, 07 Dec 2006 18:27:40 +0100
+From: Bauke Jan Douma <bjdouma@xs4all.nl>
+Reply-To: bjdouma@xs4all.nl
+Organization: a training zoo
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: Adrian Bunk <bunk@stusta.de>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Daniel Ritz <daniel.ritz@gmx.ch>,
+       Daniel Drake <dsd@gentoo.org>, Jean Delvare <khali@linux-fr.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Tomasz Koprowski <tomek@koprowski.org>
+Subject: Re: RFC: PCI quirks update for 2.6.16
+References: <20061207132430.GF8963@stusta.de> <20061207165352.9cb61023.vsu@altlinux.ru>
+In-Reply-To: <20061207165352.9cb61023.vsu@altlinux.ru>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sergey Vlasov wrote on 07-12-06 14:53:
+> On Thu, 7 Dec 2006 14:24:30 +0100 Adrian Bunk wrote:
+> 
+>> While checking how to fix the VIA quirk regressions for several users
+>> introduced into -stable in 2.6.16.17, I started looking through all
+>> drivers/pci/quirks.c updates up to both -stable and 2.6.19.
+>>
+[snip]
+>>
+>>
+>> Bauke Jan Douma (1):
+>>       PCI: quirk for asus a8v and a8v delux motherboards
+> 
+> This quirk will cause breakage for people who used an external PCI
+> soundcard with these boards - the builtin sound chip which was
+> invisible before may become the first audio device.
 
-From: Chuck Lever <chuck.lever@oracle.com>
+I'm afraid I don't understand the problem described here, when
+ALSA can assign any arbitrary index number of a user's choice
+to cards that are detected.
 
-Currently in the RPC server, registering with the local portmapper and
-creating "permanent" sockets are tied together.  Expand the internal APIs
-to allow these two socket characteristics to be separately specified.
+Indeed, on my system (an A8V Deluxe motherboard, with this
+quirk active), my first soundcard (given index=0) is an offboard
+Creative SB Live, and the onboard card I have assigned index=1.
 
-This will be externalized in the next patch.
+I for one need this quirk to get both soundcards at all (which
+I need) -- no matter what indexing order.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
-Signed-off-by: Neil Brown <neilb@suse.de>
+> It also enables the MC97 device, which does not really work (there is
+> no MC97 codec attached to the controller at least on A8V Deluxe; I'm
+> not sure if there is some other variant of this board which has MC97,
+> but it seems unlikely).
 
-### Diffstat output
- ./include/linux/sunrpc/svcsock.h |    7 +++++
- ./net/sunrpc/svcsock.c           |   47 ++++++++++++++++++++++-----------------
- 2 files changed, 34 insertions(+), 20 deletions(-)
+This one can be disabled separate of the AC97 -- let me get back
+on that.  I, for one (however much that is), don't need it either.
 
-diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
---- .prev/include/linux/sunrpc/svcsock.h	2006-12-08 13:35:42.000000000 +1100
-+++ ./include/linux/sunrpc/svcsock.h	2006-12-08 13:35:43.000000000 +1100
-@@ -74,4 +74,11 @@ int		svc_addsock(struct svc_serv *serv,
- 			    char *name_return,
- 			    int *proto);
- 
-+/*
-+ * svc_makesock socket characteristics
-+ */
-+#define SVC_SOCK_DEFAULTS	(0U)
-+#define SVC_SOCK_ANONYMOUS	(1U << 0)	/* don't register with pmap */
-+#define SVC_SOCK_TEMPORARY	(1U << 1)	/* flag socket as temporary */
-+
- #endif /* SUNRPC_SVCSOCK_H */
 
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-08 13:35:43.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-08 13:35:43.000000000 +1100
-@@ -69,7 +69,7 @@
- 
- 
- static struct svc_sock *svc_setup_socket(struct svc_serv *, struct socket *,
--					 int *errp, int pmap_reg);
-+					 int *, int);
- static void		svc_udp_data_ready(struct sock *, int);
- static int		svc_udp_recvfrom(struct svc_rqst *);
- static int		svc_udp_sendto(struct svc_rqst *);
-@@ -922,7 +922,8 @@ svc_tcp_accept(struct svc_sock *svsk)
- 	 */
- 	newsock->sk->sk_sndtimeo = HZ*30;
- 
--	if (!(newsvsk = svc_setup_socket(serv, newsock, &err, 0)))
-+	if (!(newsvsk = svc_setup_socket(serv, newsock, &err,
-+				 (SVC_SOCK_ANONYMOUS | SVC_SOCK_TEMPORARY))))
- 		goto failed;
- 
- 
-@@ -1456,12 +1457,14 @@ svc_age_temp_sockets(unsigned long closu
-  * Initialize socket for RPC use and create svc_sock struct
-  * XXX: May want to setsockopt SO_SNDBUF and SO_RCVBUF.
-  */
--static struct svc_sock *
--svc_setup_socket(struct svc_serv *serv, struct socket *sock,
--					int *errp, int pmap_register)
-+static struct svc_sock *svc_setup_socket(struct svc_serv *serv,
-+						struct socket *sock,
-+						int *errp, int flags)
- {
- 	struct svc_sock	*svsk;
- 	struct sock	*inet;
-+	int		pmap_register = !(flags & SVC_SOCK_ANONYMOUS);
-+	int		is_temporary = flags & SVC_SOCK_TEMPORARY;
- 
- 	dprintk("svc: svc_setup_socket %p\n", sock);
- 	if (!(svsk = kzalloc(sizeof(*svsk), GFP_KERNEL))) {
-@@ -1503,7 +1506,7 @@ svc_setup_socket(struct svc_serv *serv, 
- 		svc_tcp_init(svsk);
- 
- 	spin_lock_bh(&serv->sv_lock);
--	if (!pmap_register) {
-+	if (is_temporary) {
- 		set_bit(SK_TEMP, &svsk->sk_flags);
- 		list_add(&svsk->sk_list, &serv->sv_tempsocks);
- 		serv->sv_tmpcnt++;
-@@ -1547,7 +1550,7 @@ int svc_addsock(struct svc_serv *serv,
- 	else if (so->state > SS_UNCONNECTED)
- 		err = -EISCONN;
- 	else {
--		svsk = svc_setup_socket(serv, so, &err, 1);
-+		svsk = svc_setup_socket(serv, so, &err, SVC_SOCK_DEFAULTS);
- 		if (svsk)
- 			err = 0;
- 	}
-@@ -1563,8 +1566,8 @@ EXPORT_SYMBOL_GPL(svc_addsock);
- /*
-  * Create socket for RPC service.
-  */
--static int
--svc_create_socket(struct svc_serv *serv, int protocol, struct sockaddr_in *sin)
-+static int svc_create_socket(struct svc_serv *serv, int protocol,
-+				struct sockaddr_in *sin, int flags)
- {
- 	struct svc_sock	*svsk;
- 	struct socket	*sock;
-@@ -1600,8 +1603,8 @@ svc_create_socket(struct svc_serv *serv,
- 			goto bummer;
- 	}
- 
--	if ((svsk = svc_setup_socket(serv, sock, &error, 1)) != NULL)
--		return 0;
-+	if ((svsk = svc_setup_socket(serv, sock, &error, flags)) != NULL)
-+		return ntohs(inet_sk(svsk->sk_sk)->sport);
- 
- bummer:
- 	dprintk("svc: svc_create_socket error = %d\n", -error);
-@@ -1651,19 +1654,23 @@ svc_delete_socket(struct svc_sock *svsk)
- 	svc_sock_put(svsk);
- }
- 
--/*
-- * Make a socket for nfsd and lockd
-+/**
-+ * svc_makesock - Make a socket for nfsd and lockd
-+ * @serv: RPC server structure
-+ * @protocol: transport protocol to use
-+ * @port: port to use
-+ *
-  */
--int
--svc_makesock(struct svc_serv *serv, int protocol, unsigned short port)
-+int svc_makesock(struct svc_serv *serv, int protocol, unsigned short port)
- {
--	struct sockaddr_in	sin;
-+	struct sockaddr_in sin = {
-+		.sin_family		= AF_INET,
-+		.sin_addr.s_addr	= INADDR_ANY,
-+		.sin_port		= htons(port),
-+	};
- 
- 	dprintk("svc: creating socket proto = %d\n", protocol);
--	sin.sin_family      = AF_INET;
--	sin.sin_addr.s_addr = INADDR_ANY;
--	sin.sin_port        = htons(port);
--	return svc_create_socket(serv, protocol, &sin);
-+	return svc_create_socket(serv, protocol, &sin, SVC_SOCK_DEFAULTS);
- }
- 
- /*
+bjd

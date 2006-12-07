@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163395AbWLGVZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163538AbWLGWbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163395AbWLGVZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163396AbWLGVZU
+	id S1163538AbWLGWbf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163539AbWLGWbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:25:20 -0500
-Received: from zrtps0kn.nortel.com ([47.140.192.55]:37378 "EHLO
-	zrtps0kn.nortel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163395AbWLGVZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:25:19 -0500
-Message-ID: <457886B4.2030507@nortel.com>
-Date: Thu, 07 Dec 2006 15:25:08 -0600
-From: "Chris Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
-X-Accept-Language: en-us, en
+	Thu, 7 Dec 2006 17:31:35 -0500
+Received: from iabervon.org ([66.92.72.58]:4279 "EHLO iabervon.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1163538AbWLGWbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:31:35 -0500
+Date: Thu, 7 Dec 2006 17:31:33 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: gregkh@suse.de
+cc: Jeff Garzik <jeff@garzik.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Disable INTx when enabling MSI
+Message-ID: <Pine.LNX.4.64.0612071659010.20138@iabervon.org>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: additional oom-killer tuneable worth submitting?
-References: <45785DDD.3000503@nortel.com> <9a8748490612071050q60b378c4ldf039140ffd721be@mail.gmail.com>
-In-Reply-To: <9a8748490612071050q60b378c4ldf039140ffd721be@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Dec 2006 21:25:19.0843 (UTC) FILETIME=[325E6B30:01C71A46]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+Some device manufacturers seem to think it's the OS's responsibility to 
+disable legacy interrupt delivery when using MSI. If the driver doesn't 
+handle it (which they generally don't), and the device isn't PCI-Express, 
+a steady stream of legacy interrupts will be delivered in addition to the 
+MSI ones, eventually leading to the legacy IRQ getting disabled, which 
+kills any device that shares it.
 
-> How does "oomthresh" and "oomadj" affect each other?
+Jeff proposed a patch in http://lkml.org/lkml/2006/11/21/332 when Linus 
+wanted to do it in the PCI layer, but nobody seems to have told the actual 
+PCI maintainer.
 
-If memory consumption is less than "oomthresh", that process is simply 
-bypassed.  (Equivalent to oomkilladj==OOM_DISABLE.)  Otherwise, continue 
-processing as normal.
+I'm trying to get a patch into -stable to do pci_intx in exactly the same 
+situations, but only for forcedeth (which is the device that's causing 
+problems for me), but that requires that the real solution be merged in 
+the mainline.
 
-> Default "oomthresh" value for a new process is 0 (zero) I assume -
-> right?  If not, then I'd suggest that it should be.
-
-Correct.
-
-> What happens when a process fork()s? Does the child enherit the
-> parents "oomthresh" value?
-
-Currently it does not.  This is to allow for different memory access 
-patterns by parent/child.  And exec() wipes it as well.
-
-> Would it make sense to make "oomthresh" apply to process groups
-> instead of processes?
-
-Hmm...it might make sense given that the point of the group is to manage 
-tasks together...but it would make accounting more tricky.  Currently 
-it's just a very simple comparison of p->mm->total_vm against the 
-threshold in badness().
-
-> What happens in the case where the OOM killer really, really needs to
-> kill one or more processes since there is not a single drop of memory
-> available, but all processes are below their configured thresholds?
-
-Then the system wasn't properly engineered.  <grin>
-
-In this case you reboot.
-
-Chris
+	-Daniel
+*This .sig left intentionally blank*

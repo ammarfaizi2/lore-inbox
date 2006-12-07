@@ -1,106 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425333AbWLHK2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163195AbWLGTAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425333AbWLHK2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 05:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425336AbWLHK2S
+	id S1163195AbWLGTAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 14:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163199AbWLGTAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 05:28:18 -0500
-Received: from amsfep16-int.chello.nl ([62.179.120.11]:43214 "EHLO
-	amsfep16-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425333AbWLHK2R (ORCPT
+	Thu, 7 Dec 2006 14:00:38 -0500
+Received: from az33egw01.freescale.net ([192.88.158.102]:56625 "EHLO
+	az33egw01.freescale.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163195AbWLGTAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 05:28:17 -0500
-Subject: [PATCH] uml:
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: torvalds <torvalds@osdl.org>, Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       David Howells <dhowells@redhat.com>
-Content-Type: text/plain
-Date: Fri, 08 Dec 2006 11:20:34 +0100
-Message-Id: <1165573234.32332.15.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Thu, 7 Dec 2006 14:00:37 -0500
+In-Reply-To: <457849E2.3080909@garzik.org>
+References: <20061206234942.79d6db01.akpm@osdl.org>	<1165125055.5320.14.camel@gullible>	<20061203011625.60268114.akpm@osdl.org>	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>	<20061205123958.497a7bd6.akpm@osdl.org>	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>	<20061205132643.d16db23b.akpm@osdl.org>	<adaac22c9cu.fsf@cisco.com>	<20061205135753.9c3844f8.akpm@osdl.org>	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>	<20061206075729.b2b6aa52.akpm@osdl.org>	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>	<20061206224207.8a8335ee.akpm@osdl.org>	<9392.1165487379@redhat.com> <20061207024211.be739a4a.akpm@osdl.org> <457849E2.3080909@garzik.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <72C77C91-B552-4BDE-B50A-13E16F448BCA@freescale.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, macro@linux-mips.org,
+       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
+       ben.collins@ubuntu.com, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Andy Fleming <afleming@freescale.com>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Date: Thu, 7 Dec 2006 12:59:42 -0600
+To: Jeff Garzik <jeff@garzik.org>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-fixup the work on stack and exit scope trouble by placing the work_struct in
-the uml_net_private data.
+On Dec 7, 2006, at 11:05, Jeff Garzik wrote:
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- arch/um/drivers/net_kern.c |   15 +++++++++------
- arch/um/include/net_kern.h |    2 ++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+> Yes, I merged the code, but looking deeper at phy its clear I  
+> missed some things.
+>
+> Looking into libphy's workqueue stuff, it has the following sequence:
+>
+> 	disable interrupts
+> 	schedule_work()
+>
+> 	... time passes ...
+> 	... workqueue routine is called ...
+>
+> 	enable interrupts
+> 	handle interrupt
+>
+> I really have to question if a workqueue was the best choice of  
+> direction for such a sequence.  You don't want to put off handling  
+> an interrupt, with interrupts disabled, for a potentially unbounded  
+> amount of time.
+>
+> Maybe the best course of action is to mark it with CONFIG_BROKEN  
+> until it gets fixed.
 
-Index: linux-2.6-git/arch/um/drivers/net_kern.c
-===================================================================
---- linux-2.6-git.orig/arch/um/drivers/net_kern.c	2006-12-08 10:32:56.000000000 +0100
-+++ linux-2.6-git/arch/um/drivers/net_kern.c	2006-12-08 11:14:28.000000000 +0100
-@@ -72,9 +72,11 @@ static int uml_net_rx(struct net_device 
- 	return pkt_len;
- }
- 
--static void uml_dev_close(void* dev)
-+static void uml_dev_close(struct work_struct *work)
- {
--	dev_close( (struct net_device *) dev);
-+	struct uml_net_private *lp =
-+		container_of(work, struct uml_net_private, work);
-+	dev_close(lp->dev);
- }
- 
- irqreturn_t uml_net_interrupt(int irq, void *dev_id)
-@@ -89,7 +91,6 @@ irqreturn_t uml_net_interrupt(int irq, v
- 	spin_lock(&lp->lock);
- 	while((err = uml_net_rx(dev)) > 0) ;
- 	if(err < 0) {
--		DECLARE_WORK(close_work, uml_dev_close, dev);
- 		printk(KERN_ERR 
- 		       "Device '%s' read returned %d, shutting it down\n", 
- 		       dev->name, err);
-@@ -97,9 +98,10 @@ irqreturn_t uml_net_interrupt(int irq, v
- 		 * again lp->lock.
- 		 * And dev_close() can be safely called multiple times on the
- 		 * same device, since it tests for (dev->flags & IFF_UP). So
--		 * there's no harm in delaying the device shutdown. */
--		schedule_work(&close_work);
--#error this is not permitted - close_work will go out of scope
-+		 * there's no harm in delaying the device shutdown.
-+		 * Furthermore, the workqueue will not re-enqueue an already
-+		 * enqueued work item. */
-+		schedule_work(&lp->work);
- 		goto out;
- 	}
- 	reactivate_fd(lp->fd, UM_ETH_IRQ);
-@@ -366,6 +368,7 @@ static int eth_configure(int n, void *in
- 	/* This points to the transport private data. It's still clear, but we
- 	 * must memset it to 0 *now*. Let's help the drivers. */
- 	memset(lp, 0, size);
-+	INIT_WORK(&lp->work, uml_dev_close);
- 
- 	/* sysfs register */
- 	if (!driver_registered) {
-Index: linux-2.6-git/arch/um/include/net_kern.h
-===================================================================
---- linux-2.6-git.orig/arch/um/include/net_kern.h	2006-12-08 10:55:25.000000000 +0100
-+++ linux-2.6-git/arch/um/include/net_kern.h	2006-12-08 11:00:26.000000000 +0100
-@@ -11,6 +11,7 @@
- #include <linux/skbuff.h>
- #include <linux/socket.h>
- #include <linux/list.h>
-+#include <linux/workqueue.h>
- 
- struct uml_net {
- 	struct list_head list;
-@@ -26,6 +27,7 @@ struct uml_net_private {
- 	struct net_device *dev;
- 	struct timer_list tl;
- 	struct net_device_stats stats;
-+	struct work_struct work;
- 	int fd;
- 	unsigned char mac[ETH_ALEN];
- 	unsigned short (*protocol)(struct sk_buff *);
 
+Yes, this is one of the design choices I made to be able to lock  
+properly around MDIO transactions.
+
+1) MDIO transactions take a long time
+2) Some interfaces provide an interrupt to indicate the transaction  
+has completed.
+
+So I didn't want an irq-disabling spin lock.  It would prevent 2 from  
+ever being used, and would mean all interrupts were disabled for  
+thousands of cycles for MDIO transactions.
+
+So I decreed that no MDIO transactions can happen in interrupt  
+context.  But the registers to disable the specific PHY's interrupt  
+are only accessible through MDIO, so in order to be able to follow  
+that edict AND ever handle the interrupt, I need to disable the  
+interrupt.  But I only disable the PHY's interrupt (which is likely  
+shared among some devices).  I agree it's ugly, but I haven't yet  
+figured out another way to do it.
+
+I'd love to eliminate the work queue altogether.  I keep thinking  
+that I could do something with semaphores, or spin_trylocks, but I'm  
+not sure about the best way to let the interrupt handlers do their  
+thing.
+
+Andy
 

@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424771AbWLHGVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163707AbWLGXAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424771AbWLHGVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 01:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424770AbWLHGVe
+	id S1163707AbWLGXAK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163705AbWLGXAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 01:21:34 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:37185 "EHLO
-	note.orchestra.cse.unsw.EDU.AU" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1424771AbWLHGVe (ORCPT
+	Thu, 7 Dec 2006 18:00:08 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:39843 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163700AbWLGW77 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 01:21:34 -0500
-From: Paul Cameron Davies <pauld@cse.unsw.EDU.AU>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 17:21:24 +1100 (EST)
-X-X-Sender: pauld@weill.orchestra.cse.unsw.EDU.AU
-cc: David Singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Lee.Schermerhorn@hp.com
-Subject: Re: new procfs memory analysis feature
-In-Reply-To: <20061207143611.7a2925e2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612081716440.28861@weill.orchestra.cse.unsw.EDU.AU>
-References: <45789124.1070207@mvista.com> <20061207143611.7a2925e2.akpm@osdl.org>
+	Thu, 7 Dec 2006 17:59:59 -0500
+Message-ID: <45789D0F.6060100@oracle.com>
+Date: Thu, 07 Dec 2006 15:00:31 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH/RFC] CodingStyle updates
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com> <200612072254.51348.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200612072254.51348.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006, Andrew Morton wrote:
+Alistair John Strachan wrote:
 
-> I think that's our eighth open-coded pagetable walker.  Apparently they are
-> all slightly different.  Perhaps we shouild do something about that one
-> day.
+>> +but no space after unary operators:
+>> +		sizeof  ++  --  &  *  +  -  ~  !  defined
+> 
+> You could mention typeof too, which is a keyword but should be done like 
+> sizeof.
 
-At UNSW we have abstracted the page table into its own layer, and
-are running an alternate page table (a GPT), under a clean page table
-interface (PTI).
+Hm, is that a gcc-ism?  It's not listed in the C99 spec.
 
-The PTI gathers all the open coded iterators togethers into one place,
-which would be a good precursor to providing generic iterators for
-non performance critical iterations.
+Are there other gcc-isms that I should add?
 
-We are completing the updating/enhancements to this PTI for the latest 
-kernel, to be released just prior to LCA.  This PTI is benchmarking well. 
-We also plan to release the experimental guarded page table (GPT) running 
-under this PTI.
-
-Paul Davies
-Gelato@UNSW
-~
-
+Thanks.
+-- 
+~Randy

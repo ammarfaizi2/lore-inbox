@@ -1,61 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032533AbWLHIw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163883AbWLGXWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032533AbWLHIw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 03:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032532AbWLHIw3
+	id S1163883AbWLGXWa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163996AbWLGXW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 03:52:29 -0500
-Received: from hu-out-0506.google.com ([72.14.214.225]:24029 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425209AbWLHIw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 03:52:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Dohu1BQM0fM7iXHZc6Ya/uYFp/XSgtC7QtrV8l7x5plS4egOBd35Dp+/yMsTGlpgMfvclbTd2nWVZclJZWay6byuUv6QHEPWXZFD9MTZn4M1daDNOcVX7A9iZ+bCqAV1rraxpUSQxftEB/LbrCbmBerxUE8E/T+f3DokSWN/I3Q=
-Message-ID: <86802c440612080052x3704d767p8bfeb7fb723c9883@mail.gmail.com>
-Date: Fri, 8 Dec 2006 00:52:26 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-Cc: ebiederm@xmission.com, "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
-       "David Brownell" <david-b@pacbell.net>
-In-Reply-To: <20061208071437.GA23173@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 18:22:29 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41197 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1163883AbWLGXW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:22:28 -0500
+Date: Thu, 7 Dec 2006 17:22:13 -0600
+From: Erik Jacobson <erikj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: guillaume.thouvenin@bull.net, matthltc@us.ibm.com
+Subject: [PATCH] connector: Some fixes for ia64 unaligned access errors
+Message-ID: <20061207232213.GA29340@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-	 <20061208071437.GA23173@suse.de>
-X-Google-Sender-Auth: 5160cd96fc871fb1
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/06, Greg KH <gregkh@suse.de> wrote:
-> Ugh, no, never use the usb-serial driver as a console device.
->
-> That was a bad hack done as a bet many years ago.  For many obvious
-> reasons it does not work well.
-understood, I found with usb_serial convertor could lose some chatacter.
-but the usb-debug cable seem it keep all character.
->
-> > host with cat /dev/ttyUSB0
-> > But if use minicom in host, it will not show '\r', I guess the usb debug
-> > cable eat return char. Greg, Can you add that back in usb_debug by
-> > replacing '\n' with '\r', '\n'?
->
-> The usb-serial console code should handle this, I thought we fixed it a
-> while ago.
-Is it in the git tree?
->
-> But this kind of interface is not what these devices are good for.  They
-> are for the debug port information, not as a usb-serial console device.
-> Otherwise they are way too expensive of a device...
-the problem is some "modern" PC will left out serial port. then the cable
-could get cheap.
+On ia64, the various functions that make up cn_proc.c cause kernel
+unaligned access errors.
 
-YH
+If you are using these, for example, to get notification about
+all tasks forking and exiting, you get multiple unaligned access errors
+per process.
+
+Here, we just adjust how the variables are declared and use memcopy to
+avoid the error messages.
+
+Signed-off-by: Erik Jacobson <erikj@sgi.com>
+---
+
+ cn_proc.c |   94 +++++++++++++++++++++++++++++++-------------------------------
+ 1 file changed, 47 insertions(+), 47 deletions(-)
+--- linux.orig/drivers/connector/cn_proc.c	2006-11-29 15:57:37.000000000 -0600
++++ linux/drivers/connector/cn_proc.c	2006-12-07 16:50:03.195035791 -0600
+@@ -49,7 +49,7 @@
+ void proc_fork_connector(struct task_struct *task)
+ {
+ 	struct cn_msg *msg;
+-	struct proc_event *ev;
++	struct proc_event ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 	struct timespec ts;
+ 
+@@ -57,19 +57,19 @@
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+-	ev = (struct proc_event*)msg->data;
+-	get_seq(&msg->seq, &ev->cpu);
++	get_seq(&msg->seq, &ev.cpu);
+ 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
+-	ev->timestamp_ns = timespec_to_ns(&ts);
+-	ev->what = PROC_EVENT_FORK;
+-	ev->event_data.fork.parent_pid = task->real_parent->pid;
+-	ev->event_data.fork.parent_tgid = task->real_parent->tgid;
+-	ev->event_data.fork.child_pid = task->pid;
+-	ev->event_data.fork.child_tgid = task->tgid;
++	ev.timestamp_ns = timespec_to_ns(&ts);
++	ev.what = PROC_EVENT_FORK;
++	ev.event_data.fork.parent_pid = task->real_parent->pid;
++	ev.event_data.fork.parent_tgid = task->real_parent->tgid;
++	ev.event_data.fork.child_pid = task->pid;
++	ev.event_data.fork.child_tgid = task->tgid;
+ 
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+-	msg->len = sizeof(*ev);
++	msg->len = sizeof(ev);
++	memcpy(msg->data, &ev, sizeof(ev));
+ 	/*  If cn_netlink_send() failed, the data is not sent */
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ }
+@@ -77,7 +77,7 @@
+ void proc_exec_connector(struct task_struct *task)
+ {
+ 	struct cn_msg *msg;
+-	struct proc_event *ev;
++	struct proc_event ev;
+ 	struct timespec ts;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 
+@@ -85,24 +85,24 @@
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+-	ev = (struct proc_event*)msg->data;
+-	get_seq(&msg->seq, &ev->cpu);
++	get_seq(&msg->seq, &ev.cpu);
+ 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
+-	ev->timestamp_ns = timespec_to_ns(&ts);
+-	ev->what = PROC_EVENT_EXEC;
+-	ev->event_data.exec.process_pid = task->pid;
+-	ev->event_data.exec.process_tgid = task->tgid;
++	ev.timestamp_ns = timespec_to_ns(&ts);
++	ev.what = PROC_EVENT_EXEC;
++	ev.event_data.exec.process_pid = task->pid;
++	ev.event_data.exec.process_tgid = task->tgid;
+ 
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+-	msg->len = sizeof(*ev);
++	msg->len = sizeof(ev);
++	memcpy(msg->data, &ev, sizeof(ev));
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ }
+ 
+ void proc_id_connector(struct task_struct *task, int which_id)
+ {
+ 	struct cn_msg *msg;
+-	struct proc_event *ev;
++	struct proc_event ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 	struct timespec ts;
+ 
+@@ -110,32 +110,32 @@
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+-	ev = (struct proc_event*)msg->data;
+-	ev->what = which_id;
+-	ev->event_data.id.process_pid = task->pid;
+-	ev->event_data.id.process_tgid = task->tgid;
++	ev.what = which_id;
++	ev.event_data.id.process_pid = task->pid;
++	ev.event_data.id.process_tgid = task->tgid;
+ 	if (which_id == PROC_EVENT_UID) {
+-	 	ev->event_data.id.r.ruid = task->uid;
+-	 	ev->event_data.id.e.euid = task->euid;
++	 	ev.event_data.id.r.ruid = task->uid;
++	 	ev.event_data.id.e.euid = task->euid;
+ 	} else if (which_id == PROC_EVENT_GID) {
+-	   	ev->event_data.id.r.rgid = task->gid;
+-	   	ev->event_data.id.e.egid = task->egid;
++	   	ev.event_data.id.r.rgid = task->gid;
++	   	ev.event_data.id.e.egid = task->egid;
+ 	} else
+ 	     	return;
+-	get_seq(&msg->seq, &ev->cpu);
++	get_seq(&msg->seq, &ev.cpu);
+ 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
+-	ev->timestamp_ns = timespec_to_ns(&ts);
++	ev.timestamp_ns = timespec_to_ns(&ts);
+ 
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+-	msg->len = sizeof(*ev);
++	msg->len = sizeof(ev);
++	memcpy(msg->data, &ev, sizeof(ev));
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ }
+ 
+ void proc_exit_connector(struct task_struct *task)
+ {
+ 	struct cn_msg *msg;
+-	struct proc_event *ev;
++	struct proc_event ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 	struct timespec ts;
+ 
+@@ -143,19 +143,19 @@
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+-	ev = (struct proc_event*)msg->data;
+-	get_seq(&msg->seq, &ev->cpu);
++	get_seq(&msg->seq, &ev.cpu);
+ 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
+-	ev->timestamp_ns = timespec_to_ns(&ts);
+-	ev->what = PROC_EVENT_EXIT;
+-	ev->event_data.exit.process_pid = task->pid;
+-	ev->event_data.exit.process_tgid = task->tgid;
+-	ev->event_data.exit.exit_code = task->exit_code;
+-	ev->event_data.exit.exit_signal = task->exit_signal;
++	ev.timestamp_ns = timespec_to_ns(&ts);
++	ev.what = PROC_EVENT_EXIT;
++	ev.event_data.exit.process_pid = task->pid;
++	ev.event_data.exit.process_tgid = task->tgid;
++	ev.event_data.exit.exit_code = task->exit_code;
++	ev.event_data.exit.exit_signal = task->exit_signal;
+ 
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+-	msg->len = sizeof(*ev);
++	msg->len = sizeof(ev);
++	memcpy(msg->data, &ev, sizeof(ev));
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ }
+ 
+@@ -170,7 +170,7 @@
+ static void cn_proc_ack(int err, int rcvd_seq, int rcvd_ack)
+ {
+ 	struct cn_msg *msg;
+-	struct proc_event *ev;
++	struct proc_event ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 	struct timespec ts;
+ 
+@@ -178,16 +178,16 @@
+ 		return;
+ 
+ 	msg = (struct cn_msg*)buffer;
+-	ev = (struct proc_event*)msg->data;
+ 	msg->seq = rcvd_seq;
+ 	ktime_get_ts(&ts); /* get high res monotonic timestamp */
+-	ev->timestamp_ns = timespec_to_ns(&ts);
+-	ev->cpu = -1;
+-	ev->what = PROC_EVENT_NONE;
+-	ev->event_data.ack.err = err;
++	ev.timestamp_ns = timespec_to_ns(&ts);
++	ev.cpu = -1;
++	ev.what = PROC_EVENT_NONE;
++	ev.event_data.ack.err = err;
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = rcvd_ack + 1;
+-	msg->len = sizeof(*ev);
++	msg->len = sizeof(ev);
++	memcpy(msg->data, &ev, sizeof(ev));
+ 	cn_netlink_send(msg, CN_IDX_PROC, GFP_KERNEL);
+ }
+

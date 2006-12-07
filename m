@@ -1,56 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425270AbWLHJIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163197AbWLGSc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425270AbWLHJIh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 04:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425273AbWLHJIg
+	id S1163197AbWLGSc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163195AbWLGSc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 04:08:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38070 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425270AbWLHJIf (ORCPT
+	Thu, 7 Dec 2006 13:32:29 -0500
+Received: from master.altlinux.org ([62.118.250.235]:3499 "EHLO
+	master.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163197AbWLGSc1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 04:08:35 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Yinghai Lu" <yinghai.lu@amd.com>
-Cc: "Greg KH" <gregkh@suse.de>, "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
-       "David Brownell" <david-b@pacbell.net>
-Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-	<m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
-	<86802c440612080053s13e5318eq7ae83aff4c7eb21c@mail.gmail.com>
-Date: Fri, 08 Dec 2006 02:07:53 -0700
-In-Reply-To: <86802c440612080053s13e5318eq7ae83aff4c7eb21c@mail.gmail.com>
-	(Yinghai Lu's message of "Fri, 8 Dec 2006 00:53:53 -0800")
-Message-ID: <m1zm9y3gd2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Dec 2006 13:32:27 -0500
+Date: Thu, 7 Dec 2006 21:32:17 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Bauke Jan Douma <bjdouma@xs4all.nl>
+Cc: Adrian Bunk <bunk@stusta.de>, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, Daniel Ritz <daniel.ritz@gmx.ch>,
+       Daniel Drake <dsd@gentoo.org>, Jean Delvare <khali@linux-fr.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Tomasz Koprowski <tomek@koprowski.org>
+Subject: Re: RFC: PCI quirks update for 2.6.16
+Message-ID: <20061207183217.GA7865@procyon.home>
+References: <20061207132430.GF8963@stusta.de> <20061207165352.9cb61023.vsu@altlinux.ru> <45784F0C.7040005@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <45784F0C.7040005@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Yinghai Lu" <yinghai.lu@amd.com> writes:
 
-> On 12/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Ugh.  I'd check the code.  But it looks like my tweak to the
->> early fixmap code.  But my hunch is that my tweak to __fixmap
->> so that it's pud and pmd were prepopulated didn't take on
->> your build.
->
-> I missed some options?
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Your or I missed a bug fix/enhancement in there somewhere.
+On Thu, Dec 07, 2006 at 06:27:40PM +0100, Bauke Jan Douma wrote:
+> Sergey Vlasov wrote on 07-12-06 14:53:
+> >On Thu, 7 Dec 2006 14:24:30 +0100 Adrian Bunk wrote:
+> >
+> >>While checking how to fix the VIA quirk regressions for several users
+> >>introduced into -stable in 2.6.16.17, I started looking through all
+> >>drivers/pci/quirks.c updates up to both -stable and 2.6.19.
+> >>
+> [snip]
+> >>
+> >>Bauke Jan Douma (1):
+> >>      PCI: quirk for asus a8v and a8v delux motherboards
+> >
+> >This quirk will cause breakage for people who used an external PCI
+> >soundcard with these boards - the builtin sound chip which was
+> >invisible before may become the first audio device.
+>=20
+> I'm afraid I don't understand the problem described here, when
+> ALSA can assign any arbitrary index number of a user's choice
+> to cards that are detected.
 
-Basically my very early setup of the fixmap failed.
-Now.  I thought I had that covered by preallocated the pud and the pmd
-entries.   So the only thing missing was the pte entries.
+The problem is that -stable patches should not introduce regression.
+And if this patch would be included in the next -stable release,
+people who upgrade to this release may get unexpected changes of sound
+cards indexes.  This may be OK for a new 2.6.x release, but not for a
+new 2.6.16.y.
 
-If that is not a big enough hint I will look into it in a bit...
+> Indeed, on my system (an A8V Deluxe motherboard, with this
+> quirk active), my first soundcard (given index=3D0) is an offboard
+> Creative SB Live, and the onboard card I have assigned index=3D1.
 
-I'm starting to become a big fan of constant initializers.  So our
-core subsystems don't need initialization code to be useful.  All of
-these early things are just a pain.
+Yes, now I have exactly the same setup.  But before this patch I did
+not have any index=3DN assignments in my configuration; after the patch
+I needed to add them to get my system working as before.
 
-Eric
+> I for one need this quirk to get both soundcards at all (which
+> I need) -- no matter what indexing order.
+
+I don't question the need for this patch in mainline; however, it does
+not seem to be suitable for -stable.
+
+> >It also enables the MC97 device, which does not really work (there is
+> >no MC97 codec attached to the controller at least on A8V Deluxe; I'm
+> >not sure if there is some other variant of this board which has MC97,
+> >but it seems unlikely).
+>=20
+> This one can be disabled separate of the AC97 -- let me get back
+> on that.  I, for one (however much that is), don't need it either.
+
+Currently I get:
+
+VIA 82xx Modem: probe of 0000:00:11.6 failed with error -13
+
+on every boot (and snd_via82xx_modem module in memory).  Not a grave
+bug, but not a good thing either (and another reason for not adding
+this patch to 2.6.16.y).
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFeF4xW82GfkQfsqIRAkESAJsEi9GTwmgRnVArHRors9YelKcopwCfeCAG
+fgCSxhuI5so6ktbYYrjUPr0=
+=z91v
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

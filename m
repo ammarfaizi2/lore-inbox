@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425326AbWLHKdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163323AbWLGUqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425326AbWLHKdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 05:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425337AbWLHKdn
+	id S1163323AbWLGUqA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 15:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163325AbWLGUp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 05:33:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:58432 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1425326AbWLHKdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 05:33:43 -0500
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: davej@codemonkey.org.uk,
-       "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>,
-       Randy Dunlap <randy.dunlap@oracle.com>, shai.satt@intel.com,
-       Andi Kleen <ak@suse.de>, hpa@zytor.com, Paul Jackson <pj@sgi.com>
-Date: Fri, 08 Dec 2006 02:33:36 -0800
-Message-Id: <20061208103336.4644.96389.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] efi is_memory_available ia64 hack build fix
+	Thu, 7 Dec 2006 15:45:59 -0500
+Received: from aou170.internetdsl.tpnet.pl ([83.17.128.170]:59423 "HELO
+	aou170.internetdsl.tpnet.pl" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1163323AbWLGUp7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 15:45:59 -0500
+From: Tomek Koprowski <tomek@koprowski.org>
+Organization: Druciarze Galaktyki
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: RFC: PCI quirks update for 2.6.16
+Date: Thu, 7 Dec 2006 21:45:56 +0100
+User-Agent: KMail/1.6.2
+Cc: Adrian Bunk <bunk@stusta.de>, Daniel Ritz <daniel.ritz@gmx.ch>,
+       Daniel Drake <dsd@gentoo.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Bauke Jan Douma <bjdouma@xs4all.nl>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+References: <20061207132430.GF8963@stusta.de> <20061207205420.15622d52.khali@linux-fr.org>
+In-Reply-To: <20061207205420.15622d52.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200612072145.56861.tomek@koprowski.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
+On Thursday 07 of December 2006 20:54, Jean Delvare wrote:
 
-The addition of an is_available_memory() routine to some arch i386
-code, along with an extern for it in efi.h, caused the ia64 build
-to fail, which has the apparently identical routine, marked 'static'.
+> > Tomasz Koprowski (1):
+> >       PCI: SMBus unhide on HP Compaq nx6110
+>
+> Bug #6944 might be related to this one, so I'd not include it in
+> 2.6.16-stable.
 
-The ia64 build fails with:
+Actually, the #6944 requires more investigation. I've noticed the 
+kacpid going to 100% cpu without the unhide patch applied as well. It 
+happens sometimes after dehibernation, putting the laptop to sleep
+and waking it up again resolves the issue. I can't figure out why.
 
-arch/ia64/kernel/efi.c:229: error: static declaration of 'is_available_memory' follows non-static declaration
-include/linux/efi.h:305: error: previous declaration of 'is_available_memory' was here              
+To be on the safe side I'd suggest dumping the patch, but I really 
+don't think it should fix anything.
 
-Removing the static modifier from the ia64 definition of this
-routine lets it build.
-
-But it still doesn't seem right - as now we have two apparently
-identical copies of is_available_memory() defined, in:
-
-  arch/i386/kernel/efi.c
-  arch/ia64/kernel/efi.c
-
-However, I don't know what to do about that.
-At least the build gets past this point now.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- arch/ia64/kernel/efi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- 2.6.19-rc6-mm2.orig/arch/ia64/kernel/efi.c	2006-12-08 02:05:57.190745630 -0800
-+++ 2.6.19-rc6-mm2/arch/ia64/kernel/efi.c	2006-12-08 02:07:38.256082124 -0800
-@@ -224,7 +224,7 @@ efi_gettimeofday (struct timespec *ts)
- 	ts->tv_nsec = tm.nanosecond;
- }
- 
--static int
-+int
- is_available_memory (efi_memory_desc_t *md)
- {
- 	if (!(md->attribute & EFI_MEMORY_WB))
+Tomek
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+[ tomek@koprowski.org http://www.koprowski.org ]
+[ JabberID: tomek@abakus.kom.pl   gg#: 2348134 ]
+[       Life is as bad as you make it be       ]

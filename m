@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1426019AbWLHRMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163174AbWLGSuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1426019AbWLHRMc (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 12:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426028AbWLHRMc
+	id S1163174AbWLGSuv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163192AbWLGSuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 12:12:32 -0500
-Received: from mx2.suse.de ([195.135.220.15]:45437 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426019AbWLHRMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 12:12:31 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: What was in the x86 merge for .20
-Date: Fri, 8 Dec 2006 18:12:19 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Suresh Siddha <suresh.b.siddha@intel.com>,
-       "Li, Shaohua" <shaohua.li@intel.com>, Ingo Molnar <mingo@elte.hu>
-References: <200612080401.25746.ak@suse.de> <20061208020804.c5e5e176.akpm@osdl.org>
-In-Reply-To: <20061208020804.c5e5e176.akpm@osdl.org>
+	Thu, 7 Dec 2006 13:50:50 -0500
+Received: from wr-out-0506.google.com ([64.233.184.231]:53775 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163174AbWLGSuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 13:50:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Csa8PTadL8Nuk0gk2SDY/OPLZvogo/VMRGzUhMuv1wRHISEMLhVPw/GhZ5ia1HC1ZQ1ULJ/5mBAWZv0UCtKPA9BiGk9/Wc7K0KMaXOrdwehRX1ARl0QSycYZDDO6LUb+SBU1m7dJ0qfc+GYJWX8RSmJc+005tZtVEWWyeLry9Og=
+Message-ID: <9a8748490612071050q60b378c4ldf039140ffd721be@mail.gmail.com>
+Date: Thu, 7 Dec 2006 19:50:49 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Chris Friesen" <cfriesen@nortel.com>
+Subject: Re: additional oom-killer tuneable worth submitting?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45785DDD.3000503@nortel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200612081812.19933.ak@suse.de>
+References: <45785DDD.3000503@nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A few questions below.
 
-> My old 4-way Intel Nocona-based SDV panics during boot with "APIC mode must
-> be flat on this system" and I don't know how to make it stop.  Help.
+On 07/12/06, Chris Friesen <cfriesen@nortel.com> wrote:
+>
+> The kernel currently has a way to adjust the oom-killer score via
+> /proc/<pid>/oomadj.
+>
+> However, to adjust this effectively requires knowledge of the scores of
+> all the other processes on the system.
+>
+> I'd like to float an idea (which we've implemented and been using for
+> some time) where the semantics are slightly different:
+>
+> We add a new "oom_thresh" member to the task struct.
+> We introduce a new proc entry "/proc/<pid>/oomthresh" to control it.
+>
 
-Hmm, i had these patches for week and didn't change anything. Weird.
-> 
-> It didn't do this with your tree in 2.6.19-rc6-mm1 or 2.6.19-rc6-mm2, both
-> of which included
-> x86_64-mm-fix-the-irqbalance-quirk-for-e7320-e7520-e7525.patch.  It still
-> reverts cleanly, so there might be something else in -mm (apart from
-> revert-x86_64-mm-fix-the-irqbalance-quirk-for-e7320-e7520-e7525.patch ;))
-> which fixes it up.
+How does "oomthresh" and "oomadj" affect each other?
 
-I'll investigate.
 
-> Also, we weren't supposed to merge that patch at all.  It is supposedly
-> obsoleted by Ingo's new genapic work.
+> The "oom-thresh" value maps to the max expected memory consumption for
+> that process.  As long as a process uses less memory than the specified
+> threshold, then it is immune to the oom-killer.
+>
 
-I decided to skip that because it was still far too fresh and i also
-didn't have time yet to review it closely.
+Default "oomthresh" value for a new process is 0 (zero) I assume -
+right?  If not, then I'd suggest that it should be.
 
--Andi
- 
+What happens when a process fork()s? Does the child enherit the
+parents "oomthresh" value?
+
+Would it make sense to make "oomthresh" apply to process groups
+instead of processes?
+
+
+> On an embedded platform this allows the designer to engineer the system
+> and protect critical apps based on their expected memory consumption.
+> If one of those apps goes crazy and starts chewing additional memory
+> then it becomes vulnerable to the oom killer while the other apps remain
+> protected.
+>
+
+What happens in the case where the OOM killer really, really needs to
+kill one or more processes since there is not a single drop of memory
+available, but all processes are below their configured thresholds?
+
+
+> If a patch for the above feature was submitted, would there be any
+> chance of getting it included?  Maybe controlled by a config option?
+
+Impossible to know without posting the patch for review :)
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

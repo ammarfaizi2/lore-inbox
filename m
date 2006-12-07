@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032117AbWLGMVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032115AbWLGMVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032117AbWLGMVA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032114AbWLGMVA
+	id S1032115AbWLGMVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:21:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032119AbWLGMVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:21:00 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:37319 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032103AbWLGMU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:20:59 -0500
-Message-ID: <45780726.8010107@garzik.org>
-Date: Thu, 07 Dec 2006 07:20:54 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Thu, 7 Dec 2006 07:21:15 -0500
+Received: from ug-out-1314.google.com ([66.249.92.169]:44970 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032115AbWLGMVN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:21:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=I92kU8hZj8Gj3hHfiY9ujFfCg4AyO0oO//lk6catH4tjaTdcTpIZg9cWY+l1MVWUmLqWloSr8PYMNX6udjm+pGPVOBajS7hi7SLe90OlOcHT9C2DC1QXjGKwtmIqbvzWChS75VzBnjkI5c7XBJOWB2/b5QRohs4p9LyTPZqTlVk=
+Message-ID: <aa5953d60612070421j1992fafcvb319d2237201eb3c@mail.gmail.com>
+Date: Thu, 7 Dec 2006 17:51:11 +0530
+From: "Jaswinder Singh" <jaswinderrajput@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: What happen when hangs !!
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
-References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org> <4574B004.6030606@us.ibm.com>
-In-Reply-To: <4574B004.6030606@us.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
-> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
-> response to a REPORT LUNS packet.  If this happens to an ATAPI device
-> that is attached to a SAS controller (this is the case with sas_ata),
-> the device does not load because SCSI won't touch a "SCSI device"
-> that won't report its LUNs.  Since most ATAPI devices don't support
-> multiple LUNs anyway, we might as well fake a response like we do for
-> ATA devices.
-> 
-> Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+Hi,
 
-Seems sane to me, but I would like additional comment/testing/etc. 
-before applying...
+Sometimes my machine hangs in userspace area like this :-
 
+VFS: Mounted root (ext3 filesystem).
+Freeing init memory: 124K
+INIT:
+<<HANGS>>
 
+OR
+
+VFS: Mounted root (ext3 filesystem).
+Freeing init memory: 124K
+INIT: version 2.85 booting
+<<RUNNING SMOOTHLY>>
+
+How can I debug this hang, what are the cases.
+
+Is this a deadlock.
+
+Thank you,
+
+Jaswinder Singh.

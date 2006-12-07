@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032278AbWLGOvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032266AbWLGOvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032278AbWLGOvT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 09:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032277AbWLGOvT
+	id S1032266AbWLGOvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 09:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032269AbWLGOvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 09:51:19 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:46220 "HELO
-	smtp108.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1032279AbWLGOvS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 09:51:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=CUY2ya/It2RPSEIDLnvWqdtHVv5R2lHbGAAOx1CeR6+BufawhN7Ab5yq5/lTsHRhd5INSgSZHySiVAEBLM5uQUtUZjQBuW8Z614LWfctiySDHtvpfKtT3wCRxnnpIe9P59YZDfeDeULnxTx4LMmqcHplR/nmqZBqPT1+0nhlgaM=  ;
-X-YMail-OSG: gNke3W8VM1m9nqIemPeBhTDoLttjVXc1dyVFiOSqOaGgCzto1HlFW7InmeDeX6EmZvV3y75QfmEtJM0MlAtTO0_Sh2oqmuBPeB1qR_j40gbzvvKy1nU8Vk3H4oNMea96fQ07TjuEKXRiHUDWy2K9nG7iXm3QZrTIFAUtc0raZaROaiTzZRSjQ8a11N8i
-From: David Brownell <david-b@pacbell.net>
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: [PATCH] WorkStruct: Fix spi_bitbang.h
-Date: Thu, 7 Dec 2006 06:50:47 -0800
-User-Agent: KMail/1.7.1
-Cc: David Howells <dhowells@redhat.com>, ben@fluff.org, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20061207124419.17680.96380.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061207124419.17680.96380.stgit@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 09:51:55 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:2940 "EHLO dspnet.fr.eu.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1032266AbWLGOvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 09:51:54 -0500
+Date: Thu, 7 Dec 2006 15:51:53 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH 5/5] PCI MMConfig: Reserve resources but only when we're sure about them.
+Message-ID: <20061207145153.GE45089@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+	"Hack inc." <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20061207143603.GA41804@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612070650.49232.david-b@pacbell.net>
+In-Reply-To: <20061207143603.GA41804@dspnet.fr.eu.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 December 2006 4:44 am, David Howells wrote:
-> Fix spi_bitbang.h.  It need to #include <linux/workqueue.h> before it can
-> compile.
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
+Put back the resource reservation as per
+4c6e052adfe285ede5884e4e8c4d33af33932c13 but use it *only* when the
+range(s) come from a chipset probe instead of the bios.
 
-NAK.  Headers don't compile.  A driver including this _might_ need to
-include that header; most won't.
+Signed-off-by: Olivier Galibert <galibert@pobox.com>
+---
+ arch/i386/pci/mmconfig-shared.c |   33 +++++++++++++++++++++++++++++++++
+ 1 files changed, 33 insertions(+), 0 deletions(-)
 
+diff --git a/arch/i386/pci/mmconfig-shared.c b/arch/i386/pci/mmconfig-shared.c
+index 4906741..7599b89 100644
+--- a/arch/i386/pci/mmconfig-shared.c
++++ b/arch/i386/pci/mmconfig-shared.c
+@@ -159,6 +159,37 @@ static int __init pci_mmcfg_check_hostbridge(void)
+ 	return name != NULL;
+ }
+ 
++static __init void pci_mmcfg_insert_resources(void)
++{
++#define PCI_MMCFG_RESOURCE_NAME_LEN 19
++	int i;
++	struct resource *res;
++	char *names;
++	unsigned num_buses;
++
++	res = kcalloc(PCI_MMCFG_RESOURCE_NAME_LEN + sizeof(*res),
++			pci_mmcfg_config_num, GFP_KERNEL);
++
++	if (!res) {
++		printk(KERN_ERR "PCI: Unable to allocate MMCONFIG resources\n");
++		return;
++	}
++
++	names = (void *)&res[pci_mmcfg_config_num];
++	for (i = 0; i < pci_mmcfg_config_num; i++, res++) {
++		num_buses = pci_mmcfg_config[i].end_bus_number -
++		    pci_mmcfg_config[i].start_bus_number + 1;
++		res->name = names;
++		snprintf(names, PCI_MMCFG_RESOURCE_NAME_LEN, "PCI MMCONFIG %u",
++			pci_mmcfg_config[i].pci_segment_group_number);
++		res->start = pci_mmcfg_config[i].base_address;
++		res->end = res->start + (num_buses << 20) - 1;
++		res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
++		insert_resource(&iomem_resource, res);
++		names += PCI_MMCFG_RESOURCE_NAME_LEN;
++	}
++}
++
+ void __init pci_mmcfg_init(int type)
+ {
+ 	extern int pci_mmcfg_arch_init(void);
+@@ -194,6 +225,8 @@ void __init pci_mmcfg_init(int type)
+ 	if (pci_mmcfg_arch_init()) {
+ 		if (type == 1)
+ 			unreachable_devices();
++		if (known_bridge)
++			pci_mmcfg_insert_resources();
+ 		pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
+ 	}
+ }
+-- 
+1.4.4.1.g278f
 
-> ---
-> 
->  include/linux/spi/spi_bitbang.h |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/linux/spi/spi_bitbang.h b/include/linux/spi/spi_bitbang.h
-> index 16ce178..33fa727 100644
-> --- a/include/linux/spi/spi_bitbang.h
-> +++ b/include/linux/spi/spi_bitbang.h
-> @@ -1,6 +1,8 @@
->  #ifndef	__SPI_BITBANG_H
->  #define	__SPI_BITBANG_H
->  
-> +#include <linux/workqueue.h>
-> +
->  /*
->   * Mix this utility code with some glue code to get one of several types of
->   * simple SPI master driver.  Two do polled word-at-a-time I/O:
-> 
->

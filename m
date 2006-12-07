@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937897AbWLGBFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937906AbWLGBJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937897AbWLGBFy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 20:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937894AbWLGBFy
+	id S937906AbWLGBJE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 20:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937905AbWLGBJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 20:05:54 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:48480 "EHLO scrub.xs4all.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937863AbWLGBFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 20:05:53 -0500
-Date: Thu, 7 Dec 2006 02:05:24 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Matthew Wilcox <matthew@wil.cx>, Christoph Lameter <clameter@sgi.com>,
-       David Howells <dhowells@redhat.com>, akpm@osdl.org,
+	Wed, 6 Dec 2006 20:09:03 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:38388
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S937903AbWLGBJB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 20:09:01 -0500
+Date: Wed, 06 Dec 2006 17:09:11 -0800 (PST)
+Message-Id: <20061206.170911.45496956.davem@davemloft.net>
+To: viro@ftp.linux.org.uk
+Cc: torvalds@osdl.org, clameter@sgi.com, rmk+lkml@arm.linux.org.uk,
+       dhowells@redhat.com, akpm@osdl.org,
        linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
        linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612070203520.1867@scrub.home>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
- <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
- <20061206220532.GF3013@parisc-linux.org> <Pine.LNX.4.64.0612070130240.1868@scrub.home>
- <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an
+ arch doesn't support it
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20061206190828.GE4587@ftp.linux.org.uk>
+References: <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.64.0612061103260.3542@woody.osdl.org>
+	<20061206190828.GE4587@ftp.linux.org.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Wed, 6 Dec 2006 19:08:28 +0000
 
-On Wed, 6 Dec 2006, Linus Torvalds wrote:
-
-> > > To be honest, it'd be much easier if we only defined these operations on
-> > > atomic_t's.  We have all the infrastructure in place for them, and
-> > > they're fairly well understood.  If you need different sizes, I'm OK
-> > > with an atomic_pointer_t, or whatever.
+> On Wed, Dec 06, 2006 at 11:05:22AM -0800, Linus Torvalds wrote:
 > > 
-> > FWIW Seconded.
+> > 
+> > On Wed, 6 Dec 2006, Christoph Lameter wrote:
+> > >
+> > > I'd really appreciate a cmpxchg that is generically available for 
+> > > all arches. It will allow lockless implementation for various performance 
+> > > criticial portions of the kernel.
+> > 
+> > I suspect ARM may have been the last one without one, no?
 > 
-> I disagree.
-> 
-> Any _real_ CPU will simply never care about _anything_ else than just the 
-> size of the datum in question.
+> No.  sparc32 doesn't have one, for instance.
 
-..or alignment which a dedicated atomic type would allow to be attached.
-
-bye, Roman
+That's correct.  It has an atomic swap, but not a cmpxchg.

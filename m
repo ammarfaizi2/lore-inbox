@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031757AbWLGHFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031760AbWLGHKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031757AbWLGHFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 02:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031759AbWLGHFF
+	id S1031760AbWLGHKa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 02:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031761AbWLGHKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 02:05:05 -0500
-Received: from an-out-0708.google.com ([209.85.132.245]:38775 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031757AbWLGHFE (ORCPT
+	Thu, 7 Dec 2006 02:10:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:42458 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031760AbWLGHK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 02:05:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=ES1WyGp8YYT1tk6S/Yx0nZcRCQj+E9RNijGeW59RPmSiXYv7jGJWCH5VZ8RYovN3veuJ48Ek1QxQROk8Zqp+Bk7wmSGhljt0gXhaKoE+eZXa8te/IB8syl9k9RMq1NS6a70SO14V1zImJHG/fT0wtUn4oc1RPxqT9d3RCMH6cxQ=
-Date: Wed, 6 Dec 2006 23:04:58 -0800
-From: Amit Choudhary <amit2030@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.19] net/wanrouter/wanmain.c: check kmalloc() return
- value.
-Message-Id: <20061206230458.d11b2bb0.amit2030@gmail.com>
-Organization: X
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
+	Thu, 7 Dec 2006 02:10:29 -0500
+Subject: Re: Obtaining a list of memory address ranges allocated to
+	processes
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stephen Torri <storri@torri.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1165449386.13079.30.camel@base.torri.org>
+References: <1165449386.13079.30.camel@base.torri.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 07 Dec 2006 08:10:26 +0100
+Message-Id: <1165475426.3233.476.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.1.1 (2.8.1.1-3.fc6) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Check the return value of kmalloc() in function dbg_kmalloc(), in file net/wanrouter/wanmain.c.
+On Wed, 2006-12-06 at 17:56 -0600, Stephen Torri wrote:
+> I am trying to create a custom ELF and Windows PE loader for the purpose
+> of security research. I am having a difficult time finding how to
+> allocate memory for a binary at the desired address in memory
+> (especially if its non-relocatable). I would like to see why I cannot
+> get memory allocated at the exact address request in the binary headers.
+> Is there a program or system call that allows me to see a list of memory
+> address ranges allocated to the running processes on a system?
 
-Signed-off-by: Amit Choudhary <amit2030@gmail.com>
+Hi,
 
-diff --git a/net/wanrouter/wanmain.c b/net/wanrouter/wanmain.c
-index 316211d..263450c 100644
---- a/net/wanrouter/wanmain.c
-+++ b/net/wanrouter/wanmain.c
-@@ -67,6 +67,8 @@ static void * dbg_kmalloc(unsigned int s
- 	int i = 0;
- 	void * v = kmalloc(size+sizeof(unsigned int)+2*KMEM_SAFETYZONE*8,prio);
- 	char * c1 = v;
-+	if (!v)
-+		return NULL;
- 	c1 += sizeof(unsigned int);
- 	*((unsigned int *)v) = size;
- 
+check the /proc/<pid>/maps and /proc/<pid>/smaps files... they have
+exactly what you need
+
+Greetings,
+   Arjan van de Ven
+

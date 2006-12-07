@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032109AbWLGMaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032125AbWLGMd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032109AbWLGMaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032136AbWLGMaN
+	id S1032125AbWLGMd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032129AbWLGMd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:30:13 -0500
-Received: from jdi.jdi-ict.nl ([82.94.239.5]:56048 "EHLO jdi.jdi-ict.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032109AbWLGMaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:30:09 -0500
-Date: Thu, 7 Dec 2006 13:29:48 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdi-ict.nl>
-X-X-Sender: igmar@jdi.jdi-ict.nl
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, npiggin@suse.de, erich <erich@areca.com.tw>
-Subject: Re: 2.6.16.32 stuck in generic_file_aio_write()
-In-Reply-To: <Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
-Message-ID: <Pine.LNX.4.58.0612071328030.9115@jdi.jdi-ict.nl>
-References: <Pine.LNX.4.58.0611291329060.18799@jdi.jdi-ict.nl>
- <20061130212248.1b49bd32.akpm@osdl.org> <Pine.LNX.4.58.0612010926030.31655@jdi.jdi-ict.nl>
- <Pine.LNX.4.58.0612042201001.14643@jdi.jdi-ict.nl>
- <Pine.LNX.4.58.0612061615550.24526@jdi.jdi-ict.nl> <20061206074008.2f308b2b.akpm@osdl.org>
- <Pine.LNX.4.58.0612070940590.28683@jdi.jdi-ict.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.1.12 (jdi.jdi-ict.nl [127.0.0.1]); Thu, 07 Dec 2006 13:29:49 +0100 (CET)
+	Thu, 7 Dec 2006 07:33:26 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:43960 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032125AbWLGMdZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:33:25 -0500
+Date: Thu, 7 Dec 2006 12:33:21 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-mips@linux-mips.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [MIPS] Import updates from i386's i8259.c
+Message-ID: <20061207123321.GB15386@linux-mips.org>
+References: <S20037871AbWLFUPw/20061206201552Z+14601@ftp.linux-mips.org> <20061207094639.GA30260@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061207094639.GA30260@lst.de>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 07, 2006 at 10:46:39AM +0100, Christoph Hellwig wrote:
 
-> I've enabled most debugging now, I'll see of i can run both a disk and VM 
-> stresstest.
+> On Wed, Dec 06, 2006 at 08:15:47PM +0000, linux-mips@linux-mips.org wrote:
+> > Author: Atsushi Nemoto <anemo@mba.ocn.ne.jp> Thu Dec 7 02:04:17 2006 +0900
+> > Comitter: Ralf Baechle <ralf@linux-mips.org> Wed Dec 6 20:10:54 2006 +0000
+> > Commit: bf8cfe1360932f191a3ea8d47c773c008ec32cd7
+> > Gitweb: http://www.linux-mips.org/g/linux/bf8cfe13
+> > Branch: master
+> > 
+> > Import many updates from i386's i8259.c, especially genirq transitions.
+> 
+> Shouldn't we try to share i8259.c over the various architectures that
+> use this controller?  With the generic hardirq framework that should be
+> possible.
 
-Running stress now :
+See http://www.linux-mips.org/cgi-bin/mesg.cgi?a=linux-mips&i=20061206203259.GA10170%40linux-mips.org ;-)
 
-stress -c 2 -i 2 -m 8 -d 8 --vm-bytes 20M --vm-hang 5 --hdd-bytes 20M
+The MIPS version of i8259 is already sharable that is all the code that
+doesn't immediately deal with the i8259 PIC has been removed.  A few
+small things will need still need attention.  i386 uses this silly
+optimization in cached_master_mask / cached_slave_mask that depends on
+little endian byte order.  i386 programs ICW2 with 0x20 while MIPS uses
+I8259A_IRQ_BASE.  And the i386 version has various stuff such as the FPU
+interrupt handler which are not immediately i8259A-related in i8259.c.
 
-I'll see what this results in.
- 
-> I'll put a .config and a dmesg of the machine booting at 
-> http://www.jdi-ict.nl/plain/ for those who want to look at it.
-
-dmesg : http://www.jdi-ict.nl/plain/lnx01.dmesg
-Kernel config : http://www.jdi-ict.nl/plain/lnx01.config
-
-
-
-regards,
-
-
-	Igmar
+  Ralf

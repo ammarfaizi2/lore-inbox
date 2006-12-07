@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032320AbWLGPxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937998AbWLGPyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032320AbWLGPxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 10:53:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032325AbWLGPxi
+	id S937998AbWLGPyi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 10:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938000AbWLGPyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 10:53:38 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:4575 "EHLO dspnet.fr.eu.org"
+	Thu, 7 Dec 2006 10:54:38 -0500
+Received: from mail2.utc.com ([192.249.46.191]:53659 "EHLO mail2.utc.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032320AbWLGPxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 10:53:37 -0500
-Date: Thu, 7 Dec 2006 16:53:36 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] PCI MMConfig: Share what's shareable.
-Message-ID: <20061207155336.GA50797@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Muli Ben-Yehuda <muli@il.ibm.com>, Andi Kleen <ak@suse.de>,
-	linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20061207144952.GA45089@dspnet.fr.eu.org> <20061207150023.GH28515@rhun.haifa.ibm.com> <20061207151941.GA45592@dspnet.fr.eu.org> <20061207153506.GJ28515@rhun.haifa.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207153506.GJ28515@rhun.haifa.ibm.com>
-User-Agent: Mutt/1.4.2.2i
+	id S937998AbWLGPyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 10:54:37 -0500
+Message-ID: <4578391E.40001@cybsft.com>
+Date: Thu, 07 Dec 2006 09:54:06 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Giandomenico De Tullio <ghisha@email.it>
+Subject: Re: v2.6.19-rt6, yum/rpm
+References: <20061205171114.GA25926@elte.hu> <4577FC21.1080407@cybsft.com> <20061207121344.GA19749@elte.hu>
+In-Reply-To: <20061207121344.GA19749@elte.hu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------060301030306070509030806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 05:35:06PM +0200, Muli Ben-Yehuda wrote:
-> arch/i386/pci/pci.h seems the least-inappropriate.
+This is a multi-part message in MIME format.
+--------------060301030306070509030806
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Ok, will do.
+Ingo Molnar wrote:
 
+The attached patch is necessary to build 2.6.19-rt8 without KEXEC
+enabled. Without KEXEC enabled crash.c doesn't get included. I believe
+this is correct.
 
-> Also, forgot to mention, please get rid of C++ style comments in the
-> code.
+-- 
+   kr
 
-# git grep '//' -- '*.c' |fgrep -v 'http://' |wc -l
-14333
+--------------060301030306070509030806
+Content-Type: text/x-patch;
+ name="nmifix1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nmifix1.patch"
 
-You lost that war ages ago.  Come join us in this millenia,
-line-comments exist officially in C since 1999, and were supported way
-before that.
+--- linux-2.6.19/arch/i386/kernel/nmi.c.orig	2006-12-07 09:35:22.000000000 -0600
++++ linux-2.6.19/arch/i386/kernel/nmi.c	2006-12-07 09:36:04.000000000 -0600
+@@ -935,7 +935,9 @@ void nmi_show_all_regs(void)
+ 	for_each_online_cpu(i)
+ 		nmi_show_regs[i] = 1;
+ 
++#ifdef CONFIG_KEXEC
+ 	smp_send_nmi_allbutself();
++#endif
+ 
+ 	for_each_online_cpu(i) {
+ 		while (nmi_show_regs[i] == 1)
 
-  OG.
+--------------060301030306070509030806--

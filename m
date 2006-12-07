@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937924AbWLGBgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937930AbWLGBhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937924AbWLGBgK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 20:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937925AbWLGBgJ
+	id S937930AbWLGBhB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 20:37:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937927AbWLGBhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 20:36:09 -0500
-Received: from gw.goop.org ([64.81.55.164]:39777 "EHLO mail.goop.org"
+	Wed, 6 Dec 2006 20:37:01 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:35210 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937924AbWLGBgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 20:36:07 -0500
-Message-ID: <45777002.6050009@goop.org>
-Date: Wed, 06 Dec 2006 17:36:02 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	id S937925AbWLGBhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 20:37:00 -0500
+Date: Wed, 6 Dec 2006 17:36:29 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Matthew Wilcox <matthew@wil.cx>, Christoph Lameter <clameter@sgi.com>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <Pine.LNX.4.64.0612070219540.1867@scrub.home>
+Message-ID: <Pine.LNX.4.64.0612061735150.3542@woody.osdl.org>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
+ <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
+ <20061206220532.GF3013@parisc-linux.org> <Pine.LNX.4.64.0612070130240.1868@scrub.home>
+ <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org> <Pine.LNX.4.64.0612070203520.1867@scrub.home>
+ <Pine.LNX.4.64.0612061717030.3542@woody.osdl.org> <Pine.LNX.4.64.0612070219540.1867@scrub.home>
 MIME-Version: 1.0
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: Zach Brown <zach.brown@oracle.com>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zachary Amsden <zach@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Jeff Dike <jdike@addtoit.com>
-Subject: Re: [PATCH RFC] use of activate_mm in fs/aio.c:use_mm()?
-References: <45776D54.7030409@goop.org>
-In-Reply-To: <45776D54.7030409@goop.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge wrote:
-> I'm wondering if activate_mm() is the right thing to be using in
-> use_mm(); shouldn't this be switch_mm()?
->
-> On normal x86, they're synonymous, but for the Xen patches I'm adding a
-> hook which assumes that activate_mm is only used the first time a new mm
-> is used after creation (I have another hook for dealing with dup_mm).  I
-> think this use of activate_mm() is the only place where it could be used
-> a second time on an mm.
->
-> From a quick look at the other architectures I think this is OK (most
-> simply implement one in terms of the other), but some are doing some
-> subtly different stuff between the two.
->
-> Thanks,
->     J
->
->
->   
-Er, lets try that again:
-
-diff -r 455b71ed4525 fs/aio.c
---- a/fs/aio.c	Wed Dec 06 13:16:42 2006 -0800
-+++ b/fs/aio.c	Wed Dec 06 17:17:43 2006 -0800
-@@ -588,7 +588,7 @@ static void use_mm(struct mm_struct *mm)
- 	 * Note that on UML this *requires* PF_BORROWED_MM to be set, otherwise
- 	 * it won't work. Update it accordingly if you change it here
- 	 */
--	activate_mm(active_mm, mm);
-+	switch_mm(active_mm, mm, tsk);
- 	task_unlock(tsk);
- 
- 	mmdrop(active_mm);
 
 
+On Thu, 7 Dec 2006, Roman Zippel wrote:
+>
+> m68060 produces a trap for unaligned atomic access, unfortunately standard 
+> alignment is smaller than this.
+
+Umm. on 68060, since it's 32-bit, you'd only have the 32-bit case. Are you 
+saying that you can't do a 32-bit atomic access at any 32-bit aligned 
+boundary? Or are you saying that gcc aligns normal 32-bit entities at 
+16-bit alignment? Neither of those sound very likely.
+
+		Linus

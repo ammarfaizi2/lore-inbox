@@ -1,234 +1,648 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031870AbWLGJEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031872AbWLGJGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031870AbWLGJEx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 04:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031872AbWLGJEx
+	id S1031872AbWLGJGh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031873AbWLGJGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 04:04:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41039 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031870AbWLGJEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 04:04:51 -0500
-Date: Thu, 7 Dec 2006 09:55:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [patch] debug: add sysrq_always_enabled boot option
-Message-ID: <20061207085551.GA27506@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	Thu, 7 Dec 2006 04:06:37 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:42939 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031872AbWLGJGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 04:06:35 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Thu, 7 Dec 2006 04:01:47 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kbuild : Restructure Device Drivers menu for entry selectability
+Message-ID: <Pine.LNX.4.64.0612070354200.14891@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] debug: add sysrq_always_enabled boot option
-From: Ingo Molnar <mingo@elte.hu>
 
-most distributions enable sysrq support but set it to 0 by default. Add 
-a sysrq_always_enabled boot option to always-enable sysrq keys. Useful 
-for debugging - without having to modify the disribution's config files 
-(which might not be possible if the kernel is on a live CD, etc.).
+  Rewrite a number of the Kconfig files under the drivers/ directory
+so that those driver submenus can be selected or de-selected
+directly from the Drivers menu using the kbuild "menuconfig" feature
+without having to enter the submenu itself.
 
-also, while at it, clean up the sysrq interfaces.
+Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- Documentation/kernel-parameters.txt |    6 +++++
- drivers/char/sysrq.c                |   37 ++++++++++++++++++++++++++++++------
- drivers/char/viocons.c              |   10 +++------
- include/linux/sysrq.h               |   22 +++++++++++++++++----
- kernel/sysctl.c                     |    3 --
- 5 files changed, 60 insertions(+), 18 deletions(-)
 
-Index: linux/Documentation/kernel-parameters.txt
-===================================================================
---- linux.orig/Documentation/kernel-parameters.txt
-+++ linux/Documentation/kernel-parameters.txt
-@@ -1637,6 +1637,12 @@ and is between 256 and 4096 characters. 
- 	sym53c416=	[HW,SCSI]
- 			See header of drivers/scsi/sym53c416.c.
- 
-+	sysrq_always_enabled
-+			[KNL]
-+			Ignore sysrq setting - this boot parameter will
-+			neutralize any effect of /proc/sys/kernel/sysrq.
-+			Useful for debugging.
+  NOTE:  Only those drivers submenus for which the Kconfig change was
+*immediately* obvious are included here.  Some of the other Kconfig
+files have "issues" with dependencies so that they'll need some extra
+cleanup before they can be tweaked like this as well.  So this first
+pass of a patch is just the beginning.
+
+ drivers/ata/Kconfig         |    8 ++------
+ drivers/connector/Kconfig   |    8 ++++----
+ drivers/dma/Kconfig         |   10 +++++-----
+ drivers/edac/Kconfig        |    8 ++++----
+ drivers/hwmon/Kconfig       |    8 ++++----
+ drivers/i2c/Kconfig         |    9 ++++-----
+ drivers/ide/Kconfig         |    6 +-----
+ drivers/ieee1394/Kconfig    |    7 ++++---
+ drivers/infiniband/Kconfig  |    8 ++++----
+ drivers/isdn/Kconfig        |    9 ++++-----
+ drivers/leds/Kconfig        |    9 +++------
+ drivers/md/Kconfig          |    8 ++++----
+ drivers/message/i2o/Kconfig |   12 +++++-------
+ drivers/mmc/Kconfig         |    8 ++++----
+ drivers/mtd/Kconfig         |    8 ++++----
+ drivers/parport/Kconfig     |    8 ++++----
+ drivers/pnp/Kconfig         |    8 ++++----
+ drivers/spi/Kconfig         |    8 ++++----
+ drivers/telephony/Kconfig   |    9 ++++-----
+ drivers/w1/Kconfig          |    8 ++++----
+ 20 files changed, 76 insertions(+), 91 deletions(-)
+
+diff --git a/drivers/ata/Kconfig b/drivers/ata/Kconfig
+index 984ab28..a3bdf04 100644
+--- a/drivers/ata/Kconfig
++++ b/drivers/ata/Kconfig
+@@ -2,10 +2,8 @@ #
+ # SATA/PATA driver configuration
+ #
+
+-menu "Serial ATA (prod) and Parallel ATA (experimental) drivers"
+-
+-config ATA
+-	tristate "ATA device support"
++menuconfig ATA
++	tristate "Serial ATA (prod) and Parallel ATA (experimental) drivers"
+ 	depends on BLOCK
+ 	depends on !(M32R || M68K) || BROKEN
+ 	depends on !SUN4 || BROKEN
+@@ -519,5 +517,3 @@ config PATA_IXP4XX_CF
+ 	  If unsure, say N.
+
+ endif
+-endmenu
+-
+diff --git a/drivers/connector/Kconfig b/drivers/connector/Kconfig
+index e0bdc0d..9a5a061 100644
+--- a/drivers/connector/Kconfig
++++ b/drivers/connector/Kconfig
+@@ -1,6 +1,4 @@
+-menu "Connector - unified userspace <-> kernelspace linker"
+-
+-config CONNECTOR
++menuconfig CONNECTOR
+ 	tristate "Connector - unified userspace <-> kernelspace linker"
+ 	depends on NET
+ 	---help---
+@@ -10,6 +8,8 @@ config CONNECTOR
+ 	  Connector support can also be built as a module.  If so, the module
+ 	  will be called cn.ko.
+
++if CONNECTOR
 +
- 	t128=		[HW,SCSI]
- 			See header of drivers/scsi/t128.c.
- 
-Index: linux/drivers/char/sysrq.c
-===================================================================
---- linux.orig/drivers/char/sysrq.c
-+++ linux/drivers/char/sysrq.c
-@@ -41,7 +41,34 @@
- #include <asm/irq_regs.h>
- 
- /* Whether we react on sysrq keys or just ignore them */
--int sysrq_enabled = 1;
-+int __read_mostly __sysrq_enabled = 1;
+ config PROC_EVENTS
+ 	boolean "Report process events to userspace"
+ 	depends on CONNECTOR=y
+@@ -18,4 +18,4 @@ config PROC_EVENTS
+ 	  Provide a connector that reports process events to userspace. Send
+ 	  events such as fork, exec, id change (uid, gid, suid, etc), and exit.
+
+-endmenu
++endif
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index 30d021d..b1fb8c0 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -2,14 +2,14 @@ #
+ # DMA engine configuration
+ #
+
+-menu "DMA Engine support"
+-
+-config DMA_ENGINE
+-	bool "Support for DMA engines"
++menuconfig DMA_ENGINE
++	bool "DMA engine support"
+ 	---help---
+ 	  DMA engines offload copy operations from the CPU to dedicated
+ 	  hardware, allowing the copies to happen asynchronously.
+
++if DMA_ENGINE
 +
-+static int __read_mostly sysrq_always_enabled = 0;
+ comment "DMA Clients"
+
+ config NET_DMA
+@@ -31,4 +31,4 @@ config INTEL_IOATDMA
+ 	---help---
+ 	  Enable support for the Intel(R) I/OAT DMA engine.
+
+-endmenu
++endif
+diff --git a/drivers/edac/Kconfig b/drivers/edac/Kconfig
+index 4f08984..e52e9b0 100644
+--- a/drivers/edac/Kconfig
++++ b/drivers/edac/Kconfig
+@@ -6,10 +6,9 @@ #
+ # $Id: Kconfig,v 1.4.2.7 2005/07/08 22:05:38 dsp_llnl Exp $
+ #
+
+-menu 'EDAC - error detection and reporting (RAS) (EXPERIMENTAL)'
+
+-config EDAC
+-	tristate "EDAC core system error reporting (EXPERIMENTAL)"
++menuconfig EDAC
++	tristate 'EDAC - error detection and reporting (RAS) (EXPERIMENTAL)'
+ 	depends on X86 && EXPERIMENTAL
+ 	help
+ 	  EDAC is designed to report errors in the core system.
+@@ -29,6 +28,7 @@ config EDAC
+ 	  There is also a mailing list for the EDAC project, which can
+ 	  be found via the sourceforge page.
+
++if EDAC
+
+ comment "Reporting subsystems"
+ 	depends on EDAC
+@@ -110,4 +110,4 @@ config EDAC_POLL
+
+ endchoice
+
+-endmenu
++endif
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index e76d919..a4a5a33 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -2,9 +2,7 @@ #
+ # Hardware monitoring chip drivers configuration
+ #
+
+-menu "Hardware Monitoring support"
+-
+-config HWMON
++menuconfig HWMON
+ 	tristate "Hardware Monitoring support"
+ 	default y
+ 	help
+@@ -23,6 +21,8 @@ config HWMON
+ 	  This support can also be built as a module.  If so, the module
+ 	  will be called hwmon.
+
++if HWMON
 +
-+int sysrq_on(void)
-+{
-+	return __sysrq_enabled || sysrq_always_enabled;
-+}
+ config HWMON_VID
+ 	tristate
+ 	default n
+@@ -540,4 +540,4 @@ config HWMON_DEBUG_CHIP
+ 	  a problem with I2C support and want to see more of what is going
+ 	  on.
+
+-endmenu
++endif
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index 11935f6..af35094 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -2,9 +2,7 @@ #
+ # I2C subsystem configuration
+ #
+
+-menu "I2C support"
+-
+-config I2C
++menuconfig I2C
+ 	tristate "I2C support"
+ 	---help---
+ 	  I2C (pronounce: I-square-C) is a slow serial bus protocol used in
+@@ -22,6 +20,8 @@ config I2C
+ 	  This I2C support can also be built as a module.  If so, the module
+ 	  will be called i2c-core.
+
++if I2C
 +
-+/*
-+ * A value of 1 means 'all', other nonzero values are an op mask:
-+ */
-+static inline int sysrq_on_mask(int mask)
-+{
-+	return sysrq_always_enabled || __sysrq_enabled == 1 ||
-+						(__sysrq_enabled & mask);
-+}
+ config I2C_CHARDEV
+ 	tristate "I2C device interface"
+ 	depends on I2C
+@@ -73,5 +73,4 @@ config I2C_DEBUG_CHIP
+ 	  a problem with I2C support and want to see more of what is going
+ 	  on.
+
+-endmenu
+-
++endif
+diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+index 0c68d0f..a4e5569 100644
+--- a/drivers/ide/Kconfig
++++ b/drivers/ide/Kconfig
+@@ -6,9 +6,7 @@ #
+
+ if BLOCK
+
+-menu "ATA/ATAPI/MFM/RLL support"
+-
+-config IDE
++menuconfig IDE
+ 	tristate "ATA/ATAPI/MFM/RLL support"
+ 	---help---
+ 	  If you say Y here, your kernel will be able to manage low cost mass
+@@ -1080,6 +1078,4 @@ config BLK_DEV_HD
+
+ endif
+
+-endmenu
+-
+ endif
+diff --git a/drivers/ieee1394/Kconfig b/drivers/ieee1394/Kconfig
+index 672b92e..411e890 100644
+--- a/drivers/ieee1394/Kconfig
++++ b/drivers/ieee1394/Kconfig
+@@ -1,8 +1,7 @@
+ # -*- shell-script -*-
+
+-menu "IEEE 1394 (FireWire) support"
+
+-config IEEE1394
++menuconfig IEEE1394
+ 	tristate "IEEE 1394 (FireWire) support"
+ 	depends on PCI || BROKEN
+ 	select NET
+@@ -19,6 +18,8 @@ config IEEE1394
+ 	  To compile this driver as a module, say M here: the
+ 	  module will be called ieee1394.
+
++if IEEE1394
 +
-+int __init sysrq_always_enabled_setup(char *str)
-+{
-+	sysrq_always_enabled = 1;
-+	printk(KERN_INFO "debug: sysrq always enabled.\n");
+ comment "Subsystem Options"
+ 	depends on IEEE1394
+
+@@ -185,4 +186,4 @@ config IEEE1394_RAWIO
+ 	  To compile this driver as a module, say M here: the
+ 	  module will be called raw1394.
+
+-endmenu
++endif
+diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
+index 9edface..25454e8 100644
+--- a/drivers/infiniband/Kconfig
++++ b/drivers/infiniband/Kconfig
+@@ -1,13 +1,13 @@
+-menu "InfiniBand support"
+-
+ config INFINIBAND
+-	depends on PCI || BROKEN
+ 	tristate "InfiniBand support"
++	depends on PCI || BROKEN
+ 	---help---
+ 	  Core support for InfiniBand (IB).  Make sure to also select
+ 	  any protocols you wish to use as well as drivers for your
+ 	  InfiniBand hardware.
+
++if INFINIBAND
 +
-+	return 1;
-+}
+ config INFINIBAND_USER_MAD
+ 	tristate "InfiniBand userspace MAD support"
+ 	depends on INFINIBAND
+@@ -45,4 +45,4 @@ source "drivers/infiniband/ulp/srp/Kconf
+
+ source "drivers/infiniband/ulp/iser/Kconfig"
+
+-endmenu
++endif
+diff --git a/drivers/isdn/Kconfig b/drivers/isdn/Kconfig
+index c90afee..f7bf323 100644
+--- a/drivers/isdn/Kconfig
++++ b/drivers/isdn/Kconfig
+@@ -2,9 +2,7 @@ #
+ # ISDN device configuration
+ #
+
+-menu "ISDN subsystem"
+-
+-config ISDN
++menuconfig ISDN
+ 	tristate "ISDN support"
+ 	depends on NET
+ 	---help---
+@@ -20,6 +18,8 @@ config ISDN
+
+ 	  Select this option if you want your kernel to support ISDN.
+
++if ISDN
 +
-+__setup("sysrq_always_enabled", sysrq_always_enabled_setup);
+
+ menu "Old ISDN4Linux"
+ 	depends on NET && ISDN
+@@ -63,5 +63,4 @@ source "drivers/isdn/capi/Kconfig"
+
+ source "drivers/isdn/hardware/Kconfig"
+
+-endmenu
+-
++endif
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index 9c39b98..9e3adf1 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -1,7 +1,4 @@
+-
+-menu "LED devices"
+-
+-config NEW_LEDS
++menuconfig NEW_LEDS
+ 	bool "LED Support"
+ 	help
+ 	  Say Y to enable Linux LED support.  This allows control of supported
+@@ -9,6 +6,7 @@ config NEW_LEDS
+
+ 	  This is not related to standard keyboard LEDs which are controlled
+ 	  via the input system.
++if NEW_LEDS
+
+ config LEDS_CLASS
+ 	tristate "LED Class Support"
+@@ -109,5 +107,4 @@ config LEDS_TRIGGER_HEARTBEAT
+ 	  load average.
+ 	  If unsure, say Y.
+
+-endmenu
+-
++endif
+diff --git a/drivers/md/Kconfig b/drivers/md/Kconfig
+index c92c152..4ca02c7 100644
+--- a/drivers/md/Kconfig
++++ b/drivers/md/Kconfig
+@@ -4,14 +4,14 @@ #
+
+ if BLOCK
+
+-menu "Multi-device support (RAID and LVM)"
+-
+-config MD
++menuconfig MD
+ 	bool "Multiple devices driver support (RAID and LVM)"
+ 	help
+ 	  Support multiple physical spindles through a single logical device.
+ 	  Required for RAID and logical volume management.
+
++if MD
 +
- 
- static void sysrq_handle_loglevel(int key, struct tty_struct *tty)
- {
-@@ -383,8 +410,7 @@ void __handle_sysrq(int key, struct tty_
- 		 * Should we check for enabled operations (/proc/sysrq-trigger
- 		 * should not) and is the invoked operation enabled?
- 		 */
--		if (!check_mask || sysrq_enabled == 1 ||
--		    (sysrq_enabled & op_p->enable_mask)) {
-+		if (!check_mask || sysrq_on_mask(op_p->enable_mask)) {
- 			printk("%s\n", op_p->action_msg);
- 			console_loglevel = orig_log_level;
- 			op_p->handler(key, tty);
-@@ -418,9 +444,8 @@ void __handle_sysrq(int key, struct tty_
-  */
- void handle_sysrq(int key, struct tty_struct *tty)
- {
--	if (!sysrq_enabled)
--		return;
--	__handle_sysrq(key, tty, 1);
-+	if (sysrq_on())
-+		__handle_sysrq(key, tty, 1);
- }
- EXPORT_SYMBOL(handle_sysrq);
- 
-Index: linux/drivers/char/viocons.c
-===================================================================
---- linux.orig/drivers/char/viocons.c
-+++ linux/drivers/char/viocons.c
-@@ -61,10 +61,7 @@
- static DEFINE_SPINLOCK(consolelock);
- static DEFINE_SPINLOCK(consoleloglock);
- 
--#ifdef CONFIG_MAGIC_SYSRQ
- static int vio_sysrq_pressed;
--extern int sysrq_enabled;
--#endif
- 
- #define VIOCHAR_NUM_BUF		16
- 
-@@ -936,8 +933,10 @@ static void vioHandleData(struct HvLpEve
- 	 */
- 	num_pushed = 0;
- 	for (index = 0; index < cevent->len; index++) {
--#ifdef CONFIG_MAGIC_SYSRQ
--		if (sysrq_enabled) {
-+		/*
-+		 * Will be optimized away if !CONFIG_MAGIC_SYSRQ:
-+		 */
-+		if (sysrq_on()) {
- 			/* 0x0f is the ascii character for ^O */
- 			if (cevent->data[index] == '\x0f') {
- 				vio_sysrq_pressed = 1;
-@@ -956,7 +955,6 @@ static void vioHandleData(struct HvLpEve
- 				continue;
- 			}
- 		}
--#endif
- 		/*
- 		 * The sysrq sequence isn't included in this check if
- 		 * sysrq is enabled and compiled into the kernel because
-Index: linux/include/linux/sysrq.h
-===================================================================
---- linux.orig/include/linux/sysrq.h
-+++ linux/include/linux/sysrq.h
-@@ -37,23 +37,37 @@ struct sysrq_key_op {
- 
- #ifdef CONFIG_MAGIC_SYSRQ
- 
-+extern int sysrq_on(void);
+ config BLK_DEV_MD
+ 	tristate "RAID support"
+ 	depends on MD
+@@ -261,6 +261,6 @@ config DM_MULTIPATH_EMC
+ 	---help---
+ 	  Multipath support for EMC CX/AX series hardware.
+
+-endmenu
++endif
+
+ endif
+diff --git a/drivers/message/i2o/Kconfig b/drivers/message/i2o/Kconfig
+index 6443392..6177faa 100644
+--- a/drivers/message/i2o/Kconfig
++++ b/drivers/message/i2o/Kconfig
+@@ -1,8 +1,5 @@
+-
+-menu "I2O device support"
+-
+-config I2O
+-	tristate "I2O support"
++menuconfig I2O
++	tristate "I2O device support"
+ 	depends on PCI
+ 	---help---
+ 	  The Intelligent Input/Output (I2O) architecture allows hardware
+@@ -24,6 +21,8 @@ config I2O
+
+ 	  If unsure, say N.
+
++if I2O
 +
-+/*
-+ * Do not use this one directly:
-+ */
-+extern int __sysrq_enabled;
+ config I2O_LCT_NOTIFY_ON_CHANGES
+ 	bool "Enable LCT notification"
+ 	depends on I2O
+@@ -122,5 +121,4 @@ config I2O_PROC
+ 	  To compile this support as a module, choose M here: the
+ 	  module will be called i2o_proc.
+
+-endmenu
+-
++endif
+diff --git a/drivers/mmc/Kconfig b/drivers/mmc/Kconfig
+index f4f8cca..e8159dc 100644
+--- a/drivers/mmc/Kconfig
++++ b/drivers/mmc/Kconfig
+@@ -2,15 +2,15 @@ #
+ # MMC subsystem configuration
+ #
+
+-menu "MMC/SD Card support"
+
+-config MMC
+-	tristate "MMC support"
++menuconfig MMC
++	tristate "MMC/SD Card support"
+ 	help
+ 	  MMC is the "multi-media card" bus protocol.
+
+ 	  If you want MMC support, you should say Y here and also
+ 	  to the specific driver for your MMC interface.
++if MMC
+
+ config MMC_DEBUG
+ 	bool "MMC debugging"
+@@ -125,4 +125,4 @@ config MMC_TIFM_SD
+           To compile this driver as a module, choose M here: the
+ 	  module will be called tifm_sd.
+
+-endmenu
++endif
+diff --git a/drivers/mtd/Kconfig b/drivers/mtd/Kconfig
+index a304b34..3c9ae5b 100644
+--- a/drivers/mtd/Kconfig
++++ b/drivers/mtd/Kconfig
+@@ -1,8 +1,6 @@
+ # $Id: Kconfig,v 1.11 2005/11/07 11:14:19 gleixner Exp $
+
+-menu "Memory Technology Devices (MTD)"
+-
+-config MTD
++menuconfig MTD
+ 	tristate "Memory Technology Device (MTD) support"
+ 	help
+ 	  Memory Technology Devices are flash, RAM and similar chips, often
+@@ -13,6 +11,8 @@ config MTD
+ 	  them. It will also allow you to select individual drivers for
+ 	  particular hardware and users of MTD devices. If unsure, say N.
+
++if MTD
 +
- /* Generic SysRq interface -- you may call it from any device driver, supplying
-  * ASCII code of the key, pointer to registers and kbd/tty structs (if they
-  * are available -- else NULL's).
-  */
- 
--void handle_sysrq(int, struct tty_struct *);
--void __handle_sysrq(int, struct tty_struct *, int check_mask);
--int register_sysrq_key(int, struct sysrq_key_op *);
--int unregister_sysrq_key(int, struct sysrq_key_op *);
-+void handle_sysrq(int key, struct tty_struct *tty);
-+void __handle_sysrq(int key, struct tty_struct *tty, int check_mask);
-+int register_sysrq_key(int key, struct sysrq_key_op *op);
-+int unregister_sysrq_key(int key, struct sysrq_key_op *op);
- struct sysrq_key_op *__sysrq_get_key_op(int key);
- 
- #else
- 
-+static inline int sysrq_on(void)
-+{
-+	return 0;
-+}
- static inline int __reterr(void)
- {
- 	return -EINVAL;
- }
-+static inline void handle_sysrq(int key, struct tty_struct *tty)
-+{
-+}
- 
- #define register_sysrq_key(ig,nore) __reterr()
- #define unregister_sysrq_key(ig,nore) __reterr()
-Index: linux/kernel/sysctl.c
-===================================================================
---- linux.orig/kernel/sysctl.c
-+++ linux/kernel/sysctl.c
-@@ -65,7 +65,6 @@ extern int sysctl_overcommit_memory;
- extern int sysctl_overcommit_ratio;
- extern int sysctl_panic_on_oom;
- extern int max_threads;
--extern int sysrq_enabled;
- extern int core_uses_pid;
- extern int suid_dumpable;
- extern char core_pattern[];
-@@ -697,7 +696,7 @@ static ctl_table kern_table[] = {
- 	{
- 		.ctl_name	= KERN_SYSRQ,
- 		.procname	= "sysrq",
--		.data		= &sysrq_enabled,
-+		.data		= &__sysrq_enabled,
- 		.maxlen		= sizeof (int),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
+ config MTD_DEBUG
+ 	bool "Debugging"
+ 	depends on MTD
+@@ -281,5 +281,5 @@ source "drivers/mtd/nand/Kconfig"
+
+ source "drivers/mtd/onenand/Kconfig"
+
+-endmenu
++endif
+
+diff --git a/drivers/parport/Kconfig b/drivers/parport/Kconfig
+index c7fa28a..f34ae24 100644
+--- a/drivers/parport/Kconfig
++++ b/drivers/parport/Kconfig
+@@ -5,9 +5,7 @@ #
+ # Parport configuration.
+ #
+
+-menu "Parallel port support"
+-
+-config PARPORT
++menuconfig PARPORT
+ 	tristate "Parallel port support"
+ 	---help---
+ 	  If you want to use devices connected to your machine's parallel port
+@@ -32,6 +30,8 @@ config PARPORT
+
+ 	  If unsure, say Y.
+
++if PARPORT
++
+ config PARPORT_PC
+ 	tristate "PC-style hardware"
+ 	depends on PARPORT && (!SPARC64 || PCI) && !SPARC32 && !M32R && !FRV
+@@ -158,5 +158,5 @@ config PARPORT_1284
+ 	  transfer modes. Also say Y if you want device ID information to
+ 	  appear in /proc/sys/dev/parport/*/autoprobe*. It is safe to say N.
+
+-endmenu
++endif
+
+diff --git a/drivers/pnp/Kconfig b/drivers/pnp/Kconfig
+index c514320..ec7ab40 100644
+--- a/drivers/pnp/Kconfig
++++ b/drivers/pnp/Kconfig
+@@ -2,9 +2,7 @@ #
+ # Plug and Play configuration
+ #
+
+-menu "Plug and Play support"
+-
+-config PNP
++menuconfig PNP
+ 	bool "Plug and Play support"
+ 	depends on ISA || ACPI
+ 	---help---
+@@ -21,6 +19,8 @@ config PNP
+
+ 	  If unsure, say Y.
+
++if PNP
++
+ config PNP_DEBUG
+ 	bool "PnP Debug Messages"
+ 	depends on PNP
+@@ -37,5 +37,5 @@ source "drivers/pnp/pnpbios/Kconfig"
+
+ source "drivers/pnp/pnpacpi/Kconfig"
+
+-endmenu
++endif
+
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index d895a1a..1b44244 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -5,9 +5,7 @@ # NOTE:  the reason this doesn't show SP
+ # nobody's needed a slave side API yet.  The master-role API is not
+ # fully appropriate there, so it'd need some thought to do well.
+ #
+-menu "SPI support"
+-
+-config SPI
++menuconfig SPI
+ 	bool "SPI support"
+ 	help
+ 	  The "Serial Peripheral Interface" is a low level synchronous
+@@ -27,6 +25,8 @@ config SPI
+ 	  (half duplex), SSP, SSI, and PSP.  This driver framework should
+ 	  work with most such devices and controllers.
+
++if SPI
++
+ config SPI_DEBUG
+ 	boolean "Debug support for SPI drivers"
+ 	depends on SPI && DEBUG_KERNEL
+@@ -129,5 +129,5 @@ #
+
+ # (slave support would go here)
+
+-endmenu # "SPI support"
++endif
+
+diff --git a/drivers/telephony/Kconfig b/drivers/telephony/Kconfig
+index 7625b18..d123fa1 100644
+--- a/drivers/telephony/Kconfig
++++ b/drivers/telephony/Kconfig
+@@ -2,9 +2,7 @@ #
+ # Telephony device configuration
+ #
+
+-menu "Telephony Support"
+-
+-config PHONE
++menuconfig PHONE
+ 	tristate "Linux telephony support"
+ 	---help---
+ 	  Say Y here if you have a telephony card, which for example allows
+@@ -16,6 +14,8 @@ config PHONE
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called phonedev.
+
++if PHONE
++
+ config PHONE_IXJ
+ 	tristate "QuickNet Internet LineJack/PhoneJack support"
+ 	depends on PHONE
+@@ -43,5 +43,4 @@ config PHONE_IXJ_PCMCIA
+ 	  cards manufactured by Quicknet Technologies, Inc.  This changes the
+ 	  card initialization code to work with the card manager daemon.
+
+-endmenu
+-
++endif
+diff --git a/drivers/w1/Kconfig b/drivers/w1/Kconfig
+index c287a9a..63c9c82 100644
+--- a/drivers/w1/Kconfig
++++ b/drivers/w1/Kconfig
+@@ -1,6 +1,4 @@
+-menu "Dallas's 1-wire bus"
+-
+-config W1
++menuconfig W1
+ 	tristate "Dallas's 1-wire support"
+ 	---help---
+ 	  Dallas' 1-wire bus is useful to connect slow 1-pin devices
+@@ -11,6 +9,8 @@ config W1
+ 	  This W1 support can also be built as a module.  If so, the module
+ 	  will be called wire.ko.
+
++if W1
++
+ config W1_CON
+ 	depends on CONNECTOR && W1
+ 	bool "Userspace communication over connector"
+@@ -26,4 +26,4 @@ config W1_CON
+ source drivers/w1/masters/Kconfig
+ source drivers/w1/slaves/Kconfig
+
+-endmenu
++endif
+

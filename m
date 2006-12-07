@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164335AbWLHBNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163438AbWLGVsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164335AbWLHBNc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 20:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164242AbWLHBNc
+	id S1163438AbWLGVsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 16:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163455AbWLGVsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 20:13:32 -0500
-Received: from ns2.suse.de ([195.135.220.15]:47155 "EHLO mx2.suse.de"
+	Thu, 7 Dec 2006 16:48:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48842 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164335AbWLHBN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 20:13:29 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 12:13:41 +1100
-Message-Id: <1061208011341.30603@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 004 of 18] knfsd: nfsd: make exp_rootfh handle exp_parent errors
-References: <20061208120939.30428.patches@notabene>
+	id S1163438AbWLGVsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 16:48:19 -0500
+Message-ID: <45788BF8.2010908@redhat.com>
+Date: Thu, 07 Dec 2006 16:47:36 -0500
+From: Chris Lalancette <clalance@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.8-1.1.fc4 (X11/20060501)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Horman <nhorman@tuxdriver.com>
+CC: linux-net@vger.kernel.org, mpm@selenic.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] netpoll: make arp replies through netpoll use mac address
+ of sender
+References: <20061207194553.GB29313@hmsreliant.homelinux.net>
+In-Reply-To: <20061207194553.GB29313@hmsreliant.homelinux.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Horman wrote:
+> Back in 2.4 arp requests that were recevied by netpoll were processed in
+> netconsole_receive_skb, where they were responded to using the src mac of the
+> request sender.  In the 2.6 kernel arp_reply is responsible for this function,
+> but instead of using the src mac address of the incomming request, the stored
+> mac address that was registered for the netconsole application is used.  While
+> this is usually ok, it can lead to failures in netpoll in some situations
+> (specifically situations where a network may have two gateways, as arp requests
+> from one may be responded to using the mac address of the other).  This patch
+> reverts the behavior to what we had in 2.4, in which all arp requests are sent
+> back using the src address of the request sender.
+> 
+> Thanks & Regards
+> Neil
+> 
+> Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+> 
 
-From: J.Bruce Fields <bfields@fieldses.org>
+Neil and I worked on this together, adding my ACK
 
-Since exp_parent can fail by returning an error (-EAGAIN) in addition 
-to by returning NULL, we should check for that case in exp_rootfh.
-
-(TODO: we should check that userland handles these errors too.)
-
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/nfsd/export.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
---- .prev/fs/nfsd/export.c	2006-12-08 12:07:28.000000000 +1100
-+++ ./fs/nfsd/export.c	2006-12-08 12:08:20.000000000 +1100
-@@ -1104,6 +1104,10 @@ exp_rootfh(svc_client *clp, char *path, 
- 		 path, nd.dentry, clp->name,
- 		 inode->i_sb->s_id, inode->i_ino);
- 	exp = exp_parent(clp, nd.mnt, nd.dentry, NULL);
-+	if (IS_ERR(exp)) {
-+		err = PTR_ERR(exp);
-+		goto out;
-+	}
- 	if (!exp) {
- 		dprintk("nfsd: exp_rootfh export not found.\n");
- 		goto out;
+Acked-by: Chris Lalancette <clalance@redhat.com>

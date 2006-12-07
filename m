@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425302AbWLHJtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163166AbWLGSTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425302AbWLHJtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 04:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425304AbWLHJtA
+	id S1163166AbWLGSTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163167AbWLGSTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 04:49:00 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55078 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425302AbWLHJs7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 04:48:59 -0500
-Date: Fri, 8 Dec 2006 09:48:56 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davem@davemloft.net, marcel@holtmann.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] hci endianness annotations
-Message-ID: <20061208094855.GR4587@ftp.linux.org.uk>
+	Thu, 7 Dec 2006 13:19:30 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:53408 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1163166AbWLGST1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 13:19:27 -0500
+Date: Thu, 7 Dec 2006 10:17:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org, macro@linux-mips.org,
+       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
+       afleming@freescale.com, ben.collins@ubuntu.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Message-Id: <20061207101741.25fe647c.akpm@osdl.org>
+In-Reply-To: <20061207095715.0cafffb9.akpm@osdl.org>
+References: <20061206234942.79d6db01.akpm@osdl.org>
+	<1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+	<20061205123958.497a7bd6.akpm@osdl.org>
+	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+	<20061205132643.d16db23b.akpm@osdl.org>
+	<adaac22c9cu.fsf@cisco.com>
+	<20061205135753.9c3844f8.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+	<20061206075729.b2b6aa52.akpm@osdl.org>
+	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
+	<20061206224207.8a8335ee.akpm@osdl.org>
+	<9392.1165487379@redhat.com>
+	<20061207024211.be739a4a.akpm@osdl.org>
+	<457849E2.3080909@garzik.org>
+	<20061207095715.0cafffb9.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- include/net/bluetooth/hci.h |    4 ++--
- net/bluetooth/hci_sock.c    |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+On Thu, 7 Dec 2006 09:57:15 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index 10a3eec..41456c1 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -739,13 +739,13 @@ #define HCI_DEV_NONE	0xffff
- struct hci_filter {
- 	unsigned long type_mask;
- 	unsigned long event_mask[2];
--	__u16   opcode;
-+	__le16   opcode;
- };
- 
- struct hci_ufilter {
- 	__u32   type_mask;
- 	__u32   event_mask[2];
--	__u16   opcode;
-+	__le16   opcode;
- };
- 
- #define HCI_FLT_TYPE_BITS	31
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 711a085..dbf98c4 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -123,10 +123,10 @@ void hci_send_to_sock(struct hci_dev *hd
- 			if (flt->opcode &&
- 			    ((evt == HCI_EV_CMD_COMPLETE &&
- 			      flt->opcode !=
--			      get_unaligned((__u16 *)(skb->data + 3))) ||
-+			      get_unaligned((__le16 *)(skb->data + 3))) ||
- 			     (evt == HCI_EV_CMD_STATUS &&
- 			      flt->opcode !=
--			      get_unaligned((__u16 *)(skb->data + 4)))))
-+			      get_unaligned((__le16 *)(skb->data + 4)))))
- 				continue;
- 		}
- 
--- 
-1.4.2.GIT
+> On Thu, 07 Dec 2006 12:05:38 -0500
+> Jeff Garzik <jeff@garzik.org> wrote:
+> 
+> > Yes, I merged the code, but looking deeper at phy its clear I missed 
+> > some things.
+> > 
+> > Looking into libphy's workqueue stuff, it has the following sequence:
+> > 
+> > 	disable interrupts
+> > 	schedule_work()
+> > 
+> > 	... time passes ...
+> > 	... workqueue routine is called ...
+> > 
+> > 	enable interrupts
+> > 	handle interrupt
+> > 
+> > I really have to question if a workqueue was the best choice of 
+> > direction for such a sequence.  You don't want to put off handling an 
+> > interrupt, with interrupts disabled, for a potentially unbounded amount 
+> > of time.
+> 
+> That'll lock the box on UP, or if the timer fires on the current CPU?
+
+oh. "disable interrupts" == disable_irq(), not local_irq_disable()?
+
+Not so bad ;)

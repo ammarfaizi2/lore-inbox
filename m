@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937844AbWLGAj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937854AbWLGAqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937844AbWLGAj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 19:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937850AbWLGAjZ
+	id S937854AbWLGAqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 19:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937859AbWLGAqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 19:39:25 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:35509 "EHLO
-	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937844AbWLGAjX (ORCPT
+	Wed, 6 Dec 2006 19:46:08 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:58352
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S937854AbWLGAqF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 19:39:23 -0500
-Message-ID: <457762E3.2010909@jp.fujitsu.com>
-Date: Thu, 07 Dec 2006 09:40:03 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CPEI gets warning at kernel/irq/migration.c:27/move_masked_irq()
-References: <4575212A.3020902@jp.fujitsu.com>	 <20061205221913.1ef416f9.akpm@osdl.org> <1165386976.3233.428.camel@laptopd505.fenrus.org>
-In-Reply-To: <1165386976.3233.428.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-2022-JP
+	Wed, 6 Dec 2006 19:46:05 -0500
+Date: Wed, 06 Dec 2006 16:46:16 -0800 (PST)
+Message-Id: <20061206.164616.74731030.davem@davemloft.net>
+To: mattjreimer@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
+References: <f383264b0612051657r2b62c7acnf10b2800934ab8b3@mail.gmail.com>
+	<20061205.165948.98864221.davem@davemloft.net>
+	<f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> It'd be nice if we could just teach the userspace balancer to not try to
->> move perpcu IRQs?
->>
->> otoh, the patch is super-cheap.   Arjan?
+From: "Matt Reimer" <mattjreimer@gmail.com>
+Date: Wed, 6 Dec 2006 13:19:41 -0800
+
+> On 12/5/06, David Miller <davem@davemloft.net> wrote:
+> > From: "Matt Reimer" <mattjreimer@gmail.com>
+> > Date: Tue, 5 Dec 2006 16:57:12 -0800
+> >
+> > > Right, but isn't he declaring that each architecture needs to take
+> > > care of this? So, say, on ARM we'd need to make kunmap() not a NOP and
+> > > call flush_dcache_page() ?
+> >
+> > No.  He is only solving a problem that occurs on HIGHMEM
+> > configurations on systems which can have D-cache aliasing
+> > issues.
 > 
-> I can fix irqbalance no problem, however I like the kernel approach as
-> well, since it's not just irqbalance that moves irqs, sysadmins tend to
-> do it as well....  so how about both?
-
-Thanks for positive comments.
-
-> One thing we probably should do, and that would help irqbalance
-> immensely, is to export a bitmask for which cpus an interrupt CAN go to,
-> next to where the current binding interface is. I'll check into that
+> Are you sure? James specifically mentions "non-highmem architectures,"
+> and "all architectures with coherence issues," which would seem to
+> include ARM (which is my concern).
 > 
-> Hidetoshi: would it be possible to send me a /proc/interrupts file of
-> that machine?
+> For your convenience I quote the whole commit message below.
 
-Here you are.
-This machine is not special. I guess all ia64 machine will show
-few or more but almost same lines. CPEI is #30.
+Ok, I see.
 
-$ cat /proc/interrupts
-           CPU0       CPU1
- 28:          0          0          LSAPIC  cpe_poll
- 29:          0          0          LSAPIC  cmc_poll
- 30:          0          0  IO-SAPIC-level  cpe_hndlr
- 31:          0          0          LSAPIC  cmc_hndlr
- 34:       4643    1881067   IO-SAPIC-edge  ide0
- 39:          0          0  IO-SAPIC-level  acpi
- 45:        148        560   IO-SAPIC-edge  serial
- 48:          0          0  IO-SAPIC-level  uhci_hcd
- 49:          0          0  IO-SAPIC-level  uhci_hcd
- 50:          0          0  IO-SAPIC-level  ehci_hcd
- 51:      21131    1257790  IO-SAPIC-level  eth0
- 53:      21778     458314  IO-SAPIC-level  ioc0
- 54:          0         44  IO-SAPIC-level  ioc1
-232:          0          0          LSAPIC  mca_rdzv
-238:          0          0          LSAPIC  perfmon
-239:  214832233  214832003          LSAPIC  timer
-240:          0          0          LSAPIC  mca_wkup
-254:     209193        611          LSAPIC  IPI
-ERR:          0
+He's providing it an alternative way to solve the coherency
+issues.
 
-Thanks,
-H.Seto
-
+You can still solve it the traditional way via cache flushing
+in flush_dcache_page() and {copy,clear}_user_page().

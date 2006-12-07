@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032247AbWLGOPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937960AbWLGObj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032247AbWLGOPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 09:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032249AbWLGOPv
+	id S937960AbWLGObj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 09:31:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937961AbWLGObi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 09:15:51 -0500
-Received: from thunk.org ([69.25.196.29]:42201 "EHLO thunker.thunk.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032247AbWLGOPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 09:15:50 -0500
-Date: Thu, 7 Dec 2006 09:15:42 -0500
-From: Theodore Tso <tytso@mit.edu>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should define ENOTSUP
-Message-ID: <20061207141542.GD31773@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Andreas Schwab <schwab@suse.de>,
-	Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20061206135134.GJ3927@implementation.labri.fr> <1165415115.3233.449.camel@laptopd505.fenrus.org> <20061206143159.GP3927@implementation.labri.fr> <20061207134914.GB31773@thunk.org> <je7ix3bycr.fsf@sykes.suse.de>
+	Thu, 7 Dec 2006 09:31:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:45478 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937960AbWLGObi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 09:31:38 -0500
+Date: Thu, 7 Dec 2006 14:31:36 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Yu Luming <luming.yu@gmail.com>,
+       Miguel Ojeda Sandonis <maxextreme@gmail.com>
+Subject: Re: -mm merge plans for 2.6.20
+In-Reply-To: <20061206154020.bdc0e09a.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612071425380.31668@pentafluge.infradead.org>
+References: <20061204204024.2401148d.akpm@osdl.org>
+ <Pine.LNX.4.64.0612051538280.15711@pentafluge.infradead.org>
+ <20061205100140.24888a96.akpm@osdl.org> <Pine.LNX.4.64.0612051822140.7917@pentafluge.infradead.org>
+ <20061205114310.e85d4c7e.akpm@osdl.org> <Pine.LNX.4.64.0612051946280.14114@pentafluge.infradead.org>
+ <20061205122057.c2b617f4.akpm@osdl.org> <Pine.LNX.4.64.0612052131410.14114@pentafluge.infradead.org>
+ <20061206154020.bdc0e09a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <je7ix3bycr.fsf@sykes.suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 02:59:48PM +0100, Andreas Schwab wrote:
-> Theodore Tso <tytso@mit.edu> writes:
-> 
-> > Can you please quote chapter and verse (in POSIX) where it states that
-> > ENOTSUP and EOPNOTSUP have to be numerically distinct?
-> 
-> <http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html>
-> "Their values shall be unique except as noted below."
-> (And there is no exception for ENOTSUP/EOPNOTSUP yet.)
 
-Ah, but you're quoting from SuS, not POSIX.  (Yes, I'm splitting
-hairs, but that's what standards are all about.  :-)
+> Anyway, it seems all screwed up - I'll drop the patch.
 
-						- Ted
+I'm working on a new patch. The build system has changed quite a bit 
+from the last time I worked with it 2 years ago.  

@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164361AbWLHBrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163159AbWLGSJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164361AbWLHBrF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 20:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164367AbWLHBrE
+	id S1163159AbWLGSJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163157AbWLGSJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 20:47:04 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36999 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164361AbWLHBrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 20:47:02 -0500
-Date: Thu, 7 Dec 2006 17:46:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: david singleton <dsingleton@mvista.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: new procfs memory analysis feature
-Message-Id: <20061207174627.63300ccf.akpm@osdl.org>
-In-Reply-To: <04710480e9f151439cacdf3dd9d507d1@mvista.com>
-References: <45789124.1070207@mvista.com>
-	<20061207143611.7a2925e2.akpm@osdl.org>
-	<04710480e9f151439cacdf3dd9d507d1@mvista.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 7 Dec 2006 13:09:58 -0500
+Received: from hancock.steeleye.com ([71.30.118.248]:45096 "EHLO
+	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1163145AbWLGSJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 13:09:56 -0500
+Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <4574B004.6030606@us.ibm.com>
+References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>
+	 <4574B004.6030606@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 07 Dec 2006 12:09:43 -0600
+Message-Id: <1165514983.4698.21.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006 17:07:22 -0800
-david singleton <dsingleton@mvista.com> wrote:
+On Mon, 2006-12-04 at 15:32 -0800, Darrick J. Wong wrote:
+> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
+> response to a REPORT LUNS packet.  If this happens to an ATAPI device
+> that is attached to a SAS controller (this is the case with sas_ata),
+> the device does not load because SCSI won't touch a "SCSI device"
+> that won't report its LUNs.  Since most ATAPI devices don't support
+> multiple LUNs anyway, we might as well fake a response like we do for
+> ATA devices.
 
-> Attached is the 2.6.19 patch.
+Actually, there may be a standards conflict here.  SPC says that all
+devices reporting compliance with this standard (as the inquiry data for
+this device claims) shall support REPORT LUNS.  On the other hand, MMC
+doesn't list REPORT LUNS in its table of mandatory commands.
 
-It still has the overflow bug.
+I'm starting to think that even if they report a SCSI compliance level
+of 3 or greater, we still shouldn't send REPORT LUNS to devices that
+return MMC type unless we have a white list override.
+
+James
+
+

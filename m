@@ -1,161 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937912AbWLGBWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937910AbWLGBYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937912AbWLGBWV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 20:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937914AbWLGBWV
+	id S937910AbWLGBYf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 20:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937915AbWLGBYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 20:22:21 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:34139 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937912AbWLGBWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 20:22:20 -0500
-Date: Wed, 6 Dec 2006 17:21:50 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
-cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+	Wed, 6 Dec 2006 20:24:35 -0500
+Received: from nf-out-0910.google.com ([64.233.182.184]:28762 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937910AbWLGBYe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 20:24:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=FE9on195kFKDZaaCmm9vLd4LWKUCi0pZA9hzF/BkVXN/2OY+26eR7PX0D4h9OTT9QzGPnFGswuvnUJnsD7G+7nlhSaQC1LGo3zhNFi8v0XMU2n9tqW/9B2TIKNvskewIX/h1MSkPcpmDF5LaXLLDEvpM8F32gu4pZQG1ZdgGAGQ=
+Message-ID: <45776D4F.6070806@gmail.com>
+Date: Thu, 07 Dec 2006 02:24:08 +0059
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Fox <efox@einsteinindustries.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/1] Char: isicom, fix card locking
+References: <1165451982-AXRLGS2HCEVCUY1@www.vabmail.com>
+In-Reply-To: <1165451982-AXRLGS2HCEVCUY1@www.vabmail.com>
+X-Enigmail-Version: 0.94.1.1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric Fox wrote:
+> Patch works if I disable SMP in kernel.
+
+Aha, and it didn't work without the patch with SMP disabled?
+
+> strace setserial -g /dev/ttyM0
+> execve("/bin/setserial", ["setserial", "-g", "/dev/ttyM0"], [/* 17 vars
+> */]) = 0
+> uname({sys="Linux", node="dialin-0.vab.com", ...}) = 0
+> brk(0)                                  = 0x804d000
+> access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or
+> directory)
+> open("/etc/ld.so.cache", O_RDONLY)      = 3
+> fstat64(3, {st_mode=S_IFREG|0644, st_size=19713, ...}) = 0
+> old_mmap(NULL, 19713, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f58000
+> close(3)                                = 0
+> open("/lib/tls/libc.so.6", O_RDONLY)    = 3
+> read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\320\36"..., 512) =
+> 512
+> fstat64(3, {st_mode=S_IFREG|0755, st_size=1454802, ...}) = 0
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
+> 0) = 0xb7f57000
+> old_mmap(0x39d000, 1223900, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE,
+> 3, 0) = 0x39d000
+> old_mmap(0x4c2000, 16384, PROT_READ|PROT_WRITE,
+> MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x124000) = 0x4c2000
+> old_mmap(0x4c6000, 7388, PROT_READ|PROT_WRITE,
+> MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4c6000
+> close(3)                                = 0
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
+> 0) = 0xb7f56000
+> mprotect(0x4c2000, 4096, PROT_READ)     = 0
+> mprotect(0x399000, 4096, PROT_READ)     = 0
+> set_thread_area({entry_number:-1 -> 6, base_addr:0xb7f566c0, limit:1048575,
+> seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1,
+> seg_not_present:0, 0munmap(0xb7f58000, 19713)               = 0
 
 
-On Wed, 6 Dec 2006, Linus Torvalds wrote:
-> 
-> How about something like this?
+> open("/dev/ttyM0", O_RDWR|O_NONBLOCK)   = 3
+> ioctl(3, TIOCGSERIAL, 0xbf81c280)       = 0
 
-I didn't get any answers on this. I'd like to get this issue resolved, but 
-since I don't even use libphy on my main machine, I need somebody else to 
-test it for me.
+In one of these two there should lie the problem in SMP mode. The latter is OK
+(no locking), but the former -- hmm, it gets stuck: I guess, we have a recursive
+locking example here (I can see one of many in the driver now):
+isicom_open()
+{
+...
+isicom_setup_port()
+...
+}
 
-Just to remind you all, here's the patch again. This is identical to the 
-previous version except for the trivial cleanup to use "work_pending()" 
-instead of open-coding it in two places.
+isicom_setup_port()
+{
+...
+        spin_lock_irqsave(&card->card_lock, flags);
+...
+        isicom_config_port();
+...
+        spin_unlock_irqrestore(&card->card_lock, flags);
+}
 
-		Linus
+isicom_config_port()
+{
+...
+	lock_card()
+...
+	unlock_card()
+...
+}
 
-----
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index 4044bb1..e175f39 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -587,8 +587,7 @@ int phy_stop_interrupts(struct phy_device *phydev)
- 	 * Finish any pending work; we might have been scheduled
- 	 * to be called from keventd ourselves, though.
- 	 */
--	if (!current_is_keventd())
--		flush_scheduled_work();
-+	run_scheduled_work(&phydev->phy_queue);
- 
- 	free_irq(phydev->irq, phydev);
- 
-diff --git a/include/linux/workqueue.h b/include/linux/workqueue.h
-index 4a3ea83..a601ed5 100644
---- a/include/linux/workqueue.h
-+++ b/include/linux/workqueue.h
-@@ -160,6 +160,7 @@ extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
- 
- extern int FASTCALL(schedule_work(struct work_struct *work));
-+extern int FASTCALL(run_scheduled_work(struct work_struct *work));
- extern int FASTCALL(schedule_delayed_work(struct delayed_work *work, unsigned long delay));
- 
- extern int schedule_delayed_work_on(int cpu, struct delayed_work *work, unsigned long delay);
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 8d1e7cb..36f9b78 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -103,6 +103,79 @@ static inline void *get_wq_data(struct work_struct *work)
- 	return (void *) (work->management & WORK_STRUCT_WQ_DATA_MASK);
- }
- 
-+static int __run_work(struct cpu_workqueue_struct *cwq, struct work_struct *work)
-+{
-+	int ret = 0;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&cwq->lock, flags);
-+	/*
-+	 * We need to re-validate the work info after we've gotten
-+	 * the cpu_workqueue lock. We can run the work now iff:
-+	 *
-+	 *  - the wq_data still matches the cpu_workqueue_struct
-+	 *  - AND the work is still marked pending
-+	 *  - AND the work is still on a list (which will be this
-+	 *    workqueue_struct list)
-+	 *
-+	 * All these conditions are important, because we
-+	 * need to protect against the work being run right
-+	 * now on another CPU (all but the last one might be
-+	 * true if it's currently running and has not been
-+	 * released yet, for example).
-+	 */
-+	if (get_wq_data(work) == cwq
-+	    && work_pending(work)
-+	    && !list_empty(&work->entry)) {
-+		work_func_t f = work->func;
-+		list_del_init(&work->entry);
-+		spin_unlock_irqrestore(&cwq->lock, flags);
-+
-+		if (!test_bit(WORK_STRUCT_NOAUTOREL, &work->management))
-+			work_release(work);
-+		f(work);
-+
-+		spin_lock_irqsave(&cwq->lock, flags);
-+		cwq->remove_sequence++;
-+		wake_up(&cwq->work_done);
-+		ret = 1;
-+	}
-+	spin_unlock_irqrestore(&cwq->lock, flags);
-+	return ret;
-+}
-+
-+/**
-+ * run_scheduled_work - run scheduled work synchronously
-+ * @work: work to run
-+ *
-+ * This checks if the work was pending, and runs it
-+ * synchronously if so. It returns a boolean to indicate
-+ * whether it had any scheduled work to run or not.
-+ *
-+ * NOTE! This _only_ works for normal work_structs. You
-+ * CANNOT use this for delayed work, because the wq data
-+ * for delayed work will not point properly to the per-
-+ * CPU workqueue struct, but will change!
-+ */
-+int fastcall run_scheduled_work(struct work_struct *work)
-+{
-+	for (;;) {
-+		struct cpu_workqueue_struct *cwq;
-+
-+		if (!work_pending(work))
-+			return 0;
-+		if (list_empty(&work->entry))
-+			return 0;
-+		/* NOTE! This depends intimately on __queue_work! */
-+		cwq = get_wq_data(work);
-+		if (!cwq)
-+			return 0;
-+		if (__run_work(cwq, work))
-+			return 1;
-+	}
-+}
-+EXPORT_SYMBOL(run_scheduled_work);
-+
- /* Preempt must be disabled. */
- static void __queue_work(struct cpu_workqueue_struct *cwq,
- 			 struct work_struct *work)
+lock_card()
+{
+...
+	spin_lock_irqsave(&card->card_lock, card->flags);
+...
+}
+
+unlock_card()
+{
+	spin_unlock_irqrestore(&card->card_lock, card->flags);
+}
+
+Going to fix these.
+
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

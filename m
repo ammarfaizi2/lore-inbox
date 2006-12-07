@@ -1,76 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031684AbWLGGUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031716AbWLGGmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031684AbWLGGUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 01:20:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031686AbWLGGUZ
+	id S1031716AbWLGGmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 01:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031720AbWLGGmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 01:20:25 -0500
-Received: from ug-out-1314.google.com ([66.249.92.174]:31179 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031679AbWLGGUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 01:20:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OlQGDarE8W/GZ2Ggjb4AhaB+mgzOB2EMkPxU4ugmHOgGcPhjxM2GxNHBdb4hubm0ExeLWAK7VWL+vUuW0EiaRqkSTuBdcUnMW3HwyQcj3a6g3OSfeXOtOz2mz5f5yMcz92jy7D4lBO9sVVl8iwPyp38VL8pxXg/7fKvgCJdva18=
-Message-ID: <f383264b0612062220j283f0ad6u5be9db6ac79dbbe9@mail.gmail.com>
-Date: Wed, 6 Dec 2006 22:20:22 -0800
-From: "Matt Reimer" <mattjreimer@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061206.164616.74731030.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 7 Dec 2006 01:42:43 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:54007 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1031716AbWLGGmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 01:42:42 -0500
+Date: Wed, 6 Dec 2006 22:42:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Roland Dreier <rdreier@cisco.com>,
+       Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Message-Id: <20061206224207.8a8335ee.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
+References: <1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+	<20061205123958.497a7bd6.akpm@osdl.org>
+	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+	<20061205132643.d16db23b.akpm@osdl.org>
+	<adaac22c9cu.fsf@cisco.com>
+	<20061205135753.9c3844f8.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+	<20061206075729.b2b6aa52.akpm@osdl.org>
+	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <f383264b0612051657r2b62c7acnf10b2800934ab8b3@mail.gmail.com>
-	 <20061205.165948.98864221.davem@davemloft.net>
-	 <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
-	 <20061206.164616.74731030.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/06, David Miller <davem@davemloft.net> wrote:
-> From: "Matt Reimer" <mattjreimer@gmail.com>
-> Date: Wed, 6 Dec 2006 13:19:41 -0800
->
-> > On 12/5/06, David Miller <davem@davemloft.net> wrote:
-> > > From: "Matt Reimer" <mattjreimer@gmail.com>
-> > > Date: Tue, 5 Dec 2006 16:57:12 -0800
-> > >
-> > > > Right, but isn't he declaring that each architecture needs to take
-> > > > care of this? So, say, on ARM we'd need to make kunmap() not a NOP and
-> > > > call flush_dcache_page() ?
-> > >
-> > > No.  He is only solving a problem that occurs on HIGHMEM
-> > > configurations on systems which can have D-cache aliasing
-> > > issues.
-> >
-> > Are you sure? James specifically mentions "non-highmem architectures,"
-> > and "all architectures with coherence issues," which would seem to
-> > include ARM (which is my concern).
-> >
-> > For your convenience I quote the whole commit message below.
->
-> Ok, I see.
->
-> He's providing it an alternative way to solve the coherency
-> issues.
->
-> You can still solve it the traditional way via cache flushing
-> in flush_dcache_page() and {copy,clear}_user_page().
+On Wed, 6 Dec 2006 17:21:50 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Ok, good to know, since that's what we're doing with ARM drivers
-presently. What's the preferred method going forward?
+> 
+> 
+> On Wed, 6 Dec 2006, Linus Torvalds wrote:
+> > 
+> > How about something like this?
+> 
+> I didn't get any answers on this. I'd like to get this issue resolved, but 
+> since I don't even use libphy on my main machine, I need somebody else to 
+> test it for me.
+> 
+> Just to remind you all, here's the patch again. This is identical to the 
+> previous version except for the trivial cleanup to use "work_pending()" 
+> instead of open-coding it in two places.
+> 
+> 		Linus
+> 
+> ...
+>
+> +static int __run_work(struct cpu_workqueue_struct *cwq, struct work_struct *work)
+> +{
+> +	int ret = 0;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&cwq->lock, flags);
+> +	/*
+> +	 * We need to re-validate the work info after we've gotten
+> +	 * the cpu_workqueue lock. We can run the work now iff:
+> +	 *
+> +	 *  - the wq_data still matches the cpu_workqueue_struct
+> +	 *  - AND the work is still marked pending
+> +	 *  - AND the work is still on a list (which will be this
+> +	 *    workqueue_struct list)
+> +	 *
+> +	 * All these conditions are important, because we
+> +	 * need to protect against the work being run right
+> +	 * now on another CPU (all but the last one might be
+> +	 * true if it's currently running and has not been
+> +	 * released yet, for example).
+> +	 */
+> +	if (get_wq_data(work) == cwq
+> +	    && work_pending(work)
+> +	    && !list_empty(&work->entry)) {
+> +		work_func_t f = work->func;
+> +		list_del_init(&work->entry);
+> +		spin_unlock_irqrestore(&cwq->lock, flags);
+> +
+> +		if (!test_bit(WORK_STRUCT_NOAUTOREL, &work->management))
+> +			work_release(work);
+> +		f(work);
+> +
+> +		spin_lock_irqsave(&cwq->lock, flags);
+> +		cwq->remove_sequence++;
+> +		wake_up(&cwq->work_done);
+> +		ret = 1;
+> +	}
+> +	spin_unlock_irqrestore(&cwq->lock, flags);
+> +	return ret;
+> +}
+> +
+> +/**
+> + * run_scheduled_work - run scheduled work synchronously
+> + * @work: work to run
+> + *
+> + * This checks if the work was pending, and runs it
+> + * synchronously if so. It returns a boolean to indicate
+> + * whether it had any scheduled work to run or not.
+> + *
+> + * NOTE! This _only_ works for normal work_structs. You
+> + * CANNOT use this for delayed work, because the wq data
+> + * for delayed work will not point properly to the per-
+> + * CPU workqueue struct, but will change!
+> + */
+> +int fastcall run_scheduled_work(struct work_struct *work)
+> +{
+> +	for (;;) {
+> +		struct cpu_workqueue_struct *cwq;
+> +
+> +		if (!work_pending(work))
+> +			return 0;
 
-If architectures with coherency problems have to take care of this in
-their kmap() implementations, wouldn't commits like [1] below result
-in a pessmization for these architectures, since effectively the flush
-would happen twice (once by architecture-specific kunmap, and once by
-the flush_dcache_page() being added in this commit)?
+But this will return to the caller if the callback is presently running on
+a different CPU.  The whole point here is to be able to reliably kill off
+the pending work so that the caller can free resources.
 
-Matt
+> +		if (list_empty(&work->entry))
+> +			return 0;
+> +		/* NOTE! This depends intimately on __queue_work! */
+> +		cwq = get_wq_data(work);
+> +		if (!cwq)
+> +			return 0;
+> +		if (__run_work(cwq, work))
+> +			return 1;
+> +	}
+> +}
+> +EXPORT_SYMBOL(run_scheduled_work);
 
-[1] http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c4ec7b0de4bc18ccb4380de638550984d9a65c25
+Also, I worry that this code can run the callback on the caller's CPU. 
+Users of per-cpu workqueues can legitimately assume that each callback runs
+on the right CPU.  I doubt if many callers _do_ do that - there's
+schedule_delayed_work_on(), but that's a bit different.
+
+A solution to both problems is of course to block the caller if the
+callback is running.  We can perhaps borrow cwq->work_done for that.
+
+
+But I wouldn't want to think about an implementation as long as we have
+that WORK_STRUCT_NOAUTOREL horror in there.  Can we just nuke that?  Only
+three drivers need it and I bet they can be modified to use the usual
+mechanisms.
+

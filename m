@@ -1,174 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032092AbWLGMCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032096AbWLGMNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032092AbWLGMCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032091AbWLGMCT
+	id S1032096AbWLGMNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032097AbWLGMNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:02:19 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1436 "HELO
-	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1032092AbWLGMCS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:02:18 -0500
-Date: Thu, 7 Dec 2006 13:02:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.16.35
-Message-ID: <20061207120224.GE8963@stusta.de>
-MIME-Version: 1.0
+	Thu, 7 Dec 2006 07:13:22 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:54711 "EHLO mx2.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1032096AbWLGMNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:13:21 -0500
+Date: Thu, 7 Dec 2006 13:11:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Len Brown <lenb@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>, ak@suse.de,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: [patch] x86_64: do not enable the NMI watchdog by default
+Message-ID: <20061207121135.GA15529@elte.hu>
+References: <20061206223025.GA17227@elte.hu> <200612061857.30248.len.brown@intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200612061857.30248.len.brown@intel.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fixes since 2.6.16.34:
-- CVE-2006-5751: bridge: fix possible overflow in get_fdb_entries
 
+* Len Brown <len.brown@intel.com> wrote:
 
-Location:
-ftp://ftp.kernel.org/pub/linux/kernel/v2.6/
+> Personally I have never been a big fan of having the NMI watchdog 
+> running by default on all systems -- but Andi insists that it helps 
+> him debug failures, so tick it does...
 
-git tree:
-git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+enabling it by default was IMO a really bad decision and it needs to be 
+undone via the patch attached further below.
 
-RSS feed of the git tree:
-http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
+If Andi wants to debug stuff via the NMI wachdog, he should use the 
+nmi_watchdog=2 boot option: next to the tty=ttyS0 serial console 
+options, initcall_debug, apic=debug, earlyprintk and myriads of other 
+kernel-hackers-only boot options that we all use to 'help debug 
+failures' ...
 
+also, lock debugging facilities catch lockup possibilities (and actual 
+lockups) alot more efficiently, i cannot remember the last time the NMI 
+watchdog caught anything on my boxes without some other facility not 
+triggering first. (and i have it enabled everywhere)
 
-Changes since 2.6.16.34:
+I have run a quick analysis over all locking related crashes i triggered 
+on one particular testbox over the past 2 weeks. Out of 26 separate lock 
+related incidents spread out equally over that timeframe (out of 497 
+bootups on this box), this was the distribution of debugging facilities 
+that caught the bugs:
 
-Adrian Bunk (4):
-      drivers/usb/input/ati_remote.c: fix cut'n'paste error
-      remove garbage that sneaked into the ext3 fix
-      Linux 2.6.16.35-rc1
-      Linux 2.6.16.35
+      1  BUG: spinlock lockup on
+      1  [ INFO: inconsistent lock state ]
+      2  BUG: scheduling while atomic
+      2  [ BUG: bad unlock balance detected! ]
+      2  BUG: sleeping function called from invalid context
+      6  BUG: scheduling with irqs disabled
+      5  [ INFO: hard-safe -> hard-unsafe lock order detected ]
+      7  BUG: using smp_processor_id() in preemptible [] code
 
-Al Viro (5):
-      add forgotten ->b_data in memcpy() call in ext3/resize.c (oopsable)
-      [EBTABLES]: Fix wraparounds in ebt_entries verification.
-      [EBTABLES]: Verify that ebt_entries have zero ->distinguisher.
-      [EBTABLES]: Deal with the worst-case behaviour in loop checks.
-      [EBTABLES]: Prevent wraparounds in checks for entry components' sizes.
+8 were caught by lockdep, 8 by atomicity checks in the scheduler, 7 by 
+DEBUG_PREEMPT and 1 by DEBUG_SPINLOCK.
 
-Alexey Dobriyan (1):
-      proper flags type of spin_lock_irqsave()
+Note: zero were caught by the NMI watchdog, and i run the NMI watchdog 
+enabled by default on all architectures, and i have serial logging of 
+everything.
 
-Chris Wright (1):
-      bridge: fix possible overflow in get_fdb_entries (CVE-2006-5751)
+but even for the typical distro kernel and for the typical user, the NMI 
+watchdog is normally useless, because NMI lockups rarely make it into 
+the syslog and X just locks up without showing anything on the screen.
 
-Dave Kleikamp (1):
-      JFS: pageno needs to be long
+	Ingo
 
-Fernando J. Pereda (1):
-      alpha: Fix ALPHA_EV56 dependencies typo
+----------------------->
+Subject: [patch] x86_64: do not enable the NMI watchdog by default
+From: Ingo Molnar <mingo@elte.hu>
 
-Herbert Xu (1):
-      SCTP: Always linearise packet on input
+do not enable the NMI watchdog by default. Now that we have lockdep i 
+cannot remember the last time it caught a real bug, but the NMI watchdog 
+can /cause/ problems. Furthermore, to the typical user, an NMI watchdog 
+assert results in a total lockup anyway (if under X). In that sense, all 
+that the NMI watchdog does is that it makes the system /less/ stable and 
+/less/ debuggable.
 
-Jean Delvare (1):
-      Fix a masking bug in the 6pack driver.
+people can still enable it either after bootup via:
 
-Jens Axboe (3):
-      block: Fix bad data direction in SG_IO
-      cpqarray: fix iostat
-      cciss: fix iostat
+   echo 1 > /proc/sys/kernel/nmi
 
-Jeremy Higdon (1):
-      sgiioc4: Disable module unload
+or via the nmi_watchdog=1 or nmi_watchdog=2 boot options.
 
-Jiri Slaby (1):
-      Char: isicom, fix close bug
+build and boot tested on an Athlon64 box.
 
-Josh Triplett (1):
-      freevxfs: Add missing lock_kernel() to vxfs_readdir
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ arch/x86_64/kernel/apic.c    |    1 -
+ arch/x86_64/kernel/io_apic.c |    5 +----
+ arch/x86_64/kernel/nmi.c     |    2 +-
+ arch/x86_64/kernel/smpboot.c |    1 -
+ include/asm-x86_64/nmi.h     |    1 -
+ 5 files changed, 2 insertions(+), 8 deletions(-)
 
-Kim Nordlund (1):
-      [PKT_SCHED] act_gact: division by zero
-
-Kyle McMartin (1):
-      Fix incorrent type of flags in <asm/semaphore.h>
-
-Michael De Backer (1):
-      alim15x3.c: M5229 (rev c8) support for DMA cd-writer
-
-Nathan Lynch (1):
-      nvidiafb: fix unreachable code in nv10GetConfig
-
-Olaf Kirch (1):
-      [UDP]: Make udp_encap_rcv use pskb_may_pull
-
-Oliver Neukum (1):
-      USB: failure in usblp's error path
-
-Patrick McHardy (1):
-      [NET_SCHED]: policer: restore compatibility with old iproute binaries
-
-Pierre Ossman (1):
-      MMC: Always use a sector size of 512 bytes
-
-Roberto Castagnola (1):
-      Input: logips2pp - fix button mapping for MX300
-
-Trond Myklebust (1):
-      fcntl(F_SETSIG) fix
-
-Vasily Tarasov (1):
-      block layer: elv_iosched_show should get elv_list_lock
-
-Wink Saville (1):
-      Fix divide by zero error for nvidia 7600 pci-express card
-
-YOSHIFUJI Hideaki (1):
-      [IPV6]: Fix address/interface handling in UDP and DCCP, according to the scoping architecture.
-
-Zbigniew Luszpinski (1):
-      Input: psmouse - add detection of Logitech TrackMan Wheel trackball
-
-Zhou Yingchao (1):
-      Remove redundant up() in stop_machine()
-
-
- Makefile                           |    2 -
- arch/alpha/Kconfig                 |    2 -
- arch/ia64/kernel/mca.c             |    2 -
- arch/ia64/sn/pci/pcibr/pcibr_ate.c |    2 -
- arch/ia64/sn/pci/pcibr/pcibr_dma.c |    2 -
- arch/parisc/kernel/firmware.c      |    7 ++-
- arch/v850/kernel/memcons.c         |    2 -
- arch/v850/kernel/rte_cb_leds.c     |    2 -
- arch/v850/kernel/rte_mb_a_pci.c    |   12 +++---
- block/elevator.c                   |    4 +-
- block/scsi_ioctl.c                 |    2 -
- drivers/block/cciss.c              |    6 +++
- drivers/block/cpqarray.c           |   13 +++++-
- drivers/char/ds1286.c              |   15 ++++----
- drivers/char/isicom.c              |    3 +
- drivers/i2c/busses/i2c-ite.c       |    2 -
- drivers/ide/pci/alim15x3.c         |    2 -
- drivers/ide/pci/sgiioc4.c          |    7 ---
- drivers/input/mouse/logips2pp.c    |    9 +++-
- drivers/mmc/mmc_block.c            |   49 ++------------------------
- drivers/net/hamradio/6pack.c       |    2 -
- drivers/usb/class/usblp.c          |    1 
- drivers/usb/input/ati_remote.c     |    2 -
- drivers/video/nvidia/nv_hw.c       |   12 ++++--
- drivers/video/nvidia/nv_setup.c    |   20 +++++++++-
- drivers/video/nvidia/nv_type.h     |    1 
- drivers/video/nvidia/nvidia.c      |   24 ++++++------
- fs/ext3/resize.c                   |    2 -
- fs/freevxfs/vxfs_lookup.c          |    2 +
- fs/jfs/jfs_imap.c                  |    4 +-
- fs/locks.c                         |    6 ++-
- include/asm-parisc/semaphore.h     |    6 ++-
- kernel/stop_machine.c              |    1 
- net/bridge/br_ioctl.c              |    9 ++--
- net/bridge/netfilter/ebtables.c    |   54 +++++++++++++++++------------
- net/dccp/ipv6.c                    |    2 -
- net/ipv4/udp.c                     |   19 +++++++---
- net/ipv6/udp.c                     |    7 +--
- net/sched/act_gact.c               |    4 +-
- net/sched/act_police.c             |   26 +++++++++++--
- net/sctp/input.c                   |    3 +
- sound/oss/swarm_cs4297a.c          |    2 -
- 42 files changed, 199 insertions(+), 155 deletions(-)
+Index: linux/arch/x86_64/kernel/apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/apic.c
++++ linux/arch/x86_64/kernel/apic.c
+@@ -443,7 +443,6 @@ void __cpuinit setup_local_APIC (void)
+ 			oldvalue, value);
+ 	}
+ 
+-	nmi_watchdog_default();
+ 	setup_apic_nmi_watchdog(NULL);
+ 	apic_pm_activate();
+ }
+Index: linux/arch/x86_64/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/io_apic.c
++++ linux/arch/x86_64/kernel/io_apic.c
+@@ -1604,7 +1604,6 @@ static inline void check_timer(void)
+ 		 */
+ 		unmask_IO_APIC_irq(0);
+ 		if (!no_timer_check && timer_irq_works()) {
+-			nmi_watchdog_default();
+ 			if (nmi_watchdog == NMI_IO_APIC) {
+ 				disable_8259A_irq(0);
+ 				setup_nmi();
+@@ -1630,10 +1629,8 @@ static inline void check_timer(void)
+ 		setup_ExtINT_IRQ0_pin(apic2, pin2, vector);
+ 		if (timer_irq_works()) {
+ 			apic_printk(APIC_VERBOSE," works.\n");
+-			nmi_watchdog_default();
+-			if (nmi_watchdog == NMI_IO_APIC) {
++			if (nmi_watchdog == NMI_IO_APIC)
+ 				setup_nmi();
+-			}
+ 			return;
+ 		}
+ 		/*
+Index: linux/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/nmi.c
++++ linux/arch/x86_64/kernel/nmi.c
+@@ -181,7 +181,7 @@ static __cpuinit inline int nmi_known_cp
+ }
+ 
+ /* Run after command line and cpu_init init, but before all other checks */
+-void nmi_watchdog_default(void)
++static inline void nmi_watchdog_default(void)
+ {
+ 	if (nmi_watchdog != NMI_DEFAULT)
+ 		return;
+Index: linux/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/smpboot.c
++++ linux/arch/x86_64/kernel/smpboot.c
+@@ -866,7 +866,6 @@ static int __init smp_sanity_check(unsig
+  */
+ void __init smp_prepare_cpus(unsigned int max_cpus)
+ {
+-	nmi_watchdog_default();
+ 	current_cpu_data = boot_cpu_data;
+ 	current_thread_info()->cpu = 0;  /* needed? */
+ 	set_cpu_sibling_map(0);
+Index: linux/include/asm-x86_64/nmi.h
+===================================================================
+--- linux.orig/include/asm-x86_64/nmi.h
++++ linux/include/asm-x86_64/nmi.h
+@@ -59,7 +59,6 @@ extern void disable_timer_nmi_watchdog(v
+ extern void enable_timer_nmi_watchdog(void);
+ extern int nmi_watchdog_tick (struct pt_regs * regs, unsigned reason);
+ 
+-extern void nmi_watchdog_default(void);
+ extern int setup_nmi_watchdog(char *);
+ 
+ extern atomic_t nmi_active;

@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163166AbWLGSTa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163537AbWLGWxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163166AbWLGSTa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163167AbWLGSTa
+	id S1163537AbWLGWxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163556AbWLGWxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:19:30 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53408 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 17:53:21 -0500
+Received: from srv5.dvmed.net ([207.36.208.214]:45035 "EHLO mail.dvmed.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163166AbWLGST1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:19:27 -0500
-Date: Thu, 7 Dec 2006 10:17:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>, torvalds@osdl.org, macro@linux-mips.org,
-       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
-       afleming@freescale.com, ben.collins@ubuntu.com,
+	id S1163537AbWLGWxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:53:20 -0500
+Message-ID: <45789B58.8090307@garzik.org>
+Date: Thu, 07 Dec 2006 17:53:12 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Daniel Barkalow <barkalow@iabervon.org>, gregkh@suse.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-Message-Id: <20061207101741.25fe647c.akpm@osdl.org>
-In-Reply-To: <20061207095715.0cafffb9.akpm@osdl.org>
-References: <20061206234942.79d6db01.akpm@osdl.org>
-	<1165125055.5320.14.camel@gullible>
-	<20061203011625.60268114.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-	<20061205123958.497a7bd6.akpm@osdl.org>
-	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
-	<20061205132643.d16db23b.akpm@osdl.org>
-	<adaac22c9cu.fsf@cisco.com>
-	<20061205135753.9c3844f8.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
-	<20061206075729.b2b6aa52.akpm@osdl.org>
-	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
-	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
-	<20061206224207.8a8335ee.akpm@osdl.org>
-	<9392.1165487379@redhat.com>
-	<20061207024211.be739a4a.akpm@osdl.org>
-	<457849E2.3080909@garzik.org>
-	<20061207095715.0cafffb9.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Disable INTx when enabling MSI
+References: <Pine.LNX.4.64.0612071659010.20138@iabervon.org> <Pine.LNX.4.64.0612071440480.3615@woody.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0612071440480.3615@woody.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006 09:57:15 -0800
-Andrew Morton <akpm@osdl.org> wrote:
-
-> On Thu, 07 Dec 2006 12:05:38 -0500
-> Jeff Garzik <jeff@garzik.org> wrote:
+Linus Torvalds wrote:
 > 
-> > Yes, I merged the code, but looking deeper at phy its clear I missed 
-> > some things.
-> > 
-> > Looking into libphy's workqueue stuff, it has the following sequence:
-> > 
-> > 	disable interrupts
-> > 	schedule_work()
-> > 
-> > 	... time passes ...
-> > 	... workqueue routine is called ...
-> > 
-> > 	enable interrupts
-> > 	handle interrupt
-> > 
-> > I really have to question if a workqueue was the best choice of 
-> > direction for such a sequence.  You don't want to put off handling an 
-> > interrupt, with interrupts disabled, for a potentially unbounded amount 
-> > of time.
+> On Thu, 7 Dec 2006, Daniel Barkalow wrote:
+>> Jeff proposed a patch in http://lkml.org/lkml/2006/11/21/332 when Linus 
+>> wanted to do it in the PCI layer, but nobody seems to have told the actual 
+>> PCI maintainer.
 > 
-> That'll lock the box on UP, or if the timer fires on the current CPU?
+> I got a patch from Jeff, but it was marked as totally untested, and wasn't 
+> even signed-off, so I asked for that to be fixed, and never heard back.
+> 
+> If somebody sends me the patch that disables INTx when MSI is enabled, 
+> with testing, and saying "I verified that this fixed it for me", I will 
+> happily apply it.
 
-oh. "disable interrupts" == disable_irq(), not local_irq_disable()?
+Making it now...
 
-Not so bad ;)
+	Jeff
+
+
+

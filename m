@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032312AbWLGPdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032307AbWLGPfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032312AbWLGPdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 10:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032313AbWLGPdM
+	id S1032307AbWLGPfM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 10:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032306AbWLGPfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 10:33:12 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:6319 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032312AbWLGPdK (ORCPT
+	Thu, 7 Dec 2006 10:35:12 -0500
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:16024 "EHLO
+	mtagate4.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937983AbWLGPfJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 10:33:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HC4d7yvCgkX6Dg0QPCe5pxEL0HS+b4J65vd3xCr6j5zx4vrD16KaKIVfniaN2bvykL//ENphvBoVCjX+GOh4cDKuZ5pg8YHcao4TpDI6tcfYhyo9te0qXiq0mxUIQv1hqhWWkfr6+rKhqkJo/zIBRI9nRpDq2t6UPcuK++O9+sA=
-Message-ID: <a36005b50612070733t7d1ccdcej86165012d15298b@mail.gmail.com>
-Date: Thu, 7 Dec 2006 07:33:08 -0800
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Andreas Schwab" <schwab@suse.de>
-Subject: Re: Linux should define ENOTSUP
-Cc: "Theodore Tso" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <jezm9zaid2.fsf@sykes.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 10:35:09 -0500
+Date: Thu, 7 Dec 2006 17:35:06 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 1/5] PCI MMConfig: Share what's shareable.
+Message-ID: <20061207153506.GJ28515@rhun.haifa.ibm.com>
+References: <20061207144952.GA45089@dspnet.fr.eu.org> <20061207150023.GH28515@rhun.haifa.ibm.com> <20061207151941.GA45592@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20061206135134.GJ3927@implementation.labri.fr>
-	 <1165415115.3233.449.camel@laptopd505.fenrus.org>
-	 <20061206143159.GP3927@implementation.labri.fr>
-	 <20061207134914.GB31773@thunk.org> <je7ix3bycr.fsf@sykes.suse.de>
-	 <20061207141542.GD31773@thunk.org> <jezm9zaid2.fsf@sykes.suse.de>
+In-Reply-To: <20061207151941.GA45592@dspnet.fr.eu.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/06, Andreas Schwab <schwab@suse.de> wrote:
-> The quoted sentence is not shaded as an XSI extension, thus it is part of
-> POSIX-1:2001.
+On Thu, Dec 07, 2006 at 04:19:41PM +0100, Olivier Galibert wrote:
+> On Thu, Dec 07, 2006 at 05:00:23PM +0200, Muli Ben-Yehuda wrote:
+> > On Thu, Dec 07, 2006 at 03:49:53PM +0100, Olivier Galibert wrote:
+> > 
+> > > +void __init pci_mmcfg_init(int type)
+> > > +{
+> > > +	extern int pci_mmcfg_arch_init(void);
+> > 
+> > Please put this in a suitable header file.
+> 
+> Sure, which ?
 
-Perhaps I didn't make myself clear.  The change I pointed at was
-accepted to the interpretations track which means that if we would
-create a Technical Corrigendum 3 for the 2001 standard (which we are
-not) the relaxation for the error values would be added.  The current
-situation is just as good, it's just as binding.  There is no need to
-reissue the standard to make such changes.
+arch/i386/pci/pci.h seems the least-inappropriate.
 
-So, put this issue to rest.  There is not issue.  The whole premise
-for the original post is wrong these days.  There is no compliance
-problem.
+Also, forgot to mention, please get rid of C++ style comments in the
+code.
+
+Cheers,
+Muli

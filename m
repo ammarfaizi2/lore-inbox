@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163734AbWLGXPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163392AbWLGVU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163734AbWLGXPA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 18:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163892AbWLGXPA
+	id S1163392AbWLGVU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 16:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163390AbWLGVU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 18:15:00 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:61622 "EHLO
-	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163879AbWLGXO6 (ORCPT
+	Thu, 7 Dec 2006 16:20:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52819 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163389AbWLGVUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 18:14:58 -0500
-Date: Thu, 7 Dec 2006 15:15:22 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: David Miller <davem@davemloft.net>
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       jesper.juhl@gmail.com
-Subject: Re: [PATCH/RFC] CodingStyle updates
-Message-Id: <20061207151522.1b429966.randy.dunlap@oracle.com>
-In-Reply-To: <20061207.150635.07640320.davem@davemloft.net>
-References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
-	<200612072254.51348.s0348365@sms.ed.ac.uk>
-	<45789D0F.6060100@oracle.com>
-	<20061207.150635.07640320.davem@davemloft.net>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 7 Dec 2006 16:20:55 -0500
+Subject: Re: v2.6.19-rt6, yum/rpm
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Giandomenico De Tullio <ghisha@email.it>
+In-Reply-To: <20061207205819.GA21953@elte.hu>
+References: <20061205171114.GA25926@elte.hu>
+	 <1165524358.9244.33.camel@cmn3.stanford.edu>
+	 <20061207205819.GA21953@elte.hu>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 07 Dec 2006 22:20:45 +0100
+Message-Id: <1165526445.27217.59.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 15:06:35 -0800 (PST) David Miller wrote:
-
-> From: Randy Dunlap <randy.dunlap@oracle.com>
-> Date: Thu, 07 Dec 2006 15:00:31 -0800
+On Thu, 2006-12-07 at 21:58 +0100, Ingo Molnar wrote:
+> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 > 
-> > Alistair John Strachan wrote:
+> > Much better performance in terms of xruns with Jackd. Hardly any at 
+> > all as it should be. I'm starting to test -rt8 right now.
 > > 
-> > >> +but no space after unary operators:
-> > >> +		sizeof  ++  --  &  *  +  -  ~  !  defined
-> > > 
-> > > You could mention typeof too, which is a keyword but should be done like 
-> > > sizeof.
-> > 
-> > Hm, is that a gcc-ism?  It's not listed in the C99 spec.
-> > 
-> > Are there other gcc-isms that I should add?
+> > Now, I still don't have an smp machine to test so the improvement 
+> > could be because I'm just running 64 bit up instead of smp. Or it 
+> > could have been the hardware on that other machine that had some 
+> > problem (either because it was starting to fail or because the kernel 
+> > drivers for that hardware were somehow triggering the xruns).
 > 
-> Perhaps you should add typeof and alignof, for starters.
+> i think it's the UP vs. SMP difference. We are chasing some SMP 
+> latencies right now that trigger on boxes that have deeper C sleep 
+> states. idle=poll seems to work around those problems.
 
-OK, I added both of those.  Thanks.
+well C-states do cause latencies... as advertized in
+the /proc/acpi/processor/CPU0/power file.
 
-Will resend soon.
----
-~Randy
+You can prevent linux from going into c-states that just take too long,
+by setting the latency you can tolerate via the
+set_acceptable_latency(). You can see the active maximum latency via the
+same power file...
+
+(right now audio playback is the main user of this api; of other parts
+should use it too lets talk about it)
+
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

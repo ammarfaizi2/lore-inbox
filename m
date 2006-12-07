@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032038AbWLGLNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032040AbWLGLPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032038AbWLGLNM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 06:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032040AbWLGLNM
+	id S1032040AbWLGLPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 06:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032047AbWLGLPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 06:13:12 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:45557 "EHLO tmailer.gwdg.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032038AbWLGLNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 06:13:07 -0500
-Date: Thu, 7 Dec 2006 12:11:17 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jesper.juhl@gmail.com
-Subject: Re: [PATCH/RFC] CodingStyle updates
-In-Reply-To: <20061207004838.4d84842c.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.61.0612071206160.2863@yvahk01.tjqt.qr>
-References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 7 Dec 2006 06:15:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50630 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032040AbWLGLPY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 06:15:24 -0500
+Subject: Re: Kernel 2.6 SMP very slow with ServerWorks LE Chipset
+From: Arjan van de Ven <arjan@infradead.org>
+To: Bob <spam@homeurl.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4577AA11.6020906@homeurl.co.uk>
+References: <4577AA11.6020906@homeurl.co.uk>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 07 Dec 2006 12:15:20 +0100
+Message-Id: <1165490120.27217.4.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 7 2006 00:48, Randy Dunlap wrote:
->+The preferred way to ease multiple indentation levels in a switch
->+statement is to align the "switch" and its subordinate "case" labels in
->+the same column instead of "double-indenting" the "case" labels.  E.g.:
->+
->+	switch (suffix) {
->+	case 'G':
->+	case 'g':
->+		mem <<= 10;
->+	case 'M':
->+	case 'm':
->+		mem << 10;
-                ^^^^^^^^^^
-
-Statement has no effect ;-)
-
->+	case 'K':
->+	case 'k':
->+		mem << 10;
-
-Make that <<=.
-
->+Use one space around (on each side of) most binary operators, such as
->+any of these:
->+		=  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=
-
-And the ternary operator ?:
-
->+but no space after unary operators:
->+		sizeof  ++  --  &  *  +  -  ~  !  defined
-
-And no space before these unary operators,
-++ (postincrement) -- (postdecrement)
-
-What keyword is "defined"? Did you have too much Perl coffee? :)
-
->+and no space around the '.' unary operator.
-
-Same goes for ->
+> in UP config everything is OK in SMP the system slows right down, 
+> I've been searching and recompiling my kernel for days looking for 
+> the problem option without success, please help.
 
 
->+Linux style for comments is the pre-C99 "/* ... */" style.
+does the linux-ready firmware kit work on this machine? (see url in
+sig), it might be something with the mtrr's, and the kit checks those...
 
-Aka C89.
-
->+Don't use C99-style "// ..." comments.
->+
->+The preferred style for long (multi-line) comments is:
->+
->+	/*
->+	 * This is the preferred style for multi-line
->+	 * comments in the Linux kernel source code.
->+	 * Please use it consistently.
->+	 */
-
-Description: Stars to the left with two almost blank (/*, */) lines.
-
-
-
-	-`J'
 -- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

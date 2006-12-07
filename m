@@ -1,85 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425441AbWLHLxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162560AbWLGR0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425441AbWLHLxu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425426AbWLHLxU
+	id S1162560AbWLGR0x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 12:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162565AbWLGR0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:53:20 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52367 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425425AbWLHLwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:52:47 -0500
-Message-Id: <200612081152.kB8BqXLA019780@shell0.pdx.osdl.net>
-Subject: [patch 11/13] io-accounting: via taskstats
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
-       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
-       tee@sgi.com
-From: akpm@osdl.org
-Date: Fri, 08 Dec 2006 03:52:33 -0800
+	Thu, 7 Dec 2006 12:26:52 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2397 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1162560AbWLGR0v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 12:26:51 -0500
+Date: Thu, 7 Dec 2006 18:26:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] [2.6 patch] cx88/saa7134: remove unused -DHAVE_VIDEO_BUF_DVB
+Message-ID: <20061207172656.GL8963@stusta.de>
+References: <20061207150028.GJ8963@stusta.de> <457834E1.1090406@linuxtv.org> <20061207164245.GK8963@stusta.de> <45784BD7.7010605@linuxtv.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45784BD7.7010605@linuxtv.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
+On Thu, Dec 07, 2006 at 12:13:59PM -0500, Michael Krufky wrote:
+> Adrian Bunk wrote:
+> > On Thu, Dec 07, 2006 at 10:36:01AM -0500, Michael Krufky wrote:
+> >> Adrian Bunk wrote:
+> >>> This patch removes the unused HAVE_VIDEO_BUF_DVB define.
+> 
+> [snip]
+> 
+> >> ...We need this in order to allow compilation of the cx88 / saa7134 modules
+> >> without DVB support. (analog only)
+> >  
+> > Ah, you added them in v4l-dvb last year.
+> 
+> You are correct:  Tue Oct 11 20:11:34 2005 +0000 (14 months ago)
+> 
+> http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=56cf49b544f0
+> 
+> > But they are neither in Linus' tree nor in the v4l-dvb git tree that is 
+> > in the latest -mm.
+> 
+> hmm... looks like some changesets never made it over to git from our hg tree.
+> 
+> > Compilation of cx88 and saa7134 without DVB works fine in these trees, 
+> > so what's the story behind this?
+> 
+> It's a bug -- looks like CONFIG_VIDEO_BUF_DVB is being enabled, regardless
+> of whether or not it is selected -- otherwise we'd get other compiler errors,
+> because both cx88 and saa7134 have dependencies on video-buf-dvb.
 
-Deliver IO accounting via taskstats.
 
-Cc: Jay Lan <jlan@sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chris Sturtivant <csturtiv@sgi.com>
-Cc: Tony Ernst <tee@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: David Wright <daw@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+No, the configuration
 
- include/linux/taskstats.h |    8 +++++++-
- kernel/tsacct.c           |    9 +++++++++
- 2 files changed, 16 insertions(+), 1 deletion(-)
+  CONFIG_VIDEO_SAA7134=y
+  CONFIG_VIDEO_SAA7134_DVB=n
+  CONFIG_VIDEO_BUF_DVB=n
 
-diff -puN include/linux/taskstats.h~io-accounting-via-taskstats include/linux/taskstats.h
---- a/include/linux/taskstats.h~io-accounting-via-taskstats
-+++ a/include/linux/taskstats.h
-@@ -31,7 +31,7 @@
-  */
- 
- 
--#define TASKSTATS_VERSION	2
-+#define TASKSTATS_VERSION	3
- #define TS_COMM_LEN		32	/* should be >= TASK_COMM_LEN
- 					 * in linux/sched.h */
- 
-@@ -140,6 +140,12 @@ struct taskstats {
- 	__u64	read_syscalls;		/* read syscalls */
- 	__u64	write_syscalls;		/* write syscalls */
- 	/* Extended accounting fields end */
-+
-+#define TASKSTATS_HAS_IO_ACCOUNTING
-+	/* Per-task storage I/O accounting starts */
-+	__u64	read_bytes;		/* bytes of read I/O */
-+	__u64	write_bytes;		/* bytes of write I/O */
-+	__u64	cancelled_write_bytes;	/* bytes of cancelled write I/O */
- };
- 
- 
-diff -puN kernel/tsacct.c~io-accounting-via-taskstats kernel/tsacct.c
---- a/kernel/tsacct.c~io-accounting-via-taskstats
-+++ a/kernel/tsacct.c
-@@ -96,6 +96,15 @@ void xacct_add_tsk(struct taskstats *sta
- 	stats->write_char	= p->wchar;
- 	stats->read_syscalls	= p->syscr;
- 	stats->write_syscalls	= p->syscw;
-+#ifdef CONFIG_TASK_IO_ACCOUNTING
-+	stats->read_bytes	= p->ioac.read_bytes;
-+	stats->write_bytes	= p->ioac.write_bytes;
-+	stats->cancelled_write_bytes = p->ioac.cancelled_write_bytes;
-+#else
-+	stats->read_bytes	= 0;
-+	stats->write_bytes	= 0;
-+	stats->cancelled_write_bytes = 0;
-+#endif
- }
- #undef KB
- #undef MB
-_
+builds fine in 2.6.19.
+
+
+Only the saa7134-dvb and cx88-dvb modules require video-buf-dvb, and the 
+config options for them select VIDEO_BUF_DVB.
+
+
+> VIDEO_BUF_DVB is being build without it's dependency, DVB_CORE -- that is
+> the only reason why the build is still working, but it sounds unstable to me.
+
+
+No, that's already handled correctly by both VIDEO_CX88_DVB and 
+VIDEO_SAA7134_DVB depending on DVB_CORE.
+
+
+> CONFIG_VIDEO_BUF_DVB is set inside drivers/media/Kconfig, with zero
+> dependencies... In fact, VIDEO_BUF_DVB "depends on DVB_CORE" , but
+> this is not being reflected in Kconfig.
+> 
+> Hmm... looks like a bit of a mess.
+> 
+> The story is much clearer now... Looks like we should in fact apply your
+> patch, Adrian, but we will also have to make the following additional
+> changes:
+> 
+> - add "depends on DVB_CORE" to the Kconfig entry for VIDEO_BUF_DVB
+
+
+That would be a noop since VIDEO_BUF_DVB is a not user visible option 
+that gets select'ed.
+
+
+> - convert the #ifdef tests in the hg repository for HAVE_VIDEO_BUF_DVB
+> 	to look for the CONFIG_VIDEO_BUF_DVB instead
+> - generate a patch against Linus' tree that add's these #ifdefs to the
+> 	cx88 and saa7134 drivers.
+
+
+There is no problem these #ifdef's would solve in Linus' tree...
+
+
+> If you dont mind, I'd like to take care of this stuff myself.  I will prepare
+> these patches tomorrow, and I'll have them applied to both our v4l-dvb.hg
+> repository on linuxtv.org, and I'll also ask Mauro to merge them into his git
+> tree before his next pull request to Linus.
+> 
+> Thanks, Adrian, for pointing out this inconsistency.
+> 
+> Cheers,
+> 
+> Michael Krufky
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

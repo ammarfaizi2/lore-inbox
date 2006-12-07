@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163344AbWLGVHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032403AbWLGQuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163344AbWLGVHN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163345AbWLGVHM
+	id S1032403AbWLGQuq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 11:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032406AbWLGQup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:07:12 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:39417 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 11:50:45 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43103 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163350AbWLGVHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:07:09 -0500
-Date: Thu, 7 Dec 2006 13:06:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, davem@davemloft.com, wli@holomorphy.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than
- cmpxchg()
-Message-Id: <20061207130630.6c1a8d32.akpm@osdl.org>
-In-Reply-To: <639.1165521999@redhat.com>
-References: <20061207085409.228016a2.akpm@osdl.org>
-	<20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
-	<20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-	<639.1165521999@redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1032403AbWLGQuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 11:50:17 -0500
+Date: Thu, 7 Dec 2006 08:49:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: David Howells <dhowells@redhat.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Roland Dreier <rdreier@cisco.com>,
+       Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+In-Reply-To: <20061206224207.8a8335ee.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612070846550.3615@woody.osdl.org>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
+ <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+ <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+ <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
+ <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+ <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+ <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 20:06:39 +0000
-David Howells <dhowells@redhat.com> wrote:
 
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > and we can assume (and ensure) that a failing test_and_set_bit() will not
-> > write to the affected word at all.
-> 
-> You may not assume that; and indeed that is not so in the generic
-> spinlock-based bitops or ARM pre-v6 or PA-RISC or sparc32 or ...
 
-Ah.  How obnoxious of them.
+On Wed, 6 Dec 2006, Andrew Morton wrote:
+>
+> But this will return to the caller if the callback is presently running on
+> a different CPU.  The whole point here is to be able to reliably kill off
+> the pending work so that the caller can free resources.
 
-> Remember: if you have to put a conditional jump in there, it's going to fail
-> one way or the other a certain percentage of the time, and that's going to
-> cause a pipeline stall, and these ops are used quite a lot.
-> 
-> OTOH, I don't know that the stall would be that bad since the spin_lock and
-> spin_unlock may cause a stall anyway.
-> 
+I mentioned that in one of the emails.
 
-Yes, the branch would cost.  But in not uncommon cases that branch will save
-the machine from dirtying a cacheline.
+We do not _have_ the information to not do that. It simply doesn't exist. 
+We can either wait for _all_ pending entries on the to complete (by 
+waiting for the workqueue counters for added/removed to be the same), or 
+we can have the race.
 
-And if we add those branches, we bring those architectures' semantics in
-line with all the other architectures.  And we get better semantics
-overall.
+> Also, I worry that this code can run the callback on the caller's CPU. 
 
-So I don't think we should rule this out.
+Right.
+
+> Users of per-cpu workqueues can legitimately assume that each callback runs
+> on the right CPU.
+
+Not if they use this interface, they can't.
+
+They asked for it, they get it. That's the unix philosophy. 
+
+		Linus

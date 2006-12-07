@@ -1,135 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032377AbWLGQNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032379AbWLGQVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032377AbWLGQNc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 11:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032379AbWLGQNc
+	id S1032379AbWLGQVP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 11:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032380AbWLGQVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 11:13:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45095 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032377AbWLGQNb (ORCPT
+	Thu, 7 Dec 2006 11:21:15 -0500
+Received: from wx-out-0506.google.com ([66.249.82.233]:34417 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032379AbWLGQVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 11:13:31 -0500
-Date: Thu, 7 Dec 2006 16:13:30 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] backlight argument change for fbdev take 2
-Message-ID: <Pine.LNX.4.64.0612071555020.31668@pentafluge.infradead.org>
+	Thu, 7 Dec 2006 11:21:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aNvOHbuKuCyA+1e6fIkRfhKCOT3PUZfCUSdhQkOkX9NGRyNoSZYYEY3kD8GbluTZBHvJ/bJ/dmQMI3D/ZY+eCaLpZ4Od4qW/imPaoRkSi+hfQj8lQJKEZpXaKe343dUOsgilOeWqvGE9Su7WID88EMt6mHbdQ//d1crMKKJhLrw=
+Message-ID: <653402b90612070821v37de7611g54fef20cd5132d95@mail.gmail.com>
+Date: Thu, 7 Dec 2006 17:21:13 +0100
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Subject: Re: Display class
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       Luming.yu@intel.com, zap@homelink.ru, randy.dunlap@oracle.com,
+       kernel-discuss@handhelds.org
+In-Reply-To: <Pine.LNX.4.64.0612071439040.31668@pentafluge.infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061206194442.422c60d3.maxextreme@gmail.com>
+	 <Pine.LNX.4.64.0612071439040.31668@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/7/06, James Simmons <jsimmons@infradead.org> wrote:
+>
+> >   - I would remove "struct device *dev, void *devdata" of display_device_register()
+> >     Are they neccesary for other display drivers? I have to pass NULL right now.
+>
+> Yes. Passing in a struct device allows you a link between the device and
+> the class. If you pass in the device for the parport a link to the parport
+> device would exist in you displayX directory. The devdata is used by the
+> probe function to get data about the monitor if it is not NULL.
+>
+> In the case of most desktop monitors they have EDID blocks. You can
+> retrieve them (devdata) and it gets parsed thus you have detail data
+> about the monitor. In your case it can be null.
+>
+> >   - I would add a paramtere ("char *name") to display_device_register() so we
+> >     set the name when registering. Right now I have to set my name after inited,
+> >     and this is a Linux module and not a person borning, right? ;)
+>
+> The probe function gets this for you. In your case you would have a probe
+> method that would just fill in the name of the LCD. For me using the ACPI
+> video driver I get the name for my monitor
+>
+> LEN  15"XGA 200nit
+>
+> Which is the manufacturer - monitor id - ascii block.
+>
+> >   - I would add a read/writeable attr called "rate" for set/unset the refresh rate
+> >     of a display.
+>
+> I suggest creating a group for your driver. See device.h for
+> group_attributes.
+>
+> >   - I was going to maintain the drivers/auxdisplay/* tree.
+> >     Are you going to maintain the driver? I think so, just for being sure.
+>
+> Yes. I need it for the ACPI video and fbdev layer. Remember its in the
+> early stages yet.
+>
+> > P.S.
+> >
+> >   When I was working at 2.6.19-rc6-mm2 it worked all fine, but now
+> >   I have copied it to git7 I'm getting some weird segmentation faults
+> >   (oops) when at cfag12864bfb_init, at mutex_lock() in
+> >   display_device_unregister module... I think unrelated (?), but I will
+> >   look for some mistake I made.
+>
+> Did you solve the problem?
+>
 
-After I managed to get the backlight configuration sorted out for the 
-framebuffer drivers a couple of errors showed up in a patch I sent you 
-earlier to update the frambuffer drivers to the backlight_device_registers
-changes in the -mm tree. Please apply.
+I didn't look further, but I will be able to try again in some hours.
+Anyway, the problem is probably at cfag12864bfb.c (as it was almost
+the only file I modified from -mm2); but I can't tell where the
+problem is as I tried just a few times.
 
-Signed-Off: James Simmons <jsimmons@infradead.org>
+Please review cfag12864bfb_init/_exit to check if your code/class is
+intended to be used that way, I will focus on the segfaults.
 
-diff --git a/drivers/video/aty/aty128fb.c b/drivers/video/aty/aty128fb.c
-index 276a215..981bab4 100644
---- a/drivers/video/aty/aty128fb.c
-+++ b/drivers/video/aty/aty128fb.c
-@@ -1829,7 +1829,7 @@ static void aty128_bl_init(struct aty128
- 
- 	snprintf(name, sizeof(name), "aty128bl%d", info->node);
- 
--	bd = backlight_device_register(name, par, &aty128_bl_data);
-+	bd = backlight_device_register(name, info->dev, par, &aty128_bl_data);
- 	if (IS_ERR(bd)) {
- 		info->bl_dev = NULL;
- 		printk(KERN_WARNING "aty128: Backlight registration failed\n");
-@@ -2210,7 +2210,7 @@ static int aty128fb_blank(int blank, str
- 		return 0;
- 
- #ifdef CONFIG_FB_ATY128_BACKLIGHT
--	if (machine_is(powermac) && blank)
-+	if (blank)
- 		aty128_bl_set_power(fb, FB_BLANK_POWERDOWN);
- #endif
- 
-@@ -2229,7 +2229,7 @@ static int aty128fb_blank(int blank, str
- 	}
- 
- #ifdef CONFIG_FB_ATY128_BACKLIGHT
--	if (machine_is(powermac) && !blank)
-+	if (blank)
- 		aty128_bl_set_power(fb, FB_BLANK_UNBLANK);
- #endif
- 
-diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
-index e815b35..da070b0 100644
---- a/drivers/video/aty/atyfb_base.c
-+++ b/drivers/video/aty/atyfb_base.c
-@@ -2221,7 +2221,7 @@ static void aty_bl_init(struct atyfb_par
- 
- 	snprintf(name, sizeof(name), "atybl%d", info->node);
- 
--	bd = backlight_device_register(name, par, &aty_bl_data);
-+	bd = backlight_device_register(name, info->dev, par, &aty_bl_data);
- 	if (IS_ERR(bd)) {
- 		info->bl_dev = NULL;
- 		printk(KERN_WARNING "aty: Backlight registration failed\n");
-@@ -2814,7 +2814,7 @@ static int atyfb_blank(int blank, struct
- 		return 0;
- 
- #ifdef CONFIG_FB_ATY_BACKLIGHT
--	if (machine_is(powermac) && blank > FB_BLANK_NORMAL)
-+	if (blank > FB_BLANK_NORMAL)
- 		aty_bl_set_power(info, FB_BLANK_POWERDOWN);
- #elif defined(CONFIG_FB_ATY_GENERIC_LCD)
- 	if (par->lcd_table && blank > FB_BLANK_NORMAL &&
-@@ -2846,7 +2846,7 @@ static int atyfb_blank(int blank, struct
- 	aty_st_le32(CRTC_GEN_CNTL, gen_cntl, par);
- 
- #ifdef CONFIG_FB_ATY_BACKLIGHT
--	if (machine_is(powermac) && blank <= FB_BLANK_NORMAL)
-+	if (blank <= FB_BLANK_NORMAL)
- 		aty_bl_set_power(info, FB_BLANK_UNBLANK);
- #elif defined(CONFIG_FB_ATY_GENERIC_LCD)
- 	if (par->lcd_table && blank <= FB_BLANK_NORMAL &&
-diff --git a/drivers/video/aty/radeon_backlight.c b/drivers/video/aty/radeon_backlight.c
-index 585eb7b..3abfd4a 100644
---- a/drivers/video/aty/radeon_backlight.c
-+++ b/drivers/video/aty/radeon_backlight.c
-@@ -163,7 +163,7 @@ void radeonfb_bl_init(struct radeonfb_in
- 
- 	snprintf(name, sizeof(name), "radeonbl%d", rinfo->info->node);
- 
--	bd = backlight_device_register(name, pdata, &radeon_bl_data);
-+	bd = backlight_device_register(name, rinfo->info->dev, pdata, &radeon_bl_data);
- 	if (IS_ERR(bd)) {
- 		rinfo->info->bl_dev = NULL;
- 		printk("radeonfb: Backlight registration failed\n");
-diff --git a/drivers/video/nvidia/nv_backlight.c b/drivers/video/nvidia/nv_backlight.c
-index 5b75ae4..df934bd 100644
---- a/drivers/video/nvidia/nv_backlight.c
-+++ b/drivers/video/nvidia/nv_backlight.c
-@@ -141,7 +141,7 @@ void nvidia_bl_init(struct nvidia_par *p
- 
- 	snprintf(name, sizeof(name), "nvidiabl%d", info->node);
- 
--	bd = backlight_device_register(name, par, &nvidia_bl_data);
-+	bd = backlight_device_register(name, info->dev, par, &nvidia_bl_data);
- 	if (IS_ERR(bd)) {
- 		info->bl_dev = NULL;
- 		printk(KERN_WARNING "nvidia: Backlight registration failed\n");
-diff --git a/drivers/video/riva/fbdev.c b/drivers/video/riva/fbdev.c
-index a433cc7..a160c4d 100644
---- a/drivers/video/riva/fbdev.c
-+++ b/drivers/video/riva/fbdev.c
-@@ -383,7 +383,7 @@ static void riva_bl_init(struct riva_par
- 
- 	snprintf(name, sizeof(name), "rivabl%d", info->node);
- 
--	bd = backlight_device_register(name, par, &riva_bl_data);
-+	bd = backlight_device_register(name, info->dev, par, &riva_bl_data);
- 	if (IS_ERR(bd)) {
- 		info->bl_dev = NULL;
- 		printk(KERN_WARNING "riva: Backlight registration failed\n");
+Greets!
 
+-- 
+Miguel Ojeda
+http://maxextreme.googlepages.com/index.htm

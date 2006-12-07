@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162927AbWLGSCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164015AbWLGXqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162927AbWLGSCu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162924AbWLGSCt
+	id S1164015AbWLGXqh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164014AbWLGXqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:02:49 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:51137 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 18:46:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53273 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1162922AbWLGSCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:02:47 -0500
-Date: Thu, 7 Dec 2006 10:01:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: David Howells <dhowells@redhat.com>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <20061207095253.30059224.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612071000380.3615@woody.osdl.org>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
- <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org>
- <Pine.LNX.4.64.0612070846550.3615@woody.osdl.org> <20061207095253.30059224.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S1164015AbWLGXqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:46:36 -0500
+Date: Thu, 7 Dec 2006 15:45:45 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
+Subject: Re: single bit errors on files stored on USB-HDDs via
+ USB2/usb_storage
+Message-Id: <20061207154545.6eb516c4.zaitcev@redhat.com>
+In-Reply-To: <45786E58.5070308@citd.de>
+References: <Pine.LNX.4.44L0.0612071306180.3537-100000@iolanthe.rowland.org>
+	<45786E58.5070308@citd.de>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 07 Dec 2006 20:41:12 +0100, Matthias Schniedermeyer <ms@citd.de> wrote:
 
+> >>I'm using a Bunch auf HDDs in USB-Enclosures for storing files.
+> >>(currently 38 HDD, with a total capacity of 9,5 TB of which 8,5 TB is used)
+> >>[....]
+> >>This time i kept the defective files and used "vbindiff" to show me the
+> >>difference. Strangly in EVERY case the difference is a single bit in a
+> >>sequence of "0xff"-Bytes inside a block of varing bit-values that
+> >>changed a "0xff" into a "0xf7".
 
-On Thu, 7 Dec 2006, Andrew Morton wrote:
+> > This was almost certainly caused by hardware flaws in the USB interface 
+> > chips of the enclosures.  There's nothing the kernel can do about it 
+> > because the errors aren't reported; all that happens is that incorrect 
+> > data is sent to or from the drive.
 > 
-> umm..  Putting a work_struct* into struct cpu_workqueue_struct and then
-> doing appropriate things with cpu_workqueue_struct.lock might work.
+> So pretty much all ich can do is to pray that the errors don't corrupt
+> the Filesystem-Metadata (XFS).
 
-Yeah, that looks sane. We can't hide anything in "struct work", because we 
-can't trust it any more once it's been dispatched, but adding a pointer to 
-the cpu_workqueue_struct that is only used to compare against another 
-pointer sounds fine.
+No, this is not all. You should buy a variety of different enclosures
+with different chipsets (e.g. find a Freecom if you can), and also
+use decent cables.
 
-		Linus
+-- Pete

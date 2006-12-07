@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938052AbWLHMBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163211AbWLGTVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S938052AbWLHMBi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938056AbWLHMBi
+	id S1163211AbWLGTVu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 14:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163218AbWLGTVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:01:38 -0500
-Received: from mail.suse.de ([195.135.220.2]:40758 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S938052AbWLHMBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:01:37 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 23:01:47 +1100
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 000 of 13] knfsd: Preparation for IPv6 support
-Message-ID: <20061208225655.17970.patches@notabene>
+	Thu, 7 Dec 2006 14:21:50 -0500
+Received: from amsfep16-int.chello.nl ([62.179.120.11]:43216 "EHLO
+	amsfep16-int.chello.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163211AbWLGTVt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 14:21:49 -0500
+Subject: Re: additional oom-killer tuneable worth submitting?
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <45785DDD.3000503@nortel.com>
+References: <45785DDD.3000503@nortel.com>
+Content-Type: text/plain
+Date: Thu, 07 Dec 2006 20:21:32 +0100
+Message-Id: <1165519292.14110.2.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following are 13 patches for nfsd/sunrpc that are suitabble for
-2.6.20.  They are from Chuck Lever and generalise some dependancies on
-IPv4 to prepare the way for IPv6.  There is still a lot of work to do
-before we can actually use IPv6 to talk to NFSD, but this removes some
-barriers.
+On Thu, 2006-12-07 at 12:30 -0600, Chris Friesen wrote:
+> The kernel currently has a way to adjust the oom-killer score via 
+> /proc/<pid>/oomadj.
+> 
+> However, to adjust this effectively requires knowledge of the scores of 
+> all the other processes on the system.
+> 
+> I'd like to float an idea (which we've implemented and been using for 
+> some time) where the semantics are slightly different:
+> 
+> We add a new "oom_thresh" member to the task struct.
+> We introduce a new proc entry "/proc/<pid>/oomthresh" to control it.
+> 
+> The "oom-thresh" value maps to the max expected memory consumption for 
+> that process.  As long as a process uses less memory than the specified 
+> threshold, then it is immune to the oom-killer.
 
-Thanks,
-NeilBrown
+You would need to specify the measure of memory used by your process;
+see the (still not resolved) RSS debate.
 
- [PATCH 001 of 13] knfsd: SUNRPC: update internal API: separate pmap register and temp sockets
- [PATCH 002 of 13] knfsd: SUNRPC: allow creating an RPC service without registering with portmapper
- [PATCH 003 of 13] knfsd: SUNRPC: Cache remote peer's address in svc_sock.
- [PATCH 004 of 13] knfsd: SUNRPC: Don't set msg_name and msg_namelen when calling sock_recvmsg
- [PATCH 005 of 13] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
- [PATCH 006 of 13] knfsd: SUNRPC: Add a function to format the address in an svc_rqst for printing
- [PATCH 007 of 13] knfsd: SUNRPC: Provide room in svc_rqst for larger addresses
- [PATCH 008 of 13] knfsd: SUNRPC: Make rq_daddr field address-version independent
- [PATCH 009 of 13] knfsd: SUNRPC: teach svc_sendto() to deal with IPv6 addresses
- [PATCH 010 of 13] knfsd: SUNRPC: add a "generic" function to see if the peer uses a secure port
- [PATCH 011 of 13] knfsd: SUNRPC: Support IPv6 addresses in svc_tcp_accept
- [PATCH 012 of 13] knfsd: SUNRPC: support IPv6 addresses in RPC server's UDP receive path
- [PATCH 013 of 13] knfsd: SUNRPC: fix up svc_create_socket() to take a sockaddr struct + length
+> On an embedded platform this allows the designer to engineer the system 
+> and protect critical apps based on their expected memory consumption. 
+> If one of those apps goes crazy and starts chewing additional memory 
+> then it becomes vulnerable to the oom killer while the other apps remain 
+> protected.
+> 
+> If a patch for the above feature was submitted, would there be any 
+> chance of getting it included?  Maybe controlled by a config option?
+
+

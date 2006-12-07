@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937932AbWLGBkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937939AbWLGBob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937932AbWLGBkO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 20:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937934AbWLGBkN
+	id S937939AbWLGBob (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 20:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937938AbWLGBob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 20:40:13 -0500
-Received: from pat.uio.no ([129.240.10.15]:34399 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937932AbWLGBkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 20:40:11 -0500
-Subject: Re: [GIT] Please pull the NFS client update for 2.6.19
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Wed, 6 Dec 2006 20:44:31 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:53744 "EHLO
+	mail.parisc-linux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937936AbWLGBoa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 20:44:30 -0500
+Date: Wed, 6 Dec 2006 18:44:28 -0700
+From: Matthew Wilcox <matthew@wil.cx>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       nfsv4@linux-nfs.org
-In-Reply-To: <1165455261.5744.71.camel@lade.trondhjem.org>
-References: <1165424156.5744.10.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0612061713270.3542@woody.osdl.org>
-	 <1165455261.5744.71.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Wed, 06 Dec 2006 20:40:02 -0500
-Message-Id: <1165455602.5744.73.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.796, required 12,
-	autolearn=disabled, AWL 1.20, UIO_MAIL_IS_INTERNAL -5.00)
+Cc: Roman Zippel <zippel@linux-m68k.org>, Christoph Lameter <clameter@sgi.com>,
+       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
+Message-ID: <20061207014428.GH3013@parisc-linux.org>
+References: <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org> <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com> <20061206220532.GF3013@parisc-linux.org> <Pine.LNX.4.64.0612070130240.1868@scrub.home> <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org> <Pine.LNX.4.64.0612070203520.1867@scrub.home> <Pine.LNX.4.64.0612061717030.3542@woody.osdl.org> <Pine.LNX.4.64.0612070219540.1867@scrub.home> <Pine.LNX.4.64.0612061735150.3542@woody.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0612061735150.3542@woody.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-12-06 at 20:34 -0500, Trond Myklebust wrote:
-> On Wed, 2006-12-06 at 17:16 -0800, Linus Torvalds wrote:
-> > 
-> > On Wed, 6 Dec 2006, Trond Myklebust wrote:
-> > > 
-> > >    git pull git://git.linux-nfs.org/pub/linux/nfs-2.6.git
-> > > 
-> > > This will update the following files through the appended changesets.
-> > 
-> > Well, right now it conflicts with the workqueue cleanups. Can you fix up 
-> > the conflicts and push again? Quite frankly, I could try, but since I 
-> > don't even run NFS, I _really_ don't think you want me to do so.
-> 
-> OK. I'll fix it up and resend.
+On Wed, Dec 06, 2006 at 05:36:29PM -0800, Linus Torvalds wrote:
+> Or are you saying that gcc aligns normal 32-bit entities at 
+> 16-bit alignment? Neither of those sound very likely.
 
-Hmm... Have the workqueue updates been pushed out yet? I can't seem to
-pull them from git.kernel.org.
-
-Trond
-
+alignof(u32) is 2 on m68k.  Crazy, huh?

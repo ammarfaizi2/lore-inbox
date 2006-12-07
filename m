@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031888AbWLGJdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031890AbWLGJey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031888AbWLGJdO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 04:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031889AbWLGJdO
+	id S1031890AbWLGJey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031892AbWLGJey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 04:33:14 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49492 "EHLO mx2.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031888AbWLGJdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 04:33:13 -0500
-Date: Thu, 7 Dec 2006 10:32:21 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] lockdep: use chain hash on CONFIG_DEBUG_LOCKDEP too
-Message-ID: <20061207093221.GA1940@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	Thu, 7 Dec 2006 04:34:54 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:43213 "EHLO
+	myri.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1031890AbWLGJex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 04:34:53 -0500
+Message-ID: <4577E028.1040305@ens-lyon.org>
+Date: Thu, 07 Dec 2006 10:34:32 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Icedove 1.5.0.8 (X11/20061116)
+MIME-Version: 1.0
+To: paulmck@linux.vnet.ibm.com
+CC: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: sparse errors in srcu.h
+References: <45769256.1070400@ens-lyon.org> <20061206161537.GA2013@linux.vnet.ibm.com>
+In-Reply-To: <20061206161537.GA2013@linux.vnet.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] lockdep: use chain hash on CONFIG_DEBUG_LOCKDEP too
-From: Ingo Molnar <mingo@elte.hu>
+Paul E. McKenney wrote:
+> On Wed, Dec 06, 2006 at 10:50:14AM +0100, Brice Goglin wrote:
+>   
+>> Hi,
+>>
+>> When running sparse checks on a file that ends up including srcu.h, we
+>> get the following warnings:
+>>
+>>     include/linux/srcu.h:52:44: error: undefined identifier 'sp'
+>>     include/linux/srcu.h:52:44: error: bad constant expression
+>>     include/linux/srcu.h:53:56: error: undefined identifier 'sp'
+>>     include/linux/srcu.h:53:56: error: bad constant expression
+>>
+>> It seems to be caused by the following lines:
+>>
+>>     int srcu_read_lock(struct srcu_struct *sp) __acquires(sp);
+>>     void srcu_read_unlock(struct srcu_struct *sp, int idx) __releases(sp);
+>>
+>> which come from the following commit.
+>>
+>>     commit 621934ee7ed5b073c7fd638b347e632c53572761
+>>     Author: Paul E. McKenney <paulmck@us.ibm.com>
+>>     Date:   Wed Oct 4 02:17:02 2006 -0700
+>>
+>>     [PATCH] srcu-3: RCU variant permitting read-side blocking
+>>
+>>
+>> I was wondering if there is a way to fix those errors...
+>>     
+>
+> I believe that you need to update your version of sparse to 0.1.
+> See http://lwn.net/Articles/208312/ for more info.
+>
+> 							Thanx, Paul
+>   
 
-CONFIG_DEBUG_LOCKDEP is unacceptably slow because it does not utilize 
-the chain-hash. Turn the chain-hash back on in this case too.
+Right, thanks, I had an old version hidden in /usr/local, works fine now.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/lockdep.c |    8 --------
- 1 file changed, 8 deletions(-)
+Brice
 
-Index: linux/kernel/lockdep.c
-===================================================================
---- linux.orig/kernel/lockdep.c
-+++ linux/kernel/lockdep.c
-@@ -1278,14 +1278,6 @@ static inline int lookup_chain_cache(u64
- 		if (chain->chain_key == chain_key) {
- cache_hit:
- 			debug_atomic_inc(&chain_lookup_hits);
--			/*
--			 * In the debugging case, force redundant checking
--			 * by returning 1:
--			 */
--#ifdef CONFIG_DEBUG_LOCKDEP
--			__raw_spin_lock(&hash_lock);
--			return 1;
--#endif
- 			if (very_verbose(class))
- 				printk("\nhash chain already cached, key: %016Lx tail class: [%p] %s\n", chain_key, class->key, class->name);
- 			return 0;

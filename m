@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031886AbWLGJhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031905AbWLGJkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031886AbWLGJhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 04:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031892AbWLGJhK
+	id S1031905AbWLGJkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031907AbWLGJkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 04:37:10 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:24207 "HELO
-	smtp105.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1031886AbWLGJhI (ORCPT
+	Thu, 7 Dec 2006 04:40:53 -0500
+Received: from nic.NetDirect.CA ([216.16.235.2]:49035 "EHLO
+	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031905AbWLGJkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 04:37:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=F+qDXei2rjcqioVj3YPB5m5nXqA57pefg1Ftv6CPY1R8h3IisNPQmkx/2BrecCHjP6HtrcOhydesAtufhL0iJqWERIy8c1WfIoqDNsURbQanDoWdxmy7EqYSQLyWmKCvMQcluDxE/+og7g+/6DegZ5ggXpAJN0DHiXZ5kn53D0c=  ;
-X-YMail-OSG: UunFxfIVM1nadQNRu4A3iwY8bcNBu_4scnM4Z75j3AElao51.B8PMHXrgMB6VDGdCbjinw5Q9GjsgkIWQreHgxcXxuk2dKUk0iJXiMLE5nKh.aq4_yujjJgEfYkieudO1a7gvDOzrT2fxEY-
-Message-ID: <4577E095.1040904@yahoo.com.au>
-Date: Thu, 07 Dec 2006 20:36:21 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 7 Dec 2006 04:40:52 -0500
+X-Originating-Ip: 74.102.209.62
+Date: Thu, 7 Dec 2006 04:36:25 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: The drivers Kconfig structure:  oddities and exceptions
+Message-ID: <Pine.LNX.4.64.0612070405510.15805@localhost.localdomain>
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Larry Finger <Larry.Finger@lwfinger.net>, Andrew Morton <akpm@osdl.org>,
-       Benoit Boissinot <bboissin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19-rc5-mm1 progression
-References: <456718F6.8040902@lwfinger.net>	 <40f323d00611240836q6bcf7374gd47c7a97d1d4f8e3@mail.gmail.com>	 <20061125112437.3d46eff4.akpm@osdl.org>  <4574E86B.10403@lwfinger.net> <1165407170.12561.12.camel@twins>
-In-Reply-To: <1165407170.12561.12.camel@twins>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
+X-Net-Direct-Inc-MailScanner: Found to be clean
+X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
+	BAYES_00 -15.00)
+X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> On Mon, 2006-12-04 at 21:32 -0600, Larry Finger wrote:
 
->>There are at least two patches in 2.6.19-rc5-mm2 that make my system much more responsive for 
->>interactive jobs. The one that has the majority of the effect is:
->>
->>radix-tree-rcu-lockless-readside.patch
->>
->>I have not been able to isolate the second patch, which has the lesser effect. All I can say is that 
->>it occurred before the above patch in patches/series. This patch was tested against 2.6.19 and fixed 
->>most of the problem on that version.
-> 
-> 
-> Curious...
-> 
-> This patch introduces the direct pointer optimisation for single element
-> radix trees and makes the radix tree safe to read in a lock-less manner
-> which is not used -yet-. The only difference that that should have is
-> that the elements are freed using rcu callback instead of directly.
-> 
-> /me puzzled how this has a large effect on interactivity.
-> 
-> Nick?
+  as a followup to my previous patch (and before i build on top of
+that), perhaps someone can clarify some of these bits of curiosity:
 
-I have already got the direct data optimisation upstream. It might be
-possible that it is some interaction with the extra rcu callbacks going
-off... I don't know :\
+1) although "Sound" is listed in the Device Drivers menu, its actual
+source directory is at the top level of the kernel source tree, and
+it's the *only* entry in Device Drivers that requires sourcing from
+the top-level directory.  any reason for this?  it just kind of stands
+out as a weird exception to the rule.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+2) in any of these driver submenu Kconfig files, you normally see that
+*all* of the Kconfig entries depend on that "parent" menu selection.
+but in drivers/scsi/Kconfig, you read:
+
+=========================================================
+menu "SCSI device support"
+
+config RAID_ATTRS                            ???
+        tristate "RAID Transport Class"
+        default n
+        depends on BLOCK
+        ---help---
+          Provides RAID
+
+config SCSI
+        tristate "SCSI device support"
+        depends on BLOCK
+        ---help---
+          ... snip ...
+
+config SCSI_TGT
+        tristate "SCSI target support"
+        depends on SCSI && EXPERIMENTAL
+        ---help---
+          ... snip ...
+
+config SCSI_NETLINK                           ???
+        bool
+        default n
+        select NET
+...
+==========================================================
+
+  one would think that, if RAID_ATTRS depends only on BLOCK, it
+properly belongs under the "Block devices" menu, just as SCSI_NETLINK
+might belong under NET, or perhaps it should have a SCSI dependency as
+well to make it consistent.  thoughts?
+
+rday

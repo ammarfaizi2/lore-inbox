@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032233AbWLGNyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032237AbWLGOAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032233AbWLGNyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 08:54:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032232AbWLGNyJ
+	id S1032237AbWLGOAE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 09:00:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032234AbWLGOAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 08:54:09 -0500
-Received: from mivlgu.ru ([81.18.140.87]:53820 "EHLO mail.mivlgu.ru"
+	Thu, 7 Dec 2006 09:00:04 -0500
+Received: from mail.suse.de ([195.135.220.2]:33012 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032234AbWLGNyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 08:54:08 -0500
-Date: Thu, 7 Dec 2006 16:53:52 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, Daniel Ritz <daniel.ritz@gmx.ch>,
-       Daniel Drake <dsd@gentoo.org>, Jean Delvare <khali@linux-fr.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Bauke Jan Douma <bjdouma@xs4all.nl>,
-       Tomasz Koprowski <tomek@koprowski.org>
-Subject: Re: RFC: PCI quirks update for 2.6.16
-Message-Id: <20061207165352.9cb61023.vsu@altlinux.ru>
-In-Reply-To: <20061207132430.GF8963@stusta.de>
-References: <20061207132430.GF8963@stusta.de>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.2; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__7_Dec_2006_16_53_52_+0300_9YF5kd/oK/OYvCvr"
+	id S1032237AbWLGOAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 09:00:03 -0500
+From: Andreas Schwab <schwab@suse.de>
+To: Theodore Tso <tytso@mit.edu>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux should define ENOTSUP
+References: <20061206135134.GJ3927@implementation.labri.fr>
+	<1165415115.3233.449.camel@laptopd505.fenrus.org>
+	<20061206143159.GP3927@implementation.labri.fr>
+	<20061207134914.GB31773@thunk.org>
+X-Yow: Isn't this my STOP?!
+Date: Thu, 07 Dec 2006 14:59:48 +0100
+In-Reply-To: <20061207134914.GB31773@thunk.org> (Theodore Tso's message of
+	"Thu, 7 Dec 2006 08:49:14 -0500")
+Message-ID: <je7ix3bycr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__7_Dec_2006_16_53_52_+0300_9YF5kd/oK/OYvCvr
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Theodore Tso <tytso@mit.edu> writes:
 
-On Thu, 7 Dec 2006 14:24:30 +0100 Adrian Bunk wrote:
+> Can you please quote chapter and verse (in POSIX) where it states that
+> ENOTSUP and EOPNOTSUP have to be numerically distinct?
 
-> While checking how to fix the VIA quirk regressions for several users
-> introduced into -stable in 2.6.16.17, I started looking through all
-> drivers/pci/quirks.c updates up to both -stable and 2.6.19.
->
-> Below is the selection the seemed good and safe.
->
-> Any comments on whether it's really good or whether I should change
-> anything?
->
-> TIA
-> Adrian
->
->
-> Bauke Jan Douma (1):
->       PCI: quirk for asus a8v and a8v delux motherboards
+<http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html>
+"Their values shall be unique except as noted below."
+(And there is no exception for ENOTSUP/EOPNOTSUP yet.)
 
-This quirk will cause breakage for people who used an external PCI
-soundcard with these boards - the builtin sound chip which was
-invisible before may become the first audio device.
+Andreas.
 
-It also enables the MC97 device, which does not really work (there is
-no MC97 codec attached to the controller at least on A8V Deluxe; I'm
-not sure if there is some other variant of this board which has MC97,
-but it seems unlikely).
-
-[...]
-
---Signature=_Thu__7_Dec_2006_16_53_52_+0300_9YF5kd/oK/OYvCvr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFeBz0W82GfkQfsqIRAiMjAJ0QTZUcOw8v1YHwE05Rb+kp9TVb0ACghmmm
-zUX2tbonfBADS6n26GSmkS0=
-=6CSd
------END PGP SIGNATURE-----
-
---Signature=_Thu__7_Dec_2006_16_53_52_+0300_9YF5kd/oK/OYvCvr--
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

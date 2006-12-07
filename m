@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937998AbWLGPyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032330AbWLGP4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937998AbWLGPyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 10:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938000AbWLGPyi
+	id S1032330AbWLGP4q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 10:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032335AbWLGP4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 10:54:38 -0500
-Received: from mail2.utc.com ([192.249.46.191]:53659 "EHLO mail2.utc.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937998AbWLGPyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 10:54:37 -0500
-Message-ID: <4578391E.40001@cybsft.com>
-Date: Thu, 07 Dec 2006 09:54:06 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
-       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Giandomenico De Tullio <ghisha@email.it>
-Subject: Re: v2.6.19-rt6, yum/rpm
-References: <20061205171114.GA25926@elte.hu> <4577FC21.1080407@cybsft.com> <20061207121344.GA19749@elte.hu>
-In-Reply-To: <20061207121344.GA19749@elte.hu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/mixed;
- boundary="------------060301030306070509030806"
+	Thu, 7 Dec 2006 10:56:46 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:11744 "EHLO
+	mtagate1.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032330AbWLGP4p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 10:56:45 -0500
+Subject: Re: [RFC][PATCH] Pseudo-random number generator
+From: Jan Glauber <jan.glauber@de.ibm.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200612071606.33951.arnd@arndb.de>
+References: <1164979155.5882.23.camel@bender>
+	 <200612071606.33951.arnd@arndb.de>
+Content-Type: text/plain
+Date: Thu, 07 Dec 2006 16:19:56 +0100
+Message-Id: <1165504796.5607.17.camel@bender>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060301030306070509030806
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, 2006-12-07 at 16:06 +0100, Arnd Bergmann wrote:
+> On Friday 01 December 2006 14:19, Jan Glauber wrote:
+> > I've chosen the char driver since it allows the user to decide which pseudo-random
+> > numbers he wants to use. That means there is a new interface for the s390
+> > PRNG, called /dev/prandom.
+> > 
+> > I would like to know if there are any objections, especially with the chosen device
+> > name.
+> 
+> This may be a stupid question, but what is it _good_ for? My understanding is
+> that the crypt_s390_kmc() opcodes work in user mode as well as kernel mode, so
+> you should not need a character device at all, but maybe just a small tool
+> that spits prandom data to stdout.
 
-Ingo Molnar wrote:
+Hm, why is /dev/urandom implemented in the kernel?
 
-The attached patch is necessary to build 2.6.19-rt8 without KEXEC
-enabled. Without KEXEC enabled crash.c doesn't get included. I believe
-this is correct.
+It could be done completely in user-space (like libica already does)
+but I think having a device node where you can read from is the simplest
+implementation. Also, if we can solve the security flaw we could use it
+as replacement for /dev/urandom.
 
--- 
-   kr
+Jan
 
---------------060301030306070509030806
-Content-Type: text/x-patch;
- name="nmifix1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nmifix1.patch"
-
---- linux-2.6.19/arch/i386/kernel/nmi.c.orig	2006-12-07 09:35:22.000000000 -0600
-+++ linux-2.6.19/arch/i386/kernel/nmi.c	2006-12-07 09:36:04.000000000 -0600
-@@ -935,7 +935,9 @@ void nmi_show_all_regs(void)
- 	for_each_online_cpu(i)
- 		nmi_show_regs[i] = 1;
- 
-+#ifdef CONFIG_KEXEC
- 	smp_send_nmi_allbutself();
-+#endif
- 
- 	for_each_online_cpu(i) {
- 		while (nmi_show_regs[i] == 1)
-
---------------060301030306070509030806--

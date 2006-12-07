@@ -1,51 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030804AbWLGFjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030736AbWLGFjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030804AbWLGFjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 00:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030736AbWLGFjJ
+	id S1030736AbWLGFjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 00:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030820AbWLGFjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 00:39:09 -0500
-Received: from 1wt.eu ([62.212.114.60]:1414 "EHLO 1wt.eu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1030804AbWLGFjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 00:39:08 -0500
-Date: Thu, 7 Dec 2006 06:39:01 +0100
-From: Willy Tarreau <w@1wt.eu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vmscan.c:196: bad pmd (kernel 2.4.25)
-Message-ID: <20061207053900.GC24090@1wt.eu>
-References: <9a8748490612060022i25fc2617ya90e48c2e3c719d1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490612060022i25fc2617ya90e48c2e3c719d1@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 7 Dec 2006 00:39:16 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:58791 "EHLO
+	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1030736AbWLGFjP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 00:39:15 -0500
+Message-ID: <4577A91E.70501@oracle.com>
+Date: Wed, 06 Dec 2006 21:39:42 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Michael Neuling <mikey@neuling.org>
+CC: linux-kernel@vger.kernel.org, H Peter Anvin <hpa@zytor.com>,
+       Andrew Morton <akpm@osdl.org>, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] Add retain_initrd boot option
+References: <20614.1165469597@neuling.org>
+In-Reply-To: <20614.1165469597@neuling.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, Dec 06, 2006 at 09:22:29AM +0100, Jesper Juhl wrote:
-> The following messages just showed up in dmesg on one of my servers.
-> The server seems to be running fine but I would like to know if
-> there's a real problem here or if the message is just noise.
->
-> The server is running 2.4.25
+Michael Neuling wrote:
+> Add retain_initrd option to control freeing of initrd memory after
+> extraction.  By default, free memory as previously. 
 > 
-> vmscan.c:196: bad pmd 000001e3.
-> vmscan.c:196: bad pmd 004001e3.
-...
-> vmscan.c:196: bad pmd 378001e3.
-> vmscan.c:196: bad pmd 37c001e3.
+> The first boot will need to hold a copy of the in memory fs for the
+> second boot.  This image can be large (much larger than the kernel),
+> hence we can save time when the memory loader is slow.  Also, it reduces
+> the memory footprint while extracting the first boot since you don't
+> need another copy of the fs.
+> 
+> Signed-off-by: Michael Neuling <mikey@neuling.org>
+> ---
+> Removed unnecessary init of do_retain_initrd as suggested by Randy
+> Dunlap.
+> 
+>  Documentation/kernel-parameters.txt |    2 ++
+>  init/initramfs.c                    |   18 ++++++++++++++++--
+>  2 files changed, 18 insertions(+), 2 deletions(-)
+> 
+> Index: linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+> ===================================================================
+> --- linux-2.6-ozlabs.orig/Documentation/kernel-parameters.txt
+> +++ linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+> @@ -1366,6 +1366,8 @@ and is between 256 and 4096 characters. 
+>  	resume=		[SWSUSP]
+>  			Specify the partition device for software suspend
+>  
+> +	retain_initrd	[RAM] Keep initrd memory after extraction
+> +
+>  	rhash_entries=	[KNL,NET]
+>  			Set number of hash buckets for route cache
+>  
+> Index: linux-2.6-ozlabs/init/initramfs.c
+> ===================================================================
+> --- linux-2.6-ozlabs.orig/init/initramfs.c
+> +++ linux-2.6-ozlabs/init/initramfs.c
+> @@ -487,6 +487,17 @@ static char * __init unpack_to_rootfs(ch
+>  	return message;
+>  }
+>  
+> +static int do_retain_initrd;
+> +
+> +static int __init retain_initrd_param(char *str)
+> +{
+> +	if (*str)
+> +		return 0;
+> +	do_retain_initrd = 1;
+> +	return 1;
+> +}
+> +__setup("retain_initrd", retain_initrd_param);
+> +
+>  extern char __initramfs_start[], __initramfs_end[];
+>  #ifdef CONFIG_BLK_DEV_INITRD
+>  #include <linux/initrd.h>
+> @@ -494,10 +505,13 @@ extern char __initramfs_start[], __initr
+>  
+>  static void __init free_initrd(void)
+>  {
+> -#ifdef CONFIG_KEXEC
+>  	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
+>  	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
 
-I may be wrong, but to me it looks either like memory corruption
-affecting one pgd, and by extension all of its pmds, or an old
-bug in 2.4.25, but I don't recall seeing such a thing.
+I'm still not seeing how using crashk_res is valid here when
+CONFIG_KEXEC=n.  Can you explain that, please?
+You did test this with KEXEC=y and KEXEC=n, right?
 
-Anyway, I would personally reboot the server after such a thing, as I
-really don't like it when VM is going mad.
+> +	if (do_retain_initrd)
+> +		goto skip;
+> +
+> +#ifdef CONFIG_KEXEC
+>  	/*
+>  	 * If the initrd region is overlapped with crashkernel reserved region,
+>  	 * free only memory that is not part of crashkernel region.
+> @@ -515,7 +529,7 @@ static void __init free_initrd(void)
+>  	} else
+>  #endif
+>  		free_initrd_mem(initrd_start, initrd_end);
+> -
+> +skip:
+>  	initrd_start = 0;
+>  	initrd_end = 0;
+>  }
 
-Regards,
-Willy
 
+-- 
+~Randy

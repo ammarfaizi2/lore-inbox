@@ -1,191 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163180AbWLGSat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163551AbWLGWmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163180AbWLGSat (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163192AbWLGSat
+	id S1163551AbWLGWmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163534AbWLGWmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:30:49 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:1808 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163191AbWLGSar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:30:47 -0500
-Date: Thu, 7 Dec 2006 19:30:46 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: [PATCH 4/5] PCI MMConfig: Detect and support the E7520 and the 945G/GZ/P/PL
-Message-ID: <20061207183046.GD73583@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Muli Ben-Yehuda <muli@il.ibm.com>
-References: <20061207181726.GA69863@dspnet.fr.eu.org>
+	Thu, 7 Dec 2006 17:42:03 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:47442 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163551AbWLGWmA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:42:00 -0500
+Date: Thu, 7 Dec 2006 14:42:02 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Theodore Tso <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 21/35] Unionfs: Inode operations
+Message-Id: <20061207144202.9f0647ba.randy.dunlap@oracle.com>
+In-Reply-To: <20061207090715.5e34babc.akpm@osdl.org>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+	<11652354711835-git-send-email-jsipek@cs.sunysb.edu>
+	<Pine.LNX.4.61.0612052222190.18570@yvahk01.tjqt.qr>
+	<20061205135017.3be94142.akpm@osdl.org>
+	<20061207140427.GC31773@thunk.org>
+	<20061207090715.5e34babc.akpm@osdl.org>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207181726.GA69863@dspnet.fr.eu.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that the only way to reliably support mmconfig in the
-presence of funky biosen is to detect the hostbridge and read where
-the window is mapped from its registers.  Do that for the E7520 and
-the 945G/GZ/P/PL for a start.
+On Thu, 7 Dec 2006 09:07:15 -0800 Andrew Morton wrote:
 
-Signed-off-by: Olivier Galibert <galibert@pobox.com>
+> On Thu, 7 Dec 2006 09:04:27 -0500
+> Theodore Tso <tytso@mit.edu> wrote:
+> 
+> > On Tue, Dec 05, 2006 at 01:50:17PM -0800, Andrew Morton wrote:
+> > > This
+> > > 
+> > > 	/*
+> > > 	 * Lorem ipsum dolor sit amet, consectetur
+> > > 	 * adipisicing elit, sed do eiusmod tempor
+> > > 	 * incididunt ut labore et dolore magna aliqua.
+> > > 	 */
+> > > 
+> > > is probably the most common, and is what I use when forced to descrog
+> > > comments.
+> > 
+> > This what I normally do by default, unless it's a one-line comment, in
+> > which case my preference is usually for this:
+> > 
+> > /* Lorem ipsum dolor sit amet, consectetur */
+> 
+> yup.
+> 
+> > I'm not convinced we really do _need_ to standardize on comment styles
+> > (I can foresee thousands and thousands of trivial patches being
+> > submitted and we'd probably be better off encouraging people to spend
+> > time actually improving the documentation instead of reformatting it :-), 
+> > but if were going to standardize, that would be my vote.
+> 
+> Sure.  comment-relaying-out patches would not be particularly welcome ;)
+
+I third that.  Not a janitors (or anyone's) task/busy-work.
+
 ---
- arch/i386/pci/mmconfig-shared.c |  116 ++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 113 insertions(+), 3 deletions(-)
-
-diff --git a/arch/i386/pci/mmconfig-shared.c b/arch/i386/pci/mmconfig-shared.c
-index 7b19639..302d495 100644
---- a/arch/i386/pci/mmconfig-shared.c
-+++ b/arch/i386/pci/mmconfig-shared.c
-@@ -3,6 +3,7 @@
-  *                     MMCONFIG - common code between i386 and x86-64.
-  * 
-  * This code does:
-+ * - known chipset handling
-  * - ACPI decoding and validation
-  *
-  * Per-architecture code takes care of the mappings and accesses
-@@ -55,12 +56,121 @@ static __init void unreachable_devices(void)
- 	}
- }
- 
-+static __init const char *pci_mmcfg_e7520(void)
-+{
-+	u32 win;
-+	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0xce, 2, &win);
-+
-+	pci_mmcfg_config_num = 1;
-+	pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]), GFP_KERNEL);
-+	pci_mmcfg_config[0].base_address = (win & 0xf000) << 16;
-+	pci_mmcfg_config[0].pci_segment_group_number = 0;
-+	pci_mmcfg_config[0].start_bus_number = 0;
-+	pci_mmcfg_config[0].end_bus_number = 255;
-+
-+	return "Intel Corporation E7520 Memory Controller Hub";
-+}
-+
-+static __init const char *pci_mmcfg_intel_945(void)
-+{
-+	u32 pciexbar, mask = 0, len = 0;
-+
-+	pci_mmcfg_config_num = 1;
-+
-+	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0x48, 4, &pciexbar);
-+
-+	/* Enable bit */
-+	if (!(pciexbar & 1))
-+		pci_mmcfg_config_num = 0;
-+
-+	/* Size bits */
-+	switch ((pciexbar >> 1) & 3) {
-+	case 0:
-+		mask = 0xf0000000U;
-+		len  = 0x10000000U;
-+		break;
-+	case 1:
-+		mask = 0xf8000000U;
-+		len  = 0x08000000U;
-+		break;
-+	case 2:
-+		mask = 0xfc000000U;
-+		len  = 0x04000000U;
-+		break;
-+	default:
-+		pci_mmcfg_config_num = 0;
-+	}
-+
-+	/* Errata #2, things break when not aligned on a 256Mb boundary */
-+	/* Can only happen in 64M/128M mode */
-+
-+	if ((pciexbar & mask) & 0x0fffffffU)
-+		pci_mmcfg_config_num = 0;
-+
-+	if (pci_mmcfg_config_num) {
-+		pci_mmcfg_config = kzalloc(sizeof(pci_mmcfg_config[0]), GFP_KERNEL);
-+		pci_mmcfg_config[0].base_address = pciexbar & mask;
-+		pci_mmcfg_config[0].pci_segment_group_number = 0;
-+		pci_mmcfg_config[0].start_bus_number = 0;
-+		pci_mmcfg_config[0].end_bus_number = (len >> 20) - 1;
-+	}
-+
-+	return "Intel Corporation 945G/GZ/P/PL Express Memory Controller Hub";
-+}
-+
-+struct pci_mmcfg_hostbridge_probe {
-+	u32 vendor;
-+	u32 device;
-+	const char *(*probe)(void);
-+};
-+
-+static __initdata struct pci_mmcfg_hostbridge_probe pci_mmcfg_probes[] = {
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_E7520_MCH, pci_mmcfg_e7520 },
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82945G_HB, pci_mmcfg_intel_945 },
-+};
-+
-+static int __init pci_mmcfg_check_hostbridge(void)
-+{
-+	u32 l;
-+	u16 vendor, device;
-+	int i;
-+	const char *name;
-+
-+	pci_conf1_read(0, 0, PCI_DEVFN(0,0), 0, 4, &l);
-+	vendor = l & 0xffff;
-+	device = (l >> 16) & 0xffff;
-+
-+	pci_mmcfg_config_num = 0;
-+	pci_mmcfg_config = NULL;
-+	name = NULL;
-+
-+	for (i = 0; !name && i < sizeof(pci_mmcfg_probes) / sizeof(pci_mmcfg_probes[0]); i++)
-+		if ((pci_mmcfg_probes[i].vendor == PCI_ANY_ID || pci_mmcfg_probes[i].vendor == vendor) &&
-+		    (pci_mmcfg_probes[i].device == PCI_ANY_ID || pci_mmcfg_probes[i].device == device))
-+			name = pci_mmcfg_probes[i].probe();
-+
-+	if (name) {
-+		if (pci_mmcfg_config_num)
-+			printk(KERN_INFO "PCI: Found %s with MMCONFIG support.\n", name);
-+		else
-+			printk(KERN_INFO "PCI: Found %s without MMCONFIG support.\n", name);
-+	}
-+
-+	return name != NULL;
-+}
-+
- void __init pci_mmcfg_init(int type)
- {
-+	int known_bridge = 0;
-+
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
- 		return;
- 
--	acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
-+	if (type == 1 && pci_mmcfg_check_hostbridge())
-+		known_bridge = 1;
-+
-+	if (!known_bridge)
-+		acpi_table_parse(ACPI_MCFG, acpi_parse_mcfg);
- 
- 	if ((pci_mmcfg_config_num == 0) ||
- 	    (pci_mmcfg_config == NULL) ||
-@@ -68,8 +178,8 @@ void __init pci_mmcfg_init(int type)
- 		return;
- 
- 	/* Only do this check when type 1 works. If it doesn't work
--           assume we run on a Mac and always use MCFG */
--	if (type == 1 &&
-+	   assume we run on a Mac and always use MCFG */
-+	if (type == 1 && !known_bridge &&
- 	    !e820_all_mapped(pci_mmcfg_config[0].base_address,
- 			     pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
- 			     E820_RESERVED)) {
--- 
-1.4.4.1.g278f
-
+~Randy

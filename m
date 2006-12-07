@@ -1,68 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163638AbWLGW6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163418AbWLGVgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163638AbWLGW6V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163642AbWLGW6V
+	id S1163418AbWLGVgr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 16:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163422AbWLGVgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:58:21 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:39767 "EHLO havoc.gtf.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163634AbWLGW6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:58:17 -0500
-Date: Thu, 7 Dec 2006 17:58:12 -0500
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, gregkh@suse.de, barkalow@iabervon.org
-Subject: [git patch] improve INTx toggle for PCI MSI
-Message-ID: <20061207225812.GA13917@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Dec 2006 16:36:47 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:16406 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163418AbWLGVgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 16:36:46 -0500
+Message-ID: <4578896C.3080504@oracle.com>
+Date: Thu, 07 Dec 2006 13:36:44 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH/RFC] CodingStyle updates
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com> <Pine.LNX.4.61.0612071206160.2863@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0612071206160.2863@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
+> On Dec 7 2006 00:48, Randy Dunlap wrote:
+>> +The preferred way to ease multiple indentation levels in a switch
+>> +statement is to align the "switch" and its subordinate "case" labels in
+>> +the same column instead of "double-indenting" the "case" labels.  E.g.:
+>> +
+>> +	switch (suffix) {
+>> +	case 'G':
+>> +	case 'g':
+>> +		mem <<= 10;
+>> +	case 'M':
+>> +	case 'm':
+>> +		mem << 10;
+>                 ^^^^^^^^^^
+> 
+> Statement has no effect ;-)
 
-"it boots" on ICH7 at least.
+Argh, thanks, fixed these.
+And removed most fall-throughs to make it a better example.
 
-Please pull from 'intx' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git intx
+>> +Use one space around (on each side of) most binary operators, such as
+>> +any of these:
+>> +		=  +  -  <  >  *  /  %  |  &  ^  <=  >=  ==  !=
+> 
+> And the ternary operator ?:
 
-to receive the following updates:
+Added.
 
- drivers/pci/msi.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
+>> +but no space after unary operators:
+>> +		sizeof  ++  --  &  *  +  -  ~  !  defined
+> 
+> And no space before these unary operators,
+> ++ (postincrement) -- (postdecrement)
+> 
+> What keyword is "defined"? Did you have too much Perl coffee? :)
+> 
+>> +and no space around the '.' unary operator.
+> 
+> Same goes for ->
 
-Jeff Garzik:
-      PCI MSI: always toggle legacy-INTx-enable bit upon MSI entry/exit
+Added.
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 9fc9a34..c2828a3 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -255,10 +255,8 @@ static void enable_msi_mode(struct pci_d
- 		pci_write_config_word(dev, msi_control_reg(pos), control);
- 		dev->msix_enabled = 1;
- 	}
--    	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
--		/* PCI Express Endpoint device detected */
--		pci_intx(dev, 0);  /* disable intx */
--	}
-+
-+	pci_intx(dev, 0);  /* disable intx */
- }
- 
- void disable_msi_mode(struct pci_dev *dev, int pos, int type)
-@@ -276,10 +274,8 @@ void disable_msi_mode(struct pci_dev *de
- 		pci_write_config_word(dev, msi_control_reg(pos), control);
- 		dev->msix_enabled = 0;
- 	}
--    	if (pci_find_capability(dev, PCI_CAP_ID_EXP)) {
--		/* PCI Express Endpoint device detected */
--		pci_intx(dev, 1);  /* enable intx */
--	}
-+
-+	pci_intx(dev, 1);  /* enable intx */
- }
- 
- static int msi_lookup_irq(struct pci_dev *dev, int type)
+>> +Linux style for comments is the pre-C99 "/* ... */" style.
+> 
+> Aka C89.
+
+Changed.
+
+>> +Don't use C99-style "// ..." comments.
+>> +
+>> +The preferred style for long (multi-line) comments is:
+>> +
+>> +	/*
+>> +	 * This is the preferred style for multi-line
+>> +	 * comments in the Linux kernel source code.
+>> +	 * Please use it consistently.
+>> +	 */
+> 
+> Description: Stars to the left with two almost blank (/*, */) lines.
+
+Added.
+
+Thanks.  Will resend later today...
+
+-- 
+~Randy

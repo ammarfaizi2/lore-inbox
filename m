@@ -1,93 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425438AbWLHLye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163185AbWLGSaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425438AbWLHLye (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:54:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHLy2
+	id S1163185AbWLGSaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163187AbWLGSaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:54:28 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52469 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 13:30:15 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:1076 "EHLO dspnet.fr.eu.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425432AbWLHLyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:54:20 -0500
-Message-Id: <200612081152.kB8BqVnS019774@shell0.pdx.osdl.net>
-Subject: [patch 09/13] io-accounting: report in procfs
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
-       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
-       tee@sgi.com
-From: akpm@osdl.org
-Date: Fri, 08 Dec 2006 03:52:31 -0800
+	id S1163185AbWLGSaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 13:30:12 -0500
+Date: Thu, 7 Dec 2006 19:30:11 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       "Hack inc." <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>
+Subject: [PATCH 3/5] PCI MMConfig: Only map what's necessary.
+Message-ID: <20061207183011.GC73583@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+	"Hack inc." <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Muli Ben-Yehuda <muli@il.ibm.com>
+References: <20061207181726.GA69863@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061207181726.GA69863@dspnet.fr.eu.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
+The x86-64 mmconfig code always map a range of MMCONFIG_APER_MAX
+bytes, i.e. 256MB, whatever the number of accessible busses is.  Fix
+it, and add the end of the zone in the printk while we're at it.
 
-Add a simple /proc/pid/io to show the IO accounting fields.
-
-Maybe this shouldn't be merged in mainline - the preferred reporting channel
-is taskstats.  But given the poor state of our userspace support for
-taskstats, this is useful for developer-testing, at least.  And it improves
-the changes that the procps developers will wire it up into top(1).  Opinions
-are sought.
-
-The patch also wires up the existing IO-accounting fields.
-
-It's a bit racy on 32-bit machines: if process A reads process B's
-/proc/pid/io while process B is updating one of those 64-bit counters, process
-A could see an intermediate result.
-
-Cc: Jay Lan <jlan@sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chris Sturtivant <csturtiv@sgi.com>
-Cc: Tony Ernst <tee@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: David Wright <daw@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Olivier Galibert <galibert@pobox.com>
 ---
+ arch/x86_64/pci/mmconfig.c |   12 +++++-------
+ 1 files changed, 5 insertions(+), 7 deletions(-)
 
- fs/proc/base.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
+index c71c181..3d13220 100644
+--- a/arch/x86_64/pci/mmconfig.c
++++ b/arch/x86_64/pci/mmconfig.c
+@@ -13,10 +13,6 @@
+ 
+ #include "pci.h"
+ 
+-/* aperture is up to 256MB but BIOS may reserve less */
+-#define MMCONFIG_APER_MIN	(2 * 1024*1024)
+-#define MMCONFIG_APER_MAX	(256 * 1024*1024)
+-
+ /* Verify the first 16 busses. We assume that systems with more busses
+    get MCFG right. */
+ #define PCI_MMCFG_MAX_CHECK_BUS 16
+@@ -143,17 +139,19 @@ int __init pci_mmcfg_arch_init(void)
+ 	}
+ 
+ 	for (i = 0; i < pci_mmcfg_config_num; ++i) {
++		u32 size = (pci_mmcfg_config[0].end_bus_number - pci_mmcfg_config[0].start_bus_number + 1) << 20;
+ 		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
+ 		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address,
+-							 MMCONFIG_APER_MAX);
++							 size);
+ 		if (!pci_mmcfg_virt[i].virt) {
+ 			printk(KERN_ERR "PCI: Cannot map mmconfig aperture for "
+ 					"segment %d\n",
+ 			       pci_mmcfg_config[i].pci_segment_group_number);
+ 			return 0;
+ 		}
+-		printk(KERN_INFO "PCI: Using MMCONFIG at %x\n",
+-		       pci_mmcfg_config[i].base_address);
++		printk(KERN_INFO "PCI: Using MMCONFIG at %x-%x\n",
++		       pci_mmcfg_config[i].base_address,
++		       pci_mmcfg_config[i].base_address + size - 1);
+ 	}
+ 
+ 	raw_pci_ops = &pci_mmcfg;
+-- 
+1.4.4.1.g278f
 
-diff -puN fs/proc/base.c~io-accounting-report-in-procfs fs/proc/base.c
---- a/fs/proc/base.c~io-accounting-report-in-procfs
-+++ a/fs/proc/base.c
-@@ -1804,6 +1804,27 @@ static int proc_base_fill_cache(struct f
- 				proc_base_instantiate, task, p);
- }
- 
-+#ifdef CONFIG_TASK_IO_ACCOUNTING
-+static int proc_pid_io_accounting(struct task_struct *task, char *buffer)
-+{
-+	return sprintf(buffer,
-+			"rchar: %llu\n"
-+			"wchar: %llu\n"
-+			"syscr: %llu\n"
-+			"syscw: %llu\n"
-+			"read_bytes: %llu\n"
-+			"write_bytes: %llu\n"
-+			"cancelled_write_bytes: %llu\n",
-+			(unsigned long long)task->rchar,
-+			(unsigned long long)task->wchar,
-+			(unsigned long long)task->syscr,
-+			(unsigned long long)task->syscw,
-+			(unsigned long long)task->ioac.read_bytes,
-+			(unsigned long long)task->ioac.write_bytes,
-+			(unsigned long long)task->ioac.cancelled_write_bytes);
-+}
-+#endif
-+
- /*
-  * Thread groups
-  */
-@@ -1855,6 +1876,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_FAULT_INJECTION
- 	REG("make-it-fail", S_IRUGO|S_IWUSR, fault_inject),
- #endif
-+#ifdef CONFIG_TASK_IO_ACCOUNTING
-+	INF("io",	S_IRUGO, pid_io_accounting),
-+#endif
- };
- 
- static int proc_tgid_base_readdir(struct file * filp,
-_

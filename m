@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163309AbWLGUji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163213AbWLGTNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163309AbWLGUji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 15:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163312AbWLGUji
+	id S1163213AbWLGTNn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 14:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163205AbWLGTNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 15:39:38 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:36978 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163309AbWLGUjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 15:39:37 -0500
-Date: Thu, 7 Dec 2006 12:38:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, Len Brown <lenb@kernel.org>,
-       linux-kernel@vger.kernel.org, ak@suse.de,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] x86_64: do not enable the NMI watchdog by default
-Message-Id: <20061207123836.213c3214.akpm@osdl.org>
-In-Reply-To: <20061207123011.4b723788@localhost.localdomain>
-References: <20061206223025.GA17227@elte.hu>
-	<200612061857.30248.len.brown@intel.com>
-	<20061207121135.GA15529@elte.hu>
-	<20061207123011.4b723788@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Dec 2006 14:13:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34416 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163204AbWLGTNl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 14:13:41 -0500
+Message-ID: <457867C5.7060508@torque.net>
+Date: Thu, 07 Dec 2006 14:13:09 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: "Darrick J. Wong" <djwong@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
+References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>	 <4574B004.6030606@us.ibm.com> <1165514983.4698.21.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <1165514983.4698.21.camel@mulgrave.il.steeleye.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006 12:30:11 +0000
-Alan <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Thu, 7 Dec 2006 13:11:35 +0100
-> Ingo Molnar <mingo@elte.hu> wrote:
+James Bottomley wrote:
+> On Mon, 2006-12-04 at 15:32 -0800, Darrick J. Wong wrote:
+>> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
+>> response to a REPORT LUNS packet.  If this happens to an ATAPI device
+>> that is attached to a SAS controller (this is the case with sas_ata),
+>> the device does not load because SCSI won't touch a "SCSI device"
+>> that won't report its LUNs.  Since most ATAPI devices don't support
+>> multiple LUNs anyway, we might as well fake a response like we do for
+>> ATA devices.
 > 
-> > or via the nmi_watchdog=1 or nmi_watchdog=2 boot options.
-> > 
-> > build and boot tested on an Athlon64 box.
-> > 
-> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
-> Acked-by: Alan Cox <alan@redhat.com>
+> Actually, there may be a standards conflict here.  SPC says that all
+> devices reporting compliance with this standard (as the inquiry data for
+> this device claims) shall support REPORT LUNS.  On the other hand, MMC
+> doesn't list REPORT LUNS in its table of mandatory commands.
 
-metoo.  I'm really struggling to recall an occasion on which the NMI
-watchdog helped diagnose or fix a bug.  The usual scenario nowadays is that
-I ask a reporter to enable NMI watchdog and for various reasons (mostly
-mysterious) no useful information comes of it.
+MMC-5 rev 4 section 7.1:
+"Some commands that may be implemented by MM drives are
+not described in this standard, but are found in other
+SCSI standards. For a complete list of these commands
+refer to [SPC-3]."
 
-If it's causing machines to go down then the current tradeoff doesn't seem
-right.
+Hmm, "may be implemented" yet REPORT LUNS is mandatory
+in SPC-3 (and SPC-3 is a normative reference for MMC-5).
+I guess there is wriggle room there.
+In practice, MMC diverges from SPC a lot more than other
+SCSI device type command sets (e.g. SBC and SSC).
 
-But _is_ it causing machines to go down, after the ACPI fix?
+> I'm starting to think that even if they report a SCSI compliance level
+> of 3 or greater, we still shouldn't send REPORT LUNS to devices that
+> return MMC type unless we have a white list override.
 
-(the patch doesn't vaguely apply btw).
+There is also SAT compliance. For the ATA command set (i.e.
+disks) sat-r09 lists REPORT LUNS and refers to SPC-3. For
+ATAPI sat-r09 is far less clear. It does recommend, for
+example, that the ATA Information VPD pages is implemented
+in the SATL for ATAPI devices.
+
+Doug Gilbert

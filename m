@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031772AbWLGHWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031792AbWLGH0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031772AbWLGHWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 02:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031774AbWLGHWn
+	id S1031792AbWLGH0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 02:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031795AbWLGH0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 02:22:43 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:44800
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1031772AbWLGHWm (ORCPT
+	Thu, 7 Dec 2006 02:26:52 -0500
+Received: from nf-out-0910.google.com ([64.233.182.185]:41062 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031792AbWLGH0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 02:22:42 -0500
-Date: Wed, 06 Dec 2006 23:22:53 -0800 (PST)
-Message-Id: <20061206.232253.28806606.davem@davemloft.net>
-To: mattjreimer@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <f383264b0612062220j283f0ad6u5be9db6ac79dbbe9@mail.gmail.com>
-References: <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
-	<20061206.164616.74731030.davem@davemloft.net>
-	<f383264b0612062220j283f0ad6u5be9db6ac79dbbe9@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 7 Dec 2006 02:26:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gj/OXYBwwjxKRB1jbYLi7QYLPGRVHDoV9bNoR7ycchw0YfmZyJ1kf7+NEXgBnbBza1L6KRHJmMxavtIDMpO8lcs28Fdqz/LgY7JXCXNNTK0l4ybeuf0r099qN9ZRJAyPB3/Z+lhH75QBl1YCYACUE0ON0EzNEabkyPFRrDBuZaw=
+Message-ID: <a10e25a30612062326t6a238b15v9b81de7f092337a1@mail.gmail.com>
+Date: Wed, 6 Dec 2006 23:26:50 -0800
+From: "Kunal Trivedi" <ktrivedilkml@gmail.com>
+To: linuxkernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
+Subject: Re: Possible Bug in VM accounting (Committed_AS) on x86_64 architecture ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Matt Reimer" <mattjreimer@gmail.com>
-Date: Wed, 6 Dec 2006 22:20:22 -0800
+Hi Alan,
+Sorry for late followup on this.
 
-> Ok, good to know, since that's what we're doing with ARM drivers
-> presently. What's the preferred method going forward?
+I did found the problem. It was 32 bit binary running on 64 bit arch.
+Actually main kernel had fixed this problem in 2.6.14
+(http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=2fd4ef85e0db9ed75c98e13953257a967ea55e03)
+But apparently CentOS has not ported it yet.
 
-There are multiple ways provided to solve the problem so that
-platforms can use whichever variant works best.
+Thanks for your reply
+
+-Kunal

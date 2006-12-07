@@ -1,176 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031828AbWLGIKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031832AbWLGIOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031828AbWLGIKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 03:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031831AbWLGIKI
+	id S1031832AbWLGIOS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 03:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031835AbWLGIOS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 03:10:08 -0500
-Received: from outbound0.mx.meer.net ([209.157.153.23]:4470 "EHLO
+	Thu, 7 Dec 2006 03:14:18 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:4684 "EHLO
 	outbound0.sv.meer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031828AbWLGIKG (ORCPT
+	with ESMTP id S1031832AbWLGIOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 03:10:06 -0500
-Subject: [PATCH 2/5 -mm] fault-injection: Use bool-true-false throughout
+	Thu, 7 Dec 2006 03:14:18 -0500
+Subject: [PATCH 3/5 -mm] fault-injection: Clamp debugfs stacktrace-depth to
+	MAX_STACK_TRACE_DEPTH
 From: Don Mullis <dwm@meer.net>
 To: akpm <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>, Akinobu Mita <akinobu.mita@gmail.com>
 In-Reply-To: <1165478812.2706.8.camel@localhost.localdomain>
 References: <1165478812.2706.8.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 07 Dec 2006 00:10:03 -0800
-Message-Id: <1165479003.2706.11.camel@localhost.localdomain>
+Date: Thu, 07 Dec 2006 00:14:15 -0800
+Message-Id: <1165479255.2706.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use bool-true-false throughout.
+Clamp /debug/fail*/stacktrace-depth to MAX_STACK_TRACE_DEPTH.
+Ensures that a read of /debug/fail*/stacktrace-depth always
+returns a truthful answer.
 
 Signed-off-by: Don Mullis <dwm@meer.net>
 Cc: Akinobu Mita <akinobu.mita@gmail.com>
 ---
- include/linux/fault-inject.h |    2 +-
- lib/fault-inject.c           |   40 +++++++++++++++++++---------------------
- 2 files changed, 20 insertions(+), 22 deletions(-)
+ lib/fault-inject.c |   27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
 
-Index: linux-2.6.18/include/linux/fault-inject.h
-===================================================================
---- linux-2.6.18.orig/include/linux/fault-inject.h
-+++ linux-2.6.18/include/linux/fault-inject.h
-@@ -57,7 +57,7 @@ struct fault_attr {
- #define DECLARE_FAULT_ATTR(name) struct fault_attr name = FAULT_ATTR_INITIALIZER
- int setup_fault_attr(struct fault_attr *attr, char *str);
- void should_fail_srandom(unsigned long entropy);
--int should_fail(struct fault_attr *attr, ssize_t size);
-+bool should_fail(struct fault_attr *attr, ssize_t size);
- 
- #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
- 
 Index: linux-2.6.18/lib/fault-inject.c
 ===================================================================
 --- linux-2.6.18.orig/lib/fault-inject.c
 +++ linux-2.6.18/lib/fault-inject.c
-@@ -48,7 +48,7 @@ static void fail_dump(struct fault_attr 
- 
- #define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
- 
--static int fail_task(struct fault_attr *attr, struct task_struct *task)
-+static bool fail_task(struct fault_attr *attr, struct task_struct *task)
- {
+@@ -53,6 +53,8 @@ static bool fail_task(struct fault_attr 
  	return !in_interrupt() && task->make_it_fail;
  }
-@@ -68,15 +68,15 @@ static asmlinkage int fail_stacktrace_ca
- 			break;
- 		if (attr->reject_start <= UNW_PC(info) &&
- 			       UNW_PC(info) < attr->reject_end)
--			return 0;
-+			return false;
- 		if (attr->require_start <= UNW_PC(info) &&
- 			       UNW_PC(info) < attr->require_end)
--			found = 1;
-+			found = true;
- 	}
- 	return found;
+ 
++#define MAX_STACK_TRACE_DEPTH 32
++
+ #ifdef CONFIG_STACK_UNWIND
+ 
+ static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
+@@ -98,8 +100,7 @@ static bool fail_stacktrace(struct fault
+ 
+ 	trace.nr_entries = 0;
+ 	trace.entries = entries;
+-	trace.max_entries = (depth < MAX_STACK_TRACE_DEPTH) ?
+-				depth : MAX_STACK_TRACE_DEPTH;
++	trace.max_entries = depth;
+ 	trace.skip = 1;
+ 	trace.all_contexts = 0;
+ 
+@@ -179,6 +180,13 @@ static void debugfs_ul_set(void *data, u
+ 	*(unsigned long *)data = val;
  }
  
--static int fail_stacktrace(struct fault_attr *attr)
-+static bool fail_stacktrace(struct fault_attr *attr)
++static void debugfs_ul_set_MAX_STACK_TRACE_DEPTH(void *data, u64 val)
++{
++	*(unsigned long *)data =
++		val < MAX_STACK_TRACE_DEPTH ?
++		val : MAX_STACK_TRACE_DEPTH;
++}
++
+ static u64 debugfs_ul_get(void *data)
  {
- 	struct unwind_frame_info info;
- 
-@@ -85,9 +85,7 @@ static int fail_stacktrace(struct fault_
- 
- #elif defined(CONFIG_STACKTRACE)
- 
--#define MAX_STACK_TRACE_DEPTH 32
--
--static int fail_stacktrace(struct fault_attr *attr)
-+static bool fail_stacktrace(struct fault_attr *attr)
- {
- 	struct stack_trace trace;
- 	int depth = attr->stacktrace_depth;
-@@ -109,26 +107,26 @@ static int fail_stacktrace(struct fault_
- 	for (n = 0; n < trace.nr_entries; n++) {
- 		if (attr->reject_start <= entries[n] &&
- 			       entries[n] < attr->reject_end)
--			return 0;
-+			return false;
- 		if (attr->require_start <= entries[n] &&
- 			       entries[n] < attr->require_end)
--			found = 1;
-+			found = true;
- 	}
- 	return found;
+ 	return *(unsigned long *)data;
+@@ -192,6 +200,17 @@ static struct dentry *debugfs_create_ul(
+ 	return debugfs_create_file(name, mode, parent, value, &fops_ul);
  }
  
- #else
- 
--static inline int fail_stacktrace(struct fault_attr *attr)
-+static inline bool fail_stacktrace(struct fault_attr *attr)
++DEFINE_SIMPLE_ATTRIBUTE(fops_ul_MAX_STACK_TRACE_DEPTH, debugfs_ul_get,
++			debugfs_ul_set_MAX_STACK_TRACE_DEPTH, "%llu\n");
++
++static struct dentry *debugfs_create_ul_MAX_STACK_TRACE_DEPTH(
++	const char *name, mode_t mode,
++	struct dentry *parent, unsigned long *value)
++{
++	return debugfs_create_file(name, mode, parent, value,
++				   &fops_ul_MAX_STACK_TRACE_DEPTH);
++}
++
+ static void debugfs_atomic_t_set(void *data, u64 val)
  {
--	static int firsttime = 1;
-+	static bool firsttime = true;
+ 	atomic_set((atomic_t *)data, val);
+@@ -284,8 +303,8 @@ int init_fault_attr_dentries(struct faul
+ 						mode, dir, &attr->task_filter);
  
- 	if (firsttime) {
- 		printk(KERN_WARNING
- 		"This architecture does not implement save_stack_trace()\n");
--		firsttime = 0;
-+		firsttime = false;
- 	}
--	return 0;
-+	return false;
- }
+ 	attr->dentries.stacktrace_depth_file =
+-		debugfs_create_ul("stacktrace-depth", mode, dir,
+-				  &attr->stacktrace_depth);
++		debugfs_create_ul_MAX_STACK_TRACE_DEPTH(
++			"stacktrace-depth", mode, dir, &attr->stacktrace_depth);
  
- #endif
-@@ -138,32 +136,32 @@ static inline int fail_stacktrace(struct
-  * http://www.nongnu.org/failmalloc/
-  */
- 
--int should_fail(struct fault_attr *attr, ssize_t size)
-+bool should_fail(struct fault_attr *attr, ssize_t size)
- {
- 	if (attr->task_filter && !fail_task(attr, current))
--		return 0;
-+		return false;
- 
- 	if (!fail_stacktrace(attr))
--		return 0;
-+		return false;
- 
- 	if (atomic_read(&attr->times) == 0)
--		return 0;
-+		return false;
- 
- 	if (atomic_read(&attr->space) > size) {
- 		atomic_sub(size, &attr->space);
--		return 0;
-+		return false;
- 	}
- 
- 	if (attr->interval > 1) {
- 		attr->count++;
- 		if (attr->count % attr->interval)
--			return 0;
-+			return false;
- 	}
- 
- 	if (attr->probability > random32() % 100)
- 		goto fail;
- 
--	return 0;
-+	return false;
- 
- fail:
- 	fail_dump(attr);
-@@ -171,7 +169,7 @@ fail:
- 	if (atomic_read(&attr->times) != -1)
- 		atomic_dec_not_zero(&attr->times);
- 
--	return 1;
-+	return true;
- }
- 
- #ifdef CONFIG_FAULT_INJECTION_DEBUG_FS
+ 	attr->dentries.require_start_file =
+ 		debugfs_create_ul("require-start", mode, dir, &attr->require_start);
 
 

@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164019AbWLGXvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162927AbWLGSCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164019AbWLGXvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 18:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164020AbWLGXvB
+	id S1162927AbWLGSCu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162924AbWLGSCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 18:51:01 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:3360 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164019AbWLGXvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 18:51:00 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: Amit Choudhary <amit2030@gmail.com>
-Subject: Re: [PATCH 2.6.19] drivers/media/video/cpia2/cpia2_usb.c: Free previously allocated memory (in array elements) if kmalloc() returns NULL.
-Date: Fri, 8 Dec 2006 00:50:53 +0100
-User-Agent: KMail/1.9.5
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061206211317.b996bc34.amit2030@gmail.com>
-In-Reply-To: <20061206211317.b996bc34.amit2030@gmail.com>
+	Thu, 7 Dec 2006 13:02:49 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:51137 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1162922AbWLGSCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 13:02:47 -0500
+Date: Thu, 7 Dec 2006 10:01:56 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: David Howells <dhowells@redhat.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Roland Dreier <rdreier@cisco.com>,
+       Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+In-Reply-To: <20061207095253.30059224.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0612071000380.3615@woody.osdl.org>
+References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
+ <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+ <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+ <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
+ <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+ <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+ <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org>
+ <Pine.LNX.4.64.0612070846550.3615@woody.osdl.org> <20061207095253.30059224.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612080050.53895.m.kozlowski@tuxland.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> --- a/drivers/media/video/cpia2/cpia2_usb.c
-> +++ b/drivers/media/video/cpia2/cpia2_usb.c
-> @@ -640,6 +640,10 @@ static int submit_urbs(struct camera_dat
->  		cam->sbuf[i].data =
->  		    kmalloc(FRAMES_PER_DESC * FRAME_SIZE_PER_DESC, GFP_KERNEL);
->  		if (!cam->sbuf[i].data) {
-> +			for (--i; i >= 0; i--) {
-> +				kfree(cam->sbuf[i].data);
-> +				cam->sbuf[i].data = NULL;
-> +			}
->  			return -ENOMEM;
->  		}
->  	}
 
-Just for future. Shorter and more readable version of your for(...) thing:
+On Thu, 7 Dec 2006, Andrew Morton wrote:
+> 
+> umm..  Putting a work_struct* into struct cpu_workqueue_struct and then
+> doing appropriate things with cpu_workqueue_struct.lock might work.
 
-	while (i--) {
-		...
-	}
+Yeah, that looks sane. We can't hide anything in "struct work", because we 
+can't trust it any more once it's been dispatched, but adding a pointer to 
+the cpu_workqueue_struct that is only used to compare against another 
+pointer sounds fine.
 
--- 
-Regards,
-
-	Mariusz Kozlowski
+		Linus

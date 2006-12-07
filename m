@@ -1,200 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032100AbWLGMPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032097AbWLGMPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032100AbWLGMPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:15:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032103AbWLGMPI
+	id S1032097AbWLGMPR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032099AbWLGMPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:15:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48599 "EHLO mx1.redhat.com"
+	Thu, 7 Dec 2006 07:15:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:40878 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032100AbWLGMPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:15:05 -0500
-Subject: [GFS2 & DLM] Pull request
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20061201110927.ec6ee073.akpm@osdl.org>
-References: <1164889448.3752.449.camel@quoit.chygwyn.com>
-	 <20061130230158.174e995c.akpm@osdl.org>
-	 <1164970738.3752.508.camel@quoit.chygwyn.com>
-	 <20061201110927.ec6ee073.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Thu, 07 Dec 2006 12:17:49 +0000
-Message-Id: <1165493869.3752.848.camel@quoit.chygwyn.com>
+	id S1032105AbWLGMPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:15:13 -0500
+Date: Thu, 7 Dec 2006 13:13:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Giandomenico De Tullio <ghisha@email.it>
+Subject: Re: v2.6.19-rt6, yum/rpm
+Message-ID: <20061207121344.GA19749@elte.hu>
+References: <20061205171114.GA25926@elte.hu> <4577FC21.1080407@cybsft.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4577FC21.1080407@cybsft.com>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-All the outstanding issues have now been resolved. Please consider
-pulling the following GFS2 & DLM patches,
+* K.R. Foley <kr@cybsft.com> wrote:
 
-Steve.
+> Ingo Molnar wrote:
+> > i have released the 2.6.19-rt6 tree, which can be downloaded from the 
+> > usual place:
+> 
+> Attached patch fixes rtc histogram. Looks like it got broken around 
+> 2.6.18-rt?, probably during the merge for 2.6.18?
 
----------------------------------------------------------------------------------------
+thanks, applied. I have undone some rtc hacks in the 2.6.18 merge, i 
+guess this collateral damage of that.
 
-The following changes since commit 0215ffb08ce99e2bb59eca114a99499a4d06e704:
-  Linus Torvalds:
-        Linux 2.6.19
-
-are found in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-nmw.git
-
-Al Viro:
-      [GFS2] split gfs2_dinode into on-disk and host variants
-      [GFS2] gfs2_dinode_host fields are host-endian
-      [GFS2] split gfs2_sb
-      [GFS2] fields of gfs2_sb_host are host-endian
-      [GFS2] split and annotate gfs2_rgrp
-      [GFS2] split and annotate gfs2_inum_range
-      [GFS2] split and annotate gfs2_log_head
-      [GFS2] split and annotate gfs2_meta_header
-      [GFS2] split and annotate gfs_rindex
-      [GFS2] split and annotate gfs2_inum
-      [GFS2] split and annotate gfs2_quota
-      [GFS2] split and annotate gfs2_statfs_change
-      [GFS2] split and annotate gfs2_quota_change
-      [GFS2] gfs2 misc endianness annotations
-      [GFS2] gfs2 __user misannotation fix
-
-David Teigland:
-      [DLM] res_recover_locks_count not reset when recover_locks is aborted
-      [DLM] status messages ping-pong between unmounted nodes
-      [DLM] fix requestqueue race
-      [DLM] fix aborted recovery during node removal
-      [DLM] fix stopping unstarted recovery
-      [DLM] do full recover_locks barrier
-      [DLM] clear sbflags on lock master
-      [DLM] fix add_requestqueue checking nodes list
-      [DLM] fix size of STATUS_REPLY message
-      [DLM] don't accept replies to old recovery messages
-
-Patrick Caulfield:
-      [DLM] Add support for tcp communications
-      [DLM] Fix DLM config
-      [DLM] Clean up lowcomms
-
-Randy Dunlap:
-      [GFS2] lock function parameter
-
-Russell Cattelan:
-      [GFS2] Fix race in logging code
-      [GFS2] Remove unused zero_readpage from stuffed_readpage
-
-Ryusuke Konishi:
-      [GFS2] fs/gfs2/log.c:log_bmap() fix printk format warning
-      [DLM] fix format warnings in rcom.c and recoverd.c
-
-Srinivasa Ds:
-      [GFS2] Mount problem with the GFS2 code
-
-Steven Whitehouse:
-      [GFS2] Fix crc32 calculation in recovery.c
-      [GFS2] Change argument of gfs2_dinode_out
-      [GFS2] Change argument to gfs2_dinode_in
-      [GFS2] Move gfs2_dinode_in to inode.c
-      [GFS2] Change argument to gfs2_dinode_print
-      [GFS2] Shrink gfs2_inode (1) - di_header/di_num
-      [GFS2] Shrink gfs2_inode (2) - di_major/di_minor
-      [GFS2] Shrink gfs2_inode (3) - di_mode
-      [GFS2] Shrink gfs2_inode (4) - di_uid/di_gid
-      [GFS2] Shrink gfs2_inode (5) - di_nlink
-      [GFS2] Shrink gfs2_inode (6) - di_atime/di_mtime/di_ctime
-      [GFS2] Shrink gfs2_inode (7) - di_payload_format
-      [GFS2] Shrink gfs2_inode (8) - i_vn
-      [GFS2] Tidy up 0 initialisations in inode.c
-      [GFS2] Don't copy meta_header for rgrp in and out
-      [GFS2] Remove unused GL_DUMP flag
-      [GFS2] Fix page lock/glock deadlock
-      [GFS2] Only set inode flags when required
-      [GFS2] Inode number is constant
-      [GFS2] Remove gfs2_inode_attr_in
-      [GFS2] Fix memory allocation in glock.c
-      [GFS2] Tidy up bmap & fix boundary bug
-      [GFS2] Remove unused sysfs files
-      [GFS2] Remove unused function from inode.c
-      [GFS2] Make sentinel dirents compatible with gfs1
-      [GFS2] Fix Kconfig wrt CRC32
-      [GFS2] Simplify glops functions
-      [GFS2] Fix glock ordering on inode creation
-      [GFS2] mark_inode_dirty after write to stuffed file
-      [GFS2] Fix journal flush problem
-      [GFS2] Move gfs2_meta_syncfs() into log.c
-      [GFS2] Reduce number of arguments to meta_io.c:getbuf()
-      [GFS2] Fix recursive locking in gfs2_permission
-      [GFS2] Fix recursive locking in gfs2_getattr
-      [GFS2] Remove gfs2_check_acl()
-      [GFS2] Add a comment about reading the super block
-      [GFS2] Don't flush everything on fdatasync
-      [GFS2] Fix indent in recovery.c
-      [GFS2] Change gfs2_fsync() to use write_inode_now()
-
- fs/dlm/Kconfig              |   20 +
- fs/dlm/Makefile             |    4 
- fs/dlm/dlm_internal.h       |    4 
- fs/dlm/lock.c               |   16 -
- fs/dlm/lockspace.c          |    4 
- fs/dlm/lowcomms-sctp.c      | 1227 +++++++++++++++++++++++++++++++++++++++++++
- fs/dlm/lowcomms-tcp.c       | 1189 +++++++++++++++++++++++++++++++++++++++++
- fs/dlm/lowcomms.c           | 1239 -------------------------------------------
- fs/dlm/lowcomms.h           |    2 
- fs/dlm/main.c               |   10 
- fs/dlm/member.c             |    8 
- fs/dlm/rcom.c               |   58 ++
- fs/dlm/recover.c            |    1 
- fs/dlm/recoverd.c           |   44 +-
- fs/dlm/requestqueue.c       |   26 +
- fs/dlm/requestqueue.h       |    2 
- fs/gfs2/Kconfig             |    1 
- fs/gfs2/acl.c               |   39 -
- fs/gfs2/acl.h               |    1 
- fs/gfs2/bmap.c              |  179 +++---
- fs/gfs2/daemon.c            |    7 
- fs/gfs2/dir.c               |   93 ++-
- fs/gfs2/dir.h               |    8 
- fs/gfs2/eaops.c             |    2 
- fs/gfs2/eattr.c             |   66 +-
- fs/gfs2/eattr.h             |    6 
- fs/gfs2/glock.c             |   36 -
- fs/gfs2/glock.h             |    3 
- fs/gfs2/glops.c             |  138 +----
- fs/gfs2/incore.h            |   43 +
- fs/gfs2/inode.c             |  406 +++++---------
- fs/gfs2/inode.h             |   20 -
- fs/gfs2/log.c               |   41 +
- fs/gfs2/log.h               |    2 
- fs/gfs2/lops.c              |   40 +
- fs/gfs2/lops.h              |    2 
- fs/gfs2/meta_io.c           |   46 +-
- fs/gfs2/meta_io.h           |    1 
- fs/gfs2/ondisk.c            |  138 +----
- fs/gfs2/ops_address.c       |   52 +-
- fs/gfs2/ops_dentry.c        |    4 
- fs/gfs2/ops_export.c        |   38 +
- fs/gfs2/ops_export.h        |    2 
- fs/gfs2/ops_file.c          |   66 ++
- fs/gfs2/ops_file.h          |    2 
- fs/gfs2/ops_fstype.c        |    4 
- fs/gfs2/ops_inode.c         |  134 ++---
- fs/gfs2/ops_super.c         |   11 
- fs/gfs2/ops_vm.c            |    2 
- fs/gfs2/quota.c             |   15 -
- fs/gfs2/recovery.c          |   29 +
- fs/gfs2/recovery.h          |    2 
- fs/gfs2/rgrp.c              |   13 
- fs/gfs2/super.c             |   50 +-
- fs/gfs2/super.h             |    6 
- fs/gfs2/sys.c               |    8 
- fs/gfs2/util.h              |    6 
- include/linux/gfs2_ondisk.h |  138 ++++-
- 58 files changed, 3442 insertions(+), 2312 deletions(-)
- create mode 100644 fs/dlm/lowcomms-sctp.c
- create mode 100644 fs/dlm/lowcomms-tcp.c
- delete mode 100644 fs/dlm/lowcomms.c
-
-
+	Ingo

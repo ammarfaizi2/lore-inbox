@@ -1,121 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031823AbWLGIFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031826AbWLGIG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031823AbWLGIFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 03:05:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031822AbWLGIFK
+	id S1031826AbWLGIG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 03:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031827AbWLGIG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 03:05:10 -0500
-Received: from mx-out-01.nestec.net ([203.200.144.45]:2858 "EHLO
-	mx-out-01.nestec.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031823AbWLGIFH (ORCPT
+	Thu, 7 Dec 2006 03:06:58 -0500
+Received: from outbound0.mx.meer.net ([209.157.153.23]:4386 "EHLO
+	outbound0.sv.meer.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031826AbWLGIG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 03:05:07 -0500
-Organization: NeST-India
-Message-ID: <F6E1228667B6D411BAAA00306E00F2A50AB71042@pdc2.nestec.net>
-From: ANIL JACOB <ANILJACOB@nestec.net>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: The invoking of probe function for platform devices ??
-Date: Thu, 7 Dec 2006 13:32:33 +0530 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2658.3)
+	Thu, 7 Dec 2006 03:06:57 -0500
+Subject: [PATCH 1/5 -mm] fault-injection: Correct, disambiguate, and
+	reformat documentation.
+From: Don Mullis <dwm@meer.net>
+To: akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Akinobu Mita <akinobu.mita@gmail.com>
 Content-Type: text/plain
+Date: Thu, 07 Dec 2006 00:06:52 -0800
+Message-Id: <1165478812.2706.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Correct, disambiguate, and reformat documentation.
 
-Hello Greg,
+Signed-off-by: Don Mullis <dwm@meer.net>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>
+---
+ Documentation/fault-injection/failmodule.sh       |    4 -
+ Documentation/fault-injection/fault-injection.txt |   70 +++++++++++-----------
+ 2 files changed, 37 insertions(+), 37 deletions(-)
 
-I just started to hack the Linux kernel source code and I am having a doubt
-regarding the platform devices addition in Linux kernel.
-
-My understanding is now the platform device also uses probe functions.
-Usually for plug and play devices like USB, when it is plugged some signals
-from the USB device and HOST does the trick of invoking the probe functions.
+Index: linux-2.6.18/Documentation/fault-injection/failmodule.sh
+===================================================================
+--- linux-2.6.18.orig/Documentation/fault-injection/failmodule.sh
++++ linux-2.6.18/Documentation/fault-injection/failmodule.sh
+@@ -26,6 +26,6 @@ fi
+ # Disable any fault injection
+ echo 0 > /debug/$1/stacktrace-depth
  
-For platform devices like RTC which is not plug_and_play, how this probe
-function is initiated?
+-echo `cat /sys/module/$2/sections/.text` > /debug/$1/address-start
+-echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/address-end
++echo `cat /sys/module/$2/sections/.text` > /debug/$1/require-start
++echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/require-end
+ echo $STACKTRACE_DEPTH > /debug/$1/stacktrace-depth
+Index: linux-2.6.18/Documentation/fault-injection/fault-injection.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/fault-injection/fault-injection.txt
++++ linux-2.6.18/Documentation/fault-injection/fault-injection.txt
+@@ -17,7 +17,7 @@ o fail_page_alloc
+ 
+ o fail_make_request
+ 
+-  injects disk IO errors on permitted devices by
++  injects disk IO errors on devices permitted by setting
+   /sys/block/<device>/make-it-fail or
+   /sys/block/<device>/<partition>/make-it-fail. (generic_make_request())
+ 
+@@ -29,16 +29,16 @@ o debugfs entries
+ fault-inject-debugfs kernel module provides some debugfs entries for runtime
+ configuration of fault-injection capabilities.
+ 
+-- /debug/*/probability:
++- /debug/fail*/probability:
+ 
+ 	likelihood of failure injection, in percent.
+ 	Format: <percent>
+ 
+-	Note that one-failure-per-handred is a very high error rate
+-	for some testcases. Please set probably=100 and configure
+-	/debug/*/interval for such testcases.
++	Note that one-failure-per-hundred is a very high error rate
++	for some testcases.  Consider setting probability=100 and configure
++	/debug/fail*/interval for such testcases.
+ 
+-- /debug/*/interval:
++- /debug/fail*/interval:
+ 
+ 	specifies the interval between failures, for calls to
+ 	should_fail() that pass all the other tests.
+@@ -46,37 +46,36 @@ configuration of fault-injection capabil
+ 	Note that if you enable this, by setting interval>1, you will
+ 	probably want to set probability=100.
+ 
+-- /debug/*/times:
++- /debug/fail*/times:
+ 
+ 	specifies how many times failures may happen at most.
+ 	A value of -1 means "no limit".
+ 
+-- /debug/*/space:
++- /debug/fail*/space:
+ 
+ 	specifies an initial resource "budget", decremented by "size"
+ 	on each call to should_fail(,size).  Failure injection is
+ 	suppressed until "space" reaches zero.
+ 
+-- /debug/*/verbose
++- /debug/fail*/verbose
+ 
+ 	Format: { 0 | 1 | 2 }
+-	specifies the verbosity of the messages when failure is injected.
+-	We default to 0 (no extra messages), setting it to '1' will
+-	print only to tell failure happened, '2' will print call trace too -
+-	it is useful to debug the problems revealed by fault injection
+-	capabilities.
++	specifies the verbosity of the messages when failure is
++	injected.  '0' means no messages; '1' will print only a single
++	log line per failure; '2' will print a call trace too -- useful
++	to debug the problems revealed by fault injection.
+ 
+-- /debug/*/task-filter:
++- /debug/fail*/task-filter:
+ 
+-	Format: { 0 | 1 }
+-	A value of '0' disables filtering by process (default).
++	Format: { 'Y' | 'N' }
++	A value of 'N' disables filtering by process (default).
+ 	Any positive value limits failures to only processes indicated by
+ 	/proc/<pid>/make-it-fail==1.
+ 
+-- /debug/*/require-start:
+-- /debug/*/require-end:
+-- /debug/*/reject-start:
+-- /debug/*/reject-end:
++- /debug/fail*/require-start:
++- /debug/fail*/require-end:
++- /debug/fail*/reject-start:
++- /debug/fail*/reject-end:
+ 
+ 	specifies the range of virtual addresses tested during
+ 	stacktrace walking.  Failure is injected only if some caller
+@@ -85,22 +84,23 @@ configuration of fault-injection capabil
+ 	Default required range is [0,ULONG_MAX) (whole of virtual address space).
+ 	Default rejected range is [0,0).
+ 
+-- /debug/*/stacktrace-depth:
++- /debug/fail*/stacktrace-depth:
+ 
+ 	specifies the maximum stacktrace depth walked during search
+-	for a caller within [address-start,address-end).
++	for a caller within [require-start,require-end) OR
++	[reject-start,reject-end).
+ 
+ - /debug/fail_page_alloc/ignore-gfp-highmem:
+ 
+-	Format: { 0 | 1 }
+-	default is 0, setting it to '1' won't inject failures into
++	Format: { 'Y' | 'N' }
++	default is 'N', setting it to 'Y' won't inject failures into
+ 	highmem/user allocations.
+ 
+ - /debug/failslab/ignore-gfp-wait:
+ - /debug/fail_page_alloc/ignore-gfp-wait:
+ 
+-	Format: { 0 | 1 }
+-	default is 0, setting it to '1' will inject failures
++	Format: { 'Y' | 'N' }
++	default is 'N', setting it to 'Y' will inject failures
+ 	only into non-sleep allocations (GFP_ATOMIC allocations).
+ 
+ o Boot option
+@@ -124,22 +124,22 @@ o define the fault attributes
+   Please see the definition of struct fault_attr in fault-inject.h
+   for details.
+ 
+-o provide the way to configure fault attributes
++o provide a way to configure fault attributes
+ 
+ - boot option
+ 
+   If you need to enable the fault injection capability from boot time, you can
+-  provide boot option to configure it. There is a helper function for it.
++  provide boot option to configure it. There is a helper function for it:
+ 
+-  setup_fault_attr(attr, str);
++	setup_fault_attr(attr, str);
+ 
+ - debugfs entries
+ 
+   failslab, fail_page_alloc, and fail_make_request use this way.
+-  There is a helper function for it.
++  Helper functions:
+ 
+-  init_fault_attr_entries(entries, attr, name);
+-  void cleanup_fault_attr_entries(entries);
++	init_fault_attr_entries(entries, attr, name);
++	void cleanup_fault_attr_entries(entries);
+ 
+ - module parameters
+ 
+@@ -149,9 +149,9 @@ o provide the way to configure fault att
+ 
+ o add a hook to insert failures
+ 
+-  should_fail() returns 1 when failures should happen.
++  Upon should_fail() returning true, client code should inject a failure.
+ 
+-	should_fail(attr,size);
++	should_fail(attr, size);
+ 
+ Application Examples
+ --------------------
 
-At what stage of the initiation the probe function is called. I guess when
-compiled as a module, the only entry point of the driver I will be having is
-init function and the exit point is exit function. Then how will it be
-entering into the probe function for platform devices?
 
-If my understanding about the probe function is incorrect please clarify my
-doubts.
-
-Please find the code snippet for the platform_driver I tried below.
-
-Struct platform_device *my_dev;
-
-Struct my_res = {
-	.start = start_of_my_device_res, //Starting of the physical address
-of 						   //the device I am playing
-with
-	.end = end_of_my_device_res,
-	.name = "my_res",
-	.flags = IORESOURCE_IO,
-};
-
-......
-......
-
-Struct platform_driver my_drv ={
-	.probe = my_probe,
-	.remove =  my_remove,
-	.driver	= {
-		.name 	= "my_platform_driver",
-		.owner	= THIS_MODULE,
-	},
-};
-
-static int __init ds15x1rtc_init(void)
-{
-	int err;
-
-	if ((err = platform_driver_register(&my_drv)))
-		return err;
-	
-	if ((my_dev =  platform_device_register_simple("my_platform_device",
-1, &my_res,1)) == NULL){
-		printk("device registeration failed\n");
-		goto errout_pf_dev_register;
-	}
-
-	
-	return 0;
-
-errout_pf_dev_register:
-	platform_driver_unregister(&my_drv);
-	return err;
-	
-
-}
-
-static void __exit ds15x1rtc_cleanup(void)
-{
-	platform_device_unregister(my_dev);
-	platform_driver_unregister(&my_drv);
-	
-}
-
-Also is it a right thing to do the initialization of the resource of my
-platform device in this file or should it be done in the target specific
-initialization codes for more portability?
-
-Thanks in advance
-
-Regards,
-Anil Jacob 
-
-
----------------------------------------------------------------------------
-       "This e-mail and any files transmitted with it are for the sole use
-of the intended recipient(s) and may contain confidential and privileged
-information. If you are not the intended recipient, please contact the
-sender by reply e-mail and destroy all copies of the original message.
-
-       Any unauthorized review, use, disclosure, dissemination, forwarding,
-printing or copying of this email or any action taken upon this e-mail is
-strictly prohibited and may be unlawful."
----------------------------------------------------------------------------

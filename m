@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031993AbWLGKaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031943AbWLGKaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031993AbWLGKaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 05:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031995AbWLGKaZ
+	id S1031943AbWLGKaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 05:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031993AbWLGKaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 05:30:25 -0500
-Received: from mx2.suse.de ([195.135.220.15]:44152 "EHLO mx2.suse.de"
+	Thu, 7 Dec 2006 05:30:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43826 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031993AbWLGKaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 05:30:24 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Jan Blunck <jblunck@suse.de>
-Cc: Phil Endecott <phil_arcwk_endecott@chezphil.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Subtleties of __attribute__((packed))
-References: <4de7f8a60612060704k7d7c1ea3o1d43bee6c5e372d4@mail.gmail.com>
-	<1165418558832@dmwebmail.belize.chezphil.org>
-	<20061206155439.GA6727@hasse.suse.de>
-	<20061206175423.GA9959@flint.arm.linux.org.uk>
-	<20061207094833.GD4942@hasse.suse.de>
-X-Yow: FEELINGS are cascading over me!!!
-Date: Thu, 07 Dec 2006 11:30:19 +0100
-In-Reply-To: <20061207094833.GD4942@hasse.suse.de> (Jan Blunck's message of
-	"Thu, 7 Dec 2006 10:48:33 +0100")
-Message-ID: <jeirgoathg.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id S1031943AbWLGKaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 05:30:12 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061206234942.79d6db01.akpm@osdl.org> 
+References: <20061206234942.79d6db01.akpm@osdl.org>  <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org> <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl> <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com> <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com> <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl> <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org> <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>,
+       Roland Dreier <rdreier@cisco.com>,
+       Andy Fleming <afleming@freescale.com>,
+       Ben Collins <ben.collins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] Export current_is_keventd() for libphy 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 07 Dec 2006 10:29:39 +0000
+Message-ID: <9392.1165487379@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Blunck <jblunck@suse.de> writes:
+Andrew Morton <akpm@osdl.org> wrote:
 
-> Once again: I refered to "packed attribute on the struct vs. packed attribute
-> on each member of the struct". The alignment shouldn't be different.
+> I guess I don't understand exactly what problem the noautorel stuff is
+> trying to solve.  It _seems_ to me that in all cases we can simply stuff
+> the old `data' field in alongside the controlling work_struct or
+> delayed_work which wants to operate on it.
 
-You are mistaken.  The alignment of a non-packed structure can be greater
-than the maximum alignment of the containing members.
+The problem is that you have to be able to guarantee that the data is still
+accessible once you clear the pending bit.  The pending bit is your only
+guaranteed protection, and once it is clear, the containing structure might be
+deallocated.
 
-Andreas.
+I would like to be able to get rid of the NAR bit too, but I'm not confident
+that in all cases I can.  It'll take a bit more study of the code to be able
+to do that.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+David

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937918AbWLGBZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937933AbWLGBe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937918AbWLGBZB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 20:25:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937919AbWLGBZB
+	id S937933AbWLGBe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 20:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937932AbWLGBe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 20:25:01 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:48526 "EHLO scrub.xs4all.nl"
+	Wed, 6 Dec 2006 20:34:57 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:2038 "EHLO tuxrocks.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937917AbWLGBYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 20:24:45 -0500
-Date: Thu, 7 Dec 2006 02:24:30 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Matthew Wilcox <matthew@wil.cx>, Christoph Lameter <clameter@sgi.com>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <Pine.LNX.4.64.0612061717030.3542@woody.osdl.org>
-Message-ID: <Pine.LNX.4.64.0612070219540.1867@scrub.home>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
- <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
- <20061206220532.GF3013@parisc-linux.org> <Pine.LNX.4.64.0612070130240.1868@scrub.home>
- <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org> <Pine.LNX.4.64.0612070203520.1867@scrub.home>
- <Pine.LNX.4.64.0612061717030.3542@woody.osdl.org>
+	id S937930AbWLGBe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 20:34:56 -0500
+Message-ID: <45776FBC.3040705@tuxrocks.com>
+Date: Wed, 06 Dec 2006 19:34:52 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Remi Colinet <remi.colinet@free.fr>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic at boot with recent pci quirks patch
+References: <45771F0B.8090708@tuxrocks.com> <20061206232714.54ec6f7b@localhost.localdomain> <1165450859.45775e6b5e194@imp3-g19.free.fr>
+In-Reply-To: <1165450859.45775e6b5e194@imp3-g19.free.fr>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 6 Dec 2006, Linus Torvalds wrote:
-
-> > > Any _real_ CPU will simply never care about _anything_ else than just the 
-> > > size of the datum in question.
-> > 
-> > ..or alignment which a dedicated atomic type would allow to be attached.
+Remi Colinet wrote:
+> Frank Sorenson <frank@tuxrocks.com> wrote:
 > 
-> Can you give any example of a real CPU where alignment matters?
+>> The latest -git tree panics at boot for me.  git-bisect traced the
+> offending commit to:
+>> 368c73d4f689dae0807d0a2aa74c61fd2b9b075f is first bad commit
+>> commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f
+>> Author: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>> Date:   Wed Oct 4 00:41:26 2006 +0100
+>>
+>>     PCI: quirks: fix the festering mess that claims to handle IDE quirks
+>>
+>> Hardware is a Dell Inspiron E1705 laptop running FC6 x86_64.
+>>
 > 
-> Sure, it needs to be naturally aligned, but that's true of _any_ type in 
-> the kernel. We don't do unaligneds without "get_unaligned()" and friends.
+> Could you try the following patch (already included in mm tree)?
+> 
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0611.1/1568.html
+> 
+> Remi
 
-m68060 produces a trap for unaligned atomic access, unfortunately standard 
-alignment is smaller than this.
+Yes, that patch does seem to fix the problem.  Is it the right fix?
 
-bye, Roman
+Frank
+

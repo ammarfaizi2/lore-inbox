@@ -1,128 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031922AbWLGJui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031924AbWLGJvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031922AbWLGJui (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 04:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031923AbWLGJui
+	id S1031924AbWLGJvK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031926AbWLGJvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 04:50:38 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46507 "EHLO mx2.mail.elte.hu"
+	Thu, 7 Dec 2006 04:51:10 -0500
+Received: from foo.birdnet.se ([213.88.146.6]:38620 "EHLO foo.birdnet.se"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031922AbWLGJuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 04:50:37 -0500
-Date: Thu, 7 Dec 2006 10:49:43 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] lockdep: print irq-trace info on asserts
-Message-ID: <20061207094943.GA4719@elte.hu>
+	id S1031924AbWLGJvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 04:51:07 -0500
+Message-ID: <20061207095116.27665.qmail@cdy.org>
+Date: Thu, 7 Dec 2006 10:51:16 +0100
+From: Peter Stuge <stuge-linuxbios@cdy.org>
+To: linuxbios@linuxbios.org
+Cc: Andi Kleen <ak@suse.de>, linux-usb-devel@lists.sourceforge.net,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
+Mail-Followup-To: linuxbios@linuxbios.org, Andi Kleen <ak@suse.de>,
+	linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
+References: <5986589C150B2F49A46483AC44C7BCA4907291@ssvlexmb2.amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+In-Reply-To: <5986589C150B2F49A46483AC44C7BCA4907291@ssvlexmb2.amd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] lockdep: print irq-trace info on asserts
-From: Ingo Molnar <mingo@elte.hu>
+On Wed, Dec 06, 2006 at 01:08:14PM -0800, Lu, Yinghai wrote:
+> -----Original Message-----
+> From: Andi Kleen [mailto:ak@suse.de] 
+> Sent: Wednesday, December 06, 2006 12:59 PM
+> 
+> >I haven't looked how the other usb_debug works -- if it's polled
+> >too then it wouldn't have much advantage.
+> 
+> Need to verify if the two sides of debug cable are identical. 
 
-when we print an assert due to scheduling-in-atomic bugs, and if lockdep 
-is enabled, then the IRQ tracing information of lockdep can be printed 
-to pinpoint the code location that disabled interrupts. This saved me 
-quite a bit of debugging time in cases where the backtrace did not 
-identify the irq-disabling site well enough.
+I got my device yesterday and after a small plugfest I can confirm
+that only one end of the device enumerates when connected to an ICH7
+EHCI driven by 2.6.19.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- include/linux/lockdep.h |   16 +++++++++++++---
- kernel/lockdep.c        |    6 +-----
- kernel/sched.c          |    4 ++++
- 3 files changed, 18 insertions(+), 8 deletions(-)
+--8<--
+Bus 001 Device 027: ID 0525:127a Netchip Technology, Inc. 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x0525 Netchip Technology, Inc.
+  idProduct          0x127a 
+  bcdDevice            1.01
+  iManufacturer           1 NetChip
+  iProduct                2 NetChip TurboCONNECT 2.0
+  iSerial                 3 1
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           32
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower                0mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+Device Qualifier (for other device speed):
+  bLength                10
+  bDescriptorType         6
+  bcdUSB               2.00
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  bNumConfigurations      1
+Debug descriptor:
+  bLength                 4
+  bDescriptorType        10
+  bDebugInEndpoint     0x82
+  bDebugOutEndpoint    0x01
+-->8--
 
-Index: linux/include/linux/lockdep.h
-===================================================================
---- linux.orig/include/linux/lockdep.h
-+++ linux/include/linux/lockdep.h
-@@ -282,15 +282,25 @@ struct lock_class_key { };
- #if defined(CONFIG_TRACE_IRQFLAGS) && defined(CONFIG_GENERIC_HARDIRQS)
- extern void early_init_irq_lock_class(void);
- #else
--# define early_init_irq_lock_class()		do { } while (0)
-+static inline void early_init_irq_lock_class(void)
-+{
-+}
- #endif
- 
- #ifdef CONFIG_TRACE_IRQFLAGS
- extern void early_boot_irqs_off(void);
- extern void early_boot_irqs_on(void);
-+extern void print_irqtrace_events(struct task_struct *curr);
- #else
--# define early_boot_irqs_off()			do { } while (0)
--# define early_boot_irqs_on()			do { } while (0)
-+static inline void early_boot_irqs_off(void)
-+{
-+}
-+static inline void early_boot_irqs_on(void)
-+{
-+}
-+static inline void print_irqtrace_events(struct task_struct *curr)
-+{
-+}
- #endif
- 
- /*
-Index: linux/kernel/lockdep.c
-===================================================================
---- linux.orig/kernel/lockdep.c
-+++ linux/kernel/lockdep.c
-@@ -1449,7 +1449,7 @@ check_usage_backwards(struct task_struct
- 	return print_irq_inversion_bug(curr, backwards_match, this, 0, irqclass);
- }
- 
--static inline void print_irqtrace_events(struct task_struct *curr)
-+void print_irqtrace_events(struct task_struct *curr)
- {
- 	printk("irq event stamp: %u\n", curr->irq_events);
- 	printk("hardirqs last  enabled at (%u): ", curr->hardirq_enable_event);
-@@ -1462,10 +1462,6 @@ static inline void print_irqtrace_events
- 	print_ip_sym(curr->softirq_disable_ip);
- }
- 
--#else
--static inline void print_irqtrace_events(struct task_struct *curr)
--{
--}
- #endif
- 
- static int
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -3353,6 +3353,8 @@ asmlinkage void __sched schedule(void)
- 			"%s/0x%08x/%d\n",
- 			current->comm, preempt_count(), current->pid);
- 		debug_show_held_locks(current);
-+		if (irqs_disabled())
-+			print_irqtrace_events(current);
- 		dump_stack();
- 	}
- 	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
-@@ -6895,6 +6897,8 @@ void __might_sleep(char *file, int line)
- 		printk("in_atomic():%d, irqs_disabled():%d\n",
- 			in_atomic(), irqs_disabled());
- 		debug_show_held_locks(current);
-+		if (irqs_disabled())
-+			print_irqtrace_events(current);
- 		dump_stack();
- 	}
- #endif
+The device is in fact not self-powered.
+
+My theory is that the same set of descriptors are used for both ends,
+but one end has been locked to address 127 in order to work with
+simpler debug port drivers that assume it will be there.
+
+I guess that the self-powered error is also to simplify life for
+debug port drivers. IIRC most if not all USB power management
+concerns are noops for debug ports.
+
+
+//Peter

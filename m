@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162554AbWLGRQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163241AbWLGTy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162554AbWLGRQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 12:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162553AbWLGRQ0
+	id S1163241AbWLGTy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 14:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163244AbWLGTy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 12:16:26 -0500
-Received: from kurby.webscope.com ([204.141.84.54]:55394 "EHLO
-	kirby.webscope.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1162554AbWLGRQZ (ORCPT
+	Thu, 7 Dec 2006 14:54:26 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:4409 "EHLO
+	mallaury.nerim.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1163241AbWLGTyZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 12:16:25 -0500
-Message-ID: <45784BD7.7010605@linuxtv.org>
-Date: Thu, 07 Dec 2006 12:13:59 -0500
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
-MIME-Version: 1.0
+	Thu, 7 Dec 2006 14:54:25 -0500
+Date: Thu, 7 Dec 2006 20:54:20 +0100
+From: Jean Delvare <khali@linux-fr.org>
 To: Adrian Bunk <bunk@stusta.de>
-CC: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] cx88/saa7134: remove unused
- -DHAVE_VIDEO_BUF_DVB
-References: <20061207150028.GJ8963@stusta.de> <457834E1.1090406@linuxtv.org> <20061207164245.GK8963@stusta.de>
-In-Reply-To: <20061207164245.GK8963@stusta.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, Daniel Drake <dsd@gentoo.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Bauke Jan Douma <bjdouma@xs4all.nl>,
+       Tomasz Koprowski <tomek@koprowski.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: RFC: PCI quirks update for 2.6.16
+Message-Id: <20061207205420.15622d52.khali@linux-fr.org>
+In-Reply-To: <20061207132430.GF8963@stusta.de>
+References: <20061207132430.GF8963@stusta.de>
+X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.8.20; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Dec 07, 2006 at 10:36:01AM -0500, Michael Krufky wrote:
->> Adrian Bunk wrote:
->>> This patch removes the unused HAVE_VIDEO_BUF_DVB define.
+Hi Adrian,
 
-[snip]
+On Thu, 7 Dec 2006 14:24:30 +0100, Adrian Bunk wrote:
+> While checking how to fix the VIA quirk regressions for several users 
+> introduced into -stable in 2.6.16.17, I started looking through all 
+> drivers/pci/quirks.c updates up to both -stable and 2.6.19.
+> 
+> Below is the selection the seemed good and safe.
+> 
+> Any comments on whether it's really good or whether I should change 
+> anything?
+> (...)
+> Jean Delvare (1):
+>       PCI: Unhide the SMBus on Asus PU-DLS
 
->> ...We need this in order to allow compilation of the cx88 / saa7134 modules
->> without DVB support. (analog only)
->  
-> Ah, you added them in v4l-dvb last year.
+Should be safe.
 
-You are correct:  Tue Oct 11 20:11:34 2005 +0000 (14 months ago)
+> Tomasz Koprowski (1):
+>       PCI: SMBus unhide on HP Compaq nx6110
 
-http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=56cf49b544f0
+Bug #6944 might be related to this one, so I'd not include it in
+2.6.16-stable.
 
-> But they are neither in Linus' tree nor in the v4l-dvb git tree that is 
-> in the latest -mm.
-
-hmm... looks like some changesets never made it over to git from our hg tree.
-
-> Compilation of cx88 and saa7134 without DVB works fine in these trees, 
-> so what's the story behind this?
-
-It's a bug -- looks like CONFIG_VIDEO_BUF_DVB is being enabled, regardless
-of whether or not it is selected -- otherwise we'd get other compiler errors,
-because both cx88 and saa7134 have dependencies on video-buf-dvb.
-
-VIDEO_BUF_DVB is being build without it's dependency, DVB_CORE -- that is
-the only reason why the build is still working, but it sounds unstable to me.
-
-CONFIG_VIDEO_BUF_DVB is set inside drivers/media/Kconfig, with zero
-dependencies... In fact, VIDEO_BUF_DVB "depends on DVB_CORE" , but
-this is not being reflected in Kconfig.
-
-Hmm... looks like a bit of a mess.
-
-The story is much clearer now... Looks like we should in fact apply your
-patch, Adrian, but we will also have to make the following additional
-changes:
-
-- add "depends on DVB_CORE" to the Kconfig entry for VIDEO_BUF_DVB
-- convert the #ifdef tests in the hg repository for HAVE_VIDEO_BUF_DVB
-	to look for the CONFIG_VIDEO_BUF_DVB instead
-- generate a patch against Linus' tree that add's these #ifdefs to the
-	cx88 and saa7134 drivers.
-
-If you dont mind, I'd like to take care of this stuff myself.  I will prepare
-these patches tomorrow, and I'll have them applied to both our v4l-dvb.hg
-repository on linuxtv.org, and I'll also ask Mauro to merge them into his git
-tree before his next pull request to Linus.
-
-Thanks, Adrian, for pointing out this inconsistency.
-
-
-Cheers,
-
-Michael Krufky
-
+-- 
+Jean Delvare

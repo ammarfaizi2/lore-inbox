@@ -1,113 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031766AbWLGHVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031772AbWLGHWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031766AbWLGHVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 02:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031772AbWLGHVm
+	id S1031772AbWLGHWn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 02:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031774AbWLGHWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 02:21:42 -0500
-Received: from nf-out-0910.google.com ([64.233.182.191]:36783 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031766AbWLGHVl (ORCPT
+	Thu, 7 Dec 2006 02:22:43 -0500
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:44800
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1031772AbWLGHWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 02:21:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ByqMANpErMAJgqpH5454r/coM3KNhLB14Hg2wyPXZQIHeO5S0ltU8P2e5b9NsfOn/cp520vtDYnq+It4spune6Ekv5BTqx26/fkgFnvR+6v17yqL5UJz3RI2AkoQRk+3hc4nI6hO+Kk0zDYDhOHy98kFoZZ+9RieGvVXiipG8lo=
-Message-ID: <a10e25a30612062321n5f01ed91y3095a0ad0f8cfee8@mail.gmail.com>
-Date: Wed, 6 Dec 2006 23:21:36 -0800
-From: "Kunal Trivedi" <ktrivedilkml@gmail.com>
-To: linuxkernel <linux-kernel@vger.kernel.org>
-Subject: Re: dentry cache grows to really large number on 64bit machine
-In-Reply-To: <a10e25a30612061505i4e9ea428g473d5bead437845a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 7 Dec 2006 02:22:42 -0500
+Date: Wed, 06 Dec 2006 23:22:53 -0800 (PST)
+Message-Id: <20061206.232253.28806606.davem@davemloft.net>
+To: mattjreimer@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: D-cache aliasing issue in cow_user_page
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <f383264b0612062220j283f0ad6u5be9db6ac79dbbe9@mail.gmail.com>
+References: <f383264b0612061319k16809e35tb04d04fa16f976b1@mail.gmail.com>
+	<20061206.164616.74731030.davem@davemloft.net>
+	<f383264b0612062220j283f0ad6u5be9db6ac79dbbe9@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a10e25a30612061505i4e9ea428g473d5bead437845a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Another piece of information...
-If i do on shell.
+From: "Matt Reimer" <mattjreimer@gmail.com>
+Date: Wed, 6 Dec 2006 22:20:22 -0800
 
-# while 1
-# ./grow_dentry
-# end
-(grow_dentry is C code I've posted in previous msg.)
+> Ok, good to know, since that's what we're doing with ARM drivers
+> presently. What's the preferred method going forward?
 
-Then dentry_cache grows really fast.
-
-But if within 'C' code if I write while(1), then everything is okay.
-(No substantial growth ).
-
-Thanks
--Kunal
-
-On 12/6/06, Kunal Trivedi <ktrivedilkml@gmail.com> wrote:
-> Hi,
-> I am running 2.6.18 kernel on 64 bit AMD machine. (procinfo attached
-> at the end of the mail). One of the things I have noticed that
-> dentry_cache grows really fast under certain code path.
-> So, far I have not seen any problems, but I would like to get some
-> more input on this subject. Is it okay for dentry_cache to grow that
-> much ?
->
-> I've run following program for an ~1.00 hour. And my slabinfo shows following.
->
-> # cat /proc/slabinfo | grep dentry
-> dentry_cache      5228333 5228333    224   17    1 : tunables  120
-> 60    8 : slabdata 307549 307549      0
->
->
-> # cat /proc/meminfo
-> MemTotal:      8173080 kB
-> MemFree:       6787852 kB
-> Buffers:         42048 kB
-> Cached:          72616 kB
-> SwapCached:          0 kB
-> Active:          88608 kB
-> Inactive:        29796 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:      8173080 kB
-> LowFree:       6787852 kB
-> SwapTotal:     2096472 kB
-> SwapFree:      2096472 kB
-> Dirty:              48 kB
-> Writeback:           0 kB
-> AnonPages:        3716 kB
-> Mapped:           3336 kB
-> Slab:          1251292 kB
-> PageTables:        192 kB
-> NFS_Unstable:        0 kB
-> Bounce:              0 kB
-> CommitLimit:  10269552 kB
-> Committed_AS:    11500 kB
-> VmallocTotal: 34359738367 kB
-> VmallocUsed:      1272 kB
-> VmallocChunk: 34359737015 kB
-> HugePages_Total:     0
-> HugePages_Free:      0
-> HugePages_Rsvd:      0
-> Hugepagesize:     2048 kB
->
->
-> int
-> main()
-> {
->     int fd;
->     char fname[] = "/tmp/proc-output-XXXXXX";
->
->     fd = mkstemp(fname);
->     close(fd);
->     unlink(fname);
->     return 0;
-> }
->
-> Please advice,
->
-> Thanks
-> -Kunal
->
+There are multiple ways provided to solve the problem so that
+platforms can use whichever variant works best.

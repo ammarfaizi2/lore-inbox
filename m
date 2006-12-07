@@ -1,89 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163434AbWLGVlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938007AbWLGTks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163434AbWLGVlf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:41:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163437AbWLGVlf
+	id S938007AbWLGTks (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 14:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938009AbWLGTks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:41:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:37302 "EHLO
-	e31.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163434AbWLGVle (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:41:34 -0500
-Message-ID: <45788A56.9010706@us.ibm.com>
-Date: Thu, 07 Dec 2006 13:40:38 -0800
-From: Haren Myneni <haren@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Thu, 7 Dec 2006 14:40:48 -0500
+Received: from mail1.utc.com ([192.249.46.190]:43682 "EHLO mail1.utc.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S938006AbWLGTkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 14:40:47 -0500
+Message-ID: <45786E32.3010201@cybsft.com>
+Date: Thu, 07 Dec 2006 13:40:34 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-To: vgoyal@in.ibm.com
-CC: Michael Neuling <mikey@neuling.org>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@ftp.linux.org.uk>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Fastboot] [PATCH] free initrds boot option
-References: <4410.1165450723@neuling.org>	<20061206163021.f434f09b.akpm@osdl.org> <4577624A.6010008@zytor.com>	<13639.1165462578@neuling.org> <20061207164756.GA13873@in.ibm.com>
-In-Reply-To: <20061207164756.GA13873@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Giandomenico De Tullio <ghisha@email.it>
+Subject: Re: v2.6.19-rt6, yum/rpm
+References: <20061205171114.GA25926@elte.hu> <4577FC21.1080407@cybsft.com> <20061207121344.GA19749@elte.hu> <4578391E.40001@cybsft.com> <20061207165751.GA2720@elte.hu>
+In-Reply-To: <20061207165751.GA2720@elte.hu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090709080209010705000209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal wrote:
+This is a multi-part message in MIME format.
+--------------090709080209010705000209
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
->On Thu, Dec 07, 2006 at 02:36:18PM +1100, Michael Neuling wrote:
->  
->
->>>I would have to agree with this; it also seems a bit odd to me to have
->>>this at all (kexec provides a new kernel image, surely it also
->>>provides a new initrd image???)
->>>      
->>>
->
->Yes, kexec provides the option --initrd, so that a user can supply an
->initrd image to be loaded along with kernel.
->
->  
->
->>The first boot will need to hold a copy of the in memory fs for the
->>second boot.  This image can be large (much larger than the kernel),
->>hence we can save time when the memory loader is slow.  Also, it reduces
->>the memory footprint while extracting the first boot since you don't
->>need another copy of the fs.
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+>> Ingo Molnar wrote:
 >>
->>    
->>
->
->Is there a kexec-tools patch too? How does second kernel know about
->the location of the first kernel's initrd to be reused?
->  
->
-kexec-tools has to be modified to pass the first kernel initrd. On 
-powerpc, initrd locations are exported using device-tree. At present, 
-kexec-tool ignores the first kernel initrd property values and creates 
-new initrd properties if the user passes '--initrd' option to the kexec 
-command. So, will be an issue unless first kernel device-tree is passed 
-as buffer.
+>> The attached patch is necessary to build 2.6.19-rt8 without KEXEC 
+>> enabled. Without KEXEC enabled crash.c doesn't get included. I believe 
+>> this is correct.
+> 
+> ah, indeed. I went for a slightly different approach - see the patch 
+> below. Sending an NMI to all CPUs is not something that is tied to 
+> KEXEC, it belongs into nmi.c.
+> 
+> 	Ingo
 
->In general kexec can overwrite all the previous kernel's memory. It
->just knows about the segments the user has passed to it and it will
->place these segments to their destination locations. There are no
->gurantees that in this process some data from first kernel will not
->be overwritten. So it might not be a very safe scheme.
->  
->
-Initrd memory can be excluded like other segments such as RTAS and TCE 
-on powerpc. However it is not implemented yet even on powerpc and is an 
-issue on other archs.
+Much better I think. It still requires the patch below, which includes
+mach_ipi.h, to build here.
 
-Thanks
-Haren
 
->Thanks
->Vivek
->_______________________________________________
->fastboot mailing list
->fastboot@lists.osdl.org
->https://lists.osdl.org/mailman/listinfo/fastboot
->  
->
+-- 
+   kr
 
+--------------090709080209010705000209
+Content-Type: text/x-patch;
+ name="nmifix2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nmifix2.patch"
+
+--- linux-2.6.19/arch/i386/kernel/nmi.c.orig	2006-12-07 13:03:12.000000000 -0600
++++ linux-2.6.19/arch/i386/kernel/nmi.c	2006-12-07 13:03:21.000000000 -0600
+@@ -30,6 +30,7 @@
+ #include <asm/intel_arch_perfmon.h>
+ 
+ #include "mach_traps.h"
++#include <mach_ipi.h>
+ 
+ int unknown_nmi_panic;
+ int nmi_watchdog_enabled;
+
+--------------090709080209010705000209--

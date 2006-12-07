@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425437AbWLHMDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163360AbWLGU7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425437AbWLHMDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425448AbWLHMC7
+	id S1163360AbWLGU7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 15:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163357AbWLGU7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:02:59 -0500
-Received: from cantor.suse.de ([195.135.220.2]:40863 "EHLO mx1.suse.de"
+	Thu, 7 Dec 2006 15:59:21 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:50638 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425443AbWLHMCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:02:46 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 23:02:58 +1100
-Message-Id: <1061208120258.18281@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 013 of 13] knfsd: SUNRPC: fix up svc_create_socket() to take a sockaddr struct + length
-References: <20061208225655.17970.patches@notabene>
+	id S1163354AbWLGU7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 15:59:20 -0500
+Date: Thu, 7 Dec 2006 21:58:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
+       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Giandomenico De Tullio <ghisha@email.it>
+Subject: Re: v2.6.19-rt6, yum/rpm
+Message-ID: <20061207205819.GA21953@elte.hu>
+References: <20061205171114.GA25926@elte.hu> <1165524358.9244.33.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165524358.9244.33.camel@cmn3.stanford.edu>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Chuck Lever <chuck.lever@oracle.com>
+* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
 
-Replace existing svc_create_socket() API to allow callers to pass addresses
-larger than a sockaddr_in.
+> Much better performance in terms of xruns with Jackd. Hardly any at 
+> all as it should be. I'm starting to test -rt8 right now.
+> 
+> Now, I still don't have an smp machine to test so the improvement 
+> could be because I'm just running 64 bit up instead of smp. Or it 
+> could have been the hardware on that other machine that had some 
+> problem (either because it was starting to fail or because the kernel 
+> drivers for that hardware were somehow triggering the xruns).
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
-Signed-off-by: Neil Brown <neilb@suse.de>
+i think it's the UP vs. SMP difference. We are chasing some SMP 
+latencies right now that trigger on boxes that have deeper C sleep 
+states. idle=poll seems to work around those problems.
 
-### Diffstat output
- ./net/sunrpc/svcsock.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
-
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-08 13:59:22.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-08 14:00:31.000000000 +1100
-@@ -1680,7 +1680,7 @@ EXPORT_SYMBOL_GPL(svc_addsock);
-  * Create socket for RPC service.
-  */
- static int svc_create_socket(struct svc_serv *serv, int protocol,
--				struct sockaddr_in *sin, int flags)
-+				struct sockaddr *sin, int len, int flags)
- {
- 	struct svc_sock	*svsk;
- 	struct socket	*sock;
-@@ -1690,8 +1690,7 @@ static int svc_create_socket(struct svc_
- 
- 	dprintk("svc: svc_create_socket(%s, %d, %s)\n",
- 			serv->sv_program->pg_name, protocol,
--			__svc_print_addr((struct sockaddr *) sin, buf,
--								sizeof(buf)));
-+			__svc_print_addr(sin, buf, sizeof(buf)));
- 
- 	if (protocol != IPPROTO_UDP && protocol != IPPROTO_TCP) {
- 		printk(KERN_WARNING "svc: only UDP and TCP "
-@@ -1700,15 +1699,15 @@ static int svc_create_socket(struct svc_
- 	}
- 	type = (protocol == IPPROTO_UDP)? SOCK_DGRAM : SOCK_STREAM;
- 
--	if ((error = sock_create_kern(PF_INET, type, protocol, &sock)) < 0)
-+	error = sock_create_kern(sin->sa_family, type, protocol, &sock);
-+	if (error < 0)
- 		return error;
- 
- 	svc_reclassify_socket(sock);
- 
- 	if (type == SOCK_STREAM)
--		sock->sk->sk_reuse = 1; /* allow address reuse */
--	error = kernel_bind(sock, (struct sockaddr *) sin,
--					sizeof(*sin));
-+		sock->sk->sk_reuse = 1;		/* allow address reuse */
-+	error = kernel_bind(sock, sin, len);
- 	if (error < 0)
- 		goto bummer;
- 
-@@ -1786,7 +1785,8 @@ int svc_makesock(struct svc_serv *serv, 
- 	};
- 
- 	dprintk("svc: creating socket proto = %d\n", protocol);
--	return svc_create_socket(serv, protocol, &sin, flags);
-+	return svc_create_socket(serv, protocol, (struct sockaddr *) &sin,
-+							sizeof(sin), flags);
- }
- 
- /*
+	Ingo

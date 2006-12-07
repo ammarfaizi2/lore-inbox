@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032305AbWLGPG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937975AbWLGPUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032305AbWLGPG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 10:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032306AbWLGPG7
+	id S937975AbWLGPUb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 10:20:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937977AbWLGPUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 10:06:59 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:62035 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032305AbWLGPG6 (ORCPT
+	Thu, 7 Dec 2006 10:20:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35422 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937975AbWLGPUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 10:06:58 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Jan Glauber <jan.glauber@de.ibm.com>
-Subject: Re: [RFC][PATCH] Pseudo-random number generator
-Date: Thu, 7 Dec 2006 16:06:33 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
-References: <1164979155.5882.23.camel@bender>
-In-Reply-To: <1164979155.5882.23.camel@bender>
+	Thu, 7 Dec 2006 10:20:30 -0500
+Date: Thu, 7 Dec 2006 15:20:27 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Luming.yu@intel.com, zap@homelink.ru, randy.dunlap@oracle.com,
+       kernel-discuss@handhelds.org
+Subject: Re: Display class
+In-Reply-To: <20061206194442.422c60d3.maxextreme@gmail.com>
+Message-ID: <Pine.LNX.4.64.0612071439040.31668@pentafluge.infradead.org>
+References: <20061206194442.422c60d3.maxextreme@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612071606.33951.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 December 2006 14:19, Jan Glauber wrote:
-> I've chosen the char driver since it allows the user to decide which pseudo-random
-> numbers he wants to use. That means there is a new interface for the s390
-> PRNG, called /dev/prandom.
+
+>   - I would remove "struct device *dev, void *devdata" of display_device_register()
+>     Are they neccesary for other display drivers? I have to pass NULL right now.
+
+Yes. Passing in a struct device allows you a link between the device and 
+the class. If you pass in the device for the parport a link to the parport 
+device would exist in you displayX directory. The devdata is used by the 
+probe function to get data about the monitor if it is not NULL.
+
+In the case of most desktop monitors they have EDID blocks. You can 
+retrieve them (devdata) and it gets parsed thus you have detail data
+about the monitor. In your case it can be null. 
+
+>   - I would add a paramtere ("char *name") to display_device_register() so we
+>     set the name when registering. Right now I have to set my name after inited,
+>     and this is a Linux module and not a person borning, right? ;)
+
+The probe function gets this for you. In your case you would have a probe 
+method that would just fill in the name of the LCD. For me using the ACPI 
+video driver I get the name for my monitor
+
+LEN  15"XGA 200nit
+
+Which is the manufacturer - monitor id - ascii block.
+
+>   - I would add a read/writeable attr called "rate" for set/unset the refresh rate
+>     of a display.
+
+I suggest creating a group for your driver. See device.h for 
+group_attributes.
+ 
+>   - I was going to maintain the drivers/auxdisplay/* tree.
+>     Are you going to maintain the driver? I think so, just for being sure.
+
+Yes. I need it for the ACPI video and fbdev layer. Remember its in the 
+early stages yet. 
+
+> P.S.
 > 
-> I would like to know if there are any objections, especially with the chosen device
-> name.
+>   When I was working at 2.6.19-rc6-mm2 it worked all fine, but now
+>   I have copied it to git7 I'm getting some weird segmentation faults
+>   (oops) when at cfag12864bfb_init, at mutex_lock() in
+>   display_device_unregister module... I think unrelated (?), but I will
+>   look for some mistake I made.
 
-This may be a stupid question, but what is it _good_ for? My understanding is
-that the crypt_s390_kmc() opcodes work in user mode as well as kernel mode, so
-you should not need a character device at all, but maybe just a small tool
-that spits prandom data to stdout.
+Did you solve the problem?
 
-	Arnd <><

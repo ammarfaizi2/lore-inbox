@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937866AbWLGAzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937877AbWLGA5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937866AbWLGAzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 19:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937869AbWLGAzJ
+	id S937877AbWLGA5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 19:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937878AbWLGA5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 19:55:09 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:60470 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937866AbWLGAzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 19:55:07 -0500
-Date: Wed, 6 Dec 2006 16:54:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Matthew Wilcox <matthew@wil.cx>, Christoph Lameter <clameter@sgi.com>,
-       David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <Pine.LNX.4.64.0612070130240.1868@scrub.home>
-Message-ID: <Pine.LNX.4.64.0612061650240.3542@woody.osdl.org>
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <20061206213626.GE3013@parisc-linux.org>
- <Pine.LNX.4.64.0612061345160.28672@schroedinger.engr.sgi.com>
- <20061206220532.GF3013@parisc-linux.org> <Pine.LNX.4.64.0612070130240.1868@scrub.home>
+	Wed, 6 Dec 2006 19:57:50 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:48260 "EHLO
+	adelphi.physics.adelaide.edu.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S937877AbWLGA5t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 19:57:49 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200612070057.kB70vDex019555@turbo.physics.adelaide.edu.au>
+Subject: Re: 2.6.19-rt3: compilation failure
+To: dwalker@mvista.com
+Date: Thu, 7 Dec 2006 11:27:13 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1165451943.30279.2.camel@dwalker1.mvista.com> from "Daniel Walker" at Dec 06, 2006 04:39:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-
-On Thu, 7 Dec 2006, Roman Zippel wrote:
-> On Wed, 6 Dec 2006, Matthew Wilcox wrote:
+> On Thu, 2006-12-07 at 10:58 +1030, Jonathan Woithe wrote:
+> > Upon an attempt to compile 2.6.19-rt3 I encountered the following compile
+> > error:
 > 
-> > To be honest, it'd be much easier if we only defined these operations on
-> > atomic_t's.  We have all the infrastructure in place for them, and
-> > they're fairly well understood.  If you need different sizes, I'm OK
-> > with an atomic_pointer_t, or whatever.
-> 
-> FWIW Seconded.
+> This was fix in -rt5 or 6 I think . The !PREEMPT_RT case. Current
+> version is -rt7
 
-I disagree.
+Ah right, good.  I did grab rt6 yesterday but forgot to bring it home.
+That'll learn me. :)
 
-Any _real_ CPU will simply never care about _anything_ else than just the 
-size of the datum in question. There's absolutely no point to only allow 
-it on certain types, especially as we _know_ those certain types are 
-already going to be more than one, and we also know that they are going to 
-be different sizes. In other words, in reality, we have to handle a 
-sizeable subset of the whole generic situation, and the "on certain types 
-only" situation is only going to be awkward and irritating.
-
-For example, would we have a different "cmpxchg_ptr()" function for the 
-atomic pointer thing? With any reasonable CPU just depending on the _size_ 
-of the type, I don't see what the problem is with just doing the 
-bog-standard "cmpxchg_8/16/32/64" and having the bog-standard case- 
-statement in a header file to do it all automatically for you, and then we 
-don't need to worry about it.
-
-		Linus
+Regards
+  jonathan

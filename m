@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164387AbWLHClU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424807AbWLHGso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164387AbWLHClU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 21:41:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164385AbWLHClU
+	id S1424807AbWLHGso (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 01:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424809AbWLHGso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 21:41:20 -0500
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:47309 "EHLO
-	stout.engsoc.carleton.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1164387AbWLHClT (ORCPT
+	Fri, 8 Dec 2006 01:48:44 -0500
+Received: from linux35.cqservers.com ([75.126.19.34]:47103 "EHLO
+	linux35.cqservers.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424807AbWLHGso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 21:41:19 -0500
-Date: Thu, 7 Dec 2006 21:41:04 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Cc: matthew@wil.cx, grundler@parisc-linux.org, kyle@parisc-linux.org,
-       linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [PATCH] parisc: pdcpat remove extra brackets
-Message-ID: <20061208024104.GA2606@athena.road.mcmartin.ca>
-References: <200611301020.51261.m.kozlowski@tuxland.pl>
+	Fri, 8 Dec 2006 01:48:44 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Picasso Events Team
+Date: Thu, 07 Dec 2006 10:06:05 -0600
+From: "Picasso Middle East | Events Team" <glenn@picassome.com>
+Reply-To: glenn@picassome.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200611301020.51261.m.kozlowski@tuxland.pl>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Mailer-ListID: 975
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1GsZXH-0001IY-Q3@linux35.cqservers.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - linux35.cqservers.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - picassome.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2006 at 10:20:50AM +0100, Mariusz Kozlowski wrote:
-> Hello,
-> 
-> 	This patch removes extra brackets.
-> 
-> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-> 
->  include/asm-parisc/pdcpat.h |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
 
-applied, thanks.
+Take the Lead with Us!
+www.picassome.com

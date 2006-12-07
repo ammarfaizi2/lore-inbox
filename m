@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425988AbWLHRVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163462AbWLGVxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425988AbWLHRVJ (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 12:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426037AbWLHRVJ
+	id S1163462AbWLGVxC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 16:53:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163463AbWLGVxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 12:21:09 -0500
-Received: from ug-out-1314.google.com ([66.249.92.172]:31787 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425988AbWLHRVF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 12:21:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=BAtywSJE0w1MeP7VaFNAUghzPFZdL36RgJFcBn266pXtlb2H3mHS4LAyCFLEac9XRAcT+4pjHa5w2OzG4vrOAn0jucF+9oEfhQxyIx8IsFjqPNVzcdb6Z5yjYEGZUroGHMMuhu9oyKKk/95fAJ57TdQnjnBKWD3QLXCLmocF0jI=
-Message-ID: <3c698a820612080921u20a957d9x1ac1e01e6734d025@mail.gmail.com>
-Date: Fri, 8 Dec 2006 12:21:04 -0500
-From: "Maria Short" <mgolod@ieee.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux slack space question
+	Thu, 7 Dec 2006 16:53:01 -0500
+Received: from mga03.intel.com ([143.182.124.21]:19667 "EHLO mga03.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1163465AbWLGVxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 16:53:01 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,511,1157353200"; 
+   d="scan'208"; a="155331496:sNHT19499802"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nate Diller'" <nate.diller@gmail.com>
+Cc: "Jens Axboe" <jens.axboe@oracle.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] speed up single bio_vec allocation
+Date: Thu, 7 Dec 2006 13:52:59 -0800
+Message-ID: <000201c71a4a$0fa32280$ff0da8c0@amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: 9771b153b2158226
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AccaSSI4eoPBtsi+SuqmPbLUZsy62gAABi1g
+In-Reply-To: <5c49b0ed0612071346g5bccedd5q709e5ba66808c7fc@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question regarding how the Linux kernel handles slack space.
-I know that the ext3 filesystems typically use 1,2 or 4 KB blocks and
-if a file is not an even multiple of the block size then the last
-allocated block will not be completely filled, the remaining space is
-wasted as slack space.
+Nate Diller wrote on Thursday, December 07, 2006 1:46 PM
+> the current code is straightforward and obviously correct.  you want
+> to make the alloc/dealloc paths more complex, by special-casing for an
+> arbitrary limit of "small" I/O, AFAICT.  of *course* you can expect
+> less overhead when you're doing one large I/O vs. two small ones,
+> that's the whole reason we have all this code to try to coalesce
+> contiguous I/O, do readahead, swap page clustering, etc.  we *want*
+> more complexity if it will get us bigger I/Os.  I don't see why we
+> want more complexity to reduce the *inherent* penalty of doing smaller
+> ones.
 
-What I need is the code in the kernel that does that. I have been
-looking at http://lxr.linux.no/source/fs/ext3/inode.c but I could not
-find the specific code for partially filling the last block and
-placing an EOF at the end, leaving the rest to slack space.
+You should check out the latest proposal from Jens Axboe which treats
+all biovec size the same and stuff it along with struct bio.  I think
+it is a better approach than my first cut of special casing 1 segment
+biovec.  His patch will speed up all sized I/O.
 
-Please forward the answer to mgolod@ieee.org as soon as possible.
-
-Thank you very much.
+- Ken

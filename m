@@ -1,346 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032393AbWLGQtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163336AbWLGU5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032393AbWLGQtm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 11:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032398AbWLGQtl
+	id S1163336AbWLGU5K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 15:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163352AbWLGU5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 11:49:41 -0500
-Received: from cacti.profiwh.com ([85.93.165.66]:50478 "EHLO cacti.profiwh.com"
+	Thu, 7 Dec 2006 15:57:10 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:44033 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032393AbWLGQtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 11:49:40 -0500
-Message-id: <2468138171231116414@wsc.cz>
-In-reply-to: <45776D4F.6070806@gmail.com>
-References: <45776D4F.6070806@gmail.com>, <1165451982-AXRLGS2HCEVCUY1@www.vabmail.com>
-Subject: [PATCH 1/1] Char: isicom, fix card locking
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Eric Fox <efox@einsteinindustries.com>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Thu,  7 Dec 2006 17:49:40 +0100 (CET)
+	id S1163336AbWLGU5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 15:57:07 -0500
+Date: Thu, 7 Dec 2006 21:55:22 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan <alan@lxorguk.ukuu.org.uk>, Len Brown <lenb@kernel.org>,
+       linux-kernel@vger.kernel.org, ak@suse.de,
+       Linus Torvalds <torvalds@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [patch] net: dev_watchdog() locking fix
+Message-ID: <20061207205521.GA21329@elte.hu>
+References: <20061206223025.GA17227@elte.hu> <200612061857.30248.len.brown@intel.com> <20061207121135.GA15529@elte.hu> <20061207123011.4b723788@localhost.localdomain> <20061207123836.213c3214.akpm@osdl.org> <20061207204745.GC13327@elte.hu> <20061207204942.GA20524@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061207204942.GA20524@elte.hu>
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -2.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could you test this one and turn on lock debugging?
-(It's applicable instead of the last one.)
 
---
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-isicom, fix card locking
+> > patch below should apply to tail of current-ish -mm. Build and boot 
+> > tested on x86_64.
+> 
+> btw., lockdep noticed a locking breakage in netconsole, see the log 
+> below. My guess: dev_watchdog shouldnt be taking the lock without _bh.
 
-- Somebody omitted spin_unlock in interrupt handler and hence card causes
-  deadlock. Add two unlocks, before returning from handler, if the lock was
-  acquired before.
-- Recursive locking causes deadlock, fix this by avoiding recursion.
-Thanks Eric Fox <efox@einsteinindustries.com> for pointing these out.
+fallout of the recent big networking merge i guess. Tested fix below. 
+David, Herbert, do you agree with it, or is it a false positive?
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+	Ingo
 
+------------->
+Subject: [patch] net: dev_watchdog() locking fix
+From: Ingo Molnar <mingo@elte.hu>
+
+lockdep noticed the following bug:
+
+=================================
+[ INFO: inconsistent lock state ]
+2.6.19-mm1 #4
+---------------------------------
+inconsistent {softirq-on-W} -> {in-softirq-W} usage.
+swapper/0 [HC0[0]:SC1[1]:HE1:SE0] takes:
+ (&dev->_xmit_lock){-+..}, at: [<ffffffff80453151>] dev_watchdog+0x15/0xe0
+{softirq-on-W} state was registered at:
+  [<ffffffff80251078>] mark_lock+0x78/0x3cf
+  [<ffffffff80251422>] mark_held_locks+0x53/0x71
+  [<ffffffff802515ed>] trace_hardirqs_on+0x113/0x137
+  [<ffffffff803cda5f>] rtl8139_poll+0x3c9/0x3ee
+  [<ffffffff8044f03d>] netpoll_poll+0xa1/0x32f
+  [<ffffffff8044ef44>] netpoll_send_skb+0xdf/0x137
+  [<ffffffff8044f5b4>] netpoll_send_udp+0x263/0x270
+  [<ffffffff803ce632>] write_msg+0x4c/0x7e
+  [<ffffffff8023671b>] __call_console_drivers+0x5f/0x70
+  [<ffffffff80236790>] _call_console_drivers+0x64/0x68
+  [<ffffffff80236e6c>] release_console_sem+0x148/0x207
+  [<ffffffff80237165>] register_console+0x1b1/0x1ba
+  [<ffffffff803ce5b4>] init_netconsole+0x54/0x68
+  [<ffffffff802071d9>] init+0x178/0x347
+  [<ffffffff8020ab98>] child_rip+0xa/0x12
+  [<ffffffffffffffff>] 0xffffffffffffffff
+irq event stamp: 23912
+hardirqs last  enabled at (23912): [<ffffffff804aedc5>] _spin_unlock_irq+0x28/0x52
+hardirqs last disabled at (23911): [<ffffffff804aecec>] _spin_lock_irq+0xf/0x3e
+softirqs last  enabled at (23896): [<ffffffff8023befd>] __do_softirq+0xdb/0xe4
+softirqs last disabled at (23909): [<ffffffff8020af0c>] call_softirq+0x1c/0x30
+
+other info that might help us debug this:
+no locks held by swapper/0.
+
+stack backtrace:
+
+Call Trace:
+ [<ffffffff8020b304>] dump_trace+0xc1/0x3eb
+ [<ffffffff8020b667>] show_trace+0x39/0x57
+ [<ffffffff8020b89c>] dump_stack+0x13/0x15
+ [<ffffffff80250cff>] print_usage_bug+0x26b/0x27a
+ [<ffffffff8025112b>] mark_lock+0x12b/0x3cf
+ [<ffffffff80251b0b>] __lock_acquire+0x3c0/0xa0f
+ [<ffffffff80252426>] lock_acquire+0x4d/0x67
+ [<ffffffff804ae747>] _spin_lock+0x2c/0x38
+ [<ffffffff80453151>] dev_watchdog+0x15/0xe0
+ [<ffffffff802401d9>] run_timer_softirq+0x167/0x1db
+ [<ffffffff8023be84>] __do_softirq+0x62/0xe4
+ [<ffffffff8020af0c>] call_softirq+0x1c/0x30
+ [<ffffffff8020c6a2>] do_softirq+0x36/0x9c
+ [<ffffffff8023bb47>] irq_exit+0x45/0x51
+ [<ffffffff80219d79>] smp_apic_timer_interrupt+0x49/0x5c
+ [<ffffffff8020a9bb>] apic_timer_interrupt+0x6b/0x70
+ [<ffffffff80208823>] default_idle+0x36/0x50
+ [<ffffffff802088d8>] cpu_idle+0x9b/0xd4
+ [<ffffffff802193f9>] start_secondary+0x498/0x4a7
+
+taking the lock _bh safe fixes it for me.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
-commit d1cf4c06710e37fee58dbca38e08b236ba8ff50c
-tree da27dc848eb073662174276ab7e0472c9da4193c
-parent 1240cd642c42688fab680d1d783eb1821ded9490
-author Jiri Slaby <jirislaby@gmail.com> Thu, 07 Dec 2006 17:42:51 +0059
-committer Jiri Slaby <jirislaby@gmail.com> Thu, 07 Dec 2006 17:42:51 +0059
+ net/sched/sch_generic.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- drivers/char/isicom.c |   90 ++++++++++++++++++++++++++-----------------------
- 1 files changed, 47 insertions(+), 43 deletions(-)
-
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 1637c1d..adbb16d 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -228,6 +228,20 @@ static struct isi_port  isi_ports[PORT_C
-  *	it wants to talk.
-  */
- 
-+static inline int WaitTillCardIsFree(u16 base)
-+{
-+	unsigned int count = 0;
-+	unsigned int a = in_atomic(); /* do we run under spinlock? */
-+
-+	while (!(inw(base + 0xe) & 0x1) && count++ < 100)
-+		if (a)
-+			mdelay(1);
-+		else
-+			msleep(1);
-+
-+	return !(inw(base + 0xe) & 0x1);
-+}
-+
- static int lock_card(struct isi_board *card)
+Index: linux-mm-genapic.q/net/sched/sch_generic.c
+===================================================================
+--- linux-mm-genapic.q.orig/net/sched/sch_generic.c
++++ linux-mm-genapic.q/net/sched/sch_generic.c
+@@ -197,7 +197,7 @@ static void dev_watchdog(unsigned long a
  {
- 	char		retries;
-@@ -274,69 +288,71 @@ static void unlock_card(struct isi_board
-  *  ISI Card specific ops ...
-  */
+ 	struct net_device *dev = (struct net_device *)arg;
  
-+/* card->lock HAS to be held */
- static void raise_dtr(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
- 	unsigned long base = card->base;
- 	u16 channel = port->channel;
- 
--	if (!lock_card(card))
-+	if (WaitTillCardIsFree(base))
- 		return;
- 
- 	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
- 	outw(0x0504, base);
- 	InterruptTheCard(base);
- 	port->status |= ISI_DTR;
--	unlock_card(card);
- }
- 
-+/* card->lock HAS to be held */
- static inline void drop_dtr(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
- 	unsigned long base = card->base;
- 	u16 channel = port->channel;
- 
--	if (!lock_card(card))
-+	if (WaitTillCardIsFree(base))
- 		return;
- 
- 	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
- 	outw(0x0404, base);
- 	InterruptTheCard(base);
- 	port->status &= ~ISI_DTR;
--	unlock_card(card);
- }
- 
-+/* card->lock HAS to be held */
- static inline void raise_rts(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
- 	unsigned long base = card->base;
- 	u16 channel = port->channel;
- 
--	if (!lock_card(card))
-+	if (WaitTillCardIsFree(base))
- 		return;
- 
- 	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
- 	outw(0x0a04, base);
- 	InterruptTheCard(base);
- 	port->status |= ISI_RTS;
--	unlock_card(card);
- }
-+
-+/* card->lock HAS to be held */
- static inline void drop_rts(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
- 	unsigned long base = card->base;
- 	u16 channel = port->channel;
- 
--	if (!lock_card(card))
-+	if (WaitTillCardIsFree(base))
- 		return;
- 
- 	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
- 	outw(0x0804, base);
- 	InterruptTheCard(base);
- 	port->status &= ~ISI_RTS;
--	unlock_card(card);
- }
- 
-+/* card->lock MUST NOT be held */
- static inline void raise_dtr_rts(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
-@@ -353,35 +369,20 @@ static inline void raise_dtr_rts(struct 
- 	unlock_card(card);
- }
- 
-+/* card->lock HAS to be held */
- static void drop_dtr_rts(struct isi_port *port)
- {
- 	struct isi_board *card = port->card;
- 	unsigned long base = card->base;
- 	u16 channel = port->channel;
- 
--	if (!lock_card(card))
-+	if (WaitTillCardIsFree(base))
- 		return;
- 
- 	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
- 	outw(0x0c04, base);
- 	InterruptTheCard(base);
- 	port->status &= ~(ISI_RTS | ISI_DTR);
--	unlock_card(card);
--}
--
--static inline void kill_queue(struct isi_port *port, short queue)
--{
--	struct isi_board *card = port->card;
--	unsigned long base = card->base;
--	u16 channel = port->channel;
--
--	if (!lock_card(card))
--		return;
--
--	outw(0x8000 | (channel << card->shift_count) | 0x02, base);
--	outw((queue << 8) | 0x06, base);
--	InterruptTheCard(base);
--	unlock_card(card);
- }
- 
- /*
-@@ -592,6 +593,7 @@ static irqreturn_t isicom_interrupt(int 
- 			ClearInterrupt(base);
- 		else
- 			outw(0x0000, base+0x04); /* enable interrupts */
-+		spin_unlock(&card->card_lock);
- 		return IRQ_HANDLED;
- 	}
- 
-@@ -712,6 +714,7 @@ static irqreturn_t isicom_interrupt(int 
- 		ClearInterrupt(base);
- 	else
- 		outw(0x0000, base+0x04); /* enable interrupts */
-+	spin_unlock(&card->card_lock);
- 
- 	return IRQ_HANDLED;
- }
-@@ -762,7 +765,7 @@ static void isicom_config_port(struct is
- 	else
- 		raise_dtr(port);
- 
--	if (lock_card(card)) {
-+	if (WaitTillCardIsFree(base) == 0) {
- 		outw(0x8000 | (channel << shift_count) |0x03, base);
- 		outw(linuxb_to_isib[baud] << 8 | 0x03, base);
- 		channel_setup = 0;
-@@ -790,7 +793,6 @@ static void isicom_config_port(struct is
+-	netif_tx_lock(dev);
++	netif_tx_lock_bh(dev);
+ 	if (dev->qdisc != &noop_qdisc) {
+ 		if (netif_device_present(dev) &&
+ 		    netif_running(dev) &&
+@@ -213,7 +213,7 @@ static void dev_watchdog(unsigned long a
+ 				dev_hold(dev);
  		}
- 		outw(channel_setup, base);
- 		InterruptTheCard(base);
--		unlock_card(card);
  	}
- 	if (C_CLOCAL(tty))
- 		port->flags &= ~ASYNC_CHECK_CD;
-@@ -809,12 +811,11 @@ static void isicom_config_port(struct is
- 	if (I_IXOFF(tty))
- 		flow_ctrl |= ISICOM_INITIATE_XONXOFF;
+-	netif_tx_unlock(dev);
++	netif_tx_unlock_bh(dev);
  
--	if (lock_card(card)) {
-+	if (WaitTillCardIsFree(base) == 0) {
- 		outw(0x8000 | (channel << shift_count) |0x04, base);
- 		outw(flow_ctrl << 8 | 0x05, base);
- 		outw((STOP_CHAR(tty)) << 8 | (START_CHAR(tty)), base);
- 		InterruptTheCard(base);
--		unlock_card(card);
- 	}
- 
- 	/*	rx enabled -> enable port for rx on the card	*/
-@@ -839,10 +840,9 @@ static inline void isicom_setup_board(st
- 	}
- 	port = bp->ports;
- 	bp->status |= BOARD_ACTIVE;
--	spin_unlock_irqrestore(&bp->card_lock, flags);
- 	for (channel = 0; channel < bp->port_count; channel++, port++)
- 		drop_dtr_rts(port);
--	return;
-+	spin_unlock_irqrestore(&bp->card_lock, flags);
+ 	dev_put(dev);
  }
- 
- static int isicom_setup_port(struct isi_port *port)
-@@ -875,7 +875,12 @@ static int isicom_setup_port(struct isi_
- 	port->xmit_cnt = port->xmit_head = port->xmit_tail = 0;
- 
- 	/*	discard any residual data	*/
--	kill_queue(port, ISICOM_KILLTX | ISICOM_KILLRX);
-+	if (WaitTillCardIsFree(card->base) == 0) {
-+		outw(0x8000 | (port->channel << card->shift_count) | 0x02,
-+				card->base);
-+		outw(((ISICOM_KILLTX | ISICOM_KILLRX) << 8) | 0x06, card->base);
-+		InterruptTheCard(card->base);
-+	}
- 
- 	isicom_config_port(port);
- 	port->flags |= ASYNC_INITIALIZED;
-@@ -1030,7 +1035,6 @@ static void isicom_shutdown_port(struct 
- 	port->flags &= ~ASYNC_INITIALIZED;
- 	/* 3rd October 2000 : Vinayak P Risbud */
- 	port->tty = NULL;
--	spin_unlock_irqrestore(&card->card_lock, flags);
- 
- 	/*Fix done by Anil .S on 30-04-2001
- 	remote login through isi port has dtr toggle problem
-@@ -1041,6 +1045,7 @@ static void isicom_shutdown_port(struct 
- 	if (C_HUPCL(tty))
- 		/* drop dtr on this port */
- 		drop_dtr(port);
-+	spin_unlock_irqrestore(&card->card_lock, flags);
- 
- 	/* any other port uninits  */
- 	if (tty)
-@@ -1276,10 +1281,12 @@ static int isicom_tiocmset(struct tty_st
- 	unsigned int set, unsigned int clear)
- {
- 	struct isi_port *port = tty->driver_data;
-+	unsigned long flags;
- 
- 	if (isicom_paranoia_check(port, tty->name, "isicom_ioctl"))
- 		return -ENODEV;
- 
-+	spin_lock_irqsave(&port->card->card_lock, flags);
- 	if (set & TIOCM_RTS)
- 		raise_rts(port);
- 	if (set & TIOCM_DTR)
-@@ -1289,6 +1296,7 @@ static int isicom_tiocmset(struct tty_st
- 		drop_rts(port);
- 	if (clear & TIOCM_DTR)
- 		drop_dtr(port);
-+	spin_unlock_irqrestore(&port->card->card_lock, flags);
- 
- 	return 0;
- }
-@@ -1321,7 +1329,10 @@ static int isicom_set_serial_info(struct
- 				(newinfo.flags & ASYNC_FLAGS));
- 	}
- 	if (reconfig_port) {
-+		unsigned long flags;
-+		spin_lock_irqsave(&port->card->card_lock, flags);
- 		isicom_config_port(port);
-+		spin_unlock_irqrestore(&port->card->card_lock, flags);
- 	}
- 	return 0;
- }
-@@ -1402,6 +1413,7 @@ static void isicom_set_termios(struct tt
- 	struct termios *old_termios)
- {
- 	struct isi_port *port = tty->driver_data;
-+	unsigned long flags;
- 
- 	if (isicom_paranoia_check(port, tty->name, "isicom_set_termios"))
- 		return;
-@@ -1410,7 +1422,9 @@ static void isicom_set_termios(struct tt
- 			tty->termios->c_iflag == old_termios->c_iflag)
- 		return;
- 
-+	spin_lock_irqsave(&port->card->card_lock, flags);
- 	isicom_config_port(port);
-+	spin_unlock_irqrestore(&port->card->card_lock, flags);
- 
- 	if ((old_termios->c_cflag & CRTSCTS) &&
- 			!(tty->termios->c_cflag & CRTSCTS)) {
-@@ -1704,16 +1718,6 @@ end:
- 	return retval;
- }
- 
--static inline int WaitTillCardIsFree(u16 base)
--{
--	unsigned long count = 0;
--
--	while (!(inw(base + 0xe) & 0x1) && count++ < 100)
--		msleep(5);
--
--	return !(inw(base + 0xe) & 0x1);
--}
--
- static int __devinit load_firmware(struct pci_dev *pdev,
- 	const unsigned int index, const unsigned int signature)
- {

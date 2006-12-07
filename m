@@ -1,71 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031498AbWLGF4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031422AbWLGF5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031498AbWLGF4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 00:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031422AbWLGF4D
+	id S1031422AbWLGF5K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 00:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031509AbWLGF5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 00:56:03 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:51579 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 00:57:09 -0500
+Received: from ozlabs.org ([203.10.76.45]:48746 "EHLO ozlabs.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031498AbWLGF4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 00:56:01 -0500
-Date: Wed, 6 Dec 2006 21:55:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, trevor.highland@gmail.com,
-       tyhicks@ou.edu
-Subject: Re: [PATCH 1/2] eCryptfs: Public key; transport mechanism
-Message-Id: <20061206215555.85d584ca.akpm@osdl.org>
-In-Reply-To: <20061206230638.GA9358@us.ibm.com>
-References: <20061206230638.GA9358@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S1031422AbWLGF5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 00:57:06 -0500
+From: Michael Neuling <mikey@neuling.org>
+To: linux-kernel@vger.kernel.org
+cc: H Peter Anvin <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Randy Dunlap <randy.dunlap@oracle.com>
+X-GPG-Fingerprint: 9B25 DC2A C58D 2C8D 47C2  457E 0887 E86F 32E6 BE16
+MIME-Version: 1.0
+Subject: [PATCH] Add retain_initrd boot option
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 21.4.1
+Date: Thu, 07 Dec 2006 16:57:01 +1100
+Message-ID: <21675.1165471021@neuling.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 17:06:38 -0600
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+Add retain_initrd option to control freeing of initrd memory after
+extraction.  By default, free memory as previously. 
 
-> This is a re-submission of the same public key patches (updated for
-> 2.6.19-rc6-mm2) that were submitted for review a while back.
+The first boot will need to hold a copy of the in memory fs for the
+second boot.  This image can be large (much larger than the kernel),
+hence we can save time when the memory loader is slow.  Also, it reduces
+the memory footprint while extracting the first boot since you don't
+need another copy of the fs.
 
-I made a number of comments last time around, some temperate, some not.
-I trust the temperate ones were addressed?
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+---
+Updated to work when CONFIG_KEXEC=n, as spotted by Randy Dunlap.
 
-Is there really no way in which any other kernel subsystem will ever want
-functionality of this nature?
+ Documentation/kernel-parameters.txt |    2 ++
+ init/initramfs.c                    |   17 ++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-> This is the transport code for public key functionality in
-> eCryptfs. It manages encryption/decryption request queues with a
-> transport mechanism. Currently, netlink is the only implemented
-> transport.
-
-I wouldn't view this as an adequate changelog for this sort of work,
-frankly.  Not by a long shot.  You've told us very briefly what the patches
-do.  You haven't told us why they do it, nor how they do it.
-
-What design decisions went into this?  What options were considered and
-eliminated and why?  etc.
-
-It's just a great lump of code dumped in our laps.
-
-
->From a quick scan (and I cannot review in more depth because the code is a
-complete mystery to this reviewer):
-
-
-> +	mutex_init(&ecryptfs_msg_ctx_lists_mux);
-> +	mutex_lock(&ecryptfs_msg_ctx_lists_mux);
-
-That's a bizarre thing to do.  If there's really any other process which
-can take that mutex, the mutex_init() just trashed it.  If there is no
-other such process, the mutex_lock() is unneeded.  There should never be
-a need to runtime-initialise a static mutex - just use DEFINE_MUTEX.
-
-
-ecryptfs now has a dependency upon netlink.  There's no CONFIG_NETLINK.  If
-CONFIG_NET=n && CONFIG_ECRYPTFS=y is possible, it won't build.
-
-
+Index: linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+===================================================================
+--- linux-2.6-ozlabs.orig/Documentation/kernel-parameters.txt
++++ linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+@@ -1366,6 +1366,8 @@ and is between 256 and 4096 characters. 
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
+ 
++	retain_initrd	[RAM] Keep initrd memory after extraction
++
+ 	rhash_entries=	[KNL,NET]
+ 			Set number of hash buckets for route cache
+ 
+Index: linux-2.6-ozlabs/init/initramfs.c
+===================================================================
+--- linux-2.6-ozlabs.orig/init/initramfs.c
++++ linux-2.6-ozlabs/init/initramfs.c
+@@ -487,6 +487,17 @@ static char * __init unpack_to_rootfs(ch
+ 	return message;
+ }
+ 
++static int do_retain_initrd;
++
++static int __init retain_initrd_param(char *str)
++{
++	if (*str)
++		return 0;
++	do_retain_initrd = 1;
++	return 1;
++}
++__setup("retain_initrd", retain_initrd_param);
++
+ extern char __initramfs_start[], __initramfs_end[];
+ #ifdef CONFIG_BLK_DEV_INITRD
+ #include <linux/initrd.h>
+@@ -497,7 +508,11 @@ static void __init free_initrd(void)
+ #ifdef CONFIG_KEXEC
+ 	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
+ 	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
++#endif
++	if (do_retain_initrd)
++		goto skip;
+ 
++#ifdef CONFIG_KEXEC
+ 	/*
+ 	 * If the initrd region is overlapped with crashkernel reserved region,
+ 	 * free only memory that is not part of crashkernel region.
+@@ -515,7 +530,7 @@ static void __init free_initrd(void)
+ 	} else
+ #endif
+ 		free_initrd_mem(initrd_start, initrd_end);
+-
++skip:
+ 	initrd_start = 0;
+ 	initrd_end = 0;
+ }

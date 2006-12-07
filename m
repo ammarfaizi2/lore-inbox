@@ -1,58 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031921AbWLGJsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031922AbWLGJui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031921AbWLGJsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 04:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031919AbWLGJsg
+	id S1031922AbWLGJui (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031923AbWLGJui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 04:48:36 -0500
-Received: from cantor.suse.de ([195.135.220.2]:42528 "EHLO mx1.suse.de"
+	Thu, 7 Dec 2006 04:50:38 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46507 "EHLO mx2.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031917AbWLGJsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 04:48:35 -0500
-Date: Thu, 7 Dec 2006 10:48:33 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Phil Endecott <phil_arcwk_endecott@chezphil.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Subtleties of __attribute__((packed))
-Message-ID: <20061207094833.GD4942@hasse.suse.de>
-References: <4de7f8a60612060704k7d7c1ea3o1d43bee6c5e372d4@mail.gmail.com> <1165418558832@dmwebmail.belize.chezphil.org> <20061206155439.GA6727@hasse.suse.de> <20061206175423.GA9959@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	id S1031922AbWLGJuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 04:50:37 -0500
+Date: Thu, 7 Dec 2006 10:49:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] lockdep: print irq-trace info on asserts
+Message-ID: <20061207094943.GA4719@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061206175423.GA9959@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.4.2.2i
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamScore: -5.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, Russell King wrote:
+Subject: [patch] lockdep: print irq-trace info on asserts
+From: Ingo Molnar <mingo@elte.hu>
 
-> On Wed, Dec 06, 2006 at 04:54:39PM +0100, Jan Blunck wrote:
-> > Maybe the arm backend is somehow broken. AFAIK (and I verfied it on S390 and
-> > i386) the alignment shouldn't change.
-> 
+when we print an assert due to scheduling-in-atomic bugs, and if lockdep 
+is enabled, then the IRQ tracing information of lockdep can be printed 
+to pinpoint the code location that disabled interrupts. This saved me 
+quite a bit of debugging time in cases where the backtrace did not 
+identify the irq-disabling site well enough.
 
-Once again: I refered to "packed attribute on the struct vs. packed attribute
-on each member of the struct". The alignment shouldn't be different.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ include/linux/lockdep.h |   16 +++++++++++++---
+ kernel/lockdep.c        |    6 +-----
+ kernel/sched.c          |    4 ++++
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
-> Please read the info pages:
-> 
-> `packed'
->      This attribute, attached to an `enum', `struct', or `union' type
->      definition, specifies that the minimum required memory be used to
->      represent the type.
-> 
->      Specifying this attribute for `struct' and `union' types is
->      equivalent to specifying the `packed' attribute on each of the
->      structure or union members.  Specifying the `-fshort-enums' flag
->      on the line is equivalent to specifying the `packed' attribute on
->      all `enum' definitions.
-> 
-> Note that it says *nothing* about alignment.  It says "minimum required
-> memory be used to represent the type." which implies that the internals
-> of the structure are packed together as tightly as possible.
-> 
-> It does not say "and as such the struct may be aligned to any alignment".
-> 
-
-And this is why it makes sense to think about align attribute when you use
-packed.
+Index: linux/include/linux/lockdep.h
+===================================================================
+--- linux.orig/include/linux/lockdep.h
++++ linux/include/linux/lockdep.h
+@@ -282,15 +282,25 @@ struct lock_class_key { };
+ #if defined(CONFIG_TRACE_IRQFLAGS) && defined(CONFIG_GENERIC_HARDIRQS)
+ extern void early_init_irq_lock_class(void);
+ #else
+-# define early_init_irq_lock_class()		do { } while (0)
++static inline void early_init_irq_lock_class(void)
++{
++}
+ #endif
+ 
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ extern void early_boot_irqs_off(void);
+ extern void early_boot_irqs_on(void);
++extern void print_irqtrace_events(struct task_struct *curr);
+ #else
+-# define early_boot_irqs_off()			do { } while (0)
+-# define early_boot_irqs_on()			do { } while (0)
++static inline void early_boot_irqs_off(void)
++{
++}
++static inline void early_boot_irqs_on(void)
++{
++}
++static inline void print_irqtrace_events(struct task_struct *curr)
++{
++}
+ #endif
+ 
+ /*
+Index: linux/kernel/lockdep.c
+===================================================================
+--- linux.orig/kernel/lockdep.c
++++ linux/kernel/lockdep.c
+@@ -1449,7 +1449,7 @@ check_usage_backwards(struct task_struct
+ 	return print_irq_inversion_bug(curr, backwards_match, this, 0, irqclass);
+ }
+ 
+-static inline void print_irqtrace_events(struct task_struct *curr)
++void print_irqtrace_events(struct task_struct *curr)
+ {
+ 	printk("irq event stamp: %u\n", curr->irq_events);
+ 	printk("hardirqs last  enabled at (%u): ", curr->hardirq_enable_event);
+@@ -1462,10 +1462,6 @@ static inline void print_irqtrace_events
+ 	print_ip_sym(curr->softirq_disable_ip);
+ }
+ 
+-#else
+-static inline void print_irqtrace_events(struct task_struct *curr)
+-{
+-}
+ #endif
+ 
+ static int
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -3353,6 +3353,8 @@ asmlinkage void __sched schedule(void)
+ 			"%s/0x%08x/%d\n",
+ 			current->comm, preempt_count(), current->pid);
+ 		debug_show_held_locks(current);
++		if (irqs_disabled())
++			print_irqtrace_events(current);
+ 		dump_stack();
+ 	}
+ 	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
+@@ -6895,6 +6897,8 @@ void __might_sleep(char *file, int line)
+ 		printk("in_atomic():%d, irqs_disabled():%d\n",
+ 			in_atomic(), irqs_disabled());
+ 		debug_show_held_locks(current);
++		if (irqs_disabled())
++			print_irqtrace_events(current);
+ 		dump_stack();
+ 	}
+ #endif

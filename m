@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163386AbWLGVQS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162600AbWLGR6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163386AbWLGVQS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:16:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163384AbWLGVQR
+	id S1162600AbWLGR6F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 12:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162602AbWLGR6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:16:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39821 "EHLO mx1.redhat.com"
+	Thu, 7 Dec 2006 12:58:05 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:50717 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163377AbWLGVQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:16:16 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1165525597.4698.46.camel@mulgrave.il.steeleye.com> 
-References: <1165525597.4698.46.camel@mulgrave.il.steeleye.com>  <20061207085409.228016a2.akpm@osdl.org> <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com> <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com> <639.1165521999@redhat.com> 
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, davem@davemloft.com, wli@holomorphy.com,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than cmpxchg() 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Thu, 07 Dec 2006 21:16:03 +0000
-Message-ID: <10660.1165526163@redhat.com>
+	id S1162600AbWLGR6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 12:58:02 -0500
+Date: Thu, 7 Dec 2006 09:57:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: torvalds@osdl.org, macro@linux-mips.org,
+       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
+       afleming@freescale.com, ben.collins@ubuntu.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Export current_is_keventd() for libphy
+Message-Id: <20061207095715.0cafffb9.akpm@osdl.org>
+In-Reply-To: <457849E2.3080909@garzik.org>
+References: <20061206234942.79d6db01.akpm@osdl.org>
+	<1165125055.5320.14.camel@gullible>
+	<20061203011625.60268114.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
+	<20061205123958.497a7bd6.akpm@osdl.org>
+	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
+	<20061205132643.d16db23b.akpm@osdl.org>
+	<adaac22c9cu.fsf@cisco.com>
+	<20061205135753.9c3844f8.akpm@osdl.org>
+	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
+	<20061206075729.b2b6aa52.akpm@osdl.org>
+	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
+	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
+	<20061206224207.8a8335ee.akpm@osdl.org>
+	<9392.1165487379@redhat.com>
+	<20061207024211.be739a4a.akpm@osdl.org>
+	<457849E2.3080909@garzik.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+On Thu, 07 Dec 2006 12:05:38 -0500
+Jeff Garzik <jeff@garzik.org> wrote:
 
-> That we'd have to put a conditional jump in there is an incorrect
-> assumption on risc machines.
+> Yes, I merged the code, but looking deeper at phy its clear I missed 
+> some things.
+> 
+> Looking into libphy's workqueue stuff, it has the following sequence:
+> 
+> 	disable interrupts
+> 	schedule_work()
+> 
+> 	... time passes ...
+> 	... workqueue routine is called ...
+> 
+> 	enable interrupts
+> 	handle interrupt
+> 
+> I really have to question if a workqueue was the best choice of 
+> direction for such a sequence.  You don't want to put off handling an 
+> interrupt, with interrupts disabled, for a potentially unbounded amount 
+> of time.
 
-I didn't say we would *have* to put a conditional jump in there.  But I don't
-know that I it can be avoided on all archs.
+That'll lock the box on UP, or if the timer fires on the current CPU?
 
-I don't know that sparc32 can do conditional instructions for example.  If we
-force this assumption it becomes a potential limitation on the archs we can
-support.  OTOH, it may be that every arch that supports SMP and has to emulate
-bitops with spinlocks also supports conditional stores; but I don't know that.
+> Maybe the best course of action is to mark it with CONFIG_BROKEN until 
+> it gets fixed.
 
-David
+hm, maybe.  I wonder if as a short-term palliative we could remove the
+current_is_keventd() call and drop rtnl_lock.  Or export current_is_keventd ;)

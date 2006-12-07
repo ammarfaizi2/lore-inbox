@@ -1,81 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425427AbWLHLxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032407AbWLGQzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425427AbWLHLxO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHLxN
+	id S1032407AbWLGQzL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 11:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032411AbWLGQzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:53:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52393 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 11:55:11 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:43555 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425430AbWLHLxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:53:02 -0500
-Message-Id: <200612081152.kB8BqRG1019759@shell0.pdx.osdl.net>
-Subject: [patch 04/13] io-accounting: write-cancel accounting
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
-       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
-       tee@sgi.com
-From: akpm@osdl.org
-Date: Fri, 08 Dec 2006 03:52:26 -0800
+	id S1032407AbWLGQzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 11:55:09 -0500
+Date: Thu, 7 Dec 2006 08:54:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, davem@davemloft.com, wli@holomorphy.com, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than
+ cmpxchg()
+Message-Id: <20061207085409.228016a2.akpm@osdl.org>
+In-Reply-To: <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
+References: <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
+	<20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
+On Thu, 07 Dec 2006 15:31:43 +0000
+David Howells <dhowells@redhat.com> wrote:
 
-Account for the number of byte writes which this process caused to not happen
-after all.
+> Use direct assignment rather than cmpxchg() as the latter is unavailable and
+> unimplementable on some platforms and is actually unnecessary.
+> 
+> The use of cmpxchg() was to guard against two possibilities, neither of which
+> can actually occur:
+> 
+>  (1) The pending flag may have been unset or may be cleared.  However, given
+>      where it's called, the pending flag is _always_ set.  I don't think it
+>      can be unset whilst we're in set_wq_data().
+> 
+>      Once the work is enqueued to be actually run, the only way off the queue
+>      is for it to be actually run.
+> 
+>      If it's a delayed work item, then the bit can't be cleared by the timer
+>      because we haven't started the timer yet.  Also, the pending bit can't be
+>      cleared by cancelling the delayed work _until_ the work item has had its
+>      timer started.
+> 
+>  (2) The workqueue pointer might change.  This can only happen in two cases:
+> 
+>      (a) The work item has just been queued to actually run, and so we're
+>          protected by the appropriate workqueue spinlock.
+> 
+>      (b) A delayed work item is being queued, and so the timer hasn't been
+>      	 started yet, and so no one else knows about the work item or can
+>      	 access it (the pending bit protects us).
+> 
+>      Besides, set_wq_data() _sets_ the workqueue pointer unconditionally, so
+>      it can be assigned instead.
+> 
+> So, replacing the set_wq_data() with a straight assignment would be okay in
+> most cases.  The problem is where we end up tangling with test_and_set_bit()
+> emulated using spinlocks, and even then it's not a problem _provided_
+> test_and_set_bit() doesn't attempt to modify the word if the bit was set.
+> 
+> If that's a problem, then a bitops-proofed assignment will be required -
+> equivalent to atomic_set() vs other atomic_xxx() ops.
+> 
 
-Cc: Jay Lan <jlan@sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chris Sturtivant <csturtiv@sgi.com>
-Cc: Tony Ernst <tee@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: David Wright <daw@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+I don't understand, as usual.
 
- fs/buffer.c   |    7 ++++++-
- mm/truncate.c |    4 +++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+afacit in all (but one) cases we do
 
-diff -puN fs/buffer.c~io-accounting-write-cancel-accounting fs/buffer.c
---- a/fs/buffer.c~io-accounting-write-cancel-accounting
-+++ a/fs/buffer.c
-@@ -2823,8 +2823,13 @@ int try_to_free_buffers(struct page *pag
- 		 * could encounter a non-uptodate page, which is unresolvable.
- 		 * This only applies in the rare case where try_to_free_buffers
- 		 * succeeds but the page is not freed.
-+		 *
-+		 * Also, during truncate, discard_buffer will have marked all
-+		 * the page's buffers clean.  We discover that here and clean
-+		 * the page also.
- 		 */
--		clear_page_dirty(page);
-+		if (test_clear_page_dirty(page))
-+			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
- 	}
- out:
- 	if (buffers_to_free) {
-diff -puN mm/truncate.c~io-accounting-write-cancel-accounting mm/truncate.c
---- a/mm/truncate.c~io-accounting-write-cancel-accounting
-+++ a/mm/truncate.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/pagemap.h>
- #include <linux/pagevec.h>
-+#include <linux/task_io_accounting_ops.h>
- #include <linux/buffer_head.h>	/* grr. try_to_release_page,
- 				   do_invalidatepage */
- 
-@@ -69,7 +70,8 @@ truncate_complete_page(struct address_sp
- 	if (PagePrivate(page))
- 		do_invalidatepage(page, 0);
- 
--	clear_page_dirty(page);
-+	if (test_clear_page_dirty(page))
-+		task_io_account_cancelled_write(PAGE_CACHE_SIZE);
- 	ClearPageUptodate(page);
- 	ClearPageMappedToDisk(page);
- 	remove_from_page_cache(page);
-_
+	if (!test_and_set_bit(WORK_STRUCT_PENDING, &work->management)) {
+		...
+		set_wq_data(work, wq);
+		...
+		<now do stuff which makes it possible for run_workqueue()
+		 to get a look at the new work>
+	}
+
+cancel_delayed_work() looks OK too.
+
+The possible exception is schedule_on_each_cpu() which is being lazy, but
+looks fixable.
+
+
+So...  afaict in all the places where there can be a concurrent
+set_wq_data() and test_and_set_bit(), WORK_STRUCT_PENDING is reliably set,
+and we can assume (and ensure) that a failing test_and_set_bit() will not
+write to the affected word at all.
+
+What am I missing?

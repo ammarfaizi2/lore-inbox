@@ -1,123 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937795AbWLFXn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S937801AbWLFXwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S937795AbWLFXn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Dec 2006 18:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937814AbWLFXn7
+	id S937801AbWLFXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Dec 2006 18:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S937818AbWLFXwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Dec 2006 18:43:59 -0500
-Received: from nf-out-0910.google.com ([64.233.182.186]:7995 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937795AbWLFXn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Dec 2006 18:43:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=LBAhImN548p+rMvl5n39kzxGwsDgL4JZ5KexeB6K/EJ1gFEtlPf6P3zcfFyjBl0RRSELXVp5TGs0SlKJoU/DGepRzEdwy4Ep+OazapVpAHU4TXLsJibbA/YzfaAINLKQAXFLHtWauTh15u6HbWm3SFBPwIRgIs+S9cy8wtk9pyY=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] A few small additions and corrections to README
-Date: Thu, 7 Dec 2006 00:45:58 +0100
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>
+	Wed, 6 Dec 2006 18:52:35 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:60652 "EHLO smtp3-g19.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S937801AbWLFXwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Dec 2006 18:52:34 -0500
+Message-ID: <1165450859.45775e6b5e194@imp3-g19.free.fr>
+Date: Thu, 07 Dec 2006 01:20:59 +0100
+From: Remi Colinet <remi.colinet@free.fr>
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic at boot with recent pci quirks patch
+References: <45771F0B.8090708@tuxrocks.com> <20061206232714.54ec6f7b@localhost.localdomain>
+In-Reply-To: <20061206232714.54ec6f7b@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612070045.58396.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 82.216.7.132
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frank Sorenson <frank@tuxrocks.com> wrote:
 
-Hi,
+> The latest -git tree panics at boot for me.  git-bisect traced the
+offending commit to:
+>
+> 368c73d4f689dae0807d0a2aa74c61fd2b9b075f is first bad commit
+> commit 368c73d4f689dae0807d0a2aa74c61fd2b9b075f
+> Author: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Date:   Wed Oct 4 00:41:26 2006 +0100
+>
+>     PCI: quirks: fix the festering mess that claims to handle IDE quirks
+>
+> Hardware is a Dell Inspiron E1705 laptop running FC6 x86_64.
+>
 
-here's a small patch which 
+Could you try the following patch (already included in mm tree)?
 
- - adds a few archs to the current list of supported platforms.
- - adds a few missing slashes at the end of URLs.
- - adds a few references to additional documentation.
- - adds "make config" to the list of possible configuration targets.
- - makes a few other minor changes.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0611.1/1568.html
 
-Please consider for inclusion.
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- README                         |   17 +++++++++++------
- 1 files changed, 11 insertions(+), 6 deletions(-)
-
-diff --git a/Documentation/DocBook/Makefile b/Documentation/DocBook/Makefile
-diff --git a/README b/README
-index 3e26472..b656f00 100644
---- a/README
-+++ b/README
-@@ -1,4 +1,4 @@
--	Linux kernel release 2.6.xx <http://kernel.org>
-+	Linux kernel release 2.6.xx <http://kernel.org/>
- 
- These are the release notes for Linux version 2.6.  Read them carefully,
- as they tell you what this is all about, explain how to install the
-@@ -22,15 +22,17 @@ ON WHAT HARDWARE DOES IT RUN?
- 
-   Although originally developed first for 32-bit x86-based PCs (386 or higher),
-   today Linux also runs on (at least) the Compaq Alpha AXP, Sun SPARC and
--  UltraSPARC, Motorola 68000, PowerPC, PowerPC64, ARM, Hitachi SuperH,
-+  UltraSPARC, Motorola 68000, PowerPC, PowerPC64, ARM, Hitachi SuperH, Cell,
-   IBM S/390, MIPS, HP PA-RISC, Intel IA-64, DEC VAX, AMD x86-64, AXIS CRIS,
--  and Renesas M32R architectures.
-+  Cris, Xtensa and Renesas M32R architectures.
- 
-   Linux is easily portable to most general-purpose 32- or 64-bit architectures
-   as long as they have a paged memory management unit (PMMU) and a port of the
-   GNU C compiler (gcc) (part of The GNU Compiler Collection, GCC). Linux has
-   also been ported to a number of architectures without a PMMU, although
-   functionality is then obviously somewhat limited.
-+  Linux has also been ported to itself. You can now run the kernel as a
-+  userspace application - this is called UserMode Linux (UML).
- 
- DOCUMENTATION:
- 
-@@ -113,6 +115,7 @@ INSTALLING the kernel:
-    version 2.6.12.2 and want to jump to 2.6.12.3, you must first
-    reverse the 2.6.12.2 patch (that is, patch -R) _before_ applying
-    the 2.6.12.3 patch.
-+   You can read more on this in Documentation/applying-patches.txt
- 
-  - Make sure you have no stale .o files and dependencies lying around:
- 
-@@ -161,6 +164,7 @@ CONFIGURING the kernel:
-    only ask you for the answers to new questions.
- 
-  - Alternate configuration commands are:
-+	"make config"      Plain text interface.
- 	"make menuconfig"  Text based color menus, radiolists & dialogs.
- 	"make xconfig"     X windows (Qt) based configuration tool.
- 	"make gconfig"     X windows (Gtk) based configuration tool.
-@@ -303,8 +307,9 @@ IF SOMETHING GOES WRONG:
- 
-  - If you compiled the kernel with CONFIG_KALLSYMS you can send the dump
-    as is, otherwise you will have to use the "ksymoops" program to make
--   sense of the dump.  This utility can be downloaded from
--   ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops.
-+   sense of the dump (but compiling with CONFIG_KALLSYMS is usually preferred).
-+   This utility can be downloaded from
-+   ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/ .
-    Alternately you can do the dump lookup by hand:
- 
-  - In debugging dumps like the above, it helps enormously if you can
-@@ -336,7 +341,7 @@ IF SOMETHING GOES WRONG:
- 
-    If you for some reason cannot do the above (you have a pre-compiled
-    kernel image or similar), telling me as much about your setup as
--   possible will help. 
-+   possible will help.  Please read the REPORTING-BUGS document for details.
- 
-  - Alternately, you can use gdb on a running kernel. (read-only; i.e. you
-    cannot change values or set break points.) To do this, first compile the
-
-
-
+Remi

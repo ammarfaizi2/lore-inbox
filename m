@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425091AbWLHHj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163995AbWLGXcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425091AbWLHHj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 02:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425092AbWLHHj7
+	id S1163995AbWLGXcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163636AbWLGXcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 02:39:59 -0500
-Received: from sp604002mt.neufgp.fr ([84.96.92.61]:51826 "EHLO sMtp.neuf.fr"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1425091AbWLHHj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 02:39:58 -0500
-Date: Fri, 08 Dec 2006 08:40:03 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: vmlist_lock locking
-In-reply-to: <a574553e0612072307v766c3742pd3b4c46fb4fd0470@mail.gmail.com>
-To: kernel list <list.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <457916D3.7060008@cosmosbay.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <a574553e0612072307v766c3742pd3b4c46fb4fd0470@mail.gmail.com>
-User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+	Thu, 7 Dec 2006 18:32:18 -0500
+Received: from ozlabs.org ([203.10.76.45]:45150 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1163995AbWLGXcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:32:17 -0500
+From: Michael Neuling <mikey@neuling.org>
+To: Haren Myneni <haren@us.ibm.com>
+cc: vgoyal@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@ftp.linux.org.uk>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] free initrds boot option 
+In-reply-to: <45788A56.9010706@us.ibm.com> 
+References: <4410.1165450723@neuling.org> <20061206163021.f434f09b.akpm@osdl.org> <4577624A.6010008@zytor.com> <13639.1165462578@neuling.org> <20061207164756.GA13873@in.ibm.com> <45788A56.9010706@us.ibm.com>
+Comments: In-reply-to Haren Myneni <haren@us.ibm.com>
+   message dated "Thu, 07 Dec 2006 13:40:38 -0800."
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 21.4.1
+Date: Fri, 08 Dec 2006 10:32:15 +1100
+Message-ID: <30054.1165534335@neuling.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel list a écrit :
-> My understanding is that get_vm_area_node etc. can't be called in
-> interrupt context because vmlist_lock is obtained with read_lock /
-> write_lock. I am wondering if it makes sense to use read_lock_bh /
-> write_lock_bh so that get_vm_area_node can be called in soft interrupt
-> context. All the code executed when holding vmlist_lock is walking
-> through the list, so it shouldn't change the behavior. If it does make
-> sense, BUG_ON(in_interrupt()) can be changed to BUG_ON(in_irq()).
+> >Is there a kexec-tools patch too? How does second kernel know about
+> >the location of the first kernel's initrd to be reused?
+> >  
+> >
+> kexec-tools has to be modified to pass the first kernel initrd. On 
+> powerpc, initrd locations are exported using device-tree. At present, 
+> kexec-tool ignores the first kernel initrd property values and creates 
+> new initrd properties if the user passes '--initrd' option to the kexec 
+> command. So, will be an issue unless first kernel device-tree is passed 
+> as buffer.
 
-Maybe it is just me, but I like to know people names.
-Or maybe your name really is kernel list ?
+We've been using the --devicetreeblob kexec-tools option available for
+POWERPC.  This enables you to setup the device tree (and hence, the
+initrd points) as you like.
 
-I wonder why a soft irq would want to lookup vm areas.
-(since vmalloc() from soft irq is *really* forbiden)
+I'm happy to put together a patch for kexec-tools.  Unfortunately this
+is arch specific.  A quick look through the x86, ia64, s390 and ppc64
+code shows the --initrd option for all these just reads the specified
+initrd file, pushes it out to memory and uses the base and size pointers
+to setup the next boot.  We'd obviously just skip to the last stage.
 
-Eric
+So what's the kexec-tools option called?  --initrd-location <base> <size>?
 
+(BTW I'm offline soon, so I probably won't get to this for a few weeks)
+
+> Initrd memory can be excluded like other segments such as RTAS and TCE
+> on powerpc. However it is not implemented yet even on powerpc and is
+> an issue on other archs.
+
+The above should allow us to do these checks in kexec-tools.  
+
+Mikey

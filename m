@@ -1,28 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163200AbWLGTGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164022AbWLGXzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163200AbWLGTGi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 14:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163207AbWLGTGh
+	id S1164022AbWLGXzV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164023AbWLGXzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 14:06:37 -0500
-Received: from [41.250.32.147] ([41.250.32.147]:1536 "HELO 41.250.32.147"
-	rhost-flags-FAIL-FAIL-FAIL-FAIL) by vger.kernel.org with SMTP
-	id S1163200AbWLGTGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 14:06:36 -0500
-Reply-To: "Jodie Butcher" <jimwsilp@w3ent.com>
-From: "Jodie" <jimwsilp@w3ent.com>
-Message-ID: <6517064947.20061207130640@vsxrmxgjlxvfa>
-Date: Thu, 7 Dec 2006 13:06:40 -0600
-To: <linux-kernel@vger.kernel.org>
-Subject: Russiann pretty Hussy heree doinng outdo blowjoob.
+	Thu, 7 Dec 2006 18:55:21 -0500
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:1196 "EHLO
+	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164022AbWLGXzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:55:20 -0500
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Subject: Re: [PATCH] sound : Replace kmalloc()+memset(0) with kzalloc().
+Date: Fri, 8 Dec 2006 00:55:14 +0100
+User-Agent: KMail/1.9.5
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0612071553580.22255@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0612071553580.22255@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612080055.14488.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, 
 
-dishy Justt Teen and superfine Eighteen fromm  drream!
 
-http://coolwomenpoems.info
+>   Replace all appropriate kmalloc() + memset() combinations with
+> kzalloc() throughout the sound/ directory.
 
+[... cut ...]
+
+> diff --git a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
+> index c3c8a72..f5e31f1 100644
+> --- a/sound/oss/i810_audio.c
+> +++ b/sound/oss/i810_audio.c
+> @@ -2580,10 +2580,9 @@ static int i810_open(struct inode *inode
+>  		for (i = 0; i < NR_HW_CH && card && !card->initializing; i++) {
+>  			if (card->states[i] == NULL) {
+>  				state = card->states[i] = (struct i810_state *)
+> -					kmalloc(sizeof(struct i810_state), GFP_KERNEL);
+> +					kzalloc(sizeof(struct i810_state), GFP_KERNEL);
+
+You can remove those casts while you're at it.
+
+-- 
+Regards,
+
+	Mariusz Kozlowski

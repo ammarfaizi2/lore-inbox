@@ -1,175 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163192AbWLGSwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163491AbWLGWJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163192AbWLGSwN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163193AbWLGSwN
+	id S1163491AbWLGWJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163436AbWLGWJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:52:13 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:55795 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163192AbWLGSwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:52:12 -0500
-Date: Thu, 7 Dec 2006 10:51:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Myron Stowe <myron.stowe@hp.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: workqueue deadlock
-Message-Id: <20061207105148.20410b83.akpm@osdl.org>
-In-Reply-To: <200612061726.14587.bjorn.helgaas@hp.com>
-References: <200612061726.14587.bjorn.helgaas@hp.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 7 Dec 2006 17:09:40 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:39538 "EHLO
+	ns9.hostinglmi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163484AbWLGWJi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:09:38 -0500
+Date: Thu, 7 Dec 2006 23:10:15 +0100
+From: DervishD <lkml@dervishd.net>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+Message-ID: <20061207221015.GA342@DervishD>
+Mail-Followup-To: Matthias Schniedermeyer <ms@citd.de>,
+	linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+References: <45773DD2.10201@citd.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45773DD2.10201@citd.de>
+User-Agent: Mutt/1.4.2.2i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 17:26:14 -0700
-Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+    Hi Matthias :)
 
-> I'm seeing a workqueue-related deadlock.  This is on an ia64
-> box running SLES10, but it looks like the same problem should
-> be possible in current upstream on any architecture.
+ * Matthias Schniedermeyer <ms@citd.de> dixit:
+> My averate file size is about 1GB with files from about 400MB to
+> 5000MB I estimate the average error-rate at about one damaged file in
+> about 10GB of data.
 > 
-> Here are the two tasks involved:
+> I'm not sure and haven't checked if the files are wrongly written or
+> "only" wrongly read back as i delete the defective files and copy them
+> again.
 > 
->   events/4:
->     schedule
->     __down
->     __lock_cpu_hotplug
->     lock_cpu_hotplug
->     flush_workqueue
->     kblockd_flush
->     blk_sync_queue
->     cfq_shutdown_timer_wq
->     cfq_exit_queue
->     elevator_exit
->     blk_cleanup_queue
->     scsi_free_queue
->     scsi_device_dev_release_usercontext
->     run_workqueue
-> 
->   loadkeys:
->     schedule
->     flush_cpu_workqueue
->     flush_workqueue
->     flush_scheduled_work
->     release_dev
->     tty_release
+> Today i copied a few files back and checked them against the stored MD5
+> sums and 5 files of 86 (each about 700 MB) had errors. So i copied the 5
+> files again. 4 of the files were OK after that and coping the last file
+> the third time also resulted in the correct MD5.
 
-This will go away if/when I get the proposed new flush_work(struct
-work_struct *) implemented.  We can then convert blk_sync_queue() to do
+    I had more or less the same issue a week or two ago. I performed
+lots of tests and only by replacing the USB2.0 PCI card, the USB cable
+and the power supply of the usb-hdd adapter got the problem solved.
 
-	flush_work(&q->unplug_work);
+    I'm not sure if the problem is really gone, but the system works now
+reliably. I don't know if sooner or later I'll get the issue again,
+because I didn't really identify a culprit: looks like the
+card+adapter+cable combination was just "ugly", and errors from the
+adapter were not reported correctly.
 
-which will only block if blk_unplug_work() is actually executing on this
-queue, and which will return as soon as blk_unplug_work() has finished. 
-(And a similar change in release_dev()).
+> NEVER did i see any messages in syslog regarding erros or an aborting
+> program due to errors passed down from the kernel or something like
+> that.
 
-It doesn't solve the fundamental problem though.  But I'm not sure what
-that is.  If it is "flush_scheduled_work() waits on things which the caller
-isn't interested in" then it will fix the fundamental problem.
+    The same here! Looks like USB-HDD adapters don't report any errors
+to the kernel :?????
 
-Needs more work:
+    The best advice I can give you, from my limited experience with the
+problem, is: replace the cable. This minimizes the chance of corrupted
+data getting into the adapter. If that doesn't solve the problem, try
+removing any unconnected cable that is plugged into the USB card.
+Believe it or not, a long but unconnected cable (put there just to be
+able to plug my USB card-reader without having to look for the cable in
+a drawer) was causing errors *even in a Kingston USB key that worked
+flawlessly otherwise*!!!
 
-diff -puN kernel/workqueue.c~implement-flush_work kernel/workqueue.c
---- a/kernel/workqueue.c~implement-flush_work
-+++ a/kernel/workqueue.c
-@@ -53,6 +53,7 @@ struct cpu_workqueue_struct {
- 
- 	struct workqueue_struct *wq;
- 	struct task_struct *thread;
-+	struct work_struct *current_work;
- 
- 	int run_depth;		/* Detect run_workqueue() recursion depth */
- } ____cacheline_aligned;
-@@ -243,6 +244,7 @@ static void run_workqueue(struct cpu_wor
- 		work_func_t f = work->func;
- 
- 		list_del_init(cwq->worklist.next);
-+		cwq->current_work = work;
- 		spin_unlock_irqrestore(&cwq->lock, flags);
- 
- 		BUG_ON(get_wq_data(work) != cwq);
-@@ -251,6 +253,7 @@ static void run_workqueue(struct cpu_wor
- 		f(work);
- 
- 		spin_lock_irqsave(&cwq->lock, flags);
-+		cwq->current_work = NULL;
- 		cwq->remove_sequence++;
- 		wake_up(&cwq->work_done);
- 	}
-@@ -330,6 +333,70 @@ static void flush_cpu_workqueue(struct c
- 	}
- }
- 
-+static void wait_on_work(struct cpu_workqueue_struct *cwq,
-+				struct work_struct *work, int cpu)
-+{
-+	DEFINE_WAIT(wait);
-+
-+	spin_lock_irq(&cwq->lock);
-+	while (cwq->current_work == work) {
-+		prepare_to_wait(&cwq->work_done, &wait, TASK_UNINTERRUPTIBLE);
-+		spin_unlock_irq(&cwq->lock);
-+		mutex_unlock(&workqueue_mutex);
-+		schedule();
-+		mutex_lock(&workqueue_mutex);
-+		if (!cpu_online(cpu))	/* oops, CPU got unplugged */
-+			goto bail;
-+		spin_lock_irq(&cwq->lock);
-+	}
-+	spin_unlock_irq(&cwq->lock);
-+bail:
-+	finish_wait(&cwq->work_done, &wait);
-+}
-+
-+static void flush_one_work(struct cpu_workqueue_struct *cwq,
-+				struct work_struct *work, int cpu)
-+{
-+	spin_lock_irq(&cwq->lock);
-+	if (test_and_clear_bit(WORK_STRUCT_PENDING, &work->management)) {
-+		list_del_init(&work->entry);
-+		spin_unlock_irq(&cwq->lock);
-+		return;
-+	}
-+	spin_unlock_irq(&cwq->lock);
-+
-+	/* It's running, or it has completed */
-+
-+	if (cwq->thread == current) {
-+		/* This stinks */
-+		/*
-+		 * Probably keventd trying to flush its own queue. So simply run
-+		 * it by hand rather than deadlocking.
-+		 */
-+		run_workqueue(cwq);
-+	} else {
-+		wait_on_work(cwq, work, cpu);
-+	}
-+}
-+
-+void flush_work(struct workqueue_struct *wq, struct work_struct *work)
-+{
-+	might_sleep();
-+
-+	mutex_lock(&workqueue_mutex);
-+	if (is_single_threaded(wq)) {
-+		/* Always use first cpu's area. */
-+		flush_one_work(per_cpu_ptr(wq->cpu_wq, singlethread_cpu), work,
-+				singlethread_cpu);
-+	} else {
-+		int cpu;
-+
-+		for_each_online_cpu(cpu)
-+			flush_one_work(per_cpu_ptr(wq->cpu_wq, cpu), work, cpu);
-+	}
-+	mutex_unlock(&workqueue_mutex);
-+}
-+
- /**
-  * flush_workqueue - ensure that any scheduled work has run to completion.
-  * @wq: workqueue to flush
-_
+    If you have any other question, feel free to drop me a note. I'm
+sorry I cannot give a much more technical or scientific answer, but
+unfortunately I have none :((
 
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+It's my PC and I'll cry if I want to... RAmen!

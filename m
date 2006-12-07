@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032071AbWLGLes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032069AbWLGLe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032071AbWLGLes (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 06:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032073AbWLGLes
+	id S1032069AbWLGLe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 06:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032067AbWLGLe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 06:34:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1352 "HELO
+	Thu, 7 Dec 2006 06:34:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1345 "HELO
 	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1032067AbWLGLeq (ORCPT
+	with SMTP id S1032070AbWLGLe1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 06:34:46 -0500
-Date: Thu, 7 Dec 2006 12:34:52 +0100
+	Thu, 7 Dec 2006 06:34:27 -0500
+Date: Thu, 7 Dec 2006 12:34:33 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: drivers/net/chelsio/my3126.c: inconsequent NULL checking
-Message-ID: <20061207113452.GD8963@stusta.de>
+To: Michael Chan <mchan@broadcom.com>
+Cc: davem@davemloft.net, jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/bnx2.c: add an error check
+Message-ID: <20061207113433.GC8963@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,39 +23,19 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following inconsequent NULL checking 
-introduced by commit f1d3d38af75789f1b82969b83b69cab540609789:
+This patch adds a missing error check spotted by the Coverity checker.
 
-<--  snip  -->
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-...
-static struct cphy *my3126_phy_create(adapter_t *adapter,
-                        int phy_addr, struct mdio_ops *mdio_ops)
-{
-        struct cphy *cphy = kzalloc(sizeof (*cphy), GFP_KERNEL);
-
-        if (cphy)
-                cphy_init(cphy, adapter, phy_addr, &my3126_ops, mdio_ops);
-
-        INIT_WORK(&cphy->phy_update, my3216_poll, cphy);
-        cphy->bmsr = 0;
-
-        return (cphy);
-}
-...
-
-<--  snip  -->
-
-It doesn't make sense to first check whether "cphy" is NULL and 
-dereference it unconditionally later.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.19-rc6-mm2/drivers/net/bnx2.c.old	2006-12-06 13:32:51.000000000 +0100
++++ linux-2.6.19-rc6-mm2/drivers/net/bnx2.c	2006-12-06 13:33:34.000000000 +0100
+@@ -2510,7 +2510,7 @@
+ 	if (CHIP_NUM(bp) == CHIP_NUM_5709) {
+ 		fw = &bnx2_cp_fw_09;
+ 
+-		load_cpu_fw(bp, &cpu_reg, fw);
++		rc = load_cpu_fw(bp, &cpu_reg, fw);
+ 		if (rc)
+ 			goto init_cpu_err;
+ 	}
 

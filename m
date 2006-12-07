@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164363AbWLHBPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163705AbWLGXOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164363AbWLHBPH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 20:15:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164346AbWLHBOt
+	id S1163705AbWLGXOe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163724AbWLGXOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 20:14:49 -0500
-Received: from ns2.suse.de ([195.135.220.15]:47309 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164325AbWLHBOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 20:14:38 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 12:14:51 +1100
-Message-Id: <1061208011451.30761@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 017 of 18] knfsd: Don't ignore kstrdup failure in rpc caches.
-References: <20061208120939.30428.patches@notabene>
+	Thu, 7 Dec 2006 18:14:34 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52466 "EHLO
+	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1163705AbWLGXOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:14:33 -0500
+Date: Thu, 7 Dec 2006 23:22:07 +0000
+From: Alan <alan@lxorguk.ukuu.org.uk>
+To: "Chris Friesen" <cfriesen@nortel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: additional oom-killer tuneable worth submitting?
+Message-ID: <20061207232207.01af3a79@localhost.localdomain>
+In-Reply-To: <45785DDD.3000503@nortel.com>
+References: <45785DDD.3000503@nortel.com>
+X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> We add a new "oom_thresh" member to the task struct.
+> We introduce a new proc entry "/proc/<pid>/oomthresh" to control it.
+> 
+> The "oom-thresh" value maps to the max expected memory consumption for 
+> that process.  As long as a process uses less memory than the specified 
+> threshold, then it is immune to the oom-killer.
 
+You've just introduced a deadlock. What happens if nobody is over that
+predicted memory and the kernel uses more resource ?
+> 
+> On an embedded platform this allows the designer to engineer the system 
+> and protect critical apps based on their expected memory consumption. 
+> If one of those apps goes crazy and starts chewing additional memory 
+> then it becomes vulnerable to the oom killer while the other apps remain 
+> protected.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+That is why we have no-overcommit support. Now there is an argument for
+a meaningful rlimit-as to go with it, and together I think they do what
+you really need.
 
-### Diffstat output
- ./net/sunrpc/svcauth_unix.c |    4 ++++
- 1 file changed, 4 insertions(+)
-
-diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
---- .prev/net/sunrpc/svcauth_unix.c	2006-12-08 12:08:37.000000000 +1100
-+++ ./net/sunrpc/svcauth_unix.c	2006-12-08 12:09:31.000000000 +1100
-@@ -53,6 +53,10 @@ struct auth_domain *unix_domain_find(cha
- 			return NULL;
- 		kref_init(&new->h.ref);
- 		new->h.name = kstrdup(name, GFP_KERNEL);
-+		if (new->h.name == NULL) {
-+			kfree(new);
-+			return NULL;
-+		}
- 		new->h.flavour = &svcauth_unix;
- 		new->addr_changes = 0;
- 		rv = auth_domain_lookup(name, &new->h);
+Alan

@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032134AbWLGMZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032133AbWLGM2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032134AbWLGMZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032132AbWLGMZ5
+	id S1032133AbWLGM2G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032136AbWLGM2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:25:57 -0500
-Received: from srv5.dvmed.net ([207.36.208.214]:37400 "EHLO mail.dvmed.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032130AbWLGMZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:25:56 -0500
-Message-ID: <45780851.3020002@garzik.org>
-Date: Thu, 07 Dec 2006 07:25:53 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Thu, 7 Dec 2006 07:28:06 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:1562 "EHLO
+	odyssey.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1032133AbWLGM2C convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:28:02 -0500
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@it.uu.se>
-CC: htejun@gmail.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.19-git7] sata_promise: new EH conversion, take 2
-References: <200612062306.kB6N6p0t009272@harpo.it.uu.se>
-In-Reply-To: <200612062306.kB6N6p0t009272@harpo.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.7 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 07 Dec 2006 12:27:59.0078 (UTC) FILETIME=[21601860:01C719FB]
+Content-class: urn:content-classes:message
+Subject: Re: Detecting I/O error and Halting System  : come back
+Date: Thu, 7 Dec 2006 07:27:58 -0500
+Message-ID: <Pine.LNX.4.61.0612070713380.16015@chaos.analogic.com>
+In-Reply-To: <20061207110104.74408.qmail@web27706.mail.ukl.yahoo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Detecting I/O error and Halting System  : come back
+thread-index: AccZ+yGDSsJo1nrMQHutj4XfADA19g==
+References: <20061207110104.74408.qmail@web27706.mail.ukl.yahoo.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "zine el abidine Hamid" <zine46@yahoo.fr>
+Cc: <gene.heskett@verizon.net>, "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> This patch converts sata_promise to use new-style libata error
-> handling on Promise SATA chips, for both SATA and PATA ports.
-> 
-> * ATA_FLAG_SRST is no longer set
-> * ->phy_reset is no longer set as it is unused when ->error_handler
->    is present, and pdc_sata_phy_reset() has been removed
-> * pdc_freeze() masks interrupts and halts DMA via PDC_CTLSTAT
-> * pdc_thaw() clears interrupt status in PDC_INT_SEQMASK and then
->   unmasks interrupts in PDC_CTLSTAT
-> * pdc_error_handler() reinitialises the port if it isn't frozen,
->   and then invokes ata_do_eh() with standard {s,}ata reset methods
-> * pdc_post_internal_cmd() resets the port in case of errors
-> * the PATA-only 20619 chip continues to use old-style EH:
->   not by necessity but simply because I don't have documentation
->   for it or any way to test it
-> 
-> Since the previous version pdc_error_handler() has been rewritten
-> and it now mostly matches ahci and sata_sil24. In case anyone
-> wonders: the call to pdc_reset_port() isn't a heavy-duty reset,
-> it's a light-weight reset to quickly put a port into a sane state.
-> 
-> The discussion about the PCI flushes in pdc_freeze() and pdc_thaw()
-> seemed to end with a consensus that the flushes are OK and not
-> obviously redundant, so I decided to keep them for now.
-> 
-> This patch was prepared against 2.6.19-git7, but it also applies
-> to 2.6.19 + libata #upstream, with or without the revised sata_promise
-> cleanup patch I recently submitted.
-> 
-> This patch does conflict with the #promise-sata-pata patch:
-> this patch removes pdc_sata_phy_reset() while #promise-sata-pata
-> modifies it. The correct patch resolution is to remove the function.
-> 
-> Tested on 2037x and 2057x chips, with PATA patches on top and disks
-> on both SATA and PATA ports.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
 
-applied
+On Thu, 7 Dec 2006, zine el abidine Hamid wrote:
 
-Now that new EH is in place, I bet hotplug support would be easy....
+> Hi evrybody,
+>
+> I come back with my problem of "I/O error" (refer to
+> the following link to reffresh your mind :
+> http://groups.google.fr/group/linux.kernel/browse_thread/thread/386b69ca8389cda0/a58d753bf87c4f06?lnk=st&q=hamid+ZINE+EL+ABIDINE&rnum=2&hl=fr#a58d753bf87c4f06
+> )
 
-	Jeff
+Please don't copy everybody in the universe when you have a problem. That said, 
+it is likely that you have a bad spot on your hard disk. You can verify this
+bu copying the RAW device to the null device and checking for errors. Assume 
+that your hard disk device was /dev/hda (not /dev/hda1 or other partitions).
+You would simply execute from the root account, cp `/dev/hda /dev/null`.
+That will read every block on your hard disk. If that does not produce any 
+errors, then the problem that you have is caused by file-system errors,
+not device errors.
+
+To fix file-system errors, you need to restart in single-user mode:
+`init 1` should bring you to that mode, then you need to unmount the 
+file-systems and execute fsck on each of them. If you are unable to unmount
+the file systems, then you need to cold boot in single-user mode to do so.
+
+If you have bad blocks then you need to execute `badblocks` with its output
+to `fsck -l`. That will map the bad blocks away from the file-system.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.68 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,130 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163205AbWLGTQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163580AbWLGW5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163205AbWLGTQW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 14:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163215AbWLGTQW
+	id S1163580AbWLGW5U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163583AbWLGW5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 14:16:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58925 "EHLO mx1.redhat.com"
+	Thu, 7 Dec 2006 17:57:20 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:45089 "EHLO enyo.dsw2k3.info"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163205AbWLGTQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 14:16:21 -0500
-Message-ID: <457865DC.3020608@redhat.com>
-Date: Thu, 07 Dec 2006 14:05:00 -0500
-From: Wendy Cheng <wcheng@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	id S1163580AbWLGW5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:57:18 -0500
+Message-ID: <45789C43.9020109@citd.de>
+Date: Thu, 07 Dec 2006 23:57:07 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steven Whitehouse <swhiteho@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, cluster-devel@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Cluster-devel] Re: [GFS2] Don't flush everything on fdatasync
- [70/70]
-References: <1164889448.3752.449.camel@quoit.chygwyn.com>	<20061130230158.174e995c.akpm@osdl.org>	<1164970738.3752.508.camel@quoit.chygwyn.com>	<20061201110927.ec6ee073.akpm@osdl.org> <1165482686.3752.816.camel@quoit.chygwyn.com>
-In-Reply-To: <1165482686.3752.816.camel@quoit.chygwyn.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: DervishD <lkml@dervishd.net>
+Cc: linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+References: <45773DD2.10201@citd.de> <20061207221015.GA342@DervishD>
+In-Reply-To: <20061207221015.GA342@DervishD>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Whitehouse wrote:
-> Hi,
->
-> On Fri, 2006-12-01 at 11:09 -0800, Andrew Morton wrote:
->   
->>> I was taking my cue here from ext3 which does something similar. The
->>> filemap_fdatawrite() is done by the VFS before this is called with a
->>> filemap_fdatawait() afterwards. This was intended to flush the metadata
->>> via (eventually) ->write_inode() although I guess I should be calling
->>> write_inode_now() instead?
->>>       
->> oh I see, you're jsut trying to write the inode itself, not the pages.
+DervishD wrote:
+>     Hi Matthias :)
+> 
+>  * Matthias Schniedermeyer <ms@citd.de> dixit:
+> 
+>>My averate file size is about 1GB with files from about 400MB to
+>>5000MB I estimate the average error-rate at about one damaged file in
+>>about 10GB of data.
 >>
->> write_inode_now() will write the pages, which you seem to not want to do.
->> Whatever.  The APIs here are a bit awkward.
->>     
->
-> I've added a comment to explain whats going on here, and also the
-> following patch. I know it could be better, but its still an improvement
-> on what was there before,
->
->
->   
-Steve,
+>>I'm not sure and haven't checked if the files are wrongly written or
+>>"only" wrongly read back as i delete the defective files and copy them
+>>again.
+>>
+>>Today i copied a few files back and checked them against the stored MD5
+>>sums and 5 files of 86 (each about 700 MB) had errors. So i copied the 5
+>>files again. 4 of the files were OK after that and coping the last file
+>>the third time also resulted in the correct MD5.
+> 
+> 
+>     I had more or less the same issue a week or two ago. I performed
+> lots of tests and only by replacing the USB2.0 PCI card, the USB cable
+> and the power supply of the usb-hdd adapter got the problem solved.
+> 
+>     I'm not sure if the problem is really gone, but the system works now
+> reliably. I don't know if sooner or later I'll get the issue again,
+> because I didn't really identify a culprit: looks like the
+> card+adapter+cable combination was just "ugly", and errors from the
+> adapter were not reported correctly.
 
-I'm in the middle of something else and don't have upstream kernel 
-source handy at this moment. But I read akpm's comment as 
-"write_inode_now" would do writepage and that is *not* what you want (?) 
-(since vfs has done that before this call is invoked). I vaguely 
-recalled I did try write_inode_now() on GFS1 once but had to replace it 
-with "sync_inode" on RHEL4 (for the reason that I can't remember at this 
-moment). I suggest you keep "sync_inode" (at least for a while until we 
-can prove other call can do better). This "sync_inode" has been well 
-tested out (with GFS1's fsync call).
+The 38 HDDs are in 38 enclosures, so each has it's own power supply. I
+have used different cables and i replaced the USB-Controller once.
 
-There is another issue. It is a gray area. Note that you don't grab any 
-glock here ... so if someone *has* written something in other nodes, 
-this sync could miss it (?). This depends on how people expects a 
-fsync/fdatasync should behave in a cluster filesystem. GFS1 asks for a 
-shared lock here so it will force other node to flush the data (I 
-personally think this is a more correct behavior). Your call though.
+So it can't be a single faulty component. Except when the computer
+itself would be the culprit.
 
--- Wendy
+>>NEVER did i see any messages in syslog regarding erros or an aborting
+>>program due to errors passed down from the kernel or something like
+>>that.
+>
+>     The same here! Looks like USB-HDD adapters don't report any errors
+> to the kernel :?????
+> 
+>     The best advice I can give you, from my limited experience with the
+> problem, is: replace the cable. This minimizes the chance of corrupted
+> data getting into the adapter. If that doesn't solve the problem, try
+> removing any unconnected cable that is plugged into the USB card.
+> Believe it or not, a long but unconnected cable (put there just to be
+> able to plug my USB card-reader without having to look for the cable in
+> a drawer) was causing errors *even in a Kingston USB key that worked
+> flawlessly otherwise*!!!
 
-> --------------------------------------------------------------------------------------------
->
-> >From 34126f9f41901ca9d7d0031c2b11fc0d6c07b72d Mon Sep 17 00:00:00 2001
-> From: Steven Whitehouse <swhiteho@redhat.com>
-> Date: Thu, 7 Dec 2006 09:13:14 -0500
-> Subject: [PATCH] [GFS2] Change gfs2_fsync() to use write_inode_now()
->
-> This is a bit better than the previous version of gfs2_fsync()
-> although it would be better still if we were able to call a
-> function which only wrote the inode & metadata. Its no big deal
-> though that this will potentially write the data as well since
-> the VFS has already done that before calling gfs2_fsync(). I've
-> also added a comment to explain whats going on here.
->
-> Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-> Cc: Andrew Morton <akpm@osdl.org>
-> ---
->  fs/gfs2/ops_file.c |   11 ++++++-----
->  1 files changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/fs/gfs2/ops_file.c b/fs/gfs2/ops_file.c
-> index 7bd971b..b3f1e03 100644
-> --- a/fs/gfs2/ops_file.c
-> +++ b/fs/gfs2/ops_file.c
-> @@ -510,6 +510,11 @@ static int gfs2_close(struct inode *inod
->   * is set. For stuffed inodes we must flush the log in order to
->   * ensure that all data is on disk.
->   *
-> + * The call to write_inode_now() is there to write back metadata and
-> + * the inode itself. It does also try and write the data, but thats
-> + * (hopefully) a no-op due to the VFS having already called filemap_fdatawrite()
-> + * for us.
-> + *
->   * Returns: errno
->   */
->  
-> @@ -518,10 +523,6 @@ static int gfs2_fsync(struct file *file,
->  	struct inode *inode = dentry->d_inode;
->  	int sync_state = inode->i_state & (I_DIRTY_SYNC|I_DIRTY_DATASYNC);
->  	int ret = 0;
-> -	struct writeback_control wbc = {
-> -		.sync_mode = WB_SYNC_ALL,
-> -		.nr_to_write = 0,
-> -	};
->  
->  	if (gfs2_is_jdata(GFS2_I(inode))) {
->  		gfs2_log_flush(GFS2_SB(inode), GFS2_I(inode)->i_gl);
-> @@ -530,7 +531,7 @@ static int gfs2_fsync(struct file *file,
->  
->  	if (sync_state != 0) {
->  		if (!datasync)
-> -			ret = sync_inode(inode, &wbc);
-> +			ret = write_inode_now(inode, 0);
->  
->  		if (gfs2_is_stuffed(GFS2_I(inode)))
->  			gfs2_log_flush(GFS2_SB(inode), GFS2_I(inode)->i_gl);
->   
+Hmmm. That's the only thing that i currently may be doing wrong.
+I have a 1,5 Meter and a 4,5 Meter cable connected to the USB-Controller
+and i only use of them depending on where the HDD is placed in my room,
+the other one is dangling unconnected.
+
+Then i will unconnect the short cable and use the long cable exclusivly
+and see if it gets better(tm).
+
+>     If you have any other question, feel free to drop me a note. I'm
+> sorry I cannot give a much more technical or scientific answer, but
+> unfortunately I have none :((
+
+Thank you anyway.
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
 

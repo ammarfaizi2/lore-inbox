@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031724AbWLGGps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031757AbWLGHFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031724AbWLGGps (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 01:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031727AbWLGGps
+	id S1031757AbWLGHFG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 02:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031759AbWLGHFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 01:45:48 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:53965 "EHLO e6.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1031724AbWLGGpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 01:45:47 -0500
-Date: Thu, 7 Dec 2006 12:15:12 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Myron Stowe <myron.stowe@hp.com>, Jens Axboe <axboe@kernel.dk>,
-       Dipankar <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Gautham shenoy <ego@in.ibm.com>
-Subject: Re: workqueue deadlock
-Message-ID: <20061207064512.GA27583@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <200612061726.14587.bjorn.helgaas@hp.com> <20061207061701.GA25744@in.ibm.com>
+	Thu, 7 Dec 2006 02:05:05 -0500
+Received: from an-out-0708.google.com ([209.85.132.245]:38775 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1031757AbWLGHFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 02:05:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ES1WyGp8YYT1tk6S/Yx0nZcRCQj+E9RNijGeW59RPmSiXYv7jGJWCH5VZ8RYovN3veuJ48Ek1QxQROk8Zqp+Bk7wmSGhljt0gXhaKoE+eZXa8te/IB8syl9k9RMq1NS6a70SO14V1zImJHG/fT0wtUn4oc1RPxqT9d3RCMH6cxQ=
+Date: Wed, 6 Dec 2006 23:04:58 -0800
+From: Amit Choudhary <amit2030@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.19] net/wanrouter/wanmain.c: check kmalloc() return
+ value.
+Message-Id: <20061206230458.d11b2bb0.amit2030@gmail.com>
+Organization: X
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.15; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207061701.GA25744@in.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 11:47:01AM +0530, Srivatsa Vaddagiri wrote:
-> 	- Make it rw-sem
+Description: Check the return value of kmalloc() in function dbg_kmalloc(), in file net/wanrouter/wanmain.c.
 
-I think rw-sems also were shown to hit deadlocks (recursive read-lock
-attempt deadlocks when a writer comes between the two read attempts by the same
-thread). So below suggestion only seems to makes sense ..
+Signed-off-by: Amit Choudhary <amit2030@gmail.com>
 
-> 	- Make it per-cpu mutex, which could be either:
-> 
-> 		http://lkml.org/lkml/2006/11/30/110 - Ingo's suggestion
-> 		http://lkml.org/lkml/2006/10/26/65 - Gautham's work based on RCU
-> 
-> In Ingo's suggestion, I really dont know if the task_struct
-> modifications is a good thing (to support recursive requirements).
-> Gautham's patches avoid modifications to task_struct, is fast but can
-> starve writers (who want to bring down/up a CPU).
-
--- 
-Regards,
-vatsa
+diff --git a/net/wanrouter/wanmain.c b/net/wanrouter/wanmain.c
+index 316211d..263450c 100644
+--- a/net/wanrouter/wanmain.c
++++ b/net/wanrouter/wanmain.c
+@@ -67,6 +67,8 @@ static void * dbg_kmalloc(unsigned int s
+ 	int i = 0;
+ 	void * v = kmalloc(size+sizeof(unsigned int)+2*KMEM_SAFETYZONE*8,prio);
+ 	char * c1 = v;
++	if (!v)
++		return NULL;
+ 	c1 += sizeof(unsigned int);
+ 	*((unsigned int *)v) = size;
+ 

@@ -1,107 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032296AbWLGPc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032304AbWLGPcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032296AbWLGPc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 10:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032306AbWLGPc1
+	id S1032304AbWLGPcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 10:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032300AbWLGPcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 10:32:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48217 "EHLO mx1.redhat.com"
+	Thu, 7 Dec 2006 10:32:25 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48216 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032296AbWLGPcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1032290AbWLGPcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 7 Dec 2006 10:32:24 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/3] WorkStruct: Use direct assignment rather than cmpxchg()
-Date: Thu, 07 Dec 2006 15:31:43 +0000
+Subject: [PATCH 1/3] WorkStruct: Fix up some PA-RISC work items
+Date: Thu, 07 Dec 2006 15:31:38 +0000
 To: torvalds@osdl.org, akpm@osdl.org, davem@davemloft.com, wli@holomorphy.com,
        matthew@wil.cx
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
-References: <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use direct assignment rather than cmpxchg() as the latter is unavailable and
-unimplementable on some platforms and is actually unnecessary.
-
-The use of cmpxchg() was to guard against two possibilities, neither of which
-can actually occur:
-
- (1) The pending flag may have been unset or may be cleared.  However, given
-     where it's called, the pending flag is _always_ set.  I don't think it
-     can be unset whilst we're in set_wq_data().
-
-     Once the work is enqueued to be actually run, the only way off the queue
-     is for it to be actually run.
-
-     If it's a delayed work item, then the bit can't be cleared by the timer
-     because we haven't started the timer yet.  Also, the pending bit can't be
-     cleared by cancelling the delayed work _until_ the work item has had its
-     timer started.
-
- (2) The workqueue pointer might change.  This can only happen in two cases:
-
-     (a) The work item has just been queued to actually run, and so we're
-         protected by the appropriate workqueue spinlock.
-
-     (b) A delayed work item is being queued, and so the timer hasn't been
-     	 started yet, and so no one else knows about the work item or can
-     	 access it (the pending bit protects us).
-
-     Besides, set_wq_data() _sets_ the workqueue pointer unconditionally, so
-     it can be assigned instead.
-
-So, replacing the set_wq_data() with a straight assignment would be okay in
-most cases.  The problem is where we end up tangling with test_and_set_bit()
-emulated using spinlocks, and even then it's not a problem _provided_
-test_and_set_bit() doesn't attempt to modify the word if the bit was set.
-
-If that's a problem, then a bitops-proofed assignment will be required -
-equivalent to atomic_set() vs other atomic_xxx() ops.
+Fix up some PA-RISC work items broken by the workstruct reduction.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- kernel/workqueue.c |   21 +++++++++------------
- 1 files changed, 9 insertions(+), 12 deletions(-)
+ drivers/parisc/led.c   |   12 ++++++------
+ drivers/parisc/power.c |    4 ++--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 8d1e7cb..f5f3819 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -80,22 +80,19 @@ static inline int is_single_threaded(str
- 	return list_empty(&wq->list);
- }
+diff --git a/drivers/parisc/led.c b/drivers/parisc/led.c
+index 8dac2ba..6818c10 100644
+--- a/drivers/parisc/led.c
++++ b/drivers/parisc/led.c
+@@ -66,8 +66,8 @@ static char lcd_text_default[32]  __read
  
-+/*
-+ * Set the workqueue on which a work item is to be run
-+ * - Must *only* be called if the pending flag is set
-+ */
- static inline void set_wq_data(struct work_struct *work, void *wq)
+ 
+ static struct workqueue_struct *led_wq;
+-static void led_work_func(void *);
+-static DECLARE_WORK(led_task, led_work_func, NULL);
++static void led_work_func(struct work_struct *);
++static DECLARE_DELAYED_WORK(led_task, led_work_func);
+ 
+ #if 0
+ #define DPRINTK(x)	printk x
+@@ -136,7 +136,7 @@ static int start_task(void) 
+ 
+ 	/* Create the work queue and queue the LED task */
+ 	led_wq = create_singlethread_workqueue("led_wq");	
+-	queue_work(led_wq, &led_task);
++	queue_delayed_work(led_wq, &led_task, 0);
+ 
+ 	return 0;
+ }
+@@ -443,7 +443,7 @@ #define HEARTBEAT_2ND_RANGE_END   (HEART
+ 
+ #define LED_UPDATE_INTERVAL (1 + (HZ*19/1000))
+ 
+-static void led_work_func (void *unused)
++static void led_work_func (struct work_struct *unused)
  {
--	unsigned long new, old, res;
-+	unsigned long new;
-+
-+	BUG_ON(!work_pending(work));
+ 	static unsigned long last_jiffies;
+ 	static unsigned long count_HZ; /* counter in range 0..HZ */
+@@ -590,7 +590,7 @@ int __init register_led_driver(int model
  
--	/* assume the pending flag is already set and that the task has already
--	 * been queued on this workqueue */
- 	new = (unsigned long) wq | (1UL << WORK_STRUCT_PENDING);
--	res = work->management;
--	if (res != new) {
--		do {
--			old = res;
--			new = (unsigned long) wq;
--			new |= (old & WORK_STRUCT_FLAG_MASK);
--			res = cmpxchg(&work->management, old, new);
--		} while (res != old);
--	}
-+	new |= work->management & WORK_STRUCT_FLAG_MASK;
-+	assign_bits(new, &work->management);
- }
+ 	/* Ensure the work is queued */
+ 	if (led_wq) {
+-		queue_work(led_wq, &led_task);
++		queue_delayed_work(led_wq, &led_task, 0);
+ 	}
  
- static inline void *get_wq_data(struct work_struct *work)
+ 	return 0;
+@@ -660,7 +660,7 @@ int lcd_print( char *str )
+ 	
+ 	/* re-queue the work */
+ 	if (led_wq) {
+-		queue_work(led_wq, &led_task);
++		queue_delayed_work(led_wq, &led_task, 0);
+ 	}
+ 
+ 	return lcd_info.lcd_width;
+diff --git a/drivers/parisc/power.c b/drivers/parisc/power.c
+index 97e9dc0..9228e21 100644
+--- a/drivers/parisc/power.c
++++ b/drivers/parisc/power.c
+@@ -82,7 +82,7 @@ #define __getDIAG(dr) ( { 			\
+ } )
+ 
+ 
+-static void deferred_poweroff(void *dummy)
++static void deferred_poweroff(struct work_struct *unused)
+ {
+ 	if (kill_cad_pid(SIGINT, 1)) {
+ 		/* just in case killing init process failed */
+@@ -96,7 +96,7 @@ static void deferred_poweroff(void *dumm
+  * use schedule_work().
+  */
+ 
+-static DECLARE_WORK(poweroff_work, deferred_poweroff, NULL);
++static DECLARE_WORK(poweroff_work, deferred_poweroff);
+ 
+ static void poweroff(void)
+ {

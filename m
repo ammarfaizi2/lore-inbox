@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031866AbWLGIxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031867AbWLGJDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031866AbWLGIxx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 03:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031859AbWLGIxx
+	id S1031867AbWLGJDj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 04:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031873AbWLGJDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 03:53:53 -0500
-Received: from nic.NetDirect.CA ([216.16.235.2]:40552 "EHLO
-	rubicon.netdirect.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1031866AbWLGIxw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 03:53:52 -0500
-X-Originating-Ip: 74.102.209.62
-Date: Thu, 7 Dec 2006 03:49:27 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Randy Dunlap <randy.dunlap@oracle.com>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Restructure Device Driver menu entries
-In-Reply-To: <20061206121223.2c7c0c7b.randy.dunlap@oracle.com>
-Message-ID: <Pine.LNX.4.64.0612070345440.6261@localhost.localdomain>
-References: <Pine.LNX.4.64.0612060514210.7300@localhost.localdomain>
- <20061206121223.2c7c0c7b.randy.dunlap@oracle.com>
+	Thu, 7 Dec 2006 04:03:39 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:56137 "EHLO enyo.dsw2k3.info"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1031870AbWLGJDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 04:03:37 -0500
+Message-ID: <4577D8F9.90302@citd.de>
+Date: Thu, 07 Dec 2006 10:03:53 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Net-Direct-Inc-MailScanner-Information: Please contact the ISP for more information
-X-Net-Direct-Inc-MailScanner: Found to be clean
-X-Net-Direct-Inc-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
-	score=-16.8, required 5, autolearn=not spam, ALL_TRUSTED -1.80,
-	BAYES_00 -15.00)
-X-Net-Direct-Inc-MailScanner-From: rpjday@mindspring.com
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <45775A32.2050506@shaw.ca>
+In-Reply-To: <45775A32.2050506@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006, Randy Dunlap wrote:
+Robert Hancock wrote:
+> Matthias Schniedermeyer wrote:
+>> Hi
+>>
+>>
+>> I'm using a Bunch auf HDDs in USB-Enclosures for storing files.
+>> (currently 38 HDD, with a total capacity of 9,5 TB of which 8,5 TB is
+>> used)
+> 
+> All the same enclosure type?
 
-> On Wed, 6 Dec 2006 09:33:46 -0500 (EST) Robert P. J. Day wrote:
->
-> >
-> >   This is a *proposed* restructuring of the DD menu so that one can
-> > see and select/de-select entire submenus without having to enter each
-> > submenu.    It's also immediately obvious visually which submenus are
-> > currently active.
-> >
-> >   Based on Randy Dunlap's earlier suggestion, it uses the kbuild
-> > "menuconfig" feature.  I changed only those sub-entries that matched
-> > an obvious pattern (that is, selectable in their entirety).  If there
-> > was *anything* slightly different about that sub-entry, I left it
-> > alone.  (That doesn't mean that those sub-entries can't be similarly
-> > tweaked with a minimum of effort, I was just keeping it simple for
-> > now.)
-> >
-> >   Finally, if this structure is used, there's still a good deal of
-> > cleanup that can be done on each Kconfig file.  For example, if most
-> > of the mtd Kconfig file is now surrounded by
->
-> The FUSION part has a dependency that I'll leave for you:
->
-> Warning! Found recursive dependency: FUSION FUSION_SPI FUSION
->
-> reported by any "make *config".
+36x"Fantec (was MaPower) DB-335U2-1" with Genesys-Logic-Chipset (at
+least the model i used yesterday said that. I bought this 36 enclosures
+in the time from May/2005 - October/2006, so it is possible that they
+use different chipsets and/or revisions of the chipset)
+2x"IOmega 33644" bought last week, with a Chipset that says it is from
+IOMega, but i guess it is just a rebranded.
+I have errors with all of them.
 
-ah, quite right, i missed that.  that's because the fusion Kconfig
-file starts with:
+I have a spare enclosure Fantec DB-35U2-2, AFAICT it uses a
+Cypress-Chipset which i haven't used for some time, so ATM i don't
+remember if i had it with this one too.
 
-menu "Fusion MPT device support"
 
-config FUSION
-	bool
-	default n
+>> This time i kept the defective files and used "vbindiff" to show me the
+>> difference. Strangly in EVERY case the difference is a single bit in a
+>> sequence of "0xff"-Bytes inside a block of varing bit-values that
+>> changed a "0xff" into a "0xf7".
+>> Also interesting is that each error is at a 0xXXXXXXX5-Position
+>>
+>> Attached is a file with 5 of the 6 differences named 1-5. Of each of the
+>> 5 2x3 lines-blocks the first 3 lines are the original the following 3
+>> lines contain the error in the middle row 6th value.
+>>
+>> NEVER did i see any messages in syslog regarding erros or an aborting
+>> program due to errors passed down from the kernel or something like that.
+> 
+> The fact that the corruption seems data dependent would seem to me to
+> point to some kind of hardware problem. I would tend to suspect the
+> USB-to-IDE converters in the enclosures as being faulty or something
+> like that..
+> 
 
-config FUSION_SPI
-	tristate "Fusion MPT ScsiHost drivers for SPI"
-	depends on PCI && SCSI   <-- not dependent on FUSION
-	select FUSION
-	select SCSI_SPI_ATTRS
-	...
 
-  for now, then, i'm just going to remove the FUSION menu change from
-the upcoming patch and decide what to do about it later.  as i
-mentioned, i wanted this first patch to restructure entries that
-required nothing more than the obvious rewrite.  upcoming patch ...
-uh, upcoming shortly.
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
 
-rday

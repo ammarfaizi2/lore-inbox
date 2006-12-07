@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163186AbWLGS3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163734AbWLGXPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163186AbWLGS3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163184AbWLGS3n
+	id S1163734AbWLGXPA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 18:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163892AbWLGXPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:29:43 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:4991 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163185AbWLGS3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:29:41 -0500
-Date: Thu, 7 Dec 2006 19:29:40 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: [PATCH 2/5] PCI MMConfig: Only call unreachable_devices() when type 1 is available.
-Message-ID: <20061207182940.GB73583@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Muli Ben-Yehuda <muli@il.ibm.com>
-References: <20061207181726.GA69863@dspnet.fr.eu.org>
+	Thu, 7 Dec 2006 18:15:00 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:61622 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163879AbWLGXO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 18:14:58 -0500
+Date: Thu, 7 Dec 2006 15:15:22 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: David Miller <davem@davemloft.net>
+Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       jesper.juhl@gmail.com
+Subject: Re: [PATCH/RFC] CodingStyle updates
+Message-Id: <20061207151522.1b429966.randy.dunlap@oracle.com>
+In-Reply-To: <20061207.150635.07640320.davem@davemloft.net>
+References: <20061207004838.4d84842c.randy.dunlap@oracle.com>
+	<200612072254.51348.s0348365@sms.ed.ac.uk>
+	<45789D0F.6060100@oracle.com>
+	<20061207.150635.07640320.davem@davemloft.net>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207181726.GA69863@dspnet.fr.eu.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unreachable_devices compares between the results of pci configuration
-accesses through type1 and mmconfig, so it should be called only if
-type1 actually works in the first place.
+On Thu, 07 Dec 2006 15:06:35 -0800 (PST) David Miller wrote:
 
-Signed-off-by: Olivier Galibert <galibert@pobox.com>
+> From: Randy Dunlap <randy.dunlap@oracle.com>
+> Date: Thu, 07 Dec 2006 15:00:31 -0800
+> 
+> > Alistair John Strachan wrote:
+> > 
+> > >> +but no space after unary operators:
+> > >> +		sizeof  ++  --  &  *  +  -  ~  !  defined
+> > > 
+> > > You could mention typeof too, which is a keyword but should be done like 
+> > > sizeof.
+> > 
+> > Hm, is that a gcc-ism?  It's not listed in the C99 spec.
+> > 
+> > Are there other gcc-isms that I should add?
+> 
+> Perhaps you should add typeof and alignof, for starters.
+
+OK, I added both of those.  Thanks.
+
+Will resend soon.
 ---
- arch/i386/pci/mmconfig-shared.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/arch/i386/pci/mmconfig-shared.c b/arch/i386/pci/mmconfig-shared.c
-index b3ab210..7b19639 100644
---- a/arch/i386/pci/mmconfig-shared.c
-+++ b/arch/i386/pci/mmconfig-shared.c
-@@ -80,7 +80,8 @@ void __init pci_mmcfg_init(int type)
- 	}
- 
- 	if (pci_mmcfg_arch_init()) {
--		unreachable_devices();
-+		if (type == 1)
-+			unreachable_devices();
- 		pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
- 	}
- }
--- 
-1.4.4.1.g278f
-
+~Randy

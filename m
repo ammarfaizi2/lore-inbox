@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424330AbWLHEYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163191AbWLGSbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424330AbWLHEYg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 23:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWLHEYg
+	id S1163191AbWLGSbU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 13:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163193AbWLGSbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 23:24:36 -0500
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:55442 "EHLO
-	stout.engsoc.carleton.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424315AbWLHEYf (ORCPT
+	Thu, 7 Dec 2006 13:31:20 -0500
+Received: from zrtps0kp.nortel.com ([47.140.192.56]:43879 "EHLO
+	zrtps0kp.nortel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1163191AbWLGSbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 23:24:35 -0500
-Date: Thu, 7 Dec 2006 23:24:26 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] Re: [2.6 patch] arch/parisc/Makefile: remove GCC_VERSION
-Message-ID: <20061208042425.GC2606@athena.road.mcmartin.ca>
-References: <20061201114908.GR11084@stusta.de> <20061201182355.GC10549@colo.lackof.org>
+	Thu, 7 Dec 2006 13:31:18 -0500
+Message-ID: <45785DDD.3000503@nortel.com>
+Date: Thu, 07 Dec 2006 12:30:53 -0600
+From: "Chris Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061201182355.GC10549@colo.lackof.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: additional oom-killer tuneable worth submitting?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2006 18:31:05.0031 (UTC) FILETIME=[DAD0B570:01C71A2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 01, 2006 at 11:23:55AM -0700, Grant Grundler wrote:
-> I've committed a variant of this to git://git.parisc-linux.org/git/linux-2.6.git
-> I didn't test the failure case - only that it doesn't trigger with
-> my current gcc 4.x compilers.
-> 
-> I expect Kyle will push parisc tree to linus in the near future.
-> 
-> Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
-> 
 
-I like the version ggg committed to our cvs better (and I verified it
-correctly functions with gcc-3.0 from Debian woody.)
+The kernel currently has a way to adjust the oom-killer score via 
+/proc/<pid>/oomadj.
 
-Picked into my tree.
+However, to adjust this effectively requires knowledge of the scores of 
+all the other processes on the system.
 
-Cheers,
-	Kyle
+I'd like to float an idea (which we've implemented and been using for 
+some time) where the semantics are slightly different:
+
+We add a new "oom_thresh" member to the task struct.
+We introduce a new proc entry "/proc/<pid>/oomthresh" to control it.
+
+The "oom-thresh" value maps to the max expected memory consumption for 
+that process.  As long as a process uses less memory than the specified 
+threshold, then it is immune to the oom-killer.
+
+On an embedded platform this allows the designer to engineer the system 
+and protect critical apps based on their expected memory consumption. 
+If one of those apps goes crazy and starts chewing additional memory 
+then it becomes vulnerable to the oom killer while the other apps remain 
+protected.
+
+If a patch for the above feature was submitted, would there be any 
+chance of getting it included?  Maybe controlled by a config option?
+
+Chris

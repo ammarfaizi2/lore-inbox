@@ -1,191 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032101AbWLGMOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032100AbWLGMPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032101AbWLGMOX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 07:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032100AbWLGMOX
+	id S1032100AbWLGMPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 07:15:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032103AbWLGMPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 07:14:23 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:59493 "EHLO havoc.gtf.org"
+	Thu, 7 Dec 2006 07:15:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48599 "EHLO mx1.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032098AbWLGMOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 07:14:22 -0500
-Date: Thu, 7 Dec 2006 07:14:21 -0500
-From: Jeff Garzik <jeff@garzik.org>
-To: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] net driver updates
-Message-ID: <20061207121421.GA5627@havoc.gtf.org>
+	id S1032100AbWLGMPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 07:15:05 -0500
+Subject: [GFS2 & DLM] Pull request
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: cluster-devel@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20061201110927.ec6ee073.akpm@osdl.org>
+References: <1164889448.3752.449.camel@quoit.chygwyn.com>
+	 <20061130230158.174e995c.akpm@osdl.org>
+	 <1164970738.3752.508.camel@quoit.chygwyn.com>
+	 <20061201110927.ec6ee073.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 07 Dec 2006 12:17:49 +0000
+Message-Id: <1165493869.3752.848.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[just sent this upstream]
+Hi,
 
-Random schtuff.
+All the outstanding issues have now been resolved. Please consider
+pulling the following GFS2 & DLM patches,
 
-Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
+Steve.
 
-to receive the following updates:
+---------------------------------------------------------------------------------------
 
- drivers/net/3c501.c                            |    2 
- drivers/net/3c503.c                            |    2 
- drivers/net/3c505.c                            |    2 
- drivers/net/3c507.c                            |    2 
- drivers/net/3c523.c                            |    2 
- drivers/net/3c527.c                            |    2 
- drivers/net/ac3200.c                           |    2 
- drivers/net/apne.c                             |    4 
- drivers/net/appletalk/cops.c                   |    2 
- drivers/net/arm/at91_ether.c                   |   88 ++--
- drivers/net/arm/at91_ether.h                   |    1 
- drivers/net/arm/ether1.c                       |    6 
- drivers/net/arm/ether3.c                       |    8 
- drivers/net/at1700.c                           |    2 
- drivers/net/atarilance.c                       |    4 
- drivers/net/bonding/bond_main.c                |    2 
- drivers/net/cs89x0.c                           |    2 
- drivers/net/declance.c                         |  404 ++++++++++----------
- drivers/net/e2100.c                            |    2 
- drivers/net/eepro.c                            |    2 
- drivers/net/eexpress.c                         |    2 
- drivers/net/es3210.c                           |    2 
- drivers/net/eth16i.c                           |    2 
- drivers/net/hp-plus.c                          |    2 
- drivers/net/hp.c                               |    2 
- drivers/net/lance.c                            |    2 
- drivers/net/lne390.c                           |    2 
- drivers/net/mv643xx_eth.c                      |    4 
- drivers/net/mvme147.c                          |    4 
- drivers/net/myri10ge/myri10ge.c                |   95 +++--
- drivers/net/myri10ge/myri10ge_mcp.h            |   56 +--
- drivers/net/myri10ge/myri10ge_mcp_gen_header.h |    2 
- drivers/net/ne.c                               |    2 
- drivers/net/ne2.c                              |    2 
- drivers/net/netxen/netxen_nic.h                |  331 ++++++++++++----
- drivers/net/netxen/netxen_nic_ethtool.c        |   65 ++-
- drivers/net/netxen/netxen_nic_hdr.h            |    6 
- drivers/net/netxen/netxen_nic_hw.c             |  483 +++++++++++++++++++-----
- drivers/net/netxen/netxen_nic_hw.h             |   10 
- drivers/net/netxen/netxen_nic_init.c           |  361 ++++++++++++++----
- drivers/net/netxen/netxen_nic_ioctl.h          |    8 
- drivers/net/netxen/netxen_nic_isr.c            |   51 +--
- drivers/net/netxen/netxen_nic_main.c           |  306 +++++++++------
- drivers/net/netxen/netxen_nic_niu.c            |   32 +-
- drivers/net/netxen/netxen_nic_phan_reg.h       |  228 +++++++----
- drivers/net/ni52.c                             |    2 
- drivers/net/ni65.c                             |    2 
- drivers/net/ns83820.c                          |   25 +
- drivers/net/r8169.c                            |   84 +++-
- drivers/net/seeq8005.c                         |    2 
- drivers/net/sk98lin/skgesirq.c                 |    2 
- drivers/net/skge.h                             |  150 ++++---
- drivers/net/sky2.c                             |  117 +++---
- drivers/net/sky2.h                             |   54 +--
- drivers/net/smc-ultra.c                        |    2 
- drivers/net/smc-ultra32.c                      |    2 
- drivers/net/smc9194.c                          |    2 
- drivers/net/smc91x.h                           |   24 +
- drivers/net/sun3lance.c                        |    4 
- drivers/net/tokenring/smctr.c                  |    2 
- drivers/net/wd.c                               |    2 
- drivers/net/wireless/hostap/hostap_ap.c        |    4 
- drivers/net/wireless/hostap/hostap_cs.c        |    3 
- drivers/net/wireless/hostap/hostap_download.c  |    4 
- drivers/net/wireless/hostap/hostap_hw.c        |   12 -
- drivers/net/wireless/hostap/hostap_info.c      |    3 
- drivers/net/wireless/hostap/hostap_ioctl.c     |   12 -
- drivers/net/wireless/hostap/hostap_pci.c       |    3 
- drivers/net/wireless/hostap/hostap_plx.c       |    3 
- drivers/net/wireless/ipw2100.c                 |    2 
- drivers/net/wireless/ipw2200.c                 |   24 +
- drivers/net/wireless/prism54/isl_ioctl.c       |    9 
- drivers/net/wireless/prism54/oid_mgt.c         |    4 
- drivers/net/wireless/zd1211rw/zd_chip.c        |   13 +
- drivers/net/wireless/zd1211rw/zd_chip.h        |   43 ++
- drivers/net/wireless/zd1211rw/zd_mac.c         |   53 ++-
- drivers/net/wireless/zd1211rw/zd_mac.h         |    3 
- drivers/net/wireless/zd1211rw/zd_netdev.c      |    2 
- net/ieee80211/softmac/ieee80211softmac_assoc.c |   14 +
- net/ieee80211/softmac/ieee80211softmac_auth.c  |    2 
- net/ieee80211/softmac/ieee80211softmac_priv.h  |    2 
- net/ieee80211/softmac/ieee80211softmac_wx.c    |    3 
- 82 files changed, 2115 insertions(+), 1180 deletions(-)
+The following changes since commit 0215ffb08ce99e2bb59eca114a99499a4d06e704:
+  Linus Torvalds:
+        Linux 2.6.19
+
+are found in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/steve/gfs2-2.6-nmw.git
 
 Al Viro:
-      __iomem annotations: smc91x
-      mv643xx_eth.c NULL noise removal
-      trivial missing __init in drivers/net/*
-      drivers/net/arm missing __devinit
-      myri10ge annotations
-      ns83820 annotations
+      [GFS2] split gfs2_dinode into on-disk and host variants
+      [GFS2] gfs2_dinode_host fields are host-endian
+      [GFS2] split gfs2_sb
+      [GFS2] fields of gfs2_sb_host are host-endian
+      [GFS2] split and annotate gfs2_rgrp
+      [GFS2] split and annotate gfs2_inum_range
+      [GFS2] split and annotate gfs2_log_head
+      [GFS2] split and annotate gfs2_meta_header
+      [GFS2] split and annotate gfs_rindex
+      [GFS2] split and annotate gfs2_inum
+      [GFS2] split and annotate gfs2_quota
+      [GFS2] split and annotate gfs2_statfs_change
+      [GFS2] split and annotate gfs2_quota_change
+      [GFS2] gfs2 misc endianness annotations
+      [GFS2] gfs2 __user misannotation fix
 
-Amit S. Kale:
-      NetXen: whitespace cleaup and more cleanup fixes
-      NetXen: multiport firmware support, ioctl interface
+David Teigland:
+      [DLM] res_recover_locks_count not reset when recover_locks is aborted
+      [DLM] status messages ping-pong between unmounted nodes
+      [DLM] fix requestqueue race
+      [DLM] fix aborted recovery during node removal
+      [DLM] fix stopping unstarted recovery
+      [DLM] do full recover_locks barrier
+      [DLM] clear sbflags on lock master
+      [DLM] fix add_requestqueue checking nodes list
+      [DLM] fix size of STATUS_REPLY message
+      [DLM] don't accept replies to old recovery messages
 
-Andrew Victor:
-      AT91RM9200 Ethernet: Remove 'at91_dev' and use netdev_priv()
-      AT91RM9200 Ethernet: Move check_timer variable and use mod_timer()
-      AT91RM9200 Ethernet: Add netpoll / netconsole support
-      AT91RM9200 Ethernet: Use dev_alloc_skb()
+Patrick Caulfield:
+      [DLM] Add support for tcp communications
+      [DLM] Fix DLM config
+      [DLM] Clean up lowcomms
 
-Andy Gospodarek:
-      bonding: incorrect bonding state reported via ioctl
+Randy Dunlap:
+      [GFS2] lock function parameter
 
-Brice Goglin:
-      myri10ge: write as 2 32-byte blocks in myri10ge_submit_8rx
+Russell Cattelan:
+      [GFS2] Fix race in logging code
+      [GFS2] Remove unused zero_readpage from stuffed_readpage
 
-Daniel Drake:
-      zd1211rw: zd_mac_rx isn't always called in IRQ context
-      zd1211rw: Fill enc_capa in GIWRANGE handler
+Ryusuke Konishi:
+      [GFS2] fs/gfs2/log.c:log_bmap() fix printk format warning
+      [DLM] fix format warnings in rcom.c and recoverd.c
 
-Deepak Saxena:
-      Update smc91x driver with ARM Versatile board info
+Srinivasa Ds:
+      [GFS2] Mount problem with the GFS2 code
 
-Francois Romieu:
-      r8169: more magic during initialization of the hardware
-      r8169: tweak the PCI data parity error recovery
-      r8169: phy program update
-      r8169: more alignment for the 0x8168
+Steven Whitehouse:
+      [GFS2] Fix crc32 calculation in recovery.c
+      [GFS2] Change argument of gfs2_dinode_out
+      [GFS2] Change argument to gfs2_dinode_in
+      [GFS2] Move gfs2_dinode_in to inode.c
+      [GFS2] Change argument to gfs2_dinode_print
+      [GFS2] Shrink gfs2_inode (1) - di_header/di_num
+      [GFS2] Shrink gfs2_inode (2) - di_major/di_minor
+      [GFS2] Shrink gfs2_inode (3) - di_mode
+      [GFS2] Shrink gfs2_inode (4) - di_uid/di_gid
+      [GFS2] Shrink gfs2_inode (5) - di_nlink
+      [GFS2] Shrink gfs2_inode (6) - di_atime/di_mtime/di_ctime
+      [GFS2] Shrink gfs2_inode (7) - di_payload_format
+      [GFS2] Shrink gfs2_inode (8) - i_vn
+      [GFS2] Tidy up 0 initialisations in inode.c
+      [GFS2] Don't copy meta_header for rgrp in and out
+      [GFS2] Remove unused GL_DUMP flag
+      [GFS2] Fix page lock/glock deadlock
+      [GFS2] Only set inode flags when required
+      [GFS2] Inode number is constant
+      [GFS2] Remove gfs2_inode_attr_in
+      [GFS2] Fix memory allocation in glock.c
+      [GFS2] Tidy up bmap & fix boundary bug
+      [GFS2] Remove unused sysfs files
+      [GFS2] Remove unused function from inode.c
+      [GFS2] Make sentinel dirents compatible with gfs1
+      [GFS2] Fix Kconfig wrt CRC32
+      [GFS2] Simplify glops functions
+      [GFS2] Fix glock ordering on inode creation
+      [GFS2] mark_inode_dirty after write to stuffed file
+      [GFS2] Fix journal flush problem
+      [GFS2] Move gfs2_meta_syncfs() into log.c
+      [GFS2] Reduce number of arguments to meta_io.c:getbuf()
+      [GFS2] Fix recursive locking in gfs2_permission
+      [GFS2] Fix recursive locking in gfs2_getattr
+      [GFS2] Remove gfs2_check_acl()
+      [GFS2] Add a comment about reading the super block
+      [GFS2] Don't flush everything on fdatasync
+      [GFS2] Fix indent in recovery.c
+      [GFS2] Change gfs2_fsync() to use write_inode_now()
 
-Jeff Garzik:
-      [netdrvr] netxen: workqueue-related build fixes
-      [wireless] zd1211rw: workqueue-related build fixes
+ fs/dlm/Kconfig              |   20 +
+ fs/dlm/Makefile             |    4 
+ fs/dlm/dlm_internal.h       |    4 
+ fs/dlm/lock.c               |   16 -
+ fs/dlm/lockspace.c          |    4 
+ fs/dlm/lowcomms-sctp.c      | 1227 +++++++++++++++++++++++++++++++++++++++++++
+ fs/dlm/lowcomms-tcp.c       | 1189 +++++++++++++++++++++++++++++++++++++++++
+ fs/dlm/lowcomms.c           | 1239 -------------------------------------------
+ fs/dlm/lowcomms.h           |    2 
+ fs/dlm/main.c               |   10 
+ fs/dlm/member.c             |    8 
+ fs/dlm/rcom.c               |   58 ++
+ fs/dlm/recover.c            |    1 
+ fs/dlm/recoverd.c           |   44 +-
+ fs/dlm/requestqueue.c       |   26 +
+ fs/dlm/requestqueue.h       |    2 
+ fs/gfs2/Kconfig             |    1 
+ fs/gfs2/acl.c               |   39 -
+ fs/gfs2/acl.h               |    1 
+ fs/gfs2/bmap.c              |  179 +++---
+ fs/gfs2/daemon.c            |    7 
+ fs/gfs2/dir.c               |   93 ++-
+ fs/gfs2/dir.h               |    8 
+ fs/gfs2/eaops.c             |    2 
+ fs/gfs2/eattr.c             |   66 +-
+ fs/gfs2/eattr.h             |    6 
+ fs/gfs2/glock.c             |   36 -
+ fs/gfs2/glock.h             |    3 
+ fs/gfs2/glops.c             |  138 +----
+ fs/gfs2/incore.h            |   43 +
+ fs/gfs2/inode.c             |  406 +++++---------
+ fs/gfs2/inode.h             |   20 -
+ fs/gfs2/log.c               |   41 +
+ fs/gfs2/log.h               |    2 
+ fs/gfs2/lops.c              |   40 +
+ fs/gfs2/lops.h              |    2 
+ fs/gfs2/meta_io.c           |   46 +-
+ fs/gfs2/meta_io.h           |    1 
+ fs/gfs2/ondisk.c            |  138 +----
+ fs/gfs2/ops_address.c       |   52 +-
+ fs/gfs2/ops_dentry.c        |    4 
+ fs/gfs2/ops_export.c        |   38 +
+ fs/gfs2/ops_export.h        |    2 
+ fs/gfs2/ops_file.c          |   66 ++
+ fs/gfs2/ops_file.h          |    2 
+ fs/gfs2/ops_fstype.c        |    4 
+ fs/gfs2/ops_inode.c         |  134 ++---
+ fs/gfs2/ops_super.c         |   11 
+ fs/gfs2/ops_vm.c            |    2 
+ fs/gfs2/quota.c             |   15 -
+ fs/gfs2/recovery.c          |   29 +
+ fs/gfs2/recovery.h          |    2 
+ fs/gfs2/rgrp.c              |   13 
+ fs/gfs2/super.c             |   50 +-
+ fs/gfs2/super.h             |    6 
+ fs/gfs2/sys.c               |    8 
+ fs/gfs2/util.h              |    6 
+ include/linux/gfs2_ondisk.h |  138 ++++-
+ 58 files changed, 3442 insertions(+), 2312 deletions(-)
+ create mode 100644 fs/dlm/lowcomms-sctp.c
+ create mode 100644 fs/dlm/lowcomms-tcp.c
+ delete mode 100644 fs/dlm/lowcomms.c
 
-Maciej W. Rozycki:
-      declance: Fix PMAX and PMAD support
-      declance: Support the I/O ASIC LANCE w/o TURBOchannel
-
-Mariusz Kozlowski:
-      sk98lin debug build fix
-      net: smc91x add missing bracket
-
-Maxime Austruy:
-      softmac: fix unbalanced mutex_lock/unlock in ieee80211softmac_wx_set_mlme
-
-Stephen Hemminger:
-      sky2: add PCI for 88ec033
-      sky2: add comments to PCI ids
-      sky2: beter ram buffer partitioning
-      sky2: receive queue watermark tweak
-      skge: fix sparse warnings
-      sky2: sparse warnings
-
-Ulrich Kunitz:
-      zd1211rw: Support for multicast addresses
-      softmac: Fixed handling of deassociation from AP
-
-Yan Burman:
-      hostap: replace kmalloc+memset with kzalloc
-      prism54: replace kmalloc+memset with kzalloc
-      ipw2200: replace kmalloc+memset with kcalloc
-
-Zhu Yi:
-      ipw2200: Add IEEE80211_RADIOTAP_TSFT for promiscuous mode
-      ipw2200: Update version stamp to 1.2.0
-      ipw2200: Fix a typo
-      ipw2200: Fix debug output endian issue
 

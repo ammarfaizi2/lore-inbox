@@ -1,85 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425424AbWLHLwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163652AbWLGW6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425424AbWLHLwr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:52:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425425AbWLHLwr
+	id S1163652AbWLGW6e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 17:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163649AbWLGW6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:52:47 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52357 "EHLO smtp.osdl.org"
+	Thu, 7 Dec 2006 17:58:34 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:43330 "EHLO e2.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425424AbWLHLwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:52:46 -0500
-Message-Id: <200612081152.kB8BqWOl019777@shell0.pdx.osdl.net>
-Subject: [patch 10/13] cleanup taskstats.h
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
-       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
-       tee@sgi.com
-From: akpm@osdl.org
-Date: Fri, 08 Dec 2006 03:52:32 -0800
+	id S1163651AbWLGW6b convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 17:58:31 -0500
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: cbe-oss-dev@ozlabs.org
+Subject: Re: [Cbe-oss-dev] [PATCH]Add notification for active Cell SPU tasks
+Date: Thu, 7 Dec 2006 23:58:13 +0100
+User-Agent: KMail/1.9.5
+Cc: Maynard Johnson <maynardj@us.ibm.com>, Luke Browning <lukeb@br.ibm.com>,
+       maynardj@linux.vnet.ibm.com,
+       linuxppc-dev-bounces+lukebrowning=us.ibm.com@ozlabs.org,
+       Luke Browning <lukebrowning@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, oprofile-list@lists.sourceforge.net
+References: <OF9A01B09B.B62F8342-ON8325723C.006A9343-8325723C.006B2236@us.ibm.com> <45773E85.8040505@us.ibm.com>
+In-Reply-To: <45773E85.8040505@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612072358.15707.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
+On Wednesday 06 December 2006 23:04, Maynard Johnson wrote:
+> text(struct spu *spu, struct 
+> > spu_context *ctx)
+> > >
+> > > Is this really the right strategy?  First, it serializes all spu 
+> > context
+> > > switching at the node level.  Second, it performs 17 callouts for
+> >
+> I could be wrong, but I think if we moved the mutex_lock to be inside of 
+> the list_for_each_entry loop, we could have a race condition.  For 
+> example, we obtain the next spu item from the spu_prio->active_mutex 
+> list, then wait on the mutex which is being held for the purpose of 
+> removing the very spu context we just obtained.
+> 
+> > > every context
+> > > switch.  Can't oprofile internally derive the list of active spus 
+> > from the  
+> > > context switch callout. 
+> >
+> Arnd would certainly know the answer to this off the top of his head, 
+> but when I initially discussed the idea for this patch with him 
+> (probably a couple months ago or so), he didn't suggest a better 
+> alternative.  Perhaps there is a way to do this with current SPUFS 
+> code.  Arnd, any comments on this?
 
-Fix weird whitespace mangling in taskstats.h
 
-Cc: Jay Lan <jlan@sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chris Sturtivant <csturtiv@sgi.com>
-Cc: Tony Ernst <tee@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: David Wright <daw@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- include/linux/taskstats.h |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+No code should ever need to look at other SPUs when performing an
+operation on a given SPU, so we don't need to hold a global lock
+during normal operation.
 
-diff -puN include/linux/taskstats.h~cleanup-taskstatsh include/linux/taskstats.h
---- a/include/linux/taskstats.h~cleanup-taskstatsh
-+++ a/include/linux/taskstats.h
-@@ -115,31 +115,31 @@ struct taskstats {
- 	__u64	ac_majflt;		/* Major Page Fault Count */
- 	/* Basic Accounting Fields end */
- 
-- 	/* Extended accounting fields start */
-+	/* Extended accounting fields start */
- 	/* Accumulated RSS usage in duration of a task, in MBytes-usecs.
- 	 * The current rss usage is added to this counter every time
- 	 * a tick is charged to a task's system time. So, at the end we
- 	 * will have memory usage multiplied by system time. Thus an
- 	 * average usage per system time unit can be calculated.
- 	 */
-- 	__u64	coremem;		/* accumulated RSS usage in MB-usec */
-+	__u64	coremem;		/* accumulated RSS usage in MB-usec */
- 	/* Accumulated virtual memory usage in duration of a task.
- 	 * Same as acct_rss_mem1 above except that we keep track of VM usage.
- 	 */
-- 	__u64	virtmem;		/* accumulated VM  usage in MB-usec */
-+	__u64	virtmem;		/* accumulated VM  usage in MB-usec */
- 
- 	/* High watermark of RSS and virtual memory usage in duration of
- 	 * a task, in KBytes.
- 	 */
-- 	__u64	hiwater_rss;		/* High-watermark of RSS usage, in KB */
-- 	__u64	hiwater_vm;		/* High-water VM usage, in KB */
-+	__u64	hiwater_rss;		/* High-watermark of RSS usage, in KB */
-+	__u64	hiwater_vm;		/* High-water VM usage, in KB */
- 
- 	/* The following four fields are I/O statistics of a task. */
-- 	__u64	read_char;		/* bytes read */
-- 	__u64	write_char;		/* bytes written */
-- 	__u64	read_syscalls;		/* read syscalls */
-- 	__u64	write_syscalls;		/* write syscalls */
-- 	/* Extended accounting fields end */
-+	__u64	read_char;		/* bytes read */
-+	__u64	write_char;		/* bytes written */
-+	__u64	read_syscalls;		/* read syscalls */
-+	__u64	write_syscalls;		/* write syscalls */
-+	/* Extended accounting fields end */
- };
- 
- 
-_
+We have two cases that need to be handled:
+
+- on each context unload and load (both for a full switch operation),
+  call to the profiling code with a pointer to the current context
+  and spu (context is NULL when unloading).
+
+  If the new context is not know yet, scan its overlay table (expensive)
+  and store information about it in an oprofile private object. Otherwise
+  just point to the currently active object, this should be really cheap.
+
+- When enabling oprofile initially, scan all contexts that are currently
+  running on one of the SPUs. This is also expensive, but should happen
+  before the measurement starts so it does not impact the resulting data.
+
+> > >
+> > > Also, the notify_spus_active() callout is dependent on the return 
+> > code of
+> > > spu_switch_notify().  Should notification be hierarchical?  If I
+> > > only register
+> > > for the second one, should my notification be dependent on the 
+> > return code
+> > > of some non-related subsystem's handler. 
+> >
+> I'm not exactly sure what you're saying here.  Are you suggesting that a 
+> user may only be interested in acitve SPU notification and, therefore, 
+> shouldn't have to be depenent on the "standard" notification 
+> registration succeeding?  There may be a case for adding a new 
+> registration function, I suppose; although, I'm not aware of any other 
+> users of the SPUFS notification mechanism besides OProfile and PDT, and 
+> we need notification of both active and future SPU tasks.  But I would 
+> not object to a new function.
+> 
+I think what Luke was trying to get to is that notify_spus_active() should
+not call blocking_notifier_call_chain(), since it will notify other users
+as well as the newly registered one. Instead, it can simply call the
+notifier function directly.
+
+	Arnd <><

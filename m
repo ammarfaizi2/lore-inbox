@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968809AbWLGFZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S968819AbWLGFdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S968809AbWLGFZX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 00:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968811AbWLGFZX
+	id S968819AbWLGFdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 00:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S968820AbWLGFdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 00:25:23 -0500
-Received: from py-out-1112.google.com ([64.233.166.178]:48020 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S968809AbWLGFZW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 00:25:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=iYSZKTbSn6gY47hVvy2UKGth9UfKp9evffHtiMdpllog28j0mVun2sfeU4F0XyCF+eZBQFNhS1qxu8xqJiTW8VV9AVQyKsRiJu3/zOf9mq+k0QYjgbXUgfkjUnLapt328qjI7VGAqFiVwcbkRfnrb8gTF35wuE7W1sP8w/upoys=
-Message-ID: <4577A5C4.90703@gmail.com>
-Date: Thu, 07 Dec 2006 13:25:24 +0800
-From: Liyu <raise.sail@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 7 Dec 2006 00:33:21 -0500
+Received: from ozlabs.org ([203.10.76.45]:48524 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S968819AbWLGFdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 00:33:20 -0500
+From: Michael Neuling <mikey@neuling.org>
+To: linux-kernel@vger.kernel.org
+cc: H Peter Anvin <hpa@zytor.com>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Randy Dunlap <randy.dunlap@oracle.com>
+X-GPG-Fingerprint: 9B25 DC2A C58D 2C8D 47C2  457E 0887 E86F 32E6 BE16
 MIME-Version: 1.0
-To: Jiri Kosina <jkosina@suse.cz>
-CC: Li Yu <raise.sail@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Greg Kroah Hartman <greg@kroah.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Vincent Legoll <vincentlegoll@gmail.com>,
-       "Zephaniah E. Hull" <warp@aehallh.com>,
-       Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.4.1 (core)
-References: <200612061803324532133@gmail.com> <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0612061114560.28502@twin.jikos.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Add retain_initrd boot option
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 21.4.1
+Date: Thu, 07 Dec 2006 16:33:17 +1100
+Message-ID: <20614.1165469597@neuling.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Kosina wrote:
-> Do you think that you could wait a little bit more, after the split has 
-> been done? (it's currently planned approximately after 2.6.20-rc1). It 
-> seems to me that your patches will apply almost cleanly on top of the 
-> split patches (you will have to change the pathnames, of course).  
-Of course, I interest to wait this. If they have other weakless, tell me
-too.
-I also think the HID split plan is a great idea.
+Add retain_initrd option to control freeing of initrd memory after
+extraction.  By default, free memory as previously. 
 
-Dmitry wrote:
-> I still have the same objection - the "simple'" code will have to be
-> compiled into the driver instead of being a separate module and
-> eventyally will lead to a monster-size HID module. We have this issue
-> with psmouse to a degree but with HID the growth potential is much
-> bigger IMO.
+The first boot will need to hold a copy of the in memory fs for the
+second boot.  This image can be large (much larger than the kernel),
+hence we can save time when the memory loader is slow.  Also, it reduces
+the memory footprint while extracting the first boot since you don't
+need another copy of the fs.
 
-As you guess;), I do not agree with your words very much. We can image,
-there
-are many devices use some HID base layer, however they even do not merge
-into
-mainstream kernel source tree for some reasons. and in fact, I do not
-like the
-mainstream kernel source tree include every drivers. For such devices
-out of core,
-we should have such feature that let developer write such driver
-quickly. I think
-it allows many monster-size driver modules is a better means than
-all-in-one.But we
-need resolve /dev/input/event? switching problem in principle first,
-else we still
-encounter same problem when new hidraw come.
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+---
+Removed unnecessary init of do_retain_initrd as suggested by Randy
+Dunlap.
 
-Good luck.
+ Documentation/kernel-parameters.txt |    2 ++
+ init/initramfs.c                    |   18 ++++++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
--Li Yu
-www.co-create.com.cn
-
+Index: linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+===================================================================
+--- linux-2.6-ozlabs.orig/Documentation/kernel-parameters.txt
++++ linux-2.6-ozlabs/Documentation/kernel-parameters.txt
+@@ -1366,6 +1366,8 @@ and is between 256 and 4096 characters. 
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
+ 
++	retain_initrd	[RAM] Keep initrd memory after extraction
++
+ 	rhash_entries=	[KNL,NET]
+ 			Set number of hash buckets for route cache
+ 
+Index: linux-2.6-ozlabs/init/initramfs.c
+===================================================================
+--- linux-2.6-ozlabs.orig/init/initramfs.c
++++ linux-2.6-ozlabs/init/initramfs.c
+@@ -487,6 +487,17 @@ static char * __init unpack_to_rootfs(ch
+ 	return message;
+ }
+ 
++static int do_retain_initrd;
++
++static int __init retain_initrd_param(char *str)
++{
++	if (*str)
++		return 0;
++	do_retain_initrd = 1;
++	return 1;
++}
++__setup("retain_initrd", retain_initrd_param);
++
+ extern char __initramfs_start[], __initramfs_end[];
+ #ifdef CONFIG_BLK_DEV_INITRD
+ #include <linux/initrd.h>
+@@ -494,10 +505,13 @@ extern char __initramfs_start[], __initr
+ 
+ static void __init free_initrd(void)
+ {
+-#ifdef CONFIG_KEXEC
+ 	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
+ 	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
+ 
++	if (do_retain_initrd)
++		goto skip;
++
++#ifdef CONFIG_KEXEC
+ 	/*
+ 	 * If the initrd region is overlapped with crashkernel reserved region,
+ 	 * free only memory that is not part of crashkernel region.
+@@ -515,7 +529,7 @@ static void __init free_initrd(void)
+ 	} else
+ #endif
+ 		free_initrd_mem(initrd_start, initrd_end);
+-
++skip:
+ 	initrd_start = 0;
+ 	initrd_end = 0;
+ }

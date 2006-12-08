@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425179AbWLHIcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164344AbWLHBO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425179AbWLHIcU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 03:32:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032531AbWLHIcU
+	id S1164344AbWLHBO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164328AbWLHBOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 03:32:20 -0500
-Received: from gw-eur4.philips.com ([161.85.125.10]:55966 "EHLO
-	gw-eur4.philips.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032528AbWLHIcT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 03:32:19 -0500
-In-Reply-To: <200612062117.27946.a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: typo in init/initramfs.c
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
-Message-ID: <OFFC8397EF.1D0C38CD-ONC125723E.002EA3BB-C125723E.002EE367@philips.com>
-From: Jean-Paul Saman <jean-paul.saman@nxp.com>
-Date: Fri, 8 Dec 2006 09:32:03 +0100
-X-MIMETrack: Serialize by Router on ehvrmh02/H/SERVER/PHILIPS(Release 6.5.5HF805 | August
- 26, 2006) at 08/12/2006 09:32:05,
-	Serialize complete at 08/12/2006 09:32:05
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 7 Dec 2006 20:14:05 -0500
+Received: from mail.suse.de ([195.135.220.2]:58464 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164325AbWLHBNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:13:49 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:14:02 +1100
+Message-Id: <1061208011402.30651@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 008 of 18] knfsd: svcrpc: remove another silent drop from deferral code
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote on 06-12-2006 19:17:27:
 
-> Jean-Paul Saman wrote:
-> >
-> > In populate_rootfs() the printk on line 554. It says "Unpacking
-> > initramfs..", which is confusing because if that line is reached the 
-code
-> > has already decided that the image is an initrd image.
-> 
-> Are you sure?
+From: J.Bruce Fields <bfields@fieldses.org>
 
-Yes.
+There's no point deferring something just to immediately fail the deferral,
+especially now that we can do something more useful in the failure case by
+returning an error.
 
-> 
-> > The printk is thus
-> > wrong in stating that it is unpacking an "initramfs". It should says
-> > "initrd" instead. The attached patch corrects this typo.
-> >
-> > Signed-off-by: Jean-Paul Saman <jean-paul.saman@nxp.com>
-> >
-> > diff --git a/init/initramfs.c b/init/initramfs.c
-> > index d28c109..f6020db 100644
-> > --- a/init/initramfs.c
-> > +++ b/init/initramfs.c
-> > @@ -551,7 +551,7 @@ #ifdef CONFIG_BLK_DEV_RAM
-> 
-> This is where initramfs is discerned from initrd, as both are available.
-> 
-> >                         free_initrd();
-> >                 }
-> >  #else
-> 
-> Otherwise it's initramfs only.
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-No otherwise it falls under CONFIG_BLK_DEV_INITRD and it that suggests it 
-must be a initrd, not a initramfs as the original printk() suggests.
+### Diffstat output
+ ./net/sunrpc/cache.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-> 
-> > -               printk(KERN_INFO "Unpacking initramfs...");
-> > +              printk(KERN_INFO "Unpacking initrd...");
-> >                 err = unpack_to_rootfs((char *)initrd_start,
-> >                         initrd_end - initrd_start, 0);
-> >                 if (err)
-> >
-> > -
-
-Kind greetings,
-
-Jean-Paul Saman
-
-NXP Semiconductors CTO/RTG DesignIP
+diff .prev/net/sunrpc/cache.c ./net/sunrpc/cache.c
+--- .prev/net/sunrpc/cache.c	2006-12-08 12:09:12.000000000 +1100
++++ ./net/sunrpc/cache.c	2006-12-08 12:09:26.000000000 +1100
+@@ -530,6 +530,13 @@ static int cache_defer_req(struct cache_
+ 	struct cache_deferred_req *dreq;
+ 	int hash = DFR_HASH(item);
+ 
++	if (cache_defer_cnt >= DFR_MAX) {
++		/* too much in the cache, randomly drop this one,
++		 * or continue and drop the oldest below
++		 */
++		if (net_random()&1)
++			return -ETIMEDOUT;
++	}
+ 	dreq = req->defer(req);
+ 	if (dreq == NULL)
+ 		return -ETIMEDOUT;
+@@ -548,17 +555,8 @@ static int cache_defer_req(struct cache_
+ 	/* it is in, now maybe clean up */
+ 	dreq = NULL;
+ 	if (++cache_defer_cnt > DFR_MAX) {
+-		/* too much in the cache, randomly drop
+-		 * first or last
+-		 */
+-		if (net_random()&1) 
+-			dreq = list_entry(cache_defer_list.next,
+-					  struct cache_deferred_req,
+-					  recent);
+-		else
+-			dreq = list_entry(cache_defer_list.prev,
+-					  struct cache_deferred_req,
+-					  recent);
++		dreq = list_entry(cache_defer_list.prev,
++				  struct cache_deferred_req, recent);
+ 		list_del(&dreq->recent);
+ 		list_del(&dreq->hash);
+ 		cache_defer_cnt--;

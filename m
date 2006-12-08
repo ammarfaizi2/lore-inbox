@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163440AbWLGVmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425326AbWLHKdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163440AbWLGVmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163439AbWLGVmJ
+	id S1425326AbWLHKdo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 05:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425337AbWLHKdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:42:09 -0500
-Received: from smtp1.Stanford.EDU ([171.67.22.28]:45923 "EHLO
-	smtp1.stanford.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163411AbWLGVmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:42:05 -0500
-Subject: Re: v2.6.19-rt6, yum/rpm
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       linux-rt-users@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-       Clark Williams <williams@redhat.com>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Giandomenico De Tullio <ghisha@email.it>
-In-Reply-To: <1165525665.9244.39.camel@cmn3.stanford.edu>
-References: <20061205171114.GA25926@elte.hu>
-	 <1165524358.9244.33.camel@cmn3.stanford.edu>
-	 <20061207205819.GA21953@elte.hu>
-	 <1165525665.9244.39.camel@cmn3.stanford.edu>
-Content-Type: text/plain
-Date: Thu, 07 Dec 2006 13:42:03 -0800
-Message-Id: <1165527723.9244.45.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 05:33:43 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58432 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1425326AbWLHKdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 05:33:43 -0500
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: davej@codemonkey.org.uk,
+       "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>,
+       Randy Dunlap <randy.dunlap@oracle.com>, shai.satt@intel.com,
+       Andi Kleen <ak@suse.de>, hpa@zytor.com, Paul Jackson <pj@sgi.com>
+Date: Fri, 08 Dec 2006 02:33:36 -0800
+Message-Id: <20061208103336.4644.96389.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] efi is_memory_available ia64 hack build fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-07 at 13:07 -0800, Fernando Lopez-Lezcano wrote:
-> On Thu, 2006-12-07 at 21:58 +0100, Ingo Molnar wrote:
-> > * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> > 
-> > > Much better performance in terms of xruns with Jackd. Hardly any at 
-> > > all as it should be. I'm starting to test -rt8 right now.
-> > > 
-> > > Now, I still don't have an smp machine to test so the improvement 
-> > > could be because I'm just running 64 bit up instead of smp. Or it 
-> > > could have been the hardware on that other machine that had some 
-> > > problem (either because it was starting to fail or because the kernel 
-> > > drivers for that hardware were somehow triggering the xruns).
-> > 
-> > i think it's the UP vs. SMP difference. We are chasing some SMP 
-> > latencies right now that trigger on boxes that have deeper C sleep 
-> > states. idle=poll seems to work around those problems.
-> 
-> Oh well, it looked too good, anyway, it is winter here so the extra
-> heating should be fine :-)
+From: Paul Jackson <pj@sgi.com>
 
-Hmmm, when I was testing on smp I was running with the speed set to the
-top speed of the processors (through the small gnome cpuspeed applet). I
-imagine that the C states would not have been the problem...
+The addition of an is_available_memory() routine to some arch i386
+code, along with an extern for it in efi.h, caused the ia64 build
+to fail, which has the apparently identical routine, marked 'static'.
 
--- Fernando
+The ia64 build fails with:
 
+arch/ia64/kernel/efi.c:229: error: static declaration of 'is_available_memory' follows non-static declaration
+include/linux/efi.h:305: error: previous declaration of 'is_available_memory' was here              
 
+Removing the static modifier from the ia64 definition of this
+routine lets it build.
+
+But it still doesn't seem right - as now we have two apparently
+identical copies of is_available_memory() defined, in:
+
+  arch/i386/kernel/efi.c
+  arch/ia64/kernel/efi.c
+
+However, I don't know what to do about that.
+At least the build gets past this point now.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ arch/ia64/kernel/efi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- 2.6.19-rc6-mm2.orig/arch/ia64/kernel/efi.c	2006-12-08 02:05:57.190745630 -0800
++++ 2.6.19-rc6-mm2/arch/ia64/kernel/efi.c	2006-12-08 02:07:38.256082124 -0800
+@@ -224,7 +224,7 @@ efi_gettimeofday (struct timespec *ts)
+ 	ts->tv_nsec = tm.nanosecond;
+ }
+ 
+-static int
++int
+ is_available_memory (efi_memory_desc_t *md)
+ {
+ 	if (!(md->attribute & EFI_MEMORY_WB))
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

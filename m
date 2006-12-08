@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947551AbWLIAEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947545AbWLIACC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947551AbWLIAEE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 19:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947557AbWLIADi
+	id S1947545AbWLIACC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 19:02:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947554AbWLIACB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:03:38 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37669 "EHLO
+	Fri, 8 Dec 2006 19:02:01 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37661 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947543AbWLIACH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:02:07 -0500
-Message-Id: <20061209000328.188464000@sous-sol.org>
+	id S1947548AbWLIABy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 19:01:54 -0500
+Message-Id: <20061209000234.680421000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:58:22 -0800
+Date: Fri, 08 Dec 2006 15:58:18 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, ak@muc.de
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, shai@scalex86.org, kiran@scalex86.org
-Subject: [patch 31/32] x86_64: fix boot hang due to nmi watchdog init code
-Content-Disposition: inline; filename=x86_64-fix-boot-hang-due-to-nmi-watchdog-init-code.patch
+       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, rjw@sisk.pl, pavel@ucw.cz
+Subject: [patch 27/32] PM: Fix swsusp debug mode testproc
+Content-Disposition: inline; filename=pm-fix-swsusp-debug-mode-testproc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
+From: Rafael J Wysocki <rjw@sisk.pl>
 
-2.6.19 stopped booting (or booted based on build/config) on our x86_64
-systems due to a bug introduced in 2.6.19.  check_nmi_watchdog schedules an
-IPI on all cpus to busy wait on a flag, but fails to set the busywait flag
-if NMI functionality is disabled.
+The 'testproc' swsusp debug mode thaws tasks twice in a row, which is _very_
+confusing.  Fix that.
 
-This causes the secondary cpus to spin in an endless loop, causing the
-kernel bootup to hang.
-
-Depending upon the build, the busywait flag got overwritten (stack
-variable) and caused the kernel to bootup on certain builds.  Following
-patch fixes the bug by setting the busywait flag before returning from
-check_nmi_watchdog.
-
-I guess using a stack variable is not good here as the calling function
-could potentially return while the busy wait loop is still spinning on the
-flag.  I would think this is a good candidate for 2.6.19 stable as well.
-
-[akpm@osdl.org: cleanups]
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
-Cc: Andi Kleen <ak@muc.de>
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Acked-by: Pavel Machek <pavel@ucw.cz>
 Cc: <stable@kernel.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- arch/x86_64/kernel/nmi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/power/disk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.19.orig/arch/x86_64/kernel/nmi.c
-+++ linux-2.6.19/arch/x86_64/kernel/nmi.c
-@@ -212,7 +212,7 @@ static __init void nmi_cpu_busy(void *da
+--- linux-2.6.19.orig/kernel/power/disk.c
++++ linux-2.6.19/kernel/power/disk.c
+@@ -127,7 +127,7 @@ int pm_suspend_disk(void)
+ 		return error;
  
- int __init check_nmi_watchdog (void)
- {
--	volatile int endflag = 0;
-+	static int __initdata endflag;
- 	int *counts;
- 	int cpu;
+ 	if (pm_disk_mode == PM_DISK_TESTPROC)
+-		goto Thaw;
++		return 0;
  
-@@ -253,6 +253,7 @@ int __init check_nmi_watchdog (void)
- 	if (!atomic_read(&nmi_active)) {
- 		kfree(counts);
- 		atomic_set(&nmi_active, -1);
-+		endflag = 1;
- 		return -1;
- 	}
- 	endflag = 1;
+ 	suspend_console();
+ 	error = device_suspend(PMSG_FREEZE);
 
 --

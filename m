@@ -1,116 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935689AbWLHKwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425988AbWLHRVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S935689AbWLHKwv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 05:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S935711AbWLHKwv
+	id S1425988AbWLHRVJ (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426037AbWLHRVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 05:52:51 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:44606 "EHLO
-	amsfep12-int.chello.nl" rhost-flags-OK-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S935689AbWLHKwu (ORCPT
+	Fri, 8 Dec 2006 12:21:09 -0500
+Received: from ug-out-1314.google.com ([66.249.92.172]:31787 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425988AbWLHRVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 05:52:50 -0500
-Subject: Re: [PATCH] uml: fix net_kern workqueue abuse
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: torvalds <torvalds@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       David Howells <dhowells@redhat.com>
-In-Reply-To: <1165573234.32332.15.camel@twins>
-References: <1165573234.32332.15.camel@twins>
-Content-Type: text/plain
-Date: Fri, 08 Dec 2006 11:45:08 +0100
-Message-Id: <1165574708.32332.16.camel@twins>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
+	Fri, 8 Dec 2006 12:21:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
+        b=BAtywSJE0w1MeP7VaFNAUghzPFZdL36RgJFcBn266pXtlb2H3mHS4LAyCFLEac9XRAcT+4pjHa5w2OzG4vrOAn0jucF+9oEfhQxyIx8IsFjqPNVzcdb6Z5yjYEGZUroGHMMuhu9oyKKk/95fAJ57TdQnjnBKWD3QLXCLmocF0jI=
+Message-ID: <3c698a820612080921u20a957d9x1ac1e01e6734d025@mail.gmail.com>
+Date: Fri, 8 Dec 2006 12:21:04 -0500
+From: "Maria Short" <mgolod@ieee.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux slack space question
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Google-Sender-Auth: 9771b153b2158226
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Garh, it seems I forgot to finish the subject.
+I have a question regarding how the Linux kernel handles slack space.
+I know that the ext3 filesystems typically use 1,2 or 4 KB blocks and
+if a file is not an even multiple of the block size then the last
+allocated block will not be completely filled, the remaining space is
+wasted as slack space.
 
-On Fri, 2006-12-08 at 11:20 +0100, Peter Zijlstra wrote:
-> fixup the work on stack and exit scope trouble by placing the work_struct in
-> the uml_net_private data.
-> 
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> ---
->  arch/um/drivers/net_kern.c |   15 +++++++++------
->  arch/um/include/net_kern.h |    2 ++
->  2 files changed, 11 insertions(+), 6 deletions(-)
-> 
-> Index: linux-2.6-git/arch/um/drivers/net_kern.c
-> ===================================================================
-> --- linux-2.6-git.orig/arch/um/drivers/net_kern.c	2006-12-08 10:32:56.000000000 +0100
-> +++ linux-2.6-git/arch/um/drivers/net_kern.c	2006-12-08 11:14:28.000000000 +0100
-> @@ -72,9 +72,11 @@ static int uml_net_rx(struct net_device 
->  	return pkt_len;
->  }
->  
-> -static void uml_dev_close(void* dev)
-> +static void uml_dev_close(struct work_struct *work)
->  {
-> -	dev_close( (struct net_device *) dev);
-> +	struct uml_net_private *lp =
-> +		container_of(work, struct uml_net_private, work);
-> +	dev_close(lp->dev);
->  }
->  
->  irqreturn_t uml_net_interrupt(int irq, void *dev_id)
-> @@ -89,7 +91,6 @@ irqreturn_t uml_net_interrupt(int irq, v
->  	spin_lock(&lp->lock);
->  	while((err = uml_net_rx(dev)) > 0) ;
->  	if(err < 0) {
-> -		DECLARE_WORK(close_work, uml_dev_close, dev);
->  		printk(KERN_ERR 
->  		       "Device '%s' read returned %d, shutting it down\n", 
->  		       dev->name, err);
-> @@ -97,9 +98,10 @@ irqreturn_t uml_net_interrupt(int irq, v
->  		 * again lp->lock.
->  		 * And dev_close() can be safely called multiple times on the
->  		 * same device, since it tests for (dev->flags & IFF_UP). So
-> -		 * there's no harm in delaying the device shutdown. */
-> -		schedule_work(&close_work);
-> -#error this is not permitted - close_work will go out of scope
-> +		 * there's no harm in delaying the device shutdown.
-> +		 * Furthermore, the workqueue will not re-enqueue an already
-> +		 * enqueued work item. */
-> +		schedule_work(&lp->work);
->  		goto out;
->  	}
->  	reactivate_fd(lp->fd, UM_ETH_IRQ);
-> @@ -366,6 +368,7 @@ static int eth_configure(int n, void *in
->  	/* This points to the transport private data. It's still clear, but we
->  	 * must memset it to 0 *now*. Let's help the drivers. */
->  	memset(lp, 0, size);
-> +	INIT_WORK(&lp->work, uml_dev_close);
->  
->  	/* sysfs register */
->  	if (!driver_registered) {
-> Index: linux-2.6-git/arch/um/include/net_kern.h
-> ===================================================================
-> --- linux-2.6-git.orig/arch/um/include/net_kern.h	2006-12-08 10:55:25.000000000 +0100
-> +++ linux-2.6-git/arch/um/include/net_kern.h	2006-12-08 11:00:26.000000000 +0100
-> @@ -11,6 +11,7 @@
->  #include <linux/skbuff.h>
->  #include <linux/socket.h>
->  #include <linux/list.h>
-> +#include <linux/workqueue.h>
->  
->  struct uml_net {
->  	struct list_head list;
-> @@ -26,6 +27,7 @@ struct uml_net_private {
->  	struct net_device *dev;
->  	struct timer_list tl;
->  	struct net_device_stats stats;
-> +	struct work_struct work;
->  	int fd;
->  	unsigned char mac[ETH_ALEN];
->  	unsigned short (*protocol)(struct sk_buff *);
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+What I need is the code in the kernel that does that. I have been
+looking at http://lxr.linux.no/source/fs/ext3/inode.c but I could not
+find the specific code for partially filling the last block and
+placing an EOF at the end, leaving the rest to slack space.
 
+Please forward the answer to mgolod@ieee.org as soon as possible.
+
+Thank you very much.

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947515AbWLHX50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947517AbWLHX6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947515AbWLHX50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 18:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947517AbWLHX50
+	id S1947517AbWLHX6o (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 18:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947529AbWLHX6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 18:57:26 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:60319 "EHLO
+	Fri, 8 Dec 2006 18:58:43 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37382 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947515AbWLHX5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 18:57:25 -0500
-Message-Id: <20061208235836.202043000@sous-sol.org>
+	id S1947519AbWLHX61 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 18:58:27 -0500
+Message-Id: <20061208235942.464993000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:57:53 -0800
+Date: Fri, 08 Dec 2006 15:57:59 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,48 +21,35 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, Larry Finger <Larry.Finger@lwfinger.net>,
-       Michael Buesch <mb@bu3sch.de>
-Subject: [patch 02/32] softmac: remove netif_tx_disable when scanning
-Content-Disposition: inline; filename=softmac-remove-netif_tx_disable-when-scanning.patch
+       alan@lxorguk.ukuu.org.uk, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [patch 08/32] cryptoloop: Select CRYPTO_CBC
+Content-Disposition: inline; filename=cryptoloop-select-crypto_cbc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Michael Buesch <mb@bu3sch.de>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-In the scan section of ieee80211softmac, network transmits are disabled.
-When SoftMAC re-enables transmits, it may override the wishes of a driver
-that may have very good reasons for disabling transmits. At least one failure
-in bcm43xx can be traced to this problem. In addition, several unexplained
-problems may arise from the unexpected enabling of transmits.
+As CBC is the default chaining method for cryptoloop, we should select
+it from cryptoloop to ease the transition.
 
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- net/ieee80211/softmac/ieee80211softmac_scan.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/block/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- linux-2.6.19.orig/net/ieee80211/softmac/ieee80211softmac_scan.c
-+++ linux-2.6.19/net/ieee80211/softmac/ieee80211softmac_scan.c
-@@ -47,7 +47,6 @@ ieee80211softmac_start_scan(struct ieee8
- 	sm->scanning = 1;
- 	spin_unlock_irqrestore(&sm->lock, flags);
- 
--	netif_tx_disable(sm->ieee->dev);
- 	ret = sm->start_scan(sm->dev);
- 	if (ret) {
- 		spin_lock_irqsave(&sm->lock, flags);
-@@ -248,7 +247,6 @@ void ieee80211softmac_scan_finished(stru
- 		if (net)
- 			sm->set_channel(sm->dev, net->channel);
- 	}
--	netif_wake_queue(sm->ieee->dev);
- 	ieee80211softmac_call_events(sm, IEEE80211SOFTMAC_EVENT_SCAN_FINISHED, NULL);
- }
- EXPORT_SYMBOL_GPL(ieee80211softmac_scan_finished);
+--- linux-2.6.19.orig/drivers/block/Kconfig
++++ linux-2.6.19/drivers/block/Kconfig
+@@ -305,6 +305,7 @@ config BLK_DEV_LOOP
+ config BLK_DEV_CRYPTOLOOP
+ 	tristate "Cryptoloop Support"
+ 	select CRYPTO
++	select CRYPTO_CBC
+ 	depends on BLK_DEV_LOOP
+ 	---help---
+ 	  Say Y here if you want to be able to use the ciphers that are 
 
 --

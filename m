@@ -1,138 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425479AbWLHMRC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424767AbWLHGUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425479AbWLHMRC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:17:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425482AbWLHMRB
+	id S1424767AbWLHGUa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 01:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424771AbWLHGUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:17:01 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7545
-	"EHLO public.id2-vpn.continvity.gns.novell.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1425479AbWLHMQ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:16:59 -0500
-Message-Id: <45796610.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Fri, 08 Dec 2006 12:18:08 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: <a.zummo@towertech.it>, <p_gortmaker@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] RTC driver init adjustment
+	Fri, 8 Dec 2006 01:20:30 -0500
+Received: from poczta.o2.pl ([193.17.41.142]:45131 "EHLO poczta.o2.pl"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1424767AbWLHGU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 01:20:29 -0500
+Date: Fri, 8 Dec 2006 07:27:26 +0100
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockdep: fix possible races while disabling lock-debugging
+Message-ID: <20061208062725.GA1012@ff.dom.local>
+Mail-Followup-To: Jarek Poplawski <jarkao2@o2.pl>,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20061207132903.GA341@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061207132903.GA341@elte.hu>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch
-- conditionalizes procfs code upon CONFIG_PROC_FS (to reduce code size when
-  that option is not enabled)
-- makes initialization no longer fail when the procfs entry can't be allocated
-  (namely would initialization always have failed when CONFIG_PROC_FS was not
-  set)
-- moves the formerly file-scope static variable rtc_int_handler_ptr into the
-  only function using it, and makes it automatic.
+On Thu, Dec 07, 2006 at 02:29:03PM +0100, Ingo Molnar wrote:
+> Subject: [patch] lockdep: fix possible races while disabling lock-debugging
+> From: Ingo Molnar <mingo@elte.hu>
+...
+> (also note that as we all know the Linux kernel is, by definition, 
+> bug-free and perfect, so this code never triggers, so these fixes are 
+> highly theoretical. I wrote this patch for aesthetic reasons alone.)
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Now it's too sexy! I can't work.
 
---- linux-2.6.19/drivers/char/rtc.c	2006-12-08 13:03:35.000000000 +0100
-+++ 2.6.19-rtc-cleanup/drivers/char/rtc.c	2006-12-08 13:07:42.000000000 +0100
-@@ -113,7 +113,7 @@ static int rtc_has_irq = 1;
- #define hpet_set_rtc_irq_bit(arg) 		0
- #define hpet_rtc_timer_init() 			do { } while (0)
- #define hpet_rtc_dropped_irq() 			0
--static inline irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id) {return 0;}
-+static irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id) {return 0;}
- #else
- extern irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id);
- #endif
-@@ -165,7 +165,9 @@ static void mask_rtc_irq_bit(unsigned ch
- }
- #endif
- 
-+#ifdef CONFIG_PROC_FS
- static int rtc_proc_open(struct inode *inode, struct file *file);
-+#endif
- 
- /*
-  *	Bits in rtc_status. (6 bits of room for future expansion)
-@@ -906,6 +908,7 @@ static struct miscdevice rtc_dev = {
- 	.fops		= &rtc_fops,
- };
- 
-+#ifdef CONFIG_PROC_FS
- static const struct file_operations rtc_proc_fops = {
- 	.owner = THIS_MODULE,
- 	.open = rtc_proc_open,
-@@ -913,14 +916,13 @@ static const struct file_operations rtc_
- 	.llseek = seq_lseek,
- 	.release = single_release,
- };
--
--#if defined(RTC_IRQ) && !defined(__sparc__)
--static irq_handler_t rtc_int_handler_ptr;
- #endif
- 
- static int __init rtc_init(void)
- {
-+#ifdef CONFIG_PROC_FS
- 	struct proc_dir_entry *ent;
-+#endif
- #if defined(__alpha__) || defined(__mips__)
- 	unsigned int year, ctrl;
- 	char *guess = NULL;
-@@ -932,9 +934,11 @@ static int __init rtc_init(void)
- 	struct sparc_isa_bridge *isa_br;
- 	struct sparc_isa_device *isa_dev;
- #endif
--#endif
--#ifndef __sparc__
-+#else
- 	void *r;
-+#ifdef RTC_IRQ
-+	irq_handler_t rtc_int_handler_ptr;
-+#endif
- #endif
- 
- #ifdef __sparc__
-@@ -1024,17 +1028,13 @@ no_irq:
- 		return -ENODEV;
- 	}
- 
-+#ifdef CONFIG_PROC_FS
- 	ent = create_proc_entry("driver/rtc", 0, NULL);
--	if (!ent) {
--#ifdef RTC_IRQ
--		free_irq(RTC_IRQ, NULL);
--		rtc_has_irq = 0;
-+	if (ent)
-+		ent->proc_fops = &rtc_proc_fops;
-+	else
-+		printk(KERN_WARNING "rtc: Failed to register with procfs.\n");
- #endif
--		release_region(RTC_PORT(0), RTC_IO_EXTENT);
--		misc_deregister(&rtc_dev);
--		return -ENOMEM;
--	}
--	ent->proc_fops = &rtc_proc_fops;
- 
- #if defined(__alpha__) || defined(__mips__)
- 	rtc_freq = HZ;
-@@ -1167,6 +1167,7 @@ static void rtc_dropped_irq(unsigned lon
- }
- #endif
- 
-+#ifdef CONFIG_PROC_FS
- /*
-  *	Info exported via "/proc/driver/rtc".
-  */
-@@ -1251,6 +1252,7 @@ static int rtc_proc_open(struct inode *i
- {
- 	return single_open(file, rtc_proc_show, NULL);
- }
-+#endif
- 
- void rtc_get_rtc_time(struct rtc_time *rtc_tm)
- {
+PS: I had some problems with patching - probably
+because of something from -mm, but:
 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+...
+> @@ -567,12 +601,10 @@ static noinline int print_circular_bug_t
+>  	if (debug_locks_silent)
+>  		return 0;
+>  
+> -	/* hash_lock unlocked by the header */
+> -	__raw_spin_lock(&hash_lock);
+>  	this.class = check_source->class;
+>  	if (!save_trace(&this.trace))
+>  		return 0;
+> -	__raw_spin_unlock(&hash_lock);
+> +
 
+IMHO lock is needed here for save_trace.
+
+...
+> @@ -1212,7 +1244,8 @@ register_lock_class(struct lockdep_map *
+>  	hash_head = classhashentry(key);
+>  
+>  	raw_local_irq_save(flags);
+> -	__raw_spin_lock(&hash_lock);
+> +	if (!graph_lock())
+
+	! raw_local_irq_restore(flags);
+
+> +		return NULL;
+>  	/*
+>  	 * We have to do the hash-walk again, to avoid races
+>  	 * with another CPU:
+
+Jarek P.

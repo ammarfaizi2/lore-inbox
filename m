@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760762AbWLHQZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425607AbWLHQcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760762AbWLHQZ0 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760761AbWLHQZ0
+	id S1425607AbWLHQcN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425600AbWLHQcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:25:26 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:37165 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760759AbWLHQZZ (ORCPT
+	Fri, 8 Dec 2006 11:32:12 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3388 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760764AbWLHQcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:25:25 -0500
-Date: Fri, 8 Dec 2006 11:25:23 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Jeff Layton <jlayton@poochiereds.net>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent inode numbers (libfs superblock cleanup)
-Message-ID: <20061208162523.GB17707@filer.fsl.cs.sunysb.edu>
-References: <457891F4.8030501@redhat.com> <20061208061641.GA24255@filer.fsl.cs.sunysb.edu> <457963B3.3080801@poochiereds.net>
+	Fri, 8 Dec 2006 11:32:11 -0500
+Date: Fri, 8 Dec 2006 16:31:27 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
+Message-ID: <20061208163127.GD31068@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	akpm@osdl.org, linux-arm-kernel@lists.arm.linux.org.uk,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <457963B3.3080801@poochiereds.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 08:08:03AM -0500, Jeff Layton wrote:
-> Josef Sipek wrote:
-> >> -	ret = simple_fill_super(sb, IPATHFS_MAGIC, files);
-> >> +	ret = simple_fill_super(sb, IPATHFS_MAGIC, files, 1);
-> >
-> > I don't know...the magic looking 1 and 0 (later in the patch) seem a bit
-> > arbitrary. Maybe a #define is in order?
+On Fri, Dec 08, 2006 at 08:06:23AM -0800, Christoph Lameter wrote:
+> On Fri, 8 Dec 2006, Russell King wrote:
 > 
-> Yeah, I'm not fond of that, though the comments on simple_fill_super should
-> explain it. Basically, I need simple_fill_super to operate in two different
-> "modes", and I was using the extra flag to key this. I'm not clear on what
-> sort of #define would make sense here. Can you suggest something?
- 
-First I was thinking about defining 2 constats, but maybe the better thing
-to do would be to
-
-1) rename simple_fill_super to __simple_fill_super
-2) #define simple_fill_super_foo(...) to __siple_fill_super(....., 0)
-3) #define simple_fill_super_bar(...) to __siple_fill_super(....., 1)
-
-(Or equivalent thing using inline functions.)
- 
-I can't really think of any good name for #define'd flag.
-
-Beware, I'm pretty much just thinking out loud.. :)
- 
-> >> @@ -399,7 +407,10 @@ int simple_fill_super(struct super_block
-> >>  		inode->i_blocks = 0;
-> >>  		inode->i_atime = inode->i_mtime = inode->i_ctime =
-> >>  		CURRENT_TIME;
-> >
-> > I'd indent CURRENT_TIME a bit.
+> > I'm trying to suggest a better implementation for atomic ops rather
+> > than just bowing to this x86-centric "cmpxchg is the best, everyone
+> > must implement it" mentality.
 > 
-> I wasn't planning on touching those parts of the code that don't need to be
-> changed, since formatting deltas can make it harder to see the "actual"
-> changes in the patch. That should probably be addressed in a follow-on
-> patch if you think it needs to be changed.
+> cmpxchg is the simplest solution to realize many other atomic operations 
+> and its widely available on a wide variety of platforms. It is the most 
+> universal atomic instruction that I know of. Other atomic operations may 
+> be more efficient but certainly cmpxchg is the most universal.
+> 
+> Having multiple instructions with restrictions of what can be done in 
+> between just complicates the use and seems to be arch specific. I have not 
+> seen a better solution. Are you really advocating the weirdly complex 
+> ll/sc be adopted by other architectures?
 
-Oh, sorry, that wasn't your code. You're right about it not being the the
-right thing to fix in your patch.
-
-Actually, it looks like another problem created by line-wrapping.
-
-Josef "Jeff" Sipek.
+You're advocating cmpxchg is adopted by all architectures.  It isn't
+available on many architectures, and those which it can be requires
+unnecessarily complicated coding.
 
 -- 
-NT is to UNIX what a doughnut is to a particle accelerator.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

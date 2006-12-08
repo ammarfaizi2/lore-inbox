@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425331AbWLHKZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425455AbWLHMCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425331AbWLHKZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 05:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425332AbWLHKZK
+	id S1425455AbWLHMCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425453AbWLHMCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 05:25:10 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:48532 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425331AbWLHKZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 05:25:08 -0500
-Message-ID: <45793D82.1040807@s5r6.in-berlin.de>
-Date: Fri, 08 Dec 2006 11:25:06 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: Matthias Schniedermeyer <ms@citd.de>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       DervishD <lkml@dervishd.net>
-Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
-References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <fa.nPT9ZJ5poT8fZx3aWy0MqRK/gto@ifi.uio.no> <fa.aML3aAeWqfac08XNpQa7Zu0AC8w@ifi.uio.no> <4578D97F.7020107@shaw.ca> <45792B4D.8050705@citd.de>
-In-Reply-To: <45792B4D.8050705@citd.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 07:02:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:40783 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425439AbWLHMBv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:01:51 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 23:02:03 +1100
+Message-Id: <1061208120203.18160@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 003 of 13] knfsd: SUNRPC: Cache remote peer's address in svc_sock.
+References: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> Robert Hancock wrote:
->> Matthias Schniedermeyer wrote:
->>> I have a 1,5 Meter and a 4,5 Meter cable connected to the USB-Controller
->>> and i only use of them depending on where the HDD is placed in my room,
->>> the other one is dangling unconnected.
->>>
->>> Then i will unconnect the short cable and use the long cable exclusivly
->>> and see if it gets better(tm).
 
-BTW, I suspect front panel connectors could introduce noise too, via the
-jumper cables from motherboard to the panel.
+From: Chuck Lever <chuck.lever@oracle.com>
+The remote peer's address won't change after the socket has been
+accepted.  We don't need to call ->getname on every incoming request.
 
->> That long cable could be part of the problem - I don't think the USB
->> specification allows for cables that long (something like a 6 foot max
->> as I recall).
-> 
-> http://en.wikipedia.org/wiki/USB2
-> 
-> Says that 5 meters are allowed.
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-I don't know about USB 2.0, but in case of FireWire, ~4.5m long cables
-are theoretically in spec too. I've got a FireWire 400 and a FireWire
-800 cable this long, and both don't work very unreliable. Depending on
-what's connected, they fail sooner or later. However due to how FireWire
-works, this is immediately noticed as data CRC errors or bus resets.
-I.e. it's nearly impossible for noisy hardware to _silently_ cause data
-corruption. I would suppose USB has similar CRC checks.
+### Diffstat output
+ ./include/linux/sunrpc/svcsock.h |    3 +++
+ ./net/sunrpc/svcsock.c           |   11 +++++------
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-Also, you mentioned that the corruption occurs systematically on certain
-byte patterns. Therefore it's certainly not related to the cables.
--- 
-Stefan Richter
--=====-=-==- ==-- -=---
-http://arcgraph.de/sr/
+diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
+--- .prev/include/linux/sunrpc/svcsock.h	2006-12-08 13:36:33.000000000 +1100
++++ ./include/linux/sunrpc/svcsock.h	2006-12-08 13:42:26.000000000 +1100
+@@ -57,6 +57,9 @@ struct svc_sock {
+ 
+ 	/* cache of various info for TCP sockets */
+ 	void			*sk_info_authunix;
++
++	struct sockaddr_storage	sk_remote;	/* remote peer's address */
++	int			sk_remotelen;	/* length of address */
+ };
+ 
+ /*
+
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-12-08 13:36:33.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-08 13:42:26.000000000 +1100
+@@ -577,11 +577,9 @@ svc_recvfrom(struct svc_rqst *rqstp, str
+ 	len = kernel_recvmsg(sock, &msg, iov, nr, buflen, MSG_DONTWAIT);
+ 
+ 	/* sock_recvmsg doesn't fill in the name/namelen, so we must..
+-	 * possibly we should cache this in the svc_sock structure
+-	 * at accept time. FIXME
+ 	 */
+-	alen = sizeof(rqstp->rq_addr);
+-	kernel_getpeername(sock, (struct sockaddr *)&rqstp->rq_addr, &alen);
++	memcpy(&rqstp->rq_addr, &svsk->sk_remote, svsk->sk_remotelen);
++	rqstp->rq_addrlen = svsk->sk_remotelen;
+ 
+ 	dprintk("svc: socket %p recvfrom(%p, %Zu) = %d\n",
+ 		rqstp->rq_sock, iov[0].iov_base, iov[0].iov_len, len);
+@@ -873,7 +871,7 @@ svc_tcp_accept(struct svc_sock *svsk)
+ 	struct socket	*sock = svsk->sk_sock;
+ 	struct socket	*newsock;
+ 	struct svc_sock	*newsvsk;
+-	int		err, slen;
++	int		err, slen = 0;
+ 
+ 	dprintk("svc: tcp_accept %p sock %p\n", svsk, sock);
+ 	if (!sock)
+@@ -925,7 +923,8 @@ svc_tcp_accept(struct svc_sock *svsk)
+ 	if (!(newsvsk = svc_setup_socket(serv, newsock, &err,
+ 				 (SVC_SOCK_ANONYMOUS | SVC_SOCK_TEMPORARY))))
+ 		goto failed;
+-
++	memcpy(&newsvsk->sk_remote, &sin, slen);
++	newsvsk->sk_remotelen = slen;
+ 
+ 	/* make sure that we don't have too many active connections.
+ 	 * If we have, something must be dropped.

@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425641AbWLHQ6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425679AbWLHQ7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425641AbWLHQ6R (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425637AbWLHQ6R
+	id S1425679AbWLHQ7V (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425670AbWLHQ7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:58:17 -0500
-Received: from [212.33.166.146] ([212.33.166.146]:32984 "EHLO
-	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1425644AbWLHQ6Q (ORCPT
+	Fri, 8 Dec 2006 11:59:20 -0500
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2346 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425668AbWLHQ7S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:58:16 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Alan <alan@lxorguk.ukuu.org.uk>
-Subject: Re: additional oom-killer tuneable worth submitting?
-Date: Fri, 8 Dec 2006 19:59:04 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200612081658.29338.a1426z@gawab.com> <200612081819.43991.a1426z@gawab.com> <20061208155537.6f19b7e9@localhost.localdomain>
-In-Reply-To: <20061208155537.6f19b7e9@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 11:59:18 -0500
+Date: Fri, 8 Dec 2006 16:58:56 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
+Message-ID: <20061208165856.GF31068@flint.arm.linux.org.uk>
+Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	akpm@osdl.org, linux-arm-kernel@lists.arm.linux.org.uk,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com> <20061208163127.GD31068@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080841560.15472@schroedinger.engr.sgi.com> <20061208164733.GE31068@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080848220.15847@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612081959.04515.a1426z@gawab.com>
+In-Reply-To: <Pine.LNX.4.64.0612080848220.15847@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> > What I understood from Arjan is that the problem isn't swapspace, but
-> > rather that shared-libs are implement via a COW trick, which always
-> > overcommits, no matter what.
->
-> The zero overcommit layer accounts address space not pages.
+On Fri, Dec 08, 2006 at 08:53:22AM -0800, Christoph Lameter wrote:
+> On Fri, 8 Dec 2006, Russell King wrote:
+> 
+> > > Not having cmpxchg is even worse because it requires the introduction and 
+> > > maintenance of large sets of arch specific operations. Much more complex.
+> > 
+> > And which bit of "not available on many architectures" have you not grasped
+> > yet?
+> 
+> We discussed various forms of emulating that functionality on this thread. 
+> Seems to work satisfactorily. You can discover the information you skipped 
+> by going back to some earlier messages of this thread.
 
-So OOM can still occur?
+Oh for god sake.  I've put forward a coherent argument.  I've disproved
+every point put forward by people for my approach.
 
-> > Are you saying there is some new no-overcommit functionality in 2.6.19,
-> > or has this been there before?
->
-> Red Hat Enterprise Linux for a very long time, got merged upstream a long
-> long time ago to. Then got various fixes along the way. It's old
-> functionality.
+ARM continues to be broken because people like you are stuck with doing
+things only one way.  Grow up and open your mind to other possibilities.
 
-That's what I thought, but it's still really easy to OOM even with 
-no-overcommit.
+(It should be noted that LDREX/STREX is broken on some ARM implementations
+at the moment - they will cause a livelock due to silicon bugs if both
+CPUs have exactly the same number of cycles between LDREX and STREX.
+This makes loops-within-loops implementations using cmpxchg _extremely_
+expensive on ARM.)
 
-Using ulimit -v [total VMsize/runqueue] seems to inhibit this rather 
-effectively, but needs to be maintained dynamically per process.
-
-Couldn't this be handled by the kernel?
-
-
-Thanks!
-
---
-Al
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

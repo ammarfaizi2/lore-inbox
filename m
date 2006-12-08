@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425459AbWLHMGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424690AbWLHFuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425459AbWLHMGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425450AbWLHMGE
+	id S1424690AbWLHFuI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 00:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424711AbWLHFuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:06:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40482 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425468AbWLHMFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:05:32 -0500
-Date: Fri, 8 Dec 2006 07:05:25 -0500
-From: Dave Jones <davej@redhat.com>
+	Fri, 8 Dec 2006 00:50:08 -0500
+Received: from smtp42.singnet.com.sg ([165.21.103.146]:38268 "EHLO
+	smtp42.singnet.com.sg" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424707AbWLHFuG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 00:50:06 -0500
+Message-ID: <4578FD41.7060808@homeurl.co.uk>
+Date: Fri, 08 Dec 2006 13:50:57 +0800
+From: Bob <spam@homeurl.co.uk>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Subject: compile failure in asm-i386/desc.h
-Message-ID: <20061208120524.GB13841@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: Re: Kernel 2.6 SMP very slow with ServerWorks LE Chipset
+References: <4577AA11.6020906@homeurl.co.uk> <1165490120.27217.4.camel@laptopd505.fenrus.org>
+In-Reply-To: <1165490120.27217.4.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to be on the wrong side of the ifdef.
-Without it, I get implicit declarations of these functions when compiling
-arch/i386/kernel/process.c
+Arjan van de Ven wrote:
+>> in UP config everything is OK in SMP the system slows right down, 
+>> I've been searching and recompiling my kernel for days looking for 
+>> the problem option without success, please help.
+> 
+> does the linux-ready firmware kit work on this machine? (see url in
+> sig), it might be something with the mtrr's, and the kit checks those...
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+It runs OK though the system seems to fail a lot of tests.
+http://www.homeurl.co.uk/linuxfirmwarekit/results.xml
+http://www.homeurl.co.uk/linuxfirmwarekit/resources.xml
+infact the complete contents of the USB thumb drive are here
+http://www.homeurl.co.uk/linuxfirmwarekit/
 
---- linux-2.6.19.noarch/include/asm-i386/desc.h~	2006-12-08 06:52:55.000000000 -0500
-+++ linux-2.6.19.noarch/include/asm-i386/desc.h	2006-12-08 06:53:14.000000000 -0500
-@@ -185,6 +185,20 @@ static inline unsigned long get_desc_bas
- 	return base;
- }
- 
-+static inline void set_user_cs(struct desc_struct *desc, unsigned long limit)
-+{
-+	limit = (limit - 1) / PAGE_SIZE;
-+	desc->a = limit & 0xffff;
-+	desc->b = (limit & 0xf0000) | 0x00c0fb00;
-+}
-+
-+#define load_user_cs_desc(cpu, mm) \
-+	get_cpu_gdt_table(cpu)[GDT_ENTRY_DEFAULT_USER_CS] = (mm)->context.user_cs
-+
-+extern void arch_add_exec_range(struct mm_struct *mm, unsigned long limit);
-+extern void arch_remove_exec_range(struct mm_struct *mm, unsigned long limit);
-+extern void arch_flush_exec_range(struct mm_struct *mm);
-+
- #else /* __ASSEMBLY__ */
- 
- /*
-@@ -208,20 +222,6 @@ static inline unsigned long get_desc_bas
- 	shll $16, base; \
- 	movw idx*8+2(gdt), lo_w;
- 
--static inline void set_user_cs(struct desc_struct *desc, unsigned long limit)
--{
--	limit = (limit - 1) / PAGE_SIZE;
--	desc->a = limit & 0xffff;
--	desc->b = (limit & 0xf0000) | 0x00c0fb00;
--}
--
--#define load_user_cs_desc(cpu, mm) \
--	get_cpu_gdt_table(cpu)[GDT_ENTRY_DEFAULT_USER_CS] = (mm)->context.user_cs
--
--extern void arch_add_exec_range(struct mm_struct *mm, unsigned long limit);
--extern void arch_remove_exec_range(struct mm_struct *mm, unsigned long limit);
--extern void arch_flush_exec_range(struct mm_struct *mm);
--
- #endif /* !__ASSEMBLY__ */
- 
- #endif
+If you see my other post, booting in SMP and decompressing the kernel 
+tree on CPU 0 took 1m 35s, and CPU 1 still hadn't finished in 40m when I 
+killed it to run the LFDK.
+
+I'm running the latest HP BIOS and I don't think it's possible to put 
+the ASUS one on, any idea what I can do to fix it?
+
+Thank you for your help.

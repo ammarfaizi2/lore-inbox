@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425522AbWLHOO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760740AbWLHOOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425522AbWLHOO3 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 09:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425517AbWLHOO3
+	id S1760740AbWLHOOr (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 09:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760742AbWLHOOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 09:14:29 -0500
-Received: from ra.tuxdriver.com ([70.61.120.52]:4406 "EHLO ra.tuxdriver.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760742AbWLHOO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 09:14:28 -0500
-Date: Fri, 8 Dec 2006 09:13:57 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: David Miller <davem@davemloft.net>
-Cc: linux-net@vger.kernel.org, mpm@selenic.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, clalance@redhat.com
-Subject: Re: [PATCH] netpoll: make arp replies through netpoll use mac address of sender
-Message-ID: <20061208141357.GA2661@hmsreliant.homelinux.net>
-References: <20061207194553.GB29313@hmsreliant.homelinux.net> <20061208.000727.23014207.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Dec 2006 09:14:47 -0500
+Received: from ug-out-1314.google.com ([66.249.92.171]:33744 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760741AbWLHOOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 09:14:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QAvNNOiOpM3azJ+e6GRvLDmFHxsDZTr8oEHdGV7FgzlwuqWwf9837jYLGWEmqx2ScYph+eivcZfw0c/zZzh4Jm/A/SaeXbtlbVFAVG8z+NA+SHsUB6WJ+x4pc3rKKCP/jDG3YvbrUc1Pc3N3tYFHxKPYh086FHN/c5QWNLQhXNg=
+Message-ID: <d120d5000612080614l3c4c5b1cy9437c2a43c2853dd@mail.gmail.com>
+Date: Fri, 8 Dec 2006 09:14:43 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Jiri Kosina" <jkosina@suse.cz>
+Subject: Re: [git pull] Input patches for 2.6.19
+Cc: "Linus Torvalds" <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <gregkh@suse.de>,
+       "Marcel Holtmann" <marcel@holtmann.org>
+In-Reply-To: <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061208.000727.23014207.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+References: <200612080157.04822.dtor@insightbb.com>
+	 <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 12:07:27AM -0800, David Miller wrote:
-> From: Neil Horman <nhorman@tuxdriver.com>
-> Date: Thu, 7 Dec 2006 14:45:53 -0500
-> 
-> > Back in 2.4 arp requests that were recevied by netpoll were processed in
-> > netconsole_receive_skb, where they were responded to using the src mac of the
-> > request sender.  In the 2.6 kernel arp_reply is responsible for this function,
-> > but instead of using the src mac address of the incomming request, the stored
-> > mac address that was registered for the netconsole application is used.  While
-> > this is usually ok, it can lead to failures in netpoll in some situations
-> > (specifically situations where a network may have two gateways, as arp requests
-> > from one may be responded to using the mac address of the other).  This patch
-> > reverts the behavior to what we had in 2.4, in which all arp requests are sent
-> > back using the src address of the request sender.
-> > 
-> > Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-> 
-> Applied, and I'll push this to -stable, thanks Neil.
-> 
-> But please submit networking patches next time to
-> netdev@vger.kernel.org, most of the networking developers did not see
-> this patch because you sent it to the user help list (linux-net)
-> instead of the developer list (netdev).
-> 
-My bad, wasn't thinking.  Thanks guys!
-Neil
+Hi,
 
-> Thanks again.
+On 12/8/06, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Fri, 8 Dec 2006, Dmitry Torokhov wrote:
+>
+> > Hi Linus,
+> > Please pull from:
+> > git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+> > or
+> > master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+> > to receive updates for input subsystem.
+> >  b/drivers/usb/input/hid-core.c                 |    7
+> >  b/drivers/usb/input/hid-input.c                |    4
+> >  b/drivers/usb/input/hid.h                      |    1
+>
+> OK, this is going to break the merge from Greg's tree of generic HID
+> layer, which was planned for today.
+>
+> The merge will probably emit a large .rej files, due to the large blocks
+> of code being moved around, but it seems that most of the changes which
+> would conflict with the merge could be trivially solved by hand.
+>
+> Greg, should I prepare a new version of the generic HID patches against
+> merged Linus' + Dmitry's trees and send them to you?
+>
+
+Hmm, I thought that git would take care of resolving the merge
+conflict but it was 2AM thought and obviously not a smart one. Sorry.
 
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Dmitry

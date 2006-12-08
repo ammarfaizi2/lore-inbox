@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424292AbWLHEMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164036AbWLHAEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424292AbWLHEMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 23:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424304AbWLHEMU
+	id S1164036AbWLHAEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 19:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164175AbWLHAEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 23:12:20 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:32832 "EHLO
-	liaag2ad.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1424292AbWLHEMT (ORCPT
+	Thu, 7 Dec 2006 19:04:31 -0500
+Received: from mx4.cs.washington.edu ([128.208.4.190]:39138 "EHLO
+	mx4.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1164036AbWLHAEa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 23:12:19 -0500
-Date: Thu, 7 Dec 2006 23:02:04 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] Document how to decode an IOCTL number
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Message-ID: <200612072306_MC3-1-D448-DB6A@compuserve.com>
+	Thu, 7 Dec 2006 19:04:30 -0500
+Date: Thu, 7 Dec 2006 16:04:25 -0800 (PST)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+cc: Amit Choudhary <amit2030@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.19] drivers/media/video/cpia2/cpia2_usb.c: Free
+ previously allocated memory (in array elements) if kmalloc() returns NULL.
+In-Reply-To: <200612080050.53895.m.kozlowski@tuxland.pl>
+Message-ID: <Pine.LNX.4.64N.0612071602540.3592@attu4.cs.washington.edu>
+References: <20061206211317.b996bc34.amit2030@gmail.com>
+ <200612080050.53895.m.kozlowski@tuxland.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Document how to decode a binary IOCTL number.
+On Fri, 8 Dec 2006, Mariusz Kozlowski wrote:
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
----
- Documentation/ioctl/ioctl-decoding.txt |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+> > --- a/drivers/media/video/cpia2/cpia2_usb.c
+> > +++ b/drivers/media/video/cpia2/cpia2_usb.c
+> > @@ -640,6 +640,10 @@ static int submit_urbs(struct camera_dat
+> >  		cam->sbuf[i].data =
+> >  		    kmalloc(FRAMES_PER_DESC * FRAME_SIZE_PER_DESC, GFP_KERNEL);
+> >  		if (!cam->sbuf[i].data) {
+> > +			for (--i; i >= 0; i--) {
+> > +				kfree(cam->sbuf[i].data);
+> > +				cam->sbuf[i].data = NULL;
+> > +			}
+> >  			return -ENOMEM;
+> >  		}
+> >  	}
+> 
+> Just for future. Shorter and more readable version of your for(...) thing:
+> 
+> 	while (i--) {
+> 		...
+> 	}
+> 
 
---- /dev/null
-+++ 2.6.19.0.5-32smp/Documentation/ioctl/ioctl-decoding.txt
-@@ -0,0 +1,24 @@
-+To decode a hex IOCTL code:
-+
-+Most architecures use this generic format, but check
-+include/ARCH/ioctl.h for specifics, e.g. powerpc
-+uses 3 bits to encode read/write and 13 bits for size.
-+
-+ bits    meaning
-+ 31-30	00 - no parameters: uses _IO macro
-+	10 - read: _IOR
-+	01 - write: _IOW
-+	11 - read/write: _IOWR
-+
-+ 29-16	size of arguments
-+
-+ 15-8	ascii character supposedly
-+	unique to each driver
-+
-+ 7-0	function #
-+
-+
-+ So for example 0x82187201 is a read with arg length of 0x218,
-+character 'r' function 1. Grepping the source reveals this is:
-+
-+#define VFAT_IOCTL_READDIR_BOTH         _IOR('r', 1, struct dirent [2])
--- 
-Chuck
-"Even supernovas have their duller moments."
+No, that is not equivalent.
+
+You want
+	while (i-- >= 0) {
+		...
+	}

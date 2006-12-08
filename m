@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425551AbWLHPTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425542AbWLHPTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425551AbWLHPTt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 10:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425554AbWLHPTt
+	id S1425542AbWLHPTR (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 10:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425549AbWLHPTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 10:19:49 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:61499 "EHLO
-	mtagate2.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425556AbWLHPTr (ORCPT
+	Fri, 8 Dec 2006 10:19:17 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:9453 "EHLO
+	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425542AbWLHPTL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 10:19:47 -0500
-Date: Fri, 8 Dec 2006 16:19:41 +0100
+	Fri, 8 Dec 2006 10:19:11 -0500
+Date: Fri, 8 Dec 2006 16:19:05 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, rwuerthn@de.ibm.com
-Subject: [S390] add reset call handler to the ap bus.
-Message-ID: <20061208151941.GC14596@skybase>
+To: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+Subject: [S390] uaccess_pt: add missing down_read() and convert to is_init().
+Message-ID: <20061208151905.GA14596@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,69 +22,40 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ralph Wuerthner <rwuerthn@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[S390] add reset call handler to the ap bus.
+[S390] uaccess_pt: add missing down_read() and convert to is_init().
 
-Signed-off-by: Ralph Wuerthner <rwuerthn@de.ibm.com>
+Doesn't seem to be a good idea to duplicate code :)
+
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/crypto/ap_bus.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+)
+ arch/s390/lib/uaccess_pt.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/crypto/ap_bus.c linux-2.6-patched/drivers/s390/crypto/ap_bus.c
---- linux-2.6/drivers/s390/crypto/ap_bus.c	2006-12-08 15:52:24.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/crypto/ap_bus.c	2006-12-08 15:52:47.000000000 +0100
-@@ -33,6 +33,7 @@
- #include <linux/kthread.h>
- #include <linux/mutex.h>
- #include <asm/s390_rdev.h>
-+#include <asm/reset.h>
- 
- #include "ap_bus.h"
- 
-@@ -1128,6 +1129,19 @@ static void ap_poll_thread_stop(void)
- 	mutex_unlock(&ap_poll_thread_mutex);
- }
- 
-+static void ap_reset(void)
-+{
-+	int i, j;
-+
-+	for (i = 0; i < AP_DOMAINS; i++)
-+		for (j = 0; j < AP_DEVICES; j++)
-+			ap_reset_queue(AP_MKQID(j, i));
-+}
-+
-+static struct reset_call ap_reset_call = {
-+	.fn = ap_reset,
-+};
-+
- /**
-  * The module initialization code.
+diff -urpN linux-2.6/arch/s390/lib/uaccess_pt.c linux-2.6-patched/arch/s390/lib/uaccess_pt.c
+--- linux-2.6/arch/s390/lib/uaccess_pt.c	2006-12-08 15:52:19.000000000 +0100
++++ linux-2.6-patched/arch/s390/lib/uaccess_pt.c	2006-12-08 15:52:40.000000000 +0100
+@@ -8,8 +8,8 @@
   */
-@@ -1144,6 +1158,7 @@ int __init ap_module_init(void)
- 		printk(KERN_WARNING "AP instructions not installed.\n");
- 		return -ENODEV;
+ 
+ #include <linux/errno.h>
+-#include <asm/uaccess.h>
+ #include <linux/mm.h>
++#include <asm/uaccess.h>
+ #include <asm/futex.h>
+ 
+ static inline int __handle_fault(struct mm_struct *mm, unsigned long address,
+@@ -60,8 +60,9 @@ out:
+ 
+ out_of_memory:
+ 	up_read(&mm->mmap_sem);
+-	if (current->pid == 1) {
++	if (is_init(current)) {
+ 		yield();
++		down_read(&mm->mmap_sem);
+ 		goto survive;
  	}
-+	register_reset_call(&ap_reset_call);
- 
- 	/* Create /sys/bus/ap. */
- 	rc = bus_register(&ap_bus_type);
-@@ -1197,6 +1212,7 @@ out_bus:
- 		bus_remove_file(&ap_bus_type, ap_bus_attrs[i]);
- 	bus_unregister(&ap_bus_type);
- out:
-+	unregister_reset_call(&ap_reset_call);
- 	return rc;
- }
- 
-@@ -1227,6 +1243,7 @@ void ap_module_exit(void)
- 	for (i = 0; ap_bus_attrs[i]; i++)
- 		bus_remove_file(&ap_bus_type, ap_bus_attrs[i]);
- 	bus_unregister(&ap_bus_type);
-+	unregister_reset_call(&ap_reset_call);
- }
- 
- #ifndef CONFIG_ZCRYPT_MONOLITHIC
+ 	printk("VM: killing process %s\n", current->comm);

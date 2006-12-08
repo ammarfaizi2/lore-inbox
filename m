@@ -1,82 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163185AbWLGSaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425345AbWLHK5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163185AbWLGSaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163187AbWLGSaP
+	id S1425345AbWLHK5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 05:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425358AbWLHK5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:30:15 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:1076 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163185AbWLGSaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:30:12 -0500
-Date: Thu, 7 Dec 2006 19:30:11 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: [PATCH 3/5] PCI MMConfig: Only map what's necessary.
-Message-ID: <20061207183011.GC73583@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Muli Ben-Yehuda <muli@il.ibm.com>
-References: <20061207181726.GA69863@dspnet.fr.eu.org>
+	Fri, 8 Dec 2006 05:57:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59053 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1425345AbWLHK5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 05:57:39 -0500
+Date: Fri, 8 Dec 2006 02:57:09 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
+       artiom.myaskouvskey@intel.com, randy.dunlap@oracle.com,
+       shai.satt@intel.com, ak@suse.de, hpa@zytor.com
+Subject: Re: [PATCH] efi is_memory_available ia64 hack build fix
+Message-Id: <20061208025709.ac056804.pj@sgi.com>
+In-Reply-To: <20061208025312.70a72d4c.akpm@osdl.org>
+References: <20061208103336.4644.96389.sendpatchset@jackhammer.engr.sgi.com>
+	<20061208025312.70a72d4c.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207181726.GA69863@dspnet.fr.eu.org>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The x86-64 mmconfig code always map a range of MMCONFIG_APER_MAX
-bytes, i.e. 256MB, whatever the number of accessible busses is.  Fix
-it, and add the end of the zone in the printk while we're at it.
+Andrew wrote:
+> That already got named to is_memory_available()
 
-Signed-off-by: Olivier Galibert <galibert@pobox.com>
----
- arch/x86_64/pci/mmconfig.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
+Ok - oh well.  Whatever.
 
-diff --git a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
-index c71c181..3d13220 100644
---- a/arch/x86_64/pci/mmconfig.c
-+++ b/arch/x86_64/pci/mmconfig.c
-@@ -13,10 +13,6 @@
- 
- #include "pci.h"
- 
--/* aperture is up to 256MB but BIOS may reserve less */
--#define MMCONFIG_APER_MIN	(2 * 1024*1024)
--#define MMCONFIG_APER_MAX	(256 * 1024*1024)
--
- /* Verify the first 16 busses. We assume that systems with more busses
-    get MCFG right. */
- #define PCI_MMCFG_MAX_CHECK_BUS 16
-@@ -143,17 +139,19 @@ int __init pci_mmcfg_arch_init(void)
- 	}
- 
- 	for (i = 0; i < pci_mmcfg_config_num; ++i) {
-+		u32 size = (pci_mmcfg_config[0].end_bus_number - pci_mmcfg_config[0].start_bus_number + 1) << 20;
- 		pci_mmcfg_virt[i].cfg = &pci_mmcfg_config[i];
- 		pci_mmcfg_virt[i].virt = ioremap_nocache(pci_mmcfg_config[i].base_address,
--							 MMCONFIG_APER_MAX);
-+							 size);
- 		if (!pci_mmcfg_virt[i].virt) {
- 			printk(KERN_ERR "PCI: Cannot map mmconfig aperture for "
- 					"segment %d\n",
- 			       pci_mmcfg_config[i].pci_segment_group_number);
- 			return 0;
- 		}
--		printk(KERN_INFO "PCI: Using MMCONFIG at %x\n",
--		       pci_mmcfg_config[i].base_address);
-+		printk(KERN_INFO "PCI: Using MMCONFIG at %x-%x\n",
-+		       pci_mmcfg_config[i].base_address,
-+		       pci_mmcfg_config[i].base_address + size - 1);
- 	}
- 
- 	raw_pci_ops = &pci_mmcfg;
 -- 
-1.4.4.1.g278f
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

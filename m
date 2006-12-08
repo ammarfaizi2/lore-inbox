@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760887AbWLHSvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760966AbWLHSxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760887AbWLHSvu (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 13:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760890AbWLHSvu
+	id S1760966AbWLHSxA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 13:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760964AbWLHSxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 13:51:50 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:1823 "EHLO
-	spirit.analogic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760887AbWLHSvt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 13:51:49 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 08 Dec 2006 18:51:44.0972 (UTC) FILETIME=[E84A70C0:01C71AF9]
-Content-class: urn:content-classes:message
-Subject: Re: Linux slack space question
-Date: Fri, 8 Dec 2006 13:51:44 -0500
-Message-ID: <Pine.LNX.4.61.0612081337510.20280@chaos.analogic.com>
-In-Reply-To: <3c698a820612080921u20a957d9x1ac1e01e6734d025@mail.gmail.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux slack space question
-thread-index: Acca+ehRfKIWpg6UQNmoTzKlgwXI7A==
-References: <3c698a820612080921u20a957d9x1ac1e01e6734d025@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Maria Short" <mgolod@ieee.org>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Fri, 8 Dec 2006 13:53:00 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:48720 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760966AbWLHSw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 13:52:59 -0500
+Message-Id: <20061208182500.684722000@osdl.org>
+References: <20061208182241.786324000@osdl.org>
+User-Agent: quilt/0.46-1
+Date: Fri, 08 Dec 2006 10:22:46 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH 5/6] QLA2 use pci read tuning interface
+Content-Disposition: inline; filename=qla-mmrbc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(Resend of earlier patch, driver name conflicts with porn filters)
 
-On Fri, 8 Dec 2006, Maria Short wrote:
+Use new PCI read tuning interface. This makes sure driver doesn't
+run into PCI chipset errata problems now or in future.
+Untested on real hardware.
 
-> I have a question regarding how the Linux kernel handles slack space.
-> I know that the ext3 filesystems typically use 1,2 or 4 KB blocks and
-> if a file is not an even multiple of the block size then the last
-> allocated block will not be completely filled, the remaining space is
-> wasted as slack space.
->
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-Not wasted, could be extended if additional data are written.
+--- pci-x.orig/drivers/scsi/qla2xxx/qla_init.c
++++ pci-x/drivers/scsi/qla2xxx/qla_init.c
+@@ -250,7 +250,6 @@ qla24xx_pci_config(scsi_qla_host_t *ha)
+ 	uint32_t d;
+ 	unsigned long flags = 0;
+ 	struct device_reg_24xx __iomem *reg = &ha->iobase->isp24;
+-	int pcix_cmd_reg, pcie_dctl_reg;
+ 
+ 	pci_set_master(ha->pdev);
+ 	mwi = 0;
+@@ -265,28 +264,10 @@ qla24xx_pci_config(scsi_qla_host_t *ha)
+ 	pci_write_config_byte(ha->pdev, PCI_LATENCY_TIMER, 0x80);
+ 
+ 	/* PCI-X -- adjust Maximum Memory Read Byte Count (2048). */
+-	pcix_cmd_reg = pci_find_capability(ha->pdev, PCI_CAP_ID_PCIX);
+-	if (pcix_cmd_reg) {
+-		uint16_t pcix_cmd;
+-
+-		pcix_cmd_reg += PCI_X_CMD;
+-		pci_read_config_word(ha->pdev, pcix_cmd_reg, &pcix_cmd);
+-		pcix_cmd &= ~PCI_X_CMD_MAX_READ;
+-		pcix_cmd |= 0x0008;
+-		pci_write_config_word(ha->pdev, pcix_cmd_reg, pcix_cmd);
+-	}
++	pcix_set_mmrbc(ha->pdev, 2048);
+ 
+ 	/* PCIe -- adjust Maximum Read Request Size (2048). */
+-	pcie_dctl_reg = pci_find_capability(ha->pdev, PCI_CAP_ID_EXP);
+-	if (pcie_dctl_reg) {
+-		uint16_t pcie_dctl;
+-
+-		pcie_dctl_reg += PCI_EXP_DEVCTL;
+-		pci_read_config_word(ha->pdev, pcie_dctl_reg, &pcie_dctl);
+-		pcie_dctl &= ~PCI_EXP_DEVCTL_READRQ;
+-		pcie_dctl |= 0x4000;
+-		pci_write_config_word(ha->pdev, pcie_dctl_reg, pcie_dctl);
+-	}
++	pcie_set_readrq(ha->pdev, 2048);
+ 
+ 	/* Reset expansion ROM address decode enable */
+ 	pci_read_config_dword(ha->pdev, PCI_ROM_ADDRESS, &d);
 
-> What I need is the code in the kernel that does that. I have been
-> looking at http://lxr.linux.no/source/fs/ext3/inode.c but I could not
-> find the specific code for partially filling the last block and
-> placing an EOF at the end, leaving the rest to slack space.
+-- 
 
-An EOF? Unlike CP/M the Linux file-systems copy to user-space up to the
-last byte written to the file, not up to the last block. Therefore, there
-is no need for "fill" and certainly no EOF character. All Linux/Unix
-files are binary files, i.e., there are no special characters inserted.
-Now, when you read a file using buffered I/O (the f***() functions), the
-'C' runtime library converts I/O so that functions like feof(*stream) work.
-The actual EOF on a binary file occurs when a read() returns 0 bytes.
-
-The number of bytes actually written to files are handled in inodes. In fact, 
-you can make a file larger simply by moving a file-pointer. That changes
-the inode value. Such files are called sparse files and, when read, the space 
-not written is cleared so the user never reads something that wasn't
-specifically written.
-
-  >
-> Please forward the answer to mgolod@ieee.org as soon as possible.
->
-> Thank you very much.
-> -
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.68 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425618AbWLHQrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425621AbWLHQvO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425618AbWLHQrp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425623AbWLHQrp
+	id S1425621AbWLHQvO (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:51:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425628AbWLHQvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:47:45 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2169 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425618AbWLHQro (ORCPT
+	Fri, 8 Dec 2006 11:51:14 -0500
+Received: from smtp-out.google.com ([216.239.33.17]:63254 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425621AbWLHQvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:47:44 -0500
-Date: Fri, 8 Dec 2006 16:47:33 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061208164733.GE31068@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	akpm@osdl.org, linux-arm-kernel@lists.arm.linux.org.uk,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com> <20061208163127.GD31068@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080841560.15472@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Dec 2006 11:51:13 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=ozZqOeM9xQGK/6GnX2OGzxeCYDwaQtt22GMxuhH//Or+jI5EznGaBoz5Zl69zWNnt
+	IbXcoiCdc2D/gm7yLakng==
+Message-ID: <6599ad830612080851q55fe8c95m9f00a2a9a3779dc4@mail.gmail.com>
+Date: Fri, 8 Dec 2006 08:51:01 -0800
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [PATCH] cpuset - rework cpuset_zone_allowed api
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andi Kleen" <ak@suse.de>,
+       "Christoph Lameter" <clameter@sgi.com>
+In-Reply-To: <20061208112152.12631.67436.sendpatchset@jackhammer.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612080841560.15472@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+References: <20061208112152.12631.67436.sendpatchset@jackhammer.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 08:43:09AM -0800, Christoph Lameter wrote:
-> On Fri, 8 Dec 2006, Russell King wrote:
-> 
-> > You're advocating cmpxchg is adopted by all architectures.  It isn't
-> > available on many architectures, and those which it can be requires
-> > unnecessarily complicated coding.
-> 
-> Not having cmpxchg is even worse because it requires the introduction and 
-> maintenance of large sets of arch specific operations. Much more complex.
+On 12/8/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> -int __cpuset_zone_allowed(struct zone *z, gfp_t gfp_mask)
+> +int __cpuset_zone_allowed_softwall(struct zone *z, gfp_t gfp_mask)
+>  {
+>         int node;                       /* node that zone z is on */
+>         const struct cpuset *cs;        /* current cpuset ancestors */
+> @@ -2335,6 +2351,40 @@ int __cpuset_zone_allowed(struct zone *z
+>         return allowed;
+>  }
 
-And which bit of "not available on many architectures" have you not grasped
-yet?
+While you're changing this, is there a good reason not to check
+is_mem_exclusive() *before* taking callback_mutex and calling
+nearest_exclusive_ancestor()?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+something like:
+
+rcu_read_lock();
+exc = is_mem_exclusive(rcu_dereference(current->cs));
+rcu_read_unlock();
+if (exc)
+  return 1;
+
+... take callback_mutex, etc ...
+
+Paul

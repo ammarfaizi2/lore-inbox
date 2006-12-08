@@ -1,112 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947543AbWLIAGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947533AbWLIAGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947543AbWLIAGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 19:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947533AbWLHX7h
+	id S1947533AbWLIAGp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 19:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947532AbWLHX7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 18:59:37 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37490 "EHLO
+	Fri, 8 Dec 2006 18:59:33 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37471 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947540AbWLHX7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 18:59:23 -0500
-Message-Id: <20061208235850.726185000@sous-sol.org>
+	id S1947533AbWLHX7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 18:59:12 -0500
+Message-Id: <20061209000056.481276000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:57:54 -0800
+Date: Fri, 08 Dec 2006 15:58:07 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Roland Dreier <rolandd@cisco.com>, Sean Hefty <sean.hefty@intel.com>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
-       bunk@stusta.de, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [patch 03/32] EBTABLES: Fix wraparounds in ebt_entries verification.
-Content-Disposition: inline; filename=ebtables-fix-wraparounds-in-ebt_entries-verification.patch
+       alan@lxorguk.ukuu.org.uk, Michael S Tsirkin <mst@mellanox.co.il>
+Subject: [patch 16/32] IB/ucm: Fix deadlock in cleanup
+Content-Disposition: inline; filename=ib-ucm-fix-deadlock-in-cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Michael S Tsirkin <mst@mellanox.co.il>
 
-We need to verify that
-	a) we are not too close to the end of buffer to dereference
-	b) next entry we'll be checking won't be _before_ our
+ib_ucm_cleanup_events() holds file_mutex while calling ib_destroy_cm_id().
+This can deadlock since ib_destroy_cm_id() flushes event handlers, and
+ib_ucm_event_handler() needs file_mutex, too.  Therefore, drop the
+file_mutex during the call to ib_destroy_cm_id().
 
-While we are at it, don't subtract unrelated pointers...
-
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
+Acked-by: Sean Hefty <sean.hefty@intel.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- net/bridge/netfilter/ebtables.c |   23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
 
---- linux-2.6.19.orig/net/bridge/netfilter/ebtables.c
-+++ linux-2.6.19/net/bridge/netfilter/ebtables.c
-@@ -401,13 +401,17 @@ ebt_check_entry_size_and_hooks(struct eb
-    struct ebt_entries **hook_entries, unsigned int *n, unsigned int *cnt,
-    unsigned int *totalcnt, unsigned int *udc_cnt, unsigned int valid_hooks)
- {
-+	unsigned int offset = (char *)e - newinfo->entries;
-+	size_t left = (limit - base) - offset;
- 	int i;
+Hello, -stable team!
+This patch backports commit f469b2626f48829c06e40ac799c1edf62b12048e to 2.6.19.
+Please consider it for 2.6.19.y - this fixes a deadlock reproduced here at Mellanox.
+
+ drivers/infiniband/core/ucm.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- linux-2.6.19.orig/drivers/infiniband/core/ucm.c
++++ linux-2.6.19/drivers/infiniband/core/ucm.c
+@@ -161,12 +161,14 @@ static void ib_ucm_cleanup_events(struct
+ 				    struct ib_ucm_event, ctx_list);
+ 		list_del(&uevent->file_list);
+ 		list_del(&uevent->ctx_list);
++		mutex_unlock(&ctx->file->file_mutex);
  
-+	if (left < sizeof(unsigned int))
-+		goto Esmall;
-+
- 	for (i = 0; i < NF_BR_NUMHOOKS; i++) {
- 		if ((valid_hooks & (1 << i)) == 0)
- 			continue;
--		if ( (char *)hook_entries[i] - base ==
--		   (char *)e - newinfo->entries)
-+		if ((char *)hook_entries[i] == base + offset)
- 			break;
- 	}
- 	/* beginning of a new chain
-@@ -428,11 +432,8 @@ ebt_check_entry_size_and_hooks(struct eb
- 			return -EINVAL;
- 		}
- 		/* before we look at the struct, be sure it is not too big */
--		if ((char *)hook_entries[i] + sizeof(struct ebt_entries)
--		   > limit) {
--			BUGPRINT("entries_size too small\n");
--			return -EINVAL;
--		}
-+		if (left < sizeof(struct ebt_entries))
-+			goto Esmall;
- 		if (((struct ebt_entries *)e)->policy != EBT_DROP &&
- 		   ((struct ebt_entries *)e)->policy != EBT_ACCEPT) {
- 			/* only RETURN from udc */
-@@ -455,6 +456,8 @@ ebt_check_entry_size_and_hooks(struct eb
- 		return 0;
- 	}
- 	/* a plain old entry, heh */
-+	if (left < sizeof(struct ebt_entry))
-+		goto Esmall;
- 	if (sizeof(struct ebt_entry) > e->watchers_offset ||
- 	   e->watchers_offset > e->target_offset ||
- 	   e->target_offset >= e->next_offset) {
-@@ -466,10 +469,16 @@ ebt_check_entry_size_and_hooks(struct eb
- 		BUGPRINT("target size too small\n");
- 		return -EINVAL;
- 	}
-+	if (left < e->next_offset)
-+		goto Esmall;
+ 		/* clear incoming connections. */
+ 		if (ib_ucm_new_cm_id(uevent->resp.event))
+ 			ib_destroy_cm_id(uevent->cm_id);
  
- 	(*cnt)++;
- 	(*totalcnt)++;
- 	return 0;
-+
-+Esmall:
-+	BUGPRINT("entries_size too small\n");
-+	return -EINVAL;
+ 		kfree(uevent);
++		mutex_lock(&ctx->file->file_mutex);
+ 	}
+ 	mutex_unlock(&ctx->file->file_mutex);
  }
- 
- struct ebt_cl_stack
 
 --

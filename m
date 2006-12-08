@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947541AbWLIACB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947553AbWLIACB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947541AbWLIACB (ORCPT <rfc822;willy@w.ods.org>);
+	id S1947553AbWLIACB (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Dec 2006 19:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947545AbWLIABg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947541AbWLIABj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:01:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37617 "EHLO
+	Fri, 8 Dec 2006 19:01:39 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37610 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947540AbWLIABW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:01:22 -0500
-Message-Id: <20061209000114.308422000@sous-sol.org>
+	id S1947547AbWLIABT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 19:01:19 -0500
+Message-Id: <20061209000130.257871000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:58:10 -0800
+Date: Fri, 08 Dec 2006 15:58:12 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -22,48 +22,42 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
        alan@lxorguk.ukuu.org.uk, David Miller <davem@davemloft.net>,
-       bunk@stusta.de, Patrick McHardy <kaber@trash.net>
-Subject: [patch 19/32] XFRM: Use output device disable_xfrm for forwarded packets
-Content-Disposition: inline; filename=xfrm-use-output-device-disable_xfrm-for-forwarded-packets.patch
+       bunk@stusta.de
+Subject: [patch 21/32] IPSEC: Fix inetpeer leak in ipv4 xfrm dst entries.
+Content-Disposition: inline; filename=ipsec-fix-inetpeer-leak-in-ipv4-xfrm-dst-entries.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Patrick McHardy <kaber@trash.net>
+From: David Miller <davem@davemloft.net>
 
-Currently the behaviour of disable_xfrm is inconsistent between
-locally generated and forwarded packets. For locally generated
-packets disable_xfrm disables the policy lookup if it is set on
-the output device, for forwarded traffic however it looks at the
-input device. This makes it impossible to disable xfrm on all
-devices but a dummy device and use normal routing to direct
-traffic to that device.
+We grab a reference to the route's inetpeer entry but
+forget to release it in xfrm4_dst_destroy().
 
-Always use the output device when checking disable_xfrm.
+Bug discovered by Kazunori MIYAZAWA <kazunori@miyazawa.org>
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
-commit 9be2b4e36fb04bbc968693ef95a75acc17cf2931
-Author: Patrick McHardy <kaber@trash.net>
-Date:   Mon Dec 4 19:59:00 2006 -0800
+commit 26db167702756d0022f8ea5f1f30cad3018cfe31
+Author: David S. Miller <davem@sunset.davemloft.net>
+Date:   Wed Dec 6 23:45:15 2006 -0800
 
- net/ipv4/route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/xfrm4_policy.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- linux-2.6.19.orig/net/ipv4/route.c
-+++ linux-2.6.19/net/ipv4/route.c
-@@ -1784,7 +1784,7 @@ static inline int __mkroute_input(struct
- #endif
- 	if (in_dev->cnf.no_policy)
- 		rth->u.dst.flags |= DST_NOPOLICY;
--	if (in_dev->cnf.no_xfrm)
-+	if (out_dev->cnf.no_xfrm)
- 		rth->u.dst.flags |= DST_NOXFRM;
- 	rth->fl.fl4_dst	= daddr;
- 	rth->rt_dst	= daddr;
+--- linux-2.6.19.orig/net/ipv4/xfrm4_policy.c
++++ linux-2.6.19/net/ipv4/xfrm4_policy.c
+@@ -273,6 +273,8 @@ static void xfrm4_dst_destroy(struct dst
+ 
+ 	if (likely(xdst->u.rt.idev))
+ 		in_dev_put(xdst->u.rt.idev);
++	if (likely(xdst->u.rt.peer))
++		inet_putpeer(xdst->u.rt.peer);
+ 	xfrm_dst_destroy(xdst);
+ }
+ 
 
 --

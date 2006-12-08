@@ -1,163 +1,150 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947522AbWLIAII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947536AbWLIAJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947522AbWLIAII (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 19:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947526AbWLIAIH
+	id S1947536AbWLIAJA (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 19:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947519AbWLHX6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:08:07 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52880 "EHLO
+	Fri, 8 Dec 2006 18:58:45 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37403 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947568AbWLIAHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:07:43 -0500
-Message-Id: <20061209000246.210981000@sous-sol.org>
+	id S1947522AbWLHX6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 18:58:42 -0500
+Message-Id: <20061209000030.357789000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:58:19 -0800
+Date: Fri, 08 Dec 2006 15:58:05 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, jkosina@suse.cz, raven@themaw.net
-Subject: [patch 28/32] autofs: fix error code path in autofs_fill_sb()
-Content-Disposition: inline; filename=autofs-fix-error-code-path-in-autofs_fill_sb.patch
+       Michael Krufky <mkrufky@linuxtv.org>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, Patrick McHardy <kaber@trash.net>,
+       davem@davemloft.net, Bart De Schuymer <bdschuym@pandora.be>
+Subject: [patch 14/32] NETFILTER: bridge netfilter: deal with martians correctly
+Content-Disposition: inline; filename=netfilter-bridge-netfilter-deal-with-martians-correctly.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Bart De Schuymer <bdschuym@pandora.be>
 
-When kernel is compiled with old version of autofs (CONFIG_AUTOFS_FS), and
-new (observed at least with 5.x.x) automount deamon is started, kernel
-correctly reports incompatible version of kernel and userland daemon, but
-then screws things up instead of correct handling of the error:
+The attached patch resolves an issue where a IP DNATed packet with a
+martian source is forwarded while it's better to drop it. It also
+resolves messages complaining about ip forwarding being disabled while
+it's actually enabled. Thanks to lepton <ytht.net@gmail.com> for
+reporting this problem.
 
- autofs: kernel does not match daemon version
- =====================================
- [ BUG: bad unlock balance detected! ]
- -------------------------------------
- automount/4199 is trying to release lock (&type->s_umount_key) at:
- [<c0163b9e>] get_sb_nodev+0x76/0xa4
- but there are no more locks to release!
+This is probably a candidate for the -stable release.
 
- other info that might help us debug this:
- no locks held by automount/4199.
-
- stack backtrace:
-  [<c0103b15>] dump_trace+0x68/0x1b2
-  [<c0103c77>] show_trace_log_lvl+0x18/0x2c
-  [<c01041db>] show_trace+0xf/0x11
-  [<c010424d>] dump_stack+0x12/0x14
-  [<c012e02c>] print_unlock_inbalance_bug+0xe7/0xf3
-  [<c012fd4f>] lock_release+0x8d/0x164
-  [<c012b452>] up_write+0x14/0x27
-  [<c0163b9e>] get_sb_nodev+0x76/0xa4
-  [<c0163689>] vfs_kern_mount+0x83/0xf6
-  [<c016373e>] do_kern_mount+0x2d/0x3e
-  [<c017513f>] do_mount+0x607/0x67a
-  [<c0175224>] sys_mount+0x72/0xa4
-  [<c0102b96>] sysenter_past_esp+0x5f/0x99
- DWARF2 unwinder stuck at sysenter_past_esp+0x5f/0x99
- Leftover inexact backtrace:
-  =======================
-
-and then deadlock comes.
-
-The problem: autofs_fill_super() returns EINVAL to get_sb_nodev(), but
-before that, it calls kill_anon_super() to destroy the superblock which
-won't be needed.  This is however way too soon to call kill_anon_super(),
-because get_sb_nodev() has to perform its own cleanup of the superblock
-first (deactivate_super(), etc.).  The correct time to call
-kill_anon_super() is in the autofs_kill_sb() callback, which is called by
-deactivate_super() at proper time, when the superblock is ready to be
-killed.
-
-I can see the same faulty codepath also in autofs4.  This patch solves
-issues in both filesystems in a same way - it postpones the
-kill_anon_super() until the proper time is signalized by deactivate_super()
-calling the kill_sb() callback.
-
-[raven@themaw.net: update comment]
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Ian Kent <raven@themaw.net>
-Cc: <stable@kernel.org>
-Signed-off-by: Ian Kent <raven@themaw.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Bart De Schuymer <bdschuym@pandora.be>
+Signed-off-by: Patrick McHardy <kaber@trash.net>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
+commit bb01f827bae980efdecc33fbcdc1b90f1c355b3e
+tree 432a8f2843b47ccac094efea35da6f19731ed834
+parent 14f5487cb9bd34cd59360d2cac7dccac9b27e8ce
+author Bart De Schuymer <bdschuym@pandora.be> Mon, 04 Dec 2006 12:19:46 +0100
+committer Patrick McHardy <kaber@trash.net> Mon, 04 Dec 2006 12:19:46 +0100
 
- fs/autofs/inode.c  |    7 ++++---
- fs/autofs4/inode.c |    7 ++++---
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ net/bridge/br_netfilter.c |   36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
---- linux-2.6.19.orig/fs/autofs/inode.c
-+++ linux-2.6.19/fs/autofs/inode.c
-@@ -28,10 +28,11 @@ void autofs_kill_sb(struct super_block *
- 	/*
- 	 * In the event of a failure in get_sb_nodev the superblock
- 	 * info is not present so nothing else has been setup, so
--	 * just exit when we are called from deactivate_super.
-+	 * just call kill_anon_super when we are called from
-+	 * deactivate_super.
- 	 */
- 	if (!sbi)
--		return;
-+		goto out_kill_sb;
+--- linux-2.6.19.orig/net/bridge/br_netfilter.c
++++ linux-2.6.19/net/bridge/br_netfilter.c
+@@ -34,6 +34,7 @@
+ #include <linux/netfilter_ipv6.h>
+ #include <linux/netfilter_arp.h>
+ #include <linux/in_route.h>
++#include <linux/inetdevice.h>
  
- 	if ( !sbi->catatonic )
- 		autofs_catatonic_mode(sbi); /* Free wait queues, close pipe */
-@@ -44,6 +45,7 @@ void autofs_kill_sb(struct super_block *
+ #include <net/ip.h>
+ #include <net/ipv6.h>
+@@ -222,10 +223,14 @@ static void __br_dnat_complain(void)
+  *
+  * Otherwise, the packet is considered to be routed and we just
+  * change the destination MAC address so that the packet will
+- * later be passed up to the IP stack to be routed.
++ * later be passed up to the IP stack to be routed. For a redirected
++ * packet, ip_route_input() will give back the localhost as output device,
++ * which differs from the bridge device.
+  *
+  * Let us now consider the case that ip_route_input() fails:
+  *
++ * This can be because the destination address is martian, in which case
++ * the packet will be dropped.
+  * After a "echo '0' > /proc/sys/net/ipv4/ip_forward" ip_route_input()
+  * will fail, while __ip_route_output_key() will return success. The source
+  * address for __ip_route_output_key() is set to zero, so __ip_route_output_key
+@@ -238,7 +243,8 @@ static void __br_dnat_complain(void)
+  *
+  * --Lennert, 20020411
+  * --Bart, 20020416 (updated)
+- * --Bart, 20021007 (updated) */
++ * --Bart, 20021007 (updated)
++ * --Bart, 20062711 (updated) */
+ static int br_nf_pre_routing_finish_bridge(struct sk_buff *skb)
+ {
+ 	if (skb->pkt_type == PACKET_OTHERHOST) {
+@@ -265,15 +271,15 @@ static int br_nf_pre_routing_finish(stru
+ 	struct net_device *dev = skb->dev;
+ 	struct iphdr *iph = skb->nh.iph;
+ 	struct nf_bridge_info *nf_bridge = skb->nf_bridge;
++	int err;
  
- 	kfree(sb->s_fs_info);
+ 	if (nf_bridge->mask & BRNF_PKT_TYPE) {
+ 		skb->pkt_type = PACKET_OTHERHOST;
+ 		nf_bridge->mask ^= BRNF_PKT_TYPE;
+ 	}
+ 	nf_bridge->mask ^= BRNF_NF_BRIDGE_PREROUTING;
+-
+ 	if (dnat_took_place(skb)) {
+-		if (ip_route_input(skb, iph->daddr, iph->saddr, iph->tos, dev)) {
++		if ((err = ip_route_input(skb, iph->daddr, iph->saddr, iph->tos, dev))) {
+ 			struct rtable *rt;
+ 			struct flowi fl = {
+ 				.nl_u = {
+@@ -284,19 +290,33 @@ static int br_nf_pre_routing_finish(stru
+ 				},
+ 				.proto = 0,
+ 			};
++			struct in_device *in_dev = in_dev_get(dev);
++
++			/* If err equals -EHOSTUNREACH the error is due to a
++			 * martian destination or due to the fact that
++			 * forwarding is disabled. For most martian packets,
++			 * ip_route_output_key() will fail. It won't fail for 2 types of
++			 * martian destinations: loopback destinations and destination
++			 * 0.0.0.0. In both cases the packet will be dropped because the
++			 * destination is the loopback device and not the bridge. */
++			if (err != -EHOSTUNREACH || !in_dev || IN_DEV_FORWARD(in_dev))
++				goto free_skb;
  
-+out_kill_sb:
- 	DPRINTK(("autofs: shutting down\n"));
- 	kill_anon_super(sb);
- }
-@@ -209,7 +211,6 @@ fail_iput:
- fail_free:
- 	kfree(sbi);
- 	s->s_fs_info = NULL;
--	kill_anon_super(s);
- fail_unlock:
- 	return -EINVAL;
- }
---- linux-2.6.19.orig/fs/autofs4/inode.c
-+++ linux-2.6.19/fs/autofs4/inode.c
-@@ -152,10 +152,11 @@ void autofs4_kill_sb(struct super_block 
- 	/*
- 	 * In the event of a failure in get_sb_nodev the superblock
- 	 * info is not present so nothing else has been setup, so
--	 * just exit when we are called from deactivate_super.
-+	 * just call kill_anon_super when we are called from
-+	 * deactivate_super.
- 	 */
- 	if (!sbi)
--		return;
-+		goto out_kill_sb;
- 
- 	sb->s_fs_info = NULL;
- 
-@@ -167,6 +168,7 @@ void autofs4_kill_sb(struct super_block 
- 
- 	kfree(sbi);
- 
-+out_kill_sb:
- 	DPRINTK("shutting down");
- 	kill_anon_super(sb);
- }
-@@ -426,7 +428,6 @@ fail_ino:
- fail_free:
- 	kfree(sbi);
- 	s->s_fs_info = NULL;
--	kill_anon_super(s);
- fail_unlock:
- 	return -EINVAL;
- }
+ 			if (!ip_route_output_key(&rt, &fl)) {
+ 				/* - Bridged-and-DNAT'ed traffic doesn't
+-				 *   require ip_forwarding.
+-				 * - Deal with redirected traffic. */
+-				if (((struct dst_entry *)rt)->dev == dev ||
+-				    rt->rt_type == RTN_LOCAL) {
++				 *   require ip_forwarding. */
++				if (((struct dst_entry *)rt)->dev == dev) {
+ 					skb->dst = (struct dst_entry *)rt;
+ 					goto bridged_dnat;
+ 				}
++				/* we are sure that forwarding is disabled, so printing
++				 * this message is no problem. Note that the packet could
++				 * still have a martian destination address, in which case
++				 * the packet could be dropped even if forwarding were enabled */
+ 				__br_dnat_complain();
+ 				dst_release((struct dst_entry *)rt);
+ 			}
++free_skb:
+ 			kfree_skb(skb);
+ 			return 0;
+ 		} else {
 
 --

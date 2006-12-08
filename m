@@ -1,96 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163480AbWLGWZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938028AbWLHLI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163480AbWLGWZK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163470AbWLGWZJ
+	id S938028AbWLHLI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938032AbWLHLI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:25:09 -0500
-Received: from wr-out-0506.google.com ([64.233.184.238]:7307 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163504AbWLGWZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:25:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PW2tzrM/ynhmRasnzhRxVZ6FzuPrzJaKB+/339An1E+mahD4Jt6RLeAHn7Xl0KFknrYWHqGqCmaW3o/1SwCCdojb0hNpVUZsGMHD171zr9vnsOLO5UjBsoz9+0xBdJN5s+M8STgFZLvcH9kUp5Ss1YM6xOONroHCv90EDYOPWE4=
-Message-ID: <9a8748490612071425g41eabc1fnf2683e85bde262a8@mail.gmail.com>
-Date: Thu, 7 Dec 2006 23:25:07 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Chris Friesen" <cfriesen@nortel.com>
-Subject: Re: additional oom-killer tuneable worth submitting?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <45788E55.5070009@nortel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 8 Dec 2006 06:08:26 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:49285 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S938028AbWLHLIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:08:25 -0500
+Date: Fri, 8 Dec 2006 03:07:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dtor@insightbb.com>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>
+Subject: Re: [git pull] Input patches for 2.6.19
+Message-Id: <20061208030755.4ae3d5df.akpm@osdl.org>
+In-Reply-To: <1165579184.5529.33.camel@aeonflux.holtmann.net>
+References: <200612080157.04822.dtor@insightbb.com>
+	<Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
+	<1165579184.5529.33.camel@aeonflux.holtmann.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <45785DDD.3000503@nortel.com>
-	 <9a8748490612071050q60b378c4ldf039140ffd721be@mail.gmail.com>
-	 <457886B4.2030507@nortel.com>
-	 <9a8748490612071337p612f7a2t5fd31968a9ff5da9@mail.gmail.com>
-	 <45788E55.5070009@nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/12/06, Chris Friesen <cfriesen@nortel.com> wrote:
-> Jesper Juhl wrote:
-> >> Jesper Juhl wrote:
->
-> >> > What happens in the case where the OOM killer really, really needs to
-> >> > kill one or more processes since there is not a single drop of memory
-> >> > available, but all processes are below their configured thresholds?
->
-> > I realize that if this case happens the system is misconfigured as far
-> > as oomthresh goes, but if this is a knob that we put in the mainline
-> > kernel then I believe there should be some sort of emergency handling
-> > code that takes this situation into account.  Perhaps throw some very
-> > nasty looking log messages and then fall back to the classic OOM
-> > killer behaviour..?
->
-> Yeah, I can see that the reboot might be a bit drastic for mainline.  I
-> think the fallback to classic behaviour might work okay.
->
-> Anyway, the chances of hitting that case are likely pretty slim.  The
-> way we've been using this is to only set the threshold for fairly
-> important long-lived daemons.  Much of the "standard" stuff (shell, cat,
-> cp, mv, etc.) is left unprotected.
->
-Sure, that's sensible, to only protect the important stuff.
-But even if the chances of hitting this are slim, we still need a way
-out. For most people anything is better than a hung box.
+On Fri, 08 Dec 2006 12:59:44 +0100
+Marcel Holtmann <marcel@holtmann.org> wrote:
 
-Some examples;
+> > >  b/drivers/usb/input/hid-core.c                 |    7 
+> > >  b/drivers/usb/input/hid-input.c                |    4 
+> > >  b/drivers/usb/input/hid.h                      |    1 
+> > 
+> > OK, this is going to break the merge from Greg's tree of generic HID 
+> > layer, which was planned for today.
+> > 
+> > The merge will probably emit a large .rej files, due to the large blocks 
+> > of code being moved around, but it seems that most of the changes which 
+> > would conflict with the merge could be trivially solved by hand.
+> > 
+> > Greg, should I prepare a new version of the generic HID patches against 
+> > merged Linus' + Dmitry's trees and send them to you?
+> 
+> yes please, because Linus already merged Dmitry's patches.
 
- For a desktop (where people may be experimenting with the feature) -
-seeing your firefox process evaporate due to the OOM killer and then
-finding a message explaining what happened in dmesg is a lot less
-frustrating than a hang or sudden reboot.
-
- For a server - If you mis-configure the new feature you may be in for
-a long drive to reboot a box whereas falling back to the classic OOM
-killer (+ nasty messages in dmesg) will likely save you the trip and
-clue you in as to what you mis-configured.
-
- For an embedded box - triggering a reboot would probably be better
-than both a hang or classic OOM kill in many cases (better to have the
-device reboot and come back working than to hang or start
-malfunctioning due to a missing process).
-
-So maybe what's needed is an additional knob for people to tweak - one
-that selects what should happen in this rare case: 1) fallback to
-classic OOM (default), 2) reboot, 3) hang.   In all cases messages
-should be logged explaining what happened.
-Or is that overkill?  If so I'd personally prefer just falling back to
-classic OOM kill in this case.
-
-A way out for the "OOM but all processes below threshold" case +
-perhaps coupled with oomthresh applying to process groups instead of
-just processes and I personally start to like this feature.
-
-Let's see some code...
-
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I suggest that you leave it for 12 hours - there's a lot more stuff in flight and
+there might be overlaps.

@@ -1,214 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163482AbWLGWFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164343AbWLHBTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163482AbWLGWFd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163481AbWLGWFd
+	id S1164343AbWLHBTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164242AbWLHBSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:05:33 -0500
-Received: from outmx008.isp.belgacom.be ([195.238.5.235]:52108 "EHLO
-	outmx008.isp.belgacom.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163454AbWLGWFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:05:32 -0500
-Date: Thu, 7 Dec 2006 23:05:15 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Victor <andrew@sanpeople.com>, gregkh@suse.de,
-       Thomas Koeller <thomas.koeller@baslerweb.com>
-Subject: [WATCHDOG] v2.6.19+ fixes
-Message-ID: <20061207220515.GA4006@infomag.infomag.iguana.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Thu, 7 Dec 2006 20:18:46 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:47182 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164337AbWLHBNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:13:45 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:13:57 +1100
+Message-Id: <1061208011357.30639@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 007 of 18] knfsd: nfsd: don't drop silently on upcall deferral
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-Please pull from 'master' branch of
-	git://git.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+From: J.Bruce Fields <bfields@fieldses.org>
 
-This will update the following files:
+To avoid tying up server threads when nfsd makes an upcall (to mountd, to
+get export options, to idmapd, for nfsv4 name<->id mapping, etc.), we
+temporarily "drop" the request and save enough information so that we can
+revisit it later.
 
- drivers/char/watchdog/at91rm9200_wdt.c |    6 ++--
- drivers/char/watchdog/mpcore_wdt.c     |    2 -
- drivers/char/watchdog/omap_wdt.c       |    2 -
- drivers/char/watchdog/rm9k_wdt.c       |   44 ++++++++++++++++-----------------
- 4 files changed, 27 insertions(+), 27 deletions(-)
+Certain failures during the deferral process can cause us to really drop
+the request and never revisit it.
 
-with these Changes:
+This is often less than ideal, and is unacceptable in the NFSv4 case--rfc
+3530 forbids the server from dropping a request without also closing the
+connection.
 
-Author: Andrew Victor <andrew@sanpeople.com>
-Date:   Mon Dec 4 15:56:18 2006 +0200
+As a first step, we modify the deferral code to return -ETIMEDOUT (which is
+translated to nfserr_jukebox in the v3 and v4 cases, and remains a drop in
+the v2 case).
 
-    [WATCHDOG] watchdog miscdevice patch
-    
-    It looks like the recent changes to 'struct miscdevice' have impacted
-    some of the Watchdog drivers.
-    
-    at91rm9200_wdt.c:205: error: 'struct miscdevice' has no member named 'dev'
-    
-    For the AT91RM9200 driver I just replaced "miscdevice.dev" with
-    "miscdevice.parent".
-    
-    The mpcore_wdt.c and omap_wdt.c seem similarly affected.
-    
-    Signed-off-by: Andrew Victor <andrew@sanpeople.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Author: Thomas Koeller <thomas.koeller@baslerweb.com>
-Date:   Wed Dec 6 01:45:39 2006 +0100
+### Diffstat output
+ ./fs/nfsd/export.c                  |   11 ++++++++---
+ ./fs/nfsd/nfsfh.c                   |    6 ++++--
+ ./fs/nfsd/vfs.c                     |    2 +-
+ ./net/sunrpc/auth_gss/svcauth_gss.c |    2 +-
+ ./net/sunrpc/cache.c                |   11 +++++++----
+ ./net/sunrpc/svcauth_unix.c         |    1 +
+ 6 files changed, 22 insertions(+), 11 deletions(-)
 
-    [WATCHDOG] rm9k_wdt: fix interrupt handler arguments
-    
-    Removed 'struct pt_regs *' from interrupt handler arguments.
-    
-    Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-Author: Thomas Koeller <thomas.koeller@baslerweb.com>
-Date:   Wed Dec 6 01:45:26 2006 +0100
-
-    [WATCHDOG] rm9k_wdt: fix compilation
-    
-    Driver did not compile any more. Someone moved the definition
-    of 'struct miscdevice miscdev' to a place near the end of the
-    file, after some code that was refering to this variable.
-    
-    Signed-off-by: Thomas Koeller <thomas.koeller@baslerweb.com>
-    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
-
-The Changes can also be looked at on:
-	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
-
-For completeness, I added the overal diff below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff --git a/drivers/char/watchdog/at91rm9200_wdt.c b/drivers/char/watchdog/at91rm9200_wdt.c
-index 4e7a114..c8da2b0 100644
---- a/drivers/char/watchdog/at91rm9200_wdt.c
-+++ b/drivers/char/watchdog/at91rm9200_wdt.c
-@@ -202,9 +202,9 @@ static int __init at91wdt_probe(struct p
- {
- 	int res;
+diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
+--- .prev/fs/nfsd/export.c	2006-12-08 12:08:25.000000000 +1100
++++ ./fs/nfsd/export.c	2006-12-08 12:08:37.000000000 +1100
+@@ -787,15 +787,20 @@ exp_get_by_name(svc_client *clp, struct 
+ 	key.ex_dentry = dentry;
  
--	if (at91wdt_miscdev.dev)
-+	if (at91wdt_miscdev.parent)
- 		return -EBUSY;
--	at91wdt_miscdev.dev = &pdev->dev;
-+	at91wdt_miscdev.parent = &pdev->dev;
+ 	exp = svc_export_lookup(&key);
+-	if (exp != NULL) 
+-		switch (cache_check(&svc_export_cache, &exp->h, reqp)) {
++	if (exp != NULL)  {
++		int err;
++
++		err = cache_check(&svc_export_cache, &exp->h, reqp);
++		switch (err) {
+ 		case 0: break;
+ 		case -EAGAIN:
+-			exp = ERR_PTR(-EAGAIN);
++		case -ETIMEDOUT:
++			exp = ERR_PTR(err);
+ 			break;
+ 		default:
+ 			exp = NULL;
+ 		}
++	}
  
- 	res = misc_register(&at91wdt_miscdev);
- 	if (res)
-@@ -220,7 +220,7 @@ static int __exit at91wdt_remove(struct 
- 
- 	res = misc_deregister(&at91wdt_miscdev);
- 	if (!res)
--		at91wdt_miscdev.dev = NULL;
-+		at91wdt_miscdev.parent = NULL;
- 
- 	return res;
+ 	return exp;
  }
-diff --git a/drivers/char/watchdog/mpcore_wdt.c b/drivers/char/watchdog/mpcore_wdt.c
-index 3404a9c..e88947f 100644
---- a/drivers/char/watchdog/mpcore_wdt.c
-+++ b/drivers/char/watchdog/mpcore_wdt.c
-@@ -347,7 +347,7 @@ static int __devinit mpcore_wdt_probe(st
- 		goto err_free;
+
+diff .prev/fs/nfsd/nfsfh.c ./fs/nfsd/nfsfh.c
+--- .prev/fs/nfsd/nfsfh.c	2006-12-08 12:07:23.000000000 +1100
++++ ./fs/nfsd/nfsfh.c	2006-12-08 12:08:37.000000000 +1100
+@@ -169,9 +169,11 @@ fh_verify(struct svc_rqst *rqstp, struct
+ 			exp = exp_find(rqstp->rq_client, 0, tfh, &rqstp->rq_chandle);
+ 		}
+ 
+-		error = nfserr_dropit;
+-		if (IS_ERR(exp) && PTR_ERR(exp) == -EAGAIN)
++		if (IS_ERR(exp) && (PTR_ERR(exp) == -EAGAIN
++				|| PTR_ERR(exp) == -ETIMEDOUT)) {
++			error = nfserrno(PTR_ERR(exp));
+ 			goto out;
++		}
+ 
+ 		error = nfserr_stale; 
+ 		if (!exp || IS_ERR(exp))
+
+diff .prev/fs/nfsd/vfs.c ./fs/nfsd/vfs.c
+--- .prev/fs/nfsd/vfs.c	2006-12-08 12:07:23.000000000 +1100
++++ ./fs/nfsd/vfs.c	2006-12-08 12:08:37.000000000 +1100
+@@ -99,7 +99,7 @@ static struct raparm_hbucket	raparm_hash
+ /* 
+  * Called from nfsd_lookup and encode_dirent. Check if we have crossed 
+  * a mount point.
+- * Returns -EAGAIN leaving *dpp and *expp unchanged, 
++ * Returns -EAGAIN or -ETIMEDOUT leaving *dpp and *expp unchanged,
+  *  or nfs_ok having possibly changed *dpp and *expp
+  */
+ int
+
+diff .prev/net/sunrpc/auth_gss/svcauth_gss.c ./net/sunrpc/auth_gss/svcauth_gss.c
+--- .prev/net/sunrpc/auth_gss/svcauth_gss.c	2006-12-08 12:08:05.000000000 +1100
++++ ./net/sunrpc/auth_gss/svcauth_gss.c	2006-12-08 12:08:37.000000000 +1100
+@@ -1080,7 +1080,7 @@ svcauth_gss_accept(struct svc_rqst *rqst
+ 		}
+ 		switch(cache_check(&rsi_cache, &rsip->h, &rqstp->rq_chandle)) {
+ 		case -EAGAIN:
+-			goto drop;
++		case -ETIMEDOUT:
+ 		case -ENOENT:
+ 			goto drop;
+ 		case 0:
+
+diff .prev/net/sunrpc/cache.c ./net/sunrpc/cache.c
+--- .prev/net/sunrpc/cache.c	2006-12-08 12:07:23.000000000 +1100
++++ ./net/sunrpc/cache.c	2006-12-08 12:09:12.000000000 +1100
+@@ -34,7 +34,7 @@
+ 
+ #define	 RPCDBG_FACILITY RPCDBG_CACHE
+ 
+-static void cache_defer_req(struct cache_req *req, struct cache_head *item);
++static int cache_defer_req(struct cache_req *req, struct cache_head *item);
+ static void cache_revisit_request(struct cache_head *item);
+ 
+ static void cache_init(struct cache_head *h)
+@@ -185,6 +185,7 @@ static int cache_make_upcall(struct cach
+  *
+  * Returns 0 if the cache_head can be used, or cache_puts it and returns
+  * -EAGAIN if upcall is pending,
++ * -ETIMEDOUT if upcall failed and should be retried,
+  * -ENOENT if cache entry was negative
+  */
+ int cache_check(struct cache_detail *detail,
+@@ -236,7 +237,8 @@ int cache_check(struct cache_detail *det
  	}
  
--	mpcore_wdt_miscdev.dev = &dev->dev;
-+	mpcore_wdt_miscdev.parent = &dev->dev;
- 	ret = misc_register(&mpcore_wdt_miscdev);
- 	if (ret) {
- 		dev_printk(KERN_ERR, _dev, "cannot register miscdev on minor=%d (err=%d)\n",
-diff --git a/drivers/char/watchdog/omap_wdt.c b/drivers/char/watchdog/omap_wdt.c
-index 5dbd7dc..6c6f973 100644
---- a/drivers/char/watchdog/omap_wdt.c
-+++ b/drivers/char/watchdog/omap_wdt.c
-@@ -290,7 +290,7 @@ static int __init omap_wdt_probe(struct 
- 	omap_wdt_disable();
- 	omap_wdt_adjust_timeout(timer_margin);
+ 	if (rv == -EAGAIN)
+-		cache_defer_req(rqstp, h);
++		if (cache_defer_req(rqstp, h) != 0)
++			rv = -ETIMEDOUT;
  
--	omap_wdt_miscdev.dev = &pdev->dev;
-+	omap_wdt_miscdev.parent = &pdev->dev;
- 	ret = misc_register(&omap_wdt_miscdev);
- 	if (ret)
- 		goto fail;
-diff --git a/drivers/char/watchdog/rm9k_wdt.c b/drivers/char/watchdog/rm9k_wdt.c
-index ec39093..7576a13 100644
---- a/drivers/char/watchdog/rm9k_wdt.c
-+++ b/drivers/char/watchdog/rm9k_wdt.c
-@@ -47,7 +47,7 @@ #define CPGIG1ER               0x0054
+ 	if (rv)
+ 		cache_put(h, detail);
+@@ -523,14 +525,14 @@ static LIST_HEAD(cache_defer_list);
+ static struct list_head cache_defer_hash[DFR_HASHSIZE];
+ static int cache_defer_cnt;
  
- 
- /* Function prototypes */
--static irqreturn_t wdt_gpi_irqhdl(int, void *, struct pt_regs *);
-+static irqreturn_t wdt_gpi_irqhdl(int, void *);
- static void wdt_gpi_start(void);
- static void wdt_gpi_stop(void);
- static void wdt_gpi_set_timeout(unsigned int);
-@@ -94,8 +94,28 @@ module_param(nowayout, bool, 0444);
- MODULE_PARM_DESC(nowayout, "Watchdog cannot be disabled once started");
- 
- 
-+/* Kernel interfaces */
-+static struct file_operations fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= wdt_gpi_open,
-+	.release	= wdt_gpi_release,
-+	.write		= wdt_gpi_write,
-+	.unlocked_ioctl	= wdt_gpi_ioctl,
-+};
-+
-+static struct miscdevice miscdev = {
-+	.minor		= WATCHDOG_MINOR,
-+	.name		= wdt_gpi_name,
-+	.fops		= &fops,
-+};
-+
-+static struct notifier_block wdt_gpi_shutdown = {
-+	.notifier_call	= wdt_gpi_notify,
-+};
-+
-+
- /* Interrupt handler */
--static irqreturn_t wdt_gpi_irqhdl(int irq, void *ctxt, struct pt_regs *regs)
-+static irqreturn_t wdt_gpi_irqhdl(int irq, void *ctxt)
+-static void cache_defer_req(struct cache_req *req, struct cache_head *item)
++static int cache_defer_req(struct cache_req *req, struct cache_head *item)
  {
- 	if (!unlikely(__raw_readl(wd_regs + 0x0008) & 0x1))
- 		return IRQ_NONE;
-@@ -312,26 +332,6 @@ wdt_gpi_notify(struct notifier_block *th
+ 	struct cache_deferred_req *dreq;
+ 	int hash = DFR_HASH(item);
+ 
+ 	dreq = req->defer(req);
+ 	if (dreq == NULL)
+-		return;
++		return -ETIMEDOUT;
+ 
+ 	dreq->item = item;
+ 	dreq->recv_time = get_seconds();
+@@ -571,6 +573,7 @@ static void cache_defer_req(struct cache
+ 		/* must have just been validated... */
+ 		cache_revisit_request(item);
+ 	}
++	return 0;
  }
  
- 
--/* Kernel interfaces */
--static struct file_operations fops = {
--	.owner		= THIS_MODULE,
--	.open		= wdt_gpi_open,
--	.release	= wdt_gpi_release,
--	.write		= wdt_gpi_write,
--	.unlocked_ioctl	= wdt_gpi_ioctl,
--};
--
--static struct miscdevice miscdev = {
--	.minor		= WATCHDOG_MINOR,
--	.name		= wdt_gpi_name,
--	.fops		= &fops,
--};
--
--static struct notifier_block wdt_gpi_shutdown = {
--	.notifier_call	= wdt_gpi_notify,
--};
--
--
- /* Init & exit procedures */
- static const struct resource *
- wdt_gpi_get_resource(struct platform_device *pdv, const char *name,
+ static void cache_revisit_request(struct cache_head *item)
+
+diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
+--- .prev/net/sunrpc/svcauth_unix.c	2006-12-08 12:07:23.000000000 +1100
++++ ./net/sunrpc/svcauth_unix.c	2006-12-08 12:08:37.000000000 +1100
+@@ -435,6 +435,7 @@ svcauth_unix_set_client(struct svc_rqst 
+ 		default:
+ 			BUG();
+ 		case -EAGAIN:
++		case -ETIMEDOUT:
+ 			return SVC_DROP;
+ 		case -ENOENT:
+ 			return SVC_DENIED;

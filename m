@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425464AbWLHMvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425441AbWLHLxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425464AbWLHMvM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425487AbWLHMvM
+	id S1425441AbWLHLxu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:53:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425426AbWLHLxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:51:12 -0500
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:56545 "EHLO
-	mtagate6.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425464AbWLHMvL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:51:11 -0500
-Date: Fri, 8 Dec 2006 14:51:07 +0200
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Arkadiusz Miskiewicz <arekm@maven.pl>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: What was in the x86 merge for .20
-Message-ID: <20061208125107.GA3545@rhun.ibm.com>
-References: <200612080401.25746.ak@suse.de> <200612081304.23230.arekm@maven.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200612081304.23230.arekm@maven.pl>
-User-Agent: Mutt/1.5.11
+	Fri, 8 Dec 2006 06:53:20 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52367 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425425AbWLHLwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:52:47 -0500
+Message-Id: <200612081152.kB8BqXLA019780@shell0.pdx.osdl.net>
+Subject: [patch 11/13] io-accounting: via taskstats
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+From: akpm@osdl.org
+Date: Fri, 08 Dec 2006 03:52:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 01:04:23PM +0100, Arkadiusz Miskiewicz wrote:
-> On Friday 08 December 2006 04:01, Andi Kleen wrote:
-> 
-> > - Support for a Processor Data Area (PDA) on i386. This makes
-> > the code more similar to x86-64 and will allow some other
-> > optimizations in the future.
-> 
->   LD      .tmp_vmlinux1
-> arch/i386/kernel/built-in.o: In function `math_emulate':
-> (.text+0x3809): undefined reference to `_proxy_pda'
-> arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
-> (.text+0xe140): undefined reference to `_proxy_pda'
-> kernel/built-in.o: In function `sys_set_tid_address':
-> (.text+0x370b): undefined reference to `_proxy_pda'
-> kernel/built-in.o: In function `switch_uid':
-> (.text+0xcc6c): undefined reference to `_proxy_pda'
-> mm/built-in.o: In function `sys_munlock':
-> (.text+0xcaf1): undefined reference to `_proxy_pda'
-> mm/built-in.o:(.text+0xcc11): more undefined references to `_proxy_pda' follow
-> make: *** [.tmp_vmlinux1] Błąd 1
-> 
-> Something related (git tree fetched 1-2h ago) ?
+From: Andrew Morton <akpm@osdl.org>
 
-Probably. Please send your .config.
+Deliver IO accounting via taskstats.
 
-Cheers,
-Muli
+Cc: Jay Lan <jlan@sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Balbir Singh <balbir@in.ibm.com>
+Cc: Chris Sturtivant <csturtiv@sgi.com>
+Cc: Tony Ernst <tee@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: David Wright <daw@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ include/linux/taskstats.h |    8 +++++++-
+ kernel/tsacct.c           |    9 +++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff -puN include/linux/taskstats.h~io-accounting-via-taskstats include/linux/taskstats.h
+--- a/include/linux/taskstats.h~io-accounting-via-taskstats
++++ a/include/linux/taskstats.h
+@@ -31,7 +31,7 @@
+  */
+ 
+ 
+-#define TASKSTATS_VERSION	2
++#define TASKSTATS_VERSION	3
+ #define TS_COMM_LEN		32	/* should be >= TASK_COMM_LEN
+ 					 * in linux/sched.h */
+ 
+@@ -140,6 +140,12 @@ struct taskstats {
+ 	__u64	read_syscalls;		/* read syscalls */
+ 	__u64	write_syscalls;		/* write syscalls */
+ 	/* Extended accounting fields end */
++
++#define TASKSTATS_HAS_IO_ACCOUNTING
++	/* Per-task storage I/O accounting starts */
++	__u64	read_bytes;		/* bytes of read I/O */
++	__u64	write_bytes;		/* bytes of write I/O */
++	__u64	cancelled_write_bytes;	/* bytes of cancelled write I/O */
+ };
+ 
+ 
+diff -puN kernel/tsacct.c~io-accounting-via-taskstats kernel/tsacct.c
+--- a/kernel/tsacct.c~io-accounting-via-taskstats
++++ a/kernel/tsacct.c
+@@ -96,6 +96,15 @@ void xacct_add_tsk(struct taskstats *sta
+ 	stats->write_char	= p->wchar;
+ 	stats->read_syscalls	= p->syscr;
+ 	stats->write_syscalls	= p->syscw;
++#ifdef CONFIG_TASK_IO_ACCOUNTING
++	stats->read_bytes	= p->ioac.read_bytes;
++	stats->write_bytes	= p->ioac.write_bytes;
++	stats->cancelled_write_bytes = p->ioac.cancelled_write_bytes;
++#else
++	stats->read_bytes	= 0;
++	stats->write_bytes	= 0;
++	stats->cancelled_write_bytes = 0;
++#endif
+ }
+ #undef KB
+ #undef MB
+_

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164395AbWLHD0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164234AbWLHAlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164395AbWLHD0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 22:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164394AbWLHD0O
+	id S1164234AbWLHAlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 19:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164239AbWLHAlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 22:26:14 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:18533 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1164392AbWLHD0M (ORCPT
+	Thu, 7 Dec 2006 19:41:39 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:52521 "EHLO
+	ftp.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1164234AbWLHAli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 22:26:12 -0500
-Message-ID: <4578DB2F.4010204@chelsio.com>
-Date: Thu, 07 Dec 2006 19:25:35 -0800
-From: Divy Le Ray <divy@chelsio.com>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061025)
-MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 0/10] cxgb3: Chelsio T3 1G/10G ethernet device driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Dec 2006 03:25:36.0983 (UTC) FILETIME=[87303670:01C71A78]
+	Thu, 7 Dec 2006 19:41:38 -0500
+Date: Fri, 8 Dec 2006 00:41:30 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove useless memory barrier.
+Message-ID: <20061208004129.GA17754@linux-mips.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I don't see why there is a memory barrier in copy_from_read_buf() at all.
+Even if it was useful spin_unlock_irqrestore implies a barrier.
 
-I resubmit the patch supporting the latest Chelsio T3 adapter.
-It incorporates feedbacks from Stephen:
-- per port data accessed through netdev_priv()
-- remove locking in netpoll() method
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
-It also adapts to the new workqueue rules.
-
-This patch adds support for the latest Chelsio adapter, T3. It is built
-against 2.6.19.
-
-A corresponding monolithic patch against 2.6.19 is posted at the
-following URL: http://service.chelsio.com/kernel.org/cxgb3.patch.bz2
-
-We wish this patch to be considered for inclusion in 2.6.20. This driver
-is required by the Chelsio T3 RDMA driver which was updated on 12/02/2006.
-
-Cheers,
-Divy
-
+diff --git a/drivers/char/n_tty.c b/drivers/char/n_tty.c
+index 603b9ad..8df7ff3 100644
+--- a/drivers/char/n_tty.c
++++ b/drivers/char/n_tty.c
+@@ -1151,7 +1151,6 @@ static int copy_from_read_buf(struct tty
+ 	n = min(*nr, n);
+ 	spin_unlock_irqrestore(&tty->read_lock, flags);
+ 	if (n) {
+-		mb();
+ 		retval = copy_to_user(*b, &tty->read_buf[tty->read_tail], n);
+ 		n -= retval;
+ 		spin_lock_irqsave(&tty->read_lock, flags);

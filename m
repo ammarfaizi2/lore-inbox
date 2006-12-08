@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760711AbWLHNZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1759660AbWLHNtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760711AbWLHNZ2 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 08:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760712AbWLHNZ2
+	id S1759660AbWLHNtH (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 08:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759667AbWLHNtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 08:25:28 -0500
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:39313 "EHLO
-	rrzmta2.rz.uni-regensburg.de" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1760711AbWLHNZ1 (ORCPT
+	Fri, 8 Dec 2006 08:49:07 -0500
+Received: from smtp.nokia.com ([131.228.20.170]:62218 "EHLO
+	mgw-ext11.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759660AbWLHNtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 08:25:27 -0500
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Fri, 08 Dec 2006 14:24:45 +0100
+	Fri, 8 Dec 2006 08:49:04 -0500
+Message-ID: <45796CF9.3050702@yandex.ru>
+Date: Fri, 08 Dec 2006 15:47:37 +0200
+From: Artem Bityutskiy <dedekind@yandex.ru>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Subject: 2.6.19: slight performance optimization for lib/string.c's strstrip()
-Message-ID: <457975AE.31261.15F652B2@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.31)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=4.10.0+V=4.10+U=2.07.149+R=02 October 2006+T=193714@20061208.132500Z
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: -mm tree and git
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 08 Dec 2006 13:47:44.0420 (UTC) FILETIME=[70131640:01C71ACF]
+X-Nokia-AV: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Andrew, community,
 
-my apologies for disobeying all the rules for submitting patches, but I'll suggest 
-a performance optimization for strstrip() in lib/string.c:
+I am not really aware how your -mm tree cooperates with git so I have 
+questions.
 
-Original routine:
-char *strstrip(char *s)
-{
-       size_t size;
-       char *end;
+Actually I am talking about the "git-ubi.patch" in your tree. You seems 
+to periodically update the patch by fetching the stuff from the 
+ubi-2.6.git GIT tree.
 
-       size = strlen(s);
+1. How do you produce the diff file from the ubi-2.6.git?
+2. Do you mind if I re-base the ubi-2.6.git from time to time? Does it 
+cause any troubles for you?
+3, Are there some special things I should or should not do to make it 
+easy for you to work with the git tree?
+4. I see a 
+"ubi-versus-add-include-linux-freezerh-and-move-definitions-from.patch" 
+patch in your tree. It is related to the stuff which is available in 
+Linus's tree. But my tree does not have it yet. Is is OK if I won't push 
+it for now and do this later when I sync with mainline?
 
-       if (!size)
-               return s;
+Thanks.
 
-       end = s + size - 1;
-       while (end >= s && isspace(*end))
-               end--;
-       *(end + 1) = '\0';
-
-       while (*s && isspace(*s))
-               s++;
-
-       return s;
-}
-EXPORT_SYMBOL(strstrip);
-
-
-Suggested replacement:
-
-char *strstrip(char *s)
-{
-       size_t size;
-       char *end;
-
-       while (*s && isspace(*s))
-               s++;
-       if (!*s)
-               return s;
-       size = strlen(s);
-
-       end = s + size - 1;
-       while (end > s && isspace(*end))
-               end--;
-       *(end + 1) = '\0';
-
-       return s;
-}
-EXPORT_SYMBOL(strstrip);
-
-Comments: There's no need to scan the initial banks at the start of the string 
-twice (using strlen(), and then looking for initial blanks), and we know that the 
-first character of the string cannot be a blank when we are removing trailing 
-blanks after having removed leading blanks. Also we do not need to call strlen() 
-to detect an empty string.
-
-Regards,
-Ulrich
-
+-- 
+Best Regards,
+Artem Bityutskiy (Артём Битюцкий)

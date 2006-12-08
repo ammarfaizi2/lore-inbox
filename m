@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760719AbWLHN5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760727AbWLHN5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760719AbWLHN5d (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 08:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760724AbWLHN5d
+	id S1760727AbWLHN5u (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 08:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760729AbWLHN5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 08:57:33 -0500
-Received: from [212.33.187.138] ([212.33.187.138]:32922 "EHLO
-	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1760719AbWLHN5d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 08:57:33 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: additional oom-killer tuneable worth submitting?
-Date: Fri, 8 Dec 2006 16:58:29 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612081658.29338.a1426z@gawab.com>
+	Fri, 8 Dec 2006 08:57:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51588 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760725AbWLHN5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 08:57:49 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20061208111410.GA31068@flint.arm.linux.org.uk> 
+References: <20061208111410.GA31068@flint.arm.linux.org.uk>  <20061207234250.GH1255@flint.arm.linux.org.uk> <20061207085409.228016a2.akpm@osdl.org> <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com> <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com> <639.1165521999@redhat.com> <26012.1165535903@redhat.com> 
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, davem@davemloft.com, wli@holomorphy.com,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than cmpxchg() 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 08 Dec 2006 13:57:09 +0000
+Message-ID: <4501.1165586229@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan wrote:
-> > On an embedded platform this allows the designer to engineer the system
-> > and protect critical apps based on their expected memory consumption.
-> > If one of those apps goes crazy and starts chewing additional memory
-> > then it becomes vulnerable to the oom killer while the other apps remain
-> > protected.
->
-> That is why we have no-overcommit support.
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Alan, I think you know that this isn't really true, due to shared-libs.
+> These are the constant versions, where the compiler can optimise the
+> mask and word offset itself.
 
-> Now there is an argument for
-> a meaningful rlimit-as to go with it, and together I think they do what
-> you really need.
+So my inclusion of ARM is correct...  Under some circumstances it will write
+to the target word when it wouldn't actually make a change:
 
-The problem with rlimit is that it works per process.  Tuning this by hand 
-may be awkward and/or wasteful.  What we need is to rlimit on a global 
-basis, by calculating an upperlimit dynamically, such as to avoid 
-overcommit/OOM.
+	static inline int
+	____atomic_test_and_set_bit(unsigned int bit, volatile unsigned long *p)
+	{
+		unsigned long flags;
+		unsigned int res;
+		unsigned long mask = 1UL << (bit & 31);
 
+		p += bit >> 5;
 
-Thanks!
+		raw_local_irq_save(flags);
+		res = *p;
+		*p = res | mask;
+		raw_local_irq_restore(flags);
 
---
-Al
+		return res & mask;
+	}
 
+Remember: *p is volatile.
+
+David

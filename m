@@ -1,86 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424318AbWLHERb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425207AbWLHIxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424318AbWLHERb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 23:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424315AbWLHERb
+	id S1425207AbWLHIxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 03:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425213AbWLHIxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 23:17:31 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:42726 "EHLO
-	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424309AbWLHERa (ORCPT
+	Fri, 8 Dec 2006 03:53:25 -0500
+Received: from fmmailgate03.web.de ([217.72.192.234]:37658 "EHLO
+	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425207AbWLHIxY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 23:17:30 -0500
-Date: Thu, 7 Dec 2006 23:16:59 -0500
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
-       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       mhalcrow@us.ibm.com
-Subject: Re: [PATCH 15/35] Unionfs: Common file operations
-Message-ID: <20061208041656.GB14363@filer.fsl.cs.sunysb.edu>
-References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu> <11652354702903-git-send-email-jsipek@cs.sunysb.edu> <Pine.LNX.4.61.0612052155150.18570@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0612052155150.18570@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.1i
+	Fri, 8 Dec 2006 03:53:24 -0500
+Message-ID: <0c1101c71aa6$8e4aab60$eeeea8c0@aldipc>
+From: "roland" <devzero@web.de>
+To: "Fengguang Wu" <fengguang.wu@gmail.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jay Lan" <jlan@engr.sgi.com>,
+       <linux-kernel@vger.kernel.org>, <lserinol@gmail.com>
+References: <20060928151409.f0a9bda7.akpm@osdl.org> <0bb201c71a5d$1125a930$eeeea8c0@aldipc> <365540925.17780@ustc.edu.cn>
+Subject: Re: I/O statistics per process
+Date: Fri, 8 Dec 2006 09:55:04 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 05, 2006 at 10:02:10PM +0100, Jan Engelhardt wrote:
-> On Dec 4 2006 07:30, Josef 'Jeff' Sipek wrote:
-> >+long unionfs_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> >+{
-> >+	long err;
-> >+
-> >+	if ((err = unionfs_file_revalidate(file, 1)))
-> >+		goto out;
-> >+
-> >+	/* check if asked for local commands */
-> >+	switch (cmd) {
-> >+		case UNIONFS_IOCTL_INCGEN:
-> >+			/* Increment the superblock generation count */
-> >+			err = -EACCES;
-> >+			if (!capable(CAP_SYS_ADMIN))
-> >+				goto out;
-> >+			err = unionfs_ioctl_incgen(file, cmd, arg);
-> >+			break;
-> >+
-> >+		case UNIONFS_IOCTL_QUERYFILE:
-> >+			/* Return list of branches containing the given file */
-> >+			err = unionfs_ioctl_queryfile(file, cmd, arg);
-> >+			break;
-> >+
-> >+		default:
-> >+			/* pass the ioctl down */
-> >+			err = do_ioctl(file, cmd, arg);
-> >+			break;
-> >+	}
-> >+
-> >+out:
-> >+	return err;
-> >+}
-> 
-> 
-> I think there was an ioctl for files to find out where a particular
-> file lives on disk.
+this is really great news!
 
-That's the UNIONFS_IOCTL_QUERYFILE case.
+thank you!
 
-> Do you think unionfs should handle it and return
-> something more or less meaningful?
 
-It is a very useful functionality for any stackable filesystem which may
-store files on one of several branches. Do I think that it should be
-factored out of Unionfs into fsstack or similar? Not at the moment. If there
-seems to be a need for it, then I'd gladly move it out of Unionfs, but until
-then I don't see a reason to do anything special.
+----- Original Message ----- 
+From: "Fengguang Wu" <fengguang.wu@gmail.com>
+To: "roland" <devzero@web.de>
+Cc: "Andrew Morton" <akpm@osdl.org>; "Jay Lan" <jlan@engr.sgi.com>; 
+<linux-kernel@vger.kernel.org>; <lserinol@gmail.com>
+Sent: Friday, December 08, 2006 2:22 AM
+Subject: Re: I/O statistics per process
 
-Josef "Jeff" Sipek.
 
--- 
-Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are, by
-definition, not smart enough to debug it.
-		- Brian W. Kernighan 
+> Hi,
+>
+> On Fri, Dec 08, 2006 at 01:09:01AM +0100, roland wrote:
+>>
+>> didn`t discover that there is anything new about this (andrew? jay?) or 
+>> if
+>> some other person sent a patch , but i`d like to report that i came 
+>> across
+>> a really nice tool which would immediately benefit from per-process i/o
+>> statistics feature.
+>
+> Andrew has added kernel support to it in -mm tree.
+> Check this commit log:
+> http://www.mail-archive.com/mm-commits@vger.kernel.org/msg02975.html
+>
+> io-accounting-core-statistics.patch
+> io-accounting-write-accounting.patch
+> io-accounting-write-cancel-accounting.patch
+> io-accounting-read-accounting-2.patch
+> io-accounting-read-accounting-nfs-fix.patch
+> io-accounting-read-accounting-cifs-fix.patch
+> io-accounting-direct-io.patch
+> io-accounting-report-in-procfs.patch
+> io-accounting-via-taskstats.patch
+> io-accounting-add-to-getdelays.patch
+>
+> Regards,
+> Fengguang Wu 
+

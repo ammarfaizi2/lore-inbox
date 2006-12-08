@@ -1,76 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425444AbWLHMCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425423AbWLHLwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425444AbWLHMCG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425446AbWLHMCF
+	id S1425423AbWLHLwq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425425AbWLHLwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:02:05 -0500
-Received: from ns1.suse.de ([195.135.220.2]:40794 "EHLO mx1.suse.de"
+	Fri, 8 Dec 2006 06:52:46 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52351 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425444AbWLHMCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:02:01 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 23:02:13 +1100
-Message-Id: <1061208120213.18184@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 005 of 13] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
-References: <20061208225655.17970.patches@notabene>
+	id S1425423AbWLHLwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:52:45 -0500
+Message-Id: <200612081152.kB8BqYc5019783@shell0.pdx.osdl.net>
+Subject: [patch 12/13] getdelays: various fixes
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+From: akpm@osdl.org
+Date: Fri, 08 Dec 2006 03:52:34 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Andrew Morton <akpm@osdl.org>
 
-From: Chuck Lever <chuck.lever@oracle.com>
+- Various cleanups
 
-Sockaddr_storage will allow us to store arbitrary socket addresses in
-the svc_deferred_req struct.
+- Report errors to stderr, not stdout
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
-Signed-off-by: Neil Brown <neilb@suse.de>
+- A printf was missing a \n and was hiding from me.
 
-### Diffstat output
- ./include/linux/sunrpc/svc.h |    3 ++-
- ./net/sunrpc/svcsock.c       |    6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
+Cc: Jay Lan <jlan@sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Balbir Singh <balbir@in.ibm.com>
+Cc: Chris Sturtivant <csturtiv@sgi.com>
+Cc: Tony Ernst <tee@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: David Wright <daw@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
---- .prev/include/linux/sunrpc/svc.h	2006-12-08 13:49:44.000000000 +1100
-+++ ./include/linux/sunrpc/svc.h	2006-12-08 13:49:44.000000000 +1100
-@@ -289,7 +289,8 @@ static inline void svc_free_res_pages(st
+ Documentation/accounting/getdelays.c |   44 ++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
+
+diff -puN Documentation/accounting/getdelays.c~getdelays-various-fixes Documentation/accounting/getdelays.c
+--- a/Documentation/accounting/getdelays.c~getdelays-various-fixes
++++ a/Documentation/accounting/getdelays.c
+@@ -7,6 +7,8 @@
+  * Copyright (C) Balbir Singh, IBM Corp. 2006
+  * Copyright (c) Jay Lan, SGI. 2006
+  *
++ * Compile with
++ *	gcc -I/usr/src/linux/include getdelays.c -o getdelays
+  */
  
- struct svc_deferred_req {
- 	u32			prot;	/* protocol (UDP or TCP) */
--	struct sockaddr_in	addr;
-+	struct sockaddr_storage	addr;
-+	int			addrlen;
- 	struct svc_sock		*svsk;	/* where reply must go */
- 	__be32			daddr;	/* where reply must come from */
- 	struct cache_deferred_req handle;
-
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-08 13:43:30.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-08 13:49:44.000000000 +1100
-@@ -1713,7 +1713,8 @@ svc_defer(struct cache_req *req)
+ #include <stdio.h>
+@@ -35,13 +37,19 @@
+ #define NLA_DATA(na)		((void *)((char*)(na) + NLA_HDRLEN))
+ #define NLA_PAYLOAD(len)	(len - NLA_HDRLEN)
  
- 		dr->handle.owner = rqstp->rq_server;
- 		dr->prot = rqstp->rq_prot;
--		dr->addr = rqstp->rq_addr;
-+		memcpy(&dr->addr, &rqstp->rq_addr, rqstp->rq_addrlen);
-+		dr->addrlen = rqstp->rq_addrlen;
- 		dr->daddr = rqstp->rq_daddr;
- 		dr->argslen = rqstp->rq_arg.len >> 2;
- 		memcpy(dr->args, rqstp->rq_arg.head[0].iov_base-skip, dr->argslen<<2);
-@@ -1737,7 +1738,8 @@ static int svc_deferred_recv(struct svc_
- 	rqstp->rq_arg.page_len = 0;
- 	rqstp->rq_arg.len = dr->argslen<<2;
- 	rqstp->rq_prot        = dr->prot;
--	rqstp->rq_addr        = dr->addr;
-+	memcpy(&rqstp->rq_addr, &dr->addr, dr->addrlen);
-+	rqstp->rq_addrlen     = dr->addrlen;
- 	rqstp->rq_daddr       = dr->daddr;
- 	rqstp->rq_respages    = rqstp->rq_pages;
- 	return dr->argslen<<2;
+-#define err(code, fmt, arg...) do { printf(fmt, ##arg); exit(code); } while (0)
+-int done = 0;
+-int rcvbufsz=0;
+-
+-    char name[100];
+-int dbg=0, print_delays=0;
++#define err(code, fmt, arg...)			\
++	do {					\
++		fprintf(stderr, fmt, ##arg);	\
++		exit(code);			\
++	} while (0)
++
++int done;
++int rcvbufsz;
++char name[100];
++int dbg;
++int print_delays;
+ __u64 stime, utime;
++
+ #define PRINTF(fmt, arg...) {			\
+ 	    if (dbg) {				\
+ 		printf(fmt, ##arg);		\
+@@ -78,8 +86,9 @@ static int create_nl_socket(int protocol
+ 	if (rcvbufsz)
+ 		if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF,
+ 				&rcvbufsz, sizeof(rcvbufsz)) < 0) {
+-			printf("Unable to set socket rcv buf size to %d\n",
+-			       rcvbufsz);
++			fprintf(stderr, "Unable to set socket rcv buf size "
++					"to %d\n",
++				rcvbufsz);
+ 			return -1;
+ 		}
+ 
+@@ -277,7 +286,7 @@ int main(int argc, char *argv[])
+ 	mypid = getpid();
+ 	id = get_family_id(nl_sd);
+ 	if (!id) {
+-		printf("Error getting family id, errno %d", errno);
++		fprintf(stderr, "Error getting family id, errno %d\n", errno);
+ 		goto err;
+ 	}
+ 	PRINTF("family id %d\n", id);
+@@ -288,7 +297,7 @@ int main(int argc, char *argv[])
+ 			      &cpumask, strlen(cpumask) + 1);
+ 		PRINTF("Sent register cpumask, retval %d\n", rc);
+ 		if (rc < 0) {
+-			printf("error sending register cpumask\n");
++			fprintf(stderr, "error sending register cpumask\n");
+ 			goto err;
+ 		}
+ 	}
+@@ -298,7 +307,7 @@ int main(int argc, char *argv[])
+ 			      cmd_type, &tid, sizeof(__u32));
+ 		PRINTF("Sent pid/tgid, retval %d\n", rc);
+ 		if (rc < 0) {
+-			printf("error sending tid/tgid cmd\n");
++			fprintf(stderr, "error sending tid/tgid cmd\n");
+ 			goto done;
+ 		}
+ 	}
+@@ -310,13 +319,15 @@ int main(int argc, char *argv[])
+ 		PRINTF("received %d bytes\n", rep_len);
+ 
+ 		if (rep_len < 0) {
+-			printf("nonfatal reply error: errno %d\n", errno);
++			fprintf(stderr, "nonfatal reply error: errno %d\n",
++				errno);
+ 			continue;
+ 		}
+ 		if (msg.n.nlmsg_type == NLMSG_ERROR ||
+ 		    !NLMSG_OK((&msg.n), rep_len)) {
+ 			struct nlmsgerr *err = NLMSG_DATA(&msg);
+-			printf("fatal reply error,  errno %d\n", err->error);
++			fprintf(stderr, "fatal reply error,  errno %d\n",
++				err->error);
+ 			goto done;
+ 		}
+ 
+@@ -365,7 +376,9 @@ int main(int argc, char *argv[])
+ 							goto done;
+ 						break;
+ 					default:
+-						printf("Unknown nested nla_type %d\n", na->nla_type);
++						fprintf(stderr, "Unknown nested"
++							" nla_type %d\n",
++							na->nla_type);
+ 						break;
+ 					}
+ 					len2 += NLA_ALIGN(na->nla_len);
+@@ -374,7 +387,8 @@ int main(int argc, char *argv[])
+ 				break;
+ 
+ 			default:
+-				printf("Unknown nla_type %d\n", na->nla_type);
++				fprintf(stderr, "Unknown nla_type %d\n",
++					na->nla_type);
+ 				break;
+ 			}
+ 			na = (struct nlattr *) (GENLMSG_DATA(&msg) + len);
+_

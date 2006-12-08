@@ -1,127 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032388AbWLGQmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425510AbWLHM6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032388AbWLGQmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 11:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032394AbWLGQmi
+	id S1425510AbWLHM6r (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 07:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425512AbWLHM6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 11:42:38 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:51606 "EHLO
-	agminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1032388AbWLGQmi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 11:42:38 -0500
-Date: Thu, 7 Dec 2006 08:43:07 -0800
-From: Randy Dunlap <randy.dunlap@oracle.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kbuild : Make Fusion MPT selectable from "Device
- drivers" menu
-Message-Id: <20061207084307.7e6de9ec.randy.dunlap@oracle.com>
-In-Reply-To: <Pine.LNX.4.64.0612070651560.17882@localhost.localdomain>
-References: <Pine.LNX.4.64.0612070651560.17882@localhost.localdomain>
-Organization: Oracle Linux Eng.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 8 Dec 2006 07:58:47 -0500
+Received: from brick.kernel.dk ([62.242.22.158]:28169 "EHLO kernel.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425510AbWLHM6q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:58:46 -0500
+Date: Fri, 8 Dec 2006 13:59:43 +0100
+From: Jens Axboe <jens.axboe@oracle.com>
+To: Dave Jones <davej@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, akpm@osdl.org, Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] slab: remove SLAB_KERNEL
+Message-ID: <20061208125942.GQ23887@kernel.dk>
+References: <200612071659.kB7Gxa89031154@hera.kernel.org> <20061208120207.GA13841@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208120207.GA13841@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006 06:59:52 -0500 (EST) Robert P. J. Day wrote:
+On Fri, Dec 08 2006, Dave Jones wrote:
+> On Thu, Dec 07, 2006 at 04:59:36PM +0000, Linux Kernel wrote:
+>  > Gitweb:     http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e94b1766097d53e6f3ccfb36c8baa562ffeda3fc
+>  > Commit:     e94b1766097d53e6f3ccfb36c8baa562ffeda3fc
+>  > Parent:     54e6ecb23951b195d02433a741c7f7cb0b796c78
+>  > Author:     Christoph Lameter <clameter@sgi.com>
+>  > AuthorDate: Wed Dec 6 20:33:17 2006 -0800
+>  > Committer:  Linus Torvalds <torvalds@woody.osdl.org>
+>  > CommitDate: Thu Dec 7 08:39:24 2006 -0800
+>  > 
+>  >     [PATCH] slab: remove SLAB_KERNEL
+>  >     
+>  >     SLAB_KERNEL is an alias of GFP_KERNEL.
+>  >     
+>  >     Signed-off-by: Christoph Lameter <clameter@sgi.com>
+>  >     Signed-off-by: Andrew Morton <akpm@osdl.org>
+>  >     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+> Missed one.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> 
+> --- linux-2.6.19.noarch/mm/mmap.c~	2006-12-08 06:51:55.000000000 -0500
+> +++ linux-2.6.19.noarch/mm/mmap.c	2006-12-08 06:52:05.000000000 -0500
+> @@ -2226,7 +2226,7 @@ int install_special_mapping(struct mm_st
+>  	struct vm_area_struct *vma;
+>  	int err;
+>  
+> -	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+> +	vma = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);
+>  	if (unlikely(vma == NULL))
+>  		return -ENOMEM;
+>  	memset(vma, 0, sizeof(*vma));
 
-> 
->   Rewrite the Fusion MPT Kconfig file so that all of MPT functionality
-> is entirely selectable from "Device drivers."
-> 
-> Signed-off-by: Robert P. J. Day <rpjday@mindspring.com>
+What kernel is that?
 
-Acked-by: Randy Dunlap <randy.dunlap@oracle.com>
+-- 
+Jens Axboe
 
-but I think that you should cc: the FUSION email addresses
-that are listed in the MAINTAINERS file...
-
-
-> ---
-> 
->   The original Kconfig file seems to have an odd structure, as you can
-> see from the first part of the file:
-> 
-> ========================================================
-> menu "Fusion MPT device support"
-> 
-> config FUSION
->         bool
->         default n
-> 
-> config FUSION_SPI
->         tristate "Fusion MPT ScsiHost drivers for SPI"
->         depends on PCI && SCSI
->         select FUSION
->         select SCSI_SPI_ATTRS
->         ...
-> ========================================================
-> 
->   note how the majority of entries in that file don't directly
-> *depend* on FUSION.  instead, they depend on *external* config
-> variables, and *select* FUSION, and this is not the only place i've
-> noticed that kind of dependency wording.
-> 
->   is that a regular feature?  having that structure certainly makes it
-> slightly more difficult to rewrite the menu entries, and it's not
-> clear there's any obvious advantage to doing it that way.
-> 
-> 
-> diff --git a/drivers/message/fusion/Kconfig b/drivers/message/fusion/Kconfig
-> index ea31d84..b2da14d 100644
-> --- a/drivers/message/fusion/Kconfig
-> +++ b/drivers/message/fusion/Kconfig
-> @@ -1,14 +1,12 @@
-> -
-> -menu "Fusion MPT device support"
-> -
-> -config FUSION
-> -	bool
-> +menuconfig FUSION
-> +	bool "Fusion MPT device support"
->  	default n
-> 
-> +if FUSION
-> +
->  config FUSION_SPI
->  	tristate "Fusion MPT ScsiHost drivers for SPI"
->  	depends on PCI && SCSI
-> -	select FUSION
->  	select SCSI_SPI_ATTRS
->  	---help---
->  	  SCSI HOST support for a parallel SCSI host adapters.
-> @@ -23,7 +21,6 @@ config FUSION_SPI
->  config FUSION_FC
->  	tristate "Fusion MPT ScsiHost drivers for FC"
->  	depends on PCI && SCSI
-> -	select FUSION
->  	select SCSI_FC_ATTRS
->  	---help---
->  	  SCSI HOST support for a Fiber Channel host adapters.
-> @@ -40,7 +37,6 @@ config FUSION_FC
->  config FUSION_SAS
->  	tristate "Fusion MPT ScsiHost drivers for SAS"
->  	depends on PCI && SCSI
-> - 	select FUSION
->  	select SCSI_SAS_ATTRS
->  	---help---
->  	  SCSI HOST support for a SAS host adapters.
-> @@ -100,4 +96,4 @@ config FUSION_LAN
-> 
->  	  If unsure whether you really want or need this, say N.
-> 
-> -endmenu
-> +endif
-> -
-
-
----
-~Randy

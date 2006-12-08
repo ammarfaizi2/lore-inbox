@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424739AbWLHGLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164353AbWLHBOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424739AbWLHGLc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 01:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424742AbWLHGLc
+	id S1164353AbWLHBOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164322AbWLHBOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 01:11:32 -0500
-Received: from gw.goop.org ([64.81.55.164]:59610 "EHLO mail.goop.org"
+	Thu, 7 Dec 2006 20:14:38 -0500
+Received: from mail.suse.de ([195.135.220.2]:58487 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1424739AbWLHGLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 01:11:31 -0500
-Message-ID: <45790212.8000608@goop.org>
-Date: Thu, 07 Dec 2006 22:11:30 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
- may be migrated
-References: <20061204113051.4e90b249.akpm@osdl.org> <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com> <20061204120611.4306024e.akpm@osdl.org> <Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com> <20061204131959.bdeeee41.akpm@osdl.org> <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com> <20061204142259.3cdda664.akpm@osdl.org> <Pine.LNX.4.64.0612050754560.11213@schroedinger.engr.sgi.com> <20061205112541.2a4b7414.akpm@osdl.org> <Pine.LNX.4.64.0612051159510.18687@schroedinger.engr.sgi.com> <20061205214721.GE20614@skynet.ie> <Pine.LNX.4.64.0612051521060.20570@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612060903161.7238@skynet.skynet.ie> <Pine.LNX.4.64.0612060921230.26185@schroedinger.engr.sgi.com> <4578BE37.1010109@goop.org> <Pine.LNX.4.64.0612071817280.11503@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0612071817280.11503@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	id S1164338AbWLHBOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:14:02 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:14:13 +1100
+Message-Id: <1061208011413.30677@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 010 of 18] knfsd: nfsd4: remove spurious replay_owner check
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> The same can be done using the virtual->physical mappings that exist on 
-> many platforms for the kernel address space (ia64 dynamically calculates 
-> those, x86_64 uses a page table with 2M pages for mapping the kernel).
 
-Yes, that's basically what Xen does - there's a nonlinear mapping from
-kernel virtual to machine pages (and usermode pages are put through the
-same transformation before being mapped).
+From: J.Bruce Fields <bfields@fieldses.org>
 
->  The 
-> problem is that the 1-1 mapping between physical and virtual addresses 
-> will have to be (at least partially) sacrificed which may lead to 
-> complications with DMA devices.
->   
+OK, this is embarassing--I've even looked back at the history, and cannot
+for the life of me figure out why I added this check.
 
-Yes, any driver which expects contigious kernel pages to be physically
-contigious will be sorely disappointed.  This isn't too hard to deal
-with (since such drivers are often buggy anyway, making poor assumptions
-about the relationship between physical addresses and bus addresses). 
-An IOMMU could help as well.
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-    J
+### Diffstat output
+ ./fs/nfsd/nfs4proc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
+--- .prev/fs/nfsd/nfs4proc.c	2006-12-08 12:09:27.000000000 +1100
++++ ./fs/nfsd/nfs4proc.c	2006-12-08 12:09:27.000000000 +1100
+@@ -1008,7 +1008,7 @@ encode_op:
+ 			nfsd4_encode_operation(resp, op);
+ 			status = op->status;
+ 		}
+-		if (replay_owner && (replay_owner != (void *)(-1))) {
++		if (replay_owner) {
+ 			nfs4_put_stateowner(replay_owner);
+ 			replay_owner = NULL;
+ 		}

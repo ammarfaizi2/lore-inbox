@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759660AbWLHNtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760713AbWLHNu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759660AbWLHNtH (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 08:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759667AbWLHNtH
+	id S1760713AbWLHNu0 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 08:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760715AbWLHNu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 08:49:07 -0500
-Received: from smtp.nokia.com ([131.228.20.170]:62218 "EHLO
-	mgw-ext11.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759660AbWLHNtE (ORCPT
+	Fri, 8 Dec 2006 08:50:26 -0500
+Received: from ug-out-1314.google.com ([66.249.92.168]:1453 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760713AbWLHNu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 08:49:04 -0500
-Message-ID: <45796CF9.3050702@yandex.ru>
-Date: Fri, 08 Dec 2006 15:47:37 +0200
-From: Artem Bityutskiy <dedekind@yandex.ru>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 8 Dec 2006 08:50:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=m2zH41knNC+38z2Na8+RBgAaAcsnVUdOUiqZAHcsgpu9/zhsT4gN/xkvqkUsn6k26PAbBIcQPD3/3C9w73w5xnX7HUy7YbJX7R+XJIxS8Sj6gS59Lea1E+aUZplfbxrDlb4FgHydVTlh2PHDVO7/hE9qgbd69xI5Dh6OYQAq48A=
+Message-ID: <84144f020612080550p6d368d05r1a36df44f4b986e7@mail.gmail.com>
+Date: Fri, 8 Dec 2006 15:50:24 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Subject: Re: 2.6.19: slight performance optimization for lib/string.c's strstrip()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <457975AE.31261.15F652B2@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: -mm tree and git
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 08 Dec 2006 13:47:44.0420 (UTC) FILETIME=[70131640:01C71ACF]
-X-Nokia-AV: Clean
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <457975AE.31261.15F652B2@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+X-Google-Sender-Auth: 4f94b04ef4938b81
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew, community,
+On 12/8/06, Ulrich Windl <ulrich.windl@rz.uni-regensburg.de> wrote:
+> my apologies for disobeying all the rules for submitting patches, but I'll suggest
+> a performance optimization for strstrip() in lib/string.c:
 
-I am not really aware how your -mm tree cooperates with git so I have 
-questions.
-
-Actually I am talking about the "git-ubi.patch" in your tree. You seems 
-to periodically update the patch by fetching the stuff from the 
-ubi-2.6.git GIT tree.
-
-1. How do you produce the diff file from the ubi-2.6.git?
-2. Do you mind if I re-base the ubi-2.6.git from time to time? Does it 
-cause any troubles for you?
-3, Are there some special things I should or should not do to make it 
-easy for you to work with the git tree?
-4. I see a 
-"ubi-versus-add-include-linux-freezerh-and-move-definitions-from.patch" 
-patch in your tree. It is related to the stuff which is available in 
-Linus's tree. But my tree does not have it yet. Is is OK if I won't push 
-it for now and do this later when I sync with mainline?
-
-Thanks.
-
--- 
-Best Regards,
-Artem Bityutskiy (Артём Битюцкий)
+Makes sense. Please submit a patch.

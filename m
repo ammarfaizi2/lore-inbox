@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164015AbWLGXqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164387AbWLHClU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164015AbWLGXqh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 18:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164014AbWLGXqh
+	id S1164387AbWLHClU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 21:41:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164385AbWLHClU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 18:46:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53273 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164015AbWLGXqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 18:46:36 -0500
-Date: Thu, 7 Dec 2006 15:45:45 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: Re: single bit errors on files stored on USB-HDDs via
- USB2/usb_storage
-Message-Id: <20061207154545.6eb516c4.zaitcev@redhat.com>
-In-Reply-To: <45786E58.5070308@citd.de>
-References: <Pine.LNX.4.44L0.0612071306180.3537-100000@iolanthe.rowland.org>
-	<45786E58.5070308@citd.de>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.10 (GTK+ 2.10.6; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 21:41:20 -0500
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:47309 "EHLO
+	stout.engsoc.carleton.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1164387AbWLHClT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 21:41:19 -0500
+Date: Thu, 7 Dec 2006 21:41:04 -0500
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Cc: matthew@wil.cx, grundler@parisc-linux.org, kyle@parisc-linux.org,
+       linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] [PATCH] parisc: pdcpat remove extra brackets
+Message-ID: <20061208024104.GA2606@athena.road.mcmartin.ca>
+References: <200611301020.51261.m.kozlowski@tuxland.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200611301020.51261.m.kozlowski@tuxland.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 20:41:12 +0100, Matthias Schniedermeyer <ms@citd.de> wrote:
-
-> >>I'm using a Bunch auf HDDs in USB-Enclosures for storing files.
-> >>(currently 38 HDD, with a total capacity of 9,5 TB of which 8,5 TB is used)
-> >>[....]
-> >>This time i kept the defective files and used "vbindiff" to show me the
-> >>difference. Strangly in EVERY case the difference is a single bit in a
-> >>sequence of "0xff"-Bytes inside a block of varing bit-values that
-> >>changed a "0xff" into a "0xf7".
-
-> > This was almost certainly caused by hardware flaws in the USB interface 
-> > chips of the enclosures.  There's nothing the kernel can do about it 
-> > because the errors aren't reported; all that happens is that incorrect 
-> > data is sent to or from the drive.
+On Thu, Nov 30, 2006 at 10:20:50AM +0100, Mariusz Kozlowski wrote:
+> Hello,
 > 
-> So pretty much all ich can do is to pray that the errors don't corrupt
-> the Filesystem-Metadata (XFS).
+> 	This patch removes extra brackets.
+> 
+> Signed-off-by: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> 
+>  include/asm-parisc/pdcpat.h |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
 
-No, this is not all. You should buy a variety of different enclosures
-with different chipsets (e.g. find a Freecom if you can), and also
-use decent cables.
-
--- Pete
+applied, thanks.

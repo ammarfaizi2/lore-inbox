@@ -1,144 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162548AbWLGRQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1426040AbWLHRZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162548AbWLGRQE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 12:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162537AbWLGRQB
+	id S1426040AbWLHRZd (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426038AbWLHRZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 12:16:01 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:37017 "EHLO e1.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1162548AbWLGRQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 12:16:00 -0500
-Date: Thu, 7 Dec 2006 09:17:26 -0800
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <jens.axboe@oracle.com>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Josh Triplett <josh@freedesktop.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH 2/2] qrcu: add rcutorture test
-Message-ID: <20061207171726.GB1819@linux.vnet.ibm.com>
-Reply-To: paulmck@linux.vnet.ibm.com
-References: <20061129235409.GA1121@oleg> <20061202210938.GA99@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061202210938.GA99@oleg>
-User-Agent: Mutt/1.4.1i
+	Fri, 8 Dec 2006 12:25:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:41383 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1426035AbWLHRZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 12:25:31 -0500
+Date: Fri, 8 Dec 2006 09:23:57 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: David Howells <dhowells@redhat.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061208171816.GG31068@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612080919220.16029@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au>
+ <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au>
+ <20061208085634.GA25751@flint.arm.linux.org.uk> <4595.1165597017@redhat.com>
+ <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com>
+ <20061208171816.GG31068@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 03, 2006 at 12:09:38AM +0300, Oleg Nesterov wrote:
-> (with sparse annotations from Josh)
-> 
-> [PATCH 2/2] qrcu: add rcutorture test
-> 
-> Add rcutorture test for qrcu.
+On Fri, 8 Dec 2006, Russell King wrote:
 
-Works for me!
+> As proven previously the reverse is also true.  And as shown previously
+> the cheaper out of the two for all platforms is the LL/SC based
+> implementation, where the architecture specific implementation can
+> be _either_ LL/SC based or cmpxchg based depending on what is
+> supported in their hardware.
 
-Acked-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> Signed-off-by: Josh Triplett <josh@freedesktop.org>
-> 
-> --- 19-rc6/include/linux/srcu.h~2_test	2006-11-30 04:32:42.000000000 +0300
-> +++ 19-rc6/include/linux/srcu.h	2006-12-03 00:03:18.000000000 +0300
-> @@ -64,8 +64,8 @@ struct qrcu_struct {
->  };
-> 
->  int init_qrcu_struct(struct qrcu_struct *qp);
-> -int qrcu_read_lock(struct qrcu_struct *qp);
-> -void qrcu_read_unlock(struct qrcu_struct *qp, int idx);
-> +int qrcu_read_lock(struct qrcu_struct *qp) __acquires(qp);
-> +void qrcu_read_unlock(struct qrcu_struct *qp, int idx) __releases(qp);
->  void synchronize_qrcu(struct qrcu_struct *qp);
-> 
->  /**
-> --- 19-rc6/kernel/rcutorture.c~2_test	2006-10-22 18:24:03.000000000 +0400
-> +++ 19-rc6/kernel/rcutorture.c	2006-12-03 00:03:18.000000000 +0300
-> @@ -465,6 +465,73 @@ static struct rcu_torture_ops srcu_ops =
->  };
-> 
->  /*
-> + * Definitions for qrcu torture testing.
-> + */
-> +
-> +static struct qrcu_struct qrcu_ctl;
-> +
-> +static void qrcu_torture_init(void)
-> +{
-> +	init_qrcu_struct(&qrcu_ctl);
-> +	rcu_sync_torture_init();
-> +}
-> +
-> +static void qrcu_torture_cleanup(void)
-> +{
-> +	synchronize_qrcu(&qrcu_ctl);
-> +	cleanup_qrcu_struct(&qrcu_ctl);
-> +}
-> +
-> +static int qrcu_torture_read_lock(void) __acquires(&qrcu_ctl)
-> +{
-> +	return qrcu_read_lock(&qrcu_ctl);
-> +}
-> +
-> +static void qrcu_torture_read_unlock(int idx) __releases(&qrcu_ctl)
-> +{
-> +	qrcu_read_unlock(&qrcu_ctl, idx);
-> +}
-> +
-> +static int qrcu_torture_completed(void)
-> +{
-> +	return qrcu_ctl.completed;
-> +}
-> +
-> +static void qrcu_torture_synchronize(void)
-> +{
-> +	synchronize_qrcu(&qrcu_ctl);
-> +}
-> +
-> +static int qrcu_torture_stats(char *page)
-> +{
-> +	int cnt = 0;
-> +	int idx = qrcu_ctl.completed & 0x1;
-> +
-> +	cnt += sprintf(&page[cnt], "%s%s per-CPU(idx=%d):",
-> +			torture_type, TORTURE_FLAG, idx);
-> +
-> +	cnt += sprintf(&page[cnt], " (%d,%d)",
-> +			atomic_read(qrcu_ctl.ctr + 0),
-> +			atomic_read(qrcu_ctl.ctr + 1));
-> +
-> +	cnt += sprintf(&page[cnt], "\n");
-> +	return cnt;
-> +}
-> +
-> +static struct rcu_torture_ops qrcu_ops = {
-> +	.init = qrcu_torture_init,
-> +	.cleanup = qrcu_torture_cleanup,
-> +	.readlock = qrcu_torture_read_lock,
-> +	.readdelay = srcu_read_delay,
-> +	.readunlock = qrcu_torture_read_unlock,
-> +	.completed = qrcu_torture_completed,
-> +	.deferredfree = rcu_sync_torture_deferred_free,
-> +	.sync = qrcu_torture_synchronize,
-> +	.stats = qrcu_torture_stats,
-> +	.name = "qrcu"
-> +};
-> +
-> +/*
->   * Definitions for sched torture testing.
->   */
-> 
-> @@ -503,8 +570,8 @@ static struct rcu_torture_ops sched_ops
->  };
-> 
->  static struct rcu_torture_ops *torture_ops[] =
-> -	{ &rcu_ops, &rcu_sync_ops, &rcu_bh_ops, &rcu_bh_sync_ops, &srcu_ops,
-> -	  &sched_ops, NULL };
-> +	{ &rcu_ops, &rcu_sync_ops, &rcu_bh_ops, &rcu_bh_sync_ops,
-> +	  &srcu_ops, &qrcu_ops, &sched_ops, NULL };
-> 
->  /*
->   * RCU torture writer kthread.  Repeatedly substitutes a new structure
-> 
+As also shown in this thread: There are restrictions on what you can do 
+between ll/sc. You would not want to use C code there. ll/sc is an thing 
+that needs to be restricted to asm code. So this is not a viable proposal 
+at all. ll/sc is useful to construct various atomic functions but cannot 
+be directly used in C code. cmpxchg can be effectively realized using 
+ll/sc.

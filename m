@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425909AbWLHRGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425938AbWLHRHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425909AbWLHRGt (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 12:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425908AbWLHRGs
+	id S1425938AbWLHRHo (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425702AbWLHRHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 12:06:48 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40851 "EHLO omx2.sgi.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1425909AbWLHRGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 12:06:45 -0500
-Date: Fri, 8 Dec 2006 09:06:00 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: David Howells <dhowells@redhat.com>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it 
-In-Reply-To: <4595.1165597017@redhat.com>
-Message-ID: <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com> 
- <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au>
- <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au>
- <20061208085634.GA25751@flint.arm.linux.org.uk>  <4595.1165597017@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Dec 2006 12:07:43 -0500
+Received: from mga07.intel.com ([143.182.124.22]:34989 "EHLO
+	azsmga101.ch.intel.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1425932AbWLHRHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 12:07:40 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,515,1157353200"; 
+   d="scan'208"; a="155681328:sNHT35063945"
+Date: Fri, 8 Dec 2006 08:41:24 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Suresh Siddha <suresh.b.siddha@intel.com>,
+       "Li, Shaohua" <shaohua.li@intel.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: What was in the x86 merge for .20
+Message-ID: <20061208084124.C31153@unix-os.sc.intel.com>
+References: <200612080401.25746.ak@suse.de> <20061208020804.c5e5e176.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20061208020804.c5e5e176.akpm@osdl.org>; from akpm@osdl.org on Fri, Dec 08, 2006 at 02:08:04AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2006, David Howells wrote:
-
-> > It is the most universal atomic instruction that I know of.
+On Fri, Dec 08, 2006 at 02:08:04AM -0800, Andrew Morton wrote:
+> On Fri, 8 Dec 2006 04:01:25 +0100
+> Andi Kleen <ak@suse.de> wrote:
 > 
-> I think TAS-type things and XCHG-type things are more common.
+> > [The merge already made it to Linus' tree. Sorry for sending this message
+> > late]
+> > 
+> > Most of this is for both i386 and x86-64, unless when noted
+> > 
+> > These are just some high lights. As usual there are more
+> > smaller optimizations, cleanups etc
+> 
+> My old 4-way Intel Nocona-based SDV panics during boot with "APIC mode must
+> be flat on this system" and I don't know how to make it stop.  Help.
 
-Huh? The most popular architectures are i386 x86_64 sparc ia64 etc which 
-all have one or the other form of cmpxchg (some issues with early sparc 
-and i386).
+I am glad that the patch atleast found a mismerge ;)
 
-And yes the xchg was the first multiprocessor instruction and therefore 
-is also available on very old processors.
+I see Andrew posted bunch of patches to Andi to correct this. Please let me
+know which tree (git?) I should take a look at and see if all
+the pieces are in order.
 
-> In fact I think more things have LL/SC than have CMPXCHG.
-
-LL/SC can be easily used to come up with a cmpxchg equivalent.
+thanks,
+suresh

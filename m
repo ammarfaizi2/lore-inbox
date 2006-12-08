@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425303AbWLHJuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425467AbWLHMHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425303AbWLHJuq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 04:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425305AbWLHJuq
+	id S1425467AbWLHMHn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425446AbWLHMHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 04:50:46 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:44722 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425303AbWLHJup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 04:50:45 -0500
-Date: Fri, 8 Dec 2006 10:50:18 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-X-X-Sender: jikos@twin.jikos.cz
-To: Dmitry Torokhov <dtor@insightbb.com>
-cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [git pull] Input patches for 2.6.19
-In-Reply-To: <200612080157.04822.dtor@insightbb.com>
-Message-ID: <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
-References: <200612080157.04822.dtor@insightbb.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-873815628-1165571418=:1665"
+	Fri, 8 Dec 2006 07:07:30 -0500
+Received: from sp604002mt.neufgp.fr ([84.96.92.61]:61081 "EHLO sMtp.neuf.fr"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1425461AbWLHMHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:07:17 -0500
+Date: Fri, 08 Dec 2006 13:04:15 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [patch 01/13] io-accounting: core statistics
+In-reply-to: <200612081152.kB8BqOkh019750@shell0.pdx.osdl.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, balbir@in.ibm.com, csturtiv@sgi.com,
+       daw@sgi.com, guillaume.thouvenin@bull.net, jlan@sgi.com,
+       nagar@watson.ibm.com, tee@sgi.com
+Message-id: <457954BF.7040707@cosmosbay.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 8BIT
+References: <200612081152.kB8BqOkh019750@shell0.pdx.osdl.net>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+akpm@osdl.org a écrit :
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> The present per-task IO accounting isn't very useful.  It simply counts the
+> number of bytes passed into read() and write().  So if a process reads 1MB
+> from an already-cached file, it is accused of having performed 1MB of I/O,
+> which is wrong.
 
----1747641777-873815628-1165571418=:1665
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Any chance we can report some io accounting values in getresource()/wait4()... 
+too ?
 
-On Fri, 8 Dec 2006, Dmitry Torokhov wrote:
+# /usr/bin/time find /usr -name 'foo'
+0.24user 0.22system 0:00.70elapsed 66%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+222minor)pagefaults 0swaps
 
-> Hi Linus,
-> Please pull from:
-> =A0 =A0 =A0 =A0 git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.=
-git
-> or
-> =A0 =A0 =A0 =A0 master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.gi=
-t
-> to receive updates for input subsystem.
->  b/drivers/usb/input/hid-core.c                 |    7=20
->  b/drivers/usb/input/hid-input.c                |    4=20
->  b/drivers/usb/input/hid.h                      |    1=20
-
-OK, this is going to break the merge from Greg's tree of generic HID=20
-layer, which was planned for today.
-
-The merge will probably emit a large .rej files, due to the large blocks=20
-of code being moved around, but it seems that most of the changes which=20
-would conflict with the merge could be trivially solved by hand.
-
-Greg, should I prepare a new version of the generic HID patches against=20
-merged Linus' + Dmitry's trees and send them to you?
-
-Thanks,
-
---=20
-Jiri Kosina
-SUSE Labs
-
----1747641777-873815628-1165571418=:1665--

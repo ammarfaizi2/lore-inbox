@@ -1,95 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032407AbWLGQzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425430AbWLHL6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032407AbWLGQzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 11:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032411AbWLGQzL
+	id S1425430AbWLHL6P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHL6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 11:55:11 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:43555 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032407AbWLGQzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 11:55:09 -0500
-Date: Thu, 7 Dec 2006 08:54:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, davem@davemloft.com, wli@holomorphy.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than
- cmpxchg()
-Message-Id: <20061207085409.228016a2.akpm@osdl.org>
-In-Reply-To: <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-References: <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
-	<20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Dec 2006 06:58:14 -0500
+Received: from wx-out-0506.google.com ([66.249.82.238]:45970 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425430AbWLHL6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:58:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EcN3atbDX7lceIOIRbAReKZJcJ4Pfm2qP4b7acPCiek7WJiWP4UxQeV+cPncbVM0Z81nKHI6JYE1llaIT4ZDahGBHyZAsRPG60N7KOLhSe5k/g81lQ8VmieEnzYYJA0QzKCoL9+Fk+rgLZLzzq9K76/ifI8gye1s6N94Hohp2fM=
+Message-ID: <653402b90612080358y66e72554wd3b55e8af83f7357@mail.gmail.com>
+Date: Fri, 8 Dec 2006 12:58:12 +0100
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "James Simmons" <jsimmons@infradead.org>
+Subject: Re: Display class
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       Luming.yu@intel.com, zap@homelink.ru, randy.dunlap@oracle.com,
+       kernel-discuss@handhelds.org
+In-Reply-To: <Pine.LNX.4.64.0612071439040.31668@pentafluge.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061206194442.422c60d3.maxextreme@gmail.com>
+	 <Pine.LNX.4.64.0612071439040.31668@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 15:31:43 +0000
-David Howells <dhowells@redhat.com> wrote:
+On 12/7/06, James Simmons <jsimmons@infradead.org> wrote:
+>
+> > P.S.
+> >
+> >   When I was working at 2.6.19-rc6-mm2 it worked all fine, but now
+> >   I have copied it to git7 I'm getting some weird segmentation faults
+> >   (oops) when at cfag12864bfb_init, at mutex_lock() in
+> >   display_device_unregister module... I think unrelated (?), but I will
+> >   look for some mistake I made.
+>
+> Did you solve the problem?
+>
+>
 
-> Use direct assignment rather than cmpxchg() as the latter is unavailable and
-> unimplementable on some platforms and is actually unnecessary.
-> 
-> The use of cmpxchg() was to guard against two possibilities, neither of which
-> can actually occur:
-> 
->  (1) The pending flag may have been unset or may be cleared.  However, given
->      where it's called, the pending flag is _always_ set.  I don't think it
->      can be unset whilst we're in set_wq_data().
-> 
->      Once the work is enqueued to be actually run, the only way off the queue
->      is for it to be actually run.
-> 
->      If it's a delayed work item, then the bit can't be cleared by the timer
->      because we haven't started the timer yet.  Also, the pending bit can't be
->      cleared by cancelling the delayed work _until_ the work item has had its
->      timer started.
-> 
->  (2) The workqueue pointer might change.  This can only happen in two cases:
-> 
->      (a) The work item has just been queued to actually run, and so we're
->          protected by the appropriate workqueue spinlock.
-> 
->      (b) A delayed work item is being queued, and so the timer hasn't been
->      	 started yet, and so no one else knows about the work item or can
->      	 access it (the pending bit protects us).
-> 
->      Besides, set_wq_data() _sets_ the workqueue pointer unconditionally, so
->      it can be assigned instead.
-> 
-> So, replacing the set_wq_data() with a straight assignment would be okay in
-> most cases.  The problem is where we end up tangling with test_and_set_bit()
-> emulated using spinlocks, and even then it's not a problem _provided_
-> test_and_set_bit() doesn't attempt to modify the word if the bit was set.
-> 
-> If that's a problem, then a bitops-proofed assignment will be required -
-> equivalent to atomic_set() vs other atomic_xxx() ops.
-> 
+Ok, found it. It was at cfag12864bfb_init:
 
-I don't understand, as usual.
-
-afacit in all (but one) cases we do
-
-	if (!test_and_set_bit(WORK_STRUCT_PENDING, &work->management)) {
-		...
-		set_wq_data(work, wq);
-		...
-		<now do stuff which makes it possible for run_workqueue()
-		 to get a look at the new work>
+	cfag12864bfb_device = display_device_register(&cfag12864bfb_driver,
+		NULL, NULL);
+	if (!cfag12864bfb_device) {
+		printk(KERN_ERR CFAG12864BFB_NAME ": ERROR: "
+			"can't register display device\n");
+		ret = -ENODEV;
+		goto fbregistered;
 	}
 
-cancel_delayed_work() looks OK too.
+	/*cfag12864bfb_device->name = cfag12864bfb_name;
+	cfag12864bfb_device->request_state = 1;*/
 
-The possible exception is schedule_on_each_cpu() which is being lazy, but
-looks fixable.
+	cfag12864bfb_power = 1;
+	cfag12864b_power_on();
 
+The commented code. I have exchange it to pass the name through probe
+as you suggested, still, it brokes when rmmoding it at
+display_device_unregister:
 
-So...  afaict in all the places where there can be a concurrent
-set_wq_data() and test_and_set_bit(), WORK_STRUCT_PENDING is reliably set,
-and we can assume (and ensure) that a failing test_and_set_bit() will not
-write to the affected word at all.
+root@morfeo:/usr/src/git/linux-2.6.19-git12# dmesg
+[ 1593.770774] BUG: unable to handle kernel paging request at virtual
+address ff fffffc
+[ 1593.770780]  printing eip:
+[ 1593.770782] c02e3f3f
+[ 1593.770784] *pde = 00003067
+[ 1593.770787] Oops: 0002 [#1]
+[ 1593.770788] PREEMPT SMP
+[ 1593.770791] Modules linked in: cfag12864bfb display cfag12864b
+ks0108 ppdev n ls_utf8 ntfs ipv6 md_mod af_packet tsdev snd_intel8x0
+snd_ac97_codec snd_ac97_bu s snd_pcm_oss snd_mixer_oss sk98lin psmouse
+snd_pcm snd_timer snd soundcore parp ort_pc parport skge floppy
+snd_page_alloc serio_raw pcspkr rtc intel_agp agpgart  evdev dm_mirror
+dm_mod ide_generic ide_disk ide_cd cdrom piix generic vga16fb v
+gastate
+[ 1593.770829] CPU:    1
+[ 1593.770829] EIP:    0060:[<c02e3f3f>]    Not tainted VLI
+[ 1593.770831] EFLAGS: 00010282   (2.6.19-git12 #1)
+[ 1593.770838] EIP is at mutex_lock+0x0/0xb
+[ 1593.770841] eax: fffffffc   ebx: fffffff4   ecx: 00000002   edx: f9955f00
+[ 1593.770844] esi: 00000000   edi: fffffffc   ebp: e2ae6000   esp: e2ae7f48
+[ 1593.770847] ds: 007b   es: 007b   ss: 0068
+[ 1593.770850] Process rmmod (pid: 13348, ti=e2ae6000 task=dfd6f030
+task.ti=e2ae 6000)
+[ 1593.770852] Stack: f9952114 f9955e00 00000000 00000003 f9955066
+c01374a1 6761 6663 36383231
+[ 1593.770860]        62666234 b7eec000 f7d68780 c014f67b ffffffff
+b7eed000 f7d6 8784 e2616aac
+[ 1593.770868]        b7eed000 e2616ab8 e2616aac f7d68780 00d687b4
+f9955e00 0000 0880 e2ae7fa8
+[ 1593.770877] Call Trace:
+[ 1593.770879]  [<f9952114>] display_device_unregister+0x13/0x51 [display]
+[ 1593.770888]  [<f9955066>] cfag12864bfb_exit+0xa/0x23 [cfag12864bfb]
+[ 1593.770893]  [<c01374a1>] sys_delete_module+0x11d/0x189
+[ 1593.770902]  [<c014f67b>] do_munmap+0x177/0x1d0
+[ 1593.770913]  [<c0102d76>] sysenter_past_esp+0x5f/0x85
+[ 1593.770922]  [<c02e0033>] atm_dev_ioctl+0x35f/0x655
+[ 1593.770929]  =======================
+[ 1593.770931] Code: c0 8d 54 24 08 8d 4c 24 1c 89 4c 24 1c 89 4c 24
+20 8b 4c 24  38 89 0c 24 89 e9 8b 44 24 04 e8 3f ff ff ff 83 c4 24 5b
+5e 5f 5d c3 <f0> ff 08  79 05 e8 1b 01 00 00 c3 f0 ff 00 7f 05 e8 34
+00 00 00
+[ 1593.770973] EIP: [<c02e3f3f>] mutex_lock+0x0/0xb SS:ESP 0068:e2ae7f48
+[ 1593.770979]
 
-What am I missing?
+-- 
+Miguel Ojeda
+http://maxextreme.googlepages.com/index.htm

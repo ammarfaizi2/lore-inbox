@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425215AbWLHIx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424890AbWLHHHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425215AbWLHIx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 03:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425218AbWLHIx4
+	id S1424890AbWLHHHx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 02:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424900AbWLHHHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 03:53:56 -0500
-Received: from hu-out-0506.google.com ([72.14.214.228]:24387 "EHLO
-	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425216AbWLHIxz (ORCPT
+	Fri, 8 Dec 2006 02:07:52 -0500
+Received: from nf-out-0910.google.com ([64.233.182.188]:37882 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424890AbWLHHHw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 03:53:55 -0500
+	Fri, 8 Dec 2006 02:07:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=CTMVmW4EFSTPKA0FPSA6AQrB4SWTF2AvYkjM7rrpCnQBbiNpO19UYufb4Anf+dwLfn5yV2UmEG+44XBZNYfDY3/wmdOdHioZstfanv9X1fSdquqgx4cRqfM9wbNvUgSM/IX2O9l+Pk7iB3R8oFCFah35yTlCvBr6k5ZqsOAueL8=
-Message-ID: <86802c440612080053s13e5318eq7ae83aff4c7eb21c@mail.gmail.com>
-Date: Fri, 8 Dec 2006 00:53:53 -0800
-From: "Yinghai Lu" <yinghai.lu@amd.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-Cc: "Greg KH" <gregkh@suse.de>, "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
-       "David Brownell" <david-b@pacbell.net>
-In-Reply-To: <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Y6kYELKVan3mnMnO26DBU59sGJEa7yWD1NL25NQMu1qIE1EZHmuh51hTqEiZAKvdgdyx0tnJ8hYD6RVg6b2wrOhIX4NL5WRAP9qcNHdcLWzTRTxgUMDBgfzhPMqXlZM4yYKQY9+B0Pi6DQuAdXrUPdSsm+WML7r5GpcB6K7t8Iw=
+Message-ID: <a574553e0612072307v766c3742pd3b4c46fb4fd0470@mail.gmail.com>
+Date: Fri, 8 Dec 2006 02:07:50 -0500
+From: "kernel list" <list.kernel@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: vmlist_lock locking
+Cc: list.kernel@gmail.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-	 <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
-X-Google-Sender-Auth: d39b018b35ede3b2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Ugh.  I'd check the code.  But it looks like my tweak to the
-> early fixmap code.  But my hunch is that my tweak to __fixmap
-> so that it's pud and pmd were prepopulated didn't take on
-> your build.
-
-I missed some options?
-
-YH
+My understanding is that get_vm_area_node etc. can't be called in
+interrupt context because vmlist_lock is obtained with read_lock /
+write_lock. I am wondering if it makes sense to use read_lock_bh /
+write_lock_bh so that get_vm_area_node can be called in soft interrupt
+context. All the code executed when holding vmlist_lock is walking
+through the list, so it shouldn't change the behavior. If it does make
+sense, BUG_ON(in_interrupt()) can be changed to BUG_ON(in_irq()).

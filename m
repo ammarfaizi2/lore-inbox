@@ -1,127 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032473AbWLGQ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425475AbWLHMgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032473AbWLGQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 11:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1032475AbWLGQ7m
+	id S1425475AbWLHMgM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425485AbWLHMgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 11:59:42 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47299 "EHLO mx2.mail.elte.hu"
+	Fri, 8 Dec 2006 07:36:12 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:52820 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032473AbWLGQ7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 11:59:39 -0500
-Date: Thu, 7 Dec 2006 17:57:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
-       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Giandomenico De Tullio <ghisha@email.it>
-Subject: Re: v2.6.19-rt6, yum/rpm
-Message-ID: <20061207165751.GA2720@elte.hu>
-References: <20061205171114.GA25926@elte.hu> <4577FC21.1080407@cybsft.com> <20061207121344.GA19749@elte.hu> <4578391E.40001@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4578391E.40001@cybsft.com>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-5.9 required=5.9 tests=ALL_TRUSTED,BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+	id S1425475AbWLHMgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:36:11 -0500
+Date: Fri, 8 Dec 2006 13:35:54 +0100 (CET)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Neil Brown <neilb@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19-rc6-mm2
+In-Reply-To: <17784.49277.120641.30296@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0612081334500.1665@twin.jikos.cz>
+References: <20061128020246.47e481eb.akpm@osdl.org>
+ <Pine.LNX.4.64.0611290147400.28502@twin.jikos.cz> <17780.52337.767875.963882@cse.unsw.edu.au>
+ <17780.61551.896455.157225@cse.unsw.edu.au> <Pine.LNX.4.64.0612050844110.28502@twin.jikos.cz>
+ <Pine.LNX.4.64.0612052305490.28502@twin.jikos.cz> <17784.49277.120641.30296@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Dec 2006, Neil Brown wrote:
 
-* K.R. Foley <kr@cybsft.com> wrote:
-
-> Ingo Molnar wrote:
+> > OK, so more details follow (I am not sure how valuable they are, though). 
+> They do help a bit..
+> I've found a possible race that could possibly be related to this BUG.  
+> Can you try this patch and see if it helps?
+> Signed-off-by: Neil Brown <neilb@suse.de>
 > 
-> The attached patch is necessary to build 2.6.19-rt8 without KEXEC 
-> enabled. Without KEXEC enabled crash.c doesn't get included. I believe 
-> this is correct.
+> ### Diffstat output
+>  ./drivers/md/md.c |    8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff .prev/drivers/md/md.c ./drivers/md/md.c
+> --- .prev/drivers/md/md.c	2006-12-06 14:49:20.000000000 +1100
+> +++ ./drivers/md/md.c	2006-12-07 10:29:40.000000000 +1100
+> @@ -222,10 +222,14 @@ static inline mddev_t *mddev_get(mddev_t
+>  	return mddev;
+>  }
+>  
+> +static DEFINE_MUTEX(disks_mutex);
+>  static void mddev_put(mddev_t *mddev)
+>  {
+> -	if (!atomic_dec_and_lock(&mddev->active, &all_mddevs_lock))
+> +	mutex_lock(&disks_mutex);
+> +	if (!atomic_dec_and_lock(&mddev->active, &all_mddevs_lock)) {
+> +		mutex_unlock(&disks_mutex);
+>  		return;
+> +	}
+>  	list_del(&mddev->all_mddevs);
+>  	spin_unlock(&all_mddevs_lock);
+>  
+> @@ -234,6 +238,7 @@ static void mddev_put(mddev_t *mddev)
+>  	blk_cleanup_queue(mddev->queue);
+>  	mddev->queue = NULL;
+>  	kobject_unregister(&mddev->kobj);
+> +	mutex_unlock(&disks_mutex);
+>  }
+>  
+>  static mddev_t * mddev_find(dev_t unit)
+> @@ -2948,7 +2953,6 @@ int mdp_major = 0;
+>  
+>  static struct kobject *md_probe(dev_t dev, int *part, void *data)
+>  {
+> -	static DEFINE_MUTEX(disks_mutex);
+>  	mddev_t *mddev = mddev_find(dev);
+>  	struct gendisk *disk;
+>  	int partitioned = (MAJOR(dev) != MD_MAJOR);
 
-ah, indeed. I went for a slightly different approach - see the patch 
-below. Sending an NMI to all CPUs is not something that is tied to 
-KEXEC, it belongs into nmi.c.
+Hi Neil,
 
-	Ingo
+sorry, but the BUG is still there after applying this patch.
 
-Index: linux/arch/i386/kernel/crash.c
-===================================================================
---- linux.orig/arch/i386/kernel/crash.c
-+++ linux/arch/i386/kernel/crash.c
-@@ -132,14 +132,6 @@ static int crash_nmi_callback(struct not
- 	return 1;
- }
- 
--void smp_send_nmi_allbutself(void)
--{
--	cpumask_t mask = cpu_online_map;
--	cpu_clear(safe_smp_processor_id(), mask);
--	if (!cpus_empty(mask))
--		send_IPI_mask(mask, NMI_VECTOR);
--}
--
- static struct notifier_block crash_nmi_nb = {
- 	.notifier_call = crash_nmi_callback,
- };
-Index: linux/arch/i386/kernel/nmi.c
-===================================================================
---- linux.orig/arch/i386/kernel/nmi.c
-+++ linux/arch/i386/kernel/nmi.c
-@@ -1133,6 +1133,14 @@ int proc_nmi_enabled(struct ctl_table *t
- 
- #endif
- 
-+void smp_send_nmi_allbutself(void)
-+{
-+	cpumask_t mask = cpu_online_map;
-+	cpu_clear(safe_smp_processor_id(), mask);
-+	if (!cpus_empty(mask))
-+		send_IPI_mask(mask, NMI_VECTOR);
-+}
-+
- EXPORT_SYMBOL(nmi_active);
- EXPORT_SYMBOL(nmi_watchdog);
- EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi);
-Index: linux/arch/x86_64/kernel/crash.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/crash.c
-+++ linux/arch/x86_64/kernel/crash.c
-@@ -127,11 +127,6 @@ static int crash_nmi_callback(struct not
- 	return 1;
- }
- 
--void smp_send_nmi_allbutself(void)
--{
--	send_IPI_allbutself(NMI_VECTOR);
--}
--
- /*
-  * This code is a best effort heuristic to get the
-  * other cpus to stop executing. So races with
-Index: linux/arch/x86_64/kernel/nmi.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/nmi.c
-+++ linux/arch/x86_64/kernel/nmi.c
-@@ -1015,6 +1015,11 @@ int proc_nmi_enabled(struct ctl_table *t
- 
- #endif
- 
-+void smp_send_nmi_allbutself(void)
-+{
-+	send_IPI_allbutself(NMI_VECTOR);
-+}
-+
- EXPORT_SYMBOL(nmi_active);
- EXPORT_SYMBOL(nmi_watchdog);
- EXPORT_SYMBOL(avail_to_resrv_perfctr_nmi);
-
-
+-- 
+Jiri Kosina

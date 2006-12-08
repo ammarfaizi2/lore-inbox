@@ -1,123 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424168AbWLHD2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425429AbWLHLzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424168AbWLHD2z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 22:28:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424125AbWLHD2y
+	id S1425429AbWLHLzN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425430AbWLHLxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 22:28:54 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:24295 "EHLO
-	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424194AbWLHD2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 22:28:30 -0500
-From: Divy Le Ray <None@chelsio.com>
-Subject: [PATCH 10/10] cxgb3 - build files and versioning
-Date: Thu, 07 Dec 2006 19:28:19 -0800
-To: jeff@garzik.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <20061208032819.8593.73008.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.11
+	Fri, 8 Dec 2006 06:53:15 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52385 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425429AbWLHLwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:52:55 -0500
+Message-Id: <200612081152.kB8BqUNp019771@shell0.pdx.osdl.net>
+Subject: [patch 08/13] io-accounting: direct-io
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+From: akpm@osdl.org
+Date: Fri, 08 Dec 2006 03:52:30 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Divy Le Ray <divy@chelsio.com>
+From: Andrew Morton <akpm@osdl.org>
 
-This patch implements build files and versioning for the 
-Chelsio T3 network adapter's driver.
+Account for direct-io.
 
-Signed-off-by: Divy Le Ray <divy@chelsio.com>
+Cc: Jay Lan <jlan@sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Balbir Singh <balbir@in.ibm.com>
+Cc: Chris Sturtivant <csturtiv@sgi.com>
+Cc: Tony Ernst <tee@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: David Wright <daw@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- drivers/net/Kconfig         |   18 ++++++++++++++++++
- drivers/net/Makefile        |    1 +
- drivers/net/cxgb3/Makefile  |    8 ++++++++
- drivers/net/cxgb3/version.h |   24 ++++++++++++++++++++++++
- 4 files changed, 51 insertions(+), 0 deletions(-)
+ fs/direct-io.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 9de0eed..7fdf4ca 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2384,6 +2384,24 @@ config CHELSIO_T1_1G
-           Enables support for Chelsio's gigabit Ethernet PCI cards.  If you
-           are using only 10G cards say 'N' here.
+diff -puN fs/direct-io.c~io-accounting-direct-io fs/direct-io.c
+--- a/fs/direct-io.c~io-accounting-direct-io
++++ a/fs/direct-io.c
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/task_io_accounting_ops.h>
+ #include <linux/bio.h>
+ #include <linux/wait.h>
+ #include <linux/err.h>
+@@ -675,6 +676,13 @@ submit_page_section(struct dio *dio, str
+ {
+ 	int ret = 0;
  
-+config CHELSIO_T3
-+        tristate "Chelsio Communications T3 10Gb Ethernet support"
-+        depends on PCI
-+        help
-+          This driver supports Chelsio T3-based gigabit and 10Gb Ethernet
-+          adapters.
++	if (dio->rw & WRITE) {
++		/*
++		 * Read accounting is performed in submit_bio()
++		 */
++		task_io_account_write(len);
++	}
 +
-+          For general information about Chelsio and our products, visit
-+          our website at <http://www.chelsio.com>.
-+
-+          For customer support, please visit our customer support page at
-+          <http://www.chelsio.com/support.htm>.
-+
-+          Please send feedback to <linux-bugs@chelsio.com>.
-+
-+          To compile this driver as a module, choose M here: the module
-+          will be called cxgb3.
-+
- config EHEA
- 	tristate "eHEA Ethernet support"
- 	depends on IBMEBUS
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 4c0d4e5..5c66643 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -6,6 +6,7 @@ obj-$(CONFIG_E1000) += e1000/
- obj-$(CONFIG_IBM_EMAC) += ibm_emac/
- obj-$(CONFIG_IXGB) += ixgb/
- obj-$(CONFIG_CHELSIO_T1) += chelsio/
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3/
- obj-$(CONFIG_EHEA) += ehea/
- obj-$(CONFIG_BONDING) += bonding/
- obj-$(CONFIG_GIANFAR) += gianfar_driver.o
-diff --git a/drivers/net/cxgb3/Makefile b/drivers/net/cxgb3/Makefile
-new file mode 100755
-index 0000000..3434679
---- /dev/null
-+++ b/drivers/net/cxgb3/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Chelsio T3 driver
-+#
-+
-+obj-$(CONFIG_CHELSIO_T3) += cxgb3.o
-+
-+cxgb3-objs := cxgb3_main.o ael1002.o vsc8211.o t3_hw.o mc5.o \
-+	      xgmac.o sge.o l2t.o cxgb3_offload.o
-diff --git a/drivers/net/cxgb3/version.h b/drivers/net/cxgb3/version.h
-new file mode 100755
-index 0000000..5a29475
---- /dev/null
-+++ b/drivers/net/cxgb3/version.h
-@@ -0,0 +1,24 @@
-+/*****************************************************************************
-+ *                                                                           *
-+ * File:                                                                     *
-+ *  version.h                                                                *
-+ *                                                                           *
-+ * Description:                                                              *
-+ *  Chelsio driver version defines.                                          *
-+ *                                                                           *
-+ * Copyright (c) 2003 - 2006 Chelsio Communications, Inc.                    *
-+ * All rights reserved.                                                      *
-+ *                                                                           *
-+ * Maintainers: maintainers@chelsio.com                                      *
-+ *                                                                           *
-+ * http://www.chelsio.com                                                    *
-+ *                                                                           *
-+ ****************************************************************************/
-+/* $Date: 2006/10/31 18:57:51 $ $RCSfile: version.h,v $ $Revision: 1.3 $ */
-+#ifndef __CHELSIO_VERSION_H
-+#define __CHELSIO_VERSION_H
-+#define DRV_DESC "Chelsio T3 Network Driver"
-+#define DRV_NAME "cxgb3"
-+// Driver version
-+#define DRV_VERSION "1.0"
-+#endif				//__CHELSIO_VERSION_H
+ 	/*
+ 	 * Can we just grow the current page's presence in the dio?
+ 	 */
+_

@@ -1,108 +1,71 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947257AbWLHV12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947308AbWLHVeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947257AbWLHV12 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947265AbWLHV12
+	id S1947308AbWLHVeV (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 16:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947310AbWLHVeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:27:28 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:35660 "EHLO
-	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947257AbWLHV11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:27:27 -0500
-Message-ID: <4579D941.9040607@student.ltu.se>
-Date: Fri, 08 Dec 2006 22:29:37 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+	Fri, 8 Dec 2006 16:34:21 -0500
+Received: from styx.suse.cz ([82.119.242.94]:33341 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1947308AbWLHVeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 16:34:20 -0500
+Date: Fri, 8 Dec 2006 22:34:16 +0100 (CET)
+From: Jiri Kosina <jkosina@suse.cz>
+To: Marcel Holtmann <marcel@holtmann.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] HID patches for 2.6.19
+In-Reply-To: <1165606697.400.2.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0612082231180.4215@jikos.suse.cz>
+References: <20061208185419.GA6912@kroah.com>  <Pine.LNX.4.64.0612081126420.3516@woody.osdl.org>
+ <1165606697.400.2.camel@localhost>
 MIME-Version: 1.0
-To: Randy Dunlap <randy.dunlap@oracle.com>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       shaggy@austin.ibm.com
-Subject: Re: [PATCH] fs/jfs: fix error due to PF_* undeclared
-References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>	<4579B554.5010701@student.ltu.se> <20061208112330.7e8d4e88.randy.dunlap@oracle.com>
-In-Reply-To: <20061208112330.7e8d4e88.randy.dunlap@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> On Fri, 08 Dec 2006 19:56:20 +0100 Richard Knutsson wrote:
->
->   
->>   CC [M]  fs/jfs/jfs_txnmgr.o
->> In file included from fs/jfs/jfs_txnmgr.c:49:
->> include/linux/freezer.h: In function ‘frozen’:
->> include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
->> include/linux/freezer.h:9: error: ‘PF_FROZEN’ undeclared (first use in this function)
->> <snip>
->> fs/jfs/jfs_txnmgr.c: In function ‘freezing’:
->> include/linux/freezer.h:18: warning: control reaches end of non-void function
->> make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
->> make[1]: *** [fs/jfs] Error 2
->> make: *** [fs] Error 2
->>
->> Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
->>
->> ---
->>
->> Guess this is the desired fix, since including linux/sched.h in linux/freezer.h
->> make little sense.
->>     
->
-> Why do you say that?  freezer.h is what uses those #defined values,
-> and freezer.h is what uses struct task_struct fields as well,
-> so it needs sched.h.
->   
-Oh, an error of thought when I read the patch 
-7dfb71030f7636a0d65200158113c37764552f93 made that statement. After more 
-checking, sched.h is apperarently included in suspend.h from swap.h so 
-the direct include of sched.h in most drivers was/is not nessecary.
+On Fri, 8 Dec 2006, Marcel Holtmann wrote:
 
-Do you agree with the patch below then? This was how I first fixed it 
-but found it strange no-one hit it before, and from there it went on... 
-Thanks for the help. (Sign it?)
->> diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
->> index d558e51..2aee0a8 100644
->> --- a/fs/jfs/jfs_txnmgr.c
->> +++ b/fs/jfs/jfs_txnmgr.c
->> @@ -46,6 +46,7 @@ #include <linux/fs.h>
->>  #include <linux/vmalloc.h>
->>  #include <linux/smp_lock.h>
->>  #include <linux/completion.h>
->> +#include <linux/sched.h>
->>  #include <linux/freezer.h>
->>  #include <linux/module.h>
->>  #include <linux/moduleparam.h>
->>
->>     
-  CC [M]  fs/jfs/jfs_txnmgr.o
-In file included from fs/jfs/jfs_txnmgr.c:49:
-include/linux/freezer.h: In function ‘frozen’:
-include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
-include/linux/freezer.h:9: error: ‘PF_FROZEN’ undeclared (first use in this function)
-<snip>
-fs/jfs/jfs_txnmgr.c: In function ‘freezing’:
-include/linux/freezer.h:18: warning: control reaches end of non-void function
-make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
-make[1]: *** [fs/jfs] Error 2
-make: *** [fs] Error 2
+> since we don't have any user-space or out of kernel HID transport 
+> drivers at the moment it would make sense to simply select HID if 
+> someone selects USB_HID or the upcoming Bluetooth transport.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+OK, I agree. Something like this? (applies on top of previous patches, 
+or I could collapse all the Kconfig changes into one patch if desired)
+
+Thanks.
+
+[PATCH] Generic HID layer - build: USB_HID should select HID, not depend on it
+
+Let CONFIG_USB_HID imply CONFIG_HID. Making it only dependent might confuse
+users to choose CONFIG_HID, but no particular HID transport drivers.
+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
 ---
+commit a94cfd7aa1df1e89b058d6eaf347ce94cd10ba71
+tree b11cb076d4528603c8c11220691801231d6236c8
+parent 3ecbf35f6a6b45ecbf03002da8dd6fe030196ed3
+author Jiri Kosina <jkosina@suse.cz> Fri, 08 Dec 2006 22:29:13 +0100
+committer Jiri Kosina <jkosina@suse.cz> Fri, 08 Dec 2006 22:29:13 +0100
 
-Compile-tested only.
+ drivers/usb/input/Kconfig |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
+index 8a62d47..e308f6d 100644
+--- a/drivers/usb/input/Kconfig
++++ b/drivers/usb/input/Kconfig
+@@ -7,7 +7,8 @@ comment "USB Input Devices"
+ config USB_HID
+ 	tristate "USB Human Interface Device (full HID) support"
+ 	default y
+-	depends on USB && HID
++	depends on USB
++	select HID
+ 	---help---
+ 	  Say Y here if you want full HID support to connect USB keyboards,
+ 	  mice, joysticks, graphic tablets, or any other HID based devices
 
-diff --git a/include/linux/freezer.h b/include/linux/freezer.h
-index 6e05e3e..f616c0c 100644
---- a/include/linux/freezer.h
-+++ b/include/linux/freezer.h
-@@ -1,3 +1,4 @@
-+#include <linux/sched.h>
- /* Freezer declarations */
-
- #ifdef CONFIG_PM
-
-
+-- 
+Jiri Kosina

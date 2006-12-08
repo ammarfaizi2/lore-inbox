@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761033AbWLHSxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761052AbWLHSyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761033AbWLHSxv (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 13:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761040AbWLHSxv
+	id S1761052AbWLHSyf (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 13:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761056AbWLHSyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 13:53:51 -0500
-Received: from ag-out-0708.google.com ([72.14.246.241]:48302 "EHLO
-	ag-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761023AbWLHSxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 13:53:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=VvcwHu4BU1V84iP8B1bCoKmtleq06/zSLaPs2sIS8gJNIUxkU5HiaeRVuMS/mBwLuTABqwX3BW4Iq4MSjF+62PSuw/hsZgjwaf0wJfMVOmil4yCntua/BiUNMaZij8QfuGMWUWI+x0a94exZRJULPmaf+edS2rM2PuFCNYKmT8Q=
-Message-ID: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com>
-Date: Fri, 8 Dec 2006 13:53:46 -0500
-From: "Ian E. Morgan" <penguin.wrangler@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       alsa-devel@alsa-project.org, emu10k1-devel@lists.sourceforge.net
-Subject: Loud POP from sound system during module init w/ 2.6.19
+	Fri, 8 Dec 2006 13:54:35 -0500
+Received: from mx1.suse.de ([195.135.220.2]:45647 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761047AbWLHSye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 13:54:34 -0500
+Date: Fri, 8 Dec 2006 10:54:19 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Marcel Holtmann <marcel@holtmann.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] HID patches for 2.6.19
+Message-ID: <20061208185419.GA6912@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since upgrading to 2.6.19, two of my boxes (one workstation, one
-notebook) started making a very loud (and scary) POP from the sound
-system when the alsa modules are loaded. Unloading and reloading the
-modules will generate another pop.
+Here are some patches that move the HID code to a new directory allowing
+it to be used by other kernel subsystems easier.
 
-I have removed any fiddling of mixer settings during module
-load/unload; same results.
+This patch was approved by Dmitry, Marcel and myself, and Andrew asked
+that I get this to you now to make merges with other parts of our
+respective queues easier.
 
-I have complied the kernel both with and without
-CONFIG_SND_AC97_POWER_SAVE; same results.
+Many thanks to Jiri for taking the time and respinning these patches
+multiple times as the tree has changed over the past few days.
 
-The workstation uses snd_emu10k1, the notebook snd_intel8x0, so it's
-affecting more than a single driver.
+Please pull from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-Anybody else seeing this behaviour and know how to stop it?
+The full set of patches will be sent to the linux-usb-devel mailing
+list, if anyone wants to see them.
 
--- 
-Ian E. Morgan
-penguin.wrangler@gmail.com
+thanks,
+
+greg k-h
+
+ CREDITS                                          |    8 +
+ drivers/Kconfig                                  |    2 +
+ drivers/Makefile                                 |    1 +
+ drivers/hid/Kconfig                              |   18 +
+ drivers/hid/Makefile                             |   15 +
+ drivers/hid/hid-core.c                           | 1003 +++++++++++++++
+ drivers/{usb/input => hid}/hid-input.c           |  151 +--
+ drivers/input/Makefile                           |    1 +
+ drivers/usb/input/Kconfig                        |   21 +-
+ drivers/usb/input/Makefile                       |    3 -
+ drivers/usb/input/hid-core.c                     | 1415 +++++-----------------
+ drivers/usb/input/hid-ff.c                       |    8 +-
+ drivers/usb/input/hid-lgff.c                     |    7 +-
+ drivers/usb/input/hid-pidff.c                    |   58 +-
+ drivers/usb/input/hid-tmff.c                     |    5 +-
+ drivers/usb/input/hid-zpff.c                     |    7 +-
+ drivers/usb/input/hiddev.c                       |   37 +-
+ drivers/usb/input/usbhid.h                       |   84 ++
+ {drivers/usb/input => include/linux}/hid-debug.h |    0 
+ {drivers/usb/input => include/linux}/hid.h       |   86 +-
+ 20 files changed, 1584 insertions(+), 1346 deletions(-)
+ create mode 100644 drivers/hid/Kconfig
+ create mode 100644 drivers/hid/Makefile
+ create mode 100644 drivers/hid/hid-core.c
+ rename drivers/{usb/input/hid-input.c => hid/hid-input.c} (88%)
+ create mode 100644 drivers/usb/input/usbhid.h
+ rename drivers/usb/input/hid-debug.h => include/linux/hid-debug.h (100%)
+ rename drivers/usb/input/hid.h => include/linux/hid.h (86%)
+
+---------------
+
+Jiri Kosina (8):
+      Generic HID layer - disable USB HID
+      Generic HID layer - code split
+      Generic HID layer - API
+      Generic HID layer - USB API
+      Generic HID layer - hiddev
+      Generic HID layer - input and event reporting
+      Generic HID layer - pb_fnmode
+      Generic HID layer - build
+

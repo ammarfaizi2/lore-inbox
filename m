@@ -1,311 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424844AbWLHG6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164357AbWLHBQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424844AbWLHG6R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 01:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424858AbWLHG6R
+	id S1164357AbWLHBQr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164340AbWLHBOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 01:58:17 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41957 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424844AbWLHG6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 01:58:16 -0500
-Date: Fri, 8 Dec 2006 16:01:42 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, clameter@engr.sgi.com, apw@shadowen.org,
-       akpm@osdl.org
-Subject: [RFC] [PATCH] virtual memmap on sparsemem v3 [1/4]  map and unmap
-Message-Id: <20061208160142.d40cf636.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 20:14:31 -0500
+Received: from mail.suse.de ([195.135.220.2]:58527 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164339AbWLHBOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:14:18 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:14:30 +1100
+Message-Id: <1061208011430.30713@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 013 of 18] knfsd: nfsd4: make verify and nverify wrappers
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When we want to map pages into the kernel space by vmalloc()'s routine,
-we always need 'struct page' to do that.
 
-There are cases where there is no page struct to use (bootstrap, etc..).
-This function is designed to help map any memory to anywhere, anytime.
+From: J.Bruce Fields <bfields@fieldses.org>
 
-Users should manage their virtual/physical space by themselves.
-Because it's complex and danger to manage virtual address space by
-each function's own code, it's better to use fixed address.
+Make wrappers for verify and nverify, for consistency with other ops.
 
-Note: My first purpose is supporting virtual mem_map both at boot/hotplug
-      sharing the same logic.
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+### Diffstat output
+ ./fs/nfsd/nfs4proc.c |   28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-
----
- include/linux/vmalloc.h |   36 ++++++++
- mm/vmalloc.c            |  200 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 236 insertions(+)
-
-Index: devel-2.6.19/include/linux/vmalloc.h
-===================================================================
---- devel-2.6.19.orig/include/linux/vmalloc.h	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/include/linux/vmalloc.h	2006-12-07 23:04:54.000000000 +0900
-@@ -3,6 +3,7 @@
- 
- #include <linux/spinlock.h>
- #include <asm/page.h>		/* pgprot_t */
-+#include <asm/pgtable.h>	/* pud_t */
- 
- struct vm_area_struct;
- 
-@@ -74,4 +75,39 @@
- extern rwlock_t vmlist_lock;
- extern struct vm_struct *vmlist;
- 
-+/*
-+ * map kernel memory with callback routine. this function is designed
-+ * for assisting special mappings in the kernel space, in other words,
-+ * not managed by standard vmap calls.
-+ * The caller has to be responsible to manage his own virtual address space.
-+ *
-+ * Bootstrap consideration:
-+ * you can pass pud/pmd/pte alloc functions to map_generic_kernel().
-+ * So you can use bootmem function or something to alloc page tables if
-+ * necessary.
-+ */
-+
-+struct gen_map_kern_ops {
-+	/* must be defined */
-+	int	(*k_pte_set)(pte_t *pte, unsigned long addr, void *data);
-+	int	(*k_pte_clear)(pte_t *pte, unsigned long addr, void *data);
-+	/* optional */
-+	int 	(*k_pud_alloc)(pgd_t *pgd, unsigned long addr, void *data);
-+	int 	(*k_pmd_alloc)(pud_t *pud, unsigned long addr, void *data);
-+	int 	(*k_pte_alloc)(pmd_t *pmd, unsigned long addr, void *data);
-+};
-+
-+/*
-+ * call set_pte for specified address range.
-+ */
-+extern int map_generic_kernel(unsigned long addr, unsigned long size,
-+			      struct gen_map_kern_ops *ops, void *data);
-+/*
-+ * call clear_pte() callback against all ptes found.
-+ * pgtable itself is not freed.
-+ */
-+extern int unmap_generic_kernel(unsigned long addr, unsigned long size,
-+				struct gen_map_kern_ops *ops, void *data);
-+
-+
- #endif /* _LINUX_VMALLOC_H */
-Index: devel-2.6.19/mm/vmalloc.c
-===================================================================
---- devel-2.6.19.orig/mm/vmalloc.c	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/mm/vmalloc.c	2006-12-06 16:33:41.000000000 +0900
-@@ -747,3 +747,203 @@
+diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
+--- .prev/fs/nfsd/nfs4proc.c	2006-12-08 12:09:29.000000000 +1100
++++ ./fs/nfsd/nfs4proc.c	2006-12-08 12:09:30.000000000 +1100
+@@ -681,7 +681,7 @@ nfsd4_write(struct svc_rqst *rqstp, stru
+  * to NFS_OK after the call; NVERIFY by mapping NFSERR_NOT_SAME to NFS_OK.
+  */
+ static __be32
+-nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
++_nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	     struct nfsd4_verify *verify)
+ {
+ 	__be32 *buf, *p;
+@@ -733,6 +733,26 @@ out_kfree:
+ 	return status;
  }
- EXPORT_SYMBOL(remap_vmalloc_range);
  
-+
-+
-+/*
-+ * Geneoric VM mapper for kernel routines.
-+ * Can be used even in bootstrap (before memory is availabe) if callback
-+ * func support it.
-+ * for usual use, please use vmalloc/vfree/map_vm_ara/unmap_vm_area.
-+ */
-+
-+static int map_generic_pte_range(pmd_t *pmd, unsigned long addr,
-+				 unsigned long end,
-+				 struct gen_map_kern_ops *ops, void *data)
++static __be32
++nfsd4_nverify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
++	      struct nfsd4_verify *verify)
 +{
-+	pte_t *pte;
-+	int ret = 0;
-+	unsigned long next;
-+	if (!pmd_present(*pmd)) {
-+		if (ops->k_pte_alloc) {
-+			ret = ops->k_pte_alloc(pmd, addr, data);
-+			if (ret)
-+				return ret;
-+		} else {
-+			pte = pte_alloc_kernel(pmd, addr);
-+			if (!pte)
-+				return -ENOMEM;
-+		}
-+	}
-+	pte = pte_offset_kernel(pmd, addr);
++	__be32 status;
 +
-+	do {
-+		WARN_ON(!pte_none(*pte));
-+		BUG_ON(!ops->k_pte_set);
-+		ret = ops->k_pte_set(pte, addr, data);
-+		if (ret)
-+			break;
-+		next = addr + PAGE_SIZE;
-+	} while (pte++, addr = next, addr != end);
-+	return ret;
++	status = _nfsd4_verify(rqstp, cstate, verify);
++	return status == nfserr_not_same ? nfs_ok : status;
 +}
 +
-+static int map_generic_pmd_range(pud_t *pud, unsigned long addr,
-+				 unsigned long end,
-+				 struct gen_map_kern_ops *ops, void *data)
++static __be32
++nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
++	     struct nfsd4_verify *verify)
 +{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int ret;
++	__be32 status;
 +
-+	if (pud_none(*pud)) {
-+		if (ops->k_pmd_alloc) {
-+			ret = ops->k_pmd_alloc(pud, addr, data);
-+			if (ret)
-+				return ret;
-+		} else {
-+			pmd = pmd_alloc(&init_mm, pud, addr);
-+			if (!pmd)
-+				return -ENOMEM;
-+		}
-+	}
-+	pmd = pmd_offset(pud, addr);
-+	do {
-+		next = pmd_addr_end(addr, end);
-+		ret = map_generic_pte_range(pmd, addr, next, ops, data);
-+		if (ret)
-+			break;
-+	} while (pmd++, addr = next, addr != end);
-+	return ret;
++	status = _nfsd4_verify(rqstp, cstate, verify);
++	return status == nfserr_same ? nfs_ok : status;
 +}
 +
-+static int map_generic_pud_range(pgd_t *pgd, unsigned long addr,
-+				 unsigned long end,
-+				 struct gen_map_kern_ops *ops, void *data)
-+{
-+	pud_t *pud;
-+	unsigned long next;
-+	int ret;
-+	if (pgd_none(*pgd)) {
-+		if (ops->k_pud_alloc) {
-+			ret = ops->k_pud_alloc(pgd, addr, data);
-+			if (ret)
-+				return ret;
-+		} else {
-+			pud = pud_alloc(&init_mm, pgd, addr);
-+			if (!pud)
-+				return -ENOMEM;
-+		}
-+	}
-+	pud = pud_offset(pgd, addr);
-+	do {
-+		next = pud_addr_end(addr, end);
-+		ret = map_generic_pmd_range(pud, addr, next, ops, data);
-+		if (ret)
-+			break;
-+		
-+	} while (pud++, addr = next, addr != end);
-+	return ret;
-+}
-+
-+int map_generic_kernel(unsigned long addr, unsigned long size,
-+		       struct gen_map_kern_ops *ops, void *data)
-+{
-+	pgd_t *pgd;
-+	unsigned long end = addr + size;
-+	unsigned long next;
-+	int ret;
-+
-+	do {
-+		pgd = pgd_offset_k(addr);
-+		next = pgd_addr_end(addr, end);
-+		ret = map_generic_pud_range(pgd, addr, next, ops, data);
-+		if (ret)
-+			break;
-+		
-+	} while (addr = next, addr != end);
-+	flush_cache_vmap(addr, end);
-+	return ret;
-+}
-+
-+static int
-+unmap_generic_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
-+			struct gen_map_kern_ops *ops, void *data)
-+{
-+	pte_t *pte;
-+	int err = 0;
-+	pte = pte_offset_kernel(pmd, addr);
-+	do {
-+		if (!pte_present(*pte))
-+			continue;
-+		err = ops->k_pte_clear(pte, addr, data);
-+		if (err)
-+			break;
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	return err;
-+}
-+
-+static int
-+unmap_generic_pmd_range(pud_t *pud, unsigned long addr, unsigned long end,
-+			struct gen_map_kern_ops *ops, void *data)
-+{
-+	pmd_t *pmd;
-+	unsigned long next;
-+	int err = 0;
-+
-+	pmd = pmd_offset(pud, addr);
-+	
-+	do {
-+		next = pmd_addr_end(addr, end);
-+		if (pmd_none_or_clear_bad(pmd))
-+			continue;
-+		err = unmap_generic_pte_range(pmd, addr, next, ops, data);
-+		if (err)
-+			break;
-+	} while (pmd++, addr = next, addr != end);
-+	return err;
-+}
-+
-+static int
-+unmap_generic_pud_range(pgd_t *pgd, unsigned long addr, unsigned long end,
-+			struct gen_map_kern_ops *ops, void *data)
-+{
-+	pud_t *pud;
-+	unsigned long next;
-+	int err = 0;
-+
-+	pud = pud_offset(pgd, addr);
-+	
-+	do {
-+		next = pud_addr_end(addr, end);
-+		if (pud_none_or_clear_bad(pud))
-+			continue;
-+		err = unmap_generic_pmd_range(pud, addr, next, ops, data);
-+		if (err)
-+			break;
-+	} while (pud++, addr = next, addr != end);
-+	return err;
-+}
-+
-+int unmap_generic_kernel(unsigned long addr, unsigned long size,
-+			 struct gen_map_kern_ops *ops, void *data)
-+{
-+	unsigned long next, end;
-+	pgd_t *pgd;
-+	int err = 0;
-+
-+	end = addr + size;
-+	flush_cache_vmap(addr, end);
-+
-+	pgd = pgd_offset_k(addr);
-+
-+	do {
-+		next = pgd_addr_end(addr, end);
-+		if (pgd_none_or_clear_bad(pgd))
-+			continue;
-+		err = unmap_generic_pud_range(pgd, addr, next, ops, data);
-+		if (err)
-+			break;
-+	} while (pgd++, addr = next, addr != end);
-+	flush_tlb_kernel_range((unsigned long)start_addr, end_addr);
-+	return err;
-+}
-
+ /*
+  * NULL call.
+  */
+@@ -911,10 +931,8 @@ nfsd4_proc_compound(struct svc_rqst *rqs
+ 			op->status = nfsd4_lookupp(rqstp, cstate);
+ 			break;
+ 		case OP_NVERIFY:
+-			op->status = nfsd4_verify(rqstp, cstate,
++			op->status = nfsd4_nverify(rqstp, cstate,
+ 						  &op->u.nverify);
+-			if (op->status == nfserr_not_same)
+-				op->status = nfs_ok;
+ 			break;
+ 		case OP_OPEN:
+ 			op->status = nfsd4_open(rqstp, cstate,
+@@ -975,8 +993,6 @@ nfsd4_proc_compound(struct svc_rqst *rqs
+ 		case OP_VERIFY:
+ 			op->status = nfsd4_verify(rqstp, cstate,
+ 						  &op->u.verify);
+-			if (op->status == nfserr_same)
+-				op->status = nfs_ok;
+ 			break;
+ 		case OP_WRITE:
+ 			op->status = nfsd4_write(rqstp, cstate, &op->u.write);

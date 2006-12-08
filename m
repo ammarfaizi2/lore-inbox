@@ -1,43 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163955AbWLGXHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425449AbWLHMDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163955AbWLGXHv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 18:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163962AbWLGXHu
+	id S1425449AbWLHMDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425450AbWLHMC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 18:07:50 -0500
-Received: from tmailer.gwdg.de ([134.76.10.23]:34349 "EHLO tmailer.gwdg.de"
+	Fri, 8 Dec 2006 07:02:56 -0500
+Received: from mx1.suse.de ([195.135.220.2]:40818 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163955AbWLGXHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 18:07:47 -0500
-Date: Fri, 8 Dec 2006 00:05:59 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matthias Schniedermeyer <ms@citd.de>
-cc: DervishD <lkml@dervishd.net>, linux-kernel@vger.kernel.org,
-       usb-storage@lists.one-eyed-alien.net
-Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
-In-Reply-To: <45789C43.9020109@citd.de>
-Message-ID: <Pine.LNX.4.61.0612080005200.27403@yvahk01.tjqt.qr>
-References: <45773DD2.10201@citd.de> <20061207221015.GA342@DervishD>
- <45789C43.9020109@citd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	id S1425446AbWLHMCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:02:18 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 23:02:30 +1100
+Message-Id: <1061208120230.18220@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 008 of 13] knfsd: SUNRPC: Make rq_daddr field address-version independent
+References: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Dec 7 2006 23:57, Matthias Schniedermeyer wrote:
->DervishD wrote:
->
->The 38 HDDs are in 38 enclosures, so each has it's own power supply. I
->have used different cables and i replaced the USB-Controller once.
->
->So it can't be a single faulty component. Except when the computer
->itself would be the culprit.
+From: Chuck Lever <chuck.lever@oracle.com>
 
-Or a production failure.
+The rq_daddr field must support larger addresses.
 
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-	-`J'
--- 
+### Diffstat output
+ ./include/linux/sunrpc/svc.h |   15 +++++++++++----
+ ./net/sunrpc/svcsock.c       |    4 ++--
+ 2 files changed, 13 insertions(+), 6 deletions(-)
+
+diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
+--- .prev/include/linux/sunrpc/svc.h	2006-12-08 13:55:35.000000000 +1100
++++ ./include/linux/sunrpc/svc.h	2006-12-08 13:57:52.000000000 +1100
+@@ -11,6 +11,7 @@
+ #define SUNRPC_SVC_H
+ 
+ #include <linux/in.h>
++#include <linux/in6.h>
+ #include <linux/sunrpc/types.h>
+ #include <linux/sunrpc/xdr.h>
+ #include <linux/sunrpc/auth.h>
+@@ -188,7 +189,13 @@ static inline void svc_putu32(struct kve
+ 	iov->iov_len += sizeof(__be32);
+ }
+ 
+-	
++union svc_addr_u {
++    struct in_addr	addr;
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++    struct in6_addr	addr6;
++#endif
++};
++
+ /*
+  * The context of a single thread, including the request currently being
+  * processed.
+@@ -224,8 +231,8 @@ struct svc_rqst {
+ 	unsigned short
+ 				rq_secure  : 1;	/* secure port */
+ 
+-
+-	__be32			rq_daddr;	/* dest addr of request - reply from here */
++	union svc_addr_u	rq_daddr;	/* dest addr of request - 
++						 * reply from here */
+ 
+ 	void *			rq_argp;	/* decoded arguments */
+ 	void *			rq_resp;	/* xdr'd results */
+@@ -292,7 +299,7 @@ struct svc_deferred_req {
+ 	struct sockaddr_storage	addr;
+ 	int			addrlen;
+ 	struct svc_sock		*svsk;	/* where reply must go */
+-	__be32			daddr;	/* where reply must come from */
++	union svc_addr_u	daddr;	/* where reply must come from */
+ 	struct cache_deferred_req handle;
+ 	int			argslen;
+ 	__be32			args[0];
+
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-12-08 13:55:35.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-08 13:57:20.000000000 +1100
+@@ -476,7 +476,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
+ 		cmh->cmsg_level = SOL_IP;
+ 		cmh->cmsg_type = IP_PKTINFO;
+ 		pki->ipi_ifindex = 0;
+-		pki->ipi_spec_dst.s_addr = rqstp->rq_daddr;
++		pki->ipi_spec_dst.s_addr = rqstp->rq_daddr.addr.s_addr;
+ 
+ 		if (sock_sendmsg(sock, &msg, 0) < 0)
+ 			goto out;
+@@ -747,7 +747,7 @@ svc_udp_recvfrom(struct svc_rqst *rqstp)
+ 	sin->sin_family = AF_INET;
+ 	sin->sin_port = skb->h.uh->source;
+ 	sin->sin_addr.s_addr = skb->nh.iph->saddr;
+-	rqstp->rq_daddr = skb->nh.iph->daddr;
++	rqstp->rq_daddr.addr.s_addr = skb->nh.iph->daddr;
+ 
+ 	if (skb_is_nonlinear(skb)) {
+ 		/* we have to copy */

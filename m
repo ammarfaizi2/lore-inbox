@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947308AbWLHVeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947316AbWLHVeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947308AbWLHVeV (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947310AbWLHVeV
+	id S1947316AbWLHVeo (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 16:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947312AbWLHVeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:34:21 -0500
-Received: from styx.suse.cz ([82.119.242.94]:33341 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1947308AbWLHVeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:34:20 -0500
-Date: Fri, 8 Dec 2006 22:34:16 +0100 (CET)
-From: Jiri Kosina <jkosina@suse.cz>
-To: Marcel Holtmann <marcel@holtmann.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] HID patches for 2.6.19
-In-Reply-To: <1165606697.400.2.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0612082231180.4215@jikos.suse.cz>
-References: <20061208185419.GA6912@kroah.com>  <Pine.LNX.4.64.0612081126420.3516@woody.osdl.org>
- <1165606697.400.2.camel@localhost>
+	Fri, 8 Dec 2006 16:34:44 -0500
+Received: from gw.goop.org ([64.81.55.164]:33031 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1947315AbWLHVen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 16:34:43 -0500
+Message-ID: <4579DA6D.1030305@goop.org>
+Date: Fri, 08 Dec 2006 13:34:37 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@suse.de>
+CC: Arkadiusz Miskiewicz <arekm@maven.pl>, linux-kernel@vger.kernel.org
+Subject: Re: proxy_pda was Re: What was in the x86 merge for .20
+References: <200612080401.25746.ak@suse.de> <200612082206.20409.ak@suse.de> <4579D496.6080201@goop.org> <200612082222.33673.ak@suse.de>
+In-Reply-To: <200612082222.33673.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2006, Marcel Holtmann wrote:
+Andi Kleen wrote:
+> The trouble is when it's CSEd it actually causes worse code because
+> a register is tied up. That might not be worth the advantage of having it?
+>   
 
-> since we don't have any user-space or out of kernel HID transport 
-> drivers at the moment it would make sense to simply select HID if 
-> someone selects USB_HID or the upcoming Bluetooth transport.
+I think so, definitely; without proxy_pda you need to make it asm
+volatile+mem clobber, which completely eliminates all optimisation
+opportunities; in general the proxy_pda allows gcc to CSE and reorder
+pda accesses.  I guess in this case the memory writes inhibited the
+overall CSE of current, so its just making do by CSEing the address.
 
-OK, I agree. Something like this? (applies on top of previous patches, 
-or I could collapse all the Kconfig changes into one patch if desired)
+> Hmm, maybe marking it volatile would help? Arkadiusz, does the following patch
+> help?
+>   
 
-Thanks.
+Might work.  But doesn't this make the pointed-at proxy_pda volatile,
+not the proxy_pda pointer itself?  Should it be something like (volatile
+__T * volatile)?
 
-[PATCH] Generic HID layer - build: USB_HID should select HID, not depend on it
-
-Let CONFIG_USB_HID imply CONFIG_HID. Making it only dependent might confuse
-users to choose CONFIG_HID, but no particular HID transport drivers.
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
----
-commit a94cfd7aa1df1e89b058d6eaf347ce94cd10ba71
-tree b11cb076d4528603c8c11220691801231d6236c8
-parent 3ecbf35f6a6b45ecbf03002da8dd6fe030196ed3
-author Jiri Kosina <jkosina@suse.cz> Fri, 08 Dec 2006 22:29:13 +0100
-committer Jiri Kosina <jkosina@suse.cz> Fri, 08 Dec 2006 22:29:13 +0100
-
- drivers/usb/input/Kconfig |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
-index 8a62d47..e308f6d 100644
---- a/drivers/usb/input/Kconfig
-+++ b/drivers/usb/input/Kconfig
-@@ -7,7 +7,8 @@ comment "USB Input Devices"
- config USB_HID
- 	tristate "USB Human Interface Device (full HID) support"
- 	default y
--	depends on USB && HID
-+	depends on USB
-+	select HID
- 	---help---
- 	  Say Y here if you want full HID support to connect USB keyboards,
- 	  mice, joysticks, graphic tablets, or any other HID based devices
-
--- 
-Jiri Kosina
+    J

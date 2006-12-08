@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938024AbWLHLAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164346AbWLHBTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S938024AbWLHLAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938025AbWLHLAW
+	id S1164346AbWLHBTp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164356AbWLHBTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:00:22 -0500
-Received: from smtp-out001.kontent.com ([81.88.40.215]:57023 "EHLO
-	smtp-out.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425360AbWLHLAU (ORCPT
+	Thu, 7 Dec 2006 20:19:45 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:49014 "HELO
+	smtp101.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1164346AbWLHBTm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:00:20 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Matthias Schniedermeyer <ms@citd.de>
-Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
-Date: Fri, 8 Dec 2006 12:01:36 +0100
-User-Agent: KMail/1.8
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       DervishD <lkml@dervishd.net>
-References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <45793D82.1040807@s5r6.in-berlin.de> <457940DC.90403@citd.de>
-In-Reply-To: <457940DC.90403@citd.de>
+	Thu, 7 Dec 2006 20:19:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:X-YMail-OSG:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Ca9w6W+4UQZaBN6ZpQO/pXKtyBOZQmb3yqDoVDX74ejm/jruB+6KfrdYp0Lg0G2g8vyUvKQ5lNlONDDcldo5ksCzPvJXmAtdnQoTxJb+3uI8F5Z26f2zc5D+NUOBdAYI9tiI9xY2YhWbiTCnX1r0Svpr6pRmuucuuUFWkhSGqOo=  ;
+X-YMail-OSG: ajjZ0aYVM1nvOEH1ryaCQN19l8ZWxJsQMGcfQRUUN3XJE7Xtmhteki6LTpnihvCVXkjA1C0NtyG8ZSy3TyXivRk1GgS5_9Sqi6pjI7x6frX6lNOoq65FGyZd0f6Rt1oDf.QGo_RPO68Q1LPNGKsWYRD8YlLVpDHYKE3AS5sA03JYuZwdlcB1JZzX9v5.
+Message-ID: <4578BD7C.4050703@yahoo.com.au>
+Date: Fri, 08 Dec 2006 12:18:52 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk>
+In-Reply-To: <20061207150303.GB1255@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612081201.36789.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 8. Dezember 2006 11:39 schrieb Matthias Schniedermeyer:
-> > I.e. it's nearly impossible for noisy hardware to _silently_ cause data
-> > corruption. I would suppose USB has similar CRC checks.
+Russell King wrote:
+> On Thu, Dec 07, 2006 at 08:31:08PM +1100, Nick Piggin wrote:
 
-It has.
-
-> > Also, you mentioned that the corruption occurs systematically on certain
-> > byte patterns. Therefore it's certainly not related to the cables.
+>>>Implementing ll/sc based accessor macros allows both ll/sc _and_ cmpxchg
+>>>architectures to produce optimal code.
+>>>
+>>>Implementing an cmpxchg based accessor macro allows cmpxchg architectures
+>>>to produce optimal code and ll/sc non-optimal code.
+>>>
+>>>See my point?
+>>
+>>Wrong. Your ll/sc implementation with cmpxchg is buggy. The cmpxchg
+>>load_locked is not locked at all,
 > 
-> It'd guess that too, but who can that say for sure. :-|
+> 
+> Intentional - cmpxchg architectures don't generally have a load locked.
 
-You may have a bit pattern that stresses the controllers and suddenly
-a marginal cable may matter.
+Exactly, so it is wrong -- you can't implement that behaviour with
+load + cmpxchg.
 
-	Regards
-		Oliver
+>>and there can be interleaving writes
+>>between the load and cmpxchg which do not cause the store_conditional
+>>to fail.
+> 
+> 
+> In which case the cmpxchg fails and we do the atomic operation again,
+> in exactly the same way that we do the operation again if the 'sc'
+> fails in the ll/sc case.
 
+Not if cmpxchg sees the same value, it won't fail, regardless of how
+many writes have hit that memory address.
+
+> I do not see any problem.
+
+This was not the big problem -- as I said, if this was the only problem
+we could opt for a "watered down" version that doesn't actually load
+locked [the ll/sc interface would be much cooler than cmpxchg, IMO :)]
+
+The main problem is the restrictions between the ll and sc. This is why
+I implemented atomic_cmpxchg rather than atomic_ll/sc. However I agree
+that in critical code, a higher level API should be used instead (eg.
+see atomic_add_unless, which can be implemented optimally on RISCs).
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

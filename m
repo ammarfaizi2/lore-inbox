@@ -1,181 +1,125 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947474AbWLHW44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947476AbWLHW6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947474AbWLHW44 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 17:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947475AbWLHW44
+	id S1947476AbWLHW6Q (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 17:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947477AbWLHW6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 17:56:56 -0500
-Received: from hera.kernel.org ([140.211.167.34]:37542 "EHLO hera.kernel.org"
+	Fri, 8 Dec 2006 17:58:16 -0500
+Received: from mga02.intel.com ([134.134.136.20]:12765 "EHLO mga02.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947474AbWLHW4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 17:56:54 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: [PATCH 1/6] PCI-X Max Read Byte Count interface (v2)
-Date: Fri, 8 Dec 2006 14:56:18 -0800
-Organization: OSDL
-Message-ID: <20061208145618.3984f891@freekitty>
-References: <20061208182241.786324000@osdl.org>
-	<20061208182500.407073000@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1947476AbWLHW6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 17:58:15 -0500
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,515,1157353200"; 
+   d="scan'208"; a="172343142:sNHT23349368"
+Message-ID: <4579EE04.9030409@intel.com>
+Date: Fri, 08 Dec 2006 14:58:12 -0800
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Roland Dreier <rdreier@cisco.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Cramer, Jeb J" <jeb.j.cramer@intel.com>
+Subject: Re: [PATCH 2/6] e1000: use pcix_set_mmrbc
+References: <20061208182241.786324000@osdl.org>	<20061208182500.478856000@osdl.org>	<adalkli6p0e.fsf@cisco.com> <20061208144332.33497a98@freekitty>
+In-Reply-To: <20061208144332.33497a98@freekitty>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1165618579 29283 10.8.0.228 (8 Dec 2006 22:56:19 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Fri, 8 Dec 2006 22:56:19 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.6; i486-pc-linux-gnu)
+X-OriginalArrivalTime: 08 Dec 2006 22:58:13.0134 (UTC) FILETIME=[56B8E2E0:01C71B1C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add interface to allow setting PCI-X Max Memory Read Byte Count
-and handle quirks.
+Stephen Hemminger wrote:
+> On Fri, 08 Dec 2006 13:45:05 -0800
+> Roland Dreier <rdreier@cisco.com> wrote:
+> 
+>>  > -        if (hw->bus_type == e1000_bus_type_pcix) {
+>>  > -            e1000_read_pci_cfg(hw, PCIX_COMMAND_REGISTER, &pcix_cmd_word);
+>>  > -            e1000_read_pci_cfg(hw, PCIX_STATUS_REGISTER_HI,
+>>  > -                &pcix_stat_hi_word);
+>>  > -            cmd_mmrbc = (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
+>>  > -                PCIX_COMMAND_MMRBC_SHIFT;
+>>  > -            stat_mmrbc = (pcix_stat_hi_word & PCIX_STATUS_HI_MMRBC_MASK) >>
+>>  > -                PCIX_STATUS_HI_MMRBC_SHIFT;
+>>  > -            if (stat_mmrbc == PCIX_STATUS_HI_MMRBC_4K)
+>>  > -                stat_mmrbc = PCIX_STATUS_HI_MMRBC_2K;
+>>  > -            if (cmd_mmrbc > stat_mmrbc) {
+>>  > -                pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
+>>  > -                pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
+>>  > -                e1000_write_pci_cfg(hw, PCIX_COMMAND_REGISTER,
+>>  > -                    &pcix_cmd_word);
+>>  > -            }
+>>  > -        }
+>>  > +        if (hw->bus_type == e1000_bus_type_pcix)
+>>  > +		e1000_pcix_set_mmrbc(hw, 2048);
+>>
+>> This changes the behavior of the driver.  The existing driver only
+>> sets MMRBC if it's bigger than min(2048, value in the status register).
+>> You're setting MMRBC to 2048 even if it starts out at a smaller value.
+>>
+>>  - R.
+> 
+> Hmm.. looks like all that code should really be moved off to PCI bus
+> quirk/setup.  None of it is E1000 specific.  Something like this (untested):
 
-The AMD 8131 chipset has a number of errata's related to PCI-X
-configuration. The BIOS sets initial value correctly, but if a
-device changes MMRBC it could cause data corruption. There are
-some more settings of MMRBC that could be allowed but 
-determining the safe values is more effort than it is worth.
+This is not true, and I have to NAK the original patch. Part of the code Stephan is 
+removing fixes a BUG in one of our *e1000 parts* that has the wrong size.
+
+It would be nice to fix generix pci-x issues qith quirks for platforms but the 
+adjustment needs to stay for this specific e1000 case.
+
+Perhaps we can accomodate that specific case so that it is apparent from our code, as is 
+not the case right now.
+
+Auke
+
+PS Thanks to Jeb for fishing this out ;)
 
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
----
- drivers/pci/pci.c    |   79 +++++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/pci/quirks.c |   17 ++++++++++
- include/linux/pci.h  |    5 ++-
- 3 files changed, 100 insertions(+), 1 deletion(-)
-
---- pci-x.orig/drivers/pci/pci.c
-+++ pci-x/drivers/pci/pci.c
-@@ -1059,6 +1059,85 @@ pci_set_consistent_dma_mask(struct pci_d
- 	return 0;
- }
- #endif
-+
-+
-+/**
-+ * pcix_get_mmrbc - get PCI-X maximum memory read byte count
-+ * @dev: PCI device to query
-+ *
-+ * Returns mmrbc: maximum memory read count in bytes
-+ *    or appropriate error value.
-+ */
-+int pcix_get_mmrbc(struct pci_dev *dev)
-+{
-+	int ret, cap;
-+	u16 cmd;
-+
-+	cap = pci_find_capability(dev, PCI_CAP_ID_PCIX);
-+	if (!cap)
-+		return -EINVAL;
-+
-+	ret = pci_read_config_word(dev, cap + PCI_X_CMD, &cmd);
-+	if (!ret)
-+		ret = 512 << ((cmd & PCI_X_CMD_MAX_READ) >> 2);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(pcix_get_mmrbc);
-+
-+/**
-+ * pcix_set_mmrbc - set PCI-X maximum memory read byte count
-+ * @dev: PCI device to query
-+ * @mmrbc: maximum memory read count in bytes
-+ *    valid values are 512, 1024, 2048, 4096
-+ *
-+ * If possible sets maximum memory read byte count, some bridges have erratas
-+ * that prevent this.
-+ */
-+int
-+pcix_set_mmrbc(struct pci_dev *dev, int mmrbc)
-+{
-+	int cap, err = -EINVAL;
-+	u32 stat;
-+	u16 cmd, v, o;
-+
-+	if (mmrbc < 512 || mmrbc > 4096 || (mmrbc & (mmrbc-1)))
-+		goto out;
-+
-+	v = ffs(mmrbc) - 10;
-+
-+	cap = pci_find_capability(dev, PCI_CAP_ID_PCIX);
-+	if (!cap)
-+		goto out;	/* not PCI-X */
-+
-+	err = pci_read_config_dword(dev, cap + PCI_X_STATUS, &stat);
-+	if (err)
-+		goto out;
-+
-+	if (v > (stat & PCI_X_STATUS_MAX_READ) >> 21)
-+		return -E2BIG;
-+
-+	err = pci_read_config_word(dev, cap + PCI_X_CMD, &cmd);
-+	if (err)
-+		goto out;
-+
-+	o = (cmd & PCI_X_CMD_MAX_READ) >> 2;
-+	if (o != v) {
-+		/* Increasing can cause problems on some broken bridges */
-+		if (v > o && dev->bus &&
-+		    (dev->bus->bus_flags & PCI_BUS_FLAGS_NO_MMRBC))
-+			return -EIO;
-+
-+		cmd &= ~PCI_X_CMD_MAX_READ;
-+		cmd |= v << 2;
-+		err = pci_write_config_word(dev, cap + PCI_X_CMD, cmd);
-+	}
-+
-+out:
-+	return err;
-+}
-+EXPORT_SYMBOL_GPL(pcix_set_mmrbc);
-+
-      
- static int __devinit pci_init(void)
- {
---- pci-x.orig/drivers/pci/quirks.c
-+++ pci-x/drivers/pci/quirks.c
-@@ -618,6 +618,23 @@ static void __init quirk_amd_8131_ioapic
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_ioapic);
- #endif /* CONFIG_X86_IO_APIC */
- 
-+/*
-+ * Some settings of MMRBC can lead to data corruption so block changes.
-+ * See AMD 8131 HyperTransport PCI-X Tunnel Revision Guide
-+ */
-+static void __init quirk_amd_8131_mmrbc(struct pci_dev *dev)
-+{
-+	unsigned char revid;
-+
-+        pci_read_config_byte(dev, PCI_REVISION_ID, &revid);
-+        if (dev->subordinate && revid <= 0x12) {
-+                printk(KERN_INFO "AMD8131 rev %x detected, disabling PCI-X MMRBC\n",
-+		       revid);
-+		dev->subordinate->bus_flags |= PCI_BUS_FLAGS_NO_MMRBC;
-+        }
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8131_BRIDGE, quirk_amd_8131_mmrbc);
-+
- 
- /*
-  * FIXME: it is questionable that quirk_via_acpi
---- pci-x.orig/include/linux/pci.h
-+++ pci-x/include/linux/pci.h
-@@ -98,7 +98,8 @@ enum pci_channel_state {
- 
- typedef unsigned short __bitwise pci_bus_flags_t;
- enum pci_bus_flags {
--	PCI_BUS_FLAGS_NO_MSI = (__force pci_bus_flags_t) 1,
-+	PCI_BUS_FLAGS_NO_MSI   = (__force pci_bus_flags_t) 1,
-+	PCI_BUS_FLAGS_NO_MMRBC = (__force pci_bus_flags_t) 2,
- };
- 
- struct pci_cap_saved_state {
-@@ -511,6 +512,8 @@ void pci_clear_mwi(struct pci_dev *dev);
- void pci_intx(struct pci_dev *dev, int enable);
- int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
- int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
-+int pcix_get_mmrbc(struct pci_dev *dev);
-+int pcix_set_mmrbc(struct pci_dev *dev, int mmrbc);
- void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
- int __must_check pci_assign_resource(struct pci_dev *dev, int i);
- int __must_check pci_assign_resource_fixed(struct pci_dev *dev, int i);
+> 
+> ---
+>  drivers/pci/quirks.c |   30 ++++++++++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
+> 
+> --- pci-x.orig/drivers/pci/quirks.c
+> +++ pci-x/drivers/pci/quirks.c
+> @@ -1719,6 +1719,36 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NV
+>  #endif /* CONFIG_PCI_MSI */
+>  
+>  EXPORT_SYMBOL(pcie_mch_quirk);
+> +
+> +/* Check that BIOS has not set PCI-X MMRBC to value bigger than board allows */
+> +static void __devinit quirk_pcix_mmrbc(struct pci_dev *dev)
+> +{
+> +	int cap;
+> +	u32 stat;
+> +	u16 cmd, m, c;
+> +
+> +	cap = pci_find_capability(dev, PCI_CAP_ID_PCIX);
+> +	if (cap <= 0)
+> +		return;
+> +
+> +	if (pci_read_config_dword(dev, cap + PCI_X_STATUS, &stat) ||
+> +	    pci_read_config_word(dev, cap + PCI_X_CMD, &cmd))
+> +		return;
+> +
+> +	m = (stat & PCI_X_STATUS_MAX_READ) >> 21;	/* max possible MRRBC*/
+> +	c = (cmd & PCI_X_CMD_MAX_READ) >> 2;		/* current MMRBC */
+> +	if (c > m) {
+> +		printk(KERN_INFO "PCIX: %s resetting MMRBC to %d\n",
+> +		       pci_name(dev), 512 << m);
+> +
+> +		cmd &= ~PCI_X_CMD_MAX_READ;
+> +		cmd |= m << 2;
+> +		pci_write_config_dword(dev, cap + PCI_X_CMD, cmd);
+> +	}
+> +}
+> +DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, quirk_pcix_mmrbc);
+> +
+> +
+>  #ifdef CONFIG_HOTPLUG
+>  EXPORT_SYMBOL(pci_fixup_device);
+>  #endif
+> 
+> 

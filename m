@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S938063AbWLHPdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425569AbWLHPd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S938063AbWLHPdA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 10:33:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938067AbWLHPdA
+	id S1425569AbWLHPd7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 10:33:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425567AbWLHPd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 10:33:00 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4062 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S938063AbWLHPc7 (ORCPT
+	Fri, 8 Dec 2006 10:33:59 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3200 "HELO
+	mailout.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1425569AbWLHPd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 10:32:59 -0500
-Date: Fri, 8 Dec 2006 15:32:50 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>, Christoph Lameter <clameter@sgi.com>,
-       David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061208153250.GB31068@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Christoph Lameter <clameter@sgi.com>,
-	David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-arm-kernel@lists.arm.linux.org.uk,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-arch@vger.kernel.org
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612061103260.3542@woody.osdl.org> <20061207150606.GC1255@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Fri, 8 Dec 2006 10:33:57 -0500
+Date: Fri, 8 Dec 2006 16:34:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: Bauke Jan Douma <bjdouma@xs4all.nl>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       Daniel Ritz <daniel.ritz@gmx.ch>, Daniel Drake <dsd@gentoo.org>,
+       Jean Delvare <khali@linux-fr.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Linus Torvalds <torvalds@osdl.org>, Brice Goglin <brice@myri.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Tomasz Koprowski <tomek@koprowski.org>
+Subject: Re: RFC: PCI quirks update for 2.6.16
+Message-ID: <20061208153405.GA3356@stusta.de>
+References: <20061207132430.GF8963@stusta.de> <20061207165352.9cb61023.vsu@altlinux.ru> <45784F0C.7040005@xs4all.nl> <20061207183217.GA7865@procyon.home>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061207150606.GC1255@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20061207183217.GA7865@procyon.home>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 03:06:06PM +0000, Russell King wrote:
-> On Wed, Dec 06, 2006 at 11:05:22AM -0800, Linus Torvalds wrote:
-> > 
-> > 
-> > On Wed, 6 Dec 2006, Christoph Lameter wrote:
-> > >
-> > > I'd really appreciate a cmpxchg that is generically available for 
-> > > all arches. It will allow lockless implementation for various performance 
-> > > criticial portions of the kernel.
-> > 
-> > I suspect ARM may have been the last one without one, no?
-> > 
-> > That said, cmpxchg won't necessarily be "high-performance" unless the hw 
-> > supports it naturally in hardware, so..
-> > 
-> > Russell, are you ok with the code DavidH posted (the "try 2" one)? I'd 
-> > like to get an ack from the ARM maintainer before applying it, but it 
-> > looked ok.
+On Thu, Dec 07, 2006 at 09:32:17PM +0300, Sergey Vlasov wrote:
+> On Thu, Dec 07, 2006 at 06:27:40PM +0100, Bauke Jan Douma wrote:
+>...
+> > I for one need this quirk to get both soundcards at all (which
+> > I need) -- no matter what indexing order.
 > 
-> Things seem to have moved on since this request.  Do I need to do
-> anything?  I dunno.
+> I don't question the need for this patch in mainline; however, it does
+> not seem to be suitable for -stable.
+>...
 
-ARM's still broken.
+Thanks to both of you.
+First of all, I agree that this is not 2.6.16 material.
+
+And looking at this issue at my A7V600-X, it's also a "feature" of this 
+quirk that it enables the onboard audio even if you explicitely disabled 
+it in the BIOS. I'm not sure about the correct solution in this case.
+
+cu
+Adrian
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

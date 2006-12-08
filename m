@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163179AbWLGS2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425444AbWLHMCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163179AbWLGS2k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:28:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163181AbWLGS2j
+	id S1425444AbWLHMCG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425446AbWLHMCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:28:39 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:53914 "EHLO smtp.osdl.org"
+	Fri, 8 Dec 2006 07:02:05 -0500
+Received: from ns1.suse.de ([195.135.220.2]:40794 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163179AbWLGS2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:28:38 -0500
-Date: Thu, 7 Dec 2006 10:27:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	id S1425444AbWLHMCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:02:01 -0500
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-cc: David Howells <dhowells@redhat.com>,
-       "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Roland Dreier <rdreier@cisco.com>,
-       Andy Fleming <afleming@freescale.com>,
-       Ben Collins <ben.collins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <20061207101605.ba446f79.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0612071022210.3615@woody.osdl.org>
-References: <1165125055.5320.14.camel@gullible> <20061203011625.60268114.akpm@osdl.org>
- <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
- <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org>
- <Pine.LNX.4.64.0612070846550.3615@woody.osdl.org> <20061207095253.30059224.akpm@osdl.org>
- <Pine.LNX.4.64.0612071000380.3615@woody.osdl.org> <20061207101605.ba446f79.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Fri, 8 Dec 2006 23:02:13 +1100
+Message-Id: <1061208120213.18184@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 005 of 13] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
+References: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Chuck Lever <chuck.lever@oracle.com>
 
-On Thu, 7 Dec 2006, Andrew Morton wrote:
-> 
-> We _can_ trust it in the context of
-> 
-> 	void flush_work(struct work_struct *work)
+Sockaddr_storage will allow us to store arbitrary socket addresses in
+the svc_deferred_req struct.
 
-Yes, but the way the bits are defined, the "pending" bit is not meaningful 
-as a synchronization event, for example - because _other_ users can't 
-trust it once they've dispatched the function. So even in the synchronous 
-run/flush_scheduled_work() kind of situation, you end up having to work 
-with the fact that nobody _else_ can rely on the data structures, and that 
-they are designed to work that way..
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-> ho-hum.  I'll take a look at turning that into something which compiles,
-> then I'll convert a few oft-used flush_scheduled_work() callers over to use
-> it.  To do this on a sensible timescale perhaps means that we should export
-> current_is_keventd(), get the howling hordes off our backs.
+### Diffstat output
+ ./include/linux/sunrpc/svc.h |    3 ++-
+ ./net/sunrpc/svcsock.c       |    6 ++++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-Well, I simply committed my work that doesn't guarantee synchronization - 
-the synchronization can now be added in kernel/workqueue.c any way we 
-want. It's better than what we used to have, for sure, in both compiling 
-and solving the practical problem, but also as a "go forward" point.
+diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
+--- .prev/include/linux/sunrpc/svc.h	2006-12-08 13:49:44.000000000 +1100
++++ ./include/linux/sunrpc/svc.h	2006-12-08 13:49:44.000000000 +1100
+@@ -289,7 +289,8 @@ static inline void svc_free_res_pages(st
+ 
+ struct svc_deferred_req {
+ 	u32			prot;	/* protocol (UDP or TCP) */
+-	struct sockaddr_in	addr;
++	struct sockaddr_storage	addr;
++	int			addrlen;
+ 	struct svc_sock		*svsk;	/* where reply must go */
+ 	__be32			daddr;	/* where reply must come from */
+ 	struct cache_deferred_req handle;
 
-			Linus
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-12-08 13:43:30.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-08 13:49:44.000000000 +1100
+@@ -1713,7 +1713,8 @@ svc_defer(struct cache_req *req)
+ 
+ 		dr->handle.owner = rqstp->rq_server;
+ 		dr->prot = rqstp->rq_prot;
+-		dr->addr = rqstp->rq_addr;
++		memcpy(&dr->addr, &rqstp->rq_addr, rqstp->rq_addrlen);
++		dr->addrlen = rqstp->rq_addrlen;
+ 		dr->daddr = rqstp->rq_daddr;
+ 		dr->argslen = rqstp->rq_arg.len >> 2;
+ 		memcpy(dr->args, rqstp->rq_arg.head[0].iov_base-skip, dr->argslen<<2);
+@@ -1737,7 +1738,8 @@ static int svc_deferred_recv(struct svc_
+ 	rqstp->rq_arg.page_len = 0;
+ 	rqstp->rq_arg.len = dr->argslen<<2;
+ 	rqstp->rq_prot        = dr->prot;
+-	rqstp->rq_addr        = dr->addr;
++	memcpy(&rqstp->rq_addr, &dr->addr, dr->addrlen);
++	rqstp->rq_addrlen     = dr->addrlen;
+ 	rqstp->rq_daddr       = dr->daddr;
+ 	rqstp->rq_respages    = rqstp->rq_pages;
+ 	return dr->argslen<<2;

@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164185AbWLHAJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S935763AbWLHJQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164185AbWLHAJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 19:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164194AbWLHAJe
+	id S935763AbWLHJQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 04:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938017AbWLHJQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 19:09:34 -0500
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:4315 "EHLO
-	tuxland.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164185AbWLHAJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 19:09:33 -0500
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-To: David Rientjes <rientjes@cs.washington.edu>
-Subject: Re: [PATCH 2.6.19] drivers/media/video/cpia2/cpia2_usb.c: Free previously allocated memory (in array elements) if kmalloc() returns NULL.
-Date: Fri, 8 Dec 2006 01:09:26 +0100
-User-Agent: KMail/1.9.5
-Cc: Amit Choudhary <amit2030@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20061206211317.b996bc34.amit2030@gmail.com> <200612080050.53895.m.kozlowski@tuxland.pl> <Pine.LNX.4.64N.0612071602540.3592@attu4.cs.washington.edu>
-In-Reply-To: <Pine.LNX.4.64N.0612071602540.3592@attu4.cs.washington.edu>
+	Fri, 8 Dec 2006 04:16:48 -0500
+Received: from enyo.dsw2k3.info ([195.71.86.239]:55934 "EHLO enyo.dsw2k3.info"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935763AbWLHJQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 04:16:47 -0500
+Message-ID: <45792D74.5000901@citd.de>
+Date: Fri, 08 Dec 2006 10:16:36 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+References: <Pine.LNX.4.44L0.0612071306180.3537-100000@iolanthe.rowland.org>	<45786E58.5070308@citd.de> <20061207154545.6eb516c4.zaitcev@redhat.com>
+In-Reply-To: <20061207154545.6eb516c4.zaitcev@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612080109.27018.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+Pete Zaitcev wrote:
+> On Thu, 07 Dec 2006 20:41:12 +0100, Matthias Schniedermeyer <ms@citd.de> wrote:
+> 
+> 
+>>>>I'm using a Bunch auf HDDs in USB-Enclosures for storing files.
+>>>>(currently 38 HDD, with a total capacity of 9,5 TB of which 8,5 TB is used)
+>>>>[....]
+>>>>This time i kept the defective files and used "vbindiff" to show me the
+>>>>difference. Strangly in EVERY case the difference is a single bit in a
+>>>>sequence of "0xff"-Bytes inside a block of varing bit-values that
+>>>>changed a "0xff" into a "0xf7".
+> 
+> 
+>>>This was almost certainly caused by hardware flaws in the USB interface 
+>>>chips of the enclosures.  There's nothing the kernel can do about it 
+>>>because the errors aren't reported; all that happens is that incorrect 
+>>>data is sent to or from the drive.
+>>
+>>So pretty much all ich can do is to pray that the errors don't corrupt
+>>the Filesystem-Metadata (XFS).
+> 
+> 
+> No, this is not all. You should buy a variety of different enclosures
+> with different chipsets (e.g. find a Freecom if you can),
 
-> > Just for future. Shorter and more readable version of your for(...) thing:
-> > 
-> > 	while (i--) {
-> > 		...
-> > 	}
-> > 
-> 
-> No, that is not equivalent.
-> 
-> You want
-> 	while (i-- >= 0) {
-> 		...
-> 	}
-> 
+That would definetly cost way to much money and time to be in any way
+"efficient".
 
-Not really. That will stop at -1 not 0.
+> and also use decent cables.
+
+I replaced all cables with "High Quality"-cables.
+But as a "Joe user" it is practically impossible to really know if the
+cables are good.
+All i can say is that the "original" cables that came with the
+enclosures appear a bit thin and the ones i bought appear much more
+thick, have gold plated contacts and have a massive plaited shielding
+IOW appear much more trustworthy. But, as i said, in the end i can't
+really know if they are better than the original ones.
+
+
+
+
+Bis denn
 
 -- 
-Regards,
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
 
-	Mariusz Kozlowski

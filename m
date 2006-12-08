@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760735AbWLHOLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760738AbWLHONN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760735AbWLHOLp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 09:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760738AbWLHOLp
+	id S1760738AbWLHONN (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 09:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760739AbWLHONM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 09:11:45 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:52434 "HELO mx0.towertech.it"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1760735AbWLHOLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 09:11:44 -0500
-Date: Fri, 8 Dec 2006 15:06:00 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [patch 2.6.19-git] RTC Kconfig sorted by type
-Message-ID: <20061208150600.151861a1@inspiron>
-In-Reply-To: <200612061652.45242.david-b@pacbell.net>
-References: <200612061652.45242.david-b@pacbell.net>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
+	Fri, 8 Dec 2006 09:13:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56745 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760738AbWLHONM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 09:13:12 -0500
+Date: Fri, 8 Dec 2006 09:13:03 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <jens.axboe@oracle.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, akpm@osdl.org, Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] slab: remove SLAB_KERNEL
+Message-ID: <20061208141303.GA13479@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jens Axboe <jens.axboe@oracle.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@osdl.org, akpm@osdl.org,
+	Christoph Lameter <clameter@sgi.com>
+References: <200612071659.kB7Gxa89031154@hera.kernel.org> <20061208120207.GA13841@redhat.com> <20061208125942.GQ23887@kernel.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208125942.GQ23887@kernel.dk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2006 16:52:44 -0800
-David Brownell <david-b@pacbell.net> wrote:
+On Fri, Dec 08, 2006 at 01:59:43PM +0100, Jens Axboe wrote:
 
-> This reorders the RTC driver menu into separate sections, splitting out
-> the SOC, I2C, and SPI support to help make the menu easier to navigate.
-> (We got some feedback a while ago that it was "a mess" and hard to make
-> sense of...)
-> 
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+ > > --- linux-2.6.19.noarch/mm/mmap.c~	2006-12-08 06:51:55.000000000 -0500
+ > > +++ linux-2.6.19.noarch/mm/mmap.c	2006-12-08 06:52:05.000000000 -0500
+ > > @@ -2226,7 +2226,7 @@ int install_special_mapping(struct mm_st
+ > >  	struct vm_area_struct *vma;
+ > >  	int err;
+ > >  
+ > > -	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
+ > > +	vma = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);
+ > >  	if (unlikely(vma == NULL))
+ > >  		return -ENOMEM;
+ > >  	memset(vma, 0, sizeof(*vma));
+ > 
+ > What kernel is that?
 
- Thanks David, I was planning to do that myself.. you saved
- me some work! :)
+Oops. My bad.   That chunk came from execshield.
 
- Acked-by: Alessandro Zummo <a.zummo@towertech.it>
--- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+		Dave

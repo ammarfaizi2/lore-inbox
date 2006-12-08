@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425573AbWLHPry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425577AbWLHPsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425573AbWLHPry (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 10:47:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425579AbWLHPry
+	id S1425577AbWLHPsu (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 10:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425580AbWLHPsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 10:47:54 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60920 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1425573AbWLHPry (ORCPT
+	Fri, 8 Dec 2006 10:48:50 -0500
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:52647 "EHLO
+	caffeine.csclub.uwaterloo.ca" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1425577AbWLHPst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 10:47:54 -0500
-Date: Fri, 8 Dec 2006 15:55:37 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: additional oom-killer tuneable worth submitting?
-Message-ID: <20061208155537.6f19b7e9@localhost.localdomain>
-In-Reply-To: <200612081819.43991.a1426z@gawab.com>
-References: <200612081658.29338.a1426z@gawab.com>
-	<20061208145605.1a8b0815@localhost.localdomain>
-	<200612081819.43991.a1426z@gawab.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+	Fri, 8 Dec 2006 10:48:49 -0500
+Date: Fri, 8 Dec 2006 10:48:48 -0500
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 64-bit app on 32-bit kernel supported?
+Message-ID: <20061208154848.GA19987@csclub.uwaterloo.ca>
+References: <20061208153606.GC11253@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208153606.GC11253@in.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What I understood from Arjan is that the problem isn't swapspace, but rather 
-> that shared-libs are implement via a COW trick, which always overcommits, no 
-> matter what.
+On Fri, Dec 08, 2006 at 09:06:06PM +0530, Srivatsa Vaddagiri wrote:
+> Somebody was asking this : "Does any 32-bit Linux kernel support running 64-bit 
+> app on top of it (in a 64-bit platform that is)?"
+> 
+> AFAIK its not supported, but wanted to make sure ..
 
-The zero overcommit layer accounts address space not pages.
+You can run 32bit programs on many 64bit kernels, but a 32bit kernel
+only runs 32bit code, since the code can't use 64bit features if the
+kernel doesn't know about them and know how to context switch without
+loosing the 64bit extensions.  As far as I know this is true of at least
+x86, hppa (not sure 64bit is supported in linux since I never worked with
+one), mips and sparc.
 
-> Are you saying there is some new no-overcommit functionality in 2.6.19, or 
-> has this been there before?
-
-Red Hat Enterprise Linux for a very long time, got merged upstream a long
-long time ago to. Then got various fixes along the way. It's old
-functionality.
-
-Alan
+--
+Len Sorensen

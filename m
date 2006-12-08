@@ -1,64 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425447AbWLHMD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424858AbWLHHDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425447AbWLHMD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425457AbWLHMCw
+	id S1424858AbWLHHDr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 02:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424859AbWLHHDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:02:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39347 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425447AbWLHMC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:02:27 -0500
-Date: Fri, 8 Dec 2006 07:02:07 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH] slab: remove SLAB_KERNEL
-Message-ID: <20061208120207.GA13841@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	torvalds@osdl.org, akpm@osdl.org,
-	Christoph Lameter <clameter@sgi.com>
-References: <200612071659.kB7Gxa89031154@hera.kernel.org>
+	Fri, 8 Dec 2006 02:03:47 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:33062 "EHLO
+	fgwmail7.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424858AbWLHHDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 02:03:46 -0500
+Date: Fri, 8 Dec 2006 16:07:08 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, clameter@engr.sgi.com, apw@shadowen.org,
+       akpm@osdl.org
+Subject: [RFC] [PATCH] virtual memmap on sparsemem v3 [3/4] static virtual
+ mem_map
+Message-Id: <20061208160708.c263a393.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200612071659.kB7Gxa89031154@hera.kernel.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 04:59:36PM +0000, Linux Kernel wrote:
- > Gitweb:     http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e94b1766097d53e6f3ccfb36c8baa562ffeda3fc
- > Commit:     e94b1766097d53e6f3ccfb36c8baa562ffeda3fc
- > Parent:     54e6ecb23951b195d02433a741c7f7cb0b796c78
- > Author:     Christoph Lameter <clameter@sgi.com>
- > AuthorDate: Wed Dec 6 20:33:17 2006 -0800
- > Committer:  Linus Torvalds <torvalds@woody.osdl.org>
- > CommitDate: Thu Dec 7 08:39:24 2006 -0800
- > 
- >     [PATCH] slab: remove SLAB_KERNEL
- >     
- >     SLAB_KERNEL is an alias of GFP_KERNEL.
- >     
- >     Signed-off-by: Christoph Lameter <clameter@sgi.com>
- >     Signed-off-by: Andrew Morton <akpm@osdl.org>
- >     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+This patch adds support for statically allocated virtual mem_map.
+(means virtual address of mem_map array is defined statically.)
+This removes reference to *(&mem_map).
 
-Missed one.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
 
---- linux-2.6.19.noarch/mm/mmap.c~	2006-12-08 06:51:55.000000000 -0500
-+++ linux-2.6.19.noarch/mm/mmap.c	2006-12-08 06:52:05.000000000 -0500
-@@ -2226,7 +2226,7 @@ int install_special_mapping(struct mm_st
- 	struct vm_area_struct *vma;
- 	int err;
+Index: devel-2.6.19/include/linux/mmzone.h
+===================================================================
+--- devel-2.6.19.orig/include/linux/mmzone.h	2006-12-08 15:04:30.000000000 +0900
++++ devel-2.6.19/include/linux/mmzone.h	2006-12-08 15:05:18.000000000 +0900
+@@ -618,8 +618,13 @@
+ #if (((BITS_PER_LONG/4) * PAGES_PER_SECTION) % PAGE_SIZE) != 0
+ #error "PAGE_SIZE/SECTION_SIZE relationship is not suitable for vmem_map"
+ #endif
++#ifdef CONFIG_SPARSEMEM_VMEMMAP_STATIC
++#include <linux/mm_types.h>
++extern struct page mem_map[];
++#else
+ extern struct page* mem_map;
+ #endif
++#endif
  
--	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-+	vma = kmem_cache_alloc(vm_area_cachep, GFP_KERNEL);
- 	if (unlikely(vma == NULL))
- 		return -ENOMEM;
- 	memset(vma, 0, sizeof(*vma));
+ static inline struct page *__section_mem_map_addr(struct mem_section *section)
+ {
+Index: devel-2.6.19/mm/Kconfig
+===================================================================
+--- devel-2.6.19.orig/mm/Kconfig	2006-12-08 15:05:10.000000000 +0900
++++ devel-2.6.19/mm/Kconfig	2006-12-08 15:05:18.000000000 +0900
+@@ -121,6 +121,10 @@
+ 	  But this consumes huge amount of virtual memory(not physical).
+ 	  This option is selectable only if your arch supports it.
+ 
++config SPARSEMEM_VMEMMAP_STATIC
++	def_bool y
++	depends on ARCH_SPARSEMEM_VMEMMAP_STATIC
++
+ # eventually, we can have this option just 'select SPARSEMEM'
+ config MEMORY_HOTPLUG
+ 	bool "Allow for memory hot-add"
+Index: devel-2.6.19/mm/memory.c
+===================================================================
+--- devel-2.6.19.orig/mm/memory.c	2006-12-08 15:03:02.000000000 +0900
++++ devel-2.6.19/mm/memory.c	2006-12-08 15:09:00.000000000 +0900
+@@ -71,7 +71,9 @@
+ 
+ #ifdef CONFIG_SPARSEMEM_VMEMMAP
+ /* for the virtual mem_map */
++#ifndef CONFIG_SPARSEMEM_VMEMMAP_STATIC
+ struct page *mem_map;
++#endif
+ EXPORT_SYMBOL(mem_map);
+ #endif
+ 
 

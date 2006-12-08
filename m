@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1426163AbWLHThl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1426167AbWLHTi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1426163AbWLHThl (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 14:37:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426167AbWLHThk
+	id S1426167AbWLHTi3 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 14:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426162AbWLHTi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 14:37:40 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:54053 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426163AbWLHThj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 14:37:39 -0500
-Date: Fri, 8 Dec 2006 11:35:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: David Howells <dhowells@redhat.com>, Christoph Lameter <clameter@sgi.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <20061208190403.GH31068@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0612081130110.3516@woody.osdl.org>
-References: <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
- <20061206190025.GC9959@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
- <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au>
- <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au>
- <20061208085634.GA25751@flint.arm.linux.org.uk> <4595.1165597017@redhat.com>
- <Pine.LNX.4.64.0612081045430.3516@woody.osdl.org> <20061208190403.GH31068@flint.arm.linux.org.uk>
+	Fri, 8 Dec 2006 14:38:29 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:58341 "EHLO
+	e33.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1426165AbWLHTi2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 14:38:28 -0500
+Date: Fri, 8 Dec 2006 13:38:25 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: [PATCH 1/2] file capabilities: don't do file caps if MNT_NOSUID
+Message-ID: <20061208193825.GC18566@sergelap.austin.ibm.com>
+References: <20061208193657.GB18566@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208193657.GB18566@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 1/2] file capabilities: don't do file caps if MNT_NOSUID
 
+A file system mounted NOSUID is likely a removable filesystem.
+Allowing file capabilities from such an fs is an easy attack
+vector, so don't honor file capabilities for a NOSUID
+filesystem.
 
-On Fri, 8 Dec 2006, Russell King wrote:
->
-> Yes you can.  Well, you can on ARM at least.  Between the load exclusive
-> you can do anything you like until you hit the store exclusive.  If you
-> haven't touched the location (with anything other than another load
-> exclusive) and no other CPU has issued a load exclusive, your store
-> exclusive succeeds.
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ security/commoncap.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Is that actually true?
+diff --git a/security/commoncap.c b/security/commoncap.c
+index ce91d9f..fde9695 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -23,6 +23,7 @@ #include <linux/netlink.h>
+ #include <linux/ptrace.h>
+ #include <linux/xattr.h>
+ #include <linux/hugetlb.h>
++#include <linux/mount.h>
+ 
+ int cap_netlink_send(struct sock *sk, struct sk_buff *skb)
+ {
+@@ -152,6 +153,9 @@ static int set_file_caps(struct linux_bi
+ 	struct inode *inode;
+ 	int err;
+ 
++	if (bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID)
++		return 0;
++
+ 	dentry = dget(bprm->file->f_dentry);
+ 	inode = dentry->d_inode;
+ 	if (!inode->i_op || !inode->i_op->getxattr) {
+-- 
+1.4.1
 
-Almost all LL/SC implementations have granularity rules, where "touch the 
-location" is not a byte-granular thing, but actually ends up being 
-something like "touch the same cachline".
-
-They also often have _other_ rules like: "the cacheline has to stay in the 
-L1 in exclusive state" etc. Which means that in a direct-mapped L1 cache, 
-you can't even load anything that might be in the same way, because it 
-would cause a cache eviction that invalidates the SC.
-
-It's possible that ARM has really strong LL/SC, but quite frankly, that 
-sounds unlikely. I've never heard of anybody ever _architecturally_ saying 
-that they support that strong requirements, even if certain micro- 
-architectures might actually support stronger semantics than the ones 
-guaranteed by the architectural rules.
-
-			Linus

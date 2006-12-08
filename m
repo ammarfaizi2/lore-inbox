@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162564AbWLGRfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425464AbWLHMvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162564AbWLGRfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 12:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162580AbWLGRfv
+	id S1425464AbWLHMvM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425487AbWLHMvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 12:35:51 -0500
-Received: from static-71-162-243-5.phlapa.fios.verizon.net ([71.162.243.5]:41884
-	"EHLO grelber.thyrsus.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1162564AbWLGRfv (ORCPT
+	Fri, 8 Dec 2006 07:51:12 -0500
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:56545 "EHLO
+	mtagate6.uk.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425464AbWLHMvL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 12:35:51 -0500
-From: Rob Landley <rob@landley.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.19 build hangs while running git for no reason...
-Date: Thu, 7 Dec 2006 12:35:40 -0500
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 07:51:11 -0500
+Date: Fri, 8 Dec 2006 14:51:07 +0200
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Arkadiusz Miskiewicz <arekm@maven.pl>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: What was in the x86 merge for .20
+Message-ID: <20061208125107.GA3545@rhun.ibm.com>
+References: <200612080401.25746.ak@suse.de> <200612081304.23230.arekm@maven.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200612071235.41252.rob@landley.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200612081304.23230.arekm@maven.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right at the start of the build:
+On Fri, Dec 08, 2006 at 01:04:23PM +0100, Arkadiusz Miskiewicz wrote:
+> On Friday 08 December 2006 04:01, Andi Kleen wrote:
+> 
+> > - Support for a Processor Data Area (PDA) on i386. This makes
+> > the code more similar to x86-64 and will allow some other
+> > optimizations in the future.
+> 
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o: In function `math_emulate':
+> (.text+0x3809): undefined reference to `_proxy_pda'
+> arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
+> (.text+0xe140): undefined reference to `_proxy_pda'
+> kernel/built-in.o: In function `sys_set_tid_address':
+> (.text+0x370b): undefined reference to `_proxy_pda'
+> kernel/built-in.o: In function `switch_uid':
+> (.text+0xcc6c): undefined reference to `_proxy_pda'
+> mm/built-in.o: In function `sys_munlock':
+> (.text+0xcaf1): undefined reference to `_proxy_pda'
+> mm/built-in.o:(.text+0xcc11): more undefined references to `_proxy_pda' follow
+> make: *** [.tmp_vmlinux1] Błąd 1
+> 
+> Something related (git tree fetched 1-2h ago) ?
 
-scripts/kconfig/conf -s arch/arm/Kconfig
-  CHK     include/linux/version.h
-  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-integrator
-  Generating include/asm-arm/mach-types.h
+Probably. Please send your .config.
 
-  CHK     include/linux/utsrelease.h
-  UPD     include/linux/utsrelease.h
-
-Where there's a one line gap the build hangs for five minutes (eating no CPU, 
-blocked one something).  I hit "enter" and it resumes again.  It does this 
-reproducibly for me.
-
-It seems to be blocked running:
-   6983 pts/3    S+     0:00 /bin/sh /usr/bin/git rev-parse --verify HEAD
-
-Which is odd because this is the release version and hasn't got .git stuff in 
-it.  I did an "rm /usr/bin/git" (I don't use it, I dunno why ubuntu decided 
-to install it) and the hang went away.  Why is the build even _calling_ git 
-on a release version?
-
-The invocation was:
-  make ARCH="${KARCH}" CROSS_COMPILE="${CROSS_TARGET}"- &&
-
-Where KARCH=arm and CROSS_TARGET is a cross compile toolchain that built a 
-working copy of uClibc.
-
-Rob
--- 
-"Perfection is reached, not when there is no longer anything to add, but
-when there is no longer anything to take away." - Antoine de Saint-Exupery
+Cheers,
+Muli

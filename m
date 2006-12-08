@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162600AbWLGR6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424739AbWLHGLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162600AbWLGR6F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 12:58:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162602AbWLGR6F
+	id S1424739AbWLHGLc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 01:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424742AbWLHGLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 12:58:05 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:50717 "EHLO smtp.osdl.org"
+	Fri, 8 Dec 2006 01:11:32 -0500
+Received: from gw.goop.org ([64.81.55.164]:59610 "EHLO mail.goop.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1162600AbWLGR6C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 12:58:02 -0500
-Date: Thu, 7 Dec 2006 09:57:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: torvalds@osdl.org, macro@linux-mips.org,
-       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
-       afleming@freescale.com, ben.collins@ubuntu.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-Message-Id: <20061207095715.0cafffb9.akpm@osdl.org>
-In-Reply-To: <457849E2.3080909@garzik.org>
-References: <20061206234942.79d6db01.akpm@osdl.org>
-	<1165125055.5320.14.camel@gullible>
-	<20061203011625.60268114.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
-	<20061205123958.497a7bd6.akpm@osdl.org>
-	<6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
-	<20061205132643.d16db23b.akpm@osdl.org>
-	<adaac22c9cu.fsf@cisco.com>
-	<20061205135753.9c3844f8.akpm@osdl.org>
-	<Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
-	<20061206075729.b2b6aa52.akpm@osdl.org>
-	<Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
-	<Pine.LNX.4.64.0612061719420.3542@woody.osdl.org>
-	<20061206224207.8a8335ee.akpm@osdl.org>
-	<9392.1165487379@redhat.com>
-	<20061207024211.be739a4a.akpm@osdl.org>
-	<457849E2.3080909@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S1424739AbWLHGLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 01:11:31 -0500
+Message-ID: <45790212.8000608@goop.org>
+Date: Thu, 07 Dec 2006 22:11:30 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+References: <20061204113051.4e90b249.akpm@osdl.org> <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com> <20061204120611.4306024e.akpm@osdl.org> <Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com> <20061204131959.bdeeee41.akpm@osdl.org> <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com> <20061204142259.3cdda664.akpm@osdl.org> <Pine.LNX.4.64.0612050754560.11213@schroedinger.engr.sgi.com> <20061205112541.2a4b7414.akpm@osdl.org> <Pine.LNX.4.64.0612051159510.18687@schroedinger.engr.sgi.com> <20061205214721.GE20614@skynet.ie> <Pine.LNX.4.64.0612051521060.20570@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612060903161.7238@skynet.skynet.ie> <Pine.LNX.4.64.0612060921230.26185@schroedinger.engr.sgi.com> <4578BE37.1010109@goop.org> <Pine.LNX.4.64.0612071817280.11503@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0612071817280.11503@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Dec 2006 12:05:38 -0500
-Jeff Garzik <jeff@garzik.org> wrote:
+Christoph Lameter wrote:
+> The same can be done using the virtual->physical mappings that exist on 
+> many platforms for the kernel address space (ia64 dynamically calculates 
+> those, x86_64 uses a page table with 2M pages for mapping the kernel).
 
-> Yes, I merged the code, but looking deeper at phy its clear I missed 
-> some things.
-> 
-> Looking into libphy's workqueue stuff, it has the following sequence:
-> 
-> 	disable interrupts
-> 	schedule_work()
-> 
-> 	... time passes ...
-> 	... workqueue routine is called ...
-> 
-> 	enable interrupts
-> 	handle interrupt
-> 
-> I really have to question if a workqueue was the best choice of 
-> direction for such a sequence.  You don't want to put off handling an 
-> interrupt, with interrupts disabled, for a potentially unbounded amount 
-> of time.
+Yes, that's basically what Xen does - there's a nonlinear mapping from
+kernel virtual to machine pages (and usermode pages are put through the
+same transformation before being mapped).
 
-That'll lock the box on UP, or if the timer fires on the current CPU?
+>  The 
+> problem is that the 1-1 mapping between physical and virtual addresses 
+> will have to be (at least partially) sacrificed which may lead to 
+> complications with DMA devices.
+>   
 
-> Maybe the best course of action is to mark it with CONFIG_BROKEN until 
-> it gets fixed.
+Yes, any driver which expects contigious kernel pages to be physically
+contigious will be sorely disappointed.  This isn't too hard to deal
+with (since such drivers are often buggy anyway, making poor assumptions
+about the relationship between physical addresses and bus addresses). 
+An IOMMU could help as well.
 
-hm, maybe.  I wonder if as a short-term palliative we could remove the
-current_is_keventd() call and drop rtnl_lock.  Or export current_is_keventd ;)
+    J

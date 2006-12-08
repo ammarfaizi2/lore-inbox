@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163540AbWLGWds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424387AbWLHEyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163540AbWLGWds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163542AbWLGWds
+	id S1424387AbWLHEyf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 23:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424381AbWLHEyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:33:48 -0500
-Received: from wx-out-0506.google.com ([66.249.82.239]:62331 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163540AbWLGWdr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:33:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gTGoFeAnrRvoHaIE0BEhzLg55rMTXF419FHICM3dOQF+bH5wiAVheQ1GXTBOISWHudl5Xl+4QGKFnMrw/lc4oQ4nA2WbZ9C2mk8Iw4PLttiQKsGodO7PCNEYXHPLNQElEDgwZXKR5td7tpTZU9pp4EVYQzZkfotqjeqEGq+qXOU=
-Message-ID: <5c49b0ed0612071433o3a77be20h9b19326bf6a70281@mail.gmail.com>
-Date: Thu, 7 Dec 2006 14:33:46 -0800
-From: "Nate Diller" <nate.diller@gmail.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: [patch] speed up single bio_vec allocation
-Cc: "Jens Axboe" <jens.axboe@oracle.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <000201c71a4a$0fa32280$ff0da8c0@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 7 Dec 2006 23:54:35 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:48822 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1424392AbWLHEye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 23:54:34 -0500
+Date: Thu, 7 Dec 2006 20:54:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
+       Jens Axboe <axboe@kernel.dk>, Dipankar <dipankar@in.ibm.com>,
+       Gautham shenoy <ego@in.ibm.com>
+Subject: Re: workqueue deadlock
+Message-Id: <20061207205407.b4e356aa.akpm@osdl.org>
+In-Reply-To: <20061208025301.GA11663@in.ibm.com>
+References: <200612061726.14587.bjorn.helgaas@hp.com>
+	<20061207105148.20410b83.akpm@osdl.org>
+	<20061207113700.dc925068.akpm@osdl.org>
+	<20061208025301.GA11663@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5c49b0ed0612071346g5bccedd5q709e5ba66808c7fc@mail.gmail.com>
-	 <000201c71a4a$0fa32280$ff0da8c0@amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/06, Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-> Nate Diller wrote on Thursday, December 07, 2006 1:46 PM
-> > the current code is straightforward and obviously correct.  you want
-> > to make the alloc/dealloc paths more complex, by special-casing for an
-> > arbitrary limit of "small" I/O, AFAICT.  of *course* you can expect
-> > less overhead when you're doing one large I/O vs. two small ones,
-> > that's the whole reason we have all this code to try to coalesce
-> > contiguous I/O, do readahead, swap page clustering, etc.  we *want*
-> > more complexity if it will get us bigger I/Os.  I don't see why we
-> > want more complexity to reduce the *inherent* penalty of doing smaller
-> > ones.
->
-> You should check out the latest proposal from Jens Axboe which treats
-> all biovec size the same and stuff it along with struct bio.  I think
-> it is a better approach than my first cut of special casing 1 segment
-> biovec.  His patch will speed up all sized I/O.
+On Fri, 8 Dec 2006 08:23:01 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
 
-i rather agree with his reservations on that, since we'd be making the
-allocator's job harder by requesting order 1 pages for all allocations
-on x86_64 large I/O patterns.  but it reduces complexity instead of
-increasing it ... can you produce some benchmarks not just for your
-workload but for one that triggers the order 1 case?  biovec-(256)
-transfers are more common than you seem to think, and if the allocator
-can't do it, that forces the bio code to fall back to 2 x biovec-128,
-which, as you indicated above, would show a real penalty.
+> On Thu, Dec 07, 2006 at 11:37:00AM -0800, Andrew Morton wrote:
+> > -static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq)
+> > +/*
+> > + * If cpu == -1 it's a single-threaded workqueue and the caller does not hold
+> > + * workqueue_mutex
+> > + */
+> > +static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq, int cpu)
+> 
+> Lets say @cpu = 4
+> 
+> >  {
+> >  	if (cwq->thread == current) {
+> >  		/*
+> >  		 * Probably keventd trying to flush its own queue. So simply run
+> >  		 * it by hand rather than deadlocking.
+> >  		 */
+> > +		if (cpu != -1)
+> > +			mutex_unlock(&workqueue_mutex);
+> 
+> Lets say we release the workqueue mutex here (events/4 is trying to
+> flush its own workqueue). Immediately another CPU takes this mutex 
+> (in CPU_DOWN_PREPARE) and brings down CPU4. In CPU_DEAD handling we now wait 
+> on events/4 thread to exit (cleanup_workqueue_thread).
+> 
+> Couldnt this wait deadlock on :
+> 
+> >  		run_workqueue(cwq);
+> 
+> > +		if (cpu != -1)
+> > +			mutex_lock(&workqueue_mutex);
+> 
+> events/4 thread itself wanting the same mutex above?
+> 
 
-NATE
+Could do, not sure.  I'm planning on converting all the locking around here
+to preempt_disable() though.
+

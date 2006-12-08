@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163490AbWLGWLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425303AbWLHJuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163490AbWLGWLa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 17:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163489AbWLGWL3
+	id S1425303AbWLHJuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 04:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425305AbWLHJuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 17:11:29 -0500
-Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:41506
-	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
-	by vger.kernel.org with ESMTP id S1163456AbWLGWL2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 17:11:28 -0500
-Date: Thu, 07 Dec 2006 14:11:40 -0800 (PST)
-Message-Id: <20061207.141140.39644636.davem@davemloft.net>
-To: dhowells@redhat.com
-Cc: James.Bottomley@SteelEye.com, akpm@osdl.org, torvalds@osdl.org,
-       davem@davemloft.com, wli@holomorphy.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than
- cmpxchg() 
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <10660.1165526163@redhat.com>
-References: <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-	<639.1165521999@redhat.com>
-	<10660.1165526163@redhat.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 04:50:46 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:44722 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425303AbWLHJup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 04:50:45 -0500
+Date: Fri, 8 Dec 2006 10:50:18 +0100 (CET)
+From: Jiri Kosina <jkosina@suse.cz>
+X-X-Sender: jikos@twin.jikos.cz
+To: Dmitry Torokhov <dtor@insightbb.com>
+cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+       Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [git pull] Input patches for 2.6.19
+In-Reply-To: <200612080157.04822.dtor@insightbb.com>
+Message-ID: <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
+References: <200612080157.04822.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-873815628-1165571418=:1665"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
-Date: Thu, 07 Dec 2006 21:16:03 +0000
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> I don't know that sparc32 can do conditional instructions for
-> example.  If we force this assumption it becomes a potential
-> limitation on the archs we can support.  OTOH, it may be that every
-> arch that supports SMP and has to emulate bitops with spinlocks also
-> supports conditional stores; but I don't know that.
+---1747641777-873815628-1165571418=:1665
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Sparc32 has normal branches but no conditional instruction execution.
+On Fri, 8 Dec 2006, Dmitry Torokhov wrote:
+
+> Hi Linus,
+> Please pull from:
+> =A0 =A0 =A0 =A0 git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.=
+git
+> or
+> =A0 =A0 =A0 =A0 master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.gi=
+t
+> to receive updates for input subsystem.
+>  b/drivers/usb/input/hid-core.c                 |    7=20
+>  b/drivers/usb/input/hid-input.c                |    4=20
+>  b/drivers/usb/input/hid.h                      |    1=20
+
+OK, this is going to break the merge from Greg's tree of generic HID=20
+layer, which was planned for today.
+
+The merge will probably emit a large .rej files, due to the large blocks=20
+of code being moved around, but it seems that most of the changes which=20
+would conflict with the merge could be trivially solved by hand.
+
+Greg, should I prepare a new version of the generic HID patches against=20
+merged Linus' + Dmitry's trees and send them to you?
+
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs
+
+---1747641777-873815628-1165571418=:1665--

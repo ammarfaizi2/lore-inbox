@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947326AbWLHVpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947354AbWLHVqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947326AbWLHVpR (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947315AbWLHVpR
+	id S1947354AbWLHVqS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 16:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947328AbWLHVqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:45:17 -0500
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:36221 "EHLO
-	sj-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947326AbWLHVpP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:45:15 -0500
-X-IronPort-AV: i="4.09,515,1157353200"; 
-   d="scan'208"; a="90020007:sNHT44315919"
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] e1000: use pcix_set_mmrbc
-X-Message-Flag: Warning: May contain useful information
-References: <20061208182241.786324000@osdl.org>
-	<20061208182500.478856000@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 08 Dec 2006 13:45:05 -0800
-In-Reply-To: <20061208182500.478856000@osdl.org> (Stephen Hemminger's message of "Fri, 08 Dec 2006 10:22:43 -0800")
-Message-ID: <adalkli6p0e.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Fri, 8 Dec 2006 16:46:18 -0500
+Received: from gw.goop.org ([64.81.55.164]:50867 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1947354AbWLHVqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 16:46:17 -0500
+Message-ID: <4579DD22.70609@goop.org>
+Date: Fri, 08 Dec 2006 13:46:10 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 08 Dec 2006 21:45:06.0975 (UTC) FILETIME=[205E22F0:01C71B12]
-Authentication-Results: sj-dkim-8; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com/sjdkim8002 verified; ); 
+To: Paul Cameron Davies <pauld@cse.unsw.EDU.AU>
+CC: Andrew Morton <akpm@osdl.org>, David Singleton <dsingleton@mvista.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Lee.Schermerhorn@hp.com
+Subject: Re: new procfs memory analysis feature
+References: <45789124.1070207@mvista.com> <20061207143611.7a2925e2.akpm@osdl.org> <Pine.LNX.4.64.0612081716440.28861@weill.orchestra.cse.unsw.EDU.AU>
+In-Reply-To: <Pine.LNX.4.64.0612081716440.28861@weill.orchestra.cse.unsw.EDU.AU>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > -        if (hw->bus_type == e1000_bus_type_pcix) {
- > -            e1000_read_pci_cfg(hw, PCIX_COMMAND_REGISTER, &pcix_cmd_word);
- > -            e1000_read_pci_cfg(hw, PCIX_STATUS_REGISTER_HI,
- > -                &pcix_stat_hi_word);
- > -            cmd_mmrbc = (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
- > -                PCIX_COMMAND_MMRBC_SHIFT;
- > -            stat_mmrbc = (pcix_stat_hi_word & PCIX_STATUS_HI_MMRBC_MASK) >>
- > -                PCIX_STATUS_HI_MMRBC_SHIFT;
- > -            if (stat_mmrbc == PCIX_STATUS_HI_MMRBC_4K)
- > -                stat_mmrbc = PCIX_STATUS_HI_MMRBC_2K;
- > -            if (cmd_mmrbc > stat_mmrbc) {
- > -                pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
- > -                pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
- > -                e1000_write_pci_cfg(hw, PCIX_COMMAND_REGISTER,
- > -                    &pcix_cmd_word);
- > -            }
- > -        }
- > +        if (hw->bus_type == e1000_bus_type_pcix)
- > +		e1000_pcix_set_mmrbc(hw, 2048);
+Paul Cameron Davies wrote:
+> The PTI gathers all the open coded iterators togethers into one place,
+> which would be a good precursor to providing generic iterators for
+> non performance critical iterations.
+>
+> We are completing the updating/enhancements to this PTI for the latest
+> kernel, to be released just prior to LCA.  This PTI is benchmarking
+> well. We also plan to release the experimental guarded page table
+> (GPT) running under this PTI.
 
-This changes the behavior of the driver.  The existing driver only
-sets MMRBC if it's bigger than min(2048, value in the status register).
-You're setting MMRBC to 2048 even if it starts out at a smaller value.
+I looked at implementing linear pagetable mappings for x86 as a way of
+getting rid of CONFIG_HIGHPTE, and to make pagetable manipulations
+generally more efficient.  I gave up on it after a while because all the
+existing pagetable accessors are not suitable for a linear pagetable,
+and I didn't want to have to introduce a pile of new pagetable
+interfaces.  Would the PTI interface be helpful for this?
 
- - R.
+Thanks,
+    J

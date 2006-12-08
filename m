@@ -1,71 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163213AbWLGTNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425438AbWLHLye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163213AbWLGTNn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 14:13:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163205AbWLGTNm
+	id S1425438AbWLHLye (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHLy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 14:13:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34416 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163204AbWLGTNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 14:13:41 -0500
-Message-ID: <457867C5.7060508@torque.net>
-Date: Thu, 07 Dec 2006 14:13:09 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: "Darrick J. Wong" <djwong@us.ibm.com>, Jeff Garzik <jeff@garzik.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH v2] libata: Simulate REPORT LUNS for ATAPI devices
-References: <4574A90E.5010801@us.ibm.com> <4574AB78.40102@garzik.org>	 <4574B004.6030606@us.ibm.com> <1165514983.4698.21.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1165514983.4698.21.camel@mulgrave.il.steeleye.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 06:54:28 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52469 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425432AbWLHLyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:54:20 -0500
+Message-Id: <200612081152.kB8BqVnS019774@shell0.pdx.osdl.net>
+Subject: [patch 09/13] io-accounting: report in procfs
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+From: akpm@osdl.org
+Date: Fri, 08 Dec 2006 03:52:31 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Mon, 2006-12-04 at 15:32 -0800, Darrick J. Wong wrote:
->> The Quantum GoVault SATAPI removable disk device returns ATA_ERR in
->> response to a REPORT LUNS packet.  If this happens to an ATAPI device
->> that is attached to a SAS controller (this is the case with sas_ata),
->> the device does not load because SCSI won't touch a "SCSI device"
->> that won't report its LUNs.  Since most ATAPI devices don't support
->> multiple LUNs anyway, we might as well fake a response like we do for
->> ATA devices.
-> 
-> Actually, there may be a standards conflict here.  SPC says that all
-> devices reporting compliance with this standard (as the inquiry data for
-> this device claims) shall support REPORT LUNS.  On the other hand, MMC
-> doesn't list REPORT LUNS in its table of mandatory commands.
+From: Andrew Morton <akpm@osdl.org>
 
-MMC-5 rev 4 section 7.1:
-"Some commands that may be implemented by MM drives are
-not described in this standard, but are found in other
-SCSI standards. For a complete list of these commands
-refer to [SPC-3]."
+Add a simple /proc/pid/io to show the IO accounting fields.
 
-Hmm, "may be implemented" yet REPORT LUNS is mandatory
-in SPC-3 (and SPC-3 is a normative reference for MMC-5).
-I guess there is wriggle room there.
-In practice, MMC diverges from SPC a lot more than other
-SCSI device type command sets (e.g. SBC and SSC).
+Maybe this shouldn't be merged in mainline - the preferred reporting channel
+is taskstats.  But given the poor state of our userspace support for
+taskstats, this is useful for developer-testing, at least.  And it improves
+the changes that the procps developers will wire it up into top(1).  Opinions
+are sought.
 
-> I'm starting to think that even if they report a SCSI compliance level
-> of 3 or greater, we still shouldn't send REPORT LUNS to devices that
-> return MMC type unless we have a white list override.
+The patch also wires up the existing IO-accounting fields.
 
-There is also SAT compliance. For the ATA command set (i.e.
-disks) sat-r09 lists REPORT LUNS and refers to SPC-3. For
-ATAPI sat-r09 is far less clear. It does recommend, for
-example, that the ATA Information VPD pages is implemented
-in the SATL for ATAPI devices.
+It's a bit racy on 32-bit machines: if process A reads process B's
+/proc/pid/io while process B is updating one of those 64-bit counters, process
+A could see an intermediate result.
 
-Doug Gilbert
+Cc: Jay Lan <jlan@sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Balbir Singh <balbir@in.ibm.com>
+Cc: Chris Sturtivant <csturtiv@sgi.com>
+Cc: Tony Ernst <tee@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: David Wright <daw@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ fs/proc/base.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff -puN fs/proc/base.c~io-accounting-report-in-procfs fs/proc/base.c
+--- a/fs/proc/base.c~io-accounting-report-in-procfs
++++ a/fs/proc/base.c
+@@ -1804,6 +1804,27 @@ static int proc_base_fill_cache(struct f
+ 				proc_base_instantiate, task, p);
+ }
+ 
++#ifdef CONFIG_TASK_IO_ACCOUNTING
++static int proc_pid_io_accounting(struct task_struct *task, char *buffer)
++{
++	return sprintf(buffer,
++			"rchar: %llu\n"
++			"wchar: %llu\n"
++			"syscr: %llu\n"
++			"syscw: %llu\n"
++			"read_bytes: %llu\n"
++			"write_bytes: %llu\n"
++			"cancelled_write_bytes: %llu\n",
++			(unsigned long long)task->rchar,
++			(unsigned long long)task->wchar,
++			(unsigned long long)task->syscr,
++			(unsigned long long)task->syscw,
++			(unsigned long long)task->ioac.read_bytes,
++			(unsigned long long)task->ioac.write_bytes,
++			(unsigned long long)task->ioac.cancelled_write_bytes);
++}
++#endif
++
+ /*
+  * Thread groups
+  */
+@@ -1855,6 +1876,9 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_FAULT_INJECTION
+ 	REG("make-it-fail", S_IRUGO|S_IWUSR, fault_inject),
+ #endif
++#ifdef CONFIG_TASK_IO_ACCOUNTING
++	INF("io",	S_IRUGO, pid_io_accounting),
++#endif
+ };
+ 
+ static int proc_tgid_base_readdir(struct file * filp,
+_

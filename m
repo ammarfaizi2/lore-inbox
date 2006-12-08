@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760795AbWLHSK6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760802AbWLHSNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760795AbWLHSK6 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 13:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760797AbWLHSK6
+	id S1760802AbWLHSNs (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 13:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760801AbWLHSNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 13:10:58 -0500
-Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:36497 "EHLO
-	outgoing1.smtp.agnat.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760795AbWLHSK5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 13:10:57 -0500
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Andi Kleen <ak@suse.de>
-Subject: Re: What was in the x86 merge for .20
-Date: Fri, 8 Dec 2006 19:10:39 +0100
-User-Agent: KMail/1.9.5
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, linux-kernel@vger.kernel.org
-References: <200612080401.25746.ak@suse.de> <200612081403.13404.arekm@maven.pl> <200612081904.33205.ak@suse.de>
-In-Reply-To: <200612081904.33205.ak@suse.de>
+	Fri, 8 Dec 2006 13:13:48 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:46990 "EHLO tmailer.gwdg.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760788AbWLHSNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 13:13:47 -0500
+Date: Fri, 8 Dec 2006 19:03:00 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 26/35] Unionfs: Privileged operations workqueue
+In-Reply-To: <20061208174306.GA22299@filer.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0612081900050.3108@yvahk01.tjqt.qr>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu>
+ <1165235471170-git-send-email-jsipek@cs.sunysb.edu>
+ <Pine.LNX.4.61.0612052020420.18570@yvahk01.tjqt.qr>
+ <20061205195013.GE2240@filer.fsl.cs.sunysb.edu> <20061206173245.GA23405@filer.fsl.cs.sunysb.edu>
+ <Pine.LNX.4.61.0612061939340.16042@yvahk01.tjqt.qr>
+ <20061208021714.GA14363@filer.fsl.cs.sunysb.edu>
+ <Pine.LNX.4.61.0612081134360.12227@yvahk01.tjqt.qr>
+ <20061208160038.GA17707@filer.fsl.cs.sunysb.edu>
+ <Pine.LNX.4.61.0612081801240.20988@yvahk01.tjqt.qr>
+ <20061208174306.GA22299@filer.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612081910.39684.arekm@maven.pl>
-X-Authenticated-Id: arekm
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 December 2006 19:04, Andi Kleen wrote:
-> > > > Something related (git tree fetched 1-2h ago) ?
-> > >
-> > > Probably. Please send your .config.
-> >
-> > #
-> > # Automatically generated make config: don't edit
-> > # Linux kernel version: 2.6.19
-> > # Fri Dec  8 11:40:15 2006
-> > #
-> > CONFIG_X86_32=y
->
-> I built your config and it builds fine here with gcc 4.1/binutils
-> 2.17.50.0.5
->
-> What compiler version do you have?
 
-binutils-2.17.50.0.8-1.i686
-gcc-4.2.0-0.20061206r119598.2.i686
-
-> _proxy_pda shouldn't be referenced at all -- it just a dummy to tell
-> the compiler about the side effects of the PDA operations.
+On Dec 8 2006 12:43, Josef Sipek wrote:
+>> On Dec 8 2006 11:00, Josef Sipek wrote:
+>> 
+>> +void __unionfs_mkdir(void *data)
+>> +{
+>> +	struct sioq_args *args = data;
+>> +	struct mkdir_args *m = &args->mkdir;
+>> +
+>> +	args->err = vfs_mkdir(m->parent, m->dentry, m->mode);
+>> +	complete(&args->comp);
+>> +}
+>> 
+>> >> The members of m (i.e. m->*) are not modified as for as __unionfs_mknod goes.
+>> >> vfs_mknod may only modify the members of m->parent (i.e. m->parent->*)
+>> > 
+>> >Yes they are. The return value is passed through a member of m.
+>> 
+>> Where - where do you see that m->parent, m->dentry or m->mode are modified?
+>> (The original submission is above.)
 >
-> -Andi
+>args->err is modified. If args is declared const, gcc complains.
 
+I never said making "args" const, but
+rather [-> http://lkml.org/lkml/2006/12/5/210 ] I said:
+
+  "Care to make that: const struct mknod_args *m = &args->mknod;?"
+
+
+	-`J'
 -- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/

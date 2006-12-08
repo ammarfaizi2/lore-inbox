@@ -1,129 +1,108 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947256AbWLHVXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947257AbWLHV12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947256AbWLHVXI (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947257AbWLHVXH
+	id S1947257AbWLHV12 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 16:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947265AbWLHV12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:23:07 -0500
-Received: from ns2.suse.de ([195.135.220.15]:34648 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947256AbWLHVXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:23:06 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: proxy_pda was Re: What was in the x86 merge for .20
-Date: Fri, 8 Dec 2006 22:22:33 +0100
-User-Agent: KMail/1.9.5
-Cc: Arkadiusz Miskiewicz <arekm@maven.pl>, linux-kernel@vger.kernel.org
-References: <200612080401.25746.ak@suse.de> <200612082206.20409.ak@suse.de> <4579D496.6080201@goop.org>
-In-Reply-To: <4579D496.6080201@goop.org>
+	Fri, 8 Dec 2006 16:27:28 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:35660 "EHLO
+	gepetto.dc.ltu.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1947257AbWLHV11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 16:27:27 -0500
+Message-ID: <4579D941.9040607@student.ltu.se>
+Date: Fri, 08 Dec 2006 22:29:37 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612082222.33673.ak@suse.de>
+To: Randy Dunlap <randy.dunlap@oracle.com>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       shaggy@austin.ibm.com
+Subject: Re: [PATCH] fs/jfs: fix error due to PF_* undeclared
+References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>	<4579B554.5010701@student.ltu.se> <20061208112330.7e8d4e88.randy.dunlap@oracle.com>
+In-Reply-To: <20061208112330.7e8d4e88.randy.dunlap@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 December 2006 22:09, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> > Looking at Arkadiusz' output file it looks like gcc 4.2 decided to CSE the
-> > address :/
-> >
-> > 	movl	$_proxy_pda+8, %edx	#, tmp65
-> >
-> > Very sad, but legitimate.
-> >   
-> 
-> Yes, that was my conclusion too.  Though in this case the code could be
-> cleaned up by cutting down on the number of uses of "current" - but
-> that's hardly a general fix.
-> 
-> > The only workaround I can think of would be to define it as a symbol
-> > (or away in vmlinux.lds.S)
-> 
-> Yes.  I was thinking about setting it in vmlinux.lds to some obviously
-> bad address so that any access will be highly visible.
-> 
-> > . Or do away with the idea of proxy_pda
-> > again.
-> >   
-> 
-> That would be very sad indeed.
+Randy Dunlap wrote:
+> On Fri, 08 Dec 2006 19:56:20 +0100 Richard Knutsson wrote:
+>
+>   
+>>   CC [M]  fs/jfs/jfs_txnmgr.o
+>> In file included from fs/jfs/jfs_txnmgr.c:49:
+>> include/linux/freezer.h: In function ‘frozen’:
+>> include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
+>> include/linux/freezer.h:9: error: ‘PF_FROZEN’ undeclared (first use in this function)
+>> <snip>
+>> fs/jfs/jfs_txnmgr.c: In function ‘freezing’:
+>> include/linux/freezer.h:18: warning: control reaches end of non-void function
+>> make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
+>> make[1]: *** [fs/jfs] Error 2
+>> make: *** [fs] Error 2
+>>
+>> Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+>>
+>> ---
+>>
+>> Guess this is the desired fix, since including linux/sched.h in linux/freezer.h
+>> make little sense.
+>>     
+>
+> Why do you say that?  freezer.h is what uses those #defined values,
+> and freezer.h is what uses struct task_struct fields as well,
+> so it needs sched.h.
+>   
+Oh, an error of thought when I read the patch 
+7dfb71030f7636a0d65200158113c37764552f93 made that statement. After more 
+checking, sched.h is apperarently included in suspend.h from swap.h so 
+the direct include of sched.h in most drivers was/is not nessecary.
 
-The trouble is when it's CSEd it actually causes worse code because
-a register is tied up. That might not be worth the advantage of having it?
+Do you agree with the patch below then? This was how I first fixed it 
+but found it strange no-one hit it before, and from there it went on... 
+Thanks for the help. (Sign it?)
+>> diff --git a/fs/jfs/jfs_txnmgr.c b/fs/jfs/jfs_txnmgr.c
+>> index d558e51..2aee0a8 100644
+>> --- a/fs/jfs/jfs_txnmgr.c
+>> +++ b/fs/jfs/jfs_txnmgr.c
+>> @@ -46,6 +46,7 @@ #include <linux/fs.h>
+>>  #include <linux/vmalloc.h>
+>>  #include <linux/smp_lock.h>
+>>  #include <linux/completion.h>
+>> +#include <linux/sched.h>
+>>  #include <linux/freezer.h>
+>>  #include <linux/module.h>
+>>  #include <linux/moduleparam.h>
+>>
+>>     
+  CC [M]  fs/jfs/jfs_txnmgr.o
+In file included from fs/jfs/jfs_txnmgr.c:49:
+include/linux/freezer.h: In function ‘frozen’:
+include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:9: error: ‘PF_FROZEN’ undeclared (first use in this function)
+<snip>
+fs/jfs/jfs_txnmgr.c: In function ‘freezing’:
+include/linux/freezer.h:18: warning: control reaches end of non-void function
+make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
+make[1]: *** [fs/jfs] Error 2
+make: *** [fs] Error 2
 
-Hmm, maybe marking it volatile would help? Arkadiusz, does the following patch
-help?
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
--Andi
+---
 
-Work around gcc 4.2 CSEing the proxy_pda
+Compile-tested only.
 
-proxy_pda doesn't exactly exist -- we just use it to describe side effects
-of the PDA manipulation to gcc. But when gcc 4.2 CSEs the address
-it generates references and worse code and the link breaks.
 
-Let's cast it to volatile and see if it that helps.
+diff --git a/include/linux/freezer.h b/include/linux/freezer.h
+index 6e05e3e..f616c0c 100644
+--- a/include/linux/freezer.h
++++ b/include/linux/freezer.h
+@@ -1,3 +1,4 @@
++#include <linux/sched.h>
+ /* Freezer declarations */
 
-TBD same for x86-64
-Signed-off-by: Andi Kleen <ak@suse.de>
+ #ifdef CONFIG_PM
 
-Index: linux/include/asm-i386/pda.h
-===================================================================
---- linux.orig/include/asm-i386/pda.h
-+++ linux/include/asm-i386/pda.h
-@@ -40,19 +40,19 @@ extern struct i386_pda _proxy_pda;
- 		switch (sizeof(_proxy_pda.field)) {			\
- 		case 1:							\
- 			asm(op "b %1,%%gs:%c2"				\
--			    : "+m" (_proxy_pda.field)			\
-+			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
- 			    :"ri" ((T__)val),				\
- 			     "i"(pda_offset(field)));			\
- 			break;						\
- 		case 2:							\
- 			asm(op "w %1,%%gs:%c2"				\
--			    : "+m" (_proxy_pda.field)			\
-+			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
- 			    :"ri" ((T__)val),				\
- 			     "i"(pda_offset(field)));			\
- 			break;						\
- 		case 4:							\
- 			asm(op "l %1,%%gs:%c2"				\
--			    : "+m" (_proxy_pda.field)			\
-+			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
- 			    :"ri" ((T__)val),				\
- 			     "i"(pda_offset(field)));			\
- 			break;						\
-@@ -63,24 +63,25 @@ extern struct i386_pda _proxy_pda;
- #define pda_from_op(op,field)						\
- 	({								\
- 		typeof(_proxy_pda.field) ret__;				\
-+		typedef typeof(_proxy_pda.field) T__;			\
- 		switch (sizeof(_proxy_pda.field)) {			\
- 		case 1:							\
- 			asm(op "b %%gs:%c1,%0"				\
- 			    : "=r" (ret__)				\
- 			    : "i" (pda_offset(field)),			\
--			      "m" (_proxy_pda.field));			\
-+			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
- 			break;						\
- 		case 2:							\
- 			asm(op "w %%gs:%c1,%0"				\
- 			    : "=r" (ret__)				\
- 			    : "i" (pda_offset(field)),			\
--			      "m" (_proxy_pda.field));			\
-+			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
- 			break;						\
- 		case 4:							\
- 			asm(op "l %%gs:%c1,%0"				\
- 			    : "=r" (ret__)				\
- 			    : "i" (pda_offset(field)),			\
--			      "m" (_proxy_pda.field));			\
-+			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
- 			break;						\
- 		default: __bad_pda_field();				\
- 		}							\
+

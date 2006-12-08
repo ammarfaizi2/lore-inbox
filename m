@@ -1,222 +1,51 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425763AbWLHRA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425909AbWLHRGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425763AbWLHRA0 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 12:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425765AbWLHRA0
+	id S1425909AbWLHRGt (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425908AbWLHRGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 12:00:26 -0500
-Received: from pat.uio.no ([129.240.10.15]:58202 "EHLO pat.uio.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425757AbWLHRAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 12:00:23 -0500
-Subject: Re: [NFS] [PATCH 002 of 13] knfsd: SUNRPC: allow creating an RPC
-	service without registering with portmapper
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1061208120158.18148@suse.de>
-References: <20061208225655.17970.patches@notabene>
-	 <1061208120158.18148@suse.de>
-Content-Type: text/plain
-Date: Fri, 08 Dec 2006 12:00:02 -0500
-Message-Id: <1165597202.5676.0.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.785, required 12,
-	autolearn=disabled, AWL 1.22, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 8 Dec 2006 12:06:48 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40851 "EHLO omx2.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1425909AbWLHRGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 12:06:45 -0500
+Date: Fri, 8 Dec 2006 09:06:00 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: David Howells <dhowells@redhat.com>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it 
+In-Reply-To: <4595.1165597017@redhat.com>
+Message-ID: <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com> 
+ <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au>
+ <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au>
+ <20061208085634.GA25751@flint.arm.linux.org.uk>  <4595.1165597017@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-08 at 23:01 +1100, NeilBrown wrote:
-> From: Chuck Lever <chuck.lever@oracle.com>
-> Sometimes we need to create an RPC service but not register it with the
-> local portmapper.  NFSv4 delegation callback, for example.
-> 
-> Change the svc_makesock() API to allow optionally creating temporary or
-> permanent sockets, optionally registering with the local portmapper, and
-> make it return the ephemeral port of the new socket.
+On Fri, 8 Dec 2006, David Howells wrote:
 
-NAK. This one is still buggy.
+> > It is the most universal atomic instruction that I know of.
+> 
+> I think TAS-type things and XCHG-type things are more common.
 
-The NFSv4 callback server should _NOT_ be registering its listening
-socket on the RPC server 'temporary' list.
+Huh? The most popular architectures are i386 x86_64 sparc ia64 etc which 
+all have one or the other form of cmpxchg (some issues with early sparc 
+and i386).
 
-Trond
+And yes the xchg was the first multiprocessor instruction and therefore 
+is also available on very old processors.
 
+> In fact I think more things have LL/SC than have CMPXCHG.
 
-> Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-> Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> 
-> ### Diffstat output
->  ./fs/lockd/svc.c                 |   26 ++++++++++++++++----------
->  ./fs/nfs/callback.c              |   20 +++++++++-----------
->  ./fs/nfsd/nfssvc.c               |    6 ++++--
->  ./include/linux/sunrpc/svcsock.h |    2 +-
->  ./net/sunrpc/svcsock.c           |    6 ++++--
->  5 files changed, 34 insertions(+), 26 deletions(-)
-> 
-> diff .prev/fs/lockd/svc.c ./fs/lockd/svc.c
-> --- .prev/fs/lockd/svc.c	2006-12-08 13:36:33.000000000 +1100
-> +++ ./fs/lockd/svc.c	2006-12-08 13:36:33.000000000 +1100
-> @@ -223,23 +223,29 @@ static int find_socket(struct svc_serv *
->  	return found;
->  }
->  
-> +/*
-> + * Make any sockets that are needed but not present.
-> + * If nlm_udpport or nlm_tcpport were set as module
-> + * options, make those sockets unconditionally
-> + */
->  static int make_socks(struct svc_serv *serv, int proto)
->  {
-> -	/* Make any sockets that are needed but not present.
-> -	 * If nlm_udpport or nlm_tcpport were set as module
-> -	 * options, make those sockets unconditionally
-> -	 */
-> -	static int		warned;
-> +	static int warned;
->  	int err = 0;
-> +
->  	if (proto == IPPROTO_UDP || nlm_udpport)
->  		if (!find_socket(serv, IPPROTO_UDP))
-> -			err = svc_makesock(serv, IPPROTO_UDP, nlm_udpport);
-> -	if (err == 0 && (proto == IPPROTO_TCP || nlm_tcpport))
-> +			err = svc_makesock(serv, IPPROTO_UDP, nlm_udpport,
-> +						SVC_SOCK_DEFAULTS);
-> +	if (err >= 0 && (proto == IPPROTO_TCP || nlm_tcpport))
->  		if (!find_socket(serv, IPPROTO_TCP))
-> -			err= svc_makesock(serv, IPPROTO_TCP, nlm_tcpport);
-> -	if (!err)
-> +			err = svc_makesock(serv, IPPROTO_TCP, nlm_tcpport,
-> +						SVC_SOCK_DEFAULTS);
-> +
-> +	if (err >= 0) {
->  		warned = 0;
-> -	else if (warned++ == 0)
-> +		err = 0;
-> +	} else if (warned++ == 0)
->  		printk(KERN_WARNING
->  		       "lockd_up: makesock failed, error=%d\n", err);
->  	return err;
-> 
-> diff .prev/fs/nfs/callback.c ./fs/nfs/callback.c
-> --- .prev/fs/nfs/callback.c	2006-12-08 13:36:33.000000000 +1100
-> +++ ./fs/nfs/callback.c	2006-12-08 13:36:33.000000000 +1100
-> @@ -106,7 +106,6 @@ static void nfs_callback_svc(struct svc_
->  int nfs_callback_up(void)
->  {
->  	struct svc_serv *serv;
-> -	struct svc_sock *svsk;
->  	int ret = 0;
->  
->  	lock_kernel();
-> @@ -119,17 +118,14 @@ int nfs_callback_up(void)
->  	ret = -ENOMEM;
->  	if (!serv)
->  		goto out_err;
-> -	/* FIXME: We don't want to register this socket with the portmapper */
-> -	ret = svc_makesock(serv, IPPROTO_TCP, nfs_callback_set_tcpport);
-> -	if (ret < 0)
-> +
-> +	ret = svc_makesock(serv, IPPROTO_TCP, nfs_callback_set_tcpport,
-> +				(SVC_SOCK_ANONYMOUS | SVC_SOCK_TEMPORARY));
-> +	if (ret <= 0)
->  		goto out_destroy;
-> -	if (!list_empty(&serv->sv_permsocks)) {
-> -		svsk = list_entry(serv->sv_permsocks.next,
-> -				struct svc_sock, sk_list);
-> -		nfs_callback_tcpport = ntohs(inet_sk(svsk->sk_sk)->sport);
-> -		dprintk ("Callback port = 0x%x\n", nfs_callback_tcpport);
-> -	} else
-> -		BUG();
-> +	nfs_callback_tcpport = ret;
-> +	dprintk("Callback port = 0x%x\n", nfs_callback_tcpport);
-> +
->  	ret = svc_create_thread(nfs_callback_svc, serv);
->  	if (ret < 0)
->  		goto out_destroy;
-> @@ -140,6 +136,8 @@ out:
->  	unlock_kernel();
->  	return ret;
->  out_destroy:
-> +	dprintk("Couldn't create callback socket or server thread; err = %d\n",
-> +		ret);
->  	svc_destroy(serv);
->  out_err:
->  	nfs_callback_info.users--;
-> 
-> diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
-> --- .prev/fs/nfsd/nfssvc.c	2006-12-08 13:36:33.000000000 +1100
-> +++ ./fs/nfsd/nfssvc.c	2006-12-08 13:36:33.000000000 +1100
-> @@ -235,7 +235,8 @@ static int nfsd_init_socks(int port)
->  
->  	error = lockd_up(IPPROTO_UDP);
->  	if (error >= 0) {
-> -		error = svc_makesock(nfsd_serv, IPPROTO_UDP, port);
-> +		error = svc_makesock(nfsd_serv, IPPROTO_UDP, port,
-> +					SVC_SOCK_DEFAULTS);
->  		if (error < 0)
->  			lockd_down();
->  	}
-> @@ -245,7 +246,8 @@ static int nfsd_init_socks(int port)
->  #ifdef CONFIG_NFSD_TCP
->  	error = lockd_up(IPPROTO_TCP);
->  	if (error >= 0) {
-> -		error = svc_makesock(nfsd_serv, IPPROTO_TCP, port);
-> +		error = svc_makesock(nfsd_serv, IPPROTO_TCP, port,
-> +					SVC_SOCK_DEFAULTS);
->  		if (error < 0)
->  			lockd_down();
->  	}
-> 
-> diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
-> --- .prev/include/linux/sunrpc/svcsock.h	2006-12-08 13:35:43.000000000 +1100
-> +++ ./include/linux/sunrpc/svcsock.h	2006-12-08 13:36:33.000000000 +1100
-> @@ -62,7 +62,7 @@ struct svc_sock {
->  /*
->   * Function prototypes.
->   */
-> -int		svc_makesock(struct svc_serv *, int, unsigned short);
-> +int		svc_makesock(struct svc_serv *, int, unsigned short, int flags);
->  void		svc_delete_socket(struct svc_sock *);
->  int		svc_recv(struct svc_rqst *, long);
->  int		svc_send(struct svc_rqst *);
-> 
-> diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
-> --- .prev/net/sunrpc/svcsock.c	2006-12-08 13:35:43.000000000 +1100
-> +++ ./net/sunrpc/svcsock.c	2006-12-08 13:36:33.000000000 +1100
-> @@ -1659,9 +1659,11 @@ svc_delete_socket(struct svc_sock *svsk)
->   * @serv: RPC server structure
->   * @protocol: transport protocol to use
->   * @port: port to use
-> + * @flags: requested socket characteristics
->   *
->   */
-> -int svc_makesock(struct svc_serv *serv, int protocol, unsigned short port)
-> +int svc_makesock(struct svc_serv *serv, int protocol, unsigned short port,
-> +			int flags)
->  {
->  	struct sockaddr_in sin = {
->  		.sin_family		= AF_INET,
-> @@ -1670,7 +1672,7 @@ int svc_makesock(struct svc_serv *serv, 
->  	};
->  
->  	dprintk("svc: creating socket proto = %d\n", protocol);
-> -	return svc_create_socket(serv, protocol, &sin, SVC_SOCK_DEFAULTS);
-> +	return svc_create_socket(serv, protocol, &sin, flags);
->  }
->  
->  /*
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys - and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> NFS maillist  -  NFS@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/nfs
-
+LL/SC can be easily used to come up with a cmpxchg equivalent.

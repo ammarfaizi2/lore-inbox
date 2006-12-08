@@ -1,106 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425449AbWLHMDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425289AbWLHJb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425449AbWLHMDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425450AbWLHMC4
+	id S1425289AbWLHJb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 04:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425290AbWLHJb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:02:56 -0500
-Received: from mx1.suse.de ([195.135.220.2]:40818 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425446AbWLHMCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:02:18 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 23:02:30 +1100
-Message-Id: <1061208120230.18220@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 008 of 13] knfsd: SUNRPC: Make rq_daddr field address-version independent
-References: <20061208225655.17970.patches@notabene>
+	Fri, 8 Dec 2006 04:31:57 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:33842 "EHLO
+	ns9.hostinglmi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425289AbWLHJb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 04:31:56 -0500
+Date: Fri, 8 Dec 2006 10:32:32 +0100
+From: DervishD <lkml@dervishd.net>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+Message-ID: <20061208093232.GA8065@DervishD>
+Mail-Followup-To: Matthias Schniedermeyer <ms@citd.de>,
+	linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+References: <45773DD2.10201@citd.de> <20061207221015.GA342@DervishD> <45789C43.9020109@citd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <45789C43.9020109@citd.de>
+User-Agent: Mutt/1.4.2.2i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Matthias :)
 
-From: Chuck Lever <chuck.lever@oracle.com>
+ * Matthias Schniedermeyer <ms@citd.de> dixit:
+> >  * Matthias Schniedermeyer <ms@citd.de> dixit:
+> > 
+> >>Today i copied a few files back and checked them against the stored
+> >>MD5 sums and 5 files of 86 (each about 700 MB) had errors. So i
+> >>copied the 5 files again. 4 of the files were OK after that and
+> >>coping the last file the third time also resulted in the correct
+> >>MD5.
+> > 
+> > I had more or less the same issue a week or two ago. I performed
+> > lots of tests and only by replacing the USB2.0 PCI card, the USB
+> > cable and the power supply of the usb-hdd adapter got the
+> > problem solved.
+> > 
+> The 38 HDDs are in 38 enclosures, so each has it's own power supply. I
+> have used different cables and i replaced the USB-Controller once.
+> 
+> So it can't be a single faulty component. Except when the computer
+> itself would be the culprit.
 
-The rq_daddr field must support larger addresses.
+    In my case, the same applied: the problem didn't seem to be a single
+faulty component, but a combination. Since I finally wasn't able to
+check in another computer where I could carry tests, or check under
+windows in the same machine, I don't know if the problem was a faulty
+device driver, a faulty motherboard, RAM problems (although memtest said
+my RAM was OK), etc.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Aurelien Charbon <aurelien.charbon@ext.bull.net>
-Signed-off-by: Neil Brown <neilb@suse.de>
+> >     The best advice I can give you, from my limited experience with the
+> > problem, is: replace the cable. This minimizes the chance of corrupted
+> > data getting into the adapter. If that doesn't solve the problem, try
+> > removing any unconnected cable that is plugged into the USB card.
+> 
+> Hmmm. That's the only thing that i currently may be doing wrong.
+> I have a 1,5 Meter and a 4,5 Meter cable connected to the USB-Controller
+> and i only use of them depending on where the HDD is placed in my room,
+> the other one is dangling unconnected.
 
-### Diffstat output
- ./include/linux/sunrpc/svc.h |   15 +++++++++++----
- ./net/sunrpc/svcsock.c       |    4 ++--
- 2 files changed, 13 insertions(+), 6 deletions(-)
+    I don't know why the heck this was causing problems, since any
+electric noise that could be picked from the dangling cable shouldn't
+affect neither the card nor the other USB ports, but...
 
-diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
---- .prev/include/linux/sunrpc/svc.h	2006-12-08 13:55:35.000000000 +1100
-+++ ./include/linux/sunrpc/svc.h	2006-12-08 13:57:52.000000000 +1100
-@@ -11,6 +11,7 @@
- #define SUNRPC_SVC_H
- 
- #include <linux/in.h>
-+#include <linux/in6.h>
- #include <linux/sunrpc/types.h>
- #include <linux/sunrpc/xdr.h>
- #include <linux/sunrpc/auth.h>
-@@ -188,7 +189,13 @@ static inline void svc_putu32(struct kve
- 	iov->iov_len += sizeof(__be32);
- }
- 
--	
-+union svc_addr_u {
-+    struct in_addr	addr;
-+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-+    struct in6_addr	addr6;
-+#endif
-+};
-+
- /*
-  * The context of a single thread, including the request currently being
-  * processed.
-@@ -224,8 +231,8 @@ struct svc_rqst {
- 	unsigned short
- 				rq_secure  : 1;	/* secure port */
- 
--
--	__be32			rq_daddr;	/* dest addr of request - reply from here */
-+	union svc_addr_u	rq_daddr;	/* dest addr of request - 
-+						 * reply from here */
- 
- 	void *			rq_argp;	/* decoded arguments */
- 	void *			rq_resp;	/* xdr'd results */
-@@ -292,7 +299,7 @@ struct svc_deferred_req {
- 	struct sockaddr_storage	addr;
- 	int			addrlen;
- 	struct svc_sock		*svsk;	/* where reply must go */
--	__be32			daddr;	/* where reply must come from */
-+	union svc_addr_u	daddr;	/* where reply must come from */
- 	struct cache_deferred_req handle;
- 	int			argslen;
- 	__be32			args[0];
+    Raúl Núñez de Arenas Coronado
 
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-12-08 13:55:35.000000000 +1100
-+++ ./net/sunrpc/svcsock.c	2006-12-08 13:57:20.000000000 +1100
-@@ -476,7 +476,7 @@ svc_sendto(struct svc_rqst *rqstp, struc
- 		cmh->cmsg_level = SOL_IP;
- 		cmh->cmsg_type = IP_PKTINFO;
- 		pki->ipi_ifindex = 0;
--		pki->ipi_spec_dst.s_addr = rqstp->rq_daddr;
-+		pki->ipi_spec_dst.s_addr = rqstp->rq_daddr.addr.s_addr;
- 
- 		if (sock_sendmsg(sock, &msg, 0) < 0)
- 			goto out;
-@@ -747,7 +747,7 @@ svc_udp_recvfrom(struct svc_rqst *rqstp)
- 	sin->sin_family = AF_INET;
- 	sin->sin_port = skb->h.uh->source;
- 	sin->sin_addr.s_addr = skb->nh.iph->saddr;
--	rqstp->rq_daddr = skb->nh.iph->daddr;
-+	rqstp->rq_daddr.addr.s_addr = skb->nh.iph->daddr;
- 
- 	if (skb_is_nonlinear(skb)) {
- 		/* we have to copy */
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+It's my PC and I'll cry if I want to... RAmen!

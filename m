@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947424AbWLHWEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947429AbWLHWI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947424AbWLHWEp (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 17:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947425AbWLHWEp
+	id S1947429AbWLHWI7 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 17:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947430AbWLHWI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 17:04:45 -0500
-Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:40118 "EHLO
-	outgoing1.smtp.agnat.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947424AbWLHWEo convert rfc822-to-8bit (ORCPT
+	Fri, 8 Dec 2006 17:08:59 -0500
+Received: from web36608.mail.mud.yahoo.com ([209.191.85.25]:40238 "HELO
+	web36608.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1947425AbWLHWI6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 17:04:44 -0500
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Andi Kleen <ak@suse.de>
-Subject: Re: proxy_pda was Re: What was in the x86 merge for .20
-Date: Fri, 8 Dec 2006 23:04:19 +0100
-User-Agent: KMail/1.9.5
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
-References: <200612080401.25746.ak@suse.de> <4579D496.6080201@goop.org> <200612082222.33673.ak@suse.de>
-In-Reply-To: <200612082222.33673.ak@suse.de>
+	Fri, 8 Dec 2006 17:08:58 -0500
+Message-ID: <20061208220857.35002.qmail@web36608.mail.mud.yahoo.com>
+X-YMail-OSG: S.pRdyIVM1k1Ms_SVRAwNQr7jB3ekumhL9D.vORvKwH.i97CmrGPJYGN06j1wrPHZAI.UE1VAavGKQ3FRmK7VBLXl0F9eIMgXbw_c0pz0s4Di.W5.ORW9cktSKhJL07m7ZNrUeQLjjU-
+X-RocketYMMF: rancidfat
+Date: Fri, 8 Dec 2006 14:08:57 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 0/2] file capabilities: two bugfixes
+To: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Casey Schaufler <casey@schaufler-ca.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20061208211626.GA30754@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612082304.19371.arekm@maven.pl>
-X-Authenticated-Id: arekm
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 December 2006 22:22, Andi Kleen wrote:
 
-> The trouble is when it's CSEd it actually causes worse code because
-> a register is tied up. That might not be worth the advantage of having it?
->
-> Hmm, maybe marking it volatile would help? Arkadiusz, does the following
-> patch help?
+--- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
 
-Unfortunately - no.
+> Quoting Casey Schaufler (casey@schaufler-ca.com):
+> > 
+> > --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> > 
+> > > ...
+> > > The other is that root can lose capabilities by
+> > > executing files with
+> > > only some capabilities set.  The next two
+> patches
+> > > change these
+> > > behaviors.
+> > 
+> > It was the intention of the POSIX group that
+> > capabilities be independent of uid. I would
+> > argue that the old bevavior was correct, that
+> > a program marked to lose a capability ought
+> > to even if the uid is 0.
+> 
+> Agreed, and if SECURE_NOROOT is set, that is what
+> happens.
+> But by default SECURE_NOROOT is not set, in which
+> case linux's
+> implementation of capabilities behaves differently
+> for root.
+> 
+> Without this latest patch, with SECURE_NOROOT not
+> set, what was
+> actually happening was that the kernel behaved as
+> though
+> SECURE_NOROOT was not set so long as there was no
+> security.capability xattr, and always behaved as
+> though
+> SECURE_NOROOT was set if there was an xattr.  That's
+> inconsistent
+> and confusing behavior.
+> 
+> The worst part is that root can get around running
+> the code
+> with limited caps by just copying the file and
+> running the
+> copy.  So it adds no security benefit, and adds an
+> inconsistency/complication which could cause
+> security risks.
 
-  LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `dump_stack':
-(.text+0x36a7): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o: In function `math_emulate':
-(.text+0x3910): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o: In function `smp_error_interrupt':
-(.text+0xe093): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
-(.text+0xe16d): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
-(.text+0xe184): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o:(.init.text+0x268a): more undefined references to 
-`_proxy_pda' follow
-make: *** [.tmp_vmlinux1] B³±d 1
-
-.i, .S offlist.
-
-> -Andi
+OK, no worries then.
 
 
--- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+Casey Schaufler
+casey@schaufler-ca.com

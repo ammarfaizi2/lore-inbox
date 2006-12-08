@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425610AbWLHQk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425608AbWLHQkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425610AbWLHQk0 (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425609AbWLHQk0
+	id S1425608AbWLHQkn (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425614AbWLHQkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:40:26 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:36754 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425611AbWLHQkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:40:25 -0500
-Date: Fri, 8 Dec 2006 17:38:47 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-cc: linux-kernel@vger.kernel.org, kernel-discuss@handhelds.org
-Subject: Re: parallel boot device initialisation (kernel-space not userspace)
-In-Reply-To: <4758137481lkcl@lkcl.net>
-Message-ID: <Pine.LNX.4.64.0612081737510.1665@twin.jikos.cz>
-References: <4758137481lkcl@lkcl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Dec 2006 11:40:43 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:39087 "EHLO
+	saraswathi.solana.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1425613AbWLHQkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 11:40:42 -0500
+Date: Fri, 8 Dec 2006 11:36:21 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: torvalds <torvalds@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] uml:
+Message-ID: <20061208163621.GB5944@ccure.user-mode-linux.org>
+References: <1165573234.32332.15.camel@twins>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1165573234.32332.15.camel@twins>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2006, Luke Kenneth Casson Leighton wrote:
+On Fri, Dec 08, 2006 at 11:20:34AM +0100, Peter Zijlstra wrote:
+> 
+> fixup the work on stack and exit scope trouble by placing the work_struct in
+> the uml_net_private data.
+> 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-> I Have A Great Idea(tm) and would like to describe it concisely to see 
-> if anyone likes it and hopefully hasn't thought of it before so i'm not 
-> consuming people's time. The idea is: parallel device initialisation of 
-> built-in modules, to reduce kernel boot time.
-
-Have you looked at CONFIG_PCI_MULTITHREAD_PROBE which is already present 
-in recent kernels?
+Acked-by: Jeff Dike <jdike@addtoit.com>
 
 -- 
-Jiri Kosina
+Work email - jdike at linux dot intel dot com

@@ -1,152 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425436AbWLHLy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1426042AbWLHR0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425436AbWLHLy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHLxx
+	id S1426042AbWLHR0L (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426041AbWLHR0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:53:53 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:52404 "EHLO smtp.osdl.org"
+	Fri, 8 Dec 2006 12:26:10 -0500
+Received: from tmailer.gwdg.de ([134.76.10.23]:54154 "EHLO tmailer.gwdg.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1425428AbWLHLxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:53:18 -0500
-Message-Id: <200612081152.kB8BqZ08019786@shell0.pdx.osdl.net>
-Subject: [patch 13/13] io-accounting: add to getdelays
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
-       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
-       tee@sgi.com
-From: akpm@osdl.org
-Date: Fri, 08 Dec 2006 03:52:35 -0800
+	id S1426042AbWLHR0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 12:26:08 -0500
+Date: Fri, 8 Dec 2006 18:23:50 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: divy@chelsio.com
+cc: jeff@garzik.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/10] cxgb3 - HW access routines - part 1
+In-Reply-To: <200612080325.kB83PvDs008504@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0612081811340.20988@yvahk01.tjqt.qr>
+References: <200612080325.kB83PvDs008504@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
 
-Wire up the IO accounting into getdelays.c.
+On Dec 7 2006 19:25, divy@chelsio.com wrote:
+>+void t3_set_reg_field(struct adapter *adapter, unsigned int addr, u32 mask,
+>+		      u32 val)
+>+{
+>+	u32 v = t3_read_reg(adapter, addr) & ~mask;
+>+
+>+	t3_write_reg(adapter, addr, v | val);
+>+	(void)t3_read_reg(adapter, addr);	/* flush */
+>+}
 
-Usage:
+Drop casts to void. (Also elsewhere)
 
-To display I/O stats for each exitting task:
+>+int t3_mc7_bd_read(struct mc7 *mc7, unsigned int start, unsigned int n,
+>+		   u64 * buf)
+>+{
+>+	static int shift[] = { 0, 0, 16, 24 };
+>+	static int step[] = { 0, 32, 16, 8 };
 
-vmm:/home/akpm> ./getdelays -m0,1,2,3 -i -l
-cpumask 0 maskset 1
-printing IO accounting
-listen forever
-rm: read=8192, write=0, cancelled_write=0
-cvs: read=733184, write=4255744, cancelled_write=4096
-make: read=217088, write=0, cancelled_write=0
-cc1: read=4263936, write=12288, cancelled_write=0
-as: read=811008, write=8192, cancelled_write=0
-gcc: read=323584, write=0, cancelled_write=12288
-cc1: read=0, write=8192, cancelled_write=0
-as: read=4096, write=4096, cancelled_write=0
-gcc: read=16384, write=0, cancelled_write=4096
-as: read=4096, write=4096, cancelled_write=0
-gcc: read=16384, write=0, cancelled_write=8192
-ld: read=1011712, write=16384, cancelled_write=0
-collect2: read=626688, write=0, cancelled_write=0
-gcc: read=204800, write=0, cancelled_write=0
-cc1: read=0, write=8192, cancelled_write=0
-as: read=4096, write=4096, cancelled_write=0
-gcc: read=16384, write=0, cancelled_write=8192
-ld: read=8192, write=16384, cancelled_write=0
-collect2: read=49152, write=0, cancelled_write=0
-gcc: read=0, write=0, cancelled_write=0
-cc1: read=0, write=4096, cancelled_write=0
-ld: read=4096, write=12288, cancelled_write=0
-collect2: read=49152, write=0, cancelled_write=0
-gcc: read=0, write=0, cancelled_write=0
+Unless these are modified during operation of this driver, make it const.
+
+>+/*
+>+ * Partial EEPROM Vital Product Data structure.  Includes only the ID and
+>+ * VPD-R sections.
+>+ */
+>+struct t3_vpd {
+>+	u8 id_tag;
+>+	u8 id_len[2];
+>+	u8 id_data[16];
+>+	u8 vpdr_tag;
+>+	u8 vpdr_len[2];
+>+	 VPD_ENTRY(pn, 16);	/* part number */
+>+	 VPD_ENTRY(ec, 16);	/* EC level */
+>+	 VPD_ENTRY(sn, 16);	/* serial number */
+
+s/^\t /\t/;
+
+>+static int get_vpd_params(struct adapter *adapter, struct vpd_params *p)
+>+{
+>+	int i, addr, ret;
+>+	struct t3_vpd vpd;
+>+
+>+	/*
+>+	 * Card information is normally at VPD_BASE but some early cards had
+>+	 * it at 0.
+>+	 */
+>+	ret = t3_seeprom_read(adapter, VPD_BASE, (u32 *) & vpd);
+>+	if (ret)
+>+		return ret;
+>+	addr = vpd.id_tag == 0x82 ? VPD_BASE : 0;
+>+
+>+	for (i = 0; i < sizeof(vpd); i += 4) {
+>+		ret = t3_seeprom_read(adapter, addr + i,
+>+				      (u32 *) ((u8 *) & vpd + i));
+
+Randy Dunlap just submitted an updated CodingStyle - in short: &vpd -
+you may want to take a look at it later on.
+
+>+static int sf1_read(struct adapter *adapter, unsigned int byte_cnt, int cont,
+>+		    u32 * valp)
+                         ^
+
+>+int t3_load_fw(struct adapter *adapter, const u8 * fw_data, unsigned int size)
+>+{
+>+	u32 csum;
+>+	unsigned int i;
+>+	const u32 *p = (const u32 *)fw_data;
+>+	int ret, addr, fw_sector = FW_FLASH_BOOT_ADDR >> 16;
+>+
+>+	if (size & 3)
+>+		return -EINVAL;
+>+	if (size > FW_VERS_ADDR + 8 - FW_FLASH_BOOT_ADDR)
+>+		return -EFBIG;
+>+
+>+	for (csum = 0, i = 0; i < size / sizeof(csum); i++)
+>+		csum += ntohl(p[i]);
+
+Does this checksum have bear resemblance to the IPv4 checksum?
+
+>+	if (csum != 0xffffffff) {
+>+		CH_ERR("%s: corrupted firmware image, checksum %u\n",
+>+		       adapter->name, csum);
+>+		return -EINVAL;
+>+	}
+>+
+>+	ret = t3_flash_erase_sectors(adapter, fw_sector, fw_sector);
+>+	if (ret)
+>+		goto out;
+>+
+>+	size -= 8;		/* trim off version and checksum */
+>+	for (addr = FW_FLASH_BOOT_ADDR; size;) {
+>+		unsigned int chunk_size = min(size, 256U);
+
+No need for the U.
+
+>+static void pci_intr_handler(struct adapter *adapter)
+>+{
+>+	static struct intr_info pcix1_intr_info[] = {
+>+		{F_MSTDETPARERR, "PCI master detected parity error", -1, 1},
+>+		{F_SIGTARABT, "PCI signaled target abort", -1, 1},
+
+constify if possible (also elsewhere)
 
 
-To display I/O stats for a particular presently-running task:
-
-vmm:/home/akpm> ./getdelays -i -p $(pidof crond)
-printing IO accounting
-crond: read=61440, write=0, cancelled_write=0
 
 
-Cc: Jay Lan <jlan@sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Balbir Singh <balbir@in.ibm.com>
-Cc: Chris Sturtivant <csturtiv@sgi.com>
-Cc: Tony Ernst <tee@sgi.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: David Wright <daw@sgi.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- Documentation/accounting/getdelays.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
-
-diff -puN Documentation/accounting/getdelays.c~io-accounting-add-to-getdelays Documentation/accounting/getdelays.c
---- a/Documentation/accounting/getdelays.c~io-accounting-add-to-getdelays
-+++ a/Documentation/accounting/getdelays.c
-@@ -48,6 +48,7 @@ int rcvbufsz;
- char name[100];
- int dbg;
- int print_delays;
-+int print_io_accounting;
- __u64 stime, utime;
- 
- #define PRINTF(fmt, arg...) {			\
-@@ -195,6 +196,15 @@ void print_delayacct(struct taskstats *t
- 	       "count", "delay total", t->swapin_count, t->swapin_delay_total);
- }
- 
-+void print_ioacct(struct taskstats *t)
-+{
-+	printf("%s: read=%llu, write=%llu, cancelled_write=%llu\n",
-+		t->ac_comm,
-+		(unsigned long long)t->read_bytes,
-+		(unsigned long long)t->write_bytes,
-+		(unsigned long long)t->cancelled_write_bytes);
-+}
-+
- int main(int argc, char *argv[])
- {
- 	int c, rc, rep_len, aggr_len, len2, cmd_type;
-@@ -217,7 +227,7 @@ int main(int argc, char *argv[])
- 	struct msgtemplate msg;
- 
- 	while (1) {
--		c = getopt(argc, argv, "dw:r:m:t:p:v:l");
-+		c = getopt(argc, argv, "diw:r:m:t:p:v:l");
- 		if (c < 0)
- 			break;
- 
-@@ -226,6 +236,10 @@ int main(int argc, char *argv[])
- 			printf("print delayacct stats ON\n");
- 			print_delays = 1;
- 			break;
-+		case 'i':
-+			printf("printing IO accounting\n");
-+			print_io_accounting = 1;
-+			break;
- 		case 'w':
- 			strncpy(logfile, optarg, MAX_FILENAME);
- 			printf("write to file %s\n", logfile);
-@@ -247,14 +261,12 @@ int main(int argc, char *argv[])
- 			if (!tid)
- 				err(1, "Invalid tgid\n");
- 			cmd_type = TASKSTATS_CMD_ATTR_TGID;
--			print_delays = 1;
- 			break;
- 		case 'p':
- 			tid = atoi(optarg);
- 			if (!tid)
- 				err(1, "Invalid pid\n");
- 			cmd_type = TASKSTATS_CMD_ATTR_PID;
--			print_delays = 1;
- 			break;
- 		case 'v':
- 			printf("debug on\n");
-@@ -367,6 +379,8 @@ int main(int argc, char *argv[])
- 						count++;
- 						if (print_delays)
- 							print_delayacct((struct taskstats *) NLA_DATA(na));
-+						if (print_io_accounting)
-+							print_ioacct((struct taskstats *) NLA_DATA(na));
- 						if (fd) {
- 							if (write(fd, NLA_DATA(na), na->nla_len) < 0) {
- 								err(1,"write error\n");
-_
+	-`J'
+-- 

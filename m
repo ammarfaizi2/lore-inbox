@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425454AbWLHMFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424755AbWLHGRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425454AbWLHMFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425469AbWLHMEm
+	id S1424755AbWLHGRI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 01:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424760AbWLHGRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:04:42 -0500
-Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:48402 "EHLO
-	outgoing1.smtp.agnat.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425454AbWLHMEh convert rfc822-to-8bit (ORCPT
+	Fri, 8 Dec 2006 01:17:07 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:49552 "EHLO
+	rgminet01.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424745AbWLHGRD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:04:37 -0500
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Andi Kleen <ak@suse.de>
-Subject: Re: What was in the x86 merge for .20
-Date: Fri, 8 Dec 2006 13:04:23 +0100
-User-Agent: KMail/1.9.5
-Cc: linux-kernel@vger.kernel.org
-References: <200612080401.25746.ak@suse.de>
-In-Reply-To: <200612080401.25746.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200612081304.23230.arekm@maven.pl>
-X-Authenticated-Id: arekm
+	Fri, 8 Dec 2006 01:17:03 -0500
+Date: Thu, 7 Dec 2006 22:13:43 -0800
+From: Randy Dunlap <randy.dunlap@oracle.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] freezer.h uses task_struct fields
+Message-Id: <20061207221343.82271a53.randy.dunlap@oracle.com>
+Organization: Oracle Linux Eng.
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 December 2006 04:01, Andi Kleen wrote:
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-> - Support for a Processor Data Area (PDA) on i386. This makes
-> the code more similar to x86-64 and will allow some other
-> optimizations in the future.
+freezer.h uses task_struct fields so it should include sched.h.
 
-  LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `math_emulate':
-(.text+0x3809): undefined reference to `_proxy_pda'
-arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
-(.text+0xe140): undefined reference to `_proxy_pda'
-kernel/built-in.o: In function `sys_set_tid_address':
-(.text+0x370b): undefined reference to `_proxy_pda'
-kernel/built-in.o: In function `switch_uid':
-(.text+0xcc6c): undefined reference to `_proxy_pda'
-mm/built-in.o: In function `sys_munlock':
-(.text+0xcaf1): undefined reference to `_proxy_pda'
-mm/built-in.o:(.text+0xcc11): more undefined references to `_proxy_pda' follow
-make: *** [.tmp_vmlinux1] B³±d 1
+  CC [M]  fs/jfs/jfs_txnmgr.o
+In file included from fs/jfs/jfs_txnmgr.c:49:
+include/linux/freezer.h: In function 'frozen':
+include/linux/freezer.h:9: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:9: error: 'PF_FROZEN' undeclared (first use in this function)
+include/linux/freezer.h:9: error: (Each undeclared identifier is reported only once
+include/linux/freezer.h:9: error: for each function it appears in.)
+include/linux/freezer.h: In function 'freezing':
+include/linux/freezer.h:17: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:17: error: 'PF_FREEZE' undeclared (first use in this function)
+include/linux/freezer.h: In function 'freeze':
+include/linux/freezer.h:26: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:26: error: 'PF_FREEZE' undeclared (first use in this function)
+include/linux/freezer.h: In function 'do_not_freeze':
+include/linux/freezer.h:34: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:34: error: 'PF_FREEZE' undeclared (first use in this function)
+include/linux/freezer.h: In function 'thaw_process':
+include/linux/freezer.h:43: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:43: error: 'PF_FROZEN' undeclared (first use in this function)
+include/linux/freezer.h:44: warning: implicit declaration of function 'wake_up_process'
+include/linux/freezer.h: In function 'frozen_process':
+include/linux/freezer.h:55: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:55: error: dereferencing pointer to incomplete type
+include/linux/freezer.h:55: error: 'PF_FREEZE' undeclared (first use in this function)
+include/linux/freezer.h:55: error: 'PF_FROZEN' undeclared (first use in this function)
+fs/jfs/jfs_txnmgr.c: In function 'freezing':
+include/linux/freezer.h:18: warning: control reaches end of non-void function
+make[2]: *** [fs/jfs/jfs_txnmgr.o] Error 1
 
-Something related (git tree fetched 1-2h ago) ?
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+---
+ include/linux/freezer.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-> -Andi
+--- linux-2.6.19-git11.orig/include/linux/freezer.h
++++ linux-2.6.19-git11/include/linux/freezer.h
+@@ -1,5 +1,7 @@
+ /* Freezer declarations */
+ 
++#include <linux/sched.h>
++
+ #ifdef CONFIG_PM
+ /*
+  * Check if a process has been frozen
 
--- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+
+---

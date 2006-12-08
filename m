@@ -1,98 +1,162 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1759218AbWLIGxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S933843AbWLIGyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1759218AbWLIGxb (ORCPT <rfc822;w@1wt.eu>);
-	Sat, 9 Dec 2006 01:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1759225AbWLIGxb
+	id S933843AbWLIGyN (ORCPT <rfc822;w@1wt.eu>);
+	Sat, 9 Dec 2006 01:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S933840AbWLIGyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Dec 2006 01:53:31 -0500
-Received: from smtp108.sbc.mail.mud.yahoo.com ([68.142.198.207]:44527 "HELO
-	smtp108.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1759218AbWLIGxa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Dec 2006 01:53:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:X-YMail-OSG:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ARu5pkq2JJWryRPg2KZjfgYCw+gifXtbZaCsBXZID9UEwxp/RzrNOg8Oj4w4rzAMiD+pnjVhYda05lsgGGzS+Q83NF/bSypEGPZyg3QpHageqxIRtZT/PpltSFtOLdonXGT8trTsHZSt7HVxS6j5GqkVgXNd3LB3uF0Ql6yKyjk=  ;
-X-YMail-OSG: o5h6aYYVM1nGq7zo2PXz2PWqG1AKfzPCLNq8kKHpfhcVs7LwIuOQ.PZSxlTLGQrCGxCEC_fq8xNhcvDAQwJNoDf2FpmBN7qQrHtLlFKELi4uh32gpuPqM.zrsUtIahp3x7qprYP4dOxBv3PJjQiqS0JNeW6k.UdjHWvdNybaM1VmuJJE21c5eOUkgS9F
-From: David Brownell <david-b@pacbell.net>
-To: "Marco d'Itri" <md@Linux.IT>
-Subject: Re: [patch 2.6.19-rc6] fix hotplug for legacy platform drivers
-Date: Fri, 8 Dec 2006 22:03:37 -0800
-User-Agent: KMail/1.7.1
-Cc: Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>,
-       linux-kernel@vger.kernel.org
-References: <20061122135948.GA7888@bongo.bofh.it> <200612051603.09649.david-b@pacbell.net> <20061206235621.GB25272@bongo.bofh.it>
-In-Reply-To: <20061206235621.GB25272@bongo.bofh.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200612082203.38799.david-b@pacbell.net>
+	Sat, 9 Dec 2006 01:54:13 -0500
+Received: from gotimeevents.com ([216.18.1.209]:49911 "EHLO curly.nips.cc"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S933843AbWLIGyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Dec 2006 01:54:12 -0500
+Subject: [PATCH] usbhid quirks for macbook(pro) (was: Re: Fwd: Re:
+	[linux-usb-devel] usb initialization order (usbhid	vs. appletouch))
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Joseph Fannin <jhf@columbus.rr.com>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, Oliver Neukum <oliver@neukum.name>,
+       Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20061030101202.GB9265@nineveh.rivenstone.net>
+References: <1161856438.5214.2.camel@no.intranet.wo.rk>
+	 <1162054576.3769.15.camel@localhost> <200610282043.59106.oliver@neukum.org>
+	 <200610282055.29423.oliver@neukum.name> <1162067266.4044.2.camel@localhost>
+	 <20061030101202.GB9265@nineveh.rivenstone.net>
+Content-Type: multipart/mixed; boundary="=-L1ld1z07kIAtAZ0ajh47"
+Date: Fri, 08 Dec 2006 18:19:27 +0100
+Message-Id: <1165598367.19187.18.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 December 2006 3:56 pm, Marco d'Itri wrote:
-> On Dec 06, David Brownell <david-b@pacbell.net> wrote:
+
+--=-L1ld1z07kIAtAZ0ajh47
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Mon, 2006-10-30 at 05:12 -0500, Joseph Fannin wrote:
+> On Sat, Oct 28, 2006 at 10:27:46PM +0200, Soeren Sonnenburg wrote:
+> > On Sat, 2006-10-28 at 20:55 +0200, Oliver Neukum wrote:
+> > > > From: Sergey Vlasov <vsu@altlinux.ru>
+> > > > Subject: usbhid: Add HID_QUIRK_IGNORE_MOUSE flag
+> > > >
+> > > > Some HID devices by Apple have both keyboard and mouse interfaces; the
+> > > > keyboard interface is handled by usbhid, but the mouse (really
+> > > > touchpad) interface must be handled by the separate 'appletouch'
+> > > > driver.  Using HID_QUIRK_IGNORE will make hiddev ignore both
+> > > > interfaces, therefore a new quirk flag to ignore only the mouse
+> > > > interface is required.
 > 
-> > > Please explain in more details how hotplugging would be broken, possibly
-> > > with examples.
-> >
-> > First, for reference, I refer to hotplugging using the trivial ASH scripts
-> > from [1], updated by removing no-longer-needed special cases for platform_bus
-> > (that original logic didn't work sometimes) and pcmcia.  See the (short)
->
-> I.e. a quick hack which has never been used by any distribution.
+>     The appletouch driver doesn't work properly on the MacBook
+> (non-Pro).  It claims the device, and sort of functions, but is
+> basically unusable.
+> 
+>     If this goes in, and blacklists the MacBook touchpad too, Macbook
+> users will be unhappy.  I think the MacBook and the -Pro use the same
+> IDs, though, which makes a problem for this patch until appletouch is
+> fixed on MacBooks.
 
-Not a "quick hack" at all; boiling down hotplug + coldplug to something
-that tight got a fair degree of thought back then.  It takes work to get
-things to be small enough to use on very small Linux-based systems.
+ok, this patch was now in the mactel svn repository since about a month
+and I've never ever seen a report about it failing. Also I asked on the
+mailinglist for anyone having problems with that and got no answer,
+execpt Joseph, the problem you have been seeing might have been that
+one:
 
-As for "never been used" ... you can't know that, given that embedded
-distros are normally custom built.  I'm certain that I submitted it to
-buildroot back then.  So a lot of folk building custom distros have had
-access to that, and I'd be surprised if it was "never" used.
+http://www.mail-archive.com/mactel-linux-devel@lists.sourceforge.net/msg00129.html
+
+I would therefore hope it can be applied and thus appear in .20. I am
+attaching the version that is now in mactel-svn (which also includes
+geyser4 support).
+
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+
+--=-L1ld1z07kIAtAZ0ajh47
+Content-Disposition: attachment; filename=usbhid.patch
+Content-Type: text/x-patch; name=usbhid.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdU5yIGxpbnV4LTIuNi4xOS9kcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jIGxpbnV4
+LTIuNi4xOS1tYWN0ZWwvZHJpdmVycy91c2IvaW5wdXQvaGlkLWNvcmUuYw0KLS0tIGxpbnV4LTIu
+Ni4xOS9kcml2ZXJzL3VzYi9pbnB1dC9oaWQtY29yZS5jCTIwMDYtMTEtMjkgMjI6NTc6MzcuMDAw
+MDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjE5LW1hY3RlbC9kcml2ZXJzL3VzYi9pbnB1dC9o
+aWQtY29yZS5jCTIwMDYtMTEtMzAgMDk6MjA6NDkuMDAwMDAwMDAwICswMTAwDQpAQCAtMTYyNyw2
+ICsxNjI3LDE2IEBADQogDQogI2RlZmluZSBVU0JfVkVORE9SX0lEX0FQUExFCQkweDA1YWMNCiAj
+ZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfTUlHSFRZTU9VU0UJMHgwMzA0DQorI2RlZmluZSBV
+U0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9BTlNJCTB4MDIxNA0KKyNkZWZpbmUgVVNCX0RFVklD
+RV9JRF9BUFBMRV9HRVlTRVJfSVNPCTB4MDIxNQ0KKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBM
+RV9HRVlTRVJfSklTCTB4MDIxNg0KKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIz
+X0FOU0kJMHgwMjE3DQorI2RlZmluZSBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjNfSVNPCQkw
+eDAyMTgNCisjZGVmaW5lIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSM19KSVMJCTB4MDIxOQ0K
+KyNkZWZpbmUgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVI0X0FOU0kJMHgwMjFBDQorI2RlZmlu
+ZSBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUjRfSVNPCQkweDAyMUINCisjZGVmaW5lIFVTQl9E
+RVZJQ0VfSURfQVBQTEVfR0VZU0VSNF9KSVMJCTB4MDIxQw0KKyNkZWZpbmUgVVNCX0RFVklDRV9J
+RF9BUFBMRV9JUgkJMHg4MjQwDQogDQogI2RlZmluZSBVU0JfVkVORE9SX0lEX0NIRVJSWQkJMHgw
+NDZhDQogI2RlZmluZSBVU0JfREVWSUNFX0lEX0NIRVJSWV9DWU1PVElPTgkweDAwMjMNCkBAIC0x
+Nzk0LDE3ICsxODA0LDIxIEBADQogDQogCXsgVVNCX1ZFTkRPUl9JRF9DSEVSUlksIFVTQl9ERVZJ
+Q0VfSURfQ0hFUlJZX0NZTU9USU9OLCBISURfUVVJUktfQ1lNT1RJT04gfSwNCiANCi0JeyBVU0Jf
+VkVORE9SX0lEX0FQUExFLCAweDAyMEUsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0sDQot
+CXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMjBGLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19G
+TiB9LA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDIxNCwgSElEX1FVSVJLX1BPV0VSQk9P
+S19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAyMTUsIEhJRF9RVUlSS19Q
+T1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX1BPV0VSQk9PS19JU09fS0VZQk9BUkR9LA0KLQl7
+IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDIxNiwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4g
+fSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAyMTcsIEhJRF9RVUlSS19QT1dFUkJPT0tf
+SEFTX0ZOIH0sDQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMjE4LCBISURfUVVJUktfUE9X
+RVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19QT1dFUkJPT0tfSVNPX0tFWUJPQVJEfSwNCi0JeyBV
+U0JfVkVORE9SX0lEX0FQUExFLCAweDAyMTksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIH0s
+DQotCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMjFCLCBISURfUVVJUktfUE9XRVJCT09LX0hB
+U19GTiB9LA0KLQl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIDB4MDMwQSwgSElEX1FVSVJLX1BPV0VS
+Qk9PS19IQVNfRk4gfSwNCi0JeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAzMEIsIEhJRF9RVUlS
+S19QT1dFUkJPT0tfSEFTX0ZOIH0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklD
+RV9JRF9BUFBMRV9HRVlTRVJfQU5TSSwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURf
+UVVJUktfSUdOT1JFX01PVVNFfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNF
+X0lEX0FQUExFX0dFWVNFUl9JU08sIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FV
+SVJLX0lHTk9SRV9NT1VTRSB8IEhJRF9RVUlSS19QT1dFUkJPT0tfSVNPX0tFWUJPQVJEfSwNCisJ
+eyBVU0JfVkVORE9SX0lEX0FQUExFLCBVU0JfREVWSUNFX0lEX0FQUExFX0dFWVNFUl9KSVMsIEhJ
+RF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsg
+VVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIzX0FOU0ksIEhJ
+RF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsg
+VVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNCX0RFVklDRV9JRF9BUFBMRV9HRVlTRVIzX0lTTywgSElE
+X1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JFX01PVVNFIHwgSElEX1FV
+SVJLX1BPV0VSQk9PS19JU09fS0VZQk9BUkR9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVT
+Ql9ERVZJQ0VfSURfQVBQTEVfR0VZU0VSM19KSVMsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZO
+IHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNC
+X0RFVklDRV9JRF9BUFBMRV9HRVlTRVI0X0FOU0ksIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZO
+IHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgVVNC
+X0RFVklDRV9JRF9BUFBMRV9HRVlTRVI0X0lTTywgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4g
+fCBISURfUVVJUktfSUdOT1JFX01PVVNFIHwgSElEX1FVSVJLX1BPV0VSQk9PS19JU09fS0VZQk9B
+UkR9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURfQVBQTEVfR0VZU0VS
+NF9KSVMsIEhJRF9RVUlSS19QT1dFUkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VT
+RX0sDQorCXsgVVNCX1ZFTkRPUl9JRF9BUFBMRSwgMHgwMjBFLCBISURfUVVJUktfUE9XRVJCT09L
+X0hBU19GTiB8IEhJRF9RVUlSS19JR05PUkVfTU9VU0V9LA0KKwl7IFVTQl9WRU5ET1JfSURfQVBQ
+TEUsIDB4MDIwRiwgSElEX1FVSVJLX1BPV0VSQk9PS19IQVNfRk4gfCBISURfUVVJUktfSUdOT1JF
+X01PVVNFfSwNCisJeyBVU0JfVkVORE9SX0lEX0FQUExFLCAweDAzMEEsIEhJRF9RVUlSS19QT1dF
+UkJPT0tfSEFTX0ZOIHwgSElEX1FVSVJLX0lHTk9SRV9NT1VTRX0sDQorCXsgVVNCX1ZFTkRPUl9J
+RF9BUFBMRSwgMHgwMzBCLCBISURfUVVJUktfUE9XRVJCT09LX0hBU19GTiB8IEhJRF9RVUlSS19J
+R05PUkVfTU9VU0V9LA0KKw0KKwl7IFVTQl9WRU5ET1JfSURfQVBQTEUsIFVTQl9ERVZJQ0VfSURf
+QVBQTEVfSVIsIEhJRF9RVUlSS19JR05PUkUgfSwNCiANCiAJeyBVU0JfVkVORE9SX0lEX1BBTkpJ
+VCwgMHgwMDAxLCBISURfUVVJUktfSUdOT1JFIH0sDQogCXsgVVNCX1ZFTkRPUl9JRF9QQU5KSVQs
+IDB4MDAwMiwgSElEX1FVSVJLX0lHTk9SRSB9LA0KQEAgLTE5MDMsNiArMTkxNywxMCBAQA0KIAlp
+ZiAocXVpcmtzICYgSElEX1FVSVJLX0lHTk9SRSkNCiAJCXJldHVybiBOVUxMOw0KIA0KKwlpZiAo
+KHF1aXJrcyAmIEhJRF9RVUlSS19JR05PUkVfTU9VU0UpICYmDQorCQkoaW50ZXJmYWNlLT5kZXNj
+LmJJbnRlcmZhY2VQcm90b2NvbCA9PSBVU0JfSU5URVJGQUNFX1BST1RPQ09MX01PVVNFKSkNCisJ
+CQlyZXR1cm4gTlVMTDsNCisNCiAJaWYgKHVzYl9nZXRfZXh0cmFfZGVzY3JpcHRvcihpbnRlcmZh
+Y2UsIEhJRF9EVF9ISUQsICZoZGVzYykgJiYNCiAJICAgICghaW50ZXJmYWNlLT5kZXNjLmJOdW1F
+bmRwb2ludHMgfHwNCiAJICAgICB1c2JfZ2V0X2V4dHJhX2Rlc2NyaXB0b3IoJmludGVyZmFjZS0+
+ZW5kcG9pbnRbMF0sIEhJRF9EVF9ISUQsICZoZGVzYykpKSB7DQpkaWZmIC11TnIgbGludXgtMi42
+LjE5L2RyaXZlcnMvdXNiL2lucHV0L2hpZC5oIGxpbnV4LTIuNi4xOS1tYWN0ZWwvZHJpdmVycy91
+c2IvaW5wdXQvaGlkLmgNCi0tLSBsaW51eC0yLjYuMTkvZHJpdmVycy91c2IvaW5wdXQvaGlkLmgJ
+MjAwNi0xMS0yOSAyMjo1NzozNy4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjYuMTktbWFj
+dGVsL2RyaXZlcnMvdXNiL2lucHV0L2hpZC5oCTIwMDYtMTEtMzAgMDk6MjE6MTguMDAwMDAwMDAw
+ICswMTAwDQpAQCAtMjYxLDYgKzI2MSw3IEBADQogI2RlZmluZSBISURfUVVJUktfUE9XRVJCT09L
+X0ZOX09OCQkweDAwMDAyMDAwDQogI2RlZmluZSBISURfUVVJUktfSU5WRVJUX0hXSEVFTAkJCTB4
+MDAwMDQwMDANCiAjZGVmaW5lIEhJRF9RVUlSS19QT1dFUkJPT0tfSVNPX0tFWUJPQVJECTB4MDAw
+MDgwMDANCisjZGVmaW5lIEhJRF9RVUlSS19JR05PUkVfTU9VU0UJCQkweDAwMDEwMDAwDQogDQog
+LyoNCiAgKiBUaGlzIGlzIHRoZSBnbG9iYWwgZW52aXJvbm1lbnQgb2YgdGhlIHBhcnNlci4gVGhp
+cyBpbmZvcm1hdGlvbiBpcw0K
 
 
-> And anyway some kernel component is supposed to provide the aliases
-> pointing from the $MODALIAS values to the drivers, so modprobe $MODALIAS
-> would still work.
-
-A driver named "foo" is usually named "foo.ko"; aliases not needed, or
-even desirable.  The kernel source tree has done that for years.
-
-
-> > Second, note that you're asking me to construct a straw man for you and
-> > then break it down, since nobody arguing with the $SUBJECT patch has ever
-> > provided a complete counter-proposal (much less respond to the points
-> > I've made about legacy driver bugginess -- which is suggestive).
->
-> I am asking what is the point for a module to provide its own name in
-> $MODALIAS.
-
-As I pointed out previously, more than once:  it's providing a driver
-identifier there, all it needs is to be understood by "modprobe".
-
-
-> $MODALIAS is available only *after* the module has been loaded by
-> something else.
-
-You seem like you're being intentionally dense here ... that's rarely
-true, which is what makes hotplug-driven driver loading work.
-
-The $MODALIAS thing is passed to userspace after creation of driver
-model device nodes.  (Contrary to what you said above.  It's related
-to add_device calls, not module loading.)
-
-Normal driver modules do not create those nodes ... and $MODALIAS is used
-as a driver identifier so that /sbin/hotplug can "modprobe $MODALIAS" to
-load the right driver module.
-
-But *legacy* driver modules are not well behaved; they create those nodes
-themselves, rather than letting bus infrastructure do so.  Which is why
-they are not hotpluggable.  The $SUBJECT patch just turns off $MODALIAS
-based hotplugging for those ill-mannered drivers.
-
-- Dave
-
+--=-L1ld1z07kIAtAZ0ajh47--

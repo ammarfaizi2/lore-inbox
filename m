@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425607AbWLHQcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760764AbWLHQeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425607AbWLHQcN (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425600AbWLHQcM
+	id S1760764AbWLHQeL (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760769AbWLHQeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:32:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:3388 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760764AbWLHQcL (ORCPT
+	Fri, 8 Dec 2006 11:34:11 -0500
+Received: from pra.praprr.net ([217.147.94.29]:56753 "EHLO lkcl.net"
+	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
+	id S1760764AbWLHQeK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:32:11 -0500
-Date: Fri, 8 Dec 2006 16:31:27 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061208163127.GD31068@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	akpm@osdl.org, linux-arm-kernel@lists.arm.linux.org.uk,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com> <20061206190025.GC9959@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com> <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 8 Dec 2006 11:34:10 -0500
+From: "Luke Kenneth Casson Leighton" <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org, kernel-discuss@handhelds.org
+Cc: lkcl@lkcl.net
+Subject: parallel boot device initialisation (kernel-space not userspace)
+Date: Fri, 8 Dec 2006 16:34:02 +0000 (UTC)
+X-Real-Sender: lkcl@lkcl.net
+X-Postman-SMTP-Auth: 0,0
+X-Mailer: postman 2.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <4758137481lkcl@lkcl.net>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: lkcl@lkcl.net
+X-SA-Exim-Scanned: No (on lkcl.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 08:06:23AM -0800, Christoph Lameter wrote:
-> On Fri, 8 Dec 2006, Russell King wrote:
-> 
-> > I'm trying to suggest a better implementation for atomic ops rather
-> > than just bowing to this x86-centric "cmpxchg is the best, everyone
-> > must implement it" mentality.
-> 
-> cmpxchg is the simplest solution to realize many other atomic operations 
-> and its widely available on a wide variety of platforms. It is the most 
-> universal atomic instruction that I know of. Other atomic operations may 
-> be more efficient but certainly cmpxchg is the most universal.
-> 
-> Having multiple instructions with restrictions of what can be done in 
-> between just complicates the use and seems to be arch specific. I have not 
-> seen a better solution. Are you really advocating the weirdly complex 
-> ll/sc be adopted by other architectures?
+hello darlings,
 
-You're advocating cmpxchg is adopted by all architectures.  It isn't
-available on many architectures, and those which it can be requires
-unnecessarily complicated coding.
+well i actually followed the FAQ http://www.tux.org/lkml/#s3-17
+on this one, and got to try 'do a search' bit, and when searches
+for 'parallel boot initialisation' came up with discussions about
+parallel ports, and articles on ibm developerworks about sysvinit,
+i made the decision to post this anyway.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+I Have A Great Idea(tm) and would like to describe it concisely
+to see if anyone likes it and hopefully hasn't thought of it before
+so i'm not consuming people's time.
+
+The idea is: parallel device initialisation of built-in modules, to
+reduce kernel boot time.
+
+parallel initialisation is taken care of in user-space by modifying
+udev coldplug scripts to watch subsets of the /sys/class/*/event
+files disappearing, and by using things like depinit, startpar for
+suse, gentoo's parallel startup system (inspired by depinit)
+
+
+.. but is there _anything_ like this actually in the linux kernel
+itself?
+
+i don't believe so, and the reasoning i base that on is that when
+i boot my devices (be it a pc or be it an HTC smartphone device
+i'm helping to reverse-engineer) the kernel startup log is always
+the same, and that multiple messages coming from the same device
+(printks) are always grouped together.
+
+i realise that that's slightly faulty reasoning: it could
+be that device initialisation is so regular like clockwork that
+the output is always the same...
+
+anyway.
+
+now i have to try some things, as an experiment.  and i would
+like to start with asic3 platform_device, because it contains
+dynamically-created lists of child devices and so is a model
+example of the kind of dependency-hierarchy that's needed.
+
+so, i seek people's advice on this rather naive approach: simply
+set up a workqueue and call schedule_work() on each of the asic3
+child platform_devices.
+
+does that sound reasonable, or is it just too simplistic?
+
+l.
+
+p.s. see last few lines of asic3_probe, here, where 
+platform_add_devices() is called:
+
+http://handhelds.org/cgi-bin/cvsweb.cgi/linux/kernel26/drivers/soc/asic3_base.c?rev=1.28&content-type=text/x-cvsweb-markup
+
+p.p.s. whilst my 1.2ghz fujitsu laptop (debian/unstable) with depinit
+takes only 20 seconds to get from 1st process being run (/sbin/depinit)
+to xorg running, it takes ANOTHER 20 seconds to get from kernel boot
+up to 1st process (/sbin/depinit) !  that's with a standard debian
+kernel - hence my interest in cutting that time to ... well...
+under 5 seconds would be nice.
+

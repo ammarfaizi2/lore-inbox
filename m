@@ -1,122 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163232AbWLGTh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424168AbWLHD2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163232AbWLGTh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 14:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163238AbWLGTh2
+	id S1424168AbWLHD2z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 22:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424125AbWLHD2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 14:37:28 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:59577 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163232AbWLGTh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 14:37:27 -0500
-Date: Thu, 7 Dec 2006 11:37:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Myron Stowe <myron.stowe@hp.com>,
-       Jens Axboe <axboe@kernel.dk>
-Subject: Re: workqueue deadlock
-Message-Id: <20061207113700.dc925068.akpm@osdl.org>
-In-Reply-To: <20061207105148.20410b83.akpm@osdl.org>
-References: <200612061726.14587.bjorn.helgaas@hp.com>
-	<20061207105148.20410b83.akpm@osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 22:28:54 -0500
+Received: from stargate.chelsio.com ([12.22.49.110]:24295 "EHLO
+	stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424194AbWLHD2a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 22:28:30 -0500
+From: Divy Le Ray <None@chelsio.com>
+Subject: [PATCH 10/10] cxgb3 - build files and versioning
+Date: Thu, 07 Dec 2006 19:28:19 -0800
+To: jeff@garzik.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <20061208032819.8593.73008.stgit@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006 10:51:48 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+From: Divy Le Ray <divy@chelsio.com>
 
-> +		if (!cpu_online(cpu))	/* oops, CPU got unplugged */
-> +			goto bail;
+This patch implements build files and versioning for the 
+Chelsio T3 network adapter's driver.
 
-hm, actually we can pull the same trick with flush_scheduled_work(). 
-Should fix quite a few things...
-
-
-
-From: Andrew Morton <akpm@osdl.org>
-
-We have a class of deadlocks where the flush_scheduled_work() caller can get
-stuck waiting for a work to complete, where that work wants to take
-workqueue_mutex for some reason.
-
-Fix this by not holding workqueue_mutex when waiting for a workqueue to flush.
-
-The patch assumes that the per-cpu workqueue won't get freed up while there's
-a task waiting on cpu_workqueue_struct.work_done.  If that can happen,
-run_workqueue() would crash anyway.
-
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Gautham shenoy <ego@in.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Divy Le Ray <divy@chelsio.com>
 ---
 
- kernel/workqueue.c |   22 +++++++++++++++++++---
- 1 files changed, 19 insertions(+), 3 deletions(-)
+ drivers/net/Kconfig         |   18 ++++++++++++++++++
+ drivers/net/Makefile        |    1 +
+ drivers/net/cxgb3/Makefile  |    8 ++++++++
+ drivers/net/cxgb3/version.h |   24 ++++++++++++++++++++++++
+ 4 files changed, 51 insertions(+), 0 deletions(-)
 
-diff -puN kernel/workqueue.c~workqueue-dont-hold-workqueue_mutex-in-flush_scheduled_work kernel/workqueue.c
---- a/kernel/workqueue.c~workqueue-dont-hold-workqueue_mutex-in-flush_scheduled_work
-+++ a/kernel/workqueue.c
-@@ -325,14 +325,22 @@ static int worker_thread(void *__cwq)
- 	return 0;
- }
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 9de0eed..7fdf4ca 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -2384,6 +2384,24 @@ config CHELSIO_T1_1G
+           Enables support for Chelsio's gigabit Ethernet PCI cards.  If you
+           are using only 10G cards say 'N' here.
  
--static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq)
-+/*
-+ * If cpu == -1 it's a single-threaded workqueue and the caller does not hold
-+ * workqueue_mutex
-+ */
-+static void flush_cpu_workqueue(struct cpu_workqueue_struct *cwq, int cpu)
- {
- 	if (cwq->thread == current) {
- 		/*
- 		 * Probably keventd trying to flush its own queue. So simply run
- 		 * it by hand rather than deadlocking.
- 		 */
-+		if (cpu != -1)
-+			mutex_unlock(&workqueue_mutex);
- 		run_workqueue(cwq);
-+		if (cpu != -1)
-+			mutex_lock(&workqueue_mutex);
- 	} else {
- 		DEFINE_WAIT(wait);
- 		long sequence_needed;
-@@ -344,7 +352,14 @@ static void flush_cpu_workqueue(struct c
- 			prepare_to_wait(&cwq->work_done, &wait,
- 					TASK_UNINTERRUPTIBLE);
- 			spin_unlock_irq(&cwq->lock);
-+			if (cpu != -1)
-+				mutex_unlock(&workqueue_mutex);
- 			schedule();
-+			if (cpu != -1) {
-+				mutex_lock(&workqueue_mutex);
-+				if (!cpu_online(cpu))
-+					return; /* oops, CPU unplugged */
-+			}
- 			spin_lock_irq(&cwq->lock);
- 		}
- 		finish_wait(&cwq->work_done, &wait);
-@@ -373,13 +388,14 @@ void fastcall flush_workqueue(struct wor
- 
- 	if (is_single_threaded(wq)) {
- 		/* Always use first cpu's area. */
--		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
-+		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu),
-+					-1);
- 	} else {
- 		int cpu;
- 
- 		mutex_lock(&workqueue_mutex);
- 		for_each_online_cpu(cpu)
--			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
-+			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu), cpu);
- 		mutex_unlock(&workqueue_mutex);
- 	}
- }
-_
-
++config CHELSIO_T3
++        tristate "Chelsio Communications T3 10Gb Ethernet support"
++        depends on PCI
++        help
++          This driver supports Chelsio T3-based gigabit and 10Gb Ethernet
++          adapters.
++
++          For general information about Chelsio and our products, visit
++          our website at <http://www.chelsio.com>.
++
++          For customer support, please visit our customer support page at
++          <http://www.chelsio.com/support.htm>.
++
++          Please send feedback to <linux-bugs@chelsio.com>.
++
++          To compile this driver as a module, choose M here: the module
++          will be called cxgb3.
++
+ config EHEA
+ 	tristate "eHEA Ethernet support"
+ 	depends on IBMEBUS
+diff --git a/drivers/net/Makefile b/drivers/net/Makefile
+index 4c0d4e5..5c66643 100644
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -6,6 +6,7 @@ obj-$(CONFIG_E1000) += e1000/
+ obj-$(CONFIG_IBM_EMAC) += ibm_emac/
+ obj-$(CONFIG_IXGB) += ixgb/
+ obj-$(CONFIG_CHELSIO_T1) += chelsio/
++obj-$(CONFIG_CHELSIO_T3) += cxgb3/
+ obj-$(CONFIG_EHEA) += ehea/
+ obj-$(CONFIG_BONDING) += bonding/
+ obj-$(CONFIG_GIANFAR) += gianfar_driver.o
+diff --git a/drivers/net/cxgb3/Makefile b/drivers/net/cxgb3/Makefile
+new file mode 100755
+index 0000000..3434679
+--- /dev/null
++++ b/drivers/net/cxgb3/Makefile
+@@ -0,0 +1,8 @@
++#
++# Chelsio T3 driver
++#
++
++obj-$(CONFIG_CHELSIO_T3) += cxgb3.o
++
++cxgb3-objs := cxgb3_main.o ael1002.o vsc8211.o t3_hw.o mc5.o \
++	      xgmac.o sge.o l2t.o cxgb3_offload.o
+diff --git a/drivers/net/cxgb3/version.h b/drivers/net/cxgb3/version.h
+new file mode 100755
+index 0000000..5a29475
+--- /dev/null
++++ b/drivers/net/cxgb3/version.h
+@@ -0,0 +1,24 @@
++/*****************************************************************************
++ *                                                                           *
++ * File:                                                                     *
++ *  version.h                                                                *
++ *                                                                           *
++ * Description:                                                              *
++ *  Chelsio driver version defines.                                          *
++ *                                                                           *
++ * Copyright (c) 2003 - 2006 Chelsio Communications, Inc.                    *
++ * All rights reserved.                                                      *
++ *                                                                           *
++ * Maintainers: maintainers@chelsio.com                                      *
++ *                                                                           *
++ * http://www.chelsio.com                                                    *
++ *                                                                           *
++ ****************************************************************************/
++/* $Date: 2006/10/31 18:57:51 $ $RCSfile: version.h,v $ $Revision: 1.3 $ */
++#ifndef __CHELSIO_VERSION_H
++#define __CHELSIO_VERSION_H
++#define DRV_DESC "Chelsio T3 Network Driver"
++#define DRV_NAME "cxgb3"
++// Driver version
++#define DRV_VERSION "1.0"
++#endif				//__CHELSIO_VERSION_H

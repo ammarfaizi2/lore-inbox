@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1947544AbWLIABP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1761299AbWLIACl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947544AbWLIABP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 19:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947540AbWLIABB
+	id S1761299AbWLIACl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 19:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947549AbWLIACI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 19:01:01 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37577 "EHLO
+	Fri, 8 Dec 2006 19:02:08 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37656 "EHLO
 	sous-sol.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761295AbWLIAAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 19:00:19 -0500
-Message-Id: <20061209000207.057219000@sous-sol.org>
+	id S1947540AbWLIABu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 19:01:50 -0500
+Message-Id: <20061209000303.850378000@sous-sol.org>
 References: <20061208235751.890503000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Fri, 08 Dec 2006 15:58:15 -0800
+Date: Fri, 08 Dec 2006 15:58:20 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -21,81 +21,56 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>,
        Michael Krufky <mkrufky@linuxtv.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, mingo@elte.hu, ak@suse.de
-Subject: [patch 24/32] add bottom_half.h
-Content-Disposition: inline; filename=add-bottom_half.h.patch
+       alan@lxorguk.ukuu.org.uk, zach@vmware.com, mingo@elte.hu,
+       caglar@pardus.org.tr
+Subject: [patch 29/32] softirq: remove BUG_ONs which can incorrectly trigger
+Content-Disposition: inline; filename=softirq-remove-bug_ons-which-can-incorrectly-trigger.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-From: Andrew Morton <akpm@osdl.org>
+From: Zachary Amsden <zach@vmware.com>
 
-With CONFIG_SMP=n:
+It is possible to have tasklets get scheduled before softirqd has had a chance
+to spawn on all CPUs.  This is totally harmless; after success during action
+CPU_UP_PREPARE, action CPU_ONLINE will be called, which immediately wakes
+softirqd on the appropriate CPU to process the already pending tasklets.  So
+there is no danger of having a missed wakeup for any tasklets that were
+already pending.
 
-drivers/input/ff-memless.c:384: warning: implicit declaration of function 'local_bh_disable'
-drivers/input/ff-memless.c:393: warning: implicit declaration of function 'local_bh_enable'
+In particular, i386 is affected by this during startup, and is visible when
+using a very large initrd; during the time it takes for the initrd to be
+decompressed, a timer IRQ can come in and schedule RCU callbacks.  It is also
+possible that resending of a hardware IRQ via a softirq triggers the same bug.
 
-Really linux/spinlock.h should include linux/interrupt.h.  But interrupt.h
-includes sched.h which will need spinlock.h.
+Because of different timing conditions, this shows up in all emulators and
+virtual machines tested, including Xen, VMware, Virtual PC, and Qemu.  It is
+also possible to trigger on native hardware with a large enough initrd,
+although I don't have a reliable case demonstrating that.
 
-So the patch breaks the _bh declarations out into a separate header and
-includes it in bothj interrupt.h and spinlock.h.
-
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Andi Kleen <ak@suse.de>
-Cc: <stable@kernel.org>
+Signed-off-by: Zachary Amsden <zach@vmware.com>
+Cc: <caglar@pardus.org.tr>
 Cc: Ingo Molnar <mingo@elte.hu>
+Cc: <stable@kernel.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
 
- include/linux/bottom_half.h |    5 +++++
- include/linux/interrupt.h   |    7 +------
- include/linux/spinlock.h    |    1 +
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ kernel/softirq.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- /dev/null
-+++ linux-2.6.19/include/linux/bottom_half.h
-@@ -0,0 +1,5 @@
-+extern void local_bh_disable(void);
-+extern void __local_bh_enable(void);
-+extern void _local_bh_enable(void);
-+extern void local_bh_enable(void);
-+extern void local_bh_enable_ip(unsigned long ip);
---- linux-2.6.19.orig/include/linux/interrupt.h
-+++ linux-2.6.19/include/linux/interrupt.h
-@@ -11,6 +11,7 @@
- #include <linux/hardirq.h>
- #include <linux/sched.h>
- #include <linux/irqflags.h>
-+#include <linux/bottom_half.h>
- #include <asm/atomic.h>
- #include <asm/ptrace.h>
- #include <asm/system.h>
-@@ -217,12 +218,6 @@ static inline void __deprecated save_and
- #define save_and_cli(x)	save_and_cli(&x)
- #endif /* CONFIG_SMP */
+--- linux-2.6.19.orig/kernel/softirq.c
++++ linux-2.6.19/kernel/softirq.c
+@@ -574,8 +574,6 @@ static int __cpuinit cpu_callback(struct
  
--extern void local_bh_disable(void);
--extern void __local_bh_enable(void);
--extern void _local_bh_enable(void);
--extern void local_bh_enable(void);
--extern void local_bh_enable_ip(unsigned long ip);
--
- /* PLEASE, avoid to allocate new softirqs, if you need not _really_ high
-    frequency threaded job scheduling. For almost all the purposes
-    tasklets are more than enough. F.e. all serial device BHs et
---- linux-2.6.19.orig/include/linux/spinlock.h
-+++ linux-2.6.19/include/linux/spinlock.h
-@@ -52,6 +52,7 @@
- #include <linux/thread_info.h>
- #include <linux/kernel.h>
- #include <linux/stringify.h>
-+#include <linux/bottom_half.h>
- 
- #include <asm/system.h>
- 
+ 	switch (action) {
+ 	case CPU_UP_PREPARE:
+-		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
+-		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
+ 		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
+ 		if (IS_ERR(p)) {
+ 			printk("ksoftirqd for %i failed\n", hotcpu);
 
 --

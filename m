@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947398AbWLHV7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947422AbWLHWDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947398AbWLHV7H (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947413AbWLHV7H
+	id S1947422AbWLHWDs (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 17:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947423AbWLHWDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:59:07 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:58874 "EHLO
-	e35.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1947398AbWLHV7F (ORCPT
+	Fri, 8 Dec 2006 17:03:48 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36816 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1947422AbWLHWDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:59:05 -0500
-Subject: Re: [PATCH] fs/jfs: fix error due to PF_* undeclared
-From: Dave Kleikamp <shaggy@linux.vnet.ibm.com>
-To: Richard Knutsson <ricknu-0@student.ltu.se>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4579D941.9040607@student.ltu.se>
-References: <Pine.LNX.4.64.0611291411300.3513@woody.osdl.org>
-	 <4579B554.5010701@student.ltu.se>
-	 <20061208112330.7e8d4e88.randy.dunlap@oracle.com>
-	 <4579D941.9040607@student.ltu.se>
-Content-Type: text/plain
-Date: Fri, 08 Dec 2006 15:59:01 -0600
-Message-Id: <1165615141.8575.7.camel@kleikamp.austin.ibm.com>
+	Fri, 8 Dec 2006 17:03:48 -0500
+Subject: Re: [patch 1/2] agpgart - allow user-populated memory types.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
+Cc: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4579ADE3.6040609@tungstengraphics.com>
+References: <4579ADE3.6040609@tungstengraphics.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel International BV
+Date: Fri, 08 Dec 2006 23:03:36 +0100
+Message-Id: <1165615416.27217.103.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-12-08 at 22:29 +0100, Richard Knutsson wrote:
-> Randy Dunlap wrote:
-> > On Fri, 08 Dec 2006 19:56:20 +0100 Richard Knutsson wrote:
-
-> >> Guess this is the desired fix, since including linux/sched.h in linux/freezer.h
-> >> make little sense.
-> >>     
-> >
-> > Why do you say that?  freezer.h is what uses those #defined values,
-> > and freezer.h is what uses struct task_struct fields as well,
-> > so it needs sched.h.
-> >   
-> Oh, an error of thought when I read the patch 
-> 7dfb71030f7636a0d65200158113c37764552f93 made that statement. After more 
-> checking, sched.h is apperarently included in suspend.h from swap.h so 
-> the direct include of sched.h in most drivers was/is not nessecary.
+On Fri, 2006-12-08 at 19:24 +0100, Thomas Hellström wrote:
 > 
-> Do you agree with the patch below then? This was how I first fixed it 
-> but found it strange no-one hit it before, and from there it went on... 
-> Thanks for the help. (Sign it?)
+> +void agp_generic_free_user(struct agp_memory *curr)
+> +{
+> +       if ((unsigned long) curr->memory >= VMALLOC_START 
+> +           && (unsigned long) curr->memory < VMALLOC_END) {
+> +               vfree(curr->memory);
+> +       } else {
+> +               kfree(curr->memory);
+> +       }
+> +       agp_free_key(curr->key);
+> +       kfree(curr);
 
-Randy had already submitted a similar patch to lkml.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116561219801397&w=2
+why? this really is almost too ugly to live ;(
 
-> ---
-> 
-> Compile-tested only.
-> 
-> 
-> diff --git a/include/linux/freezer.h b/include/linux/freezer.h
-> index 6e05e3e..f616c0c 100644
-> --- a/include/linux/freezer.h
-> +++ b/include/linux/freezer.h
-> @@ -1,3 +1,4 @@
-> +#include <linux/sched.h>
->  /* Freezer declarations */
-> 
->  #ifdef CONFIG_PM
-
-Thanks anyway,
-Shaggy
+> +}
+> +EXPORT_SYMBOL(agp_generic_free_user);
+> + 
 -- 
-David Kleikamp
-IBM Linux Technology Center
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
 

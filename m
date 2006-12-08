@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163360AbWLGU7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424174AbWLHDgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163360AbWLGU7V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 15:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163357AbWLGU7V
+	id S1424174AbWLHDgb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 22:36:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424194AbWLHDga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 15:59:21 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50638 "EHLO mx2.mail.elte.hu"
+	Thu, 7 Dec 2006 22:36:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:53493 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1163354AbWLGU7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 15:59:20 -0500
-Date: Thu, 7 Dec 2006 21:58:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, linux-rt-users@vger.kernel.org,
-       Mike Galbraith <efault@gmx.de>, Clark Williams <williams@redhat.com>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Giandomenico De Tullio <ghisha@email.it>
-Subject: Re: v2.6.19-rt6, yum/rpm
-Message-ID: <20061207205819.GA21953@elte.hu>
-References: <20061205171114.GA25926@elte.hu> <1165524358.9244.33.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
+	id S1424174AbWLHDg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 22:36:29 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Date: Fri, 8 Dec 2006 14:36:27 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1165524358.9244.33.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.2i
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=BAYES_00 autolearn=no SpamAssassin version=3.0.3
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
+Content-Transfer-Encoding: 7bit
+Message-ID: <17784.56763.794504.185193@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
+       nfs@lists.sourceforge.net
+Subject: Re: Let's get rid of those annoying "VFS is out of sync with lock manager" messages (includes proposed patch)
+In-Reply-To: message from Jesper Juhl on Thursday December 7
+References: <200612072208.16350.jesper.juhl@gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> Much better performance in terms of xruns with Jackd. Hardly any at 
-> all as it should be. I'm starting to test -rt8 right now.
+On Thursday December 7, jesper.juhl@gmail.com wrote:
 > 
-> Now, I still don't have an smp machine to test so the improvement 
-> could be because I'm just running 64 bit up instead of smp. Or it 
-> could have been the hardware on that other machine that had some 
-> problem (either because it was starting to fail or because the kernel 
-> drivers for that hardware were somehow triggering the xruns).
+> So I took Neils patch, made the change Trond suggested and the result is 
+> below.
+> 
+> Comments?  Ok to merge?  
 
-i think it's the UP vs. SMP difference. We are chasing some SMP 
-latencies right now that trigger on boxes that have deeper C sleep 
-states. idle=poll seems to work around those problems.
+Yes, except that you need a changelog comment at the top.  Possibly
+based very heavily on the text I wrote, but written to justify the
+patch rather than to explain the bug.
 
-	Ingo
+NeilBrown
+
+> 
+> 
+> Signed-off-by: Neil Brown <neilb@suse.de>
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  fs/nfs/file.c |   11 +++++++----
+>  1 files changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+> index cc93865..22572af 100644
+> --- a/fs/nfs/file.c
+> +++ b/fs/nfs/file.c
+> @@ -428,8 +428,8 @@ static int do_vfs_lock(struct file *file
+>  			BUG();
+>  	}
+>  	if (res < 0)
+> -		printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n",
+> -				__FUNCTION__);
+> +		dprintk("%s: VFS is out of sync with lock manager (res = %d)!\n",
+> +				__FUNCTION__, res);
+>  	return res;
+>  }
+>  
+> @@ -479,10 +479,13 @@ static int do_setlk(struct file *filp, i
+>  		 * we clean up any state on the server. We therefore
+>  		 * record the lock call as having succeeded in order to
+>  		 * ensure that locks_remove_posix() cleans it out when
+> -		 * the process exits.
+> +		 * the process exits. Make sure not to sleep if
+> +		 * someone else holds the lock.
+>  		 */
+> -		if (status == -EINTR || status == -ERESTARTSYS)
+> +		if (status == -EINTR || status == -ERESTARTSYS) {
+> +			fl->fl_flags &= ~FL_SLEEP;
+>  			do_vfs_lock(filp, fl);
+> +		}
+>  	} else
+>  		status = do_vfs_lock(filp, fl);
+>  	unlock_kernel();
+> 

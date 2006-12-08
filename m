@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1761153AbWLHToM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1426175AbWLHTsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1761153AbWLHToM (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 14:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426164AbWLHToM
+	id S1426175AbWLHTsK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 14:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426174AbWLHTsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 14:44:12 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:4573 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761153AbWLHToL (ORCPT
+	Fri, 8 Dec 2006 14:48:09 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:55079 "EHLO smtp.osdl.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1426172AbWLHTsI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 14:44:11 -0500
-Date: Fri, 8 Dec 2006 19:43:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch doesn't support it
-Message-ID: <20061208194357.GJ31068@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Christoph Lameter <clameter@sgi.com>,
-	David Howells <dhowells@redhat.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-	linux-arm-kernel@lists.arm.linux.org.uk,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk> <4595.1165597017@redhat.com> <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com> <20061208171816.GG31068@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612080919220.16029@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612081101280.3516@woody.osdl.org> <20061208193116.GI31068@flint.arm.linux.org.uk> <Pine.LNX.4.64.0612081136230.3516@woody.osdl.org>
+	Fri, 8 Dec 2006 14:48:08 -0500
+Date: Fri, 8 Dec 2006 11:47:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: linux-kernel@vger.kernel.org, balbir@in.ibm.com, csturtiv@sgi.com,
+       daw@sgi.com, guillaume.thouvenin@bull.net, jlan@sgi.com,
+       nagar@watson.ibm.com, tee@sgi.com
+Subject: Re: [patch 01/13] io-accounting: core statistics
+Message-Id: <20061208114745.1acd856f.akpm@osdl.org>
+In-Reply-To: <457954BF.7040707@cosmosbay.com>
+References: <200612081152.kB8BqOkh019750@shell0.pdx.osdl.net>
+	<457954BF.7040707@cosmosbay.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0612081136230.3516@woody.osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 11:37:45AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Fri, 8 Dec 2006, Russell King wrote:
+On Fri, 08 Dec 2006 13:04:15 +0100
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+
+> akpm@osdl.org a écrit :
+> > From: Andrew Morton <akpm@osdl.org>
 > > 
-> > I utterly disagree.  I could code atomic_add() as:
+> > The present per-task IO accounting isn't very useful.  It simply counts the
+> > number of bytes passed into read() and write().  So if a process reads 1MB
+> > from an already-cached file, it is accused of having performed 1MB of I/O,
+> > which is wrong.
 > 
-> Sure. And Alpha could do that too. If you write the C code a specific way, 
-> you can make it work. That does NOT mean that you can expose it widely as 
-> a portable interface - it's still just a very _nonportable_ interface that 
-> you use internally within one architecture to implement other interfaces.
+> Any chance we can report some io accounting values in getresource()/wait4()... 
+> too ?
 
-However, nothing stops you wrapping the non-portable nature of ll/sc up
-into the store part though.
+That sounds logical.
 
-If you can efficiently implement cmpxchg inside an ll/sc based portable
-interface (yes you can) and you can implement problematical ll/sc
-structures inside a cmpxchg() interface, you can do it either way around.
-Only one way doesn't penalise broken ll/sc based implementations though.
+> # /usr/bin/time find /usr -name 'foo'
+> 0.24user 0.22system 0:00.70elapsed 66%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (0major+222minor)pagefaults 0swaps
 
-That is the essence of my argument.
+But where?  ri_inblock and ru_outblock seem to be count-of-operations, not
+number-of-bytes.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:

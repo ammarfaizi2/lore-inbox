@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425547AbWLHPRA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425537AbWLHPS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425547AbWLHPRA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 10:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425548AbWLHPRA
+	id S1425537AbWLHPS6 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 10:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425542AbWLHPS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 10:17:00 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50546 "EHLO
-	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425547AbWLHPRA (ORCPT
+	Fri, 8 Dec 2006 10:18:58 -0500
+Received: from [212.33.164.29] ([212.33.164.29]:32946 "EHLO
+	localhost.localdomain" rhost-flags-FAIL-FAIL-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1425537AbWLHPS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 10:17:00 -0500
-Subject: Re: [v4l-dvb-maintainer] [2.6 patch] cx88/saa7134: remove unused
-	-DHAVE_VIDEO_BUF_DVB
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Michael Krufky <mkrufky@linuxtv.org>, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20061207172656.GL8963@stusta.de>
-References: <20061207150028.GJ8963@stusta.de> <457834E1.1090406@linuxtv.org>
-	 <20061207164245.GK8963@stusta.de> <45784BD7.7010605@linuxtv.org>
-	 <20061207172656.GL8963@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 08 Dec 2006 13:15:50 -0200
-Message-Id: <1165590950.10601.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 8 Dec 2006 10:18:57 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: additional oom-killer tuneable worth submitting?
+Date: Fri, 8 Dec 2006 18:19:43 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200612081658.29338.a1426z@gawab.com> <20061208145605.1a8b0815@localhost.localdomain>
+In-Reply-To: <20061208145605.1a8b0815@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200612081819.43991.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mkrufky,
+Alan wrote:
+> Al Boldi <a1426z@gawab.com> wrote:
+> > > That is why we have no-overcommit support.
+> >
+> > Alan, I think you know that this isn't really true, due to shared-libs.
+>
+> Shared libraries are correctly handled by no-overcommit and in fact they
+> have almost zero impact on out of memory questions because the shared
+> parts of the library are file backed and constant. That means they don't
+> actually cost swap space.
 
-Em Qui, 2006-12-07 às 18:26 +0100, Adrian Bunk escreveu:
+What I understood from Arjan is that the problem isn't swapspace, but rather 
+that shared-libs are implement via a COW trick, which always overcommits, no 
+matter what.
 
-> No, the configuration
-> 
->   CONFIG_VIDEO_SAA7134=y
->   CONFIG_VIDEO_SAA7134_DVB=n
->   CONFIG_VIDEO_BUF_DVB=n
-> 
-> builds fine in 2.6.19.
+> > > Now there is an argument for
+> > > a meaningful rlimit-as to go with it, and together I think they do
+> > > what you really need.
+> >
+> > The problem with rlimit is that it works per process.  Tuning this by
+> > hand may be awkward and/or wasteful.  What we need is to rlimit on a
+> > global basis, by calculating an upperlimit dynamically, such as to avoid
+> > overcommit/OOM.
+>
+> You've just described the existing no overcommit functionality, although
+> you've forgotten to allow for pre-reserving of stacks and some other
+> detail that has been found to make it work better as it has been refined.
 
-> > Thanks, Adrian, for pointing out this inconsistency.
+Are you saying there is some new no-overcommit functionality in 2.6.19, or 
+has this been there before?
 
-The point here, seemed to be related to the old v4l-dvb building system
-and some conflicts with /boot/config. Previously, if /boot/config have a
-symbol (for example) CONFIG_VIDEO_BUF_DVB=Y, it would define this symbol
-for cx88, saa7134, etc, but it won't compile the required module,
-generating some mess. Our current building system were improved in a way
-that it will work fine, undefining such symbols.
 
-In other words, just replacing all HAVE_foo to the proper CONFIG_foo
-should work fine.
+Thanks!
 
-Anyway, I think it is better if you can take a look on it and do some
-tests, before cleaning those legacy defines. There's no rush for this to
-kernel window, since it would be just a trivial cleanup patch.
-
-Cheers, 
-Mauro.
+--
+Al
 

@@ -1,138 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425477AbWLHMRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424330AbWLHEYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425477AbWLHMRb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425482AbWLHMRb
+	id S1424330AbWLHEYg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 23:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424324AbWLHEYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:17:31 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7565
-	"EHLO public.id2-vpn.continvity.gns.novell.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1425481AbWLHMRa (ORCPT
+	Thu, 7 Dec 2006 23:24:36 -0500
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:55442 "EHLO
+	stout.engsoc.carleton.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424315AbWLHEYf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:17:30 -0500
-Message-Id: <4579662E.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Fri, 08 Dec 2006 12:18:38 +0000
-From: "Jan Beulich" <jbeulich@novell.com>
-To: <a.zummo@towertech.it>, <p_gortmaker@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] RTC driver cleanup
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 23:24:35 -0500
+Date: Thu, 7 Dec 2006 23:24:26 -0500
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
+       Sam Ravnborg <sam@ravnborg.org>, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: [2.6 patch] arch/parisc/Makefile: remove GCC_VERSION
+Message-ID: <20061208042425.GC2606@athena.road.mcmartin.ca>
+References: <20061201114908.GR11084@stusta.de> <20061201182355.GC10549@colo.lackof.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20061201182355.GC10549@colo.lackof.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch
-- conditionalizes procfs code upon CONFIG_PROC_FS (to reduce code size when
-  that option is not enabled)
-- makes initialization no longer fail when the procfs entry can't be allocated
-  (namely would initialization always have failed when CONFIG_PROC_FS was not
-  set)
-- moves the formerly file-scope static variable rtc_int_handler_ptr into the
-  only function using it, and makes it automatic.
+On Fri, Dec 01, 2006 at 11:23:55AM -0700, Grant Grundler wrote:
+> I've committed a variant of this to git://git.parisc-linux.org/git/linux-2.6.git
+> I didn't test the failure case - only that it doesn't trigger with
+> my current gcc 4.x compilers.
+> 
+> I expect Kyle will push parisc tree to linus in the near future.
+> 
+> Signed-off-by: Grant Grundler <grundler@parisc-linux.org>
+> 
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+I like the version ggg committed to our cvs better (and I verified it
+correctly functions with gcc-3.0 from Debian woody.)
 
---- linux-2.6.19/drivers/char/rtc.c	2006-12-08 13:03:35.000000000 +0100
-+++ 2.6.19-rtc-cleanup/drivers/char/rtc.c	2006-12-08 13:07:42.000000000 +0100
-@@ -113,7 +113,7 @@ static int rtc_has_irq = 1;
- #define hpet_set_rtc_irq_bit(arg) 		0
- #define hpet_rtc_timer_init() 			do { } while (0)
- #define hpet_rtc_dropped_irq() 			0
--static inline irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id) {return 0;}
-+static irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id) {return 0;}
- #else
- extern irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id);
- #endif
-@@ -165,7 +165,9 @@ static void mask_rtc_irq_bit(unsigned ch
- }
- #endif
- 
-+#ifdef CONFIG_PROC_FS
- static int rtc_proc_open(struct inode *inode, struct file *file);
-+#endif
- 
- /*
-  *	Bits in rtc_status. (6 bits of room for future expansion)
-@@ -906,6 +908,7 @@ static struct miscdevice rtc_dev = {
- 	.fops		= &rtc_fops,
- };
- 
-+#ifdef CONFIG_PROC_FS
- static const struct file_operations rtc_proc_fops = {
- 	.owner = THIS_MODULE,
- 	.open = rtc_proc_open,
-@@ -913,14 +916,13 @@ static const struct file_operations rtc_
- 	.llseek = seq_lseek,
- 	.release = single_release,
- };
--
--#if defined(RTC_IRQ) && !defined(__sparc__)
--static irq_handler_t rtc_int_handler_ptr;
- #endif
- 
- static int __init rtc_init(void)
- {
-+#ifdef CONFIG_PROC_FS
- 	struct proc_dir_entry *ent;
-+#endif
- #if defined(__alpha__) || defined(__mips__)
- 	unsigned int year, ctrl;
- 	char *guess = NULL;
-@@ -932,9 +934,11 @@ static int __init rtc_init(void)
- 	struct sparc_isa_bridge *isa_br;
- 	struct sparc_isa_device *isa_dev;
- #endif
--#endif
--#ifndef __sparc__
-+#else
- 	void *r;
-+#ifdef RTC_IRQ
-+	irq_handler_t rtc_int_handler_ptr;
-+#endif
- #endif
- 
- #ifdef __sparc__
-@@ -1024,17 +1028,13 @@ no_irq:
- 		return -ENODEV;
- 	}
- 
-+#ifdef CONFIG_PROC_FS
- 	ent = create_proc_entry("driver/rtc", 0, NULL);
--	if (!ent) {
--#ifdef RTC_IRQ
--		free_irq(RTC_IRQ, NULL);
--		rtc_has_irq = 0;
-+	if (ent)
-+		ent->proc_fops = &rtc_proc_fops;
-+	else
-+		printk(KERN_WARNING "rtc: Failed to register with procfs.\n");
- #endif
--		release_region(RTC_PORT(0), RTC_IO_EXTENT);
--		misc_deregister(&rtc_dev);
--		return -ENOMEM;
--	}
--	ent->proc_fops = &rtc_proc_fops;
- 
- #if defined(__alpha__) || defined(__mips__)
- 	rtc_freq = HZ;
-@@ -1167,6 +1167,7 @@ static void rtc_dropped_irq(unsigned lon
- }
- #endif
- 
-+#ifdef CONFIG_PROC_FS
- /*
-  *	Info exported via "/proc/driver/rtc".
-  */
-@@ -1251,6 +1252,7 @@ static int rtc_proc_open(struct inode *i
- {
- 	return single_open(file, rtc_proc_show, NULL);
- }
-+#endif
- 
- void rtc_get_rtc_time(struct rtc_time *rtc_tm)
- {
+Picked into my tree.
 
-
+Cheers,
+	Kyle

@@ -1,127 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424822AbWLHHEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164354AbWLHBR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424822AbWLHHEo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 02:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424859AbWLHHEo
+	id S1164354AbWLHBR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164356AbWLHBQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 02:04:44 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:42566 "EHLO
-	fgwmail5.fujitsu.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424822AbWLHHEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 02:04:43 -0500
-Date: Fri, 8 Dec 2006 16:08:03 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, clameter@engr.sgi.com, apw@shadowen.org,
-       akpm@osdl.org
-Subject: [RFC] [PATCH] virtual memmap on sparsemem v3 [4/4] ia64 support
-Message-Id: <20061208160803.b6ea27ed.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20061208155608.14dcd2e5.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Dec 2006 20:16:49 -0500
+Received: from mx1.suse.de ([195.135.220.2]:58570 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164339AbWLHBOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:14:34 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 12:14:46 +1100
+Message-Id: <1061208011446.30749@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 016 of 18] knfsd: nfsd4: simplify filehandle check
+References: <20061208120939.30428.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ia64 support for sparsemem/vmem_map.
-* defines mem_map[] and set its value (by static way).
-* changes definitions of VMALLOC_START.
-* adds CONFIGS.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+From: J.Bruce Fields <bfields@fieldses.org>
 
-Index: devel-2.6.19/arch/ia64/Kconfig
-===================================================================
---- devel-2.6.19.orig/arch/ia64/Kconfig	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/arch/ia64/Kconfig	2006-12-08 15:03:21.000000000 +0900
-@@ -333,6 +333,14 @@
- 	def_bool y
- 	depends on ARCH_DISCONTIGMEM_ENABLE
- 
-+config ARCH_SPARSEMEM_VMEMMAP
-+	def_bool y
-+	depends on ARCH_SPARSEMEM_ENABLE
-+
-+config ARCH_SPARSEMEM_VMEMMAP_STATIC
-+	def_bool y
-+	depends on SPARSEMEM_VMEMMAP
-+
- config ARCH_DISCONTIGMEM_DEFAULT
- 	def_bool y if (IA64_SGI_SN2 || IA64_GENERIC || IA64_HP_ZX1 || IA64_HP_ZX1_SWIOTLB)
- 	depends on ARCH_DISCONTIGMEM_ENABLE
-Index: devel-2.6.19/arch/ia64/kernel/vmlinux.lds.S
-===================================================================
---- devel-2.6.19.orig/arch/ia64/kernel/vmlinux.lds.S	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/arch/ia64/kernel/vmlinux.lds.S	2006-12-08 15:03:21.000000000 +0900
-@@ -2,6 +2,7 @@
- #include <asm/cache.h>
- #include <asm/ptrace.h>
- #include <asm/system.h>
-+#include <asm/sparsemem.h>
- #include <asm/pgtable.h>
- 
- #define LOAD_OFFSET	(KERNEL_START - KERNEL_TR_PAGE_SIZE)
-@@ -34,6 +35,9 @@
- 
-   v = PAGE_OFFSET;	/* this symbol is here to make debugging easier... */
-   phys_start = _start - LOAD_OFFSET;
-+#ifdef CONFIG_SPARSEMEM_VMEMMAP
-+  mem_map = VIRTUAL_MEM_MAP_START;
-+#endif
- 
-   code : { } :code
-   . = KERNEL_START;
-Index: devel-2.6.19/include/asm-ia64/sparsemem.h
-===================================================================
---- devel-2.6.19.orig/include/asm-ia64/sparsemem.h	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/include/asm-ia64/sparsemem.h	2006-12-08 15:03:21.000000000 +0900
-@@ -16,5 +16,14 @@
- #endif
- #endif
- 
-+#ifdef CONFIG_SPARSEMEM_VMEMMAP
-+#define VIRTUAL_MEM_MAP_START	(RGN_BASE(RGN_GATE) + 0x200000000)
-+
-+#ifndef __ASSEMBLY__
-+#define VIRTUAL_MEM_MAP_SIZE	((1UL << (MAX_PHYSMEM_BITS - PAGE_SHIFT)) * sizeof(struct page))
-+#define VIRTUAL_MEM_MAP_END	(VIRTUAL_MEM_MAP_START + VIRTUAL_MEM_MAP_SIZE)
-+#endif
-+#endif
-+
- #endif /* CONFIG_SPARSEMEM */
- #endif /* _ASM_IA64_SPARSEMEM_H */
-Index: devel-2.6.19/include/asm-ia64/pgtable.h
-===================================================================
---- devel-2.6.19.orig/include/asm-ia64/pgtable.h	2006-11-30 06:57:37.000000000 +0900
-+++ devel-2.6.19/include/asm-ia64/pgtable.h	2006-12-08 15:03:21.000000000 +0900
-@@ -230,13 +230,21 @@
- #define set_pte(ptep, pteval)	(*(ptep) = (pteval))
- #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
- 
-+#if defined(CONFIG_SPARSEMEM_VMEMMAP)
-+#define VMALLOC_START	(VIRTUAL_MEM_MAP_END)
-+#define VMALLOC_END	(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
-+
-+#elif defined(CONFIG_VIRTUAL_MEM_MAP)
- #define VMALLOC_START		(RGN_BASE(RGN_GATE) + 0x200000000UL)
--#ifdef CONFIG_VIRTUAL_MEM_MAP
--# define VMALLOC_END_INIT	(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
--# define VMALLOC_END		vmalloc_end
--  extern unsigned long vmalloc_end;
-+
-+#defineVMALLOC_END_INIT    (RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
-+#define VMALLOC_END		vmalloc_end
-+extern unsigned long vmalloc_end;
- #else
-+
-+#define VMALLOC_START		(RGN_BASE(RGN_GATE) + 0x200000000UL)
- # define VMALLOC_END		(RGN_BASE(RGN_GATE) + (1UL << (4*PAGE_SHIFT - 9)))
-+
- #endif
- 
- /* fs/proc/kcore.c */
+Kill another big "if" clause.
 
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/nfsd/nfs4proc.c |   29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
+
+diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
+--- .prev/fs/nfsd/nfs4proc.c	2006-12-08 12:09:30.000000000 +1100
++++ ./fs/nfsd/nfs4proc.c	2006-12-08 12:09:30.000000000 +1100
+@@ -802,8 +802,10 @@ typedef __be32(*nfsd4op_func)(struct svc
+ struct nfsd4_operation {
+ 	nfsd4op_func op_func;
+ 	u32 op_flags;
++/* Most ops require a valid current filehandle; a few don't: */
++#define ALLOWED_WITHOUT_FH 1
+ /* GETATTR and ops not listed as returning NFS4ERR_MOVED: */
+-#define ALLOWED_ON_ABSENT_FS 1
++#define ALLOWED_ON_ABSENT_FS 2
+ };
+ 
+ static struct nfsd4_operation nfsd4_ops[];
+@@ -874,18 +876,8 @@ nfsd4_proc_compound(struct svc_rqst *rqs
+ 
+ 		opdesc = &nfsd4_ops[op->opnum];
+ 
+-		/* All operations except RENEW, SETCLIENTID, RESTOREFH
+-		* SETCLIENTID_CONFIRM, PUTFH and PUTROOTFH
+-		* require a valid current filehandle
+-		*/
+ 		if (!cstate->current_fh.fh_dentry) {
+-			if (!((op->opnum == OP_PUTFH) ||
+-			      (op->opnum == OP_PUTROOTFH) ||
+-			      (op->opnum == OP_SETCLIENTID) ||
+-			      (op->opnum == OP_SETCLIENTID_CONFIRM) ||
+-			      (op->opnum == OP_RENEW) ||
+-			      (op->opnum == OP_RESTOREFH) ||
+-			      (op->opnum == OP_RELEASE_LOCKOWNER))) {
++			if (!(opdesc->op_flags & ALLOWED_WITHOUT_FH)) {
+ 				op->status = nfserr_nofilehandle;
+ 				goto encode_op;
+ 			}
+@@ -981,14 +973,15 @@ static struct nfsd4_operation nfsd4_ops[
+ 	},
+ 	[OP_PUTFH] = {
+ 		.op_func = (nfsd4op_func)nfsd4_putfh,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_PUTPUBFH] = {
+ 		/* unsupported; just for future reference: */
+-		.op_flags = ALLOWED_ON_ABSENT_FS,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_PUTROOTFH] = {
+ 		.op_func = (nfsd4op_func)nfsd4_putrootfh,
+-		.op_flags = ALLOWED_ON_ABSENT_FS,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_READ] = {
+ 		.op_func = (nfsd4op_func)nfsd4_read,
+@@ -1007,10 +1000,11 @@ static struct nfsd4_operation nfsd4_ops[
+ 	},
+ 	[OP_RENEW] = {
+ 		.op_func = (nfsd4op_func)nfsd4_renew,
+-		.op_flags = ALLOWED_ON_ABSENT_FS,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_RESTOREFH] = {
+ 		.op_func = (nfsd4op_func)nfsd4_restorefh,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_SAVEFH] = {
+ 		.op_func = (nfsd4op_func)nfsd4_savefh,
+@@ -1020,10 +1014,11 @@ static struct nfsd4_operation nfsd4_ops[
+ 	},
+ 	[OP_SETCLIENTID] = {
+ 		.op_func = (nfsd4op_func)nfsd4_setclientid,
+-		.op_flags = ALLOWED_ON_ABSENT_FS,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_SETCLIENTID_CONFIRM] = {
+ 		.op_func = (nfsd4op_func)nfsd4_setclientid_confirm,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ 	[OP_VERIFY] = {
+ 		.op_func = (nfsd4op_func)nfsd4_verify,
+@@ -1033,7 +1028,7 @@ static struct nfsd4_operation nfsd4_ops[
+ 	},
+ 	[OP_RELEASE_LOCKOWNER] = {
+ 		.op_func = (nfsd4op_func)nfsd4_release_lockowner,
+-		.op_flags = ALLOWED_ON_ABSENT_FS,
++		.op_flags = ALLOWED_WITHOUT_FH | ALLOWED_ON_ABSENT_FS,
+ 	},
+ };
+ 

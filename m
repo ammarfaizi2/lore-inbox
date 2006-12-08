@@ -1,61 +1,129 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947255AbWLHVQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947256AbWLHVXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947255AbWLHVQe (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 16:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947253AbWLHVQd
+	id S1947256AbWLHVXI (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 16:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947257AbWLHVXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 16:16:33 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:48926 "EHLO e3.ny.us.ibm.com"
+	Fri, 8 Dec 2006 16:23:07 -0500
+Received: from ns2.suse.de ([195.135.220.15]:34648 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947252AbWLHVQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 16:16:32 -0500
-Date: Fri, 8 Dec 2006 15:16:26 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 0/2] file capabilities: two bugfixes
-Message-ID: <20061208211626.GA30754@sergelap.austin.ibm.com>
-References: <20061208193657.GB18566@sergelap.austin.ibm.com> <402572.41716.qm@web36607.mail.mud.yahoo.com>
+	id S1947256AbWLHVXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 16:23:06 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: proxy_pda was Re: What was in the x86 merge for .20
+Date: Fri, 8 Dec 2006 22:22:33 +0100
+User-Agent: KMail/1.9.5
+Cc: Arkadiusz Miskiewicz <arekm@maven.pl>, linux-kernel@vger.kernel.org
+References: <200612080401.25746.ak@suse.de> <200612082206.20409.ak@suse.de> <4579D496.6080201@goop.org>
+In-Reply-To: <4579D496.6080201@goop.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <402572.41716.qm@web36607.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200612082222.33673.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Casey Schaufler (casey@schaufler-ca.com):
+On Friday 08 December 2006 22:09, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> > Looking at Arkadiusz' output file it looks like gcc 4.2 decided to CSE the
+> > address :/
+> >
+> > 	movl	$_proxy_pda+8, %edx	#, tmp65
+> >
+> > Very sad, but legitimate.
+> >   
 > 
-> --- "Serge E. Hallyn" <serue@us.ibm.com> wrote:
+> Yes, that was my conclusion too.  Though in this case the code could be
+> cleaned up by cutting down on the number of uses of "current" - but
+> that's hardly a general fix.
 > 
-> > ...
-> > The other is that root can lose capabilities by
-> > executing files with
-> > only some capabilities set.  The next two patches
-> > change these
-> > behaviors.
+> > The only workaround I can think of would be to define it as a symbol
+> > (or away in vmlinux.lds.S)
 > 
-> It was the intention of the POSIX group that
-> capabilities be independent of uid. I would
-> argue that the old bevavior was correct, that
-> a program marked to lose a capability ought
-> to even if the uid is 0.
+> Yes.  I was thinking about setting it in vmlinux.lds to some obviously
+> bad address so that any access will be highly visible.
+> 
+> > . Or do away with the idea of proxy_pda
+> > again.
+> >   
+> 
+> That would be very sad indeed.
 
-Agreed, and if SECURE_NOROOT is set, that is what happens.
-But by default SECURE_NOROOT is not set, in which case linux's
-implementation of capabilities behaves differently for root.
+The trouble is when it's CSEd it actually causes worse code because
+a register is tied up. That might not be worth the advantage of having it?
 
-Without this latest patch, with SECURE_NOROOT not set, what was
-actually happening was that the kernel behaved as though
-SECURE_NOROOT was not set so long as there was no
-security.capability xattr, and always behaved as though
-SECURE_NOROOT was set if there was an xattr.  That's inconsistent
-and confusing behavior.
+Hmm, maybe marking it volatile would help? Arkadiusz, does the following patch
+help?
 
-The worst part is that root can get around running the code
-with limited caps by just copying the file and running the
-copy.  So it adds no security benefit, and adds an
-inconsistency/complication which could cause security risks.
+-Andi
 
--serge
+Work around gcc 4.2 CSEing the proxy_pda
+
+proxy_pda doesn't exactly exist -- we just use it to describe side effects
+of the PDA manipulation to gcc. But when gcc 4.2 CSEs the address
+it generates references and worse code and the link breaks.
+
+Let's cast it to volatile and see if it that helps.
+
+TBD same for x86-64
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/include/asm-i386/pda.h
+===================================================================
+--- linux.orig/include/asm-i386/pda.h
++++ linux/include/asm-i386/pda.h
+@@ -40,19 +40,19 @@ extern struct i386_pda _proxy_pda;
+ 		switch (sizeof(_proxy_pda.field)) {			\
+ 		case 1:							\
+ 			asm(op "b %1,%%gs:%c2"				\
+-			    : "+m" (_proxy_pda.field)			\
++			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
+ 			    :"ri" ((T__)val),				\
+ 			     "i"(pda_offset(field)));			\
+ 			break;						\
+ 		case 2:							\
+ 			asm(op "w %1,%%gs:%c2"				\
+-			    : "+m" (_proxy_pda.field)			\
++			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
+ 			    :"ri" ((T__)val),				\
+ 			     "i"(pda_offset(field)));			\
+ 			break;						\
+ 		case 4:							\
+ 			asm(op "l %1,%%gs:%c2"				\
+-			    : "+m" (_proxy_pda.field)			\
++			    : "+m" (*(volatile T__ *)&_proxy_pda.field)			\
+ 			    :"ri" ((T__)val),				\
+ 			     "i"(pda_offset(field)));			\
+ 			break;						\
+@@ -63,24 +63,25 @@ extern struct i386_pda _proxy_pda;
+ #define pda_from_op(op,field)						\
+ 	({								\
+ 		typeof(_proxy_pda.field) ret__;				\
++		typedef typeof(_proxy_pda.field) T__;			\
+ 		switch (sizeof(_proxy_pda.field)) {			\
+ 		case 1:							\
+ 			asm(op "b %%gs:%c1,%0"				\
+ 			    : "=r" (ret__)				\
+ 			    : "i" (pda_offset(field)),			\
+-			      "m" (_proxy_pda.field));			\
++			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
+ 			break;						\
+ 		case 2:							\
+ 			asm(op "w %%gs:%c1,%0"				\
+ 			    : "=r" (ret__)				\
+ 			    : "i" (pda_offset(field)),			\
+-			      "m" (_proxy_pda.field));			\
++			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
+ 			break;						\
+ 		case 4:							\
+ 			asm(op "l %%gs:%c1,%0"				\
+ 			    : "=r" (ret__)				\
+ 			    : "i" (pda_offset(field)),			\
+-			      "m" (_proxy_pda.field));			\
++			      "m" (*(volatile T__ *)&_proxy_pda.field));			\
+ 			break;						\
+ 		default: __bad_pda_field();				\
+ 		}							\

@@ -1,216 +1,410 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424849AbWLHG5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425304AbWLHJvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424849AbWLHG5I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 01:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424844AbWLHG5I
+	id S1425304AbWLHJvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 04:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425305AbWLHJvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 01:57:08 -0500
-Received: from gateway.insightbb.com ([74.128.0.19]:1211 "EHLO
-	asav12.insightbb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1424841AbWLHG5H convert rfc822-to-8bit (ORCPT
+	Fri, 8 Dec 2006 04:51:50 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:57899 "EHLO
+	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425304AbWLHJvt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 01:57:07 -0500
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AnoUAMabeEVKhQ0nVWdsb2JhbACGfYY6ASs
-From: Dmitry Torokhov <dtor@insightbb.com>
+	Fri, 8 Dec 2006 04:51:49 -0500
+Date: Fri, 8 Dec 2006 09:51:46 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: [git pull] Input patches for 2.6.19
-Date: Fri, 8 Dec 2006 01:57:03 -0500
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: [PATCH] lockd endianness annotations (rebased)
+Message-ID: <20061208095146.GS4587@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200612080157.04822.dtor@insightbb.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Rebased to current tree.  Trond, could you ACK that one?
 
-Please pull from:
+annotated, all places switched to keeping status
+net-endian.
 
-        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ fs/lockd/clntlock.c            |   10 +++++-----
+ fs/lockd/clntproc.c            |   39 ++++++++++++++++++++-------------------
+ fs/lockd/svclock.c             |    4 ++--
+ fs/lockd/xdr.c                 |    8 ++++----
+ fs/lockd/xdr4.c                |    8 ++++----
+ fs/nfsd/lockd.c                |    2 +-
+ include/linux/lockd/bind.h     |    2 +-
+ include/linux/lockd/lockd.h    |    2 +-
+ include/linux/lockd/sm_inter.h |    2 +-
+ include/linux/lockd/xdr.h      |    8 ++++----
+ 10 files changed, 43 insertions(+), 42 deletions(-)
 
-or
-        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
-
-to receive updates for input subsystem.
-
-Changelog:
-----------
-Akinobu Mita (2):
-      Input: lightning - return proper error codes from l4_init()
-      Input: handle serio_register_driver() errors
-
-Andrew Morton (1):
-      Input: lifebook - learn about hard tabs
-
-Anssi Hannula (1):
-      Input: HID - add a quirk for the Logitech USB Receiver
-
-Brandon Philips (1):
-      Input: drivers/char/keyboard.c - small cleanup in k_cur()
-
-Dmitry Torokhov (14):
-      Input: add comments to input_{allocate|free}_device()
-      Input: gameport - rearrange gameport_bus initialization
-      Input: i8042 - remove unneeded call to i8042_interrupt()
-      Input: ads7846 - handle errors from sysfs
-      Input: keyboards - handle errors when registering input devices
-      Input: touchscreens - handle errors when registering input devices
-      Input: joysticks - handle errors when registering input devices
-      Input: mice - handle errors when registering input devices
-      Input: i8042 - fix shutdown issue on some boxes with active MUXes
-      Input: serio - remove serio_unregister_port_delayed()
-      Input: serio - make serio_register_driver() return errors
-      Input: handle errors from input_register_device in drivers/macintosh
-      Input: i8042 - add another Lifebook P7010 to nomux blacklist
-      Input: ucb1400 - fix compile error
-
-Greg Chandler (1):
-      Input: lifebook - add Hitachi Flora-IE 55mi tablet DMI signature
-
-Jason Parekh (1):
-      Input: appletouch - verious updates for MacBooks
-
-Jeff Garzik (2):
-      Input: trackpoint - handle sysfs errors
-      Input: logips2pp - handle sysfs errors
-
-Julien BLACHE (2):
-      Input: appletouch - add Geyser IV support
-      Input: appletouch - use canonical names in USB IDs
-
-Marton Nemeth (2):
-      Input: serio - rearrange serio_bus initialization
-      Input: mousedev - remap BTN_FORWARD from BTN_LEFT to BTN_MIDDLE
-
-Nicolas Bellido (1):
-      Input: add driver for keyboard on AAED-2000 development board (ARM)
-
-Nicolas Pitre (1):
-      Input: add Philips UCB1400 touchscreen driver
-
-Paul Mundt (1):
-      Input: kill maple_keyb.c driver
-
-Randy Dunlap (1):
-      Input: add to kernel-api docbook
-
-Sergey Vlasov (1):
-      Input: psmouse - fix attribute access on 64-bit systems
-
-Stelian Pop (1):
-      Input: MAC mouse button emulation - relax dependencies
-
-
-Diffstat:
----------
- b/Documentation/DocBook/kernel-api.tmpl        |    8 
- b/drivers/char/keyboard.c                      |    2 
- b/drivers/input/ff-core.c                      |    4 
- b/drivers/input/ff-memless.c                   |    2 
- b/drivers/input/gameport/gameport.c            |   19 
- b/drivers/input/gameport/lightning.c           |    4 
- b/drivers/input/input.c                        |   25 +
- b/drivers/input/joystick/adi.c                 |   10 
- b/drivers/input/joystick/amijoy.c              |    6 
- b/drivers/input/joystick/analog.c              |   10 
- b/drivers/input/joystick/cobra.c               |    7 
- b/drivers/input/joystick/gf2k.c                |    4 
- b/drivers/input/joystick/grip_mp.c             |   13 
- b/drivers/input/joystick/guillemot.c           |    4 
- b/drivers/input/joystick/iforce/iforce-main.c  |   14 
- b/drivers/input/joystick/iforce/iforce-serio.c |   20 
- b/drivers/input/joystick/interact.c            |    4 
- b/drivers/input/joystick/magellan.c            |    3 
- b/drivers/input/joystick/spaceball.c           |    3 
- b/drivers/input/joystick/spaceorb.c            |    3 
- b/drivers/input/joystick/stinger.c             |    3 
- b/drivers/input/joystick/twidjoy.c             |    3 
- b/drivers/input/joystick/warrior.c             |    3 
- b/drivers/input/keyboard/Kconfig               |   11 
- b/drivers/input/keyboard/Makefile              |    1 
- b/drivers/input/keyboard/aaed2000_kbd.c        |  203 ++++++++
- b/drivers/input/keyboard/amikbd.c              |   22 
- b/drivers/input/keyboard/atkbd.c               |    3 
- b/drivers/input/keyboard/corgikbd.c            |   17 
- b/drivers/input/keyboard/hil_kbd.c             |    3 
- b/drivers/input/keyboard/lkkbd.c               |    3 
- b/drivers/input/keyboard/locomokbd.c           |   28 -
- b/drivers/input/keyboard/maple_keyb.c          |   14 
- b/drivers/input/keyboard/newtonkbd.c           |    3 
- b/drivers/input/keyboard/spitzkbd.c            |   24 -
- b/drivers/input/keyboard/stowaway.c            |    3 
- b/drivers/input/keyboard/sunkbd.c              |    3 
- b/drivers/input/keyboard/xtkbd.c               |    3 
- b/drivers/input/mouse/amimouse.c               |   11 
- b/drivers/input/mouse/hil_ptr.c                |    3 
- b/drivers/input/mouse/inport.c                 |   23 
- b/drivers/input/mouse/lifebook.c               |   88 +--
- b/drivers/input/mouse/logibm.c                 |   24 -
- b/drivers/input/mouse/logips2pp.c              |   11 
- b/drivers/input/mouse/pc110pad.c               |   26 -
- b/drivers/input/mouse/psmouse-base.c           |    8 
- b/drivers/input/mouse/rpcmouse.c               |   20 
- b/drivers/input/mouse/sermouse.c               |    3 
- b/drivers/input/mouse/trackpoint.c             |   12 
- b/drivers/input/mouse/vsxxxaa.c                |    3 
- b/drivers/input/mousedev.c                     |    2 
- b/drivers/input/serio/i8042-x86ia64io.h        |    7 
- b/drivers/input/serio/i8042.c                  |   18 
- b/drivers/input/serio/serio.c                  |  107 +++-
- b/drivers/input/serio/serio_raw.c              |    3 
- b/drivers/input/touchscreen/Kconfig            |   15 
- b/drivers/input/touchscreen/Makefile           |    1 
- b/drivers/input/touchscreen/ads7846.c          |   95 ++--
- b/drivers/input/touchscreen/corgi_ts.c         |   30 -
- b/drivers/input/touchscreen/elo.c              |    3 
- b/drivers/input/touchscreen/gunze.c            |    3 
- b/drivers/input/touchscreen/h3600_ts_input.c   |    3 
- b/drivers/input/touchscreen/hp680_ts_input.c   |   29 -
- b/drivers/input/touchscreen/mk712.c            |   26 -
- b/drivers/input/touchscreen/mtouch.c           |    3 
- b/drivers/input/touchscreen/penmount.c         |    3 
- b/drivers/input/touchscreen/touchright.c       |    3 
- b/drivers/input/touchscreen/touchwin.c         |    3 
- b/drivers/input/touchscreen/ucb1400_ts.c       |  581 ++++++++++++++++++++++++-
- b/drivers/macintosh/Kconfig                    |    1 
- b/drivers/macintosh/adbhid.c                   |   10 
- b/drivers/macintosh/mac_hid.c                  |    8 
- b/drivers/usb/input/appletouch.c               |   27 -
- b/drivers/usb/input/hid-core.c                 |    7 
- b/drivers/usb/input/hid-input.c                |    4 
- b/drivers/usb/input/hid.h                      |    1 
- b/include/linux/input.h                        |   18 
- b/include/linux/serio.h                        |    7 
- drivers/input/joystick/iforce/iforce-main.c    |   17 
- drivers/input/joystick/magellan.c              |   14 
- drivers/input/joystick/spaceball.c             |   14 
- drivers/input/joystick/spaceorb.c              |   14 
- drivers/input/joystick/stinger.c               |   14 
- drivers/input/joystick/twidjoy.c               |   14 
- drivers/input/joystick/warrior.c               |   14 
- drivers/input/keyboard/atkbd.c                 |  159 +++++-
- drivers/input/keyboard/lkkbd.c                 |   14 
- drivers/input/keyboard/maple_keyb.c            |  166 -------
- drivers/input/keyboard/newtonkbd.c             |   14 
- drivers/input/keyboard/sunkbd.c                |   20 
- drivers/input/keyboard/xtkbd.c                 |   14 
- drivers/input/mouse/lifebook.c                 |    6 
- drivers/input/mouse/psmouse-base.c             |   93 ++--
- drivers/input/mouse/sermouse.c                 |   13 
- drivers/input/mouse/vsxxxaa.c                  |   13 
- drivers/input/serio/i8042.c                    |   21 
- drivers/input/serio/serio.c                    |   40 -
- drivers/input/touchscreen/gunze.c              |   14 
- drivers/input/touchscreen/mtouch.c             |   13 
- drivers/usb/input/appletouch.c                 |   68 ++
- include/linux/serio.h                          |    5 
- 101 files changed, 1830 insertions(+), 709 deletions(-)
-
-
+diff --git a/fs/lockd/clntlock.c b/fs/lockd/clntlock.c
+index b85a0ad..0db028e 100644
+--- a/fs/lockd/clntlock.c
++++ b/fs/lockd/clntlock.c
+@@ -36,7 +36,7 @@ struct nlm_wait {
+ 	struct nlm_host *	b_host;
+ 	struct file_lock *	b_lock;		/* local file lock */
+ 	unsigned short		b_reclaim;	/* got to reclaim lock */
+-	u32			b_status;	/* grant callback status */
++	__be32			b_status;	/* grant callback status */
+ };
+ 
+ static LIST_HEAD(nlm_blocked);
+@@ -53,7 +53,7 @@ struct nlm_wait *nlmclnt_prepare_block(s
+ 		block->b_host = host;
+ 		block->b_lock = fl;
+ 		init_waitqueue_head(&block->b_wait);
+-		block->b_status = NLM_LCK_BLOCKED;
++		block->b_status = nlm_lck_blocked;
+ 		list_add(&block->b_list, &nlm_blocked);
+ 	}
+ 	return block;
+@@ -89,7 +89,7 @@ int nlmclnt_block(struct nlm_wait *block
+ 	 * nlmclnt_lock for an explanation.
+ 	 */
+ 	ret = wait_event_interruptible_timeout(block->b_wait,
+-			block->b_status != NLM_LCK_BLOCKED,
++			block->b_status != nlm_lck_blocked,
+ 			timeout);
+ 	if (ret < 0)
+ 		return -ERESTARTSYS;
+@@ -131,7 +131,7 @@ __be32 nlmclnt_grant(const struct sockad
+ 		/* Alright, we found a lock. Set the return status
+ 		 * and wake up the caller
+ 		 */
+-		block->b_status = NLM_LCK_GRANTED;
++		block->b_status = nlm_granted;
+ 		wake_up(&block->b_wait);
+ 		res = nlm_granted;
+ 	}
+@@ -211,7 +211,7 @@ restart:
+ 	/* Now, wake up all processes that sleep on a blocked lock */
+ 	list_for_each_entry(block, &nlm_blocked, b_list) {
+ 		if (block->b_host == host) {
+-			block->b_status = NLM_LCK_DENIED_GRACE_PERIOD;
++			block->b_status = nlm_lck_denied_grace_period;
+ 			wake_up(&block->b_wait);
+ 		}
+ 	}
+diff --git a/fs/lockd/clntproc.c b/fs/lockd/clntproc.c
+index 50643b6..6eb01ae 100644
+--- a/fs/lockd/clntproc.c
++++ b/fs/lockd/clntproc.c
+@@ -27,7 +27,7 @@ #define NLMCLNT_MAX_RETRIES	3
+ static int	nlmclnt_test(struct nlm_rqst *, struct file_lock *);
+ static int	nlmclnt_lock(struct nlm_rqst *, struct file_lock *);
+ static int	nlmclnt_unlock(struct nlm_rqst *, struct file_lock *);
+-static int	nlm_stat_to_errno(u32 stat);
++static int	nlm_stat_to_errno(__be32 stat);
+ static void	nlmclnt_locks_init_private(struct file_lock *fl, struct nlm_host *host);
+ static int	nlmclnt_cancel(struct nlm_host *, int , struct file_lock *);
+ 
+@@ -325,7 +325,7 @@ nlmclnt_call(struct nlm_rqst *req, u32 p
+ 			}
+ 			break;
+ 		} else
+-		if (resp->status == NLM_LCK_DENIED_GRACE_PERIOD) {
++		if (resp->status == nlm_lck_denied_grace_period) {
+ 			dprintk("lockd: server in grace period\n");
+ 			if (argp->reclaim) {
+ 				printk(KERN_WARNING
+@@ -411,10 +411,10 @@ nlmclnt_test(struct nlm_rqst *req, struc
+ 		goto out;
+ 
+ 	switch (req->a_res.status) {
+-		case NLM_LCK_GRANTED:
++		case nlm_granted:
+ 			fl->fl_type = F_UNLCK;
+ 			break;
+-		case NLM_LCK_DENIED:
++		case nlm_lck_denied:
+ 			/*
+ 			 * Report the conflicting lock back to the application.
+ 			 */
+@@ -524,9 +524,9 @@ again:
+ 		if (!req->a_args.block)
+ 			break;
+ 		/* Did a reclaimer thread notify us of a server reboot? */
+-		if (resp->status ==  NLM_LCK_DENIED_GRACE_PERIOD)
++		if (resp->status ==  nlm_lck_denied_grace_period)
+ 			continue;
+-		if (resp->status != NLM_LCK_BLOCKED)
++		if (resp->status != nlm_lck_blocked)
+ 			break;
+ 		/* Wait on an NLM blocking lock */
+ 		status = nlmclnt_block(block, req, NLMCLNT_POLL_TIMEOUT);
+@@ -535,11 +535,11 @@ again:
+ 		 */
+ 		if (status < 0)
+ 			goto out_unblock;
+-		if (resp->status != NLM_LCK_BLOCKED)
++		if (resp->status != nlm_lck_blocked)
+ 			break;
+ 	}
+ 
+-	if (resp->status == NLM_LCK_GRANTED) {
++	if (resp->status == nlm_granted) {
+ 		down_read(&host->h_rwsem);
+ 		/* Check whether or not the server has rebooted */
+ 		if (fl->fl_u.nfs_fl.state != host->h_state) {
+@@ -556,7 +556,7 @@ again:
+ out_unblock:
+ 	nlmclnt_finish_block(block);
+ 	/* Cancel the blocked request if it is still pending */
+-	if (resp->status == NLM_LCK_BLOCKED)
++	if (resp->status == nlm_lck_blocked)
+ 		nlmclnt_cancel(host, req->a_args.block, fl);
+ out:
+ 	nlm_release_call(req);
+@@ -585,12 +585,12 @@ nlmclnt_reclaim(struct nlm_host *host, s
+ 	req->a_args.reclaim = 1;
+ 
+ 	if ((status = nlmclnt_call(req, NLMPROC_LOCK)) >= 0
+-	 && req->a_res.status == NLM_LCK_GRANTED)
++	 && req->a_res.status == nlm_granted)
+ 		return 0;
+ 
+ 	printk(KERN_WARNING "lockd: failed to reclaim lock for pid %d "
+ 				"(errno %d, status %d)\n", fl->fl_pid,
+-				status, req->a_res.status);
++				status, ntohl(req->a_res.status));
+ 
+ 	/*
+ 	 * FIXME: This is a serious failure. We can
+@@ -637,10 +637,10 @@ nlmclnt_unlock(struct nlm_rqst *req, str
+ 	if (status < 0)
+ 		goto out;
+ 
+-	if (resp->status == NLM_LCK_GRANTED)
++	if (resp->status == nlm_granted)
+ 		goto out;
+ 
+-	if (resp->status != NLM_LCK_DENIED_NOLOCKS)
++	if (resp->status != nlm_lck_denied_nolocks)
+ 		printk("lockd: unexpected unlock status: %d\n", resp->status);
+ 	/* What to do now? I'm out of my depth... */
+ 	status = -ENOLCK;
+@@ -652,7 +652,7 @@ out:
+ static void nlmclnt_unlock_callback(struct rpc_task *task, void *data)
+ {
+ 	struct nlm_rqst	*req = data;
+-	int		status = req->a_res.status;
++	u32 status = ntohl(req->a_res.status);
+ 
+ 	if (RPC_ASSASSINATED(task))
+ 		goto die;
+@@ -720,6 +720,7 @@ static int nlmclnt_cancel(struct nlm_hos
+ static void nlmclnt_cancel_callback(struct rpc_task *task, void *data)
+ {
+ 	struct nlm_rqst	*req = data;
++	u32 status = ntohl(req->a_res.status);
+ 
+ 	if (RPC_ASSASSINATED(task))
+ 		goto die;
+@@ -731,9 +732,9 @@ static void nlmclnt_cancel_callback(stru
+ 	}
+ 
+ 	dprintk("lockd: cancel status %d (task %d)\n",
+-			req->a_res.status, task->tk_pid);
++			status, task->tk_pid);
+ 
+-	switch (req->a_res.status) {
++	switch (status) {
+ 	case NLM_LCK_GRANTED:
+ 	case NLM_LCK_DENIED_GRACE_PERIOD:
+ 	case NLM_LCK_DENIED:
+@@ -744,7 +745,7 @@ static void nlmclnt_cancel_callback(stru
+ 		goto retry_cancel;
+ 	default:
+ 		printk(KERN_NOTICE "lockd: weird return %d for CANCEL call\n",
+-			req->a_res.status);
++			status);
+ 	}
+ 
+ die:
+@@ -768,9 +769,9 @@ static const struct rpc_call_ops nlmclnt
+  * Convert an NLM status code to a generic kernel errno
+  */
+ static int
+-nlm_stat_to_errno(u32 status)
++nlm_stat_to_errno(__be32 status)
+ {
+-	switch(status) {
++	switch(ntohl(status)) {
+ 	case NLM_LCK_GRANTED:
+ 		return 0;
+ 	case NLM_LCK_DENIED:
+diff --git a/fs/lockd/svclock.c b/fs/lockd/svclock.c
+index 7e219b9..2e6600a 100644
+--- a/fs/lockd/svclock.c
++++ b/fs/lockd/svclock.c
+@@ -645,7 +645,7 @@ static const struct rpc_call_ops nlmsvc_
+  * block.
+  */
+ void
+-nlmsvc_grant_reply(struct nlm_cookie *cookie, u32 status)
++nlmsvc_grant_reply(struct nlm_cookie *cookie, __be32 status)
+ {
+ 	struct nlm_block	*block;
+ 
+@@ -655,7 +655,7 @@ nlmsvc_grant_reply(struct nlm_cookie *co
+ 		return;
+ 
+ 	if (block) {
+-		if (status == NLM_LCK_DENIED_GRACE_PERIOD) {
++		if (status == nlm_lck_denied_grace_period) {
+ 			/* Try again in a couple of seconds */
+ 			nlmsvc_insert_block(block, 10 * HZ);
+ 		} else {
+diff --git a/fs/lockd/xdr.c b/fs/lockd/xdr.c
+index b7c9492..34dae5d 100644
+--- a/fs/lockd/xdr.c
++++ b/fs/lockd/xdr.c
+@@ -361,7 +361,7 @@ nlmsvc_decode_res(struct svc_rqst *rqstp
+ {
+ 	if (!(p = nlm_decode_cookie(p, &resp->cookie)))
+ 		return 0;
+-	resp->status = ntohl(*p++);
++	resp->status = *p++;
+ 	return xdr_argsize_check(rqstp, p);
+ }
+ 
+@@ -407,8 +407,8 @@ nlmclt_decode_testres(struct rpc_rqst *r
+ {
+ 	if (!(p = nlm_decode_cookie(p, &resp->cookie)))
+ 		return -EIO;
+-	resp->status = ntohl(*p++);
+-	if (resp->status == NLM_LCK_DENIED) {
++	resp->status = *p++;
++	if (resp->status == nlm_lck_denied) {
+ 		struct file_lock	*fl = &resp->lock.fl;
+ 		u32			excl;
+ 		s32			start, len, end;
+@@ -506,7 +506,7 @@ nlmclt_decode_res(struct rpc_rqst *req, 
+ {
+ 	if (!(p = nlm_decode_cookie(p, &resp->cookie)))
+ 		return -EIO;
+-	resp->status = ntohl(*p++);
++	resp->status = *p++;
+ 	return 0;
+ }
+ 
+diff --git a/fs/lockd/xdr4.c b/fs/lockd/xdr4.c
+index f4c0b2b..a782405 100644
+--- a/fs/lockd/xdr4.c
++++ b/fs/lockd/xdr4.c
+@@ -367,7 +367,7 @@ nlm4svc_decode_res(struct svc_rqst *rqst
+ {
+ 	if (!(p = nlm4_decode_cookie(p, &resp->cookie)))
+ 		return 0;
+-	resp->status = ntohl(*p++);
++	resp->status = *p++;
+ 	return xdr_argsize_check(rqstp, p);
+ }
+ 
+@@ -413,8 +413,8 @@ nlm4clt_decode_testres(struct rpc_rqst *
+ {
+ 	if (!(p = nlm4_decode_cookie(p, &resp->cookie)))
+ 		return -EIO;
+-	resp->status = ntohl(*p++);
+-	if (resp->status == NLM_LCK_DENIED) {
++	resp->status = *p++;
++	if (resp->status == nlm_lck_denied) {
+ 		struct file_lock	*fl = &resp->lock.fl;
+ 		u32			excl;
+ 		s64			start, end, len;
+@@ -512,7 +512,7 @@ nlm4clt_decode_res(struct rpc_rqst *req,
+ {
+ 	if (!(p = nlm4_decode_cookie(p, &resp->cookie)))
+ 		return -EIO;
+-	resp->status = ntohl(*p++);
++	resp->status = *p++;
+ 	return 0;
+ }
+ 
+diff --git a/fs/nfsd/lockd.c b/fs/nfsd/lockd.c
+index 11fdaf7..221acd1 100644
+--- a/fs/nfsd/lockd.c
++++ b/fs/nfsd/lockd.c
+@@ -22,7 +22,7 @@ #define NFSDDBG_FACILITY		NFSDDBG_LOCKD
+ /*
+  * Note: we hold the dentry use count while the file is open.
+  */
+-static u32
++static __be32
+ nlm_fopen(struct svc_rqst *rqstp, struct nfs_fh *f, struct file **filp)
+ {
+ 	__be32		nfserr;
+diff --git a/include/linux/lockd/bind.h b/include/linux/lockd/bind.h
+index aa50d89..246de1d 100644
+--- a/include/linux/lockd/bind.h
++++ b/include/linux/lockd/bind.h
+@@ -23,7 +23,7 @@ struct svc_rqst;
+  * This is the set of functions for lockd->nfsd communication
+  */
+ struct nlmsvc_binding {
+-	u32			(*fopen)(struct svc_rqst *,
++	__be32			(*fopen)(struct svc_rqst *,
+ 						struct nfs_fh *,
+ 						struct file **);
+ 	void			(*fclose)(struct file *);
+diff --git a/include/linux/lockd/lockd.h b/include/linux/lockd/lockd.h
+index 8c39654..46e8edb 100644
+--- a/include/linux/lockd/lockd.h
++++ b/include/linux/lockd/lockd.h
+@@ -191,7 +191,7 @@ __be32		  nlmsvc_cancel_blocked(struct n
+ unsigned long	  nlmsvc_retry_blocked(void);
+ void		  nlmsvc_traverse_blocks(struct nlm_host *, struct nlm_file *,
+ 					nlm_host_match_fn_t match);
+-void		  nlmsvc_grant_reply(struct nlm_cookie *, u32);
++void		  nlmsvc_grant_reply(struct nlm_cookie *, __be32);
+ 
+ /*
+  * File handling for the server personality
+diff --git a/include/linux/lockd/sm_inter.h b/include/linux/lockd/sm_inter.h
+index fc61d40..22a6458 100644
+--- a/include/linux/lockd/sm_inter.h
++++ b/include/linux/lockd/sm_inter.h
+@@ -24,7 +24,7 @@ #define SM_MAXSTRLEN	1024
+  * Arguments for all calls to statd
+  */
+ struct nsm_args {
+-	u32		addr;		/* remote address */
++	__be32		addr;		/* remote address */
+ 	u32		prog;		/* RPC callback info */
+ 	u32		vers;
+ 	u32		proc;
+diff --git a/include/linux/lockd/xdr.h b/include/linux/lockd/xdr.h
+index 29e7d9f..83a1f9f 100644
+--- a/include/linux/lockd/xdr.h
++++ b/include/linux/lockd/xdr.h
+@@ -69,7 +69,7 @@ typedef struct nlm_args nlm_args;
+  */
+ struct nlm_res {
+ 	struct nlm_cookie	cookie;
+-	u32			status;
++	__be32			status;
+ 	struct nlm_lock		lock;
+ };
+ 
+@@ -80,9 +80,9 @@ struct nlm_reboot {
+ 	char *		mon;
+ 	int		len;
+ 	u32		state;
+-	u32		addr;
+-	u32		vers;
+-	u32		proto;
++	__be32		addr;
++	__be32		vers;
++	__be32		proto;
+ };
+ 
+ /*
 -- 
-Dmitry
+1.4.2.GIT
+

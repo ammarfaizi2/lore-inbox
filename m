@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1032567AbWLGRBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424100AbWLHDUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1032567AbWLGRBK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 12:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1162046AbWLGRBJ
+	id S1424100AbWLHDUL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 22:20:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164391AbWLHDUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 12:01:09 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2818 "EHLO dspnet.fr.eu.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1032568AbWLGRBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 12:01:07 -0500
-Date: Thu, 7 Dec 2006 18:01:04 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       "Hack inc." <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/5] PCI MMConfig: Share what's shareable.
-Message-ID: <20061207170103.GB50797@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Muli Ben-Yehuda <muli@il.ibm.com>, Andi Kleen <ak@suse.de>,
-	linux-pci@atrey.karlin.mff.cuni.cz,
-	"Hack inc." <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20061207144952.GA45089@dspnet.fr.eu.org> <20061207150023.GH28515@rhun.haifa.ibm.com> <20061207151941.GA45592@dspnet.fr.eu.org> <20061207153506.GJ28515@rhun.haifa.ibm.com> <20061207155336.GA50797@dspnet.fr.eu.org> <20061207160317.GL28515@rhun.haifa.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061207160317.GL28515@rhun.haifa.ibm.com>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 7 Dec 2006 22:20:10 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:60570 "EHLO
+	pd5mo3so.prod.shaw.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1164390AbWLHDUJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 22:20:09 -0500
+Date: Thu, 07 Dec 2006 21:18:23 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
+In-reply-to: <fa.aML3aAeWqfac08XNpQa7Zu0AC8w@ifi.uio.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Matthias Schniedermeyer <ms@citd.de>, DervishD <lkml@dervishd.net>
+Message-id: <4578D97F.7020107@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no>
+ <fa.nPT9ZJ5poT8fZx3aWy0MqRK/gto@ifi.uio.no>
+ <fa.aML3aAeWqfac08XNpQa7Zu0AC8w@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.8 (Windows/20061025)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 06:03:17PM +0200, Muli Ben-Yehuda wrote:
-> On Thu, Dec 07, 2006 at 04:53:36PM +0100, Olivier Galibert wrote:
+Matthias Schniedermeyer wrote:
+> Hmmm. That's the only thing that i currently may be doing wrong.
+> I have a 1,5 Meter and a 4,5 Meter cable connected to the USB-Controller
+> and i only use of them depending on where the HDD is placed in my room,
+> the other one is dangling unconnected.
 > 
-> > # git grep '//' -- '*.c' |fgrep -v 'http://' |wc -l
-> > 14333
-> > 
-> > You lost that war ages ago.  Come join us in this millenia,
-> > line-comments exist officially in C since 1999, and were supported
-> > way before that.
-> 
-> If I was bored, I might've counted how many /* */ style comments we
-> had in the source,
+> Then i will unconnect the short cable and use the long cable exclusivly
+> and see if it gets better(tm).
 
-426K or so.
+That long cable could be part of the problem - I don't think the USB 
+specification allows for cables that long (something like a 6 foot max 
+as I recall).
 
-> then used it to construct an elaborate argument why C++-style
-> comments are evil and Conformance is Goodness, but I'm not, so I
-> won't.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-I've yet to see an actual technical argument against them.  I find
-them more readable by making it perfectly obvious what their
-application range is, contrary to /* where you need to find the
-closing */.  But that's just me.
-
-  OG.

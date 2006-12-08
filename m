@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163349AbWLGVHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164337AbWLHBWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163349AbWLGVHN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163350AbWLGVHN
+	id S1164337AbWLHBWH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 20:22:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164356AbWLHBWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:07:13 -0500
-Received: from hancock.steeleye.com ([71.30.118.248]:46298 "EHLO
-	hancock.sc.steeleye.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1163348AbWLGVHK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:07:10 -0500
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than
-	cmpxchg()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, davem@davemloft.com,
-       wli@holomorphy.com, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <639.1165521999@redhat.com>
-References: <20061207085409.228016a2.akpm@osdl.org>
-	 <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com>
-	 <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com>
-	 <639.1165521999@redhat.com>
-Content-Type: text/plain
-Date: Thu, 07 Dec 2006 15:06:37 -0600
-Message-Id: <1165525597.4698.46.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Thu, 7 Dec 2006 20:22:07 -0500
+Received: from gw.goop.org ([64.81.55.164]:57512 "EHLO mail.goop.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1164337AbWLHBWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 20:22:03 -0500
+Message-ID: <4578BE37.1010109@goop.org>
+Date: Thu, 07 Dec 2006 17:21:59 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.8 (X11/20061107)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add __GFP_MOVABLE for callers to flag allocations that
+ may be migrated
+References: <20061204113051.4e90b249.akpm@osdl.org> <Pine.LNX.4.64.0612041133020.32337@schroedinger.engr.sgi.com> <20061204120611.4306024e.akpm@osdl.org> <Pine.LNX.4.64.0612041211390.32337@schroedinger.engr.sgi.com> <20061204131959.bdeeee41.akpm@osdl.org> <Pine.LNX.4.64.0612041337520.851@schroedinger.engr.sgi.com> <20061204142259.3cdda664.akpm@osdl.org> <Pine.LNX.4.64.0612050754560.11213@schroedinger.engr.sgi.com> <20061205112541.2a4b7414.akpm@osdl.org> <Pine.LNX.4.64.0612051159510.18687@schroedinger.engr.sgi.com> <20061205214721.GE20614@skynet.ie> <Pine.LNX.4.64.0612051521060.20570@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0612060903161.7238@skynet.skynet.ie> <Pine.LNX.4.64.0612060921230.26185@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0612060921230.26185@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-07 at 20:06 +0000, David Howells wrote:
-> Remember: if you have to put a conditional jump in there, it's going to fail
-> one way or the other a certain percentage of the time, and that's going to
-> cause a pipeline stall, and these ops are used quite a lot.
+Christoph Lameter wrote:
+> On Wed, 6 Dec 2006, Mel Gorman wrote:
+>   
+>> Objective: Get contiguous block of free pages
+>> Required: Pages that can move
+>> Move means: Migrating them or reclaiming
+>> How we do it for high-order allocations: Take a page from the LRU, move
+>> 	the pages within that high-order block
+>> How we do it for unplug: Take the pages within the range of interest, move
+>> 	all the pages out of that range
+>>     
+>
+> This is mostly the same. For unplug we would clear the freelists of 
+> page in the unplug range and take the pages off the LRU that are in the 
+> range of interest and then move them. Page migration takes pages off the 
+> LRU.
+>   
 
-That we'd have to put a conditional jump in there is an incorrect
-assumption on risc machines.  At least on parisc we can do conditional
-nullifies in the executing instruction pipeline, so we'd read, nullify
-the following write if the bit were set.  We do this a lot in our page
-interruption handlers.
+You can also deal with memory hotplug by adding a Xen-style
+pseudo-physical vs machine address abstraction.  This doesn't help with
+making space for contiguous allocations, but it does allow you to move
+"physical" pages from one machine page to another if you want to.  The
+paravirt ops infrastructure has already appeared in -git, and I'll soon
+have patches to allow Xen's paravirtualized mmu mode to work with it,
+which is a superset of what would be required to implement movable pages
+for hotpluggable memory.
 
-James
+(I don't know if you actually want to consider this approach; I'm just
+pointing out that it definitely a bad idea to conflate the two problems
+of memory fragmentation and hotplug.)
 
-
+    J

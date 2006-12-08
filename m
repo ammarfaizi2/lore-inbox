@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1162629AbWLGSIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425215AbWLHIx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1162629AbWLGSIj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 13:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163135AbWLGSIj
+	id S1425215AbWLHIx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 03:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425218AbWLHIx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 13:08:39 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2770 "EHLO
-	pollux.ds.pg.gda.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1162629AbWLGSIh (ORCPT
+	Fri, 8 Dec 2006 03:53:56 -0500
+Received: from hu-out-0506.google.com ([72.14.214.228]:24387 "EHLO
+	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425216AbWLHIxz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 13:08:37 -0500
-Date: Thu, 7 Dec 2006 18:08:33 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Jeff Garzik <jeff@garzik.org>, Andy Fleming <afleming@freescale.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       David Howells <dhowells@redhat.com>, rdreier@cisco.com,
-       ben.collins@ubuntu.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export current_is_keventd() for libphy
-In-Reply-To: <457849E2.3080909@garzik.org>
-Message-ID: <Pine.LNX.4.64N.0612071754500.22220@blysk.ds.pg.gda.pl>
-References: <20061206234942.79d6db01.akpm@osdl.org> <1165125055.5320.14.camel@gullible>
- <20061203011625.60268114.akpm@osdl.org> <Pine.LNX.4.64N.0612051642001.7108@blysk.ds.pg.gda.pl>
- <20061205123958.497a7bd6.akpm@osdl.org> <6FD5FD7A-4CC2-481A-BC87-B869F045B347@freescale.com>
- <20061205132643.d16db23b.akpm@osdl.org> <adaac22c9cu.fsf@cisco.com>
- <20061205135753.9c3844f8.akpm@osdl.org> <Pine.LNX.4.64N.0612061506460.29000@blysk.ds.pg.gda.pl>
- <20061206075729.b2b6aa52.akpm@osdl.org> <Pine.LNX.4.64.0612060822260.3542@woody.osdl.org>
- <Pine.LNX.4.64.0612061719420.3542@woody.osdl.org> <20061206224207.8a8335ee.akpm@osdl.org>
- <9392.1165487379@redhat.com> <20061207024211.be739a4a.akpm@osdl.org>
- <457849E2.3080909@garzik.org>
+	Fri, 8 Dec 2006 03:53:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=CTMVmW4EFSTPKA0FPSA6AQrB4SWTF2AvYkjM7rrpCnQBbiNpO19UYufb4Anf+dwLfn5yV2UmEG+44XBZNYfDY3/wmdOdHioZstfanv9X1fSdquqgx4cRqfM9wbNvUgSM/IX2O9l+Pk7iB3R8oFCFah35yTlCvBr6k5ZqsOAueL8=
+Message-ID: <86802c440612080053s13e5318eq7ae83aff4c7eb21c@mail.gmail.com>
+Date: Fri, 8 Dec 2006 00:53:53 -0800
+From: "Yinghai Lu" <yinghai.lu@amd.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
+Cc: "Greg KH" <gregkh@suse.de>, "Peter Stuge" <stuge-linuxbios@cdy.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
+       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
+       "David Brownell" <david-b@pacbell.net>
+In-Reply-To: <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
+	 <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
+X-Google-Sender-Auth: d39b018b35ede3b2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2006, Jeff Garzik wrote:
+On 12/7/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> Ugh.  I'd check the code.  But it looks like my tweak to the
+> early fixmap code.  But my hunch is that my tweak to __fixmap
+> so that it's pud and pmd were prepopulated didn't take on
+> your build.
 
-> Looking into libphy's workqueue stuff, it has the following sequence:
-> 
-> 	disable interrupts
-> 	schedule_work()
-> 
-> 	... time passes ...
-> 	... workqueue routine is called ...
-> 
-> 	enable interrupts
-> 	handle interrupt
-> 
-> I really have to question if a workqueue was the best choice of direction for
-> such a sequence.  You don't want to put off handling an interrupt, with
-> interrupts disabled, for a potentially unbounded amount of time.
+I missed some options?
 
- This is because to ack the interrupt in the device the MDIO bus has to be 
-accessed and I gather for some implementations it may be too obnoxiously 
-slow for the interrupt context to cope with.  Note that only the interrupt 
-line used for the PHY is disabled (though obviously with consequences to 
-any sharers).
-
- Andy, could you please comment?
-
-  Maciej
+YH

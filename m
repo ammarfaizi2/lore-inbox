@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947439AbWLHWPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1947445AbWLHWRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947439AbWLHWPA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 17:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947437AbWLHWPA
+	id S1947445AbWLHWRU (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 17:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947444AbWLHWRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 17:15:00 -0500
-Received: from mga03.intel.com ([143.182.124.21]:40880 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947439AbWLHWO7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 17:14:59 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,515,1157353200"; 
-   d="scan'208"; a="155806842:sNHT17593905"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <jens.axboe@oracle.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] speed up single bio_vec allocation
-Date: Fri, 8 Dec 2006 14:14:58 -0800
-Message-ID: <000001c71b16$4ca91b90$d134030a@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AccZHnIaAavjHH94QdmLo2Oe1qdRtAAQicDwAG0U6sA=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Fri, 8 Dec 2006 17:17:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40336 "EHLO
+	pentafluge.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1947445AbWLHWRT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 17:17:19 -0500
+Subject: Re: [patch 1/2] agpgart - allow user-populated memory types.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Thomas =?ISO-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
+Cc: Dave Jones <davej@redhat.com>, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4579ADE3.6040609@tungstengraphics.com>
+References: <4579ADE3.6040609@tungstengraphics.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel International BV
+Date: Fri, 08 Dec 2006 23:17:16 +0100
+Message-Id: <1165616236.27217.108.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Chen, Kenneth wrote on Wednesday, December 06, 2006 10:20 AM
-> > Jens Axboe wrote on Wednesday, December 06, 2006 2:09 AM
-> > This is what I had in mind, in case it wasn't completely clear. Not
-> > tested, other than it compiles. Basically it eliminates the small
-> > bio_vec pool, and grows the bio by 16-bytes on 64-bit archs, or by
-> > 12-bytes on 32-bit archs instead and uses the room at the end for the
-> > bio_vec structure.
+On Fri, 2006-12-08 at 19:24 +0100, Thomas Hellström wrote:
 > 
-> Yeah, I had a very similar patch queued internally for the large benchmark
-> measurement.  I will post the result as soon as I get it.
+> +       }
+> +
+> +       if (alloc_size <= PAGE_SIZE) {
+> +               new->memory = kmalloc(alloc_size, GFP_KERNEL);
+> +       }
+> +       if (new->memory == NULL) {
+> +               new->memory = vmalloc(alloc_size); 
+
+this bit is more or less evil as well...
+
+1) vmalloc is expensive all the way, higher tlb use etc etc
+2) mixing allocation types is just a recipe for disaster
+3) if this isn't a frequent operation, kmalloc is fine upto at least 2
+pages; I doubt you'll ever want more
 
 
-Jens, this improves 0.25% on our db transaction processing benchmark setup.
-The patch tested is (on top of 2.6.19):
-http://marc.theaimsgroup.com/?l=linux-kernel&m=116539972229021&w=2
 
-- Ken
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Test the interaction between Linux and your BIOS via http://www.linuxfirmwarekit.org
+

@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163363AbWLGVHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425452AbWLHMCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163363AbWLGVHu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 16:07:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163361AbWLGVHu
+	id S1425452AbWLHMCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425449AbWLHMCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 16:07:50 -0500
-Received: from smtp2.Stanford.EDU ([171.67.20.25]:59078 "EHLO
-	smtp2.stanford.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1163359AbWLGVHr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 16:07:47 -0500
-Subject: Re: v2.6.19-rt6, yum/rpm
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, linux-kernel@vger.kernel.org,
-       linux-rt-users@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-       Clark Williams <williams@redhat.com>,
-       Sergei Shtylyov <sshtylyov@ru.mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Giandomenico De Tullio <ghisha@email.it>
-In-Reply-To: <20061207205819.GA21953@elte.hu>
-References: <20061205171114.GA25926@elte.hu>
-	 <1165524358.9244.33.camel@cmn3.stanford.edu>
-	 <20061207205819.GA21953@elte.hu>
-Content-Type: text/plain
-Date: Thu, 07 Dec 2006 13:07:45 -0800
-Message-Id: <1165525665.9244.39.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 07:02:08 -0500
+Received: from ns.suse.de ([195.135.220.2]:40790 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425442AbWLHMB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:01:56 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 23:02:08 +1100
+Message-Id: <1061208120208.18172@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 004 of 13] knfsd: SUNRPC: Don't set msg_name and msg_namelen when calling sock_recvmsg
+References: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-07 at 21:58 +0100, Ingo Molnar wrote:
-> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-> 
-> > Much better performance in terms of xruns with Jackd. Hardly any at 
-> > all as it should be. I'm starting to test -rt8 right now.
-> > 
-> > Now, I still don't have an smp machine to test so the improvement 
-> > could be because I'm just running 64 bit up instead of smp. Or it 
-> > could have been the hardware on that other machine that had some 
-> > problem (either because it was starting to fail or because the kernel 
-> > drivers for that hardware were somehow triggering the xruns).
-> 
-> i think it's the UP vs. SMP difference. We are chasing some SMP 
-> latencies right now that trigger on boxes that have deeper C sleep 
-> states. idle=poll seems to work around those problems.
 
-Oh well, it looked too good, anyway, it is winter here so the extra
-heating should be fine :-)
+From: Chuck Lever <chuck.lever@oracle.com>
 
-I'll try to get something to test smp again...
--- Fernando
+Clean-up: msg_name and msg_namelen are not used by sock_recvmsg, so
+don't bother to set them in svc_recvfrom.
 
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./net/sunrpc/svcsock.c |   23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
+
+diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
+--- .prev/net/sunrpc/svcsock.c	2006-12-08 13:42:26.000000000 +1100
++++ ./net/sunrpc/svcsock.c	2006-12-08 13:43:30.000000000 +1100
+@@ -560,21 +560,14 @@ svc_recv_available(struct svc_sock *svsk
+ static int
+ svc_recvfrom(struct svc_rqst *rqstp, struct kvec *iov, int nr, int buflen)
+ {
+-	struct msghdr	msg;
+-	struct socket	*sock;
+-	int		len, alen;
+-
+-	rqstp->rq_addrlen = sizeof(rqstp->rq_addr);
+-	sock = rqstp->rq_sock->sk_sock;
+-
+-	msg.msg_name    = &rqstp->rq_addr;
+-	msg.msg_namelen = sizeof(rqstp->rq_addr);
+-	msg.msg_control = NULL;
+-	msg.msg_controllen = 0;
+-
+-	msg.msg_flags	= MSG_DONTWAIT;
++	struct svc_sock	*svsk = rqstp->rq_sock;
++	struct msghdr msg = {
++		.msg_flags	= MSG_DONTWAIT,
++	};
++	int len;
+ 
+-	len = kernel_recvmsg(sock, &msg, iov, nr, buflen, MSG_DONTWAIT);
++	len = kernel_recvmsg(svsk->sk_sock, &msg, iov, nr, buflen,
++				msg.msg_flags);
+ 
+ 	/* sock_recvmsg doesn't fill in the name/namelen, so we must..
+ 	 */
+@@ -582,7 +575,7 @@ svc_recvfrom(struct svc_rqst *rqstp, str
+ 	rqstp->rq_addrlen = svsk->sk_remotelen;
+ 
+ 	dprintk("svc: socket %p recvfrom(%p, %Zu) = %d\n",
+-		rqstp->rq_sock, iov[0].iov_base, iov[0].iov_len, len);
++		svsk, iov[0].iov_base, iov[0].iov_len, len);
+ 
+ 	return len;
+ }

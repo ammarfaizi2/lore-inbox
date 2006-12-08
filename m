@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1426169AbWLHTit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1426177AbWLHTjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1426169AbWLHTit (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 14:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426166AbWLHTit
+	id S1426177AbWLHTjL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 14:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426175AbWLHTjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 14:38:49 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:54200 "EHLO smtp.osdl.org"
+	Fri, 8 Dec 2006 14:39:10 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:59198 "EHLO e4.ny.us.ibm.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1426169AbWLHTir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 14:38:47 -0500
-Date: Fri, 8 Dec 2006 11:37:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Christoph Lameter <clameter@sgi.com>, David Howells <dhowells@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
- doesn't support it
-In-Reply-To: <20061208193116.GI31068@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0612081136230.3516@woody.osdl.org>
-References: <20061206195820.GA15281@flint.arm.linux.org.uk>
- <4577DF5C.5070701@yahoo.com.au> <20061207150303.GB1255@flint.arm.linux.org.uk>
- <4578BD7C.4050703@yahoo.com.au> <20061208085634.GA25751@flint.arm.linux.org.uk>
- <4595.1165597017@redhat.com> <Pine.LNX.4.64.0612080903370.15959@schroedinger.engr.sgi.com>
- <20061208171816.GG31068@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0612080919220.16029@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0612081101280.3516@woody.osdl.org> <20061208193116.GI31068@flint.arm.linux.org.uk>
+	id S1426170AbWLHTjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 14:39:05 -0500
+Date: Fri, 8 Dec 2006 13:39:03 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux-security-module@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: [PATCH 2/2] file capabilities: honor !SECURE_NOROOT
+Message-ID: <20061208193903.GD18566@sergelap.austin.ibm.com>
+References: <20061208193657.GB18566@sergelap.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061208193657.GB18566@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Serge E. Hallyn <serue@us.ibm.com>
+Subject: [PATCH 2/2] file capabilities: honor !SECURE_NOROOT
 
+When the SECURE_NOROOT securebit is not set, allow root to
+keep it's capabilities over exec, rather than compute the
+capabilities based on file capabilities.
 
-On Fri, 8 Dec 2006, Russell King wrote:
-> 
-> I utterly disagree.  I could code atomic_add() as:
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+---
+ security/commoncap.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-Sure. And Alpha could do that too. If you write the C code a specific way, 
-you can make it work. That does NOT mean that you can expose it widely as 
-a portable interface - it's still just a very _nonportable_ interface that 
-you use internally within one architecture to implement other interfaces.
+diff --git a/security/commoncap.c b/security/commoncap.c
+index fde9695..be86acb 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -202,12 +202,16 @@ #endif
+ 
+ int cap_bprm_set_security (struct linux_binprm *bprm)
+ {
++	int ret;
++
+ 	/* Copied from fs/exec.c:prepare_binprm. */
+ 
+ 	cap_clear (bprm->cap_inheritable);
+ 	cap_clear (bprm->cap_permitted);
+ 	cap_clear (bprm->cap_effective);
+ 
++	ret = set_file_caps(bprm);
++
+ 	/*  To support inheritance of root-permissions and suid-root
+ 	 *  executables under compatibility mode, we raise all three
+ 	 *  capability sets for the file.
+@@ -225,7 +229,7 @@ int cap_bprm_set_security (struct linux_
+ 			cap_set_full (bprm->cap_effective);
+ 	}
+ 
+-	return set_file_caps(bprm);
++	return ret;
+ }
+ 
+ void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+-- 
+1.4.1
 
-			Linus

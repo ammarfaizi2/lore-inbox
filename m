@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760740AbWLHOOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425517AbWLHOQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760740AbWLHOOr (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 09:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760742AbWLHOOr
+	id S1425517AbWLHOQK (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 09:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760742AbWLHOQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 09:14:47 -0500
-Received: from ug-out-1314.google.com ([66.249.92.171]:33744 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760741AbWLHOOp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 09:14:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QAvNNOiOpM3azJ+e6GRvLDmFHxsDZTr8oEHdGV7FgzlwuqWwf9837jYLGWEmqx2ScYph+eivcZfw0c/zZzh4Jm/A/SaeXbtlbVFAVG8z+NA+SHsUB6WJ+x4pc3rKKCP/jDG3YvbrUc1Pc3N3tYFHxKPYh086FHN/c5QWNLQhXNg=
-Message-ID: <d120d5000612080614l3c4c5b1cy9437c2a43c2853dd@mail.gmail.com>
-Date: Fri, 8 Dec 2006 09:14:43 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Jiri Kosina" <jkosina@suse.cz>
-Subject: Re: [git pull] Input patches for 2.6.19
-Cc: "Linus Torvalds" <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Greg KH" <gregkh@suse.de>,
-       "Marcel Holtmann" <marcel@holtmann.org>
-In-Reply-To: <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 8 Dec 2006 09:16:10 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:48905 "EHLO jazzdrum.ncsc.mil"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1760739AbWLHOQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 09:16:08 -0500
+Subject: Re: -mm merge plans for 2.6.20
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20061204204024.2401148d.akpm@osdl.org>
+References: <20061204204024.2401148d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 08 Dec 2006 09:09:34 -0500
+Message-Id: <1165586974.12263.190.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.2.1 (2.8.2.1-2.fc6) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200612080157.04822.dtor@insightbb.com>
-	 <Pine.LNX.4.64.0612081038520.1665@twin.jikos.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-12-04 at 20:40 -0800, Andrew Morton wrote:
+> mprotect-patch-for-use-by-slim.patch
+> integrity-service-api-and-dummy-provider.patch
+> integrity-service-api-and-dummy-provider-cleanup-use-of-configh.patch
+> integrity-service-api-and-dummy-provider-compilation-warning-fix.patch
+> slim-main-patch.patch
+> slim-main-patch-socket_post_create-hook-return-code.patch
+> slim-main-patch-misc-cleanups-requested-at-inclusion-time.patch
+> slim-main-patch-handle-failure-to-register.patch
+> slim-main-patch-fix-bug-with-mm_users-usage.patch
+> slim-main-patch-security-slim-slm_mainc-make-2-functions-static.patch
+> slim-secfs-patch.patch
+> slim-secfs-patch-slim-correct-use-of-snprintf.patch
+> slim-secfs-patch-cleanup-use-of-configh.patch
+> slim-make-and-config-stuff.patch
+> slim-make-and-config-stuff-makefile-fix.patch
+> slim-debug-output.patch
+> slim-fix-security-issue-with-the-task_post_setuid-hook.patch
+> slim-secfs-inode-i_private-build-fix.patch
+> slim-documentation.patch
+> fdtable-make-fdarray-and-fdsets-equal-in-size-slim.patch
+> 
+>  Shall hold in -mm.
 
-On 12/8/06, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Fri, 8 Dec 2006, Dmitry Torokhov wrote:
->
-> > Hi Linus,
-> > Please pull from:
-> > git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
-> > or
-> > master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
-> > to receive updates for input subsystem.
-> >  b/drivers/usb/input/hid-core.c                 |    7
-> >  b/drivers/usb/input/hid-input.c                |    4
-> >  b/drivers/usb/input/hid.h                      |    1
->
-> OK, this is going to break the merge from Greg's tree of generic HID
-> layer, which was planned for today.
->
-> The merge will probably emit a large .rej files, due to the large blocks
-> of code being moved around, but it seems that most of the changes which
-> would conflict with the merge could be trivially solved by hand.
->
-> Greg, should I prepare a new version of the generic HID patches against
-> merged Linus' + Dmitry's trees and send them to you?
->
-
-Hmm, I thought that git would take care of resolving the merge
-conflict but it was 2AM thought and obviously not a smart one. Sorry.
+Why?  I haven't seen any evidence that prior review comments have been
+addressed so far, and a fresh patch set would be beneficial anyway to
+facilitate full review of the updated code and to allow them to fix
+their patch descriptions as well (as they were wrong in some instances,
+describing older versions of the code).
 
 -- 
-Dmitry
+Stephen Smalley
+National Security Agency
+

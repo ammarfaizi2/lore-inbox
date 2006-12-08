@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1425615AbWLHQmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425619AbWLHQn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425615AbWLHQmI (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 11:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425616AbWLHQmI
+	id S1425619AbWLHQn3 (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 11:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425618AbWLHQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 11:42:08 -0500
-Received: from torres.zugschlus.de ([85.10.211.154]:44940 "EHLO
-	torres.zugschlus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425615AbWLHQmH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 11:42:07 -0500
-Date: Fri, 8 Dec 2006 17:42:06 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 file content corruption on ext3
-Message-ID: <20061208164206.GA1125@torres.l21.ma.zugschlus.de>
-References: <20061207155740.GC1434@torres.l21.ma.zugschlus.de> <4578465D.7030104@cfl.rr.com> <1165541892.1063.0.camel@sebastian.intellilink.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1165541892.1063.0.camel@sebastian.intellilink.co.jp>
-User-Agent: Mutt/1.5.9i
+	Fri, 8 Dec 2006 11:43:29 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37309 "EHLO omx1.sgi.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1425616AbWLHQn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 11:43:27 -0500
+Date: Fri, 8 Dec 2006 08:43:09 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] WorkStruct: Implement generic UP cmpxchg() where an arch
+ doesn't support it
+In-Reply-To: <20061208163127.GD31068@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0612080841560.15472@schroedinger.engr.sgi.com>
+References: <20061206164314.19870.33519.stgit@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0612061054360.27047@schroedinger.engr.sgi.com>
+ <20061206190025.GC9959@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612061111130.27263@schroedinger.engr.sgi.com>
+ <20061206195820.GA15281@flint.arm.linux.org.uk> <4577DF5C.5070701@yahoo.com.au>
+ <20061207150303.GB1255@flint.arm.linux.org.uk> <4578BD7C.4050703@yahoo.com.au>
+ <20061208085634.GA25751@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0612080758120.15242@schroedinger.engr.sgi.com>
+ <20061208163127.GD31068@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2006 at 10:38:12AM +0900, Fernando Luis Vázquez Cao wrote:
-> Does the patch below help?
-> 
-> http://marc.theaimsgroup.com/?l=linux-ext4&m=116483980823714&w=4
+On Fri, 8 Dec 2006, Russell King wrote:
 
-No, pkgcache.bin still getting corrupted within two hours of using
-2.6.19.
+> You're advocating cmpxchg is adopted by all architectures.  It isn't
+> available on many architectures, and those which it can be requires
+> unnecessarily complicated coding.
 
-Greetings
-Marc, back to 2.6.18.3 for the time being
+Not having cmpxchg is even worse because it requires the introduction and 
+maintenance of large sets of arch specific operations. Much more complex.
 
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Mannheim, Germany  |  lose things."    Winona Ryder | Fon: *49 621 72739834
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 621 72739835
+

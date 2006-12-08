@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424300AbWLHEKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424059AbWLHC15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424300AbWLHEKb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 23:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424304AbWLHEKb
+	id S1424059AbWLHC15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 21:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424093AbWLHC15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 23:10:31 -0500
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:44276 "EHLO
-	liaag1aa.mx.compuserve.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1424300AbWLHEKa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 23:10:30 -0500
-Date: Thu, 7 Dec 2006 23:02:03 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6 tmpfs/swap performance oddity
-To: "Magnus Naeslund(k)" <mag@kite.se>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200612072306_MC3-1-D448-DB69@compuserve.com>
+	Thu, 7 Dec 2006 21:27:57 -0500
+Received: from ns.suse.de ([195.135.220.2]:34855 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1424059AbWLHC14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 21:27:56 -0500
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] speed up single bio_vec allocation
+References: <000301c717da$3ecf4970$2589030a@amr.corp.intel.com>
+From: Andi Kleen <ak@suse.de>
+Date: 08 Dec 2006 03:27:54 +0100
+In-Reply-To: <000301c717da$3ecf4970$2589030a@amr.corp.intel.com>
+Message-ID: <p733b7rdsut.fsf@bingen.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <457706CB.20802@kite.se>
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+> 
+> I tried to use cache_line_size() to find out the alignment of struct bio, but
+> stumbled on that it is a runtime function for x86_64.
 
-On Wed, 06 Dec 2006 19:07:07 +0100, Magnus Naeslund wrote:
+It's a single global variable access:
 
-> Is there any secret knobs that I can use to
-> tune swap performance?
+#define cache_line_size() (boot_cpu_data.x86_cache_alignment)
 
-You might try changing /proc/sys/vm/page-cluster to 5.
+Or do you mean it caused cache misses?  boot_cpu_data is cache aligned
+and practically read only, so there shouldn't be any false sharing at least.
 
--- 
-Chuck
-"Even supernovas have their duller moments."
+-Andi
 

@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425098AbWLHHmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425454AbWLHMFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425098AbWLHHmo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 02:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425097AbWLHHmo
+	id S1425454AbWLHMFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425469AbWLHMEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 02:42:44 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43709 "EHLO
-	ebiederm.dsl.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425096AbWLHHmo (ORCPT
+	Fri, 8 Dec 2006 07:04:42 -0500
+Received: from outgoing1.smtp.agnat.pl ([193.239.44.83]:48402 "EHLO
+	outgoing1.smtp.agnat.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425454AbWLHMEh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 02:42:44 -0500
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Lu, Yinghai" <yinghai.lu@amd.com>
-Cc: "Greg KH" <gregkh@suse.de>, "Peter Stuge" <stuge-linuxbios@cdy.org>,
-       linux-usb-devel@lists.sourceforge.net,
-       "Stefan Reinauer" <stepan@coresystems.de>, linux-kernel@vger.kernel.org,
-       linuxbios@linuxbios.org, "Andi Kleen" <ak@suse.de>,
-       "David Brownell" <david-b@pacbell.net>
-Subject: Re: [LinuxBIOS] [linux-usb-devel] [RFC][PATCH 0/2] x86_64 Early usb debug port support.
-References: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-Date: Fri, 08 Dec 2006 00:42:04 -0700
-In-Reply-To: <5986589C150B2F49A46483AC44C7BCA49072A5@ssvlexmb2.amd.com>
-	(Yinghai Lu's message of "Thu, 7 Dec 2006 19:48:17 -0800")
-Message-ID: <m17ix24ywj.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+	Fri, 8 Dec 2006 07:04:37 -0500
+From: Arkadiusz Miskiewicz <arekm@maven.pl>
+Organization: SelfOrganizing
+To: Andi Kleen <ak@suse.de>
+Subject: Re: What was in the x86 merge for .20
+Date: Fri, 8 Dec 2006 13:04:23 +0100
+User-Agent: KMail/1.9.5
+Cc: linux-kernel@vger.kernel.org
+References: <200612080401.25746.ak@suse.de>
+In-Reply-To: <200612080401.25746.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200612081304.23230.arekm@maven.pl>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lu, Yinghai" <yinghai.lu@amd.com> writes:
+On Friday 08 December 2006 04:01, Andi Kleen wrote:
 
-> -----Original Message-----
-> From: linuxbios-bounces@linuxbios.org
-> [mailto:linuxbios-bounces@linuxbios.org] On Behalf Of
-> ebiederm@xmission.com
->
->
->>Ok due to popular demands here is the slightly fixed patch that works
->>on both i386 and x86_64.  For the i386 version you must not have
->>HIGHMEM64G enabled. 
->
->>I just rolled it all into one patch as I'm to lazy to transmit all
->>3 of them.
->
->
-> I got
->
-> Firmware type: LinuxBIOS
-> Linux version 2.6.19-smp-gc9976797-dirty (root@lbsrv) (gcc version
-> 4.0.2) #196 6
-> Command line: earlyprintk=ttyS0,115200 apic=debug pci=noacpi,routeirq
-> snd-hda-i
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 0000000000001000 (reserved)
->  BIOS-e820: 0000000000001000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000c0000 - 00000000000f0000 (usable)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 00000000c0000000 (usable)
->  BIOS-e820: 0000000100000000 - 0000000240000000 (usable)
-> dbgp_num: 0
-> Found EHCI debug port
-> bar: 10 offset: 098
-> bar: 10 offset: 098
-> dbgp pre-set_fixmap_nocache
-> PANIC: early exception rip ffffffff809c24b4 error 0 cr2 ffff810000203ff8
->
-> Call Trace:
->  [<ffffffff809c24b4>] __set_fixmap+0x84/0x202
->  [<ffffffff809c05bb>] early_dbgp_init+0x259/0x55c
->  [<ffffffff8022d958>] __call_console_drivers+0x64/0x72
->  [<ffffffff809b242b>] do_early_param+0x0/0x57
->  [<ffffffff809c0a20>] setup_early_printk+0x162/0x17e
->  [<ffffffff809b2459>] do_early_param+0x2e/0x57
->  [<ffffffff8023d051>] parse_args+0x159/0x1f3
->  [<ffffffff809b24c2>] parse_early_param+0x40/0x4c
->  [<ffffffff809b88ca>] setup_arch+0x1c1/0x636
->  [<ffffffff809b2534>] start_kernel+0x55/0x208
->  [<ffffffff809b2173>] _sinittext+0x173/0x177
->
-> RIP __set_fixmap+0x84/0x202
+> - Support for a Processor Data Area (PDA) on i386. This makes
+> the code more similar to x86-64 and will allow some other
+> optimizations in the future.
 
-Ugh.  I'd check the code.  But it looks like my tweak to the
-early fixmap code.  But my hunch is that my tweak to __fixmap
-so that it's pud and pmd were prepopulated didn't take on
-your build.
+  LD      .tmp_vmlinux1
+arch/i386/kernel/built-in.o: In function `math_emulate':
+(.text+0x3809): undefined reference to `_proxy_pda'
+arch/i386/kernel/built-in.o: In function `smp_apic_timer_interrupt':
+(.text+0xe140): undefined reference to `_proxy_pda'
+kernel/built-in.o: In function `sys_set_tid_address':
+(.text+0x370b): undefined reference to `_proxy_pda'
+kernel/built-in.o: In function `switch_uid':
+(.text+0xcc6c): undefined reference to `_proxy_pda'
+mm/built-in.o: In function `sys_munlock':
+(.text+0xcaf1): undefined reference to `_proxy_pda'
+mm/built-in.o:(.text+0xcc11): more undefined references to `_proxy_pda' follow
+make: *** [.tmp_vmlinux1] B³±d 1
 
-> With Eric code in LinuxBIOS, it will report "No device found in debug
-> port"
+Something related (git tree fetched 1-2h ago) ?
 
-Hmm.  At least this is partial progress :)
+> -Andi
 
-Eric
-
+-- 
+Arkadiusz Mi¶kiewicz        PLD/Linux Team
+arekm / maven.pl            http://ftp.pld-linux.org/

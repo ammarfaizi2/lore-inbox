@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938020AbWLHJSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424321AbWLHEhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S938020AbWLHJSf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 04:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938019AbWLHJSf
+	id S1424321AbWLHEhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 23:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424339AbWLHEhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 04:18:35 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:45951 "EHLO
-	ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S938020AbWLHJSe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 04:18:34 -0500
-Date: Fri, 8 Dec 2006 09:18:33 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] CONFIG_COMPUTONE should depend on ISA|EISA|PCI
-Message-ID: <20061208091833.GM4587@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Dec 2006 23:37:18 -0500
+Received: from ns2.suse.de ([195.135.220.15]:56876 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1424321AbWLHEhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 23:37:16 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [patch] speed up single bio_vec allocation
+Date: Fri, 8 Dec 2006 05:37:11 +0100
+User-Agent: KMail/1.9.5
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <000001c71a80$90342120$f180030a@amr.corp.intel.com>
+In-Reply-To: <000001c71a80$90342120$f180030a@amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200612080537.11936.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- drivers/char/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Friday 08 December 2006 05:23, Chen, Kenneth W wrote:
+> Andi Kleen wrote on Thursday, December 07, 2006 6:28 PM
+> > "Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+> > > I tried to use cache_line_size() to find out the alignment of struct bio, but
+> > > stumbled on that it is a runtime function for x86_64.
+> > 
+> > It's a single global variable access:
+> > 
+> > #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+> > 
+> > Or do you mean it caused cache misses?  boot_cpu_data is cache aligned
+> > and practically read only, so there shouldn't be any false sharing at least.
+> 
+> No, I was looking for a generic constant that describes cache line size.
 
-diff --git a/drivers/char/Kconfig b/drivers/char/Kconfig
-index 24f922f..dc75543 100644
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -97,7 +97,7 @@ config SERIAL_NONSTANDARD
- 
- config COMPUTONE
- 	tristate "Computone IntelliPort Plus serial support"
--	depends on SERIAL_NONSTANDARD
-+	depends on SERIAL_NONSTANDARD && (ISA || EISA || PCI)
- 	---help---
- 	  This driver supports the entire family of Intelliport II/Plus
- 	  controllers with the exception of the MicroChannel controllers and
--- 
-1.4.2.GIT
+The same kernel binary runs on CPUs with 
+different cache line sizes. For example P4 has 128 bytes, Core2 64 bytes.
+
+However there is a worst case alignment that is used for static
+alignments which is L1_CACHE_BYTES. It would be normally 128 bytes
+on a x86 kernel, unless it is especially compiled for a CPU with
+a smaller cache line size.
+
+-Andi

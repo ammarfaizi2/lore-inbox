@@ -1,96 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164357AbWLHBQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424056AbWLHCRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164357AbWLHBQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 20:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164340AbWLHBOb
+	id S1424056AbWLHCRo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Dec 2006 21:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423857AbWLHCRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 20:14:31 -0500
-Received: from mail.suse.de ([195.135.220.2]:58527 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164339AbWLHBOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 20:14:18 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 12:14:30 +1100
-Message-Id: <1061208011430.30713@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 013 of 18] knfsd: nfsd4: make verify and nverify wrappers
-References: <20061208120939.30428.patches@notabene>
+	Thu, 7 Dec 2006 21:17:43 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:39399 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1164377AbWLHCRm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Dec 2006 21:17:42 -0500
+Date: Thu, 7 Dec 2006 21:17:14 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Josef 'Jeff' Sipek" <jsipek@cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       viro@ftp.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       mhalcrow@us.ibm.com
+Subject: Re: [PATCH 26/35] Unionfs: Privileged operations workqueue
+Message-ID: <20061208021714.GA14363@filer.fsl.cs.sunysb.edu>
+References: <1165235468365-git-send-email-jsipek@cs.sunysb.edu> <1165235471170-git-send-email-jsipek@cs.sunysb.edu> <Pine.LNX.4.61.0612052020420.18570@yvahk01.tjqt.qr> <20061205195013.GE2240@filer.fsl.cs.sunysb.edu> <20061206173245.GA23405@filer.fsl.cs.sunysb.edu> <Pine.LNX.4.61.0612061939340.16042@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0612061939340.16042@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-From: J.Bruce Fields <bfields@fieldses.org>
-
-Make wrappers for verify and nverify, for consistency with other ops.
-
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/nfsd/nfs4proc.c |   28 ++++++++++++++++++++++------
- 1 file changed, 22 insertions(+), 6 deletions(-)
-
-diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
---- .prev/fs/nfsd/nfs4proc.c	2006-12-08 12:09:29.000000000 +1100
-+++ ./fs/nfsd/nfs4proc.c	2006-12-08 12:09:30.000000000 +1100
-@@ -681,7 +681,7 @@ nfsd4_write(struct svc_rqst *rqstp, stru
-  * to NFS_OK after the call; NVERIFY by mapping NFSERR_NOT_SAME to NFS_OK.
-  */
- static __be32
--nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
-+_nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- 	     struct nfsd4_verify *verify)
- {
- 	__be32 *buf, *p;
-@@ -733,6 +733,26 @@ out_kfree:
- 	return status;
- }
+On Wed, Dec 06, 2006 at 07:46:50PM +0100, Jan Engelhardt wrote:
+> I smell a big conspiracy! So yet again it's mixed mixed
+> 
+> fs$ grep __init */*.c | grep -v ' init_'
+> sysfs/mount.c:int __init sysfs_init(void)
+> sysv/inode.c:int __init sysv_init_icache(void)
+> proc/vmcore.c:static int __init vmcore_init(void)
+> proc/nommu.c:static int __init proc_nommu_init(void)
+> proc/proc_misc.c:void __init proc_misc_init(void)
+> proc/proc_tty.c:void __init proc_tty_init(void)
+> proc/root.c:void __init proc_root_init(void)
  
-+static __be32
-+nfsd4_nverify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
-+	      struct nfsd4_verify *verify)
-+{
-+	__be32 status;
-+
-+	status = _nfsd4_verify(rqstp, cstate, verify);
-+	return status == nfserr_not_same ? nfs_ok : status;
-+}
-+
-+static __be32
-+nfsd4_verify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
-+	     struct nfsd4_verify *verify)
-+{
-+	__be32 status;
-+
-+	status = _nfsd4_verify(rqstp, cstate, verify);
-+	return status == nfserr_same ? nfs_ok : status;
-+}
-+
- /*
-  * NULL call.
-  */
-@@ -911,10 +931,8 @@ nfsd4_proc_compound(struct svc_rqst *rqs
- 			op->status = nfsd4_lookupp(rqstp, cstate);
- 			break;
- 		case OP_NVERIFY:
--			op->status = nfsd4_verify(rqstp, cstate,
-+			op->status = nfsd4_nverify(rqstp, cstate,
- 						  &op->u.nverify);
--			if (op->status == nfserr_not_same)
--				op->status = nfs_ok;
- 			break;
- 		case OP_OPEN:
- 			op->status = nfsd4_open(rqstp, cstate,
-@@ -975,8 +993,6 @@ nfsd4_proc_compound(struct svc_rqst *rqs
- 		case OP_VERIFY:
- 			op->status = nfsd4_verify(rqstp, cstate,
- 						  &op->u.verify);
--			if (op->status == nfserr_same)
--				op->status = nfs_ok;
- 			break;
- 		case OP_WRITE:
- 			op->status = nfsd4_write(rqstp, cstate, &op->u.write);
+Yep.
+ 
+> >> > >+void __unionfs_mknod(void *data)
+> >> > >+{
+> >> > >+	struct sioq_args *args = data;
+> >> > >+	struct mknod_args *m = &args->mknod;
+> >> > 
+> >> > Care to make that: const struct mknod_args *m = &args->mknod;?
+> >> > (Same for other places)
+> >>  
+> >> Right.
+> > 
+> >If I make the *args = data line const, then gcc (4.1) yells about modifying
+> >a const variable 3 lines down..
+> >
+> >args->err = vfs_mknod(m->parent, m->dentry, m->mode, m->dev);
+> >
+> >Sure, I could cast, but that seems like adding cruft for no good reason.
+> 
+> No I despise casts more than missing consts. Why would gcc throw a warning?
+> Let's take this super simple program
+
+No, this program doesn't tickle the problem.. Try to compile this one:
+
+<<<
+struct mknod_args {
+	int mode;
+	int dev;
+};
+
+void  __mknod(const void *data)
+{
+	const struct mknod_args *args = data;
+	args->mode = 0;
+}
+
+int main(void) {
+	const struct mknod_args *m;
+	__mknod(m);
+	return 0;
+}
+>>>
+
+$ gcc -Wall -c test.c
+test.c: In function âmknodâtest.c:10: error: assignment of read-only location
+
+
+Josef "Jeff" Sipek.
+
+-- 
+Reality is merely an illusion, albeit a very persistent one.
+		- Albert Einstein

@@ -1,55 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425415AbWLHLnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424751AbWLHGQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425415AbWLHLnI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425414AbWLHLnH
+	id S1424751AbWLHGQr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 01:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424755AbWLHGQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:43:07 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:2646 "EHLO
-	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425412AbWLHLnD (ORCPT
+	Fri, 8 Dec 2006 01:16:46 -0500
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:46454 "EHLO
+	filer.fsl.cs.sunysb.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1424750AbWLHGQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:43:03 -0500
-Subject: Re: [RFC][PATCH] Pseudo-random number generator
-From: Jan Glauber <jan.glauber@de.ibm.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200612071943.14153.arnd@arndb.de>
-References: <1164979155.5882.23.camel@bender>
-	 <200612071606.33951.arnd@arndb.de> <1165504796.5607.17.camel@bender>
-	 <200612071943.14153.arnd@arndb.de>
-Content-Type: text/plain
-Date: Fri, 08 Dec 2006 12:42:15 +0100
-Message-Id: <1165578135.5343.15.camel@bender>
+	Fri, 8 Dec 2006 01:16:45 -0500
+Date: Fri, 8 Dec 2006 01:16:41 -0500
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 2/3] ensure unique i_ino in filesystems without permanent inode numbers (libfs superblock cleanup)
+Message-ID: <20061208061641.GA24255@filer.fsl.cs.sunysb.edu>
+References: <457891F4.8030501@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <457891F4.8030501@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-12-07 at 19:43 +0100, Arnd Bergmann wrote:
-> On Thursday 07 December 2006 16:19, Jan Glauber wrote:
-> > Hm, why is /dev/urandom implemented in the kernel?
-> > 
-> > It could be done completely in user-space (like libica already does)
-> > but I think having a device node where you can read from is the simplest
-> > implementation. Also, if we can solve the security flaw we could use it
-> > as replacement for /dev/urandom.
+On Thu, Dec 07, 2006 at 05:13:08PM -0500, Jeff Layton wrote:
+> This patch ensures that the inodes allocated by the functions get_sb_pseudo
+> and simple_fill_super are unique, provided of course, that the filesystems
+> calling them play by the rules. Currently that isn't the case, but will be
+> as I get to each of the filesystems.
 > 
-> urandom is more useful, because can't be implemented in user space at
-> all. /dev/urandom will use the real randomness from the kernel as a seed
-> without depleting the entropy pool. How does your /dev/prandom device
-> compare to /dev/urandom performance-wise? If it can be made to use
-> the same input data and it turns out to be significantly faster, I can
-> see some use for it.
+> The patch itself is pretty simple, but I also had to fix up the callers of
+> simple_fill_super to make sure they passed in the seq flag. For this first
+> pass, I set it on any filesystem with an empty "files" struct to 0. That may
+> need to be revised as I review each filesystem, but should be OK for now.
+> 
+> Signed-off-by: Jeff Layton <jlayton@redhat.com>
+> 
+> diff --git a/drivers/infiniband/hw/ipath/ipath_fs.c 
+> b/drivers/infiniband/hw/ipath/ipath_fs.c
+> index d9ff283..c127995 100644
+> --- a/drivers/infiniband/hw/ipath/ipath_fs.c
+> +++ b/drivers/infiniband/hw/ipath/ipath_fs.c
+> @@ -514,7 +514,7 @@ static int ipathfs_fill_super(struct sup
+>  		{""},
+>  	};
+> 
+> -	ret = simple_fill_super(sb, IPATHFS_MAGIC, files);
+> +	ret = simple_fill_super(sb, IPATHFS_MAGIC, files, 1);
 
-The performance of the PRNG without constantly adding entropy is up tp
-factor 40 faster than /dev/urandom ;- , depending on the block size of
-the read.
+I don't know...the magic looking 1 and 0 (later in the patch) seem a bit
+arbitrary. Maybe a #define is in order?
 
-With the current patch it performs not so well because of the STCKE loop
-before every KMC. I think about removing them and changing the
-periodically seed to use get_random_bytes instead.
+> -int simple_fill_super(struct super_block *s, int magic, struct tree_descr 
+> *files)
+> +/*
+> + * Some filesystems require that particular entries have particular i_ino 
+> values. Those
+> + * callers need to set the "seq" flag to make sure that i_ino is assigned 
+> sequentially
+> + * to the files starting with 0.
+> + */
+> +int simple_fill_super(struct super_block *s, int magic, struct tree_descr 
+> *files, int seq)
 
-Jan
+Line wraped.
 
+> @@ -399,7 +407,10 @@ int simple_fill_super(struct super_block
+>  		inode->i_blocks = 0;
+>  		inode->i_atime = inode->i_mtime = inode->i_ctime = 
+>  		CURRENT_TIME;
+
+I'd indent CURRENT_TIME a bit.
+
+Josef "Jeff" Sipek.
+
+-- 
+If I have trouble installing Linux, something is wrong. Very wrong.
+		- Linus Torvalds

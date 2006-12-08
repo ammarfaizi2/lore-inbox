@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425404AbWLHLO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938052AbWLHMBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425404AbWLHLO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 06:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938041AbWLHLO0
+	id S938052AbWLHMBi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:01:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938056AbWLHMBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 06:14:26 -0500
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2589 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S938038AbWLHLOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 06:14:25 -0500
-Date: Fri, 8 Dec 2006 11:14:11 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, davem@davemloft.com,
-       wli@holomorphy.com, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] WorkStruct: Use direct assignment rather than cmpxchg()
-Message-ID: <20061208111410.GA31068@flint.arm.linux.org.uk>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	davem@davemloft.com, wli@holomorphy.com, matthew@wil.cx,
-	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20061207234250.GH1255@flint.arm.linux.org.uk> <20061207085409.228016a2.akpm@osdl.org> <20061207153138.28408.94099.stgit@warthog.cambridge.redhat.com> <20061207153143.28408.7274.stgit@warthog.cambridge.redhat.com> <639.1165521999@redhat.com> <26012.1165535903@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <26012.1165535903@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 8 Dec 2006 07:01:38 -0500
+Received: from mail.suse.de ([195.135.220.2]:40758 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S938052AbWLHMBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 07:01:37 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 8 Dec 2006 23:01:47 +1100
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 13] knfsd: Preparation for IPv6 support
+Message-ID: <20061208225655.17970.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2006 at 11:58:23PM +0000, David Howells wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> > Incorrect.  pre-v6 ARM bitops for test_and_xxx_bit() all do:
-> > 
-> > 	save and disable irqs
-> > 	load value
-> > 	test bit
-> > 	if not in desired state, alter bit and write it back
-> > 	restore irqs
-> 
-> Hmmm...  ARM has two implementations.  One in the header files which is what I
-> consulted when writing that email:
-> 
-> static inline void ____atomic_set_bit(unsigned int bit, volatile unsigned long *p)
-> {
-> 	unsigned long flags;
-> 	unsigned long mask = 1UL << (bit & 31);
-> 
-> 	p += bit >> 5;
-> 
-> 	raw_local_irq_save(flags);
-> 	*p |= mask;
-> 	raw_local_irq_restore(flags);
-> }
-> 
-> And the other in the libs which does as you say.  Why the one in the header
-> file at all?
+Following are 13 patches for nfsd/sunrpc that are suitabble for
+2.6.20.  They are from Chuck Lever and generalise some dependancies on
+IPv4 to prepare the way for IPv6.  There is still a lot of work to do
+before we can actually use IPv6 to talk to NFSD, but this removes some
+barriers.
 
-These are the constant versions, where the compiler can optimise the
-mask and word offset itself.
+Thanks,
+NeilBrown
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+ [PATCH 001 of 13] knfsd: SUNRPC: update internal API: separate pmap register and temp sockets
+ [PATCH 002 of 13] knfsd: SUNRPC: allow creating an RPC service without registering with portmapper
+ [PATCH 003 of 13] knfsd: SUNRPC: Cache remote peer's address in svc_sock.
+ [PATCH 004 of 13] knfsd: SUNRPC: Don't set msg_name and msg_namelen when calling sock_recvmsg
+ [PATCH 005 of 13] knfsd: SUNRPC: Use sockaddr_storage to store address in svc_deferred_req
+ [PATCH 006 of 13] knfsd: SUNRPC: Add a function to format the address in an svc_rqst for printing
+ [PATCH 007 of 13] knfsd: SUNRPC: Provide room in svc_rqst for larger addresses
+ [PATCH 008 of 13] knfsd: SUNRPC: Make rq_daddr field address-version independent
+ [PATCH 009 of 13] knfsd: SUNRPC: teach svc_sendto() to deal with IPv6 addresses
+ [PATCH 010 of 13] knfsd: SUNRPC: add a "generic" function to see if the peer uses a secure port
+ [PATCH 011 of 13] knfsd: SUNRPC: Support IPv6 addresses in svc_tcp_accept
+ [PATCH 012 of 13] knfsd: SUNRPC: support IPv6 addresses in RPC server's UDP receive path
+ [PATCH 013 of 13] knfsd: SUNRPC: fix up svc_create_socket() to take a sockaddr struct + length

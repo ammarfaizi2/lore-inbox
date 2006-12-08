@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938022AbWLHKzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425415AbWLHLnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S938022AbWLHKzE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 05:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425345AbWLHKzE
+	id S1425415AbWLHLnI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425414AbWLHLnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 05:55:04 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:47939 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S938022AbWLHKzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 05:55:02 -0500
-Date: Fri, 8 Dec 2006 02:53:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk,
-       "Myaskouvskey, Artiom" <artiom.myaskouvskey@intel.com>,
-       Randy Dunlap <randy.dunlap@oracle.com>, shai.satt@intel.com,
-       Andi Kleen <ak@suse.de>, hpa@zytor.com
-Subject: Re: [PATCH] efi is_memory_available ia64 hack build fix
-Message-Id: <20061208025312.70a72d4c.akpm@osdl.org>
-In-Reply-To: <20061208103336.4644.96389.sendpatchset@jackhammer.engr.sgi.com>
-References: <20061208103336.4644.96389.sendpatchset@jackhammer.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 8 Dec 2006 06:43:07 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:2646 "EHLO
+	mtagate3.de.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1425412AbWLHLnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:43:03 -0500
+Subject: Re: [RFC][PATCH] Pseudo-random number generator
+From: Jan Glauber <jan.glauber@de.ibm.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-crypto <linux-crypto@vger.kernel.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200612071943.14153.arnd@arndb.de>
+References: <1164979155.5882.23.camel@bender>
+	 <200612071606.33951.arnd@arndb.de> <1165504796.5607.17.camel@bender>
+	 <200612071943.14153.arnd@arndb.de>
+Content-Type: text/plain
+Date: Fri, 08 Dec 2006 12:42:15 +0100
+Message-Id: <1165578135.5343.15.camel@bender>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Dec 2006 02:33:36 -0800
-Paul Jackson <pj@sgi.com> wrote:
-
-> The addition of an is_available_memory() routine to some arch i386
-> code, along with an extern for it in efi.h, caused the ia64 build
-> to fail, which has the apparently identical routine, marked 'static'.
+On Thu, 2006-12-07 at 19:43 +0100, Arnd Bergmann wrote:
+> On Thursday 07 December 2006 16:19, Jan Glauber wrote:
+> > Hm, why is /dev/urandom implemented in the kernel?
+> > 
+> > It could be done completely in user-space (like libica already does)
+> > but I think having a device node where you can read from is the simplest
+> > implementation. Also, if we can solve the security flaw we could use it
+> > as replacement for /dev/urandom.
 > 
-> The ia64 build fails with:
-> 
-> arch/ia64/kernel/efi.c:229: error: static declaration of 'is_available_memory' follows non-static declaration
-> include/linux/efi.h:305: error: previous declaration of 'is_available_memory' was here              
+> urandom is more useful, because can't be implemented in user space at
+> all. /dev/urandom will use the real randomness from the kernel as a seed
+> without depleting the entropy pool. How does your /dev/prandom device
+> compare to /dev/urandom performance-wise? If it can be made to use
+> the same input data and it turns out to be significantly faster, I can
+> see some use for it.
 
-That already got named to is_memory_available()
+The performance of the PRNG without constantly adding entropy is up tp
+factor 40 faster than /dev/urandom ;- , depending on the block size of
+the read.
 
-(Which I suspect is the wrong fix, because the function serves the same
-purpose on ia64 as it does on x86[_64], but nobody listens to me)
+With the current patch it performs not so well because of the STCKE loop
+before every KMC. I think about removing them and changing the
+periodically seed to use get_random_bytes instead.
+
+Jan
+

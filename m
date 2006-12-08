@@ -1,72 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164237AbWLHAgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425474AbWLHMQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164237AbWLHAgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 19:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164235AbWLHAgh
+	id S1425474AbWLHMQk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 07:16:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425477AbWLHMQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 19:36:37 -0500
-Received: from mx2.cs.washington.edu ([128.208.2.105]:47834 "EHLO
-	mx2.cs.washington.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1164234AbWLHAgg (ORCPT
+	Fri, 8 Dec 2006 07:16:40 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:7529
+	"EHLO public.id2-vpn.continvity.gns.novell.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1425474AbWLHMQj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 19:36:36 -0500
-Date: Thu, 7 Dec 2006 16:36:31 -0800 (PST)
-From: David Rientjes <rientjes@cs.washington.edu>
-To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-cc: Amit Choudhary <amit2030@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.19] drivers/media/video/cpia2/cpia2_usb.c: Free
- previously allocated memory (in array elements) if kmalloc() returns NULL.
-In-Reply-To: <200612080109.27018.m.kozlowski@tuxland.pl>
-Message-ID: <Pine.LNX.4.64N.0612071619260.12627@attu4.cs.washington.edu>
-References: <20061206211317.b996bc34.amit2030@gmail.com>
- <200612080050.53895.m.kozlowski@tuxland.pl> <Pine.LNX.4.64N.0612071602540.3592@attu4.cs.washington.edu>
- <200612080109.27018.m.kozlowski@tuxland.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Dec 2006 07:16:39 -0500
+Message-Id: <45796600.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Fri, 08 Dec 2006 12:17:52 +0000
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <a.zummo@towertech.it>, <p_gortmaker@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] RTC driver init adjustment
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2006, Mariusz Kozlowski wrote:
+Ensure RTC driver doesn't use its timer when it doesn't get to set it up (as
+it cannot currently prevent other of its functions to be called from outside
+when not built as a module - probably this should also be addressed).
 
-> > > Just for future. Shorter and more readable version of your for(...) thing:
-> > > 
-> > > 	while (i--) {
-> > > 		...
-> > > 	}
-> > > 
-> > 
-> > No, that is not equivalent.
-> > 
-> > You want
-> > 	while (i-- >= 0) {
-> > 		...
-> > 	}
-> > 
-> 
-> Not really. That will stop at -1 not 0.
-> 
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-It depends on your intent.  Generally speaking,
+--- linux-2.6.19/drivers/char/rtc.c	2006-11-29 22:57:37.000000000 +0100
++++ 2.6.19-rtc-no-irq/drivers/char/rtc.c	2006-12-08 13:03:35.000000000 +0100
+@@ -958,6 +958,7 @@ static int __init rtc_init(void)
+ 		}
+ 	}
+ #endif
++	rtc_has_irq = 0;
+ 	printk(KERN_ERR "rtc_init: no PC rtc found\n");
+ 	return -EIO;
+ 
+@@ -972,6 +973,7 @@ found:
+ 	 * PCI Slot 2 INTA# (and some INTx# in Slot 1).
+ 	 */
+ 	if (request_irq(rtc_irq, rtc_interrupt, IRQF_SHARED, "rtc", (void *)&rtc_port)) {
++		rtc_has_irq = 0;
+ 		printk(KERN_ERR "rtc: cannot register IRQ %d\n", rtc_irq);
+ 		return -EIO;
+ 	}
+@@ -982,6 +984,9 @@ no_irq:
+ 	else
+ 		r = request_mem_region(RTC_PORT(0), RTC_IO_EXTENT, "rtc");
+ 	if (!r) {
++#ifdef RTC_IRQ
++		rtc_has_irq = 0;
++#endif
+ 		printk(KERN_ERR "rtc: I/O resource %lx is not free.\n",
+ 		       (long)(RTC_PORT(0)));
+ 		return -EIO;
+@@ -996,6 +1001,7 @@ no_irq:
+ 
+ 	if(request_irq(RTC_IRQ, rtc_int_handler_ptr, IRQF_DISABLED, "rtc", NULL)) {
+ 		/* Yeah right, seeing as irq 8 doesn't even hit the bus. */
++		rtc_has_irq = 0;
+ 		printk(KERN_ERR "rtc: IRQ %d is not free.\n", RTC_IRQ);
+ 		if (RTC_IOMAPPED)
+ 			release_region(RTC_PORT(0), RTC_IO_EXTENT);
+@@ -1012,6 +1018,7 @@ no_irq:
+ 	if (misc_register(&rtc_dev)) {
+ #ifdef RTC_IRQ
+ 		free_irq(RTC_IRQ, NULL);
++		rtc_has_irq = 0;
+ #endif
+ 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
+ 		return -ENODEV;
+@@ -1021,6 +1028,7 @@ no_irq:
+ 	if (!ent) {
+ #ifdef RTC_IRQ
+ 		free_irq(RTC_IRQ, NULL);
++		rtc_has_irq = 0;
+ #endif
+ 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
+ 		misc_deregister(&rtc_dev);
 
-	while (i--) {
-		...
-	}
 
-is never what you want.  Adding the check for being greater than 0 stops 
-potential bugs from signed int i being negative.  The only drawback on x86 
-is that it sets a byte based on the greater condition with setg and tests 
-it later with testb for every iteration.  This use of testb will _always_ 
-use the same addressable byte registers for both its operands.
-
-Based on this particular patch, I agree that
-
-	while (i-- > 0) {
-		...
-	}
-
-will do the job.  This is equivalent to the original for loop and ensures 
-that a negative value of i is never iterated on (even though it admittedly 
-would never be negative in this instance to begin with).
-
-		David

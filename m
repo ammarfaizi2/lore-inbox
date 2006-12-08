@@ -1,125 +1,78 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1947476AbWLHW6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1760150AbWLHXGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1947476AbWLHW6Q (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 17:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1947477AbWLHW6Q
+	id S1760150AbWLHXGS (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 18:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761243AbWLHXGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 17:58:16 -0500
-Received: from mga02.intel.com ([134.134.136.20]:12765 "EHLO mga02.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1947476AbWLHW6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 17:58:15 -0500
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,515,1157353200"; 
-   d="scan'208"; a="172343142:sNHT23349368"
-Message-ID: <4579EE04.9030409@intel.com>
-Date: Fri, 08 Dec 2006 14:58:12 -0800
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Fri, 8 Dec 2006 18:06:18 -0500
+Received: from ns2.gothnet.se ([82.193.160.251]:1551 "EHLO
+	GOTHNET-SMTP2.gothnet.se" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1760150AbWLHXGR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 18:06:17 -0500
+Message-ID: <1095.213.114.71.166.1165619148.squirrel@www.shipmail.org>
+In-Reply-To: <1165616236.27217.108.camel@laptopd505.fenrus.org>
+References: <4579ADE3.6040609@tungstengraphics.com>
+    <1165616236.27217.108.camel@laptopd505.fenrus.org>
+Date: Sat, 9 Dec 2006 00:05:48 +0100 (CET)
+Subject: Re: [patch 1/2] agpgart - allow user-populated memory types.
+From: Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas@tungstengraphics.com>,
+       "Dave Jones" <davej@redhat.com>, "Dave Airlie" <airlied@linux.ie>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.6 [CVS]
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Roland Dreier <rdreier@cisco.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       "Cramer, Jeb J" <jeb.j.cramer@intel.com>
-Subject: Re: [PATCH 2/6] e1000: use pcix_set_mmrbc
-References: <20061208182241.786324000@osdl.org>	<20061208182500.478856000@osdl.org>	<adalkli6p0e.fsf@cisco.com> <20061208144332.33497a98@freekitty>
-In-Reply-To: <20061208144332.33497a98@freekitty>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Dec 2006 22:58:13.0134 (UTC) FILETIME=[56B8E2E0:01C71B1C]
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3 (Normal)
+Importance: Normal
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Fri, 08 Dec 2006 13:45:05 -0800
-> Roland Dreier <rdreier@cisco.com> wrote:
-> 
->>  > -        if (hw->bus_type == e1000_bus_type_pcix) {
->>  > -            e1000_read_pci_cfg(hw, PCIX_COMMAND_REGISTER, &pcix_cmd_word);
->>  > -            e1000_read_pci_cfg(hw, PCIX_STATUS_REGISTER_HI,
->>  > -                &pcix_stat_hi_word);
->>  > -            cmd_mmrbc = (pcix_cmd_word & PCIX_COMMAND_MMRBC_MASK) >>
->>  > -                PCIX_COMMAND_MMRBC_SHIFT;
->>  > -            stat_mmrbc = (pcix_stat_hi_word & PCIX_STATUS_HI_MMRBC_MASK) >>
->>  > -                PCIX_STATUS_HI_MMRBC_SHIFT;
->>  > -            if (stat_mmrbc == PCIX_STATUS_HI_MMRBC_4K)
->>  > -                stat_mmrbc = PCIX_STATUS_HI_MMRBC_2K;
->>  > -            if (cmd_mmrbc > stat_mmrbc) {
->>  > -                pcix_cmd_word &= ~PCIX_COMMAND_MMRBC_MASK;
->>  > -                pcix_cmd_word |= stat_mmrbc << PCIX_COMMAND_MMRBC_SHIFT;
->>  > -                e1000_write_pci_cfg(hw, PCIX_COMMAND_REGISTER,
->>  > -                    &pcix_cmd_word);
->>  > -            }
->>  > -        }
->>  > +        if (hw->bus_type == e1000_bus_type_pcix)
->>  > +		e1000_pcix_set_mmrbc(hw, 2048);
+> On Fri, 2006-12-08 at 19:24 +0100, Thomas Hellström wrote:
 >>
->> This changes the behavior of the driver.  The existing driver only
->> sets MMRBC if it's bigger than min(2048, value in the status register).
->> You're setting MMRBC to 2048 even if it starts out at a smaller value.
->>
->>  - R.
-> 
-> Hmm.. looks like all that code should really be moved off to PCI bus
-> quirk/setup.  None of it is E1000 specific.  Something like this (untested):
+>> +       }
+>> +
+>> +       if (alloc_size <= PAGE_SIZE) {
+>> +               new->memory = kmalloc(alloc_size, GFP_KERNEL);
+>> +       }
+>> +       if (new->memory == NULL) {
+>> +               new->memory = vmalloc(alloc_size);
+>
+> this bit is more or less evil as well...
+>
+> 1) vmalloc is expensive all the way, higher tlb use etc etc
+> 2) mixing allocation types is just a recipe for disaster
+> 3) if this isn't a frequent operation, kmalloc is fine upto at least 2
+> pages; I doubt you'll ever want more
 
-This is not true, and I have to NAK the original patch. Part of the code Stephan is 
-removing fixes a BUG in one of our *e1000 parts* that has the wrong size.
+I understand your feelings about this, and as you probably understand, the
+kfree / vfree thingy is a result of the above allocation scheme.
 
-It would be nice to fix generix pci-x issues qith quirks for platforms but the 
-adjustment needs to stay for this specific e1000 case.
+The allocated memory holds an array of struct page pointers. The number of
+struct page pointers will range from 1 to about 8192, so the alloc size
+will range from 4bytes to 64K, but could go higher depending on
+architecture. I figured that kmalloc could fail, and, according to "linux
+device drivers" (IIRC), vmalloc is faster when allocation size exceeds 1
+page. Using only vmalloc waists far too much memory if the number of small
+buffers is high.
 
-Perhaps we can accomodate that specific case so that it is apparent from our code, as is 
-not the case right now.
+So we can't use only vmalloc, and we can't fail so we can't use only
+kmalloc. I'm open to suggestions on how to improve this.
 
-Auke
+Regards,
+Thomas
 
-PS Thanks to Jeb for fishing this out ;)
+
+>
+>
+>
+> --
+> if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+> Test the interaction between Linux and your BIOS via
+> http://www.linuxfirmwarekit.org
+>
+>
 
 
-> 
-> ---
->  drivers/pci/quirks.c |   30 ++++++++++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
-> 
-> --- pci-x.orig/drivers/pci/quirks.c
-> +++ pci-x/drivers/pci/quirks.c
-> @@ -1719,6 +1719,36 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NV
->  #endif /* CONFIG_PCI_MSI */
->  
->  EXPORT_SYMBOL(pcie_mch_quirk);
-> +
-> +/* Check that BIOS has not set PCI-X MMRBC to value bigger than board allows */
-> +static void __devinit quirk_pcix_mmrbc(struct pci_dev *dev)
-> +{
-> +	int cap;
-> +	u32 stat;
-> +	u16 cmd, m, c;
-> +
-> +	cap = pci_find_capability(dev, PCI_CAP_ID_PCIX);
-> +	if (cap <= 0)
-> +		return;
-> +
-> +	if (pci_read_config_dword(dev, cap + PCI_X_STATUS, &stat) ||
-> +	    pci_read_config_word(dev, cap + PCI_X_CMD, &cmd))
-> +		return;
-> +
-> +	m = (stat & PCI_X_STATUS_MAX_READ) >> 21;	/* max possible MRRBC*/
-> +	c = (cmd & PCI_X_CMD_MAX_READ) >> 2;		/* current MMRBC */
-> +	if (c > m) {
-> +		printk(KERN_INFO "PCIX: %s resetting MMRBC to %d\n",
-> +		       pci_name(dev), 512 << m);
-> +
-> +		cmd &= ~PCI_X_CMD_MAX_READ;
-> +		cmd |= m << 2;
-> +		pci_write_config_dword(dev, cap + PCI_X_CMD, cmd);
-> +	}
-> +}
-> +DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, quirk_pcix_mmrbc);
-> +
-> +
->  #ifdef CONFIG_HOTPLUG
->  EXPORT_SYMBOL(pci_fixup_device);
->  #endif
-> 
-> 

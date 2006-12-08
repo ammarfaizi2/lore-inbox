@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+w=401wt.eu-S1760966AbWLHSxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1761033AbWLHSxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1760966AbWLHSxA (ORCPT <rfc822;w@1wt.eu>);
-	Fri, 8 Dec 2006 13:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1760964AbWLHSxA
+	id S1761033AbWLHSxv (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 13:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1761040AbWLHSxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 13:53:00 -0500
-Received: from smtp.osdl.org ([65.172.181.25]:48720 "EHLO smtp.osdl.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1760966AbWLHSw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 13:52:59 -0500
-Message-Id: <20061208182500.684722000@osdl.org>
-References: <20061208182241.786324000@osdl.org>
-User-Agent: quilt/0.46-1
-Date: Fri, 08 Dec 2006 10:22:46 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/6] QLA2 use pci read tuning interface
-Content-Disposition: inline; filename=qla-mmrbc
+	Fri, 8 Dec 2006 13:53:51 -0500
+Received: from ag-out-0708.google.com ([72.14.246.241]:48302 "EHLO
+	ag-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1761023AbWLHSxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 13:53:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=VvcwHu4BU1V84iP8B1bCoKmtleq06/zSLaPs2sIS8gJNIUxkU5HiaeRVuMS/mBwLuTABqwX3BW4Iq4MSjF+62PSuw/hsZgjwaf0wJfMVOmil4yCntua/BiUNMaZij8QfuGMWUWI+x0a94exZRJULPmaf+edS2rM2PuFCNYKmT8Q=
+Message-ID: <2a6e8c0d0612081053v4fa0f2b0uea82fac75976b767@mail.gmail.com>
+Date: Fri, 8 Dec 2006 13:53:46 -0500
+From: "Ian E. Morgan" <penguin.wrangler@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, perex@suse.cz,
+       alsa-devel@alsa-project.org, emu10k1-devel@lists.sourceforge.net
+Subject: Loud POP from sound system during module init w/ 2.6.19
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Resend of earlier patch, driver name conflicts with porn filters)
+Since upgrading to 2.6.19, two of my boxes (one workstation, one
+notebook) started making a very loud (and scary) POP from the sound
+system when the alsa modules are loaded. Unloading and reloading the
+modules will generate another pop.
 
-Use new PCI read tuning interface. This makes sure driver doesn't
-run into PCI chipset errata problems now or in future.
-Untested on real hardware.
+I have removed any fiddling of mixer settings during module
+load/unload; same results.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+I have complied the kernel both with and without
+CONFIG_SND_AC97_POWER_SAVE; same results.
 
---- pci-x.orig/drivers/scsi/qla2xxx/qla_init.c
-+++ pci-x/drivers/scsi/qla2xxx/qla_init.c
-@@ -250,7 +250,6 @@ qla24xx_pci_config(scsi_qla_host_t *ha)
- 	uint32_t d;
- 	unsigned long flags = 0;
- 	struct device_reg_24xx __iomem *reg = &ha->iobase->isp24;
--	int pcix_cmd_reg, pcie_dctl_reg;
- 
- 	pci_set_master(ha->pdev);
- 	mwi = 0;
-@@ -265,28 +264,10 @@ qla24xx_pci_config(scsi_qla_host_t *ha)
- 	pci_write_config_byte(ha->pdev, PCI_LATENCY_TIMER, 0x80);
- 
- 	/* PCI-X -- adjust Maximum Memory Read Byte Count (2048). */
--	pcix_cmd_reg = pci_find_capability(ha->pdev, PCI_CAP_ID_PCIX);
--	if (pcix_cmd_reg) {
--		uint16_t pcix_cmd;
--
--		pcix_cmd_reg += PCI_X_CMD;
--		pci_read_config_word(ha->pdev, pcix_cmd_reg, &pcix_cmd);
--		pcix_cmd &= ~PCI_X_CMD_MAX_READ;
--		pcix_cmd |= 0x0008;
--		pci_write_config_word(ha->pdev, pcix_cmd_reg, pcix_cmd);
--	}
-+	pcix_set_mmrbc(ha->pdev, 2048);
- 
- 	/* PCIe -- adjust Maximum Read Request Size (2048). */
--	pcie_dctl_reg = pci_find_capability(ha->pdev, PCI_CAP_ID_EXP);
--	if (pcie_dctl_reg) {
--		uint16_t pcie_dctl;
--
--		pcie_dctl_reg += PCI_EXP_DEVCTL;
--		pci_read_config_word(ha->pdev, pcie_dctl_reg, &pcie_dctl);
--		pcie_dctl &= ~PCI_EXP_DEVCTL_READRQ;
--		pcie_dctl |= 0x4000;
--		pci_write_config_word(ha->pdev, pcie_dctl_reg, pcie_dctl);
--	}
-+	pcie_set_readrq(ha->pdev, 2048);
- 
- 	/* Reset expansion ROM address decode enable */
- 	pci_read_config_dword(ha->pdev, PCI_ROM_ADDRESS, &d);
+The workstation uses snd_emu10k1, the notebook snd_intel8x0, so it's
+affecting more than a single driver.
+
+Anybody else seeing this behaviour and know how to stop it?
 
 -- 
-
+Ian E. Morgan
+penguin.wrangler@gmail.com

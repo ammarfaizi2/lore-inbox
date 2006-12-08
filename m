@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1424174AbWLHDgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+w=401wt.eu-S1425784AbWLHRKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1424174AbWLHDgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 22:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1424194AbWLHDga
+	id S1425784AbWLHRKh (ORCPT <rfc822;w@1wt.eu>);
+	Fri, 8 Dec 2006 12:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1426018AbWLHRKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 22:36:30 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53493 "EHLO mx2.suse.de"
+	Fri, 8 Dec 2006 12:10:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:37441 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1424174AbWLHDg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 22:36:29 -0500
-From: Neil Brown <neilb@suse.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Fri, 8 Dec 2006 14:36:27 +1100
+	id S1425784AbWLHRKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 12:10:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: What was in the x86 merge for .20
+Date: Fri, 8 Dec 2006 18:10:29 +0100
+User-Agent: KMail/1.9.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, "Li, Shaohua" <shaohua.li@intel.com>,
+       Ingo Molnar <mingo@elte.hu>
+References: <200612080401.25746.ak@suse.de> <20061208020804.c5e5e176.akpm@osdl.org> <20061208084124.C31153@unix-os.sc.intel.com>
+In-Reply-To: <20061208084124.C31153@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17784.56763.794504.185193@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       nfs@lists.sourceforge.net
-Subject: Re: Let's get rid of those annoying "VFS is out of sync with lock manager" messages (includes proposed patch)
-In-Reply-To: message from Jesper Juhl on Thursday December 7
-References: <200612072208.16350.jesper.juhl@gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200612081810.29792.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday December 7, jesper.juhl@gmail.com wrote:
+On Friday 08 December 2006 17:41, Siddha, Suresh B wrote:
+> On Fri, Dec 08, 2006 at 02:08:04AM -0800, Andrew Morton wrote:
+> > On Fri, 8 Dec 2006 04:01:25 +0100
+> > Andi Kleen <ak@suse.de> wrote:
+> > 
+> > > [The merge already made it to Linus' tree. Sorry for sending this message
+> > > late]
+> > > 
+> > > Most of this is for both i386 and x86-64, unless when noted
+> > > 
+> > > These are just some high lights. As usual there are more
+> > > smaller optimizations, cleanups etc
+> > 
+> > My old 4-way Intel Nocona-based SDV panics during boot with "APIC mode must
+> > be flat on this system" and I don't know how to make it stop.  Help.
 > 
-> So I took Neils patch, made the change Trond suggested and the result is 
-> below.
+> I am glad that the patch atleast found a mismerge ;)
 > 
-> Comments?  Ok to merge?  
+> I see Andrew posted bunch of patches to Andi to correct this. Please let me
+> know which tree (git?) I should take a look at and see if all
+> the pieces are in order.
 
-Yes, except that you need a changelog comment at the top.  Possibly
-based very heavily on the text I wrote, but written to justify the
-patch rather than to explain the bug.
+Yes please check the mainline git tree.
 
-NeilBrown
-
-> 
-> 
-> Signed-off-by: Neil Brown <neilb@suse.de>
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
->  fs/nfs/file.c |   11 +++++++----
->  1 files changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-> index cc93865..22572af 100644
-> --- a/fs/nfs/file.c
-> +++ b/fs/nfs/file.c
-> @@ -428,8 +428,8 @@ static int do_vfs_lock(struct file *file
->  			BUG();
->  	}
->  	if (res < 0)
-> -		printk(KERN_WARNING "%s: VFS is out of sync with lock manager!\n",
-> -				__FUNCTION__);
-> +		dprintk("%s: VFS is out of sync with lock manager (res = %d)!\n",
-> +				__FUNCTION__, res);
->  	return res;
->  }
->  
-> @@ -479,10 +479,13 @@ static int do_setlk(struct file *filp, i
->  		 * we clean up any state on the server. We therefore
->  		 * record the lock call as having succeeded in order to
->  		 * ensure that locks_remove_posix() cleans it out when
-> -		 * the process exits.
-> +		 * the process exits. Make sure not to sleep if
-> +		 * someone else holds the lock.
->  		 */
-> -		if (status == -EINTR || status == -ERESTARTSYS)
-> +		if (status == -EINTR || status == -ERESTARTSYS) {
-> +			fl->fl_flags &= ~FL_SLEEP;
->  			do_vfs_lock(filp, fl);
-> +		}
->  	} else
->  		status = do_vfs_lock(filp, fl);
->  	unlock_kernel();
-> 
+-Andi

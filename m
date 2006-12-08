@@ -1,79 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1164325AbWLHBPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425427AbWLHLxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1164325AbWLHBPI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 20:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1164349AbWLHBOr
+	id S1425427AbWLHLxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425434AbWLHLxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 20:14:47 -0500
-Received: from ns1.suse.de ([195.135.220.2]:58592 "EHLO mx1.suse.de"
+	Fri, 8 Dec 2006 06:53:13 -0500
+Received: from smtp.osdl.org ([65.172.181.25]:52393 "EHLO smtp.osdl.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1164350AbWLHBOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 20:14:44 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 8 Dec 2006 12:14:56 +1100
-Message-Id: <1061208011456.30773@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 018 of 18] knfsd: Fix up some bit-rot in exp_export
-References: <20061208120939.30428.patches@notabene>
+	id S1425430AbWLHLxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:53:02 -0500
+Message-Id: <200612081152.kB8BqRG1019759@shell0.pdx.osdl.net>
+Subject: [patch 04/13] io-accounting: write-cancel accounting
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, balbir@in.ibm.com, csturtiv@sgi.com, daw@sgi.com,
+       guillaume.thouvenin@bull.net, jlan@sgi.com, nagar@watson.ibm.com,
+       tee@sgi.com
+From: akpm@osdl.org
+Date: Fri, 08 Dec 2006 03:52:26 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Andrew Morton <akpm@osdl.org>
 
-The nfsservctl systemcall isn't used but recent nfs-utils releases for
-exporting filesystems, and consequently the code that is uses -
-exp_export - has suffered some bitrot.
+Account for the number of byte writes which this process caused to not happen
+after all.
 
-Particular:
-  - some newly added fields in 'struct svc_export' are being initialised
-    properly.
-  - the return value is now always -ENOMEM ...
+Cc: Jay Lan <jlan@sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Balbir Singh <balbir@in.ibm.com>
+Cc: Chris Sturtivant <csturtiv@sgi.com>
+Cc: Tony Ernst <tee@sgi.com>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: David Wright <daw@sgi.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-This patch fixes both these problems.
+ fs/buffer.c   |    7 ++++++-
+ mm/truncate.c |    4 +++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/nfsd/export.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
---- .prev/fs/nfsd/export.c	2006-12-08 12:08:37.000000000 +1100
-+++ ./fs/nfsd/export.c	2006-12-08 12:09:31.000000000 +1100
-@@ -955,6 +955,8 @@ exp_export(struct nfsctl_export *nxp)
+diff -puN fs/buffer.c~io-accounting-write-cancel-accounting fs/buffer.c
+--- a/fs/buffer.c~io-accounting-write-cancel-accounting
++++ a/fs/buffer.c
+@@ -2823,8 +2823,13 @@ int try_to_free_buffers(struct page *pag
+ 		 * could encounter a non-uptodate page, which is unresolvable.
+ 		 * This only applies in the rare case where try_to_free_buffers
+ 		 * succeeds but the page is not freed.
++		 *
++		 * Also, during truncate, discard_buffer will have marked all
++		 * the page's buffers clean.  We discover that here and clean
++		 * the page also.
+ 		 */
+-		clear_page_dirty(page);
++		if (test_clear_page_dirty(page))
++			task_io_account_cancelled_write(PAGE_CACHE_SIZE);
+ 	}
+ out:
+ 	if (buffers_to_free) {
+diff -puN mm/truncate.c~io-accounting-write-cancel-accounting mm/truncate.c
+--- a/mm/truncate.c~io-accounting-write-cancel-accounting
++++ a/mm/truncate.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/pagemap.h>
+ #include <linux/pagevec.h>
++#include <linux/task_io_accounting_ops.h>
+ #include <linux/buffer_head.h>	/* grr. try_to_release_page,
+ 				   do_invalidatepage */
  
- 	exp = exp_get_by_name(clp, nd.mnt, nd.dentry, NULL);
+@@ -69,7 +70,8 @@ truncate_complete_page(struct address_sp
+ 	if (PagePrivate(page))
+ 		do_invalidatepage(page, 0);
  
-+	memset(&new, 0, sizeof(new));
-+
- 	/* must make sure there won't be an ex_fsid clash */
- 	if ((nxp->ex_flags & NFSEXP_FSID) &&
- 	    (fsid_key = exp_get_fsid_key(clp, nxp->ex_dev)) &&
-@@ -985,6 +987,9 @@ exp_export(struct nfsctl_export *nxp)
- 
- 	new.h.expiry_time = NEVER;
- 	new.h.flags = 0;
-+	new.ex_path = kstrdup(nxp->ex_path, GFP_KERNEL);
-+	if (! new.ex_path)
-+		goto finish;
- 	new.ex_client = clp;
- 	new.ex_mnt = nd.mnt;
- 	new.ex_dentry = nd.dentry;
-@@ -1005,10 +1010,11 @@ exp_export(struct nfsctl_export *nxp)
- 		/* failed to create at least one index */
- 		exp_do_unexport(exp);
- 		cache_flush();
--		err = -ENOMEM;
--	}
--
-+	} else
-+		err = 0;
- finish:
-+	if (new.ex_path)
-+		kfree(new.ex_path);
- 	if (exp)
- 		exp_put(exp);
- 	if (fsid_key && !IS_ERR(fsid_key))
+-	clear_page_dirty(page);
++	if (test_clear_page_dirty(page))
++		task_io_account_cancelled_write(PAGE_CACHE_SIZE);
+ 	ClearPageUptodate(page);
+ 	ClearPageMappedToDisk(page);
+ 	remove_from_page_cache(page);
+_

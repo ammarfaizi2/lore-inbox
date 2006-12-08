@@ -1,48 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1163705AbWLGXOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425339AbWLHKir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1163705AbWLGXOe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Dec 2006 18:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1163724AbWLGXOe
+	id S1425339AbWLHKir (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 05:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425340AbWLHKir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Dec 2006 18:14:34 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52466 "EHLO
-	lxorguk.ukuu.org.uk" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1163705AbWLGXOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Dec 2006 18:14:33 -0500
-Date: Thu, 7 Dec 2006 23:22:07 +0000
-From: Alan <alan@lxorguk.ukuu.org.uk>
-To: "Chris Friesen" <cfriesen@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: additional oom-killer tuneable worth submitting?
-Message-ID: <20061207232207.01af3a79@localhost.localdomain>
-In-Reply-To: <45785DDD.3000503@nortel.com>
-References: <45785DDD.3000503@nortel.com>
-X-Mailer: Sylpheed-Claws 2.6.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Dec 2006 05:38:47 -0500
+Received: from www.nabble.com ([72.21.53.35]:58266 "EHLO talk.nabble.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1425339AbWLHKip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 05:38:45 -0500
+Message-ID: <7755634.post@talk.nabble.com>
+Date: Fri, 8 Dec 2006 02:38:45 -0800 (PST)
+From: seven <horia.muntean@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Temporary random kernel hang
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Nabble-From: horia.muntean@gmail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We add a new "oom_thresh" member to the task struct.
-> We introduce a new proc entry "/proc/<pid>/oomthresh" to control it.
-> 
-> The "oom-thresh" value maps to the max expected memory consumption for 
-> that process.  As long as a process uses less memory than the specified 
-> threshold, then it is immune to the oom-killer.
 
-You've just introduced a deadlock. What happens if nobody is over that
-predicted memory and the kernel uses more resource ?
-> 
-> On an embedded platform this allows the designer to engineer the system 
-> and protect critical apps based on their expected memory consumption. 
-> If one of those apps goes crazy and starts chewing additional memory 
-> then it becomes vulnerable to the oom killer while the other apps remain 
-> protected.
+Hello,
 
-That is why we have no-overcommit support. Now there is an argument for
-a meaningful rlimit-as to go with it, and together I think they do what
-you really need.
+I have some trouble with a multithreaded java network server running on
+SLES10. At random times I see the kernel take 80% of the CPU leaving iddle
+to 0% for 30 seconds. After this period the system returns to normal
+operation state.
 
-Alan
+Below is a vmstat -a 3 recording that shows the problem:
+
+ 1  0      0 773068 529184 693048    0    0     0     0  272  201  0  0 100 
+0  0
+ 0  0      0 773068 529184 693064    0    0     0    25  317  334  1  0 99 
+1  0
+ 0  0      0 772944 529216 693248    0    0     0    24  477 1017  3  0 96 
+0  0
+ 0  0      0 772820 529256 693316    0    0     0     0  525 1376  4  1 95 
+0  0
+ 0  0      0 772448 529344 693636    0    0     0   107 1098 3306 11  2 86 
+0  0
+ 0  0      0 772324 529404 693456    0    0     0     0  723 2247  7  2 91 
+0  0
+ 0  0      0 772076 529496 693656    0    0     0   132  770 2488  7  2 91 
+1  0
+ 0  0      0 772200 529528 693608    0    0     0    91  528 1168  4  1 94 
+1  0
+ 0  0      0 772200 529532 693728    0    0     0     0  334  387  1  0 99 
+0  0
+ 0  0      0 772076 529568 693680    0    0     0    24  564 1250  4  1 95 
+0  0
+ 0  0      0 771828 529636 693784    0    0     0     0  787 2144  7  2 91 
+0  0
+ 0  0      0 771580 529744 694232    0    0     0   111  995 3081 11  2 86 
+1  0
+107  0      0 771316 529792 694904    0    0     0   153  829 1650 12 37 51 
+0  0
+113  0      0 771316 529792 694912    0    0     0     0  323  169 15 85  0 
+0  0
+116  0      0 771216 529792 694728    0    0     0    25  292  190 14 86  0 
+0  0
+122  0      0 771340 529792 694728    0    0     0    21  311  191 15 85  0 
+0  0
+138  0      0 771464 529792 694728    0    0     0     0  365  196 14 86  0 
+0  0
+146  0      0 771464 529792 694728    0    0     0     0  331  189 16 84  0 
+0  0
+150  0      0 771472 529792 694728    0    0     0     0  336  183 15 85  0 
+0  0
+146  0      0 771472 529792 694728    0    0     0     4  310  201 14 86  0 
+0  0
+145  0      0 771472 529792 694728    0    0     0     0  285  163 15 85  0 
+0  0
+procs -----------memory---------- ---swap-- -----io---- -system--
+-----cpu------
+ r  b   swpd   free  inact active   si   so    bi    bo   in   cs us sy id
+wa st
+146  0      0 771472 529792 694728    0    0     0     0  277  159 14 86  0 
+0  0
+145  0      0 771472 529792 694728    0    0     0    32  275  133 15 85  0 
+0  0
+ 0  0      0 771208 529892 694176    0    0     0     0 1012 3408 12  4 84 
+0  0
+ 0  0      0 770712 529972 694488    0    0     0   149  774 2869  8  2 90 
+0  0
+ 0  0      0 770712 529972 694488    0    0     0     0  271  195  0  0 100 
+0  0
+ 0  0      0 770728 529972 694488    0    0     0    35  269  167  0  0 100 
+1  0
+ 0  0      0 770728 529972 694488    0    0     0     7  269  189  0  0 100 
+0  0
+
+The application is memory stable ( no leaks ) and a deadlock is out of the
+question since in a deadlock case the system would freeze forever and not
+temporarily. There are around 200 - 250 tcp/ip clients connected to the
+application and 550 threads ( streaming blocking sockets are used so every
+client is managed by one reading thread and one writing thread)
+
+The same application works fine on SLES9.3
+
+Hanging Evironment:
+-----------------------------------------------------------------------------
+mustang:~ # uname -a
+Linux mustang 2.6.16.21-0.25-smp #1 SMP Tue Sep 19 07:26:15 UTC 2006 x86_64
+x86_64 x86_64 GNU/Linux
+mustang:~ # java -version
+java version "1.6.0-rc"
+Java(TM) SE Runtime Environment (build 1.6.0-rc-b104)
+Java HotSpot(TM) Server VM (build 1.6.0-rc-b104, mixed mode)
+mustang:~ # cat /etc/SuSE-release
+SUSE Linux Enterprise Server 10 (x86_64)
+VERSION = 10
+-----------------------------------------------------------------------------
+
+Working environment:
+-----------------------------------------------------------------------------
+apollo:~ # uname -a
+Linux apollo 2.6.5-7.252-smp #1 SMP Tue Feb 14 11:11:04 UTC 2006 x86_64
+x86_64 x86_64 GNU/Linux
+apollo:~ # java -version
+java version "1.6.0-rc"
+Java(TM) SE Runtime Environment (build 1.6.0-rc-b95)
+Java HotSpot(TM) 64-Bit Server VM (build 1.6.0-rc-b95, mixed mode)
+apollo:~ # cat /etc/SuSE-release
+SUSE LINUX Enterprise Server 9 (x86_64)
+VERSION = 9
+PATCHLEVEL = 3
+-----------------------------------------------------------------------------
+
+Can you give me some pointers about where to start debugging this issue?
+
+Regards,
+Horia
+-- 
+View this message in context: http://www.nabble.com/Temporary-random-kernel-hang-tf2779860.html#a7755634
+Sent from the linux-kernel mailing list archive at Nabble.com.
+
